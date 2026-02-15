@@ -1,18 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Skills Test</title>
+    <title>My Page</title>
 </head>
 <body>
-    <h1>Skills Management System - Test Version</h1>
-    <p>If you can see this, GitHub Pages is working!</p>
-    <button onclick="testFunction()">Click to Test JavaScript</button>
-    <div id="output"></div>
-    
+    <button onclick="switchView()">Click Me</button>
+
     <script>
-        function testFunction() {
-            document.getElementById('output').innerHTML = '<p>JavaScript is working! ✓</p>';
+        // Define the function in the global scope
+        function switchView() {
+            console.log("Switching view!");
+            // Your logic here
         }
     </script>
 </body>
