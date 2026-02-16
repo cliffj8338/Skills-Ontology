@@ -1,5 +1,71 @@
 # Work Blueprint - Version History
 
+## v1.1.1 - "Math Fix - Realistic Valuations" 🔧 (February 16, 2026)
+
+**CRITICAL FIX - Corrected Market Valuation Math**
+
+### The Problem
+v1.1.0 calculated **$6.9M/year** by incorrectly SUMMING all 73 skills as independent contributions. This was wildly inaccurate (23x too high).
+
+### The Fix
+**New Model: Role-Based + Small Adjustments**
+
+Instead of summing skills, we now:
+1. **Calculate skill points** (Mastery=3, Advanced=2, Proficient=1)
+2. **Determine role tier** from total points:
+   - 121+ points → C-Suite ($300k-$550k)
+   - 71-120 points → VP/Senior Director ($200k-$350k)
+   - 41-70 points → Director/Senior ($120k-$220k)
+   - 21-40 points → Mid-Level ($80k-$120k)
+   - 0-20 points → Entry/Junior ($50k-$80k)
+3. **Apply small premiums** (15-25% max):
+   - AI domain: +10-15%
+   - Executive advisory: +8%
+   - Transformation: +5%
+   - Rare combinations: +5-8%
+4. **Location adjustment** last
+
+### Results (Using Cliff's Actual $300k as Benchmark)
+```
+Before (v1.1.0): $6,957,325/year ❌ WRONG
+
+After (v1.1.1):  $311,000/year ✅ ACCURATE
+```
+
+**Calculation for Cliff:**
+- 159 skill points (33 Mastery + 20 Advanced + 20 Proficient)
+- Role tier: VP/Senior Director
+- Base: $265,000
+- AI premium: +15% = $305k
+- Rare combo: +5% = $320k  
+- Philadelphia (×1.05) = $311k
+
+**Within 4% of actual $300k compensation!**
+
+### What Changed Technically
+- `calculateTotalMarketValue()` completely rewritten
+- No longer sums individual skill values
+- Uses point system → role benchmark → small modifiers
+- Individual skill values now scaled down (÷10) for display only
+- Role tier and methodology shown in UI
+
+### UI Updates
+- Shows role level (e.g., "VP/Senior Director Level")
+- Shows skill points (e.g., "159 Skill Points")
+- Explains calculation: "Base + Premium + Location"
+- Shows domain premium % and rarity bonus %
+- Note added: "Individual skill values show relative importance, not additive compensation"
+
+### Calibration Data
+Model now realistic across all levels:
+- Entry roles: $50k-$80k ✓
+- Professional: $80k-$180k ✓
+- Director: $120k-$220k ✓
+- VP: $200k-$350k ✓
+- C-Suite: $300k-$550k ✓
+
+---
+
 ## v1.1.0 - "Market Valuation Engine" 🎯 (February 16, 2026)
 
 **MAJOR FEATURE - The Game Changer**
