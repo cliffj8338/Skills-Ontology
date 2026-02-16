@@ -1,0 +1,3954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliff Jurkiewicz - Skills Manager</title>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            background: rgba(26, 26, 46, 0.8);
+            border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .header-left h1 {
+            color: #60a5fa;
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+        
+        .header-left .subtitle {
+            color: #9ca3af;
+            font-size: 0.9em;
+        }
+        
+        #statsBar {
+            display: inline-flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .stat-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        #consentView {
+            display: none;
+            padding: 30px;
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        #settingsView {
+            display: none;
+            padding: 30px;
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        .settings-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 1em;
+            font-family: inherit;
+        }
+        
+        .settings-input:focus {
+            outline: none;
+            border-color: #60a5fa;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .settings-select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 1em;
+            font-family: inherit;
+        }
+        
+        .settings-group {
+            margin-bottom: 25px;
+        }
+        
+        .settings-label {
+            display: block;
+            color: #60a5fa;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+        
+        .settings-help {
+            color: #9ca3af;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+        
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            border-radius: 8px;
+            min-height: 45px;
+        }
+        
+        .tag-chip {
+            background: rgba(96, 165, 250, 0.2);
+            color: #60a5fa;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tag-remove {
+            cursor: pointer;
+            color: #ef4444;
+            font-weight: bold;
+        }
+        
+        .save-settings-btn {
+            width: 100%;
+            padding: 15px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .save-settings-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .view-toggle {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            border-radius: 8px;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .view-toggle button {
+            background: transparent;
+            border: none;
+            color: #9ca3af;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+        
+        .view-toggle button.active {
+            background: #60a5fa;
+            color: #fff;
+        }
+        
+        .export-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .controls {
+            background: rgba(26, 26, 46, 0.6);
+            border-bottom: 1px solid rgba(96, 165, 250, 0.1);
+            padding: 15px 30px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        
+        .controls-left {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .controls-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .filter-label {
+            color: #9ca3af;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .role-chip {
+            background: rgba(96, 165, 250, 0.1);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            padding: 6px 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85em;
+        }
+        
+        .role-chip:hover {
+            background: rgba(96, 165, 250, 0.2);
+            border-color: rgba(96, 165, 250, 0.5);
+        }
+        
+        .role-chip.active {
+            background: #60a5fa;
+            color: #fff;
+            border-color: #60a5fa;
+        }
+        
+        .level-filter {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .level-chip {
+            padding: 6px 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85em;
+            border: 1px solid transparent;
+        }
+        
+        .level-chip.mastery {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        
+        .level-chip.mastery.active {
+            background: #ef4444;
+            color: #fff;
+        }
+        
+        .level-chip.advanced {
+            background: rgba(245, 158, 11, 0.2);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+        
+        .level-chip.advanced.active {
+            background: #f59e0b;
+            color: #fff;
+        }
+        
+        .level-chip.proficient {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        
+        .level-chip.proficient.active {
+            background: #10b981;
+            color: #fff;
+        }
+        
+        .label-toggle {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(96, 165, 250, 0.3);
+            transition: .3s;
+            border-radius: 20px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #60a5fa;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+        
+        .toggle-label {
+            font-size: 0.85em;
+            color: #9ca3af;
+        }
+        
+        .main-content {
+            position: relative;
+            height: calc(100vh - 160px);
+        }
+        
+        #networkView {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        #cardView {
+            display: none;
+            padding: 30px;
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        #opportunitiesView {
+            display: none;
+            padding: 30px;
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        #blueprintView {
+            display: none;
+            padding: 30px;
+            height: 100%;
+            overflow-y: auto;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+        }
+        
+        .blueprint-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .blueprint-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid rgba(96, 165, 250, 0.3);
+        }
+        
+        .blueprint-title {
+            font-size: 2.5em;
+            color: #60a5fa;
+            margin-bottom: 10px;
+        }
+        
+        .blueprint-subtitle {
+            font-size: 1.2em;
+            color: #9ca3af;
+            margin-bottom: 20px;
+        }
+        
+        .blueprint-tagline {
+            font-size: 1em;
+            color: #d1d5db;
+            font-style: italic;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .blueprint-section {
+            background: rgba(26, 26, 46, 0.6);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .blueprint-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(96, 165, 250, 0.2);
+        }
+        
+        .blueprint-section-title {
+            font-size: 1.5em;
+            color: #60a5fa;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .section-icon {
+            font-size: 1.3em;
+        }
+        
+        .section-count {
+            background: rgba(96, 165, 250, 0.2);
+            color: #60a5fa;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            font-weight: 600;
+        }
+        
+        .coaching-tip {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+            border-left: 4px solid #fbbf24;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+        }
+        
+        .coaching-tip-title {
+            color: #fbbf24;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .coaching-tip-content {
+            color: #d1d5db;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+        
+        .coaching-tip-content ul {
+            margin: 10px 0 0 20px;
+        }
+        
+        .coaching-tip-content li {
+            margin: 5px 0;
+        }
+        
+        .outcome-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        
+        .outcome-item:hover {
+            border-color: rgba(96, 165, 250, 0.4);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .outcome-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .outcome-text {
+            flex: 1;
+            font-size: 1.05em;
+            color: #e0e0e0;
+            line-height: 1.5;
+        }
+        
+        .outcome-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .share-toggle {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        
+        .share-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .share-toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(107, 114, 128, 0.3);
+            transition: .3s;
+            border-radius: 26px;
+        }
+        
+        .share-toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        
+        .share-toggle input:checked + .share-toggle-slider {
+            background-color: #10b981;
+        }
+        
+        .share-toggle input:checked + .share-toggle-slider:before {
+            transform: translateX(24px);
+        }
+        
+        .outcome-meta {
+            display: flex;
+            gap: 15px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(96, 165, 250, 0.1);
+            flex-wrap: wrap;
+        }
+        
+        .meta-tag {
+            font-size: 0.8em;
+            padding: 4px 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .meta-tag.category {
+            background: rgba(96, 165, 250, 0.2);
+            color: #60a5fa;
+        }
+        
+        .meta-tag.evidence {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .meta-tag.sensitive {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .outcome-coaching {
+            background: rgba(251, 191, 36, 0.1);
+            border-left: 3px solid #fbbf24;
+            padding: 10px 15px;
+            margin-top: 12px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #fbbf24;
+        }
+        
+        .outcome-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        
+        .outcome-btn {
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            background: rgba(96, 165, 250, 0.1);
+            color: #60a5fa;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+        
+        .outcome-btn:hover {
+            background: rgba(96, 165, 250, 0.2);
+            border-color: rgba(96, 165, 250, 0.5);
+        }
+        
+        .add-outcome-btn {
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px dashed rgba(96, 165, 250, 0.3);
+            background: rgba(96, 165, 250, 0.05);
+            color: #60a5fa;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .add-outcome-btn:hover {
+            background: rgba(96, 165, 250, 0.1);
+            border-color: rgba(96, 165, 250, 0.5);
+        }
+        
+        .reflection-prompts {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .reflection-title {
+            color: #a78bfa;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 0.95em;
+        }
+        
+        .reflection-prompts ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .reflection-prompts li {
+            color: #d1d5db;
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            font-size: 0.9em;
+        }
+        
+        .reflection-prompts li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #a78bfa;
+        }
+        
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .value-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(96, 165, 250, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .value-card.selected {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .value-card:hover {
+            border-color: rgba(96, 165, 250, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .value-title {
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-bottom: 5px;
+        }
+        
+        .value-description {
+            font-size: 0.85em;
+            color: #9ca3af;
+            line-height: 1.4;
+        }
+        
+        .purpose-editor {
+            width: 100%;
+            min-height: 120px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            color: #e0e0e0;
+            font-size: 1em;
+            line-height: 1.6;
+            font-family: inherit;
+            resize: vertical;
+        }
+        
+        .purpose-editor:focus {
+            outline: none;
+            border-color: #60a5fa;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .export-section {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .export-title {
+            color: #ef4444;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .export-btn-large {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            background: #ef4444;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .export-btn-large:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+        
+        .opportunities-header {
+            max-width: 1400px;
+            margin: 0 auto 30px;
+        }
+        
+        .opportunities-title {
+            font-size: 2em;
+            color: #60a5fa;
+            margin-bottom: 10px;
+        }
+        
+        .opportunities-subtitle {
+            color: #9ca3af;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+        
+        .opportunities-filters {
+            background: rgba(26, 26, 46, 0.6);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .filter-section-label {
+            color: #60a5fa;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .match-slider {
+            width: 200px;
+        }
+        
+        .match-value {
+            color: #fbbf24;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .opportunities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .opportunity-card {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.8) 0%, rgba(26, 26, 46, 0.6) 100%);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .opportunity-card:hover {
+            border-color: rgba(96, 165, 250, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .opportunity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .opportunity-company {
+            font-size: 0.9em;
+            color: #9ca3af;
+            margin-bottom: 5px;
+        }
+        
+        .opportunity-title {
+            font-size: 1.2em;
+            color: #e0e0e0;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        .match-score {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .match-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        .match-circle.high {
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 3px solid #10b981;
+            color: #10b981;
+        }
+        
+        .match-circle.medium {
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.05) 100%);
+            border: 3px solid #f59e0b;
+            color: #f59e0b;
+        }
+        
+        .match-circle.low {
+            background: radial-gradient(circle, rgba(107, 114, 128, 0.2) 0%, rgba(107, 114, 128, 0.05) 100%);
+            border: 3px solid #6b7280;
+            color: #6b7280;
+        }
+        
+        .match-label {
+            font-size: 0.75em;
+            color: #9ca3af;
+            text-transform: uppercase;
+        }
+        
+        .opportunity-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 0.85em;
+            color: #9ca3af;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .matched-skills {
+            margin-bottom: 15px;
+        }
+        
+        .matched-skills-title {
+            font-size: 0.85em;
+            color: #60a5fa;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .skill-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .skill-chip-match {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+        }
+        
+        .skill-chip-gap {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+        }
+        
+        .opportunity-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(96, 165, 250, 0.1);
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            background: rgba(96, 165, 250, 0.1);
+            color: #60a5fa;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .action-btn:hover {
+            background: rgba(96, 165, 250, 0.2);
+            border-color: rgba(96, 165, 250, 0.5);
+        }
+        
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(96, 165, 250, 0.2);
+            border-top-color: #60a5fa;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .domain-card {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.8) 0%, rgba(26, 26, 46, 0.6) 100%);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .domain-card:hover {
+            border-color: rgba(96, 165, 250, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .domain-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid rgba(96, 165, 250, 0.2);
+        }
+        
+        .domain-icon {
+            font-size: 24px;
+        }
+        
+        .domain-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #60a5fa;
+        }
+        
+        .skill-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border-left: 3px solid transparent;
+            margin-bottom: 8px;
+        }
+        
+        .skill-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .skill-name {
+            flex: 1;
+            font-size: 0.95em;
+        }
+        
+        .skill-badge {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+        }
+        
+        .skill-years {
+            background: rgba(96, 165, 250, 0.15);
+            color: #60a5fa;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            margin-left: auto;
+        }
+        
+        /* Network styles */
+        .node circle {
+            stroke: #fff;
+            stroke-width: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .node.dimmed circle {
+            opacity: 0.2;
+        }
+        
+        .node.highlighted circle {
+            stroke-width: 4px;
+            filter: brightness(1.3);
+        }
+        
+        .node text {
+            font-size: 11px;
+            pointer-events: none;
+            text-shadow: 0 0 4px #000, 0 0 4px #000, 0 0 4px #000;
+            fill: #e0e0e0;
+            display: block;
+        }
+        
+        .node text.hidden {
+            display: none;
+        }
+        
+        .node.role text {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .node.center text {
+            font-size: 16px;
+            font-weight: bold;
+            fill: #60a5fa;
+            text-shadow: 0 0 6px #000, 0 0 6px #000;
+        }
+        
+        .node.skill text {
+            font-size: 10px;
+        }
+        
+        .link {
+            stroke: #4a5568;
+            stroke-opacity: 0.3;
+            stroke-width: 1.5px;
+            fill: none;
+        }
+        
+        .link.dimmed {
+            opacity: 0.1;
+        }
+        
+        .link.highlighted {
+            stroke: #60a5fa;
+            stroke-opacity: 0.8;
+            stroke-width: 2.5px;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(26, 26, 46, 0.98);
+            border: 1px solid #60a5fa;
+            border-radius: 8px;
+            padding: 15px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            max-width: 350px;
+            font-size: 13px;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .tooltip-title {
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+        
+        .tooltip-level {
+            color: #fbbf24;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .tooltip-roles {
+            color: #d1d5db;
+            line-height: 1.6;
+        }
+        
+        .tooltip-role-tag {
+            display: inline-block;
+            background: rgba(96, 165, 250, 0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin: 2px;
+            font-size: 11px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: #1a1a2e;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            border-radius: 12px;
+            padding: 0;
+            max-width: 900px;
+            max-height: 85vh;
+            overflow: hidden;
+            width: 90%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 30px 30px 20px 30px;
+            border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.8) 0%, rgba(26, 26, 46, 0.6) 100%);
+        }
+        
+        .modal-header-left {
+            flex: 1;
+        }
+        
+        .modal-title {
+            font-size: 1.8em;
+            color: #60a5fa;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+        
+        .modal-subtitle {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .modal-level-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .modal-level-badge.mastery {
+            background: #ef4444;
+            color: #fff;
+        }
+        
+        .modal-level-badge.advanced {
+            background: #f59e0b;
+            color: #fff;
+        }
+        
+        .modal-level-badge.proficient {
+            background: #10b981;
+            color: #fff;
+        }
+        
+        .modal-years {
+            color: #9ca3af;
+            font-size: 0.9em;
+        }
+        
+        .modal-core-badge {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #000;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 700;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 2em;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        
+        .modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .modal-section {
+            margin-bottom: 30px;
+        }
+        
+        .modal-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .modal-section-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #60a5fa;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .modal-section-icon {
+            font-size: 1.2em;
+        }
+        
+        .evidence-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .evidence-item {
+            background: rgba(96, 165, 250, 0.05);
+            border-left: 3px solid #60a5fa;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            line-height: 1.6;
+        }
+        
+        .evidence-item strong {
+            color: #60a5fa;
+        }
+        
+        .story-text {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 8px;
+            line-height: 1.7;
+            color: #d1d5db;
+        }
+        
+        .roles-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .role-tag {
+            background: rgba(96, 165, 250, 0.2);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 0.85em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .related-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .related-skill-chip {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .related-skill-chip:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .placeholder-text {
+            color: #6b7280;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+        
+        .export-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .export-option {
+            background: rgba(96, 165, 250, 0.1);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .export-option:hover {
+            background: rgba(96, 165, 250, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .export-option-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .export-option-desc {
+            font-size: 0.85em;
+            color: #9ca3af;
+        }
+        
+        /* ===== MOBILE RESPONSIVENESS ===== */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .header-left h1 {
+                font-size: 1.3em;
+            }
+            
+            .header-right {
+                width: 100%;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .view-toggle {
+                width: 100%;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+            }
+            
+            .view-toggle button {
+                font-size: 0.85em;
+                padding: 8px 12px;
+                flex: 0 1 auto;
+            }
+            
+            .export-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .controls {
+                flex-direction: column;
+                padding: 15px;
+            }
+            
+            .filter-group {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .role-chip {
+                font-size: 0.75em;
+                padding: 6px 10px;
+            }
+            
+            .opportunities-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .opportunity-card {
+                padding: 15px;
+            }
+            
+            .opportunity-actions {
+                flex-direction: column;
+            }
+            
+            .action-btn {
+                width: 100%;
+            }
+            
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .blueprint-section {
+                padding: 20px;
+            }
+            
+            .export-buttons {
+                flex-direction: column;
+            }
+            
+            .export-btn-large {
+                width: 100%;
+            }
+            
+            /* Network view adjustments for mobile */
+            #networkView {
+                touch-action: pan-x pan-y;
+            }
+            
+            .network-controls {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .label-toggle {
+                font-size: 0.75em;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-left h1 {
+                font-size: 1.1em;
+            }
+            
+            .header-left .subtitle {
+                font-size: 0.75em;
+            }
+            
+            .view-toggle button {
+                font-size: 0.75em;
+                padding: 6px 10px;
+            }
+            
+            .filter-label {
+                font-size: 0.7em;
+            }
+            
+            .role-chip {
+                font-size: 0.7em;
+                padding: 5px 8px;
+            }
+            
+            .blueprint-title {
+                font-size: 1.8em;
+            }
+            
+            .blueprint-subtitle {
+                font-size: 1em;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <h1><span id="userName">Your</span> Work Blueprint</h1>
+            <div class="subtitle">
+                <span id="statsBar">73 Skills • 9 Career Roles • Interactive Ontology</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="view-toggle">
+                <button class="active" onclick="switchView('network')">Skills Ontology</button>
+                <button onclick="switchView('opportunities')">Opportunities</button>
+                <button onclick="switchView('blueprint')">Work Blueprint</button>
+                <button onclick="switchView('consent')">Consent & Sharing</button>
+                <button onclick="switchView('settings')">⚙️ Settings</button>
+            </div>
+            <button class="export-btn" onclick="openExportModal()">📤 Export</button>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <div class="controls-left">
+            <div class="filter-group" id="skillsViewToggle" style="display: flex;">
+                <span class="filter-label">VIEW:</span>
+                <div class="role-chip active" data-view="network" onclick="toggleSkillsView('network')">Network</div>
+                <div class="role-chip" data-view="card" onclick="toggleSkillsView('card')">Card</div>
+            </div>
+            
+            <div class="filter-group">
+                <span class="filter-label">ROLES:</span>
+                <div class="role-chip active" data-role="all" onclick="filterByRole('all')">All</div>
+                <div class="role-chip" data-role="strategy" onclick="filterByRole('strategy')">VP Strategy</div>
+                <div class="role-chip" data-role="futurist" onclick="filterByRole('futurist')">Futurist</div>
+                <div class="role-chip" data-role="pilot" onclick="filterByRole('pilot')">Pilot</div>
+                <div class="role-chip" data-role="musician" onclick="filterByRole('musician')">Musician</div>
+                <div class="role-chip" data-role="advocate" onclick="filterByRole('advocate')">Advocate</div>
+                <div class="role-chip" data-role="tech" onclick="filterByRole('tech')">Tech</div>
+                <div class="role-chip" data-role="creative" onclick="filterByRole('creative')">Creative</div>
+                <div class="role-chip" data-role="operations" onclick="filterByRole('operations')">Operations</div>
+                <div class="role-chip" data-role="entrepreneur" onclick="filterByRole('entrepreneur')">Entrepreneur</div>
+            </div>
+            
+            <div class="filter-group">
+                <span class="filter-label">LEVELS:</span>
+                <div class="level-filter">
+                    <div class="level-chip mastery" onclick="filterByLevel('mastery')">Mastery (33)</div>
+                    <div class="level-chip advanced" onclick="filterByLevel('advanced')">Advanced (35)</div>
+                    <div class="level-chip proficient" onclick="filterByLevel('proficient')">Proficient (3)</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls-right" id="networkControls" style="display: flex;">
+            <div class="label-toggle">
+                <span class="toggle-label">Role Labels</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked onchange="toggleLabels('role')">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="label-toggle">
+                <span class="toggle-label">Skill Labels</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked onchange="toggleLabels('skill')">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <svg id="networkView"></svg>
+        <div id="cardView"></div>
+        <div id="opportunitiesView"></div>
+        <div id="blueprintView"></div>
+        <div id="consentView"></div>
+        <div id="settingsView"></div>
+    </div>
+    
+    <div class="tooltip" id="tooltip"></div>
+    
+    <!-- Skill Detail Modal -->
+    <div class="modal" id="skillModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <h2 class="modal-title" id="skillDetailTitle"></h2>
+                    <div class="modal-subtitle" id="skillDetailSubtitle"></div>
+                </div>
+                <button class="modal-close" onclick="closeSkillModal()">×</button>
+            </div>
+            <div class="modal-body" id="skillDetailBody"></div>
+        </div>
+    </div>
+    
+    <!-- Export Modal -->
+    <div class="modal" id="exportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <h2 class="modal-title">Export Profile</h2>
+                </div>
+                <button class="modal-close" onclick="closeExportModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: #9ca3af; margin-bottom: 20px;">Select a format to export your skills profile:</p>
+                <div class="export-options">
+                    <div class="export-option" onclick="exportProfile('resume')">
+                        <div class="export-option-title">📄 Resume</div>
+                        <div class="export-option-desc">Classic resume format</div>
+                    </div>
+                    <div class="export-option" onclick="exportProfile('capability')">
+                        <div class="export-option-title">🎯 Capability Statement</div>
+                        <div class="export-option-desc">One-page overview</div>
+                    </div>
+                    <div class="export-option" onclick="exportProfile('linkedin')">
+                        <div class="export-option-title">💼 LinkedIn Profile</div>
+                        <div class="export-option-desc">Profile sections</div>
+                    </div>
+                    <div class="export-option" onclick="exportProfile('interview')">
+                        <div class="export-option-title">💬 Interview Prep</div>
+                        <div class="export-option-desc">STAR stories</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== USER DATA CONFIGURATION =====
+        // This will eventually come from onboarding wizard
+        
+        const userData = {
+            profile: {
+                name: "Cliff Jurkiewicz", // Will be set during onboarding
+                email: "",
+                location: "Philadelphia, Pennsylvania, US"
+            },
+            preferences: {
+                seniorityLevel: "Executive", // Options: Entry, Mid, Senior, Executive
+                targetTitles: ["VP Strategy", "Chief Strategy Officer", "Head of Strategy", "Director of Strategy"],
+                seniorityKeywords: ['vp', 'vice president', 'chief', 'head of', 'director', 'principal', 'senior director'],
+                excludeRoles: ['engineer', 'developer', 'designer', 'analyst', 'coordinator', 'specialist', 
+                              'junior', 'mid-level', 'associate', 'intern', 'entry', 'qa', 'frontend', 'backend',
+                              'full stack', 'fullstack', 'software', 'devops', 'ui/ux', 'data scientist'],
+                strategicKeywords: ['strategy', 'strategic', 'transformation', 'innovation', 'evangelist', 
+                                   'thought leader', 'advisory', 'ai', 'ml', 'product', 'growth', 'business'],
+                targetIndustries: [], // Optional: filter by industry
+                minSalary: null, // Optional: minimum salary requirement
+                locationPreferences: ["US", "Remote"],
+                minimumSkillMatches: 3, // Minimum number of skills that must match
+                minimumMatchScore: 50 // Minimum match percentage
+            }
+        };
+        
+        // Data structure
+        const skillsData = {
+            roles: [
+                { id: "strategy", name: "VP Global Strategy", icon: "🎯", color: "#ef4444" },
+                { id: "futurist", name: "Futurist & Evangelist", icon: "🔮", color: "#f59e0b" },
+                { id: "pilot", name: "IFR Pilot", icon: "✈️", color: "#3b82f6" },
+                { id: "musician", name: "Musician", icon: "🎵", color: "#8b5cf6" },
+                { id: "advocate", name: "Recovery Advocate", icon: "💚", color: "#10b981" },
+                { id: "tech", name: "Technology Strategist", icon: "⚙️", color: "#06b6d4" },
+                { id: "creative", name: "Creative Director", icon: "🎨", color: "#ec4899" },
+                { id: "operations", name: "Operations Leader", icon: "🍔", color: "#f97316" },
+                { id: "entrepreneur", name: "Entrepreneur", icon: "🚀", color: "#a855f7" }
+            ],
+            
+            skills: [
+                // Strategic Core
+                { name: "Enterprise AI Strategy", level: "Mastery", roles: ["strategy", "futurist", "tech"], key: false },
+                { name: "Go-to-Market Strategy", level: "Advanced", roles: ["strategy", "tech", "entrepreneur"], key: false },
+                { name: "Business Case Development", level: "Advanced", roles: ["strategy", "tech", "entrepreneur"], key: false },
+                { name: "C-Suite Advisory & Influence", level: "Advanced", roles: ["strategy", "futurist"], key: false },
+                { name: "Customer Advisory Board Leadership", level: "Mastery", roles: ["strategy"], key: false },
+                { name: "Strategic Foresight & Market Prediction", level: "Mastery", roles: ["strategy", "futurist"], key: true },
+                { name: "Organizational Transformation", level: "Advanced", roles: ["strategy", "tech", "entrepreneur"], key: false },
+                { name: "Risk Assessment & Mitigation", level: "Mastery", roles: ["strategy", "pilot", "operations", "entrepreneur"], key: false },
+                { name: "Revenue Pipeline Development", level: "Advanced", roles: ["strategy", "operations", "entrepreneur"], key: false },
+                { name: "Financial Management & Budget Discipline", level: "Proficient", roles: ["strategy", "operations", "entrepreneur"], key: false },
+                
+                // Technology & Product
+                { name: "AI/ML Product Strategy", level: "Mastery", roles: ["strategy", "tech", "futurist"], key: false },
+                { name: "Talent Intelligence Platform Design", level: "Mastery", roles: ["strategy", "tech"], key: false },
+                { name: "HR Technology Market Intelligence", level: "Mastery", roles: ["strategy", "futurist"], key: false },
+                { name: "Technology Lifecycle & Disruption Analysis", level: "Mastery", roles: ["futurist", "tech"], key: false },
+                { name: "Computational & Systems Thinking", level: "Advanced", roles: ["tech", "pilot"], key: false },
+                { name: "Platform Integration Architecture", level: "Advanced", roles: ["tech", "entrepreneur"], key: false },
+                { name: "Weak Signal Detection & Trend Recognition", level: "Mastery", roles: ["futurist", "strategy"], key: true },
+                { name: "Spatial Reasoning & 3D Problem Solving", level: "Mastery", roles: ["pilot", "musician", "creative", "tech"], key: true },
+                
+                // Futurist & Innovation
+                { name: "Technology Trend Forecasting", level: "Mastery", roles: ["futurist", "strategy"], key: true },
+                { name: "Predictive Framework Development", level: "Mastery", roles: ["futurist", "strategy"], key: true },
+                { name: "Disruptive Innovation Identification", level: "Mastery", roles: ["futurist", "strategy"], key: false },
+                { name: "Scenario Planning & Strategic Alternatives", level: "Advanced", roles: ["strategy", "futurist"], key: false },
+                { name: "Human-AI Collaboration Model Design", level: "Mastery", roles: ["futurist", "strategy"], key: true },
+                
+                // Communication & Influence
+                { name: "Executive Narrative & Storytelling", level: "Mastery", roles: ["futurist", "strategy"], key: false },
+                { name: "Technical Concept Translation", level: "Mastery", roles: ["futurist", "tech", "strategy"], key: true },
+                { name: "Public Speaking & Keynote Delivery", level: "Mastery", roles: ["futurist", "musician"], key: false },
+                { name: "Thought Leadership Authorship", level: "Mastery", roles: ["futurist"], key: false },
+                { name: "Rhetorical Strategy & Persuasion", level: "Mastery", roles: ["futurist", "strategy"], key: false },
+                { name: "Media Relations & Spokesperson Work", level: "Mastery", roles: ["futurist"], key: false },
+                { name: "Podcast Production & Hosting", level: "Advanced", roles: ["futurist", "musician"], key: false },
+                { name: "Real-Time Improvisation", level: "Mastery", roles: ["musician", "futurist"], key: false },
+                { name: "Industry Evangelism", level: "Mastery", roles: ["futurist"], key: false },
+                { name: "Teaching & Knowledge Transfer", level: "Advanced", roles: ["futurist", "advocate"], key: false },
+                
+                // Domain Expertise
+                { name: "Talent Acquisition Strategy", level: "Mastery", roles: ["strategy"], key: false },
+                { name: "Candidate Experience Architecture", level: "Mastery", roles: ["strategy"], key: true },
+                { name: "AI Ethics & Responsible Implementation", level: "Advanced", roles: ["strategy", "futurist"], key: false },
+                { name: "Workforce Intelligence & Analytics", level: "Mastery", roles: ["strategy"], key: false },
+                { name: "Talent Marketplace Dynamics", level: "Advanced", roles: ["strategy", "futurist"], key: false },
+                { name: "Behavioral Economics in Talent", level: "Advanced", roles: ["strategy", "futurist"], key: false },
+                { name: "Future of Work Anthropology", level: "Mastery", roles: ["futurist", "strategy"], key: false },
+                { name: "Generational Workforce Analysis", level: "Advanced", roles: ["futurist", "strategy"], key: false },
+                { name: "AI Impact on Human Work", level: "Mastery", roles: ["futurist", "strategy"], key: false },
+                
+                // Leadership & Interpersonal
+                { name: "Enterprise Client Relationship Management", level: "Mastery", roles: ["strategy", "entrepreneur"], key: false },
+                { name: "Strategic Team Building", level: "Advanced", roles: ["strategy", "operations", "tech", "entrepreneur"], key: false },
+                { name: "Executive Mentorship", level: "Advanced", roles: ["strategy"], key: false },
+                { name: "Multi-Stakeholder Alignment", level: "Advanced", roles: ["strategy", "tech", "entrepreneur"], key: false },
+                { name: "Executive Presence & Authority", level: "Mastery", roles: ["strategy", "futurist"], key: false },
+                { name: "Crisis Leadership & Decision Making", level: "Mastery", roles: ["pilot", "operations", "advocate", "strategy", "entrepreneur"], key: true },
+                { name: "High-Pressure Performance", level: "Mastery", roles: ["pilot", "musician", "operations"], key: false },
+                
+                // Creative & Performance
+                { name: "Creative Direction", level: "Mastery", roles: ["creative", "entrepreneur"], key: false },
+                { name: "Live Musical Performance", level: "Mastery", roles: ["musician"], key: false },
+                { name: "Music Composition & Arrangement", level: "Advanced", roles: ["musician"], key: false },
+                { name: "Music Production & Artist Development", level: "Advanced", roles: ["musician"], key: false },
+                { name: "Stage Command & Audience Connection", level: "Mastery", roles: ["musician", "futurist"], key: false },
+                { name: "Performance Logistics", level: "Proficient", roles: ["musician"], key: false },
+                
+                // Aviation
+                { name: "Single-Pilot IFR in Complex Airspace", level: "Mastery", roles: ["pilot"], key: false },
+                { name: "Single-Pilot Resource Management", level: "Mastery", roles: ["pilot"], key: false },
+                { name: "Weather Systems Analysis", level: "Advanced", roles: ["pilot"], key: false },
+                { name: "ATC Communication & Coordination", level: "Mastery", roles: ["pilot"], key: false },
+                { name: "Emergency Airmanship", level: "Mastery", roles: ["pilot"], key: true },
+                { name: "Aeronautical Decision Making Under Uncertainty", level: "Mastery", roles: ["pilot"], key: false },
+                { name: "Situational Awareness in Dynamic Environments", level: "Mastery", roles: ["pilot", "operations"], key: false },
+                { name: "Multi-Channel Cognitive Load Management", level: "Mastery", roles: ["pilot", "operations"], key: false },
+                
+                // Analytical & Research
+                { name: "Data-Driven Strategy Development", level: "Advanced", roles: ["strategy", "tech"], key: false },
+                { name: "Market & Competitive Intelligence", level: "Advanced", roles: ["strategy", "futurist"], key: false },
+                { name: "Research Synthesis & Pattern Recognition", level: "Mastery", roles: ["futurist", "strategy"], key: true },
+                { name: "Critical Analysis & Evaluation", level: "Advanced", roles: ["strategy", "tech", "futurist"], key: false },
+                
+                // Advocacy
+                { name: "Recovery Leadership & Peer Mentorship", level: "Mastery", roles: ["advocate"], key: false },
+                { name: "Mental Health & Addiction Advocacy", level: "Mastery", roles: ["advocate"], key: false },
+                { name: "Nonprofit Founding & Operations", level: "Advanced", roles: ["advocate", "entrepreneur"], key: false },
+                { name: "Public Vulnerability as Leadership Tool", level: "Mastery", roles: ["advocate", "futurist"], key: true },
+                { name: "Stigma Reduction Through Education", level: "Advanced", roles: ["advocate"], key: false },
+                { name: "Dual Diagnosis Navigation", level: "Advanced", roles: ["advocate"], key: false }
+            ],
+            
+            skillDetails: {} // Will be loaded from skill_evidence.json
+        };
+        
+        // Load skill evidence dynamically
+        fetch('skill_evidence.json')
+            .then(response => response.json())
+            .then(data => {
+                skillsData.skillDetails = data;
+                console.log('✓ Loaded evidence for', Object.keys(data).length, 'skills');
+            })
+            .catch(error => console.error('Error loading skill evidence:', error));
+
+        const levelColors = {
+            "Mastery": "#ef4444",
+            "Advanced": "#f59e0b",
+            "Proficient": "#10b981"
+        };
+
+        let currentView = 'network';
+        let activeRole = 'all';
+        let activeLevel = null;
+        let simulation;
+
+        function initNetwork() {
+            const width = window.innerWidth;
+            const height = window.innerHeight - 160;
+            
+            const svg = d3.select("#networkView")
+                .attr("width", width)
+                .attr("height", height);
+
+            svg.selectAll("*").remove();
+
+            // Create nodes
+            const nodes = [
+                { id: "center", name: "Cliff Jurkiewicz", type: "center", x: width/2, y: height/2, fx: width/2, fy: height/2 }
+            ];
+
+            // Add role nodes
+            skillsData.roles.forEach((role, i) => {
+                const angle = (i / skillsData.roles.length) * 2 * Math.PI;
+                const radius = 200;
+                nodes.push({
+                    id: role.id,
+                    name: role.name,
+                    type: "role",
+                    color: role.color,
+                    x: width/2 + Math.cos(angle) * radius,
+                    y: height/2 + Math.sin(angle) * radius
+                });
+            });
+
+            // Add skill nodes
+            skillsData.skills.forEach((skill, i) => {
+                nodes.push({
+                    id: `skill-${i}`,
+                    name: skill.name,
+                    type: "skill",
+                    level: skill.level,
+                    roles: skill.roles,
+                    key: skill.key
+                });
+            });
+
+            // Create links
+            const links = [];
+            
+            // Center to roles
+            skillsData.roles.forEach(role => {
+                links.push({ source: "center", target: role.id, type: "role" });
+            });
+
+            // Roles to skills
+            skillsData.skills.forEach((skill, i) => {
+                skill.roles.forEach(roleId => {
+                    links.push({ 
+                        source: roleId, 
+                        target: `skill-${i}`,
+                        type: "skill"
+                    });
+                });
+            });
+
+            // Create simulation
+            simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links).id(d => d.id).distance(d => {
+                    if (d.type === "role") return 180;  // Center to roles - increased spacing
+                    return 220;  // Roles to skills - much more space
+                }))
+                .force("charge", d3.forceManyBody().strength(d => {
+                    if (d.type === "center") return 0;
+                    if (d.type === "role") return -400;  // Stronger repulsion between roles
+                    return -250;  // Skills push away from each other
+                }))
+                .force("center", d3.forceCenter(width / 2, height / 2))
+                .force("collision", d3.forceCollide().radius(d => {
+                    if (d.type === "center") return 80;
+                    if (d.type === "role") return 80;  // Larger collision radius
+                    return 60;  // Skills need more space
+                }))
+                .force("x", d3.forceX(width / 2).strength(0.03))
+                .force("y", d3.forceY(height / 2).strength(0.03));
+
+            // Draw links
+            const link = svg.append("g")
+                .selectAll("line")
+                .data(links)
+                .join("line")
+                .attr("class", "link");
+
+            // Draw nodes
+            const node = svg.append("g")
+                .selectAll("g")
+                .data(nodes)
+                .join("g")
+                .attr("class", d => `node ${d.type}`)
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+
+            node.append("circle")
+                .attr("r", d => {
+                    if (d.type === "center") return 40;
+                    if (d.type === "role") return 30;
+                    return d.key ? 12 : 8;
+                })
+                .attr("fill", d => {
+                    if (d.type === "center") return "#60a5fa";
+                    if (d.type === "role") return d.color;
+                    return levelColors[d.level];
+                })
+                .on("click", (event, d) => {
+                    if (d.type === "role") {
+                        filterByRole(d.id);
+                    } else if (d.type === "skill") {
+                        event.stopPropagation();
+                        openSkillModal(d.name, d);
+                    }
+                })
+                .on("mouseover", (event, d) => showTooltip(event, d))
+                .on("mouseout", hideTooltip);
+
+            node.append("text")
+                .each(function(d) {
+                    if (d.type === 'skill') {
+                        // Split long skill names into multiple lines
+                        const words = d.name.split(' ');
+                        const maxWidth = 15; // characters per line
+                        let lines = [];
+                        let currentLine = '';
+                        
+                        words.forEach(word => {
+                            if ((currentLine + ' ' + word).length > maxWidth && currentLine.length > 0) {
+                                lines.push(currentLine);
+                                currentLine = word;
+                            } else {
+                                currentLine = currentLine ? currentLine + ' ' + word : word;
+                            }
+                        });
+                        if (currentLine) lines.push(currentLine);
+                        
+                        // Create tspan for each line
+                        const text = d3.select(this);
+                        lines.forEach((line, i) => {
+                            text.append('tspan')
+                                .text(line)
+                                .attr('x', 0)
+                                .attr('dy', i === 0 ? -13 - (lines.length - 1) * 5 : 10)
+                                .attr('text-anchor', 'middle');
+                        });
+                    } else {
+                        // Single line for center and role nodes
+                        d3.select(this)
+                            .text(d.name)
+                            .attr("x", 0)
+                            .attr("y", d => {
+                                if (d.type === "center") return -45;
+                                if (d.type === "role") return -35;
+                                return -13;
+                            })
+                            .attr("text-anchor", "middle");
+                    }
+                });
+
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node.attr("transform", d => `translate(${d.x},${d.y})`);
+            });
+
+            window.networkData = { nodes, links, svg, link, node };
+        }
+
+        function initCardView() {
+            const cardView = document.getElementById('cardView');
+            
+            // Group skills by domain
+            const domains = {
+                "Strategic Core": { icon: "🎯", skills: [] },
+                "Technology & Product": { icon: "⚙️", skills: [] },
+                "Futurist & Innovation": { icon: "🔮", skills: [] },
+                "Communication & Influence": { icon: "📣", skills: [] },
+                "Domain Expertise": { icon: "🎓", skills: [] },
+                "Leadership & Interpersonal": { icon: "👥", skills: [] },
+                "Creative & Performance": { icon: "🎵", skills: [] },
+                "Aviation & Operational": { icon: "✈️", skills: [] },
+                "Analytical & Research": { icon: "🔬", skills: [] },
+                "Advocacy & Lived Experience": { icon: "💚", skills: [] }
+            };
+            
+            // Categorize skills
+            skillsData.skills.forEach(skill => {
+                const skillName = skill.name;
+                
+                if (skillName.includes("Strategy") || skillName.includes("Business") || skillName.includes("Revenue") || skillName.includes("Financial") || skillName.includes("Risk") || skillName.includes("Advisory") || skillName.includes("Transformation")) {
+                    domains["Strategic Core"].skills.push(skill);
+                } else if (skillName.includes("AI/ML") || skillName.includes("Technology") || skillName.includes("Platform") || skillName.includes("Computational") || skillName.includes("Integration") || skillName.includes("Spatial")) {
+                    domains["Technology & Product"].skills.push(skill);
+                } else if (skillName.includes("Trend") || skillName.includes("Predictive") || skillName.includes("Innovation") || skillName.includes("Scenario") || skillName.includes("Human-AI") || skillName.includes("Weak Signal")) {
+                    domains["Futurist & Innovation"].skills.push(skill);
+                } else if (skillName.includes("Narrative") || skillName.includes("Translation") || skillName.includes("Speaking") || skillName.includes("Authorship") || skillName.includes("Rhetorical") || skillName.includes("Media") || skillName.includes("Podcast") || skillName.includes("Improvisation") || skillName.includes("Evangelism") || skillName.includes("Teaching")) {
+                    domains["Communication & Influence"].skills.push(skill);
+                } else if (skillName.includes("Talent") || skillName.includes("Candidate") || skillName.includes("Ethics") || skillName.includes("Workforce") || skillName.includes("Marketplace") || skillName.includes("Behavioral") || skillName.includes("Future of Work") || skillName.includes("Generational") || skillName.includes("AI Impact")) {
+                    domains["Domain Expertise"].skills.push(skill);
+                } else if (skillName.includes("Client Relationship") || skillName.includes("Team Building") || skillName.includes("Mentorship") || skillName.includes("Stakeholder") || skillName.includes("Executive Presence") || skillName.includes("Crisis Leadership") || skillName.includes("High-Pressure")) {
+                    domains["Leadership & Interpersonal"].skills.push(skill);
+                } else if (skillName.includes("Creative") || skillName.includes("Musical") || skillName.includes("Music") || skillName.includes("Stage") || skillName.includes("Performance Logistics")) {
+                    domains["Creative & Performance"].skills.push(skill);
+                } else if (skillName.includes("Pilot") || skillName.includes("IFR") || skillName.includes("Weather") || skillName.includes("ATC") || skillName.includes("Emergency") || skillName.includes("Aeronautical") || skillName.includes("Situational Awareness") || skillName.includes("Cognitive Load")) {
+                    domains["Aviation & Operational"].skills.push(skill);
+                } else if (skillName.includes("Data-Driven") || skillName.includes("Market") || skillName.includes("Research") || skillName.includes("Critical Analysis")) {
+                    domains["Analytical & Research"].skills.push(skill);
+                } else if (skillName.includes("Recovery") || skillName.includes("Mental Health") || skillName.includes("Nonprofit") || skillName.includes("Vulnerability") || skillName.includes("Stigma") || skillName.includes("Diagnosis")) {
+                    domains["Advocacy & Lived Experience"].skills.push(skill);
+                }
+            });
+            
+            let html = '<div class="cards-grid">';
+            
+            Object.entries(domains).forEach(([domainName, data]) => {
+                if (data.skills.length === 0) return;
+                
+                html += `
+                    <div class="domain-card">
+                        <div class="domain-header">
+                            <span class="domain-icon">${data.icon}</span>
+                            <span class="domain-title">${domainName}</span>
+                        </div>
+                        <div class="skills-list">
+                `;
+                
+                data.skills.forEach(skill => {
+                    const levelClass = skill.level.toLowerCase();
+                    const keyBadge = skill.key ? '<span class="skill-badge">CORE</span>' : '';
+                    const rolesList = skill.roles.map(roleId => {
+                        const role = skillsData.roles.find(r => r.id === roleId);
+                        return role ? role.name : roleId;
+                    }).join(', ');
+                    
+                    // Get years of experience from skillDetails
+                    const details = skillsData.skillDetails && skillsData.skillDetails[skill.name];
+                    const years = details && details.years ? details.years + ' yrs' : '';
+                    const yearsBadge = years ? `<span class="skill-years">${years}</span>` : '';
+                    
+                    html += `
+                        <div class="skill-item ${levelClass}" title="${rolesList}" onclick='openSkillModalFromCard("${skill.name.replace(/'/g, "\\'")}")' style="cursor: pointer;">
+                            <div class="skill-dot" style="background: ${levelColors[skill.level]}"></div>
+                            <span class="skill-name">${skill.name}</span>
+                            ${yearsBadge}
+                            ${keyBadge}
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            cardView.innerHTML = html;
+        }
+
+        let currentSkillsView = 'network'; // Track whether showing network or card within Skills Ontology
+        
+        // Initialize user interface on load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set user name in header
+            const userNameEl = document.getElementById('userName');
+            if (userData.profile.name) {
+                userNameEl.textContent = userData.profile.name + "'s";
+            } else {
+                userNameEl.textContent = "Your";
+            }
+            
+            initNetwork();
+            initCardView();
+        });
+        
+        function switchView(view) {
+            currentView = view;
+            document.querySelectorAll('.view-toggle button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const networkControls = document.getElementById('networkControls');
+            const skillsViewToggle = document.getElementById('skillsViewToggle');
+            const controls = document.querySelector('.controls');
+            
+            // Hide all views
+            document.getElementById('networkView').style.display = 'none';
+            document.getElementById('cardView').style.display = 'none';
+            document.getElementById('opportunitiesView').style.display = 'none';
+            document.getElementById('blueprintView').style.display = 'none';
+            document.getElementById('consentView').style.display = 'none';
+            document.getElementById('settingsView').style.display = 'none';
+            networkControls.style.display = 'none';
+            controls.style.display = 'none';
+            
+            // Show selected view
+            if (view === 'network') {
+                // Skills Ontology view
+                controls.style.display = 'flex';
+                if (currentSkillsView === 'network') {
+                    document.getElementById('networkView').style.display = 'block';
+                    networkControls.style.display = 'flex';
+                } else {
+                    document.getElementById('cardView').style.display = 'block';
+                }
+                updateStatsBar();
+            } else if (view === 'opportunities') {
+                document.getElementById('opportunitiesView').style.display = 'block';
+                if (!window.opportunitiesInitialized) {
+                    initOpportunities();
+                    window.opportunitiesInitialized = true;
+                }
+                updateStatsBar();
+            } else if (view === 'blueprint') {
+                document.getElementById('blueprintView').style.display = 'block';
+                if (!window.blueprintInitialized) {
+                    initBlueprint();
+                    window.blueprintInitialized = true;
+                }
+                updateStatsBar();
+            } else if (view === 'consent') {
+                document.getElementById('consentView').style.display = 'block';
+                if (!window.consentInitialized) {
+                    initConsent();
+                    window.consentInitialized = true;
+                }
+                updateStatsBar();
+            } else if (view === 'settings') {
+                document.getElementById('settingsView').style.display = 'block';
+                if (!window.settingsInitialized) {
+                    initSettings();
+                    window.settingsInitialized = true;
+                }
+                updateStatsBar();
+            }
+        }
+        
+        function toggleSkillsView(view) {
+            currentSkillsView = view;
+            document.querySelectorAll('#skillsViewToggle .role-chip').forEach(chip => {
+                chip.classList.toggle('active', chip.dataset.view === view);
+            });
+            
+            const networkControls = document.getElementById('networkControls');
+            
+            if (view === 'network') {
+                document.getElementById('networkView').style.display = 'block';
+                document.getElementById('cardView').style.display = 'none';
+                networkControls.style.display = 'flex';
+            } else {
+                document.getElementById('networkView').style.display = 'none';
+                document.getElementById('cardView').style.display = 'block';
+                networkControls.style.display = 'none';
+            }
+        }
+        
+        function updateStatsBar() {
+            const statsBar = document.getElementById('statsBar');
+            if (currentView === 'network') {
+                statsBar.innerHTML = '73 Skills • 9 Career Roles • Interactive Ontology';
+            } else if (currentView === 'opportunities') {
+                const matches = opportunitiesData.filter(j => j.matchScore >= currentMatchThreshold).length;
+                statsBar.innerHTML = `${matches} Matching Opportunities • ${currentMatchThreshold}%+ Match Threshold`;
+            } else if (currentView === 'blueprint') {
+                const sharedOutcomes = blueprintData.outcomes.filter(o => o.shared).length;
+                const selectedValues = blueprintData.values.filter(v => v.selected).length;
+                statsBar.innerHTML = `${sharedOutcomes} Outcomes • ${selectedValues} Values • Purpose Statement`;
+            } else if (currentView === 'consent') {
+                const totalShared = blueprintData.outcomes.filter(o => o.shared).length + 
+                                   blueprintData.values.filter(v => v.selected).length;
+                statsBar.innerHTML = `${totalShared} Items Shared • Data Privacy & Control`;
+            } else if (currentView === 'settings') {
+                statsBar.innerHTML = `Profile Settings • ${userData.preferences.seniorityLevel} Level • Customize Your Experience`;
+            }
+        }
+        
+        function toggleLabels(type) {
+            if (!window.networkData) return;
+            const { node } = window.networkData;
+            
+            node.selectAll('text')
+                .filter(d => d.type === type)
+                .classed('hidden', function() {
+                    return !this.classList.contains('hidden');
+                });
+        }
+
+        function filterByRole(roleId) {
+            activeRole = roleId;
+            
+            // Update UI
+            document.querySelectorAll('.role-chip').forEach(chip => {
+                chip.classList.toggle('active', chip.dataset.role === roleId);
+            });
+
+            if (!window.networkData) return;
+
+            const { nodes, links, node, link } = window.networkData;
+
+            if (roleId === 'all') {
+                node.classed('dimmed', false).classed('highlighted', false);
+                link.classed('dimmed', false).classed('highlighted', false);
+                
+                // Show all labels
+                node.selectAll('text').classed('hidden', false);
+                return;
+            }
+
+            // Find skills that belong to this role
+            const relevantSkills = skillsData.skills
+                .filter(s => s.roles.includes(roleId))
+                .map((s, i) => `skill-${skillsData.skills.indexOf(s)}`);
+
+            node.classed('dimmed', d => {
+                if (d.type === 'center') return false;
+                if (d.type === 'role') return d.id !== roleId;
+                return !relevantSkills.includes(d.id);
+            });
+
+            node.classed('highlighted', d => {
+                if (d.type === 'role') return d.id === roleId;
+                return relevantSkills.includes(d.id);
+            });
+
+            link.classed('dimmed', d => {
+                return d.source.id !== roleId && !relevantSkills.includes(d.target.id);
+            });
+
+            link.classed('highlighted', d => {
+                return d.source.id === roleId && relevantSkills.includes(d.target.id);
+            });
+            
+            // STORYTELLING MODE: Hide skill labels that aren't in this role
+            node.selectAll('text').classed('hidden', function(d) {
+                if (d.type === 'center') return false;
+                if (d.type === 'role') return d.id !== roleId; // Hide non-active role labels
+                return !relevantSkills.includes(d.id); // Hide non-relevant skill labels
+            });
+        }
+
+        function filterByLevel(level) {
+            activeLevel = activeLevel === level ? null : level;
+            
+            event.target.classList.toggle('active');
+
+            if (!window.networkData) return;
+            const { node } = window.networkData;
+
+            if (!activeLevel) {
+                node.classed('dimmed', false);
+                return;
+            }
+
+            node.classed('dimmed', d => {
+                if (d.type !== 'skill') return false;
+                return d.level.toLowerCase() !== activeLevel;
+            });
+        }
+
+        function highlightSkill(skillData) {
+            if (!window.networkData) return;
+            const { node, link } = window.networkData;
+
+            // Highlight the skill and its connected roles
+            const connectedRoles = skillData.roles;
+
+            node.classed('dimmed', d => {
+                if (d.type === 'center') return false;
+                if (d.type === 'role') return !connectedRoles.includes(d.id);
+                return d.id !== skillData.id;
+            });
+
+            node.classed('highlighted', d => {
+                if (d.type === 'role') return connectedRoles.includes(d.id);
+                return d.id === skillData.id;
+            });
+
+            link.classed('highlighted', d => {
+                return d.target.id === skillData.id;
+            });
+        }
+
+        function showTooltip(event, d) {
+            if (d.type === 'center') return;
+
+            const tooltip = d3.select('#tooltip');
+            let html = `<div class="tooltip-title">${d.name}</div>`;
+
+            if (d.type === 'skill') {
+                html += `<div class="tooltip-level">${d.level}${d.key ? ' • Core Differentiator' : ''}</div>`;
+                html += `<div class="tooltip-roles">Used in: `;
+                d.roles.forEach(roleId => {
+                    const role = skillsData.roles.find(r => r.id === roleId);
+                    html += `<span class="tooltip-role-tag">${role.name}</span>`;
+                });
+                html += `</div>`;
+            } else if (d.type === 'role') {
+                const skillCount = skillsData.skills.filter(s => s.roles.includes(d.id)).length;
+                html += `<div class="tooltip-roles">${skillCount} skills in this role</div>`;
+            }
+
+            tooltip
+                .html(html)
+                .style('opacity', 1)
+                .style('left', (event.pageX + 10) + 'px')
+                .style('top', (event.pageY - 10) + 'px');
+        }
+
+        function hideTooltip() {
+            d3.select('#tooltip').style('opacity', 0);
+        }
+
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            if (d.type !== 'center') {
+                d.fx = null;
+                d.fy = null;
+            }
+        }
+
+        function openExportModal() {
+            document.getElementById('exportModal').classList.add('active');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('active');
+        }
+        
+        function openSkillModal(skillName, skillData) {
+            const modal = document.getElementById('skillModal');
+            const title = document.getElementById('skillDetailTitle');
+            const subtitle = document.getElementById('skillDetailSubtitle');
+            const body = document.getElementById('skillDetailBody');
+            
+            // Set title
+            title.textContent = skillName;
+            
+            // Set subtitle (level, years, core badge)
+            const levelClass = skillData.level.toLowerCase();
+            const coreBadge = skillData.key ? '<span class="modal-core-badge">⭐ CORE DIFFERENTIATOR</span>' : '';
+            const details = skillsData.skillDetails[skillName] || {};
+            const years = details.years || 'N/A';
+            
+            subtitle.innerHTML = `
+                <span class="modal-level-badge ${levelClass}">${skillData.level}</span>
+                <span class="modal-years">${years} years experience</span>
+                ${coreBadge}
+            `;
+            
+            // Build body content
+            let bodyHTML = '';
+            
+            // Roles section
+            bodyHTML += `
+                <div class="modal-section">
+                    <div class="modal-section-title">
+                        <span class="modal-section-icon">🎯</span>
+                        Used in These Roles
+                    </div>
+                    <div class="roles-tags">
+            `;
+            skillData.roles.forEach(roleId => {
+                const role = skillsData.roles.find(r => r.id === roleId);
+                if (role) {
+                    bodyHTML += `<div class="role-tag">${role.icon} ${role.name}</div>`;
+                }
+            });
+            bodyHTML += `</div></div>`;
+            
+            // Evidence section
+            if (details.evidence && details.evidence.length > 0) {
+                bodyHTML += `
+                    <div class="modal-section">
+                        <div class="modal-section-title">
+                            <span class="modal-section-icon">✓</span>
+                            Evidence & Defensibility
+                        </div>
+                        <ul class="evidence-list">
+                `;
+                details.evidence.forEach(item => {
+                    bodyHTML += `<li class="evidence-item">${item}</li>`;
+                });
+                bodyHTML += `</ul></div>`;
+            } else {
+                bodyHTML += `
+                    <div class="modal-section">
+                        <div class="modal-section-title">
+                            <span class="modal-section-icon">✓</span>
+                            Evidence & Defensibility
+                        </div>
+                        <p class="placeholder-text">Evidence for this skill will be added soon.</p>
+                    </div>
+                `;
+            }
+            
+            // Story section
+            if (details.story) {
+                bodyHTML += `
+                    <div class="modal-section">
+                        <div class="modal-section-title">
+                            <span class="modal-section-icon">📖</span>
+                            Context & Story
+                        </div>
+                        <div class="story-text">${details.story}</div>
+                    </div>
+                `;
+            }
+            
+            // Related skills section
+            if (details.relatedSkills && details.relatedSkills.length > 0) {
+                bodyHTML += `
+                    <div class="modal-section">
+                        <div class="modal-section-title">
+                            <span class="modal-section-icon">🔗</span>
+                            Related Skills
+                        </div>
+                        <div class="related-skills">
+                `;
+                details.relatedSkills.forEach(relatedSkill => {
+                    bodyHTML += `<div class="related-skill-chip" onclick="openRelatedSkill('${relatedSkill}')">${relatedSkill}</div>`;
+                });
+                bodyHTML += `</div></div>`;
+            }
+            
+            body.innerHTML = bodyHTML;
+            modal.classList.add('active');
+        }
+        
+        function closeSkillModal() {
+            document.getElementById('skillModal').classList.remove('active');
+        }
+        
+        function openRelatedSkill(skillName) {
+            const skill = skillsData.skills.find(s => s.name === skillName);
+            if (skill) {
+                openSkillModal(skillName, skill);
+            }
+        }
+        
+        function openSkillModalFromCard(skillName) {
+            const skill = skillsData.skills.find(s => s.name === skillName);
+            if (skill) {
+                openSkillModal(skillName, skill);
+            }
+        }
+
+        function exportProfile(format) {
+            alert(`Export to ${format} - Coming soon!\n\nThis will generate a ${format} based on your current role filter: ${activeRole}`);
+            closeExportModal();
+        }
+
+        // Resize handler
+        
+        // ===== WORK BLUEPRINT SYSTEM =====
+        
+        let blueprintData = {
+            outcomes: [],
+            values: [],
+            purpose: "",
+            shareSettings: {}
+        };
+        
+        function initBlueprint() {
+            extractOutcomesFromEvidence();
+            inferValues();
+            renderBlueprint();
+        }
+        
+        function extractOutcomesFromEvidence() {
+            const outcomes = [];
+            
+            // Pattern-based extraction from skill evidence
+            const quantifiedPattern = /\$[\d,]+[MBK]?|\d+%|\d+ years?/gi;
+            const comparisonPattern = /before|early|first|ahead of|vs\.|compared to/i;
+            const scalePattern = /Fortune \d+|global|enterprise|unicorn|\$[\d.]+[MB] valuation/i;
+            
+            Object.entries(skillsData.skillDetails || {}).forEach(([skillName, details]) => {
+                if (!details.evidence) return;
+                
+                details.evidence.forEach(evidenceItem => {
+                    const hasQuantity = quantifiedPattern.test(evidenceItem);
+                    const hasComparison = comparisonPattern.test(evidenceItem);
+                    const hasScale = scalePattern.test(evidenceItem);
+                    
+                    // High-value outcomes have quantification + (comparison OR scale)
+                    if (hasQuantity && (hasComparison || hasScale)) {
+                        outcomes.push({
+                            text: evidenceItem,
+                            skill: skillName,
+                            category: categorizeOutcome(skillName, evidenceItem),
+                            shared: true,
+                            sensitive: isSensitiveContent(evidenceItem),
+                            coachingSuggestion: generateCoachingFor(evidenceItem)
+                        });
+                    }
+                });
+            });
+            
+            blueprintData.outcomes = outcomes;
+        }
+        
+        function categorizeOutcome(skillName, evidence) {
+            if (evidence.includes('$') || evidence.includes('revenue') || evidence.includes('sales')) return 'Business Impact';
+            if (evidence.includes('predict') || evidence.includes('accuracy') || evidence.includes('%')) return 'Strategic Foresight';
+            if (evidence.includes('emergency') || evidence.includes('crisis') || evidence.includes('zero')) return 'Crisis Leadership';
+            if (evidence.includes('founded') || evidence.includes('built') || evidence.includes('created')) return 'Entrepreneurial';
+            if (evidence.includes('published') || evidence.includes('speaker') || evidence.includes('featured')) return 'Thought Leadership';
+            if (evidence.includes('recovery') || evidence.includes('sobriety') || evidence.includes('advocacy')) return 'Advocacy Impact';
+            return 'Professional Achievement';
+        }
+        
+        function isSensitiveContent(text) {
+            const sensitiveKeywords = ['recovery', 'sobriety', 'addiction', 'Kyle', 'son', 'death', 'overdose', 'mental health'];
+            return sensitiveKeywords.some(keyword => text.toLowerCase().includes(keyword));
+        }
+        
+        function generateCoachingFor(outcome) {
+            if (!outcome.includes('$') && !outcome.includes('%')) {
+                return "Consider adding quantification: What was the measurable impact?";
+            }
+            if (!outcome.includes('client') && !outcome.includes('company') && !outcome.includes('people')) {
+                return "Strengthen by adding: Who benefited from this outcome?";
+            }
+            if (outcome.length < 50) {
+                return "Add context: What decision did this enable or what changed as a result?";
+            }
+            return null;
+        }
+        
+        function inferValues() {
+            // Inferred from your memory and evidence
+            blueprintData.values = [
+                { 
+                    name: "Intellectual Honesty", 
+                    description: "Analyzing to find truth, not confirm bias. Challenging assumptions before accepting conclusions.",
+                    selected: true,
+                    inferred: true
+                },
+                { 
+                    name: "Predictive Over Reactive", 
+                    description: "85-95% accuracy through pattern recognition. Seeing futures others can't see.",
+                    selected: true,
+                    inferred: true
+                },
+                { 
+                    name: "Human Agency in AI", 
+                    description: "Human-in-the-lead, not human-in-the-loop. AI amplifies human capability without replacing judgment.",
+                    selected: true,
+                    inferred: true
+                },
+                { 
+                    name: "Public Vulnerability as Leadership", 
+                    description: "Sharing recovery story and personal loss to reduce stigma and build trust.",
+                    selected: true,
+                    inferred: true
+                },
+                { 
+                    name: "Evidence-Based Foresight", 
+                    description: "Frameworks proven through prediction. No borrowed authority, only earned credibility.",
+                    selected: true,
+                    inferred: true
+                },
+                { 
+                    name: "Strategic Patience", 
+                    description: "The future is plural, not singular. Building for multiple scenarios, not one path.",
+                    selected: false,
+                    inferred: true
+                },
+                { 
+                    name: "Stigma Reduction Through Action", 
+                    description: "Founded Kyle's Wish Foundation. Mental health advocacy through lived experience.",
+                    selected: true,
+                    inferred: true
+                },
+                { 
+                    name: "Innovation & Disruption", 
+                    description: "Standard value - watching edges of markets where constraints breed innovation",
+                    selected: false,
+                    inferred: false
+                },
+                { 
+                    name: "Long-term Systems Thinking", 
+                    description: "Standard value - focusing on structural mechanics over surface symptoms",
+                    selected: false,
+                    inferred: false
+                }
+            ];
+            
+            blueprintData.purpose = "I help organizations see futures they can't see themselves, using predictive frameworks and strategic foresight to navigate transformation while preserving human agency. I deploy vulnerability as a leadership tool to reduce stigma and build trust that enables honest discourse about hard problems.";
+        }
+        
+        function renderBlueprint() {
+            const view = document.getElementById('blueprintView');
+            
+            view.innerHTML = `
+                <div class="blueprint-container">
+                    <div class="blueprint-header">
+                        <h1 class="blueprint-title">Work Blueprint</h1>
+                        <p class="blueprint-subtitle">Your Consent-Based Professional Profile</p>
+                        <p class="blueprint-tagline">Control what you share. Tell your story, your way.</p>
+                    </div>
+                    
+                    ${renderOutcomesSection()}
+                    ${renderValuesSection()}
+                    ${renderPurposeSection()}
+                    ${renderExportSection()}
+                </div>
+            `;
+        }
+        
+        function renderOutcomesSection() {
+            const outcomes = blueprintData.outcomes;
+            
+            return `
+                <div class="blueprint-section">
+                    <div class="blueprint-section-header">
+                        <div class="blueprint-section-title">
+                            <span class="section-icon">📊</span>
+                            <span>Outcomes I Drive</span>
+                            <span class="section-count">${outcomes.length}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="coaching-tip">
+                        <div class="coaching-tip-title">
+                            💡 COACHING TIP
+                        </div>
+                        <div class="coaching-tip-content">
+                            Top performers quantify impact. Notice the pattern:
+                            <ul>
+                                <li><strong>Numbers:</strong> $200M, 85%, 5 years, zero injuries</li>
+                                <li><strong>Comparisons:</strong> "5 years early", "before market consensus"</li>
+                                <li><strong>Consequences:</strong> What changed because of this?</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div id="outcomesContainer">
+                        ${outcomes.map((outcome, idx) => renderOutcomeItem(outcome, idx)).join('')}
+                    </div>
+                    
+                    <button class="add-outcome-btn" onclick="addCustomOutcome()">
+                        <span>➕</span>
+                        <span>Add Custom Outcome</span>
+                    </button>
+                    
+                    <div class="reflection-prompts">
+                        <div class="reflection-title">💭 REFLECTION PROMPTS</div>
+                        <ul>
+                            <li>What problem did you solve that others couldn't?</li>
+                            <li>What changed because of your work?</li>
+                            <li>What would have happened without you?</li>
+                            <li>How do you know this worked? (proof/evidence)</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderOutcomeItem(outcome, idx) {
+            const shareChecked = outcome.shared ? 'checked' : '';
+            const sensitiveWarning = outcome.sensitive ? 
+                '<span class="meta-tag sensitive">⚠️ SENSITIVE: Consider context before sharing</span>' : '';
+            const coachingNote = outcome.coachingSuggestion ? 
+                `<div class="outcome-coaching">💡 ${outcome.coachingSuggestion}</div>` : '';
+            
+            return `
+                <div class="outcome-item" data-idx="${idx}">
+                    <div class="outcome-header">
+                        <div class="outcome-text">${outcome.text}</div>
+                        <div class="outcome-controls">
+                            <label class="share-toggle">
+                                <input type="checkbox" ${shareChecked} onchange="toggleOutcomeShare(${idx})">
+                                <span class="share-toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="outcome-meta">
+                        <span class="meta-tag category">📂 ${outcome.category}</span>
+                        <span class="meta-tag evidence">✓ From: ${outcome.skill}</span>
+                        ${sensitiveWarning}
+                    </div>
+                    
+                    ${coachingNote}
+                    
+                    <div class="outcome-actions">
+                        <button class="outcome-btn" onclick="editOutcome(${idx})">✎ Edit</button>
+                        <button class="outcome-btn" onclick="viewOutcomeEvidence(${idx})">🔍 View Evidence</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderValuesSection() {
+            const values = blueprintData.values;
+            const selectedCount = values.filter(v => v.selected).length;
+            
+            return `
+                <div class="blueprint-section">
+                    <div class="blueprint-section-header">
+                        <div class="blueprint-section-title">
+                            <span class="section-icon">⭐</span>
+                            <span>Values & Principles</span>
+                            <span class="section-count">${selectedCount} selected</span>
+                        </div>
+                    </div>
+                    
+                    <div class="coaching-tip">
+                        <div class="coaching-tip-title">
+                            💡 VALUES THAT SHOW, NOT TELL
+                        </div>
+                        <div class="coaching-tip-content">
+                            These values are <strong>inferred from your evidence</strong> - they're not aspirational, they're demonstrated. 
+                            Select 3-5 that best represent how you actually operate.
+                        </div>
+                    </div>
+                    
+                    <div class="values-grid">
+                        ${values.map((value, idx) => renderValueCard(value, idx)).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderValueCard(value, idx) {
+            const selectedClass = value.selected ? 'selected' : '';
+            const inferredBadge = value.inferred ? '<span style="color: #10b981; font-size: 0.75em;">✓ Inferred from evidence</span>' : '';
+            
+            return `
+                <div class="value-card ${selectedClass}" onclick="toggleValue(${idx})">
+                    <div class="value-title">${value.name}</div>
+                    <div class="value-description">${value.description}</div>
+                    ${inferredBadge}
+                </div>
+            `;
+        }
+        
+        function renderPurposeSection() {
+            return `
+                <div class="blueprint-section">
+                    <div class="blueprint-section-header">
+                        <div class="blueprint-section-title">
+                            <span class="section-icon">🎯</span>
+                            <span>Purpose Statement</span>
+                        </div>
+                    </div>
+                    
+                    <div class="coaching-tip">
+                        <div class="coaching-tip-title">
+                            💡 YOUR "WHY"
+                        </div>
+                        <div class="coaching-tip-content">
+                            This statement is inferred from your work and advocacy. Edit to make it yours.
+                            Strong purpose statements connect what you do to why it matters.
+                        </div>
+                    </div>
+                    
+                    <textarea class="purpose-editor" onchange="updatePurpose(this.value)">${blueprintData.purpose}</textarea>
+                </div>
+            `;
+        }
+        
+        function renderExportSection() {
+            const sharedOutcomes = blueprintData.outcomes.filter(o => o.shared).length;
+            const sharedValues = blueprintData.values.filter(v => v.selected).length;
+            
+            return `
+                <div class="export-section">
+                    <div class="export-title">📤 Export Your Work Blueprint</div>
+                    <p style="color: #d1d5db; margin-bottom: 20px;">
+                        Sharing: ${sharedOutcomes} outcomes, ${sharedValues} values, purpose statement
+                    </p>
+                    <div class="export-buttons">
+                        <button class="export-btn-large" onclick="exportBlueprint('pdf')">
+                            📄 Export as PDF
+                        </button>
+                        <button class="export-btn-large" onclick="exportBlueprint('json')">
+                            💾 Export as JSON
+                        </button>
+                        <button class="export-btn-large" onclick="exportBlueprint('link')">
+                            🔗 Create Shareable Link
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Blueprint interaction functions
+        function toggleOutcomeShare(idx) {
+            blueprintData.outcomes[idx].shared = !blueprintData.outcomes[idx].shared;
+        }
+        
+        function editOutcome(idx) {
+            alert('Outcome editor coming in next update!');
+        }
+        
+        function viewOutcomeEvidence(idx) {
+            const outcome = blueprintData.outcomes[idx];
+            const skill = skillsData.skills.find(s => s.name === outcome.skill);
+            if (skill) {
+                openSkillModal(outcome.skill, skill);
+            }
+        }
+        
+        function addCustomOutcome() {
+            alert('Custom outcome creator coming in next update!\n\nUse reflection prompts to think through:\n• What you achieved\n• How it was measured\n• Who benefited\n• What changed');
+        }
+        
+        function toggleValue(idx) {
+            blueprintData.values[idx].selected = !blueprintData.values[idx].selected;
+            renderBlueprint();
+        }
+        
+        function updatePurpose(newPurpose) {
+            blueprintData.purpose = newPurpose;
+        }
+        
+        function exportBlueprint(format) {
+            const sharedData = {
+                outcomes: blueprintData.outcomes.filter(o => o.shared),
+                values: blueprintData.values.filter(v => v.selected),
+                purpose: blueprintData.purpose
+            };
+            
+            if (format === 'json') {
+                const dataStr = JSON.stringify(sharedData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'work-blueprint.json';
+                link.click();
+            } else if (format === 'pdf') {
+                alert('PDF export coming in next update!\n\nWill generate formatted Work Blueprint with:\n• Selected outcomes\n• Core values\n• Purpose statement\n• Years of experience\n• Contact preferences');
+            } else if (format === 'link') {
+                alert('Shareable link generation coming in next update!\n\nWill create time-limited link with:\n• Encrypted data\n• Expiration date\n• Access tracking\n• Revocation option');
+            }
+        }
+        
+        // ===== OPPORTUNITIES SYSTEM =====
+
+        let currentMatchThreshold = 60;
+        let opportunitiesData = [];
+        
+        function initOpportunities() {
+            const view = document.getElementById('opportunitiesView');
+            
+            view.innerHTML = `
+                <div class="opportunities-header">
+                    <h2 class="opportunities-title">Job Opportunities</h2>
+                    <p class="opportunities-subtitle">Matching your skills to open positions across the US</p>
+                    
+                    <div class="opportunities-filters">
+                        <div class="filter-section">
+                            <label class="filter-section-label">Minimum Match Score</label>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <input type="range" min="0" max="100" value="60" class="match-slider" 
+                                       oninput="updateMatchThreshold(this.value)">
+                                <span class="match-value" id="matchValue">60%+</span>
+                            </div>
+                        </div>
+                        
+                        <div class="filter-section">
+                            <label class="filter-section-label">Search Roles</label>
+                            <button class="action-btn" onclick="searchOpportunities()" style="width: auto;">
+                                🔍 Find Matching Jobs
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="opportunitiesResults"></div>
+            `;
+            
+            // Load sample data for now
+            loadSampleOpportunities();
+        }
+        
+        function updateMatchThreshold(value) {
+            currentMatchThreshold = parseInt(value);
+            document.getElementById('matchValue').textContent = value + '%+';
+            filterOpportunities();
+        }
+        
+        function calculateMatchScore(jobSkills, requiredSkills) {
+            let totalPoints = 0;
+            let earnedPoints = 0;
+            let matchedSkills = [];
+            let gapSkills = [];
+            
+            // Build lookup of your skills
+            const yourSkillsMap = {};
+            skillsData.skills.forEach(skill => {
+                yourSkillsMap[skill.name.toLowerCase()] = skill;
+                // Also add simplified versions
+                const simplified = skill.name.toLowerCase()
+                    .replace(/\s*&\s*/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                yourSkillsMap[simplified] = skill;
+            });
+            
+            // Score each required skill
+            requiredSkills.forEach(reqSkill => {
+                const reqLower = reqSkill.toLowerCase();
+                let matched = false;
+                let matchPoints = 5; // base points for any match
+                
+                // Try exact match first
+                if (yourSkillsMap[reqLower]) {
+                    const yourSkill = yourSkillsMap[reqLower];
+                    matched = true;
+                    
+                    // Weight by proficiency
+                    if (yourSkill.level === 'Mastery') {
+                        matchPoints = 10;
+                    } else if (yourSkill.level === 'Advanced') {
+                        matchPoints = 7;
+                    } else if (yourSkill.level === 'Proficient') {
+                        matchPoints = 5;
+                    }
+                    
+                    // Bonus for core differentiators
+                    if (yourSkill.key) {
+                        matchPoints += 5;
+                    }
+                    
+                    matchedSkills.push(yourSkill.name);
+                } else {
+                    // Try fuzzy matching for related skills
+                    for (const [skillName, skillData] of Object.entries(yourSkillsMap)) {
+                        if (reqLower.includes(skillName) || skillName.includes(reqLower)) {
+                            matched = true;
+                            matchPoints = 3; // partial match points
+                            matchedSkills.push(skillData.name);
+                            break;
+                        }
+                    }
+                }
+                
+                totalPoints += 10; // Each required skill worth 10 points max
+                if (matched) {
+                    earnedPoints += matchPoints;
+                } else {
+                    gapSkills.push(reqSkill);
+                }
+            });
+            
+            const matchPercent = totalPoints > 0 ? Math.round((earnedPoints / totalPoints) * 100) : 0;
+            
+            return {
+                score: matchPercent,
+                matched: [...new Set(matchedSkills)], // Remove duplicates
+                gaps: gapSkills
+            };
+        }
+        
+        function loadSampleOpportunities() {
+            // Show loading state
+            const resultsDiv = document.getElementById('opportunitiesResults');
+            resultsDiv.innerHTML = `
+                <div class="loading-state">
+                    <div class="loading-spinner"></div>
+                    <p style="font-size: 1.2em;">Searching RemoteOK for real jobs...</p>
+                    <p style="margin-top: 10px; color: #6b7280;">Fetching opportunities that match your skills</p>
+                </div>
+            `;
+            
+            // Fetch real jobs from RemoteOK API
+            fetchRemoteOKJobs();
+        }
+        
+        async function fetchRemoteOKJobs() {
+            try {
+                // RemoteOK provides a public JSON API
+                const response = await fetch('https://remoteok.com/api');
+                const data = await response.json();
+                
+                // First item is metadata, skip it
+                const jobs = data.slice(1);
+                
+                // STEP 1: Filter by ROLE LEVEL using user preferences
+                const seniorityKeywords = userData.preferences.seniorityKeywords;
+                const excludeKeywords = userData.preferences.excludeRoles;
+                
+                const executiveJobs = jobs.filter(job => {
+                    const titleLower = job.position.toLowerCase();
+                    
+                    // EXCLUDE: Roles user doesn't want
+                    if (excludeKeywords.some(keyword => titleLower.includes(keyword))) {
+                        return false;
+                    }
+                    
+                    // INCLUDE: Must match user's seniority level
+                    const hasSeniority = seniorityKeywords.some(keyword => titleLower.includes(keyword));
+                    if (!hasSeniority) return false;
+                    
+                    // STEP 2: Filter by ROLE TYPE using user's strategic keywords
+                    const strategicKeywords = userData.preferences.strategicKeywords;
+                    const hasStrategicRole = strategicKeywords.some(keyword => titleLower.includes(keyword));
+                    
+                    return hasStrategicRole;
+                });
+                
+                console.log(`Filtered to ${executiveJobs.length} matching roles from ${jobs.length} total jobs (Level: ${userData.preferences.seniorityLevel})`);
+                
+                // STEP 3: Enhanced skill extraction and matching
+                const qualifiedJobs = executiveJobs.map(job => {
+                    const extractedSkills = extractSkillsFromJobEnhanced(job);
+                    const match = calculateMatchScore(extractedSkills, extractedSkills);
+                    
+                    return {
+                        id: job.id || Math.random().toString(36),
+                        title: job.position,
+                        company: job.company,
+                        location: job.location || 'Remote',
+                        type: 'Full-time',
+                        url: job.url || `https://remoteok.com/remote-jobs/${job.slug}`,
+                        salary: job.salary_max ? `$${Math.round(job.salary_min/1000) || 0}k-${Math.round(job.salary_max/1000)}k` : 'Not specified',
+                        description: job.description,
+                        tags: job.tags || [],
+                        requiredSkills: extractedSkills,
+                        matchScore: match.score,
+                        matchedSkills: match.matched,
+                        gapSkills: match.gaps
+                    };
+                }).filter(job => {
+                    // STEP 4: Use user's quality thresholds
+                    const meetsSkillMinimum = job.matchedSkills.length >= userData.preferences.minimumSkillMatches;
+                    const meetsScoreMinimum = job.matchScore >= userData.preferences.minimumMatchScore;
+                    const meetsSalary = !userData.preferences.minSalary || 
+                                       (job.salary && parseInt(job.salary.split('-')[1]) >= userData.preferences.minSalary/1000);
+                    
+                    return meetsSkillMinimum && meetsScoreMinimum && meetsSalary;
+                });
+                
+                // Sort by match score
+                opportunitiesData = qualifiedJobs.sort((a, b) => b.matchScore - a.matchScore).slice(0, 15);
+                
+                console.log(`Final qualified jobs: ${opportunitiesData.length}`);
+                
+                if (opportunitiesData.length === 0) {
+                    const resultsDiv = document.getElementById('opportunitiesResults');
+                    resultsDiv.innerHTML = `
+                        <div class="loading-state">
+                            <p style="font-size: 1.2em;">No jobs match your criteria</p>
+                            <p style="margin-top: 10px; color: #9ca3af;">
+                                Based on your settings:
+                                <br>• Seniority: ${userData.preferences.seniorityLevel}
+                                <br>• Min Match Score: ${userData.preferences.minimumMatchScore}%
+                                <br>• Min Skills: ${userData.preferences.minimumSkillMatches}
+                                <br><br>
+                                Try:
+                                <br>• Lowering match threshold
+                                <br>• Adjusting preferences in Settings
+                                <br>• Checking back later
+                            </p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                renderOpportunities();
+                
+            } catch (error) {
+                console.error('Error fetching RemoteOK jobs:', error);
+                
+                const resultsDiv = document.getElementById('opportunitiesResults');
+                resultsDiv.innerHTML = `
+                    <div class="loading-state">
+                        <p style="font-size: 1.2em; color: #ef4444;">Unable to fetch live jobs</p>
+                        <p style="margin-top: 10px; color: #9ca3af;">
+                            RemoteOK API may be unavailable. Loading sample data instead...
+                        </p>
+                    </div>
+                `;
+                
+                setTimeout(() => loadSampleData(), 2000);
+            }
+        }
+        
+        function extractSkillsFromJobEnhanced(job) {
+            const searchText = `${job.position} ${job.description || ''} ${(job.tags || []).join(' ')}`.toLowerCase();
+            const extractedSkills = [];
+            
+            // ENHANCED: Map to your ACTUAL skills with more precision
+            const skillMapping = {
+                // Strategic Core
+                'enterprise ai strategy': ['ai strategy', 'artificial intelligence strategy', 'enterprise ai'],
+                'Strategic Foresight & Market Prediction': ['market prediction', 'strategic foresight', 'forecasting', 'trend analysis'],
+                'Go-to-Market Strategy': ['go-to-market', 'gtm strategy', 'market strategy', 'launch strategy'],
+                'Business Case Development': ['business case', 'roi analysis', 'business development'],
+                'C-Suite Advisory & Influence': ['c-suite', 'executive advisory', 'board advisory', 'executive coaching'],
+                'Organizational Transformation': ['transformation', 'change management', 'organizational change'],
+                
+                // Technology & Innovation
+                'AI/ML Product Strategy': ['ai product', 'ml product', 'machine learning strategy', 'ai/ml'],
+                'Technology Trend Forecasting': ['technology trends', 'tech forecasting', 'innovation trends'],
+                'Disruptive Innovation Identification': ['disruptive innovation', 'innovation strategy'],
+                'Human-AI Collaboration Model Design': ['human-ai', 'ai collaboration', 'human-centered ai'],
+                
+                // Communication & Leadership
+                'Industry Evangelism': ['evangelist', 'developer relations', 'community building'],
+                'Thought Leadership Authorship': ['thought leadership', 'content strategy', 'industry speaking'],
+                'Technical Concept Translation': ['technical communication', 'executive communication'],
+                'Public Speaking & Keynote Delivery': ['public speaking', 'keynote', 'conference speaking'],
+                
+                // Domain Expertise
+                'Talent Intelligence Platform Design': ['talent platform', 'hr tech', 'talent technology'],
+                'Workforce Intelligence & Analytics': ['workforce analytics', 'people analytics', 'talent analytics'],
+                'HR Technology Market Intelligence': ['hr technology', 'hrtech', 'talent tech'],
+                
+                // Leadership
+                'Executive Presence & Authority': ['executive presence', 'executive leadership'],
+                'Crisis Leadership & Decision Making': ['crisis management', 'crisis leadership'],
+                'Strategic Team Building': ['team building', 'organizational design', 'team strategy']
+            };
+            
+            // Match with precision - require close matches
+            Object.entries(skillMapping).forEach(([skill, keywords]) => {
+                const hasMatch = keywords.some(keyword => searchText.includes(keyword));
+                if (hasMatch && !extractedSkills.includes(skill)) {
+                    extractedSkills.push(skill);
+                }
+            });
+            
+            // IMPORTANT: Only return skills if we found meaningful matches
+            // Don't add generic skills just to inflate the score
+            return extractedSkills;
+        }
+        
+        function loadSampleData() {
+            const sampleJobs = [
+                {
+                    id: 1,
+                    title: "VP of AI Strategy",
+                    company: "TechCorp",
+                    location: "San Francisco, CA / Remote",
+                    type: "Full-time",
+                    url: "#",
+                    salary: "$200k-$300k",
+                    requiredSkills: ["Enterprise AI Strategy", "Strategic Foresight & Market Prediction", "C-Suite Advisory & Influence", "Technology Trend Forecasting", "Business Case Development", "Go-to-Market Strategy"]
+                },
+                {
+                    id: 2,
+                    title: "Chief Strategy Officer",
+                    company: "GrowthCo",
+                    location: "New York, NY / Remote",
+                    type: "Full-time",
+                    url: "#",
+                    salary: "$250k-$350k",
+                    requiredSkills: ["Go-to-Market Strategy", "Business Case Development", "Strategic Foresight & Market Prediction", "Multi-Stakeholder Alignment", "Revenue Pipeline Development", "Financial Management & Budget Discipline"]
+                },
+                {
+                    id: 3,
+                    title: "Director of Technology Strategy",
+                    company: "Innovation Labs",
+                    location: "Austin, TX / Remote",
+                    type: "Full-time",
+                    url: "#",
+                    salary: "$180k-$240k",
+                    requiredSkills: ["Technology Lifecycle & Disruption Analysis", "Platform Integration Architecture", "Computational & Systems Thinking", "Data-Driven Strategy Development", "Market & Competitive Intelligence"]
+                },
+                {
+                    id: 4,
+                    title: "Head of Talent Intelligence",
+                    company: "WorkTech Inc",
+                    location: "Remote",
+                    type: "Full-time",
+                    url: "#",
+                    salary: "$160k-$220k",
+                    requiredSkills: ["Talent Intelligence Platform Design", "Workforce Intelligence & Analytics", "AI/ML Product Strategy", "Candidate Experience Architecture", "Talent Acquisition Strategy", "HR Technology Market Intelligence"]
+                },
+                {
+                    id: 5,
+                    title: "Chief Evangelist",
+                    company: "AI Startup",
+                    location: "Boston, MA / Remote",
+                    type: "Full-time",
+                    url: "#",
+                    salary: "$150k-$200k + equity",
+                    requiredSkills: ["Industry Evangelism", "Technical Concept Translation", "Thought Leadership Authorship", "Public Speaking & Keynote Delivery", "Media Relations & Spokesperson Work"]
+                },
+                {
+                    id: 6,
+                    title: "VP of Product Strategy",
+                    company: "SaaS Platform",
+                    location: "Seattle, WA / Remote",
+                    type: "Full-time",
+                    url: "#",
+                    salary: "$190k-$260k",
+                    requiredSkills: ["AI/ML Product Strategy", "Human-AI Collaboration Model Design", "Predictive Framework Development", "Scenario Planning & Strategic Alternatives", "Disruptive Innovation Identification"]
+                }
+            ];
+            
+            opportunitiesData = sampleJobs.map(job => {
+                const match = calculateMatchScore(job.requiredSkills, job.requiredSkills);
+                return {
+                    ...job,
+                    matchScore: match.score,
+                    matchedSkills: match.matched,
+                    gapSkills: match.gaps
+                };
+            });
+            
+            opportunitiesData.sort((a, b) => b.matchScore - a.matchScore);
+            renderOpportunities();
+        }
+        
+        function extractSkillsFromJob(job) {
+            // Extract skills from job description and tags
+            const searchText = `${job.position} ${job.description || ''} ${(job.tags || []).join(' ')}`.toLowerCase();
+            const extractedSkills = [];
+            
+            // Map common job keywords to Cliff's skills
+            const skillKeywords = {
+                'ai strategy': 'Enterprise AI Strategy',
+                'artificial intelligence': 'AI/ML Product Strategy',
+                'machine learning': 'AI/ML Product Strategy',
+                'strategic planning': 'Strategic Foresight & Market Prediction',
+                'business strategy': 'Go-to-Market Strategy',
+                'product strategy': 'AI/ML Product Strategy',
+                'thought leadership': 'Thought Leadership Authorship',
+                'public speaking': 'Public Speaking & Keynote Delivery',
+                'evangelist': 'Industry Evangelism',
+                'technology strategy': 'Technology Lifecycle & Disruption Analysis',
+                'data analytics': 'Data-Driven Strategy Development',
+                'talent': 'Talent Acquisition Strategy',
+                'hr tech': 'HR Technology Market Intelligence',
+                'workforce': 'Workforce Intelligence & Analytics',
+                'crisis management': 'Crisis Leadership & Decision Making',
+                'team building': 'Strategic Team Building',
+                'c-suite': 'C-Suite Advisory & Influence',
+                'executive': 'Executive Presence & Authority',
+                'innovation': 'Disruptive Innovation Identification',
+                'transformation': 'Organizational Transformation',
+                'advisory': 'C-Suite Advisory & Influence'
+            };
+            
+            // Check which skills are mentioned
+            Object.entries(skillKeywords).forEach(([keyword, skill]) => {
+                if (searchText.includes(keyword) && !extractedSkills.includes(skill)) {
+                    extractedSkills.push(skill);
+                }
+            });
+            
+            // If no specific skills found, add some generic strategic ones
+            if (extractedSkills.length === 0) {
+                extractedSkills.push('Strategic Foresight & Market Prediction', 'Go-to-Market Strategy', 'Business Case Development');
+            }
+            
+            return extractedSkills;
+        }
+        
+        function filterOpportunities() {
+            renderOpportunities();
+        }
+        
+        function renderOpportunities() {
+            const filtered = opportunitiesData.filter(job => job.matchScore >= currentMatchThreshold);
+            const resultsDiv = document.getElementById('opportunitiesResults');
+            
+            if (filtered.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="loading-state">
+                        <p style="font-size: 1.2em;">No opportunities match your current filters</p>
+                        <p style="margin-top: 10px;">Try lowering the match threshold or searching for new jobs</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '<div class="opportunities-grid">';
+            
+            filtered.forEach(job => {
+                const matchClass = job.matchScore >= 80 ? 'high' : job.matchScore >= 60 ? 'medium' : 'low';
+                const jobUrl = job.url || '#';
+                const salary = job.salary || 'Salary not specified';
+                
+                html += `
+                    <div class="opportunity-card">
+                        <div class="opportunity-header">
+                            <div>
+                                <div class="opportunity-company">${job.company}</div>
+                                <div class="opportunity-title">
+                                    <a href="${jobUrl}" target="_blank" style="color: inherit; text-decoration: none;">
+                                        ${job.title}
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="match-score">
+                                <div class="match-circle ${matchClass}">
+                                    ${job.matchScore}%
+                                </div>
+                                <div class="match-label">Match</div>
+                            </div>
+                        </div>
+                        
+                        <div class="opportunity-meta">
+                            <div class="meta-item">📍 ${job.location}</div>
+                            <div class="meta-item">💼 ${job.type}</div>
+                            <div class="meta-item">💰 ${salary}</div>
+                        </div>
+                        
+                        <div class="matched-skills">
+                            <div class="matched-skills-title">Your Matching Skills (${job.matchedSkills.length})</div>
+                            <div class="skill-chips">
+                                ${job.matchedSkills.slice(0, 5).map(skill => 
+                                    `<span class="skill-chip-match">${skill}</span>`
+                                ).join('')}
+                                ${job.matchedSkills.length > 5 ? 
+                                    `<span class="skill-chip-match">+${job.matchedSkills.length - 5} more</span>` : ''}
+                            </div>
+                        </div>
+                        
+                        ${job.gapSkills.length > 0 ? `
+                            <div class="matched-skills">
+                                <div class="matched-skills-title">Skills to Highlight (${job.gapSkills.length})</div>
+                                <div class="skill-chips">
+                                    ${job.gapSkills.slice(0, 3).map(skill => 
+                                        `<span class="skill-chip-gap">${skill}</span>`
+                                    ).join('')}
+                                    ${job.gapSkills.length > 3 ? 
+                                        `<span class="skill-chip-gap">+${job.gapSkills.length - 3} more</span>` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="opportunity-actions">
+                            <button class="action-btn" onclick="event.stopPropagation(); window.open('${jobUrl}', '_blank')">
+                                🔗 View Job
+                            </button>
+                            <button class="action-btn" onclick="event.stopPropagation(); generatePitch(${job.id})">
+                                ✍️ Generate Pitch
+                            </button>
+                            <button class="action-btn" onclick="event.stopPropagation(); viewOnNetwork(${job.id})">
+                                🗺️ View on Network
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            resultsDiv.innerHTML = html;
+        }
+        
+        function searchOpportunities() {
+            const resultsDiv = document.getElementById('opportunitiesResults');
+            resultsDiv.innerHTML = `
+                <div class="loading-state">
+                    <div class="loading-spinner"></div>
+                    <p style="font-size: 1.2em;">Searching for opportunities...</p>
+                    <p style="margin-top: 10px; color: #6b7280;">This feature will scrape job boards in the next update</p>
+                </div>
+            `;
+            
+            // Simulate loading
+            setTimeout(() => {
+                renderOpportunities();
+            }, 2000);
+        }
+        
+        function viewOpportunityDetail(jobId) {
+            const job = opportunitiesData.find(j => j.id === jobId);
+            alert(`Detailed view for ${job.title} at ${job.company}\n\nMatch: ${job.matchScore}%\nMatched Skills: ${job.matchedSkills.length}\nGaps: ${job.gapSkills.length}\n\nFull detail view coming in next update!`);
+        }
+        
+        function generatePitch(jobId) {
+            const job = opportunitiesData.find(j => j.id === jobId);
+            if (!job) return;
+            
+            // Get shared outcomes from blueprint
+            const sharedOutcomes = blueprintData.outcomes.filter(o => o.shared);
+            const selectedValues = blueprintData.values.filter(v => v.selected);
+            
+            // Build pitch using matched skills
+            let pitch = `Dear Hiring Manager,\n\n`;
+            pitch += `I'm writing to express my interest in the ${job.title} position at ${job.company}. `;
+            pitch += `My background aligns strongly with your requirements, with a ${job.matchScore}% match to the role's key competencies.\n\n`;
+            
+            // Outcomes section
+            if (sharedOutcomes.length > 0) {
+                pitch += `**Key Outcomes I've Driven:**\n\n`;
+                // Prioritize outcomes related to matched skills
+                const relevantOutcomes = sharedOutcomes.filter(outcome => 
+                    job.matchedSkills.some(skill => outcome.skill.includes(skill) || outcome.text.toLowerCase().includes(skill.toLowerCase()))
+                ).slice(0, 3);
+                
+                if (relevantOutcomes.length > 0) {
+                    relevantOutcomes.forEach(outcome => {
+                        pitch += `• ${outcome.text}\n`;
+                    });
+                } else {
+                    sharedOutcomes.slice(0, 3).forEach(outcome => {
+                        pitch += `• ${outcome.text}\n`;
+                    });
+                }
+                pitch += `\n`;
+            }
+            
+            // Skills match section
+            pitch += `**Your Requirements - My Experience:**\n\n`;
+            job.matchedSkills.slice(0, 5).forEach(skill => {
+                const skillData = skillsData.skills.find(s => s.name === skill);
+                const evidence = skillsData.skillDetails[skill];
+                if (evidence && evidence.evidence && evidence.evidence.length > 0) {
+                    pitch += `• **${skill}**: ${evidence.evidence[0]}\n`;
+                } else {
+                    pitch += `• **${skill}**: ${skillData ? skillData.level + ' level proficiency' : 'Demonstrated expertise'}\n`;
+                }
+            });
+            pitch += `\n`;
+            
+            // Values alignment
+            if (selectedValues.length > 0) {
+                pitch += `**My Approach:**\n\n`;
+                pitch += `I bring ${selectedValues.map(v => v.name.toLowerCase()).slice(0, 3).join(', ')} to this role. `;
+                if (blueprintData.purpose) {
+                    pitch += blueprintData.purpose;
+                }
+                pitch += `\n\n`;
+            }
+            
+            pitch += `I'd welcome the opportunity to discuss how my experience can contribute to ${job.company}'s success.\n\n`;
+            pitch += `Best regards,\nCliff Jurkiewicz`;
+            
+            // Show pitch in modal
+            showPitchModal(job, pitch);
+        }
+        
+        function showPitchModal(job, pitch) {
+            const modal = document.getElementById('exportModal');
+            const modalContent = modal.querySelector('.modal-content');
+            
+            modalContent.innerHTML = `
+                <div class="modal-header">
+                    <div class="modal-header-left">
+                        <h2 class="modal-title">Generated Pitch</h2>
+                        <p style="color: #9ca3af; margin-top: 5px;">${job.title} at ${job.company}</p>
+                    </div>
+                    <button class="modal-close" onclick="closeExportModal()">×</button>
+                </div>
+                <div class="modal-body" style="padding: 30px;">
+                    <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(96, 165, 250, 0.2); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                        <textarea id="pitchText" style="width: 100%; min-height: 400px; background: transparent; border: none; color: #e0e0e0; font-family: inherit; font-size: 0.95em; line-height: 1.7; resize: vertical;">${pitch}</textarea>
+                    </div>
+                    <div style="display: flex; gap: 15px; justify-content: flex-end;">
+                        <button class="action-btn" onclick="copyPitch()" style="padding: 10px 20px;">
+                            📋 Copy to Clipboard
+                        </button>
+                        <button class="action-btn" onclick="downloadPitch('${job.title}', '${job.company}')" style="padding: 10px 20px;">
+                            💾 Download as Text
+                        </button>
+                        <button class="export-btn-large" onclick="closeExportModal()" style="padding: 10px 20px;">
+                            Done
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+        }
+        
+        function copyPitch() {
+            const pitchText = document.getElementById('pitchText');
+            pitchText.select();
+            document.execCommand('copy');
+            alert('Pitch copied to clipboard!');
+        }
+        
+        function downloadPitch(jobTitle, company) {
+            const pitchText = document.getElementById('pitchText').value;
+            const blob = new Blob([pitchText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `pitch-${jobTitle.replace(/\s+/g, '-')}-${company.replace(/\s+/g, '-')}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function viewOnNetwork(jobId) {
+            const job = opportunitiesData.find(j => j.id === jobId);
+            alert(`Network visualization for ${job.title}\n\nThis will highlight your matching skills on the network graph.\n\nComing in next update!`);
+        }
+        
+        // ===== SETTINGS SYSTEM =====
+        
+        function initSettings() {
+            const view = document.getElementById('settingsView');
+            
+            view.innerHTML = `
+                <div class="blueprint-container">
+                    <div class="blueprint-header">
+                        <h1 class="blueprint-title">Profile Settings</h1>
+                        <p class="blueprint-subtitle">Configure Your Work Blueprint Experience</p>
+                        <p class="blueprint-tagline">Customize how jobs are matched and filtered</p>
+                    </div>
+                    
+                    ${renderProfileSettings()}
+                    ${renderJobPreferences()}
+                </div>
+            `;
+        }
+        
+        function renderProfileSettings() {
+            return `
+                <div class="blueprint-section">
+                    <div class="blueprint-section-header">
+                        <div class="blueprint-section-title">
+                            <span class="section-icon">👤</span>
+                            <span>Profile Information</span>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label class="settings-label">Your Name</label>
+                        <input type="text" class="settings-input" id="settingName" 
+                               value="${userData.profile.name}" 
+                               placeholder="Enter your name">
+                        <div class="settings-help">This appears in the header and exports</div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label class="settings-label">Email (Optional)</label>
+                        <input type="email" class="settings-input" id="settingEmail" 
+                               value="${userData.profile.email}" 
+                               placeholder="your.email@example.com">
+                        <div class="settings-help">For export contact information</div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label class="settings-label">Location</label>
+                        <input type="text" class="settings-input" id="settingLocation" 
+                               value="${userData.profile.location}" 
+                               placeholder="City, State, Country">
+                        <div class="settings-help">Your current location or preferred work location</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderJobPreferences() {
+            return `
+                <div class="blueprint-section">
+                    <div class="blueprint-section-header">
+                        <div class="blueprint-section-title">
+                            <span class="section-icon">🎯</span>
+                            <span>Job Matching Preferences</span>
+                        </div>
+                    </div>
+                    
+                    <div class="coaching-tip">
+                        <div class="coaching-tip-title">
+                            💡 HOW JOB MATCHING WORKS
+                        </div>
+                        <div class="coaching-tip-content">
+                            These settings control which jobs appear in your Opportunities feed. 
+                            Set your seniority level to filter out irrelevant positions.
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label class="settings-label">Seniority Level</label>
+                        <select class="settings-select" id="settingSeniority">
+                            <option value="Entry" ${userData.preferences.seniorityLevel === 'Entry' ? 'selected' : ''}>Entry Level</option>
+                            <option value="Mid" ${userData.preferences.seniorityLevel === 'Mid' ? 'selected' : ''}>Mid Level</option>
+                            <option value="Senior" ${userData.preferences.seniorityLevel === 'Senior' ? 'selected' : ''}>Senior Level</option>
+                            <option value="Executive" ${userData.preferences.seniorityLevel === 'Executive' ? 'selected' : ''}>Executive Level</option>
+                        </select>
+                        <div class="settings-help">
+                            <strong>Entry:</strong> Includes junior, associate roles<br>
+                            <strong>Mid:</strong> Includes senior, lead, manager roles<br>
+                            <strong>Senior:</strong> Includes senior manager, director roles<br>
+                            <strong>Executive:</strong> VP, Chief, Head of roles only
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label class="settings-label">Minimum Match Score</label>
+                        <input type="range" min="0" max="100" value="${userData.preferences.minimumMatchScore}" 
+                               class="match-slider" style="width: 100%;"
+                               oninput="document.getElementById('matchScoreValue').textContent = this.value + '%'">
+                        <div style="text-align: center; color: #fbbf24; font-weight: 600; font-size: 1.2em; margin-top: 10px;">
+                            <span id="matchScoreValue">${userData.preferences.minimumMatchScore}%</span>
+                        </div>
+                        <div class="settings-help">Only show jobs with at least this match percentage</div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label class="settings-label">Minimum Skill Matches</label>
+                        <input type="number" min="1" max="10" class="settings-input" id="settingMinSkills"
+                               value="${userData.preferences.minimumSkillMatches}">
+                        <div class="settings-help">Jobs must match at least this many of your skills</div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label class="settings-label">Minimum Salary (Optional)</label>
+                        <input type="number" class="settings-input" id="settingMinSalary" 
+                               value="${userData.preferences.minSalary || ''}"
+                               placeholder="e.g., 150000">
+                        <div class="settings-help">Leave blank for no minimum. Enter annual salary (USD).</div>
+                    </div>
+                    
+                    <button class="save-settings-btn" onclick="saveSettings()">
+                        💾 Save Settings
+                    </button>
+                </div>
+            `;
+        }
+        
+        function saveSettings() {
+            // Get values from form
+            userData.profile.name = document.getElementById('settingName').value;
+            userData.profile.email = document.getElementById('settingEmail').value;
+            userData.profile.location = document.getElementById('settingLocation').value;
+            
+            const newSeniority = document.getElementById('settingSeniority').value;
+            userData.preferences.seniorityLevel = newSeniority;
+            userData.preferences.minimumMatchScore = parseInt(document.querySelector('#settingsView .match-slider').value);
+            userData.preferences.minimumSkillMatches = parseInt(document.getElementById('settingMinSkills').value);
+            const minSalaryInput = document.getElementById('settingMinSalary').value;
+            userData.preferences.minSalary = minSalaryInput ? parseInt(minSalaryInput) : null;
+            
+            // Update seniority keywords based on level
+            if (newSeniority === 'Entry') {
+                userData.preferences.seniorityKeywords = ['junior', 'associate', 'entry', 'coordinator'];
+                userData.preferences.excludeRoles = ['senior', 'lead', 'manager', 'director', 'vp', 'chief', 'principal'];
+            } else if (newSeniority === 'Mid') {
+                userData.preferences.seniorityKeywords = ['senior', 'lead', 'manager', 'specialist'];
+                userData.preferences.excludeRoles = ['junior', 'entry', 'associate', 'intern'];
+            } else if (newSeniority === 'Senior') {
+                userData.preferences.seniorityKeywords = ['senior manager', 'director', 'senior director', 'principal'];
+                userData.preferences.excludeRoles = ['junior', 'entry', 'mid-level', 'associate'];
+            } else { // Executive
+                userData.preferences.seniorityKeywords = ['vp', 'vice president', 'chief', 'head of', 'director', 'principal', 'senior director'];
+                userData.preferences.excludeRoles = ['engineer', 'developer', 'designer', 'analyst', 'coordinator', 'specialist', 
+                                                    'junior', 'mid-level', 'associate', 'intern', 'entry'];
+            }
+            
+            // Update header
+            const userNameEl = document.getElementById('userName');
+            if (userData.profile.name) {
+                userNameEl.textContent = userData.profile.name + "'s";
+            } else {
+                userNameEl.textContent = "Your";
+            }
+            
+            // Save to localStorage
+            try {
+                localStorage.setItem('workBlueprintUserData', JSON.stringify(userData));
+            } catch (e) {
+                console.log('Could not save to localStorage:', e);
+            }
+            
+            alert('Settings saved successfully!\n\nGo to Opportunities tab and click "Find Matching Jobs" to see updated results.');
+        }
+        
+        // ===== CONSENT & SHARING SYSTEM =====
+        
+        let sharePresets = {
+            'full': { name: 'Full Transparency', skills: 'all', outcomes: 'all', values: 'all', purpose: true },
+            'executive': { name: 'Executive Brief', skills: 'top20', outcomes: 'all', values: 'all', purpose: true },
+            'advisory': { name: 'Advisory Pitch', skills: 'strategic', outcomes: 'strategic', values: 'all', purpose: true },
+            'board': { name: 'Board Candidate', skills: 'leadership', outcomes: 'business', values: 'selected', purpose: true },
+            'custom': { name: 'Custom', skills: 'selected', outcomes: 'selected', values: 'selected', purpose: true }
+        };
+        
+        let currentPreset = 'custom';
+        
+        function initConsent() {
+            const view = document.getElementById('consentView');
+            
+            view.innerHTML = `
+                <div class="blueprint-container">
+                    <div class="blueprint-header">
+                        <h1 class="blueprint-title">Consent & Sharing</h1>
+                        <p class="blueprint-subtitle">Your Data, Your Control</p>
+                        <p class="blueprint-tagline">Choose exactly what you share and with whom</p>
+                    </div>
+                    
+                    ${renderSharePresets()}
+                    ${renderSharingStatus()}
+                    ${renderLegalSection()}
+                </div>
+            `;
+        }
+        
+        function renderSharePresets() {
+            return `
+                <div class="blueprint-section">
+                    <div class="blueprint-section-header">
+                        <div class="blueprint-section-title">
+                            <span class="section-icon">🎚️</span>
+                            <span>Share Profile Presets</span>
+                        </div>
+                    </div>
+                    
+                    <div class="coaching-tip">
+                        <div class="coaching-tip-title">
+                            💡 CHOOSE YOUR SHARING LEVEL
+                        </div>
+                        <div class="coaching-tip-content">
+                            Select a preset that matches your audience, or use Custom to choose exactly what to share.
+                            All presets respect your individual item toggles from the Work Blueprint.
+                        </div>
+                    </div>
+                    
+                    <div class="values-grid">
+                        ${Object.entries(sharePresets).map(([key, preset]) => renderPresetCard(key, preset)).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderPresetCard(key, preset) {
+            const selectedClass = currentPreset === key ? 'selected' : '';
+            const descriptions = {
+                'full': 'Share everything - all 73 skills, outcomes, values, and purpose',
+                'executive': 'Top 20 skills + all outcomes and values - ideal for executive search',
+                'advisory': 'Strategic & thought leadership skills + relevant outcomes - for advisory/consulting',
+                'board': 'Leadership & business outcomes + governance experience - for board positions',
+                'custom': 'You choose exactly which skills, outcomes, and values to share'
+            };
+            
+            return `
+                <div class="value-card ${selectedClass}" onclick="selectPreset('${key}')">
+                    <div class="value-title">${preset.name}</div>
+                    <div class="value-description">${descriptions[key]}</div>
+                </div>
+            `;
+        }
+        
+        function renderSharingStatus() {
+            const sharedSkills = currentPreset === 'all' ? skillsData.skills.length : 
+                                currentPreset === 'top20' ? 20 :
+                                skillsData.skills.filter((s, idx) => idx < 20).length;
+            const sharedOutcomes = blueprintData.outcomes.filter(o => o.shared).length;
+            const sharedValues = blueprintData.values.filter(v => v.selected).length;
+            
+            return `
+                <div class="blueprint-section">
+                    <div class="blueprint-section-header">
+                        <div class="blueprint-section-title">
+                            <span class="section-icon">📊</span>
+                            <span>What You're Sharing</span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                        <div style="background: rgba(96, 165, 250, 0.1); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 8px; padding: 20px; text-align: center;">
+                            <div style="font-size: 2em; color: #60a5fa; font-weight: bold;">${sharedSkills}</div>
+                            <div style="color: #9ca3af; margin-top: 5px;">Skills</div>
+                        </div>
+                        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 20px; text-align: center;">
+                            <div style="font-size: 2em; color: #10b981; font-weight: bold;">${sharedOutcomes}</div>
+                            <div style="color: #9ca3af; margin-top: 5px;">Outcomes</div>
+                        </div>
+                        <div style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 8px; padding: 20px; text-align: center;">
+                            <div style="font-size: 2em; color: #fbbf24; font-weight: bold;">${sharedValues}</div>
+                            <div style="color: #9ca3af; margin-top: 5px;">Values</div>
+                        </div>
+                        <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 20px; text-align: center;">
+                            <div style="font-size: 2em; color: #a78bfa; font-weight: bold;">✓</div>
+                            <div style="color: #9ca3af; margin-top: 5px;">Purpose</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(251, 191, 36, 0.1); border-left: 3px solid #fbbf24; border-radius: 4px;">
+                        <strong style="color: #fbbf24;">Note:</strong> 
+                        <span style="color: #d1d5db;">Sensitive content (recovery, personal loss) is flagged in Work Blueprint. Review before sharing.</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderLegalSection() {
+            return `
+                <div class="blueprint-section">
+                    <div class="blueprint-section-header">
+                        <div class="blueprint-section-title">
+                            <span class="section-icon">⚖️</span>
+                            <span>Legal & Privacy</span>
+                        </div>
+                    </div>
+                    
+                    <div style="color: #d1d5db; line-height: 1.7;">
+                        <h3 style="color: #60a5fa; margin-bottom: 15px;">Your Rights & Protections</h3>
+                        
+                        <p style="margin-bottom: 20px;">
+                            Your Work Blueprint data is stored locally in your browser. You have complete control over what you share, 
+                            when you share it, and with whom. This tool respects your privacy and employment data rights.
+                        </p>
+                        
+                        <h4 style="color: #60a5fa; margin-bottom: 10px; margin-top: 20px;">Relevant Privacy Laws:</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="padding: 10px; background: rgba(255, 255, 255, 0.03); margin-bottom: 8px; border-radius: 6px;">
+                                <strong>🇺🇸 CCPA (California Consumer Privacy Act)</strong><br>
+                                <span style="font-size: 0.9em; color: #9ca3af;">
+                                    Right to know what data is collected, right to delete, right to opt-out of sale
+                                </span><br>
+                                <a href="https://oag.ca.gov/privacy/ccpa" target="_blank" style="color: #60a5fa; text-decoration: none; font-size: 0.85em;">Learn more →</a>
+                            </li>
+                            <li style="padding: 10px; background: rgba(255, 255, 255, 0.03); margin-bottom: 8px; border-radius: 6px;">
+                                <strong>🇪🇺 GDPR (General Data Protection Regulation)</strong><br>
+                                <span style="font-size: 0.9em; color: #9ca3af;">
+                                    Right to access, rectify, erase, and port your personal data
+                                </span><br>
+                                <a href="https://gdpr.eu/" target="_blank" style="color: #60a5fa; text-decoration: none; font-size: 0.85em;">Learn more →</a>
+                            </li>
+                            <li style="padding: 10px; background: rgba(255, 255, 255, 0.03); margin-bottom: 8px; border-radius: 6px;">
+                                <strong>📋 Employment Data Rights (US)</strong><br>
+                                <span style="font-size: 0.9em; color: #9ca3af;">
+                                    Employers must handle your data fairly and can't discriminate based on protected characteristics
+                                </span><br>
+                                <a href="https://www.eeoc.gov/" target="_blank" style="color: #60a5fa; text-decoration: none; font-size: 0.85em;">EEOC Guidelines →</a>
+                            </li>
+                        </ul>
+                        
+                        <h4 style="color: #60a5fa; margin-bottom: 10px; margin-top: 25px;">Best Practices:</h4>
+                        <ul style="margin-left: 20px; color: #d1d5db;">
+                            <li style="margin: 8px 0;">Never share sensitive personal information (SSN, financial details)</li>
+                            <li style="margin: 8px 0;">Review what you're sharing before exporting or creating links</li>
+                            <li style="margin: 8px 0;">Use time-limited shareable links when possible</li>
+                            <li style="margin: 8px 0;">Keep Work Blueprint data up to date but don't embellish</li>
+                            <li style="margin: 8px 0;">Consider context before sharing recovery/advocacy work</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function selectPreset(key) {
+            currentPreset = key;
+            initConsent(); // Re-render to show selection
+            
+            // Apply preset logic (for future export functionality)
+            if (key === 'full') {
+                // Mark all items as shared
+                blueprintData.outcomes.forEach(o => o.shared = true);
+                blueprintData.values.forEach(v => v.selected = true);
+            }
+            // Other presets would filter accordingly during export
+        }
+        
+        // Resize handler
+        window.addEventListener('resize', () => {
+            if (currentView === 'network') {
+                initNetwork();
+            }
+        });
+    </script>
+</body>
+</html>
