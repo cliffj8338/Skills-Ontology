@@ -1,5 +1,38 @@
 # Work Blueprint - Version History
 
+## v1.0.2 - "Job Search + Valuation Prep" (February 16, 2026)
+
+**Job Source Improvements + Foundation for Market Valuation**
+
+### Features from v1.0.1
+- Fixed threshold slider (0-20% shows ALL jobs)
+- Added Remotive.io API (real job source)
+- Added Arbeitnow API (real job source)  
+- Now 4 job sources total
+- Better filtering and job variety
+
+### New in v1.0.2
+- **Location dropdown** in Settings - 27 cities with cost-of-living data
+- **Market valuation backend** - Calculator functions ready (UI coming in v1.1.0)
+- **skill_valuations.json** - Complete skill valuation data model
+- Foundation laid for salary negotiation guidance
+
+### What's Ready But Not Visible Yet
+The system can now calculate your market value based on:
+- Each skill's base value ($18k-$60k/year per skill)
+- Proficiency multipliers (Mastery = 2.2x)
+- Location adjustments (SF 1.52x → Lincoln 0.82x)
+- Market demand factors (AI skills +35%)
+- Rarity bonuses (unique combinations)
+
+But UI to display this is coming in v1.1.0 (see SPEC document).
+
+### Known Issues
+- WeWorkRemotely still using sample data
+- Market valuation not yet visible in UI
+
+---
+
 ## v1.0.1 - "Job Source Expansion" (February 16, 2026)
 
 **CRITICAL FIX - Job Search Improvements**

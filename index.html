@@ -1909,6 +1909,127 @@
             applications: [] // Track job applications
         };
         
+        // ===== MARKET VALUATION CALCULATOR =====
+        
+        function calculateSkillValue(skill) {
+            if (!skillValuations || !skillValuations.skillBaseValues) {
+                return { value: 0, breakdown: [] };
+            }
+            
+            const baseValue = skillValuations.skillBaseValues[skill.name] || 25000; // Default if not in list
+            const profMultiplier = skillValuations.proficiencyMultipliers[skill.level] || 1.0;
+            const locationMultiplier = skillValuations.locationMultipliers[userData.profile.location] || 1.0;
+            
+            // Check for demand factors based on skill keywords
+            let demandMultiplier = 1.0;
+            const skillLower = skill.name.toLowerCase();
+            for (const [keyword, factor] of Object.entries(skillValuations.demandFactors)) {
+                if (skillLower.includes(keyword)) {
+                    demandMultiplier = Math.max(demandMultiplier, factor);
+                }
+            }
+            
+            const breakdown = [
+                { label: 'Base Value', amount: baseValue, multiplier: 1.0 },
+                { label: `Proficiency (${skill.level})`, amount: baseValue * profMultiplier, multiplier: profMultiplier },
+                { label: `Location (${userData.profile.location})`, amount: baseValue * profMultiplier * locationMultiplier, multiplier: locationMultiplier },
+                { label: `Market Demand`, amount: baseValue * profMultiplier * locationMultiplier * demandMultiplier, multiplier: demandMultiplier }
+            ];
+            
+            const finalValue = Math.round(baseValue * profMultiplier * locationMultiplier * demandMultiplier);
+            
+            return { value: finalValue, breakdown: breakdown };
+        }
+        
+        function calculateTotalMarketValue() {
+            if (!skillsData || !skillsData.skills || !skillValuations) {
+                return { total: 0, breakdown: [], rarity: 0 };
+            }
+            
+            let total = 0;
+            const breakdown = [];
+            
+            // Calculate value for each skill
+            skillsData.skills.forEach(skill => {
+                const skillVal = calculateSkillValue(skill);
+                total += skillVal.value;
+                breakdown.push({
+                    skill: skill.name,
+                    level: skill.level,
+                    value: skillVal.value,
+                    breakdown: skillVal.breakdown
+                });
+            });
+            
+            // Add rarity bonuses
+            let rarityBonus = 0;
+            const masterySkills = skillsData.skills.filter(s => s.level === 'Mastery').length;
+            const hasAI = skillsData.skills.some(s => s.name.toLowerCase().includes('ai'));
+            const hasExecutive = skillsData.skills.some(s => s.name.toLowerCase().includes('executive') || s.name.toLowerCase().includes('c-suite'));
+            const hasTechnical = skillsData.skills.some(s => s.name.toLowerCase().includes('technical') || s.name.toLowerCase().includes('platform'));
+            
+            if (hasAI && hasExecutive) {
+                rarityBonus += total * (skillValuations.rarityBonuses?.ai_domain_expert || 0.15);
+            }
+            if (hasExecutive && hasTechnical) {
+                rarityBonus += total * (skillValuations.rarityBonuses?.executive_technical || 0.10);
+            }
+            if (masterySkills >= 30) {
+                rarityBonus += total * (skillValuations.rarityBonuses?.mastery_rare_skill || 0.20);
+            }
+            
+            return {
+                total: Math.round(total + rarityBonus),
+                breakdown: breakdown,
+                rarity: Math.round(rarityBonus),
+                baseTotal: Math.round(total)
+            };
+        }
+        
+        function getClosestRoleBenchmark(calculatedValue) {
+            if (!skillValuations || !skillValuations.roleBenchmarks) {
+                return null;
+            }
+            
+            let closest = null;
+            let minDiff = Infinity;
+            
+            Object.entries(skillValuations.roleBenchmarks).forEach(([role, data]) => {
+                const diff = Math.abs(data.median - calculatedValue);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closest = { role, ...data };
+                }
+            });
+            
+            return closest;
+        }
+        
+        // ===== SKILL VALUATIONS SYSTEM =====
+        let skillValuations = {
+            skillBaseValues: {},
+            proficiencyMultipliers: { "Proficient": 1.0, "Advanced": 1.5, "Mastery": 2.2 },
+            locationMultipliers: {},
+            demandFactors: {},
+            rarityBonuses: {},
+            roleBenchmarks: {}
+        };
+        
+        // Load skill valuations from JSON
+        fetch('skill_valuations.json')
+            .then(response => response.json())
+            .then(data => {
+                skillValuations = data;
+                console.log('✅ Skill valuations loaded');
+                // Recalculate values if already rendered
+                if (document.getElementById('totalMarketValue')) {
+                    updateMarketValueDisplay();
+                }
+            })
+            .catch(error => {
+                console.warn('⚠️ Could not load skill valuations, using defaults:', error);
+            });
+        
         // Data structure
         const skillsData = {
             roles: [
@@ -4796,11 +4917,37 @@
                     </div>
                     
                     <div class="settings-group">
-                        <label class="settings-label">Location</label>
-                        <input type="text" class="settings-input" id="settingLocation" 
-                               value="${userData.profile.location}" 
-                               placeholder="City, State, Country">
-                        <div class="settings-help">Your current location or preferred work location</div>
+                        <label class="settings-label">Location (for market valuation)</label>
+                        <select class="settings-select" id="settingLocation">
+                            <option value="Philadelphia, PA" ${userData.profile.location === 'Philadelphia, PA' ? 'selected' : ''}>Philadelphia, PA</option>
+                            <option value="San Francisco Bay Area, CA">San Francisco Bay Area, CA</option>
+                            <option value="New York City, NY">New York City, NY</option>
+                            <option value="Seattle, WA">Seattle, WA</option>
+                            <option value="Boston, MA">Boston, MA</option>
+                            <option value="Washington DC">Washington DC</option>
+                            <option value="Los Angeles, CA">Los Angeles, CA</option>
+                            <option value="San Diego, CA">San Diego, CA</option>
+                            <option value="Denver, CO">Denver, CO</option>
+                            <option value="Austin, TX">Austin, TX</option>
+                            <option value="Chicago, IL">Chicago, IL</option>
+                            <option value="Atlanta, GA">Atlanta, GA</option>
+                            <option value="Remote">Remote</option>
+                            <option value="Phoenix, AZ">Phoenix, AZ</option>
+                            <option value="Dallas, TX">Dallas, TX</option>
+                            <option value="Houston, TX">Houston, TX</option>
+                            <option value="Miami, FL">Miami, FL</option>
+                            <option value="Portland, OR">Portland, OR</option>
+                            <option value="Charlotte, NC">Charlotte, NC</option>
+                            <option value="Nashville, TN">Nashville, TN</option>
+                            <option value="Indianapolis, IN">Indianapolis, IN</option>
+                            <option value="Columbus, OH">Columbus, OH</option>
+                            <option value="Kansas City, MO">Kansas City, MO</option>
+                            <option value="Omaha, NE">Omaha, NE</option>
+                            <option value="Lincoln, NE">Lincoln, NE</option>
+                            <option value="Other US Metro">Other US Metro</option>
+                            <option value="Rural US">Rural US</option>
+                        </select>
+                        <div class="settings-help">Your location affects skill market valuations (cost of living adjustment)</div>
                     </div>
                 </div>
             `;
