@@ -2035,6 +2035,53 @@
         .skill-search-result.added {
             opacity: 0.6;
         }
+        
+        /* Unified Skill Management (v2.4.0) */
+        .skill-mgmt-tab {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .skill-mgmt-tab:hover {
+            color: #e0e0e0;
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .skill-mgmt-tab.active {
+            color: #60a5fa;
+            border-bottom-color: #60a5fa;
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .skill-mgmt-content {
+            animation: fadeIn 0.2s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .your-skill-item {
+            padding: 15px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            border-left: 3px solid #60a5fa;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+        
+        .your-skill-item:hover {
+            background: rgba(255,255,255,0.06);
+            transform: translateX(4px);
+        }
     </style>
 </head>
 <body>
@@ -2483,78 +2530,133 @@
     </div>
 
     <!-- Skill Search Modal (v2.3.0) -->
-    <div class="modal" id="skillSearchModal">
-        <div class="modal-content" style="max-width: 700px; max-height: 90vh;">
+    <!-- Unified Skill Management Modal (v2.4.0) -->
+    <div class="modal" id="skillManagementModal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
             <div class="modal-header">
                 <div class="modal-header-left">
-                    <h2 class="modal-title">Search Skills</h2>
+                    <h2 class="modal-title">Manage Skills</h2>
                     <p style="color: #9ca3af; margin-top: 5px; font-size: 0.9em;">
-                        Search across <span id="skillLibraryCount">2,058</span> skills
+                        <span id="skillManagementCount">Loading...</span>
                     </p>
                 </div>
-                <button class="modal-close" onclick="closeSkillSearch()">×</button>
+                <button class="modal-close" onclick="closeSkillManagement()">×</button>
             </div>
-            <div class="modal-body" style="padding: 20px;">
-                <div style="position: relative; margin-bottom: 20px;">
-                    <input 
-                        type="text" 
-                        id="skillSearchInput" 
-                        class="settings-input" 
-                        placeholder="Type to search... (e.g., 'python', 'marketing', 'leadership')"
-                        style="width: 100%; padding-right: 40px; font-size: 1.1em;"
-                        oninput="handleSkillSearch()"
-                        autofocus>
-                    <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 1.2em;">
-                        🔍
-                    </span>
+            
+            <!-- Tabs -->
+            <div style="display: flex; gap: 10px; padding: 0 20px; border-bottom: 2px solid rgba(255,255,255,0.1);">
+                <button id="yourSkillsTab" class="skill-mgmt-tab active" onclick="switchSkillManagementTab('yours')">
+                    📊 Your Skills (<span id="yourSkillsCount">0</span>)
+                </button>
+                <button id="addSkillsTab" class="skill-mgmt-tab" onclick="switchSkillManagementTab('add')">
+                    ➕ Add Skills (<span id="availableSkillsCount">2,138</span>)
+                </button>
+            </div>
+            
+            <div class="modal-body" style="padding: 20px; overflow-y: auto; max-height: calc(90vh - 200px);">
+                
+                <!-- YOUR SKILLS TAB -->
+                <div id="yourSkillsContent" class="skill-mgmt-content">
+                    <div style="position: relative; margin-bottom: 20px;">
+                        <input 
+                            type="text" 
+                            id="yourSkillsSearchInput" 
+                            class="settings-input" 
+                            placeholder="Search your skills..."
+                            style="width: 100%; padding-right: 40px;"
+                            oninput="filterYourSkills()">
+                        <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 1.2em;">
+                            🔍
+                        </span>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <select id="yourSkillsCategoryFilter" onchange="filterYourSkills()" style="padding: 8px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;">
+                            <option value="all">All Categories</option>
+                            <option value="skill">Technology</option>
+                            <option value="ability">General Professional</option>
+                            <option value="workstyle">Work Styles</option>
+                            <option value="unique">Custom Skills</option>
+                        </select>
+                        
+                        <select id="yourSkillsLevelFilter" onchange="filterYourSkills()" style="padding: 8px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;">
+                            <option value="all">All Levels</option>
+                            <option value="Mastery">Mastery</option>
+                            <option value="Advanced">Advanced</option>
+                            <option value="Proficient">Proficient</option>
+                        </select>
+                    </div>
+                    
+                    <div id="yourSkillsList">
+                        <!-- Populated by JavaScript -->
+                    </div>
                 </div>
                 
-                <div id="skillSearchResults" style="min-height: 200px; max-height: 400px; overflow-y: auto;">
-                    <div style="text-align: center; padding: 60px 20px; color: #9ca3af;">
-                        <div style="font-size: 3em; margin-bottom: 10px;">🔍</div>
-                        <div style="font-size: 1.1em;">Start typing to search skills</div>
-                        <div style="font-size: 0.9em; margin-top: 10px;">Try: "python", "marketing", "leadership"</div>
+                <!-- ADD SKILLS TAB -->
+                <div id="addSkillsContent" class="skill-mgmt-content" style="display: none;">
+                    <div style="position: relative; margin-bottom: 20px;">
+                        <input 
+                            type="text" 
+                            id="addSkillsSearchInput" 
+                            class="settings-input" 
+                            placeholder="Search 2,138 skills to add... (e.g., 'python', 'marketing', 'leadership')"
+                            style="width: 100%; padding-right: 40px; font-size: 1.1em;"
+                            oninput="handleAddSkillsSearch()"
+                            autofocus>
+                        <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 1.2em;">
+                            🔍
+                        </span>
+                    </div>
+                    
+                    <div id="addSkillsResults" style="min-height: 200px;">
+                        <div style="text-align: center; padding: 60px 20px; color: #9ca3af;">
+                            <div style="font-size: 3em; margin-bottom: 10px;">🔍</div>
+                            <div style="font-size: 1.1em;">Start typing to search skills</div>
+                            <div style="font-size: 0.9em; margin-top: 10px;">Try: "python", "marketing", "leadership"</div>
+                        </div>
+                    </div>
+                    
+                    <div id="addSkillsCategories" style="margin-top: 25px;">
+                        <div style="color: #9ca3af; font-size: 0.9em; margin-bottom: 15px; font-weight: 600;">
+                            BROWSE BY CATEGORY:
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <button onclick="searchAddSkillsByCategory('Technology')" 
+                                    style="padding: 8px 16px; background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                💻 Technology
+                            </button>
+                            <button onclick="searchAddSkillsByCategory('Business')" 
+                                    style="padding: 8px 16px; background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.4); color: #a78bfa; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                💼 Business
+                            </button>
+                            <button onclick="searchAddSkillsByCategory('Finance')" 
+                                    style="padding: 8px 16px; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #10b981; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                💰 Finance
+                            </button>
+                            <button onclick="searchAddSkillsByCategory('Marketing')" 
+                                    style="padding: 8px 16px; background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                📢 Marketing
+                            </button>
+                            <button onclick="searchAddSkillsByCategory('Creative')" 
+                                    style="padding: 8px 16px; background: rgba(249, 115, 22, 0.2); border: 1px solid rgba(249, 115, 22, 0.4); color: #fb923c; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                🎨 Creative
+                            </button>
+                            <button onclick="searchAddSkillsByCategory('Leadership')" 
+                                    style="padding: 8px 16px; background: rgba(100, 116, 139, 0.2); border: 1px solid rgba(100, 116, 139, 0.4); color: #94a3b8; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                ⭐ Leadership
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
-                <div id="skillPopularCategories" style="margin-top: 25px;">
-                    <div style="color: #9ca3af; font-size: 0.9em; margin-bottom: 15px; font-weight: 600;">
-                        BROWSE BY CATEGORY:
-                    </div>
-                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                        <button onclick="searchByCategory('Technology')" 
-                                style="padding: 8px 16px; background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                            💻 Technology
-                        </button>
-                        <button onclick="searchByCategory('Business')" 
-                                style="padding: 8px 16px; background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.4); color: #a78bfa; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                            💼 Business
-                        </button>
-                        <button onclick="searchByCategory('Finance')" 
-                                style="padding: 8px 16px; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #10b981; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                            💰 Finance
-                        </button>
-                        <button onclick="searchByCategory('Marketing')" 
-                                style="padding: 8px 16px; background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                            📢 Marketing
-                        </button>
-                        <button onclick="searchByCategory('Creative')" 
-                                style="padding: 8px 16px; background: rgba(249, 115, 22, 0.2); border: 1px solid rgba(249, 115, 22, 0.4); color: #fb923c; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                            🎨 Creative
-                        </button>
-                        <button onclick="searchByCategory('Leadership')" 
-                                style="padding: 8px 16px; background: rgba(100, 116, 139, 0.2); border: 1px solid rgba(100, 116, 139, 0.4); color: #94a3b8; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                            ⭐ Leadership
-                        </button>
-                    </div>
-                </div>
             </div>
+            
             <div style="padding: 15px 20px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2);">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div style="color: #9ca3af; font-size: 0.85em;">
-                        <span id="skillSearchResultCount"></span>
+                        <span id="skillManagementStatus"></span>
                     </div>
-                    <button onclick="closeSkillSearch()" 
+                    <button onclick="closeSkillManagement()" 
                             style="padding: 10px 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; cursor: pointer;">
                         Close
                     </button>
@@ -4452,11 +4554,12 @@
                         <button class="export-btn-large" onclick="showValuationBreakdown()" style="flex: 1; min-width: 200px;">
                             📊 View All ${skillsData.skills.length} Skills
                         </button>
-                        <button class="export-btn-large" onclick="openSkillSearch()" style="flex: 1; min-width: 200px; background: rgba(59, 130, 246, 0.2); border-color: #60a5fa; color: #60a5fa;">
-                            🔍 Search Skills (2,058 available)
+                        <button class="export-btn-large" onclick="openSkillManagement()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); border: none; color: white;">
+                            📊 Manage Skills (<span id="skillCountBadge1">0</span> selected)
                         </button>
-                        <button class="export-btn-large" onclick="openONETPicker()" style="flex: 1; min-width: 200px; background: rgba(139, 92, 246, 0.2); border-color: #a78bfa; color: #a78bfa;">
-                            📚 Browse O*NET Library (103 Skills)
+                        <button class="export-btn-large" onclick="openCustomSkillBuilder()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); border: none; color: white;">
+                            ⭐ Create Custom Skill
+                        </button>
                         </button>
                         <button class="export-btn-large" onclick="showNegotiationGuide()" style="flex: 1; min-width: 200px; background: rgba(251, 191, 36, 0.2); border-color: #fbbf24; color: #fbbf24;">
                             💼 Detailed Negotiation Guide
@@ -6569,11 +6672,8 @@
                     </div>
                     
                     <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
-                        <button class="export-btn-large" onclick="openSkillSearch()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);">
-                            🔍 Search Skills (2,058)
-                        </button>
-                        <button class="export-btn-large" onclick="openONETPicker()" style="flex: 1; min-width: 200px;">
-                            🏛️ Browse O*NET
+                        <button class="export-btn-large" onclick="openSkillManagement()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);">
+                            📊 Manage Skills (<span id="skillCountBadge2">0</span>)
                         </button>
                         <button class="export-btn-large" onclick="openCustomSkillBuilder()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);">
                             ⭐ Create Custom
@@ -8406,61 +8506,192 @@
         
         // ===== SKILL SEARCH MODAL FUNCTIONS (v2.3.0) =====
         
-        function openSkillSearch() {
-            const modal = document.getElementById('skillSearchModal');
+        // ===== UNIFIED SKILL MANAGEMENT SYSTEM (v2.4.0) =====
+        
+        let currentSkillManagementTab = 'yours';
+
+        function openSkillManagement() {
+            const modal = document.getElementById('skillManagementModal');
             modal.classList.add('active');
             
-            if (skillLibraryIndex) {
-                document.getElementById('skillLibraryCount').textContent = skillLibraryIndex.totalSkills;
-            }
-            
-            const input = document.getElementById('skillSearchInput');
-            input.value = '';
-            setTimeout(() => input.focus(), 100);
-            
-            showEmptySearchState();
+            updateSkillManagementCounts();
+            switchSkillManagementTab('yours');
         }
-        
-        function closeSkillSearch() {
-            const modal = document.getElementById('skillSearchModal');
+
+        function closeSkillManagement() {
+            const modal = document.getElementById('skillManagementModal');
             modal.classList.remove('active');
         }
-        
-        function showEmptySearchState() {
-            const results = document.getElementById('skillSearchResults');
-            results.innerHTML = `
+
+        function switchSkillManagementTab(tab) {
+            currentSkillManagementTab = tab;
+            
+            document.getElementById('yourSkillsTab').classList.toggle('active', tab === 'yours');
+            document.getElementById('addSkillsTab').classList.toggle('active', tab === 'add');
+            
+            document.getElementById('yourSkillsContent').style.display = tab === 'yours' ? 'block' : 'none';
+            document.getElementById('addSkillsContent').style.display = tab === 'add' ? 'block' : 'none';
+            
+            if (tab === 'yours') {
+                renderYourSkills();
+            } else {
+                showAddSkillsEmpty();
+            }
+        }
+
+        function updateSkillManagementCounts() {
+            const yourCount = userData.skills.length;
+            const availableCount = skillLibraryIndex ? skillLibraryIndex.totalSkills : 2138;
+            
+            document.getElementById('yourSkillsCount').textContent = yourCount;
+            document.getElementById('availableSkillsCount').textContent = availableCount.toLocaleString();
+            document.getElementById('skillManagementCount').textContent = 
+                `${yourCount} selected • ${availableCount.toLocaleString()} available`;
+            
+            const badges = document.querySelectorAll('[id^="skillCountBadge"]');
+            badges.forEach(badge => badge.textContent = yourCount);
+        }
+
+        function renderYourSkills() {
+            const container = document.getElementById('yourSkillsList');
+            const searchQuery = document.getElementById('yourSkillsSearchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('yourSkillsCategoryFilter').value;
+            const levelFilter = document.getElementById('yourSkillsLevelFilter').value;
+            
+            let skills = userData.skills.filter(skill => {
+                const matchesSearch = !searchQuery || skill.name.toLowerCase().includes(searchQuery);
+                const matchesCategory = categoryFilter === 'all' || skill.category === categoryFilter;
+                const matchesLevel = levelFilter === 'all' || skill.level === levelFilter;
+                return matchesSearch && matchesCategory && matchesLevel;
+            });
+            
+            if (skills.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: #9ca3af;">
+                        <div style="font-size: 3em; margin-bottom: 10px;">📋</div>
+                        <div style="font-size: 1.1em;">No skills found</div>
+                        <div style="font-size: 0.9em; margin-top: 10px;">Try adjusting your filters</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            const grouped = {};
+            skills.forEach(skill => {
+                const cat = skill.category || 'unique';
+                if (!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push(skill);
+            });
+            
+            const categoryNames = {
+                'skill': 'Technology',
+                'ability': 'General Professional',
+                'workstyle': 'Work Styles',
+                'unique': 'Custom Skills'
+            };
+            
+            container.innerHTML = Object.entries(grouped).map(([cat, catSkills]) => `
+                <div style="margin-bottom: 25px;">
+                    <div style="color: #9ca3af; font-size: 0.85em; font-weight: 600; margin-bottom: 12px; text-transform: uppercase;">
+                        ${categoryNames[cat] || cat} (${catSkills.length})
+                    </div>
+                    ${catSkills.map(skill => `
+                        <div class="your-skill-item">
+                            <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px;">
+                                <div style="flex: 1;">
+                                    <div style="color: #e0e0e0; font-weight: 600; margin-bottom: 6px; font-size: 1.05em;">
+                                        ${skill.name}
+                                    </div>
+                                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                        <span style="color: #60a5fa; font-size: 0.8em; padding: 2px 8px; background: rgba(96, 165, 250, 0.2); border-radius: 3px;">
+                                            ${skill.level}
+                                        </span>
+                                        ${skill.key ? '<span style="color: #fbbf24; font-size: 0.8em;">⭐ Core</span>' : ''}
+                                        ${skill.roles ? `<span style="color: #9ca3af; font-size: 0.8em;">${skill.roles.length} role${skill.roles.length > 1 ? 's' : ''}</span>` : ''}
+                                    </div>
+                                </div>
+                                <button onclick="removeSkillFromProfile('${skill.name.replace(/'/g, "\\'")}', '${cat}')" 
+                                        style="padding: 8px 16px; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444; border-radius: 6px; cursor: pointer; font-size: 0.9em; white-space: nowrap; font-weight: 600; transition: all 0.2s;"
+                                        onmouseover="this.style.background='rgba(239, 68, 68, 0.3)'"
+                                        onmouseout="this.style.background='rgba(239, 68, 68, 0.2)'">
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
+        function filterYourSkills() {
+            renderYourSkills();
+        }
+
+        function removeSkillFromProfile(skillName, category) {
+            if (!confirm(`Remove "${skillName}" from your profile?`)) return;
+            
+            const skillIndex = userData.skills.findIndex(s => s.name === skillName && s.category === category);
+            if (skillIndex !== -1) {
+                userData.skills.splice(skillIndex, 1);
+            }
+            
+            const dataIndex = skillsData.skills.findIndex(s => s.name === skillName && s.category === category);
+            if (dataIndex !== -1) {
+                skillsData.skills.splice(dataIndex, 1);
+            }
+            
+            saveUserData();
+            updateSkillManagementCounts();
+            renderYourSkills();
+            refreshAllViews();
+        }
+
+        function showAddSkillsEmpty() {
+            const container = document.getElementById('addSkillsResults');
+            container.innerHTML = `
                 <div style="text-align: center; padding: 60px 20px; color: #9ca3af;">
                     <div style="font-size: 3em; margin-bottom: 10px;">🔍</div>
                     <div style="font-size: 1.1em;">Start typing to search skills</div>
                     <div style="font-size: 0.9em; margin-top: 10px;">Try: "python", "marketing", "leadership"</div>
                 </div>
             `;
-            document.getElementById('skillSearchResultCount').textContent = '';
-            document.getElementById('skillPopularCategories').style.display = 'block';
+            document.getElementById('skillManagementStatus').textContent = '';
+            document.getElementById('addSkillsCategories').style.display = 'block';
         }
-        
-        let searchTimeout;
-        function handleSkillSearch() {
-            clearTimeout(searchTimeout);
+
+        let addSkillsSearchTimeout;
+        function handleAddSkillsSearch() {
+            clearTimeout(addSkillsSearchTimeout);
             
-            searchTimeout = setTimeout(() => {
-                const query = document.getElementById('skillSearchInput').value;
+            addSkillsSearchTimeout = setTimeout(() => {
+                const query = document.getElementById('addSkillsSearchInput').value;
                 
-                if (!query || query.trim().length < 2) {
-                    showEmptySearchState();
+                if (!skillLibraryIndex || !skillLibraryIndex.index) {
+                    const container = document.getElementById('addSkillsResults');
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px; color: #f59e0b;">
+                            <div style="font-size: 3em; margin-bottom: 10px;">⏳</div>
+                            <div style="font-size: 1.1em;">Loading skill library...</div>
+                        </div>
+                    `;
+                    setTimeout(() => handleAddSkillsSearch(), 1000);
                     return;
                 }
                 
-                performSkillSearch(query);
+                if (!query || query.trim().length < 2) {
+                    showAddSkillsEmpty();
+                    return;
+                }
+                
+                performAddSkillsSearch(query);
             }, 300);
         }
-        
-        function performSkillSearch(query) {
+
+        function performAddSkillsSearch(query) {
             const results = searchSkills(query);
-            const container = document.getElementById('skillSearchResults');
-            const countEl = document.getElementById('skillSearchResultCount');
+            const container = document.getElementById('addSkillsResults');
             
-            document.getElementById('skillPopularCategories').style.display = 'none';
+            document.getElementById('addSkillsCategories').style.display = 'none';
             
             if (results.length === 0) {
                 container.innerHTML = `
@@ -8470,7 +8701,7 @@
                         <div style="font-size: 0.9em; margin-top: 10px;">Try a different search term</div>
                     </div>
                 `;
-                countEl.textContent = 'No results';
+                document.getElementById('skillManagementStatus').textContent = 'No results';
                 return;
             }
             
@@ -8481,14 +8712,14 @@
                 return `
                     <div class="skill-search-result ${isAdded ? 'added' : ''}" 
                          style="padding: 12px; margin-bottom: 8px; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 3px solid ${categoryColor}; cursor: ${isAdded ? 'default' : 'pointer'}; transition: all 0.2s;"
-                         ${isAdded ? '' : `onclick="addSkillFromSearch('${skill.id}')"`}
+                         ${isAdded ? '' : `onclick="addSkillFromLibrary('${skill.id}')"`}
                          onmouseover="if (!this.classList.contains('added')) this.style.background='rgba(255,255,255,0.06)'"
                          onmouseout="if (!this.classList.contains('added')) this.style.background='rgba(255,255,255,0.03)'">
                         <div style="display: flex; justify-content: space-between; align-items: start;">
                             <div style="flex: 1;">
                                 <div style="color: #e0e0e0; font-weight: 600; margin-bottom: 4px;">
                                     ${skill.n}
-                                    ${isAdded ? '<span style="color: #10b981; font-size: 0.85em; margin-left: 8px;">✓ Added</span>' : ''}
+                                    ${isAdded ? '<span style="color: #10b981; font-size: 0.85em; margin-left: 8px;">✓ Already have</span>' : ''}
                                 </div>
                                 <div style="display: flex; gap: 8px; align-items: center;">
                                     <span style="color: ${categoryColor}; font-size: 0.75em; padding: 2px 6px; background: rgba(255,255,255,0.1); border-radius: 3px;">
@@ -8503,7 +8734,7 @@
                             </div>
                             ${!isAdded ? `
                                 <button style="padding: 6px 12px; background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); border: none; border-radius: 6px; color: white; font-size: 0.85em; font-weight: 600; cursor: pointer;"
-                                        onclick="event.stopPropagation(); addSkillFromSearch('${skill.id}')">
+                                        onclick="event.stopPropagation(); addSkillFromLibrary('${skill.id}')">
                                     + Add
                                 </button>
                             ` : ''}
@@ -8512,15 +8743,15 @@
                 `;
             }).join('');
             
-            countEl.textContent = `Found ${results.length} skill${results.length > 1 ? 's' : ''}`;
+            document.getElementById('skillManagementStatus').textContent = `Found ${results.length} skill${results.length > 1 ? 's' : ''}`;
         }
-        
-        function searchByCategory(category) {
-            document.getElementById('skillSearchInput').value = category;
-            handleSkillSearch();
+
+        function searchAddSkillsByCategory(category) {
+            document.getElementById('addSkillsSearchInput').value = category;
+            handleAddSkillsSearch();
         }
-        
-        function addSkillFromSearch(skillId) {
+
+        function addSkillFromLibrary(skillId) {
             if (!skillLibraryIndex) {
                 alert('Skill library not loaded');
                 return;
@@ -8539,6 +8770,7 @@
             let category = 'unique';
             if (skill.c === 'Technology') category = 'skill';
             else if (skill.c.includes('General Professional')) category = 'ability';
+            else if (skill.source === 'O*NET' && skill.sc && skill.sc.includes('Work Style')) category = 'workstyle';
             
             const newSkill = {
                 name: skill.n,
@@ -8546,7 +8778,7 @@
                 level: 'Advanced',
                 roles: [userData.roles[0]?.id || 'default'],
                 key: false,
-                source: 'library',
+                source: skill.source || 'library',
                 libraryId: skill.id
             };
             
@@ -8554,11 +8786,12 @@
             skillsData.skills.push(newSkill);
             
             saveUserData();
+            updateSkillManagementCounts();
             refreshAllViews();
             
-            const query = document.getElementById('skillSearchInput').value;
+            const query = document.getElementById('addSkillsSearchInput').value;
             if (query) {
-                performSkillSearch(query);
+                performAddSkillsSearch(query);
             }
         }
         
