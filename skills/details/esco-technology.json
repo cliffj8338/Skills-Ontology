@@ -1,0 +1,700 @@
+{
+  "category": "Technology",
+  "subcategories": [
+    "Programming Languages",
+    "Web Development",
+    "Cloud & DevOps",
+    "Data & Analytics",
+    "Mobile Development",
+    "Database Systems",
+    "Cybersecurity",
+    "AI & Machine Learning",
+    "Software Engineering"
+  ],
+  "skills": [
+    {
+      "id": "tech-001",
+      "name": "Python (programming language)",
+      "aliases": ["Python programming", "Python scripting", "Python development"],
+      "category": "Programming Languages",
+      "description": "High-level programming language used for web development, data analysis, automation, and AI",
+      "source": "ESCO",
+      "popularity": 95
+    },
+    {
+      "id": "tech-002",
+      "name": "JavaScript",
+      "aliases": ["JavaScript programming", "JS", "ECMAScript"],
+      "category": "Programming Languages",
+      "description": "Programming language for web development, both client-side and server-side",
+      "source": "ESCO",
+      "popularity": 98
+    },
+    {
+      "id": "tech-003",
+      "name": "Java",
+      "aliases": ["Java programming", "Java development"],
+      "category": "Programming Languages",
+      "description": "Object-oriented programming language used for enterprise applications",
+      "source": "ESCO",
+      "popularity": 90
+    },
+    {
+      "id": "tech-004",
+      "name": "C#",
+      "aliases": ["C# programming", "C Sharp", "CSharp"],
+      "category": "Programming Languages",
+      "description": "Object-oriented programming language developed by Microsoft",
+      "source": "ESCO",
+      "popularity": 75
+    },
+    {
+      "id": "tech-005",
+      "name": "C++",
+      "aliases": ["C++ programming", "CPP"],
+      "category": "Programming Languages",
+      "description": "High-performance programming language for system software and games",
+      "source": "ESCO",
+      "popularity": 70
+    },
+    {
+      "id": "tech-006",
+      "name": "TypeScript",
+      "aliases": ["TypeScript programming", "TS"],
+      "category": "Programming Languages",
+      "description": "Typed superset of JavaScript for large-scale applications",
+      "source": "ESCO",
+      "popularity": 85
+    },
+    {
+      "id": "tech-007",
+      "name": "Ruby",
+      "aliases": ["Ruby programming", "Ruby development"],
+      "category": "Programming Languages",
+      "description": "Dynamic programming language focused on simplicity and productivity",
+      "source": "ESCO",
+      "popularity": 60
+    },
+    {
+      "id": "tech-008",
+      "name": "PHP",
+      "aliases": ["PHP programming", "PHP development"],
+      "category": "Programming Languages",
+      "description": "Server-side scripting language for web development",
+      "source": "ESCO",
+      "popularity": 65
+    },
+    {
+      "id": "tech-009",
+      "name": "Go (programming language)",
+      "aliases": ["Golang", "Go programming", "Google Go"],
+      "category": "Programming Languages",
+      "description": "Programming language designed for concurrent and scalable systems",
+      "source": "ESCO",
+      "popularity": 70
+    },
+    {
+      "id": "tech-010",
+      "name": "Rust",
+      "aliases": ["Rust programming", "Rust development"],
+      "category": "Programming Languages",
+      "description": "Systems programming language focused on safety and performance",
+      "source": "ESCO",
+      "popularity": 65
+    },
+    {
+      "id": "tech-011",
+      "name": "Swift",
+      "aliases": ["Swift programming", "Swift development"],
+      "category": "Programming Languages",
+      "description": "Programming language for iOS and macOS development",
+      "source": "ESCO",
+      "popularity": 70
+    },
+    {
+      "id": "tech-012",
+      "name": "Kotlin",
+      "aliases": ["Kotlin programming", "Kotlin development"],
+      "category": "Programming Languages",
+      "description": "Modern programming language for Android development",
+      "source": "ESCO",
+      "popularity": 68
+    },
+    {
+      "id": "tech-013",
+      "name": "R (programming language)",
+      "aliases": ["R programming", "R statistical programming"],
+      "category": "Programming Languages",
+      "description": "Programming language for statistical computing and data analysis",
+      "source": "ESCO",
+      "popularity": 55
+    },
+    {
+      "id": "tech-014",
+      "name": "Scala",
+      "aliases": ["Scala programming", "Scala development"],
+      "category": "Programming Languages",
+      "description": "Programming language combining object-oriented and functional programming",
+      "source": "ESCO",
+      "popularity": 50
+    },
+    {
+      "id": "tech-015",
+      "name": "MATLAB",
+      "aliases": ["MATLAB programming", "Matrix Laboratory"],
+      "category": "Programming Languages",
+      "description": "Programming platform for numerical computing and algorithm development",
+      "source": "ESCO",
+      "popularity": 45
+    },
+    {
+      "id": "tech-020",
+      "name": "React",
+      "aliases": ["React.js", "ReactJS", "React framework"],
+      "category": "Web Development",
+      "description": "JavaScript library for building user interfaces",
+      "source": "ESCO",
+      "popularity": 92
+    },
+    {
+      "id": "tech-021",
+      "name": "Angular",
+      "aliases": ["Angular.js", "AngularJS", "Angular framework"],
+      "category": "Web Development",
+      "description": "TypeScript-based web application framework",
+      "source": "ESCO",
+      "popularity": 75
+    },
+    {
+      "id": "tech-022",
+      "name": "Vue.js",
+      "aliases": ["Vue", "VueJS", "Vue framework"],
+      "category": "Web Development",
+      "description": "Progressive JavaScript framework for building user interfaces",
+      "source": "ESCO",
+      "popularity": 80
+    },
+    {
+      "id": "tech-023",
+      "name": "Node.js",
+      "aliases": ["NodeJS", "Node"],
+      "category": "Web Development",
+      "description": "JavaScript runtime for server-side development",
+      "source": "ESCO",
+      "popularity": 88
+    },
+    {
+      "id": "tech-024",
+      "name": "Django",
+      "aliases": ["Django framework", "Django web framework"],
+      "category": "Web Development",
+      "description": "High-level Python web framework",
+      "source": "ESCO",
+      "popularity": 70
+    },
+    {
+      "id": "tech-025",
+      "name": "Flask",
+      "aliases": ["Flask framework", "Flask Python"],
+      "category": "Web Development",
+      "description": "Lightweight Python web framework",
+      "source": "ESCO",
+      "popularity": 65
+    },
+    {
+      "id": "tech-026",
+      "name": "Ruby on Rails",
+      "aliases": ["Rails", "RoR", "Rails framework"],
+      "category": "Web Development",
+      "description": "Web application framework written in Ruby",
+      "source": "ESCO",
+      "popularity": 55
+    },
+    {
+      "id": "tech-027",
+      "name": "Spring Framework",
+      "aliases": ["Spring", "Spring Boot"],
+      "category": "Web Development",
+      "description": "Java framework for enterprise applications",
+      "source": "ESCO",
+      "popularity": 72
+    },
+    {
+      "id": "tech-028",
+      "name": "Express.js",
+      "aliases": ["Express", "ExpressJS"],
+      "category": "Web Development",
+      "description": "Web application framework for Node.js",
+      "source": "ESCO",
+      "popularity": 82
+    },
+    {
+      "id": "tech-029",
+      "name": "Next.js",
+      "aliases": ["NextJS", "Next"],
+      "category": "Web Development",
+      "description": "React framework for production-ready applications",
+      "source": "ESCO",
+      "popularity": 85
+    },
+    {
+      "id": "tech-030",
+      "name": "HTML5",
+      "aliases": ["HTML", "HyperText Markup Language"],
+      "category": "Web Development",
+      "description": "Latest version of HTML for structuring web content",
+      "source": "ESCO",
+      "popularity": 95
+    },
+    {
+      "id": "tech-031",
+      "name": "CSS3",
+      "aliases": ["CSS", "Cascading Style Sheets"],
+      "category": "Web Development",
+      "description": "Style sheet language for describing web page presentation",
+      "source": "ESCO",
+      "popularity": 95
+    },
+    {
+      "id": "tech-032",
+      "name": "RESTful API design",
+      "aliases": ["REST API", "RESTful services", "REST architecture"],
+      "category": "Web Development",
+      "description": "Architectural style for designing networked applications",
+      "source": "ESCO",
+      "popularity": 88
+    },
+    {
+      "id": "tech-033",
+      "name": "GraphQL",
+      "aliases": ["GraphQL API", "GraphQL query language"],
+      "category": "Web Development",
+      "description": "Query language for APIs and runtime for executing queries",
+      "source": "ESCO",
+      "popularity": 75
+    },
+    {
+      "id": "tech-040",
+      "name": "Amazon Web Services (AWS)",
+      "aliases": ["AWS", "AWS cloud", "Amazon cloud"],
+      "category": "Cloud & DevOps",
+      "description": "Cloud computing platform by Amazon",
+      "source": "ESCO",
+      "popularity": 92
+    },
+    {
+      "id": "tech-041",
+      "name": "Microsoft Azure",
+      "aliases": ["Azure", "Azure cloud"],
+      "category": "Cloud & DevOps",
+      "description": "Cloud computing platform by Microsoft",
+      "source": "ESCO",
+      "popularity": 85
+    },
+    {
+      "id": "tech-042",
+      "name": "Google Cloud Platform (GCP)",
+      "aliases": ["GCP", "Google Cloud"],
+      "category": "Cloud & DevOps",
+      "description": "Cloud computing platform by Google",
+      "source": "ESCO",
+      "popularity": 78
+    },
+    {
+      "id": "tech-043",
+      "name": "Docker",
+      "aliases": ["Docker containers", "Docker containerization"],
+      "category": "Cloud & DevOps",
+      "description": "Platform for developing and running containerized applications",
+      "source": "ESCO",
+      "popularity": 88
+    },
+    {
+      "id": "tech-044",
+      "name": "Kubernetes",
+      "aliases": ["K8s", "Kubernetes orchestration"],
+      "category": "Cloud & DevOps",
+      "description": "Container orchestration platform for automating deployment",
+      "source": "ESCO",
+      "popularity": 85
+    },
+    {
+      "id": "tech-045",
+      "name": "Jenkins",
+      "aliases": ["Jenkins CI/CD", "Jenkins automation"],
+      "category": "Cloud & DevOps",
+      "description": "Automation server for continuous integration and delivery",
+      "source": "ESCO",
+      "popularity": 75
+    },
+    {
+      "id": "tech-046",
+      "name": "Terraform",
+      "aliases": ["Terraform IaC", "Infrastructure as Code"],
+      "category": "Cloud & DevOps",
+      "description": "Infrastructure as code tool for building and managing cloud resources",
+      "source": "ESCO",
+      "popularity": 80
+    },
+    {
+      "id": "tech-047",
+      "name": "Git",
+      "aliases": ["Git version control", "Git VCS"],
+      "category": "Cloud & DevOps",
+      "description": "Distributed version control system",
+      "source": "ESCO",
+      "popularity": 98
+    },
+    {
+      "id": "tech-048",
+      "name": "CI/CD",
+      "aliases": ["Continuous Integration", "Continuous Deployment", "CI CD pipeline"],
+      "category": "Cloud & DevOps",
+      "description": "Practice of automating software integration and deployment",
+      "source": "ESCO",
+      "popularity": 85
+    },
+    {
+      "id": "tech-049",
+      "name": "Ansible",
+      "aliases": ["Ansible automation", "Ansible configuration"],
+      "category": "Cloud & DevOps",
+      "description": "Automation tool for configuration management and deployment",
+      "source": "ESCO",
+      "popularity": 70
+    },
+    {
+      "id": "tech-060",
+      "name": "SQL",
+      "aliases": ["Structured Query Language", "SQL programming"],
+      "category": "Database Systems",
+      "description": "Language for managing and querying relational databases",
+      "source": "ESCO",
+      "popularity": 95
+    },
+    {
+      "id": "tech-061",
+      "name": "PostgreSQL",
+      "aliases": ["Postgres", "PostgreSQL database"],
+      "category": "Database Systems",
+      "description": "Open-source relational database management system",
+      "source": "ESCO",
+      "popularity": 82
+    },
+    {
+      "id": "tech-062",
+      "name": "MySQL",
+      "aliases": ["MySQL database", "MySQL RDBMS"],
+      "category": "Database Systems",
+      "description": "Open-source relational database management system",
+      "source": "ESCO",
+      "popularity": 85
+    },
+    {
+      "id": "tech-063",
+      "name": "MongoDB",
+      "aliases": ["MongoDB NoSQL", "Mongo database"],
+      "category": "Database Systems",
+      "description": "NoSQL document-oriented database",
+      "source": "ESCO",
+      "popularity": 80
+    },
+    {
+      "id": "tech-064",
+      "name": "Redis",
+      "aliases": ["Redis cache", "Redis in-memory"],
+      "category": "Database Systems",
+      "description": "In-memory data structure store used as cache and message broker",
+      "source": "ESCO",
+      "popularity": 75
+    },
+    {
+      "id": "tech-065",
+      "name": "Oracle Database",
+      "aliases": ["Oracle DB", "Oracle RDBMS"],
+      "category": "Database Systems",
+      "description": "Enterprise relational database management system",
+      "source": "ESCO",
+      "popularity": 70
+    },
+    {
+      "id": "tech-066",
+      "name": "Microsoft SQL Server",
+      "aliases": ["SQL Server", "MSSQL"],
+      "category": "Database Systems",
+      "description": "Relational database management system by Microsoft",
+      "source": "ESCO",
+      "popularity": 78
+    },
+    {
+      "id": "tech-067",
+      "name": "Elasticsearch",
+      "aliases": ["Elastic search", "Elasticsearch engine"],
+      "category": "Database Systems",
+      "description": "Distributed search and analytics engine",
+      "source": "ESCO",
+      "popularity": 72
+    },
+    {
+      "id": "tech-080",
+      "name": "Machine Learning",
+      "aliases": ["ML", "Machine learning algorithms"],
+      "category": "AI & Machine Learning",
+      "description": "Development of algorithms that learn from data",
+      "source": "ESCO",
+      "popularity": 90
+    },
+    {
+      "id": "tech-081",
+      "name": "Deep Learning",
+      "aliases": ["Deep neural networks", "DNN"],
+      "category": "AI & Machine Learning",
+      "description": "Subset of machine learning using neural networks",
+      "source": "ESCO",
+      "popularity": 85
+    },
+    {
+      "id": "tech-082",
+      "name": "TensorFlow",
+      "aliases": ["TensorFlow framework", "TF"],
+      "category": "AI & Machine Learning",
+      "description": "Open-source machine learning framework",
+      "source": "ESCO",
+      "popularity": 82
+    },
+    {
+      "id": "tech-083",
+      "name": "PyTorch",
+      "aliases": ["PyTorch framework", "Torch"],
+      "category": "AI & Machine Learning",
+      "description": "Machine learning framework for Python",
+      "source": "ESCO",
+      "popularity": 85
+    },
+    {
+      "id": "tech-084",
+      "name": "Natural Language Processing (NLP)",
+      "aliases": ["NLP", "Text analytics", "Computational linguistics"],
+      "category": "AI & Machine Learning",
+      "description": "Processing and analyzing human language data",
+      "source": "ESCO",
+      "popularity": 78
+    },
+    {
+      "id": "tech-085",
+      "name": "Computer Vision",
+      "aliases": ["Image processing", "Visual recognition"],
+      "category": "AI & Machine Learning",
+      "description": "Enabling computers to understand visual information",
+      "source": "ESCO",
+      "popularity": 75
+    },
+    {
+      "id": "tech-086",
+      "name": "scikit-learn",
+      "aliases": ["sklearn", "scikit learn"],
+      "category": "AI & Machine Learning",
+      "description": "Machine learning library for Python",
+      "source": "ESCO",
+      "popularity": 80
+    },
+    {
+      "id": "tech-100",
+      "name": "pandas",
+      "aliases": ["pandas library", "Python pandas"],
+      "category": "Data & Analytics",
+      "description": "Data manipulation and analysis library for Python",
+      "source": "ESCO",
+      "popularity": 85
+    },
+    {
+      "id": "tech-101",
+      "name": "NumPy",
+      "aliases": ["numpy", "Numerical Python"],
+      "category": "Data & Analytics",
+      "description": "Library for numerical computing in Python",
+      "source": "ESCO",
+      "popularity": 82
+    },
+    {
+      "id": "tech-102",
+      "name": "Data Analysis",
+      "aliases": ["Data analytics", "Data examination"],
+      "category": "Data & Analytics",
+      "description": "Inspecting and interpreting data to discover insights",
+      "source": "ESCO",
+      "popularity": 92
+    },
+    {
+      "id": "tech-103",
+      "name": "Data Visualization",
+      "aliases": ["Data viz", "Visual analytics"],
+      "category": "Data & Analytics",
+      "description": "Presenting data in graphical or pictorial format",
+      "source": "ESCO",
+      "popularity": 85
+    },
+    {
+      "id": "tech-104",
+      "name": "Tableau",
+      "aliases": ["Tableau software", "Tableau analytics"],
+      "category": "Data & Analytics",
+      "description": "Visual analytics platform for business intelligence",
+      "source": "ESCO",
+      "popularity": 75
+    },
+    {
+      "id": "tech-105",
+      "name": "Power BI",
+      "aliases": ["Microsoft Power BI", "PowerBI"],
+      "category": "Data & Analytics",
+      "description": "Business analytics service by Microsoft",
+      "source": "ESCO",
+      "popularity": 80
+    },
+    {
+      "id": "tech-106",
+      "name": "Apache Spark",
+      "aliases": ["Spark", "Spark analytics"],
+      "category": "Data & Analytics",
+      "description": "Unified analytics engine for large-scale data processing",
+      "source": "ESCO",
+      "popularity": 72
+    },
+    {
+      "id": "tech-107",
+      "name": "Apache Hadoop",
+      "aliases": ["Hadoop", "Hadoop framework"],
+      "category": "Data & Analytics",
+      "description": "Framework for distributed storage and processing of big data",
+      "source": "ESCO",
+      "popularity": 65
+    },
+    {
+      "id": "tech-120",
+      "name": "iOS Development",
+      "aliases": ["iPhone development", "iOS programming"],
+      "category": "Mobile Development",
+      "description": "Developing applications for Apple iOS devices",
+      "source": "ESCO",
+      "popularity": 75
+    },
+    {
+      "id": "tech-121",
+      "name": "Android Development",
+      "aliases": ["Android programming", "Android app development"],
+      "category": "Mobile Development",
+      "description": "Developing applications for Android devices",
+      "source": "ESCO",
+      "popularity": 78
+    },
+    {
+      "id": "tech-122",
+      "name": "React Native",
+      "aliases": ["React Native framework", "RN"],
+      "category": "Mobile Development",
+      "description": "Framework for building mobile apps using React",
+      "source": "ESCO",
+      "popularity": 82
+    },
+    {
+      "id": "tech-123",
+      "name": "Flutter",
+      "aliases": ["Flutter framework", "Flutter development"],
+      "category": "Mobile Development",
+      "description": "UI toolkit for building mobile applications",
+      "source": "ESCO",
+      "popularity": 80
+    },
+    {
+      "id": "tech-140",
+      "name": "Cybersecurity",
+      "aliases": ["Information security", "InfoSec", "Computer security"],
+      "category": "Cybersecurity",
+      "description": "Protection of computer systems and networks from threats",
+      "source": "ESCO",
+      "popularity": 88
+    },
+    {
+      "id": "tech-141",
+      "name": "Network Security",
+      "aliases": ["Network protection", "Network defense"],
+      "category": "Cybersecurity",
+      "description": "Protection of network infrastructure from unauthorized access",
+      "source": "ESCO",
+      "popularity": 80
+    },
+    {
+      "id": "tech-142",
+      "name": "Penetration Testing",
+      "aliases": ["Pen testing", "Ethical hacking", "Security testing"],
+      "category": "Cybersecurity",
+      "description": "Authorized simulated attacks to test system security",
+      "source": "ESCO",
+      "popularity": 75
+    },
+    {
+      "id": "tech-143",
+      "name": "Encryption",
+      "aliases": ["Data encryption", "Cryptography"],
+      "category": "Cybersecurity",
+      "description": "Encoding information to prevent unauthorized access",
+      "source": "ESCO",
+      "popularity": 82
+    },
+    {
+      "id": "tech-160",
+      "name": "Agile Methodology",
+      "aliases": ["Agile development", "Agile practices"],
+      "category": "Software Engineering",
+      "description": "Iterative approach to software development and project management",
+      "source": "ESCO",
+      "popularity": 90
+    },
+    {
+      "id": "tech-161",
+      "name": "Scrum",
+      "aliases": ["Scrum framework", "Scrum methodology"],
+      "category": "Software Engineering",
+      "description": "Agile framework for managing product development",
+      "source": "ESCO",
+      "popularity": 85
+    },
+    {
+      "id": "tech-162",
+      "name": "Software Architecture",
+      "aliases": ["System architecture", "Application architecture"],
+      "category": "Software Engineering",
+      "description": "High-level structure and design of software systems",
+      "source": "ESCO",
+      "popularity": 82
+    },
+    {
+      "id": "tech-163",
+      "name": "Microservices Architecture",
+      "aliases": ["Microservices", "Service-oriented architecture"],
+      "category": "Software Engineering",
+      "description": "Architectural style structuring application as collection of services",
+      "source": "ESCO",
+      "popularity": 80
+    },
+    {
+      "id": "tech-164",
+      "name": "Test-Driven Development (TDD)",
+      "aliases": ["TDD", "Test-first development"],
+      "category": "Software Engineering",
+      "description": "Software development approach where tests are written before code",
+      "source": "ESCO",
+      "popularity": 72
+    },
+    {
+      "id": "tech-165",
+      "name": "Unit Testing",
+      "aliases": ["Unit tests", "Component testing"],
+      "category": "Software Engineering",
+      "description": "Testing individual units or components of software",
+      "source": "ESCO",
+      "popularity": 85
+    }
+  ]
+}
