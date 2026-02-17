@@ -1,0 +1,108 @@
+{
+    "templateId": "cliff-executive-strategy",
+    "templateName": "Executive Strategy Professional",
+    "templateDescription": "VP-level strategy executive with AI, foresight, and transformation expertise",
+    "profile": {
+        "name": "Cliff Jurkiewicz",
+        "location": "Philadelphia, Pennsylvania, US",
+        "roleLevel": "Executive",
+        "currentTitle": "VP Global Strategy, GM Customer Advisory",
+        "yearsExperience": 25
+    },
+    "roles": [
+        { "id": "strategy", "name": "VP Global Strategy", "icon": "🎯", "color": "#ef4444" },
+        { "id": "futurist", "name": "Futurist & Evangelist", "icon": "🔮", "color": "#f59e0b" },
+        { "id": "pilot", "name": "IFR Pilot", "icon": "✈️", "color": "#3b82f6" },
+        { "id": "musician", "name": "Musician", "icon": "🎵", "color": "#8b5cf6" },
+        { "id": "advocate", "name": "Recovery Advocate", "icon": "💚", "color": "#10b981" },
+        { "id": "tech", "name": "Technology Strategist", "icon": "⚙️", "color": "#06b6d4" },
+        { "id": "creative", "name": "Creative Director", "icon": "🎨", "color": "#ec4899" },
+        { "id": "operations", "name": "Operations Leader", "icon": "🍔", "color": "#f97316" },
+        { "id": "entrepreneur", "name": "Entrepreneur", "icon": "🚀", "color": "#a855f7" }
+    ],
+    "skills": [
+        { "name": "Enterprise AI Strategy", "level": "Mastery", "roles": ["strategy", "futurist", "tech"], "key": false },
+        { "name": "AI/ML Product Strategy", "level": "Mastery", "roles": ["strategy", "tech", "futurist"], "key": false },
+        { "name": "C-Suite Advisory & Influence", "level": "Advanced", "roles": ["strategy", "futurist"], "key": false },
+        { "name": "Strategic Foresight & Market Prediction", "level": "Mastery", "roles": ["strategy", "futurist"], "key": true },
+        { "name": "Human-AI Collaboration Model Design", "level": "Mastery", "roles": ["futurist", "strategy"], "key": true },
+        { "name": "Organizational Transformation", "level": "Advanced", "roles": ["strategy", "tech", "entrepreneur"], "key": false },
+        { "name": "Crisis Leadership & Decision Making", "level": "Mastery", "roles": ["pilot", "operations", "advocate", "strategy", "entrepreneur"], "key": true },
+        { "name": "Data-Driven Strategy Development", "level": "Advanced", "roles": ["strategy", "tech"], "key": false },
+        { "name": "Go-to-Market Strategy", "level": "Advanced", "roles": ["strategy", "tech", "entrepreneur"], "key": false },
+        { "name": "Business Case Development", "level": "Advanced", "roles": ["strategy", "tech", "entrepreneur"], "key": false },
+        { "name": "Technology Trend Forecasting", "level": "Mastery", "roles": ["futurist", "strategy"], "key": true },
+        { "name": "Predictive Framework Development", "level": "Mastery", "roles": ["futurist", "strategy"], "key": true },
+        { "name": "Technical Concept Translation", "level": "Mastery", "roles": ["futurist", "tech", "strategy"], "key": true },
+        { "name": "Candidate Experience Architecture", "level": "Mastery", "roles": ["strategy"], "key": true },
+        { "name": "Emergency Airmanship", "level": "Mastery", "roles": ["pilot"], "key": true },
+        { "name": "Spatial Reasoning & 3D Problem Solving", "level": "Mastery", "roles": ["pilot", "musician", "creative", "tech"], "key": true },
+        { "name": "Research Synthesis & Pattern Recognition", "level": "Mastery", "roles": ["futurist", "strategy"], "key": true },
+        { "name": "Authentic Leadership & Trust Building", "level": "Mastery", "roles": ["advocate", "futurist"], "key": true },
+        { "name": "Weak Signal Detection & Trend Recognition", "level": "Mastery", "roles": ["futurist", "strategy"], "key": true },
+        { "name": "Customer Advisory Board Leadership", "level": "Mastery", "roles": ["strategy"], "key": false },
+        { "name": "HR Technology Market Intelligence", "level": "Mastery", "roles": ["strategy", "futurist"], "key": false },
+        { "name": "Technology Lifecycle & Disruption Analysis", "level": "Mastery", "roles": ["futurist", "tech"], "key": false },
+        { "name": "Computational & Systems Thinking", "level": "Advanced", "roles": ["tech", "pilot"], "key": false },
+        { "name": "Scenario Planning & Strategic Alternatives", "level": "Advanced", "roles": ["strategy", "futurist"], "key": false },
+        { "name": "Executive Narrative & Storytelling", "level": "Mastery", "roles": ["futurist", "strategy"], "key": false },
+        { "name": "Public Speaking & Keynote Delivery", "level": "Mastery", "roles": ["futurist", "musician"], "key": false },
+        { "name": "Thought Leadership Authorship", "level": "Mastery", "roles": ["futurist"], "key": false },
+        { "name": "Rhetorical Strategy & Persuasion", "level": "Mastery", "roles": ["futurist", "strategy"], "key": false },
+        { "name": "Real-Time Improvisation", "level": "Mastery", "roles": ["musician", "futurist"], "key": false },
+        { "name": "Talent Acquisition Strategy", "level": "Mastery", "roles": ["strategy"], "key": false },
+        { "name": "AI Ethics & Responsible Implementation", "level": "Advanced", "roles": ["strategy", "futurist"], "key": false },
+        { "name": "Workforce Trends & Future of Work Analysis", "level": "Mastery", "roles": ["futurist", "strategy"], "key": false },
+        { "name": "AI Impact on Human Work", "level": "Mastery", "roles": ["futurist", "strategy"], "key": false },
+        { "name": "Enterprise Client Relationship Management", "level": "Mastery", "roles": ["strategy", "entrepreneur"], "key": false },
+        { "name": "Strategic Team Building", "level": "Advanced", "roles": ["strategy", "operations", "tech", "entrepreneur"], "key": false },
+        { "name": "Executive Mentorship", "level": "Advanced", "roles": ["strategy"], "key": false },
+        { "name": "Executive Presence & Authority", "level": "Mastery", "roles": ["strategy", "futurist"], "key": false },
+        { "name": "High-Pressure Performance", "level": "Mastery", "roles": ["pilot", "musician", "operations"], "key": false },
+        { "name": "Live Musical Performance", "level": "Mastery", "roles": ["musician"], "key": false },
+        { "name": "Stage Command & Audience Connection", "level": "Mastery", "roles": ["musician", "futurist"], "key": false },
+        { "name": "Single-Pilot IFR in Complex Airspace", "level": "Mastery", "roles": ["pilot"], "key": false },
+        { "name": "Single-Pilot Resource Management", "level": "Mastery", "roles": ["pilot"], "key": false },
+        { "name": "Situational Awareness in Dynamic Environments", "level": "Mastery", "roles": ["pilot", "operations"], "key": false },
+        { "name": "Multi-Channel Cognitive Load Management", "level": "Mastery", "roles": ["pilot", "operations"], "key": false },
+        { "name": "Talent Intelligence Platform Design", "level": "Mastery", "roles": ["strategy", "tech"], "key": false },
+        { "name": "Risk Assessment & Mitigation", "level": "Mastery", "roles": ["strategy", "pilot", "operations", "entrepreneur"], "key": false },
+        { "name": "Leadership Through Lived Experience", "level": "Mastery", "roles": ["advocate"], "key": false },
+        { "name": "Mental Health & Addiction Advocacy", "level": "Mastery", "roles": ["advocate"], "key": false },
+        { "name": "Culture Change & Inclusion Initiatives", "level": "Advanced", "roles": ["advocate"], "key": false },
+        { "name": "Complex Problem Diagnosis & Resolution", "level": "Advanced", "roles": ["advocate"], "key": false }
+    ],
+    "values": [
+        {
+            "name": "Intellectual Integrity",
+            "description": "Pursue truth over confirmation. Evidence-based decisions, always. Challenge assumptions before accepting conclusions.",
+            "selected": true
+        },
+        {
+            "name": "Strategic Foresight Over Reaction",
+            "description": "Anticipate market shifts 18-24 months early. Lead change, don't follow it. 85-95% predictive accuracy through pattern recognition.",
+            "selected": true
+        },
+        {
+            "name": "Radical Transparency",
+            "description": "Share hard truths directly and kindly. Reality-based planning wins. Confront problems early, not late.",
+            "selected": true
+        },
+        {
+            "name": "Outcome-Focused Excellence",
+            "description": "Judge by impact delivered, not activity performed. Results drive everything. Measure outcomes, not effort.",
+            "selected": true
+        },
+        {
+            "name": "Elegant Simplicity",
+            "description": "Distill complexity into clarity. Deep understanding enables simple solutions. Make sophisticated insights accessible.",
+            "selected": true
+        },
+        {
+            "name": "Authentic, Human Leadership",
+            "description": "Lead with vulnerability and truth. Strength through self-awareness. Use personal experience to build trust and reduce stigma.",
+            "selected": true
+        }
+    ],
+    "purpose": "I help organizations navigate transformation through strategic foresight and evidence-based decision making. Using pattern recognition and predictive frameworks, I enable leaders to see market shifts 18-24 months early and make proactive choices. I lead with authenticity and transparency, using personal experience to build trust that enables honest discourse about complex challenges."
+}
