@@ -3652,12 +3652,12 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0100
-        // FIREBASE AUTH + FIRESTORE PERSISTENCE
+        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0115
+        // FIREBASE AUTH + FIRESTORE + DROPDOWN FIX
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   WORK BLUEPRINT v4.0.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260219-0100                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260219-0115                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -4002,18 +4002,21 @@
                     + '</div>';
             }
             
-            // Sample profiles
+            // Sample profiles from manifest
             var manifest = window.profilesManifest;
             if (manifest && manifest.profiles) {
                 manifest.profiles.filter(function(p) { return p.enabled; }).forEach(function(p) {
                     var isCurrent = (userData.templateId === p.id);
-                    html += '<div class="profile-dropdown-item' + (isCurrent ? ' active' : '') + '" '
+                    var initials = p.name.split(' ').map(function(w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
+                    html += '<div class="profile-option' + (isCurrent ? ' active-profile' : '') + '" '
                         + 'onclick="switchProfile(\'' + p.id + '\'); closeProfileDropdown();">'
-                        + '<div class="profile-dropdown-avatar">' + getInitials(p.name) + '</div>'
-                        + '<div class="profile-dropdown-info">'
-                        + '<div class="profile-dropdown-name">' + p.name + ' <span style="font-size:0.75em; color:var(--text-muted);">SAMPLE</span></div>'
-                        + '<div class="profile-dropdown-title">' + p.title + '</div>'
-                        + '</div></div>';
+                        + '<div class="profile-option-avatar">' + initials + '</div>'
+                        + '<div class="profile-option-info">'
+                        + '<div class="profile-option-name">' + p.name + ' <span style="font-size:0.7em; color:var(--text-muted); font-weight:400;">SAMPLE</span></div>'
+                        + '<div class="profile-option-title">' + (p.title || '') + '</div>'
+                        + '</div>'
+                        + (isCurrent ? '<span class="profile-option-check">\u2713</span>' : '')
+                        + '</div>';
                 });
             }
             
@@ -4021,13 +4024,18 @@
             if (fbUser) {
                 html += '<div style="height:1px; background:var(--border); margin:6px 0;"></div>';
                 if (fbIsAdmin) {
-                    html += '<div class="profile-dropdown-item" onclick="showAdminPanel(); closeProfileDropdown();">'
-                        + '<div class="profile-dropdown-avatar" style="background:rgba(251,191,36,0.2); color:#fbbf24;">👑</div>'
-                        + '<div class="profile-dropdown-info"><div class="profile-dropdown-name">Admin Dashboard</div></div></div>';
+                    html += '<div class="profile-option" onclick="showAdminPanel(); closeProfileDropdown();">'
+                        + '<div class="profile-option-avatar" style="background:rgba(251,191,36,0.2); color:#fbbf24;">\uD83D\uDC51</div>'
+                        + '<div class="profile-option-info"><div class="profile-option-name">Admin Dashboard</div></div></div>';
                 }
-                html += '<div class="profile-dropdown-item" onclick="authSignOut(); closeProfileDropdown();">'
-                    + '<div class="profile-dropdown-avatar" style="background:rgba(239,68,68,0.15); color:#ef4444;">⏻</div>'
-                    + '<div class="profile-dropdown-info"><div class="profile-dropdown-name" style="color:#ef4444;">Sign Out</div></div></div>';
+                html += '<div class="profile-option" onclick="authSignOut(); closeProfileDropdown();">'
+                    + '<div class="profile-option-avatar" style="background:rgba(239,68,68,0.15); color:#ef4444;">\u23FB</div>'
+                    + '<div class="profile-option-info"><div class="profile-option-name" style="color:#ef4444;">Sign Out</div></div></div>';
+            } else {
+                html += '<div style="height:1px; background:var(--border); margin:6px 0;"></div>';
+                html += '<div class="profile-option" onclick="showAuthModal(\'signin\'); closeProfileDropdown();">'
+                    + '<div class="profile-option-avatar" style="background:rgba(96,165,250,0.2); color:#60a5fa;">\uD83D\uDD10</div>'
+                    + '<div class="profile-option-info"><div class="profile-option-name" style="color:var(--accent);">Sign In / Create Account</div></div></div>';
             }
             
             container.innerHTML = html;
@@ -4761,12 +4769,14 @@
                 ).join('');
             }
 
-            // Build new visual profile dropdown
-            buildProfileDropdown(profiles, currentId);
+            // Rebuild auth-aware dropdown (includes sample profiles + auth controls)
+            rebuildProfileDropdown();
 
-            // Update the profile chip name/avatar
-            const current = profiles.find(p => p.id === currentId) || profiles[0];
-            if (current) updateProfileChip(current.name);
+            // Update the profile chip name/avatar (only if not signed in, otherwise auth controls it)
+            if (!fbUser) {
+                const current = profiles.find(p => p.id === currentId) || profiles[0];
+                if (current) updateProfileChip(current.name);
+            }
 
             console.log(`✓ Profile selector built with ${profiles.length} options`);
         }
@@ -5078,6 +5088,19 @@
                 initializeMainApp();
                 setTimeout(() => showOnboardingWizard(), 400);
             }
+            
+            // If signed in, try loading user's Firestore data (won't override if empty)
+            if (fbUser && fbDb) {
+                loadUserFromFirestore(fbUser.uid).then(function(loaded) {
+                    if (loaded) {
+                        console.log('☁ Firestore profile applied');
+                        rebuildProfileDropdown();
+                    }
+                });
+            }
+            
+            // Always rebuild dropdown after manifest is available
+            rebuildProfileDropdown();
         }
         
         // Non-intrusive first-visit prompt to build own profile
