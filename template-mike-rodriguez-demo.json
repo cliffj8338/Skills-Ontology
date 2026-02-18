@@ -105,7 +105,7 @@
     },
     {
       "name": "Technology Design",
-      "level": "Mastery",
+      "level": "Advanced",
       "category": "skill",
       "key": true,
       "onetId": "2.B.5.a",
@@ -123,7 +123,7 @@
     },
     {
       "name": "Judgment and Decision Making",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.B.6.a",
@@ -177,7 +177,7 @@
     },
     {
       "name": "Quality Control Analysis",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.B.9.a",
@@ -194,7 +194,7 @@
     },
     {
       "name": "Active Learning",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.B.10.a",
@@ -212,7 +212,7 @@
     },
     {
       "name": "Operations Analysis",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.B.11.a",
@@ -229,7 +229,7 @@
     },
     {
       "name": "Systems Evaluation",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.B.12.a",
@@ -263,7 +263,7 @@
     },
     {
       "name": "Monitoring",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.B.14.a",
@@ -281,7 +281,7 @@
     },
     {
       "name": "Equipment Selection",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.B.15.a",
@@ -315,7 +315,7 @@
     },
     {
       "name": "Reading Comprehension",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.B.17.a",
@@ -333,7 +333,7 @@
     },
     {
       "name": "Writing",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.B.18.a",
@@ -351,7 +351,7 @@
     },
     {
       "name": "Active Listening",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.B.19.a",
@@ -368,7 +368,7 @@
     },
     {
       "name": "Speaking",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.B.20.a",
@@ -386,7 +386,7 @@
     },
     {
       "name": "Coordination",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.B.21.a",
@@ -404,7 +404,7 @@
     },
     {
       "name": "Time Management",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.B.22.a",
@@ -422,7 +422,7 @@
     },
     {
       "name": "Persuasion",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.B.23.a",
@@ -457,7 +457,7 @@
     },
     {
       "name": "Attention to Detail",
-      "level": "Mastery",
+      "level": "Proficient",
       "category": "workstyle",
       "key": true,
       "onetId": "1.C.1.a",
@@ -474,7 +474,7 @@
     },
     {
       "name": "Dependability",
-      "level": "Mastery",
+      "level": "Proficient",
       "category": "workstyle",
       "key": true,
       "onetId": "1.C.2.a",
@@ -492,7 +492,7 @@
     },
     {
       "name": "Persistence",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.3.a",
@@ -509,7 +509,7 @@
     },
     {
       "name": "Initiative",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.4.a",
@@ -526,7 +526,7 @@
     },
     {
       "name": "Analytical Thinking",
-      "level": "Mastery",
+      "level": "Advanced",
       "category": "workstyle",
       "key": true,
       "onetId": "1.C.5.a",
@@ -544,7 +544,7 @@
     },
     {
       "name": "Stress Tolerance",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.6.a",
@@ -561,7 +561,7 @@
     },
     {
       "name": "Adaptability/Flexibility",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.7.a",
@@ -579,7 +579,7 @@
     },
     {
       "name": "Deductive Reasoning",
-      "level": "Mastery",
+      "level": "Proficient",
       "category": "ability",
       "key": true,
       "onetId": "1.A.1.a",
@@ -597,7 +597,7 @@
     },
     {
       "name": "Inductive Reasoning",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "ability",
       "key": false,
       "onetId": "1.A.2.a",
@@ -614,7 +614,7 @@
     },
     {
       "name": "Mathematical Reasoning",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "ability",
       "key": false,
       "onetId": "1.A.3.a",
@@ -632,7 +632,7 @@
     },
     {
       "name": "Originality",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "ability",
       "key": false,
       "onetId": "1.A.4.a",

@@ -87,7 +87,7 @@
     },
     {
       "name": "Critical Thinking",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.A.2.a",
@@ -123,7 +123,7 @@
     },
     {
       "name": "Judgment and Decision Making",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.A.3.a",
@@ -141,7 +141,7 @@
     },
     {
       "name": "Persuasion",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": true,
       "onetId": "2.A.3.b",
@@ -159,7 +159,7 @@
     },
     {
       "name": "Service Orientation",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.A.4.a",
@@ -176,7 +176,7 @@
     },
     {
       "name": "Time Management",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.A.5.a",
@@ -194,7 +194,7 @@
     },
     {
       "name": "Coordination",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.A.6.a",
@@ -211,7 +211,7 @@
     },
     {
       "name": "Reading Comprehension",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.A.7.a",
@@ -229,7 +229,7 @@
     },
     {
       "name": "Writing",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.A.8.a",
@@ -247,7 +247,7 @@
     },
     {
       "name": "Complex Problem Solving",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.A.9.a",
@@ -298,7 +298,7 @@
     },
     {
       "name": "Monitoring",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.A.12.a",
@@ -316,7 +316,7 @@
     },
     {
       "name": "Learning Strategies",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "skill",
       "key": false,
       "onetId": "2.A.13.a",
@@ -368,7 +368,7 @@
     },
     {
       "name": "Persistence",
-      "level": "Mastery",
+      "level": "Advanced",
       "category": "workstyle",
       "key": true,
       "onetId": "1.C.4.a",
@@ -385,7 +385,7 @@
     },
     {
       "name": "Attention to Detail",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.5.a",
@@ -402,7 +402,7 @@
     },
     {
       "name": "Adaptability/Flexibility",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.6.a",
@@ -437,7 +437,7 @@
     },
     {
       "name": "Stress Tolerance",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.8.a",
@@ -454,7 +454,7 @@
     },
     {
       "name": "Oral Expression",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "ability",
       "key": false,
       "onetId": "1.A.1.a",
@@ -472,7 +472,7 @@
     },
     {
       "name": "Deductive Reasoning",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "ability",
       "key": false,
       "onetId": "1.A.2.a",
@@ -490,7 +490,7 @@
     },
     {
       "name": "Inductive Reasoning",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "ability",
       "key": false,
       "onetId": "1.A.3.a",
@@ -524,7 +524,7 @@
     },
     {
       "name": "Category Flexibility",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "ability",
       "key": false,
       "onetId": "1.A.5.a",
@@ -559,7 +559,7 @@
     },
     {
       "name": "Selective Attention",
-      "level": "Advanced",
+      "level": "Proficient",
       "category": "ability",
       "key": false,
       "onetId": "1.A.7.a",
