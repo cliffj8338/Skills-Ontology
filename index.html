@@ -740,6 +740,26 @@
             color: #fff;
         }
         
+        .level-chip.expert {
+            background: rgba(168, 85, 247, 0.2);
+            border-color: rgba(168, 85, 247, 0.3);
+        }
+        
+        .level-chip.expert.active {
+            background: #a855f7;
+            color: #fff;
+        }
+        
+        .level-chip.novice {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        
+        .level-chip.novice.active {
+            background: #3b82f6;
+            color: #fff;
+        }
+        
         .label-toggle {
             display: flex;
             gap: 8px;
@@ -2425,8 +2445,35 @@
                 <span>🔍 Filters</span>
                 <span class="toggle-icon" id="filtersToggle">▼</span>
             </button>
-            <div class="section-content" id="filtersSection">
-                <!-- Filters will be populated here -->
+            <div class="section-content collapsed" id="filtersSection">
+                <!-- Roles Filter -->
+                <div style="margin-bottom: 16px;">
+                    <label style="color: #9ca3af; font-size: 0.75em; text-transform: uppercase; display: block; margin-bottom: 8px;">Roles</label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                        <div class="role-chip active" data-role="all" onclick="filterByRole('all')" style="font-size: 0.75em; padding: 4px 10px;">All</div>
+                        <div class="role-chip" data-role="strategy" onclick="filterByRole('strategy')" style="font-size: 0.75em; padding: 4px 10px;">Strategy</div>
+                        <div class="role-chip" data-role="futurist" onclick="filterByRole('futurist')" style="font-size: 0.75em; padding: 4px 10px;">Futurist</div>
+                        <div class="role-chip" data-role="pilot" onclick="filterByRole('pilot')" style="font-size: 0.75em; padding: 4px 10px;">Pilot</div>
+                        <div class="role-chip" data-role="musician" onclick="filterByRole('musician')" style="font-size: 0.75em; padding: 4px 10px;">Musician</div>
+                        <div class="role-chip" data-role="advocate" onclick="filterByRole('advocate')" style="font-size: 0.75em; padding: 4px 10px;">Advocate</div>
+                        <div class="role-chip" data-role="tech" onclick="filterByRole('tech')" style="font-size: 0.75em; padding: 4px 10px;">Tech</div>
+                        <div class="role-chip" data-role="creative" onclick="filterByRole('creative')" style="font-size: 0.75em; padding: 4px 10px;">Creative</div>
+                        <div class="role-chip" data-role="operations" onclick="filterByRole('operations')" style="font-size: 0.75em; padding: 4px 10px;">Operations</div>
+                        <div class="role-chip" data-role="entrepreneur" onclick="filterByRole('entrepreneur')" style="font-size: 0.75em; padding: 4px 10px;">Entrepreneur</div>
+                    </div>
+                </div>
+                
+                <!-- Levels Filter -->
+                <div>
+                    <label style="color: #9ca3af; font-size: 0.75em; text-transform: uppercase; display: block; margin-bottom: 8px;">Skill Levels</label>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div class="level-chip mastery" onclick="filterByLevel('mastery')" style="font-size: 0.8em; padding: 6px 12px; text-align: center; cursor: pointer;">Mastery (<span id="masteryCount">0</span>)</div>
+                        <div class="level-chip expert" onclick="filterByLevel('expert')" style="font-size: 0.8em; padding: 6px 12px; text-align: center; cursor: pointer;">Expert (<span id="expertCount">0</span>)</div>
+                        <div class="level-chip advanced" onclick="filterByLevel('advanced')" style="font-size: 0.8em; padding: 6px 12px; text-align: center; cursor: pointer;">Advanced (<span id="advancedCount">0</span>)</div>
+                        <div class="level-chip proficient" onclick="filterByLevel('proficient')" style="font-size: 0.8em; padding: 6px 12px; text-align: center; cursor: pointer;">Proficient (<span id="proficientCount">0</span>)</div>
+                        <div class="level-chip novice" onclick="filterByLevel('novice')" style="font-size: 0.8em; padding: 6px 12px; text-align: center; cursor: pointer;">Novice (<span id="noviceCount">0</span>)</div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -2469,22 +2516,24 @@
         </div>
     </div>
     
-    <div class="controls">
-        <div class="controls-left">
-            <div class="filter-group" id="skillsViewToggle" style="display: flex;">
-                <span class="filter-label">VIEW:</span>
-                <div class="role-chip active" data-view="network" onclick="toggleSkillsView('network')">Network</div>
-                <div class="role-chip" data-view="card" onclick="toggleSkillsView('card')">Card</div>
+    <!-- Compact Skills Controls -->
+    <div class="controls" style="padding: 16px 32px; border-bottom: 1px solid rgba(96, 165, 250, 0.2); background: rgba(15, 15, 30, 0.3);">
+        <div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
+            <!-- View Toggle -->
+            <div id="skillsViewToggle" style="display: flex; gap: 8px; align-items: center;">
+                <span style="color: #9ca3af; font-size: 0.85em; font-weight: 600;">VIEW:</span>
+                <div class="role-chip active" data-view="network" onclick="toggleSkillsView('network')" style="padding: 6px 16px;">Network</div>
+                <div class="role-chip" data-view="card" onclick="toggleSkillsView('card')" style="padding: 6px 16px;">Card</div>
             </div>
             
-            <div class="filter-group" style="flex: 1; max-width: 300px;">
-                <span class="filter-label">SEARCH:</span>
+            <!-- Search -->
+            <div style="flex: 1; max-width: 400px;">
                 <input type="text" id="skillSearch" placeholder="Search skills..." 
                        onkeyup="filterSkillsView(this.value)"
                        style="
                            width: 100%;
-                           padding: 8px 12px;
-                           background: rgba(255, 255, 255, 0.05);
+                           padding: 8px 14px;
+                           background: rgba(15, 15, 30, 0.6);
                            border: 1px solid rgba(96, 165, 250, 0.3);
                            border-radius: 6px;
                            color: #e0e0e0;
@@ -2492,49 +2541,27 @@
                        ">
             </div>
             
-            <div class="filter-group">
-                <span class="filter-label">ROLES:</span>
-                <div class="role-chip active" data-role="all" onclick="filterByRole('all')">All</div>
-                <div class="role-chip" data-role="strategy" onclick="filterByRole('strategy')">VP Strategy</div>
-                <div class="role-chip" data-role="futurist" onclick="filterByRole('futurist')">Futurist</div>
-                <div class="role-chip" data-role="pilot" onclick="filterByRole('pilot')">Pilot</div>
-                <div class="role-chip" data-role="musician" onclick="filterByRole('musician')">Musician</div>
-                <div class="role-chip" data-role="advocate" onclick="filterByRole('advocate')">Advocate</div>
-                <div class="role-chip" data-role="tech" onclick="filterByRole('tech')">Tech</div>
-                <div class="role-chip" data-role="creative" onclick="filterByRole('creative')">Creative</div>
-                <div class="role-chip" data-role="operations" onclick="filterByRole('operations')">Operations</div>
-                <div class="role-chip" data-role="entrepreneur" onclick="filterByRole('entrepreneur')">Entrepreneur</div>
-            </div>
-            
-            <div class="filter-group">
-                <span class="filter-label">LEVELS:</span>
-                <div class="level-filter">
-                    <div class="level-chip mastery" onclick="filterByLevel('mastery')">Mastery (33)</div>
-                    <div class="level-chip advanced" onclick="filterByLevel('advanced')">Advanced (35)</div>
-                    <div class="level-chip proficient" onclick="filterByLevel('proficient')">Proficient (3)</div>
+            <!-- Network Controls (Labels toggles) -->
+            <div id="networkControls" style="display: flex; gap: 20px; margin-left: auto;">
+                <div class="label-toggle" style="display: flex; align-items: center; gap: 8px;">
+                    <span class="toggle-label" style="color: #9ca3af; font-size: 0.85em;">Role Labels</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked onchange="toggleLabels('role')">
+                        <span class="toggle-slider"></span>
+                    </label>
                 </div>
-            </div>
-        </div>
-        
-        <div class="controls-right" id="networkControls" style="display: flex;">
-            <div class="label-toggle">
-                <span class="toggle-label">Role Labels</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" checked onchange="toggleLabels('role')">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-            <div class="label-toggle">
-                <span class="toggle-label">Skill Labels</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" checked onchange="toggleLabels('skill')">
-                    <span class="toggle-slider"></span>
-                </label>
+                <div class="label-toggle" style="display: flex; align-items: center; gap: 8px;">
+                    <span class="toggle-label" style="color: #9ca3af; font-size: 0.85em;">Skill Labels</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked onchange="toggleLabels('skill')">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
             </div>
         </div>
     </div>
     
-    <div class="main-content">
+    <div class="main-content" style="flex: 1; position: relative; overflow: hidden;">
         <svg id="networkView"></svg>
         <div id="cardView"></div>
         <div id="opportunitiesView"></div>
@@ -3043,13 +3070,13 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.5.0 - BUILD 20260218-0700
-        // UI: Clean Left Rail Navigation + Mobile Responsive
+        // WORK BLUEPRINT v3.5.1 - BUILD 20260218-0800
+        // BUGFIX: Null checks + Compact Skills Controls
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   WORK BLUEPRINT v3.5.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260218-0700                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Left Rail Navigation + Mobile Support    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   WORK BLUEPRINT v3.5.1                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260218-0800                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Bugfixes + Cleaner Skills View           ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         
         // ===== USER DATA CONFIGURATION =====
@@ -4394,13 +4421,55 @@
                 .toUpperCase()
                 .substring(0, 2);
             
-            document.getElementById('profileInitials').textContent = initials;
-            document.getElementById('sidebarName').textContent = userData.profile.name;
-            document.getElementById('sidebarTitle').textContent = userData.profile.currentTitle || 'Professional';
+            const profileInitials = document.getElementById('profileInitials');
+            const sidebarName = document.getElementById('sidebarName');
+            const sidebarTitle = document.getElementById('sidebarTitle');
+            const sidebarValue = document.getElementById('sidebarValue');
+            
+            if (profileInitials) profileInitials.textContent = initials;
+            if (sidebarName) sidebarName.textContent = userData.profile.name;
+            if (sidebarTitle) sidebarTitle.textContent = userData.profile.currentTitle || 'Professional';
             
             // Update market value
-            const marketValue = calculateTotalMarketValue(userData);
-            document.getElementById('sidebarValue').textContent = `$${Math.round(marketValue.total / 1000)}K`;
+            if (sidebarValue) {
+                const marketValue = calculateTotalMarketValue(userData);
+                sidebarValue.textContent = `$${Math.round(marketValue.total / 1000)}K`;
+            }
+            
+            // Update skill level counts
+            updateSkillLevelCounts();
+        }
+        
+        function updateSkillLevelCounts() {
+            if (!userData || !userData.skills) return;
+            
+            const counts = {
+                mastery: 0,
+                expert: 0,
+                advanced: 0,
+                proficient: 0,
+                novice: 0
+            };
+            
+            userData.skills.forEach(skill => {
+                const level = (skill.level || '').toLowerCase();
+                if (counts.hasOwnProperty(level)) {
+                    counts[level]++;
+                }
+            });
+            
+            // Update counts in sidebar
+            const masteryCount = document.getElementById('masteryCount');
+            const expertCount = document.getElementById('expertCount');
+            const advancedCount = document.getElementById('advancedCount');
+            const proficientCount = document.getElementById('proficientCount');
+            const noviceCount = document.getElementById('noviceCount');
+            
+            if (masteryCount) masteryCount.textContent = counts.mastery;
+            if (expertCount) expertCount.textContent = counts.expert;
+            if (advancedCount) advancedCount.textContent = counts.advanced;
+            if (proficientCount) proficientCount.textContent = counts.proficient;
+            if (noviceCount) noviceCount.textContent = counts.novice;
         }
         
         function switchView(view, event) {
