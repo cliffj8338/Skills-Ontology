@@ -1,6 +1,6 @@
 # Work Blueprint — Project Context File
 For use at the start of new chat sessions to restore full context.
-Last updated: February 18, 2026 — v3.9.0
+Last updated: February 18, 2026 — v3.9.1
 
 ---
 
@@ -11,7 +11,7 @@ Paste this at the top of a new conversation:
 > "I'm continuing work on my Work Blueprint project. Please read the attached
 > PROJECT_CONTEXT.md in full before responding — it contains everything you need
 > to know about the codebase, architecture, and current state. Current version is
-> v3.9.0. Today I want to [your task]."
+> v3.9.1. Today I want to [your task]."
 
 Attach: PROJECT_CONTEXT.md + index.html (current version from outputs)
 Optional: screenshots of bugs you want fixed
@@ -35,7 +35,7 @@ GitHub Repo: https://github.com/cliffj8338/Skills-Ontology
 
 ---
 
-## Current Version: 3.9.0 (BUILD 20260218-2300)
+## Current Version: 3.9.0 (BUILD 20260218-2330)
 
 ---
 
@@ -213,6 +213,18 @@ ALL inline styles in JS template literals must use these helpers.
     extractOutcomesFromEvidence()    // Builds blueprintData.outcomes
     inferValues()                    // Populates blueprintData.values
 
+### Values Management
+    saveValues()                        // Persist values + purpose to localStorage
+    loadSavedValues()                   // Load from localStorage (checked before profile/defaults)
+    getEvidenceForValue(valueName)      // Scan skill evidence for keyword matches (returns up to 3)
+    buildValueKeywords(name)            // Maps value name to keyword sets (15 categories)
+    addCustomValue()                    // Inline form handler, dedup check, saves + re-renders
+    editValue(idx)                      // Opens modal editor
+    saveValueEdit(idx)                  // Saves modal edits
+    deleteValue(idx)                    // Remove with toast
+    moveValue(idx, direction)           // Reorder (-1=up, 1=down)
+    updateValuesBadge()                 // Reactively update tab badge count
+
 ### Export & Sharing
     renderExportSection()               // 5-card export hub in Blueprint tab
     generateWorkBlueprint()             // Full HTML Executive Blueprint download
@@ -249,7 +261,7 @@ Tab 2: Add Skills (N)
 Horizontal sub-nav below Market Valuation:
   Outcomes (N)  |  Values (N selected)  |  Purpose  |  Export
 
-### Export Tab (v3.9.0)
+### Export Tab (v3.9.0+)
 5-card layout:
 - Executive Blueprint (HTML) — featured, full standalone document with editorial design
 - Professional Resume (HTML) — traditional format, print to PDF
@@ -286,7 +298,7 @@ Adding Lightcast (~75,000 skills) requires exactly:
 
 ---
 
-## Known Working State (v3.9.0)
+## Known Working State (v3.9.1)
 
 Skills network view, card view (mobile responsive) — working
 Manage Skills modal, both tabs, all search — working
@@ -300,6 +312,7 @@ Work Blueprint horizontal sub-nav tabs — working
 Market Valuation section above tabs — working
 Light/dark theme full coverage — working
 Toast notification system (4 types, themed, mobile) — working
+Values: add/edit/delete/reorder/evidence-link with localStorage persistence — working
 ESCO/O*NET attribution footer — working
 Onboarding wizard (8 steps, Claude API) — working
 Mobile layout: card view, bottom-anchored modals — working
@@ -353,4 +366,4 @@ No console.log spam — remove debug logs before shipping
 
 ---
 
-END OF PROJECT CONTEXT — v3.9.0
+END OF PROJECT CONTEXT — v3.9.1
