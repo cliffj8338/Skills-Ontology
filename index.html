@@ -3705,12 +3705,12 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0200
-        // WELCOME PAGE + READ-ONLY SAMPLES + NAV
+        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0215
+        // WELCOME-FIRST + INLINE PROFILE SWITCH + SAMPLE PICKER
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   WORK BLUEPRINT v4.0.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260219-0200                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260219-0215                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -4454,17 +4454,58 @@
         window.renderWelcomePage = renderWelcomePage;
 
         function viewSampleProfile() {
-            // Load first available sample profile
+            // Show sample profile picker
             var manifest = window.profilesManifest;
-            if (manifest && manifest.profiles && manifest.profiles.length > 0) {
-                var first = manifest.profiles.find(function(p) { return p.enabled; });
-                if (first) {
-                    switchProfile(first.id);
-                    return;
-                }
+            var profiles = (manifest && manifest.profiles) ? manifest.profiles.filter(function(p) { return p.enabled; }) : [];
+            
+            if (profiles.length === 0) {
+                // Fallback: just load cliff
+                switchProfile('cliff-jones-demo');
+                return;
             }
-            // Fallback
-            switchProfile('cliff-jones-demo');
+            
+            if (profiles.length === 1) {
+                // Only one sample, load it directly
+                switchProfile(profiles[0].id);
+                return;
+            }
+            
+            // Multiple samples: show picker on welcome page
+            var el = document.getElementById('welcomeView');
+            if (!el) { switchProfile(profiles[0].id); return; }
+            
+            // Build picker content
+            var html = '<div class="welcome-hero">'
+                + '<div style="font-size:2.4em; margin-bottom:16px;">\uD83D\uDCCA</div>'
+                + '<h2>Sample Profiles</h2>'
+                + '<div class="welcome-sub" style="margin-bottom:32px;">'
+                + 'Explore complete Work Blueprints to see how skills, outcomes, market valuation, and professional narrative come together.'
+                + '</div>'
+                + '<div class="welcome-cards">';
+            
+            profiles.forEach(function(p) {
+                var initials = p.name.split(' ').map(function(w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
+                html += '<div class="welcome-card" onclick="switchProfile(\'' + p.id + '\')">'
+                    + '<div style="display:flex; align-items:center; gap:14px; margin-bottom:12px;">'
+                    + '<div style="width:48px; height:48px; border-radius:50%; background:var(--accent); color:#fff; '
+                    + 'display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.1em;">'
+                    + initials + '</div>'
+                    + '<div style="text-align:left;">'
+                    + '<h3 style="margin:0;">' + p.name + '</h3>'
+                    + '<div style="color:var(--text-muted); font-size:0.85em;">' + (p.title || '') + '</div>'
+                    + '</div></div>'
+                    + '<p>' + (p.description || 'View this complete Work Blueprint with skills, outcomes, and market valuation.') + '</p>'
+                    + '</div>';
+            });
+            
+            html += '</div>'
+                + '<div style="margin-top:8px;">'
+                + '<a href="#" onclick="event.preventDefault(); renderWelcomePage(); switchView(\'welcome\');" '
+                + 'style="color:var(--text-muted); font-size:0.9em; text-decoration:underline;">\u2190 Back to home</a>'
+                + '</div></div>';
+            
+            el.innerHTML = html;
+            switchView('welcome');
         }
         window.viewSampleProfile = viewSampleProfile;
 
@@ -4950,11 +4991,42 @@
         function switchProfile(templateId) {
             console.log('🔄 Switching profile to:', templateId);
             
-            // Save preference
+            if (!templates[templateId]) {
+                console.error('Template not found:', templateId);
+                showToast('Profile not found.', 'error');
+                return;
+            }
+            
+            // Load template inline (no page reload)
+            loadTemplate(templateId);
             localStorage.setItem('currentProfile', templateId);
             
-            // Reload page to load new profile fresh
-            window.location.reload();
+            // Re-initialize views with new data
+            if (typeof skillsData !== 'undefined') {
+                skillsData.skills = userData.skills;
+                skillsData.roles = userData.roles;
+            }
+            
+            // Update profile chip
+            if (userData.profile && userData.profile.name) {
+                updateProfileChip(userData.profile.name);
+            }
+            
+            // Reset initialized flags so views re-render
+            window.blueprintInitialized = false;
+            window.opportunitiesInitialized = false;
+            window.applicationsInitialized = false;
+            window.consentInitialized = false;
+            window.settingsInitialized = false;
+            
+            // Check read-only status
+            checkReadOnly();
+            rebuildProfileDropdown();
+            
+            // Navigate to Work Blueprint tab (most informative view)
+            switchView('blueprint');
+            
+            showToast('Viewing: ' + userData.profile.name, 'success');
         }
         
         // Save user data preference (which profile they're viewing)
@@ -5222,54 +5294,34 @@
             }
             
             // ===== PROFILE DECISION FLOW =====
-            const hasVisited = localStorage.getItem('wbHasVisited');
             const currentProfile = localStorage.getItem('currentProfile');
+            
+            // Always load a scaffold template so nav/rendering works
+            var scaffoldId = currentProfile || 'cliff-jones-demo';
+            if (!templates[scaffoldId]) scaffoldId = 'cliff-jones-demo';
+            if (templates[scaffoldId]) loadTemplate(scaffoldId);
+            initializeMainApp();
             
             // CASE 1: Signed-in user with Firestore data
             if (fbUser && fbDb) {
-                // Load a sample as scaffold, then overlay Firestore data
-                var scaffoldId = currentProfile || 'cliff-jones-demo';
-                if (templates[scaffoldId]) loadTemplate(scaffoldId);
-                else if (templates['cliff-jones-demo']) loadTemplate('cliff-jones-demo');
-                initializeMainApp();
-                
                 loadUserFromFirestore(fbUser.uid).then(function(loaded) {
                     if (loaded) {
                         console.log('☁ Firestore profile applied');
                         checkReadOnly();
                         rebuildProfileDropdown();
+                        // Go to blueprint tab for signed-in users with data
+                        switchView('blueprint');
                     } else {
-                        // Signed in but no data yet, offer wizard
+                        // Signed in but no data yet, show welcome with wizard prompt
                         checkReadOnly();
-                        setTimeout(function() { showOnboardingWizard(); }, 800);
+                        switchView('welcome');
                     }
                 });
             }
-            // CASE 2: First-time visitor (no auth, never visited)
-            else if (!hasVisited && !currentProfile) {
-                // Load a sample in the background so nav works, but show welcome
-                if (templates['cliff-jones-demo']) loadTemplate('cliff-jones-demo');
-                initializeMainApp();
-                // Show welcome page
-                setTimeout(function() { switchView('welcome'); }, 100);
-                localStorage.setItem('wbHasVisited', '1');
-            }
-            // CASE 3: Returning visitor viewing a sample or wizard-built profile
+            // CASE 2: Not signed in → always show welcome page
             else {
-                var profileToLoad = currentProfile || 'cliff-jones-demo';
-                
-                if (profileToLoad === 'wizard-built' && templates['wizard-built']) {
-                    loadTemplate('wizard-built');
-                    initializeMainApp();
-                } else if (templates[profileToLoad]) {
-                    loadTemplate(profileToLoad);
-                    initializeMainApp();
-                } else {
-                    console.error('❌ Profile not found:', profileToLoad);
-                    loadTemplate('cliff-jones-demo');
-                    initializeMainApp();
-                }
                 checkReadOnly();
+                setTimeout(function() { switchView('welcome'); }, 100);
             }
             
             // Always rebuild dropdown after manifest is available
