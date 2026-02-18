@@ -2102,15 +2102,15 @@
             </div>
             
             <div class="view-toggle">
-                <button class="active" onclick="switchView('skills')">🎯 Skills</button>
-                <button onclick="switchView('jobs')">💼 Jobs</button>
-                <button onclick="switchView('applications')">📋 Applications</button>
-                <button onclick="switchView('blueprint')">📝 Work Blueprint</button>
+                <button class="active" onclick="switchView('skills', event)">🎯 Skills</button>
+                <button onclick="switchView('jobs', event)">💼 Jobs</button>
+                <button onclick="switchView('applications', event)">📋 Applications</button>
+                <button onclick="switchView('blueprint', event)">📝 Work Blueprint</button>
                 <button onclick="toggleOverflowMenu(event)" id="overflowMenuBtn">⋯ More</button>
             </div>
             <!-- Overflow Menu Dropdown -->
             <div id="overflowMenu" class="overflow-menu" style="display: none;">
-                <button onclick="switchView('settings'); closeOverflowMenu();">⚙️ Settings</button>
+                <button onclick="switchView('settings', event); closeOverflowMenu();">⚙️ Settings</button>
                 <button onclick="openExportModal(); closeOverflowMenu();">📄 Export Profile</button>
                 <button onclick="generateWorkBlueprint(); closeOverflowMenu();">📝 Generate Work Blueprint</button>
                 <button onclick="switchView('consent'); closeOverflowMenu();">🔒 Consent Settings</button>
@@ -2844,9 +2844,6 @@
             const criticalDepthBonus = Math.round(baseMarketRate * criticalDepthPct);
             const learningBonus = Math.round(baseMarketRate * learningPct);
             const premiumAmount = workStylesBonus + evidenceBonus + rarityBonus + criticalDepthBonus + learningBonus;
-            
-            // Step 5: Location adjustment
-            const locationMultiplier = skillValuations?.locationMultipliers?.[userData.profile.location] || 1.0;
             
             // Step 3: Location adjustment
             const locationMultiplier = skillValuations?.locationMultipliers?.[userData.profile.location] || 1.0;
@@ -4001,7 +3998,7 @@
             } // Close if (userData.initialized)
         }); // Close DOMContentLoaded
         
-        function switchView(view) {
+        function switchView(view, event) {
             // Map new view names to existing views
             if (view === 'skills') view = 'network';
             if (view === 'jobs') view = 'opportunities';
