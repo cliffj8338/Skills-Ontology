@@ -2694,11 +2694,11 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.5.0 - BUILD 20260218-0900
+        // WORK BLUEPRINT v3.5.1 - BUILD 20260218-1000
         // PREMIUM: 5-Factor Comprehensive Premium Calculation
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   WORK BLUEPRINT v3.5.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   WORK BLUEPRINT v3.5.1                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Build: 20260218-0600                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -5146,34 +5146,75 @@ body {
         
         function extractOutcomesFromEvidence() {
             const outcomes = [];
-            
-            // Pattern-based extraction from skill evidence
-            const quantifiedPattern = /\$[\d,]+[MBK]?|\d+%|\d+ years?/gi;
-            const comparisonPattern = /before|early|first|ahead of|vs\.|compared to/i;
-            const scalePattern = /Fortune \d+|global|enterprise|unicorn|\$[\d.]+[MB] valuation/i;
-            
-            Object.entries(skillsData.skillDetails || {}).forEach(([skillName, details]) => {
-                if (!details.evidence) return;
-                
-                details.evidence.forEach(evidenceItem => {
-                    const hasQuantity = quantifiedPattern.test(evidenceItem);
-                    const hasComparison = comparisonPattern.test(evidenceItem);
-                    const hasScale = scalePattern.test(evidenceItem);
-                    
-                    // High-value outcomes have quantification + (comparison OR scale)
-                    if (hasQuantity && (hasComparison || hasScale)) {
+
+            // Evidence now lives in userData.skills[].evidence as {description, outcome} objects.
+            // We pull from there first, then fall back to the legacy skillDetails strings.
+            const skills = userData.skills || skillsData.skills || [];
+
+            skills.forEach(skill => {
+                (skill.evidence || []).forEach(ev => {
+                    // ev is {description, outcome} — use the outcome field for display
+                    const outcomeText = (ev.outcome || '').trim();
+                    const descText   = (ev.description || '').trim();
+                    if (!outcomeText && !descText) return;
+
+                    // Score the outcome — anything with a real metric qualifies
+                    const combined = outcomeText + ' ' + descText;
+                    const hasMetric = /\$[\d,]+[MBK]?|\d+%|\d+x|\d+ times|million|billion/i.test(combined);
+                    const hasResult = /retained|increased|reduced|improved|delivered|generated|achieved|enabled|saved|prevented|launched|built|founded|established/i.test(combined);
+
+                    if (hasMetric || hasResult) {
+                        // Build a combined display text: outcome is the headline, description adds context
+                        const displayText = outcomeText
+                            ? (descText ? `${outcomeText} (${descText.slice(0, 100)}${descText.length > 100 ? '…' : ''})` : outcomeText)
+                            : descText;
+
                         outcomes.push({
-                            text: evidenceItem,
-                            skill: skillName,
-                            category: categorizeOutcome(skillName, evidenceItem),
-                            shared: true,
-                            sensitive: isSensitiveContent(evidenceItem),
-                            coachingSuggestion: generateCoachingFor(evidenceItem)
+                            text: displayText,
+                            outcome: outcomeText,
+                            description: descText,
+                            skill: skill.name,
+                            level: skill.level,
+                            category: categorizeOutcome(skill.name, combined),
+                            shared: !isSensitiveContent(combined), // sensitive items default to unshared
+                            sensitive: isSensitiveContent(combined),
+                            coachingSuggestion: generateCoachingFor(outcomeText || descText)
                         });
                     }
                 });
             });
-            
+
+            // Also check legacy skillDetails (skill_evidence.json strings) — only if no skill-based outcomes found
+            if (outcomes.length === 0) {
+                const quantifiedPattern = /\$[\d,]+[MBK]?|\d+%|\d+ years?/gi;
+                Object.entries(skillsData.skillDetails || {}).forEach(([skillName, details]) => {
+                    if (!details.evidence) return;
+                    details.evidence.forEach(evidenceItem => {
+                        if (typeof evidenceItem !== 'string') return;
+                        const hasQuantity = quantifiedPattern.test(evidenceItem);
+                        if (hasQuantity) {
+                            outcomes.push({
+                                text: evidenceItem,
+                                skill: skillName,
+                                category: categorizeOutcome(skillName, evidenceItem),
+                                shared: true,
+                                sensitive: isSensitiveContent(evidenceItem),
+                                coachingSuggestion: generateCoachingFor(evidenceItem)
+                            });
+                        }
+                    });
+                });
+            }
+
+            // Sort: unshared (sensitive) last, then by metric strength
+            outcomes.sort((a, b) => {
+                if (a.sensitive && !b.sensitive) return 1;
+                if (!a.sensitive && b.sensitive) return -1;
+                const scoreA = /\$[\d,]+[MBK]?/i.test(a.outcome||a.text) ? 2 : /\d+%/i.test(a.outcome||a.text) ? 1 : 0;
+                const scoreB = /\$[\d,]+[MBK]?/i.test(b.outcome||b.text) ? 2 : /\d+%/i.test(b.outcome||b.text) ? 1 : 0;
+                return scoreB - scoreA;
+            });
+
             blueprintData.outcomes = outcomes;
         }
         

@@ -1,6 +1,6 @@
 # Work Blueprint — Project Context File
 For use at the start of new chat sessions to restore full context.
-Last updated: February 18, 2026 — v3.5.0
+Last updated: February 18, 2026 — v3.5.1
 
 ---
 
@@ -19,18 +19,24 @@ GitHub Repo: https://github.com/cliffj8338/Skills-Ontology
 
 ---
 
-## Current Version: 3.5.0 (BUILD 20260218-0900)
+## Current Version: 3.5.1 (BUILD 20260218-1000)
 
-### v3.5.0 Changes (Feb 18 2026)
-- Professional Resume Generator: exportProfile('resume') now downloads a real print-ready HTML resume
-- Fixed gatherBlueprintData(): Work Blueprint generator now pulls real skill evidence instead of hardcoded outcomes
-- Added extractMetric() helper to surface the strongest metric from any evidence string
-- Export modal: Resume option updated to "Professional resume - print to PDF"
+### v3.5.1 Changes (Feb 18 2026)
+- Fixed 0 Outcomes bug: extractOutcomesFromEvidence() was reading from legacy skillDetails
+  (skill_evidence.json string format) instead of userData.skills[].evidence objects.
+  Now reads from userData.skills — cliff-jones profile shows 42 outcomes vs 0 before.
+- Outcomes sorted: dollar amounts first, percentages second, sensitive items last (default unshared)
+- Added legacy fallback: if userData.skills produces nothing, falls back to skillDetails strings
 
-### Prior version: 3.4.0
-- Multi-profile architecture finalized (5 profiles)
-- Skills management: add/edit/delete, O*NET picker + 2,138-skill library
-- Market valuation backend complete, UI display in Work Blueprint tab
+### v3.5.0 Changes
+- Professional Resume Generator working (exportProfile resume downloads real HTML)
+- Fixed gatherBlueprintData() to use real evidence instead of hardcoded outcomes
+- Added extractMetric() helper
+
+### v3.4.0 (prior)
+- Multi-profile architecture (5 profiles)
+- Skills management with O*NET + 2138-skill library
+- Market valuation backend + Work Blueprint display
 - Impact rating system (5 tiers)
 
 ---
@@ -50,7 +56,7 @@ Skills-Ontology/
   PROJECT_CONTEXT.md            THIS FILE - update and deploy every session
   profiles/
     demo/
-      cliff-jones.json          89 skills, 100 evidence items, full executiveSummary
+      cliff-jones.json          89 skills, 100 evidence items, 42 qualifying outcomes
       sarah-chen.json           32 skills, HR/recruiting
       mike-rodriguez.json       35 skills, engineering lead
       jamie-martinez.json       Service industry (hair stylist)
@@ -60,25 +66,24 @@ Skills-Ontology/
   skills/
     index-v3.json               2,138 searchable skills (224KB)
     details/
-      esco-technology.json      100 tech skill details
+      esco-technology.json
 
 ---
 
 ## Architecture
 
 Core Pattern: Templates Are Source of Truth
-- On load: fetch profiles-manifest.json, load ALL enabled profile JSONs into templates{} object
-- localStorage ONLY stores the currentProfile string (which profile is active)
-- Profile data never cached in localStorage — always loaded fresh from JSON
-- Eliminates all cache invalidation bugs from v1/v2 era
+- On load: fetch profiles-manifest.json, load ALL enabled profile JSONs into templates{}
+- localStorage ONLY stores currentProfile string
+- Profile data always loaded fresh from JSON — no cache bugs
 
 Key Global Objects:
-  userData       active profile (skills, profile, values, purpose, roles, applications)
-  skillsData     runtime skill data for network graph and card views
-  templates{}    all loaded profile templates
-  skillValuations  from skill_valuations.json
-  impactRatings    from onet-impact-ratings.json
-  skillLibraryIndex  2,138 skills from skills/index-v3.json
+  userData          active profile (skills, profile, values, purpose, roles, applications)
+  skillsData        runtime skill data for network graph and card views
+  templates{}       all loaded profile templates
+  skillValuations   from skill_valuations.json
+  impactRatings     from onet-impact-ratings.json
+  skillLibraryIndex 2,138 skills from skills/index-v3.json
 
 userData shape:
   initialized: true
@@ -90,11 +95,11 @@ userData shape:
   values: [{ name, description, selected }]
   purpose: string
   roles: [{ id, name, icon, color }]
-  preferences: { seniorityLevel, targetTitles, seniorityKeywords, ... }
+  preferences: { seniorityLevel, targetTitles, ... }
   applications: []
   templateId: string
 
-Profile JSON shape (each file under profiles/):
+Profile JSON shape:
   templateId, templateName, templateDescription
   profile: { name, location, roleLevel, currentTitle, yearsExperience,
              currentCompany, executiveSummary }
@@ -104,8 +109,8 @@ Profile JSON shape (each file under profiles/):
   values: [{ name, description, selected }]
   purpose: string
 
-IMPORTANT: No workHistory[] array in profile JSONs yet. The resume experience section
-is synthesized from the current role only. Adding workHistory[] is a roadmap item.
+NOTE: No workHistory[] in profile JSONs yet. Resume experience section
+synthesized from current role only. Adding workHistory[] is a roadmap item.
 
 ---
 
@@ -117,12 +122,7 @@ Main Tabs:
   3. Applications   Full CRUD application tracker
   4. Work Blueprint Market valuation + outcomes + values + purpose + export
 
-Overflow Menu (More):
-  Settings (Profile / Preferences / Data tabs)
-  Export Profile (Resume WORKING, others stub)
-  Generate Work Blueprint
-  Consent Settings / Help / About
-
+Overflow Menu: Settings | Export Profile | Generate Work Blueprint | Consent | Help/About
 Header: Profile Selector dropdown switches between all 5 profiles instantly.
 
 ---
@@ -130,28 +130,21 @@ Header: Profile Selector dropdown switches between all 5 profiles instantly.
 ## Skills System
 
 Categories:
-  skill      O*NET Standard Skill (blue badge)
-  ability    O*NET Ability (purple badge)
-  workstyle  O*NET Work Style (green badge)
-  unique     Unique Differentiator (gold badge)
+  skill      O*NET Standard Skill (blue)
+  ability    O*NET Ability (purple)
+  workstyle  O*NET Work Style (green)
+  unique     Unique Differentiator (gold)
   onet       Legacy alias for skill
 
-Proficiency levels with valuation multipliers:
-  Novice 0.7x | Proficient 1.0x | Advanced 1.5x | Expert 1.9x | Mastery 2.2x
-
+Levels: Novice 0.7x | Proficient 1.0x | Advanced 1.5x | Expert 1.9x | Mastery 2.2x
 Impact tiers: CRITICAL | HIGH | MODERATE | STANDARD | SUPPLEMENTARY
 
 ---
 
 ## Market Valuation
 
-skill_valuations.json contains:
-  skillBaseValues     dollar values for 70+ named skills ($18k-$55k range)
-  proficiencyMultipliers
-  locationMultipliers  30 US cities (SF 1.52x to Rural 0.78x)
-  demandFactors       AI/ML/cloud/data premium factors
-  rarityBonuses       executive_technical, ai_domain_expert, etc.
-  roleBenchmarks      VP Strategy, CSO, Director, etc. (min/median/max)
+skill_valuations.json: skillBaseValues (70+ skills $18k-$55k), proficiencyMultipliers,
+locationMultipliers (30 US cities), demandFactors, rarityBonuses, roleBenchmarks.
 
 calculateTotalMarketValue() returns:
   total, yourWorth, marketRate, baseMarketRate, percentile, roleLevel, compaRatio,
@@ -162,50 +155,42 @@ calculateTotalMarketValue() returns:
 
 ## Export Features
 
-WORKING: Professional Resume (v3.5.0)
-  generateResume() downloads resume-[name]-[date].html
+WORKING: Professional Resume (v3.5.0+)
+  generateResume() -> resume-[name]-[date].html
+  gatherResumeData() scores evidence: $amounts+5, %+4, millions+5, multipliers+3,
+    date refs+2, Mastery/Expert+2, skill.key+2. Top 10 achievements, top 18 competencies.
+  Sections: Header, Summary, Competencies grid, Achievements, Experience, Values, Footer
+  Output: HTML, print-to-PDF via browser.
 
-  Function chain: gatherResumeData() -> buildResumeHTML() -> downloadBlueprint()
+WORKING: Work Blueprint HTML Generator (v3.5.0+, fixed from hardcoded)
+  generateWorkBlueprint() -> work-blueprint-[name].html
 
-  gatherResumeData() scores all skill evidence items:
-    Dollar amounts in text     +5
-    Percentages                +4
-    Million/billion            +5
-    Multipliers (2x, 3 times)  +3
-    Date references            +2
-    Mastery or Expert level    +2
-    skill.key = true           +2
-  Selects top 10 achievements, top 18 competencies.
-
-  Resume sections:
-    Header (name, title, company, location, years experience, target salary range)
-    Professional Summary (from executiveSummary)
-    Core Competencies grid (proficiency dots: full/two-thirds/one-third filled)
-    Selected Achievements (top scored evidence items)
-    Professional Experience (current role + purpose statement)
-    Core Values and Leadership Principles
-    Footer (generated date + skill count stats)
-
-  Output: HTML file, print-to-PDF via browser. ATS-readable.
-
-WORKING: Work Blueprint HTML Generator
-  generateWorkBlueprint() downloads work-blueprint-[name].html
-  Fixed in v3.5.0: uses real evidence, real values, real compensation data.
-
-STUBS (alert only, to build next):
-  Capability Statement
-  LinkedIn Profile export
-  Interview Prep / STAR stories
+STUBS (alert only): Capability Statement | LinkedIn export | Interview Prep
 
 ---
 
-## Known Issues
+## Outcomes System (fixed v3.5.1)
 
-  Live site is stale         v3.5.0 not yet deployed to GitHub Pages
-  No workHistory[] in JSONs  resume experience section limited to current role
-  Capability Statement       stub
-  LinkedIn export            stub
-  Interview Prep             stub
+extractOutcomesFromEvidence() reads userData.skills[].evidence objects:
+  ev.outcome + ev.description = combined text for pattern matching
+  Qualifies if: has dollar/percent/multiplier metric OR has result verb
+    (retained, increased, reduced, improved, delivered, generated, etc.)
+  Sensitive items (recovery/Kyle/sobriety/addiction/mental health) default to unshared
+  Sort order: dollar amounts first, percentages second, sensitive last
+
+cliff-jones: 42 outcomes extracted
+Display fields used: outcome.text (combined display), outcome.skill (From: tag),
+  outcome.category (categorized), outcome.shared (consent toggle)
+
+---
+
+## Known Issues / Status
+
+  Live site stale              v3.5.1 not yet deployed
+  No workHistory[] in JSONs    resume experience section limited to current role
+  Capability Statement         stub
+  LinkedIn export              stub
+  Interview Prep               stub
   Market value on skill cards  not built
   Market value in header       not built
 
@@ -213,17 +198,16 @@ STUBS (alert only, to build next):
 
 ## Roadmap Priorities
 
-Next session:
-  1. Add workHistory[] to profile JSONs for proper multi-role experience section in resume
-  2. Capability Statement export (1-page executive summary for outreach)
-  3. Market value $ on skill cards in card view
-  4. "Your Market Value: $XXX,XXX" persistent display in header
+Next:
+  1. Add workHistory[] to profile JSONs for proper experience section in resume
+  2. Capability Statement export (1-page executive summary)
+  3. Market value $ on skill cards
+  4. Market value persistent display in header
 
 Later:
-  5. LinkedIn export
-  6. Interview Prep STAR stories
-  7. Onboarding wizard (resume upload + AI skill extraction)
-  8. Mobile UX improvements
+  5. LinkedIn / Interview Prep exports
+  6. Onboarding wizard
+  7. Mobile UX improvements
 
 ---
 
@@ -232,38 +216,28 @@ Later:
   cd ~/path/to/Skills-Ontology
   cp ~/Downloads/index.html ./
   cp ~/Downloads/PROJECT_CONTEXT.md ./
-  git add -A && git commit -m "v3.5.0 - Professional resume generator" && git push
-  GitHub Pages auto-deploys in ~60 seconds.
+  git add -A && git commit -m "v3.5.1 - Fix 0 outcomes bug" && git push
 
 ---
 
 ## Tech Stack
 
-  Vanilla JavaScript (no framework)
-  D3.js v7               network graph
-  jsPDF 2.5.1            loaded but unused (HTML->print-PDF preferred for resumes)
-  HTML5/CSS3
-  GitHub Pages           free hosting
-  Static JSON files      all data
-  localStorage           profile preference string only
+Vanilla JavaScript | D3.js v7 | jsPDF 2.5.1 (loaded, unused)
+HTML5/CSS3 | GitHub Pages | Static JSON files | localStorage (profile key only)
 
 ---
 
 ## Key Context
 
-Primary user/demo: Cliff Jones — VP Global Strategy, talent tech industry, FAA IFR pilot,
-37-year professional musician, recovery advocate (Kyle's Wish Foundation), 89 documented
-skills, 100 evidence items. Real company: Phenom. Demo company name: TalentEdge.
+Primary demo: Cliff Jones — VP Global Strategy, talent tech, FAA IFR pilot,
+37-year musician, recovery advocate (Kyle's Wish Foundation), 89 skills, 100 evidence items.
+Real company: Phenom. Demo company: TalentEdge.
 
 ---
 
 ## Starting a New Chat
 
-Provide the new Claude:
-  1. This file (PROJECT_CONTEXT.md)
-  2. Current index.html
-  3. Any profile JSONs being modified that session
+Give new Claude: PROJECT_CONTEXT.md + index.html + any profile JSONs being modified.
 
-Opening prompt:
-  "This is a career intelligence platform I'm building. Read PROJECT_CONTEXT.md for full
-  context. Current version is v3.5.0. Today I want to [specific task]."
+Say: "This is a career intelligence platform. Read PROJECT_CONTEXT.md for context.
+Current version: v3.5.1. Today I want to [task]."
