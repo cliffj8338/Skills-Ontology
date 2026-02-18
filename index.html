@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cliff Jones - Work Blueprint</title>
+    <title>Work Blueprint by Cliff Jurkiewicz</title>
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -3024,6 +3024,9 @@
             margin-bottom: 48px; text-align: left;
         }
         @media (max-width: 700px) { .welcome-features { grid-template-columns: 1fr; } }
+        @media (max-width: 600px) {
+            .welcome-hero h2 { font-size: 1.6em; }
+        }
         .welcome-feature {
             padding: 20px; border-radius: 10px;
             background: var(--bg-card); border: 1px solid var(--border);
@@ -3705,12 +3708,12 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0230
-        // ANIMATED HERO + ADMIN DROPDOWN FIX
+        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0300
+        // INIT FIX + HERO REDESIGN + LAZY NETWORK
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   WORK BLUEPRINT v4.0.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260219-0230                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260219-0300                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -3919,6 +3922,8 @@
                 fbIsAdmin = false;
                 showToast('Signed out.', 'info');
                 updateAuthUI();
+                rebuildProfileDropdown();
+                switchView('welcome');
             });
         }
         window.authSignOut = authSignOut;
@@ -4028,7 +4033,7 @@
                     if (avatarEl) avatarEl.textContent = getInitials(displayName);
                 }
                 // Update title
-                document.title = 'Work Blueprint';
+                document.title = 'Work Blueprint by Cliff Jurkiewicz';
                 // Add admin badge and sign-out to dropdown
                 rebuildProfileDropdown();
             } else {
@@ -4396,65 +4401,82 @@
             
             var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
             
-            el.innerHTML = '<div class="welcome-hero">'
-                // Animated network canvas
-                + '<div style="position:relative; width:100%; height:280px; margin-bottom:8px; overflow:hidden; border-radius:16px;">'
-                + '<canvas id="heroNetworkCanvas" style="width:100%; height:100%; display:block;"></canvas>'
-                + '<div style="position:absolute; bottom:0; left:0; right:0; height:80px; '
-                + 'background:linear-gradient(transparent, ' + (isDark ? '#0f0f1e' : '#f9fafb') + '); pointer-events:none;"></div>'
+            el.innerHTML = ''
+                // Full-bleed hero with canvas background
+                + '<div style="position:relative; width:100%; min-height:420px; display:flex; align-items:center; justify-content:center; overflow:hidden;">'
+                + '<canvas id="heroNetworkCanvas" style="position:absolute; top:0; left:0; width:100%; height:100%;"></canvas>'
+                // Gradient overlay so text is readable
+                + '<div style="position:absolute; top:0; left:0; right:0; bottom:0; '
+                + 'background: radial-gradient(ellipse at center, '
+                + (isDark ? 'rgba(15,15,30,0.3) 0%, rgba(15,15,30,0.85) 70%' : 'rgba(249,250,251,0.4) 0%, rgba(249,250,251,0.9) 70%')
+                + ');"></div>'
+                // Hero text
+                + '<div style="position:relative; z-index:2; text-align:center; padding:60px 24px; max-width:640px;">'
+                + '<h2 style="font-size:2.4em; font-weight:700; color:var(--accent); margin-bottom:12px; line-height:1.15;">'
+                + 'Know Your Worth.<br>Own Your Narrative.</h2>'
+                + '<p style="font-size:1.05em; color:var(--text-secondary); line-height:1.7; margin-bottom:28px;">'
+                + 'Map your skills, quantify your market value, and build the professional story '
+                + 'you need for your next opportunity.</p>'
+                + '<div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">'
+                + '<button onclick="viewSampleProfile()" style="'
+                + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; '
+                + 'background:transparent; color:var(--accent); border:2px solid var(--accent); transition:all 0.2s;'
+                + '">'
+                + '\uD83D\uDCCA View Sample Profiles</button>'
+                + '<button onclick="showAuthModal(\x27signup\x27)" style="'
+                + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; '
+                + 'background:var(--accent); color:#fff; border:2px solid var(--accent); transition:all 0.2s;'
+                + '">'
+                + '\u25C8 Build Your Blueprint</button>'
+                + '</div>'
+                + '</div>'
+                + '</div>'
+
+                // How it works section
+                + '<div style="max-width:820px; margin:0 auto; padding:48px 24px;">'
+                + '<div style="text-align:center; margin-bottom:36px;">'
+                + '<div style="font-size:0.82em; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); margin-bottom:8px;">How It Works</div>'
                 + '</div>'
                 
-                + '<h2>Know Your Worth.<br>Own Your Narrative.</h2>'
-                + '<div class="welcome-sub">'
-                + 'Work Blueprint maps your skills, quantifies your market value, and builds the professional story '
-                + 'you need for your next opportunity. Powered by O*NET skill taxonomies, '
-                + 'grounded in evidence, designed for professionals who lead with impact.'
+                + '<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; margin-bottom:48px;">'
+                
+                + '<div style="text-align:center; padding:24px 16px;">'
+                + '<div style="width:48px; height:48px; border-radius:50%; background:rgba(96,165,250,0.12); '
+                + 'display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:1.3em; color:var(--accent);">1</div>'
+                + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">Upload Your Resume</div>'
+                + '<div style="font-size:0.85em; color:var(--text-muted); line-height:1.5;">'
+                + 'AI parses your experience and maps it to 13,960+ O*NET skills with proficiency levels.</div>'
+                + '</div>'
+                
+                + '<div style="text-align:center; padding:24px 16px;">'
+                + '<div style="width:48px; height:48px; border-radius:50%; background:rgba(16,185,129,0.12); '
+                + 'display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:1.3em; color:#10b981;">2</div>'
+                + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">See Your Value</div>'
+                + '<div style="font-size:0.85em; color:var(--text-muted); line-height:1.5;">'
+                + 'Market valuation based on skill rarity, impact tier, and location with negotiation guidance.</div>'
+                + '</div>'
+                
+                + '<div style="text-align:center; padding:24px 16px;">'
+                + '<div style="width:48px; height:48px; border-radius:50%; background:rgba(251,191,36,0.12); '
+                + 'display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:1.3em; color:#fbbf24;">3</div>'
+                + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">Own Your Story</div>'
+                + '<div style="font-size:0.85em; color:var(--text-muted); line-height:1.5;">'
+                + 'Export a professional blueprint with outcomes, values, and strategic positioning.</div>'
+                + '</div>'
+                
                 + '</div>'
 
-                // Two main CTAs
-                + '<div class="welcome-cards">'
-                + '<div class="welcome-card" onclick="viewSampleProfile()">'
-                + '<h3>\uD83D\uDCCA View Sample Profiles</h3>'
-                + '<p>Explore complete Work Blueprints showing skills, outcomes, market valuation, and professional narrative.</p>'
-                + '</div>'
-                + '<div class="welcome-card" onclick="showAuthModal(\'signup\')" style="border-color:var(--accent);">'
-                + '<h3>\u25C8 Build Your Blueprint</h3>'
-                + '<p>Create a free account, upload your resume, and let the AI-powered wizard build your personalized '
-                + 'skill ontology and market valuation.</p>'
-                + '</div>'
-                + '</div>'
-
-                // Feature highlights
-                + '<div class="welcome-features">'
-                + '<div class="welcome-feature">'
-                + '<div class="wf-icon">\uD83C\uDFAF</div>'
-                + '<h4>Skill Ontology</h4>'
-                + '<p>13,960+ skills from O*NET mapped to your experience with evidence linking and proficiency levels.</p>'
-                + '</div>'
-                + '<div class="welcome-feature">'
-                + '<div class="wf-icon">\uD83D\uDCB0</div>'
-                + '<h4>Market Valuation</h4>'
-                + '<p>Compensation modeling based on skill rarity, impact tier, and location with negotiation guidance.</p>'
-                + '</div>'
-                + '<div class="welcome-feature">'
-                + '<div class="wf-icon">\uD83D\uDCDD</div>'
-                + '<h4>Executive Blueprint</h4>'
-                + '<p>Exportable professional document with outcomes, values, and strategic positioning.</p>'
-                + '</div>'
-                + '</div>'
-
-                // Already have an account
-                + '<div style="color:var(--text-muted); font-size:0.9em;">'
-                + 'Already have an account? <a href="#" onclick="event.preventDefault(); showAuthModal(\'signin\');" style="color:var(--accent); text-decoration:underline;">Sign in</a>'
+                // Sign in link
+                + '<div style="text-align:center; color:var(--text-muted); font-size:0.9em; margin-bottom:24px;">'
+                + 'Already have an account? <a href="#" onclick="event.preventDefault(); showAuthModal(\x27signin\x27);" style="color:var(--accent); text-decoration:underline;">Sign in</a>'
                 + '</div>'
 
                 // Disclaimer
-                + '<div style="margin-top:32px; padding:16px; background:' + tv('rgba(251,191,36,0.06)','rgba(251,191,36,0.04)') + '; '
+                + '<div style="text-align:center; padding:16px; background:' + tv('rgba(251,191,36,0.06)','rgba(251,191,36,0.04)') + '; '
                 + 'border:1px solid ' + tv('rgba(251,191,36,0.2)','rgba(251,191,36,0.12)') + '; border-radius:8px; '
                 + 'font-size:0.78em; color:' + tv('#9ca3af','#64748b') + '; line-height:1.5;">'
-                + 'This is a demonstration project. '
-                + 'Data and valuations are illustrative, not professional advice. '
-                + '<a href="#" onclick="event.preventDefault(); switchView(\'consent\');" style="color:inherit; text-decoration:underline;">Full disclaimer</a>.'
+                + 'This is a demonstration project. Data and valuations are illustrative, not professional advice. '
+                + '<a href="#" onclick="event.preventDefault(); switchView(\x27consent\x27);" style="color:inherit; text-decoration:underline;">Full disclaimer</a>.'
                 + '</div>'
                 + '</div>';
             
@@ -5218,6 +5240,8 @@
             window.applicationsInitialized = false;
             window.consentInitialized = false;
             window.settingsInitialized = false;
+            window.networkInitialized = false;
+            window.cardViewInitialized = false;
             
             // Check read-only status
             checkReadOnly();
@@ -5502,31 +5526,33 @@
             if (templates[scaffoldId]) loadTemplate(scaffoldId);
             initializeMainApp();
             
+            // Determine which view to show
+            var targetView = 'welcome'; // Default: welcome page
+            
             // CASE 1: Signed-in user with Firestore data
             if (fbUser && fbDb) {
-                loadUserFromFirestore(fbUser.uid).then(function(loaded) {
+                try {
+                    var loaded = await loadUserFromFirestore(fbUser.uid);
                     if (loaded) {
                         console.log('☁ Firestore profile applied');
-                        checkReadOnly();
-                        rebuildProfileDropdown();
-                        // Go to blueprint tab for signed-in users with data
-                        switchView('blueprint');
-                    } else {
-                        // Signed in but no data yet, show welcome with wizard prompt
-                        checkReadOnly();
-                        rebuildProfileDropdown();
-                        switchView('welcome');
+                        targetView = 'blueprint';
                     }
-                });
+                } catch(e) {
+                    console.warn('Firestore load failed:', e);
+                }
+                checkReadOnly();
+                rebuildProfileDropdown();
             }
-            // CASE 2: Not signed in → always show welcome page
+            // CASE 2: Not signed in → welcome page
             else {
                 checkReadOnly();
-                setTimeout(function() { switchView('welcome'); }, 100);
             }
             
             // Always rebuild dropdown after manifest is available
             rebuildProfileDropdown();
+            
+            // Return target view so DOMContentLoaded can use it
+            return targetView;
         }
         
         // Non-intrusive first-visit prompt to build own profile
@@ -7151,32 +7177,17 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Wait for auth state to resolve
             await authReadyPromise;
             
-            // v2.0: Initialize app (checks for profile, shows welcome if needed)
-            await initializeApp();
+            // Initialize app and get target view
+            var targetView = await initializeApp();
             
-            // If user has profile, continue with UI setup
+            // If user has profile, set up UI
             if (userData.initialized) {
                 // Update profile chip with loaded user's name
                 if (userData.profile.name) {
                     updateProfileChip(userData.profile.name);
                 }
                 
-                // Default to card view on mobile
-                const isMobile = window.innerWidth <= 768;
-                if (isMobile) {
-                    currentSkillsView = 'card';
-                    document.getElementById('cardView').style.display = 'block';
-                    document.getElementById('networkView').style.display = 'none';
-                    document.getElementById('networkControls').style.display = 'none';
-                    
-                    // Update toggle button state
-                    document.querySelectorAll('#skillsViewToggle .role-chip').forEach(chip => {
-                        chip.classList.toggle('active', chip.dataset.view === 'card');
-                    });
-                } else {
-                    initNetwork();
-                }
-                
+                // Pre-initialize card view data (doesn't display it)
                 initCardView();
                 
                 // Auto-save every 60 seconds (Firestore + localStorage)
@@ -7184,7 +7195,23 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     saveUserData();
                     if (fbUser && fbDb) saveToFirestore();
                 }, 60000);
-            } // Close if (userData.initialized)
+            }
+            
+            // Navigate to the target view
+            if (targetView === 'welcome') {
+                switchView('welcome');
+            } else if (targetView === 'blueprint') {
+                switchView('blueprint');
+            } else {
+                // Default: init network and show skills
+                const isMobile = window.innerWidth <= 768;
+                if (isMobile) {
+                    currentSkillsView = 'card';
+                } else {
+                    initNetwork();
+                }
+                switchView('network');
+            }
             
             // Final deferred dropdown rebuild - guarantees manifest + auth are both resolved
             setTimeout(function() { rebuildProfileDropdown(); }, 500);
@@ -7244,8 +7271,17 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 if (currentSkillsView === 'network') {
                     document.getElementById('networkView').style.display = 'block';
                     networkControls.style.display = 'flex';
+                    // Lazy-init network SVG on first visit
+                    if (!window.networkInitialized) {
+                        initNetwork();
+                        window.networkInitialized = true;
+                    }
                 } else {
                     document.getElementById('cardView').style.display = 'block';
+                    if (!window.cardViewInitialized) {
+                        initCardView();
+                        window.cardViewInitialized = true;
+                    }
                 }
                 updateStatsBar();
             } else if (view === 'opportunities') {
