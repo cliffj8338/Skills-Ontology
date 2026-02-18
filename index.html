@@ -3708,12 +3708,12 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0330
-        // FIX: Sample picker layout padding + footer overlap
+        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0335
+        // Samples default to Network view + scroll-to-top on all view switches
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   WORK BLUEPRINT v4.0.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260219-0330                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260219-0335                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -5253,8 +5253,9 @@
             checkReadOnly();
             rebuildProfileDropdown();
             
-            // Navigate to Work Blueprint tab (most informative view)
-            switchView('blueprint');
+            // Navigate to Skills Network (the wow factor)
+            switchView('network');
+            window.scrollTo(0, 0);
             
             showToast('Viewing: ' + userData.profile.name, 'success');
         }
@@ -7229,6 +7230,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (view === 'jobs') view = 'opportunities';
             
             currentView = view;
+            window.scrollTo(0, 0);
             // Update nav button active state
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             const navMap = { network: 'nav-skills', skills: 'nav-skills', opportunities: 'nav-jobs', jobs: 'nav-jobs', applications: 'nav-applications', blueprint: 'nav-blueprint' };
