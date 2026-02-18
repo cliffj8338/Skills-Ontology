@@ -3389,7 +3389,7 @@
                     📊 Your Skills (<span id="yourSkillsCount">0</span>)
                 </button>
                 <button id="addSkillsTab" class="skill-mgmt-tab" onclick="switchSkillManagementTab('add')">
-                    ➕ Add Skills (<span id="availableSkillsCount">2,320+</span>)
+                    ➕ Add Skills (<span id="availableSkillsCount">2,384+</span>)
                 </button>
             </div>
             
@@ -3413,12 +3413,7 @@
                     <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
                         <select id="yourSkillsCategoryFilter" onchange="filterYourSkills()" style="padding: 8px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;">
                             <option value="all">All Categories</option>
-                            <option value="skill">Skills</option>
-                            <option value="ability">Abilities</option>
-                            <option value="workstyle">Work Styles</option>
-                            <option value="knowledge">Knowledge</option>
-                            <option value="workactivity">Work Activities</option>
-                            <option value="unique">Custom Skills</option>
+                            <!-- populated dynamically by populateCategoryFilter() -->
                         </select>
                         
                         <select id="yourSkillsLevelFilter" onchange="filterYourSkills()" style="padding: 8px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;">
@@ -3511,7 +3506,7 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.6.9 - BUILD 20260218-1900
+        // WORK BLUEPRINT v3.7.0 - BUILD 20260218-1930
         // PREMIUM: 5-Factor Comprehensive Premium Calculation
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -4210,6 +4205,16 @@
                 console.log(`✓ O*NET Work Activities Library loaded (${aCount} work activities)`);
             } catch (e) {
                 console.warn('O*NET Work Activities Library not yet deployed (onet-work-activities-library.json)');
+            }
+            
+            // Load Trades & Creative skills library
+            try {
+                const tradesLib = await fetch('trades-creative-library.json').then(r => r.json());
+                window.tradesCreativeLibrary = tradesLib;
+                const tCount = tradesLib.count || 0;
+                console.log(`✓ Trades & Creative Library loaded (${tCount} skills)`);
+            } catch (e) {
+                console.warn('Trades & Creative Library not yet deployed (trades-creative-library.json)');
             }
             
             // Load values library
@@ -11373,14 +11378,59 @@ body {
             const modal = document.getElementById('skillManagementModal');
             modal.classList.add('active');
             
-            // Force library load if not loaded
             if (!skillLibraryIndex || !skillLibraryIndex.index) {
-                console.log('Skill library not loaded, loading now...');
                 loadSkillLibraryIndex();
             }
             
+            populateCategoryFilter();
             updateSkillManagementCounts();
             switchSkillManagementTab('yours');
+        }
+
+        // Build category dropdown from actual skills in this profile — only show categories that exist
+        window.populateCategoryFilter = function populateCategoryFilter() {
+            const select = document.getElementById('yourSkillsCategoryFilter');
+            if (!select) return;
+            const currentVal = select.value;
+            
+            const categoryMeta = {
+                'skill':         { label: 'Skills',           icon: '🗺️' },
+                'ability':       { label: 'Abilities',        icon: '⚡' },
+                'workstyle':     { label: 'Work Styles',      icon: '🧭' },
+                'knowledge':     { label: 'Knowledge',        icon: '📚' },
+                'workactivity':  { label: 'Work Activities',  icon: '⚙️' },
+                'unique':        { label: 'Custom Skills',    icon: '⭐' },
+            };
+            
+            // Count skills by category
+            const counts = {};
+            userData.skills.forEach(s => {
+                const cat = s.category || 'skill';
+                counts[cat] = (counts[cat] || 0) + 1;
+            });
+            
+            // Build options — only include categories that have skills
+            let html = `<option value="all">All Categories (${userData.skills.length})</option>`;
+            // Use preferred order
+            const order = ['skill','ability','workstyle','knowledge','workactivity','unique'];
+            order.forEach(cat => {
+                const count = counts[cat];
+                if (!count) return; // skip empty categories
+                const meta = categoryMeta[cat] || { label: cat, icon: '•' };
+                html += `<option value="${cat}">${meta.icon} ${meta.label} (${count})</option>`;
+            });
+            // Catch any unexpected categories in the data
+            Object.keys(counts).forEach(cat => {
+                if (!order.includes(cat)) {
+                    html += `<option value="${cat}">${cat} (${counts[cat]})</option>`;
+                }
+            });
+            
+            select.innerHTML = html;
+            // Restore previous selection if still valid
+            if (currentVal && select.querySelector(`option[value="${currentVal}"]`)) {
+                select.value = currentVal;
+            }
         }
 
         function closeSkillManagement() {
@@ -11404,18 +11454,27 @@ body {
             }
         }
 
+        // Central count function — always call this after loading any library or adding skills
+        function getTotalAvailableSkillCount() {
+            let total = 0;
+            // ESCO searchable library
+            if (skillLibraryIndex?.totalSkills) total += skillLibraryIndex.totalSkills;
+            else if (skillLibraryIndex?.index?.length) total += skillLibraryIndex.index.length;
+            // O*NET libraries
+            if (window.onetSkillsLibrary) total += 35; // nested categories structure
+            if (window.onetAbilitiesLibrary?.abilities) total += window.onetAbilitiesLibrary.abilities.length;
+            if (window.onetWorkStylesLibrary?.workStyles) total += window.onetWorkStylesLibrary.workStyles.length;
+            if (window.onetKnowledgeLibrary?.knowledge) total += window.onetKnowledgeLibrary.knowledge.length;
+            if (window.onetWorkActivitiesLibrary?.activities) total += window.onetWorkActivitiesLibrary.activities.length;
+            // Trades & Creative
+            if (window.tradesCreativeLibrary?.count) total += window.tradesCreativeLibrary.count;
+            // Future: Lightcast, ESCO full, etc. add here
+            return total > 0 ? total : 2384; // fallback if libraries not yet loaded
+        }
+        
         function updateSkillManagementCounts() {
             const yourCount = userData.skills.length;
-            
-            // Sum all loaded libraries for true total
-            let availableCount = skillLibraryIndex ? (skillLibraryIndex.totalSkills || 0) : 0;
-            // O*NET Skills (has .categories nested structure, use stored count)
-            if (window.onetSkillsLibrary) availableCount += 35;
-            if (window.onetAbilitiesLibrary?.abilities) availableCount += window.onetAbilitiesLibrary.abilities.length;
-            if (window.onetWorkStylesLibrary?.workStyles) availableCount += window.onetWorkStylesLibrary.workStyles.length;
-            if (window.onetKnowledgeLibrary?.knowledge) availableCount += window.onetKnowledgeLibrary.knowledge.length;
-            if (window.onetWorkActivitiesLibrary?.activities) availableCount += window.onetWorkActivitiesLibrary.activities.length;
-            if (availableCount === 0) availableCount = 2320; // fallback
+            const availableCount = getTotalAvailableSkillCount();
             
             document.getElementById('yourSkillsCount').textContent = yourCount;
             document.getElementById('availableSkillsCount').textContent = availableCount.toLocaleString();
