@@ -5255,9 +5255,8 @@
             
             // Navigate to Skills Network (the wow factor)
             switchView('network');
-            window.scrollTo(0, 0);
-            
-            showToast('Viewing: ' + userData.profile.name, 'success');
+            // Ensure we're at the top after view switch
+            setTimeout(function() { window.scrollTo(0, 0); }, 50);
         }
         
         // Save user data preference (which profile they're viewing)
