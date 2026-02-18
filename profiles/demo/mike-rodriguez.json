@@ -73,7 +73,7 @@
       "category": "skill",
       "key": true,
       "onetId": "2.B.3.a",
-      "yearsExperience": 12,
+      "yearsExperience": 8,
       "roles": [
         "architect",
         "engineer"
@@ -91,7 +91,7 @@
       "category": "skill",
       "key": true,
       "onetId": "2.B.4.a",
-      "yearsExperience": 12,
+      "yearsExperience": 8,
       "roles": [
         "architect",
         "builder"
@@ -109,7 +109,7 @@
       "category": "skill",
       "key": true,
       "onetId": "2.B.5.a",
-      "yearsExperience": 10,
+      "yearsExperience": 8,
       "roles": [
         "architect",
         "engineer"
@@ -127,7 +127,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.B.6.a",
-      "yearsExperience": 10,
+      "yearsExperience": 5,
       "roles": [
         "engineer",
         "builder"
@@ -163,7 +163,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.B.8.a",
-      "yearsExperience": 5,
+      "yearsExperience": 8,
       "roles": [
         "builder",
         "engineer"
@@ -181,7 +181,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.B.9.a",
-      "yearsExperience": 12,
+      "yearsExperience": 5,
       "roles": [
         "engineer"
       ],
@@ -198,7 +198,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.B.10.a",
-      "yearsExperience": 12,
+      "yearsExperience": 5,
       "roles": [
         "engineer",
         "architect"
@@ -216,7 +216,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.B.11.a",
-      "yearsExperience": 10,
+      "yearsExperience": 5,
       "roles": [
         "architect"
       ],
@@ -233,7 +233,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.B.12.a",
-      "yearsExperience": 10,
+      "yearsExperience": 5,
       "roles": [
         "architect"
       ],
@@ -267,7 +267,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.B.14.a",
-      "yearsExperience": 10,
+      "yearsExperience": 5,
       "roles": [
         "engineer",
         "architect"
@@ -285,7 +285,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.B.15.a",
-      "yearsExperience": 10,
+      "yearsExperience": 5,
       "roles": [
         "architect"
       ],
@@ -302,7 +302,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.B.16.a",
-      "yearsExperience": 8,
+      "yearsExperience": 5,
       "roles": [
         "engineer"
       ],
@@ -319,7 +319,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.B.17.a",
-      "yearsExperience": 12,
+      "yearsExperience": 5,
       "roles": [
         "engineer",
         "architect"
@@ -337,7 +337,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.B.18.a",
-      "yearsExperience": 10,
+      "yearsExperience": 5,
       "roles": [
         "architect",
         "builder"
@@ -355,7 +355,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.B.19.a",
-      "yearsExperience": 8,
+      "yearsExperience": 5,
       "roles": [
         "builder"
       ],
@@ -372,7 +372,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.B.20.a",
-      "yearsExperience": 8,
+      "yearsExperience": 5,
       "roles": [
         "builder",
         "architect"
@@ -390,7 +390,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.B.21.a",
-      "yearsExperience": 8,
+      "yearsExperience": 5,
       "roles": [
         "builder",
         "architect"
@@ -408,7 +408,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.B.22.a",
-      "yearsExperience": 10,
+      "yearsExperience": 5,
       "roles": [
         "engineer",
         "builder"
@@ -426,7 +426,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.B.23.a",
-      "yearsExperience": 8,
+      "yearsExperience": 5,
       "roles": [
         "architect",
         "builder"
@@ -440,11 +440,11 @@
     },
     {
       "name": "Negotiation",
-      "level": "Proficient",
+      "level": "Novice",
       "category": "skill",
       "key": false,
       "onetId": "2.B.24.a",
-      "yearsExperience": 5,
+      "yearsExperience": 1,
       "roles": [
         "builder"
       ],
@@ -461,7 +461,7 @@
       "category": "workstyle",
       "key": true,
       "onetId": "1.C.1.a",
-      "yearsExperience": 12,
+      "yearsExperience": 5,
       "roles": [
         "engineer"
       ],
@@ -478,7 +478,7 @@
       "category": "workstyle",
       "key": true,
       "onetId": "1.C.2.a",
-      "yearsExperience": 12,
+      "yearsExperience": 5,
       "roles": [
         "engineer",
         "builder"
@@ -496,7 +496,7 @@
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.3.a",
-      "yearsExperience": 12,
+      "yearsExperience": 5,
       "roles": [
         "engineer"
       ],
@@ -513,7 +513,7 @@
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.4.a",
-      "yearsExperience": 10,
+      "yearsExperience": 5,
       "roles": [
         "architect"
       ],
@@ -530,7 +530,7 @@
       "category": "workstyle",
       "key": true,
       "onetId": "1.C.5.a",
-      "yearsExperience": 12,
+      "yearsExperience": 8,
       "roles": [
         "architect",
         "engineer"
@@ -548,7 +548,7 @@
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.6.a",
-      "yearsExperience": 12,
+      "yearsExperience": 5,
       "roles": [
         "engineer"
       ],
@@ -565,7 +565,7 @@
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.7.a",
-      "yearsExperience": 10,
+      "yearsExperience": 5,
       "roles": [
         "engineer",
         "builder"
@@ -583,7 +583,7 @@
       "category": "ability",
       "key": true,
       "onetId": "1.A.1.a",
-      "yearsExperience": 12,
+      "yearsExperience": 5,
       "roles": [
         "engineer",
         "architect"
@@ -601,7 +601,7 @@
       "category": "ability",
       "key": false,
       "onetId": "1.A.2.a",
-      "yearsExperience": 12,
+      "yearsExperience": 5,
       "roles": [
         "engineer"
       ],
@@ -618,7 +618,7 @@
       "category": "ability",
       "key": false,
       "onetId": "1.A.3.a",
-      "yearsExperience": 12,
+      "yearsExperience": 5,
       "roles": [
         "engineer",
         "architect"
@@ -636,7 +636,7 @@
       "category": "ability",
       "key": false,
       "onetId": "1.A.4.a",
-      "yearsExperience": 10,
+      "yearsExperience": 5,
       "roles": [
         "architect"
       ],

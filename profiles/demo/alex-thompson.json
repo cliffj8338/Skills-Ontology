@@ -78,7 +78,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.D.3.a",
-      "yearsExperience": 3,
+      "yearsExperience": 2,
       "roles": [
         "service",
         "cashier"
@@ -96,7 +96,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.D.4.a",
-      "yearsExperience": 3,
+      "yearsExperience": 2,
       "roles": [
         "service",
         "team"
@@ -114,7 +114,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.D.5.a",
-      "yearsExperience": 3,
+      "yearsExperience": 2,
       "roles": [
         "cashier"
       ],
@@ -131,7 +131,7 @@
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.1.a",
-      "yearsExperience": 3,
+      "yearsExperience": 2,
       "roles": [
         "cashier",
         "operations"
@@ -149,7 +149,7 @@
       "category": "ability",
       "key": false,
       "onetId": "1.A.1.a",
-      "yearsExperience": 3,
+      "yearsExperience": 2,
       "roles": [
         "cashier"
       ],
@@ -162,11 +162,11 @@
     },
     {
       "name": "Problem-Solving and Conflict Resolution",
-      "level": "Proficient",
+      "level": "Novice",
       "category": "skill",
       "key": false,
       "onetId": "2.D.6.a",
-      "yearsExperience": 3,
+      "yearsExperience": 1,
       "roles": [
         "service"
       ],
@@ -183,7 +183,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.D.7.a",
-      "yearsExperience": 3,
+      "yearsExperience": 2,
       "roles": [
         "service"
       ],
@@ -200,7 +200,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.D.8.a",
-      "yearsExperience": 3,
+      "yearsExperience": 2,
       "roles": [
         "cashier",
         "operations"
@@ -214,11 +214,11 @@
     },
     {
       "name": "Sales and Upselling",
-      "level": "Proficient",
+      "level": "Novice",
       "category": "skill",
       "key": false,
       "onetId": "2.D.9.a",
-      "yearsExperience": 2,
+      "yearsExperience": 1,
       "roles": [
         "service"
       ],
@@ -235,7 +235,7 @@
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.2.a",
-      "yearsExperience": 3,
+      "yearsExperience": 2,
       "roles": [
         "operations",
         "team"
@@ -249,11 +249,11 @@
     },
     {
       "name": "Teamwork and Collaboration",
-      "level": "Proficient",
+      "level": "Novice",
       "category": "skill",
       "key": false,
       "onetId": "2.D.10.a",
-      "yearsExperience": 3,
+      "yearsExperience": 1,
       "roles": [
         "team"
       ],
@@ -266,11 +266,11 @@
     },
     {
       "name": "Loss Prevention Awareness",
-      "level": "Proficient",
+      "level": "Novice",
       "category": "skill",
       "key": false,
       "onetId": "2.D.11.a",
-      "yearsExperience": 3,
+      "yearsExperience": 1,
       "roles": [
         "operations"
       ],
@@ -283,11 +283,11 @@
     },
     {
       "name": "Technology Proficiency",
-      "level": "Proficient",
+      "level": "Novice",
       "category": "skill",
       "key": false,
       "onetId": "2.D.12.a",
-      "yearsExperience": 3,
+      "yearsExperience": 1,
       "roles": [
         "cashier",
         "operations"
@@ -305,7 +305,7 @@
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.3.a",
-      "yearsExperience": 3,
+      "yearsExperience": 2,
       "roles": [
         "cashier"
       ],
@@ -322,7 +322,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.D.13.a",
-      "yearsExperience": 3,
+      "yearsExperience": 2,
       "roles": [
         "service"
       ],
@@ -339,7 +339,7 @@
       "category": "ability",
       "key": false,
       "onetId": "1.A.2.a",
-      "yearsExperience": 3,
+      "yearsExperience": 2,
       "roles": [
         "cashier",
         "operations"
@@ -357,7 +357,7 @@
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.4.a",
-      "yearsExperience": 3,
+      "yearsExperience": 2,
       "roles": [
         "team",
         "operations"
@@ -375,7 +375,7 @@
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.5.a",
-      "yearsExperience": 3,
+      "yearsExperience": 2,
       "roles": [
         "operations"
       ],

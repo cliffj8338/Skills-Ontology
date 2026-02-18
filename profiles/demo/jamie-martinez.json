@@ -33,7 +33,7 @@
   "skills": [
     {
       "name": "Haircutting and Styling",
-      "level": "Mastery",
+      "level": "Advanced",
       "category": "skill",
       "key": true,
       "onetId": "2.C.1.a",
@@ -69,7 +69,7 @@
     },
     {
       "name": "Customer Service",
-      "level": "Proficient",
+      "level": "Advanced",
       "category": "skill",
       "key": false,
       "onetId": "2.C.3.a",
@@ -90,7 +90,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.C.4.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "service",
         "stylist"
@@ -108,7 +108,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.C.5.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "service"
       ],
@@ -125,7 +125,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.C.6.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "service"
       ],
@@ -142,7 +142,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.C.7.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "artist"
       ],
@@ -159,7 +159,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.C.8.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "stylist"
       ],
@@ -172,11 +172,11 @@
     },
     {
       "name": "Chemistry and Color Theory",
-      "level": "Proficient",
+      "level": "Novice",
       "category": "skill",
       "key": false,
       "onetId": "2.C.9.a",
-      "yearsExperience": 3,
+      "yearsExperience": 1,
       "roles": [
         "artist"
       ],
@@ -193,7 +193,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.C.10.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "stylist"
       ],
@@ -210,7 +210,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.C.11.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "service",
         "stylist"
@@ -228,7 +228,7 @@
       "category": "ability",
       "key": false,
       "onetId": "1.A.1.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "stylist",
         "artist"
@@ -246,7 +246,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.C.12.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "service"
       ],
@@ -263,7 +263,7 @@
       "category": "ability",
       "key": false,
       "onetId": "1.A.2.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "artist"
       ],
@@ -297,7 +297,7 @@
       "category": "ability",
       "key": false,
       "onetId": "1.A.3.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "stylist"
       ],
@@ -314,7 +314,7 @@
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.1.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "stylist",
         "artist"
@@ -332,7 +332,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.C.14.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "service"
       ],
@@ -345,11 +345,11 @@
     },
     {
       "name": "Upselling and Sales",
-      "level": "Proficient",
+      "level": "Novice",
       "category": "skill",
       "key": false,
       "onetId": "2.C.15.a",
-      "yearsExperience": 3,
+      "yearsExperience": 1,
       "roles": [
         "service"
       ],
@@ -366,7 +366,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.C.16.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "stylist",
         "artist"
@@ -384,7 +384,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.C.17.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "service"
       ],
@@ -418,7 +418,7 @@
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.2.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "stylist"
       ],
@@ -435,7 +435,7 @@
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.3.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "service",
         "artist"
@@ -453,7 +453,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.C.19.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "service"
       ],
@@ -466,11 +466,11 @@
     },
     {
       "name": "Social Media and Self-Promotion",
-      "level": "Proficient",
+      "level": "Novice",
       "category": "skill",
       "key": false,
       "onetId": "2.C.20.a",
-      "yearsExperience": 3,
+      "yearsExperience": 1,
       "roles": [
         "artist",
         "service"
@@ -488,7 +488,7 @@
       "category": "workstyle",
       "key": false,
       "onetId": "1.C.4.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "stylist"
       ],
@@ -501,11 +501,11 @@
     },
     {
       "name": "Texturizing and Razor Work",
-      "level": "Proficient",
+      "level": "Novice",
       "category": "skill",
       "key": false,
       "onetId": "2.C.21.a",
-      "yearsExperience": 3,
+      "yearsExperience": 1,
       "roles": [
         "stylist",
         "artist"
@@ -519,11 +519,11 @@
     },
     {
       "name": "Men's Grooming and Barbering",
-      "level": "Proficient",
+      "level": "Novice",
       "category": "skill",
       "key": false,
       "onetId": "2.C.22.a",
-      "yearsExperience": 2,
+      "yearsExperience": 1,
       "roles": [
         "stylist"
       ],
@@ -540,7 +540,7 @@
       "category": "skill",
       "key": false,
       "onetId": "2.C.23.a",
-      "yearsExperience": 4,
+      "yearsExperience": 3,
       "roles": [
         "stylist"
       ],

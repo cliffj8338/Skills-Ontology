@@ -33,7 +33,7 @@
   "skills": [
     {
       "name": "Active Listening",
-      "level": "Mastery",
+      "level": "Advanced",
       "category": "skill",
       "key": true,
       "onetId": "2.A.1.a",
@@ -87,7 +87,7 @@
     },
     {
       "name": "Critical Thinking",
-      "level": "Proficient",
+      "level": "Advanced",
       "category": "skill",
       "key": false,
       "onetId": "2.A.2.a",
@@ -105,7 +105,7 @@
     },
     {
       "name": "Social Perceptiveness",
-      "level": "Mastery",
+      "level": "Advanced",
       "category": "skill",
       "key": true,
       "onetId": "2.A.2.b",
@@ -141,7 +141,7 @@
     },
     {
       "name": "Persuasion",
-      "level": "Proficient",
+      "level": "Advanced",
       "category": "skill",
       "key": true,
       "onetId": "2.A.3.b",
@@ -264,11 +264,11 @@
     },
     {
       "name": "Systems Analysis",
-      "level": "Proficient",
+      "level": "Novice",
       "category": "skill",
       "key": false,
       "onetId": "2.A.10.a",
-      "yearsExperience": 4,
+      "yearsExperience": 2,
       "roles": [
         "strategist"
       ],
@@ -281,11 +281,11 @@
     },
     {
       "name": "Systems Evaluation",
-      "level": "Proficient",
+      "level": "Novice",
       "category": "skill",
       "key": false,
       "onetId": "2.A.11.a",
-      "yearsExperience": 4,
+      "yearsExperience": 2,
       "roles": [
         "strategist"
       ],
@@ -334,11 +334,11 @@
     },
     {
       "name": "Instructing",
-      "level": "Proficient",
+      "level": "Novice",
       "category": "skill",
       "key": false,
       "onetId": "2.A.14.a",
-      "yearsExperience": 4,
+      "yearsExperience": 2,
       "roles": [
         "strategist"
       ],
@@ -351,11 +351,11 @@
     },
     {
       "name": "Management of Personnel Resources",
-      "level": "Proficient",
+      "level": "Novice",
       "category": "skill",
       "key": false,
       "onetId": "2.A.15.a",
-      "yearsExperience": 3,
+      "yearsExperience": 2,
       "roles": [
         "strategist"
       ],
