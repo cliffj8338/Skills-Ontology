@@ -3429,7 +3429,7 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.6.6 - BUILD 20260218-1800
+        // WORK BLUEPRINT v3.6.7 - BUILD 20260218-1830
         // PREMIUM: 5-Factor Comprehensive Premium Calculation
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -3904,127 +3904,59 @@
         let skillLibraryIndex = null;
 
         async function loadSkillLibraryIndex() {
-            console.log('=== LOADING SKILL LIBRARY ===');
-            
-            // Cache-busting timestamp
+            // Try v3 (current), gracefully degrade if missing — never block the app
             const cacheBuster = '?v=20260218-1800';
-            const url = 'skills/index-v4.json' + cacheBuster;
-            console.log('Fetching:', url);
+            const candidates = ['skills/index-v3.json', 'skills/index-v4.json'];
             
-            try {
-                const response = await fetch(url);
-                console.log('Response status:', response.status, response.statusText);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+            for (const path of candidates) {
+                try {
+                    const response = await fetch(path + cacheBuster);
+                    if (!response.ok) continue;
+                    const data = await response.json();
+                    skillLibraryIndex = data;
+                    const count = data.totalSkills || data.index?.length || '?';
+                    console.log(`✓ Skill library loaded: ${count} skills (${path})`);
+                    // Update Add Skills count badge
+                    const badge = document.getElementById('availableSkillsCount');
+                    if (badge && count !== '?') badge.textContent = Number(count).toLocaleString();
+                    return;
+                } catch (e) {
+                    // Try next candidate
                 }
-                
-                const data = await response.json();
-                console.log('JSON parsed successfully');
-                console.log('Data structure:', Object.keys(data));
-                console.log('Total skills:', data.totalSkills);
-                console.log('Index array length:', data.index ? data.index.length : 'NO INDEX');
-                
-                skillLibraryIndex = data;
-                console.log(`✅ Skill library loaded: ${skillLibraryIndex.totalSkills} skills`);
-                console.log('=== LIBRARY LOAD COMPLETE ===');
-                
-                // Test search immediately
-                console.log('Testing search with "leadership"...');
-                const testResults = searchSkills('leadership');
-                console.log('Test search results:', testResults.length, 'skills found');
-                
-            } catch (error) {
-                console.error('❌ ERROR loading skill library:', error);
-                console.error('Error details:', error.message);
-                console.error('Error stack:', error.stack);
-                skillLibraryIndex = { totalSkills: 0, index: [] };
-                
-                alert('CRITICAL ERROR: Skill library failed to load!\n\n' + 
-                      'Error: ' + error.message + '\n\n' +
-                      'Check browser console (F12) for details.\n\n' +
-                      'The skills/index-v3.json file may be missing or corrupted.');
             }
+            
+            // All candidates failed — set empty index, app still works
+            skillLibraryIndex = { totalSkills: 0, index: [] };
+            console.warn('⚠ Skill search library (skills/index-v3.json) not found — Add Skills search will be empty. Other features unaffected.');
         }
 
-        // Search skills by query - GUARANTEED to return array
+        // Search skills by query - returns array always
         function searchSkills(query) {
-            console.log('=== searchSkills START ===');
-            console.log('Query:', query);
-            console.log('skillLibraryIndex:', skillLibraryIndex);
-            
             try {
-                if (!skillLibraryIndex) {
-                    console.error('ERROR: skillLibraryIndex is null/undefined');
-                    return [];
-                }
-                
-                if (!skillLibraryIndex.index) {
-                    console.error('ERROR: skillLibraryIndex.index is null/undefined');
-                    console.log('skillLibraryIndex keys:', Object.keys(skillLibraryIndex));
-                    return [];
-                }
-                
-                if (!query) {
-                    console.log('No query provided');
-                    return [];
-                }
-                
+                if (!skillLibraryIndex?.index || !query) return [];
                 const q = query.toLowerCase().trim();
-                console.log('Trimmed query:', q);
+                if (q.length < 2) return [];
                 
-                if (q.length < 2) {
-                    console.log('Query too short');
-                    return [];
-                }
-                
-                console.log('Searching through', skillLibraryIndex.index.length, 'skills');
-                
-                const results = skillLibraryIndex.index
+                return skillLibraryIndex.index
                     .filter(skill => {
-                        try {
-                            const name = (skill.n || '').toLowerCase();
-                            const category = (skill.c || '').toLowerCase();
-                            const subcategory = (skill.sc || '').toLowerCase();
-                            return name.includes(q) || category.includes(q) || subcategory.includes(q);
-                        } catch (filterError) {
-                            console.error('Error filtering skill:', skill, filterError);
-                            return false;
-                        }
+                        const name = (skill.n || '').toLowerCase();
+                        const category = (skill.c || '').toLowerCase();
+                        const subcategory = (skill.sc || '').toLowerCase();
+                        return name.includes(q) || category.includes(q) || subcategory.includes(q);
                     })
                     .sort((a, b) => {
-                        try {
-                            const aName = (a.n || '').toLowerCase();
-                            const bName = (b.n || '').toLowerCase();
-                            
-                            const aExact = aName === q;
-                            const bExact = bName === q;
-                            if (aExact && !bExact) return -1;
-                            if (!aExact && bExact) return 1;
-                            
-                            const aStarts = aName.startsWith(q);
-                            const bStarts = bName.startsWith(q);
-                            if (aStarts && !bStarts) return -1;
-                            if (!aStarts && bStarts) return 1;
-                            
-                            return (b.p || 0) - (a.p || 0);
-                        } catch (sortError) {
-                            console.error('Error sorting skills:', sortError);
-                            return 0;
-                        }
+                        const aName = (a.n || '').toLowerCase();
+                        const bName = (b.n || '').toLowerCase();
+                        if (aName === q) return -1;
+                        if (bName === q) return 1;
+                        if (aName.startsWith(q) && !bName.startsWith(q)) return -1;
+                        if (!aName.startsWith(q) && bName.startsWith(q)) return 1;
+                        return (b.p || 0) - (a.p || 0);
                     })
                     .slice(0, 20);
-                
-                console.log('Found', results.length, 'results');
-                console.log('=== searchSkills END ===');
-                return results || []; // GUARANTEE array return
-                
             } catch (error) {
-                console.error('=== CRITICAL ERROR in searchSkills ===');
-                console.error('Error:', error);
-                console.error('Message:', error.message);
-                console.error('Stack:', error.stack);
-                return []; // ALWAYS return array, even on error
+                console.error('searchSkills error:', error);
+                return [];
             }
         }
 
