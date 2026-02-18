@@ -4416,12 +4416,9 @@
             
             // If user has profile, continue with UI setup
             if (userData.initialized) {
-                // Set user name in header
-                const userNameEl = document.getElementById('userName');
+                // Update profile chip with loaded user's name
                 if (userData.profile.name) {
-                    userNameEl.textContent = userData.profile.name + "'s";
-                } else {
-                    userNameEl.textContent = "Your";
+                    updateProfileChip(userData.profile.name);
                 }
                 
                 // Default to card view on mobile
@@ -8815,12 +8812,9 @@ body {
                                                     'junior', 'mid-level', 'associate', 'intern', 'entry'];
             }
             
-            // Update header
-            const userNameEl = document.getElementById('userName');
+            // Update profile chip with new name
             if (userData.profile.name) {
-                userNameEl.textContent = userData.profile.name + "'s";
-            } else {
-                userNameEl.textContent = "Your";
+                updateProfileChip(userData.profile.name);
             }
             
             // Save to localStorage
