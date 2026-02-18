@@ -1,6 +1,6 @@
 # Work Blueprint — Project Context File
 For use at the start of new chat sessions to restore full context.
-Last updated: February 18, 2026 — v3.5.1
+Last updated: February 18, 2026 — v3.6.4
 
 ---
 
@@ -19,237 +19,217 @@ GitHub Repo: https://github.com/cliffj8338/Skills-Ontology
 
 ---
 
-## Current Version: 3.5.2 (BUILD 20260218-1100)
+## Current Version: 3.6.4 (BUILD 20260218-1600)
 
+### v3.6.4 Changes (Feb 18 2026) — Deduplication
+- Removed 3,300+ lines of duplicate blueprint system code accumulated from editing sessions
+- File had 3 full copies of WORK BLUEPRINT SYSTEM block — kept last (most complete)
+- blueprintData went from 3 declarations to 1, renderBlueprint() from 6 copies to 1
+- File size: 12,032 lines (was 15,525 with duplicates)
 
-### v3.5.2 Changes (Feb 18 2026)
-- Fixed inferValues(): now reads userData.values and userData.purpose from profile — all profiles get their own values/purpose instead of Cliff's
-- Fixed levelColors: Expert (#f97316) and Novice (#6b7280) added — no more invisible skill dots
-- Added Expert and Novice level chip CSS
-- Role filter chips now render dynamically from userData.roles — all profiles show correct roles
-- Level filter counts now render dynamically from actual skill data
-- Added renderFilterChips() called from initializeMainApp()
-- Removed duplicate saveUserData() (line 7755 version) — one definition, correct behavior
-- Removed dead loadUserData() migration code
-- About and Help now use proper modals instead of browser alert() calls
-- Fixed misleading "Share it via link" text in blueprint download confirmation
-### v3.5.1 Changes (Feb 18 2026)
-- Fixed 0 Outcomes bug: extractOutcomesFromEvidence() was reading from legacy skillDetails
-  (skill_evidence.json string format) instead of userData.skills[].evidence objects.
-  Now reads from userData.skills — cliff-jones profile shows 42 outcomes vs 0 before.
-- Outcomes sorted: dollar amounts first, percentages second, sensitive items last (default unshared)
-- Added legacy fallback: if userData.skills produces nothing, falls back to skillDetails strings
+### v3.6.3 Changes (Feb 18 2026) — Syntax Fixes
+- Fixed apostrophes in single-quoted wizard string arguments breaking JS parse
+- Exposed all 23 wizard and nav functions to window scope for onclick handler access
 
-### v3.5.0 Changes
-- Professional Resume Generator working (exportProfile resume downloads real HTML)
-- Fixed gatherBlueprintData() to use real evidence instead of hardcoded outcomes
-- Added extractMetric() helper
+### v3.6.2 Changes (Feb 18 2026) — Scope Fixes
+- Removed userName span DOM lookup (element removed in nav redesign)
+- All nav/wizard functions exposed to window scope via window.X = X pattern
 
-### v3.4.0 (prior)
-- Multi-profile architecture (5 profiles)
-- Skills management with O*NET + 2138-skill library
-- Market valuation backend + Work Blueprint display
-- Impact rating system (5 tiers)
+### v3.6.1 Changes (Feb 18 2026) — Light Theme Fixes
+- Added tv(darkVal, lightVal) and tb(darkBg, lightBg) theme-aware helpers
+- Market valuation section: 36 hardcoded dark-mode colors replaced with tv()/tb()
+- Network graph node text-shadows corrected for light background
+
+### v3.6.0 Changes (Feb 18 2026) — Onboarding Wizard
+- Full 8-step onboarding wizard: Start > Resume > Parsing > Profile > Skills > Values > Purpose > Complete
+- Claude API (claude-sonnet-4-20250514) for resume parsing and purpose regeneration
+- Entry points: More menu, auto-launch for new users, first-visit banner
+- wizardApplyAndLaunch() injects built profile into running app without reload
+
+### v3.5.3/3.5.4 Changes (Feb 18 2026) — Navigation Redesign + Light Theme
+- Complete nav redesign: 56px bar, logo/wordmark, pill nav, profile avatar chip
+- ADMIN label removed — profile switcher is now a proper user account selector
+- Light/dark theme toggle with full CSS custom properties system
+- Filter bar: contextual (Skills tab only), collapsible
+- Mobile: bottom tab bar
+
+### v3.5.2 Changes (Feb 18 2026) — Foundation Audit
+- Fixed inferValues() to read userData first, not hardcode Cliff's values
+- Fixed levelColors (Expert + Novice added), dynamic filter chips/counts
+- Removed duplicate saveUserData(), dead loadUserData(), replaced alert() modals
+
+### v3.5.1 — Fixed 0 Outcomes bug (reads userData.skills[].evidence)
+### v3.5.0 — Professional Resume Generator working
+### v3.4.0 — Multi-profile architecture, skills management, market valuation
 
 ---
 
 ## File Structure
 
 Skills-Ontology/
-  index.html                    ENTIRE app (~10,000 lines, all JS inline)
-  skill_evidence.json           Legacy evidence store (superseded by profile JSONs)
-  skill_valuations.json         Market value data (base values, multipliers, benchmarks)
+  index.html                    ENTIRE app (~12,000 lines, all JS inline)
+  skill_valuations.json         Market value data
   onet-skills-library.json      O*NET 35 standard skills
   onet-abilities-library.json   O*NET 52 abilities
   onet-workstyles-library.json  O*NET 16 work styles
-  onet-impact-ratings.json      Impact tier ratings for O*NET skills
+  onet-impact-ratings.json      Impact tier ratings
   values-library.json           30 corporate values
   profiles-manifest.json        Registry of all available profiles
-  PROJECT_CONTEXT.md            THIS FILE - update and deploy every session
+  PROJECT_CONTEXT.md            THIS FILE
   profiles/
     demo/
       cliff-jones.json          89 skills, 100 evidence items, 42 qualifying outcomes
-      sarah-chen.json           32 skills, HR/recruiting
-      mike-rodriguez.json       35 skills, engineering lead
-      jamie-martinez.json       Service industry (hair stylist)
-      alex-thompson.json        Entry level (retail cashier)
+      sarah-chen.json           HR/recruiting
+      mike-rodriguez.json       Engineering lead
+      jamie-martinez.json       Service industry
+      alex-thompson.json        Entry level
     templates/
       blank.json                Empty starter template
   skills/
-    index-v3.json               2,138 searchable skills (224KB)
-    details/
-      esco-technology.json
+    index-v3.json               2,138 searchable skills
 
 ---
 
 ## Architecture
 
 Core Pattern: Templates Are Source of Truth
-- On load: fetch profiles-manifest.json, load ALL enabled profile JSONs into templates{}
-- localStorage ONLY stores currentProfile string
-- Profile data always loaded fresh from JSON — no cache bugs
+- On load: fetch profiles-manifest.json, load all profile JSONs into templates{}
+- localStorage ONLY stores: currentProfile, wbTheme, wbHasVisited
+- Wizard-built profiles stored in templates['wizard-built'] for session persistence
 
 Key Global Objects:
-  userData          active profile (skills, profile, values, purpose, roles, applications)
-  skillsData        runtime skill data for network graph and card views
-  templates{}       all loaded profile templates
+  userData          active profile
+  skillsData        runtime skill data
+  templates{}       all loaded profiles
   skillValuations   from skill_valuations.json
-  impactRatings     from onet-impact-ratings.json
-  skillLibraryIndex 2,138 skills from skills/index-v3.json
+  wizardState       onboarding wizard state
+  blueprintData     extracted outcomes/values/purpose (ONE declaration — do not duplicate)
 
 userData shape:
-  initialized: true
-  profile: { name, email, location, roleLevel, currentTitle,
-             yearsExperience, currentCompany, executiveSummary }
-  skills: [{ name, level, category, key, onetId, roles,
-             evidence: [{description, outcome}] }]
-  skillDetails: {}  (legacy)
-  values: [{ name, description, selected }]
-  purpose: string
-  roles: [{ id, name, icon, color }]
-  preferences: { seniorityLevel, targetTitles, ... }
-  applications: []
-  templateId: string
+  initialized, templateId, profile{name, email, location, currentTitle, yearsExperience,
+  executiveSummary, headline}, skills[{name, level, category, key, onetId, roles,
+  evidence:[{description, outcome}]}], values[{name, description, selected}],
+  purpose, roles[{id, name, color}], preferences{}, applications[]
 
-Profile JSON shape:
-  templateId, templateName, templateDescription
-  profile: { name, location, roleLevel, currentTitle, yearsExperience,
-             currentCompany, executiveSummary }
-  roles: [{ id, name, icon, color }]
-  skills: [{ name, level, category, key, onetId, yearsExperience, roles,
-             evidence: [{description, outcome}] }]
-  values: [{ name, description, selected }]
-  purpose: string
+---
 
-NOTE: No workHistory[] in profile JSONs yet. Resume experience section
-synthesized from current role only. Adding workHistory[] is a roadmap item.
+## Theme System
+
+CSS custom properties on :root (dark default) and [data-theme="light"] overrides.
+Variables: --bg-base/surface/elevated/card, --border, --text-primary/secondary/muted,
+  --accent, --accent-glow, --nav-bg, --chip-bg, --input-bg, --shadow, --success/warning/danger
+
+tv(darkVal, lightVal) — inline JS style helper, reads current data-theme attribute
+tb(darkBg, lightBg)  — same for background values
+
+RULE: All new inline style colors in JS template strings must use tv()/tb().
+CSS class colors go in [data-theme="light"] override block in the stylesheet.
 
 ---
 
 ## Navigation
 
-Main Tabs:
-  1. Skills         Network graph (D3.js) + Card view + skill detail modals
-  2. Jobs           Multi-source job search + AI pitch generation
-  3. Applications   Full CRUD application tracker
-  4. Work Blueprint Market valuation + outcomes + values + purpose + export
+Header (56px): ◈ logo + wordmark | Skills/Jobs/Apps/Blueprint pills | theme toggle + profile chip + More
+Filter bar (48px, Skills only, collapsible): view pills + search + Filter button → chips
+Mobile: bottom 5-tab bar
 
-Overflow Menu: Settings | Export Profile | Generate Work Blueprint | Consent | Help/About
-Header: Profile Selector dropdown switches between all 5 profiles instantly.
+More menu: ◈ Build My Work Blueprint | Settings | Export | Blueprint | Consent | Help | About
 
 ---
 
-## Skills System
+## Onboarding Wizard
 
-Categories:
-  skill      O*NET Standard Skill (blue)
-  ability    O*NET Ability (purple)
-  workstyle  O*NET Work Style (green)
-  unique     Unique Differentiator (gold)
-  onet       Legacy alias for skill
+Steps: Start(1) > Resume(2) > Parsing(3) > Profile(4) > Skills(5) > Values(6) > Purpose(7) > Complete(8)
 
-Levels: Novice 0.7x | Proficient 1.0x | Advanced 1.5x | Expert 1.9x | Mastery 2.2x
-Impact tiers: CRITICAL | HIGH | MODERATE | STANDARD | SUPPLEMENTARY
+Claude API (claude-sonnet-4-20250514, max_tokens 4000):
+  Parsing: extracts profile, roles, 15-40 skills+evidence, values, purpose from resume text
+  Regenerate: rewrites purpose from profile+skills+values+outcomes
+
+wizardApplyAndLaunch(built): loads built profile, resets all tab init flags, calls initNetwork()
+
+---
+
+## Scope Pattern — CRITICAL
+
+Functions inside DOMContentLoaded async closure are NOT reachable from HTML onclick="".
+Must explicitly expose: window.functionName = functionName
+
+Currently exposed: toggleTheme, initTheme, toggleProfileDropdown, closeProfileDropdown,
+  showOnboardingWizard, all wizardXxx functions, confirmExitWizard,
+  toggleFilterPanel, renderFilterChips, switchView, switchProfile, filterByRole,
+  filterByLevel, toggleSkillsView, etc.
+
+When adding any new function called from onclick="", add window.X = X after its definition.
 
 ---
 
 ## Market Valuation
 
-skill_valuations.json: skillBaseValues (70+ skills $18k-$55k), proficiencyMultipliers,
-locationMultipliers (30 US cities), demandFactors, rarityBonuses, roleBenchmarks.
+calculateTotalMarketValue() in skill_valuations.json data.
+Returns: yourWorth, standardOffer, competitiveOffer, conservativeOffer, top10Skills,
+  criticalSkills, highSkills, criticalBonus, highBonus, rarityBonus, compaRatio, etc.
 
-calculateTotalMarketValue() returns:
-  total, yourWorth, marketRate, baseMarketRate, percentile, roleLevel, compaRatio,
-  conservativeOffer, standardOffer, competitiveOffer, criticalBonus, highBonus,
-  rarityBonus, top10Skills, criticalSkills, highSkills
+renderMarketValuationSection() uses tv()/tb() for all inline colors — do not add raw rgba() here.
 
 ---
 
 ## Export Features
 
-WORKING: Professional Resume (v3.5.0+)
-  generateResume() -> resume-[name]-[date].html
-  gatherResumeData() scores evidence: $amounts+5, %+4, millions+5, multipliers+3,
-    date refs+2, Mastery/Expert+2, skill.key+2. Top 10 achievements, top 18 competencies.
-  Sections: Header, Summary, Competencies grid, Achievements, Experience, Values, Footer
-  Output: HTML, print-to-PDF via browser.
-
-WORKING: Work Blueprint HTML Generator (v3.5.0+, fixed from hardcoded)
-  generateWorkBlueprint() -> work-blueprint-[name].html
-
-STUBS (alert only): Capability Statement | LinkedIn export | Interview Prep
+WORKING: Resume (generateResume()) | Work Blueprint HTML (generateWorkBlueprint())
+STUBS: Capability Statement | LinkedIn export | Interview Prep
 
 ---
 
-## Outcomes System (fixed v3.5.1)
+## Known Issues
 
-extractOutcomesFromEvidence() reads userData.skills[].evidence objects:
-  ev.outcome + ev.description = combined text for pattern matching
-  Qualifies if: has dollar/percent/multiplier metric OR has result verb
-    (retained, increased, reduced, improved, delivered, generated, etc.)
-  Sensitive items (recovery/Kyle/sobriety/addiction/mental health) default to unshared
-  Sort order: dollar amounts first, percentages second, sensitive last
-
-cliff-jones: 42 outcomes extracted
-Display fields used: outcome.text (combined display), outcome.skill (From: tag),
-  outcome.category (categorized), outcome.shared (consent toggle)
-
----
-
-## Known Issues / Status
-
-  Live site stale              v3.5.1 not yet deployed
-  No workHistory[] in JSONs    resume experience section limited to current role
-  Capability Statement         stub
-  LinkedIn export              stub
-  Interview Prep               stub
-  Market value on skill cards  not built
-  Market value in header       not built
+  No workHistory[] in JSONs     Resume experience section limited to current role
+  Card view domains             Hardcoded to Cliff's skills — wizard profiles may sort wrong
+  Consent presets               UI only — doesn't actually filter skills for export
+  Capability Statement          Stub
+  Light theme                   Ongoing polish — report issues with screenshots
 
 ---
 
 ## Roadmap Priorities
 
-Next:
-  1. Add workHistory[] to profile JSONs for proper experience section in resume
-  2. Capability Statement export (1-page executive summary)
-  3. Market value $ on skill cards
-  4. Market value persistent display in header
-
-Later:
-  5. LinkedIn / Interview Prep exports
-  6. Onboarding wizard
-  7. Mobile UX improvements
+1. Light theme remaining polish
+2. Test wizard with real resume — refine Claude parsing prompt
+3. Personalized company/role page generator (shareable URL with encoded profile data)
+4. Email composer for recruiter outreach
+5. Add workHistory[] to profile JSONs
+6. Capability Statement export
+7. Consent preset actually filters export
 
 ---
 
 ## Deployment
 
-  cd ~/path/to/Skills-Ontology
   cp ~/Downloads/index.html ./
   cp ~/Downloads/PROJECT_CONTEXT.md ./
-  git add -A && git commit -m "v3.5.1 - Fix 0 outcomes bug" && git push
+  git add -A && git commit -m "v3.6.4" && git push
 
 ---
 
 ## Tech Stack
 
-Vanilla JavaScript | D3.js v7 | jsPDF 2.5.1 (loaded, unused)
-HTML5/CSS3 | GitHub Pages | Static JSON files | localStorage (profile key only)
+Vanilla JS | D3.js v7 | Anthropic API (claude-sonnet-4-20250514)
+HTML5/CSS3 | GitHub Pages | Static JSON | localStorage (minimal)
 
 ---
 
 ## Key Context
 
-Primary demo: Cliff Jones — VP Global Strategy, talent tech, FAA IFR pilot,
-37-year musician, recovery advocate (Kyle's Wish Foundation), 89 skills, 100 evidence items.
-Real company: Phenom. Demo company: TalentEdge.
+Primary demo: Cliff Jones — VP Global Strategy, Phenom, FAA IFR pilot, 37-year musician,
+recovery advocate (Kyle's Wish Foundation co-founder). 89 skills, 100 evidence items.
+Demo company: TalentEdge.
+
+Five demo profiles: cliff-jones, sarah-chen, mike-rodriguez, jamie-martinez, alex-thompson.
 
 ---
 
 ## Starting a New Chat
 
-Give new Claude: PROJECT_CONTEXT.md + index.html + any profile JSONs being modified.
+Give new Claude: PROJECT_CONTEXT.md + index.html
 
 Say: "This is a career intelligence platform. Read PROJECT_CONTEXT.md for context.
-Current version: v3.5.1. Today I want to [task]."
+Current version: v3.6.4. Today I want to [task]."
