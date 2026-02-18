@@ -3540,6 +3540,10 @@
                                     style="padding: 8px 16px; background: rgba(100, 116, 139, 0.2); border: 1px solid rgba(100, 116, 139, 0.4); color: #94a3b8; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
                                 ⭐ Leadership
                             </button>
+                            <button onclick="searchAddSkillsByCategory('Trades')" 
+                                    style="padding: 8px 16px; background: rgba(180, 83, 9, 0.2); border: 1px solid rgba(180, 83, 9, 0.4); color: #d97706; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
+                                🔨 Trades
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -3562,7 +3566,7 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.8.0 - BUILD 20260218-2100
+        // WORK BLUEPRINT v3.8.2 - BUILD 20260218-2130
         // PREMIUM: 5-Factor Comprehensive Premium Calculation
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -11926,6 +11930,38 @@ body {
         }
 
         function searchAddSkillsByCategory(category) {
+            if (category === 'Trades') {
+                var categoriesDiv = document.getElementById('addSkillsCategories');
+                if (categoriesDiv) categoriesDiv.style.display = 'none';
+                var container = document.getElementById('addSkillsResults');
+                if (!container) return;
+                var tradeResults = [];
+                if (window.tradesCreativeLibrary && window.tradesCreativeLibrary.categories) {
+                    Object.values(window.tradesCreativeLibrary.categories).forEach(function(cat) {
+                        (cat.skills || []).forEach(function(skill) {
+                            tradeResults.push({ id: skill.id, n: skill.name, c: cat.name, sc: 'Trades & Creative', definition: skill.definition || '', source: 'trades', category: 'trades' });
+                        });
+                    });
+                }
+                if (tradeResults.length === 0) {
+                    container.innerHTML = '<div style="text-align:center;padding:30px;color:#9ca3af;">Trades library not loaded yet.</div>';
+                    return;
+                }
+                var catColors = {'Woodworking & Construction':'#d97706','Electrical/Plumbing/Mechanical':'#0891b2','Painting & Finishing':'#7c3aed','Culinary Arts':'#dc2626','Visual Arts':'#db2777','Fiber & Textile':'#059669','Performing Arts':'#ea580c','Outdoor & Agriculture':'#16a34a','Technology & Making':'#2563eb'};
+                container.innerHTML = tradeResults.map(function(skill) {
+                    var isAdded = isSkillAlreadyAdded(skill.n);
+                    var color = catColors[skill.c] || '#d97706';
+                    return '<div style="padding:12px;margin-bottom:8px;background:rgba(255,255,255,0.03);border-radius:8px;border-left:3px solid '+color+';cursor:'+(isAdded?'default':'pointer')+';" '+(isAdded?'':'onclick="addSkillFromLibrary(\'' + skill.id + '\')"')+'>'
+                        +'<div style="display:flex;justify-content:space-between;align-items:start;">'
+                        +'<div style="flex:1;"><div style="color:#e0e0e0;font-weight:600;margin-bottom:4px;">'+skill.n+(isAdded?' <span style="color:#10b981;font-size:0.85em;">✓ Added</span>':'')+'</div>'
+                        +'<span style="color:'+color+';font-size:0.75em;padding:2px 6px;background:rgba(255,255,255,0.1);border-radius:3px;">'+skill.c+'</span></div>'
+                        +(!isAdded?'<button style="padding:6px 12px;background:linear-gradient(135deg,#60a5fa,#3b82f6);border:none;border-radius:6px;color:white;font-size:0.85em;font-weight:600;cursor:pointer;" onclick="event.stopPropagation();addSkillFromLibrary(\'' + skill.id + '\')">+ Add</button>':'')
+                        +'</div></div>';
+                }).join('');
+                var statusEl = document.getElementById('skillManagementStatus');
+                if (statusEl) statusEl.textContent = 'Showing ' + tradeResults.length + ' Trade Skills';
+                return;
+            }
             document.getElementById('addSkillsSearchInput').value = category;
             handleAddSkillsSearch();
         }
