@@ -19,8 +19,20 @@ GitHub Repo: https://github.com/cliffj8338/Skills-Ontology
 
 ---
 
-## Current Version: 3.5.1 (BUILD 20260218-1000)
+## Current Version: 3.5.2 (BUILD 20260218-1100)
 
+
+### v3.5.2 Changes (Feb 18 2026)
+- Fixed inferValues(): now reads userData.values and userData.purpose from profile — all profiles get their own values/purpose instead of Cliff's
+- Fixed levelColors: Expert (#f97316) and Novice (#6b7280) added — no more invisible skill dots
+- Added Expert and Novice level chip CSS
+- Role filter chips now render dynamically from userData.roles — all profiles show correct roles
+- Level filter counts now render dynamically from actual skill data
+- Added renderFilterChips() called from initializeMainApp()
+- Removed duplicate saveUserData() (line 7755 version) — one definition, correct behavior
+- Removed dead loadUserData() migration code
+- About and Help now use proper modals instead of browser alert() calls
+- Fixed misleading "Share it via link" text in blueprint download confirmation
 ### v3.5.1 Changes (Feb 18 2026)
 - Fixed 0 Outcomes bug: extractOutcomesFromEvidence() was reading from legacy skillDetails
   (skill_evidence.json string format) instead of userData.skills[].evidence objects.

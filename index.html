@@ -448,6 +448,26 @@
             color: #fff;
         }
         
+        .level-chip.expert {
+            background: rgba(249, 115, 22, 0.2);
+            border-color: rgba(249, 115, 22, 0.3);
+        }
+        
+        .level-chip.expert.active {
+            background: #f97316;
+            color: #fff;
+        }
+        
+        .level-chip.novice {
+            background: rgba(107, 114, 128, 0.2);
+            border-color: rgba(107, 114, 128, 0.3);
+        }
+        
+        .level-chip.novice.active {
+            background: #6b7280;
+            color: #fff;
+        }
+        
         .label-toggle {
             display: flex;
             gap: 8px;
@@ -2143,26 +2163,17 @@
                        ">
             </div>
             
-            <div class="filter-group">
+            <div class="filter-group" id="rolesFilterGroup">
                 <span class="filter-label">ROLES:</span>
-                <div class="role-chip active" data-role="all" onclick="filterByRole('all')">All</div>
-                <div class="role-chip" data-role="strategy" onclick="filterByRole('strategy')">VP Strategy</div>
-                <div class="role-chip" data-role="futurist" onclick="filterByRole('futurist')">Futurist</div>
-                <div class="role-chip" data-role="pilot" onclick="filterByRole('pilot')">Pilot</div>
-                <div class="role-chip" data-role="musician" onclick="filterByRole('musician')">Musician</div>
-                <div class="role-chip" data-role="advocate" onclick="filterByRole('advocate')">Advocate</div>
-                <div class="role-chip" data-role="tech" onclick="filterByRole('tech')">Tech</div>
-                <div class="role-chip" data-role="creative" onclick="filterByRole('creative')">Creative</div>
-                <div class="role-chip" data-role="operations" onclick="filterByRole('operations')">Operations</div>
-                <div class="role-chip" data-role="entrepreneur" onclick="filterByRole('entrepreneur')">Entrepreneur</div>
+                <div id="roleChipsContainer">
+                    <div class="role-chip active" data-role="all" onclick="filterByRole('all')">All</div>
+                </div>
             </div>
             
             <div class="filter-group">
                 <span class="filter-label">LEVELS:</span>
-                <div class="level-filter">
-                    <div class="level-chip mastery" onclick="filterByLevel('mastery')">Mastery (33)</div>
-                    <div class="level-chip advanced" onclick="filterByLevel('advanced')">Advanced (35)</div>
-                    <div class="level-chip proficient" onclick="filterByLevel('proficient')">Proficient (3)</div>
+                <div class="level-filter" id="levelChipsContainer">
+                    <!-- Rendered dynamically by renderFilterChips() -->
                 </div>
             </div>
         </div>
@@ -2694,11 +2705,11 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.5.1 - BUILD 20260218-1000
+        // WORK BLUEPRINT v3.5.2 - BUILD 20260218-1100
         // PREMIUM: 5-Factor Comprehensive Premium Calculation
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   WORK BLUEPRINT v3.5.1                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   WORK BLUEPRINT v3.5.2                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Build: 20260218-0600                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -3609,12 +3620,10 @@
             skillsData.roles = userData.roles || skillsData.roles;
             skillsData.skillDetails = userData.skillDetails || {};
             
-            // Continue with normal app initialization
+            // Render dynamic filter chips from profile data
+            renderFilterChips();
+            
             console.log('✓ Main app initialized with', userData.skills.length, 'skills');
-            console.log('  → userData.skills[0]:', userData.skills[0].name);
-            console.log('  → userData.skills[0].evidence:', userData.skills[0].evidence ? `YES (${userData.skills[0].evidence.length} items)` : 'NO');
-            console.log('  → skillsData.skills[0]:', skillsData.skills[0].name);
-            console.log('  → skillsData.skills[0].evidence:', skillsData.skills[0].evidence ? `YES (${skillsData.skills[0].evidence.length} items)` : 'NO');
         }
         
         // Export current profile
@@ -3641,9 +3650,11 @@
             .catch(error => console.error('Error loading skill evidence:', error));
 
         const levelColors = {
-            "Mastery": "#ef4444",
-            "Advanced": "#f59e0b",
-            "Proficient": "#10b981"
+            "Mastery":    "#ef4444",
+            "Expert":     "#f97316",
+            "Advanced":   "#f59e0b",
+            "Proficient": "#10b981",
+            "Novice":     "#6b7280"
         };
 
         let currentView = 'network';
@@ -4150,6 +4161,37 @@
                 });
         }
 
+        // Render dynamic role chips and level counts from current profile data
+        function renderFilterChips() {
+            // --- ROLES ---
+            const rolesContainer = document.getElementById('roleChipsContainer');
+            if (rolesContainer && userData.roles) {
+                rolesContainer.innerHTML = `<div class="role-chip active" data-role="all" onclick="filterByRole('all')">All</div>` +
+                    userData.roles.map(role => 
+                        `<div class="role-chip" data-role="${role.id}" onclick="filterByRole('${role.id}')">${role.name}</div>`
+                    ).join('');
+            }
+            
+            // --- LEVELS ---
+            const levelContainer = document.getElementById('levelChipsContainer');
+            if (levelContainer && userData.skills) {
+                const levelDefs = [
+                    { key: 'Mastery',    cls: 'mastery' },
+                    { key: 'Expert',     cls: 'expert' },
+                    { key: 'Advanced',   cls: 'advanced' },
+                    { key: 'Proficient', cls: 'proficient' },
+                    { key: 'Novice',     cls: 'novice' }
+                ];
+                levelContainer.innerHTML = levelDefs
+                    .map(({ key, cls }) => {
+                        const count = userData.skills.filter(s => s.level === key).length;
+                        if (count === 0) return '';
+                        return `<div class="level-chip ${cls}" onclick="filterByLevel('${key.toLowerCase()}')">${key} (${count})</div>`;
+                    })
+                    .join('');
+            }
+        }
+
         function filterByRole(roleId) {
             activeRole = roleId;
             
@@ -4312,7 +4354,7 @@
                 const html = createBlueprintHTML(profileData);
                 downloadBlueprint(html, `work-blueprint-${profileData.name.replace(/\s+/g, '-').toLowerCase()}.html`);
                 
-                alert('✅ Work Blueprint generated!\n\nYour interactive Work Blueprint has been downloaded.\n\nYou can:\n• Share it via link\n• Print it as PDF\n• Customize it per opportunity\n• Email it to recruiters');
+                alert('✅ Work Blueprint downloaded!\n\nOpen the file in any browser to view your interactive Work Blueprint.\n\nYou can:\n• Print it as PDF (File → Print → Save as PDF)\n• Customize it per opportunity\n• Email it as an attachment to recruiters');
             } catch (error) {
                 console.error('Error generating blueprint:', error);
                 alert('Error generating Work Blueprint. Please check console for details.');
@@ -5247,59 +5289,37 @@ body {
         }
         
         function inferValues() {
-            // Enterprise-standard values with authentic voice
-            blueprintData.values = [
-                { 
-                    name: "Intellectual Integrity", 
-                    description: "Pursue truth over confirmation. Evidence-based decisions, always. Challenge assumptions before accepting conclusions.",
-                    selected: true,
-                    inferred: true
-                },
-                { 
-                    name: "Strategic Foresight Over Reaction", 
-                    description: "Anticipate market shifts 18-24 months early. Lead change, don't follow it. 85-95% predictive accuracy through pattern recognition.",
-                    selected: true,
-                    inferred: true
-                },
-                { 
-                    name: "Radical Transparency", 
-                    description: "Share hard truths directly and kindly. Reality-based planning wins. Confront problems early, not late.",
-                    selected: true,
-                    inferred: true
-                },
-                { 
-                    name: "Outcome-Focused Excellence", 
-                    description: "Judge by impact delivered, not activity performed. Results drive everything. Measure outcomes, not effort.",
-                    selected: true,
-                    inferred: true
-                },
-                { 
-                    name: "Elegant Simplicity", 
-                    description: "Distill complexity into clarity. Deep understanding enables simple solutions. Make sophisticated insights accessible.",
-                    selected: true,
-                    inferred: true
-                },
-                { 
-                    name: "Authentic, Human Leadership", 
-                    description: "Lead with vulnerability and truth. Strength through self-awareness. Use personal experience to build trust and reduce stigma.",
-                    selected: true,
-                    inferred: true
-                },
-                { 
-                    name: "Customer-Centric Innovation", 
-                    description: "Solve real problems with elegant solutions. Understand user needs deeply before building. Innovation with purpose.",
-                    selected: false,
-                    inferred: false
-                },
-                { 
-                    name: "Continuous Learning & Adaptation", 
-                    description: "Seek disconfirming evidence. Update beliefs when data changes. Growth mindset in action.",
-                    selected: false,
-                    inferred: false
-                }
-            ];
+            // STEP 1: Use profile values if they exist — they are the source of truth.
+            // Only fall back to defaults if profile has no values at all.
+            const profileValues = userData.values || [];
             
-            blueprintData.purpose = "I help organizations navigate transformation through strategic foresight and evidence-based decision making. Using pattern recognition and predictive frameworks, I enable leaders to see market shifts 18-24 months early and make proactive choices. I lead with authenticity and transparency, using personal experience to build trust that enables honest discourse about complex challenges.";
+            if (profileValues.length > 0) {
+                // Profile has values — use them, preserving selected state
+                blueprintData.values = profileValues.map(v => ({
+                    name: v.name,
+                    description: v.description || '',
+                    selected: v.selected !== undefined ? v.selected : true,
+                    inferred: v.inferred || false
+                }));
+            } else {
+                // No profile values — use a minimal generic set as starting point
+                // (Wizard will replace these with AI-inferred values based on resume)
+                blueprintData.values = [
+                    { name: "Intellectual Integrity",      description: "Evidence-based decisions. Challenge assumptions before accepting conclusions.", selected: true,  inferred: true },
+                    { name: "Outcome-Focused Excellence",  description: "Judge by impact delivered, not activity performed. Results drive everything.",  selected: true,  inferred: true },
+                    { name: "Continuous Learning",         description: "Seek disconfirming evidence. Update beliefs when data changes.",                selected: true,  inferred: true },
+                    { name: "Authentic Leadership",        description: "Lead with transparency and truth. Strength through self-awareness.",            selected: false, inferred: true },
+                    { name: "Customer-Centric Innovation", description: "Solve real problems with elegant solutions. Understand needs before building.", selected: false, inferred: true }
+                ];
+            }
+            
+            // STEP 2: Use profile purpose if it exists.
+            // Only use placeholder if profile has no purpose.
+            if (userData.purpose && userData.purpose.trim().length > 0) {
+                blueprintData.purpose = userData.purpose;
+            } else {
+                blueprintData.purpose = "";
+            }
         }
         
         function renderBlueprint() {
@@ -7696,9 +7716,11 @@ body {
                     }).join(', ');
                     
                     const levelColors = {
-                        'Proficient': '#fbbf24',
-                        'Advanced': '#f59e0b',
-                        'Mastery': '#10b981'
+                        'Mastery':    '#ef4444',
+                        'Expert':     '#f97316',
+                        'Advanced':   '#f59e0b',
+                        'Proficient': '#10b981',
+                        'Novice':     '#6b7280'
                     };
                     
                     html += `
@@ -7752,67 +7774,9 @@ body {
             }
         }
         
-        function saveUserData() {
-            try {
-                const dataToSave = {
-                    userData: userData,
-                    blueprintData: blueprintData,
-                    skillsData: {
-                        skills: skillsData.skills,
-                        roles: skillsData.roles
-                    },
-                    timestamp: new Date().toISOString()
-                };
-                
-                localStorage.setItem('workBlueprintData', JSON.stringify(dataToSave));
-                console.log('Data saved successfully');
-                return true;
-            } catch (e) {
-                console.error('Failed to save data:', e);
-                return false;
-            }
-        }
-        
-        // LEGACY: Migrate v1.x data to v2.0 format (kept for backward compatibility)
-        function loadUserData() {
-            try {
-                // Try v2.0 format first
-                const v2Data = localStorage.getItem('workBlueprint_userData');
-                if (v2Data) {
-                    return true; // Already migrated
-                }
-                
-                // Try v1.x format
-                const saved = localStorage.getItem('workBlueprintData');
-                if (!saved) return false;
-                
-                const data = JSON.parse(saved);
-                
-                console.log('🔄 Migrating v1.x data to v2.0 format...');
-                
-                // Migrate to v2.0 structure
-                userData = {
-                    initialized: true,
-                    profile: data.userData?.profile || {},
-                    skills: skillsData.skills || [],  // Keep hardcoded skills for now
-                    skillDetails: skillsData.skillDetails || {},
-                    values: data.blueprintData?.values || [],
-                    purpose: data.blueprintData?.purpose || "",
-                    roles: skillsData.roles || [],
-                    preferences: data.userData || {},
-                    applications: data.userData?.applications || []
-                };
-                
-                // Save in new format
-                localStorage.setItem('workBlueprint_userData', JSON.stringify(userData));
-                console.log('✓ Migration complete');
-                
-                return true;
-            } catch (e) {
-                console.error('Failed to load/migrate data:', e);
-                return false;
-            }
-        }
+        // saveUserData and loadUserData: single source of truth is the profile JSON.
+        // localStorage only stores which profile is currently active (handled in first saveUserData definition).
+        // This comment replaces duplicate/conflicting definitions that were removed in v3.5.2.
         
         function exportFullProfile() {
             const fullData = {
@@ -9817,11 +9781,102 @@ body {
         }
         
         function showHelp() {
-            alert('Work Blueprint Help\n\nNavigate between views using the top menu.\n\nSkills: Manage your professional competencies\nJobs: Find matching opportunities\nApps: Track your applications\nBlueprint: Build your career narrative\n\nMore detailed help coming soon!');
+            const modal = document.getElementById('exportModal');
+            const modalContent = modal.querySelector('.modal-content');
+            modalContent.innerHTML = `
+                <div class="modal-header">
+                    <div class="modal-header-left">
+                        <h2 class="modal-title">How to Use Work Blueprint</h2>
+                    </div>
+                    <button class="modal-close" onclick="closeExportModal()">×</button>
+                </div>
+                <div class="modal-body" style="padding: 30px;">
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <div style="display: flex; gap: 15px; align-items: start;">
+                            <div style="font-size: 2em; min-width: 40px;">🗺️</div>
+                            <div>
+                                <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Skills Tab</div>
+                                <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">View your full skill network as an interactive graph or card view. Click any skill to see your evidence and outcomes. Use the role and level filters to explore different facets of your profile.</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 15px; align-items: start;">
+                            <div style="font-size: 2em; min-width: 40px;">💼</div>
+                            <div>
+                                <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Jobs Tab</div>
+                                <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">Find opportunities matched to your actual skill profile. Skills you have are highlighted green; gaps shown in red. Generate a personalized outreach message for any role.</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 15px; align-items: start;">
+                            <div style="font-size: 2em; min-width: 40px;">📋</div>
+                            <div>
+                                <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Applications Tab</div>
+                                <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">Track every role you've applied to. Log status, salary targets, contacts and notes. Keep your job search organized in one place.</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 15px; align-items: start;">
+                            <div style="font-size: 2em; min-width: 40px;">📊</div>
+                            <div>
+                                <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Work Blueprint Tab</div>
+                                <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">See your market valuation, manage your outcomes, choose your values, and write your purpose statement. This is your source of truth. Export as a resume or personalized page to share with recruiters.</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 15px; align-items: start;">
+                            <div style="font-size: 2em; min-width: 40px;">⚙️</div>
+                            <div>
+                                <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Settings (More menu)</div>
+                                <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">Update your profile info, preferences, and manage your skills. Export your full profile as JSON to save your work or move it to another device.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            modal.classList.add('active');
         }
         
         function showAbout() {
-            alert('Work Blueprint v2.1.1\n\nA comprehensive career management tool that helps you:\n- Map your skills and competencies\n- Find matching job opportunities\n- Track applications\n- Build your professional narrative\n\nCreated with ❤️');
+            const modal = document.getElementById('exportModal');
+            const modalContent = modal.querySelector('.modal-content');
+            modalContent.innerHTML = `
+                <div class="modal-header">
+                    <div class="modal-header-left">
+                        <h2 class="modal-title">Work Blueprint</h2>
+                        <p style="color: #9ca3af; margin-top: 5px;">v3.5.2 · Your career, fully represented</p>
+                    </div>
+                    <button class="modal-close" onclick="closeExportModal()">×</button>
+                </div>
+                <div class="modal-body" style="padding: 30px;">
+                    <p style="color: #d1d5db; line-height: 1.8; margin-bottom: 20px;">
+                        Most people underrepresent themselves when applying for work — not because they lack ability, 
+                        but because they lack the tools to articulate it. Work Blueprint changes that.
+                    </p>
+                    <p style="color: #d1d5db; line-height: 1.8; margin-bottom: 20px;">
+                        This tool guides you through fully discovering and documenting your skills, evidence, outcomes, 
+                        values and purpose — then shows you what that profile is worth in the market. Export it as a 
+                        traditional resume for ATS systems, or as a personalized interactive page for the humans 
+                        making the actual hiring decision.
+                    </p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                        <div style="background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.3); border-radius: 8px; padding: 15px;">
+                            <div style="color: #60a5fa; font-weight: 600; margin-bottom: 8px;">🗺️ Skills Ontology</div>
+                            <div style="color: #9ca3af; font-size: 0.9em;">Map your full skill landscape — O*NET standard skills, abilities, work styles, and unique differentiators.</div>
+                        </div>
+                        <div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 15px;">
+                            <div style="color: #10b981; font-weight: 600; margin-bottom: 8px;">💰 Market Valuation</div>
+                            <div style="color: #9ca3af; font-size: 0.9em;">See what your specific skill portfolio is worth — with negotiation ranges, not just a single number.</div>
+                        </div>
+                        <div style="background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); border-radius: 8px; padding: 15px;">
+                            <div style="color: #fbbf24; font-weight: 600; margin-bottom: 8px;">📊 Work Blueprint</div>
+                            <div style="color: #9ca3af; font-size: 0.9em;">Build your complete professional narrative — outcomes, values, purpose — with full control over what you share.</div>
+                        </div>
+                        <div style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); border-radius: 8px; padding: 15px;">
+                            <div style="color: #a78bfa; font-weight: 600; margin-bottom: 8px;">🔗 Personalized Outreach</div>
+                            <div style="color: #9ca3af; font-size: 0.9em;">Generate a company-specific page and recruiter email — one link that tells your story their way.</div>
+                        </div>
+                    </div>
+                    <p style="color: #6b7280; font-size: 0.85em; text-align: center;">Free and open · No account required · Your data stays yours</p>
+                </div>
+            `;
+            modal.classList.add('active');
         }
         
         // Close overflow menu when clicking outside
@@ -10071,7 +10126,7 @@ body {
                     break;
                     
                 case 'proficiency':
-                    const levelOrder = { 'Mastery': 1, 'Advanced': 2, 'Proficient': 3 };
+                    const levelOrder = { 'Mastery': 1, 'Expert': 2, 'Advanced': 3, 'Proficient': 4, 'Novice': 5 };
                     sorted.sort((a, b) => (levelOrder[a.level] || 4) - (levelOrder[b.level] || 4));
                     break;
                     
