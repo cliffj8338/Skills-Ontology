@@ -1244,6 +1244,62 @@
             margin: 0 auto;
         }
         
+        /* Blueprint Sub-Navigation */
+        .blueprint-subnav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid rgba(96, 165, 250, 0.15);
+            padding-bottom: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        
+        .bp-tab {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 18px 12px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-muted);
+            font-size: 0.9em;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            margin-bottom: -2px;
+        }
+        
+        .bp-tab:hover { color: var(--text-primary); }
+        
+        .bp-tab.active {
+            color: #60a5fa;
+            border-bottom-color: #60a5fa;
+        }
+        
+        .bp-tab-icon { font-size: 1.1em; }
+        
+        .bp-tab-count {
+            background: rgba(96, 165, 250, 0.2);
+            color: #60a5fa;
+            font-size: 0.75em;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        
+        .bp-tab.active .bp-tab-count {
+            background: rgba(96, 165, 250, 0.3);
+        }
+        
+        [data-theme="light"] .bp-tab-count {
+            background: rgba(37, 99, 235, 0.12);
+            color: #2563eb;
+        }
+
         .blueprint-section {
             background: rgba(26, 26, 46, 0.6);
             border: 1px solid rgba(96, 165, 250, 0.2);
@@ -3506,7 +3562,7 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.7.1 - BUILD 20260218-1945
+        // WORK BLUEPRINT v3.7.2 - BUILD 20260218-2000
         // PREMIUM: 5-Factor Comprehensive Premium Calculation
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -7235,24 +7291,66 @@ body {
             }
         }
         
+        let blueprintTab = 'outcomes';
+        
         function renderBlueprint() {
             const view = document.getElementById('blueprintView');
+            const outcomesCount = blueprintData.outcomes.length;
+            const valuesCount = blueprintData.values.filter(v => v.selected).length;
             
             view.innerHTML = `
                 <div class="blueprint-container">
                     <div class="blueprint-header">
                         <h1 class="blueprint-title">Work Blueprint</h1>
                         <p class="blueprint-subtitle">Your Consent-Based Professional Profile</p>
-                        <p class="blueprint-tagline">Control what you share. Tell your story, your way.</p>
                     </div>
                     
                     ${renderMarketValuationSection()}
-                    ${renderOutcomesSection()}
-                    ${renderValuesSection()}
-                    ${renderPurposeSection()}
-                    ${renderExportSection()}
+                    
+                    <div class="blueprint-subnav" id="blueprintSubnav">
+                        <button class="bp-tab ${blueprintTab === 'outcomes' ? 'active' : ''}" onclick="switchBlueprintTab('outcomes')">
+                            <span class="bp-tab-icon">&#x1F4CA;</span>
+                            <span class="bp-tab-label">Outcomes</span>
+                            <span class="bp-tab-count">${outcomesCount}</span>
+                        </button>
+                        <button class="bp-tab ${blueprintTab === 'values' ? 'active' : ''}" onclick="switchBlueprintTab('values')">
+                            <span class="bp-tab-icon">&#x2B50;</span>
+                            <span class="bp-tab-label">Values</span>
+                            <span class="bp-tab-count">${valuesCount}</span>
+                        </button>
+                        <button class="bp-tab ${blueprintTab === 'purpose' ? 'active' : ''}" onclick="switchBlueprintTab('purpose')">
+                            <span class="bp-tab-icon">&#x1F3AF;</span>
+                            <span class="bp-tab-label">Purpose</span>
+                        </button>
+                        <button class="bp-tab ${blueprintTab === 'export' ? 'active' : ''}" onclick="switchBlueprintTab('export')">
+                            <span class="bp-tab-icon">&#x1F4E4;</span>
+                            <span class="bp-tab-label">Export</span>
+                        </button>
+                    </div>
+                    
+                    <div id="blueprintTabContent">
+                        ${renderBlueprintTabContent()}
+                    </div>
                 </div>
             `;
+        }
+        
+        function switchBlueprintTab(tab) {
+            blueprintTab = tab;
+            document.querySelectorAll('.bp-tab').forEach(function(btn) { btn.classList.remove('active'); });
+            var activeBtn = document.querySelector('.bp-tab[onclick="switchBlueprintTab('' + tab + '')"]');
+            if (activeBtn) activeBtn.classList.add('active');
+            var contentEl = document.getElementById('blueprintTabContent');
+            if (contentEl) contentEl.innerHTML = renderBlueprintTabContent();
+        }
+        window.switchBlueprintTab = switchBlueprintTab;
+        
+        function renderBlueprintTabContent() {
+            if (blueprintTab === 'outcomes') return renderOutcomesSection();
+            if (blueprintTab === 'values')   return renderValuesSection();
+            if (blueprintTab === 'purpose')  return renderPurposeSection();
+            if (blueprintTab === 'export')   return renderExportSection();
+            return renderOutcomesSection();
         }
         
         // Theme-aware color helper for inline styles
@@ -11399,6 +11497,7 @@ body {
                 'workstyle':     { label: 'Work Styles',      icon: '🧭' },
                 'knowledge':     { label: 'Knowledge',        icon: '📚' },
                 'workactivity':  { label: 'Work Activities',  icon: '⚙️' },
+                'trades':        { label: 'Trade Skills',     icon: '🔨' },
                 'unique':        { label: 'Custom Skills',    icon: '⭐' },
             };
             
@@ -11412,7 +11511,7 @@ body {
             // Build options — only include categories that have skills
             let html = `<option value="all">All Categories (${userData.skills.length})</option>`;
             // Use preferred order
-            const order = ['skill','ability','workstyle','knowledge','workactivity','unique'];
+            const order = ['skill','ability','workstyle','knowledge','workactivity','trades','unique'];
             order.forEach(cat => {
                 const count = counts[cat];
                 if (!count) return; // skip empty categories
@@ -11656,7 +11755,7 @@ body {
                             const key = skill.name.toLowerCase();
                             if (!seen.has(key)) {
                                 seen.add(key);
-                                results.push({ id: skill.id, n: skill.name, c: cat.name, sc: 'Trades & Creative', definition: skill.definition || '', source: 'trades', category: 'unique', _raw: skill });
+                                results.push({ id: skill.id, n: skill.name, c: cat.name, sc: 'Trades & Creative', definition: skill.definition || '', source: 'trades', category: 'trades', _raw: skill });
                             }
                         }
                     });
@@ -11853,7 +11952,7 @@ body {
                     for (const skill of (cat.skills || [])) {
                         if (skill.id === skillId) {
                             skillName = skill.name;
-                            category = skill.category || 'unique';
+                            category = 'trades';
                             definition = skill.definition || '';
                             break outer;
                         }
