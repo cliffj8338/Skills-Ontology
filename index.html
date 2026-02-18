@@ -3423,7 +3423,7 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.6.4 - BUILD 20260218-1600
+        // WORK BLUEPRINT v3.6.5 - BUILD 20260218-1700
         // PREMIUM: 5-Factor Comprehensive Premium Calculation
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -5637,58 +5637,139 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
         function initCardView() {
             const cardView = document.getElementById('cardView');
-            
-            // Group skills by domain
-            const domains = {
-                "Strategic Core": { icon: "🎯", skills: [] },
-                "Technology & Product": { icon: "⚙️", skills: [] },
-                "Futurist & Innovation": { icon: "🔮", skills: [] },
-                "Communication & Influence": { icon: "📣", skills: [] },
-                "Domain Expertise": { icon: "🎓", skills: [] },
-                "Leadership & Interpersonal": { icon: "👥", skills: [] },
-                "Creative & Performance": { icon: "🎵", skills: [] },
-                "Aviation & Operational": { icon: "✈️", skills: [] },
-                "Analytical & Research": { icon: "🔬", skills: [] },
-                "Advocacy & Lived Experience": { icon: "💚", skills: [] }
+
+            // ── Dynamic domain grouping — works for ANY profile ──────────────
+            // Strategy: group by role first (uses the profile's own role names),
+            // then fall back to O*NET category, then "Other Skills" catch-all.
+
+            const roleIconMap = {
+                // Common role name patterns → icon
+                'strategy': '🎯', 'vp': '🎯', 'director': '🎯', 'executive': '🎯', 'chief': '🎯',
+                'technology': '⚙️', 'engineer': '⚙️', 'developer': '⚙️', 'tech': '⚙️', 'software': '⚙️',
+                'product': '📦', 'manager': '📦',
+                'data': '🔬', 'analyst': '🔬', 'research': '🔬', 'science': '🔬',
+                'design': '🎨', 'creative': '🎨', 'ux': '🎨', 'artist': '🎨',
+                'marketing': '📣', 'communication': '📣', 'sales': '📣', 'content': '📣',
+                'hr': '👥', 'talent': '👥', 'people': '👥', 'recruiting': '👥',
+                'finance': '💰', 'accounting': '💰', 'operations': '💰',
+                'pilot': '✈️', 'aviation': '✈️', 'flight': '✈️',
+                'music': '🎵', 'musician': '🎵', 'performer': '🎵', 'artist': '🎵',
+                'advocate': '💚', 'nonprofit': '💚', 'community': '💚',
+                'futurist': '🔮', 'innovation': '🔮', 'evangelist': '🔮',
+                'entrepreneur': '🚀', 'founder': '🚀', 'startup': '🚀',
+                'consultant': '💼', 'advisor': '💼',
             };
-            
-            // Categorize skills
+
+            const categoryMeta = {
+                'skill':      { label: 'Skills',       icon: '🗺️' },
+                'ability':    { label: 'Abilities',     icon: '⚡' },
+                'workstyle':  { label: 'Work Style',    icon: '🧭' },
+                'unique':     { label: 'Unique Strengths', icon: '⭐' },
+            };
+
+            function getRoleIcon(roleName) {
+                const lower = (roleName || '').toLowerCase();
+                for (const [keyword, icon] of Object.entries(roleIconMap)) {
+                    if (lower.includes(keyword)) return icon;
+                }
+                return '💼';
+            }
+
+            const domains = {};
+
+            // Build role-based domains from the profile's actual roles
+            const profileRoles = skillsData.roles || userData.roles || [];
+            profileRoles.forEach(role => {
+                domains[role.id] = {
+                    label: role.name,
+                    icon: getRoleIcon(role.name),
+                    color: role.color,
+                    skills: []
+                };
+            });
+
+            // Catch-all domains for skills without a role or for category fallback
+            const uncategorized = { label: 'Other Skills', icon: '🗺️', skills: [] };
+
+            // Level priority for sorting within domains
+            const levelPriority = { Mastery: 5, Expert: 4, Advanced: 3, Proficient: 2, Novice: 1 };
+
+            // Assign each skill to its primary role domain, or uncategorized
             skillsData.skills.forEach(skill => {
-                const skillName = skill.name;
-                
-                if (skillName.includes("Strategy") || skillName.includes("Business") || skillName.includes("Revenue") || skillName.includes("Financial") || skillName.includes("Risk") || skillName.includes("Advisory") || skillName.includes("Transformation")) {
-                    domains["Strategic Core"].skills.push(skill);
-                } else if (skillName.includes("AI/ML") || skillName.includes("Technology") || skillName.includes("Platform") || skillName.includes("Computational") || skillName.includes("Integration") || skillName.includes("Spatial")) {
-                    domains["Technology & Product"].skills.push(skill);
-                } else if (skillName.includes("Trend") || skillName.includes("Predictive") || skillName.includes("Innovation") || skillName.includes("Scenario") || skillName.includes("Human-AI") || skillName.includes("Weak Signal")) {
-                    domains["Futurist & Innovation"].skills.push(skill);
-                } else if (skillName.includes("Narrative") || skillName.includes("Translation") || skillName.includes("Speaking") || skillName.includes("Authorship") || skillName.includes("Rhetorical") || skillName.includes("Media") || skillName.includes("Podcast") || skillName.includes("Improvisation") || skillName.includes("Evangelism") || skillName.includes("Teaching")) {
-                    domains["Communication & Influence"].skills.push(skill);
-                } else if (skillName.includes("Talent") || skillName.includes("Candidate") || skillName.includes("Ethics") || skillName.includes("Workforce") || skillName.includes("Marketplace") || skillName.includes("Behavioral") || skillName.includes("Future of Work") || skillName.includes("Generational") || skillName.includes("AI Impact")) {
-                    domains["Domain Expertise"].skills.push(skill);
-                } else if (skillName.includes("Client Relationship") || skillName.includes("Team Building") || skillName.includes("Mentorship") || skillName.includes("Stakeholder") || skillName.includes("Executive Presence") || skillName.includes("Crisis Leadership") || skillName.includes("High-Pressure")) {
-                    domains["Leadership & Interpersonal"].skills.push(skill);
-                } else if (skillName.includes("Creative") || skillName.includes("Musical") || skillName.includes("Music") || skillName.includes("Stage") || skillName.includes("Performance Logistics")) {
-                    domains["Creative & Performance"].skills.push(skill);
-                } else if (skillName.includes("Pilot") || skillName.includes("IFR") || skillName.includes("Weather") || skillName.includes("ATC") || skillName.includes("Emergency") || skillName.includes("Aeronautical") || skillName.includes("Situational Awareness") || skillName.includes("Cognitive Load")) {
-                    domains["Aviation & Operational"].skills.push(skill);
-                } else if (skillName.includes("Data-Driven") || skillName.includes("Market") || skillName.includes("Research") || skillName.includes("Critical Analysis")) {
-                    domains["Analytical & Research"].skills.push(skill);
-                } else if (skillName.includes("Recovery") || skillName.includes("Mental Health") || skillName.includes("Nonprofit") || skillName.includes("Vulnerability") || skillName.includes("Stigma") || skillName.includes("Diagnosis")) {
-                    domains["Advocacy & Lived Experience"].skills.push(skill);
+                const skillRoles = skill.roles || [];
+                if (skillRoles.length > 0 && domains[skillRoles[0]]) {
+                    domains[skillRoles[0]].skills.push(skill);
+                } else if (skillRoles.length > 1) {
+                    // Try second role
+                    const secondRole = skillRoles.find(r => domains[r]);
+                    if (secondRole) {
+                        domains[secondRole].skills.push(skill);
+                    } else {
+                        uncategorized.skills.push(skill);
+                    }
+                } else {
+                    uncategorized.skills.push(skill);
                 }
             });
+
+            // Decide grouping strategy
+            const totalInRoles = Object.values(domains).reduce((n, d) => n + d.skills.length, 0);
+            const totalSkills = skillsData.skills.length;
+            const finalDomains = {};
+
+            if (totalSkills === 0) {
+                // No skills — nothing to show
+            } else if (totalInRoles >= totalSkills * 0.5) {
+                // Good role coverage (50%+) — use role-based grouping
+                Object.entries(domains).forEach(([id, d]) => {
+                    if (d.skills.length > 0) finalDomains[id] = d;
+                });
+                // Add any uncategorized skills under their category
+                if (uncategorized.skills.length > 0) {
+                    // Sub-bucket uncategorized by O*NET category rather than one big pile
+                    uncategorized.skills.forEach(skill => {
+                        const cat = skill.category || 'skill';
+                        const meta = categoryMeta[cat] || categoryMeta['skill'];
+                        const key = '__cat_' + cat;
+                        if (!finalDomains[key]) {
+                            finalDomains[key] = { label: meta.label, icon: meta.icon, skills: [] };
+                        }
+                        finalDomains[key].skills.push(skill);
+                    });
+                }
+            } else {
+                // Poor role coverage — group everything by O*NET category
+                // This handles profiles where skills lack role assignments
+                skillsData.skills.forEach(skill => {
+                    const cat = skill.category || 'skill';
+                    const meta = categoryMeta[cat] || categoryMeta['skill'];
+                    if (!finalDomains[cat]) {
+                        finalDomains[cat] = { label: meta.label, icon: meta.icon, skills: [] };
+                    }
+                    finalDomains[cat].skills.push(skill);
+                });
+            }
             
+            // Sort skills within each domain: key/core first, then by level
+            Object.values(finalDomains).forEach(d => {
+                d.skills.sort((a, b) => {
+                    if (a.key && !b.key) return -1;
+                    if (!a.key && b.key) return 1;
+                    return (levelPriority[b.level] || 0) - (levelPriority[a.level] || 0);
+                });
+            });
+
             let html = '<div class="cards-grid">';
             
-            Object.entries(domains).forEach(([domainName, data]) => {
+            Object.entries(finalDomains).forEach(([domainKey, data]) => {
                 if (data.skills.length === 0) return;
+                const domainTitle = data.label || domainKey;
                 
                 html += `
                     <div class="domain-card">
                         <div class="domain-header">
                             <span class="domain-icon">${data.icon}</span>
-                            <span class="domain-title">${domainName}</span>
+                            <span class="domain-title">${domainTitle}</span>
                         </div>
                         <div class="skills-list">
                 `;
