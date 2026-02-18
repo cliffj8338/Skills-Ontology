@@ -3562,7 +3562,7 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.7.2 - BUILD 20260218-2000
+        // WORK BLUEPRINT v3.7.3 - BUILD 20260218-2015
         // PREMIUM: 5-Factor Comprehensive Premium Calculation
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -7337,9 +7337,10 @@ body {
         
         function switchBlueprintTab(tab) {
             blueprintTab = tab;
-            document.querySelectorAll('.bp-tab').forEach(function(btn) { btn.classList.remove('active'); });
-            var activeBtn = document.querySelector('.bp-tab[onclick="switchBlueprintTab('' + tab + '')"]');
-            if (activeBtn) activeBtn.classList.add('active');
+            document.querySelectorAll('.bp-tab').forEach(function(btn) {
+                var onclickStr = btn.getAttribute('onclick') || '';
+                btn.classList.toggle('active', onclickStr.indexOf("'" + tab + "'") !== -1);
+            });
             var contentEl = document.getElementById('blueprintTabContent');
             if (contentEl) contentEl.innerHTML = renderBlueprintTabContent();
         }
