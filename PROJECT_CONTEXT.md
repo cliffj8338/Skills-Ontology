@@ -1,6 +1,6 @@
 # Work Blueprint — Project Context File
 For use at the start of new chat sessions to restore full context.
-Last updated: February 18, 2026 — v3.6.5
+Last updated: February 18, 2026 — v3.9.0
 
 ---
 
@@ -11,7 +11,7 @@ Paste this at the top of a new conversation:
 > "I'm continuing work on my Work Blueprint project. Please read the attached
 > PROJECT_CONTEXT.md in full before responding — it contains everything you need
 > to know about the codebase, architecture, and current state. Current version is
-> v3.6.5. Today I want to [your task]."
+> v3.9.0. Today I want to [your task]."
 
 Attach: PROJECT_CONTEXT.md + index.html (current version from outputs)
 Optional: screenshots of bugs you want fixed
@@ -35,308 +35,299 @@ GitHub Repo: https://github.com/cliffj8338/Skills-Ontology
 
 ---
 
-## Current Version: 3.6.5 (BUILD 20260218-1700)
-
-### Full Version History
-
-v3.6.5 (Feb 18 2026) — Card View Dynamic Bucketing
-- Replaced hardcoded keyword-matching domain logic with dynamic role-based grouping
-- 3-tier strategy: (1) role-based if 50%+ coverage, (2) O*NET category fallback, (3) mixed
-- Works for ALL profiles now — not just Cliff's. Sarah, Mike, any wizard-built profile
-- Skills sorted within domains: key/core first, then by level (Mastery down to Novice)
-- All 181 O*NET taxonomy entries scraped and built as separate library JSON files
-
-v3.6.4 (Feb 18 2026) — Deduplication
-- Removed 3,300+ lines of duplicate blueprint code accumulated from editing sessions
-- File had 3 copies of WORK BLUEPRINT SYSTEM block — kept last (most complete)
-- blueprintData: 3 declarations to 1. renderBlueprint(): 6 copies to 1
-- File size: 15,525 to 12,032 lines
-
-v3.6.3 (Feb 18 2026) — Apostrophe Syntax Fixes
-- Apostrophes in single-quoted wizard string arguments caused SyntaxError
-- Contractions replaced with full words or Unicode \u2019 in all wizard strings
-
-v3.6.2 (Feb 18 2026) — Scope Fixes
-- 23 wizard and nav functions exposed to window scope for onclick handler access
-- Removed stale userName span DOM lookup (element removed in nav redesign)
-
-v3.6.1 (Feb 18 2026) — Light Theme Inline Style Fixes
-- Added tv(darkVal, lightVal) and tb(darkBg, lightBg) theme-aware color helpers
-- Market valuation section: 36 hardcoded dark-mode colors replaced with tv()/tb()
-- Network graph node text-shadows corrected for light background
-
-v3.6.0 (Feb 18 2026) — Onboarding Wizard
-- Full 8-step wizard: Start > Resume > Parsing > Profile > Skills > Values > Purpose > Complete
-- Claude API (claude-sonnet-4-20250514, 4000 tokens) for resume parsing and purpose gen
-- Entry points: More menu, auto-launch for first-time visitors, first-visit banner
-
-v3.5.3/3.5.4 (Feb 18 2026) — Navigation Redesign + Light Theme
-- 56px header, pill nav, profile avatar chip, ADMIN label removed
-- Light/dark theme with CSS custom properties system
-- Filter bar: contextual (Skills tab only), collapsible. Mobile: bottom tab bar
-
-v3.5.2 (Feb 18 2026) — Foundation Audit
-- Fixed inferValues(), levelColors, dynamic filter chips. Removed duplicate functions.
-
-v3.5.1 — Fixed 0 Outcomes bug
-v3.5.0 — Resume Generator working
-v3.4.0 — Multi-profile architecture, skills management, market valuation
+## Current Version: 3.9.0 (BUILD 20260218-2300)
 
 ---
 
-## File Structure (GitHub repo)
+## Full Version History (this session Feb 18, 2026)
 
-Skills-Ontology/
-  index.html                        ENTIRE app (~12,100 lines, all JS inline)
-  skill_valuations.json             Market value data by skill
-  onet-skills-library.json          O*NET 35 skills (2.A + 2.B)
-  onet-abilities-library.json       O*NET 52 abilities (1.A) — complete
-  onet-workstyles-library.json      O*NET 21 work styles (1.D) — updated from 16
-  onet-knowledge-library.json       O*NET 33 knowledge domains (2.C) — NEW, needs commit
-  onet-work-activities-library.json O*NET 41 work activities (4.A) — NEW, needs commit
-  onet-impact-ratings.json          Impact tier ratings
-  values-library.json               30 corporate values
-  profiles-manifest.json            Registry of all available profiles
-  PROJECT_CONTEXT.md                THIS FILE
-  profiles/
-    demo/
-      cliff-jones.json              89 skills, 100 evidence items, 42 qualifying outcomes
-      sarah-chen.json               HR/Recruiting focused
-      mike-rodriguez.json           Engineering lead
-      jamie-martinez.json           Service industry
-      alex-thompson.json            Entry level
-    templates/
-      blank.json                    Empty starter template
-  skills/
-    index-v3.json                   2,138 searchable ESCO-derived skills (Add Skills modal)
+v3.9.0 — Toast Notifications + Alert Cleanup + Quick Fixes
+- Added toast notification system (showToast/dismissToast) with 4 types: success, error, info, warning
+- Replaced all 43 alert() calls with contextual toast notifications
+- Toast CSS: dark/light theme aware, mobile responsive, auto-dismiss with manual close
+- Fixed search placeholder: "2,138+" updated to "13,960+" reflecting ESCO v1.2.1 count
+- Added ESCO + O*NET attribution footer (required by ESCO license)
+- Version bump: console logs updated to v3.9.0
 
----
+v3.8.2 — Trades Button Full Render
+- Clicking Trades button renders all 64 trade skills directly (no search term needed)
+- Each card color-coded by subcategory (amber=woodworking, teal=electrical, purple=painting, etc.)
+- Fixed renderAddSkillsResults reference error — replaced with inline renderer
+- searchAddSkillsByCategory handles Trades as special case; all others via text search
 
-## Architecture — Critical Patterns
+v3.8.1 — Trades Button Added
+- Added Trades button to Browse by Category row in Add Skills tab
 
-### Templates Are Source of Truth
-- On load: fetch profiles-manifest.json > load all profile JSONs into templates{}
-- localStorage ONLY stores: currentProfile, wbTheme, wbHasVisited
-- Wizard-built profiles stored as templates['wizard-built'] for session persistence
+v3.8.0 — ESCO v1.2.1 Full Integration
+- Replaced skills/index-v3.json (2,138 skills) with full ESCO v1.2.1 (13,960 skills)
+- Categories: Skills 8,161 / Knowledge 3,073 / Transversal 2,717 / Language 9
+- Sorted: transversal/cross-sector first for relevance
+- Definitions for ~4,200 cross-sector + transversal skills only (keeps file lean)
+- File: 2.31MB uncompressed, ~600KB gzip served by GitHub Pages
+- Combined count now ~14,200 (ESCO + O*NET + Trades all summed dynamically)
+- REQUIRED TODO: Add ESCO attribution to app footer:
+  "This service uses the ESCO classification of the European Commission."
 
-### Key Global Objects
-  userData       — active profile (see shape below)
-  skillsData     — runtime {skills[], roles[], skillDetails{}}
-  templates{}    — all loaded profiles keyed by templateId
-  skillValuations — from skill_valuations.json
-  wizardState    — onboarding wizard state machine
-  blueprintData  — extracted outcomes/values/purpose. ONE declaration only. Never duplicate.
+v3.7.3 — Blueprint Tab Syntax Fix
+- Fixed SyntaxError: missing ) after argument list at line 7341
+- Root cause: Python string escaping mangled querySelector with nested quotes
+- Fix: replaced querySelector with forEach + indexOf (quote-safe)
+- Skills page was completely blank after v3.7.2; this restores it
 
-### userData Shape
-  initialized, templateId,
-  profile: { name, email, location, currentTitle, yearsExperience, executiveSummary, headline }
-  skills: [{ name, level, category, key, onetId, roles[], evidence:[{description, outcome}] }]
-  values: [{ name, description, selected }]
-  purpose: string
-  roles: [{ id, name, color, years, company }]
-  preferences: { seniorityLevel, targetTitles[], seniorityKeywords[], excludeRoles[],
-                 strategicKeywords[], targetIndustries[], minSalary,
-                 locationPreferences[], minimumSkillMatches, minimumMatchScore }
-  applications: []
-  skillDetails: {}
+v3.7.2 — Blueprint Sub-Nav + Trade Skills Category
+- Work Blueprint now has horizontal sub-nav: Outcomes | Values | Purpose | Export
+- Replaces single infinite-scroll page with tabbed sections
+- Tab badges show live counts
+- Market Valuation section stays pinned above tabs
+- Trade Skills added as first-class category (category: 'trades')
+- Category filter shows "Trade Skills (N)" when profile has trades
 
-### Skill Categories (O*NET-aligned)
-  "skill"        — O*NET 2.A/2.B cross-functional and basic skills
-  "ability"      — O*NET 1.A abilities (enduring attributes)
-  "workstyle"    — O*NET 1.D work styles (personality tendencies)
-  "knowledge"    — O*NET 2.C knowledge domains (NEW in v3.6.5)
-  "workactivity" — O*NET 4.A work activities (NEW in v3.6.5)
-  "unique"       — non-O*NET skills specific to the individual
+v3.7.1 — Unified Multi-Library Search
+- searchAllLibraries(query) queries all 7 libraries simultaneously
+- Results normalized, deduplicated by name, capped at 30
+- addSkillFromLibrary(skillId) tries all libraries in sequence
+- Fixed: searching "carpentry", "welding", etc. now returns results
 
----
+v3.7.0 — Dynamic Counts + Trades Library + Category Filter
+- getTotalAvailableSkillCount() — single source of truth, sums all libraries at runtime
+- trades-creative-library.json — 64 skills, 9 categories, adjacencies documented
+- Dynamic category filter — built from actual profile data, hides empty categories
 
-## Theme System
+v3.6.9 — Mobile Responsive Fixes
+- Card view: single column on mobile
+- Modals: slide up from bottom on mobile
+- O*NET tab bar: horizontal scroll
 
-CSS custom properties on :root (dark default) + [data-theme="light"] overrides.
-Variables: --bg-base/surface/elevated/card, --border, --text-primary/secondary/muted,
-  --accent, --accent-glow, --nav-bg, --chip-bg, --input-bg, --shadow, --success/warning/danger
-
-CRITICAL RULE: All new inline style colors in JS template strings MUST use tv()/tb():
-  tv(darkVal, lightVal)  — returns correct color for current theme
-  tb(darkBg, lightBg)    — same, for backgrounds
-  Example: `color: ${tv("#d1d5db","#334155")}`
-
-CSS class styles go in [data-theme="light"] override block in the stylesheet.
-Never write raw rgba() or hex in JS template literal styles.
-
-Dark-to-light color mapping reference:
-  #d1d5db  >  #334155 (slate-700)
-  #e0e0e0  >  #1e293b (slate-800)
-  #9ca3af  >  #64748b (slate-500)
-  rgba(255,255,255,0.03) > rgba(0,0,0,0.03)
-  rgba(96,165,250,0.2)   > rgba(37,99,235,0.12)
+v3.6.8 — Accurate Skill Counts (dynamic, not hardcoded)
+v3.6.7 — Blocking Error Fix (graceful fallback for missing JSON)
+v3.6.6 — O*NET Library UI (5-tab browser in Manage Skills modal)
+v3.6.5 — Card View Dynamic Domain Bucketing (role-based grouping)
+v3.6.4 — Deduplication (3,493 lines removed, 15,525 -> 12,032)
+v3.6.3 — Apostrophe syntax fixes (Unicode \u2019)
+v3.6.2 — JavaScript scope errors (23 functions exposed to window)
+v3.6.1 — Light theme inline style fixes (tv()/tb() helpers)
+v3.6.0 — 8-step onboarding wizard with Claude API
+v3.5.x — Resume generator, light/dark theme, mobile nav, foundation audit
 
 ---
 
-## Navigation Structure
+## Repository File Structure
 
-Header (56px): [◈ Work Blueprint logo] | [Skills][Jobs][Applications][Work Blueprint] | [moon][CJ Name v][...]
-Filter bar (48px, Skills only, collapsible): [Network][Card] | [search] | [Filter] > chips
-Mobile: 5-tab bottom bar
-More menu: Build My Work Blueprint | Settings | Export | Work Blueprint | Consent | Help | About
-
----
-
-## Onboarding Wizard
-
-Steps: Start(1) > Resume(2) > Parsing(3) > Profile(4) > Skills(5) > Values(6) > Purpose(7) > Complete(8)
-Claude API: claude-sonnet-4-20250514, 4000 tokens for parsing, 300 for purpose regeneration
-wizardApplyAndLaunch(built): loads profile, resets tab init flags, calls initNetwork()
-
----
-
-## Card View Domain Grouping (v3.6.5)
-
-3-tier dynamic strategy:
-1. Role-based (if 50%+ skills have role assignments): groups by profile's own roles[]
-   Leftover skills sub-bucket by O*NET category
-2. Category fallback (under 50% role coverage): groups ALL skills by O*NET category
-   Works for wizard-built profiles with empty role assignments
-
-Sort within domains: key/core skills first, then Mastery > Expert > Advanced > Proficient > Novice
+    Skills-Ontology/
+    index.html                          <- MAIN APP (~12,530 lines, single file)
+    skills/
+        index-v3.json                   <- ESCO v1.2.1 (13,960 skills, 2.31MB) UPDATED
+    trades-creative-library.json        <- 64 trades/creative skills with adjacencies
+    onet-skills-library.json            <- O*NET 35 skills (2.A + 2.B)
+    onet-abilities-library.json         <- O*NET 52 abilities (1.A)
+    onet-workstyles-library.json        <- O*NET 21 work styles (1.D)
+    onet-knowledge-library.json         <- O*NET 33 knowledge domains (2.C)
+    onet-work-activities-library.json   <- O*NET 41 work activities (4.A)
+    skill_evidence.json                 <- Evidence for Cliff's skills
+    skill_valuations.json               <- Market valuation data
+    PROJECT_CONTEXT.md                  <- This file
 
 ---
 
-## Scope Pattern — CRITICAL
+## Architecture
 
-Functions inside DOMContentLoaded async closure are NOT reachable from HTML onclick="".
-Must explicitly expose: window.functionName = functionName
+### Single-File App
+Everything in index.html. No build system, no npm. GitHub Pages serves directly.
+This is intentional — zero-friction deployment.
 
-Currently exposed (23+): toggleTheme, initTheme, toggleProfileDropdown, closeProfileDropdown,
-showOnboardingWizard, wizardChooseUpload, wizardChooseManual, wizardChooseImport,
-wizardImportProfile, wizardBack, wizardNext, wizardSetResumeTab, wizardSkipParsing,
-wizardStartParsing, wizardSaveProfile, wizardSaveSkills, wizardToggleValue, wizardSaveValues,
-wizardSavePurpose, wizardRegeneratePurpose, wizardDownloadAndLaunch, wizardLaunchOnly,
-confirmExitWizard, toggleFilterPanel, renderFilterChips, switchView, switchProfile,
-filterByRole, filterByLevel, toggleSkillsView, openSkillModal, openSkillModalFromCard,
-startWithTemplate, showSettings, showHelp, showAbout
+### Key Global Variables
+    userData              // Current user profile (skills, values, purpose, etc.)
+    skillsData            // Loaded from demo profiles or localStorage
+    skillLibraryIndex     // ESCO search index {n, c, sc, id, d?} — 13,960 entries
+    window.onetSkillsLibrary
+    window.onetAbilitiesLibrary
+    window.onetWorkStylesLibrary
+    window.onetKnowledgeLibrary
+    window.onetWorkActivitiesLibrary
+    window.tradesCreativeLibrary   // 64 trades/creative skills
+    blueprintData         // {outcomes: [], values: [], purpose: ""}
+    blueprintTab          // Active tab: outcomes|values|purpose|export
+    skillValuations       // Market valuation data
 
-Adding any new onclick function: add window.X = X immediately after its definition.
+### Theme System
+CSS variables for colors — never hardcode in JS template strings.
+tv(darkVal, lightVal) — inline dark/light color values
+tb(darkBg, lightBg)  — inline background values
+ALL inline styles in JS template literals must use these helpers.
 
----
-
-## Apostrophe Rule
-
-Contractions inside wizard string arguments (${wizardHeading('text')}) cause SyntaxError.
-Use Unicode: "it\u2019s" not "it's" — or rewrite: "do not" not "don't".
-Never use contractions in wizard heading/subtitle string arguments.
-
----
-
-## Market Valuation
-
-calculateTotalMarketValue() reads skill_valuations.json.
-renderMarketValuationSection() — all inline colors use tv()/tb(). Never raw rgba() here.
-WARNING: This function has historically accumulated duplicate copies during editing.
-If you see "blueprintData already declared" error, file has duplicates — keep LAST copy.
-
----
-
-## Skills Library Status
-
-O*NET taxonomy (scraped Feb 18 2026, all taxonomies complete):
-  2.A Basic Skills:          10 entries
-  2.B Cross-Functional:      25 entries
-  2.C Knowledge:             33 entries (NEW)
-  4.A Work Activities:       41 entries (NEW)
-  1.D Work Styles:           21 entries (updated from 16)
-  1.A Abilities:             52 entries
-  TOTAL O*NET:              182 entries
-
-ESCO (European Skills/Competences):
-  index-v3.json already has 2,138 ESCO-derived skills
-  Full ESCO v1.2.1 = 13,939 skills — free download at esco.ec.europa.eu/en/use-esco/download
-  Download skills_en.csv and send to Claude to merge + deduplicate into index-v3
-
-Lightcast: 75,000+ skills — Cliff has API access pending
+### Critical Coding Rules
+1. Never use backtick template literals inside other template literals
+2. All onclick handlers need window.functionName = functionName exposure
+3. Apostrophes in strings: use \u2019 not single quote inside JS strings
+4. No em/en dashes — rephrase or use commas
+5. No alert() — use showToast(message, type, duration) instead
+6. CSS selectors with quotes: use forEach + indexOf, not querySelector with nested quotes
+7. Mobile first: test at 390px, modals anchor bottom on mobile
 
 ---
 
-## Deduplication Warning
+## Skill Object Shape
 
-File has a history of accumulating duplicate code blocks during iterative editing.
-Signs: file > ~13,000 lines, "blueprintData already declared" SyntaxError,
-multiple copies of renderBlueprint() or renderMarketValuationSection().
-Fix: grep for duplicate function definitions, keep LAST copy, delete earlier copies.
+    {
+      name: "Strategic Thinking",
+      level: "Mastery",          // Mastery/Expert/Advanced/Proficient/Novice
+      category: "skill",         // skill/ability/workstyle/knowledge/workactivity/trades/unique
+      roles: ["strategy", "..."],
+      key: true,
+      evidence: [{ description: "...", outcome: "..." }]
+    }
 
----
+## Skill Categories
 
-## Export Features
-
-WORKING: Resume (generateResume()) | Work Blueprint HTML (generateWorkBlueprint())
-STUBS: Capability Statement | LinkedIn export | Interview Prep
-
----
-
-## Known Issues / Backlog
-
-  onet-knowledge + work-activities files    HIGH    Built, need GitHub commit
-  ESCO 13,939 skills integration            HIGH    Manual download needed
-  No workHistory[] in profile JSONs         MEDIUM  Resume limited to current role
-  Consent preset filtering                  LOW     UI only, not functional
-  Capability Statement export               LOW     Stub only
-  Light theme polish                        LOW     Ongoing, report with screenshots
+    skill        Skills           Map emoji   ESCO/O*NET
+    ability      Abilities        Lightning   O*NET 1.A
+    workstyle    Work Styles      Compass     O*NET 1.D
+    knowledge    Knowledge        Books       O*NET 2.C
+    workactivity Work Activities  Gear        O*NET 4.A
+    trades       Trade Skills     Hammer      trades-creative-library.json
+    unique       Custom Skills    Star        User-created
 
 ---
 
-## Roadmap (in order)
+## Key Functions
 
-1. Commit new library files to GitHub (onet-knowledge, onet-work-activities, workstyles)
-2. Download ESCO skills_en.csv, send to Claude, merge into index-v3 (2,138 > ~14,000)
-3. Test wizard with real resume — validate Claude parsing accuracy
-4. Personalized page generator — shareable URL with encoded profile for recruiter outreach
-5. Email composer for recruiter outreach
-6. Add workHistory[] to profile JSONs for proper resume experience section
-7. Lightcast API integration when access available
-8. Capability Statement export
+### Search & Library
+    searchAllLibraries(query)        // All 7 libraries, normalized results, 30 cap
+    addSkillFromLibrary(skillId)     // Finds across all libraries, adds to profile
+    searchAddSkillsByCategory(cat)   // Trades = special full-list render; others = text search
+    getTotalAvailableSkillCount()    // Dynamic sum of all loaded library counts
+    populateCategoryFilter()         // Builds dropdown from actual profile data
 
----
+### Blueprint Page
+    initBlueprint()                  // Entry: extract outcomes, infer values, render
+    renderBlueprint()                // Container + market val + sub-nav + tab content
+    switchBlueprintTab(tab)          // Swaps content only, no full re-render
+    renderBlueprintTabContent()      // Returns HTML for current blueprintTab
+    extractOutcomesFromEvidence()    // Builds blueprintData.outcomes
+    inferValues()                    // Populates blueprintData.values
 
-## Deployment
+### Toast Notifications
+    showToast(message, type, duration)  // type: success|error|info|warning; duration default 4000ms
+    dismissToast(id)                    // Programmatic dismiss
 
-  cp ~/Downloads/index.html ./
-  cp ~/Downloads/PROJECT_CONTEXT.md ./
-  cp ~/Downloads/onet-knowledge-library.json ./
-  cp ~/Downloads/onet-work-activities-library.json ./
-  cp ~/Downloads/onet-workstyles-library.json ./
-  git add -A && git commit -m "v3.6.5" && git push
-
----
-
-## Tech Stack
-
-Vanilla JS | D3.js v7 | Anthropic API (claude-sonnet-4-20250514)
-HTML5/CSS3 | GitHub Pages | Static JSON | localStorage (minimal)
+### Theme Helpers
+    tv(darkVal, lightVal)   // Returns correct value for current theme
+    tb(darkBg, lightBg)     // Returns correct background for current theme
 
 ---
 
-## Key Context
+## Manage Skills Modal
 
-Primary demo: Cliff Jones — VP Global Strategy & GM Customer Advisory at Phenom
-(talent intelligence platform). FAA Certified IFR Pilot 2,000+ hours, 37-year musician,
-12+ years sobriety, co-founded Kyle's Wish Foundation (aviation + mental health/addiction).
-89 skills, 100 evidence items, 42 qualifying outcomes. Demo company: TalentEdge.
+Tab 1: Your Skills (N)
+- Search, filter by category (dynamic), filter by level
+- Grouped by domain, Remove buttons
 
-Five demo profiles: cliff-jones (primary), sarah-chen (HR), mike-rodriguez (engineering),
-jamie-martinez (service), alex-thompson (entry level).
+Tab 2: Add Skills (N)
+- Search 13,960+ ESCO + O*NET + Trades
+- Category buttons: Technology | Business | Finance | Marketing | Creative | Leadership | Trades
+- O*NET browser: 5 tabs (Skills / Abilities / Work Styles / Knowledge / Work Activities)
 
 ---
 
-## Session History (compact)
+## Work Blueprint Page
 
-Session 1 (Feb 18 AM): v3.5.0-3.5.4 — resume generator, outcomes fix, foundation audit,
-nav redesign, light/dark theme system.
+Horizontal sub-nav below Market Valuation:
+  Outcomes (N)  |  Values (N selected)  |  Purpose  |  Export
 
-Session 2 (Feb 18 midday): v3.6.0-3.6.4 — 8-step onboarding wizard with Claude API,
-light theme inline fixes (tv/tb helpers), scope errors (window.X = X for 23 functions),
-apostrophe syntax errors, file deduplication (3,300 lines removed).
+---
 
-Session 3 (Feb 18 afternoon): v3.6.5 — card view dynamic bucketing (works for all
-profiles). Full O*NET taxonomy scrape: added 2.C Knowledge (33) and 4.A Work Activities
-(41), updated 1.D Work Styles (16 to 21). 5 library JSON files built and ready to commit.
-Mapped path to 75K skills: ESCO free download (13,939) + Lightcast API pending.
+## Trades Library Summary
+
+64 skills, 9 categories, each with adjacencies array:
+Woodworking & Construction (9) — amber #d97706
+Electrical/Plumbing/Mechanical (9) — teal #0891b2
+Painting & Finishing (6) — purple #7c3aed
+Culinary Arts (6) — red #dc2626
+Visual Arts (12) — pink #db2777
+Fiber & Textile (5) — green #059669
+Performing Arts (5) — orange #ea580c
+Outdoor & Agriculture (5) — green #16a34a
+Technology & Making (7) — blue #2563eb
+
+Rationale: Trades skills signal spatial reasoning, precision, project management.
+Most ATS systems ignore them — strategic differentiation.
+
+---
+
+## Lightcast API Integration (When Ready)
+
+Adding Lightcast (~75,000 skills) requires exactly:
+1. Add search block to searchAllLibraries() — one function
+2. Add lookup block to addSkillFromLibrary() — one block
+3. Count auto-updates via getTotalAvailableSkillCount() — automatic
+
+---
+
+## Known Working State (v3.9.0)
+
+Skills network view, card view (mobile responsive) — working
+Manage Skills modal, both tabs, all search — working
+Add Skills: 7 libraries searched simultaneously — working
+Category browse buttons including Trades — working
+O*NET library browser (5 tabs) — working
+ESCO 13,960 skills loaded and searchable — working
+Dynamic skill count summing all libraries — working
+Dynamic category filter from profile data — working
+Work Blueprint horizontal sub-nav tabs — working
+Market Valuation section above tabs — working
+Light/dark theme full coverage — working
+Toast notification system (4 types, themed, mobile) — working
+ESCO/O*NET attribution footer — working
+Onboarding wizard (8 steps, Claude API) — working
+Mobile layout: card view, bottom-anchored modals — working
+
+---
+
+## Pending / Next Steps
+
+HIGH PRIORITY:
+- ESCO attribution in footer (required by license)
+- Search placeholder still says "2,138+" (stale copy, update to "13,960+")
+- Blueprint tab count badges: static on render, don't update if outcomes added mid-session
+
+MEDIUM PRIORITY:
+- Export functionality (PDF/JSON buttons exist but need testing)
+- Profile switching cleanup (demo vs user data can confuse)
+- Lightcast API when access available
+
+LOWER PRIORITY:
+- Companies tab (watchlist, news, job matching)
+- Interview prep module
+- Enhanced job matching (semantic similarity)
+- Timeline / career arc visualization
+
+---
+
+## Cliff's Profile Context
+
+Cliff Jones — VP Global Strategy & GM Customer Advisory at Phenom.
+89 skills across 7 roles. 37 years professional musician. FAA IFR Pilot 2000+ hours.
+Co-founder Kyle's Wish Foundation. 12+ years sobriety. Job searching Feb 2026.
+
+Writing rules:
+- No em/en dashes (rephrase or use commas)
+- Never use "the uncomfortable truth"
+- Never use "talent wars"
+- No superlatives, no borrowed authority
+- Precise verbs, no inflation
+- Terse = efficiency, not dissatisfaction
+- Newsletter: SHORT and PUNCHY, 10-second read, hook to click
+
+---
+
+## Development Conventions
+
+Version format: v[major].[minor].[patch] — BUILD YYYYMMDD-HHMM
+Bump version in HTML comment block on every meaningful change
+Cache busting: update cacheBuster const in loadSkillLibraryIndex() for new JSON deploys
+Deploy: push to GitHub, Pages auto-deploys in ~60 seconds
+No console.log spam — remove debug logs before shipping
+
+---
+
+END OF PROJECT CONTEXT — v3.9.0
