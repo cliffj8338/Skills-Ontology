@@ -1,6 +1,6 @@
 # Work Blueprint — Project Context File
 For use at the start of new chat sessions to restore full context.
-Last updated: February 18, 2026 — v3.9.1
+Last updated: February 18, 2026 — v3.9.2
 
 ---
 
@@ -11,7 +11,7 @@ Paste this at the top of a new conversation:
 > "I'm continuing work on my Work Blueprint project. Please read the attached
 > PROJECT_CONTEXT.md in full before responding — it contains everything you need
 > to know about the codebase, architecture, and current state. Current version is
-> v3.9.1. Today I want to [your task]."
+> v3.9.2. Today I want to [your task]."
 
 Attach: PROJECT_CONTEXT.md + index.html (current version from outputs)
 Optional: screenshots of bugs you want fixed
@@ -298,7 +298,7 @@ Adding Lightcast (~75,000 skills) requires exactly:
 
 ---
 
-## Known Working State (v3.9.1)
+## Known Working State (v3.9.2)
 
 Skills network view, card view (mobile responsive) — working
 Manage Skills modal, both tabs, all search — working
@@ -366,4 +366,4 @@ No console.log spam — remove debug logs before shipping
 
 ---
 
-END OF PROJECT CONTEXT — v3.9.1
+END OF PROJECT CONTEXT — v3.9.2

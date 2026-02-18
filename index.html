@@ -3043,9 +3043,9 @@
     </div>
 
     <!-- App Footer / Attribution -->
-    <footer id="appFooter" style="text-align:center; padding:16px 20px; font-size:0.78em; opacity:0.55; line-height:1.5;">
-        This service uses the <a href="https://esco.ec.europa.eu" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">ESCO classification</a> of the European Commission.
-        Skills data also incorporates <a href="https://www.onetonline.org" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">O*NET</a> occupational data.
+    <footer id="appFooter" style="text-align:center; padding:16px 20px; font-size:0.78em; opacity:0.55; line-height:1.7;">
+        <div>This tool is a demonstration project for educational purposes only. Data, valuations, and recommendations may contain errors. Not professional advice. <a href="#" onclick="event.preventDefault(); switchView('consent'); setTimeout(function(){ var el=document.getElementById('disclaimerSection'); if(el) el.scrollIntoView({behavior:'smooth'}); }, 300);" style="color:inherit; text-decoration:underline;">Full Disclaimer</a></div>
+        <div style="margin-top:4px;">Uses the <a href="https://esco.ec.europa.eu" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">ESCO classification</a> of the European Commission and <a href="https://www.onetonline.org" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">O*NET</a> occupational data.</div>
     </footer>
     
     <!-- Mobile bottom nav (hidden on desktop via CSS) -->
@@ -3574,12 +3574,12 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.9.1 - BUILD 20260218-2330
-        // TOAST NOTIFICATIONS + ALERT CLEANUP + EXPORT OVERHAUL + VALUES ENHANCEMENT
+        // WORK BLUEPRINT v3.9.2 - BUILD 20260218-2345
+        // TOAST + EXPORT + VALUES + DISCLAIMER
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   WORK BLUEPRINT v3.9.1                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260218-2330                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   WORK BLUEPRINT v3.9.2                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260218-2345                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -10928,59 +10928,124 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
         }
         
         function renderLegalSection() {
-            return `
-                <div class="blueprint-section">
-                    <div class="blueprint-section-header">
-                        <div class="blueprint-section-title">
-                            <span class="section-icon">⚖️</span>
-                            <span>Legal & Privacy</span>
-                        </div>
-                    </div>
-                    
-                    <div style="color: #d1d5db; line-height: 1.7;">
-                        <h3 style="color: #60a5fa; margin-bottom: 15px;">Your Rights & Protections</h3>
-                        
-                        <p style="margin-bottom: 20px;">
-                            Your Work Blueprint data is stored locally in your browser. You have complete control over what you share, 
-                            when you share it, and with whom. This tool respects your privacy and employment data rights.
-                        </p>
-                        
-                        <h4 style="color: #60a5fa; margin-bottom: 10px; margin-top: 20px;">Relevant Privacy Laws:</h4>
-                        <ul style="list-style: none; padding: 0;">
-                            <li style="padding: 10px; background: rgba(255, 255, 255, 0.03); margin-bottom: 8px; border-radius: 6px;">
-                                <strong>🇺🇸 CCPA (California Consumer Privacy Act)</strong><br>
-                                <span style="font-size: 0.9em; color: #9ca3af;">
-                                    Right to know what data is collected, right to delete, right to opt-out of sale
-                                </span><br>
-                                <a href="https://oag.ca.gov/privacy/ccpa" target="_blank" style="color: #60a5fa; text-decoration: none; font-size: 0.85em;">Learn more →</a>
-                            </li>
-                            <li style="padding: 10px; background: rgba(255, 255, 255, 0.03); margin-bottom: 8px; border-radius: 6px;">
-                                <strong>🇪🇺 GDPR (General Data Protection Regulation)</strong><br>
-                                <span style="font-size: 0.9em; color: #9ca3af;">
-                                    Right to access, rectify, erase, and port your personal data
-                                </span><br>
-                                <a href="https://gdpr.eu/" target="_blank" style="color: #60a5fa; text-decoration: none; font-size: 0.85em;">Learn more →</a>
-                            </li>
-                            <li style="padding: 10px; background: rgba(255, 255, 255, 0.03); margin-bottom: 8px; border-radius: 6px;">
-                                <strong>📋 Employment Data Rights (US)</strong><br>
-                                <span style="font-size: 0.9em; color: #9ca3af;">
-                                    Employers must handle your data fairly and can't discriminate based on protected characteristics
-                                </span><br>
-                                <a href="https://www.eeoc.gov/" target="_blank" style="color: #60a5fa; text-decoration: none; font-size: 0.85em;">EEOC Guidelines →</a>
-                            </li>
-                        </ul>
-                        
-                        <h4 style="color: #60a5fa; margin-bottom: 10px; margin-top: 25px;">Best Practices:</h4>
-                        <ul style="margin-left: 20px; color: #d1d5db;">
-                            <li style="margin: 8px 0;">Never share sensitive personal information (SSN, financial details)</li>
-                            <li style="margin: 8px 0;">Review what you're sharing before exporting or creating links</li>
-                            <li style="margin: 8px 0;">Use time-limited shareable links when possible</li>
-                            <li style="margin: 8px 0;">Keep Work Blueprint data up to date but don't embellish</li>
-                            <li style="margin: 8px 0;">Consider context before sharing recovery/advocacy work</li>
-                        </ul>
-                    </div>
-                </div>
-            `;
+            var tc = tv('#d1d5db','#334155');
+            var hc = tv('#60a5fa','#1e40af');
+            var sc = tv('#9ca3af','#64748b');
+            var bgCard = tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)');
+            var borderWarn = tv('rgba(251,191,36,0.3)','rgba(217,119,6,0.2)');
+            
+            return '<div id="disclaimerSection" class="blueprint-section">'
+                + '<div class="blueprint-section-header">'
+                + '<div class="blueprint-section-title">'
+                + '<span class="section-icon">\u26A0\uFE0F</span>'
+                + '<span>Disclaimer & Terms of Use</span>'
+                + '</div>'
+                + '</div>'
+                
+                // Prominent disclaimer banner
+                + '<div style="padding:20px; background:' + tv('rgba(251,191,36,0.08)','rgba(251,191,36,0.06)') + '; '
+                + 'border:1px solid ' + borderWarn + '; border-radius:10px; margin-bottom:24px;">'
+                + '<p style="color:' + tc + '; line-height:1.7; margin:0; font-size:0.95em;">'
+                + '<strong style="color:' + tv('#fbbf24','#d97706') + ';">Work Blueprint is a personal demonstration project provided as-is for educational and illustrative purposes only.</strong> '
+                + 'It is not a commercial product and carries no warranty of any kind, express or implied.'
+                + '</p>'
+                + '</div>'
+                
+                + '<div style="color:' + tc + '; line-height:1.7; font-size:0.93em;">'
+
+                // Data accuracy
+                + '<div style="padding:16px; background:' + bgCard + '; border-radius:8px; margin-bottom:12px;">'
+                + '<h4 style="color:' + hc + '; margin:0 0 8px 0;">Data Accuracy</h4>'
+                + '<p style="margin:0;">Skill taxonomies, market valuations, compensation estimates, and any generated content may contain errors, omissions, or outdated information. '
+                + 'ESCO, O*NET, and other referenced datasets are used under their respective licenses and may not reflect current labor market conditions. '
+                + 'No figure produced by this tool should be treated as a verified market rate or guaranteed outcome.</p>'
+                + '</div>'
+
+                // Not professional advice
+                + '<div style="padding:16px; background:' + bgCard + '; border-radius:8px; margin-bottom:12px;">'
+                + '<h4 style="color:' + hc + '; margin:0 0 8px 0;">Not Professional Advice</h4>'
+                + '<p style="margin:0;">Nothing in this application constitutes legal, financial, career, compensation, or employment advice. '
+                + 'Users should consult qualified professionals before making decisions based on any information presented here.</p>'
+                + '</div>'
+
+                // No liability
+                + '<div style="padding:16px; background:' + bgCard + '; border-radius:8px; margin-bottom:12px;">'
+                + '<h4 style="color:' + hc + '; margin:0 0 8px 0;">No Liability</h4>'
+                + '<p style="margin:0;">The creator of this tool accepts no responsibility for decisions made, opportunities pursued or declined, '
+                + 'salary negotiations conducted, or any other action taken based on information generated by this application.</p>'
+                + '</div>'
+
+                // Local data only
+                + '<div style="padding:16px; background:' + bgCard + '; border-radius:8px; margin-bottom:12px;">'
+                + '<h4 style="color:' + hc + '; margin:0 0 8px 0;">Local Data Only</h4>'
+                + '<p style="margin:0;">All user data is stored in your browser\u2019s local storage. No data is transmitted to or stored on any server. '
+                + 'Clearing your browser data will permanently delete your profile. The creator has no access to your data.</p>'
+                + '</div>'
+
+                // Third-party AI
+                + '<div style="padding:16px; background:' + bgCard + '; border-radius:8px; margin-bottom:12px;">'
+                + '<h4 style="color:' + hc + '; margin:0 0 8px 0;">Third-Party AI</h4>'
+                + '<p style="margin:0;">The onboarding wizard uses the Anthropic API to parse resumes and infer skills. '
+                + 'Resume text submitted during onboarding is sent to Anthropic\u2019s servers and is subject to '
+                + '<a href="https://www.anthropic.com/policies" target="_blank" rel="noopener" style="color:' + hc + '; text-decoration:underline;">Anthropic\u2019s usage policies</a>. '
+                + 'No resume data is stored by this application after processing.</p>'
+                + '</div>'
+
+                // Demo profiles
+                + '<div style="padding:16px; background:' + bgCard + '; border-radius:8px; margin-bottom:12px;">'
+                + '<h4 style="color:' + hc + '; margin:0 0 8px 0;">Demonstration Profiles</h4>'
+                + '<p style="margin:0;">Pre-loaded demo profiles represent real professional histories and are included with the profile owner\u2019s consent. '
+                + 'Do not redistribute demo profile data.</p>'
+                + '</div>'
+
+                // Use at your own risk
+                + '<div style="padding:16px; background:' + tv('rgba(239,68,68,0.06)','rgba(239,68,68,0.04)') + '; '
+                + 'border:1px solid ' + tv('rgba(239,68,68,0.2)','rgba(239,68,68,0.15)') + '; border-radius:8px; margin-bottom:12px;">'
+                + '<h4 style="color:' + tv('#f87171','#dc2626') + '; margin:0 0 8px 0;">Use at Your Own Risk</h4>'
+                + '<p style="margin:0;">By using this tool, you acknowledge these limitations and accept full responsibility for how you apply its outputs.</p>'
+                + '</div>'
+
+                + '</div>'
+                + '</div>'
+
+                // Existing privacy section below disclaimer
+                + '<div class="blueprint-section">'
+                + '<div class="blueprint-section-header">'
+                + '<div class="blueprint-section-title">'
+                + '<span class="section-icon">\u2696\uFE0F</span>'
+                + '<span>Privacy & Data Rights</span>'
+                + '</div>'
+                + '</div>'
+                + '<div style="color:' + tc + '; line-height:1.7;">'
+                + '<p style="margin-bottom:20px;">Your Work Blueprint data is stored locally in your browser. You have complete control over what you share, '
+                + 'when you share it, and with whom.</p>'
+
+                + '<h4 style="color:' + hc + '; margin-bottom:10px;">Relevant Privacy Laws:</h4>'
+                + '<div style="padding:10px; background:' + bgCard + '; margin-bottom:8px; border-radius:6px;">'
+                + '<strong>\uD83C\uDDFA\uD83C\uDDF8 CCPA (California Consumer Privacy Act)</strong><br>'
+                + '<span style="font-size:0.9em; color:' + sc + ';">Right to know what data is collected, right to delete, right to opt-out of sale</span><br>'
+                + '<a href="https://oag.ca.gov/privacy/ccpa" target="_blank" style="color:' + hc + '; text-decoration:none; font-size:0.85em;">Learn more \u2192</a>'
+                + '</div>'
+                + '<div style="padding:10px; background:' + bgCard + '; margin-bottom:8px; border-radius:6px;">'
+                + '<strong>\uD83C\uDDEA\uD83C\uDDFA GDPR (General Data Protection Regulation)</strong><br>'
+                + '<span style="font-size:0.9em; color:' + sc + ';">Right to access, rectify, erase, and port your personal data</span><br>'
+                + '<a href="https://gdpr.eu/" target="_blank" style="color:' + hc + '; text-decoration:none; font-size:0.85em;">Learn more \u2192</a>'
+                + '</div>'
+                + '<div style="padding:10px; background:' + bgCard + '; margin-bottom:8px; border-radius:6px;">'
+                + '<strong>\uD83D\uDCCB Employment Data Rights (US)</strong><br>'
+                + '<span style="font-size:0.9em; color:' + sc + ';">Employers must handle your data fairly and cannot discriminate based on protected characteristics</span><br>'
+                + '<a href="https://www.eeoc.gov/" target="_blank" style="color:' + hc + '; text-decoration:none; font-size:0.85em;">EEOC Guidelines \u2192</a>'
+                + '</div>'
+
+                + '<h4 style="color:' + hc + '; margin:25px 0 10px 0;">Best Practices:</h4>'
+                + '<div style="color:' + tc + '; line-height:2;">'
+                + '\u2022 Never share sensitive personal information (SSN, financial details)<br>'
+                + '\u2022 Review what you are sharing before exporting<br>'
+                + '\u2022 Keep Work Blueprint data up to date but do not embellish<br>'
+                + '\u2022 Consider context before sharing recovery or advocacy work'
+                + '</div>'
+                + '</div>'
+                + '</div>';
         }
         
         function saveSettings() {
