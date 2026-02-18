@@ -2752,6 +2752,16 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(16px); }
+            to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
         
         .your-skill-item {
             padding: 15px;
@@ -2813,6 +2823,8 @@
             <!-- More menu -->
             <button class="more-btn" onclick="toggleOverflowMenu(event)" id="overflowMenuBtn" title="More options">···</button>
             <div id="overflowMenu" class="overflow-menu" style="display:none;">
+                <button onclick="closeOverflowMenu(); showOnboardingWizard();" style="color: var(--accent); font-weight: 600;">◈ Build My Work Blueprint</button>
+                <div style="height:1px; background:var(--border); margin:4px 0;"></div>
                 <button onclick="switchView('settings', event); closeOverflowMenu();">⚙️ Settings</button>
                 <button onclick="openExportModal(); closeOverflowMenu();">📄 Export Profile</button>
                 <button onclick="generateWorkBlueprint(); closeOverflowMenu();">📝 Generate Work Blueprint</button>
@@ -3403,7 +3415,7 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.5.4 - BUILD 20260218-1300
+        // WORK BLUEPRINT v3.6.0 - BUILD 20260218-1400
         // PREMIUM: 5-Factor Comprehensive Premium Calculation
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -4172,17 +4184,63 @@
                 profileSelector.value = currentProfile;
             }
             
-            if (templates[currentProfile]) {
+            if (currentProfile === 'wizard-built' && templates['wizard-built']) {
+                // User just came back from wizard - load their built profile
+                loadTemplate('wizard-built');
+                initializeMainApp();
+            } else if (templates[currentProfile]) {
                 loadTemplate(currentProfile);
                 initializeMainApp();
+                // If this is a first-time visitor with no saved preference, show wizard prompt
+                if (!localStorage.getItem('wbHasVisited')) {
+                    localStorage.setItem('wbHasVisited', '1');
+                    // Small delay so network renders first, then offer wizard
+                    setTimeout(() => showWizardPrompt(), 1200);
+                }
             } else {
                 console.error('❌ Profile not found:', currentProfile);
-                // Fallback to Cliff
+                // No valid profile — launch wizard
                 loadTemplate('cliff-jones-demo');
                 initializeMainApp();
+                setTimeout(() => showOnboardingWizard(), 400);
             }
         }
         
+        // Non-intrusive first-visit prompt to build own profile
+        function showWizardPrompt() {
+            if (document.getElementById('wizardPromptBanner')) return;
+            const banner = document.createElement('div');
+            banner.id = 'wizardPromptBanner';
+            banner.style.cssText = `
+                position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+                z-index: 1000; background: var(--bg-elevated); border: 1px solid var(--border);
+                border-radius: 14px; padding: 16px 22px; display: flex; align-items: center;
+                gap: 16px; box-shadow: var(--shadow); max-width: 520px; width: calc(100% - 48px);
+                backdrop-filter: blur(20px); animation: slideUp 0.3s ease;
+            `;
+            banner.innerHTML = `
+                <div style="font-size: 1.6em;">◈</div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 700; color: var(--text-primary); font-size: 0.9em; margin-bottom: 3px;">
+                        This is a sample profile
+                    </div>
+                    <div style="color: var(--text-secondary); font-size: 0.8em;">
+                        Build your own Work Blueprint — takes about 2 minutes.
+                    </div>
+                </div>
+                <button onclick="document.getElementById('wizardPromptBanner').remove(); showOnboardingWizard();"
+                        style="background: var(--accent); color: #fff; border: none; padding: 9px 18px;
+                               border-radius: 8px; cursor: pointer; font-size: 0.85em; font-weight: 600;
+                               white-space: nowrap; flex-shrink: 0;">
+                    Build Mine →
+                </button>
+                <button onclick="document.getElementById('wizardPromptBanner').remove();"
+                        style="background: none; border: none; color: var(--text-muted); cursor: pointer;
+                               font-size: 1.2em; padding: 4px; flex-shrink: 0;">×</button>
+            `;
+            document.body.appendChild(banner);
+        }
+
         // Show welcome screen for new users
         function showWelcomeScreen() {
             console.log('📋 Showing welcome screen');
@@ -4296,11 +4354,1004 @@
             reader.readAsText(file);
         };
         
-        // Show onboarding wizard for blank profiles
+        // =====================================================================
+        // ONBOARDING WIZARD v1.0
+        // Multi-step guided profile builder with Claude AI resume parsing
+        // =====================================================================
+
+        let wizardState = {
+            step: 1,
+            totalSteps: 8,
+            resumeText: '',
+            parsedData: null,
+            profile: {},
+            skills: [],
+            values: [],
+            purpose: '',
+            processing: false
+        };
+
         function showOnboardingWizard() {
-            // For now, just reload to main app - wizard coming in next phase
-            alert('Quick setup: Add your name and location in Settings, then start adding skills!');
-            location.reload();
+            // Remove any existing wizard
+            const existing = document.getElementById('onboardingWizard');
+            if (existing) existing.remove();
+
+            wizardState = { step: 1, totalSteps: 8, resumeText: '', parsedData: null,
+                            profile: {}, skills: [], values: [], purpose: '', processing: false };
+
+            const overlay = document.createElement('div');
+            overlay.id = 'onboardingWizard';
+            overlay.style.cssText = `
+                position: fixed; inset: 0; z-index: 50000;
+                background: var(--bg-base);
+                display: flex; flex-direction: column;
+                overflow: hidden;
+            `;
+            document.body.appendChild(overlay);
+            renderWizardStep();
+        }
+
+        function closeWizard() {
+            const el = document.getElementById('onboardingWizard');
+            if (el) el.remove();
+        }
+
+        function renderWizardStep() {
+            const overlay = document.getElementById('onboardingWizard');
+            if (!overlay) return;
+
+            const steps = [
+                { label: 'Start' },
+                { label: 'Resume' },
+                { label: 'Parsing' },
+                { label: 'Profile' },
+                { label: 'Skills' },
+                { label: 'Values' },
+                { label: 'Purpose' },
+                { label: 'Complete' }
+            ];
+
+            const progressPct = ((wizardState.step - 1) / (wizardState.totalSteps - 1)) * 100;
+
+            overlay.innerHTML = `
+                <!-- Wizard Header -->
+                <div style="display:flex; align-items:center; justify-content:space-between;
+                            padding:0 28px; height:56px; border-bottom:1px solid var(--border);
+                            background:var(--nav-bg); backdrop-filter:blur(20px); flex-shrink:0;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="width:28px; height:28px; background:linear-gradient(135deg,var(--accent),#818cf8);
+                                    border-radius:7px; display:flex; align-items:center; justify-content:center;
+                                    font-size:14px;">◈</div>
+                        <span style="font-weight:700; color:var(--text-primary); font-size:0.95em;">
+                            Work <span style="color:var(--accent)">Blueprint</span>
+                        </span>
+                        <span style="color:var(--text-muted); font-size:0.8em; margin-left:8px;">
+                            Build Your Profile
+                        </span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:16px;">
+                        <span style="font-size:0.78em; color:var(--text-muted);">
+                            Step ${wizardState.step} of ${wizardState.totalSteps}
+                        </span>
+                        <button onclick="confirmExitWizard()" style="
+                            background:none; border:1px solid var(--border); border-radius:7px;
+                            padding:5px 12px; color:var(--text-secondary); cursor:pointer; font-size:0.8em;">
+                            Exit
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progress bar -->
+                <div style="height:3px; background:var(--border); flex-shrink:0;">
+                    <div style="height:100%; width:${progressPct}%;
+                                background:linear-gradient(90deg,var(--accent),#818cf8);
+                                transition:width 0.4s ease;"></div>
+                </div>
+
+                <!-- Step indicators -->
+                <div style="display:flex; justify-content:center; gap:4px; padding:14px 28px 0;
+                            flex-shrink:0; flex-wrap:wrap;">
+                    ${steps.map((s, i) => {
+                        const n = i + 1;
+                        const active = n === wizardState.step;
+                        const done = n < wizardState.step;
+                        return `<div style="display:flex; align-items:center; gap:4px;">
+                            <div style="width:22px; height:22px; border-radius:50%; display:flex;
+                                        align-items:center; justify-content:center; font-size:0.7em;
+                                        font-weight:700; transition:all 0.2s;
+                                        background:${done ? 'var(--accent)' : active ? 'var(--accent)' : 'var(--input-bg)'};
+                                        color:${done || active ? '#fff' : 'var(--text-muted)'};
+                                        border:2px solid ${done || active ? 'var(--accent)' : 'var(--border)'};">
+                                ${done ? '✓' : n}
+                            </div>
+                            <span style="font-size:0.72em; color:${active ? 'var(--accent)' : 'var(--text-muted)'};">
+                                ${s.label}
+                            </span>
+                            ${i < steps.length - 1 ? '<div style="width:12px; height:1px; background:var(--border); margin:0 2px;"></div>' : ''}
+                        </div>`;
+                    }).join('')}
+                </div>
+
+                <!-- Step content -->
+                <div id="wizardStepContent" style="flex:1; overflow-y:auto; padding:32px 28px;">
+                    <div style="max-width:700px; margin:0 auto;" id="wizardInner">
+                        <!-- Populated per step -->
+                    </div>
+                </div>
+            `;
+
+            // Render the current step content
+            const inner = document.getElementById('wizardInner');
+            switch(wizardState.step) {
+                case 1: renderWizardStep1(inner); break;
+                case 2: renderWizardStep2(inner); break;
+                case 3: renderWizardStep3(inner); break;
+                case 4: renderWizardStep4(inner); break;
+                case 5: renderWizardStep5(inner); break;
+                case 6: renderWizardStep6(inner); break;
+                case 7: renderWizardStep7(inner); break;
+                case 8: renderWizardStep8(inner); break;
+            }
+        }
+
+        function wizardNext() {
+            wizardState.step = Math.min(wizardState.step + 1, wizardState.totalSteps);
+            renderWizardStep();
+        }
+
+        function wizardBack() {
+            wizardState.step = Math.max(wizardState.step - 1, 1);
+            renderWizardStep();
+        }
+
+        function confirmExitWizard() {
+            if (wizardState.step > 2) {
+                if (!confirm('Exit the wizard? Your progress will be lost.')) return;
+            }
+            closeWizard();
+        }
+
+        // ── Shared UI helpers ─────────────────────────────────────────────────
+
+        function wizardCard(content) {
+            return `<div style="background:var(--bg-elevated); border:1px solid var(--border);
+                                border-radius:14px; padding:28px; margin-bottom:20px;">
+                        ${content}
+                    </div>`;
+        }
+
+        function wizardHeading(icon, title, subtitle) {
+            return `<div style="text-align:center; margin-bottom:32px;">
+                        <div style="font-size:2.8em; margin-bottom:12px;">${icon}</div>
+                        <h2 style="color:var(--text-primary); font-size:1.6em; font-weight:700;
+                                   margin-bottom:8px; letter-spacing:-0.02em;">${title}</h2>
+                        <p style="color:var(--text-secondary); font-size:0.95em; line-height:1.6;
+                                  max-width:500px; margin:0 auto;">${subtitle}</p>
+                    </div>`;
+        }
+
+        function wizardBtn(label, onclick, style='primary') {
+            const styles = {
+                primary: `background:var(--accent); color:#fff; border:none;`,
+                secondary: `background:var(--input-bg); color:var(--text-primary); border:1px solid var(--border);`,
+                ghost: `background:none; color:var(--text-secondary); border:1px solid var(--border);`
+            };
+            return `<button onclick="${onclick}" style="${styles[style]}
+                        padding:11px 24px; border-radius:9px; cursor:pointer; font-size:0.9em;
+                        font-weight:600; transition:all 0.18s; letter-spacing:0.01em;">
+                        ${label}
+                    </button>`;
+        }
+
+        // ── STEP 1: Entry point ───────────────────────────────────────────────
+
+        function renderWizardStep1(el) {
+            el.innerHTML = `
+                ${wizardHeading('◈', 'Build Your Work Blueprint',
+                    'Most people undersell themselves when applying for work — not because they lack ability, but because they've never had the right tool to articulate it. This changes that.')}
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px;">
+                    <div onclick="wizardChooseUpload()" id="card-upload"
+                         style="background:var(--bg-elevated); border:2px solid var(--border);
+                                border-radius:12px; padding:28px; cursor:pointer; transition:all 0.2s;
+                                text-align:center;"
+                         onmouseover="this.style.borderColor='var(--accent)'"
+                         onmouseout="this.style.borderColor='var(--border)'">
+                        <div style="font-size:2.2em; margin-bottom:12px;">📄</div>
+                        <div style="font-weight:700; color:var(--text-primary); margin-bottom:6px;">Upload Resume</div>
+                        <div style="font-size:0.85em; color:var(--text-secondary); line-height:1.5;">
+                            PDF or paste text. Claude reads it and builds your profile automatically.
+                        </div>
+                        <div style="margin-top:14px; font-size:0.78em; color:var(--accent); font-weight:600;">
+                            RECOMMENDED — Fastest setup
+                        </div>
+                    </div>
+
+                    <div onclick="wizardChooseManual()" id="card-manual"
+                         style="background:var(--bg-elevated); border:2px solid var(--border);
+                                border-radius:12px; padding:28px; cursor:pointer; transition:all 0.2s;
+                                text-align:center;"
+                         onmouseover="this.style.borderColor='var(--accent)'"
+                         onmouseout="this.style.borderColor='var(--border)'">
+                        <div style="font-size:2.2em; margin-bottom:12px;">✍️</div>
+                        <div style="font-weight:700; color:var(--text-primary); margin-bottom:6px;">Start Fresh</div>
+                        <div style="font-size:0.85em; color:var(--text-secondary); line-height:1.5;">
+                            Build your profile step by step. Good if you don't have a resume handy.
+                        </div>
+                    </div>
+                </div>
+
+                <div onclick="wizardChooseImport()"
+                     style="background:var(--bg-elevated); border:2px dashed var(--border);
+                            border-radius:12px; padding:18px 24px; cursor:pointer; transition:all 0.2s;
+                            display:flex; align-items:center; gap:16px; margin-bottom:24px;"
+                     onmouseover="this.style.borderColor='var(--accent)'"
+                     onmouseout="this.style.borderColor='var(--border)'">
+                    <div style="font-size:1.8em;">📂</div>
+                    <div>
+                        <div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">
+                            Import Saved Work Blueprint
+                        </div>
+                        <div style="font-size:0.82em; color:var(--text-secondary);">
+                            Already have a profile JSON? Load it here.
+                        </div>
+                    </div>
+                    <input type="file" id="wizardImportFile" accept=".json" style="display:none"
+                           onchange="wizardImportProfile(event)">
+                </div>
+
+                <p style="text-align:center; font-size:0.8em; color:var(--text-muted); margin-top:8px;">
+                    🔒 Your data never leaves your browser. No account required. You own everything.
+                </p>
+            `;
+        }
+
+        function wizardChooseUpload() {
+            wizardState.entryMode = 'upload';
+            wizardNext();
+        }
+
+        function wizardChooseManual() {
+            wizardState.entryMode = 'manual';
+            // Skip parsing step - go straight to profile
+            wizardState.step = 4;
+            renderWizardStep();
+        }
+
+        function wizardChooseImport() {
+            document.getElementById('wizardImportFile').click();
+        }
+
+        function wizardImportProfile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    userData = { ...imported, initialized: true };
+                    saveUserData();
+                    closeWizard();
+                    location.reload();
+                } catch(err) {
+                    alert('Error reading file: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // ── STEP 2: Resume input ──────────────────────────────────────────────
+
+        function renderWizardStep2(el) {
+            el.innerHTML = `
+                ${wizardHeading('📄', 'Add Your Resume',
+                    'Paste your resume text below, or upload a PDF. Claude will read it and extract your skills, experience, and outcomes automatically.')}
+
+                <div style="background:var(--bg-elevated); border:1px solid var(--border);
+                            border-radius:14px; padding:24px; margin-bottom:20px;">
+                    <div style="display:flex; gap:8px; margin-bottom:16px;">
+                        <button onclick="wizardSetResumeTab('paste')" id="rtab-paste"
+                                style="padding:7px 16px; border-radius:7px; border:none; cursor:pointer;
+                                       background:var(--accent); color:#fff; font-size:0.85em; font-weight:600;">
+                            Paste Text
+                        </button>
+                        <button onclick="wizardSetResumeTab('linkedin')" id="rtab-linkedin"
+                                style="padding:7px 16px; border-radius:7px; border:1px solid var(--border);
+                                       background:var(--input-bg); color:var(--text-secondary);
+                                       cursor:pointer; font-size:0.85em;">
+                            LinkedIn Text
+                        </button>
+                    </div>
+
+                    <div id="rtab-paste-content">
+                        <textarea id="wizardResumeText" placeholder="Paste your full resume here — the more detail, the better the profile Claude builds for you.
+
+Include: job titles, companies, dates, responsibilities, achievements, metrics, skills, education, certifications..."
+                                  style="width:100%; min-height:280px; background:var(--input-bg);
+                                         border:1px solid var(--border); border-radius:8px; padding:14px;
+                                         color:var(--text-primary); font-size:0.88em; line-height:1.7;
+                                         font-family:inherit; resize:vertical; outline:none;
+                                         transition:border-color 0.2s;"
+                                  onfocus="this.style.borderColor='var(--accent)'"
+                                  onblur="this.style.borderColor='var(--border)'"
+                                  oninput="wizardCheckResumeReady()">${wizardState.resumeText}</textarea>
+                    </div>
+
+                    <div id="rtab-linkedin-content" style="display:none;">
+                        <p style="color:var(--text-secondary); font-size:0.85em; line-height:1.6; margin-bottom:14px;">
+                            Go to your LinkedIn profile → click <strong>More</strong> → <strong>Save to PDF</strong>,
+                            then paste the text here. Or copy your About section and each job entry manually.
+                        </p>
+                        <textarea id="wizardLinkedInText" placeholder="Paste your LinkedIn profile text here..."
+                                  style="width:100%; min-height:240px; background:var(--input-bg);
+                                         border:1px solid var(--border); border-radius:8px; padding:14px;
+                                         color:var(--text-primary); font-size:0.88em; line-height:1.7;
+                                         font-family:inherit; resize:vertical; outline:none;"
+                                  oninput="wizardCheckResumeReady()"></textarea>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    ${wizardBtn('← Back', 'wizardBack()', 'ghost')}
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <button onclick="wizardSkipParsing()"
+                                style="background:none; border:none; color:var(--text-muted);
+                                       cursor:pointer; font-size:0.82em; text-decoration:underline;">
+                            Skip — enter manually
+                        </button>
+                        <button id="wizardParseBtn" onclick="wizardStartParsing()" disabled
+                                style="background:var(--accent); color:#fff; border:none;
+                                       padding:11px 28px; border-radius:9px; cursor:pointer;
+                                       font-size:0.9em; font-weight:600; opacity:0.5; transition:opacity 0.2s;">
+                            Parse with Claude →
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function wizardSetResumeTab(tab) {
+            const paste = document.getElementById('rtab-paste-content');
+            const li = document.getElementById('rtab-linkedin-content');
+            const btnPaste = document.getElementById('rtab-paste');
+            const btnLi = document.getElementById('rtab-linkedin');
+
+            if (tab === 'paste') {
+                paste.style.display = 'block'; li.style.display = 'none';
+                btnPaste.style.background = 'var(--accent)'; btnPaste.style.color = '#fff';
+                btnPaste.style.border = 'none';
+                btnLi.style.background = 'var(--input-bg)'; btnLi.style.color = 'var(--text-secondary)';
+                btnLi.style.border = '1px solid var(--border)';
+            } else {
+                paste.style.display = 'none'; li.style.display = 'block';
+                btnLi.style.background = 'var(--accent)'; btnLi.style.color = '#fff';
+                btnLi.style.border = 'none';
+                btnPaste.style.background = 'var(--input-bg)'; btnPaste.style.color = 'var(--text-secondary)';
+                btnPaste.style.border = '1px solid var(--border)';
+            }
+        }
+
+        function wizardCheckResumeReady() {
+            const t1 = document.getElementById('wizardResumeText')?.value?.trim() || '';
+            const t2 = document.getElementById('wizardLinkedInText')?.value?.trim() || '';
+            const hasText = t1.length > 50 || t2.length > 50;
+            const btn = document.getElementById('wizardParseBtn');
+            if (btn) {
+                btn.disabled = !hasText;
+                btn.style.opacity = hasText ? '1' : '0.5';
+                btn.style.cursor = hasText ? 'pointer' : 'default';
+            }
+        }
+
+        function wizardSkipParsing() {
+            wizardState.entryMode = 'manual';
+            wizardState.step = 4;
+            renderWizardStep();
+        }
+
+        async function wizardStartParsing() {
+            const t1 = document.getElementById('wizardResumeText')?.value?.trim() || '';
+            const t2 = document.getElementById('wizardLinkedInText')?.value?.trim() || '';
+            wizardState.resumeText = t1 || t2;
+            wizardNext(); // Go to step 3 (parsing/loading)
+            await wizardRunParsing();
+        }
+
+        // ── STEP 3: AI Parsing ────────────────────────────────────────────────
+
+        function renderWizardStep3(el) {
+            el.innerHTML = `
+                <div style="display:flex; flex-direction:column; align-items:center;
+                            justify-content:center; min-height:320px; text-align:center; gap:24px;">
+                    <div id="wizardParsingIcon" style="font-size:3em; animation:spin 2s linear infinite;">⚙️</div>
+                    <div>
+                        <h2 style="color:var(--text-primary); font-size:1.4em; margin-bottom:10px;">
+                            Claude is reading your resume
+                        </h2>
+                        <p id="wizardParsingStatus" style="color:var(--text-secondary); font-size:0.9em;">
+                            Extracting skills, evidence, and outcomes...
+                        </p>
+                    </div>
+                    <div style="width:280px; height:4px; background:var(--border); border-radius:4px; overflow:hidden;">
+                        <div id="wizardParseProgress" style="height:100%; width:0%;
+                                    background:linear-gradient(90deg,var(--accent),#818cf8);
+                                    border-radius:4px; transition:width 0.5s ease;"></div>
+                    </div>
+                    <p style="color:var(--text-muted); font-size:0.8em;">Usually takes 10–20 seconds</p>
+                </div>
+            `;
+        }
+
+        async function wizardRunParsing() {
+            const setStatus = (msg, pct) => {
+                const s = document.getElementById('wizardParsingStatus');
+                const p = document.getElementById('wizardParseProgress');
+                if (s) s.textContent = msg;
+                if (p) p.style.width = pct + '%';
+            };
+
+            try {
+                setStatus('Sending to Claude...', 15);
+
+                const systemPrompt = `You are a professional career analyst. Extract structured profile data from a resume or LinkedIn profile text.
+
+Return ONLY valid JSON in this exact shape — no markdown, no explanation, just the JSON object:
+{
+  "profile": {
+    "name": "Full Name",
+    "currentTitle": "Current Job Title",
+    "location": "City, State or Remote",
+    "email": "",
+    "phone": "",
+    "yearsExperience": 10,
+    "executiveSummary": "2-3 sentence professional summary in first person"
+  },
+  "roles": [
+    { "id": "role1", "name": "Role Name", "years": "2019-Present", "company": "Company Name" }
+  ],
+  "skills": [
+    {
+      "name": "Skill Name",
+      "level": "Mastery|Expert|Advanced|Proficient|Novice",
+      "category": "skill|ability|workstyle|unique",
+      "roles": ["role1"],
+      "key": true,
+      "evidence": [
+        { "description": "What you did", "outcome": "Measurable result or impact" }
+      ]
+    }
+  ],
+  "values": [
+    { "name": "Value Name", "description": "Brief personal description of this value", "selected": true }
+  ],
+  "purpose": "One paragraph purpose statement in first person — what you do, who you help, how you do it differently"
+}
+
+Rules:
+- Extract 15-40 skills. Include technical skills, soft skills, leadership abilities, and unique differentiators.
+- Level guide: Mastery=career-defining expertise (15+ yrs), Expert=deep proficiency (8-15 yrs), Advanced=strong competency (4-8 yrs), Proficient=solid (1-4 yrs), Novice=learning.
+- For each skill, extract 1-3 evidence items from the resume. Outcomes must be specific — include numbers, percentages, dollar amounts wherever present in the text.
+- Infer 4-6 values from the resume's tone, achievements, and career pattern. Make them personal, not generic.
+- Write the purpose statement to be compelling and authentic to this person's actual experience.
+- category="unique" for skills not in standard O*NET taxonomy (industry-specific, rare combinations).`;
+
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 4000,
+                        system: systemPrompt,
+                        messages: [{ role: 'user', content: `Parse this resume:
+
+${wizardState.resumeText}` }]
+                    })
+                });
+
+                setStatus('Structuring your profile data...', 55);
+
+                if (!response.ok) throw new Error(`API error: ${response.status}`);
+                const data = await response.json();
+                const rawText = data.content[0]?.text || '';
+
+                setStatus('Extracting skills and evidence...', 75);
+
+                // Strip markdown fences if present
+                const clean = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+                const parsed = JSON.parse(clean);
+
+                setStatus('Building your Work Blueprint...', 95);
+
+                wizardState.parsedData = parsed;
+                wizardState.profile = parsed.profile || {};
+                wizardState.skills = parsed.skills || [];
+                wizardState.values = (parsed.values || []).map(v => ({ ...v, selected: v.selected !== false }));
+                wizardState.purpose = parsed.purpose || '';
+
+                await new Promise(r => setTimeout(r, 600));
+                setStatus('Done! ✓', 100);
+                await new Promise(r => setTimeout(r, 400));
+
+                wizardState.step = 4;
+                renderWizardStep();
+
+            } catch (err) {
+                console.error('Parsing error:', err);
+                const el = document.getElementById('wizardParsingIcon');
+                if (el) el.style.animation = 'none';
+                const status = document.getElementById('wizardParsingStatus');
+                if (status) status.innerHTML = `
+                    <span style="color:var(--danger);">
+                        Parsing failed: ${err.message}<br><br>
+                    </span>
+                    <button onclick="wizardState.step=2; renderWizardStep();"
+                            style="background:var(--accent); color:#fff; border:none; padding:9px 20px;
+                                   border-radius:7px; cursor:pointer; font-size:0.85em; margin-right:10px;">
+                        ← Try Again
+                    </button>
+                    <button onclick="wizardSkipParsing()"
+                            style="background:var(--input-bg); color:var(--text-primary); border:1px solid var(--border);
+                                   padding:9px 20px; border-radius:7px; cursor:pointer; font-size:0.85em;">
+                        Enter Manually
+                    </button>
+                `;
+            }
+        }
+
+        // ── STEP 4: Profile review ─────────────────────────────────────────────
+
+        function renderWizardStep4(el) {
+            const p = wizardState.profile;
+            const isFromResume = !!wizardState.parsedData;
+
+            el.innerHTML = `
+                ${wizardHeading(isFromResume ? '✅' : '👤', 
+                    isFromResume ? 'Review Your Profile' : 'Your Profile',
+                    isFromResume ? 'Claude extracted this from your resume. Review and correct anything that's off.' 
+                                 : 'Fill in your basic information to get started.')}
+
+                <div style="background:var(--bg-elevated); border:1px solid var(--border);
+                            border-radius:14px; padding:24px; margin-bottom:20px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                        ${wizardField('Full Name', 'wizardName', p.name || '', 'e.g. Alex Johnson')}
+                        ${wizardField('Current Title', 'wizardTitle', p.currentTitle || '', 'e.g. VP of Engineering')}
+                        ${wizardField('Location', 'wizardLocation', p.location || '', 'e.g. Austin, TX / Remote')}
+                        ${wizardField('Email', 'wizardEmail', p.email || '', 'your@email.com')}
+                        ${wizardField('Years of Experience', 'wizardYears', p.yearsExperience || '', 'e.g. 15')}
+                        ${wizardField('Phone (optional)', 'wizardPhone', p.phone || '', '')}
+                    </div>
+                    <div style="margin-top:16px;">
+                        <label style="display:block; font-size:0.82em; font-weight:600;
+                                      color:var(--text-secondary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">
+                            Professional Summary
+                        </label>
+                        <textarea id="wizardSummary" placeholder="A 2-3 sentence summary of who you are professionally..."
+                                  style="width:100%; min-height:100px; background:var(--input-bg);
+                                         border:1px solid var(--border); border-radius:8px; padding:12px;
+                                         color:var(--text-primary); font-size:0.9em; line-height:1.6;
+                                         font-family:inherit; resize:vertical; outline:none;"
+                                  onfocus="this.style.borderColor='var(--accent)'"
+                                  onblur="this.style.borderColor='var(--border)'">${p.executiveSummary || ''}</textarea>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between;">
+                    ${wizardBtn('← Back', wizardState.entryMode === 'manual' ? 'wizardBack()' : 'wizardBack()', 'ghost')}
+                    ${wizardBtn('Continue → Skills', 'wizardSaveProfile()', 'primary')}
+                </div>
+            `;
+        }
+
+        function wizardField(label, id, value, placeholder) {
+            return `<div>
+                <label style="display:block; font-size:0.82em; font-weight:600;
+                              color:var(--text-secondary); margin-bottom:6px;
+                              text-transform:uppercase; letter-spacing:0.04em;">
+                    ${label}
+                </label>
+                <input id="${id}" type="text" value="${(value || '').replace(/"/g, '&quot;')}"
+                       placeholder="${placeholder}"
+                       style="width:100%; padding:10px 12px; background:var(--input-bg);
+                              border:1px solid var(--border); border-radius:8px;
+                              color:var(--text-primary); font-size:0.9em; outline:none;
+                              transition:border-color 0.2s; font-family:inherit;"
+                       onfocus="this.style.borderColor='var(--accent)'"
+                       onblur="this.style.borderColor='var(--border)'">
+            </div>`;
+        }
+
+        function wizardSaveProfile() {
+            wizardState.profile = {
+                name: document.getElementById('wizardName')?.value?.trim() || '',
+                currentTitle: document.getElementById('wizardTitle')?.value?.trim() || '',
+                location: document.getElementById('wizardLocation')?.value?.trim() || '',
+                email: document.getElementById('wizardEmail')?.value?.trim() || '',
+                phone: document.getElementById('wizardPhone')?.value?.trim() || '',
+                yearsExperience: parseInt(document.getElementById('wizardYears')?.value) || 0,
+                executiveSummary: document.getElementById('wizardSummary')?.value?.trim() || ''
+            };
+
+            if (!wizardState.profile.name) {
+                alert('Please enter your name to continue.');
+                document.getElementById('wizardName')?.focus();
+                return;
+            }
+            wizardNext();
+        }
+
+        // ── STEP 5: Skills review ──────────────────────────────────────────────
+
+        function renderWizardStep5(el) {
+            const skills = wizardState.skills;
+            const isFromResume = skills.length > 0;
+            const levelColors = { Mastery:'#ef4444', Expert:'#f97316', Advanced:'#f59e0b', Proficient:'#10b981', Novice:'#6b7280' };
+
+            el.innerHTML = `
+                ${wizardHeading('🗺️',
+                    isFromResume ? `${skills.length} Skills Extracted` : 'Your Skills',
+                    isFromResume ? 'Claude identified these from your resume. Toggle any off you don't want to include. You can add more later.'
+                                 : 'Add your key skills. You can build this out further after setup.')}
+
+                ${isFromResume ? `
+                <div style="background:var(--bg-elevated); border:1px solid var(--border);
+                            border-radius:14px; padding:20px; margin-bottom:20px; max-height:420px; overflow-y:auto;">
+                    ${skills.map((s, i) => `
+                        <div style="display:flex; align-items:center; gap:12px; padding:10px 0;
+                                    border-bottom:1px solid var(--border);">
+                            <input type="checkbox" id="skill-check-${i}" checked
+                                   style="width:16px; height:16px; cursor:pointer; accent-color:var(--accent);">
+                            <div style="width:10px; height:10px; border-radius:50%; flex-shrink:0;
+                                        background:${levelColors[s.level] || '#6b7280'};"></div>
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">
+                                    ${s.name}
+                                </div>
+                                <div style="font-size:0.78em; color:var(--text-muted);">
+                                    ${s.level} · ${s.evidence?.length || 0} evidence items
+                                </div>
+                            </div>
+                            <span style="font-size:0.75em; padding:3px 9px; border-radius:10px;
+                                         background:var(--chip-bg); color:var(--text-secondary);">
+                                ${s.level}
+                            </span>
+                        </div>
+                    `).join('')}
+                </div>
+                <p style="font-size:0.82em; color:var(--text-muted); margin-bottom:20px;">
+                    Uncheck skills you want to exclude. You can add, edit, and add evidence to all skills after setup.
+                </p>
+                ` : `
+                <div style="background:var(--bg-elevated); border:2px dashed var(--border);
+                            border-radius:14px; padding:32px; text-align:center; margin-bottom:20px;">
+                    <p style="color:var(--text-secondary); margin-bottom:16px;">
+                        Skills are best built from your resume. You can add them manually in the Skills tab after setup.
+                    </p>
+                    <p style="color:var(--text-muted); font-size:0.85em;">
+                        The system includes 90+ O*NET standard skills you can browse and add.
+                    </p>
+                </div>
+                `}
+
+                <div style="display:flex; justify-content:space-between;">
+                    ${wizardBtn('← Back', 'wizardBack()', 'ghost')}
+                    ${wizardBtn('Continue → Values', 'wizardSaveSkills()', 'primary')}
+                </div>
+            `;
+        }
+
+        function wizardSaveSkills() {
+            // Filter to only checked skills
+            wizardState.skills = wizardState.skills.filter((s, i) => {
+                const cb = document.getElementById(`skill-check-${i}`);
+                return !cb || cb.checked;
+            });
+            wizardNext();
+        }
+
+        // ── STEP 6: Values ────────────────────────────────────────────────────
+
+        function renderWizardStep6(el) {
+            const vals = wizardState.values.length > 0 ? wizardState.values : [
+                { name: 'Intellectual Integrity', description: 'Evidence-based decisions. Challenge assumptions before accepting conclusions.', selected: true },
+                { name: 'Outcome-Focused', description: 'Judge by impact delivered, not activity performed.', selected: true },
+                { name: 'Continuous Learning', description: 'Seek disconfirming evidence. Update beliefs when data changes.', selected: true },
+                { name: 'Authentic Leadership', description: 'Lead with transparency and truth.', selected: false },
+                { name: 'Customer-Centric', description: 'Solve real problems. Understand needs before building.', selected: false },
+                { name: 'Innovation', description: 'Find better ways. Challenge the status quo with purpose.', selected: false }
+            ];
+            wizardState.values = vals;
+
+            const isFromResume = !!wizardState.parsedData;
+
+            el.innerHTML = `
+                ${wizardHeading('💡',
+                    'Your Professional Values',
+                    isFromResume ? 'Claude inferred these from your career history. Select the ones that feel true. You can edit descriptions to make them personal.'
+                                 : 'Select the values that define how you work. These appear in your Work Blueprint.')}
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px;">
+                    ${vals.map((v, i) => `
+                        <div onclick="wizardToggleValue(${i})" id="val-card-${i}"
+                             style="background:var(--bg-elevated);
+                                    border:2px solid ${v.selected ? 'var(--accent)' : 'var(--border)'};
+                                    border-radius:10px; padding:14px; cursor:pointer; transition:all 0.18s;
+                                    ${v.selected ? 'background:var(--accent-glow);' : ''}">
+                            <div style="display:flex; align-items:start; gap:10px;">
+                                <div style="width:18px; height:18px; border-radius:4px; flex-shrink:0; margin-top:2px;
+                                            background:${v.selected ? 'var(--accent)' : 'var(--input-bg)'};
+                                            border:2px solid ${v.selected ? 'var(--accent)' : 'var(--border)'};
+                                            display:flex; align-items:center; justify-content:center;
+                                            color:#fff; font-size:11px;">
+                                    ${v.selected ? '✓' : ''}
+                                </div>
+                                <div style="flex:1;">
+                                    <div style="font-weight:700; color:var(--text-primary); font-size:0.88em;
+                                                margin-bottom:4px;">${v.name}</div>
+                                    <div style="font-size:0.78em; color:var(--text-secondary);
+                                                line-height:1.4;">${v.description}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    ${wizardBtn('← Back', 'wizardBack()', 'ghost')}
+                    <div>
+                        <span style="font-size:0.82em; color:var(--text-muted); margin-right:16px;">
+                            ${vals.filter(v=>v.selected).length} selected
+                        </span>
+                        ${wizardBtn('Continue → Purpose', 'wizardSaveValues()', 'primary')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function wizardToggleValue(i) {
+            wizardState.values[i].selected = !wizardState.values[i].selected;
+            // Re-render step without full wizard rebuild
+            const card = document.getElementById(`val-card-${i}`);
+            const v = wizardState.values[i];
+            if (card) {
+                card.style.borderColor = v.selected ? 'var(--accent)' : 'var(--border)';
+                card.style.background = v.selected ? 'var(--accent-glow)' : 'var(--bg-elevated)';
+                const check = card.querySelector('div > div > div:first-child');
+                if (check) {
+                    check.style.background = v.selected ? 'var(--accent)' : 'var(--input-bg)';
+                    check.style.borderColor = v.selected ? 'var(--accent)' : 'var(--border)';
+                    check.textContent = v.selected ? '✓' : '';
+                }
+            }
+            // Update count
+            const countEl = document.querySelector('[style*="0.82em"][style*="var(--text-muted)"][style*="margin-right"]');
+            if (countEl) countEl.textContent = wizardState.values.filter(v=>v.selected).length + ' selected';
+        }
+
+        function wizardSaveValues() {
+            wizardNext();
+        }
+
+        // ── STEP 7: Purpose ───────────────────────────────────────────────────
+
+        function renderWizardStep7(el) {
+            const purpose = wizardState.purpose;
+            const isFromResume = !!wizardState.parsedData;
+
+            el.innerHTML = `
+                ${wizardHeading('✍️',
+                    'Your Purpose Statement',
+                    isFromResume ? 'Claude drafted this from your resume. This is often the hardest thing to write about yourself — edit it until it sounds like you.'
+                                 : 'Write a brief statement about what you do, who you help, and what makes your approach distinctive.')}
+
+                <div style="background:var(--bg-elevated); border:1px solid var(--border);
+                            border-radius:14px; padding:24px; margin-bottom:20px;">
+                    <textarea id="wizardPurpose"
+                              placeholder="I help [who] achieve [what] through [how]. I bring [distinctive quality] that enables [specific outcome]..."
+                              style="width:100%; min-height:160px; background:var(--input-bg);
+                                     border:1px solid var(--border); border-radius:8px; padding:14px;
+                                     color:var(--text-primary); font-size:0.95em; line-height:1.7;
+                                     font-family:inherit; resize:vertical; outline:none;"
+                              onfocus="this.style.borderColor='var(--accent)'"
+                              onblur="this.style.borderColor='var(--border)'">${purpose}</textarea>
+
+                    ${isFromResume ? `
+                    <button onclick="wizardRegeneratePurpose()"
+                            style="margin-top:12px; background:none; border:1px solid var(--border);
+                                   border-radius:7px; padding:7px 14px; color:var(--text-secondary);
+                                   cursor:pointer; font-size:0.82em; transition:all 0.18s;"
+                            onmouseover="this.style.borderColor='var(--accent)'; this.style.color='var(--accent)'"
+                            onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-secondary)'">
+                        ↺ Regenerate with Claude
+                    </button>` : ''}
+                </div>
+
+                <div style="background:var(--accent-glow); border:1px solid var(--border);
+                            border-radius:10px; padding:16px; margin-bottom:24px;">
+                    <div style="font-size:0.82em; color:var(--text-secondary); line-height:1.6;">
+                        <strong style="color:var(--accent);">💡 What makes a strong purpose statement:</strong><br>
+                        Specific about who you help · Describes real outcomes, not activities · Reflects your actual approach · Sounds like a person, not a job description
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between;">
+                    ${wizardBtn('← Back', 'wizardBack()', 'ghost')}
+                    ${wizardBtn('Continue → Finish', 'wizardSavePurpose()', 'primary')}
+                </div>
+            `;
+        }
+
+        async function wizardRegeneratePurpose() {
+            const btn = event.target.closest('button');
+            if (btn) { btn.textContent = '⟳ Regenerating...'; btn.disabled = true; }
+
+            try {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 300,
+                        messages: [{
+                            role: 'user',
+                            content: `Write a 2-3 sentence professional purpose statement for this person. Make it specific, human, and authentic — not generic corporate speak. Return only the statement, no preamble.
+
+Name: ${wizardState.profile.name}
+Title: ${wizardState.profile.currentTitle}
+Top skills: ${wizardState.skills.slice(0,8).map(s=>s.name).join(', ')}
+Values: ${wizardState.values.filter(v=>v.selected).map(v=>v.name).join(', ')}
+Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).map(e=>e.outcome).filter(Boolean).join(' | ')}`
+                        }]
+                    })
+                });
+                const data = await response.json();
+                const newPurpose = data.content[0]?.text?.trim() || '';
+                if (newPurpose) {
+                    wizardState.purpose = newPurpose;
+                    const ta = document.getElementById('wizardPurpose');
+                    if (ta) ta.value = newPurpose;
+                }
+            } catch(err) {
+                console.error('Regenerate error:', err);
+            }
+
+            if (btn) { btn.textContent = '↺ Regenerate with Claude'; btn.disabled = false; }
+        }
+
+        function wizardSavePurpose() {
+            wizardState.purpose = document.getElementById('wizardPurpose')?.value?.trim() || '';
+            wizardNext();
+        }
+
+        // ── STEP 8: Complete ──────────────────────────────────────────────────
+
+        function renderWizardStep8(el) {
+            const skillCount = wizardState.skills.length;
+            const valueCount = wizardState.values.filter(v => v.selected).length;
+            const evidenceCount = wizardState.skills.reduce((n, s) => n + (s.evidence?.length || 0), 0);
+
+            el.innerHTML = `
+                ${wizardHeading('🎉', 'Your Work Blueprint is Ready',
+                    'Here's what we built together. Download your profile to save it, then explore your full dashboard.')}
+
+                <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px;">
+                    ${[
+                        ['🗺️', skillCount, 'Skills'],
+                        ['📋', evidenceCount, 'Evidence Items'],
+                        ['💡', valueCount, 'Values']
+                    ].map(([icon, n, label]) => `
+                        <div style="background:var(--bg-elevated); border:1px solid var(--border);
+                                    border-radius:12px; padding:20px; text-align:center;">
+                            <div style="font-size:1.8em; margin-bottom:6px;">${icon}</div>
+                            <div style="font-size:1.8em; font-weight:800; color:var(--accent); line-height:1;">${n}</div>
+                            <div style="font-size:0.82em; color:var(--text-secondary); margin-top:4px;">${label}</div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div style="background:var(--bg-elevated); border:1px solid var(--border);
+                            border-radius:14px; padding:22px; margin-bottom:20px;">
+                    <div style="font-weight:700; color:var(--text-primary); margin-bottom:12px; font-size:0.95em;">
+                        ${wizardState.profile.name || 'Your'} · ${wizardState.profile.currentTitle || ''}
+                    </div>
+                    ${wizardState.purpose ? `
+                    <p style="color:var(--text-secondary); font-size:0.88em; line-height:1.7; margin-bottom:14px;
+                               font-style:italic; border-left:3px solid var(--accent); padding-left:14px;">
+                        "${wizardState.purpose}"
+                    </p>` : ''}
+                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                        ${wizardState.values.filter(v=>v.selected).slice(0,5).map(v =>
+                            `<span style="background:var(--chip-bg); border:1px solid var(--border);
+                                          padding:4px 10px; border-radius:10px; font-size:0.78em;
+                                          color:var(--text-secondary);">${v.name}</span>`
+                        ).join('')}
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px;">
+                    <button onclick="wizardDownloadAndLaunch()"
+                            style="flex:1; background:var(--accent); color:#fff; border:none;
+                                   padding:14px 24px; border-radius:10px; cursor:pointer;
+                                   font-size:0.95em; font-weight:700; min-width:200px;">
+                        💾 Save Profile & Go to Dashboard
+                    </button>
+                    <button onclick="wizardLaunchOnly()"
+                            style="background:var(--input-bg); color:var(--text-primary); border:1px solid var(--border);
+                                   padding:14px 20px; border-radius:10px; cursor:pointer; font-size:0.88em;">
+                        Explore Dashboard →
+                    </button>
+                </div>
+
+                <p style="text-align:center; font-size:0.8em; color:var(--text-muted);">
+                    Your profile is stored in your browser. Download the JSON file to back it up or use it on another device.
+                </p>
+            `;
+        }
+
+        function wizardBuildUserData() {
+            return {
+                initialized: true,
+                templateId: 'wizard-built',
+                profile: {
+                    ...wizardState.profile,
+                    headline: `${wizardState.profile.currentTitle || ''} · ${wizardState.profile.yearsExperience || ''}+ Years`
+                },
+                skills: wizardState.skills.map(s => ({
+                    ...s,
+                    roles: s.roles || [],
+                    key: s.key || false,
+                    onetId: s.onetId || null
+                })),
+                roles: (wizardState.parsedData?.roles || []).map((r, i) => ({
+                    id: r.id || `role${i+1}`,
+                    name: r.name || r.company || `Role ${i+1}`,
+                    color: ['#ef4444','#f97316','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899'][i % 7]
+                })),
+                values: wizardState.values,
+                purpose: wizardState.purpose,
+                preferences: { seniorityLevel: 'Senior', minimumMatchScore: 60, minimumSkillMatches: 3 },
+                applications: []
+            };
+        }
+
+        function wizardDownloadAndLaunch() {
+            const built = wizardBuildUserData();
+            // Download JSON
+            const blob = new Blob([JSON.stringify(built, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `work-blueprint-${(built.profile.name || 'profile').toLowerCase().replace(/\s+/g,'-')}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            // Apply and launch
+            wizardApplyAndLaunch(built);
+        }
+
+        function wizardLaunchOnly() {
+            wizardApplyAndLaunch(wizardBuildUserData());
+        }
+
+        function wizardApplyAndLaunch(built) {
+            userData = built;
+            userData.initialized = true;
+            localStorage.setItem('currentProfile', 'wizard-built');
+
+            // Store wizard profile in templates so it loads on reload
+            templates['wizard-built'] = built;
+
+            closeWizard();
+            // Re-initialize the app with new data
+            skillsData.skills = userData.skills || [];
+            skillsData.roles = userData.roles || [];
+            skillsData.skillDetails = {};
+            renderFilterChips();
+            updateProfileChip(userData.profile.name || 'My Profile');
+            // Reset tab initialization flags so they re-render with new data
+            window.blueprintInitialized = false;
+            window.opportunitiesInitialized = false;
+            window.applicationsInitialized = false;
+            window.consentInitialized = false;
+            initNetwork();
         }
         
         // Initialize main app with user data
