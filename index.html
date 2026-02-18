@@ -13,14 +13,306 @@
             box-sizing: border-box;
         }
         
+        /* ===== LEFT RAIL LAYOUT ===== */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
             background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
             color: #e0e0e0;
             overflow-x: hidden;
+            display: flex;
+            min-height: 100vh;
         }
         
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: rgba(15, 15, 30, 0.95);
+            border-right: 1px solid rgba(96, 165, 250, 0.2);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-brand {
+            padding: 20px;
+            border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+        }
+        
+        .sidebar-brand h2 {
+            color: #60a5fa;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        
+        /* Profile Card in Sidebar */
+        .sidebar-profile {
+            padding: 20px;
+            border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .profile-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2em;
+            color: #fff;
+        }
+        
+        .profile-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .profile-name {
+            font-weight: 600;
+            color: #fff;
+            font-size: 0.95em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .profile-title {
+            color: #9ca3af;
+            font-size: 0.8em;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .profile-value {
+            color: #10b981;
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-top: 4px;
+        }
+        
+        /* Navigation */
+        .sidebar-nav {
+            padding: 10px;
+        }
+        
+        .nav-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            color: #9ca3af;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 0.95em;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .nav-item:hover {
+            background: rgba(96, 165, 250, 0.1);
+            color: #60a5fa;
+        }
+        
+        .nav-item.active {
+            background: rgba(96, 165, 250, 0.15);
+            color: #60a5fa;
+            font-weight: 500;
+        }
+        
+        .nav-icon {
+            font-size: 1.2em;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .nav-label {
+            flex: 1;
+        }
+        
+        /* Sidebar Sections */
+        .sidebar-section {
+            border-top: 1px solid rgba(96, 165, 250, 0.1);
+            padding: 10px;
+        }
+        
+        .sidebar-admin {
+            margin-top: auto;
+            background: rgba(15, 15, 30, 0.5);
+        }
+        
+        .section-toggle {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #9ca3af;
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .section-toggle:hover {
+            background: rgba(96, 165, 250, 0.05);
+            color: #60a5fa;
+        }
+        
+        .toggle-icon {
+            transition: transform 0.3s;
+            font-size: 0.8em;
+        }
+        
+        .toggle-icon.rotated {
+            transform: rotate(-90deg);
+        }
+        
+        .section-content {
+            padding: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+            transition: all 0.3s;
+        }
+        
+        .section-content.collapsed {
+            max-height: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .sidebar-action-btn {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(96, 165, 250, 0.1);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            color: #60a5fa;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s;
+        }
+        
+        .sidebar-action-btn:hover {
+            background: rgba(96, 165, 250, 0.2);
+            border-color: rgba(96, 165, 250, 0.5);
+        }
+        
+        /* Mobile Header */
+        .mobile-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(15, 15, 30, 0.95);
+            border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+            padding: 0 16px;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 999;
+        }
+        
+        .hamburger-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .hamburger-btn span {
+            width: 24px;
+            height: 2px;
+            background: #60a5fa;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        
+        #mobileTitle {
+            color: #60a5fa;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .content-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+            background: rgba(15, 15, 30, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #viewTitle {
+            color: #60a5fa;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+        
+        .content-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .mobile-header {
+                display: flex;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                margin-top: 60px;
+            }
+        }
+        
+        /* ===== LEGACY STYLES (Keep for compatibility) ===== */
         .header {
+            display: none; /* Hidden in new layout */
             background: rgba(26, 26, 46, 0.8);
             border-bottom: 1px solid rgba(96, 165, 250, 0.2);
             padding: 20px 30px;
@@ -2086,36 +2378,93 @@
 </head>
 <body>
     <div class="header">
-        <div class="header-left">
-            <h1><span id="userName">Your</span> Work Blueprint</h1>
-            <div class="subtitle">
-                <span id="statsBar">Loading...</span>
+    <!-- LEFT SIDEBAR NAVIGATION -->
+    <aside id="sidebar" class="sidebar">
+        <!-- Logo/Brand -->
+        <div class="sidebar-brand">
+            <h2>📊 Work Blueprint</h2>
+        </div>
+        
+        <!-- Profile Card -->
+        <div class="sidebar-profile" id="sidebarProfile">
+            <div class="profile-avatar">
+                <div id="profileInitials">--</div>
+            </div>
+            <div class="profile-info">
+                <div class="profile-name" id="sidebarName">Loading...</div>
+                <div class="profile-title" id="sidebarTitle">Loading...</div>
+                <div class="profile-value" id="sidebarValue">$0</div>
             </div>
         </div>
-        <div class="header-right" style="position: relative;">
-            <!-- Profile Selector (Admin) - Populated dynamically from manifest -->
-            <div style="margin-bottom: 10px; padding: 8px 12px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); border-radius: 6px; border: 2px solid #60a5fa;">
-                <label style="color: #fff; font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">📋 ADMIN: Profile</label>
-                <select id="profileSelector" onchange="switchProfile(this.value)" style="width: 100%; padding: 6px 10px; border: 1px solid #60a5fa; border-radius: 4px; background: #0f172a; color: #fff; font-size: 14px; font-weight: 500; cursor: pointer;">
-                    <!-- Options populated dynamically from profiles-manifest.json -->
+        
+        <!-- Main Navigation -->
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <button class="nav-item active" onclick="switchView('skills', event)" data-view="skills">
+                    <span class="nav-icon">🎯</span>
+                    <span class="nav-label">Skills</span>
+                </button>
+                <button class="nav-item" onclick="switchView('jobs', event)" data-view="jobs">
+                    <span class="nav-icon">💼</span>
+                    <span class="nav-label">Jobs</span>
+                </button>
+                <button class="nav-item" onclick="switchView('applications', event)" data-view="applications">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-label">Applications</span>
+                </button>
+                <button class="nav-item" onclick="switchView('blueprint', event)" data-view="blueprint">
+                    <span class="nav-icon">📝</span>
+                    <span class="nav-label">Work Blueprint</span>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Collapsible Filters Section -->
+        <div class="sidebar-section">
+            <button class="section-toggle" onclick="toggleSidebarSection('filters')">
+                <span>🔍 Filters</span>
+                <span class="toggle-icon" id="filtersToggle">▼</span>
+            </button>
+            <div class="section-content" id="filtersSection">
+                <!-- Filters will be populated here -->
+            </div>
+        </div>
+        
+        <!-- Admin Section -->
+        <div class="sidebar-section sidebar-admin">
+            <button class="section-toggle" onclick="toggleSidebarSection('admin')">
+                <span>⚙️ Admin</span>
+                <span class="toggle-icon" id="adminToggle">▼</span>
+            </button>
+            <div class="section-content collapsed" id="adminSection">
+                <label style="color: #9ca3af; font-size: 11px; text-transform: uppercase; margin-bottom: 4px; display: block;">Switch Profile</label>
+                <select id="profileSelector" onchange="switchProfile(this.value)" style="width: 100%; padding: 6px 10px; border: 1px solid #374151; border-radius: 4px; background: #1f2937; color: #fff; font-size: 13px; cursor: pointer;">
+                    <!-- Options populated dynamically -->
                 </select>
+                <button class="sidebar-action-btn" onclick="openExportModal()" style="margin-top: 8px;">
+                    📄 Export Profile
+                </button>
             </div>
-            
-            <div class="view-toggle">
-                <button class="active" onclick="switchView('skills', event)">🎯 Skills</button>
-                <button onclick="switchView('jobs', event)">💼 Jobs</button>
-                <button onclick="switchView('applications', event)">📋 Applications</button>
-                <button onclick="switchView('blueprint', event)">📝 Work Blueprint</button>
-                <button onclick="toggleOverflowMenu(event)" id="overflowMenuBtn">⋯ More</button>
-            </div>
-            <!-- Overflow Menu Dropdown -->
-            <div id="overflowMenu" class="overflow-menu" style="display: none;">
-                <button onclick="switchView('settings', event); closeOverflowMenu();">⚙️ Settings</button>
-                <button onclick="openExportModal(); closeOverflowMenu();">📄 Export Profile</button>
-                <button onclick="generateWorkBlueprint(); closeOverflowMenu();">📝 Generate Work Blueprint</button>
-                <button onclick="switchView('consent'); closeOverflowMenu();">🔒 Consent Settings</button>
-                <button onclick="showHelp(); closeOverflowMenu();">❓ Help</button>
-                <button onclick="showAbout(); closeOverflowMenu();">ℹ️ About</button>
+        </div>
+    </aside>
+    
+    <!-- MOBILE HEADER -->
+    <header class="mobile-header">
+        <button class="hamburger-btn" onclick="toggleSidebar()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <h1 id="mobileTitle">Work Blueprint</h1>
+        <div></div> <!-- Spacer for flex layout -->
+    </header>
+    
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+        <div class="content-header" id="contentHeader">
+            <h1 id="viewTitle">Skills</h1>
+            <div class="content-actions" id="contentActions">
+                <!-- View-specific actions will go here -->
             </div>
         </div>
     </div>
@@ -2694,13 +3043,13 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.4.0 - BUILD 20260218-0600
-        // PREMIUM: 5-Factor Comprehensive Premium Calculation
+        // WORK BLUEPRINT v3.5.0 - BUILD 20260218-0700
+        // UI: Clean Left Rail Navigation + Mobile Responsive
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   WORK BLUEPRINT v3.4.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260218-0600                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   WORK BLUEPRINT v3.5.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260218-0700                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Left Rail Navigation + Mobile Support    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         
         // ===== USER DATA CONFIGURATION =====
@@ -3393,6 +3742,12 @@
             
             saveUserData();
             console.log('✓ Template loaded:', template.templateName);
+            
+            // Update sidebar profile display
+            if (typeof updateSidebarProfile === 'function') {
+                updateSidebarProfile();
+            }
+            
             return true;
         }
         
@@ -4009,12 +4364,75 @@
             } // Close if (userData.initialized)
         }); // Close DOMContentLoaded
         
+        // ===== LEFT RAIL NAVIGATION FUNCTIONS =====
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+        
+        function toggleSidebarSection(sectionId) {
+            const section = document.getElementById(sectionId + 'Section');
+            const toggle = document.getElementById(sectionId + 'Toggle');
+            
+            if (section) {
+                section.classList.toggle('collapsed');
+                if (toggle) {
+                    toggle.classList.toggle('rotated');
+                }
+            }
+        }
+        
+        function updateSidebarProfile() {
+            if (!userData || !userData.profile) return;
+            
+            // Update profile card in sidebar
+            const initials = userData.profile.name
+                .split(' ')
+                .map(n => n[0])
+                .join('')
+                .toUpperCase()
+                .substring(0, 2);
+            
+            document.getElementById('profileInitials').textContent = initials;
+            document.getElementById('sidebarName').textContent = userData.profile.name;
+            document.getElementById('sidebarTitle').textContent = userData.profile.currentTitle || 'Professional';
+            
+            // Update market value
+            const marketValue = calculateTotalMarketValue(userData);
+            document.getElementById('sidebarValue').textContent = `$${Math.round(marketValue.total / 1000)}K`;
+        }
+        
         function switchView(view, event) {
             // Map new view names to existing views
             if (view === 'skills') view = 'network';
             if (view === 'jobs') view = 'opportunities';
             
             currentView = view;
+            
+            // Update sidebar navigation active state
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            if (event && event.target) {
+                const navItem = event.target.closest('.nav-item');
+                if (navItem) navItem.classList.add('active');
+            } else {
+                // If no event, find and activate by data-view
+                const navItem = document.querySelector(`.nav-item[data-view="${view === 'network' ? 'skills' : view}"]`);
+                if (navItem) navItem.classList.add('active');
+            }
+            
+            // Update view title
+            const titles = {
+                'network': 'Skills',
+                'opportunities': 'Jobs',
+                'applications': 'Applications',
+                'blueprint': 'Work Blueprint',
+                'settings': 'Settings',
+                'consent': 'Consent Settings'
+            };
+            document.getElementById('viewTitle').textContent = titles[view] || 'Work Blueprint';
+            
+            // Legacy support for old view toggle
             document.querySelectorAll('.view-toggle button').forEach(btn => btn.classList.remove('active'));
             if (event && event.target) {
                 event.target.classList.add('active');
@@ -4032,16 +4450,21 @@
             document.getElementById('blueprintView').style.display = 'none';
             document.getElementById('consentView').style.display = 'none';
             document.getElementById('settingsView').style.display = 'none';
-            networkControls.style.display = 'none';
-            controls.style.display = 'none';
+            if (networkControls) networkControls.style.display = 'none';
+            if (controls) controls.style.display = 'none';
+            
+            // Close mobile sidebar after navigation
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
             
             // Show selected view
             if (view === 'network') {
                 // Skills Ontology view
-                controls.style.display = 'flex';
+                if (controls) controls.style.display = 'flex';
                 if (currentSkillsView === 'network') {
                     document.getElementById('networkView').style.display = 'block';
-                    networkControls.style.display = 'flex';
+                    if (networkControls) networkControls.style.display = 'flex';
                 } else {
                     document.getElementById('cardView').style.display = 'block';
                 }
