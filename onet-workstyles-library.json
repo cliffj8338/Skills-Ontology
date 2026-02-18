@@ -1,104 +1,175 @@
 {
-  "version": "O*NET 30.1",
-  "source": "U.S. Department of Labor - O*NET Database",
-  "lastUpdated": "2024-Q4",
-  "description": "Personal characteristics that can affect how well someone does a job",
+  "version": "2.0.0",
+  "source": "O*NET 1.D Work Styles Taxonomy (updated Dec 2025)",
+  "count": 21,
   "workStyles": [
     {
-      "id": "achievement-effort",
-      "name": "Achievement/Effort",
-      "definition": "Job requires establishing and maintaining personally challenging achievement goals and exerting effort toward mastering tasks."
-    },
-    {
-      "id": "persistence",
-      "name": "Persistence",
-      "definition": "Job requires persistence in the face of obstacles."
-    },
-    {
-      "id": "initiative",
-      "name": "Initiative",
-      "definition": "Job requires a willingness to take on responsibilities and challenges."
-    },
-    {
-      "id": "leadership",
-      "name": "Leadership",
-      "definition": "Job requires a willingness to lead, take charge, and offer opinions and direction."
-    },
-    {
-      "id": "cooperation",
-      "name": "Cooperation",
-      "definition": "Job requires being pleasant with others on the job and displaying a good-natured, cooperative attitude."
-    },
-    {
-      "id": "concern-for-others",
-      "name": "Concern for Others",
-      "definition": "Job requires being sensitive to others' needs and feelings and being understanding and helpful on the job."
-    },
-    {
-      "id": "social-orientation",
-      "name": "Social Orientation",
-      "definition": "Job requires preferring to work with others rather than alone, and being personally connected with others on the job."
-    },
-    {
-      "id": "self-control",
-      "name": "Self-Control",
-      "definition": "Job requires maintaining composure, keeping emotions in check, controlling anger, and avoiding aggressive behavior, even in very difficult situations."
-    },
-    {
-      "id": "stress-tolerance",
-      "name": "Stress Tolerance",
-      "definition": "Job requires accepting criticism and dealing calmly and effectively with high stress situations."
-    },
-    {
-      "id": "adaptability-flexibility",
-      "name": "Adaptability/Flexibility",
-      "definition": "Job requires being open to change (positive or negative) and to considerable variety in the workplace."
-    },
-    {
-      "id": "dependability",
-      "name": "Dependability",
-      "definition": "Job requires being reliable, responsible, and dependable, and fulfilling obligations."
-    },
-    {
-      "id": "attention-to-detail",
       "name": "Attention to Detail",
-      "definition": "Job requires being careful about detail and thorough in completing work tasks."
+      "description": "A tendency to be detail-oriented, organized, and thorough in completing work.",
+      "onetCode": "1.D.3.b",
+      "group": "Conscientious and Rule Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
     },
     {
-      "id": "integrity",
+      "name": "Cautiousness",
+      "description": "A tendency to be careful, deliberate, and risk-avoidant when making work-related decisions or doing work.",
+      "onetCode": "1.D.3.a",
+      "group": "Conscientious and Rule Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Dependability",
+      "description": "A tendency to be reliable, responsible, and consistent in meeting work-related obligations.",
+      "onetCode": "1.D.3.c",
+      "group": "Conscientious and Rule Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
       "name": "Integrity",
-      "definition": "Job requires being honest and ethical."
+      "description": "A tendency to be honest and ethical at work.",
+      "onetCode": "1.D.3.d",
+      "group": "Conscientious and Rule Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
     },
     {
-      "id": "independence",
-      "name": "Independence",
-      "definition": "Job requires developing one's own ways of doing things, guiding oneself with little or no supervision, and depending on oneself to get things done."
+      "name": "Self-Control",
+      "description": "A tendency to remain calm and composed and to manage emotions effectively in response to criticism or difficult situations at work.",
+      "onetCode": "1.D.4.b",
+      "group": "Emotionally Resilient",
+      "category": "workstyle",
+      "source": "O*NET"
     },
     {
-      "id": "innovation",
+      "name": "Stress Tolerance",
+      "description": "A tendency to cope and function effectively in stressful situations at work.",
+      "onetCode": "1.D.4.a",
+      "group": "Emotionally Resilient",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Cooperation",
+      "description": "A tendency to be pleasant, helpful, and willing to assist others at work.",
+      "onetCode": "1.D.2.d",
+      "group": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Empathy",
+      "description": "A tendency to show concern for others and be sensitive to others' needs and feelings at work.",
+      "onetCode": "1.D.2.c",
+      "group": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Humility",
+      "description": "A tendency to be modest and humble when interacting with others at work.",
+      "onetCode": "1.D.2.a",
+      "group": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Optimism",
+      "description": "A tendency to exhibit a positive attitude and positive emotions at work, even under difficult circumstances.",
+      "onetCode": "1.D.2.e",
+      "group": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Sincerity",
+      "description": "A tendency to be genuine and sincere in interactions with others at work, without concern for personal gain or self-interest.",
+      "onetCode": "1.D.2.b",
+      "group": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Social Orientation",
+      "description": "A tendency to seek out, enjoy, and be energized by social interaction at work.",
+      "onetCode": "1.D.2.f",
+      "group": "Interpersonally Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Achievement Orientation",
+      "description": "A tendency to establish and maintain personally challenging work-related goals, set high work-related standards, and exert high effort toward meeting those goals and standards.",
+      "onetCode": "1.D.1.b",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Adaptability",
+      "description": "A tendency to be open to and comfortable with change, new experiences, or ideas at work.",
+      "onetCode": "1.D.1.f",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Initiative",
+      "description": "A tendency to be proactive and take on extra responsibilities and tasks that may fall outside of one's required work role.",
+      "onetCode": "1.D.1.e",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
       "name": "Innovation",
-      "definition": "Job requires creativity and alternative thinking to develop new ideas for and answers to work-related problems."
+      "description": "A tendency to be inventive, to be imaginative, and to adopt new perspectives on ways to accomplish work.",
+      "onetCode": "1.D.1.a",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
     },
     {
-      "id": "analytical-thinking",
-      "name": "Analytical Thinking",
-      "definition": "Job requires analyzing information and using logic to address work-related issues and problems."
+      "name": "Intellectual Curiosity",
+      "description": "A tendency to seek out and acquire new work-related knowledge and obtain a deep understanding of work-related subjects.",
+      "onetCode": "1.D.1.c",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Leadership Orientation",
+      "description": "A tendency to lead, take charge, offer opinions, and provide direction at work.",
+      "onetCode": "1.D.1.i",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Perseverance",
+      "description": "A tendency to exhibit determination and resolve to perform or complete tasks in the face of difficult circumstances or obstacles at work.",
+      "onetCode": "1.D.1.h",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Self-Confidence",
+      "description": "A tendency to believe in one's work-related capabilities and ability to control one's work-related outcomes.",
+      "onetCode": "1.D.1.g",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
+    },
+    {
+      "name": "Tolerance for Ambiguity",
+      "description": "A tendency to be comfortable with ambiguity and uncertainty at work.",
+      "onetCode": "1.D.1.d",
+      "group": "Proactive and Growth Oriented",
+      "category": "workstyle",
+      "source": "O*NET"
     }
-  ],
-  "aviationCriticalWorkStyles": [
-    "stress-tolerance",
-    "attention-to-detail",
-    "dependability",
-    "self-control",
-    "adaptability-flexibility",
-    "achievement-effort"
-  ],
-  "leadershipWorkStyles": [
-    "leadership",
-    "initiative",
-    "integrity",
-    "concern-for-others",
-    "analytical-thinking",
-    "innovation"
   ]
 }
