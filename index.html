@@ -2093,13 +2093,11 @@
             </div>
         </div>
         <div class="header-right" style="position: relative;">
-            <!-- Profile Selector (Admin) -->
+            <!-- Profile Selector (Admin) - Populated dynamically from manifest -->
             <div style="margin-bottom: 10px; padding: 8px 12px; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); border-radius: 6px; border: 2px solid #60a5fa;">
                 <label style="color: #fff; font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">📋 ADMIN: Profile</label>
                 <select id="profileSelector" onchange="switchProfile(this.value)" style="width: 100%; padding: 6px 10px; border: 1px solid #60a5fa; border-radius: 4px; background: #0f172a; color: #fff; font-size: 14px; font-weight: 500; cursor: pointer;">
-                    <option value="cliff-jones-demo">Cliff Jones (VP Strategy)</option>
-                    <option value="sarah-chen-demo">Sarah Chen (Tech Recruiter)</option>
-                    <option value="mike-rodriguez-demo">Mike Rodriguez (Eng Lead)</option>
+                    <!-- Options populated dynamically from profiles-manifest.json -->
                 </select>
             </div>
             
@@ -2696,13 +2694,13 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.0.6 - BUILD 20260218-0300
-        // Added: Years of Experience to All Skills
+        // WORK BLUEPRINT v3.1.0 - BUILD 20260218-0400
+        // ARCHITECTURE: Dynamic Profile Loading from Manifest
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   WORK BLUEPRINT v3.0.6                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260218-0300                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Added Years of Experience                ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   WORK BLUEPRINT v3.1.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260218-0400                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Manifest-Based Profile Discovery         ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         
         // ===== USER DATA CONFIGURATION =====
@@ -3069,6 +3067,37 @@
         // Check if user has existing profile
         // Removed checkUserProfile - using template-based loading instead
         
+        // Build profile selector dropdown from manifest
+        function buildProfileSelector(profiles) {
+            const selector = document.getElementById('profileSelector');
+            if (!selector) {
+                console.error('Profile selector not found');
+                return;
+            }
+            
+            // Clear existing options
+            selector.innerHTML = '';
+            
+            // Get current profile
+            const currentProfile = localStorage.getItem('currentProfile') || profiles[0]?.id;
+            
+            // Add option for each profile
+            profiles.forEach(profile => {
+                const option = document.createElement('option');
+                option.value = profile.id;
+                option.textContent = `${profile.icon} ${profile.name} (${profile.title})`;
+                
+                // Select current profile
+                if (profile.id === currentProfile) {
+                    option.selected = true;
+                }
+                
+                selector.appendChild(option);
+            });
+            
+            console.log(`✓ Profile selector built with ${profiles.length} options`);
+        }
+        
         // Switch to a different profile (admin functionality)
         function switchProfile(templateId) {
             console.log('🔄 Switching profile to:', templateId);
@@ -3308,30 +3337,40 @@
         
         // Initialize app - check for profile or show welcome
         async function initializeApp() {
-            // Load templates
+            // Load profile manifest and templates dynamically
             try {
-                // Add cache busting to force fresh template loads
                 const cacheBust = `?v=${Date.now()}`;
                 
-                // Load all demo profiles
-                const cliffTemplate = await fetch(`template-cliff-jones-demo.json${cacheBust}`).then(r => r.json());
-                templates['cliff-jones-demo'] = cliffTemplate;
+                // STEP 1: Load profiles manifest
+                console.log('📋 Loading profiles manifest...');
+                const manifest = await fetch(`profiles-manifest.json${cacheBust}`).then(r => r.json());
+                window.profilesManifest = manifest; // Store for profile selector
                 
-                const sarahTemplate = await fetch(`template-sarah-chen-demo.json${cacheBust}`).then(r => r.json());
-                templates['sarah-chen-demo'] = sarahTemplate;
+                // STEP 2: Load all enabled profiles from manifest
+                const enabledProfiles = manifest.profiles.filter(p => p.enabled);
+                console.log(`✓ Found ${enabledProfiles.length} enabled profiles in manifest`);
                 
-                const mikeTemplate = await fetch(`template-mike-rodriguez-demo.json${cacheBust}`).then(r => r.json());
-                templates['mike-rodriguez-demo'] = mikeTemplate;
+                for (const profileMeta of enabledProfiles) {
+                    try {
+                        const template = await fetch(`${profileMeta.filename}${cacheBust}`).then(r => r.json());
+                        templates[profileMeta.id] = template;
+                        console.log(`  ✓ Loaded: ${profileMeta.name} (${profileMeta.title})`);
+                    } catch (err) {
+                        console.error(`  ✗ Failed to load ${profileMeta.filename}:`, err);
+                    }
+                }
                 
+                // STEP 3: Load blank template
                 const blankTemplate = await fetch(`template-blank.json${cacheBust}`).then(r => r.json());
                 templates['blank'] = blankTemplate;
                 
-                console.log('✓ Templates loaded: 3 demo profiles + blank template');
-                console.log('  → Cliff Jones (VP Strategy)');
-                console.log('  → Sarah Chen (Technical Recruiter)');
-                console.log('  → Mike Rodriguez (Engineering Lead)');
+                console.log(`✓ Profile loading complete: ${enabledProfiles.length} profiles ready`);
+                
+                // STEP 4: Build profile selector dropdown
+                buildProfileSelector(enabledProfiles);
+                
             } catch (e) {
-                console.error('Error loading templates:', e);
+                console.error('Error loading profiles:', e);
             }
             
             // Load O*NET skills library
