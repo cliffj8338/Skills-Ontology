@@ -2694,13 +2694,13 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.3.0 - BUILD 20260218-0500
-        // ADDED: Expert Level + Realistic 40-Year Executive Profile
+        // WORK BLUEPRINT v3.4.0 - BUILD 20260218-0600
+        // PREMIUM: 5-Factor Comprehensive Premium Calculation
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   WORK BLUEPRINT v3.3.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260218-0500                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   5-Level System: Novice → Expert → Mastery ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   WORK BLUEPRINT v3.4.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260218-0600                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         
         // ===== USER DATA CONFIGURATION =====
@@ -2781,7 +2781,84 @@
                 roleLevel = 'Entry Level';
             }
             
-            // Step 2: Calculate impact skill distribution
+            // Step 2: Calculate comprehensive premium using 5-factor system
+            
+            // FACTOR 1: Work Styles & Soft Skills (20-30% max)
+            const workStyleSkills = skillsData.skills.filter(s => 
+                s.category === 'workstyle' && (s.level === 'Advanced' || s.level === 'Expert' || s.level === 'Mastery')
+            );
+            const workStylesPct = Math.min((workStyleSkills.length * 0.015), 0.30); // 1.5% per skill, max 30%
+            
+            // FACTOR 2: Evidence Quality (30-40% max)
+            let evidenceScore = 0;
+            skillsData.skills.forEach(skill => {
+                if (skill.evidence && skill.evidence.length > 0) {
+                    skill.evidence.forEach(ev => {
+                        // Has quantified outcome (numbers, %, $)
+                        if (ev.outcome && (ev.outcome.match(/\d+%|\$\d+|[0-9,]+/) || ev.outcome.includes('reduced') || ev.outcome.includes('increased'))) {
+                            evidenceScore += 2; // High-quality evidence
+                        } else if (ev.outcome) {
+                            evidenceScore += 1; // Basic evidence
+                        }
+                    });
+                }
+            });
+            const evidenceQualityPct = Math.min((evidenceScore * 0.005), 0.40); // 0.5% per quality point, max 40%
+            
+            // FACTOR 3: Skill Mix Rarity (15-25% max)
+            let rarityPct = 0;
+            const hasAI = skillsData.skills.some(s => s.name.toLowerCase().includes('ai') || s.name.toLowerCase().includes('machine learning'));
+            const hasPilot = skillsData.skills.some(s => s.name.toLowerCase().includes('aviation') || s.name.toLowerCase().includes('ifr'));
+            const hasStrategy = skillsData.skills.some(s => s.name.toLowerCase().includes('strategic'));
+            const hasTechnical = skillsData.skills.some(s => s.category === 'skill' && s.name.toLowerCase().includes('programming'));
+            const hasLeadership = skillsData.skills.some(s => s.name.toLowerCase().includes('leadership') || s.name.toLowerCase().includes('management'));
+            const hasCreative = skillsData.skills.some(s => s.name.toLowerCase().includes('color') || s.name.toLowerCase().includes('styling') || s.name.toLowerCase().includes('creative'));
+            const hasBehavioral = skillsData.skills.some(s => s.name.toLowerCase().includes('behavioral') || s.name.toLowerCase().includes('economics'));
+            
+            // Rare combinations add premium
+            if (hasPilot && hasStrategy) rarityPct += 0.10; // Very rare: Aviation + Strategy
+            if (hasAI && hasStrategy) rarityPct += 0.05; // Rare: AI + Strategy
+            if (hasTechnical && hasLeadership) rarityPct += 0.05; // Valuable: Tech + Leadership
+            if (hasCreative && hasTechnical) rarityPct += 0.08; // Uncommon: Creative + Technical
+            if (hasBehavioral && hasStrategy) rarityPct += 0.05; // Rare: Behavioral Econ + Strategy
+            rarityPct = Math.min(rarityPct, 0.25); // Max 25%
+            
+            // FACTOR 4: Critical Depth (10-15% max)
+            const masteryInCriticalSkills = skillsData.skills.filter(s => {
+                const impact = getSkillImpact(s);
+                return (s.level === 'Mastery' || s.level === 'Expert') && (impact.level === 'critical' || impact.level === 'high');
+            });
+            const criticalDepthPct = Math.min((masteryInCriticalSkills.length * 0.02), 0.15); // 2% per critical mastery, max 15%
+            
+            // FACTOR 5: Learning & Growth (10-15% max)
+            const noviceSkills = skillsData.skills.filter(s => s.level === 'Novice');
+            const learningPct = Math.min((noviceSkills.length * 0.02), 0.15); // 2% per novice skill (shows growth), max 15%
+            
+            // Total premium percentage
+            const totalPremiumPct = workStylesPct + evidenceQualityPct + rarityPct + criticalDepthPct + learningPct;
+            
+            // Calculate dollar amounts for breakdown
+            const workStylesBonus = Math.round(baseMarketRate * workStylesPct);
+            const evidenceBonus = Math.round(baseMarketRate * evidenceQualityPct);
+            const rarityBonus = Math.round(baseMarketRate * rarityPct);
+            const criticalDepthBonus = Math.round(baseMarketRate * criticalDepthPct);
+            const learningBonus = Math.round(baseMarketRate * learningPct);
+            const premiumAmount = workStylesBonus + evidenceBonus + rarityBonus + criticalDepthBonus + learningBonus;
+            
+            // Step 5: Location adjustment
+            const locationMultiplier = skillValuations?.locationMultipliers?.[userData.profile.location] || 1.0;
+            
+            // Step 3: Location adjustment
+            const locationMultiplier = skillValuations?.locationMultipliers?.[userData.profile.location] || 1.0;
+            
+            const totalValue = Math.round((baseMarketRate + premiumAmount) * locationMultiplier);
+            
+            // Calculate offer ranges
+            const conservativeOffer = Math.round(totalValue * 0.75);
+            const standardOffer = Math.round(totalValue * 0.85);
+            const competitiveOffer = Math.round(totalValue * 0.95);
+            
+            // Build critical/high skills for compatibility
             const criticalSkills = skillsData.skills.filter(s => {
                 const impact = getSkillImpact(s);
                 return impact.level === 'critical';
@@ -2792,51 +2869,7 @@
                 return impact.level === 'high';
             });
             
-            // Step 3: Calculate premiums as PERCENTAGES, not flat amounts
-            // Premium based on % of skills that are critical/high impact
-            
-            const criticalPct = (criticalSkills.length / totalSkills) * 100;
-            const highPct = (highSkills.length / totalSkills) * 100;
-            
-            // Critical skills: 0.5% premium per percentage point (max 30%)
-            let criticalPremiumPct = Math.min((criticalPct * 0.5) / 100, 0.30);
-            
-            // High skills: 0.3% premium per percentage point (max 20%)
-            let highPremiumPct = Math.min((highPct * 0.3) / 100, 0.20);
-            
-            // Step 4: Rare combinations - fixed bonuses (max 15%)
-            const hasAI = skillsData.skills.some(s => s.name.toLowerCase().includes('ai'));
-            const hasPilot = skillsData.skills.some(s => s.name.toLowerCase().includes('pilot') || s.name.toLowerCase().includes('ifr'));
-            const hasExecutive = totalPoints >= 24;
-            
-            let rarityPremiumPct = 0;
-            if (hasPilot && hasExecutive) {
-                rarityPremiumPct += 0.10; // 10% for very rare combination
-            }
-            if (hasAI && hasExecutive) {
-                rarityPremiumPct += 0.05; // 5% for AI+exec
-            }
-            
-            // Total premium percentage (capped at 60%)
-            const totalPremiumPct = Math.min(criticalPremiumPct + highPremiumPct + rarityPremiumPct, 0.60);
-            
-            // Calculate dollar amounts
-            const criticalBonus = Math.round(baseMarketRate * criticalPremiumPct);
-            const highBonus = Math.round(baseMarketRate * highPremiumPct);
-            const rarityBonus = Math.round(baseMarketRate * rarityPremiumPct);
-            const premiumAmount = criticalBonus + highBonus + rarityBonus;
-            
-            // Step 5: Location adjustment
-            const locationMultiplier = skillValuations?.locationMultipliers?.[userData.profile.location] || 1.0;
-            
-            const totalValue = Math.round((baseMarketRate + premiumAmount) * locationMultiplier);
-            
-            // Calculate offer ranges
-            const conservativeOffer = Math.round(totalValue * 0.75);
-            const standardOffer = Math.round(totalValue * 0.85);
-            const competitiveOffer = Math.round(totalValue * 0.95);
-            
-            // Build top10Skills for compatibility (top critical + high impact skills)
+            // Build top10Skills for compatibility
             const top10Skills = [
                 ...criticalSkills.slice(0, 5).map(s => ({ skill: s.name, level: s.level, impact: 'Critical', impactLabel: 'Critical Impact' })),
                 ...highSkills.slice(0, 5).map(s => ({ skill: s.name, level: s.level, impact: 'High', impactLabel: 'High Impact' }))
@@ -2852,9 +2885,17 @@
                 roleLevel: roleLevel,
                 criticalSkills: criticalSkills.map(s => ({ name: s.name, level: s.level })),
                 highSkills: highSkills.map(s => ({ name: s.name, level: s.level })),
-                criticalBonus: criticalBonus,
-                highBonus: highBonus,
+                
+                // NEW: Premium breakdown
+                workStylesBonus: workStylesBonus,
+                evidenceBonus: evidenceBonus,
                 rarityBonus: rarityBonus,
+                criticalDepthBonus: criticalDepthBonus,
+                learningBonus: learningBonus,
+                
+                // Backward compatibility
+                criticalBonus: criticalDepthBonus, // Map to new system
+                highBonus: evidenceBonus, // Map to new system
                 
                 // Backward compatibility fields
                 yourWorth: totalValue,
