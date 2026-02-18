@@ -41,13 +41,20 @@ GitHub Repo: https://github.com/cliffj8338/Skills-Ontology
 
 ## Full Version History (this session Feb 18, 2026)
 
-v3.9.0 — Toast Notifications + Alert Cleanup + Quick Fixes
+v3.9.0 — Toast Notifications + Alert Cleanup + Export Overhaul + Quick Fixes
 - Added toast notification system (showToast/dismissToast) with 4 types: success, error, info, warning
 - Replaced all 43 alert() calls with contextual toast notifications
 - Toast CSS: dark/light theme aware, mobile responsive, auto-dismiss with manual close
+- Export tab redesigned: 5-card layout (Executive Blueprint, Resume, PDF, Clipboard, JSON)
+- Executive Blueprint (HTML) now featured as primary export with prominent card
+- Professional Resume surfaced directly in export tab (was hidden in modal only)
+- PDF generator rebuilt: section headings with blue rules, 2-column skills, market positioning, page footers
+- New copyBlueprintText() generates clean text summary for email/clipboard
+- JSON export now includes full skills+roles data for backup/portability
+- Removed broken base64 shareable link (replaced by clipboard copy)
 - Fixed search placeholder: "2,138+" updated to "13,960+" reflecting ESCO v1.2.1 count
 - Added ESCO + O*NET attribution footer (required by ESCO license)
-- Version bump: console logs updated to v3.9.0
+- Window exposure: generateWorkBlueprint, generateResume, exportBlueprint, copyBlueprintText
 
 v3.8.2 — Trades Button Full Render
 - Clicking Trades button renders all 64 trade skills directly (no search term needed)
@@ -206,6 +213,14 @@ ALL inline styles in JS template literals must use these helpers.
     extractOutcomesFromEvidence()    // Builds blueprintData.outcomes
     inferValues()                    // Populates blueprintData.values
 
+### Export & Sharing
+    renderExportSection()               // 5-card export hub in Blueprint tab
+    generateWorkBlueprint()             // Full HTML Executive Blueprint download
+    generateResume()                    // Traditional resume HTML download
+    generatePDF(data)                   // Improved jsPDF summary (sections, 2-col skills, market val)
+    exportBlueprint(format)             // Handles 'pdf' and 'json' formats
+    copyBlueprintText()                 // Plain text to clipboard for email pasting
+
 ### Toast Notifications
     showToast(message, type, duration)  // type: success|error|info|warning; duration default 4000ms
     dismissToast(id)                    // Programmatic dismiss
@@ -233,6 +248,14 @@ Tab 2: Add Skills (N)
 
 Horizontal sub-nav below Market Valuation:
   Outcomes (N)  |  Values (N selected)  |  Purpose  |  Export
+
+### Export Tab (v3.9.0)
+5-card layout:
+- Executive Blueprint (HTML) — featured, full standalone document with editorial design
+- Professional Resume (HTML) — traditional format, print to PDF
+- PDF Summary — jsPDF with section headings, 2-column skills, market positioning
+- Copy to Clipboard — plain text for email pasting
+- JSON Data — full profile backup including skills, roles, outcomes, values
 
 ---
 

@@ -3575,7 +3575,7 @@
     <script>
         // ============================================================
         // WORK BLUEPRINT v3.9.0 - BUILD 20260218-2300
-        // TOAST NOTIFICATIONS + ALERT CLEANUP + QUICK FIXES
+        // TOAST NOTIFICATIONS + ALERT CLEANUP + EXPORT OVERHAUL
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   WORK BLUEPRINT v3.9.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -7787,26 +7787,85 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
         function renderExportSection() {
             const sharedOutcomes = blueprintData.outcomes.filter(o => o.shared).length;
             const sharedValues = blueprintData.values.filter(v => v.selected).length;
+            const skillCount = (skillsData.skills || []).length;
             
-            return `
-                <div class="export-section">
-                    <div class="export-title">📤 Export Your Work Blueprint</div>
-                    <p style="color: ${tv("#d1d5db","#334155")}; margin-bottom: 20px;">
-                        Sharing: ${sharedOutcomes} outcomes, ${sharedValues} values, purpose statement
-                    </p>
-                    <div class="export-buttons">
-                        <button class="export-btn-large" onclick="exportBlueprint('pdf')">
-                            📄 Export as PDF
-                        </button>
-                        <button class="export-btn-large" onclick="exportBlueprint('json')">
-                            💾 Export as JSON
-                        </button>
-                        <button class="export-btn-large" onclick="exportBlueprint('link')">
-                            🔗 Create Shareable Link
-                        </button>
-                    </div>
-                </div>
-            `;
+            return '<div class="blueprint-section">'
+                + '<div class="blueprint-section-header">'
+                + '<div class="blueprint-section-title">'
+                + '<span class="section-icon">\uD83D\uDCE4</span>'
+                + '<span>Export Your Work Blueprint</span>'
+                + '</div>'
+                + '</div>'
+                + '<div class="coaching-tip">'
+                + '<div class="coaching-tip-title">\uD83D\uDCA1 CHOOSE YOUR FORMAT</div>'
+                + '<div class="coaching-tip-content">'
+                + 'Currently sharing <strong>' + sharedOutcomes + ' outcomes</strong>, '
+                + '<strong>' + sharedValues + ' values</strong>, '
+                + '<strong>' + skillCount + ' skills</strong>, '
+                + 'and your purpose statement. Adjust selections in the Outcomes and Values tabs.'
+                + '</div>'
+                + '</div>'
+                + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px; margin-top:20px;">'
+                // Executive Blueprint card (featured)
+                + '<div style="grid-column:1/-1; background:linear-gradient(135deg, rgba(30,64,175,0.15), rgba(96,165,250,0.1)); border:2px solid ' + tv('rgba(96,165,250,0.4)','rgba(30,64,175,0.3)') + '; border-radius:12px; padding:24px; cursor:pointer;" onclick="generateWorkBlueprint()">'
+                + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">'
+                + '<span style="font-size:1.8em;">\uD83C\uDFAF</span>'
+                + '<div>'
+                + '<div style="font-size:1.15em; font-weight:700; color:' + tv('#60a5fa','#1e40af') + ';">Executive Blueprint</div>'
+                + '<div style="font-size:0.85em; color:' + tv('#9ca3af','#64748b') + ';">Recommended for recruiters and hiring managers</div>'
+                + '</div>'
+                + '</div>'
+                + '<div style="color:' + tv('#d1d5db','#334155') + '; font-size:0.92em; line-height:1.55;">'
+                + 'Standalone HTML document with editorial design. Includes executive summary, top competencies, strategic outcomes, values, compensation framework, and career narrative. Opens in any browser, prints beautifully.'
+                + '</div>'
+                + '<div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">'
+                + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:' + tv('rgba(16,185,129,0.15)','rgba(16,185,129,0.1)') + '; color:#10b981;">HTML</span>'
+                + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:' + tv('rgba(96,165,250,0.15)','rgba(96,165,250,0.1)') + '; color:#60a5fa;">Print to PDF</span>'
+                + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:' + tv('rgba(251,191,36,0.15)','rgba(251,191,36,0.1)') + '; color:#f59e0b;">Email Attachment</span>'
+                + '</div>'
+                + '</div>'
+                // Resume card
+                + '<div style="background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.1)') + '; border-radius:12px; padding:20px; cursor:pointer;" onclick="generateResume()">'
+                + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
+                + '<span style="font-size:1.4em;">\uD83D\uDCC4</span>'
+                + '<div style="font-weight:600; color:' + tv('#e0e0e0','#1f2937') + ';">Professional Resume</div>'
+                + '</div>'
+                + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.88em; line-height:1.5;">'
+                + 'Traditional resume format with skills, experience, and achievements. HTML file, print to PDF.'
+                + '</div>'
+                + '</div>'
+                // PDF Summary card
+                + '<div style="background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.1)') + '; border-radius:12px; padding:20px; cursor:pointer;" onclick="exportBlueprint(\u0027pdf\u0027)">'
+                + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
+                + '<span style="font-size:1.4em;">\uD83D\uDCD1</span>'
+                + '<div style="font-weight:600; color:' + tv('#e0e0e0','#1f2937') + ';">PDF Summary</div>'
+                + '</div>'
+                + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.88em; line-height:1.5;">'
+                + 'Compact one-to-two page PDF. Outcomes, values, purpose, skills summary, and market context.'
+                + '</div>'
+                + '</div>'
+                // Copy to Clipboard card
+                + '<div style="background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.1)') + '; border-radius:12px; padding:20px; cursor:pointer;" onclick="copyBlueprintText()">'
+                + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
+                + '<span style="font-size:1.4em;">\uD83D\uDCCB</span>'
+                + '<div style="font-weight:600; color:' + tv('#e0e0e0','#1f2937') + ';">Copy to Clipboard</div>'
+                + '</div>'
+                + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.88em; line-height:1.5;">'
+                + 'Plain text summary for pasting into emails, messages, or cover letters.'
+                + '</div>'
+                + '</div>'
+                // JSON card
+                + '<div style="background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.1)') + '; border-radius:12px; padding:20px; cursor:pointer;" onclick="exportBlueprint(\u0027json\u0027)">'
+                + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
+                + '<span style="font-size:1.4em;">\uD83D\uDCBE</span>'
+                + '<div style="font-weight:600; color:' + tv('#e0e0e0','#1f2937') + ';">JSON Data</div>'
+                + '</div>'
+                + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.88em; line-height:1.5;">'
+                + 'Structured data export. Use for backups, imports, or integration with other tools.'
+                + '</div>'
+                + '</div>'
+                + '</div>'
+                + '</div>';
         }
         
         // Blueprint interaction functions
@@ -8121,190 +8180,326 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
         }
         
         function exportBlueprint(format) {
-            const sharedData = {
-                outcomes: blueprintData.outcomes.filter(o => o.shared),
-                values: blueprintData.values.filter(v => v.selected),
-                purpose: blueprintData.purpose
+            var sharedData = {
+                profile: userData.profile || {},
+                outcomes: blueprintData.outcomes.filter(function(o) { return o.shared; }),
+                values: blueprintData.values.filter(function(v) { return v.selected; }),
+                purpose: blueprintData.purpose,
+                skills: (skillsData.skills || []).map(function(s) {
+                    return { name: s.name, level: s.level, category: s.category, key: s.key, roles: s.roles };
+                }),
+                roles: skillsData.roles || [],
+                exportedAt: new Date().toISOString()
             };
             
             if (format === 'json') {
-                const dataStr = JSON.stringify(sharedData, null, 2);
-                const dataBlob = new Blob([dataStr], {type: 'application/json'});
-                const url = URL.createObjectURL(dataBlob);
-                const link = document.createElement('a');
+                var dataStr = JSON.stringify(sharedData, null, 2);
+                var dataBlob = new Blob([dataStr], {type: 'application/json'});
+                var url = URL.createObjectURL(dataBlob);
+                var link = document.createElement('a');
                 link.href = url;
-                link.download = 'work-blueprint.json';
+                var safeName = ((userData.profile && userData.profile.name) || 'profile').replace(/\s+/g, '-').toLowerCase();
+                link.download = 'work-blueprint-' + safeName + '.json';
                 link.click();
                 URL.revokeObjectURL(url);
+                showToast('JSON exported. Use this for backups or data portability.', 'success');
             } else if (format === 'pdf') {
                 generatePDF(sharedData);
-            } else if (format === 'link') {
-                generateShareableLink(sharedData);
             }
         }
         
         function generatePDF(data) {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            var jsPDF = window.jspdf.jsPDF;
+            var doc = new jsPDF();
             
-            let yPos = 20;
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const margin = 20;
-            const maxWidth = pageWidth - (margin * 2);
+            var yPos = 20;
+            var pageWidth = doc.internal.pageSize.getWidth();
+            var pageHeight = doc.internal.pageSize.getHeight();
+            var margin = 20;
+            var maxWidth = pageWidth - (margin * 2);
+            var name = (userData.profile && userData.profile.name) || 'Work Blueprint';
+            var title = (userData.profile && userData.profile.currentTitle) || '';
             
-            // Header
-            doc.setFontSize(24);
-            doc.setTextColor(96, 165, 250);
-            doc.text(`${userData.profile.name || 'Your'} Work Blueprint`, margin, yPos);
-            yPos += 10;
-            
-            doc.setFontSize(10);
-            doc.setTextColor(156, 163, 175);
-            doc.text(new Date().toLocaleDateString(), margin, yPos);
-            yPos += 15;
-            
-            // Outcomes Section
-            if (data.outcomes.length > 0) {
-                doc.setFontSize(16);
-                doc.setTextColor(96, 165, 250);
-                doc.text('Outcomes I Drive', margin, yPos);
-                yPos += 8;
-                
-                doc.setFontSize(10);
-                doc.setTextColor(55, 65, 81);
-                
-                data.outcomes.forEach((outcome, idx) => {
-                    if (yPos > 270) {
-                        doc.addPage();
-                        yPos = 20;
-                    }
-                    
-                    // Bullet point
-                    doc.circle(margin + 2, yPos - 1.5, 1, 'F');
-                    
-                    // Wrap text
-                    const lines = doc.splitTextToSize(outcome.text, maxWidth - 10);
-                    doc.text(lines, margin + 6, yPos);
-                    yPos += (lines.length * 5) + 3;
-                    
-                    // Category tag
-                    doc.setFontSize(8);
-                    doc.setTextColor(96, 165, 250);
-                    doc.text(`[${outcome.category}]`, margin + 6, yPos);
-                    yPos += 8;
-                    doc.setFontSize(10);
-                    doc.setTextColor(55, 65, 81);
-                });
-                
-                yPos += 5;
-            }
-            
-            // Values Section
-            if (data.values.length > 0) {
-                if (yPos > 240) {
+            function checkPage(needed) {
+                if (yPos + needed > pageHeight - 25) {
+                    addFooter();
                     doc.addPage();
                     yPos = 20;
                 }
-                
-                doc.setFontSize(16);
-                doc.setTextColor(96, 165, 250);
-                doc.text('Core Values', margin, yPos);
+            }
+            
+            function addFooter() {
+                doc.setFontSize(7);
+                doc.setTextColor(156, 163, 175);
+                doc.text('Work Blueprint \u2022 ' + name + ' \u2022 ' + new Date().toLocaleDateString(), margin, pageHeight - 10);
+                doc.text('Page ' + doc.internal.getNumberOfPages(), pageWidth - margin - 15, pageHeight - 10);
+            }
+            
+            function sectionHeading(text) {
+                checkPage(20);
+                yPos += 4;
+                doc.setDrawColor(30, 64, 175);
+                doc.setLineWidth(0.5);
+                doc.line(margin, yPos, margin + maxWidth, yPos);
                 yPos += 8;
-                
-                doc.setFontSize(10);
-                doc.setTextColor(55, 65, 81);
-                
-                data.values.forEach((value, idx) => {
-                    if (yPos > 270) {
-                        doc.addPage();
-                        yPos = 20;
-                    }
-                    
-                    doc.setFont(undefined, 'bold');
-                    doc.text(`• ${value.name}`, margin, yPos);
-                    yPos += 5;
-                    
-                    doc.setFont(undefined, 'normal');
-                    const descLines = doc.splitTextToSize(value.description, maxWidth - 10);
-                    doc.text(descLines, margin + 6, yPos);
-                    yPos += (descLines.length * 5) + 5;
-                });
-                
-                yPos += 5;
-            }
-            
-            // Purpose Section
-            if (data.purpose) {
-                if (yPos > 240) {
-                    doc.addPage();
-                    yPos = 20;
-                }
-                
-                doc.setFontSize(16);
-                doc.setTextColor(96, 165, 250);
-                doc.text('Purpose Statement', margin, yPos);
+                doc.setFontSize(13);
+                doc.setTextColor(30, 64, 175);
+                doc.setFont(undefined, 'bold');
+                doc.text(text, margin, yPos);
+                doc.setFont(undefined, 'normal');
                 yPos += 8;
-                
-                doc.setFontSize(10);
-                doc.setTextColor(55, 65, 81);
-                const purposeLines = doc.splitTextToSize(data.purpose, maxWidth);
-                doc.text(purposeLines, margin, yPos);
-                yPos += (purposeLines.length * 5) + 10;
             }
             
-            // Professional Context
-            if (yPos > 240) {
-                doc.addPage();
-                yPos = 20;
-            }
-            
-            doc.setFontSize(16);
-            doc.setTextColor(96, 165, 250);
-            doc.text('Professional Context', margin, yPos);
+            // === HEADER ===
+            doc.setFontSize(22);
+            doc.setTextColor(30, 64, 175);
+            doc.setFont(undefined, 'bold');
+            doc.text(name, margin, yPos);
             yPos += 8;
             
-            doc.setFontSize(10);
-            doc.setTextColor(55, 65, 81);
-            
-            if (userData.profile.location) {
-                doc.text(`Location: ${userData.profile.location}`, margin, yPos);
+            if (title) {
+                doc.setFontSize(12);
+                doc.setTextColor(107, 114, 128);
+                doc.setFont(undefined, 'normal');
+                doc.text(title, margin, yPos);
                 yPos += 6;
             }
             
-            doc.text(`Seniority Level: ${userData.preferences.seniorityLevel}`, margin, yPos);
-            yPos += 6;
+            var dateLine = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            doc.setFontSize(9);
+            doc.setTextColor(156, 163, 175);
+            doc.text(dateLine, margin, yPos);
+            yPos += 4;
             
-            doc.text(`Skills: ${skillsData.skills.length} professional competencies`, margin, yPos);
-            yPos += 6;
-            
-            doc.text(`Career Roles: ${skillsData.roles.length} dimensions`, margin, yPos);
+            // Blue accent bar
+            doc.setDrawColor(96, 165, 250);
+            doc.setLineWidth(2);
+            doc.line(margin, yPos, margin + 60, yPos);
             yPos += 10;
             
-            // Footer
-            doc.setFontSize(8);
-            doc.setTextColor(156, 163, 175);
-            const footerText = 'Generated by Work Blueprint System';
-            const footerWidth = doc.getTextWidth(footerText);
-            doc.text(footerText, (pageWidth - footerWidth) / 2, 285);
+            // === PURPOSE ===
+            if (data.purpose && data.purpose.trim()) {
+                doc.setFontSize(10);
+                doc.setTextColor(55, 65, 81);
+                doc.setFont(undefined, 'italic');
+                var purposeLines = doc.splitTextToSize(data.purpose.trim(), maxWidth);
+                doc.text(purposeLines, margin, yPos);
+                yPos += (purposeLines.length * 5) + 6;
+                doc.setFont(undefined, 'normal');
+            }
+            
+            // === OUTCOMES ===
+            if (data.outcomes.length > 0) {
+                sectionHeading('Outcomes');
+                doc.setFontSize(9.5);
+                doc.setTextColor(55, 65, 81);
+                
+                data.outcomes.forEach(function(outcome) {
+                    checkPage(18);
+                    var outcomeLines = doc.splitTextToSize('\u2022 ' + outcome.text, maxWidth - 6);
+                    doc.text(outcomeLines, margin + 3, yPos);
+                    yPos += (outcomeLines.length * 4.5) + 2;
+                    
+                    doc.setFontSize(7.5);
+                    doc.setTextColor(96, 165, 250);
+                    doc.text(outcome.category || '', margin + 6, yPos);
+                    yPos += 5;
+                    doc.setFontSize(9.5);
+                    doc.setTextColor(55, 65, 81);
+                });
+            }
+            
+            // === VALUES ===
+            if (data.values.length > 0) {
+                sectionHeading('Core Values');
+                doc.setFontSize(9.5);
+                doc.setTextColor(55, 65, 81);
+                
+                data.values.forEach(function(value) {
+                    checkPage(14);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('\u2022 ' + value.name, margin + 3, yPos);
+                    var nameWidth = doc.getTextWidth('\u2022 ' + value.name + '  ');
+                    doc.setFont(undefined, 'normal');
+                    doc.setTextColor(107, 114, 128);
+                    
+                    if (value.description) {
+                        var descLines = doc.splitTextToSize(value.description, maxWidth - 6);
+                        doc.text(descLines, margin + 3, yPos + 4.5);
+                        yPos += 4.5 + (descLines.length * 4.5) + 2;
+                    } else {
+                        yPos += 6;
+                    }
+                    doc.setTextColor(55, 65, 81);
+                });
+            }
+            
+            // === TOP SKILLS ===
+            var skills = skillsData.skills || [];
+            var topSkills = skills.filter(function(s) { return s.key; }).slice(0, 15);
+            if (topSkills.length === 0) topSkills = skills.slice(0, 15);
+            
+            if (topSkills.length > 0) {
+                sectionHeading('Core Competencies (' + skills.length + ' total)');
+                checkPage(25);
+                doc.setFontSize(9);
+                doc.setTextColor(55, 65, 81);
+                
+                // Compact 2-column layout
+                var col1X = margin + 3;
+                var col2X = margin + (maxWidth / 2) + 3;
+                var startY = yPos;
+                
+                topSkills.forEach(function(skill, idx) {
+                    var xPos = idx % 2 === 0 ? col1X : col2X;
+                    var rowY = startY + Math.floor(idx / 2) * 5.5;
+                    
+                    checkPage(8);
+                    doc.setFont(undefined, 'normal');
+                    doc.text('\u2022 ' + skill.name, xPos, rowY);
+                    
+                    doc.setFontSize(7);
+                    doc.setTextColor(96, 165, 250);
+                    var levelText = skill.level || '';
+                    doc.text(levelText, xPos + doc.getTextWidth('\u2022 ' + skill.name + ' '), rowY);
+                    doc.setFontSize(9);
+                    doc.setTextColor(55, 65, 81);
+                });
+                
+                yPos = startY + Math.ceil(topSkills.length / 2) * 5.5 + 4;
+            }
+            
+            // === MARKET CONTEXT ===
+            var comp = calculateTotalMarketValue();
+            if (comp && comp.marketRate) {
+                sectionHeading('Market Positioning');
+                checkPage(25);
+                doc.setFontSize(9.5);
+                doc.setTextColor(55, 65, 81);
+                
+                var marketLines = [
+                    ['Base Market Rate', '$' + Math.round(comp.marketRate).toLocaleString()],
+                    ['Conservative Range', '$' + Math.round(comp.conservativeOffer || comp.marketRate * 1.1).toLocaleString()],
+                    ['Competitive Range', '$' + Math.round(comp.competitiveOffer || comp.marketRate * 1.3).toLocaleString()]
+                ];
+                
+                marketLines.forEach(function(line) {
+                    doc.setFont(undefined, 'normal');
+                    doc.text(line[0] + ':', margin + 3, yPos);
+                    doc.setFont(undefined, 'bold');
+                    doc.setTextColor(30, 64, 175);
+                    doc.text(line[1], margin + 55, yPos);
+                    doc.setTextColor(55, 65, 81);
+                    yPos += 6;
+                });
+                doc.setFont(undefined, 'normal');
+            }
+            
+            // === PROFESSIONAL CONTEXT ===
+            sectionHeading('Professional Context');
+            doc.setFontSize(9);
+            doc.setTextColor(55, 65, 81);
+            
+            var contextItems = [];
+            if (userData.profile && userData.profile.location) contextItems.push('Location: ' + userData.profile.location);
+            if (userData.preferences && userData.preferences.seniorityLevel) contextItems.push('Level: ' + userData.preferences.seniorityLevel);
+            contextItems.push('Skills: ' + skills.length + ' professional competencies across ' + ((skillsData.roles || []).length) + ' roles');
+            
+            contextItems.forEach(function(item) {
+                checkPage(8);
+                doc.text(item, margin + 3, yPos);
+                yPos += 5;
+            });
+            
+            // Final footer
+            addFooter();
             
             // Save
-            const fileName = `work-blueprint-${userData.profile.name || 'profile'}.pdf`.replace(/\s+/g, '-').toLowerCase();
+            var fileName = ('work-blueprint-' + name + '.pdf').replace(/\s+/g, '-').toLowerCase();
             doc.save(fileName);
+            showToast('PDF downloaded.', 'success');
         }
         
-        function generateShareableLink(data) {
-            // Basic implementation - encode data as base64 URL parameter
-            const jsonStr = JSON.stringify(data);
-            const base64 = btoa(jsonStr);
-            const shareUrl = `${window.location.origin}${window.location.pathname}?share=${base64}`;
+        function copyBlueprintText() {
+            var name = (userData.profile && userData.profile.name) || 'Professional';
+            var title = (userData.profile && userData.profile.currentTitle) || '';
+            var location = (userData.profile && userData.profile.location) || '';
             
-            // Copy to clipboard
-            navigator.clipboard.writeText(shareUrl).then(() => {
-                showToast('Shareable link copied to clipboard.', 'success');
-            }).catch(() => {
-                showToast('Shareable link generated. Check your address bar.', 'info');
+            var lines = [];
+            lines.push(name.toUpperCase());
+            if (title) lines.push(title);
+            if (location) lines.push(location);
+            lines.push('');
+            
+            // Purpose
+            if (blueprintData.purpose && blueprintData.purpose.trim()) {
+                lines.push('PURPOSE');
+                lines.push(blueprintData.purpose.trim());
+                lines.push('');
+            }
+            
+            // Outcomes
+            var sharedOutcomes = blueprintData.outcomes.filter(function(o) { return o.shared; });
+            if (sharedOutcomes.length > 0) {
+                lines.push('KEY OUTCOMES');
+                sharedOutcomes.forEach(function(o) {
+                    lines.push('\u2022 ' + o.text);
+                });
+                lines.push('');
+            }
+            
+            // Values
+            var selectedValues = blueprintData.values.filter(function(v) { return v.selected; });
+            if (selectedValues.length > 0) {
+                lines.push('CORE VALUES');
+                selectedValues.forEach(function(v) {
+                    lines.push('\u2022 ' + v.name + (v.description ? ' \u2014 ' + v.description : ''));
+                });
+                lines.push('');
+            }
+            
+            // Top skills summary
+            var skills = skillsData.skills || [];
+            var topSkills = skills.filter(function(s) { return s.key; }).slice(0, 10);
+            if (topSkills.length > 0) {
+                lines.push('CORE COMPETENCIES');
+                lines.push(topSkills.map(function(s) { return s.name; }).join(', '));
+                lines.push('');
+            }
+            
+            // Market context
+            var comp = calculateTotalMarketValue();
+            if (comp && comp.marketRate) {
+                lines.push('MARKET POSITIONING');
+                lines.push('Market Rate: $' + Math.round(comp.marketRate).toLocaleString());
+                if (comp.competitiveOffer) {
+                    lines.push('Competitive Range: $' + Math.round(comp.competitiveOffer).toLocaleString());
+                }
+                lines.push('');
+            }
+            
+            lines.push('Generated by Work Blueprint \u2022 ' + new Date().toLocaleDateString());
+            
+            var text = lines.join('\n');
+            navigator.clipboard.writeText(text).then(function() {
+                showToast('Blueprint copied to clipboard. Ready to paste.', 'success');
+            }).catch(function() {
+                // Fallback: select from textarea
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast('Blueprint copied to clipboard.', 'success');
             });
         }
+        window.copyBlueprintText = copyBlueprintText;
+        window.generateWorkBlueprint = generateWorkBlueprint;
+        window.generateResume = generateResume;
+        window.exportBlueprint = exportBlueprint;
         
         // ===== OPPORTUNITIES SYSTEM =====
 
