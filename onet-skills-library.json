@@ -1,0 +1,251 @@
+{
+  "version": "O*NET 30.1",
+  "source": "U.S. Department of Labor - O*NET Database",
+  "lastUpdated": "2024-Q4",
+  "categories": {
+    "basicSkills": {
+      "name": "Basic Skills",
+      "description": "Developed capacities that facilitate learning or the more rapid acquisition of knowledge",
+      "subcategories": {
+        "content": {
+          "name": "Content Skills",
+          "skills": [
+            {
+              "id": "reading-comprehension",
+              "name": "Reading Comprehension",
+              "definition": "Understanding written sentences and paragraphs in work related documents."
+            },
+            {
+              "id": "active-listening",
+              "name": "Active Listening",
+              "definition": "Giving full attention to what other people are saying, taking time to understand the points being made, asking questions as appropriate, and not interrupting at inappropriate times."
+            },
+            {
+              "id": "writing",
+              "name": "Writing",
+              "definition": "Communicating effectively in writing as appropriate for the needs of the audience."
+            },
+            {
+              "id": "speaking",
+              "name": "Speaking",
+              "definition": "Talking to others to convey information effectively."
+            },
+            {
+              "id": "mathematics",
+              "name": "Mathematics",
+              "definition": "Using mathematics to solve problems."
+            },
+            {
+              "id": "science",
+              "name": "Science",
+              "definition": "Using scientific rules and methods to solve problems."
+            }
+          ]
+        },
+        "process": {
+          "name": "Process Skills",
+          "skills": [
+            {
+              "id": "critical-thinking",
+              "name": "Critical Thinking",
+              "definition": "Using logic and reasoning to identify the strengths and weaknesses of alternative solutions, conclusions, or approaches to problems."
+            },
+            {
+              "id": "active-learning",
+              "name": "Active Learning",
+              "definition": "Understanding the implications of new information for both current and future problem-solving and decision-making."
+            },
+            {
+              "id": "learning-strategies",
+              "name": "Learning Strategies",
+              "definition": "Selecting and using training/instructional methods and procedures appropriate for the situation when learning or teaching new things."
+            },
+            {
+              "id": "monitoring",
+              "name": "Monitoring",
+              "definition": "Monitoring/Assessing performance of yourself, other individuals, or organizations to make improvements or take corrective action."
+            }
+          ]
+        }
+      }
+    },
+    "crossFunctionalSkills": {
+      "name": "Cross-Functional Skills",
+      "description": "Developed capacities that facilitate performance of activities that occur across jobs",
+      "subcategories": {
+        "social": {
+          "name": "Social Skills",
+          "skills": [
+            {
+              "id": "social-perceptiveness",
+              "name": "Social Perceptiveness",
+              "definition": "Being aware of others' reactions and understanding why they react as they do."
+            },
+            {
+              "id": "coordination",
+              "name": "Coordination",
+              "definition": "Adjusting actions in relation to others' actions."
+            },
+            {
+              "id": "persuasion",
+              "name": "Persuasion",
+              "definition": "Persuading others to change their minds or behavior."
+            },
+            {
+              "id": "negotiation",
+              "name": "Negotiation",
+              "definition": "Bringing others together and trying to reconcile differences."
+            },
+            {
+              "id": "instructing",
+              "name": "Instructing",
+              "definition": "Teaching others how to do something."
+            },
+            {
+              "id": "service-orientation",
+              "name": "Service Orientation",
+              "definition": "Actively looking for ways to help people."
+            }
+          ]
+        },
+        "complexProblemSolving": {
+          "name": "Complex Problem Solving",
+          "skills": [
+            {
+              "id": "complex-problem-solving",
+              "name": "Complex Problem Solving",
+              "definition": "Identifying complex problems and reviewing related information to develop and evaluate options and implement solutions."
+            }
+          ]
+        },
+        "technical": {
+          "name": "Technical Skills",
+          "skills": [
+            {
+              "id": "operations-analysis",
+              "name": "Operations Analysis",
+              "definition": "Analyzing needs and product requirements to create a design."
+            },
+            {
+              "id": "technology-design",
+              "name": "Technology Design",
+              "definition": "Generating or adapting equipment and technology to serve user needs."
+            },
+            {
+              "id": "equipment-selection",
+              "name": "Equipment Selection",
+              "definition": "Determining the kind of tools and equipment needed to do a job."
+            },
+            {
+              "id": "installation",
+              "name": "Installation",
+              "definition": "Installing equipment, machines, wiring, or programs to meet specifications."
+            },
+            {
+              "id": "programming",
+              "name": "Programming",
+              "definition": "Writing computer programs for various purposes."
+            },
+            {
+              "id": "operations-monitoring",
+              "name": "Operations Monitoring",
+              "definition": "Watching gauges, dials, or other indicators to make sure a machine is working properly."
+            },
+            {
+              "id": "operation-and-control",
+              "name": "Operation and Control",
+              "definition": "Controlling operations of equipment or systems."
+            },
+            {
+              "id": "equipment-maintenance",
+              "name": "Equipment Maintenance",
+              "definition": "Performing routine maintenance on equipment and determining when and what kind of maintenance is needed."
+            },
+            {
+              "id": "troubleshooting",
+              "name": "Troubleshooting",
+              "definition": "Determining causes of operating errors and deciding what to do about it."
+            },
+            {
+              "id": "repairing",
+              "name": "Repairing",
+              "definition": "Repairing machines or systems using the needed tools."
+            },
+            {
+              "id": "quality-control-analysis",
+              "name": "Quality Control Analysis",
+              "definition": "Conducting tests and inspections of products, services, or processes to evaluate quality or performance."
+            }
+          ]
+        },
+        "systems": {
+          "name": "Systems Skills",
+          "skills": [
+            {
+              "id": "judgment-and-decision-making",
+              "name": "Judgment and Decision Making",
+              "definition": "Considering the relative costs and benefits of potential actions to choose the most appropriate one."
+            },
+            {
+              "id": "systems-analysis",
+              "name": "Systems Analysis",
+              "definition": "Determining how a system should work and how changes in conditions, operations, and the environment will affect outcomes."
+            },
+            {
+              "id": "systems-evaluation",
+              "name": "Systems Evaluation",
+              "definition": "Identifying measures or indicators of system performance and the actions needed to improve or correct performance, relative to the goals of the system."
+            }
+          ]
+        },
+        "resourceManagement": {
+          "name": "Resource Management Skills",
+          "skills": [
+            {
+              "id": "time-management",
+              "name": "Time Management",
+              "definition": "Managing one's own time and the time of others."
+            },
+            {
+              "id": "management-of-financial-resources",
+              "name": "Management of Financial Resources",
+              "definition": "Determining how money will be spent to get the work done, and accounting for these expenditures."
+            },
+            {
+              "id": "management-of-material-resources",
+              "name": "Management of Material Resources",
+              "definition": "Obtaining and seeing to the appropriate use of equipment, facilities, and materials needed to do certain work."
+            },
+            {
+              "id": "management-of-personnel-resources",
+              "name": "Management of Personnel Resources",
+              "definition": "Motivating, developing, and directing people as they work, identifying the best people for the job."
+            }
+          ]
+        }
+      }
+    }
+  },
+  "topSkillsForExecutives": [
+    "critical-thinking",
+    "complex-problem-solving",
+    "judgment-and-decision-making",
+    "active-learning",
+    "systems-analysis",
+    "speaking",
+    "writing",
+    "active-listening",
+    "persuasion",
+    "negotiation",
+    "social-perceptiveness",
+    "coordination",
+    "instructing",
+    "management-of-personnel-resources",
+    "time-management",
+    "service-orientation",
+    "systems-evaluation",
+    "operations-analysis",
+    "learning-strategies",
+    "reading-comprehension"
+  ]
+}
