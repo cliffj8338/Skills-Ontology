@@ -6,6 +6,9 @@
     <title>Cliff Jones - Work Blueprint</title>
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -2919,11 +2922,80 @@
             background: rgba(255,255,255,0.06);
             transform: translateX(4px);
         }
+        /* ===== AUTH MODAL ===== */
+        .auth-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .auth-overlay.active { display: flex; }
+        .auth-dialog {
+            background: var(--bg-surface); border: 1px solid var(--border); border-radius: 16px;
+            width: 100%; max-width: 420px; padding: 36px; position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+        [data-theme="light"] .auth-dialog { background: #fff; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+        .auth-dialog h2 { color: var(--accent); font-size: 1.4em; margin-bottom: 6px; }
+        .auth-dialog .auth-subtitle { color: var(--text-secondary); font-size: 0.9em; margin-bottom: 24px; }
+        .auth-close { position: absolute; top: 14px; right: 18px; background: none; border: none;
+            color: var(--text-muted); font-size: 1.4em; cursor: pointer; }
+        .auth-input {
+            width: 100%; padding: 12px 14px; background: var(--bg-base); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--text-primary); font-size: 0.95em; margin-bottom: 12px;
+            outline: none; transition: border-color 0.2s;
+        }
+        .auth-input:focus { border-color: var(--accent); }
+        [data-theme="light"] .auth-input { background: #f9fafb; }
+        .auth-btn {
+            width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 0.95em;
+            font-weight: 600; cursor: pointer; transition: opacity 0.2s;
+        }
+        .auth-btn:hover { opacity: 0.9; }
+        .auth-btn-primary { background: var(--accent); color: #fff; }
+        .auth-btn-google {
+            background: #fff; color: #333; border: 1px solid #ddd;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .auth-btn-google:hover { background: #f5f5f5; }
+        .auth-btn-magic { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+        .auth-divider {
+            display: flex; align-items: center; margin: 18px 0; gap: 12px;
+            color: var(--text-muted); font-size: 0.82em;
+        }
+        .auth-divider::before, .auth-divider::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+        .auth-toggle { color: var(--text-secondary); font-size: 0.88em; text-align: center; margin-top: 18px; }
+        .auth-toggle a { color: var(--accent); cursor: pointer; text-decoration: underline; }
+        .auth-error { color: #ef4444; font-size: 0.85em; margin-bottom: 12px; display: none; }
+        .auth-success { color: #10b981; font-size: 0.85em; margin-bottom: 12px; display: none; }
+        .auth-nav-btn {
+            padding: 8px 16px; border-radius: 8px; font-size: 0.85em; font-weight: 600;
+            cursor: pointer; border: 1px solid var(--accent); color: var(--accent); background: transparent;
+            transition: all 0.2s;
+        }
+        .auth-nav-btn:hover { background: var(--accent); color: #fff; }
+        .auth-nav-btn.signed-in { border-color: #10b981; color: #10b981; }
+        .admin-badge {
+            font-size: 0.65em; padding: 2px 6px; border-radius: 4px;
+            background: rgba(251,191,36,0.15); color: #fbbf24; font-weight: 700;
+            vertical-align: middle; margin-left: 6px; letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
     <!-- Toast Notification Container -->
     <div id="toastContainer"></div>
+    
+    <!-- Auth Modal -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-dialog">
+            <button class="auth-close" onclick="closeAuthModal()">&times;</button>
+            <div id="authModalContent">
+                <!-- Populated by showAuthModal() -->
+            </div>
+        </div>
+    </div>
     <!-- ===== NAV BAR ===== -->
     <div class="header">
         <!-- Left: Logo + wordmark -->
@@ -2947,6 +3019,9 @@
 
             <!-- Theme toggle -->
             <button class="theme-toggle" onclick="toggleTheme()" id="themeToggleBtn" title="Toggle light/dark mode">🌙</button>
+
+            <!-- Auth button (shown when not logged in) -->
+            <button class="auth-nav-btn" id="authNavBtn" onclick="showAuthModal('signin')" style="display:none;">Sign In</button>
 
             <!-- Profile switcher -->
             <div class="profile-chip" onclick="toggleProfileDropdown(event)" id="profileChip">
@@ -2976,6 +3051,9 @@
                 <button onclick="switchView('consent'); closeOverflowMenu();">🔒 Consent Settings</button>
                 <button onclick="showHelp(); closeOverflowMenu();">❓ Help</button>
                 <button onclick="showAbout(); closeOverflowMenu();">ℹ️ About</button>
+                <div style="height:1px; background:var(--border); margin:4px 0;"></div>
+                <button id="overflowSignIn" onclick="showAuthModal('signin'); closeOverflowMenu();" style="color: var(--accent);">🔐 Sign In</button>
+                <button id="overflowSignOut" onclick="authSignOut(); closeOverflowMenu();" style="color: #ef4444; display:none;">⏻ Sign Out</button>
             </div>
         </div>
     </div>
@@ -3574,14 +3652,653 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.9.3 - BUILD 20260218-2400
-        // VALUES PICK LIST + EVIDENCE SCORING
+        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0100
+        // FIREBASE AUTH + FIRESTORE PERSISTENCE
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   WORK BLUEPRINT v3.9.3                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260218-2400                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   WORK BLUEPRINT v4.0.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260219-0100                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+
+        // ===== FIREBASE INITIALIZATION =====
+        var firebaseConfig = {
+            apiKey: "AIzaSyBO703p11FdLojH6ogB50XrxoFVy_7bHLE",
+            authDomain: "work-blueprint.firebaseapp.com",
+            projectId: "work-blueprint",
+            storageBucket: "work-blueprint.firebasestorage.app",
+            messagingSenderId: "338454233039",
+            appId: "1:338454233039:web:76016289b81d8298269cba"
+        };
+        
+        var fbApp = null;
+        var fbAuth = null;
+        var fbDb = null;
+        var fbUser = null;       // Current Firebase auth user
+        var fbIsAdmin = false;   // Admin role flag
+        var fbReady = false;     // Firebase SDK loaded and initialized
+        
+        try {
+            fbApp = firebase.initializeApp(firebaseConfig);
+            fbAuth = firebase.auth();
+            fbDb = firebase.firestore();
+            fbReady = true;
+            console.log('✓ Firebase initialized');
+        } catch(e) {
+            console.warn('⚠ Firebase not available, running in offline mode:', e.message);
+        }
+
+        // ===== AUTH STATE MANAGEMENT =====
+        var authReadyResolve = null;
+        var authReadyPromise = new Promise(function(resolve) { authReadyResolve = resolve; });
+        
+        if (fbAuth) {
+            fbAuth.onAuthStateChanged(function(user) {
+                fbUser = user;
+                if (user) {
+                    console.log('🔐 Signed in:', user.email);
+                    checkAdminRole(user.uid).then(function(isAdmin) {
+                        fbIsAdmin = isAdmin;
+                        updateAuthUI();
+                        authReadyResolve(user);
+                    });
+                } else {
+                    console.log('🔓 Not signed in');
+                    fbIsAdmin = false;
+                    updateAuthUI();
+                    authReadyResolve(null);
+                }
+            });
+        } else {
+            authReadyResolve(null);
+        }
+
+        // ===== AUTH UI =====
+        function showAuthModal(mode) {
+            if (!fbReady) {
+                showToast('Authentication service unavailable. Try refreshing.', 'error');
+                return;
+            }
+            var overlay = document.getElementById('authOverlay');
+            var content = document.getElementById('authModalContent');
+            if (!overlay || !content) return;
+            
+            mode = mode || 'signin';
+            var isSignUp = mode === 'signup';
+            
+            content.innerHTML = '<h2>' + (isSignUp ? 'Create Account' : 'Sign In') + '</h2>'
+                + '<div class="auth-subtitle">' + (isSignUp ? 'Build and save your Work Blueprint' : 'Welcome back') + '</div>'
+                
+                // Google Sign-In
+                + '<button class="auth-btn auth-btn-google" onclick="authWithGoogle()" style="margin-bottom:10px;">'
+                + '<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>'
+                + 'Continue with Google</button>'
+                
+                + '<div class="auth-divider">or</div>'
+                
+                // Error/success messages
+                + '<div class="auth-error" id="authError"></div>'
+                + '<div class="auth-success" id="authSuccess"></div>'
+                
+                // Email form
+                + (isSignUp ? '<input class="auth-input" id="authName" type="text" placeholder="Full name" />' : '')
+                + '<input class="auth-input" id="authEmail" type="email" placeholder="Email address" />'
+                + '<input class="auth-input" id="authPassword" type="password" placeholder="Password" '
+                + 'onkeydown="if(event.key===\'Enter\'){' + (isSignUp ? 'authEmailSignUp()' : 'authEmailSignIn()') + '}" />'
+                
+                + '<button class="auth-btn auth-btn-primary" onclick="' + (isSignUp ? 'authEmailSignUp()' : 'authEmailSignIn()') + '" style="margin-bottom:10px;">'
+                + (isSignUp ? 'Create Account' : 'Sign In') + '</button>'
+                
+                // Magic link
+                + '<button class="auth-btn auth-btn-magic" onclick="authSendMagicLink()">Send me a sign-in link instead</button>'
+                
+                // Toggle
+                + '<div class="auth-toggle">'
+                + (isSignUp
+                    ? 'Already have an account? <a onclick="showAuthModal(\'signin\')">Sign in</a>'
+                    : 'Don\'t have an account? <a onclick="showAuthModal(\'signup\')">Create one</a>')
+                + '</div>';
+            
+            overlay.classList.add('active');
+        }
+        window.showAuthModal = showAuthModal;
+
+        function closeAuthModal() {
+            var overlay = document.getElementById('authOverlay');
+            if (overlay) overlay.classList.remove('active');
+        }
+        window.closeAuthModal = closeAuthModal;
+
+        function showAuthError(msg) {
+            var el = document.getElementById('authError');
+            if (el) { el.textContent = msg; el.style.display = 'block'; }
+            var s = document.getElementById('authSuccess');
+            if (s) s.style.display = 'none';
+        }
+
+        function showAuthSuccess(msg) {
+            var el = document.getElementById('authSuccess');
+            if (el) { el.textContent = msg; el.style.display = 'block'; }
+            var e = document.getElementById('authError');
+            if (e) e.style.display = 'none';
+        }
+
+        // ===== AUTH METHODS =====
+        function authWithGoogle() {
+            if (!fbAuth) return;
+            var provider = new firebase.auth.GoogleAuthProvider();
+            fbAuth.signInWithPopup(provider)
+                .then(function(result) {
+                    closeAuthModal();
+                    handlePostSignIn(result.user, result.additionalUserInfo && result.additionalUserInfo.isNewUser);
+                })
+                .catch(function(err) {
+                    if (err.code === 'auth/popup-closed-by-user') return;
+                    showAuthError(friendlyAuthError(err.code));
+                });
+        }
+        window.authWithGoogle = authWithGoogle;
+
+        function authEmailSignIn() {
+            if (!fbAuth) return;
+            var email = (document.getElementById('authEmail') || {}).value || '';
+            var password = (document.getElementById('authPassword') || {}).value || '';
+            if (!email || !password) { showAuthError('Please enter email and password.'); return; }
+            
+            fbAuth.signInWithEmailAndPassword(email, password)
+                .then(function(result) {
+                    closeAuthModal();
+                    handlePostSignIn(result.user, false);
+                })
+                .catch(function(err) {
+                    showAuthError(friendlyAuthError(err.code));
+                });
+        }
+        window.authEmailSignIn = authEmailSignIn;
+
+        function authEmailSignUp() {
+            if (!fbAuth) return;
+            var name = (document.getElementById('authName') || {}).value || '';
+            var email = (document.getElementById('authEmail') || {}).value || '';
+            var password = (document.getElementById('authPassword') || {}).value || '';
+            if (!email || !password) { showAuthError('Please enter email and password.'); return; }
+            
+            fbAuth.createUserWithEmailAndPassword(email, password)
+                .then(function(result) {
+                    // Set display name
+                    if (name) {
+                        result.user.updateProfile({ displayName: name });
+                    }
+                    closeAuthModal();
+                    handlePostSignIn(result.user, true);
+                })
+                .catch(function(err) {
+                    showAuthError(friendlyAuthError(err.code));
+                });
+        }
+        window.authEmailSignUp = authEmailSignUp;
+
+        function authSendMagicLink() {
+            if (!fbAuth) return;
+            var email = (document.getElementById('authEmail') || {}).value || '';
+            if (!email) { showAuthError('Please enter your email address first.'); return; }
+            
+            var actionCodeSettings = {
+                url: window.location.href,
+                handleCodeInApp: true
+            };
+            
+            fbAuth.sendSignInLinkToEmail(email, actionCodeSettings)
+                .then(function() {
+                    localStorage.setItem('wbMagicLinkEmail', email);
+                    showAuthSuccess('Sign-in link sent to ' + email + '. Check your inbox.');
+                })
+                .catch(function(err) {
+                    showAuthError(friendlyAuthError(err.code));
+                });
+        }
+        window.authSendMagicLink = authSendMagicLink;
+
+        function authSignOut() {
+            if (!fbAuth) return;
+            fbAuth.signOut().then(function() {
+                fbUser = null;
+                fbIsAdmin = false;
+                showToast('Signed out.', 'info');
+                updateAuthUI();
+            });
+        }
+        window.authSignOut = authSignOut;
+
+        // Handle magic link sign-in on page load
+        function checkMagicLinkSignIn() {
+            if (!fbAuth || !firebase.auth.isSignInWithEmailLink(window.location.href)) return;
+            var email = localStorage.getItem('wbMagicLinkEmail');
+            if (!email) {
+                email = prompt('Please enter your email to confirm sign-in:');
+            }
+            if (email) {
+                fbAuth.signInWithEmailLink(email, window.location.href)
+                    .then(function(result) {
+                        localStorage.removeItem('wbMagicLinkEmail');
+                        // Clean URL
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        handlePostSignIn(result.user, result.additionalUserInfo && result.additionalUserInfo.isNewUser);
+                    })
+                    .catch(function(err) {
+                        console.error('Magic link sign-in failed:', err);
+                        showToast('Sign-in link expired or invalid. Please try again.', 'error');
+                    });
+            }
+        }
+
+        function friendlyAuthError(code) {
+            var map = {
+                'auth/email-already-in-use': 'An account with this email already exists. Try signing in.',
+                'auth/invalid-email': 'Please enter a valid email address.',
+                'auth/weak-password': 'Password must be at least 6 characters.',
+                'auth/user-not-found': 'No account found with this email.',
+                'auth/wrong-password': 'Incorrect password.',
+                'auth/invalid-credential': 'Incorrect email or password.',
+                'auth/too-many-requests': 'Too many attempts. Please wait a moment and try again.',
+                'auth/network-request-failed': 'Network error. Check your connection.',
+                'auth/popup-blocked': 'Pop-up blocked by browser. Allow pop-ups for this site.'
+            };
+            return map[code] || 'Authentication error. Please try again.';
+        }
+
+        // ===== POST SIGN-IN HANDLER =====
+        function handlePostSignIn(user, isNewUser) {
+            if (!user) return;
+            
+            // Ensure user document exists in Firestore
+            if (fbDb) {
+                var userRef = fbDb.collection('users').doc(user.uid);
+                userRef.get().then(function(doc) {
+                    if (!doc.exists) {
+                        // First sign-in: create user document
+                        userRef.set({
+                            email: user.email,
+                            displayName: user.displayName || '',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                            role: 'user'
+                        });
+                        console.log('✓ Created Firestore user document');
+                        // Offer wizard for new users
+                        setTimeout(function() { showOnboardingWizard(); }, 600);
+                    } else {
+                        // Returning user: update last login, load their data
+                        userRef.update({ lastLogin: firebase.firestore.FieldValue.serverTimestamp() });
+                        loadUserFromFirestore(user.uid);
+                    }
+                }).catch(function(err) {
+                    console.error('Firestore user check failed:', err);
+                });
+            }
+            
+            showToast('Welcome, ' + (user.displayName || user.email) + '!', 'success');
+        }
+
+        // ===== ADMIN ROLE CHECK =====
+        function checkAdminRole(uid) {
+            if (!fbDb) return Promise.resolve(false);
+            return fbDb.collection('users').doc(uid).get()
+                .then(function(doc) {
+                    if (doc.exists && doc.data().role === 'admin') {
+                        console.log('👑 Admin role confirmed');
+                        return true;
+                    }
+                    return false;
+                })
+                .catch(function() { return false; });
+        }
+
+        // ===== AUTH UI UPDATE =====
+        function updateAuthUI() {
+            var authBtn = document.getElementById('authNavBtn');
+            var profileChip = document.getElementById('profileChip');
+            var overflowSignIn = document.getElementById('overflowSignIn');
+            var overflowSignOut = document.getElementById('overflowSignOut');
+            
+            if (fbUser) {
+                // Signed in
+                if (authBtn) authBtn.style.display = 'none';
+                if (overflowSignIn) overflowSignIn.style.display = 'none';
+                if (overflowSignOut) overflowSignOut.style.display = '';
+                if (profileChip) {
+                    profileChip.style.display = '';
+                    var nameEl = document.getElementById('profileChipName');
+                    var avatarEl = document.getElementById('profileAvatar');
+                    var displayName = fbUser.displayName || fbUser.email.split('@')[0];
+                    if (nameEl) nameEl.textContent = displayName + (fbIsAdmin ? '' : '');
+                    if (avatarEl) avatarEl.textContent = getInitials(displayName);
+                }
+                // Update title
+                document.title = 'Work Blueprint';
+                // Add admin badge and sign-out to dropdown
+                rebuildProfileDropdown();
+            } else {
+                // Not signed in
+                if (authBtn) authBtn.style.display = '';
+                if (overflowSignIn) overflowSignIn.style.display = '';
+                if (overflowSignOut) overflowSignOut.style.display = 'none';
+                // Profile chip still shows for sample browsing
+                if (profileChip) profileChip.style.display = '';
+            }
+        }
+
+        function rebuildProfileDropdown() {
+            var container = document.getElementById('profileDropdownOptions');
+            if (!container) return;
+            
+            var html = '';
+            
+            // Current user section
+            if (fbUser) {
+                html += '<div style="padding:8px 12px; font-size:0.82em; color:var(--text-muted); border-bottom:1px solid var(--border); margin-bottom:4px;">'
+                    + (fbUser.displayName || fbUser.email)
+                    + (fbIsAdmin ? ' <span class="admin-badge">ADMIN</span>' : '')
+                    + '</div>';
+            }
+            
+            // Sample profiles
+            var manifest = window.profilesManifest;
+            if (manifest && manifest.profiles) {
+                manifest.profiles.filter(function(p) { return p.enabled; }).forEach(function(p) {
+                    var isCurrent = (userData.templateId === p.id);
+                    html += '<div class="profile-dropdown-item' + (isCurrent ? ' active' : '') + '" '
+                        + 'onclick="switchProfile(\'' + p.id + '\'); closeProfileDropdown();">'
+                        + '<div class="profile-dropdown-avatar">' + getInitials(p.name) + '</div>'
+                        + '<div class="profile-dropdown-info">'
+                        + '<div class="profile-dropdown-name">' + p.name + ' <span style="font-size:0.75em; color:var(--text-muted);">SAMPLE</span></div>'
+                        + '<div class="profile-dropdown-title">' + p.title + '</div>'
+                        + '</div></div>';
+                });
+            }
+            
+            // Divider + auth actions
+            if (fbUser) {
+                html += '<div style="height:1px; background:var(--border); margin:6px 0;"></div>';
+                if (fbIsAdmin) {
+                    html += '<div class="profile-dropdown-item" onclick="showAdminPanel(); closeProfileDropdown();">'
+                        + '<div class="profile-dropdown-avatar" style="background:rgba(251,191,36,0.2); color:#fbbf24;">👑</div>'
+                        + '<div class="profile-dropdown-info"><div class="profile-dropdown-name">Admin Dashboard</div></div></div>';
+                }
+                html += '<div class="profile-dropdown-item" onclick="authSignOut(); closeProfileDropdown();">'
+                    + '<div class="profile-dropdown-avatar" style="background:rgba(239,68,68,0.15); color:#ef4444;">⏻</div>'
+                    + '<div class="profile-dropdown-info"><div class="profile-dropdown-name" style="color:#ef4444;">Sign Out</div></div></div>';
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function getInitials(name) {
+            if (!name) return '?';
+            var parts = name.trim().split(/\s+/);
+            if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            return name.substring(0, 2).toUpperCase();
+        }
+
+        // ===== FIRESTORE PERSISTENCE =====
+        function saveToFirestore() {
+            if (!fbDb || !fbUser) return Promise.resolve(false);
+            
+            var uid = fbUser.uid;
+            var data = {
+                profile: userData.profile || {},
+                skills: (skillsData && skillsData.skills) ? skillsData.skills.map(function(s) {
+                    return { name: s.name, level: s.level, category: s.category, key: s.key, roles: s.roles || [], evidence: s.evidence || [] };
+                }) : [],
+                roles: (skillsData && skillsData.roles) || [],
+                values: blueprintData.values || [],
+                purpose: blueprintData.purpose || '',
+                outcomes: blueprintData.outcomes || [],
+                preferences: userData.preferences || {},
+                applications: userData.applications || [],
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            return fbDb.collection('users').doc(uid).set(data, { merge: true })
+                .then(function() {
+                    console.log('☁ Saved to Firestore');
+                    return true;
+                })
+                .catch(function(err) {
+                    console.error('Firestore save error:', err);
+                    return false;
+                });
+        }
+        window.saveToFirestore = saveToFirestore;
+
+        function loadUserFromFirestore(uid) {
+            if (!fbDb) return Promise.resolve(false);
+            
+            return fbDb.collection('users').doc(uid).get()
+                .then(function(doc) {
+                    if (!doc.exists) return false;
+                    var data = doc.data();
+                    
+                    // Only load if user has actual skill data
+                    if (!data.skills || data.skills.length === 0) return false;
+                    
+                    console.log('☁ Loading profile from Firestore...');
+                    
+                    // Populate userData
+                    userData.initialized = true;
+                    userData.profile = data.profile || {};
+                    userData.skills = data.skills || [];
+                    userData.values = data.values || [];
+                    userData.purpose = data.purpose || '';
+                    userData.roles = data.roles || [];
+                    userData.preferences = data.preferences || userData.preferences;
+                    userData.applications = data.applications || [];
+                    userData.templateId = 'firestore-' + uid;
+                    
+                    // Populate skillsData
+                    if (typeof skillsData !== 'undefined') {
+                        skillsData.skills = data.skills || [];
+                        skillsData.roles = data.roles || [];
+                    }
+                    
+                    // Re-render
+                    if (typeof initializeMainApp === 'function') {
+                        initializeMainApp();
+                    }
+                    if (userData.profile.name) {
+                        updateProfileChip(userData.profile.name);
+                    }
+                    
+                    console.log('✓ Loaded from Firestore:', data.skills.length, 'skills');
+                    return true;
+                })
+                .catch(function(err) {
+                    console.error('Firestore load error:', err);
+                    return false;
+                });
+        }
+
+        // ===== GDPR DATA FUNCTIONS =====
+        function exportMyData() {
+            if (!fbDb || !fbUser) {
+                showToast('You must be signed in to export your data.', 'warning');
+                return;
+            }
+            
+            fbDb.collection('users').doc(fbUser.uid).get()
+                .then(function(doc) {
+                    if (!doc.exists) {
+                        showToast('No data found for your account.', 'info');
+                        return;
+                    }
+                    var data = doc.data();
+                    data.exportedAt = new Date().toISOString();
+                    data.exportedFor = fbUser.email;
+                    
+                    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    var url = URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'work-blueprint-data-export-' + new Date().toISOString().slice(0, 10) + '.json';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    
+                    showToast('Your data has been exported.', 'success');
+                });
+        }
+        window.exportMyData = exportMyData;
+
+        function requestDataDeletion() {
+            if (!fbDb || !fbUser) {
+                showToast('You must be signed in to request deletion.', 'warning');
+                return;
+            }
+            
+            var confirmed = confirm('This will permanently delete all your Work Blueprint data and sign you out. This action cannot be undone.\n\nAre you sure?');
+            if (!confirmed) return;
+            
+            var doubleConfirm = confirm('Final confirmation: All your skills, values, outcomes, and profile data will be permanently deleted. Proceed?');
+            if (!doubleConfirm) return;
+            
+            var uid = fbUser.uid;
+            fbDb.collection('users').doc(uid).delete()
+                .then(function() {
+                    return fbAuth.currentUser.delete();
+                })
+                .then(function() {
+                    // Clear local storage
+                    localStorage.removeItem('wbValues');
+                    localStorage.removeItem('wbPurpose');
+                    localStorage.removeItem('currentProfile');
+                    localStorage.removeItem('wbHasVisited');
+                    
+                    showToast('Your data has been permanently deleted.', 'info', 6000);
+                    fbUser = null;
+                    fbIsAdmin = false;
+                    updateAuthUI();
+                    
+                    // Reload to clean state
+                    setTimeout(function() { window.location.reload(); }, 2000);
+                })
+                .catch(function(err) {
+                    if (err.code === 'auth/requires-recent-login') {
+                        showToast('For security, please sign out and sign back in, then try again.', 'warning', 6000);
+                    } else {
+                        console.error('Deletion error:', err);
+                        showToast('Error deleting data. Please try again or contact support.', 'error');
+                    }
+                });
+        }
+        window.requestDataDeletion = requestDataDeletion;
+
+        function viewMyData() {
+            if (!fbDb || !fbUser) {
+                showToast('You must be signed in to view your stored data.', 'warning');
+                return;
+            }
+            
+            fbDb.collection('users').doc(fbUser.uid).get()
+                .then(function(doc) {
+                    if (!doc.exists) {
+                        showToast('No data found for your account.', 'info');
+                        return;
+                    }
+                    var data = doc.data();
+                    
+                    var modal = document.getElementById('exportModal');
+                    var modalContent = modal.querySelector('.modal-content');
+                    
+                    var summary = 'Account: ' + (data.email || 'N/A')
+                        + '\nCreated: ' + (data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : 'N/A')
+                        + '\nLast Login: ' + (data.lastLogin ? new Date(data.lastLogin.seconds * 1000).toLocaleDateString() : 'N/A')
+                        + '\nSkills stored: ' + (data.skills ? data.skills.length : 0)
+                        + '\nValues stored: ' + (data.values ? data.values.length : 0)
+                        + '\nOutcomes stored: ' + (data.outcomes ? data.outcomes.length : 0)
+                        + '\nApplications stored: ' + (data.applications ? data.applications.length : 0);
+                    
+                    modalContent.innerHTML = '<div class="modal-header">'
+                        + '<div class="modal-header-left"><h2 class="modal-title">Your Stored Data</h2></div>'
+                        + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                        + '</div>'
+                        + '<div class="modal-body" style="padding:24px;">'
+                        + '<pre style="background:' + tv('rgba(0,0,0,0.3)','#f1f5f9') + '; padding:20px; border-radius:8px; '
+                        + 'color:' + tv('#e0e0e0','#334155') + '; font-size:0.85em; line-height:1.6; white-space:pre-wrap; overflow:auto; max-height:400px;">'
+                        + summary + '</pre>'
+                        + '<div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">'
+                        + '<button onclick="exportMyData()" style="background:' + tv('#1e40af','#2563eb') + '; color:#fff; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600;">Download Full Export (JSON)</button>'
+                        + '<button onclick="closeExportModal(); requestDataDeletion();" style="background:transparent; color:#ef4444; border:1px solid #ef4444; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600;">Delete All My Data</button>'
+                        + '</div></div>';
+                    
+                    modal.classList.add('active');
+                });
+        }
+        window.viewMyData = viewMyData;
+
+        // ===== ADMIN PANEL =====
+        function showAdminPanel() {
+            if (!fbIsAdmin || !fbDb) {
+                showToast('Admin access required.', 'error');
+                return;
+            }
+            
+            var modal = document.getElementById('exportModal');
+            var modalContent = modal.querySelector('.modal-content');
+            
+            modalContent.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left"><h2 class="modal-title">\uD83D\uDC51 Admin Dashboard</h2></div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:24px;">'
+                + '<div id="adminContent" style="color:' + tv('#d1d5db','#334155') + ';">Loading users...</div>'
+                + '</div>';
+            
+            modal.classList.add('active');
+            
+            // Fetch all users
+            fbDb.collection('users').orderBy('lastLogin', 'desc').get()
+                .then(function(snapshot) {
+                    var html = '<div style="margin-bottom:16px; font-size:0.9em; color:' + tv('#9ca3af','#64748b') + ';">'
+                        + snapshot.size + ' registered users</div>';
+                    
+                    html += '<div style="display:grid; gap:10px;">';
+                    snapshot.forEach(function(doc) {
+                        var d = doc.data();
+                        var skillCount = d.skills ? d.skills.length : 0;
+                        var lastLogin = d.lastLogin ? new Date(d.lastLogin.seconds * 1000).toLocaleDateString() : 'Never';
+                        var isAdmin = d.role === 'admin';
+                        
+                        html += '<div style="padding:14px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; '
+                            + 'border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:8px;">'
+                            + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                            + '<div>'
+                            + '<strong style="color:' + tv('#e0e0e0','#1e293b') + ';">' + (d.displayName || d.email || doc.id) + '</strong>'
+                            + (isAdmin ? ' <span class="admin-badge">ADMIN</span>' : '')
+                            + '<div style="font-size:0.82em; color:' + tv('#9ca3af','#64748b') + ';">'
+                            + (d.email || '') + '</div>'
+                            + '</div>'
+                            + '<div style="text-align:right; font-size:0.82em; color:' + tv('#9ca3af','#64748b') + ';">'
+                            + skillCount + ' skills<br>Last: ' + lastLogin
+                            + '</div>'
+                            + '</div></div>';
+                    });
+                    html += '</div>';
+                    
+                    document.getElementById('adminContent').innerHTML = html;
+                })
+                .catch(function(err) {
+                    document.getElementById('adminContent').innerHTML = '<div style="color:#ef4444;">Error loading users: ' + err.message + '</div>';
+                });
+        }
+        window.showAdminPanel = showAdminPanel;
+
+        // ===== ENHANCED SAVE (Firestore + localStorage) =====
+        function saveAll() {
+            saveValues(); // localStorage for values
+            if (fbUser && fbDb) {
+                saveToFirestore();
+            }
+        }
+        window.saveAll = saveAll;
 
         // ===== TOAST NOTIFICATION SYSTEM =====
         let toastCounter = 0;
@@ -5979,6 +6696,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         
         // Initialize user interface on load
         document.addEventListener('DOMContentLoaded', async () => {
+            // v4.0: Check for magic link sign-in first
+            checkMagicLinkSignIn();
+            
+            // Wait for auth state to resolve
+            await authReadyPromise;
+            
             // v2.0: Initialize app (checks for profile, shows welcome if needed)
             await initializeApp();
             
@@ -6007,10 +6730,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 
                 initCardView();
                 
-                // Auto-save every 30 seconds
+                // Auto-save every 60 seconds (Firestore + localStorage)
                 setInterval(() => {
                     saveUserData();
-                }, 30000);
+                    if (fbUser && fbDb) saveToFirestore();
+                }, 60000);
             } // Close if (userData.initialized)
         }); // Close DOMContentLoaded
         
@@ -11112,7 +11836,40 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 + '\u2022 Consider context before sharing recovery or advocacy work'
                 + '</div>'
                 + '</div>'
-                + '</div>';
+                + '</div>'
+
+                // GDPR Data Rights section
+                + '<div class="blueprint-section">'
+                + '<div class="blueprint-section-header">'
+                + '<div class="blueprint-section-title">'
+                + '<span class="section-icon">\uD83D\uDD12</span>'
+                + '<span>Your Data Rights</span>'
+                + '</div>'
+                + '</div>'
+                + '<div style="color:' + tv('#d1d5db','#334155') + '; line-height:1.7; font-size:0.93em;">'
+                + '<p style="margin-bottom:16px;">Under GDPR and similar privacy regulations, you have the right to access, export, and delete your personal data at any time. '
+                + 'Use the controls below to exercise these rights.</p>'
+                + '<div style="display:flex; gap:12px; flex-wrap:wrap;">'
+                + '<button onclick="viewMyData()" style="'
+                + 'background:' + tv('rgba(96,165,250,0.12)','rgba(30,64,175,0.08)') + '; '
+                + 'border:1px solid ' + tv('rgba(96,165,250,0.3)','rgba(30,64,175,0.2)') + '; '
+                + 'color:' + tv('#60a5fa','#1e40af') + '; padding:12px 20px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;'
+                + '">\uD83D\uDCC4 View My Stored Data</button>'
+                + '<button onclick="exportMyData()" style="'
+                + 'background:' + tv('rgba(16,185,129,0.12)','rgba(5,150,105,0.08)') + '; '
+                + 'border:1px solid ' + tv('rgba(16,185,129,0.3)','rgba(5,150,105,0.2)') + '; '
+                + 'color:' + tv('#10b981','#059669') + '; padding:12px 20px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;'
+                + '">\uD83D\uDCE5 Export My Data (JSON)</button>'
+                + '<button onclick="requestDataDeletion()" style="'
+                + 'background:' + tv('rgba(239,68,68,0.08)','rgba(220,38,38,0.05)') + '; '
+                + 'border:1px solid ' + tv('rgba(239,68,68,0.3)','rgba(220,38,38,0.2)') + '; '
+                + 'color:' + tv('#ef4444','#dc2626') + '; padding:12px 20px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;'
+                + '">\uD83D\uDDD1 Delete All My Data</button>'
+                + '</div>'
+                + '<div style="margin-top:12px; font-size:0.82em; color:' + tv('#6b7280','#9ca3af') + ';">'
+                + 'You must be signed in to use these features. Data deletion is permanent and cannot be undone.'
+                + '</div>'
+                + '</div></div>';
         }
         
         function saveSettings() {
@@ -12807,6 +13564,26 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             html.setAttribute('data-theme', isDark ? 'light' : 'dark');
             document.getElementById('themeToggleBtn').textContent = isDark ? '☀️' : '🌙';
             localStorage.setItem('wbTheme', isDark ? 'light' : 'dark');
+            
+            // Re-render current view so tv()/tb() inline styles pick up new theme
+            if (typeof currentView !== 'undefined' && currentView) {
+                if (currentView === 'network' || currentView === 'skills') {
+                    if (typeof initCardView === 'function' && currentSkillsView === 'card') {
+                        initCardView();
+                    }
+                    // Network SVG uses CSS variables, no re-render needed
+                } else if (currentView === 'blueprint' && typeof renderBlueprint === 'function') {
+                    renderBlueprint();
+                } else if (currentView === 'consent' && typeof initConsent === 'function') {
+                    initConsent();
+                } else if (currentView === 'settings' && typeof initSettings === 'function') {
+                    initSettings();
+                } else if (currentView === 'jobs' && typeof initOpportunities === 'function') {
+                    initOpportunities();
+                } else if (currentView === 'applications' && typeof initApplications === 'function') {
+                    initApplications();
+                }
+            }
         }
         window.toggleTheme = toggleTheme;
 
