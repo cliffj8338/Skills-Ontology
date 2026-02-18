@@ -3506,7 +3506,7 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.7.0 - BUILD 20260218-1930
+        // WORK BLUEPRINT v3.7.1 - BUILD 20260218-1945
         // PREMIUM: 5-Factor Comprehensive Premium Calculation
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -11628,20 +11628,101 @@ body {
             }, 300);
         }
 
-        function performAddSkillsSearch(query) {
-            console.log('=== performAddSkillsSearch START ===');
-            console.log('Query:', query);
-            console.log('skillLibraryIndex exists?', !!skillLibraryIndex);
+        // Search across ALL loaded libraries and return normalized results
+        function searchAllLibraries(query) {
+            const q = query.toLowerCase().trim();
+            if (q.length < 2) return [];
+            const results = [];
+            const seen = new Set();
             
+            // 1. ESCO searchable index
+            const escoResults = searchSkills(query);
+            escoResults.forEach(s => {
+                const key = (s.n || '').toLowerCase();
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    results.push({ id: s.id, n: s.n, c: s.c, sc: s.sc || '', definition: '', source: 'esco', category: null, _raw: s });
+                }
+            });
+            
+            // 2. Trades & Creative library
+            if (window.tradesCreativeLibrary && window.tradesCreativeLibrary.categories) {
+                Object.entries(window.tradesCreativeLibrary.categories).forEach(function([catKey, cat]) {
+                    (cat.skills || []).forEach(function(skill) {
+                        const nameMatch = skill.name.toLowerCase().includes(q);
+                        const defMatch = (skill.definition || '').toLowerCase().includes(q);
+                        const adjMatch = (skill.adjacencies || []).some(function(a) { return a.toLowerCase().includes(q); });
+                        if (nameMatch || defMatch || adjMatch) {
+                            const key = skill.name.toLowerCase();
+                            if (!seen.has(key)) {
+                                seen.add(key);
+                                results.push({ id: skill.id, n: skill.name, c: cat.name, sc: 'Trades & Creative', definition: skill.definition || '', source: 'trades', category: 'unique', _raw: skill });
+                            }
+                        }
+                    });
+                });
+            }
+            
+            // 3. O*NET Knowledge
+            if (window.onetKnowledgeLibrary && window.onetKnowledgeLibrary.knowledge) {
+                window.onetKnowledgeLibrary.knowledge.forEach(function(skill) {
+                    if (skill.name.toLowerCase().includes(q) || (skill.description || '').toLowerCase().includes(q)) {
+                        const key = skill.name.toLowerCase();
+                        if (!seen.has(key)) {
+                            seen.add(key);
+                            results.push({ id: skill.onetCode, n: skill.name, c: 'Knowledge', sc: skill.group || '', definition: skill.description || '', source: 'onet-knowledge', category: 'knowledge', _raw: skill });
+                        }
+                    }
+                });
+            }
+            
+            // 4. O*NET Work Activities
+            if (window.onetWorkActivitiesLibrary && window.onetWorkActivitiesLibrary.activities) {
+                window.onetWorkActivitiesLibrary.activities.forEach(function(skill) {
+                    if (skill.name.toLowerCase().includes(q) || (skill.description || '').toLowerCase().includes(q)) {
+                        const key = skill.name.toLowerCase();
+                        if (!seen.has(key)) {
+                            seen.add(key);
+                            results.push({ id: skill.onetCode, n: skill.name, c: 'Work Activities', sc: skill.group || '', definition: skill.description || '', source: 'onet-activities', category: 'workactivity', _raw: skill });
+                        }
+                    }
+                });
+            }
+            
+            // 5. O*NET Abilities
+            if (window.onetAbilitiesLibrary && window.onetAbilitiesLibrary.abilities) {
+                window.onetAbilitiesLibrary.abilities.forEach(function(skill) {
+                    const def = skill.definition || skill.description || '';
+                    if (skill.name.toLowerCase().includes(q) || def.toLowerCase().includes(q)) {
+                        const key = skill.name.toLowerCase();
+                        if (!seen.has(key)) {
+                            seen.add(key);
+                            results.push({ id: skill.id || skill.onetCode, n: skill.name, c: 'Abilities', sc: skill.group || '', definition: def, source: 'onet-abilities', category: 'ability', _raw: skill });
+                        }
+                    }
+                });
+            }
+            
+            // 6. O*NET Work Styles
+            if (window.onetWorkStylesLibrary && window.onetWorkStylesLibrary.workStyles) {
+                window.onetWorkStylesLibrary.workStyles.forEach(function(skill) {
+                    const def = skill.definition || skill.description || '';
+                    if (skill.name.toLowerCase().includes(q) || def.toLowerCase().includes(q)) {
+                        const key = skill.name.toLowerCase();
+                        if (!seen.has(key)) {
+                            seen.add(key);
+                            results.push({ id: skill.id || skill.onetCode, n: skill.name, c: 'Work Styles', sc: skill.group || '', definition: def, source: 'onet-workstyles', category: 'workstyle', _raw: skill });
+                        }
+                    }
+                });
+            }
+            
+            return results.slice(0, 30);
+        }
+        
+        function performAddSkillsSearch(query) {
             try {
-                const results = searchSkills(query);
-                console.log('searchSkills returned:', results);
-                console.log('Results type:', typeof results);
-                console.log('Results is array?', Array.isArray(results));
-                
-                // DEFENSIVE: Ensure results is always an array
-                const safeResults = Array.isArray(results) ? results : [];
-                console.log('Safe results length:', safeResults.length);
+                const safeResults = searchAllLibraries(query);
                 
                 const container = document.getElementById('addSkillsResults');
                 if (!container) {
@@ -11665,7 +11746,6 @@ body {
                     `;
                     const statusEl = document.getElementById('skillManagementStatus');
                     if (statusEl) statusEl.textContent = 'No results';
-                    console.log('=== performAddSkillsSearch END (no results) ===');
                     return;
                 }
                 
@@ -11718,7 +11798,6 @@ body {
                     statusEl.textContent = `Found ${safeResults.length} skill${safeResults.length > 1 ? 's' : ''}`;
                 }
                 
-                console.log('=== performAddSkillsSearch END (success) ===');
                 
             } catch (error) {
                 console.error('=== CRITICAL ERROR in performAddSkillsSearch ===');
@@ -11752,61 +11831,80 @@ body {
         }
 
         function addSkillFromLibrary(skillId) {
-            if (!skillLibraryIndex) {
-                alert('Skill library not loaded');
-                return;
+            // Find the skill across all libraries
+            let skillName = null, category = 'skill', definition = '';
+            
+            // Check ESCO index
+            if (skillLibraryIndex && skillLibraryIndex.index) {
+                const found = skillLibraryIndex.index.find(s => s.id === skillId);
+                if (found) {
+                    skillName = found.n;
+                    const sc = (found.sc || '').toLowerCase();
+                    const cat = (found.c || '').toLowerCase();
+                    if (cat === 'work styles' || sc.includes('work style')) category = 'workstyle';
+                    else if (['transversal skills','language skills','cognitive abilities','sensory abilities','physical abilities','psychomotor abilities'].includes(cat)) category = 'ability';
+                    else category = 'skill';
+                }
             }
             
-            const skill = skillLibraryIndex.index.find(s => s.id === skillId);
-            if (!skill) {
-                alert('Skill not found');
-                return;
+            // Check trades library
+            if (!skillName && window.tradesCreativeLibrary && window.tradesCreativeLibrary.categories) {
+                outer: for (const cat of Object.values(window.tradesCreativeLibrary.categories)) {
+                    for (const skill of (cat.skills || [])) {
+                        if (skill.id === skillId) {
+                            skillName = skill.name;
+                            category = skill.category || 'unique';
+                            definition = skill.definition || '';
+                            break outer;
+                        }
+                    }
+                }
             }
             
-            if (isSkillAlreadyAdded(skill.n)) {
-                return;
+            // Check O*NET libraries by code
+            if (!skillName) {
+                const onetSources = [
+                    { lib: window.onetKnowledgeLibrary?.knowledge, cat: 'knowledge', nameField: 'name', idField: 'onetCode' },
+                    { lib: window.onetWorkActivitiesLibrary?.activities, cat: 'workactivity', nameField: 'name', idField: 'onetCode' },
+                    { lib: window.onetAbilitiesLibrary?.abilities, cat: 'ability', nameField: 'name', idField: 'id' },
+                    { lib: window.onetWorkStylesLibrary?.workStyles, cat: 'workstyle', nameField: 'name', idField: 'id' },
+                ];
+                for (const src of onetSources) {
+                    if (!src.lib) continue;
+                    const found = src.lib.find(s => (s[src.idField] || s.id || s.onetCode) === skillId);
+                    if (found) {
+                        skillName = found.name;
+                        category = src.cat;
+                        definition = found.definition || found.description || '';
+                        break;
+                    }
+                }
             }
             
-            // Map ESCO/O*NET category to app skill type
-            let category = 'skill'; // default
-            const sc = (skill.sc || '').toLowerCase();
-            const cat = (skill.c || '').toLowerCase();
-            const src = (skill.src || skill.source || '');
-            if (cat === 'work styles' || sc.includes('work style')) {
-                category = 'workstyle';
-            } else if (cat === 'transversal skills' || cat === 'language skills' ||
-                       cat === 'cognitive abilities' || cat === 'sensory abilities' ||
-                       cat === 'physical abilities' || cat === 'psychomotor abilities') {
-                category = 'ability';
-            } else if (cat === 'work activities') {
-                category = 'skill';
-            } else if (src === 'O*NET' && cat === 'knowledge') {
-                category = 'skill';
-            } else if (cat === 'basic skills' || cat === 'cross-functional skills') {
-                category = 'skill';
-            }
+            if (!skillName) { console.warn('Skill not found for id:', skillId); return; }
+            if (isSkillAlreadyAdded(skillName)) return;
             
             const newSkill = {
-                name: skill.n,
+                name: skillName,
                 category: category,
                 level: 'Advanced',
                 roles: [userData.roles[0]?.id || 'default'],
                 key: false,
-                source: skill.source || 'library',
-                libraryId: skill.id
+                evidence: [],
+                source: 'library',
+                libraryId: skillId
             };
             
             userData.skills.push(newSkill);
             skillsData.skills.push(newSkill);
             
             saveUserData();
+            populateCategoryFilter();
             updateSkillManagementCounts();
             refreshAllViews();
             
             const query = document.getElementById('addSkillsSearchInput').value;
-            if (query) {
-                performAddSkillsSearch(query);
-            }
+            if (query) performAddSkillsSearch(query);
         }
         
         // ===== OVERFLOW MENU FUNCTIONS =====
