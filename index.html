@@ -3309,7 +3309,7 @@
                     📊 Your Skills (<span id="yourSkillsCount">0</span>)
                 </button>
                 <button id="addSkillsTab" class="skill-mgmt-tab" onclick="switchSkillManagementTab('add')">
-                    ➕ Add Skills (<span id="availableSkillsCount">2,138</span>)
+                    ➕ Add Skills (<span id="availableSkillsCount">2,320+</span>)
                 </button>
             </div>
             
@@ -3333,9 +3333,11 @@
                     <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
                         <select id="yourSkillsCategoryFilter" onchange="filterYourSkills()" style="padding: 8px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white;">
                             <option value="all">All Categories</option>
-                            <option value="skill">Technology</option>
-                            <option value="ability">General Professional</option>
+                            <option value="skill">Skills</option>
+                            <option value="ability">Abilities</option>
                             <option value="workstyle">Work Styles</option>
+                            <option value="knowledge">Knowledge</option>
+                            <option value="workactivity">Work Activities</option>
                             <option value="unique">Custom Skills</option>
                         </select>
                         
@@ -3361,7 +3363,7 @@
                             type="text" 
                             id="addSkillsSearchInput" 
                             class="settings-input" 
-                            placeholder="Search 2,138 skills to add... (e.g., 'python', 'marketing', 'leadership')"
+                            placeholder="Search 2,138+ skills... (e.g., 'python', 'marketing', 'leadership')"
                             style="width: 100%; padding-right: 40px; font-size: 1.1em;"
                             oninput="handleAddSkillsSearch()"
                             autofocus>
@@ -3429,7 +3431,7 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.6.7 - BUILD 20260218-1830
+        // WORK BLUEPRINT v3.6.8 - BUILD 20260218-1845
         // PREMIUM: 5-Factor Comprehensive Premium Calculation
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -11324,7 +11326,16 @@ body {
 
         function updateSkillManagementCounts() {
             const yourCount = userData.skills.length;
-            const availableCount = skillLibraryIndex ? skillLibraryIndex.totalSkills : 1805;
+            
+            // Sum all loaded libraries for true total
+            let availableCount = skillLibraryIndex ? (skillLibraryIndex.totalSkills || 0) : 0;
+            // O*NET Skills (has .categories nested structure, use stored count)
+            if (window.onetSkillsLibrary) availableCount += 35;
+            if (window.onetAbilitiesLibrary?.abilities) availableCount += window.onetAbilitiesLibrary.abilities.length;
+            if (window.onetWorkStylesLibrary?.workStyles) availableCount += window.onetWorkStylesLibrary.workStyles.length;
+            if (window.onetKnowledgeLibrary?.knowledge) availableCount += window.onetKnowledgeLibrary.knowledge.length;
+            if (window.onetWorkActivitiesLibrary?.activities) availableCount += window.onetWorkActivitiesLibrary.activities.length;
+            if (availableCount === 0) availableCount = 2320; // fallback
             
             document.getElementById('yourSkillsCount').textContent = yourCount;
             document.getElementById('availableSkillsCount').textContent = availableCount.toLocaleString();
