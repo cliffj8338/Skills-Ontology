@@ -1,0 +1,215 @@
+{
+  "templateName": "Sarah Chen - Technical Recruiter",
+  "templateId": "sarah-chen-demo",
+  "profile": {
+    "name": "Sarah Chen",
+    "location": "Austin, Texas, US",
+    "roleLevel": "Senior",
+    "currentTitle": "Senior Technical Recruiter",
+    "yearsExperience": 8,
+    "currentCompany": "TechStaff Solutions",
+    "executiveSummary": "Results-driven technical recruiter with 8 years of experience building high-performing engineering teams at scale. Specialized in sourcing passive candidates, stakeholder management, and creating exceptional candidate experiences. Known for filling impossible reqs and building talent pipelines that deliver 18 months ahead of need."
+  },
+  "roles": [
+    {
+      "id": "recruiter",
+      "name": "Technical Recruiter",
+      "icon": "\ud83c\udfaf",
+      "color": "#ef4444"
+    },
+    {
+      "id": "strategist",
+      "name": "Talent Strategist",
+      "icon": "\ud83d\udcca",
+      "color": "#3b82f6"
+    },
+    {
+      "id": "partner",
+      "name": "Stakeholder Partner",
+      "icon": "\ud83e\udd1d",
+      "color": "#10b981"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Active Listening",
+      "category": "skill",
+      "key": true,
+      "evidence": [
+        {
+          "description": "Conduct intake meetings with hiring managers to understand true requirements beyond job description",
+          "outcome": "Reduced time-to-fill by 40% through better candidate-role matching"
+        }
+      ],
+      "roles": [
+        "recruiter",
+        "partner"
+      ],
+      "level": "Mastery",
+      "onetId": "2.B.1.a",
+      "yearsExperience": 8
+    },
+    {
+      "name": "Speaking",
+      "category": "skill",
+      "key": true,
+      "evidence": [
+        {
+          "description": "Present talent market insights to executive leadership quarterly",
+          "outcome": "Influenced 3 major comp adjustments that improved offer acceptance rate from 65% to 89%"
+        }
+      ],
+      "roles": [
+        "recruiter",
+        "partner"
+      ],
+      "level": "Advanced",
+      "onetId": "2.B.1.a",
+      "yearsExperience": 6
+    },
+    {
+      "name": "Negotiation",
+      "category": "skill",
+      "key": true,
+      "evidence": [
+        {
+          "description": "Navigate complex offer negotiations balancing candidate expectations and budget constraints",
+          "outcome": "89% offer acceptance rate vs 70% industry average"
+        }
+      ],
+      "roles": [
+        "recruiter",
+        "partner"
+      ],
+      "level": "Advanced",
+      "onetId": "2.B.1.a",
+      "yearsExperience": 6
+    },
+    {
+      "name": "Critical Thinking",
+      "category": "skill",
+      "key": true,
+      "evidence": [
+        {
+          "description": "Analyzed hiring data to identify bottlenecks causing 60-day time-to-fill for senior roles",
+          "outcome": "Implemented solutions that reduced senior hiring timeline to 35 days"
+        }
+      ],
+      "roles": [
+        "strategist",
+        "recruiter"
+      ],
+      "level": "Advanced",
+      "onetId": "2.B.1.a",
+      "yearsExperience": 6
+    },
+    {
+      "name": "Social Perceptiveness",
+      "category": "skill",
+      "key": true,
+      "evidence": [
+        {
+          "description": "Read candidate hesitation signals during interviews to surface unspoken concerns",
+          "outcome": "Prevented 12 offer declines by addressing concerns proactively"
+        }
+      ],
+      "roles": [
+        "recruiter",
+        "partner"
+      ],
+      "level": "Mastery",
+      "onetId": "2.B.1.a",
+      "yearsExperience": 8
+    },
+    {
+      "name": "Judgment and Decision Making",
+      "category": "skill",
+      "evidence": [
+        {
+          "description": "Make rapid assessments of candidate fit during initial screens",
+          "outcome": "92% of candidates submitted to hiring managers advance to final rounds"
+        }
+      ],
+      "roles": [
+        "strategist",
+        "recruiter"
+      ],
+      "level": "Advanced",
+      "onetId": "2.B.1.a",
+      "yearsExperience": 6
+    },
+    {
+      "name": "Persuasion",
+      "category": "skill",
+      "key": true,
+      "evidence": [
+        {
+          "description": "Convince passive candidates to explore opportunities despite being happily employed",
+          "outcome": "70% of placements come from passive candidate outreach"
+        }
+      ],
+      "roles": [
+        "recruiter",
+        "partner"
+      ],
+      "level": "Advanced",
+      "onetId": "2.B.1.a",
+      "yearsExperience": 6
+    },
+    {
+      "name": "Service Orientation",
+      "category": "skill",
+      "evidence": [
+        {
+          "description": "White-glove candidate experience from first contact through onboarding",
+          "outcome": "4.9/5 candidate satisfaction rating, 85% of placed candidates refer others"
+        }
+      ],
+      "roles": [
+        "recruiter"
+      ],
+      "level": "Advanced",
+      "onetId": "2.B.1.a",
+      "yearsExperience": 6
+    },
+    {
+      "name": "Time Management",
+      "category": "skill",
+      "evidence": [
+        {
+          "description": "Manage 25+ active searches simultaneously across different tech stacks",
+          "outcome": "Maintained 98% SLA compliance while increasing requisition load 40%"
+        }
+      ],
+      "roles": [
+        "strategist",
+        "recruiter"
+      ],
+      "level": "Advanced",
+      "onetId": "2.B.1.a",
+      "yearsExperience": 6
+    },
+    {
+      "name": "Coordination",
+      "category": "skill",
+      "evidence": [
+        {
+          "description": "Orchestrate interview loops involving 6-8 interviewers across multiple time zones",
+          "outcome": "Reduced scheduling time from 5 days to 24 hours average"
+        }
+      ],
+      "roles": [
+        "recruiter"
+      ],
+      "level": "Advanced",
+      "onetId": "2.B.1.a",
+      "yearsExperience": 6
+    }
+  ],
+  "values": [
+    "Excellence",
+    "Empathy",
+    "Collaboration"
+  ],
+  "purpose": "Connect exceptional talent with opportunities where they can thrive and make impact."
+}
