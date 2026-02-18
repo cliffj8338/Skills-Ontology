@@ -3705,12 +3705,12 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0215
-        // WELCOME-FIRST + INLINE PROFILE SWITCH + SAMPLE PICKER
+        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0230
+        // ANIMATED HERO + ADMIN DROPDOWN FIX
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   WORK BLUEPRINT v4.0.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260219-0215                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260219-0230                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -4394,26 +4394,33 @@
             var el = document.getElementById('welcomeView');
             if (!el) return;
             
+            var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+            
             el.innerHTML = '<div class="welcome-hero">'
-                + '<div style="font-size:3em; margin-bottom:16px;">\u25C8</div>'
+                // Animated network canvas
+                + '<div style="position:relative; width:100%; height:280px; margin-bottom:8px; overflow:hidden; border-radius:16px;">'
+                + '<canvas id="heroNetworkCanvas" style="width:100%; height:100%; display:block;"></canvas>'
+                + '<div style="position:absolute; bottom:0; left:0; right:0; height:80px; '
+                + 'background:linear-gradient(transparent, ' + (isDark ? '#0f0f1e' : '#f9fafb') + '); pointer-events:none;"></div>'
+                + '</div>'
+                
                 + '<h2>Know Your Worth.<br>Own Your Narrative.</h2>'
                 + '<div class="welcome-sub">'
                 + 'Work Blueprint maps your skills, quantifies your market value, and builds the professional story '
-                + 'you need for your next opportunity. Powered by ESCO and O*NET skill taxonomies, '
-                + 'grounded in evidence, designed for executives and professionals who lead with impact.'
+                + 'you need for your next opportunity. Powered by O*NET skill taxonomies, '
+                + 'grounded in evidence, designed for professionals who lead with impact.'
                 + '</div>'
 
                 // Two main CTAs
                 + '<div class="welcome-cards">'
                 + '<div class="welcome-card" onclick="viewSampleProfile()">'
                 + '<h3>\uD83D\uDCCA View Sample Profiles</h3>'
-                + '<p>Explore how Work Blueprint presents skills, outcomes, market valuation, and professional narrative '
-                + 'through two complete example profiles.</p>'
+                + '<p>Explore complete Work Blueprints showing skills, outcomes, market valuation, and professional narrative.</p>'
                 + '</div>'
                 + '<div class="welcome-card" onclick="showAuthModal(\'signup\')" style="border-color:var(--accent);">'
                 + '<h3>\u25C8 Build Your Blueprint</h3>'
                 + '<p>Create a free account, upload your resume, and let the AI-powered wizard build your personalized '
-                + 'skill ontology and market valuation in minutes.</p>'
+                + 'skill ontology and market valuation.</p>'
                 + '</div>'
                 + '</div>'
 
@@ -4421,8 +4428,8 @@
                 + '<div class="welcome-features">'
                 + '<div class="welcome-feature">'
                 + '<div class="wf-icon">\uD83C\uDFAF</div>'
-                + '<h4>90-Skill Ontology</h4>'
-                + '<p>13,960+ skills from ESCO and O*NET mapped to your experience with evidence linking.</p>'
+                + '<h4>Skill Ontology</h4>'
+                + '<p>13,960+ skills from O*NET mapped to your experience with evidence linking and proficiency levels.</p>'
                 + '</div>'
                 + '<div class="welcome-feature">'
                 + '<div class="wf-icon">\uD83D\uDCB0</div>'
@@ -4445,13 +4452,206 @@
                 + '<div style="margin-top:32px; padding:16px; background:' + tv('rgba(251,191,36,0.06)','rgba(251,191,36,0.04)') + '; '
                 + 'border:1px solid ' + tv('rgba(251,191,36,0.2)','rgba(251,191,36,0.12)') + '; border-radius:8px; '
                 + 'font-size:0.78em; color:' + tv('#9ca3af','#64748b') + '; line-height:1.5;">'
-                + 'This is a demonstration project for educational purposes only. '
-                + 'Data and valuations may contain errors. Not professional advice. '
+                + 'This is a demonstration project. '
+                + 'Data and valuations are illustrative, not professional advice. '
                 + '<a href="#" onclick="event.preventDefault(); switchView(\'consent\');" style="color:inherit; text-decoration:underline;">Full disclaimer</a>.'
                 + '</div>'
                 + '</div>';
+            
+            // Initialize animated network after DOM update
+            setTimeout(function() { initHeroNetwork(); }, 50);
         }
         window.renderWelcomePage = renderWelcomePage;
+
+        // ===== ANIMATED HERO NETWORK =====
+        function initHeroNetwork() {
+            var canvas = document.getElementById('heroNetworkCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            var dpr = window.devicePixelRatio || 1;
+            var rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            var W = rect.width;
+            var H = rect.height;
+            
+            var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+            
+            // Domain colors matching the skills network
+            var colors = ['#60a5fa', '#f472b6', '#34d399', '#fbbf24', '#a78bfa', '#fb923c', '#22d3ee', '#f87171'];
+            var domainNames = ['Strategy', 'Leadership', 'Analytics', 'Innovation', 'Communication', 'Technology', 'Operations', 'Finance'];
+            
+            // Create nodes
+            var nodes = [];
+            var numNodes = 35;
+            
+            // Center node
+            nodes.push({
+                x: W / 2, y: H / 2,
+                vx: 0, vy: 0,
+                r: 18, color: '#60a5fa', alpha: 0.9,
+                label: 'YOU', isCenter: true, domain: 0
+            });
+            
+            // Domain hub nodes (larger)
+            for (var d = 0; d < 8; d++) {
+                var angle = (d / 8) * Math.PI * 2 - Math.PI / 2;
+                var dist = 70 + Math.random() * 30;
+                nodes.push({
+                    x: W / 2 + Math.cos(angle) * dist,
+                    y: H / 2 + Math.sin(angle) * dist,
+                    vx: (Math.random() - 0.5) * 0.3,
+                    vy: (Math.random() - 0.5) * 0.3,
+                    r: 10 + Math.random() * 4,
+                    color: colors[d], alpha: 0.7,
+                    label: domainNames[d], isCenter: false, domain: d
+                });
+            }
+            
+            // Skill nodes (smaller)
+            for (var i = 9; i < numNodes; i++) {
+                var dom = Math.floor(Math.random() * 8);
+                var parentIdx = dom + 1;
+                var spread = 30 + Math.random() * 50;
+                var a = Math.random() * Math.PI * 2;
+                nodes.push({
+                    x: nodes[parentIdx].x + Math.cos(a) * spread,
+                    y: nodes[parentIdx].y + Math.sin(a) * spread,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4,
+                    r: 3 + Math.random() * 3,
+                    color: colors[dom], alpha: 0.4 + Math.random() * 0.3,
+                    label: '', isCenter: false, domain: dom
+                });
+            }
+            
+            // Create links
+            var links = [];
+            // Center to domains
+            for (var d = 1; d <= 8; d++) {
+                links.push({ source: 0, target: d, strength: 0.6 });
+            }
+            // Domains to skills
+            for (var i = 9; i < numNodes; i++) {
+                links.push({ source: nodes[i].domain + 1, target: i, strength: 0.3 });
+                // Some cross-domain connections
+                if (Math.random() < 0.15) {
+                    var otherDom = Math.floor(Math.random() * 8) + 1;
+                    if (otherDom !== nodes[i].domain + 1) {
+                        links.push({ source: i, target: otherDom, strength: 0.1 });
+                    }
+                }
+            }
+            
+            var t = 0;
+            var animId = null;
+            
+            function draw() {
+                t += 0.008;
+                ctx.clearRect(0, 0, W, H);
+                
+                // Gentle node movement
+                for (var i = 1; i < nodes.length; i++) {
+                    var n = nodes[i];
+                    n.x += n.vx + Math.sin(t + i * 0.7) * 0.15;
+                    n.y += n.vy + Math.cos(t + i * 0.5) * 0.12;
+                    
+                    // Soft boundary
+                    if (n.x < 30) n.vx += 0.05;
+                    if (n.x > W - 30) n.vx -= 0.05;
+                    if (n.y < 30) n.vy += 0.05;
+                    if (n.y > H - 30) n.vy -= 0.05;
+                    
+                    // Damping
+                    n.vx *= 0.998;
+                    n.vy *= 0.998;
+                    
+                    // Gentle pull toward original position
+                    var originAngle = ((n.domain) / 8) * Math.PI * 2 - Math.PI / 2;
+                    var originDist = n.isCenter ? 0 : (i <= 8 ? 80 : 80 + (i % 40));
+                    var ox = W / 2 + Math.cos(originAngle + t * 0.1) * originDist;
+                    var oy = H / 2 + Math.sin(originAngle + t * 0.1) * originDist;
+                    n.vx += (ox - n.x) * 0.0008;
+                    n.vy += (oy - n.y) * 0.0008;
+                }
+                
+                // Draw links
+                for (var i = 0; i < links.length; i++) {
+                    var l = links[i];
+                    var s = nodes[l.source];
+                    var e = nodes[l.target];
+                    var dx = e.x - s.x;
+                    var dy = e.y - s.y;
+                    var dist = Math.sqrt(dx * dx + dy * dy);
+                    var maxDist = 160;
+                    if (dist > maxDist) continue;
+                    
+                    var alpha = l.strength * (1 - dist / maxDist) * (0.6 + Math.sin(t * 2 + i) * 0.2);
+                    ctx.beginPath();
+                    ctx.moveTo(s.x, s.y);
+                    ctx.lineTo(e.x, e.y);
+                    ctx.strokeStyle = isDark
+                        ? 'rgba(96,165,250,' + (alpha * 0.4) + ')'
+                        : 'rgba(37,99,235,' + (alpha * 0.25) + ')';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+                
+                // Draw nodes
+                for (var i = nodes.length - 1; i >= 0; i--) {
+                    var n = nodes[i];
+                    var pulse = 1 + Math.sin(t * 3 + i * 0.8) * 0.08;
+                    var r = n.r * pulse;
+                    
+                    // Glow for hub nodes
+                    if (r > 5) {
+                        ctx.beginPath();
+                        ctx.arc(n.x, n.y, r * 2.5, 0, Math.PI * 2);
+                        ctx.fillStyle = n.color;
+                        ctx.globalAlpha = n.alpha * 0.08;
+                        ctx.fill();
+                        ctx.globalAlpha = 1;
+                    }
+                    
+                    // Node circle
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+                    ctx.fillStyle = n.color;
+                    ctx.globalAlpha = n.alpha * pulse;
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                    
+                    // Labels for hubs
+                    if (n.label && r > 6) {
+                        ctx.font = (n.isCenter ? 'bold 9px' : '8px') + ' -apple-system, system-ui, sans-serif';
+                        ctx.fillStyle = isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(n.label, n.x, n.y + r + 12);
+                    }
+                }
+                
+                animId = requestAnimationFrame(draw);
+            }
+            
+            draw();
+            
+            // Stop animation when not visible
+            var observer = new IntersectionObserver(function(entries) {
+                if (entries[0].isIntersecting) {
+                    if (!animId) draw();
+                } else {
+                    if (animId) { cancelAnimationFrame(animId); animId = null; }
+                }
+            });
+            observer.observe(canvas);
+            
+            // Store cleanup ref
+            window._heroNetworkCleanup = function() {
+                if (animId) cancelAnimationFrame(animId);
+                observer.disconnect();
+            };
+        }
 
         function viewSampleProfile() {
             // Show sample profile picker
@@ -5314,6 +5514,7 @@
                     } else {
                         // Signed in but no data yet, show welcome with wizard prompt
                         checkReadOnly();
+                        rebuildProfileDropdown();
                         switchView('welcome');
                     }
                 });
@@ -6984,6 +7185,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (fbUser && fbDb) saveToFirestore();
                 }, 60000);
             } // Close if (userData.initialized)
+            
+            // Final deferred dropdown rebuild - guarantees manifest + auth are both resolved
+            setTimeout(function() { rebuildProfileDropdown(); }, 500);
         }); // Close DOMContentLoaded
         
         function switchView(view, event) {
