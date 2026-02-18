@@ -3708,12 +3708,12 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0320
-        // FIX: isSignInWithEmailLink compat SDK + try-catch guard
+        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0325
+        // FIX: Sample picker overwritten by renderWelcomePage in switchView
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   WORK BLUEPRINT v4.0.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260219-0320                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260219-0325                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -4732,6 +4732,7 @@
                 + '</div></div>';
             
             el.innerHTML = html;
+            window._welcomePickerActive = true;
             switchView('welcome');
         }
         window.viewSampleProfile = viewSampleProfile;
@@ -7268,8 +7269,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Show selected view
             if (view === 'welcome') {
-                document.getElementById('welcomeView').style.display = 'block';
-                renderWelcomePage();
+                var wv = document.getElementById('welcomeView');
+                wv.style.display = 'block';
+                // Render welcome unless picker already set custom content
+                if (!window._welcomePickerActive) {
+                    renderWelcomePage();
+                }
+                window._welcomePickerActive = false;
             } else if (view === 'network') {
                 // Skills Ontology view
                 controls.style.display = 'flex';
