@@ -1,6 +1,6 @@
 # Work Blueprint — Project Context File
 For use at the start of new chat sessions to restore full context.
-Last updated: February 18, 2026 — v3.9.2
+Last updated: February 18, 2026 — v3.9.3
 
 ---
 
@@ -11,7 +11,7 @@ Paste this at the top of a new conversation:
 > "I'm continuing work on my Work Blueprint project. Please read the attached
 > PROJECT_CONTEXT.md in full before responding — it contains everything you need
 > to know about the codebase, architecture, and current state. Current version is
-> v3.9.2. Today I want to [your task]."
+> v3.9.3. Today I want to [your task]."
 
 Attach: PROJECT_CONTEXT.md + index.html (current version from outputs)
 Optional: screenshots of bugs you want fixed
@@ -213,17 +213,20 @@ ALL inline styles in JS template literals must use these helpers.
     extractOutcomesFromEvidence()    // Builds blueprintData.outcomes
     inferValues()                    // Populates blueprintData.values
 
-### Values Management
-    saveValues()                        // Persist values + purpose to localStorage
-    loadSavedValues()                   // Load from localStorage (checked before profile/defaults)
-    getEvidenceForValue(valueName)      // Scan skill evidence for keyword matches (returns up to 3)
-    buildValueKeywords(name)            // Maps value name to keyword sets (15 categories)
-    addCustomValue()                    // Inline form handler, dedup check, saves + re-renders
-    editValue(idx)                      // Opens modal editor
-    saveValueEdit(idx)                  // Saves modal edits
-    deleteValue(idx)                    // Remove with toast
-    moveValue(idx, direction)           // Reorder (-1=up, 1=down)
-    updateValuesBadge()                 // Reactively update tab badge count
+### Values System
+    VALUES_CATALOG                      // 25 values in 5 groups with keyword arrays
+    saveValues() / loadSavedValues()    // localStorage persistence
+    getEvidenceForValue(valueName)      // Keyword scan, returns up to 3 matches
+    getKeywordsForValue(name)           // Looks up catalog keywords or generates stems
+    scoreValueByEvidence(valueDef)      // Scores a catalog value against evidence corpus
+    inferValues()                       // localStorage > profile > auto-select top 5 by evidence score
+    renderValuesSection()               // Delegates to picker or selected view
+    renderSelectedValues()              // Cards with reorder, remove, evidence badges
+    renderValuesPicker()                // Grouped pill buttons, evidence dots, done button
+    pickValue(name) / removeSelectedValue(idx) / moveValue(idx, dir)
+    addCustomValue()                    // Custom name, dedup, saves
+    toggleValuesPicker()                // Switches between picker and review views
+    refreshValuesUI() / updateValuesBadge()
 
 ### Export & Sharing
     renderExportSection()               // 5-card export hub in Blueprint tab
@@ -298,7 +301,7 @@ Adding Lightcast (~75,000 skills) requires exactly:
 
 ---
 
-## Known Working State (v3.9.2)
+## Known Working State (v3.9.3)
 
 Skills network view, card view (mobile responsive) — working
 Manage Skills modal, both tabs, all search — working
@@ -366,4 +369,4 @@ No console.log spam — remove debug logs before shipping
 
 ---
 
-END OF PROJECT CONTEXT — v3.9.2
+END OF PROJECT CONTEXT — v3.9.3

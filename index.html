@@ -3574,12 +3574,12 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.9.2 - BUILD 20260218-2345
-        // TOAST + EXPORT + VALUES + DISCLAIMER
+        // WORK BLUEPRINT v3.9.3 - BUILD 20260218-2400
+        // VALUES PICK LIST + EVIDENCE SCORING
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   WORK BLUEPRINT v3.9.2                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260218-2345                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   WORK BLUEPRINT v3.9.3                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260218-2400                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -5245,7 +5245,7 @@ ${wizardState.resumeText}` }]
                                     <div style="font-weight:700; color:var(--text-primary); font-size:0.88em;
                                                 margin-bottom:4px;">${v.name}</div>
                                     <div style="font-size:0.78em; color:var(--text-secondary);
-                                                line-height:1.4;">${v.description}</div>
+                                                line-height:1.4;">${v.description || ''}</div>
                                 </div>
                             </div>
                         </div>
@@ -7357,7 +7357,45 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             return null;
         }
         
-        // ===== VALUES PERSISTENCE =====
+        // ===== VALUES SYSTEM =====
+        var VALUES_CATALOG = [
+            { group: 'How I Think', values: [
+                { name: 'Intellectual Honesty', keywords: ['integrity', 'honest', 'evidence', 'data', 'analy', 'research', 'rigor'] },
+                { name: 'Strategic Thinking', keywords: ['strateg', 'vision', 'foresight', 'roadmap', 'long-term', 'planning', 'framework'] },
+                { name: 'Curiosity', keywords: ['learn', 'curiosit', 'explor', 'research', 'discover', 'question', 'experiment'] },
+                { name: 'Evidence-Based Decision Making', keywords: ['evidence', 'data', 'measur', 'metric', 'analy', 'research', 'validated'] },
+                { name: 'Systems Thinking', keywords: ['system', 'architect', 'integrat', 'complex', 'interdepend', 'holistic', 'scale'] }
+            ]},
+            { group: 'How I Lead', values: [
+                { name: 'Accountability', keywords: ['account', 'responsib', 'own', 'deliver', 'commit', 'reliable', 'dependab'] },
+                { name: 'Servant Leadership', keywords: ['servant', 'mentor', 'coach', 'develop', 'empower', 'support', 'grow'] },
+                { name: 'Empowerment', keywords: ['empower', 'delegat', 'trust', 'autonom', 'enable', 'develop', 'grow'] },
+                { name: 'Transparency', keywords: ['transparen', 'open', 'honest', 'candid', 'communicat', 'visible', 'share'] },
+                { name: 'Courage', keywords: ['courag', 'bold', 'risk', 'challeng', 'spoke', 'stand', 'confront', 'difficult'] }
+            ]},
+            { group: 'How I Work', values: [
+                { name: 'Excellence', keywords: ['excel', 'quality', 'precision', 'standard', 'best', 'outperform', 'world-class'] },
+                { name: 'Resourcefulness', keywords: ['resourceful', 'creative', 'scrappy', 'bootstrap', 'efficien', 'lean', 'solve'] },
+                { name: 'Bias Toward Action', keywords: ['action', 'launch', 'ship', 'built', 'execut', 'deliver', 'implement', 'deploy'] },
+                { name: 'Continuous Improvement', keywords: ['improv', 'optimi', 'iterat', 'refine', 'evolv', 'better', 'enhance'] },
+                { name: 'Craftsmanship', keywords: ['craft', 'precision', 'detail', 'quality', 'artis', 'master', 'skill', 'technique'] }
+            ]},
+            { group: 'How I Connect', values: [
+                { name: 'Empathy', keywords: ['empathy', 'empathetic', 'understand', 'compassion', 'listen', 'perspective', 'human'] },
+                { name: 'Collaboration', keywords: ['collaborat', 'partner', 'cross-functional', 'stakeholder', 'team', 'together', 'align'] },
+                { name: 'Trust', keywords: ['trust', 'reliab', 'credib', 'consistent', 'depend', 'faith', 'relationship'] },
+                { name: 'Candor', keywords: ['candor', 'candid', 'direct', 'honest', 'feedback', 'frank', 'straightforward'] },
+                { name: 'Inclusion', keywords: ['inclusi', 'divers', 'equit', 'belong', 'access', 'representation', 'voice'] }
+            ]},
+            { group: 'What I Protect', values: [
+                { name: 'Integrity', keywords: ['integrity', 'ethical', 'principle', 'moral', 'honest', 'right', 'trust'] },
+                { name: 'Resilience', keywords: ['resilien', 'crisis', 'recover', 'adapt', 'persever', 'overcome', 'surviv', 'endur'] },
+                { name: 'Authenticity', keywords: ['authentic', 'genuine', 'vulnerab', 'self-aware', 'real', 'true', 'honest'] },
+                { name: 'Work-Life Boundaries', keywords: ['balance', 'boundar', 'sustain', 'wellbeing', 'health', 'burnout', 'life'] },
+                { name: 'Purpose Over Profit', keywords: ['purpose', 'mission', 'impact', 'meaning', 'community', 'service', 'cause', 'foundation'] }
+            ]}
+        ];
+
         function saveValues() {
             try {
                 localStorage.setItem('wbValues', JSON.stringify(blueprintData.values));
@@ -7374,8 +7412,8 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
         }
 
         function getEvidenceForValue(valueName) {
-            // Scan skill evidence for keywords that support this value
-            var keywords = buildValueKeywords(valueName);
+            var keywords = getKeywordsForValue(valueName);
+            if (!keywords || keywords.length === 0) return [];
             var matches = [];
             var skills = (skillsData && skillsData.skills) || [];
             skills.forEach(function(skill) {
@@ -7383,49 +7421,42 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                     var text = ((ev.outcome || '') + ' ' + (ev.description || '')).toLowerCase();
                     var matched = keywords.some(function(kw) { return text.indexOf(kw) !== -1; });
                     if (matched) {
-                        matches.push({
-                            skill: skill.name,
-                            text: ev.outcome || ev.description || ''
-                        });
+                        matches.push({ skill: skill.name, text: ev.outcome || ev.description || '' });
                     }
                 });
             });
-            return matches.slice(0, 3); // cap at 3 per value
+            return matches.slice(0, 3);
         }
 
-        function buildValueKeywords(name) {
+        function getKeywordsForValue(name) {
             var n = name.toLowerCase();
-            var map = {
-                'integrity': ['integrity', 'honest', 'transparen', 'trust', 'ethical', 'candid'],
-                'innovation': ['innovat', 'creative', 'novel', 'pioneer', 'invent', 'disrupt', 'transform'],
-                'learning': ['learn', 'growth', 'adapt', 'curiosit', 'improv', 'develop', 'evolv'],
-                'leadership': ['lead', 'mentor', 'coach', 'inspir', 'guid', 'team', 'direct'],
-                'excellence': ['excel', 'quality', 'precision', 'standard', 'rigor', 'best', 'outperform'],
-                'customer': ['customer', 'client', 'user', 'experience', 'satisfaction', 'retention'],
-                'outcome': ['outcome', 'result', 'impact', 'deliver', 'achiev', 'measur', 'roi'],
-                'collaboration': ['collaborat', 'partner', 'cross-functional', 'stakeholder', 'align'],
-                'resilience': ['resilien', 'crisis', 'recover', 'adapt', 'persever', 'overcome'],
-                'authentic': ['authentic', 'genuine', 'vulnerab', 'self-aware', 'honest', 'real'],
-                'strategic': ['strateg', 'vision', 'foresight', 'long-term', 'roadmap', 'planning'],
-                'account': ['account', 'responsib', 'own', 'deliver', 'commit'],
-                'empathy': ['empathy', 'empathetic', 'understand', 'compassion', 'listen'],
-                'courage': ['courag', 'bold', 'risk', 'challeng', 'stand', 'spoke'],
-                'service': ['service', 'servant', 'community', 'volunteer', 'give', 'mission']
-            };
-            // Match against known keyword groups
-            var result = [];
-            Object.keys(map).forEach(function(key) {
-                if (n.indexOf(key) !== -1) {
-                    result = result.concat(map[key]);
+            for (var g = 0; g < VALUES_CATALOG.length; g++) {
+                for (var v = 0; v < VALUES_CATALOG[g].values.length; v++) {
+                    if (VALUES_CATALOG[g].values[v].name.toLowerCase() === n) {
+                        return VALUES_CATALOG[g].values[v].keywords;
+                    }
                 }
-            });
-            // Fallback: use words from the value name itself
-            if (result.length === 0) {
-                n.split(/[\s\-]+/).forEach(function(word) {
-                    if (word.length > 3) result.push(word.substring(0, Math.min(word.length, 6)));
-                });
             }
+            // Custom value: split name into keyword stems
+            var result = [];
+            n.split(/[\s\-]+/).forEach(function(w) {
+                if (w.length > 3) result.push(w.substring(0, 6));
+            });
             return result;
+        }
+
+        function scoreValueByEvidence(valueDef) {
+            var skills = (skillsData && skillsData.skills) || [];
+            var score = 0;
+            skills.forEach(function(skill) {
+                (skill.evidence || []).forEach(function(ev) {
+                    var text = ((ev.outcome || '') + ' ' + (ev.description || '')).toLowerCase();
+                    valueDef.keywords.forEach(function(kw) {
+                        if (text.indexOf(kw) !== -1) score++;
+                    });
+                });
+            });
+            return score;
         }
 
         function inferValues() {
@@ -7440,24 +7471,34 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                     blueprintData.values = profileValues.map(function(v) {
                         return {
                             name: v.name,
-                            description: v.description || '',
                             selected: v.selected !== undefined ? v.selected : true,
-                            inferred: v.inferred || false
+                            inferred: v.inferred || false,
+                            custom: false
                         };
                     });
                 } else {
-                    // STEP 3: Defaults
-                    blueprintData.values = [
-                        { name: "Intellectual Integrity",      description: "Evidence-based decisions. Challenge assumptions before accepting conclusions.", selected: true,  inferred: true },
-                        { name: "Outcome-Focused Excellence",  description: "Judge by impact delivered, not activity performed. Results drive everything.",  selected: true,  inferred: true },
-                        { name: "Continuous Learning",         description: "Seek disconfirming evidence. Update beliefs when data changes.",                selected: true,  inferred: true },
-                        { name: "Authentic Leadership",        description: "Lead with transparency and truth. Strength through self-awareness.",            selected: false, inferred: true },
-                        { name: "Customer-Centric Innovation", description: "Solve real problems with elegant solutions. Understand needs before building.", selected: false, inferred: true }
-                    ];
+                    // STEP 3: Auto-select top 5 by evidence score
+                    var scored = [];
+                    VALUES_CATALOG.forEach(function(group) {
+                        group.values.forEach(function(val) {
+                            scored.push({ name: val.name, score: scoreValueByEvidence(val) });
+                        });
+                    });
+                    scored.sort(function(a, b) { return b.score - a.score; });
+                    var topNames = scored.slice(0, 5).filter(function(s) { return s.score > 0; }).map(function(s) { return s.name; });
+                    
+                    // If no evidence at all, select sensible defaults
+                    if (topNames.length === 0) {
+                        topNames = ['Intellectual Honesty', 'Accountability', 'Excellence', 'Collaboration', 'Integrity'];
+                    }
+                    
+                    blueprintData.values = topNames.map(function(n) {
+                        return { name: n, selected: true, inferred: true, custom: false };
+                    });
                 }
             }
             
-            // STEP 4: Purpose
+            // Purpose
             var savedPurpose = null;
             try { savedPurpose = localStorage.getItem('wbPurpose'); } catch(e) {}
             if (savedPurpose !== null && savedPurpose.trim().length > 0) {
@@ -7468,6 +7509,8 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 blueprintData.purpose = "";
             }
         }
+
+        var showingValuesPicker = false;
         
         let blueprintTab = 'outcomes';
         
@@ -7804,124 +7847,191 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 + '<span>Values & Principles</span>'
                 + '<span class="section-count">' + selectedCount + ' selected</span>'
                 + '</div>'
-                + '</div>'
-                + '<div class="coaching-tip">'
-                + '<div class="coaching-tip-title">\uD83D\uDCA1 VALUES THAT SHOW, NOT TELL</div>'
-                + '<div class="coaching-tip-content">'
-                + 'Select 3-5 values that represent how you actually operate. '
-                + 'Values linked to your skill evidence carry more weight with hiring managers. '
-                + 'Click any card to select, or use the controls to edit, reorder, and add your own.'
-                + '</div>'
-                + '</div>';
-
-            // Add Value button
-            html += '<div style="margin-bottom:16px;">'
-                + '<button onclick="showAddValueForm()" style="'
-                + 'background:' + tv('rgba(96,165,250,0.12)','rgba(30,64,175,0.08)') + ';'
-                + 'border:1px dashed ' + tv('rgba(96,165,250,0.4)','rgba(30,64,175,0.3)') + ';'
-                + 'color:' + tv('#60a5fa','#1e40af') + ';'
-                + 'padding:10px 20px; border-radius:8px; cursor:pointer; font-size:0.9em; font-weight:600;'
-                + '">+ Add Custom Value</button>'
                 + '</div>';
             
-            // Inline add form (hidden by default)
-            html += '<div id="addValueForm" style="display:none; margin-bottom:20px; padding:20px; '
-                + 'background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; '
+            if (showingValuesPicker) {
+                html += renderValuesPicker();
+            } else {
+                html += renderSelectedValues();
+            }
+            
+            html += '</div>';
+            return html;
+        }
+        
+        function renderSelectedValues() {
+            var values = blueprintData.values;
+            var selectedCount = values.filter(function(v) { return v.selected; }).length;
+            
+            var html = '<div class="coaching-tip">'
+                + '<div class="coaching-tip-title">\uD83D\uDCA1 YOUR CORE VALUES</div>'
+                + '<div class="coaching-tip-content">'
+                + (selectedCount === 0
+                    ? 'You haven\u2019t selected any values yet. Use the picker below to choose 3-7 that represent how you operate.'
+                    : 'These are the values you operate by. Reorder to prioritize, edit, or remove as needed.')
+                + '</div>'
+                + '</div>';
+            
+            // Selected values as compact cards
+            if (values.length > 0) {
+                html += '<div class="values-grid">';
+                values.forEach(function(value, idx) {
+                    var evidence = getEvidenceForValue(value.name);
+                    var evCount = evidence.length;
+                    
+                    html += '<div class="value-card selected" style="position:relative;">';
+                    
+                    // Controls
+                    html += '<div style="position:absolute; top:8px; right:8px; display:flex; gap:3px; opacity:0.45;" '
+                        + 'onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.45">';
+                    if (idx > 0) {
+                        html += '<button onclick="event.stopPropagation(); moveValue(' + idx + ',-1)" title="Move up" style="'
+                            + 'background:none; border:none; cursor:pointer; font-size:0.75em; color:' + tv('#9ca3af','#64748b') + '; padding:2px 4px;">\u25B2</button>';
+                    }
+                    if (idx < values.length - 1) {
+                        html += '<button onclick="event.stopPropagation(); moveValue(' + idx + ',1)" title="Move down" style="'
+                            + 'background:none; border:none; cursor:pointer; font-size:0.75em; color:' + tv('#9ca3af','#64748b') + '; padding:2px 4px;">\u25BC</button>';
+                    }
+                    html += '<button onclick="event.stopPropagation(); removeSelectedValue(' + idx + ')" title="Remove" style="'
+                        + 'background:none; border:none; cursor:pointer; font-size:0.9em; color:' + tv('#9ca3af','#64748b') + '; padding:2px 4px;">\u00D7</button>';
+                    html += '</div>';
+                    
+                    html += '<div class="value-title">' + value.name + '</div>';
+                    
+                    // Badges
+                    html += '<div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:6px;">';
+                    if (value.inferred) {
+                        html += '<span style="font-size:0.7em; padding:2px 7px; border-radius:10px; '
+                            + 'background:' + tv('rgba(16,185,129,0.12)','rgba(16,185,129,0.08)') + '; '
+                            + 'color:#10b981;">Evidence-matched</span>';
+                    }
+                    if (value.custom) {
+                        html += '<span style="font-size:0.7em; padding:2px 7px; border-radius:10px; '
+                            + 'background:' + tv('rgba(139,92,246,0.12)','rgba(139,92,246,0.08)') + '; '
+                            + 'color:#a78bfa;">Custom</span>';
+                    }
+                    if (evCount > 0) {
+                        html += '<span style="font-size:0.7em; padding:2px 7px; border-radius:10px; '
+                            + 'background:' + tv('rgba(251,191,36,0.12)','rgba(251,191,36,0.08)') + '; '
+                            + 'color:#f59e0b;">' + evCount + ' evidence</span>';
+                    }
+                    html += '</div>';
+                    
+                    // Evidence preview
+                    if (evCount > 0) {
+                        html += '<div style="margin-top:8px; padding-top:7px; border-top:1px solid '
+                            + tv('rgba(255,255,255,0.06)','rgba(0,0,0,0.06)') + ';">'
+                            + '<div style="font-size:0.76em; color:' + tv('#6b7280','#9ca3af') + '; font-style:italic; line-height:1.4;">'
+                            + '\u201C' + evidence[0].text.substring(0, 90) + (evidence[0].text.length > 90 ? '\u2026' : '') + '\u201D'
+                            + '<span style="color:' + tv('#60a5fa','#2563eb') + '; font-style:normal; margin-left:5px;">\u2014 ' + evidence[0].skill + '</span>'
+                            + '</div></div>';
+                    }
+                    
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+            
+            // Action buttons
+            html += '<div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:18px;">'
+                + '<button onclick="toggleValuesPicker()" style="'
+                + 'background:' + tv('rgba(96,165,250,0.12)','rgba(30,64,175,0.08)') + '; '
                 + 'border:1px solid ' + tv('rgba(96,165,250,0.3)','rgba(30,64,175,0.2)') + '; '
-                + 'border-radius:10px;">'
-                + '<div style="margin-bottom:12px;">'
+                + 'color:' + tv('#60a5fa','#1e40af') + '; '
+                + 'padding:10px 20px; border-radius:8px; cursor:pointer; font-size:0.9em; font-weight:600;'
+                + '">' + (values.length === 0 ? '\u2B50 Choose Your Values' : '+ Add / Change Values') + '</button>'
+                + '<button onclick="showAddCustomValueForm()" style="'
+                + 'background:transparent; '
+                + 'border:1px dashed ' + tv('rgba(139,92,246,0.4)','rgba(139,92,246,0.3)') + '; '
+                + 'color:' + tv('#a78bfa','#7c3aed') + '; '
+                + 'padding:10px 20px; border-radius:8px; cursor:pointer; font-size:0.9em;'
+                + '">+ Custom Value</button>'
+                + '</div>';
+            
+            // Inline custom value form (hidden)
+            html += '<div id="addValueForm" style="display:none; margin-top:16px; padding:20px; '
+                + 'background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; '
+                + 'border:1px solid ' + tv('rgba(139,92,246,0.3)','rgba(139,92,246,0.2)') + '; border-radius:10px;">'
                 + '<input id="newValueName" placeholder="Value name (e.g., Radical Transparency)" style="'
-                + 'width:100%; padding:10px 14px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; '
+                + 'width:100%; padding:10px 14px; margin-bottom:12px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; '
                 + 'border:1px solid ' + tv('rgba(255,255,255,0.15)','#d1d5db') + '; border-radius:6px; '
                 + 'color:' + tv('#e0e0e0','#1f2937') + '; font-size:0.95em;" />'
-                + '</div>'
-                + '<div style="margin-bottom:14px;">'
-                + '<textarea id="newValueDesc" rows="2" placeholder="Brief description of what this means in practice" style="'
-                + 'width:100%; padding:10px 14px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; '
-                + 'border:1px solid ' + tv('rgba(255,255,255,0.15)','#d1d5db') + '; border-radius:6px; '
-                + 'color:' + tv('#e0e0e0','#1f2937') + '; font-size:0.9em; resize:vertical; font-family:inherit;"></textarea>'
-                + '</div>'
                 + '<div style="display:flex; gap:8px;">'
                 + '<button onclick="addCustomValue()" style="'
-                + 'background:' + tv('#1e40af','#2563eb') + '; color:#fff; border:none; padding:8px 18px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.88em;">'
-                + 'Add Value</button>'
+                + 'background:' + tv('#7c3aed','#6d28d9') + '; color:#fff; border:none; padding:8px 18px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.88em;">'
+                + 'Add</button>'
                 + '<button onclick="hideAddValueForm()" style="'
                 + 'background:transparent; color:' + tv('#9ca3af','#64748b') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','#d1d5db') + '; '
                 + 'padding:8px 18px; border-radius:6px; cursor:pointer; font-size:0.88em;">'
                 + 'Cancel</button>'
-                + '</div>'
-                + '</div>';
-            
-            // Value cards
-            html += '<div class="values-grid">';
-            values.forEach(function(value, idx) {
-                html += renderValueCard(value, idx, values.length);
-            });
-            html += '</div></div>';
+                + '</div></div>';
             
             return html;
         }
         
-        function renderValueCard(value, idx, total) {
-            var selectedClass = value.selected ? 'selected' : '';
-            var evidence = getEvidenceForValue(value.name);
-            var evidenceCount = evidence.length;
+        function renderValuesPicker() {
+            var selectedNames = {};
+            blueprintData.values.forEach(function(v) { selectedNames[v.name] = true; });
             
-            var html = '<div class="value-card ' + selectedClass + '" style="position:relative;">';
+            var html = '<div class="coaching-tip">'
+                + '<div class="coaching-tip-title">\uD83D\uDCA1 PICK 3-7 VALUES</div>'
+                + '<div class="coaching-tip-content">'
+                + 'Tap values that resonate with how you actually work. Values with evidence in your profile are highlighted.'
+                + '</div>'
+                + '</div>';
             
-            // Card controls row (top right)
-            html += '<div style="position:absolute; top:8px; right:8px; display:flex; gap:4px; opacity:0.5;" '
-                + 'onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5">';
-            if (idx > 0) {
-                html += '<button onclick="event.stopPropagation(); moveValue(' + idx + ',-1)" title="Move up" style="'
-                    + 'background:none; border:none; cursor:pointer; font-size:0.8em; color:' + tv('#9ca3af','#64748b') + '; padding:2px 4px;">\u25B2</button>';
-            }
-            if (idx < total - 1) {
-                html += '<button onclick="event.stopPropagation(); moveValue(' + idx + ',1)" title="Move down" style="'
-                    + 'background:none; border:none; cursor:pointer; font-size:0.8em; color:' + tv('#9ca3af','#64748b') + '; padding:2px 4px;">\u25BC</button>';
-            }
-            html += '<button onclick="event.stopPropagation(); editValue(' + idx + ')" title="Edit" style="'
-                + 'background:none; border:none; cursor:pointer; font-size:0.85em; color:' + tv('#9ca3af','#64748b') + '; padding:2px 4px;">\u270E</button>';
-            html += '<button onclick="event.stopPropagation(); deleteValue(' + idx + ')" title="Remove" style="'
-                + 'background:none; border:none; cursor:pointer; font-size:0.85em; color:' + tv('#9ca3af','#64748b') + '; padding:2px 4px;">\u00D7</button>';
-            html += '</div>';
+            VALUES_CATALOG.forEach(function(group) {
+                html += '<div style="margin-bottom:20px;">'
+                    + '<div style="font-size:0.82em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; '
+                    + 'color:' + tv('#6b7280','#9ca3af') + '; margin-bottom:10px; padding-left:2px;">'
+                    + group.group + '</div>'
+                    + '<div style="display:flex; flex-wrap:wrap; gap:8px;">';
+                
+                group.values.forEach(function(val) {
+                    var isSelected = selectedNames[val.name] || false;
+                    var evScore = scoreValueByEvidence(val);
+                    var hasEvidence = evScore > 0;
+                    
+                    var bg, border, color;
+                    if (isSelected) {
+                        bg = tv('rgba(96,165,250,0.2)','rgba(30,64,175,0.12)');
+                        border = tv('rgba(96,165,250,0.6)','rgba(30,64,175,0.4)');
+                        color = tv('#93c5fd','#1e40af');
+                    } else if (hasEvidence) {
+                        bg = tv('rgba(16,185,129,0.08)','rgba(16,185,129,0.05)');
+                        border = tv('rgba(16,185,129,0.25)','rgba(16,185,129,0.15)');
+                        color = tv('#d1d5db','#334155');
+                    } else {
+                        bg = tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)');
+                        border = tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.08)');
+                        color = tv('#9ca3af','#64748b');
+                    }
+                    
+                    html += '<button onclick="pickValue(\'' + val.name.replace(/'/g, "\\'") + '\')" style="'
+                        + 'background:' + bg + '; border:1.5px solid ' + border + '; color:' + color + '; '
+                        + 'padding:8px 16px; border-radius:20px; cursor:pointer; font-size:0.88em; '
+                        + 'font-weight:' + (isSelected ? '700' : '500') + '; transition:all 0.15s ease;">'
+                        + (isSelected ? '\u2713 ' : '')
+                        + val.name
+                        + (hasEvidence && !isSelected ? ' \u2022' : '')
+                        + '</button>';
+                });
+                
+                html += '</div></div>';
+            });
             
-            // Main clickable area for select/deselect
-            html += '<div onclick="toggleValue(' + idx + ')" style="cursor:pointer;">';
-            html += '<div class="value-title">' + value.name + '</div>';
-            html += '<div class="value-description">' + (value.description || '') + '</div>';
+            // Done button
+            var count = blueprintData.values.filter(function(v) { return v.selected; }).length;
+            html += '<div style="margin-top:16px; display:flex; gap:10px; align-items:center;">'
+                + '<button onclick="toggleValuesPicker()" style="'
+                + 'background:' + tv('#1e40af','#2563eb') + '; color:#fff; border:none; '
+                + 'padding:10px 24px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.92em;">'
+                + 'Done (' + count + ' selected)</button>'
+                + '<span style="font-size:0.82em; color:' + tv('#6b7280','#9ca3af') + ';">'
+                + '\u2022 = evidence in your profile'
+                + '</span>'
+                + '</div>';
             
-            // Badges row
-            html += '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">';
-            if (value.inferred) {
-                html += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; '
-                    + 'background:' + tv('rgba(16,185,129,0.12)','rgba(16,185,129,0.08)') + '; '
-                    + 'color:#10b981;">\u2713 Inferred</span>';
-            }
-            if (!value.inferred) {
-                html += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; '
-                    + 'background:' + tv('rgba(139,92,246,0.12)','rgba(139,92,246,0.08)') + '; '
-                    + 'color:#a78bfa;">Custom</span>';
-            }
-            if (evidenceCount > 0) {
-                html += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; '
-                    + 'background:' + tv('rgba(251,191,36,0.12)','rgba(251,191,36,0.08)') + '; '
-                    + 'color:#f59e0b;">' + evidenceCount + ' evidence link' + (evidenceCount !== 1 ? 's' : '') + '</span>';
-            }
-            html += '</div>';
-            
-            // Evidence preview (collapsed, first match)
-            if (evidenceCount > 0) {
-                html += '<div style="margin-top:8px; padding-top:8px; border-top:1px solid '
-                    + tv('rgba(255,255,255,0.06)','rgba(0,0,0,0.06)') + ';">';
-                html += '<div style="font-size:0.78em; color:' + tv('#6b7280','#9ca3af') + '; font-style:italic; line-height:1.4;">'
-                    + '\u201C' + evidence[0].text.substring(0, 100) + (evidence[0].text.length > 100 ? '\u2026' : '') + '\u201D'
-                    + '<span style="color:' + tv('#60a5fa','#2563eb') + '; font-style:normal; margin-left:6px;">\u2014 ' + evidence[0].skill + '</span>'
-                    + '</div>';
-                html += '</div>';
-            }
-            
-            html += '</div></div>';
             return html;
         }
         
@@ -8337,16 +8447,17 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
         function toggleValue(idx) {
             blueprintData.values[idx].selected = !blueprintData.values[idx].selected;
             saveValues();
-            // Re-render just the tab content, not the full blueprint
+            refreshValuesUI();
+        }
+        
+        function refreshValuesUI() {
             var contentEl = document.getElementById('blueprintTabContent');
             if (contentEl) contentEl.innerHTML = renderBlueprintTabContent();
-            // Update tab badge
             updateValuesBadge();
         }
         
         function updateValuesBadge() {
             var count = blueprintData.values.filter(function(v) { return v.selected; }).length;
-            // Values tab is the second bp-tab button
             var tabs = document.querySelectorAll('.bp-tab');
             if (tabs.length > 1) {
                 var badge = tabs[1].querySelector('.bp-tab-count');
@@ -8354,153 +8465,109 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             }
         }
         
-        function showAddValueForm() {
-            var form = document.getElementById('addValueForm');
-            if (form) { form.style.display = 'block'; document.getElementById('newValueName').focus(); }
+        function toggleValuesPicker() {
+            showingValuesPicker = !showingValuesPicker;
+            refreshValuesUI();
         }
+        window.toggleValuesPicker = toggleValuesPicker;
+        
+        function pickValue(name) {
+            // Toggle: if already selected, remove; otherwise add
+            var idx = -1;
+            blueprintData.values.forEach(function(v, i) {
+                if (v.name === name) idx = i;
+            });
+            
+            if (idx >= 0) {
+                // Remove it
+                blueprintData.values.splice(idx, 1);
+            } else {
+                // Add it
+                blueprintData.values.push({
+                    name: name,
+                    selected: true,
+                    inferred: false,
+                    custom: false
+                });
+            }
+            saveValues();
+            refreshValuesUI();
+        }
+        window.pickValue = pickValue;
+        
+        function removeSelectedValue(idx) {
+            var value = blueprintData.values[idx];
+            if (!value) return;
+            blueprintData.values.splice(idx, 1);
+            saveValues();
+            refreshValuesUI();
+            showToast('Removed "' + value.name + '".', 'info');
+        }
+        window.removeSelectedValue = removeSelectedValue;
+        
+        function showAddCustomValueForm() {
+            // Re-render first to make sure form element exists
+            showingValuesPicker = false;
+            refreshValuesUI();
+            setTimeout(function() {
+                var form = document.getElementById('addValueForm');
+                if (form) { form.style.display = 'block'; }
+                var nameEl = document.getElementById('newValueName');
+                if (nameEl) nameEl.focus();
+            }, 50);
+        }
+        window.showAddCustomValueForm = showAddCustomValueForm;
+        
+        function showAddValueForm() { showAddCustomValueForm(); }
         window.showAddValueForm = showAddValueForm;
         
         function hideAddValueForm() {
             var form = document.getElementById('addValueForm');
-            if (form) { form.style.display = 'none'; }
+            if (form) form.style.display = 'none';
             var nameEl = document.getElementById('newValueName');
-            var descEl = document.getElementById('newValueDesc');
             if (nameEl) nameEl.value = '';
-            if (descEl) descEl.value = '';
         }
         window.hideAddValueForm = hideAddValueForm;
         
         function addCustomValue() {
             var nameEl = document.getElementById('newValueName');
-            var descEl = document.getElementById('newValueDesc');
             var name = (nameEl ? nameEl.value : '').trim();
-            var desc = (descEl ? descEl.value : '').trim();
             
             if (!name) {
                 showToast('Please enter a value name.', 'warning');
                 return;
             }
             
-            // Check for duplicate
             var exists = blueprintData.values.some(function(v) {
                 return v.name.toLowerCase() === name.toLowerCase();
             });
             if (exists) {
-                showToast('A value with this name already exists.', 'warning');
+                showToast('That value is already in your list.', 'warning');
                 return;
             }
             
             blueprintData.values.push({
                 name: name,
-                description: desc,
                 selected: true,
-                inferred: false
+                inferred: false,
+                custom: true
             });
             
             saveValues();
             hideAddValueForm();
-            
-            // Re-render values tab
-            var contentEl = document.getElementById('blueprintTabContent');
-            if (contentEl) contentEl.innerHTML = renderBlueprintTabContent();
-            updateValuesBadge();
-            showToast('Added "' + name + '" to your values.', 'success');
+            refreshValuesUI();
+            showToast('Added "' + name + '".', 'success');
         }
         window.addCustomValue = addCustomValue;
-        
-        function editValue(idx) {
-            var value = blueprintData.values[idx];
-            if (!value) return;
-            
-            // Use the export modal for editing
-            var modal = document.getElementById('exportModal');
-            var modalContent = modal.querySelector('.modal-content');
-            
-            modalContent.innerHTML = '<div class="modal-header">'
-                + '<div class="modal-header-left">'
-                + '<h2 class="modal-title">Edit Value</h2>'
-                + '</div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
-                + '</div>'
-                + '<div class="modal-body" style="padding:30px;">'
-                + '<div style="margin-bottom:16px;">'
-                + '<label style="color:' + tv('#60a5fa','#1e40af') + '; font-weight:600; display:block; margin-bottom:6px;">Value Name</label>'
-                + '<input id="editValueName" value="' + value.name.replace(/"/g, '&quot;') + '" style="'
-                + 'width:100%; padding:12px; background:' + tv('rgba(255,255,255,0.05)','#fff') + '; '
-                + 'border:1px solid ' + tv('rgba(96,165,250,0.3)','#d1d5db') + '; border-radius:8px; '
-                + 'color:' + tv('#e0e0e0','#1f2937') + '; font-size:1em;" />'
-                + '</div>'
-                + '<div style="margin-bottom:20px;">'
-                + '<label style="color:' + tv('#60a5fa','#1e40af') + '; font-weight:600; display:block; margin-bottom:6px;">Description</label>'
-                + '<textarea id="editValueDesc" rows="3" style="'
-                + 'width:100%; padding:12px; background:' + tv('rgba(255,255,255,0.05)','#fff') + '; '
-                + 'border:1px solid ' + tv('rgba(96,165,250,0.3)','#d1d5db') + '; border-radius:8px; '
-                + 'color:' + tv('#e0e0e0','#1f2937') + '; font-size:0.95em; resize:vertical; font-family:inherit;'
-                + '">' + (value.description || '') + '</textarea>'
-                + '</div>'
-                + '<div style="display:flex; gap:10px;">'
-                + '<button onclick="saveValueEdit(' + idx + ')" style="'
-                + 'background:#1e40af; color:#fff; border:none; padding:10px 24px; border-radius:8px; cursor:pointer; font-weight:600;">Save</button>'
-                + '<button onclick="closeExportModal()" style="'
-                + 'background:transparent; color:' + tv('#9ca3af','#64748b') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','#d1d5db') + '; '
-                + 'padding:10px 24px; border-radius:8px; cursor:pointer;">Cancel</button>'
-                + '</div>'
-                + '</div>';
-            
-            modal.classList.add('active');
-        }
-        window.editValue = editValue;
-        
-        function saveValueEdit(idx) {
-            var nameEl = document.getElementById('editValueName');
-            var descEl = document.getElementById('editValueDesc');
-            var name = (nameEl ? nameEl.value : '').trim();
-            var desc = (descEl ? descEl.value : '').trim();
-            
-            if (!name) {
-                showToast('Value name cannot be empty.', 'warning');
-                return;
-            }
-            
-            blueprintData.values[idx].name = name;
-            blueprintData.values[idx].description = desc;
-            blueprintData.values[idx].inferred = false; // edited = no longer auto-inferred
-            
-            saveValues();
-            closeExportModal();
-            
-            var contentEl = document.getElementById('blueprintTabContent');
-            if (contentEl) contentEl.innerHTML = renderBlueprintTabContent();
-            showToast('Value updated.', 'success');
-        }
-        window.saveValueEdit = saveValueEdit;
-        
-        function deleteValue(idx) {
-            var value = blueprintData.values[idx];
-            if (!value) return;
-            
-            blueprintData.values.splice(idx, 1);
-            saveValues();
-            
-            var contentEl = document.getElementById('blueprintTabContent');
-            if (contentEl) contentEl.innerHTML = renderBlueprintTabContent();
-            updateValuesBadge();
-            showToast('Removed "' + value.name + '".', 'info');
-        }
-        window.deleteValue = deleteValue;
         
         function moveValue(idx, direction) {
             var newIdx = idx + direction;
             if (newIdx < 0 || newIdx >= blueprintData.values.length) return;
-            
             var temp = blueprintData.values[idx];
             blueprintData.values[idx] = blueprintData.values[newIdx];
             blueprintData.values[newIdx] = temp;
-            
             saveValues();
-            
-            var contentEl = document.getElementById('blueprintTabContent');
-            if (contentEl) contentEl.innerHTML = renderBlueprintTabContent();
+            refreshValuesUI();
         }
         window.moveValue = moveValue;
         window.toggleValue = toggleValue;
@@ -8785,7 +8852,7 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             if (selectedValues.length > 0) {
                 lines.push('CORE VALUES');
                 selectedValues.forEach(function(v) {
-                    lines.push('\u2022 ' + v.name + (v.description ? ' \u2014 ' + v.description : ''));
+                    lines.push('\u2022 ' + v.name);
                 });
                 lines.push('');
             }
