@@ -2731,9 +2731,15 @@
                     compaRatio: 100,
                     criticalSkills: [],
                     highSkills: [],
+                    // New 5-factor premium system
+                    workStylesBonus: 0,
+                    evidenceBonus: 0,
+                    rarityBonus: 0,
+                    criticalDepthBonus: 0,
+                    learningBonus: 0,
+                    // Legacy fields for backward compatibility
                     criticalBonus: 0,
                     highBonus: 0,
-                    rarityBonus: 0,
                     premiumAmount: 0
                 };
             }
@@ -2909,10 +2915,15 @@
                 
                 breakdown: {
                     base: baseMarketRate,
-                    critical: criticalBonus,
-                    high: highBonus,
+                    workStyles: workStylesBonus,
+                    evidence: evidenceBonus,
                     rarity: rarityBonus,
-                    location: locationMultiplier
+                    criticalDepth: criticalDepthBonus,
+                    learning: learningBonus,
+                    location: locationMultiplier,
+                    // Legacy fields for backward compatibility
+                    critical: criticalDepthBonus,
+                    high: evidenceBonus
                 }
             };
         }
@@ -4830,13 +4841,19 @@
                     <div style="background: rgba(96, 165, 250, 0.1); padding: 20px; border-radius: 8px; margin: 20px;">
                         <div style="color: #60a5fa; font-weight: 600; margin-bottom: 10px;">🎯 How This Was Calculated</div>
                         <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">
-                            <strong>Method:</strong> Impact-based role tier + skill premiums
+                            <strong>Method:</strong> Impact-based role tier + 5-factor premium system
                             <br><br>
                             <strong>Base Market Rate:</strong> $${totalValue.marketRate.toLocaleString()} (${totalValue.roleLevel} level, ${totalValue.percentile} percentile)
-                            <br><strong>Critical Impact Skills (${totalValue.criticalSkills.length}):</strong> +$${totalValue.criticalBonus.toLocaleString()}
-                            <br><strong>High Impact Skills (${totalValue.highSkills.length}):</strong> +$${totalValue.highBonus.toLocaleString()}
-                            <br><strong>Rare Skill Combinations:</strong> +$${totalValue.rarityBonus.toLocaleString()}
-                            <br><strong>Location:</strong> ${userData.profile.location} (×${skillValuations.locationMultipliers[userData.profile.location] || 1.0})
+                            <br><br>
+                            <strong>Premium Factors:</strong>
+                            <br>• Work Styles & Soft Skills: +$${totalValue.workStylesBonus.toLocaleString()}
+                            <br>• Evidence Quality (Proven Results): +$${totalValue.evidenceBonus.toLocaleString()}
+                            <br>• Skill Mix Rarity: +$${totalValue.rarityBonus.toLocaleString()}
+                            <br>• Critical Depth (Expert/Mastery): +$${totalValue.criticalDepthBonus.toLocaleString()}
+                            <br>• Learning & Growth: +$${totalValue.learningBonus.toLocaleString()}
+                            <br><strong>Total Premium:</strong> +$${totalValue.premiumAmount.toLocaleString()} (${Math.round((totalValue.premiumAmount / totalValue.marketRate) * 100)}%)
+                            <br><br>
+                            <strong>Location:</strong> ${userData.profile.location} (×${skillValuations.locationMultipliers[userData.profile.location] || 1.0})
                             <br><br>
                             <strong>Your Worth:</strong> $${totalValue.yourWorth.toLocaleString()} (${Math.round(((totalValue.yourWorth - totalValue.marketRate) / totalValue.marketRate) * 100)}% above market)
                         </div>
@@ -7971,16 +7988,24 @@
                                 <strong>$${totalValue.marketRate.toLocaleString()}</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                <span>Critical Skills Premium (${totalValue.criticalSkills.length} skills):</span>
-                                <strong style="color: #10b981;">+$${totalValue.criticalBonus.toLocaleString()}</strong>
+                                <span>Work Styles Premium:</span>
+                                <strong style="color: #10b981;">+$${totalValue.workStylesBonus.toLocaleString()}</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                <span>High Impact Skills (${totalValue.highSkills.length} skills):</span>
-                                <strong style="color: #10b981;">+$${totalValue.highBonus.toLocaleString()}</strong>
+                                <span>Evidence Quality Premium:</span>
+                                <strong style="color: #10b981;">+$${totalValue.evidenceBonus.toLocaleString()}</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                <span>Rare Combinations:</span>
+                                <span>Skill Rarity Premium:</span>
                                 <strong style="color: #10b981;">+$${totalValue.rarityBonus.toLocaleString()}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                <span>Critical Depth Premium:</span>
+                                <strong style="color: #10b981;">+$${totalValue.criticalDepthBonus.toLocaleString()}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                <span>Learning & Growth Premium:</span>
+                                <strong style="color: #10b981;">+$${totalValue.learningBonus.toLocaleString()}</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 1.2em; margin-top: 10px;">
                                 <strong>Total Market Value:</strong>
