@@ -3114,7 +3114,7 @@
     </div>
 
     <!-- ===== CONTEXTUAL FILTER BAR (Skills tab only) ===== -->
-    <div class="controls" id="controlsBar">
+    <div class="controls" id="controlsBar" style="display:none;">
         <div class="controls-left">
             <!-- View pills -->
             <div class="view-pills" id="skillsViewToggle">
@@ -3167,13 +3167,13 @@
     
     <div class="main-content">
         <div id="welcomeView" style="display:none;"></div>
-        <svg id="networkView"></svg>
-        <div id="cardView"></div>
-        <div id="opportunitiesView"></div>
-        <div id="applicationsView"></div>
-        <div id="blueprintView"></div>
-        <div id="consentView"></div>
-        <div id="settingsView"></div>
+        <svg id="networkView" style="display:none;"></svg>
+        <div id="cardView" style="display:none;"></div>
+        <div id="opportunitiesView" style="display:none;"></div>
+        <div id="applicationsView" style="display:none;"></div>
+        <div id="blueprintView" style="display:none;"></div>
+        <div id="consentView" style="display:none;"></div>
+        <div id="settingsView" style="display:none;"></div>
     </div>
 
     <!-- App Footer / Attribution -->
@@ -3708,12 +3708,12 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0300
-        // INIT FIX + HERO REDESIGN + LAZY NETWORK
+        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0315
+        // ALL VIEWS HIDDEN DEFAULT + NETWORK SHOWCASE + INIT FIX
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   WORK BLUEPRINT v4.0.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260219-0300                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260219-0315                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -4398,75 +4398,78 @@
         function renderWelcomePage() {
             var el = document.getElementById('welcomeView');
             if (!el) return;
-            
             var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
             
             el.innerHTML = ''
-                // Full-bleed hero with canvas background
-                + '<div style="position:relative; width:100%; min-height:420px; display:flex; align-items:center; justify-content:center; overflow:hidden;">'
-                + '<canvas id="heroNetworkCanvas" style="position:absolute; top:0; left:0; width:100%; height:100%;"></canvas>'
-                // Gradient overlay so text is readable
-                + '<div style="position:absolute; top:0; left:0; right:0; bottom:0; '
-                + 'background: radial-gradient(ellipse at center, '
-                + (isDark ? 'rgba(15,15,30,0.3) 0%, rgba(15,15,30,0.85) 70%' : 'rgba(249,250,251,0.4) 0%, rgba(249,250,251,0.9) 70%')
-                + ');"></div>'
-                // Hero text
-                + '<div style="position:relative; z-index:2; text-align:center; padding:60px 24px; max-width:640px;">'
-                + '<h2 style="font-size:2.4em; font-weight:700; color:var(--accent); margin-bottom:12px; line-height:1.15;">'
+                // Hero section: text left, nothing behind
+                + '<div style="max-width:920px; margin:0 auto; padding:48px 24px 0;">'
+                
+                // Headline + subtitle + CTAs
+                + '<div style="text-align:center; margin-bottom:32px;">'
+                + '<h2 style="font-size:2.6em; font-weight:700; color:var(--accent); margin-bottom:14px; line-height:1.12;">'
                 + 'Know Your Worth.<br>Own Your Narrative.</h2>'
-                + '<p style="font-size:1.05em; color:var(--text-secondary); line-height:1.7; margin-bottom:28px;">'
+                + '<p style="font-size:1.08em; color:var(--text-secondary); line-height:1.7; max-width:560px; margin:0 auto 28px;">'
                 + 'Map your skills, quantify your market value, and build the professional story '
                 + 'you need for your next opportunity.</p>'
-                + '<div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">'
+                + '<div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:40px;">'
                 + '<button onclick="viewSampleProfile()" style="'
                 + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; '
                 + 'background:transparent; color:var(--accent); border:2px solid var(--accent); transition:all 0.2s;'
-                + '">'
-                + '\uD83D\uDCCA View Sample Profiles</button>'
+                + '">\uD83D\uDCCA View Sample Profiles</button>'
                 + '<button onclick="showAuthModal(\x27signup\x27)" style="'
                 + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; '
                 + 'background:var(--accent); color:#fff; border:2px solid var(--accent); transition:all 0.2s;'
-                + '">'
-                + '\u25C8 Build Your Blueprint</button>'
+                + '">\u25C8 Build Your Blueprint</button>'
                 + '</div>'
                 + '</div>'
+                
+                // Network showcase - prominent canvas in a styled frame
+                + '<div style="position:relative; width:100%; height:320px; border-radius:16px; overflow:hidden; '
+                + 'border:1px solid ' + (isDark ? 'rgba(96,165,250,0.15)' : 'rgba(37,99,235,0.1)') + '; '
+                + 'background:' + (isDark ? 'rgba(15,15,30,0.6)' : 'rgba(249,250,251,0.8)') + '; '
+                + 'box-shadow:0 8px 40px ' + (isDark ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.08)') + '; margin-bottom:12px;">'
+                + '<canvas id="heroNetworkCanvas" style="width:100%; height:100%; display:block;"></canvas>'
+                + '</div>'
+                + '<div style="text-align:center; font-size:0.78em; color:var(--text-muted); margin-bottom:48px;">'
+                + 'Interactive skills network visualization \u2014 each node represents a skill, grouped by professional role</div>'
+                
                 + '</div>'
 
-                // How it works section
-                + '<div style="max-width:820px; margin:0 auto; padding:48px 24px;">'
-                + '<div style="text-align:center; margin-bottom:36px;">'
-                + '<div style="font-size:0.82em; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); margin-bottom:8px;">How It Works</div>'
+                // How it works
+                + '<div style="max-width:820px; margin:0 auto; padding:0 24px 48px;">'
+                + '<div style="text-align:center; margin-bottom:32px;">'
+                + '<div style="font-size:0.8em; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted);">How It Works</div>'
                 + '</div>'
                 
                 + '<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; margin-bottom:48px;">'
                 
-                + '<div style="text-align:center; padding:24px 16px;">'
-                + '<div style="width:48px; height:48px; border-radius:50%; background:rgba(96,165,250,0.12); '
-                + 'display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:1.3em; color:var(--accent);">1</div>'
-                + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">Upload Your Resume</div>'
-                + '<div style="font-size:0.85em; color:var(--text-muted); line-height:1.5;">'
+                + '<div style="text-align:center; padding:20px 16px;">'
+                + '<div style="width:44px; height:44px; border-radius:50%; background:rgba(96,165,250,0.12); '
+                + 'display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.2em; color:var(--accent); font-weight:700;">1</div>'
+                + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:5px; font-size:0.95em;">Upload Your Resume</div>'
+                + '<div style="font-size:0.83em; color:var(--text-muted); line-height:1.5;">'
                 + 'AI parses your experience and maps it to 13,960+ O*NET skills with proficiency levels.</div>'
                 + '</div>'
                 
-                + '<div style="text-align:center; padding:24px 16px;">'
-                + '<div style="width:48px; height:48px; border-radius:50%; background:rgba(16,185,129,0.12); '
-                + 'display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:1.3em; color:#10b981;">2</div>'
-                + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">See Your Value</div>'
-                + '<div style="font-size:0.85em; color:var(--text-muted); line-height:1.5;">'
+                + '<div style="text-align:center; padding:20px 16px;">'
+                + '<div style="width:44px; height:44px; border-radius:50%; background:rgba(16,185,129,0.12); '
+                + 'display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.2em; color:#10b981; font-weight:700;">2</div>'
+                + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:5px; font-size:0.95em;">See Your Value</div>'
+                + '<div style="font-size:0.83em; color:var(--text-muted); line-height:1.5;">'
                 + 'Market valuation based on skill rarity, impact tier, and location with negotiation guidance.</div>'
                 + '</div>'
                 
-                + '<div style="text-align:center; padding:24px 16px;">'
-                + '<div style="width:48px; height:48px; border-radius:50%; background:rgba(251,191,36,0.12); '
-                + 'display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:1.3em; color:#fbbf24;">3</div>'
-                + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:6px;">Own Your Story</div>'
-                + '<div style="font-size:0.85em; color:var(--text-muted); line-height:1.5;">'
+                + '<div style="text-align:center; padding:20px 16px;">'
+                + '<div style="width:44px; height:44px; border-radius:50%; background:rgba(251,191,36,0.12); '
+                + 'display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.2em; color:#fbbf24; font-weight:700;">3</div>'
+                + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:5px; font-size:0.95em;">Own Your Story</div>'
+                + '<div style="font-size:0.83em; color:var(--text-muted); line-height:1.5;">'
                 + 'Export a professional blueprint with outcomes, values, and strategic positioning.</div>'
                 + '</div>'
                 
                 + '</div>'
 
-                // Sign in link
+                // Sign in
                 + '<div style="text-align:center; color:var(--text-muted); font-size:0.9em; margin-bottom:24px;">'
                 + 'Already have an account? <a href="#" onclick="event.preventDefault(); showAuthModal(\x27signin\x27);" style="color:var(--accent); text-decoration:underline;">Sign in</a>'
                 + '</div>'
@@ -4480,7 +4483,6 @@
                 + '</div>'
                 + '</div>';
             
-            // Initialize animated network after DOM update
             setTimeout(function() { initHeroNetwork(); }, 50);
         }
         window.renderWelcomePage = renderWelcomePage;
