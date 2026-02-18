@@ -1194,6 +1194,7 @@
             padding: 30px;
             height: 100%;
             overflow-y: auto;
+            overflow-x: hidden;
         }
         
         #opportunitiesView {
@@ -1889,23 +1890,27 @@
         .skill-item {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             padding: 10px;
             background: rgba(255, 255, 255, 0.03);
             border-radius: 8px;
             border-left: 3px solid transparent;
             margin-bottom: 8px;
+            flex-wrap: wrap;
+            min-width: 0;
         }
         
         .skill-dot {
             width: 10px;
             height: 10px;
             border-radius: 50%;
+            flex-shrink: 0;
         }
         
         .skill-name {
             flex: 1;
             font-size: 0.95em;
+            min-width: 80px;
         }
         
         .skill-badge {
@@ -1914,6 +1919,8 @@
             padding: 2px 8px;
             border-radius: 10px;
             font-size: 0.75em;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         
         .skill-years {
@@ -1922,7 +1929,49 @@
             padding: 2px 8px;
             border-radius: 10px;
             font-size: 0.75em;
-            margin-left: auto;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .skill-impact-badge {
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        /* Mobile card view */
+        @media (max-width: 768px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            #cardView {
+                padding: 12px;
+            }
+            
+            .domain-card {
+                padding: 14px;
+            }
+            
+            .domain-title {
+                font-size: 1.1em;
+            }
+            
+            .skill-item {
+                padding: 8px 10px;
+                gap: 6px;
+            }
+            
+            .skill-name {
+                font-size: 0.9em;
+                width: 100%;
+                flex-basis: calc(100% - 22px);
+            }
+            
+            /* On mobile, badges wrap below the skill name naturally */
+            .skill-badge, .skill-years, .skill-impact-badge {
+                font-size: 0.68em;
+            }
         }
         
         /* Network styles */
@@ -2431,8 +2480,38 @@
             }
             
             .modal-content {
-                width: 95%;
-                padding: 15px;
+                width: 95% !important;
+                max-width: none !important;
+                padding: 16px !important;
+                margin: 8px;
+                max-height: 92vh !important;
+            }
+            
+            /* Make full-height modals (Manage Skills, O*NET) slide up from bottom on mobile */
+            .modal-content[style*="900px"],
+            .modal-content[style*="max-height: 90vh"] {
+                width: 100% !important;
+                max-width: 100% !important;
+                border-radius: 16px 16px 0 0 !important;
+                margin: 0 !important;
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                max-height: 88vh !important;
+            }
+            
+            /* Skill banner at bottom — compact on mobile */
+            .sample-profile-banner {
+                padding: 10px 14px;
+                font-size: 0.85em;
+            }
+            
+            /* O*NET tab bar — scrollable on mobile */
+            .onet-tab {
+                font-size: 0.72em;
+                padding: 6px 10px;
+                white-space: nowrap;
             }
         }
         
@@ -2984,7 +3063,8 @@
             </div>
             <div class="modal-body" style="overflow-y: auto;">
                 <div style="margin-bottom: 20px;">
-                    <div style="display: flex; gap: 8px; margin-bottom: 15px; border-bottom: 2px solid rgba(255,255,255,0.1); flex-wrap: wrap;">
+                    <div style="display: flex; gap: 8px; margin-bottom: 15px; border-bottom: 2px solid rgba(255,255,255,0.1); overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex-shrink: 0; padding-bottom: 1px;"
+                         class="onet-tab-bar">
                         <button id="onetTabSkills" class="onet-tab active" onclick="switchONETTab('skills')">
                             Skills (35)
                         </button>
@@ -3431,7 +3511,7 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.6.8 - BUILD 20260218-1845
+        // WORK BLUEPRINT v3.6.9 - BUILD 20260218-1900
         // PREMIUM: 5-Factor Comprehensive Premium Calculation
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -5751,7 +5831,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     // Get market impact rating (instead of dollar value)
                     const skillImpact = calculateSkillValue(skill);
                     const impactColor = getImpactColor(skillImpact.level);
-                    const impactBadge = `<span class="skill-impact-badge" style="background: rgba(${impactColor === '#ef4444' ? '239, 68, 68' : impactColor === '#f59e0b' ? '245, 158, 11' : impactColor === '#3b82f6' ? '59, 130, 246' : '107, 114, 128'}, 0.2); color: ${impactColor}; font-size: 0.7em; padding: 3px 8px; border-radius: 3px; margin-left: auto; font-weight: 600;">${skillImpact.icon} ${skillImpact.label.toUpperCase()}</span>`;
+                    const impactBadge = `<span class="skill-impact-badge" style="background: rgba(${impactColor === '#ef4444' ? '239, 68, 68' : impactColor === '#f59e0b' ? '245, 158, 11' : impactColor === '#3b82f6' ? '59, 130, 246' : '107, 114, 128'}, 0.2); color: ${impactColor}; font-size: 0.7em; padding: 3px 8px; border-radius: 3px; font-weight: 600; white-space: nowrap;">${skillImpact.icon} ${skillImpact.label.toUpperCase()}</span>`;
                     
                     // Category badge for all O*NET types + Unique
                     let categoryBadge = '';
