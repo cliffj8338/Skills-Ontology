@@ -2225,7 +2225,7 @@
                 <div class="export-options">
                     <div class="export-option" onclick="exportProfile('resume')">
                         <div class="export-option-title">📄 Resume</div>
-                        <div class="export-option-desc">Classic resume format</div>
+                        <div class="export-option-desc">Professional resume · print to PDF</div>
                     </div>
                     <div class="export-option" onclick="exportProfile('capability')">
                         <div class="export-option-title">🎯 Capability Statement</div>
@@ -2694,11 +2694,11 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.4.0 - BUILD 20260218-0600
+        // WORK BLUEPRINT v3.5.0 - BUILD 20260218-0900
         // PREMIUM: 5-Factor Comprehensive Premium Calculation
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   WORK BLUEPRINT v3.4.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   WORK BLUEPRINT v3.5.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Build: 20260218-0600                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -2731,15 +2731,9 @@
                     compaRatio: 100,
                     criticalSkills: [],
                     highSkills: [],
-                    // New 5-factor premium system
-                    workStylesBonus: 0,
-                    evidenceBonus: 0,
-                    rarityBonus: 0,
-                    criticalDepthBonus: 0,
-                    learningBonus: 0,
-                    // Legacy fields for backward compatibility
                     criticalBonus: 0,
                     highBonus: 0,
+                    rarityBonus: 0,
                     premiumAmount: 0
                 };
             }
@@ -2915,15 +2909,10 @@
                 
                 breakdown: {
                     base: baseMarketRate,
-                    workStyles: workStylesBonus,
-                    evidence: evidenceBonus,
+                    critical: criticalBonus,
+                    high: highBonus,
                     rarity: rarityBonus,
-                    criticalDepth: criticalDepthBonus,
-                    learning: learningBonus,
-                    location: locationMultiplier,
-                    // Legacy fields for backward compatibility
-                    critical: criticalDepthBonus,
-                    high: evidenceBonus
+                    location: locationMultiplier
                 }
             };
         }
@@ -4331,27 +4320,70 @@
         }
         
         function gatherBlueprintData() {
-            const skills = skillsData.skills || [];
+            const skills = skillsData.skills || userData.skills || [];
             const topSkills = skills.map(skill => ({ ...skill, impact: getSkillImpact(skill) })).sort((a, b) => (b.impact?.score || 0) - (a.impact?.score || 0)).slice(0, 10);
             const compensation = calculateTotalMarketValue();
+
+            // Pull real strategic outcomes from skill evidence — prefer items with metrics
+            const allEvidence = [];
+            skills.forEach(skill => {
+                (skill.evidence || []).forEach(ev => {
+                    const text = (ev.outcome || '') + ' ' + (ev.description || '');
+                    let score = 0;
+                    if (/\$[\d,]+[MBK]?/i.test(text)) score += 5;
+                    if (/\d+%/.test(text)) score += 4;
+                    if (/million|billion/i.test(text)) score += 5;
+                    if (/\d+x|\d+ times/i.test(text)) score += 3;
+                    if (skill.level === 'Mastery' || skill.level === 'Expert') score += 2;
+                    if (skill.key) score += 2;
+                    allEvidence.push({ skill: skill.name, description: ev.description, outcome: ev.outcome, score });
+                });
+            });
+            allEvidence.sort((a, b) => b.score - a.score);
+
+            // Build strategicOutcomes from top 5 real evidence items
+            const strategicOutcomes = allEvidence.slice(0, 5).map(item => ({
+                title: item.skill,
+                metric: extractMetric(item.outcome),
+                description: item.description || '',
+                outcome: item.outcome || ''
+            }));
+
+            // Use real values from profile
+            const selectedValues = (userData.values || []).filter(v => v.selected !== false).map(v => v.name || v);
+
             return {
                 name: userData.profile.name || 'Your Name',
                 title: userData.profile.currentTitle || 'Your Title',
-                headline: userData.profile.headline || 'Strategic Professional Driving Impact',
+                company: userData.profile.currentCompany || '',
+                location: userData.profile.location || '',
+                headline: userData.profile.headline || `${userData.profile.currentTitle || 'Strategic Professional'} · ${userData.profile.yearsExperience || ''}+ Years`,
                 generatedDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-                executiveSummary: userData.profile.executiveSummary || 'Accomplished professional with proven track record of delivering measurable business impact.',
+                executiveSummary: userData.profile.executiveSummary || userData.purpose || 'Accomplished professional with proven track record of delivering measurable business impact.',
+                purpose: userData.purpose || '',
                 coreCompetencies: topSkills,
-                strategicOutcomes: [
-                    { title: "AI Strategy & Implementation", metric: "85-95% accuracy", description: "Predicted major HR tech trends years ahead of market consensus" },
-                    { title: "Stakeholder Engagement", metric: "70% of work", description: "Advisory capacity with sales teams, translating complex technical concepts" },
-                    { title: "Thought Leadership", metric: "Industry recognition", description: "Established as prominent voice through newsletter and speaking engagements" }
-                ],
-                leadershipPhilosophy: 'Leadership is about creating environments where others can do their best work. I believe in leading through authenticity, using vulnerability as a tool to build trust.',
-                marketPositioning: 'Rare combination of strategic foresight, technical depth, and executive communication. Few can architect implementation roadmaps AND translate implications for C-suite stakeholders.',
+                strategicOutcomes,
+                leadershipPhilosophy: userData.purpose || 'Leadership is about creating conditions where great work becomes inevitable.',
+                marketPositioning: selectedValues.length > 0
+                    ? `Core principles: ${selectedValues.join(' · ')}.`
+                    : 'Strategic professional with deep domain expertise and proven track record.',
                 compensation: compensation,
-                careerNarrative: 'My career has been defined by being early to emerging trends and building bridges between technical innovation and business strategy.',
-                futureVision: 'The next phase of talent technology will be defined by AI that augments human judgment rather than replacing it.'
+                careerNarrative: userData.profile.executiveSummary || 'A career defined by building bridges between technical innovation and business strategy.',
+                futureVision: userData.purpose || 'Focused on creating lasting impact through authentic leadership and evidence-based strategy.'
             };
+        }
+
+        // Extract the most compelling metric from an outcome string
+        function extractMetric(text) {
+            if (!text) return '';
+            const dollarMatch = text.match(/\$[\d.,]+[MBK]?(?:\s*\w+)?/i);
+            if (dollarMatch) return dollarMatch[0];
+            const pctMatch = text.match(/\d+%(?:\s*\w+)?/);
+            if (pctMatch) return pctMatch[0];
+            const multMatch = text.match(/\d+x(?:\s*\w+)?/i);
+            if (multMatch) return multMatch[0];
+            // Fallback: first 40 chars
+            return text.slice(0, 40) + (text.length > 40 ? '…' : '');
         }
         
         function createBlueprintHTML(data) {
@@ -4585,9 +4617,515 @@
         }
 
         function exportProfile(format) {
-            alert(`Export to ${format} - Coming soon!\n\nThis will generate a ${format} based on your current role filter: ${activeRole}`);
             closeExportModal();
+            if (format === 'resume') {
+                generateResume();
+            } else if (format === 'capability') {
+                alert('Capability Statement — coming in the next release.');
+            } else if (format === 'linkedin') {
+                alert('LinkedIn Profile export — coming in the next release.');
+            } else if (format === 'interview') {
+                alert('Interview Prep (STAR stories) — coming in the next release.');
+            }
         }
+
+        // ===== PROFESSIONAL RESUME GENERATOR =====
+        // Produces a clean, ATS-readable HTML resume styled for print-to-PDF.
+        // Pulls real data: executiveSummary, skill evidence outcomes, values, purpose, market value.
+
+        function generateResume() {
+            try {
+                const data = gatherResumeData();
+                const html = buildResumeHTML(data);
+                const filename = `resume-${(data.name || 'profile').replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.html`;
+                downloadBlueprint(html, filename);
+            } catch (err) {
+                console.error('Resume generation error:', err);
+                alert('Error generating resume. See console for details.');
+            }
+        }
+
+        function gatherResumeData() {
+            const skills = skillsData.skills || userData.skills || [];
+            const profile = userData.profile || {};
+            const compensation = calculateTotalMarketValue();
+
+            // --- Achievements: pull evidence items that have real outcomes ---
+            // Score each evidence item: prefer items with metrics, dollar amounts, percentages
+            const allEvidence = [];
+            skills.forEach(skill => {
+                (skill.evidence || []).forEach(ev => {
+                    const text = (ev.outcome || '') + ' ' + (ev.description || '');
+                    let score = 0;
+                    if (/\$[\d,]+[MBK]?/i.test(text)) score += 5;
+                    if (/\d+%/.test(text)) score += 4;
+                    if (/\d+x|\d+ times/i.test(text)) score += 3;
+                    if (/\d+ (months?|years?|days?)/i.test(text)) score += 2;
+                    if (/million|billion/i.test(text)) score += 5;
+                    if (/zero|perfect|first|award|recogni/i.test(text)) score += 2;
+                    if (skill.level === 'Mastery') score += 3;
+                    else if (skill.level === 'Expert') score += 2;
+                    else if (skill.level === 'Advanced') score += 1;
+                    if (skill.key) score += 2;
+                    allEvidence.push({
+                        skill: skill.name,
+                        level: skill.level,
+                        category: skill.category,
+                        roles: skill.roles || [],
+                        description: ev.description || '',
+                        outcome: ev.outcome || '',
+                        score
+                    });
+                });
+            });
+            allEvidence.sort((a, b) => b.score - a.score);
+            const topAchievements = allEvidence.slice(0, 10);
+
+            // --- Core competencies: key + mastery skills, deduplicated by category ---
+            const keySkills = skills.filter(s => s.key || s.level === 'Mastery' || s.level === 'Expert');
+            // Group into max 18 skills for the competencies grid — pick diverse ones
+            const compSet = [];
+            const seen = new Set();
+            // Key skills first
+            keySkills.forEach(s => { if (!seen.has(s.name) && compSet.length < 18) { compSet.push(s); seen.add(s.name); } });
+            // Fill with advanced skills
+            skills.filter(s => s.level === 'Advanced' && !seen.has(s.name))
+                  .slice(0, 18 - compSet.length)
+                  .forEach(s => { compSet.push(s); seen.add(s.name); });
+
+            // --- Role groupings for skills section ---
+            const roleGroups = {};
+            (userData.roles || skillsData.roles || []).forEach(role => {
+                const roleSkills = skills.filter(s => (s.roles || []).includes(role.id));
+                if (roleSkills.length > 0) roleGroups[role.name] = roleSkills;
+            });
+
+            // --- Values (selected only) ---
+            const selectedValues = (userData.values || [])
+                .filter(v => v.selected !== false)
+                .map(v => v.name || v);
+
+            return {
+                name: profile.name || 'Your Name',
+                title: profile.currentTitle || 'Professional',
+                company: profile.currentCompany || '',
+                location: profile.location || '',
+                yearsExperience: profile.yearsExperience || '',
+                executiveSummary: profile.executiveSummary || userData.purpose || '',
+                purpose: userData.purpose || '',
+                topAchievements,
+                competencies: compSet,
+                roleGroups,
+                values: selectedValues,
+                compensation,
+                generatedDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+                totalSkills: skills.length,
+                masteryCount: skills.filter(s => s.level === 'Mastery').length,
+                expertCount: skills.filter(s => s.level === 'Expert').length
+            };
+        }
+
+        function buildResumeHTML(d) {
+            const name = d.name;
+            const title = d.title;
+            const location = d.location ? d.location.split(',').slice(-2).join(',').trim() : '';
+            const comp = d.compensation;
+            const salaryRange = comp && comp.standardOffer
+                ? `$${Math.round(comp.conservativeOffer / 1000)}K – $${Math.round(comp.competitiveOffer / 1000)}K`
+                : '';
+
+            // Achievement bullets
+            const achievementHTML = d.topAchievements.map(item => {
+                // Format as a strong bullet: lead with outcome, add context
+                const outcome = item.outcome.trim().replace(/\.$/, '');
+                const desc = item.description.trim().replace(/\.$/, '');
+                // Keep description concise — truncate at ~120 chars
+                const shortDesc = desc.length > 120 ? desc.slice(0, 117) + '…' : desc;
+                return `<li><span class="ach-outcome">${outcome}.</span> <span class="ach-context">${shortDesc}.</span></li>`;
+            }).join('\n');
+
+            // Competencies grid — just clean names
+            const compHTML = d.competencies.map(s => {
+                const levelDot = s.level === 'Mastery' ? '●●●' : s.level === 'Expert' ? '●●○' : s.level === 'Advanced' ? '●○○' : '○○○';
+                return `<div class="comp-item"><span class="comp-name">${s.name}</span><span class="comp-dots">${levelDot}</span></div>`;
+            }).join('\n');
+
+            // Values
+            const valuesHTML = d.values.length
+                ? d.values.map(v => `<span class="value-tag">${v}</span>`).join('')
+                : '';
+
+            // Salary target line (only if data exists)
+            const salaryLine = salaryRange
+                ? `<div class="contact-item">Target Range: ${salaryRange}</div>`
+                : '';
+
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume — ${name}</title>
+<style>
+/* =====================================================
+   WORK BLUEPRINT RESUME — Professional Print-Ready
+   Designed for: ATS readability + human presentation
+   Print: File → Print → Save as PDF
+   ===================================================== */
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --ink:       #111827;
+  --ink-2:     #374151;
+  --ink-3:     #6b7280;
+  --rule:      #d1d5db;
+  --accent:    #1d4ed8;
+  --accent-lt: #eff6ff;
+  --pg-w:      8.5in;
+  --pg-pad:    0.65in;
+}
+
+html { font-size: 11pt; }
+
+body {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  color: var(--ink);
+  background: #f3f4f6;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.page {
+  width: var(--pg-w);
+  min-height: 11in;
+  margin: 0.4in auto;
+  padding: var(--pg-pad);
+  background: #fff;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+}
+
+/* ---- HEADER ---- */
+.resume-header {
+  border-bottom: 2.5pt solid var(--accent);
+  padding-bottom: 14pt;
+  margin-bottom: 18pt;
+}
+
+.resume-name {
+  font-family: 'Arial', 'Helvetica Neue', sans-serif;
+  font-size: 26pt;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.5pt;
+  line-height: 1;
+  margin-bottom: 4pt;
+}
+
+.resume-title {
+  font-family: 'Arial', sans-serif;
+  font-size: 12pt;
+  font-weight: 400;
+  color: var(--accent);
+  letter-spacing: 0.3pt;
+  margin-bottom: 10pt;
+}
+
+.contact-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6pt 18pt;
+  font-family: 'Arial', sans-serif;
+  font-size: 9pt;
+  color: var(--ink-2);
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 4pt;
+}
+
+.contact-sep {
+  color: var(--rule);
+}
+
+/* ---- SECTION STRUCTURE ---- */
+.section {
+  margin-bottom: 18pt;
+}
+
+.section-label {
+  font-family: 'Arial', sans-serif;
+  font-size: 8.5pt;
+  font-weight: 700;
+  letter-spacing: 1.5pt;
+  text-transform: uppercase;
+  color: var(--accent);
+  border-bottom: 1pt solid var(--rule);
+  padding-bottom: 3pt;
+  margin-bottom: 10pt;
+}
+
+/* ---- SUMMARY ---- */
+.summary-text {
+  font-size: 10.5pt;
+  line-height: 1.65;
+  color: var(--ink-2);
+  max-width: 100%;
+}
+
+/* ---- ACHIEVEMENTS ---- */
+.achievements-list {
+  list-style: none;
+  padding: 0;
+}
+
+.achievements-list li {
+  font-size: 10pt;
+  line-height: 1.6;
+  padding: 5pt 0 5pt 14pt;
+  border-bottom: 0.5pt solid #f0f0f0;
+  position: relative;
+}
+
+.achievements-list li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-size: 9pt;
+  top: 6pt;
+}
+
+.achievements-list li:last-child {
+  border-bottom: none;
+}
+
+.ach-outcome {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.ach-context {
+  color: var(--ink-2);
+}
+
+/* ---- COMPETENCIES GRID ---- */
+.comp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5pt 16pt;
+}
+
+.comp-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 9.5pt;
+  padding: 3pt 0;
+  border-bottom: 0.5pt solid #f5f5f5;
+}
+
+.comp-name {
+  color: var(--ink-2);
+}
+
+.comp-dots {
+  font-size: 7pt;
+  color: var(--accent);
+  letter-spacing: 2pt;
+  flex-shrink: 0;
+  margin-left: 6pt;
+}
+
+/* ---- EXPERIENCE BLOCK ---- */
+.experience-block {
+  margin-bottom: 12pt;
+}
+
+.exp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2pt;
+}
+
+.exp-title {
+  font-family: 'Arial', sans-serif;
+  font-size: 11pt;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.exp-dates {
+  font-family: 'Arial', sans-serif;
+  font-size: 9pt;
+  color: var(--ink-3);
+}
+
+.exp-company {
+  font-family: 'Arial', sans-serif;
+  font-size: 10pt;
+  color: var(--ink-2);
+  margin-bottom: 6pt;
+}
+
+/* ---- VALUES ---- */
+.values-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6pt;
+}
+
+.value-tag {
+  font-family: 'Arial', sans-serif;
+  font-size: 9pt;
+  color: var(--accent);
+  background: var(--accent-lt);
+  padding: 2pt 8pt;
+  border-radius: 2pt;
+  border: 0.5pt solid #bfdbfe;
+}
+
+/* ---- FOOTER ---- */
+.resume-footer {
+  margin-top: 24pt;
+  padding-top: 8pt;
+  border-top: 0.5pt solid var(--rule);
+  font-family: 'Arial', sans-serif;
+  font-size: 8pt;
+  color: var(--ink-3);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ---- LEGEND ---- */
+.legend {
+  font-family: 'Arial', sans-serif;
+  font-size: 8pt;
+  color: var(--ink-3);
+  margin-top: 6pt;
+}
+
+/* ---- PRINT ---- */
+@media print {
+  body { background: white; }
+  .page {
+    width: 100%;
+    margin: 0;
+    padding: 0.55in 0.65in;
+    box-shadow: none;
+    min-height: auto;
+  }
+  .section { page-break-inside: avoid; }
+  .no-print { display: none !important; }
+}
+
+/* ---- SCREEN PRINT BUTTON ---- */
+.print-bar {
+  width: var(--pg-w);
+  margin: 0 auto 10pt;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10pt;
+}
+
+.btn-print {
+  font-family: 'Arial', sans-serif;
+  font-size: 10pt;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  padding: 8pt 20pt;
+  border-radius: 4pt;
+  cursor: pointer;
+  letter-spacing: 0.3pt;
+}
+
+.btn-print:hover { background: #1e40af; }
+
+@media print { .print-bar { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="print-bar no-print">
+  <button class="btn-print" onclick="window.print()">⬇ Save as PDF</button>
+</div>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="resume-header">
+    <div class="resume-name">${name}</div>
+    <div class="resume-title">${title}</div>
+    <div class="contact-row">
+      ${d.company ? `<div class="contact-item">${d.company}</div><div class="contact-sep">·</div>` : ''}
+      ${location ? `<div class="contact-item">${location}</div>` : ''}
+      ${d.yearsExperience ? `<div class="contact-sep">·</div><div class="contact-item">${d.yearsExperience}+ Years Experience</div>` : ''}
+      ${salaryLine}
+    </div>
+  </header>
+
+  <!-- PROFESSIONAL SUMMARY -->
+  ${d.executiveSummary ? `
+  <section class="section">
+    <div class="section-label">Professional Summary</div>
+    <p class="summary-text">${d.executiveSummary}</p>
+  </section>` : ''}
+
+  <!-- CORE COMPETENCIES -->
+  ${d.competencies.length > 0 ? `
+  <section class="section">
+    <div class="section-label">Core Competencies</div>
+    <div class="comp-grid">
+      ${compHTML}
+    </div>
+    <div class="legend" style="margin-top:8pt;">Proficiency: ●●● Mastery &nbsp;·&nbsp; ●●○ Expert &nbsp;·&nbsp; ●○○ Advanced</div>
+  </section>` : ''}
+
+  <!-- SELECTED ACHIEVEMENTS -->
+  ${d.topAchievements.length > 0 ? `
+  <section class="section">
+    <div class="section-label">Selected Achievements</div>
+    <ul class="achievements-list">
+      ${achievementHTML}
+    </ul>
+  </section>` : ''}
+
+  <!-- PROFESSIONAL EXPERIENCE -->
+  <section class="section">
+    <div class="section-label">Professional Experience</div>
+    <div class="experience-block">
+      <div class="exp-header">
+        <div class="exp-title">${title}</div>
+        <div class="exp-dates">Present${d.yearsExperience ? ` · ${d.yearsExperience}+ years` : ''}</div>
+      </div>
+      <div class="exp-company">${d.company}${location ? ` · ${location}` : ''}</div>
+    </div>
+    ${d.purpose ? `<p class="summary-text" style="font-size:9.5pt; color: #4b5563;">${d.purpose}</p>` : ''}
+  </section>
+
+  <!-- VALUES -->
+  ${valuesHTML ? `
+  <section class="section">
+    <div class="section-label">Core Values &amp; Leadership Principles</div>
+    <div class="values-row">${valuesHTML}</div>
+  </section>` : ''}
+
+  <!-- FOOTER -->
+  <footer class="resume-footer">
+    <span>Generated by Work Blueprint · ${d.generatedDate}</span>
+    <span>${d.totalSkills} documented skills · ${d.masteryCount + d.expertCount} at Mastery/Expert level</span>
+  </footer>
+
+</div><!-- /page -->
+</body>
+</html>`;
+        }
+        // ===== END RESUME GENERATOR =====
 
         // Resize handler
         
@@ -4841,19 +5379,13 @@
                     <div style="background: rgba(96, 165, 250, 0.1); padding: 20px; border-radius: 8px; margin: 20px;">
                         <div style="color: #60a5fa; font-weight: 600; margin-bottom: 10px;">🎯 How This Was Calculated</div>
                         <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">
-                            <strong>Method:</strong> Impact-based role tier + 5-factor premium system
+                            <strong>Method:</strong> Impact-based role tier + skill premiums
                             <br><br>
                             <strong>Base Market Rate:</strong> $${totalValue.marketRate.toLocaleString()} (${totalValue.roleLevel} level, ${totalValue.percentile} percentile)
-                            <br><br>
-                            <strong>Premium Factors:</strong>
-                            <br>• Work Styles & Soft Skills: +$${totalValue.workStylesBonus.toLocaleString()}
-                            <br>• Evidence Quality (Proven Results): +$${totalValue.evidenceBonus.toLocaleString()}
-                            <br>• Skill Mix Rarity: +$${totalValue.rarityBonus.toLocaleString()}
-                            <br>• Critical Depth (Expert/Mastery): +$${totalValue.criticalDepthBonus.toLocaleString()}
-                            <br>• Learning & Growth: +$${totalValue.learningBonus.toLocaleString()}
-                            <br><strong>Total Premium:</strong> +$${totalValue.premiumAmount.toLocaleString()} (${Math.round((totalValue.premiumAmount / totalValue.marketRate) * 100)}%)
-                            <br><br>
-                            <strong>Location:</strong> ${userData.profile.location} (×${skillValuations.locationMultipliers[userData.profile.location] || 1.0})
+                            <br><strong>Critical Impact Skills (${totalValue.criticalSkills.length}):</strong> +$${totalValue.criticalBonus.toLocaleString()}
+                            <br><strong>High Impact Skills (${totalValue.highSkills.length}):</strong> +$${totalValue.highBonus.toLocaleString()}
+                            <br><strong>Rare Skill Combinations:</strong> +$${totalValue.rarityBonus.toLocaleString()}
+                            <br><strong>Location:</strong> ${userData.profile.location} (×${skillValuations.locationMultipliers[userData.profile.location] || 1.0})
                             <br><br>
                             <strong>Your Worth:</strong> $${totalValue.yourWorth.toLocaleString()} (${Math.round(((totalValue.yourWorth - totalValue.marketRate) / totalValue.marketRate) * 100)}% above market)
                         </div>
@@ -7988,24 +8520,16 @@
                                 <strong>$${totalValue.marketRate.toLocaleString()}</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                <span>Work Styles Premium:</span>
-                                <strong style="color: #10b981;">+$${totalValue.workStylesBonus.toLocaleString()}</strong>
+                                <span>Critical Skills Premium (${totalValue.criticalSkills.length} skills):</span>
+                                <strong style="color: #10b981;">+$${totalValue.criticalBonus.toLocaleString()}</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                <span>Evidence Quality Premium:</span>
-                                <strong style="color: #10b981;">+$${totalValue.evidenceBonus.toLocaleString()}</strong>
+                                <span>High Impact Skills (${totalValue.highSkills.length} skills):</span>
+                                <strong style="color: #10b981;">+$${totalValue.highBonus.toLocaleString()}</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                <span>Skill Rarity Premium:</span>
+                                <span>Rare Combinations:</span>
                                 <strong style="color: #10b981;">+$${totalValue.rarityBonus.toLocaleString()}</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                <span>Critical Depth Premium:</span>
-                                <strong style="color: #10b981;">+$${totalValue.criticalDepthBonus.toLocaleString()}</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                <span>Learning & Growth Premium:</span>
-                                <strong style="color: #10b981;">+$${totalValue.learningBonus.toLocaleString()}</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 1.2em; margin-top: 10px;">
                                 <strong>Total Market Value:</strong>
