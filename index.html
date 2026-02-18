@@ -3708,12 +3708,12 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0315
-        // ALL VIEWS HIDDEN DEFAULT + NETWORK SHOWCASE + INIT FIX
+        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0320
+        // FIX: isSignInWithEmailLink compat SDK + try-catch guard
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   WORK BLUEPRINT v4.0.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260219-0315                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260219-0320                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -3930,23 +3930,26 @@
 
         // Handle magic link sign-in on page load
         function checkMagicLinkSignIn() {
-            if (!fbAuth || !firebase.auth.isSignInWithEmailLink(window.location.href)) return;
-            var email = localStorage.getItem('wbMagicLinkEmail');
-            if (!email) {
-                email = prompt('Please enter your email to confirm sign-in:');
-            }
-            if (email) {
-                fbAuth.signInWithEmailLink(email, window.location.href)
-                    .then(function(result) {
-                        localStorage.removeItem('wbMagicLinkEmail');
-                        // Clean URL
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                        handlePostSignIn(result.user, result.additionalUserInfo && result.additionalUserInfo.isNewUser);
-                    })
-                    .catch(function(err) {
-                        console.error('Magic link sign-in failed:', err);
-                        showToast('Sign-in link expired or invalid. Please try again.', 'error');
-                    });
+            try {
+                if (!fbAuth || !fbAuth.isSignInWithEmailLink(window.location.href)) return;
+                var email = localStorage.getItem('wbMagicLinkEmail');
+                if (!email) {
+                    email = prompt('Please enter your email to confirm sign-in:');
+                }
+                if (email) {
+                    fbAuth.signInWithEmailLink(email, window.location.href)
+                        .then(function(result) {
+                            localStorage.removeItem('wbMagicLinkEmail');
+                            window.history.replaceState({}, document.title, window.location.pathname);
+                            handlePostSignIn(result.user, result.additionalUserInfo && result.additionalUserInfo.isNewUser);
+                        })
+                        .catch(function(err) {
+                            console.error('Magic link sign-in failed:', err);
+                            showToast('Sign-in link expired or invalid. Please try again.', 'error');
+                        });
+                }
+            } catch(e) {
+                console.warn('Magic link check skipped:', e.message);
             }
         }
 
