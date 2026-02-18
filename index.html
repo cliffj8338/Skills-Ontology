@@ -3423,7 +3423,7 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.6.2 - BUILD 20260218-1530
+        // WORK BLUEPRINT v3.6.3 - BUILD 20260218-1545
         // PREMIUM: 5-Factor Comprehensive Premium Calculation
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -4556,7 +4556,7 @@
         function renderWizardStep1(el) {
             el.innerHTML = `
                 ${wizardHeading('◈', 'Build Your Work Blueprint',
-                    'Most people undersell themselves when applying for work — not because they lack ability, but because they\'ve never had the right tool to articulate it. This changes that.')}
+                    'Most people undersell themselves when applying for work — not because they lack ability, but because they’ve never had the right tool to articulate it. This changes that.')}
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px;">
                     <div onclick="wizardChooseUpload()" id="card-upload"
@@ -4915,7 +4915,7 @@ ${wizardState.resumeText}` }]
             el.innerHTML = `
                 ${wizardHeading(isFromResume ? '✅' : '👤', 
                     isFromResume ? 'Review Your Profile' : 'Your Profile',
-                    isFromResume ? 'Claude extracted this from your resume. Review and correct anything that's off.' 
+                    isFromResume ? 'Claude extracted this from your resume. Review and correct anything that’s off.' 
                                  : 'Fill in your basic information to get started.')}
 
                 <div style="background:var(--bg-elevated); border:1px solid var(--border);
@@ -4997,7 +4997,7 @@ ${wizardState.resumeText}` }]
             el.innerHTML = `
                 ${wizardHeading('🗺️',
                     isFromResume ? `${skills.length} Skills Extracted` : 'Your Skills',
-                    isFromResume ? 'Claude identified these from your resume. Toggle any off you don't want to include. You can add more later.'
+                    isFromResume ? 'Claude identified these from your resume. Toggle any off you do not want to include. You can add more later.'
                                  : 'Add your key skills. You can build this out further after setup.')}
 
                 ${isFromResume ? `
@@ -5148,7 +5148,7 @@ ${wizardState.resumeText}` }]
             el.innerHTML = `
                 ${wizardHeading('✍️',
                     'Your Purpose Statement',
-                    isFromResume ? 'Claude drafted this from your resume. This is often the hardest thing to write about yourself — edit it until it sounds like you.'
+                    isFromResume ? 'Claude drafted this from your resume. Often the hardest thing to write about yourself — edit it until it sounds like you.'
                                  : 'Write a brief statement about what you do, who you help, and what makes your approach distinctive.')}
 
                 <div style="background:var(--bg-elevated); border:1px solid var(--border);
@@ -5239,7 +5239,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             el.innerHTML = `
                 ${wizardHeading('🎉', 'Your Work Blueprint is Ready',
-                    'Here's what we built together. Download your profile to save it, then explore your full dashboard.')}
+                    'Here is what we built together. Download your profile to save it, then explore your full dashboard.')}
 
                 <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px;">
                     ${[
