@@ -2984,7 +2984,7 @@
             </div>
             <div class="modal-body" style="overflow-y: auto;">
                 <div style="margin-bottom: 20px;">
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid rgba(255,255,255,0.1);">
+                    <div style="display: flex; gap: 8px; margin-bottom: 15px; border-bottom: 2px solid rgba(255,255,255,0.1); flex-wrap: wrap;">
                         <button id="onetTabSkills" class="onet-tab active" onclick="switchONETTab('skills')">
                             Skills (35)
                         </button>
@@ -2992,7 +2992,13 @@
                             Abilities (52)
                         </button>
                         <button id="onetTabWorkStyles" class="onet-tab" onclick="switchONETTab('workstyles')">
-                            Work Styles (16)
+                            Work Styles (21)
+                        </button>
+                        <button id="onetTabKnowledge" class="onet-tab" onclick="switchONETTab('knowledge')">
+                            Knowledge (33)
+                        </button>
+                        <button id="onetTabActivities" class="onet-tab" onclick="switchONETTab('activities')">
+                            Work Activities (41)
                         </button>
                     </div>
                     <input type="text" id="onetSearchInput" placeholder="Search O*NET library..." 
@@ -3423,7 +3429,7 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.6.5 - BUILD 20260218-1700
+        // WORK BLUEPRINT v3.6.6 - BUILD 20260218-1800
         // PREMIUM: 5-Factor Comprehensive Premium Calculation
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -3901,8 +3907,8 @@
             console.log('=== LOADING SKILL LIBRARY ===');
             
             // Cache-busting timestamp
-            const cacheBuster = '?v=20260217-1510';
-            const url = 'skills/index-v3.json' + cacheBuster;
+            const cacheBuster = '?v=20260218-1800';
+            const url = 'skills/index-v4.json' + cacheBuster;
             console.log('Fetching:', url);
             
             try {
@@ -4148,7 +4154,7 @@
             try {
                 const onetLib = await fetch('onet-skills-library.json').then(r => r.json());
                 window.onetSkillsLibrary = onetLib;
-                console.log('✓ O*NET Skills Library loaded (35 official skills)');
+                console.log('✓ O*NET Skills Library loaded');
             } catch (e) {
                 console.error('Error loading O*NET skills library:', e);
             }
@@ -4157,7 +4163,7 @@
             try {
                 const abilitiesLib = await fetch('onet-abilities-library.json').then(r => r.json());
                 window.onetAbilitiesLibrary = abilitiesLib;
-                console.log('✓ O*NET Abilities Library loaded (52 official abilities)');
+                console.log('✓ O*NET Abilities Library loaded');
             } catch (e) {
                 console.error('Error loading O*NET abilities library:', e);
             }
@@ -4166,9 +4172,30 @@
             try {
                 const workStylesLib = await fetch('onet-workstyles-library.json').then(r => r.json());
                 window.onetWorkStylesLibrary = workStylesLib;
-                console.log('✓ O*NET Work Styles Library loaded (16 official work styles)');
+                const wsCount = workStylesLib.workStyles?.length || workStylesLib.count || '?';
+                console.log(`✓ O*NET Work Styles Library loaded (${wsCount} work styles)`);
             } catch (e) {
                 console.error('Error loading O*NET work styles library:', e);
+            }
+            
+            // Load O*NET knowledge library
+            try {
+                const knowledgeLib = await fetch('onet-knowledge-library.json').then(r => r.json());
+                window.onetKnowledgeLibrary = knowledgeLib;
+                const kCount = knowledgeLib.knowledge?.length || knowledgeLib.count || '?';
+                console.log(`✓ O*NET Knowledge Library loaded (${kCount} knowledge domains)`);
+            } catch (e) {
+                console.warn('O*NET Knowledge Library not yet deployed (onet-knowledge-library.json)');
+            }
+            
+            // Load O*NET work activities library
+            try {
+                const activitiesLib = await fetch('onet-work-activities-library.json').then(r => r.json());
+                window.onetWorkActivitiesLibrary = activitiesLib;
+                const aCount = activitiesLib.activities?.length || activitiesLib.count || '?';
+                console.log(`✓ O*NET Work Activities Library loaded (${aCount} work activities)`);
+            } catch (e) {
+                console.warn('O*NET Work Activities Library not yet deployed (onet-work-activities-library.json)');
             }
             
             // Load values library
@@ -10775,7 +10802,7 @@ body {
             onetSelectedSkills = [];
         }
         
-        function switchONETTab(tab) {
+        window.switchONETTab = function switchONETTab(tab) {
             currentONETTab = tab;
             
             // Update tab styling
@@ -10799,13 +10826,21 @@ body {
             } else if (currentONETTab === 'abilities') {
                 library = window.onetAbilitiesLibrary;
                 categoryKey = 'ability';
+            } else if (currentONETTab === 'knowledge') {
+                library = window.onetKnowledgeLibrary;
+                categoryKey = 'knowledge';
+            } else if (currentONETTab === 'activities') {
+                library = window.onetWorkActivitiesLibrary;
+                categoryKey = 'workactivity';
             } else {
                 library = window.onetWorkStylesLibrary;
                 categoryKey = 'workstyle';
             }
             
             if (!library) {
-                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #9ca3af;">Library not loaded</div>';
+                container.innerHTML = `<div style="text-align:center;padding:40px;color:#9ca3af;">
+                    Library not loaded.<br><small style="opacity:0.6">Make sure the JSON file is deployed to GitHub.</small>
+                </div>`;
                 return;
             }
             
@@ -10814,18 +10849,70 @@ body {
                 .filter(s => s.category === categoryKey)
                 .map(s => s.name);
             
-            if (currentONETTab === 'workstyles') {
+            // Knowledge and Work Activities: flat arrays grouped by onetGroup
+            if (currentONETTab === 'knowledge' || currentONETTab === 'activities') {
+                const items = currentONETTab === 'knowledge' ? library.knowledge : library.activities;
+                const grouped = {};
+                items.forEach(item => {
+                    const grp = item.group || 'Other';
+                    if (!grouped[grp]) grouped[grp] = [];
+                    grouped[grp].push(item);
+                });
+                Object.entries(grouped).forEach(([groupName, groupItems]) => {
+                    let groupHtml = '';
+                    let hasResults = false;
+                    groupItems.forEach(item => {
+                        const isAdded = existingSkillNames.includes(item.name);
+                        const isSelected = onetSelectedSkills.some(s => s.id === item.onetCode);
+                        const matchesSearch = !searchQuery ||
+                            item.name.toLowerCase().includes(searchQuery) ||
+                            (item.description || '').toLowerCase().includes(searchQuery);
+                        if (!matchesSearch) return;
+                        hasResults = true;
+                        // Normalize to expected shape
+                        const normalized = {
+                            id: item.onetCode,
+                            name: item.name,
+                            definition: item.description || '',
+                            category: categoryKey
+                        };
+                        groupHtml += renderONETSkillItem(normalized, categoryKey, isAdded, isSelected);
+                    });
+                    if (hasResults) {
+                        html += `<div class="onet-category">
+                            <div class="onet-category-title">▼ ${groupName}</div>
+                            ${groupHtml}
+                        </div>`;
+                    }
+                });
+            } else if (currentONETTab === 'workstyles') {
                 // Work styles are a flat array
-                library.workStyles.forEach(item => {
+                const wsItems = library.workStyles || [];
+                // Group by onetGroup if available
+                const grouped = {};
+                wsItems.forEach(item => {
+                    const grp = item.group || item.onetGroup || 'Work Styles';
+                    if (!grouped[grp]) grouped[grp] = [];
+                    grouped[grp].push(item);
+                });
+                const isGrouped = Object.keys(grouped).length > 1;
+                wsItems.forEach(item => {
                     const isAdded = existingSkillNames.includes(item.name);
-                    const isSelected = onetSelectedSkills.some(s => s.id === item.id);
+                    const isSelected = onetSelectedSkills.some(s => s.id === (item.id || item.onetCode));
                     const matchesSearch = !searchQuery || 
                         item.name.toLowerCase().includes(searchQuery) ||
-                        item.definition.toLowerCase().includes(searchQuery);
+                        (item.definition || item.description || '').toLowerCase().includes(searchQuery);
                     
                     if (!matchesSearch) return;
                     
-                    html += renderONETSkillItem(item, categoryKey, isAdded, isSelected);
+                    // Normalize
+                    const normalized = {
+                        id: item.id || item.onetCode,
+                        name: item.name,
+                        definition: item.definition || item.description || '',
+                        category: categoryKey
+                    };
+                    html += renderONETSkillItem(normalized, categoryKey, isAdded, isSelected);
                 });
             } else {
                 // Skills and abilities have category/subcategory structure
@@ -11305,7 +11392,7 @@ body {
 
         function updateSkillManagementCounts() {
             const yourCount = userData.skills.length;
-            const availableCount = skillLibraryIndex ? skillLibraryIndex.totalSkills : 2138;
+            const availableCount = skillLibraryIndex ? skillLibraryIndex.totalSkills : 1805;
             
             document.getElementById('yourSkillsCount').textContent = yourCount;
             document.getElementById('availableSkillsCount').textContent = availableCount.toLocaleString();
@@ -11598,10 +11685,24 @@ body {
                 return;
             }
             
-            let category = 'unique';
-            if (skill.c === 'Technology') category = 'skill';
-            else if (skill.c.includes('General Professional')) category = 'ability';
-            else if (skill.source === 'O*NET' && skill.sc && skill.sc.includes('Work Style')) category = 'workstyle';
+            // Map ESCO/O*NET category to app skill type
+            let category = 'skill'; // default
+            const sc = (skill.sc || '').toLowerCase();
+            const cat = (skill.c || '').toLowerCase();
+            const src = (skill.src || skill.source || '');
+            if (cat === 'work styles' || sc.includes('work style')) {
+                category = 'workstyle';
+            } else if (cat === 'transversal skills' || cat === 'language skills' ||
+                       cat === 'cognitive abilities' || cat === 'sensory abilities' ||
+                       cat === 'physical abilities' || cat === 'psychomotor abilities') {
+                category = 'ability';
+            } else if (cat === 'work activities') {
+                category = 'skill';
+            } else if (src === 'O*NET' && cat === 'knowledge') {
+                category = 'skill';
+            } else if (cat === 'basic skills' || cat === 'cross-functional skills') {
+                category = 'skill';
+            }
             
             const newSkill = {
                 name: skill.n,
