@@ -7,7 +7,7 @@
     "location": "Philadelphia, Pennsylvania, US",
     "roleLevel": "Executive",
     "currentTitle": "VP Global Strategy, GM Customer Advisory & Futurist",
-    "yearsExperience": 25,
+    "yearsExperience": 40,
     "currentCompany": "TalentEdge",
     "executiveSummary": "Accomplished strategic executive with 25+ years driving transformational change in enterprise talent technology. Proven track record of architecting AI-first solutions that deliver measurable business impact while building high-performing teams and stakeholder relationships. Combines deep technical fluency with strategic foresight to position organizations at the forefront of emerging trends. Co-founder of three ventures including Second Chance Foundation, the world's only aviation-focused mental health and recovery organization."
   },
@@ -81,11 +81,11 @@
           "outcome": "Product differentiation led to 25% premium pricing vs competitors, cited in 80% of won deals"
         }
       ],
-      "yearsExperience": 10
+      "yearsExperience": 40
     },
     {
       "name": "Complex Problem Solving",
-      "level": "Advanced",
+      "level": "Mastery",
       "roles": [
         "strategy",
         "futurist",
@@ -104,11 +104,11 @@
           "outcome": "Realigned roadmap priorities, sales cycle returned to normal within 2 quarters, closed $8M in stalled pipeline"
         }
       ],
-      "yearsExperience": 7
+      "yearsExperience": 40
     },
     {
       "name": "Judgment and Decision Making",
-      "level": "Advanced",
+      "level": "Mastery",
       "roles": [
         "strategy",
         "pilot"
@@ -126,7 +126,7 @@
           "outcome": "Avoided sunk cost fallacy, reallocated resources to higher-value initiative that generated $12M in first year"
         }
       ],
-      "yearsExperience": 7
+      "yearsExperience": 40
     },
     {
       "name": "Active Learning",
@@ -148,11 +148,11 @@
           "outcome": "Passed FAA knowledge and practical exams first attempt, 20+ years safe IFR flying"
         }
       ],
-      "yearsExperience": 10
+      "yearsExperience": 40
     },
     {
       "name": "Learning Strategies",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "futurist"
@@ -166,11 +166,11 @@
           "outcome": "92% voluntary completion rate, technical win rate improved from 35% to 68%"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Monitoring",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "pilot"
@@ -184,11 +184,11 @@
           "outcome": "Identified at-risk accounts 60 days early, maintained 95% retention"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Systems Analysis",
-      "level": "Advanced",
+      "level": "Expert",
       "roles": [
         "strategy",
         "tech"
@@ -206,11 +206,11 @@
           "outcome": "Redesigned workflow reduced time-to-hire by 35%, became template for 20+ similar customers"
         }
       ],
-      "yearsExperience": 7
+      "yearsExperience": 25
     },
     {
       "name": "Systems Evaluation",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "tech"
@@ -224,11 +224,11 @@
           "outcome": "Selected 3 partners that delivered, avoided $2M+ in failed implementations"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Operations Analysis",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "strategy",
         "tech",
@@ -243,11 +243,11 @@
           "outcome": "Redesigned process reduced time-to-hire by 35%, became template for 20+ customers"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Operations Monitoring",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot",
         "strategy"
@@ -265,11 +265,11 @@
           "outcome": "Identified declining accounts 60 days before churn risk, prevented 8 CAB member departures"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Operation and Control",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot"
       ],
@@ -282,7 +282,7 @@
           "outcome": "Zero incidents over 20+ years, FAA commendation for emergency handling"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Speaking",
@@ -305,11 +305,11 @@
           "outcome": "Secured $15M investment, board comments: 'finally understood what AI means for the business'"
         }
       ],
-      "yearsExperience": 10
+      "yearsExperience": 40
     },
     {
       "name": "Writing",
-      "level": "Advanced",
+      "level": "Mastery",
       "roles": [
         "strategy",
         "futurist"
@@ -327,11 +327,11 @@
           "outcome": "Executive team: 'Best strategic writing we've seen\u2014clear, actionable, makes complex simple'"
         }
       ],
-      "yearsExperience": 7
+      "yearsExperience": 40
     },
     {
       "name": "Reading Comprehension",
-      "level": "Advanced",
+      "level": "Expert",
       "roles": [
         "strategy",
         "futurist"
@@ -345,11 +345,11 @@
           "outcome": "Frameworks adopted by industry, predictions validated by market evolution"
         }
       ],
-      "yearsExperience": 7
+      "yearsExperience": 25
     },
     {
       "name": "Active Listening",
-      "level": "Advanced",
+      "level": "Expert",
       "roles": [
         "strategy",
         "advocate",
@@ -364,11 +364,11 @@
           "outcome": "CEO said 'you heard what we needed vs what we said'\u2014relationship salvaged"
         }
       ],
-      "yearsExperience": 7
+      "yearsExperience": 25
     },
     {
       "name": "Persuasion",
-      "level": "Advanced",
+      "level": "Mastery",
       "roles": [
         "strategy",
         "futurist"
@@ -382,11 +382,11 @@
           "outcome": "100% approval, features launched on schedule, 40% increase in enterprise deal size"
         }
       ],
-      "yearsExperience": 7
+      "yearsExperience": 40
     },
     {
       "name": "Negotiation",
-      "level": "Advanced",
+      "level": "Expert",
       "roles": [
         "strategy",
         "entrepreneur"
@@ -400,11 +400,11 @@
           "outcome": "Secured favorable revenue share and technical support commitments"
         }
       ],
-      "yearsExperience": 7
+      "yearsExperience": 25
     },
     {
       "name": "Instructing",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "advocate"
@@ -418,11 +418,11 @@
           "outcome": "Technical win rate improved 33 percentage points, program adopted by Customer Success"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Social Perceptiveness",
-      "level": "Advanced",
+      "level": "Mastery",
       "roles": [
         "strategy",
         "advocate"
@@ -440,11 +440,11 @@
           "outcome": "Team member stayed, became top performer, later said 'you saw what I couldn't articulate'"
         }
       ],
-      "yearsExperience": 7
+      "yearsExperience": 40
     },
     {
       "name": "Coordination",
-      "level": "Advanced",
+      "level": "Mastery",
       "roles": [
         "strategy",
         "pilot",
@@ -459,11 +459,11 @@
           "outcome": "Resolved critical issue in 48 hours vs estimated 5-7 days"
         }
       ],
-      "yearsExperience": 7
+      "yearsExperience": 40
     },
     {
       "name": "Service Orientation",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "advocate",
         "strategy"
@@ -477,11 +477,11 @@
           "outcome": "Transported 200+ individuals, 85% treatment completion rate vs 40% industry average"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Time Management",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "entrepreneur"
@@ -495,11 +495,11 @@
           "outcome": "Maintained high performance across all commitments without burnout"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Management of Financial Resources",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "entrepreneur",
         "strategy"
@@ -513,11 +513,11 @@
           "outcome": "Sustained profitability across ventures, Second Chance Foundation raised $500K+"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Management of Material Resources",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "entrepreneur"
       ],
@@ -530,11 +530,11 @@
           "outcome": "Optimized resource utilization, maintained operations within budget"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Management of Personnel Resources",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "entrepreneur"
@@ -548,11 +548,11 @@
           "outcome": "Zero attrition over 2 years vs 40% previous turnover, team expanded to 8"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Technology Design",
-      "level": "Novice",
+      "level": "Advanced",
       "roles": [
         "tech"
       ],
@@ -565,11 +565,11 @@
           "outcome": "Features delivered 40% productivity gains, became competitive differentiator"
         }
       ],
-      "yearsExperience": 2
+      "yearsExperience": 15
     },
     {
       "name": "Equipment Selection",
-      "level": "Novice",
+      "level": "Advanced",
       "roles": [
         "pilot",
         "tech"
@@ -583,11 +583,11 @@
           "outcome": "Improved IFR capability while maintaining cost-effectiveness"
         }
       ],
-      "yearsExperience": 2
+      "yearsExperience": 15
     },
     {
       "name": "Programming",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "tech"
       ],
@@ -600,7 +600,7 @@
           "outcome": "Self-sufficient for analysis needs, credibility with engineering teams"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Quality Control Analysis",
@@ -622,7 +622,7 @@
     },
     {
       "name": "Troubleshooting",
-      "level": "Novice",
+      "level": "Advanced",
       "roles": [
         "pilot",
         "tech"
@@ -636,11 +636,11 @@
           "outcome": "Successful emergency landing, FAA investigation found no pilot error"
         }
       ],
-      "yearsExperience": 2
+      "yearsExperience": 15
     },
     {
       "name": "Mathematics",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot",
         "tech"
@@ -654,11 +654,11 @@
           "outcome": "Precise flight planning, quantitative strategic analysis"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Science",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot",
         "futurist"
@@ -672,11 +672,11 @@
           "outcome": "85-95% prediction accuracy through evidence-based analysis"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Problem Sensitivity",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "pilot"
@@ -690,11 +690,11 @@
           "outcome": "Course correction saved 6 months of wasted development"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Deductive Reasoning",
-      "level": "Advanced",
+      "level": "Expert",
       "roles": [
         "strategy",
         "pilot"
@@ -708,11 +708,11 @@
           "outcome": "Selected optimal landing site under extreme time pressure"
         }
       ],
-      "yearsExperience": 7
+      "yearsExperience": 25
     },
     {
       "name": "Inductive Reasoning",
-      "level": "Advanced",
+      "level": "Expert",
       "roles": [
         "strategy",
         "futurist"
@@ -726,11 +726,11 @@
           "outcome": "Prediction validated 2023-2024, positioned TalentEdge ahead of competition"
         }
       ],
-      "yearsExperience": 7
+      "yearsExperience": 25
     },
     {
       "name": "Information Ordering",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "pilot"
@@ -744,11 +744,11 @@
           "outcome": "Executed all critical actions in correct order under pressure"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Category Flexibility",
-      "level": "Advanced",
+      "level": "Expert",
       "roles": [
         "futurist",
         "strategy"
@@ -762,11 +762,11 @@
           "outcome": "Anticipated market evolution before competitors, influenced industry discourse"
         }
       ],
-      "yearsExperience": 7
+      "yearsExperience": 25
     },
     {
       "name": "Mathematical Reasoning",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot",
         "tech"
@@ -780,11 +780,11 @@
           "outcome": "20+ years safe flying, zero incidents related to calculation errors"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Memorization",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot",
         "musician"
@@ -798,11 +798,11 @@
           "outcome": "Rapid recall under pressure in cockpit and on stage"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Speed of Closure",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "pilot",
         "strategy"
@@ -816,11 +816,11 @@
           "outcome": "Made go/no-go decisions in seconds, selected safe landing area"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Perceptual Speed",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot"
       ],
@@ -833,11 +833,11 @@
           "outcome": "Maintained precise altitude, heading, speed in challenging conditions"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Spatial Orientation",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot",
         "strategy"
@@ -851,11 +851,11 @@
           "outcome": "Safe IFR operations in challenging weather, never experienced spatial disorientation"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Visualization",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "pilot"
@@ -869,11 +869,11 @@
           "outcome": "Accurate predictions of second and third-order effects of strategic decisions"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Selective Attention",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "pilot",
         "strategy"
@@ -887,11 +887,11 @@
           "outcome": "Never lost situational awareness despite high stress and competing demands"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Time Sharing",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot",
         "musician"
@@ -905,11 +905,11 @@
           "outcome": "Never missed radio calls or deviated from clearance while managing multiple tasks"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Oral Comprehension",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "pilot"
@@ -923,11 +923,11 @@
           "outcome": "Never required repeat of instructions, maintained safe separation"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Oral Expression",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "futurist"
@@ -941,11 +941,11 @@
           "outcome": "Complex ideas accessible to diverse audiences, generated 45 inbound leads"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Written Comprehension",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy"
       ],
@@ -958,11 +958,11 @@
           "outcome": "Frameworks validated by market evolution, adopted by competitors"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Written Expression",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "futurist"
@@ -976,11 +976,11 @@
           "outcome": "15K+ subscribers, 300+ sales leads, zero paid promotion"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Fluency of Ideas",
-      "level": "Advanced",
+      "level": "Mastery",
       "roles": [
         "futurist",
         "strategy"
@@ -994,11 +994,11 @@
           "outcome": "Teams able to evaluate multiple scenarios and prepare contingencies"
         }
       ],
-      "yearsExperience": 7
+      "yearsExperience": 40
     },
     {
       "name": "Originality",
-      "level": "Advanced",
+      "level": "Mastery",
       "roles": [
         "futurist",
         "musician"
@@ -1012,11 +1012,11 @@
           "outcome": "Framework adopted by industry, shifted discourse on AI collaboration models"
         }
       ],
-      "yearsExperience": 7
+      "yearsExperience": 40
     },
     {
       "name": "Control Precision",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot",
         "musician"
@@ -1030,11 +1030,11 @@
           "outcome": "Perfect touchdown in field, no injuries, aircraft recoverable"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Multilimb Coordination",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot",
         "musician"
@@ -1048,11 +1048,11 @@
           "outcome": "Smooth, precise flight operations; musical performance with bass/vocals simultaneously"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Response Orientation",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot"
       ],
@@ -1065,11 +1065,11 @@
           "outcome": "Optimized glide distance, maximized landing site options"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Rate Control",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot"
       ],
@@ -1082,11 +1082,11 @@
           "outcome": "Perfect energy management, touchdown at exact target point"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Reaction Time",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot"
       ],
@@ -1099,11 +1099,11 @@
           "outcome": "No delay in critical actions, maximized outcome possibilities"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Manual Dexterity",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "musician"
       ],
@@ -1116,11 +1116,11 @@
           "outcome": "Professional-level musical execution after 30+ years practice"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Finger Dexterity",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "musician"
       ],
@@ -1133,11 +1133,11 @@
           "outcome": "Clean articulation, accurate note execution in demanding passages"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Far Vision",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot"
       ],
@@ -1150,11 +1150,11 @@
           "outcome": "Early awareness enabled safe separation and navigation"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Night Vision",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot"
       ],
@@ -1167,11 +1167,11 @@
           "outcome": "Safe night flying, runway and traffic identification in dark conditions"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Depth Perception",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot"
       ],
@@ -1184,11 +1184,11 @@
           "outcome": "Consistent smooth landings, perfect touchdown during emergency"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Hearing Sensitivity",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "musician"
       ],
@@ -1201,11 +1201,11 @@
           "outcome": "Precise intonation, harmonic awareness in ensemble playing"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Auditory Attention",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot",
         "musician"
@@ -1219,11 +1219,11 @@
           "outcome": "Never missed calls, maintained awareness in complex audio environment"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Speech Clarity",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "futurist"
@@ -1237,11 +1237,11 @@
           "outcome": "ATC never requested repeats, audiences consistently rated delivery highly"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Stress Tolerance",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "pilot",
         "strategy",
@@ -1260,11 +1260,11 @@
           "outcome": "Zero attrition during transitions vs 50% typical, team delivery consistency maintained"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Attention to Detail",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot",
         "strategy"
@@ -1278,11 +1278,11 @@
           "outcome": "Prevented in-flight failures, maintained perfect safety record"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Dependability",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "pilot",
         "strategy"
@@ -1296,11 +1296,11 @@
           "outcome": "Built trust with subscribers through consistency"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Achievement/Effort",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "entrepreneur"
@@ -1314,11 +1314,11 @@
           "outcome": "Passed on first attempt, maintained proficiency through continuous learning"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Persistence",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "entrepreneur",
@@ -1333,11 +1333,11 @@
           "outcome": "Sustained impact: 200+ people transported, model adopted by 3 regional programs"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Initiative",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "entrepreneur"
@@ -1351,11 +1351,11 @@
           "outcome": "Generated 300+ leads, became strategic asset, no permission needed"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Leadership",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "advocate"
@@ -1369,11 +1369,11 @@
           "outcome": "Zero attrition, $20M in revenue impact, 2 promoted to director"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Self-Control",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot",
         "advocate"
@@ -1387,11 +1387,11 @@
           "outcome": "Calm execution of procedures, passengers felt reassured not panicked"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Adaptability/Flexibility",
-      "level": "Proficient",
+      "level": "Expert",
       "roles": [
         "strategy",
         "pilot"
@@ -1405,11 +1405,11 @@
           "outcome": "Maintained team performance and credibility despite organizational turbulence"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 25
     },
     {
       "name": "Integrity",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "strategy",
         "advocate"
@@ -1423,11 +1423,11 @@
           "outcome": "Built deeper trust with stakeholders, 12 executives privately shared similar experiences"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Enterprise AI Strategy",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "strategy",
         "futurist",
@@ -1441,11 +1441,11 @@
           "outcome": "Board approved $15M investment, 3 features launched, 40% deal size increase"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "AI/ML Product Strategy",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "strategy",
         "tech",
@@ -1459,11 +1459,11 @@
           "outcome": "Framework became product design principle, 25% pricing premium vs competitors"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Strategic Foresight & Market Prediction",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "strategy",
         "futurist"
@@ -1476,11 +1476,11 @@
           "outcome": "Positioned TalentEdge 18-24 months ahead of market, captured emerging opportunities"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Predictive Framework Development",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "futurist",
         "strategy"
@@ -1493,11 +1493,11 @@
           "outcome": "Frameworks adopted by team, improved decision quality across organization"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Weak Signal Detection & Trend Recognition",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "futurist",
         "strategy"
@@ -1510,11 +1510,11 @@
           "outcome": "Prediction validated 2022-2024, TalentEdge ready while competitors scrambled"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Human-AI Collaboration Model Design",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "futurist",
         "strategy"
@@ -1527,11 +1527,11 @@
           "outcome": "Framework adopted by industry, shifted discourse on AI collaboration"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Technical Concept Translation",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "futurist",
         "tech",
@@ -1545,11 +1545,11 @@
           "outcome": "Sales win rate improved 33%, board approved investment, no translation layer needed"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Research Synthesis & Pattern Recognition",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "futurist",
         "strategy"
@@ -1562,11 +1562,11 @@
           "outcome": "Frameworks validated by market, adopted by competitors and consultants"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "HR Technology Market Intelligence",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "strategy",
         "futurist"
@@ -1579,11 +1579,11 @@
           "outcome": "Informed M&A analysis, partnership decisions, product positioning"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Candidate Experience Architecture",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "strategy"
       ],
@@ -1595,11 +1595,11 @@
           "outcome": "Framework referenced in competitor materials and academic research"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "C-Suite Advisory & Influence",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "strategy",
         "futurist"
@@ -1612,11 +1612,11 @@
           "outcome": "Trusted advisor status, referenced in strategic planning discussions"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Crisis Leadership & Decision Making",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "strategy",
         "advocate"
@@ -1629,11 +1629,11 @@
           "outcome": "Maintained performance under extreme pressure, deepened stakeholder relationships"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "FAA Certified IFR Pilot (Multi-Engine, 2000+ hrs)",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "pilot"
       ],
@@ -1645,11 +1645,11 @@
           "outcome": "Perfect safety record, FAA commendation for emergency handling"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Professional Musician (Guitar, Bass, Vocals - 37 years)",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "musician"
       ],
@@ -1661,11 +1661,11 @@
           "outcome": "Contributed to successful decision-making, operational excellence, and organizational impact"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     },
     {
       "name": "Nonprofit Leadership & Advocacy (Kyle's Wish Foundation)",
-      "level": "Proficient",
+      "level": "Advanced",
       "roles": [
         "advocate",
         "entrepreneur"
@@ -1678,7 +1678,7 @@
           "outcome": "Contributed to successful decision-making, operational excellence, and organizational impact"
         }
       ],
-      "yearsExperience": 5
+      "yearsExperience": 15
     }
   ],
   "values": [

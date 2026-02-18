@@ -2694,13 +2694,13 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v3.2.0 - BUILD 20260218-0430
-        // ARCHITECTURE: Organized Profile Folder Structure
+        // WORK BLUEPRINT v3.3.0 - BUILD 20260218-0500
+        // ADDED: Expert Level + Realistic 40-Year Executive Profile
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   WORK BLUEPRINT v3.2.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260218-0430                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Profiles in /profiles folder             ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   WORK BLUEPRINT v3.3.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260218-0500                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   5-Level System: Novice → Expert → Mastery ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         
         // ===== USER DATA CONFIGURATION =====
@@ -2742,31 +2742,43 @@
             
             // Step 1: Calculate base value from role tier (based on proficiency distribution)
             const masteryCount = skillsData.skills.filter(s => s.level === 'Mastery').length;
+            const expertCount = skillsData.skills.filter(s => s.level === 'Expert').length;
             const advancedCount = skillsData.skills.filter(s => s.level === 'Advanced').length;
+            const proficientCount = skillsData.skills.filter(s => s.level === 'Proficient').length;
             const totalSkills = skillsData.skills.length;
             
-            const totalPoints = (masteryCount * 3) + (advancedCount * 2);
+            // Updated point system:
+            // Mastery (40+ yrs mastery): 4 points
+            // Expert (20-40 yrs expertise): 3 points
+            // Advanced (10-20 yrs strong): 2 points
+            // Proficient (5-10 yrs competent): 1 point
+            // Novice (0-5 yrs learning): 0 points
+            const totalPoints = (masteryCount * 4) + (expertCount * 3) + (advancedCount * 2) + (proficientCount * 1);
             
             let baseMarketRate = 0;
             let roleLevel = '';
             let percentile = '50th'; // Default to median
             
-            if (totalPoints >= 24) {
-                baseMarketRate = 280000; // 75th percentile for VP/C-Suite
+            // Adjusted thresholds for 5-level system
+            if (totalPoints >= 100) {
+                baseMarketRate = 280000; // Executive/C-Suite (Cliff: 230 pts)
                 roleLevel = 'VP/C-Suite';
                 percentile = '75th';
-            } else if (totalPoints >= 15) {
-                baseMarketRate = 165000; // 50th percentile for Senior Director
+            } else if (totalPoints >= 40) {
+                baseMarketRate = 165000; // Senior Management (Mike: 49 pts)
                 roleLevel = 'Senior Director';
-            } else if (totalPoints >= 10) {
-                baseMarketRate = 110000;
+            } else if (totalPoints >= 30) {
+                baseMarketRate = 110000; // Director level (Sarah: 36 pts)
                 roleLevel = 'Director';
-            } else if (totalPoints >= 6) {
-                baseMarketRate = 80000;
-                roleLevel = 'Senior Professional';
-            } else {
-                baseMarketRate = 60000;
+            } else if (totalPoints >= 20) {
+                baseMarketRate = 55000; // Mid-level professional (Jamie: 28 pts)
                 roleLevel = 'Mid-Level Professional';
+            } else if (totalPoints >= 10) {
+                baseMarketRate = 38000; // Entry-level professional (Alex: 17 pts)
+                roleLevel = 'Entry Professional';
+            } else {
+                baseMarketRate = 30000; // Entry level
+                roleLevel = 'Entry Level';
             }
             
             // Step 2: Calculate impact skill distribution
