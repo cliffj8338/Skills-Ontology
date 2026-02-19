@@ -1,5 +1,5 @@
-# PROJECT_CONTEXT.md — Blueprint v4.15.0 (Work History + Resume v2)
-**Updated:** 2026-02-19 | **Lines:** 19,316 | **Functions:** ~380 | **Size:** ~975 KB | **Braces:** 0 (balanced)
+# PROJECT_CONTEXT.md — Blueprint v4.16.0 (Evidence Engine + Verification)
+**Updated:** 2026-02-19 | **Lines:** 19,888 | **Functions:** ~400 | **Size:** ~1.02 MB | **Braces:** 0 (balanced)
 
 ## What Is Blueprint
 
@@ -48,7 +48,8 @@ Two primary state objects, kept in sync:
   skillDetails: {}, values: [], purpose: "", roles: [{id, name, color}],
   workHistory: [{id, title, company, location, startDate, endDate, current, description, achievements[]}],
   education: [{id, school, degree, field, year}],
-  certifications: [{id, name, issuer, year}],
+  certifications: [{id, name, issuer, year, linkedSkills[]}],
+  verifications: [{id, skillName, claimedLevel, evidenceSummary, verifierName, verifierEmail, relationship, token, status, confirmedLevel, verifierNote, requestedAt, respondedAt}],
   preferences: {seniorityLevel, targetTitles, excludeRoles, ...},
   applications: [], savedJobs: [], templateId }
 ```
@@ -143,6 +144,36 @@ Alternative to network: grid of skill cards grouped by role, sorted by level. In
 ### Skill Modals (L9100-9400, 8 functions)
 `openSkillModal` — Rich detail modal for any skill: market value, proficiency bar, evidence list, related skills, coaching, category info. Accessible from both network nodes and card view.
 
+### Evidence Quality Engine (L5750-5930, v4.16.0)
+**Core concept:** Skills have a `claimedLevel` (user-set) and an `effectiveLevel` (evidence-derived). Market valuation uses the evidence-backed level, creating a natural incentive to provide quality outcomes.
+
+**`scoreOutcome(text)`** — Scores a single outcome 1-5 points based on impact signals: financial scale ($M/$B = +2, any $ = +1), percentages (10%+ = +1), multipliers (Nx = +1), scope language (global, enterprise = +0.5), founding/building language (+0.5), recognition signals (award, published, keynote = +1), crisis context (+0.5). Capped at 5, allows 0.5 increments.
+
+**`calculateEvidencePoints(skill)`** — Sums all outcome scores for a skill. Applies verification multiplier (default 1.5x) for confirmed outcomes. Applies certification floor (default Proficient = 5 pts) if skill has a linked cert.
+
+**`getEffectiveLevel(skill)` / `getEffectiveLevelFromPoints(points)`** — Maps points to level: Novice (0), Competent (2), Proficient (5), Advanced (10), Expert (18), Mastery (28). Thresholds are admin-configurable.
+
+**`getValuationLevel(skill)`** — Returns `min(claimed, effective)` for valuation. Evidence cannot lower you below what you've proven, but claiming above your evidence won't inflate your market value.
+
+**`getEvidenceSummary(skill)`** — Returns complete status: points, effectiveLevel, claimedLevel, gap detection, next level threshold, verification counts, cert linkage.
+
+**`evidenceConfig`** — Admin-configurable thresholds stored in localStorage. Defaults: Competent=2, Proficient=5, Advanced=10, Expert=18, Mastery=28. Also configures cert floor level and verification multiplier.
+
+**Integration with valuation:** `calculateTotalMarketValue()` now calls `getValuationLevel()` instead of `skill.level` for point calculations. This means the entire compensation model respects evidence quality.
+
+### Verification System (L5930-6100, v4.16.0)
+**`requestVerification(skillNames[])`** — Modal-based flow to request third-party verification. Collects verifier name, email, relationship. Shows evidence preview per skill.
+
+**`sendVerificationRequest()`** — Creates verification records in `userData.verifications[]`, saves to Firestore subcollection `users/{uid}/verifications/{id}`, generates mailto: link with verification URL and evidence summary.
+
+**`getVerificationStats()`** — Profile-level counts: total skills, verified (confirmed by third party), pending, unverified. Displayed in stats bar.
+
+**Verification record structure:** `{id, skillName, claimedLevel, evidenceSummary, verifierName, verifierEmail, relationship, token, status (pending|confirmed|adjusted|declined), confirmedLevel, verifierNote, requestedAt, respondedAt}`
+
+**Certification-to-skill linking:** Certs now have `linkedSkills[]` array. Linked skills automatically receive cert floor level (default Proficient) in evidence point calculation. Linking UI in cert modal with profile skill autocomplete.
+
+**UI surfaces:** Skill modal shows evidence quality panel (gap warning, progress bar, points, verification badges). Skill modal action bar has "Verify" button. Stats bar shows "X Verified" count. Admin panel has threshold configuration.
+
 ### Resume & Document Generation (L9379-9998)
 **Resume v2 (v4.15.0):** `generateResume` → `gatherResumeData` → `buildResumeHTML`. Full ATS-compatible HTML resume. Contact block includes email, phone, LinkedIn URL, location. Professional Experience section renders structured work history entries with per-role achievements. Education and Certifications sections. Falls back to single-entry stub if no work history data. Core competencies grid, values tags. Print-to-PDF via browser.
 
@@ -217,7 +248,16 @@ Theme toggle (dark/light), profile dropdown, filter panel, overflow menu. Help m
 
 ## Version History
 
-### v4.15.0 (current)
+### v4.16.0 (current)
+- **Evidence Quality Engine:** Each outcome scored 1-5 points based on impact signals (financial scale, percentages, scope, recognition). One exceptional outcome ($340M transformation) outweighs three minor ones. `effectiveLevel` derived from cumulative evidence points, not self-reported claims.
+- **Evidence-weighted valuation:** `calculateTotalMarketValue()` now uses `getValuationLevel()` which returns the evidence-backed level. Claimed levels above evidence don't inflate compensation. Gap is shown transparently in skill modal with coaching guidance.
+- **Certification-to-skill linking:** Certs have `linkedSkills[]` array. Linked skills auto-bump to Proficient floor in evidence calculations. Linking UI with profile skill autocomplete in cert modal.
+- **Third-party verification:** Request verification via email for any skill(s). Verification records stored in Firestore. Stats bar shows verification counts. Skill modal shows verified/pending badges.
+- **Admin threshold configuration:** Admin panel now includes Evidence Threshold Configuration section. Adjustable point requirements per level, cert floor level, and verification multiplier. Persisted in localStorage.
+- **Skill modal evidence panel:** New panel at top of skill modal showing evidence points, progress bar, gap warning when claimed > effective, next level requirements, and verification badges.
+- **Data model:** Added `userData.verifications[]`, `cert.linkedSkills[]`. Wired through Firestore serializer/loader, template loading, wizard builder.
+
+### v4.15.0
 - **Work History management:** Full CRUD in Settings → Experience tab. Title, company, location, dates, description, per-role achievements. Modal-based editing with dynamic achievement inputs.
 - **Education management:** School, degree, field, year. CRUD with modal editing.
 - **Certifications management:** Name, issuer, year. CRUD with modal editing.
@@ -310,7 +350,7 @@ Sessions are stored in `/mnt/transcripts/`:
 6. `2026-02-19-18-01-02-v410-skill-edit-sample-jobs-bugfix.txt`
 7. `2026-02-19-19-07-15-v412-v413-bulk-import-manager-overlay-panel.txt`
 8. Previous session: v4.14.0-v4.14.1 (calibrated sample jobs, overlay color fix, stabilization audit)
-9. Current session: v4.15.0 (Work History/Education/Certifications management, Resume v2, Profile contact expansion)
+9. Current session: v4.15.0-v4.16.0 (Work History/Education/Certs, Resume v2, Evidence Quality Engine, Verification System, Admin Thresholds)
 
 ---
 
@@ -318,12 +358,13 @@ Sessions are stored in `/mnt/transcripts/`:
 
 ### High Priority
 - **Values System v2** — Editable descriptions (not just catalog defaults), drag-to-reorder or explicit ranking (top 3 marked as "core"), stronger evidence-linking UI, "value story" narrative field per value
-- **Evidence Management** — Add/edit/remove evidence items directly from skill cards and modals. Currently evidence comes through wizard or demo data with no inline editing path. Feeds both Outcomes and resume achievements.
+- **Evidence Management UI** — Add/edit/remove evidence items directly from skill cards and modals. Engine exists (v4.16.0) but evidence entry still requires wizard or demo data. Need inline "Add Outcome" button on skill cards and evidence editing in skill modal.
 - **Consent-to-Export Pipeline** — Wire consent presets so they actually filter what appears in exports. "Preview what gets shared" summary before any export.
 - **Proficiency gap visualization on nodes** — Show visual indicator when user matches a job skill but at lower proficiency
 - **Job application tracking integration** — Connect pipeline jobs to application tracker
 
 ### Medium Priority
+- **Verification landing page** — Standalone `verify.html` page where verifiers click link from email, see evidence summary, confirm/adjust/decline without auth. Currently manual confirmation via profile owner.
 - **Animated transitions between network modes** — Smooth morph between You/Job/Match views
 - **Drag-to-rearrange** in skill lists and card view
 - **Skill gap development plans** — Suggest learning paths for gap skills
@@ -334,6 +375,12 @@ Sessions are stored in `/mnt/transcripts/`:
 - **Code splitting** — Break monolith into modules (would require build tooling)
 - **Offline support** — Service worker for PWA capability
 - **Import from LinkedIn** — Parse LinkedIn data export
+
+### Completed (v4.16.0)
+- ✅ **Evidence Quality Engine** — Outcome scoring (1-5 pts), effective levels, evidence-weighted valuation
+- ✅ **Third-party verification system** — Request, track, display verification status
+- ✅ **Certification-to-skill linking** — Auto-bump effective level for cert-linked skills
+- ✅ **Admin threshold configuration** — Configurable point requirements per level
 
 ### Completed (v4.15.0)
 - ✅ **Professional resume generation v2** — Full ATS-compatible resume with structured work history, education, certifications, full contact block

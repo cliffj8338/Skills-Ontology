@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.15.0 | 20260219 | Feature: Work History, Education, Certifications management + Resume v2 with structured experience -->
+    <!-- v4.16.0 | 20260219 | Feature: Evidence Quality Engine, effective levels, verification system, admin thresholds -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4666,6 +4666,7 @@
                 workHistory: userData.workHistory || [],
                 education: userData.education || [],
                 certifications: userData.certifications || [],
+                verifications: userData.verifications || [],
                 savedJobs: (userData.savedJobs || []).map(function(j) {
                     return { id: j.id || '', title: j.title || '', company: j.company || '', sourceUrl: j.sourceUrl || '', sourceNote: j.sourceNote || '',
                         rawText: j.rawText || '', parsedSkills: j.parsedSkills || [], parsedRoles: j.parsedRoles || [],
@@ -4717,6 +4718,7 @@
                     userData.workHistory = data.workHistory || [];
                     userData.education = data.education || [];
                     userData.certifications = data.certifications || [];
+                    userData.verifications = data.verifications || [];
                     userData.templateId = 'firestore-' + uid;
                     
                     // Populate skillsData
@@ -4878,6 +4880,38 @@
                 + '<button onclick="closeExportModal(); openBulkManager();" style="padding:10px 20px; background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
                 + '\u270F\uFE0F Bulk Edit / Remove</button>'
                 + '</div>'
+                
+                // Evidence Threshold Configuration
+                + '<div style="margin-bottom:24px; padding:20px; background:' + tv('rgba(16,185,129,0.06)','rgba(16,185,129,0.04)') + '; border:1px solid ' + tv('rgba(16,185,129,0.2)','rgba(16,185,129,0.12)') + '; border-radius:10px;">'
+                + '<div style="font-weight:700; color:' + tv('#10b981','#059669') + '; margin-bottom:12px; font-size:0.95em;">\uD83C\uDFAF Evidence Threshold Configuration</div>'
+                + '<div style="font-size:0.82em; color:' + tv('#9ca3af','#64748b') + '; margin-bottom:16px;">Points required for each effective level. Quality outcomes earn 1-5 points each. Adjust these to change how evidence maps to levels.</div>'
+                + '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">'
+                + ['Competent','Proficient','Advanced','Expert','Mastery'].map(function(level) {
+                    return '<div style="display:flex; flex-direction:column; gap:4px;">'
+                        + '<label style="font-size:0.78em; color:' + tv('#d1d5db','#334155') + '; font-weight:600;">' + level + '</label>'
+                        + '<input type="number" id="threshold_' + level + '" value="' + evidenceConfig.thresholds[level] + '" min="1" max="50" '
+                        + 'style="width:100%; padding:6px 10px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; border:1px solid ' + tv('rgba(255,255,255,0.15)','#d1d5db') + '; border-radius:6px; color:' + tv('#e0e0e0','#1f2937') + '; font-size:0.9em; text-align:center;">'
+                        + '</div>';
+                }).join('')
+                + '</div>'
+                + '<div style="display:flex; gap:10px; margin-top:14px; align-items:center;">'
+                + '<div style="flex:1;">'
+                + '<label style="font-size:0.78em; color:' + tv('#d1d5db','#334155') + '; font-weight:600;">Cert Floor</label>'
+                + '<select id="threshold_certFloor" style="width:100%; padding:6px 10px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; border:1px solid ' + tv('rgba(255,255,255,0.15)','#d1d5db') + '; border-radius:6px; color:' + tv('#e0e0e0','#1f2937') + '; font-size:0.88em;">'
+                + ['Novice','Competent','Proficient','Advanced'].map(function(l) { return '<option value="' + l + '"' + (evidenceConfig.certFloor === l ? ' selected' : '') + '>' + l + '</option>'; }).join('')
+                + '</select></div>'
+                + '<div style="flex:1;">'
+                + '<label style="font-size:0.78em; color:' + tv('#d1d5db','#334155') + '; font-weight:600;">Verification Multiplier</label>'
+                + '<input type="number" id="threshold_verifyMult" value="' + evidenceConfig.verificationMultiplier + '" min="1" max="3" step="0.1" '
+                + 'style="width:100%; padding:6px 10px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; border:1px solid ' + tv('rgba(255,255,255,0.15)','#d1d5db') + '; border-radius:6px; color:' + tv('#e0e0e0','#1f2937') + '; font-size:0.9em; text-align:center;">'
+                + '</div>'
+                + '</div>'
+                + '<div style="display:flex; gap:10px; margin-top:14px;">'
+                + '<button onclick="saveAdminThresholds()" style="padding:8px 18px; background:#10b981; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85em;">Save Thresholds</button>'
+                + '<button onclick="resetAdminThresholds()" style="padding:8px 18px; background:transparent; color:' + tv('#9ca3af','#64748b') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','#d1d5db') + '; border-radius:6px; cursor:pointer; font-size:0.85em;">Reset Defaults</button>'
+                + '</div>'
+                + '</div>'
+                
                 + '<div id="adminContent" style="color:' + tv('#d1d5db','#334155') + ';">Loading users...</div>'
                 + '</div>';
             
@@ -4919,6 +4953,43 @@
                 });
         }
         window.showAdminPanel = showAdminPanel;
+        
+        function saveAdminThresholds() {
+            ['Competent','Proficient','Advanced','Expert','Mastery'].forEach(function(level) {
+                var el = document.getElementById('threshold_' + level);
+                if (el) evidenceConfig.thresholds[level] = parseInt(el.value) || evidenceConfig.thresholds[level];
+            });
+            var certFloorEl = document.getElementById('threshold_certFloor');
+            if (certFloorEl) {
+                evidenceConfig.certFloor = certFloorEl.value;
+                evidenceConfig.certFloorPoints = evidenceConfig.thresholds[certFloorEl.value] || 5;
+            }
+            var verifyMultEl = document.getElementById('threshold_verifyMult');
+            if (verifyMultEl) evidenceConfig.verificationMultiplier = parseFloat(verifyMultEl.value) || 1.5;
+            
+            saveEvidenceConfig();
+            showToast('Evidence thresholds updated. Valuations will recalculate.', 'success');
+        }
+        window.saveAdminThresholds = saveAdminThresholds;
+        
+        function resetAdminThresholds() {
+            evidenceConfig.thresholds = { 'Competent': 2, 'Proficient': 5, 'Advanced': 10, 'Expert': 18, 'Mastery': 28 };
+            evidenceConfig.certFloor = 'Proficient';
+            evidenceConfig.certFloorPoints = 5;
+            evidenceConfig.verificationMultiplier = 1.5;
+            saveEvidenceConfig();
+            // Update UI
+            ['Competent','Proficient','Advanced','Expert','Mastery'].forEach(function(level) {
+                var el = document.getElementById('threshold_' + level);
+                if (el) el.value = evidenceConfig.thresholds[level];
+            });
+            var certFloorEl = document.getElementById('threshold_certFloor');
+            if (certFloorEl) certFloorEl.value = 'Proficient';
+            var verifyMultEl = document.getElementById('threshold_verifyMult');
+            if (verifyMultEl) verifyMultEl.value = '1.5';
+            showToast('Thresholds reset to defaults.', 'info');
+        }
+        window.resetAdminThresholds = resetAdminThresholds;
 
         // ===== ENHANCED SAVE (Firestore + localStorage) =====
         function saveAll() {
@@ -5473,11 +5544,11 @@
             
             // REDESIGNED MODEL: Realistic premiums based on skill mix percentage
             
-            // Step 1: Calculate base value from role tier (based on proficiency distribution)
-            const masteryCount = skillsData.skills.filter(s => s.level === 'Mastery').length;
-            const expertCount = skillsData.skills.filter(s => s.level === 'Expert').length;
-            const advancedCount = skillsData.skills.filter(s => s.level === 'Advanced').length;
-            const proficientCount = skillsData.skills.filter(s => s.level === 'Proficient').length;
+            // Step 1: Calculate base value from role tier (based on EFFECTIVE proficiency, not claimed)
+            const masteryCount = skillsData.skills.filter(s => getValuationLevel(s) === 'Mastery').length;
+            const expertCount = skillsData.skills.filter(s => getValuationLevel(s) === 'Expert').length;
+            const advancedCount = skillsData.skills.filter(s => getValuationLevel(s) === 'Advanced').length;
+            const proficientCount = skillsData.skills.filter(s => getValuationLevel(s) === 'Proficient').length;
             const totalSkills = skillsData.skills.length;
             
             // Updated point system:
@@ -5670,6 +5741,391 @@
         }
         
         // ===== SKILL VALUATIONS SYSTEM =====
+        
+        // ===== EVIDENCE QUALITY ENGINE (v4.16.0) =====
+        // Outcome quality scoring: each outcome earns 1-5 evidence points based on impact
+        // Effective level is derived from evidence points, not self-reported claims
+        
+        var evidenceConfig = {
+            // Points required per effective level (admin-configurable)
+            thresholds: {
+                'Competent': 2,
+                'Proficient': 5,
+                'Advanced': 10,
+                'Expert': 18,
+                'Mastery': 28
+            },
+            // Certification floor: certs bump effective level to at least this
+            certFloor: 'Proficient',
+            certFloorPoints: 5,
+            // Verification bonus: verified outcomes get a multiplier
+            verificationMultiplier: 1.5
+        };
+        
+        // Load/save admin-configured thresholds
+        function loadEvidenceConfig() {
+            try {
+                var stored = localStorage.getItem('wbEvidenceConfig');
+                if (stored) {
+                    var parsed = JSON.parse(stored);
+                    if (parsed.thresholds) evidenceConfig.thresholds = parsed.thresholds;
+                    if (parsed.certFloor) evidenceConfig.certFloor = parsed.certFloor;
+                    if (parsed.certFloorPoints) evidenceConfig.certFloorPoints = parsed.certFloorPoints;
+                    if (parsed.verificationMultiplier) evidenceConfig.verificationMultiplier = parsed.verificationMultiplier;
+                }
+            } catch (e) { /* parse error */ }
+        }
+        loadEvidenceConfig();
+        
+        function saveEvidenceConfig() {
+            try {
+                localStorage.setItem('wbEvidenceConfig', JSON.stringify(evidenceConfig));
+            } catch (e) { /* quota */ }
+        }
+        
+        // Score a single outcome text: returns 1-5 based on impact signals
+        function scoreOutcome(text) {
+            if (!text || typeof text !== 'string') return 1;
+            var score = 1; // Base: any outcome is worth 1 point
+            var t = text.toLowerCase();
+            
+            // Financial impact (major)
+            if (/\$[\d,.]+\s*(m|million|b|billion)/i.test(text)) score += 2;
+            else if (/\$[\d,.]+/i.test(text)) score += 1;
+            
+            // Percentage impact
+            if (/\d{2,}%/.test(text)) score += 1; // 10%+ = meaningful
+            else if (/\d+%/.test(text)) score += 0.5;
+            
+            // Multiplier/scale language
+            if (/\d+x|\d+ times/i.test(text)) score += 1;
+            if (/million|billion|thousands|global|enterprise|company-wide|organization-wide|industry/i.test(text)) score += 0.5;
+            
+            // Scope/leadership signals
+            if (/founded|created from scratch|built|designed|architected|pioneered|invented/i.test(text)) score += 0.5;
+            
+            // Recognition signals
+            if (/award|published|patent|speaker|keynote|featured|recognized|first ever|world/i.test(text)) score += 1;
+            
+            // Crisis/extreme context
+            if (/zero (injuries|incidents|downtime)|perfect (record|score)|saved|prevented|emergency/i.test(text)) score += 0.5;
+            
+            return Math.min(Math.round(score * 2) / 2, 5); // Cap at 5, allow 0.5 increments
+        }
+        
+        // Calculate total evidence points for a skill
+        function calculateEvidencePoints(skill) {
+            if (!skill) return 0;
+            var points = 0;
+            var evidence = skill.evidence || [];
+            
+            evidence.forEach(function(ev) {
+                var text = ((ev.outcome || '') + ' ' + (ev.description || '')).trim();
+                if (!text) return;
+                var outcomeScore = scoreOutcome(text);
+                
+                // Verification bonus: verified outcomes count more
+                var verifications = getSkillVerifications(skill.name);
+                var isVerified = verifications.some(function(v) { return v.status === 'confirmed'; });
+                if (isVerified) {
+                    outcomeScore = Math.min(outcomeScore * evidenceConfig.verificationMultiplier, 5);
+                }
+                
+                points += outcomeScore;
+            });
+            
+            // Certification floor check
+            if (hasLinkedCertification(skill.name)) {
+                points = Math.max(points, evidenceConfig.certFloorPoints);
+            }
+            
+            return Math.round(points * 10) / 10; // one decimal
+        }
+        
+        // Map evidence points to effective level
+        function getEffectiveLevel(skill) {
+            var points = calculateEvidencePoints(skill);
+            return getEffectiveLevelFromPoints(points);
+        }
+        
+        function getEffectiveLevelFromPoints(points) {
+            var t = evidenceConfig.thresholds;
+            if (points >= t['Mastery']) return 'Mastery';
+            if (points >= t['Expert']) return 'Expert';
+            if (points >= t['Advanced']) return 'Advanced';
+            if (points >= t['Proficient']) return 'Proficient';
+            if (points >= t['Competent']) return 'Competent';
+            return 'Novice';
+        }
+        
+        // Check if a skill has a linked certification
+        function hasLinkedCertification(skillName) {
+            var certs = userData.certifications || [];
+            var sn = skillName.toLowerCase();
+            return certs.some(function(c) {
+                var linkedSkills = c.linkedSkills || [];
+                return linkedSkills.some(function(ls) { return ls.toLowerCase() === sn; });
+            });
+        }
+        
+        // Get verifications for a skill (from verifications array on userData)
+        function getSkillVerifications(skillName) {
+            var all = userData.verifications || [];
+            return all.filter(function(v) { return v.skillName === skillName; });
+        }
+        
+        // Get the level used for valuation: min(claimed, effective) or effective if higher
+        // The valuation engine uses the evidence-backed level, not the claim
+        function getValuationLevel(skill) {
+            var claimed = skill.level || 'Novice';
+            var effective = getEffectiveLevel(skill);
+            var claimedVal = proficiencyValue(claimed);
+            var effectiveVal = proficiencyValue(effective);
+            // Valuation uses whichever is LOWER — you can't claim above your evidence
+            // But evidence CAN push you higher than you claimed (cert floor, etc.)
+            return effectiveVal < claimedVal ? effective : claimed;
+        }
+        
+        // Summary stats for a skill's evidence status
+        function getEvidenceSummary(skill) {
+            var points = calculateEvidencePoints(skill);
+            var effectiveLevel = getEffectiveLevelFromPoints(points);
+            var claimed = skill.level || 'Novice';
+            var evidenceCount = (skill.evidence || []).length;
+            var hasCert = hasLinkedCertification(skill.name);
+            var verifications = getSkillVerifications(skill.name);
+            var verifiedCount = verifications.filter(function(v) { return v.status === 'confirmed'; }).length;
+            var pendingCount = verifications.filter(function(v) { return v.status === 'pending'; }).length;
+            
+            // Find next level threshold
+            var nextLevel = null;
+            var pointsNeeded = 0;
+            var levels = ['Competent', 'Proficient', 'Advanced', 'Expert', 'Mastery'];
+            for (var i = 0; i < levels.length; i++) {
+                if (evidenceConfig.thresholds[levels[i]] > points) {
+                    nextLevel = levels[i];
+                    pointsNeeded = Math.round((evidenceConfig.thresholds[levels[i]] - points) * 10) / 10;
+                    break;
+                }
+            }
+            
+            var gap = proficiencyValue(claimed) > proficiencyValue(effectiveLevel);
+            
+            return {
+                points: points,
+                effectiveLevel: effectiveLevel,
+                claimedLevel: claimed,
+                evidenceCount: evidenceCount,
+                hasGap: gap,
+                hasCert: hasCert,
+                verifiedCount: verifiedCount,
+                pendingCount: pendingCount,
+                nextLevel: nextLevel,
+                pointsNeeded: pointsNeeded
+            };
+        }
+        
+        // Expose to global scope
+        window.scoreOutcome = scoreOutcome;
+        window.calculateEvidencePoints = calculateEvidencePoints;
+        window.getEffectiveLevel = getEffectiveLevel;
+        window.getEvidenceSummary = getEvidenceSummary;
+        window.getValuationLevel = getValuationLevel;
+        
+        // ===== VERIFICATION SYSTEM (v4.16.0) =====
+        
+        // Initialize verifications array on userData if missing
+        if (!userData.verifications) userData.verifications = [];
+        
+        function requestVerification(skillNames) {
+            if (readOnlyGuard()) return;
+            if (!Array.isArray(skillNames)) skillNames = [skillNames];
+            
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content');
+            
+            var skillListHTML = skillNames.map(function(sn) {
+                var skill = (skillsData.skills || []).find(function(s) { return s.name === sn; });
+                var summary = skill ? getEvidenceSummary(skill) : { points:0, effectiveLevel:'Novice', evidenceCount:0 };
+                var evPreview = (skill && skill.evidence) ? skill.evidence.slice(0,3).map(function(e) {
+                    var t = (e.outcome || e.description || '').substring(0, 80);
+                    return '<div style="font-size:0.8em; color:' + tv('#9ca3af','#64748b') + '; padding:2px 0;">• ' + t + (t.length >= 80 ? '\u2026' : '') + '</div>';
+                }).join('') : '<div style="font-size:0.8em; color:' + tv('#6b7280','#9ca3af') + '; font-style:italic;">No evidence yet</div>';
+                
+                return '<div style="padding:10px; background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; border-radius:8px; margin-bottom:8px;">'
+                    + '<div style="font-weight:600; color:' + tv('#e0e0e0','#1f2937') + ';">' + sn + '</div>'
+                    + '<div style="font-size:0.82em; color:' + tv('#60a5fa','#2563eb') + '; margin-top:2px;">Claimed: ' + (skill ? skill.level : '?') + ' · Evidence: ' + summary.points + ' pts → ' + summary.effectiveLevel + '</div>'
+                    + evPreview + '</div>';
+            }).join('');
+            
+            mc.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">\u2705 Request Verification</h2>'
+                + '<p style="color:' + tv('#9ca3af','#64748b') + '; margin-top:5px;">Ask a colleague or manager to verify your evidence</p>'
+                + '</div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:24px; max-height:70vh; overflow-y:auto;">'
+                + '<div style="margin-bottom:16px;">' + skillListHTML + '</div>'
+                + '<div style="display:grid; gap:14px;">'
+                + '<div class="settings-group"><label class="settings-label">Verifier Name *</label>'
+                + '<input type="text" class="settings-input" id="verifyName" placeholder="Jane Smith"></div>'
+                + '<div class="settings-group"><label class="settings-label">Verifier Email *</label>'
+                + '<input type="email" class="settings-input" id="verifyEmail" placeholder="jane@company.com"></div>'
+                + '<div class="settings-group"><label class="settings-label">Relationship</label>'
+                + '<select class="settings-select" id="verifyRelationship">'
+                + '<option value="Manager">Manager / Supervisor</option>'
+                + '<option value="Colleague">Colleague / Peer</option>'
+                + '<option value="Direct Report">Direct Report</option>'
+                + '<option value="Client">Client / Customer</option>'
+                + '<option value="Executive">Executive Sponsor</option>'
+                + '<option value="Other">Other</option>'
+                + '</select></div>'
+                + '<div class="settings-group"><label class="settings-label">Personal Note (Optional)</label>'
+                + '<textarea class="settings-input" id="verifyNote" rows="2" style="resize:vertical; font-size:0.88em;" '
+                + 'placeholder="Hi Jane, could you confirm my expertise in these areas?"></textarea></div>'
+                + '</div>'
+                + '<div style="display:flex; gap:10px; margin-top:20px;">'
+                + '<button onclick="sendVerificationRequest(\'' + skillNames.map(function(s) { return s.replace(/'/g,"\\'"); }).join("','") + '\')" '
+                + 'style="background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:8px; cursor:pointer; font-weight:600;">'
+                + 'Generate Verification Email</button>'
+                + '<button onclick="closeExportModal()" style="background:transparent; color:' + tv('#9ca3af','#64748b') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','#d1d5db') + '; padding:10px 20px; border-radius:8px; cursor:pointer;">Cancel</button>'
+                + '</div></div>';
+            
+            modal.style.display = 'flex';
+        }
+        
+        function sendVerificationRequest() {
+            var skillNames = Array.from(arguments);
+            var verifierName = document.getElementById('verifyName').value.trim();
+            var verifierEmail = document.getElementById('verifyEmail').value.trim();
+            var relationship = document.getElementById('verifyRelationship').value;
+            var personalNote = document.getElementById('verifyNote').value.trim();
+            
+            if (!verifierName || !verifierEmail) {
+                showToast('Name and email are required.', 'warning');
+                return;
+            }
+            
+            var token = 'vrf-' + Date.now() + '-' + Math.random().toString(36).substring(2, 8);
+            var profileName = userData.profile.name || 'A professional';
+            
+            // Create verification records
+            var records = skillNames.map(function(sn) {
+                var skill = (skillsData.skills || []).find(function(s) { return s.name === sn; });
+                var evidence = skill ? (skill.evidence || []).map(function(e) { return (e.outcome || '') + ' ' + (e.description || ''); }).join('; ') : '';
+                
+                var record = {
+                    id: token + '-' + sn.replace(/\s+/g, '-').toLowerCase().substring(0, 20),
+                    skillName: sn,
+                    claimedLevel: skill ? skill.level : 'Unknown',
+                    evidenceSummary: evidence.substring(0, 500),
+                    verifierName: verifierName,
+                    verifierEmail: verifierEmail,
+                    relationship: relationship,
+                    token: token,
+                    status: 'pending',
+                    confirmedLevel: null,
+                    verifierNote: '',
+                    requestedAt: new Date().toISOString(),
+                    respondedAt: null
+                };
+                
+                // Store locally
+                if (!userData.verifications) userData.verifications = [];
+                userData.verifications.push(record);
+                
+                return record;
+            });
+            
+            // Save to Firestore if available
+            if (fbUser && fbDb) {
+                records.forEach(function(rec) {
+                    fbDb.collection('users').doc(fbUser.uid).collection('verifications').doc(rec.id).set(rec)
+                        .catch(function(err) { console.error('Verification save error:', err); });
+                });
+                saveToFirestore();
+            }
+            saveAll();
+            
+            // Build verification URL
+            var baseUrl = window.location.origin + window.location.pathname;
+            var verifyUrl = baseUrl + '?verify=' + token + (fbUser ? '&uid=' + fbUser.uid : '');
+            
+            // Build email
+            var skillsSummary = records.map(function(r) {
+                return '  • ' + r.skillName + ' (claimed: ' + r.claimedLevel + ')\n    Evidence: ' + (r.evidenceSummary || 'None provided').substring(0, 200);
+            }).join('\n\n');
+            
+            var subject = encodeURIComponent('Skill Verification Request from ' + profileName);
+            var body = encodeURIComponent(
+                'Hi ' + verifierName + ',\n\n'
+                + (personalNote ? personalNote + '\n\n' : '')
+                + profileName + ' is requesting your verification of the following professional skills:\n\n'
+                + skillsSummary + '\n\n'
+                + 'To verify, please visit:\n' + verifyUrl + '\n\n'
+                + 'You can confirm, suggest a different level, or decline. Your response helps validate professional expertise through Blueprint.\n\n'
+                + 'Thank you for your time.\n\n'
+                + '---\nGenerated by Blueprint\u2122 · ' + new Date().toLocaleDateString()
+            );
+            
+            // Open mailto
+            window.open('mailto:' + verifierEmail + '?subject=' + subject + '&body=' + body);
+            
+            closeExportModal();
+            showToast('Verification request created for ' + records.length + ' skill(s). Email client opened.', 'success');
+        }
+        
+        // Mark a verification as confirmed (manual, for now — verifier landing page is Phase 2)
+        function confirmVerification(verificationId) {
+            var vIdx = (userData.verifications || []).findIndex(function(v) { return v.id === verificationId; });
+            if (vIdx >= 0) {
+                userData.verifications[vIdx].status = 'confirmed';
+                userData.verifications[vIdx].respondedAt = new Date().toISOString();
+                saveAll();
+                showToast('Verification confirmed.', 'success');
+            }
+        }
+        
+        function declineVerification(verificationId) {
+            var vIdx = (userData.verifications || []).findIndex(function(v) { return v.id === verificationId; });
+            if (vIdx >= 0) {
+                userData.verifications[vIdx].status = 'declined';
+                userData.verifications[vIdx].respondedAt = new Date().toISOString();
+                saveAll();
+                showToast('Verification declined.', 'info');
+            }
+        }
+        
+        // Profile-level verification stats
+        function getVerificationStats() {
+            var skills = skillsData.skills || [];
+            var total = skills.length;
+            var verifications = userData.verifications || [];
+            var confirmedSkillNames = {};
+            verifications.forEach(function(v) {
+                if (v.status === 'confirmed') confirmedSkillNames[v.skillName] = true;
+            });
+            var verifiedCount = skills.filter(function(s) { return confirmedSkillNames[s.name]; }).length;
+            var pendingCount = verifications.filter(function(v) { return v.status === 'pending'; }).length;
+            
+            return {
+                total: total,
+                verified: verifiedCount,
+                pending: pendingCount,
+                unverified: total - verifiedCount
+            };
+        }
+        
+        // Expose verification functions
+        window.requestVerification = requestVerification;
+        window.sendVerificationRequest = sendVerificationRequest;
+        window.confirmVerification = confirmVerification;
+        window.declineVerification = declineVerification;
+        window.getVerificationStats = getVerificationStats;
+        
+        // ===== END EVIDENCE & VERIFICATION ENGINE =====
+        
         let skillValuations = {
             skillBaseValues: {},
             proficiencyMultipliers: { 
@@ -5831,6 +6287,7 @@
             workHistory: [],
             education: [],
             certifications: [],
+            verifications: [],
             preferences: {
                 seniorityLevel: "Mid-Career",
                 targetTitles: [],
@@ -6268,6 +6725,7 @@
                 workHistory: template.workHistory ? JSON.parse(JSON.stringify(template.workHistory)) : [],
                 education: template.education ? JSON.parse(JSON.stringify(template.education)) : [],
                 certifications: template.certifications ? JSON.parse(JSON.stringify(template.certifications)) : [],
+                verifications: template.verifications ? JSON.parse(JSON.stringify(template.verifications)) : [],
                 preferences: {
                     seniorityLevel: template.profile.roleLevel || "Mid-Career",
                     targetTitles: [],
@@ -7461,6 +7919,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 workHistory: wizardState.workHistory || [],
                 education: wizardState.education || [],
                 certifications: wizardState.certifications || [],
+                verifications: [],
                 preferences: { seniorityLevel: 'Senior', minimumMatchScore: 60, minimumSkillMatches: 3 },
                 applications: []
             };
@@ -8845,6 +9304,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 }
                 
                 statsBar.innerHTML = `${skillCount} Total Skills${skillBreakdown} • ${roleCount} Career Roles${valueDisplay}`;
+                // Append verification stats if any exist
+                var vStats = getVerificationStats();
+                if (vStats.verified > 0 || vStats.pending > 0) {
+                    statsBar.innerHTML += ` • ${vStats.verified} Verified`;
+                    if (vStats.pending > 0) statsBar.innerHTML += ` (${vStats.pending} pending)`;
+                }
             } else if (currentView === 'opportunities') {
                 const matches = opportunitiesData.filter(j => j.matchScore >= currentMatchThreshold).length;
                 statsBar.innerHTML = `${matches} Matching Opportunities • ${currentMatchThreshold}%+ Match Threshold`;
@@ -9210,6 +9675,58 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Build body content
             let bodyHTML = '';
             
+            // Evidence Quality Panel (v4.16.0)
+            const evSummary = getEvidenceSummary(skillData);
+            const hasGap = evSummary.hasGap;
+            const gapColor = hasGap ? tv('#fbbf24','#d97706') : tv('#10b981','#059669');
+            const gapBg = hasGap ? tv('rgba(251,191,36,0.08)','rgba(251,191,36,0.05)') : tv('rgba(16,185,129,0.08)','rgba(16,185,129,0.05)');
+            const gapBorder = hasGap ? tv('rgba(251,191,36,0.25)','rgba(251,191,36,0.15)') : tv('rgba(16,185,129,0.25)','rgba(16,185,129,0.15)');
+            
+            bodyHTML += '<div style="padding:14px; margin-bottom:16px; background:' + gapBg + '; border:1px solid ' + gapBorder + '; border-radius:10px;">';
+            bodyHTML += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">';
+            bodyHTML += '<div style="font-weight:700; font-size:0.88em; color:' + gapColor + ';">'
+                + (hasGap ? '\u26A0 Evidence Gap' : '\u2705 Evidence Backed') + '</div>';
+            bodyHTML += '<div style="font-size:0.82em; color:' + tv('#9ca3af','#64748b') + ';">'
+                + evSummary.points + ' pts \u2192 ' + evSummary.effectiveLevel + '</div>';
+            bodyHTML += '</div>';
+            
+            // Progress bar
+            var maxPts = evidenceConfig.thresholds['Mastery'];
+            var pctFill = Math.min((evSummary.points / maxPts) * 100, 100);
+            bodyHTML += '<div style="height:6px; background:' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:3px; overflow:hidden;">';
+            bodyHTML += '<div style="height:100%; width:' + pctFill + '%; background:' + gapColor + '; border-radius:3px; transition:width 0.3s;"></div>';
+            bodyHTML += '</div>';
+            
+            if (hasGap) {
+                bodyHTML += '<div style="font-size:0.78em; color:' + tv('#d1d5db','#475569') + '; margin-top:8px; line-height:1.45;">'
+                    + 'Claimed <strong>' + evSummary.claimedLevel + '</strong> but evidence supports <strong>' + evSummary.effectiveLevel + '</strong>. '
+                    + 'Market valuation uses the evidence-backed level. ';
+                if (evSummary.nextLevel) {
+                    bodyHTML += 'Add ' + evSummary.pointsNeeded + ' more points of evidence for <strong>' + evSummary.nextLevel + '</strong>.';
+                }
+                bodyHTML += '</div>';
+            } else if (evSummary.nextLevel) {
+                bodyHTML += '<div style="font-size:0.78em; color:' + tv('#9ca3af','#64748b') + '; margin-top:6px;">'
+                    + evSummary.pointsNeeded + ' more points for ' + evSummary.nextLevel + '</div>';
+            }
+            
+            // Verification badges
+            if (evSummary.verifiedCount > 0 || evSummary.pendingCount > 0) {
+                bodyHTML += '<div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">';
+                if (evSummary.verifiedCount > 0) {
+                    bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:' + tv('rgba(16,185,129,0.15)','rgba(16,185,129,0.1)') + '; color:#10b981;">\u2713 Verified by ' + evSummary.verifiedCount + '</span>';
+                }
+                if (evSummary.pendingCount > 0) {
+                    bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:' + tv('rgba(251,191,36,0.15)','rgba(251,191,36,0.1)') + '; color:#f59e0b;">\u23F3 ' + evSummary.pendingCount + ' pending</span>';
+                }
+                if (evSummary.hasCert) {
+                    bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:' + tv('rgba(139,92,246,0.15)','rgba(139,92,246,0.1)') + '; color:#a78bfa;">\uD83C\uDFC5 Certification linked</span>';
+                }
+                bodyHTML += '</div>';
+            }
+            
+            bodyHTML += '</div>';
+            
             // Roles section
             bodyHTML += `
                 <div class="modal-section">
@@ -9358,6 +9875,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + '<button onclick="closeSkillModal(); openAssessSkillModal(\'' + skillName.replace(/'/g, "\\'") + '\');" '
                 + 'style="padding:10px 20px; background:rgba(96,165,250,0.15); color:var(--accent); border:1px solid rgba(96,165,250,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
                 + '📝 Assess</button>'
+                + '<button onclick="closeSkillModal(); requestVerification([\'' + skillName.replace(/'/g, "\\'") + '\']);" '
+                + 'style="padding:10px 20px; background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
+                + '✅ Verify</button>'
                 + '<button onclick="if(confirm(\'Remove ' + skillName.replace(/'/g, "\\'") + ' from your profile?\')){deleteSkillFromProfile(\'' + skillName.replace(/'/g, "\\'") + '\'); closeSkillModal();}" '
                 + 'style="margin-left:auto; padding:10px 16px; background:none; color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
                 + '🗑 Remove</button>'
@@ -15561,10 +16081,23 @@ body {
         }
         
         function openCertModal(idx) {
-            var cert = idx >= 0 ? userData.certifications[idx] : { name:'', issuer:'', year:'' };
+            var cert = idx >= 0 ? userData.certifications[idx] : { name:'', issuer:'', year:'', linkedSkills:[] };
             var isEdit = idx >= 0;
             var modal = document.getElementById('exportModal');
             var mc = modal.querySelector('.modal-content');
+            
+            // Build linked skills display
+            var linkedSkills = cert.linkedSkills || [];
+            var linkedHTML = linkedSkills.map(function(sn) {
+                return '<span style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; background:' + tv('rgba(139,92,246,0.12)','rgba(139,92,246,0.08)') + '; '
+                    + 'color:' + tv('#a78bfa','#7c3aed') + '; border-radius:12px; font-size:0.82em; margin:2px 4px 2px 0;">'
+                    + sn + ' <button onclick="removeCertLinkedSkill(this, \'' + sn.replace(/'/g,"\\'") + '\')" style="background:none; border:none; cursor:pointer; color:inherit; font-size:1em; padding:0 2px;">\u00D7</button></span>';
+            }).join('');
+            
+            // Build skill suggestion datalist from profile skills
+            var skillOptions = (skillsData.skills || []).map(function(s) {
+                return '<option value="' + s.name.replace(/"/g,'&quot;') + '">';
+            }).join('');
             
             mc.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left">'
@@ -15581,6 +16114,15 @@ body {
                 + '<div class="settings-group"><label class="settings-label">Year Obtained</label>'
                 + '<input type="text" class="settings-input" id="certYear" value="' + (cert.year||'') + '" placeholder="2023"></div>'
                 + '</div>'
+                + '<div class="settings-group" style="margin-top:14px;">'
+                + '<label class="settings-label">\uD83D\uDD17 Link to Profile Skills</label>'
+                + '<div class="settings-help" style="margin-bottom:8px;">Linked skills are automatically bumped to at least <strong>' + evidenceConfig.certFloor + '</strong> effective level for market valuation.</div>'
+                + '<div id="certLinkedSkillsContainer" style="display:flex; flex-wrap:wrap; margin-bottom:8px;">' + linkedHTML + '</div>'
+                + '<div style="display:flex; gap:8px;">'
+                + '<input type="text" class="settings-input" id="certLinkSkillInput" list="certSkillSuggestions" placeholder="Type skill name..." style="flex:1; font-size:0.88em;">'
+                + '<datalist id="certSkillSuggestions">' + skillOptions + '</datalist>'
+                + '<button onclick="addCertLinkedSkill()" style="padding:6px 14px; background:' + tv('rgba(139,92,246,0.15)','rgba(139,92,246,0.08)') + '; color:' + tv('#a78bfa','#7c3aed') + '; border:1px solid ' + tv('rgba(139,92,246,0.3)','rgba(139,92,246,0.2)') + '; border-radius:6px; cursor:pointer; font-size:0.82em; white-space:nowrap;">+ Link</button>'
+                + '</div></div>'
                 + '<div style="display:flex; gap:10px; margin-top:20px;">'
                 + '<button onclick="saveCertFromModal(' + idx + ')" style="background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:8px; cursor:pointer; font-weight:600;">'
                 + (isEdit ? 'Save' : 'Add') + '</button>'
@@ -15588,14 +16130,44 @@ body {
                 + '</div></div>';
             
             modal.style.display = 'flex';
+            initCertLinkedSkills(linkedSkills);
         }
+        
+        // Helper: track linked skills in modal state
+        window._certLinkedSkills = [];
+        function initCertLinkedSkills(skills) { window._certLinkedSkills = skills.slice(); }
+        
+        function addCertLinkedSkill() {
+            var input = document.getElementById('certLinkSkillInput');
+            var name = input.value.trim();
+            if (!name) return;
+            if (window._certLinkedSkills.indexOf(name) >= 0) { input.value = ''; return; }
+            window._certLinkedSkills.push(name);
+            
+            var container = document.getElementById('certLinkedSkillsContainer');
+            var span = document.createElement('span');
+            span.style.cssText = 'display:inline-flex; align-items:center; gap:4px; padding:3px 10px; background:' + tv('rgba(139,92,246,0.12)','rgba(139,92,246,0.08)') + '; color:' + tv('#a78bfa','#7c3aed') + '; border-radius:12px; font-size:0.82em; margin:2px 4px 2px 0;';
+            span.innerHTML = name + ' <button onclick="removeCertLinkedSkill(this, \'' + name.replace(/'/g,"\\'") + '\')" style="background:none; border:none; cursor:pointer; color:inherit; font-size:1em; padding:0 2px;">\u00D7</button>';
+            container.appendChild(span);
+            input.value = '';
+            input.focus();
+        }
+        window.addCertLinkedSkill = addCertLinkedSkill;
+        
+        function removeCertLinkedSkill(btn, name) {
+            var idx = window._certLinkedSkills.indexOf(name);
+            if (idx >= 0) window._certLinkedSkills.splice(idx, 1);
+            btn.parentElement.remove();
+        }
+        window.removeCertLinkedSkill = removeCertLinkedSkill;
         
         function saveCertFromModal(idx) {
             var entry = {
                 id: idx >= 0 ? (userData.certifications[idx].id || 'cert-' + Date.now()) : 'cert-' + Date.now(),
                 name: document.getElementById('certName').value.trim(),
                 issuer: document.getElementById('certIssuer').value.trim(),
-                year: document.getElementById('certYear').value.trim()
+                year: document.getElementById('certYear').value.trim(),
+                linkedSkills: window._certLinkedSkills ? window._certLinkedSkills.slice() : []
             };
             if (!entry.name) { showToast('Certification name is required.', 'warning'); return; }
             
@@ -19163,7 +19735,7 @@ body {
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2 class="modal-title">Blueprint</h2>
-                        <p style="color: #9ca3af; margin-top: 5px;">v4.15.0 · Your career, fully represented</p>
+                        <p style="color: #9ca3af; margin-top: 5px;">v4.16.0 · Your career, fully represented</p>
                     </div>
                     <button class="modal-close" onclick="closeExportModal()">×</button>
                 </div>
