@@ -1,6 +1,6 @@
 # Blueprint — Project Context
 
-**Version:** v4.6.0 | **Build:** 20260218-0600 | **Lines:** ~17,140 | **Functions:** ~330
+**Version:** v4.6.0 | **Build:** 20260218-0600 | **Lines:** ~17,057 | **Functions:** ~330
 **Repository:** https://github.com/cliffj8338/Skills-Ontology
 **Live:** https://cliffj8338.github.io/Skills-Ontology/
 **Founder:** Cliff Jurkiewicz
@@ -342,20 +342,20 @@ All exports include © 2026 Cliff Jurkiewicz / Blueprint™ attribution.
 
 ## Hero Animation (Welcome Page)
 
-Canvas-based force network (`initHeroNetwork()`) with simulated user interaction sequence:
+Canvas-based force network (`initHeroNetwork()`) with subtle simulated click interaction:
 
-- **42 nodes:** 1 center ("YOU"), 8 domain hubs, 33 skill nodes
-- **Frameless canvas:** No border/background, breathes into the page
-- **14-second interaction cycle** looping through 8 domains in varied order:
-  - 0-2s: Idle floating
-  - 2-3.5s: Simulated cursor approaches a domain hub (fades in)
-  - 3.5-6s: Hover state (hub pulses larger, glow ring, connections brighten, other domains dim)
-  - 6-9s: Expand state (domain's skills push outward, non-active domains fade further)
-  - 9-11.5s: Settle (everything eases back to baseline)
-  - 11.5-14s: Idle transition to next domain
-- **Cursor rendering:** Arrow cursor drawn on canvas, follows eased path to active hub
-- **Performance:** `requestAnimationFrame` with `IntersectionObserver` pause when offscreen
-- **Theme-aware:** Adjusts link/label colors for dark/light mode
+- **40 nodes:** 1 center ("YOU"), 8 domain hubs, 31 skill nodes
+- **Frameless canvas:** No border/background, breathes into the page (360px height)
+- **Base behavior:** All nodes float gently with orbital pull, soft boundary constraints, damping
+- **Click simulation:** Every 3-5 seconds, a random skill node is "clicked":
+  - Clicked node pulses larger (1.6x) and brighter
+  - 3-4 adjacent neighbors expand outward from clicked node and brighten
+  - Connected links glow in the clicked node's domain color
+  - Bell curve timing: rises over ~0.7s, holds briefly, eases back over ~1.3s
+  - Everything returns to baseline before next click
+- **No cursor drawn, no domain-wide dimming, no phase engine** — just quiet node-level interaction
+- **Adjacency map** built during link creation for neighbor lookups
+- **Performance:** `requestAnimationFrame` with delta-time, `IntersectionObserver` pause when offscreen
 - **Font:** Outfit for labels (matches brand typography)
 
 ---

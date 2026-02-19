@@ -4721,27 +4721,27 @@
             var colors = ['#60a5fa', '#f472b6', '#34d399', '#fbbf24', '#a78bfa', '#fb923c', '#22d3ee', '#f87171'];
             var domainNames = ['Strategy', 'Leadership', 'Analytics', 'Innovation', 'Communication', 'Technology', 'Operations', 'Finance'];
             
-            // Build nodes
             var nodes = [];
-            var numNodes = 42;
+            var numNodes = 40;
             
             // Center node
             nodes.push({
-                x: W / 2, y: H / 2, baseX: W / 2, baseY: H / 2,
-                vx: 0, vy: 0, r: 20, baseR: 20,
+                x: W / 2, y: H / 2,
+                vx: 0, vy: 0,
+                r: 20, baseR: 20,
                 color: '#60a5fa', alpha: 0.95, baseAlpha: 0.95,
-                label: 'YOU', isCenter: true, domain: -1, isHub: false
+                label: 'YOU', isCenter: true, isHub: false, domain: -1
             });
             
-            // Domain hub nodes
+            // Domain hubs
             for (var d = 0; d < 8; d++) {
                 var angle = (d / 8) * Math.PI * 2 - Math.PI / 2;
-                var dist = 75 + Math.random() * 25;
+                var dist = 72 + Math.random() * 28;
                 var bx = W / 2 + Math.cos(angle) * dist;
                 var by = H / 2 + Math.sin(angle) * dist;
                 var br = 11 + Math.random() * 4;
                 nodes.push({
-                    x: bx, y: by, baseX: bx, baseY: by,
+                    x: bx, y: by,
                     vx: (Math.random() - 0.5) * 0.25,
                     vy: (Math.random() - 0.5) * 0.25,
                     r: br, baseR: br,
@@ -4756,58 +4756,69 @@
                 var parentIdx = dom + 1;
                 var spread = 25 + Math.random() * 55;
                 var a = Math.random() * Math.PI * 2;
-                var bx = nodes[parentIdx].baseX + Math.cos(a) * spread;
-                var by = nodes[parentIdx].baseY + Math.sin(a) * spread;
+                var bx = nodes[parentIdx].x + Math.cos(a) * spread;
+                var by = nodes[parentIdx].y + Math.sin(a) * spread;
                 var br = 2.5 + Math.random() * 3.5;
                 nodes.push({
-                    x: bx, y: by, baseX: bx, baseY: by,
-                    vx: (Math.random() - 0.5) * 0.35,
-                    vy: (Math.random() - 0.5) * 0.35,
+                    x: bx, y: by,
+                    vx: (Math.random() - 0.5) * 0.3,
+                    vy: (Math.random() - 0.5) * 0.3,
                     r: br, baseR: br,
                     color: colors[dom], alpha: 0.35 + Math.random() * 0.3, baseAlpha: 0.35 + Math.random() * 0.3,
                     label: '', isCenter: false, isHub: false, domain: dom
                 });
             }
             
-            // Build links
+            // Build links + adjacency map
             var links = [];
+            var adjacency = {};
+            function addLink(a, b, str) {
+                links.push({ source: a, target: b, strength: str });
+                if (!adjacency[a]) adjacency[a] = [];
+                if (!adjacency[b]) adjacency[b] = [];
+                adjacency[a].push(b);
+                adjacency[b].push(a);
+            }
             for (var d = 1; d <= 8; d++) {
-                links.push({ source: 0, target: d, strength: 0.6, baseStrength: 0.6 });
+                addLink(0, d, 0.6);
             }
             for (var i = 9; i < numNodes; i++) {
-                links.push({ source: nodes[i].domain + 1, target: i, strength: 0.3, baseStrength: 0.3 });
+                addLink(nodes[i].domain + 1, i, 0.3);
                 if (Math.random() < 0.12) {
                     var otherDom = Math.floor(Math.random() * 8) + 1;
                     if (otherDom !== nodes[i].domain + 1) {
-                        links.push({ source: i, target: otherDom, strength: 0.08, baseStrength: 0.08 });
+                        addLink(i, otherDom, 0.08);
                     }
                 }
             }
             
-            // === INTERACTION SEQUENCE ENGINE ===
-            var cycleTime = 0;
-            var cycleDuration = 14; // seconds per full cycle
-            var activeDomain = -1;
-            var interactionPhase = 'idle'; // idle, hover, expand, reset
-            var phaseProgress = 0;
-            var domainOrder = [0, 3, 5, 1, 6, 2, 7, 4]; // varied sequence
-            var cycleIdx = 0;
+            // === SUBTLE CLICK SIMULATION ===
+            var clickedNode = -1;
+            var clickNeighbors = [];
+            var clickPhase = 0;
+            var clickTimer = 2.5;
+            var clickDuration = 2.0;
+            var clickElapsed = 0;
             
-            // Simulated cursor position
-            var cursorX = W / 2, cursorY = H / 2;
-            var cursorTargetX = W / 2, cursorTargetY = H / 2;
-            var cursorVisible = false;
-            var cursorAlpha = 0;
+            var skillIndices = [];
+            for (var i = 9; i < numNodes; i++) skillIndices.push(i);
             
-            function getPhase(ct) {
-                // 0-2s: idle, 2-3.5s: cursor moves to domain, 3.5-6s: hover highlight, 
-                // 6-9s: expand/focus, 9-11s: settle back, 11-14s: idle transition
-                if (ct < 2) return { phase: 'idle', progress: ct / 2 };
-                if (ct < 3.5) return { phase: 'approach', progress: (ct - 2) / 1.5 };
-                if (ct < 6) return { phase: 'hover', progress: (ct - 3.5) / 2.5 };
-                if (ct < 9) return { phase: 'expand', progress: (ct - 6) / 3 };
-                if (ct < 11.5) return { phase: 'settle', progress: (ct - 9) / 2.5 };
-                return { phase: 'idle', progress: (ct - 11.5) / 2.5 };
+            function pickNextClick() {
+                var idx = skillIndices[Math.floor(Math.random() * skillIndices.length)];
+                clickedNode = idx;
+                var neighbors = (adjacency[idx] || []).slice();
+                if (neighbors.length < 3) {
+                    var sameDomain = skillIndices.filter(function(si) {
+                        return si !== idx && nodes[si].domain === nodes[idx].domain;
+                    });
+                    for (var j = 0; j < 2 && neighbors.length < 4; j++) {
+                        if (sameDomain[j] && neighbors.indexOf(sameDomain[j]) === -1) {
+                            neighbors.push(sameDomain[j]);
+                        }
+                    }
+                }
+                clickNeighbors = neighbors.slice(0, 4);
+                clickElapsed = 0;
             }
             
             var t = 0;
@@ -4818,55 +4829,35 @@
                 var dt = Math.min((now - lastTime) / 1000, 0.05);
                 lastTime = now;
                 t += 0.008;
-                cycleTime += dt;
                 
-                // Cycle management
-                if (cycleTime >= cycleDuration) {
-                    cycleTime -= cycleDuration;
-                    cycleIdx = (cycleIdx + 1) % domainOrder.length;
-                }
-                activeDomain = domainOrder[cycleIdx];
-                var phaseInfo = getPhase(cycleTime);
-                interactionPhase = phaseInfo.phase;
-                phaseProgress = phaseInfo.progress;
-                
-                // Smooth easing
-                function ease(x) { return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2; }
-                var ep = ease(phaseProgress);
-                
-                // Update cursor target
-                var activeHub = nodes[activeDomain + 1];
-                if (interactionPhase === 'approach') {
-                    cursorTargetX = activeHub.x;
-                    cursorTargetY = activeHub.y - 15;
-                    cursorVisible = true;
-                    cursorAlpha = Math.min(cursorAlpha + dt * 2, 0.6);
-                } else if (interactionPhase === 'hover' || interactionPhase === 'expand') {
-                    cursorTargetX = activeHub.x + Math.sin(t * 1.5) * 5;
-                    cursorTargetY = activeHub.y - 15 + Math.cos(t * 1.2) * 3;
-                    cursorAlpha = Math.min(cursorAlpha + dt * 2, 0.6);
-                } else if (interactionPhase === 'settle') {
-                    cursorAlpha = Math.max(cursorAlpha - dt * 1.2, 0);
-                    if (cursorAlpha <= 0) cursorVisible = false;
+                // Click timing
+                if (clickedNode === -1) {
+                    clickTimer -= dt;
+                    if (clickTimer <= 0) {
+                        pickNextClick();
+                        clickTimer = 3 + Math.random() * 2;
+                    }
                 } else {
-                    cursorAlpha = Math.max(cursorAlpha - dt * 1.5, 0);
-                    if (cursorAlpha <= 0) cursorVisible = false;
+                    clickElapsed += dt;
+                    var progress = clickElapsed / clickDuration;
+                    if (progress >= 1) {
+                        clickedNode = -1;
+                        clickNeighbors = [];
+                        clickPhase = 0;
+                    } else {
+                        clickPhase = Math.sin(progress * Math.PI) * (progress < 0.5 ? 1 : 0.8);
+                    }
                 }
-                cursorX += (cursorTargetX - cursorX) * 0.06;
-                cursorY += (cursorTargetY - cursorY) * 0.06;
                 
                 ctx.clearRect(0, 0, W, H);
                 
-                // Update node positions and visual states
-                for (var i = 0; i < nodes.length; i++) {
+                // Update positions
+                for (var i = 1; i < nodes.length; i++) {
                     var n = nodes[i];
-                    if (n.isCenter) continue;
                     
-                    // Base floating movement
                     n.x += n.vx + Math.sin(t + i * 0.7) * 0.12;
                     n.y += n.vy + Math.cos(t + i * 0.5) * 0.1;
                     
-                    // Boundary
                     if (n.x < 20) n.vx += 0.04;
                     if (n.x > W - 20) n.vx -= 0.04;
                     if (n.y < 20) n.vy += 0.04;
@@ -4874,7 +4865,6 @@
                     n.vx *= 0.997;
                     n.vy *= 0.997;
                     
-                    // Orbital pull
                     var originAngle = ((n.domain) / 8) * Math.PI * 2 - Math.PI / 2;
                     var originDist = n.isHub ? 80 : 80 + (i % 45);
                     var ox = W / 2 + Math.cos(originAngle + t * 0.08) * originDist;
@@ -4882,49 +4872,30 @@
                     n.vx += (ox - n.x) * 0.0007;
                     n.vy += (oy - n.y) * 0.0007;
                     
-                    // Interaction effects
-                    var isActive = (n.domain === activeDomain);
-                    var isActiveHub = (n.isHub && n.domain === activeDomain);
+                    // Click expansion: neighbors push outward from clicked node
+                    if (clickPhase > 0 && clickedNode >= 0 && clickNeighbors.indexOf(i) !== -1) {
+                        var cn = nodes[clickedNode];
+                        var dx = n.x - cn.x;
+                        var dy = n.y - cn.y;
+                        var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                        var push = clickPhase * 0.25;
+                        n.vx += (dx / dist) * push;
+                        n.vy += (dy / dist) * push;
+                    }
                     
-                    if (interactionPhase === 'hover') {
-                        if (isActiveHub) {
-                            // Hub pulses larger and brighter
-                            n.r = n.baseR * (1 + 0.4 * ep);
-                            n.alpha = Math.min(n.baseAlpha + 0.3 * ep, 1);
-                        } else if (isActive) {
-                            // Same-domain skills brighten
-                            n.alpha = n.baseAlpha + 0.25 * ep;
-                        } else {
-                            // Other domains dim slightly
-                            n.alpha = n.baseAlpha * (1 - 0.25 * ep);
-                        }
-                    } else if (interactionPhase === 'expand') {
-                        if (isActive) {
-                            // Active domain skills push outward from hub
-                            if (!n.isHub) {
-                                var hubNode = nodes[activeDomain + 1];
-                                var dx = n.x - hubNode.x;
-                                var dy = n.y - hubNode.y;
-                                var dist = Math.sqrt(dx * dx + dy * dy) || 1;
-                                var push = ep * 0.4;
-                                n.vx += (dx / dist) * push;
-                                n.vy += (dy / dist) * push;
-                            }
-                            n.r = n.baseR * (1 + 0.3 * ep);
-                            n.alpha = Math.min(n.baseAlpha + 0.35 * ep, 1);
-                        } else {
-                            // Others fade more
-                            n.alpha = n.baseAlpha * (1 - 0.4 * ep);
-                            n.r = n.baseR * (1 - 0.1 * ep);
-                        }
-                    } else if (interactionPhase === 'settle') {
-                        // Ease back to normal
-                        n.r += (n.baseR - n.r) * 0.05;
-                        n.alpha += (n.baseAlpha - n.alpha) * 0.05;
+                    // Visual states
+                    var isClicked = (i === clickedNode);
+                    var isNeighbor = (clickNeighbors.indexOf(i) !== -1);
+                    
+                    if (isClicked && clickPhase > 0) {
+                        n.r += ((n.baseR * (1 + 0.6 * clickPhase)) - n.r) * 0.15;
+                        n.alpha += ((Math.min(n.baseAlpha + 0.4 * clickPhase, 1)) - n.alpha) * 0.15;
+                    } else if (isNeighbor && clickPhase > 0) {
+                        n.r += ((n.baseR * (1 + 0.3 * clickPhase)) - n.r) * 0.12;
+                        n.alpha += ((Math.min(n.baseAlpha + 0.25 * clickPhase, 1)) - n.alpha) * 0.12;
                     } else {
-                        // Idle: gentle return to baseline
-                        n.r += (n.baseR - n.r) * 0.03;
-                        n.alpha += (n.baseAlpha - n.alpha) * 0.03;
+                        n.r += (n.baseR - n.r) * 0.04;
+                        n.alpha += (n.baseAlpha - n.alpha) * 0.04;
                     }
                 }
                 
@@ -4938,30 +4909,21 @@
                     var dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist > 170) continue;
                     
-                    var linkActive = (s.domain === activeDomain || e.domain === activeDomain ||
-                                      s.isCenter || e.isCenter);
-                    var baseAlpha = l.strength * (1 - dist / 170);
+                    var alpha = l.strength * (1 - dist / 170) * (0.6 + Math.sin(t * 2 + i) * 0.15);
                     
-                    if (interactionPhase === 'hover' || interactionPhase === 'expand') {
-                        if (linkActive && (s.domain === activeDomain || e.domain === activeDomain)) {
-                            baseAlpha *= (1 + 1.5 * ep);
-                        } else if (!linkActive) {
-                            baseAlpha *= (1 - 0.4 * ep);
-                        }
-                    }
-                    
-                    var pulse = 0.6 + Math.sin(t * 2 + i) * 0.15;
-                    var alpha = baseAlpha * pulse;
+                    var linkActive = clickPhase > 0 && clickedNode >= 0 &&
+                        (l.source === clickedNode || l.target === clickedNode ||
+                         clickNeighbors.indexOf(l.source) !== -1 || clickNeighbors.indexOf(l.target) !== -1);
                     
                     ctx.beginPath();
                     ctx.moveTo(s.x, s.y);
                     ctx.lineTo(e.x, e.y);
                     
-                    var linkHighlighted = linkActive && (interactionPhase === 'hover' || interactionPhase === 'expand');
-                    if (linkHighlighted && (s.domain === activeDomain || e.domain === activeDomain)) {
-                        ctx.strokeStyle = colors[activeDomain];
-                        ctx.globalAlpha = alpha * 0.6;
-                        ctx.lineWidth = 1.5;
+                    if (linkActive) {
+                        var activeColor = nodes[clickedNode].color;
+                        ctx.strokeStyle = activeColor;
+                        ctx.globalAlpha = alpha * (0.5 + 0.5 * clickPhase);
+                        ctx.lineWidth = 1 + clickPhase * 0.5;
                     } else {
                         ctx.strokeStyle = isDark ? 'rgba(96,165,250,1)' : 'rgba(37,99,235,1)';
                         ctx.globalAlpha = alpha * 0.35;
@@ -4971,37 +4933,23 @@
                     ctx.globalAlpha = 1;
                 }
                 
-                // Draw nodes (back to front: small skills, then hubs, then center)
+                // Draw nodes
                 for (var i = nodes.length - 1; i >= 0; i--) {
                     var n = nodes[i];
                     var pulse = 1 + Math.sin(t * 3 + i * 0.8) * 0.06;
                     var r = n.r * pulse;
                     
-                    var isActive = (n.domain === activeDomain);
-                    var isHovered = n.isHub && n.domain === activeDomain &&
-                                    (interactionPhase === 'hover' || interactionPhase === 'expand');
+                    var isClicked = (i === clickedNode && clickPhase > 0);
                     
-                    // Outer glow for hubs and active nodes
-                    if (r > 5 || isHovered) {
-                        var glowR = isHovered ? r * 4 : r * 2.5;
-                        var glowAlpha = isHovered ? n.alpha * 0.2 : n.alpha * 0.07;
+                    // Glow
+                    if (r > 5 || isClicked) {
+                        var glowR = isClicked ? r * 3.5 : r * 2.5;
+                        var glowAlpha = isClicked ? n.alpha * 0.18 : n.alpha * 0.07;
                         ctx.beginPath();
                         ctx.arc(n.x, n.y, glowR, 0, Math.PI * 2);
                         ctx.fillStyle = n.color;
                         ctx.globalAlpha = glowAlpha;
                         ctx.fill();
-                        ctx.globalAlpha = 1;
-                    }
-                    
-                    // Ring pulse on hovered hub
-                    if (isHovered) {
-                        var ringPulse = 1 + Math.sin(t * 5) * 0.15;
-                        ctx.beginPath();
-                        ctx.arc(n.x, n.y, r * 1.8 * ringPulse, 0, Math.PI * 2);
-                        ctx.strokeStyle = n.color;
-                        ctx.globalAlpha = 0.25 * ep;
-                        ctx.lineWidth = 1.5;
-                        ctx.stroke();
                         ctx.globalAlpha = 1;
                     }
                     
@@ -5015,40 +4963,11 @@
                     
                     // Labels
                     if (n.label && (r > 6 || n.isCenter)) {
-                        var labelAlpha = isDark ? 0.7 : 0.6;
-                        if (isActive && (interactionPhase === 'hover' || interactionPhase === 'expand')) {
-                            labelAlpha = 1;
-                        } else if (!isActive && (interactionPhase === 'hover' || interactionPhase === 'expand')) {
-                            labelAlpha *= (1 - 0.4 * ep);
-                        }
                         ctx.font = (n.isCenter ? 'bold 10px' : '8.5px') + ' "Outfit", -apple-system, system-ui, sans-serif';
-                        ctx.fillStyle = isDark ? 'rgba(255,255,255,' + labelAlpha + ')' : 'rgba(0,0,0,' + (labelAlpha * 0.85) + ')';
+                        ctx.fillStyle = isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)';
                         ctx.textAlign = 'center';
                         ctx.fillText(n.label, n.x, n.y + r + 13);
                     }
-                }
-                
-                // Draw simulated cursor
-                if (cursorVisible && cursorAlpha > 0.01) {
-                    ctx.save();
-                    ctx.translate(cursorX, cursorY);
-                    ctx.globalAlpha = cursorAlpha;
-                    // Simple arrow cursor
-                    ctx.beginPath();
-                    ctx.moveTo(0, 0);
-                    ctx.lineTo(0, 14);
-                    ctx.lineTo(4, 11);
-                    ctx.lineTo(7, 17);
-                    ctx.lineTo(9, 16);
-                    ctx.lineTo(6, 10);
-                    ctx.lineTo(10, 10);
-                    ctx.closePath();
-                    ctx.fillStyle = isDark ? '#ffffff' : '#1f2937';
-                    ctx.fill();
-                    ctx.strokeStyle = isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.8)';
-                    ctx.lineWidth = 0.8;
-                    ctx.stroke();
-                    ctx.restore();
                 }
                 
                 animId = requestAnimationFrame(draw);
@@ -5056,7 +4975,6 @@
             
             animId = requestAnimationFrame(draw);
             
-            // Stop animation when not visible
             var observer = new IntersectionObserver(function(entries) {
                 if (entries[0].isIntersecting) {
                     if (!animId) { lastTime = performance.now(); animId = requestAnimationFrame(draw); }
