@@ -1,6 +1,6 @@
 # Work Blueprint — Project Context
 
-**Version:** v4.1.0 | **Build:** 20260218-0400 | **Lines:** ~14,740 | **Functions:** ~295
+**Version:** v4.2.0 | **Build:** 20260218-0430 | **Lines:** ~15,420 | **Functions:** ~310
 **Repository:** https://github.com/cliffj8338/Skills-Ontology
 **Live:** https://cliffj8338.github.io/Skills-Ontology/
 **Creator:** Cliff Jurkiewicz
@@ -308,6 +308,84 @@ All export options consolidated under Blueprint tab > Export sub-tab. Overflow m
 
 ---
 
+## Job Cart System (v4.2.0)
+
+### Architecture
+The Jobs tab (`opportunitiesView`) now has two sub-tabs:
+- **Your Jobs** — saved JD analyses with match data (the "pipeline")
+- **Find Jobs** — the original job search system (renamed)
+
+Controlled by `jobsSubTab` variable ('your-jobs' | 'find-jobs'). Sub-tab state resets on view switch.
+
+### Data Model
+Each saved job in `userData.savedJobs[]`:
+```javascript
+{
+  id: 'job-1739...',           // Unique ID
+  title: 'VP Strategy',        // Extracted by parser
+  company: 'Acme Corp',        // Extracted by parser
+  sourceUrl: 'https://...',    // User-provided
+  sourceNote: 'LinkedIn',      // User-provided
+  rawText: '...',              // First 5000 chars of pasted JD
+  parsedSkills: [...],         // Array of {name, level, category}
+  parsedRoles: [...],          // Functional areas
+  seniority: 'Executive',      // Entry|Mid|Senior|Executive
+  matchData: {                 // Computed match results
+    score: 72,
+    matched: [{jobSkill, userSkill, level, requirement, category}],
+    gaps: [{name, level, category}],
+    surplus: [{name, level, category}],
+    totalJobSkills: 18,
+    totalUserSkills: 90
+  },
+  addedAt: '2026-02-18T...'
+}
+```
+
+### Parsing Engines
+
+**Claude API (`parseJobWithAPI`):**
+- Uses Claude Sonnet via direct browser access
+- Extracts title, company, seniority, roles, and 10-30 skills
+- Sends user's top 50 skill names to maximize matching
+- Classifies skills as Required/Preferred/Nice-to-have
+- Infers implied competencies from responsibilities
+- API key stored in localStorage ('wbAnthropicKey'), never sent to our servers
+
+**Local Fallback (`parseJobLocally`):**
+- No API key needed
+- Matches JD text against: user's skills, skill library index, common skill keywords
+- Uses context analysis for requirement level classification
+- Extracts title from first meaningful lines
+- Infers seniority from title keywords
+- Less nuanced but functional
+
+### Match Algorithm (`matchJobToProfile`)
+- Builds lowercase lookup map of user skills + word variants
+- Exact match first, then fuzzy (substring containment for terms > 4 chars)
+- Weighted scoring: Required=3x, Preferred=2x, Nice-to-have=1x
+- Proficiency bonus: Mastery=1.0, Expert=0.9, Advanced=0.75, Proficient=0.6, Novice=0.4
+- Returns: matched (with both job and user skill names), gaps, surplus, score
+
+### UI Components
+- `showAddJobModal()` — paste JD + source URL/note + optional API key (collapsible)
+- `renderSavedJobs()` — pipeline list with match bars and skill counts
+- `showJobDetail(idx)` — full breakdown: matched/gaps/surplus skill chips
+- `removeJob(idx)` — confirm and delete from pipeline
+
+### Persistence
+- `userData.savedJobs` saved to Firestore (signed in) or localStorage
+- Cap: 10 jobs max per user
+- Raw JD text capped at 5000 chars for storage
+
+### Phase 2 (Network Overlay) — NOT YET BUILT
+- Toggle in network view: You / Job / Match
+- Three node states: matched (green), gap (red/amber), surplus (dimmed)
+- Active job indicator in network controls
+- Physics-driven clustering showing fit visually
+
+---
+
 ## Bugs Fixed This Session
 
 | Bug | Root Cause | Fix |
@@ -341,20 +419,19 @@ All export options consolidated under Blueprint tab > Export sub-tab. Overflow m
 
 ---
 
-## Stabilization Audit (build 0400)
+## Stabilization Audit (build 0430)
 
 ```
-Brace balance:     {=2746 }=2746 ✓
-Paren balance:     (=5783 )=5783 ✓
+Brace balance:     {=2842 }=2842 ✓
+Paren balance:     (=6157 )=6157 ✓
 All views hidden:  8/8 ✓
 Controls hidden:   ✓
-initNetwork calls: All guarded ✓
-Mobile network:    Simplified (top 25 skills, bigger targets, hidden labels) ✓
-Mobile card default: switchProfile + DOMContentLoaded both set card view ✓
-Footer hidden on welcome: ✓
-Values descriptions: All 25 catalog entries have descriptions ✓
-Consent presets:   Keys match ('full'/'executive'/'advisory'/'board'/'custom') ✓
-Export paths:      Single path via Blueprint > Export tab ✓
+Job cart functions: 10 new functions verified ✓
+Firestore save:    savedJobs included ✓
+Firestore load:    savedJobs included ✓
+userData.savedJobs: Initialized in userData default ✓
+Jobs sub-tabs:     Your Jobs / Find Jobs switching ✓
+API key storage:   localStorage only, never server ✓
 ```
 
 **Dead code exists but is low-risk** (old `buildProfileDropdown`, `showWizardPrompt`, `showWelcomeScreen` — never called). Attempted removal corrupted file; safer to leave as-is and clean in a future refactor pass.
@@ -396,12 +473,14 @@ Skills-Ontology/
 | v4.0.0-0330 | 20260219 | Fix: Picker layout padding + footer overlap |
 | v4.0.0-0335 | 20260219 | Fix: Network default for samples, remove toast, guard initNetwork, stabilization |
 | v4.1.0-0400 | 20260218 | Mobile responsive + Values descriptions/notes + Consent fixes + Export consolidation |
+| v4.2.0-0430 | 20260218 | Job Cart: JD analysis (Claude API + local fallback), match scoring, pipeline UI, Firestore persistence |
 
 ---
 
 ## Pending / Next Steps
 
 ### High Priority
+- [ ] **Job Cart Phase 2: Network Overlay** — You/Job/Match toggle in network view, three node states (matched/gap/surplus), physics-driven clustering
 - [ ] Wire onboarding wizard to save directly to Firestore on completion
 - [ ] Move sample profiles to Firestore `samples/` collection for admin editing
 - [ ] Test all sign-in flows: Google, email/password, magic link
@@ -440,6 +519,15 @@ Skills-Ontology/
 - [x] Consent: dynamic skill counts in preset descriptions
 - [x] Export: consolidated to single path (Blueprint > Export tab)
 - [x] Export: removed stub modal, merged overflow menu items
+- [x] Job Cart: Jobs tab restructured with Your Jobs / Find Jobs sub-tabs
+- [x] Job Cart: Add Job modal with paste field, source URL, source note, optional API key
+- [x] Job Cart: Claude API parsing (Sonnet, direct browser access, extracts skills/roles/seniority)
+- [x] Job Cart: Local fallback parsing (skill library + keyword matching)
+- [x] Job Cart: Weighted match algorithm (requirement level × proficiency bonus)
+- [x] Job Cart: Pipeline list view with match bars and skill counts
+- [x] Job Cart: Job detail view with matched/gaps/surplus chip breakdown
+- [x] Job Cart: Firestore persistence + localStorage fallback
+- [x] Job Cart: 10-job cap, remove functionality
 
 ---
 
@@ -466,6 +554,12 @@ Skills-Ontology/
 10. **Mobile network shows a subset of skills.** `initNetwork()` filters to top 25 key/expert skills on mobile. The full dataset is still in `skillsData.skills`. The info badge reads from `skillsToShow.length` vs `skillsData.skills.length`.
 
 11. **App footer is hidden on welcome view.** `switchView()` toggles `#appFooter` display. The welcome page has its own disclaimer, so showing both created overlapping text.
+
+12. **Claude API calls use direct browser access.** The `anthropic-dangerous-direct-browser-access` header is required for client-side calls. API key is stored in localStorage only, never transmitted to our backend.
+
+13. **Jobs tab reinitializes on every visit.** `opportunitiesInitialized` is reset after adding/removing jobs to force a fresh render. The sub-tab state (`jobsSubTab`) persists within session but resets on page reload.
+
+14. **Local JD parsing depends on skill library index.** If `skillLibraryIndex` hasn't loaded yet, the local parser falls back to just matching against `skillsData.skills` and common keywords. Always less accurate than the API path.
 
 ---
 

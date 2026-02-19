@@ -1907,6 +1907,78 @@
             to { transform: rotate(360deg); }
         }
         
+        /* Job Cart styles */
+        .jobs-subtabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .jobs-subtab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .jobs-subtab:hover { color: var(--text-secondary); }
+        .jobs-subtab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        .job-cart-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .job-cart-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+        .job-cart-match { display:flex; align-items:center; gap:8px; }
+        .job-cart-match-bar {
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border);
+            flex: 1;
+            overflow: hidden;
+        }
+        .job-cart-match-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+        .jd-skill-chip {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            margin: 2px;
+        }
+        .jd-chip-matched {
+            background: rgba(16,185,129,0.15);
+            border: 1px solid rgba(16,185,129,0.3);
+            color: #10b981;
+        }
+        .jd-chip-gap {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.25);
+            color: #ef4444;
+        }
+        .jd-chip-surplus {
+            background: rgba(107,114,128,0.1);
+            border: 1px solid rgba(107,114,128,0.2);
+            color: #6b7280;
+        }
+        
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
@@ -4119,6 +4191,11 @@
                 outcomes: blueprintData.outcomes || [],
                 preferences: userData.preferences || {},
                 applications: userData.applications || [],
+                savedJobs: (userData.savedJobs || []).map(function(j) {
+                    return { id: j.id, title: j.title, company: j.company, sourceUrl: j.sourceUrl, sourceNote: j.sourceNote,
+                        rawText: j.rawText, parsedSkills: j.parsedSkills || [], parsedRoles: j.parsedRoles || [],
+                        matchData: j.matchData || {}, addedAt: j.addedAt };
+                }),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
             
@@ -4156,6 +4233,7 @@
                     userData.roles = data.roles || [];
                     userData.preferences = data.preferences || userData.preferences;
                     userData.applications = data.applications || [];
+                    userData.savedJobs = data.savedJobs || [];
                     userData.templateId = 'firestore-' + uid;
                     
                     // Populate skillsData
@@ -5176,7 +5254,8 @@
                 minimumSkillMatches: 3,
                 minimumMatchScore: 50
             },
-            applications: []
+            applications: [],
+            savedJobs: []
         };
         
         let templates = {};
@@ -10285,39 +10364,646 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
         let currentMatchThreshold = 60;
         let opportunitiesData = [];
         
+        let jobsSubTab = 'your-jobs';
+        let activeJobId = null; // Currently selected job for network overlay
+        
         function initOpportunities() {
             const view = document.getElementById('opportunitiesView');
+            var savedCount = (userData.savedJobs || []).length;
             
-            view.innerHTML = `
-                <div class="opportunities-header">
-                    <h2 class="opportunities-title">Job Opportunities</h2>
-                    <p class="opportunities-subtitle">Matching your skills to open positions across the US</p>
-                    
-                    <div class="opportunities-filters">
-                        <div class="filter-section">
-                            <label class="filter-section-label">Minimum Match Score</label>
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <input type="range" min="0" max="100" value="60" class="match-slider" 
-                                       oninput="updateMatchThreshold(this.value)">
-                                <span class="match-value" id="matchValue">60%+</span>
-                            </div>
-                        </div>
-                        
-                        <div class="filter-section">
-                            <label class="filter-section-label">Search Roles</label>
-                            <button class="action-btn" onclick="searchOpportunities()" style="width: auto;">
-                                🔍 Find Matching Jobs
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="opportunitiesResults"></div>
-            `;
+            view.innerHTML = '<div style="max-width:1200px; margin:0 auto; padding:24px;">'
+                + '<div class="jobs-subtabs">'
+                + '<button class="jobs-subtab ' + (jobsSubTab === 'your-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'your-jobs\')">🎯 Your Jobs' + (savedCount > 0 ? ' (' + savedCount + ')' : '') + '</button>'
+                + '<button class="jobs-subtab ' + (jobsSubTab === 'find-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'find-jobs\')">🔍 Find Jobs</button>'
+                + '</div>'
+                + '<div id="jobsSubTabContent"></div>'
+                + '</div>';
             
-            // Auto-fetch real jobs from multiple sources
-            searchOpportunities();
+            renderJobsSubTab();
         }
+        
+        function switchJobsSubTab(tab) {
+            jobsSubTab = tab;
+            document.querySelectorAll('.jobs-subtab').forEach(function(b) { b.classList.remove('active'); });
+            document.querySelectorAll('.jobs-subtab').forEach(function(b) {
+                if (b.textContent.toLowerCase().indexOf(tab === 'your-jobs' ? 'your' : 'find') !== -1) b.classList.add('active');
+            });
+            renderJobsSubTab();
+        }
+        window.switchJobsSubTab = switchJobsSubTab;
+        
+        function renderJobsSubTab() {
+            var el = document.getElementById('jobsSubTabContent');
+            if (!el) return;
+            if (jobsSubTab === 'your-jobs') {
+                el.innerHTML = renderSavedJobs();
+            } else {
+                el.innerHTML = renderFindJobs();
+                searchOpportunities();
+            }
+        }
+        
+        function renderSavedJobs() {
+            var jobs = userData.savedJobs || [];
+            var html = '';
+            
+            // Add Job button
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">'
+                + '<div>'
+                + '<h2 style="font-size:1.3em; font-weight:700; color:var(--text-primary); margin:0;">Job Pipeline</h2>'
+                + '<p style="font-size:0.85em; color:var(--text-muted); margin-top:4px;">Paste a job description to analyze your fit</p>'
+                + '</div>'
+                + '<button onclick="showAddJobModal()" style="'
+                + 'background:var(--accent); color:#fff; border:none; padding:10px 20px; border-radius:8px; '
+                + 'cursor:pointer; font-weight:600; font-size:0.9em;">+ Add a Job</button>'
+                + '</div>';
+            
+            if (jobs.length === 0) {
+                html += '<div style="text-align:center; padding:60px 20px;">'
+                    + '<div style="font-size:2.5em; margin-bottom:12px;">🎯</div>'
+                    + '<div style="font-size:1.1em; font-weight:600; color:var(--text-primary); margin-bottom:8px;">No jobs yet</div>'
+                    + '<div style="color:var(--text-muted); max-width:400px; margin:0 auto 24px; line-height:1.5;">'
+                    + 'Paste a job description and see exactly how your skills map to what they need. Not a percentage. A network.</div>'
+                    + '<button onclick="showAddJobModal()" style="'
+                    + 'background:var(--accent); color:#fff; border:none; padding:12px 28px; border-radius:8px; '
+                    + 'cursor:pointer; font-weight:600; font-size:0.95em;">+ Add Your First Job</button>'
+                    + '</div>';
+                return html;
+            }
+            
+            // Render job cards
+            jobs.forEach(function(job, idx) {
+                var match = job.matchData || {};
+                var matchPct = match.score || 0;
+                var matchColor = matchPct >= 70 ? '#10b981' : matchPct >= 45 ? '#f59e0b' : '#6b7280';
+                var matchedCount = (match.matched || []).length;
+                var gapCount = (match.gaps || []).length;
+                var surplusCount = (match.surplus || []).length;
+                var dateStr = job.addedAt ? new Date(job.addedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+                
+                html += '<div class="job-cart-card" onclick="showJobDetail(' + idx + ')">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px;">'
+                    + '<div style="flex:1; min-width:0;">'
+                    + '<div style="font-size:1.1em; font-weight:600; color:var(--text-primary); margin-bottom:3px;">' + (job.title || 'Untitled Position') + '</div>'
+                    + '<div style="font-size:0.88em; color:var(--text-muted);">'
+                    + (job.company || '')
+                    + (job.company && dateStr ? ' \u00B7 ' : '') + dateStr
+                    + (job.sourceUrl ? ' \u00B7 <a href="' + job.sourceUrl + '" target="_blank" onclick="event.stopPropagation();" style="color:var(--accent); text-decoration:none;">Source \u2192</a>' : '')
+                    + (job.sourceNote ? ' \u00B7 ' + job.sourceNote : '')
+                    + '</div></div>'
+                    + '<div style="text-align:right; min-width:70px;">'
+                    + '<div style="font-size:1.5em; font-weight:700; color:' + matchColor + ';">' + matchPct + '%</div>'
+                    + '<div style="font-size:0.7em; color:var(--text-muted);">match</div>'
+                    + '</div></div>';
+                
+                // Match bar
+                html += '<div class="job-cart-match" style="margin-top:12px;">'
+                    + '<div class="job-cart-match-bar">'
+                    + '<div class="job-cart-match-fill" style="width:' + matchPct + '%; background:' + matchColor + ';"></div>'
+                    + '</div></div>';
+                
+                // Skill summary chips
+                html += '<div style="margin-top:10px; display:flex; gap:12px; font-size:0.78em; color:var(--text-muted);">'
+                    + '<span style="color:#10b981;">\u2713 ' + matchedCount + ' matched</span>'
+                    + '<span style="color:#ef4444;">\u25CB ' + gapCount + ' gaps</span>'
+                    + '<span style="color:#6b7280;">\u25CF ' + surplusCount + ' surplus</span>'
+                    + '</div>';
+                
+                // Delete button
+                html += '<div style="margin-top:8px; text-align:right;">'
+                    + '<button onclick="event.stopPropagation(); removeJob(' + idx + ')" style="'
+                    + 'background:none; border:none; color:var(--text-muted); font-size:0.75em; cursor:pointer; '
+                    + 'opacity:0.5; padding:2px 8px;" onmouseover="this.style.opacity=1;this.style.color=\'#ef4444\'" '
+                    + 'onmouseout="this.style.opacity=0.5;this.style.color=\'var(--text-muted)\'">Remove</button>'
+                    + '</div>';
+                
+                html += '</div>';
+            });
+            
+            return html;
+        }
+        
+        function renderFindJobs() {
+            return '<div class="opportunities-header">'
+                + '<h2 class="opportunities-title">Find Jobs</h2>'
+                + '<p class="opportunities-subtitle">Matching your skills to open positions across the US</p>'
+                + '<div class="opportunities-filters">'
+                + '<div class="filter-section">'
+                + '<label class="filter-section-label">Minimum Match Score</label>'
+                + '<div style="display:flex; align-items:center; gap:15px;">'
+                + '<input type="range" min="0" max="100" value="60" class="match-slider" oninput="updateMatchThreshold(this.value)">'
+                + '<span class="match-value" id="matchValue">60%+</span>'
+                + '</div></div>'
+                + '<div class="filter-section">'
+                + '<label class="filter-section-label">Search Roles</label>'
+                + '<button class="action-btn" onclick="searchOpportunities()" style="width:auto;">'
+                + '\uD83D\uDD0D Find Matching Jobs</button>'
+                + '</div></div></div>'
+                + '<div id="opportunitiesResults"></div>';
+        }
+        
+        // ===== ADD JOB MODAL =====
+        
+        function showAddJobModal() {
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content');
+            var savedKey = localStorage.getItem('wbAnthropicKey') || '';
+            
+            mc.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">Add a Job</h2>'
+                + '<p style="color:var(--text-muted); margin-top:5px;">Paste a job description to analyze your fit</p>'
+                + '</div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:24px;">'
+                
+                // JD paste area
+                + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;">Job Description *</label>'
+                + '<textarea id="jdTextInput" placeholder="Paste the full job description here..." style="'
+                + 'width:100%; min-height:180px; padding:14px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; '
+                + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); '
+                + 'font-size:0.92em; line-height:1.6; font-family:inherit; resize:vertical;"></textarea>'
+                
+                // Source URL
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px;">'
+                + '<div>'
+                + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Source URL</label>'
+                + '<input id="jdSourceUrl" placeholder="https://..." style="'
+                + 'width:100%; padding:10px 12px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; '
+                + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
+                + '</div>'
+                + '<div>'
+                + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Source Note</label>'
+                + '<input id="jdSourceNote" placeholder="e.g., Recruiter email, LinkedIn" style="'
+                + 'width:100%; padding:10px 12px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; '
+                + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
+                + '</div></div>'
+                
+                // API key (collapsible)
+                + '<details style="margin-top:16px;">'
+                + '<summary style="cursor:pointer; font-size:0.82em; color:var(--text-muted);">'
+                + '\u26A1 AI-powered analysis (optional, requires API key)</summary>'
+                + '<div style="margin-top:8px; padding:12px; background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; '
+                + 'border:1px solid var(--border); border-radius:8px;">'
+                + '<input id="jdApiKey" type="password" placeholder="sk-ant-..." value="' + savedKey + '" style="'
+                + 'width:100%; padding:10px 12px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; '
+                + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.88em; font-family:monospace;" />'
+                + '<div style="font-size:0.75em; color:var(--text-muted); margin-top:6px; line-height:1.5;">'
+                + 'Stored locally, never sent to our servers. Get a key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent);">console.anthropic.com</a>. '
+                + 'Without a key, analysis uses local skill matching (still good, but less nuanced).'
+                + '</div></div></details>'
+                
+                + '<div id="jdParsingStatus" style="display:none; margin-top:16px; padding:16px; border-radius:8px; text-align:center;"></div>'
+                
+                // Actions
+                + '<div style="display:flex; gap:12px; justify-content:flex-end; margin-top:20px;">'
+                + '<button onclick="closeExportModal()" style="'
+                + 'background:transparent; color:var(--text-muted); border:1px solid var(--border); '
+                + 'padding:10px 20px; border-radius:8px; cursor:pointer; font-size:0.9em;">Cancel</button>'
+                + '<button id="analyzeJobBtn" onclick="analyzeJob()" style="'
+                + 'background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:8px; '
+                + 'cursor:pointer; font-weight:600; font-size:0.9em;">\uD83D\uDD0D Analyze Fit</button>'
+                + '</div></div>';
+            
+            modal.classList.add('active');
+            setTimeout(function() { document.getElementById('jdTextInput').focus(); }, 100);
+        }
+        window.showAddJobModal = showAddJobModal;
+        
+        // ===== JOB ANALYSIS ENGINE =====
+        
+        async function analyzeJob() {
+            var jdText = (document.getElementById('jdTextInput').value || '').trim();
+            if (!jdText || jdText.length < 50) {
+                showToast('Paste a job description (at least a few sentences).', 'warning');
+                return;
+            }
+            
+            var sourceUrl = (document.getElementById('jdSourceUrl').value || '').trim();
+            var sourceNote = (document.getElementById('jdSourceNote').value || '').trim();
+            var apiKey = (document.getElementById('jdApiKey').value || '').trim();
+            
+            // Save API key for reuse
+            if (apiKey) localStorage.setItem('wbAnthropicKey', apiKey);
+            
+            // Show progress
+            var statusEl = document.getElementById('jdParsingStatus');
+            var btn = document.getElementById('analyzeJobBtn');
+            statusEl.style.display = 'block';
+            statusEl.style.background = tv('rgba(96,165,250,0.08)','rgba(30,64,175,0.06)');
+            statusEl.innerHTML = '<div class="loading-spinner" style="width:24px; height:24px; border-width:2px; margin:0 auto 8px;"></div>'
+                + '<div style="color:var(--text-secondary); font-size:0.88em;">'
+                + (apiKey ? 'Analyzing with AI...' : 'Matching against skill library...') + '</div>';
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            
+            try {
+                var parsed;
+                if (apiKey) {
+                    parsed = await parseJobWithAPI(jdText, apiKey);
+                } else {
+                    parsed = parseJobLocally(jdText);
+                }
+                
+                // Calculate match against user's skills
+                var matchData = matchJobToProfile(parsed);
+                
+                // Build the job object
+                var job = {
+                    id: 'job-' + Date.now(),
+                    title: parsed.title || 'Untitled Position',
+                    company: parsed.company || '',
+                    sourceUrl: sourceUrl,
+                    sourceNote: sourceNote,
+                    rawText: jdText.substring(0, 5000), // Cap storage
+                    parsedSkills: parsed.skills || [],
+                    parsedRoles: parsed.roles || [],
+                    seniority: parsed.seniority || '',
+                    matchData: matchData,
+                    addedAt: new Date().toISOString()
+                };
+                
+                // Save
+                if (!userData.savedJobs) userData.savedJobs = [];
+                if (userData.savedJobs.length >= 10) {
+                    showToast('Job pipeline is full (10 max). Remove one first.', 'warning');
+                    return;
+                }
+                userData.savedJobs.unshift(job);
+                saveUserData();
+                if (fbUser) saveToFirestore();
+                
+                closeExportModal();
+                
+                // Refresh the jobs view
+                window.opportunitiesInitialized = false;
+                switchView('opportunities');
+                
+                showToast('Job analyzed: ' + matchData.score + '% match with ' + (matchData.matched || []).length + ' skills aligned.', 'success', 5000);
+                
+            } catch (err) {
+                console.error('Job analysis error:', err);
+                statusEl.style.background = tv('rgba(239,68,68,0.08)','rgba(239,68,68,0.05)');
+                statusEl.innerHTML = '<div style="color:#ef4444; font-size:0.88em;">\u26A0 ' + (err.message || 'Analysis failed.') + '</div>';
+            } finally {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        }
+        window.analyzeJob = analyzeJob;
+        
+        // ===== CLAUDE API PARSING =====
+        
+        async function parseJobWithAPI(jdText, apiKey) {
+            var userSkillNames = (skillsData.skills || []).map(function(s) { return s.name; });
+            
+            var systemPrompt = 'You extract structured data from job descriptions. Respond ONLY with valid JSON, no markdown fences, no preamble.';
+            var userPrompt = 'Extract from this job description:\n\n' + jdText.substring(0, 4000) + '\n\n'
+                + 'Return JSON with this exact structure:\n'
+                + '{\n'
+                + '  "title": "Job title",\n'
+                + '  "company": "Company name or empty string",\n'
+                + '  "seniority": "Entry|Mid|Senior|Executive",\n'
+                + '  "roles": ["functional area 1", "functional area 2"],\n'
+                + '  "skills": [\n'
+                + '    {"name": "Skill Name", "level": "Required|Preferred|Nice-to-have", "category": "Technical|Leadership|Business|Communication|Domain"}\n'
+                + '  ]\n'
+                + '}\n\n'
+                + 'Rules:\n'
+                + '- Extract 10-30 distinct skills from explicit requirements AND implied competencies\n'
+                + '- Use professional skill names (e.g., "Strategic Planning" not "plan stuff")\n'
+                + '- Where possible, use names from this list to maximize matching: ' + userSkillNames.slice(0, 50).join(', ') + '\n'
+                + '- Include both hard and soft skills\n'
+                + '- Infer skills from responsibilities even if not explicitly listed\n'
+                + '- Set level: Required for must-haves, Preferred for should-haves, Nice-to-have for bonus skills';
+            
+            var response = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'anthropic-version': '2023-06-01',
+                    'anthropic-dangerous-direct-browser-access': 'true'
+                },
+                body: JSON.stringify({
+                    model: 'claude-sonnet-4-20250514',
+                    max_tokens: 2000,
+                    system: systemPrompt,
+                    messages: [{ role: 'user', content: userPrompt }]
+                })
+            });
+            
+            if (!response.ok) {
+                var errBody = await response.text().catch(function() { return ''; });
+                if (response.status === 401) throw new Error('Invalid API key. Check your key at console.anthropic.com.');
+                if (response.status === 429) throw new Error('Rate limited. Wait a moment and try again.');
+                throw new Error('API error (' + response.status + '): ' + (errBody.substring(0, 100) || 'Unknown'));
+            }
+            
+            var data = await response.json();
+            var text = data.content.map(function(c) { return c.text || ''; }).join('');
+            
+            // Parse JSON, strip any fences
+            text = text.replace(/```json|```/g, '').trim();
+            var parsed = JSON.parse(text);
+            return parsed;
+        }
+        
+        // ===== LOCAL FALLBACK PARSING =====
+        
+        function parseJobLocally(jdText) {
+            var text = jdText.toLowerCase();
+            var lines = jdText.split('\n');
+            
+            // Extract title from first meaningful line
+            var title = '';
+            var company = '';
+            for (var i = 0; i < Math.min(lines.length, 5); i++) {
+                var line = lines[i].trim();
+                if (line.length > 5 && line.length < 120 && !line.match(/^(about|we are|our|the|at |join)/i)) {
+                    if (!title) title = line.replace(/^(job title|position|role|opening)[\s:]+/i, '');
+                    else if (!company && line.length < 60) company = line.replace(/^(company|at|employer)[\s:]+/i, '');
+                    if (title && company) break;
+                }
+            }
+            
+            // Match against skill library
+            var skillMatches = [];
+            var seen = new Set();
+            var allSkills = skillsData.skills || [];
+            
+            // First pass: exact name matches
+            allSkills.forEach(function(skill) {
+                var skillLower = skill.name.toLowerCase();
+                if (text.indexOf(skillLower) !== -1 && !seen.has(skillLower)) {
+                    seen.add(skillLower);
+                    skillMatches.push({
+                        name: skill.name,
+                        level: classifyRequirementLevel(text, skillLower),
+                        category: skill.category || 'General'
+                    });
+                }
+            });
+            
+            // Second pass: check the full O*NET library if loaded
+            if (skillLibraryIndex && skillLibraryIndex.skills) {
+                skillLibraryIndex.skills.forEach(function(libSkill) {
+                    var n = (libSkill.name || libSkill.n || '').toLowerCase();
+                    if (n.length > 3 && text.indexOf(n) !== -1 && !seen.has(n)) {
+                        seen.add(n);
+                        skillMatches.push({
+                            name: libSkill.name || libSkill.n,
+                            level: classifyRequirementLevel(text, n),
+                            category: libSkill.category || libSkill.c || 'General'
+                        });
+                    }
+                });
+            }
+            
+            // Third pass: common skill keywords
+            var commonSkills = [
+                'Project Management', 'Strategic Planning', 'Data Analysis', 'Team Leadership',
+                'Communication', 'Problem Solving', 'Stakeholder Management', 'Budgeting',
+                'Agile', 'Scrum', 'Python', 'JavaScript', 'SQL', 'Machine Learning',
+                'Product Management', 'UX Design', 'Business Development', 'Sales Strategy',
+                'Change Management', 'Cross-Functional Collaboration', 'Negotiation',
+                'Public Speaking', 'Technical Writing', 'Cloud Computing', 'DevOps'
+            ];
+            commonSkills.forEach(function(skill) {
+                var lower = skill.toLowerCase();
+                if (text.indexOf(lower) !== -1 && !seen.has(lower)) {
+                    seen.add(lower);
+                    skillMatches.push({ name: skill, level: classifyRequirementLevel(text, lower), category: 'General' });
+                }
+            });
+            
+            // Determine seniority
+            var seniority = 'Mid';
+            if (/\b(vp|vice president|chief|c-suite|head of|svp|evp)\b/i.test(jdText)) seniority = 'Executive';
+            else if (/\b(senior director|director|principal|senior manager)\b/i.test(jdText)) seniority = 'Senior';
+            else if (/\b(junior|entry|associate|intern|coordinator)\b/i.test(jdText)) seniority = 'Entry';
+            
+            // Extract roles/departments
+            var roles = [];
+            var rolePatterns = { 'Engineering': /engineer|develop|software|technical/i, 'Product': /product|ux|design/i,
+                'Marketing': /marketing|brand|content|growth/i, 'Sales': /sales|revenue|account|business development/i,
+                'Data': /data|analy|science|ml|ai/i, 'Operations': /operations|supply|logistics/i,
+                'Finance': /finance|accounting|budget|treasury/i, 'HR': /human resources|talent|recruiting|people/i,
+                'Strategy': /strategy|strateg|transformation|innovation/i, 'Leadership': /leader|executive|management/i
+            };
+            Object.keys(rolePatterns).forEach(function(role) { if (rolePatterns[role].test(jdText)) roles.push(role); });
+            if (roles.length === 0) roles.push('General');
+            
+            return {
+                title: title || 'Untitled Position',
+                company: company,
+                seniority: seniority,
+                roles: roles,
+                skills: skillMatches.slice(0, 30)
+            };
+        }
+        
+        function classifyRequirementLevel(text, skillLower) {
+            // Look for context around the skill mention
+            var idx = text.indexOf(skillLower);
+            if (idx === -1) return 'Required';
+            var context = text.substring(Math.max(0, idx - 100), Math.min(text.length, idx + 100));
+            if (/nice.to.have|bonus|plus|preferred|ideal/i.test(context)) return 'Nice-to-have';
+            if (/prefer|desired|strongly prefer/i.test(context)) return 'Preferred';
+            return 'Required';
+        }
+        
+        // ===== MATCH CALCULATION =====
+        
+        function matchJobToProfile(parsed) {
+            var jobSkills = parsed.skills || [];
+            var userSkills = skillsData.skills || [];
+            
+            // Build lookup of user's skills (lowercase → skill object)
+            var userMap = {};
+            userSkills.forEach(function(s) {
+                userMap[s.name.toLowerCase()] = s;
+                // Also add key word variants
+                var words = s.name.toLowerCase().split(/\s+/);
+                if (words.length > 1) {
+                    words.forEach(function(w) { if (w.length > 4 && !userMap[w]) userMap[w] = s; });
+                }
+            });
+            
+            var matched = [];
+            var gaps = [];
+            var matchedUserSkills = new Set();
+            var totalWeight = 0;
+            var earnedWeight = 0;
+            
+            jobSkills.forEach(function(jobSkill) {
+                var weight = jobSkill.level === 'Required' ? 3 : jobSkill.level === 'Preferred' ? 2 : 1;
+                totalWeight += weight;
+                
+                var jLower = jobSkill.name.toLowerCase();
+                var found = null;
+                
+                // Exact match
+                if (userMap[jLower]) {
+                    found = userMap[jLower];
+                } else {
+                    // Fuzzy: check if job skill is contained in or contains a user skill
+                    for (var key in userMap) {
+                        if (key.length > 4 && (jLower.indexOf(key) !== -1 || key.indexOf(jLower) !== -1)) {
+                            found = userMap[key];
+                            break;
+                        }
+                    }
+                }
+                
+                if (found) {
+                    // Proficiency bonus
+                    var profBonus = found.level === 'Mastery' ? 1.0 : found.level === 'Expert' ? 0.9 :
+                        found.level === 'Advanced' ? 0.75 : found.level === 'Proficient' ? 0.6 : 0.4;
+                    earnedWeight += weight * profBonus;
+                    matched.push({ jobSkill: jobSkill.name, userSkill: found.name, level: found.level, 
+                        requirement: jobSkill.level, category: jobSkill.category });
+                    matchedUserSkills.add(found.name.toLowerCase());
+                } else {
+                    gaps.push({ name: jobSkill.name, level: jobSkill.level, category: jobSkill.category });
+                }
+            });
+            
+            // Surplus: user skills not needed by job
+            var surplus = [];
+            userSkills.forEach(function(s) {
+                if (!matchedUserSkills.has(s.name.toLowerCase())) {
+                    surplus.push({ name: s.name, level: s.level, category: s.category });
+                }
+            });
+            
+            var score = totalWeight > 0 ? Math.round((earnedWeight / totalWeight) * 100) : 0;
+            
+            return {
+                score: Math.min(score, 100),
+                matched: matched,
+                gaps: gaps,
+                surplus: surplus,
+                totalJobSkills: jobSkills.length,
+                totalUserSkills: userSkills.length
+            };
+        }
+        
+        // ===== JOB DETAIL VIEW =====
+        
+        function showJobDetail(idx) {
+            var job = (userData.savedJobs || [])[idx];
+            if (!job) return;
+            
+            var match = job.matchData || {};
+            var matchPct = match.score || 0;
+            var matchColor = matchPct >= 70 ? '#10b981' : matchPct >= 45 ? '#f59e0b' : '#6b7280';
+            var matched = match.matched || [];
+            var gaps = match.gaps || [];
+            var surplus = match.surplus || [];
+            
+            var el = document.getElementById('jobsSubTabContent');
+            if (!el) return;
+            
+            var html = '<div style="margin-bottom:16px;">'
+                + '<button onclick="renderJobsSubTab()" style="background:none; border:none; color:var(--accent); '
+                + 'cursor:pointer; font-size:0.88em; padding:0;">\u2190 Back to Pipeline</button>'
+                + '</div>';
+            
+            // Header
+            html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; flex-wrap:wrap; gap:16px;">'
+                + '<div>'
+                + '<h2 style="font-size:1.5em; font-weight:700; color:var(--text-primary); margin:0;">' + (job.title || 'Untitled') + '</h2>'
+                + '<div style="color:var(--text-muted); margin-top:4px;">' + (job.company || '') 
+                + (job.sourceUrl ? ' \u00B7 <a href="' + job.sourceUrl + '" target="_blank" style="color:var(--accent);">View original</a>' : '') + '</div>'
+                + '</div>'
+                + '<div style="text-align:center; padding:12px 24px; border-radius:12px; '
+                + 'background:' + matchColor + '15; border:2px solid ' + matchColor + '40;">'
+                + '<div style="font-size:2em; font-weight:700; color:' + matchColor + ';">' + matchPct + '%</div>'
+                + '<div style="font-size:0.78em; color:var(--text-muted);">Overall Match</div>'
+                + '</div></div>';
+            
+            // Summary stats
+            html += '<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-bottom:24px;">'
+                + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2);">'
+                + '<div style="font-size:1.6em; font-weight:700; color:#10b981;">' + matched.length + '</div>'
+                + '<div style="font-size:0.78em; color:var(--text-muted);">Skills Matched</div></div>'
+                + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.2);">'
+                + '<div style="font-size:1.6em; font-weight:700; color:#ef4444;">' + gaps.length + '</div>'
+                + '<div style="font-size:0.78em; color:var(--text-muted);">Gaps to Close</div></div>'
+                + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(107,114,128,0.06); border:1px solid rgba(107,114,128,0.15);">'
+                + '<div style="font-size:1.6em; font-weight:700; color:#6b7280;">' + surplus.length + '</div>'
+                + '<div style="font-size:0.78em; color:var(--text-muted);">Your Surplus</div></div>'
+                + '</div>';
+            
+            // Matched skills
+            if (matched.length > 0) {
+                html += '<div style="margin-bottom:20px;">'
+                    + '<h3 style="font-size:0.95em; font-weight:700; color:#10b981; margin-bottom:10px;">\u2713 Matched Skills</h3>'
+                    + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+                matched.forEach(function(m) {
+                    var levelBadge = m.level ? ' \u00B7 ' + m.level : '';
+                    var reqBadge = m.requirement === 'Required' ? ' \u2605' : '';
+                    html += '<span class="jd-skill-chip jd-chip-matched">' + m.userSkill + levelBadge + reqBadge + '</span>';
+                });
+                html += '</div></div>';
+            }
+            
+            // Gaps
+            if (gaps.length > 0) {
+                html += '<div style="margin-bottom:20px;">'
+                    + '<h3 style="font-size:0.95em; font-weight:700; color:#ef4444; margin-bottom:10px;">\u25CB Gaps (Job Needs, You Don\u2019t Have)</h3>'
+                    + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+                gaps.forEach(function(g) {
+                    var reqBadge = g.level === 'Required' ? ' \u2605' : '';
+                    html += '<span class="jd-skill-chip jd-chip-gap">' + g.name + reqBadge + '</span>';
+                });
+                html += '</div>'
+                    + '<div style="margin-top:8px; font-size:0.75em; color:var(--text-muted);">\u2605 = Required by employer</div>'
+                    + '</div>';
+            }
+            
+            // Top surplus (capped at 15 to avoid wall of chips)
+            if (surplus.length > 0) {
+                var showSurplus = surplus.filter(function(s) { return s.level === 'Mastery' || s.level === 'Expert' || s.level === 'Advanced'; }).slice(0, 15);
+                if (showSurplus.length === 0) showSurplus = surplus.slice(0, 10);
+                html += '<div style="margin-bottom:20px;">'
+                    + '<h3 style="font-size:0.95em; font-weight:700; color:#6b7280; margin-bottom:10px;">\u25CF Your Surplus (Not Listed in JD)</h3>'
+                    + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+                showSurplus.forEach(function(s) {
+                    html += '<span class="jd-skill-chip jd-chip-surplus">' + s.name + '</span>';
+                });
+                if (surplus.length > showSurplus.length) {
+                    html += '<span style="font-size:0.75em; color:var(--text-muted); padding:4px 8px;">+' + (surplus.length - showSurplus.length) + ' more</span>';
+                }
+                html += '</div></div>';
+            }
+            
+            // Action: view in network overlay (Phase 2 placeholder)
+            html += '<div style="padding:20px; border-radius:10px; margin-top:16px; '
+                + 'background:linear-gradient(135deg, rgba(30,64,175,0.1), rgba(96,165,250,0.05)); '
+                + 'border:1px solid rgba(96,165,250,0.2);">'
+                + '<div style="display:flex; align-items:center; gap:12px;">'
+                + '<span style="font-size:1.5em;">\uD83D\uDD2E</span>'
+                + '<div>'
+                + '<div style="font-weight:600; color:var(--text-primary);">Network Overlay</div>'
+                + '<div style="font-size:0.85em; color:var(--text-muted);">Visual network comparison coming next. See matched, gap, and surplus skills as connected nodes.</div>'
+                + '</div></div></div>';
+            
+            el.innerHTML = html;
+        }
+        window.showJobDetail = showJobDetail;
+        
+        function removeJob(idx) {
+            if (!confirm('Remove this job from your pipeline?')) return;
+            userData.savedJobs.splice(idx, 1);
+            saveUserData();
+            if (fbUser) saveToFirestore();
+            window.opportunitiesInitialized = false;
+            switchView('opportunities');
+        }
+        window.removeJob = removeJob;
         
         function updateMatchThreshold(value) {
             currentMatchThreshold = parseInt(value);
