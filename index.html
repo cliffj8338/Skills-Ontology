@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.9.0 | 20260219 | Jobs matching overhaul: synonym system, registry fix, role suggestions, proficiency gap UI -->
+    <!-- v4.10.0 | 20260219 | Toast CSS fix, skill editing from all views, sample jobs, Competent proficiency level -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -3206,6 +3206,58 @@
         .welcome-feature .wf-icon { font-size: 1.6em; margin-bottom: 8px; }
         .welcome-feature h4 { color: var(--text-primary); font-size: 0.95em; margin-bottom: 4px; }
         .welcome-feature p { color: var(--text-muted); font-size: 0.82em; line-height: 1.4; margin: 0; }
+        
+        /* Toast Notification System */
+        #toastContainer {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 100000;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            pointer-events: auto;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            min-width: 280px;
+            max-width: 420px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 0.92em;
+            line-height: 1.45;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            transform: translateX(120%);
+            opacity: 0;
+            transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.35s ease;
+        }
+        .toast.show { transform: translateX(0); opacity: 1; }
+        .toast.hide { transform: translateX(120%); opacity: 0; }
+        .toast-icon { font-size: 1.15em; flex-shrink: 0; margin-top: 1px; }
+        .toast-body { flex: 1; }
+        .toast-title { font-weight: 600; margin-bottom: 2px; }
+        .toast-msg { opacity: 0.88; }
+        .toast-close {
+            background: none; border: none; cursor: pointer;
+            font-size: 1.1em; opacity: 0.5; padding: 0 0 0 8px;
+            color: inherit; flex-shrink: 0;
+        }
+        .toast-close:hover { opacity: 1; }
+        .toast-success { background: #065f46; color: #d1fae5; border-left: 4px solid #10b981; }
+        .toast-error   { background: #7f1d1d; color: #fecaca; border-left: 4px solid #ef4444; }
+        .toast-info    { background: #1e3a5f; color: #bfdbfe; border-left: 4px solid #60a5fa; }
+        .toast-warning { background: #78350f; color: #fef3c7; border-left: 4px solid #f59e0b; }
+        [data-theme="light"] .toast-success { background: #ecfdf5; color: #065f46; }
+        [data-theme="light"] .toast-error   { background: #fef2f2; color: #7f1d1d; }
+        [data-theme="light"] .toast-info    { background: #eff6ff; color: #1e3a5f; }
+        [data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
+        @media (max-width: 600px) {
+            #toastContainer { left: 12px; right: 12px; bottom: 16px; }
+            .toast { min-width: unset; max-width: unset; }
+        }
     </style>
 </head>
 <body>
@@ -3616,10 +3668,14 @@
                 
                 <div class="settings-group">
                     <label class="settings-label">Proficiency Level *</label>
-                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
                         <label style="cursor: pointer; text-align: center;">
                             <input type="radio" name="editSkillLevel" value="Novice" style="margin-right: 5px;">
                             Novice
+                        </label>
+                        <label style="cursor: pointer; text-align: center;">
+                            <input type="radio" name="editSkillLevel" value="Competent" style="margin-right: 5px;">
+                            Competent
                         </label>
                         <label style="cursor: pointer; text-align: center;">
                             <input type="radio" name="editSkillLevel" value="Proficient" style="margin-right: 5px;">
@@ -5079,6 +5135,13 @@
             const id = 'toast-' + (++toastCounter);
             const container = document.getElementById('toastContainer');
             if (!container) return;
+            
+            // Limit to 3 visible toasts - dismiss oldest
+            var existing = container.querySelectorAll('.toast');
+            if (existing.length >= 3) {
+                dismissToast(existing[0].id);
+            }
+            
             const el = document.createElement('div');
             el.id = id;
             el.className = 'toast toast-' + type;
@@ -5703,6 +5766,209 @@
         });
         
         // Load template into userData
+        // ===== SAMPLE JOBS FOR DEMO PROFILES =====
+        function getSampleJobsForProfile(templateId, template) {
+            var roleName = (template.roles && template.roles[0]) ? template.roles[0].name.toLowerCase() : '';
+            var profileName = (template.profile && template.profile.name) || '';
+            var jobs = [];
+            
+            // Detect profile type by role keywords
+            var isRecruiter = roleName.indexOf('recruit') !== -1 || roleName.indexOf('talent') !== -1;
+            var isProduct = roleName.indexOf('product') !== -1;
+            var isStrategy = roleName.indexOf('strateg') !== -1 || roleName.indexOf('futur') !== -1 || roleName.indexOf('advisory') !== -1;
+            
+            if (isRecruiter) {
+                jobs = [
+                    {
+                        id: 'sample-job-1', title: 'Senior Technical Recruiter', company: 'Stripe',
+                        sourceUrl: '', sourceNote: 'Sample job for demo',
+                        rawText: 'Senior Technical Recruiter at Stripe. We are looking for an experienced recruiter to join our growing talent team.',
+                        parsedSkills: [
+                            { name: 'Full-Cycle Recruiting', requirement: 'Required', proficiency: 'Expert', category: 'Domain' },
+                            { name: 'Applicant Tracking System', requirement: 'Required', proficiency: 'Proficient', category: 'Technical' },
+                            { name: 'Boolean Search', requirement: 'Required', proficiency: 'Expert', category: 'Technical' },
+                            { name: 'Sourcing', requirement: 'Required', proficiency: 'Expert', category: 'Domain' },
+                            { name: 'Candidate Experience', requirement: 'Required', proficiency: 'Proficient', category: 'Domain' },
+                            { name: 'Stakeholder Management', requirement: 'Required', proficiency: 'Proficient', category: 'Leadership' },
+                            { name: 'Interviewing', requirement: 'Required', proficiency: 'Expert', category: 'Domain' },
+                            { name: 'Data Analysis', requirement: 'Preferred', proficiency: 'Competent', category: 'Technical' },
+                            { name: 'Employer Branding', requirement: 'Preferred', proficiency: 'Competent', category: 'Domain' },
+                            { name: 'Diversity Recruiting', requirement: 'Required', proficiency: 'Proficient', category: 'Domain' },
+                            { name: 'Communication', requirement: 'Required', proficiency: 'Expert', category: 'Communication' },
+                            { name: 'Negotiation', requirement: 'Preferred', proficiency: 'Proficient', category: 'Communication' }
+                        ],
+                        parsedRoles: ['Recruiting', 'HR'], seniority: 'Senior', addedAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'sample-job-2', title: 'Talent Acquisition Manager', company: 'HubSpot',
+                        sourceUrl: '', sourceNote: 'Sample job for demo',
+                        rawText: 'Talent Acquisition Manager at HubSpot. Lead a team of recruiters supporting our engineering and product organizations.',
+                        parsedSkills: [
+                            { name: 'Talent Pipeline', requirement: 'Required', proficiency: 'Expert', category: 'Domain' },
+                            { name: 'Team Leadership', requirement: 'Required', proficiency: 'Expert', category: 'Leadership' },
+                            { name: 'Workforce Planning', requirement: 'Required', proficiency: 'Expert', category: 'Domain' },
+                            { name: 'Applicant Tracking System', requirement: 'Required', proficiency: 'Expert', category: 'Technical' },
+                            { name: 'Recruitment Marketing', requirement: 'Required', proficiency: 'Proficient', category: 'Domain' },
+                            { name: 'Stakeholder Management', requirement: 'Required', proficiency: 'Expert', category: 'Leadership' },
+                            { name: 'Budgeting', requirement: 'Preferred', proficiency: 'Proficient', category: 'Business' },
+                            { name: 'Strategic Planning', requirement: 'Required', proficiency: 'Proficient', category: 'Business' },
+                            { name: 'Vendor Management', requirement: 'Preferred', proficiency: 'Competent', category: 'Business' },
+                            { name: 'Data Analysis', requirement: 'Required', proficiency: 'Proficient', category: 'Technical' },
+                            { name: 'Employer Branding', requirement: 'Required', proficiency: 'Expert', category: 'Domain' },
+                            { name: 'Change Management', requirement: 'Preferred', proficiency: 'Competent', category: 'Leadership' },
+                            { name: 'Cross-Functional Collaboration', requirement: 'Required', proficiency: 'Expert', category: 'Leadership' },
+                            { name: 'Presentation', requirement: 'Preferred', proficiency: 'Proficient', category: 'Communication' }
+                        ],
+                        parsedRoles: ['Talent Acquisition', 'Leadership'], seniority: 'Senior', addedAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'sample-job-3', title: 'Head of Recruiting', company: 'Scale AI',
+                        sourceUrl: '', sourceNote: 'Sample job for demo',
+                        rawText: 'Head of Recruiting at Scale AI. Build and lead our entire recruiting function from the ground up.',
+                        parsedSkills: [
+                            { name: 'Full-Cycle Recruiting', requirement: 'Required', proficiency: 'Mastery', category: 'Domain' },
+                            { name: 'Team Leadership', requirement: 'Required', proficiency: 'Expert', category: 'Leadership' },
+                            { name: 'Strategic Planning', requirement: 'Required', proficiency: 'Expert', category: 'Business' },
+                            { name: 'Workforce Planning', requirement: 'Required', proficiency: 'Expert', category: 'Domain' },
+                            { name: 'Executive Presence', requirement: 'Required', proficiency: 'Expert', category: 'Leadership' },
+                            { name: 'Talent Pipeline', requirement: 'Required', proficiency: 'Mastery', category: 'Domain' },
+                            { name: 'Employer Branding', requirement: 'Required', proficiency: 'Expert', category: 'Domain' },
+                            { name: 'P&L Management', requirement: 'Preferred', proficiency: 'Proficient', category: 'Business' },
+                            { name: 'Diversity Recruiting', requirement: 'Required', proficiency: 'Expert', category: 'Domain' },
+                            { name: 'Sourcing', requirement: 'Required', proficiency: 'Expert', category: 'Domain' },
+                            { name: 'Applicant Tracking System', requirement: 'Required', proficiency: 'Expert', category: 'Technical' },
+                            { name: 'Data Analysis', requirement: 'Required', proficiency: 'Proficient', category: 'Technical' },
+                            { name: 'Stakeholder Management', requirement: 'Required', proficiency: 'Mastery', category: 'Leadership' },
+                            { name: 'Innovation', requirement: 'Preferred', proficiency: 'Expert', category: 'Business' },
+                            { name: 'Change Management', requirement: 'Required', proficiency: 'Expert', category: 'Leadership' }
+                        ],
+                        parsedRoles: ['Talent Acquisition', 'Executive'], seniority: 'Executive', addedAt: new Date().toISOString()
+                    }
+                ];
+            } else if (isProduct) {
+                jobs = [
+                    {
+                        id: 'sample-job-1', title: 'Senior Product Manager', company: 'Notion',
+                        sourceUrl: '', sourceNote: 'Sample job for demo',
+                        rawText: 'Senior Product Manager at Notion. Own the product strategy and roadmap for our collaboration features.',
+                        parsedSkills: [
+                            { name: 'Product Management', requirement: 'Required', proficiency: 'Expert', category: 'Domain' },
+                            { name: 'Roadmap', requirement: 'Required', proficiency: 'Expert', category: 'Domain' },
+                            { name: 'A/B Testing', requirement: 'Required', proficiency: 'Proficient', category: 'Technical' },
+                            { name: 'User Research', requirement: 'Required', proficiency: 'Proficient', category: 'Domain' },
+                            { name: 'Data Analysis', requirement: 'Required', proficiency: 'Proficient', category: 'Technical' },
+                            { name: 'Stakeholder Management', requirement: 'Required', proficiency: 'Expert', category: 'Leadership' },
+                            { name: 'Agile', requirement: 'Required', proficiency: 'Expert', category: 'Technical' },
+                            { name: 'SQL', requirement: 'Preferred', proficiency: 'Competent', category: 'Technical' },
+                            { name: 'Go-to-Market', requirement: 'Required', proficiency: 'Proficient', category: 'Business' },
+                            { name: 'Cross-Functional Collaboration', requirement: 'Required', proficiency: 'Expert', category: 'Leadership' },
+                            { name: 'Strategic Planning', requirement: 'Preferred', proficiency: 'Proficient', category: 'Business' },
+                            { name: 'Communication', requirement: 'Required', proficiency: 'Expert', category: 'Communication' }
+                        ],
+                        parsedRoles: ['Product', 'Strategy'], seniority: 'Senior', addedAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'sample-job-2', title: 'Director of Product', company: 'Figma',
+                        sourceUrl: '', sourceNote: 'Sample job for demo',
+                        rawText: 'Director of Product at Figma. Lead the product vision for our design platform.',
+                        parsedSkills: [
+                            { name: 'Product Management', requirement: 'Required', proficiency: 'Mastery', category: 'Domain' },
+                            { name: 'Team Leadership', requirement: 'Required', proficiency: 'Expert', category: 'Leadership' },
+                            { name: 'Strategic Planning', requirement: 'Required', proficiency: 'Expert', category: 'Business' },
+                            { name: 'Roadmap', requirement: 'Required', proficiency: 'Mastery', category: 'Domain' },
+                            { name: 'User Research', requirement: 'Required', proficiency: 'Expert', category: 'Domain' },
+                            { name: 'Go-to-Market', requirement: 'Required', proficiency: 'Expert', category: 'Business' },
+                            { name: 'Executive Presence', requirement: 'Required', proficiency: 'Expert', category: 'Leadership' },
+                            { name: 'Data Analysis', requirement: 'Required', proficiency: 'Expert', category: 'Technical' },
+                            { name: 'Innovation', requirement: 'Preferred', proficiency: 'Expert', category: 'Business' },
+                            { name: 'Budgeting', requirement: 'Required', proficiency: 'Proficient', category: 'Business' },
+                            { name: 'Cross-Functional Collaboration', requirement: 'Required', proficiency: 'Mastery', category: 'Leadership' },
+                            { name: 'Presentation', requirement: 'Required', proficiency: 'Expert', category: 'Communication' }
+                        ],
+                        parsedRoles: ['Product', 'Leadership'], seniority: 'Senior', addedAt: new Date().toISOString()
+                    }
+                ];
+            } else {
+                // Strategy/Advisory/Executive profiles (default)
+                jobs = [
+                    {
+                        id: 'sample-job-1', title: 'VP of Strategy & Innovation', company: 'Workday',
+                        sourceUrl: '', sourceNote: 'Sample job for demo',
+                        rawText: 'VP of Strategy & Innovation at Workday. Lead our transformation initiatives and strategic planning.',
+                        parsedSkills: [
+                            { name: 'Strategic Planning', requirement: 'Required', proficiency: 'Mastery', category: 'Business' },
+                            { name: 'Innovation', requirement: 'Required', proficiency: 'Expert', category: 'Business' },
+                            { name: 'Digital Transformation', requirement: 'Required', proficiency: 'Expert', category: 'Business' },
+                            { name: 'Thought Leadership', requirement: 'Required', proficiency: 'Expert', category: 'Communication' },
+                            { name: 'Stakeholder Management', requirement: 'Required', proficiency: 'Mastery', category: 'Leadership' },
+                            { name: 'Executive Presence', requirement: 'Required', proficiency: 'Expert', category: 'Leadership' },
+                            { name: 'Change Management', requirement: 'Required', proficiency: 'Expert', category: 'Leadership' },
+                            { name: 'Market Analysis', requirement: 'Required', proficiency: 'Expert', category: 'Business' },
+                            { name: 'P&L Management', requirement: 'Preferred', proficiency: 'Proficient', category: 'Business' },
+                            { name: 'Competitive Analysis', requirement: 'Required', proficiency: 'Expert', category: 'Business' },
+                            { name: 'Presentation', requirement: 'Required', proficiency: 'Expert', category: 'Communication' },
+                            { name: 'Public Speaking', requirement: 'Required', proficiency: 'Expert', category: 'Communication' },
+                            { name: 'Team Leadership', requirement: 'Required', proficiency: 'Expert', category: 'Leadership' },
+                            { name: 'Business Strategy', requirement: 'Required', proficiency: 'Mastery', category: 'Business' }
+                        ],
+                        parsedRoles: ['Strategy', 'Executive'], seniority: 'Executive', addedAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'sample-job-2', title: 'Chief Strategy Officer', company: 'Phenom',
+                        sourceUrl: '', sourceNote: 'Sample job for demo',
+                        rawText: 'Chief Strategy Officer at Phenom. Define and execute the companys long-term strategic vision.',
+                        parsedSkills: [
+                            { name: 'Business Strategy', requirement: 'Required', proficiency: 'Mastery', category: 'Business' },
+                            { name: 'Strategic Planning', requirement: 'Required', proficiency: 'Mastery', category: 'Business' },
+                            { name: 'Executive Presence', requirement: 'Required', proficiency: 'Mastery', category: 'Leadership' },
+                            { name: 'Market Analysis', requirement: 'Required', proficiency: 'Expert', category: 'Business' },
+                            { name: 'Competitive Analysis', requirement: 'Required', proficiency: 'Expert', category: 'Business' },
+                            { name: 'Financial Analysis', requirement: 'Required', proficiency: 'Expert', category: 'Business' },
+                            { name: 'Team Leadership', requirement: 'Required', proficiency: 'Mastery', category: 'Leadership' },
+                            { name: 'Innovation', requirement: 'Required', proficiency: 'Mastery', category: 'Business' },
+                            { name: 'Digital Transformation', requirement: 'Required', proficiency: 'Expert', category: 'Business' },
+                            { name: 'Change Management', requirement: 'Required', proficiency: 'Expert', category: 'Leadership' },
+                            { name: 'Thought Leadership', requirement: 'Required', proficiency: 'Mastery', category: 'Communication' },
+                            { name: 'Public Speaking', requirement: 'Required', proficiency: 'Expert', category: 'Communication' },
+                            { name: 'P&L Management', requirement: 'Required', proficiency: 'Expert', category: 'Business' },
+                            { name: 'Cross-Functional Collaboration', requirement: 'Required', proficiency: 'Expert', category: 'Leadership' },
+                            { name: 'Stakeholder Management', requirement: 'Required', proficiency: 'Mastery', category: 'Leadership' }
+                        ],
+                        parsedRoles: ['Strategy', 'Executive'], seniority: 'Executive', addedAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'sample-job-3', title: 'Director of AI Strategy', company: 'Deloitte',
+                        sourceUrl: '', sourceNote: 'Sample job for demo',
+                        rawText: 'Director of AI Strategy at Deloitte. Advise Fortune 500 clients on AI adoption and transformation.',
+                        parsedSkills: [
+                            { name: 'Artificial Intelligence', requirement: 'Required', proficiency: 'Expert', category: 'Technical' },
+                            { name: 'Strategic Planning', requirement: 'Required', proficiency: 'Expert', category: 'Business' },
+                            { name: 'Digital Transformation', requirement: 'Required', proficiency: 'Expert', category: 'Business' },
+                            { name: 'Stakeholder Management', requirement: 'Required', proficiency: 'Expert', category: 'Leadership' },
+                            { name: 'Thought Leadership', requirement: 'Required', proficiency: 'Expert', category: 'Communication' },
+                            { name: 'Presentation', requirement: 'Required', proficiency: 'Expert', category: 'Communication' },
+                            { name: 'Business Strategy', requirement: 'Required', proficiency: 'Expert', category: 'Business' },
+                            { name: 'Data Analysis', requirement: 'Required', proficiency: 'Proficient', category: 'Technical' },
+                            { name: 'Innovation', requirement: 'Required', proficiency: 'Expert', category: 'Business' },
+                            { name: 'Change Management', requirement: 'Required', proficiency: 'Proficient', category: 'Leadership' },
+                            { name: 'Market Research', requirement: 'Preferred', proficiency: 'Proficient', category: 'Business' },
+                            { name: 'Client Relations', requirement: 'Required', proficiency: 'Expert', category: 'Communication' },
+                            { name: 'Public Speaking', requirement: 'Required', proficiency: 'Expert', category: 'Communication' }
+                        ],
+                        parsedRoles: ['Strategy', 'Data'], seniority: 'Senior', addedAt: new Date().toISOString()
+                    }
+                ];
+            }
+            
+            // Score each job against the profile
+            jobs.forEach(function(job) {
+                job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles });
+            });
+            
+            console.log('📋 Injected ' + jobs.length + ' sample jobs for ' + profileName);
+            return jobs;
+        }
+        
         function loadTemplate(templateId) {
             const template = templates[templateId];
             if (!template) {
@@ -5739,8 +6005,14 @@
                     minimumMatchScore: 50
                 },
                 applications: [],
+                savedJobs: template.savedJobs ? JSON.parse(JSON.stringify(template.savedJobs)) : [],
                 templateId: templateId  // Store which template this is
             };
+            
+            // Inject sample jobs for demo profiles if none provided in template
+            if (userData.savedJobs.length === 0 && templateId.indexOf('demo') !== -1) {
+                userData.savedJobs = getSampleJobsForProfile(templateId, template);
+            }
             
             console.log('  → userData.skills[0] has evidence:', userData.skills[0].evidence ? `YES (${userData.skills[0].evidence.length} items)` : 'NO');
             
@@ -8729,6 +9001,21 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             }
             
             body.innerHTML = bodyHTML;
+            
+            // Add action bar at bottom of modal
+            var actionsHtml = '<div style="display:flex; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">'
+                + '<button onclick="closeSkillModal(); openEditSkillModal(\'' + skillName.replace(/'/g, "\\'") + '\', \'' + (skillData.category || 'unique') + '\');" '
+                + 'style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
+                + '✏️ Edit Skill</button>'
+                + '<button onclick="closeSkillModal(); openAssessSkillModal(\'' + skillName.replace(/'/g, "\\'") + '\');" '
+                + 'style="padding:10px 20px; background:rgba(96,165,250,0.15); color:var(--accent); border:1px solid rgba(96,165,250,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
+                + '📝 Assess</button>'
+                + '<button onclick="if(confirm(\'Remove ' + skillName.replace(/'/g, "\\'") + ' from your profile?\')){deleteSkillFromProfile(\'' + skillName.replace(/'/g, "\\'") + '\'); closeSkillModal();}" '
+                + 'style="margin-left:auto; padding:10px 16px; background:none; color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
+                + '🗑 Remove</button>'
+                + '</div>';
+            body.innerHTML += actionsHtml;
+            
             history.pushState({ modal: true }, ''); modal.classList.add('active');
         }
         
@@ -16399,7 +16686,13 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             
             // Populate form
             document.getElementById('editSkillName').value = skill.name;
-            document.querySelector(`input[name="editSkillLevel"][value="${skill.level}"]`).checked = true;
+            var levelRadio = document.querySelector('input[name="editSkillLevel"][value="' + skill.level + '"]');
+            if (levelRadio) levelRadio.checked = true;
+            else {
+                // Fallback: try to find closest match
+                var fb = document.querySelector('input[name="editSkillLevel"][value="Proficient"]');
+                if (fb) fb.checked = true;
+            }
             document.getElementById('editSkillCore').checked = skill.key || false;
             
             // Populate roles
@@ -16420,8 +16713,20 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             currentEditingSkill = null;
         }
         
+        function deleteSkillFromProfile(skillName) {
+            var idx = userData.skills.findIndex(function(s) { return s.name === skillName; });
+            if (idx === -1) return;
+            userData.skills.splice(idx, 1);
+            var sdIdx = skillsData.skills.findIndex(function(s) { return s.name === skillName; });
+            if (sdIdx !== -1) skillsData.skills.splice(sdIdx, 1);
+            saveUserData();
+            rescoreAllJobs();
+            refreshAllViews();
+            showToast('Removed "' + skillName + '" from profile.', 'info');
+        }
+        window.deleteSkillFromProfile = deleteSkillFromProfile;
+        
         function saveSkillEdit() {
-            if (readOnlyGuard()) return;
             if (!currentEditingSkill) return;
             
             const skill = userData.skills.find(s => s.name === currentEditingSkill);
