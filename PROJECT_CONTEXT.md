@@ -1,6 +1,6 @@
 # Work Blueprint — Project Context
 
-**Version:** v4.3.0 | **Build:** 20260218-0500 | **Lines:** ~15,990 | **Functions:** ~318
+**Version:** v4.3.1 | **Build:** 20260218-0510 | **Lines:** ~16,240 | **Functions:** ~312
 **Repository:** https://github.com/cliffj8338/Skills-Ontology
 **Live:** https://cliffj8338.github.io/Skills-Ontology/
 **Creator:** Cliff Jurkiewicz
@@ -354,11 +354,16 @@ Each saved job in `userData.savedJobs[]`:
 
 **Local Fallback (`parseJobLocally`):**
 - No API key needed
-- Matches JD text against: user's skills, skill library index, common skill keywords
-- Uses context analysis for requirement level classification
-- Extracts title from first meaningful lines
-- Infers seniority from title keywords
-- Less nuanced but functional
+- **Title extraction:** Skips meta lines (Summary, Posted, Generated, etc.), prioritizes lines containing role keywords (Manager, Director, etc.), scans first 15 lines
+- **Company extraction:** Matches "Company:", "About [Company]" patterns
+- **Four-pass skill extraction:**
+  1. Match user's own skill names against JD text
+  2. Match O*NET skill library index if loaded
+  3. 100+ skill keyword dictionary covering Recruiting/Talent, HR, PM, Leadership, Communication, Technical, Data, Business, Strategy, Marketing, Soft Skills
+  4. Phrase-level extraction from bullet-pointed requirement lines using regex patterns for "X years experience in Y", "proficiency in Y", "strong Y skills"
+- **Word-overlap fuzzy matching:** If 50%+ of words in a job skill appear in a user skill name, counts as a match at reduced quality
+- Requirement level classification from surrounding context (Required/Preferred/Nice-to-have)
+- Seniority and functional role inference
 
 ### Match Algorithm (`matchJobToProfile`)
 - Builds lowercase lookup map of user skills + word variants
@@ -369,9 +374,12 @@ Each saved job in `userData.savedJobs[]`:
 
 ### UI Components
 - `showAddJobModal()` — paste JD + source URL/note + optional API key (collapsible)
-- `renderSavedJobs()` — pipeline list with match bars and skill counts
-- `showJobDetail(idx)` — full breakdown: matched/gaps/surplus skill chips
-- `removeJob(idx)` — confirm and delete from pipeline
+- `renderSavedJobs()` — pipeline list with match bars, skill counts, edit/remove buttons per card
+- `showJobDetail(idx)` — full breakdown: matched/gaps/surplus skill chips, with header action bar
+- `editJobInfo(idx)` — modal to edit title, company, source URL, source note
+- `saveJobEdit(idx)` — persists edits to userData and Firestore
+- `reanalyzeJob(idx)` — re-runs parser (API or local) against stored raw JD text, updates match data
+- `removeJob(idx)` — confirm and delete from pipeline, clears active overlay if affected
 
 ### Persistence
 - `userData.savedJobs` saved to Firestore (signed in) or localStorage
@@ -507,6 +515,7 @@ Skills-Ontology/
 | v4.1.0-0400 | 20260218 | Mobile responsive + Values descriptions/notes + Consent fixes + Export consolidation |
 | v4.2.0-0430 | 20260218 | Job Cart: JD analysis (Claude API + local fallback), match scoring, pipeline UI, Firestore persistence |
 | v4.3.0-0500 | 20260218 | Job Cart Phase 2: Network overlay (You/Job/Match toggle), job-only network, match visualization with legend |
+| v4.3.1-0510 | 20260218 | Parser rebuild: 100+ skill dictionary, phrase extraction, better title parsing. Edit/delete/re-analyze on jobs. Fuzzy word-overlap matching. |
 
 ---
 
@@ -570,6 +579,12 @@ Skills-Ontology/
 - [x] Network Overlay: State preserved when navigating away and back
 - [x] Network Overlay: Mobile responsive (legend above nav, badge compact)
 - [x] Bug fix: toggleSkillsView and initNetworkWithHighlight used wrong CSS selector (.role-chip → .view-pill)
+- [x] Parser rebuild: 100+ skill keyword dictionary, four-pass extraction, phrase-level skill mining
+- [x] Parser: smarter title extraction (skip meta lines, prefer role keywords)
+- [x] Matcher: word-overlap fuzzy matching with quality weighting
+- [x] Job management: edit info modal (title, company, URL, note)
+- [x] Job management: re-analyze button (re-runs parser against stored JD text)
+- [x] Job management: edit/remove buttons visible on pipeline cards and detail view header
 
 ---
 

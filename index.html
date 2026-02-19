@@ -11032,11 +11032,16 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                     + '</div>';
                 
                 // Delete button
-                html += '<div style="margin-top:8px; text-align:right;">'
+                html += '<div style="margin-top:8px; display:flex; justify-content:flex-end; gap:8px;">'
+                    + '<button onclick="event.stopPropagation(); editJobInfo(' + idx + ')" style="'
+                    + 'background:none; border:1px solid var(--border); color:var(--text-muted); font-size:0.75em; '
+                    + 'cursor:pointer; padding:4px 10px; border-radius:5px;" '
+                    + 'onmouseover="this.style.color=\'var(--accent)\'" onmouseout="this.style.color=\'var(--text-muted)\'">\u270E Edit</button>'
                     + '<button onclick="event.stopPropagation(); removeJob(' + idx + ')" style="'
-                    + 'background:none; border:none; color:var(--text-muted); font-size:0.75em; cursor:pointer; '
-                    + 'opacity:0.5; padding:2px 8px;" onmouseover="this.style.opacity=1;this.style.color=\'#ef4444\'" '
-                    + 'onmouseout="this.style.opacity=0.5;this.style.color=\'var(--text-muted)\'">Remove</button>'
+                    + 'background:none; border:1px solid rgba(239,68,68,0.2); color:var(--text-muted); font-size:0.75em; '
+                    + 'cursor:pointer; padding:4px 10px; border-radius:5px;" '
+                    + 'onmouseover="this.style.color=\'#ef4444\';this.style.borderColor=\'rgba(239,68,68,0.5)\'" '
+                    + 'onmouseout="this.style.color=\'var(--text-muted)\';this.style.borderColor=\'rgba(239,68,68,0.2)\'">\u2715 Remove</button>'
                     + '</div>';
                 
                 html += '</div>';
@@ -11278,27 +11283,47 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             var text = jdText.toLowerCase();
             var lines = jdText.split('\n');
             
-            // Extract title from first meaningful line
+            // ===== TITLE EXTRACTION =====
+            // Skip meta lines, find first line that looks like a job title
             var title = '';
             var company = '';
-            for (var i = 0; i < Math.min(lines.length, 5); i++) {
+            var skipPatterns = /^(about|we are|our |the |at |join|summary|generated|posted|apply|location|date|salary|benefits|equal|eeo|disclaimer|copyright|\d+\s*(day|hour|week|ago))/i;
+            var titlePatterns = /\b(manager|director|lead|head|chief|vp|vice|president|senior|junior|engineer|designer|developer|analyst|recruiter|coordinator|specialist|consultant|architect|strategist|officer|partner|associate|advisor|scientist)\b/i;
+            
+            for (var i = 0; i < Math.min(lines.length, 15); i++) {
                 var line = lines[i].trim();
-                if (line.length > 5 && line.length < 120 && !line.match(/^(about|we are|our|the|at |join)/i)) {
-                    if (!title) title = line.replace(/^(job title|position|role|opening)[\s:]+/i, '');
-                    else if (!company && line.length < 60) company = line.replace(/^(company|at|employer)[\s:]+/i, '');
-                    if (title && company) break;
+                if (line.length < 5 || line.length > 150) continue;
+                if (skipPatterns.test(line)) continue;
+                
+                // Prefer lines that contain a role keyword
+                if (!title && titlePatterns.test(line)) {
+                    title = line.replace(/^(job title|position|role|opening|title)[\s:\-]+/i, '').trim();
+                    continue;
+                }
+                // Otherwise take the first substantial non-meta line
+                if (!title && line.length > 8 && line.length < 120) {
+                    title = line;
                 }
             }
             
-            // Match against skill library
+            // Try to extract company from common patterns
+            var companyMatch = jdText.match(/(?:company|employer|organization|at)\s*[:|\-]?\s*([A-Z][A-Za-z0-9\s&.,]+)/);
+            if (companyMatch) company = companyMatch[1].trim().substring(0, 60);
+            if (!company) {
+                // Try "About [Company]" pattern
+                var aboutMatch = jdText.match(/about\s+([A-Z][A-Za-z0-9\s&]+?)(?:\n|\.|\,)/);
+                if (aboutMatch && aboutMatch[1].length < 50) company = aboutMatch[1].trim();
+            }
+            
+            // ===== SKILL EXTRACTION =====
             var skillMatches = [];
             var seen = new Set();
             var allSkills = skillsData.skills || [];
             
-            // First pass: exact name matches
+            // First pass: match user's own skill names in JD text
             allSkills.forEach(function(skill) {
                 var skillLower = skill.name.toLowerCase();
-                if (text.indexOf(skillLower) !== -1 && !seen.has(skillLower)) {
+                if (skillLower.length > 3 && text.indexOf(skillLower) !== -1 && !seen.has(skillLower)) {
                     seen.add(skillLower);
                     skillMatches.push({
                         name: skill.name,
@@ -11323,21 +11348,91 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 });
             }
             
-            // Third pass: common skill keywords
-            var commonSkills = [
-                'Project Management', 'Strategic Planning', 'Data Analysis', 'Team Leadership',
-                'Communication', 'Problem Solving', 'Stakeholder Management', 'Budgeting',
-                'Agile', 'Scrum', 'Python', 'JavaScript', 'SQL', 'Machine Learning',
-                'Product Management', 'UX Design', 'Business Development', 'Sales Strategy',
-                'Change Management', 'Cross-Functional Collaboration', 'Negotiation',
-                'Public Speaking', 'Technical Writing', 'Cloud Computing', 'DevOps'
+            // Third pass: comprehensive skill keyword dictionary
+            var skillDictionary = [
+                // Recruiting & Talent
+                'Talent Acquisition', 'Full-Cycle Recruiting', 'Sourcing', 'Boolean Search', 'Candidate Experience',
+                'Employer Branding', 'Applicant Tracking System', 'ATS', 'Onboarding', 'Workforce Planning',
+                'Diversity Recruiting', 'Campus Recruiting', 'Executive Search', 'Headhunting', 'Interviewing',
+                'Offer Negotiation', 'Recruitment Marketing', 'Talent Pipeline', 'Screening', 'Reference Checking',
+                // HR
+                'Human Resources', 'Employee Relations', 'Performance Management', 'Compensation', 'Benefits Administration',
+                'HRIS', 'Succession Planning', 'Organizational Development', 'Compliance', 'Labor Relations',
+                'Employee Engagement', 'Retention', 'Training and Development', 'Learning and Development',
+                // Project & Program Management
+                'Project Management', 'Program Management', 'Strategic Planning', 'Roadmap', 'Risk Management',
+                'Agile', 'Scrum', 'Kanban', 'Waterfall', 'Sprint Planning', 'JIRA', 'Confluence',
+                'Stakeholder Management', 'Change Management', 'Process Improvement', 'Continuous Improvement',
+                // Leadership
+                'Team Leadership', 'People Management', 'Cross-Functional Collaboration', 'Mentoring',
+                'Coaching', 'Executive Presence', 'Decision Making', 'Conflict Resolution', 'Delegation',
+                // Communication
+                'Communication', 'Presentation', 'Public Speaking', 'Technical Writing', 'Copywriting',
+                'Storytelling', 'Negotiation', 'Persuasion', 'Active Listening', 'Relationship Building',
+                // Technical
+                'Python', 'JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL', 'NoSQL',
+                'AWS', 'Azure', 'GCP', 'Cloud Computing', 'DevOps', 'CI/CD', 'Docker', 'Kubernetes',
+                'Machine Learning', 'Artificial Intelligence', 'Data Science', 'Data Engineering',
+                'API Design', 'Microservices', 'System Design', 'Architecture',
+                // Data & Analytics
+                'Data Analysis', 'Business Intelligence', 'Tableau', 'Power BI', 'Excel',
+                'SQL', 'Reporting', 'Dashboards', 'KPI', 'Metrics', 'Forecasting', 'Modeling',
+                // Business
+                'Business Development', 'Sales Strategy', 'Account Management', 'Pipeline Management',
+                'Revenue Growth', 'Client Relations', 'Customer Success', 'Market Research',
+                'Product Management', 'UX Design', 'User Research', 'A/B Testing', 'Go-to-Market',
+                'Budgeting', 'Financial Analysis', 'P&L Management', 'Vendor Management',
+                // Strategy
+                'Strategy', 'Innovation', 'Transformation', 'Digital Transformation', 'Thought Leadership',
+                'Competitive Analysis', 'Market Analysis', 'Business Strategy', 'GTM Strategy',
+                // Marketing
+                'Content Marketing', 'SEO', 'SEM', 'Social Media', 'Email Marketing', 'Brand Strategy',
+                'Demand Generation', 'Lead Generation', 'Marketing Automation', 'CRM',
+                // Soft Skills
+                'Problem Solving', 'Critical Thinking', 'Analytical Thinking', 'Attention to Detail',
+                'Time Management', 'Adaptability', 'Creativity', 'Emotional Intelligence',
+                'Collaboration', 'Teamwork', 'Self-Motivation', 'Results-Oriented'
             ];
-            commonSkills.forEach(function(skill) {
+            
+            skillDictionary.forEach(function(skill) {
                 var lower = skill.toLowerCase();
                 if (text.indexOf(lower) !== -1 && !seen.has(lower)) {
                     seen.add(lower);
                     skillMatches.push({ name: skill, level: classifyRequirementLevel(text, lower), category: 'General' });
                 }
+            });
+            
+            // Fourth pass: extract phrase-level skills from requirement lines
+            // Look for bullet-pointed or numbered requirements
+            var reqLines = jdText.split('\n').filter(function(line) {
+                return /^\s*[\u2022\u2023\u25E6\u2043\-\*\u2713\u2714]\s|^\s*\d+[\.\)]\s|^\s*[a-z][\.\)]\s/i.test(line);
+            });
+            
+            // Common skill-indicator phrases in requirements
+            var phrasePatterns = [
+                /(\d+)\+?\s*years?\s+(?:of\s+)?(?:experience\s+(?:in|with)\s+)?(.+?)(?:\.|,|;|$)/gi,
+                /(?:proficien|experienc|knowledge|expertise|skill|familiar)\w*\s+(?:in|with|of)\s+(.+?)(?:\.|,|;|$)/gi,
+                /(?:strong|excellent|proven|demonstrated)\s+(.+?)(?:\s+(?:skills?|abilities?|experience))(?:\.|,|;|$)/gi
+            ];
+            
+            reqLines.forEach(function(line) {
+                phrasePatterns.forEach(function(pat) {
+                    var m;
+                    pat.lastIndex = 0;
+                    while ((m = pat.exec(line)) !== null) {
+                        var extracted = (m[2] || m[1] || '').trim();
+                        // Clean up and split on conjunctions
+                        extracted.split(/\s*(?:and|or|,)\s*/).forEach(function(phrase) {
+                            phrase = phrase.replace(/^\s*(?:a|an|the)\s+/i, '').trim();
+                            if (phrase.length > 2 && phrase.length < 50 && !seen.has(phrase.toLowerCase())) {
+                                seen.add(phrase.toLowerCase());
+                                // Capitalize first letter of each word
+                                var clean = phrase.replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+                                skillMatches.push({ name: clean, level: classifyRequirementLevel(text, phrase.toLowerCase()), category: 'Extracted' });
+                            }
+                        });
+                    }
+                });
             });
             
             // Determine seniority
@@ -11404,18 +11499,46 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 totalWeight += weight;
                 
                 var jLower = jobSkill.name.toLowerCase();
+                var jWords = jLower.split(/[\s\-\/]+/).filter(function(w) { return w.length > 2; });
                 var found = null;
+                var matchQuality = 0; // 0-1
                 
                 // Exact match
                 if (userMap[jLower]) {
                     found = userMap[jLower];
-                } else {
-                    // Fuzzy: check if job skill is contained in or contains a user skill
+                    matchQuality = 1.0;
+                }
+                
+                // Fuzzy: substring containment
+                if (!found) {
                     for (var key in userMap) {
-                        if (key.length > 4 && (jLower.indexOf(key) !== -1 || key.indexOf(jLower) !== -1)) {
+                        if (key.length > 3 && (jLower.indexOf(key) !== -1 || key.indexOf(jLower) !== -1)) {
                             found = userMap[key];
+                            matchQuality = 0.8;
                             break;
                         }
+                    }
+                }
+                
+                // Word overlap: if 50%+ of job skill words appear in a user skill name
+                if (!found && jWords.length > 0) {
+                    var bestOverlap = 0;
+                    var bestSkill = null;
+                    userSkills.forEach(function(s) {
+                        var uWords = s.name.toLowerCase().split(/[\s\-\/]+/).filter(function(w) { return w.length > 2; });
+                        var overlap = 0;
+                        jWords.forEach(function(jw) {
+                            if (uWords.some(function(uw) { return uw.indexOf(jw) !== -1 || jw.indexOf(uw) !== -1; })) overlap++;
+                        });
+                        var score = overlap / Math.max(jWords.length, 1);
+                        if (score > bestOverlap && score >= 0.5) {
+                            bestOverlap = score;
+                            bestSkill = s;
+                        }
+                    });
+                    if (bestSkill) {
+                        found = bestSkill;
+                        matchQuality = bestOverlap * 0.7;
                     }
                 }
                 
@@ -11423,7 +11546,7 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                     // Proficiency bonus
                     var profBonus = found.level === 'Mastery' ? 1.0 : found.level === 'Expert' ? 0.9 :
                         found.level === 'Advanced' ? 0.75 : found.level === 'Proficient' ? 0.6 : 0.4;
-                    earnedWeight += weight * profBonus;
+                    earnedWeight += weight * profBonus * matchQuality;
                     matched.push({ jobSkill: jobSkill.name, userSkill: found.name, level: found.level, 
                         requirement: jobSkill.level, category: jobSkill.category });
                     matchedUserSkills.add(found.name.toLowerCase());
@@ -11468,10 +11591,17 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             var el = document.getElementById('jobsSubTabContent');
             if (!el) return;
             
-            var html = '<div style="margin-bottom:16px;">'
+            var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">'
                 + '<button onclick="renderJobsSubTab()" style="background:none; border:none; color:var(--accent); '
                 + 'cursor:pointer; font-size:0.88em; padding:0;">\u2190 Back to Pipeline</button>'
-                + '</div>';
+                + '<div style="display:flex; gap:8px;">'
+                + '<button onclick="editJobInfo(' + idx + ')" style="background:none; border:1px solid var(--border); '
+                + 'color:var(--text-muted); padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.78em;">\u270E Edit Info</button>'
+                + '<button onclick="reanalyzeJob(' + idx + ')" style="background:none; border:1px solid var(--border); '
+                + 'color:var(--text-muted); padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.78em;">\u21BB Re-analyze</button>'
+                + '<button onclick="removeJob(' + idx + ')" style="background:none; border:1px solid rgba(239,68,68,0.3); '
+                + 'color:#ef4444; padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.78em;">\u2715 Delete</button>'
+                + '</div></div>';
             
             // Header
             html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; flex-wrap:wrap; gap:16px;">'
@@ -11563,10 +11693,131 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             userData.savedJobs.splice(idx, 1);
             saveUserData();
             if (fbUser) saveToFirestore();
+            // Clear overlay if this was the active job
+            if (activeJobForNetwork && activeJobForNetwork.id === (userData.savedJobs[idx] || {}).id) {
+                clearJobOverlay();
+            }
             window.opportunitiesInitialized = false;
             switchView('opportunities');
         }
         window.removeJob = removeJob;
+        
+        function editJobInfo(idx) {
+            var job = (userData.savedJobs || [])[idx];
+            if (!job) return;
+            
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content');
+            
+            mc.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">Edit Job Info</h2>'
+                + '</div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:24px;">'
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
+                + '<div>'
+                + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Job Title</label>'
+                + '<input id="editJobTitle" value="' + (job.title || '').replace(/"/g, '&quot;') + '" style="'
+                + 'width:100%; padding:10px 12px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; '
+                + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
+                + '</div>'
+                + '<div>'
+                + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Company</label>'
+                + '<input id="editJobCompany" value="' + (job.company || '').replace(/"/g, '&quot;') + '" style="'
+                + 'width:100%; padding:10px 12px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; '
+                + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
+                + '</div></div>'
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;">'
+                + '<div>'
+                + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Source URL</label>'
+                + '<input id="editJobUrl" value="' + (job.sourceUrl || '').replace(/"/g, '&quot;') + '" style="'
+                + 'width:100%; padding:10px 12px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; '
+                + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
+                + '</div>'
+                + '<div>'
+                + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Source Note</label>'
+                + '<input id="editJobNote" value="' + (job.sourceNote || '').replace(/"/g, '&quot;') + '" style="'
+                + 'width:100%; padding:10px 12px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; '
+                + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
+                + '</div></div>'
+                + '<div style="display:flex; gap:12px; justify-content:flex-end; margin-top:20px;">'
+                + '<button onclick="closeExportModal()" style="'
+                + 'background:transparent; color:var(--text-muted); border:1px solid var(--border); '
+                + 'padding:10px 20px; border-radius:8px; cursor:pointer; font-size:0.9em;">Cancel</button>'
+                + '<button onclick="saveJobEdit(' + idx + ')" style="'
+                + 'background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:8px; '
+                + 'cursor:pointer; font-weight:600; font-size:0.9em;">Save Changes</button>'
+                + '</div></div>';
+            
+            modal.classList.add('active');
+        }
+        window.editJobInfo = editJobInfo;
+        
+        function saveJobEdit(idx) {
+            var job = (userData.savedJobs || [])[idx];
+            if (!job) return;
+            
+            job.title = (document.getElementById('editJobTitle').value || '').trim() || job.title;
+            job.company = (document.getElementById('editJobCompany').value || '').trim();
+            job.sourceUrl = (document.getElementById('editJobUrl').value || '').trim();
+            job.sourceNote = (document.getElementById('editJobNote').value || '').trim();
+            
+            saveUserData();
+            if (fbUser) saveToFirestore();
+            closeExportModal();
+            showJobDetail(idx);
+            showToast('Job info updated.', 'success');
+        }
+        window.saveJobEdit = saveJobEdit;
+        
+        function reanalyzeJob(idx) {
+            var job = (userData.savedJobs || [])[idx];
+            if (!job || !job.rawText) {
+                showToast('No raw JD text saved for this job.', 'warning');
+                return;
+            }
+            
+            var apiKey = localStorage.getItem('wbAnthropicKey') || '';
+            
+            // Re-parse
+            var statusEl = document.getElementById('jobsSubTabContent');
+            var origHtml = statusEl.innerHTML;
+            statusEl.innerHTML = '<div style="text-align:center; padding:60px 20px;">'
+                + '<div class="loading-spinner" style="width:30px; height:30px; border-width:2px; margin:0 auto 12px;"></div>'
+                + '<div style="color:var(--text-muted);">Re-analyzing job description...</div></div>';
+            
+            (async function() {
+                try {
+                    var parsed;
+                    if (apiKey) {
+                        parsed = await parseJobWithAPI(job.rawText, apiKey);
+                    } else {
+                        parsed = parseJobLocally(job.rawText);
+                    }
+                    
+                    var matchData = matchJobToProfile(parsed);
+                    
+                    // Update job
+                    job.parsedSkills = parsed.skills || [];
+                    job.parsedRoles = parsed.roles || [];
+                    job.matchData = matchData;
+                    if (parsed.title && parsed.title !== 'Untitled Position') job.title = parsed.title;
+                    if (parsed.company) job.company = parsed.company;
+                    
+                    saveUserData();
+                    if (fbUser) saveToFirestore();
+                    
+                    showJobDetail(idx);
+                    showToast('Re-analyzed: ' + matchData.score + '% match with ' + (matchData.matched || []).length + ' skills.', 'success', 5000);
+                } catch (err) {
+                    statusEl.innerHTML = origHtml;
+                    showToast('Re-analysis failed: ' + (err.message || 'Unknown error'), 'error');
+                }
+            })();
+        }
+        window.reanalyzeJob = reanalyzeJob;
         
         function updateMatchThreshold(value) {
             currentMatchThreshold = parseInt(value);
