@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.7.0 | 20260219 | Audit fixes: dead code removal, history nav, resize handler, profile state resets -->
+    <!-- v4.8.0 | 20260219 | Splash screen, save indicator, photo upload, read-only enforcement, CORS fallback -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -3152,6 +3152,20 @@
         [data-theme="light"] .readonly-banner {
             background: rgba(217,119,6,0.08); border-color: rgba(217,119,6,0.2); color: #b45309;
         }
+        /* Read-only mode: hide mutation controls on sample profiles */
+        .readonly-mode .skill-item[onclick*="openSkillModal"] { cursor: default; }
+        .readonly-mode .edit-skill-btn,
+        .readonly-mode .assess-skill-btn,
+        .readonly-mode [onclick*="openSkillManagement"],
+        .readonly-mode [onclick*="openCustomSkillBuilder"],
+        .readonly-mode [onclick*="openONETPicker"],
+        .readonly-mode [onclick*="addApplicationModal"],
+        .readonly-mode [onclick*="showOnboardingWizard"],
+        .readonly-mode [onclick*="saveSettings"],
+        .readonly-mode [onclick*="editValue"],
+        .readonly-mode [onclick*="removeSelected"],
+        .readonly-mode [onclick*="addCustomValue"],
+        .readonly-mode [onclick*="saveAll"] { opacity: 0.35; pointer-events: none; }
         .welcome-hero {
             max-width: 720px; margin: 60px auto; padding: 0 24px; text-align: center;
         }
@@ -3195,6 +3209,33 @@
     </style>
 </head>
 <body>
+    <!-- Loading Splash -->
+    <div id="appSplash" style="position:fixed; inset:0; z-index:999999; background:var(--bg, #0a0a1a); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:20px; transition:opacity 0.4s ease;">
+        <div style="display:flex; align-items:center; gap:14px;">
+            <svg width="40" height="40" viewBox="0 0 100 100" style="filter: drop-shadow(0 0 20px rgba(96,165,250,0.3));">
+                <defs><linearGradient id="splashGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient></defs>
+                <circle cx="50" cy="50" r="8" fill="url(#splashGrad)"/>
+                <circle cx="50" cy="20" r="5" fill="#f472b6" opacity="0.8"/>
+                <circle cx="76" cy="35" r="5" fill="#34d399" opacity="0.8"/>
+                <circle cx="76" cy="65" r="5" fill="#fbbf24" opacity="0.8"/>
+                <circle cx="50" cy="80" r="5" fill="#a78bfa" opacity="0.8"/>
+                <circle cx="24" cy="65" r="5" fill="#fb923c" opacity="0.8"/>
+                <circle cx="24" cy="35" r="5" fill="#22d3ee" opacity="0.8"/>
+                <line x1="50" y1="50" x2="50" y2="20" stroke="#60a5fa" stroke-width="1" opacity="0.3"/>
+                <line x1="50" y1="50" x2="76" y2="35" stroke="#60a5fa" stroke-width="1" opacity="0.3"/>
+                <line x1="50" y1="50" x2="76" y2="65" stroke="#60a5fa" stroke-width="1" opacity="0.3"/>
+                <line x1="50" y1="50" x2="50" y2="80" stroke="#60a5fa" stroke-width="1" opacity="0.3"/>
+                <line x1="50" y1="50" x2="24" y2="65" stroke="#60a5fa" stroke-width="1" opacity="0.3"/>
+                <line x1="50" y1="50" x2="24" y2="35" stroke="#60a5fa" stroke-width="1" opacity="0.3"/>
+            </svg>
+            <span style="font-family:'Outfit',sans-serif; font-size:1.6em; font-weight:700; color:var(--accent, #60a5fa); letter-spacing:0.05em;">BLUEPRINT<span style="font-size:0.6em; vertical-align:super;">™</span></span>
+        </div>
+        <div style="width:120px; height:2px; background:rgba(96,165,250,0.15); border-radius:2px; overflow:hidden;">
+            <div id="splashProgress" style="width:0%; height:100%; background:linear-gradient(90deg,#60a5fa,#3b82f6); border-radius:2px; transition:width 0.3s ease;"></div>
+        </div>
+        <script>setTimeout(function(){var s=document.getElementById('appSplash');if(s){s.style.opacity='0';setTimeout(function(){s.remove()},400)}},8000);</script>
+    </div>
+
     <!-- Toast Notification Container -->
     <div id="toastContainer"></div>
     
@@ -3264,6 +3305,9 @@
 
             <!-- Hidden select for backward-compat with switchProfile() -->
             <select id="profileSelector" onchange="switchProfile(this.value)" style="display:none;"></select>
+
+            <!-- Save indicator -->
+            <span id="saveIndicator" style="font-size:0.72em; color:var(--text-muted); opacity:0; transition:opacity 0.3s; white-space:nowrap; margin-right:4px;"></span>
 
             <!-- More menu -->
             <button class="more-btn" onclick="toggleOverflowMenu(event)" id="overflowMenuBtn" title="More options">···</button>
@@ -4293,6 +4337,8 @@
         // ===== FIRESTORE PERSISTENCE =====
         function saveToFirestore() {
             if (!fbDb || !fbUser) return Promise.resolve(false);
+            var si = document.getElementById('saveIndicator');
+            if (si) { si.textContent = '☁ Saving...'; si.style.opacity = '0.6'; si.style.color = 'var(--text-muted)'; }
             
             var uid = fbUser.uid;
             var data = {
@@ -4317,10 +4363,14 @@
             return fbDb.collection('users').doc(uid).set(data, { merge: true })
                 .then(function() {
                     console.log('☁ Saved to Firestore');
+                    var si = document.getElementById('saveIndicator');
+                    if (si) { si.textContent = '☁ Saved'; si.style.opacity = '1'; si.style.color = '#10b981'; setTimeout(function() { si.style.opacity = '0'; }, 2500); }
                     return true;
                 })
                 .catch(function(err) {
                     console.error('Firestore save error:', err);
+                    var si = document.getElementById('saveIndicator');
+                    if (si) { si.textContent = '⚠ Save failed'; si.style.opacity = '1'; si.style.color = '#ef4444'; setTimeout(function() { si.style.opacity = '0'; }, 4000); }
                     return false;
                 });
         }
@@ -4548,6 +4598,7 @@
 
         // ===== ENHANCED SAVE (Firestore + localStorage) =====
         function saveAll() {
+            if (readOnlyGuard()) return;
             saveValues(); // localStorage for values
             if (fbUser && fbDb) {
                 saveToFirestore();
@@ -4562,6 +4613,9 @@
             var templateId = userData.templateId || '';
             var isSample = templateId.indexOf('demo') !== -1 || templateId.indexOf('sample') !== -1;
             isReadOnlyProfile = isSample && !fbIsAdmin;
+            
+            // Toggle body class for CSS-based enforcement
+            document.body.classList.toggle('readonly-mode', isReadOnlyProfile);
             
             // Show/hide readonly banner
             var banner = document.getElementById('readonlyBanner');
@@ -4582,6 +4636,13 @@
             }
         }
         window.checkReadOnly = checkReadOnly;
+        function readOnlyGuard() {
+            if (isReadOnlyProfile) {
+                showToast('This is a read-only sample profile. Create your own to make changes.', 'warning');
+                return true;
+            }
+            return false;
+        }
 
         // ===== WELCOME / LANDING PAGE =====
         function renderWelcomePage() {
@@ -5706,6 +5767,8 @@
                 
                 // STEP 1: Load profiles manifest
                 console.log('📋 Loading profiles manifest...');
+                var sp = document.getElementById('splashProgress');
+                if (sp) sp.style.width = '20%';
                 const manifest = await fetch(`profiles-manifest.json${cacheBust}`).then(r => r.json());
                 window.profilesManifest = manifest; // Store for profile selector
                 
@@ -5728,6 +5791,7 @@
                 templates['blank'] = blankTemplate;
                 
                 console.log(`✓ Profile loading complete: ${enabledProfiles.length} profiles ready`);
+                if (sp) sp.style.width = '60%';
                 
                 // STEP 4: Build profile selector dropdown
                 buildProfileSelector(enabledProfiles);
@@ -7885,6 +7949,17 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Final deferred dropdown rebuild - guarantees manifest + auth are both resolved
             setTimeout(function() { rebuildProfileDropdown(); }, 500);
+            
+            // Dismiss splash screen
+            var splash = document.getElementById('appSplash');
+            if (splash) {
+                var sp2 = document.getElementById('splashProgress');
+                if (sp2) sp2.style.width = '100%';
+                setTimeout(function() {
+                    splash.style.opacity = '0';
+                    setTimeout(function() { splash.remove(); }, 400);
+                }, 300);
+            }
         }); // Close DOMContentLoaded
         
         var _skipHistoryPush = false;
@@ -12931,11 +13006,12 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             `;
             
             // Fetch from multiple sources simultaneously
+            var _apiFailCount = 0;
             Promise.all([
-                fetchRemoteOKJobs().catch(e => { console.error('RemoteOK failed:', e); return []; }),
-                fetchRemotiveJobs().catch(e => { console.error('Remotive failed:', e); return []; }),
-                fetchArbeitnowJobs().catch(e => { console.error('Arbeitnow failed:', e); return []; }),
-                fetchWeWorkRemotelyJobs().catch(e => { console.error('WeWorkRemotely failed:', e); return []; })
+                fetchRemoteOKJobs().catch(e => { _apiFailCount++; console.error('RemoteOK failed:', e); return []; }),
+                fetchRemotiveJobs().catch(e => { _apiFailCount++; console.error('Remotive failed:', e); return []; }),
+                fetchArbeitnowJobs().catch(e => { _apiFailCount++; console.error('Arbeitnow failed:', e); return []; }),
+                fetchWeWorkRemotelyJobs().catch(e => { _apiFailCount++; console.error('WeWorkRemotely failed:', e); return []; })
             ]).then(results => {
                 // Combine and deduplicate
                 const allJobs = results.flat();
@@ -12952,29 +13028,27 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 // Sort by match score
                 opportunitiesData.sort((a, b) => b.matchScore - a.matchScore);
                 
-                console.log(`Total jobs after deduplication: ${opportunitiesData.length}`);
+                console.log(`Total jobs after dedup: ${opportunitiesData.length}, APIs failed: ${_apiFailCount}/4`);
                 
                 if (opportunitiesData.length === 0) {
-                    resultsDiv.innerHTML = `
-                        <div class="loading-state">
-                            <p style="font-size: 1.2em;">No jobs match your criteria</p>
-                            <p style="margin-top: 10px; color: #9ca3af;">
-                                Current settings:
-                                <br>• Seniority: ${userData.preferences.seniorityLevel}
-                                <br>• Min Match Score: ${userData.preferences.minimumMatchScore}%
-                                <br>• Min Skills: ${userData.preferences.minimumSkillMatches}
-                                <br><br>
-                                <strong style="color: #60a5fa;">💡 TIP:</strong> Lower the match threshold above to <strong>0-20%</strong> to see ALL jobs (including ones you're overqualified for).
-                                <br><br>
-                                Or try:
-                                <br>• Adjusting preferences in Settings tab
-                                <br>• Checking back later
-                            </p>
-                            <button class="action-btn" onclick="loadSampleData()" style="margin-top: 20px;">
-                                View Sample Jobs Instead
-                            </button>
-                        </div>
-                    `;
+                    // Distinguish CORS/network failures from no-match
+                    var isCorsIssue = _apiFailCount >= 3;
+                    resultsDiv.innerHTML = '<div class="loading-state">'
+                        + (isCorsIssue
+                            ? '<p style="font-size:1.2em; margin-bottom:12px;">Job board APIs are unavailable</p>'
+                              + '<p style="color:var(--text-muted); line-height:1.7; max-width:500px; margin:0 auto;">'
+                              + 'External job boards (RemoteOK, Remotive, ArbeitNow) block direct browser requests. '
+                              + 'This is a known limitation of client-side job search.</p>'
+                              + '<div style="margin-top:20px; padding:16px; background:var(--accent-glow); border:1px solid var(--border); border-radius:10px; text-align:left; max-width:420px; margin-left:auto; margin-right:auto;">'
+                              + '<p style="font-weight:600; color:var(--accent); margin-bottom:8px;">What you can do instead:</p>'
+                              + '<p style="color:var(--text-secondary); line-height:1.6; font-size:0.92em;">'
+                              + '1. Paste a job description in <strong>Your Jobs → Analyze a Job</strong> to get skill matching<br>'
+                              + '2. Manually add jobs you find on LinkedIn, Indeed, etc.<br>'
+                              + '3. Use the Application Tracker to manage your pipeline</p></div>'
+                            : '<p style="font-size:1.2em;">No jobs match your current criteria</p>'
+                              + '<p style="margin-top:10px; color:var(--text-muted);">'
+                              + 'Try lowering the match threshold or adjusting preferences in Settings.</p>')
+                        + '</div>';
                     return;
                 }
                 
@@ -13205,11 +13279,6 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 console.error('Arbeitnow fetch error:', error);
                 return [];
             }
-        }
-        
-        function viewOpportunityDetail(jobId) {
-            const job = opportunitiesData.find(j => j.id === jobId);
-            showToast(`${job.title} at ${job.company}: ${job.matchScore}% match, ${job.matchedSkills.length} skills matched. Detail view coming soon.`, 'info', 5000);
         }
         
         function generatePitch(jobId) {
@@ -13623,6 +13692,30 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                                value="${userData.profile.name}" 
                                placeholder="Enter your name">
                         <div class="settings-help">This appears in the header and exports</div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label class="settings-label">Profile Photo</label>
+                        <div style="display:flex; align-items:center; gap:16px;">
+                            <div id="settingPhotoPreview" onclick="document.getElementById('settingPhotoInput').click()" 
+                                 style="width:64px; height:64px; border-radius:50%; background:var(--accent); color:#fff; 
+                                        display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.2em;
+                                        cursor:pointer; overflow:hidden; border:2px solid var(--border); flex-shrink:0;
+                                        ${userData.profile.photo ? 'padding:0' : ''}">
+                                ${userData.profile.photo 
+                                    ? '<img src="' + userData.profile.photo + '" style="width:100%;height:100%;object-fit:cover;">' 
+                                    : (userData.profile.name || 'U').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase()}
+                            </div>
+                            <div>
+                                <button onclick="document.getElementById('settingPhotoInput').click()" 
+                                        style="background:var(--accent-glow); border:1px solid var(--border); color:var(--text-primary); padding:6px 14px; border-radius:6px; cursor:pointer; font-size:0.85em;">
+                                    Upload Photo
+                                </button>
+                                ${userData.profile.photo ? '<button onclick="removeProfilePhoto()" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:0.82em; margin-left:8px;">Remove</button>' : ''}
+                                <input type="file" id="settingPhotoInput" accept="image/*" onchange="handleProfilePhoto(this)" style="display:none;">
+                                <div class="settings-help" style="margin-top:4px;">Max 200KB, resized to 128px</div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="settings-group">
@@ -14644,7 +14737,55 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 + '</div></div>';
         }
         
+        function handleProfilePhoto(input) {
+            var file = input.files[0];
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) { showToast('Image must be under 2MB.', 'warning'); return; }
+            
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var img = new Image();
+                img.onload = function() {
+                    // Resize to 128x128
+                    var canvas = document.createElement('canvas');
+                    canvas.width = 128; canvas.height = 128;
+                    var ctx = canvas.getContext('2d');
+                    var size = Math.min(img.width, img.height);
+                    var sx = (img.width - size) / 2;
+                    var sy = (img.height - size) / 2;
+                    ctx.drawImage(img, sx, sy, size, size, 0, 0, 128, 128);
+                    var dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    
+                    userData.profile.photo = dataUrl;
+                    // Update preview
+                    var preview = document.getElementById('settingPhotoPreview');
+                    if (preview) preview.innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;object-fit:cover;">';
+                    // Update header chip
+                    var avatar = document.getElementById('profileAvatar');
+                    if (avatar) { avatar.innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'; }
+                    saveUserData();
+                    showToast('Profile photo updated.', 'success');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        window.handleProfilePhoto = handleProfilePhoto;
+        
+        function removeProfilePhoto() {
+            delete userData.profile.photo;
+            var avatar = document.getElementById('profileAvatar');
+            if (avatar) avatar.textContent = (userData.profile.name || 'U').split(' ').map(function(w){ return w[0]; }).join('').slice(0,2).toUpperCase();
+            saveUserData();
+            // Re-render settings
+            window.settingsInitialized = false;
+            initSettings();
+            window.settingsInitialized = true;
+        }
+        window.removeProfilePhoto = removeProfilePhoto;
+
         function saveSettings() {
+            if (readOnlyGuard()) return;
             // Get values from form
             userData.profile.name = document.getElementById('settingName').value;
             userData.profile.email = document.getElementById('settingEmail').value;
@@ -15512,6 +15653,7 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
         }
         
         function createCustomSkill() {
+            if (readOnlyGuard()) return;
             const name = document.getElementById('customSkillName').value.trim();
             const level = document.querySelector('input[name="customSkillLevel"]:checked').value;
             const core = document.getElementById('customSkillCore').checked;
@@ -15587,6 +15729,7 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
         }
         
         function saveSkillEdit() {
+            if (readOnlyGuard()) return;
             if (!currentEditingSkill) return;
             
             const skill = userData.skills.find(s => s.name === currentEditingSkill);
@@ -15715,6 +15858,7 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
         }
         
         function saveSkillAssessment() {
+            if (readOnlyGuard()) return;
             if (!currentAssessingSkill) return;
             
             const skill = userData.skills.find(s => s.name === currentAssessingSkill);
@@ -16432,7 +16576,13 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
             const avatar = document.getElementById('profileAvatar');
             const chipName = document.getElementById('profileChipName');
-            if (avatar) avatar.textContent = initials;
+            if (avatar) {
+                if (userData.profile && userData.profile.photo) {
+                    avatar.innerHTML = '<img src="' + userData.profile.photo + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+                } else {
+                    avatar.textContent = initials;
+                }
+            }
             if (chipName) chipName.textContent = name;
             document.title = name + ' \u2014 Blueprint\u2122';
         }
