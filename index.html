@@ -4715,6 +4715,7 @@
             ctx.scale(dpr, dpr);
             var W = rect.width;
             var H = rect.height;
+            var centerX = W / 2, centerY = H / 2;
             
             var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
             var colors = ['#60a5fa', '#f472b6', '#34d399', '#fbbf24', '#a78bfa', '#fb923c', '#22d3ee', '#f87171'];
@@ -4723,69 +4724,101 @@
             var nodes = [];
             var numNodes = 40;
             
-            // Center
-            nodes.push({ x: W/2, y: H/2, homeX: W/2, homeY: H/2, r: 20, color: '#60a5fa', alpha: 0.95, label: 'YOU', isCenter: true, isHub: false, domain: -1 });
+            // Center - fixed sun
+            nodes.push({ angle: 0, dist: 0, speed: 0, r: 20, color: '#60a5fa', alpha: 0.95, label: 'YOU', isCenter: true, isHub: false, domain: -1, x: centerX, y: centerY });
             
-            // Domain hubs - fixed positions
+            // Domain hubs - planets in distinct orbital bands
+            // Spread across 3 orbital bands so they have room
+            // Inner band (~58-68), middle band (~78-90), outer band (~100-115)
+            var hubConfigs = [
+                { dist: 60,  speed: -0.085, band: 0 }, // Strategy
+                { dist: 105, speed: -0.032, band: 2 }, // Leadership
+                { dist: 80,  speed: -0.052, band: 1 }, // Analytics
+                { dist: 68,  speed: -0.072, band: 0 }, // Innovation
+                { dist: 92,  speed: -0.042, band: 1 }, // Communication
+                { dist: 112, speed: -0.028, band: 2 }, // Technology
+                { dist: 75,  speed: -0.058, band: 1 }, // Operations
+                { dist: 100, speed: -0.035, band: 2 }, // Finance
+            ];
+            
             for (var d = 0; d < 8; d++) {
-                var angle = (d / 8) * Math.PI * 2 - Math.PI / 2;
-                var dist = 72 + Math.random() * 28;
-                var bx = W/2 + Math.cos(angle) * dist;
-                var by = H/2 + Math.sin(angle) * dist;
-                nodes.push({ x: bx, y: by, homeX: bx, homeY: by, r: 11 + Math.random() * 4, color: colors[d], alpha: 0.7, label: domainNames[d], isCenter: false, isHub: true, domain: d });
+                var cfg = hubConfigs[d];
+                // Spread starting angles more evenly with mild jitter
+                var baseAngle = (d / 8) * Math.PI * 2 - Math.PI / 2;
+                var jitter = (Math.random() - 0.5) * 0.3;
+                nodes.push({
+                    angle: baseAngle + jitter, dist: cfg.dist,
+                    speed: cfg.speed, baseSpeed: cfg.speed,
+                    r: 11 + Math.random() * 4, color: colors[d], alpha: 0.7,
+                    label: domainNames[d], isCenter: false, isHub: true, domain: d,
+                    x: 0, y: 0
+                });
             }
             
-            // Skill nodes - fixed positions
+            // Skill nodes - satellites
             for (var i = 9; i < numNodes; i++) {
                 var dom = Math.floor(Math.random() * 8);
                 var parentIdx = dom + 1;
-                var spread = 25 + Math.random() * 55;
+                var parent = nodes[parentIdx];
+                var spread = 18 + Math.random() * 45;
                 var a = Math.random() * Math.PI * 2;
-                var bx = nodes[parentIdx].homeX + Math.cos(a) * spread;
-                var by = nodes[parentIdx].homeY + Math.sin(a) * spread;
-                nodes.push({ x: bx, y: by, homeX: bx, homeY: by, r: 2.5 + Math.random() * 3.5, color: colors[dom], alpha: 0.35 + Math.random() * 0.3, label: '', isCenter: false, isHub: false, domain: dom });
+                var localX = Math.cos(parent.angle) * parent.dist + Math.cos(a) * spread;
+                var localY = Math.sin(parent.angle) * parent.dist + Math.sin(a) * spread;
+                var nodeDist = Math.sqrt(localX * localX + localY * localY);
+                var nodeAngle = Math.atan2(localY, localX);
+                var speedVar = 1 + (Math.random() - 0.5) * 0.25;
+                nodes.push({
+                    angle: nodeAngle, dist: nodeDist,
+                    speed: parent.speed * speedVar, baseSpeed: parent.speed * speedVar,
+                    r: 2.5 + Math.random() * 3.5, color: colors[dom],
+                    alpha: 0.35 + Math.random() * 0.3, label: '',
+                    isCenter: false, isHub: false, domain: dom, x: 0, y: 0
+                });
             }
             
-            // Links + adjacency
+            // Links
             var links = [];
-            var adjacency = {};
-            function addLink(a, b, str) {
-                links.push({ source: a, target: b, strength: str });
-                if (!adjacency[a]) adjacency[a] = [];
-                if (!adjacency[b]) adjacency[b] = [];
-                adjacency[a].push(b);
-                adjacency[b].push(a);
-            }
-            for (var d = 1; d <= 8; d++) addLink(0, d, 0.6);
+            for (var d = 1; d <= 8; d++) links.push({ source: 0, target: d, strength: 0.6 });
             for (var i = 9; i < numNodes; i++) {
-                addLink(nodes[i].domain + 1, i, 0.3);
+                links.push({ source: nodes[i].domain + 1, target: i, strength: 0.3 });
                 if (Math.random() < 0.12) {
                     var od = Math.floor(Math.random() * 8) + 1;
-                    if (od !== nodes[i].domain + 1) addLink(i, od, 0.08);
+                    if (od !== nodes[i].domain + 1) links.push({ source: i, target: od, strength: 0.08 });
                 }
             }
             
-            // Click simulation state
-            var clickedNode = -1;
-            var clickNeighbors = [];
-            var clickPhase = 0;
-            var clickTimer = 2.5;
-            var clickDuration = 2.5;
-            var clickElapsed = 0;
-            var skillIndices = [];
-            for (var i = 9; i < numNodes; i++) skillIndices.push(i);
+            // Minimum distance between hub centers (sum of radii + padding)
+            var HUB_MIN_DIST = 38;
+            var HUB_REPEL_RANGE = 65;
             
-            function pickClick() {
-                clickedNode = skillIndices[Math.floor(Math.random() * skillIndices.length)];
-                var nb = (adjacency[clickedNode] || []).filter(function(n) { return n > 0; });
-                if (nb.length < 3) {
-                    var same = skillIndices.filter(function(si) { return si !== clickedNode && nodes[si].domain === nodes[clickedNode].domain; });
-                    for (var j = 0; j < 2 && nb.length < 4; j++) {
-                        if (same[j] && nb.indexOf(same[j]) === -1) nb.push(same[j]);
-                    }
+            // === CLICK-EMIT PARTICLES ===
+            var particles = [];
+            var clickedNode = -1;
+            var clickGlow = 0;
+            var clickTimer = 1.2;
+            var emitDone = false;
+            var clickable = [];
+            for (var i = 1; i < numNodes; i++) clickable.push(i);
+            
+            function startClick() {
+                clickedNode = clickable[Math.floor(Math.random() * clickable.length)];
+                clickGlow = 0; emitDone = false; particles = [];
+            }
+            
+            function emitParticles() {
+                var n = nodes[clickedNode];
+                var count = 3 + Math.floor(Math.random() * 2);
+                for (var i = 0; i < count; i++) {
+                    var angle = (i / count) * Math.PI * 2 + (Math.random() * 0.5 - 0.25);
+                    var speed = 28 + Math.random() * 18;
+                    particles.push({
+                        ox: 0, oy: 0,
+                        tx: Math.cos(angle) * speed, ty: Math.sin(angle) * speed,
+                        r: 2 + Math.random() * 1.5, color: n.color,
+                        phase: 0, progress: 0
+                    });
                 }
-                clickNeighbors = nb.slice(0, 4);
-                clickElapsed = 0;
+                emitDone = true;
             }
             
             var animId = null;
@@ -4795,69 +4828,122 @@
                 var dt = Math.min((now - lastTime) / 1000, 0.05);
                 lastTime = now;
                 
-                // Click timing
-                if (clickedNode === -1) {
-                    clickTimer -= dt;
-                    if (clickTimer <= 0) { pickClick(); clickTimer = 4 + Math.random() * 3; }
-                } else {
-                    clickElapsed += dt;
-                    var p = clickElapsed / clickDuration;
-                    if (p >= 1) { clickedNode = -1; clickNeighbors = []; clickPhase = 0; }
-                    else { clickPhase = Math.sin(p * Math.PI); }
+                // Update hub angles
+                for (var i = 1; i <= 8; i++) {
+                    nodes[i].speed = nodes[i].baseSpeed; // reset to base each frame
                 }
                 
-                // Position nodes: neighbors offset from home, everyone else at home
+                // Hub-hub gravitational repulsion (angular nudge)
+                for (var i = 1; i <= 8; i++) {
+                    for (var j = i + 1; j <= 8; j++) {
+                        var ni = nodes[i], nj = nodes[j];
+                        // Compute current positions
+                        var xi = centerX + Math.cos(ni.angle) * ni.dist;
+                        var yi = centerY + Math.sin(ni.angle) * ni.dist;
+                        var xj = centerX + Math.cos(nj.angle) * nj.dist;
+                        var yj = centerY + Math.sin(nj.angle) * nj.dist;
+                        var dx = xj - xi, dy = yj - yi;
+                        var dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (dist < HUB_REPEL_RANGE) {
+                            // Repulsion strength: stronger as they get closer
+                            var strength = (1 - dist / HUB_REPEL_RANGE);
+                            strength = strength * strength * 0.15; // quadratic falloff
+                            
+                            // Determine which direction to nudge angularly
+                            // Cross product of position vectors tells us relative angular order
+                            var cross = Math.cos(ni.angle) * Math.sin(nj.angle) - Math.sin(ni.angle) * Math.cos(nj.angle);
+                            
+                            if (cross > 0) {
+                                // j is ahead of i angularly - push i back, j forward
+                                ni.speed -= strength;
+                                nj.speed += strength;
+                            } else {
+                                ni.speed += strength;
+                                nj.speed -= strength;
+                            }
+                            
+                            // Also nudge orbital distance apart slightly
+                            if (dist < HUB_MIN_DIST) {
+                                var pushStr = (1 - dist / HUB_MIN_DIST) * 8;
+                                if (ni.dist <= nj.dist) {
+                                    ni.dist = Math.max(50, ni.dist - pushStr * dt);
+                                    nj.dist = Math.min(120, nj.dist + pushStr * dt);
+                                } else {
+                                    nj.dist = Math.max(50, nj.dist - pushStr * dt);
+                                    ni.dist = Math.min(120, ni.dist + pushStr * dt);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Apply orbital motion
                 for (var i = 1; i < nodes.length; i++) {
                     var n = nodes[i];
-                    if (clickPhase > 0 && clickedNode >= 0 && clickNeighbors.indexOf(i) !== -1) {
-                        var cn = nodes[clickedNode];
-                        var dx = n.homeX - cn.homeX;
-                        var dy = n.homeY - cn.homeY;
-                        var d = Math.sqrt(dx * dx + dy * dy) || 1;
-                        var offset = clickPhase * 8;
-                        n.x += ((n.homeX + (dx / d) * offset) - n.x) * 0.1;
-                        n.y += ((n.homeY + (dy / d) * offset) - n.y) * 0.1;
-                    } else {
-                        n.x += (n.homeX - n.x) * 0.08;
-                        n.y += (n.homeY - n.y) * 0.08;
+                    n.angle += n.speed * dt;
+                    n.x = centerX + Math.cos(n.angle) * n.dist;
+                    n.y = centerY + Math.sin(n.angle) * n.dist;
+                }
+                
+                // Click state machine
+                if (clickedNode === -1) {
+                    clickTimer -= dt;
+                    if (clickTimer <= 0) { startClick(); clickTimer = 1.2 + Math.random() * 0.8; }
+                } else {
+                    clickGlow = Math.min(clickGlow + dt * 4.5, 1);
+                    if (!emitDone && clickGlow >= 0.45) emitParticles();
+                    var allDone = emitDone;
+                    for (var i = 0; i < particles.length; i++) {
+                        var p = particles[i];
+                        p.progress += dt * 1.3;
+                        if (p.progress < 0.45) {
+                            var t = p.progress / 0.45;
+                            var ease = t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2;
+                            p.ox = p.tx * ease; p.oy = p.ty * ease; p.phase = 0; allDone = false;
+                        } else if (p.progress < 0.55) {
+                            p.ox = p.tx; p.oy = p.ty; p.phase = 1; allDone = false;
+                        } else if (p.progress < 1.0) {
+                            var t = (p.progress - 0.55) / 0.45;
+                            var ease = t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2;
+                            p.ox = p.tx * (1 - ease); p.oy = p.ty * (1 - ease); p.phase = 2; allDone = false;
+                        } else { p.ox = 0; p.oy = 0; p.phase = 3; }
+                    }
+                    if (allDone && emitDone) {
+                        clickGlow = Math.max(clickGlow - dt * 3.5, 0);
+                        if (clickGlow <= 0) { clickedNode = -1; particles = []; }
                     }
                 }
                 
                 ctx.clearRect(0, 0, W, H);
                 
-                // Links - static appearance
+                // Draw links
                 for (var i = 0; i < links.length; i++) {
                     var l = links[i]; var s = nodes[l.source]; var e = nodes[l.target];
                     var dx = e.x - s.x; var dy = e.y - s.y;
                     var dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist > 170) continue;
-                    var alpha = l.strength * (1 - dist / 170) * 0.6;
+                    if (dist > 180) continue;
+                    var alpha = l.strength * (1 - dist / 180) * 0.6;
                     ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(e.x, e.y);
                     ctx.strokeStyle = isDark ? 'rgba(96,165,250,1)' : 'rgba(37,99,235,1)';
                     ctx.globalAlpha = alpha * 0.35; ctx.lineWidth = 1;
                     ctx.stroke(); ctx.globalAlpha = 1;
                 }
                 
-                // Nodes - static except clicked node gets subtle brightening
+                // Draw nodes
                 for (var i = nodes.length - 1; i >= 0; i--) {
                     var n = nodes[i];
-                    var r = n.r;
-                    var a = n.alpha;
-                    
-                    if (i === clickedNode && clickPhase > 0) {
-                        r = n.r * (1 + 0.15 * clickPhase);
-                        a = Math.min(n.alpha + 0.12 * clickPhase, 1);
-                    }
-                    
-                    if (r > 5) {
-                        ctx.beginPath(); ctx.arc(n.x, n.y, r * 2.5, 0, Math.PI * 2);
-                        ctx.fillStyle = n.color; ctx.globalAlpha = a * 0.07;
+                    var r = n.r; var a = n.alpha;
+                    var isClicked = (i === clickedNode && clickGlow > 0);
+                    if (isClicked) { r = n.r * (1 + 0.25 * clickGlow); a = Math.min(n.alpha + 0.3 * clickGlow, 1); }
+                    if (r > 5 || isClicked) {
+                        ctx.beginPath(); ctx.arc(n.x, n.y, isClicked ? r * 3.5 : r * 2.5, 0, Math.PI * 2);
+                        ctx.fillStyle = n.color; ctx.globalAlpha = isClicked ? a * 0.2 : a * 0.07;
                         ctx.fill(); ctx.globalAlpha = 1;
                     }
                     ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
                     ctx.fillStyle = n.color; ctx.globalAlpha = a;
                     ctx.fill(); ctx.globalAlpha = 1;
-                    
                     if (n.label && (r > 6 || n.isCenter)) {
                         ctx.font = (n.isCenter ? 'bold 10px' : '8.5px') + ' "Outfit", -apple-system, system-ui, sans-serif';
                         ctx.fillStyle = isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)';
@@ -4865,6 +4951,20 @@
                         ctx.fillText(n.label, n.x, n.y + r + 13);
                     }
                 }
+                
+                // Draw particles
+                if (clickedNode >= 0) {
+                    var pn = nodes[clickedNode];
+                    for (var i = 0; i < particles.length; i++) {
+                        var p = particles[i];
+                        if (p.phase >= 3) continue;
+                        var fadeAlpha = p.phase === 2 ? Math.max(0, 1 - (p.progress - 0.55) / 0.45) : 1;
+                        ctx.beginPath(); ctx.arc(pn.x + p.ox, pn.y + p.oy, p.r, 0, Math.PI * 2);
+                        ctx.fillStyle = p.color; ctx.globalAlpha = 0.85 * fadeAlpha;
+                        ctx.fill(); ctx.globalAlpha = 1;
+                    }
+                }
+                
                 animId = requestAnimationFrame(draw);
             }
             
@@ -4876,6 +4976,7 @@
             observer.observe(canvas);
             window._heroNetworkCleanup = function() { if (animId) cancelAnimationFrame(animId); observer.disconnect(); };
         }
+
         function viewSampleProfile() {
             // Show sample profile picker
             var manifest = window.profilesManifest;
