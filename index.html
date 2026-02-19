@@ -5933,9 +5933,7 @@
         window.getValuationLevel = getValuationLevel;
         
         // ===== VERIFICATION SYSTEM (v4.16.0) =====
-        
-        // Initialize verifications array on userData if missing
-        if (!userData.verifications) userData.verifications = [];
+        // Note: userData.verifications initialized in userData declaration and template loading
         
         function requestVerification(skillNames) {
             if (readOnlyGuard()) return;
