@@ -1,5 +1,5 @@
-# PROJECT_CONTEXT.md — Blueprint v4.8.0
-**Updated:** 2026-02-19 | **Lines:** 16,846 | **Functions:** ~315
+# PROJECT_CONTEXT.md — Blueprint v4.10.0
+**Updated:** 2026-02-19 | **Lines:** 17,842 | **Functions:** ~330 | **Braces:** 0 (balanced)
 
 ## Architecture
 
@@ -13,72 +13,28 @@ Single-file SPA (`index.html`) deployed to GitHub Pages. No build step, no bundl
 - Firebase 10.7.0 (auth + Firestore)
 - Google Fonts: Outfit (400/500/600/700) with preconnect
 
-## Key Sections & Line Ranges (approximate)
+---
 
-| Section | Start | Fns | Notes |
-|---------|-------|-----|-------|
-| CSS Styles | 15 | — | ~3200 lines, light/dark themes, readonly-mode rules |
-| Loading Splash | 3198 | — | SVG logo, progress bar, 8s failsafe timeout |
-| HTML Structure | 3230 | — | Nav, modals, controls, footer |
-| Firebase Auth | 3950 | 7 | Google sign-in, email/password, magic link |
-| Firestore Save | 4335 | 2 | saveToFirestore with save indicator, loadUserFromFirestore |
-| Admin Panel | 4530 | 5 | User management (admin-only) |
-| Read-Only System | 4588 | 2 | checkReadOnly, readOnlyGuard; CSS + JS enforcement |
-| Hero Animation | 4730 | 1 | Solar system orbital model, click-emit particles |
-| Sample Profiles | 5010 | 3 | Manifest loading, picker, viewSampleProfile |
-| Profile Switching | 5520 | 4 | switchProfile, saveUserData, rebuildProfileDropdown |
-| App Init | 5760 | 1 | initializeApp: manifest→profiles→auth→splash dismiss |
-| Skill Library | 5640 | 6 | ESCO/O*NET search, category browsing |
-| Onboarding Wizard | 6030 | ~30 | 8-step wizard, resume parsing via Claude API |
-| Network Visualization | 7040 | 15 | D3 force layout, role filtering, node interactions |
-| Card View | 7690 | 3 | initCardView, domain grouping, level badges |
-| View Router | 7960 | 5 | switchView (with pushState), toggleSkillsView, updateStatsBar |
-| Skill Detail Modal | 8440 | 8 | openSkillModal, edit, assess, evidence |
-| Resume Generator | 8700 | 6 | HTML resume, print-to-PDF |
-| Work Blueprint | 8840 | 10 | AI-powered via Claude API |
-| Values System | 9250 | 47 | Evidence matching, notes, ordering |
-| Purpose System | 9850 | 8 | AI generation, manual editing |
-| Export Tab | 10150 | 8 | Cover letter, interview prep, LinkedIn |
-| Cover Letter | 11050 | 6 | AI-powered via Claude API |
-| Interview Prep | 11250 | 6 | AI-powered via Claude API |
-| LinkedIn Profile | 11500 | 6 | AI-powered via Claude API |
-| Opportunities/Jobs | 11750 | 26 | Job search, detail view, bookmarking |
-| Job APIs | 12570 | 3 | RemoteOK, Remotive, ArbeitNow (CORS fallback UI) |
-| Find Jobs Search | 13000 | 2 | searchOpportunities with CORS error detection |
-| Pitch Generator | 13290 | 2 | generatePitch, showPitchModal |
-| Match Overlay | 13420 | 18 | viewOnNetwork, job-to-skill matching visualization |
-| Applications Tracker | 13600 | 9 | Application status tracking |
-| Settings | 13680 | 11 | Profile editing, theme, API key, photo upload |
-| Profile Photo | 14800 | 2 | handleProfilePhoto (resize+crop), removeProfilePhoto |
-| Consent & Sharing | 14600 | 10 | CCPA/GDPR, sharing preferences |
-| Impact/Valuation | 14800 | 12 | Skill market valuation, breakdown |
-| Skill Search/Filter | 14850 | 3 | Network + card view filtering (domain-card aware) |
-| UI Utilities | 15900 | 15 | Toast, legal notice, about, help |
-| Profile Dropdown | 16600 | 5 | Toggle, close, switch, chip (photo-aware) |
-| Filter Panel | 16700 | 3 | Toggle, apply, chip rendering |
-| Resize + History | 16800 | 2 | Debounced resize, popstate handler |
+## Version History (This Session: v4.7.0 → v4.10.0)
 
-## State Management
+### v4.10.0 (current)
+- **Toast CSS fix:** Toast notifications had CSS only inside the resume template JS string, never in the main `<head>`. Toasts rendered unstyled at top-left. Moved full toast CSS into main `<style>` block. Added max 3 toast stacking limit.
+- **Skill editing from all views:** Skill detail modal (network + card view) now has Edit Skill, Assess, and Remove buttons at bottom. Previously edit was only reachable from card view.
+- **Competent proficiency level:** Added missing "Competent" radio button to edit skill modal (was jumping from Novice to Proficient). Now 6 levels: Novice, Competent, Proficient, Advanced, Expert, Mastery.
+- **deleteSkillFromProfile():** New function for removing skills with auto-rescore and view refresh.
+- **Sample jobs for demo profiles:** `getSampleJobsForProfile()` detects profile type by role keywords, injects 2-3 pre-parsed jobs with realistic parsedSkills arrays. Match scores computed live against profile at load time. Recruiter profiles get Stripe/HubSpot/Scale AI jobs. Product profiles get Notion/Figma. Strategy profiles get Workday/Phenom/Deloitte.
+- **Defensive level selection:** `openEditSkillModal` no longer crashes if skill has an unexpected level value.
+- **Read-only relaxed for skill editing:** `saveSkillEdit` no longer blocked by readOnlyGuard, allowing sample profile editing for demo/testing.
 
-### Global Variables
-- `userData` — Current profile (profile, skills, roles, outcomes, values, purpose)
-- `skillsData` — Reference alias to userData.skills / userData.roles
-- `currentView` — Active view ('network','opportunities','applications','blueprint','welcome','settings','consent')
-- `currentSkillsView` — Sub-view ('network' or 'card')
-- `activeRole` — Filtered role ID or 'all'
-- `activeJobForNetwork` — Job object for match overlay, or null
-- `isReadOnlyProfile` — True for sample profiles (non-admin)
-- `fbUser` / `fbDb` / `fbIsAdmin` — Firebase auth state
+### v4.9.0
+- **Skill Library Registry fix (CRITICAL):** All 11 references to `skillLibraryIndex.skills` changed to `.index`. Custom skills, gap-added skills, and role-suggested skills were silently failing to register in the searchable library because `.skills` didn't exist (the real array is `.index`). Now fixed with centralized `registerInSkillLibrary()` helper.
+- **Comprehensive synonym system:** 80+ entries in `SKILL_SYNONYMS` with bidirectional `_synonymLookup` map. Covers recruiting (ATS↔Applicant Tracking System), business (CRM, ERP, GTM, KPI, OKR, FP&A), technical (ML, AI, CI/CD, SQL, AWS), role variants (team leadership↔people management, sourcing↔talent sourcing). Both `matchJobToProfile()` and `calculateMatchScore()` resolve synonyms on BOTH sides.
+- **Enhanced API prompt:** Sends 120 vocabulary terms (user skills + synonym keys) for normalization. Instructs API to use full forms over abbreviations.
+- **Expanded ROLE_SKILL_MAP:** 16 roles (up from 9). Added UX Designer, Customer Success, Operations, Executive, Futurist, Content, General Manager.
+- **Improved getRoleSuggestions():** Keyword-based fallback matching with synonym-aware deduplication.
+- **Job detail view enhancements:** New Proficiency Gaps panel (shows your level vs. required with progress bars). Role Suggestions in job detail (job-gap overlap highlighted). 4-column stats (Matched / Proficiency Gaps / Missing / Surplus).
 
-### Init Flags (all reset on profile switch)
-networkInitialized, cardViewInitialized, blueprintInitialized, opportunitiesInitialized, applicationsInitialized, consentInitialized, settingsInitialized
-
-### localStorage Keys
-currentProfile, wbTheme, wbAnthropicKey, wbValues, wbPurpose, wbMagicLinkEmail
-
-## Version History
-
-### v4.8.0 (current)
+### v4.8.0
 - Loading splash with SVG logo, progress bar, 8s failsafe
 - CORS failure detection in Find Jobs (3+/4 APIs fail → helpful error with alternatives)
 - Read-only enforcement: CSS pointer-events + JS readOnlyGuard() on mutation functions
@@ -92,46 +48,139 @@ currentProfile, wbTheme, wbAnthropicKey, wbValues, wbPurpose, wbMagicLinkEmail
 - C2: Browser back button (pushState/popstate)
 - C3: Neutral profile chip on load
 - C4: Dynamic document title on profile switch
-- H2-H6: Removed 370 lines dead functions
-- H7-H8: Removed dead CSS and pass-through functions
-- M3: Modal back-button close
+- H2-H8: Removed 370+ lines dead functions and CSS
+- M3: Modal back-button close (27 modal opens)
 - M5: Reset activeRole, activeJobForNetwork, search on profile switch
-- M6: Fixed card view search selectors
+- M6: Fixed card view search selectors (was targeting wrong DOM)
 - M9: Preconnect for Google Fonts
 - L5: Removed orphaned localStorage ref
 - L7: Dynamic copyright year
 
-### v4.6.0
-- Wizard→Firestore save, cover letter, interview prep, LinkedIn export
+---
 
-## Known Issues — Remaining
+## Key Sections and Line Ranges (approximate)
 
-### Functional Gaps
-- M4: Minimal accessibility (no keyboard nav, no focus traps, few aria-labels)
-- M8: Job APIs still CORS-blocked (now with graceful fallback UI)
-- L8: Unnecessary initConsent() calls on theme change
-- L9: ~50 console statements need debug flag
+| Section | Start | Notes |
+|---------|-------|-------|
+| CSS Styles | 15 | ~3250 lines incl. toast, readonly-mode, dark/light themes |
+| Loading Splash | 3260 | SVG logo, progress bar, failsafe timeout |
+| HTML Structure | 3295 | Nav, modals (skill, edit, export, O*NET, custom, assess), footer |
+| Toast System | 5075 | showToast (max 3), dismissToast |
+| Firebase Auth | 3950 | Google sign-in, email/password, magic link |
+| Firestore Save | 4335 | saveToFirestore with save indicator |
+| Admin Panel | 4530 | User management (admin-only) |
+| Read-Only System | 4588 | checkReadOnly, readOnlyGuard; CSS + JS enforcement |
+| Hero Animation | 4730 | Solar system orbital model, click-emit particles |
+| Sample Profiles | 5010 | Manifest loading, picker, viewSampleProfile |
+| Profile Switching | 5520 | switchProfile, saveUserData, rebuildProfileDropdown |
+| Sample Jobs | ~5770 | getSampleJobsForProfile (recruiter/product/strategy) |
+| App Init | 5825 | initializeApp: manifest, profiles, auth, splash dismiss |
+| Onboarding Wizard | 6100 | 8-step wizard, resume parsing via Claude API |
+| Network Visualization | 7100 | D3 force layout, role filtering, node interactions |
+| Card View | 7750 | initCardView, domain grouping, role suggestions |
+| View Router | 8020 | switchView (with pushState), toggleSkillsView |
+| Skill Detail Modal | 8604 | openSkillModal (with Edit/Assess/Remove actions) |
+| Resume Generator | 8770 | HTML resume, print-to-PDF |
+| Proficiency Scale | ~12250 | PROFICIENCY_SCALE, proficiencyValue() |
+| Skill Registry Utils | ~12270 | registerInSkillLibrary(), SKILL_SYNONYMS (80+), _synonymLookup, getSkillSynonyms() |
+| Role-Skill Map | ~12400 | ROLE_SKILL_MAP (16 roles), getRoleSuggestions() with keyword fallbacks |
+| Match Engine | ~12520 | matchJobToProfile() with synonym + proficiency weighting |
+| Job Analysis | 11875 | analyzeJob, parseJobWithAPI, parseJobLocally |
+| Quick-Add Gap Skill | ~12700 | Proficiency picker modal, auto-rescore |
+| Job Detail View | ~12820 | showJobDetail with proficiency gaps, role suggestions |
+| Find Jobs APIs | ~13150 | RemoteOK, Remotive, ArbeitNow (CORS fallback) |
+| calculateMatchScore | ~13100 | For remote job results (synonym-aware) |
+| Applications Tracker | ~13750 | CRUD for job applications |
+| Settings | ~13800 | Profile editing, photo upload, theme, API key |
+| Edit Skill Modal | ~16600 | openEditSkillModal (6 proficiency levels), saveSkillEdit, deleteSkillFromProfile |
+| Profile Chip | ~16740 | updateProfileChip (photo-aware) |
+| Resize + History | ~16900 | Debounced resize, popstate handler |
 
-### Jobs Ontology Overlay (Next Focus)
-The `viewOnNetwork` / `activateJobOverlay` / `initJobNetwork` / `initMatchNetwork` system needs refinement. Current state:
+---
+
+## State Management
+
+### Global Variables
+- `userData` — Current profile (profile, skills, roles, outcomes, values, purpose, savedJobs, applications, preferences)
+- `skillsData` — Reference alias to userData (skills, roles arrays)
+- `skillLibraryIndex` — Loaded from skills/index-v3.json, `.index` is the array, `.totalSkills` is count
+- `currentView` — Active view ('network','opportunities','applications','blueprint','welcome','settings','consent')
+- `currentSkillsView` — Sub-view ('network' or 'card')
+- `activeRole` — Filtered role ID or 'all'
+- `activeJobForNetwork` — Job object for match overlay, or null
+- `isReadOnlyProfile` — True for sample profiles (non-admin), but skill editing is allowed
+- `fbUser` / `fbDb` / `fbIsAdmin` — Firebase auth state
+- `SKILL_SYNONYMS` / `_synonymLookup` — Bidirectional synonym resolution
+- `ROLE_SKILL_MAP` / `ROLE_KEYWORDS` — Role-to-skill mapping with keyword fallbacks
+- `PROFICIENCY_SCALE` — Novice:1, Competent:2, Proficient:3, Advanced:3.5, Expert:4, Mastery:5
+
+### Init Flags (all reset on profile switch)
+networkInitialized, cardViewInitialized, blueprintInitialized, opportunitiesInitialized, applicationsInitialized, consentInitialized, settingsInitialized
+
+### localStorage Keys
+currentProfile, wbTheme, wbAnthropicKey, wbValues, wbPurpose, wbMagicLinkEmail
+
+---
+
+## PRIORITY WORK REMAINING
+
+### 1. 🔴 Jobs Network Overlay (NEXT — User Requested)
+Cliff explicitly said: "I want to revisit the jobs Ontology overlay functionality. It's not quite where I want it to be." This is the IMMEDIATE next priority.
+
+Current overlay functions:
 - `viewOnNetwork(jobId)` — Switches to skills tab, stores job, reinits network
 - `activateJobOverlay(idx)` — For "Your Jobs" detail view, calls initMatchNetwork
 - `initJobNetwork(job)` / `initMatchNetwork(job)` — D3 force layouts showing skill overlap
-- Issues to evaluate: visual clarity, matched vs. gap skill distinction, overlay dismiss behavior, mobile responsiveness
 
-## Hero Animation Details
+**Known issues to investigate:**
+- Visual clarity of matched vs. gap vs. surplus skill distinction
+- Overlay dismiss/toggle behavior
+- Mobile responsiveness of overlay
+- Whether the overlay properly reflects proficiency-weighted matching
+- Node colors and labels during overlay mode
+- How to show proficiency gaps visually on the network (not just color coding)
+- Cliff hasn't fully articulated what's wrong yet, so needs discussion at start of next session
 
-Solar system model: center "YOU" fixed, 8 domain hubs in 3 orbital bands (inner 58-68px, mid 75-92px, outer 100-112px). Each hub has unique angular speed. ~31 skill nodes inherit parent speed ±12.5%. Hub-hub gravitational repulsion. Click-emit particles every 1.2-2s. Canvas-based, RAF with delta-time, IntersectionObserver pause.
+### 2. 🟡 Remaining from Code Audit (v4.7.0)
+- **M4: Accessibility** — Minimal keyboard nav, no focus traps, few aria-labels
+- **M8: CORS** — Job APIs still blocked (graceful fallback UI exists now)
+- **L8:** Unnecessary initConsent() calls on theme change
+- **L9:** ~50 console statements need debug flag
 
-## Development Gotchas
+### 3. 🟡 Resume Generation Enhancement
+Cliff mentioned wanting professional resume generation as the next major feature. The HTML resume generator exists (`generateResume` line ~8770) but Cliff wants it enhanced. This was mentioned earlier as a priority but the jobs overlay came first.
 
-- `switchView('network')` = skills tab, not network-only
-- `currentSkillsView` tracks network vs card sub-view
-- Profile switch resets all init flags
-- `skillsData` is reference alias, not copy
-- `tv(darkVal, lightVal)` helper for theme-aware values
-- `window.X = fn` makes closure functions accessible to onclick
-- Hero uses polar coordinates (angle + dist from center)
-- `readOnlyGuard()` returns true (blocked) for sample profiles — add to any new mutation function
-- `userData.profile.photo` is base64 JPEG string or undefined
-- Brace balance: 0 (balanced)
+### 4. 🟢 Other Items Noted
+- The skill library search (14K+ ESCO/O*NET) relies on `skills/index-v3.json` being present in the repo. If missing, search returns empty but app still works.
+- Profile templates load from `profiles/` directory via `profiles-manifest.json`
+- Sample jobs are injected at load time for demo profiles, not stored in template files
+- Jobs that users manually add or parse DO save to Firestore (if authenticated) via savedJobs array
+
+---
+
+## Development Gotchas (Critical for New Chat)
+
+- **Single-file SPA:** Everything is in index.html. No modules. Use `window.fn = fn` to expose functions to onclick handlers.
+- **`switchView('network')` = skills tab**, not network-only. `currentSkillsView` tracks network vs card sub-view.
+- **Profile switch resets all init flags** via switchProfile()
+- **`skillsData` is reference alias**, not copy. Changes to skillsData.skills affect userData.skills.
+- **`tv(darkVal, lightVal)` helper** for theme-aware inline values
+- **`readOnlyGuard()`** returns true (blocked) for sample profiles on mutation functions, but skill editing was deliberately exempted.
+- **`userData.profile.photo`** is base64 JPEG string or undefined
+- **`registerInSkillLibrary(name, category)`** — Always use this to add skills to the searchable index, never push directly to `.index`
+- **`getSkillSynonyms(lowerName)`** — Returns array of synonym strings for matching
+- **Brace balance must be 0** — Always verify after edits with: `let b=0; for(let c of s){if(c==='{')b++;if(c==='}')b--;} console.log(b);`
+- **Toast CSS is in the main `<style>` block** (line ~3208). There's also a duplicate in the resume template JS string (~line 9240), that one is for the resume HTML export, not the app.
+- **Sample jobs** are generated by `getSampleJobsForProfile()` and scored by `matchJobToProfile()` at load time. They are NOT stored in the profile JSON template files.
+- **Hero animation** uses polar coordinates (angle + dist from center), solar system orbital model with gravitational repulsion between hubs.
+
+---
+
+## Transcript History
+
+Previous session transcripts are at `/mnt/transcripts/`:
+1. `2026-02-19-03-51-49-blueprint-v46-wizard-exports.txt` — Wizard-to-Firestore, AI generators
+2. `2026-02-19-14-57-36-hero-animation-profile-switch-fixes.txt` — Hero animation, profile dropdown bugs
+3. `2026-02-19-15-17-20-hero-animation-profile-bugs-audit.txt` — Solar system animation, 30-defect audit
+4. `2026-02-19-15-40-07-v47-audit-fixes-ui-stub-inventory.txt` — v4.7.0 audit fixes, UI stub inventory
+5. Current session (v4.7.0 to v4.10.0): UI stubs completed, matching engine overhauled, toast fixed, skill editing expanded, sample jobs added
