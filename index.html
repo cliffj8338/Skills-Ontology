@@ -5001,6 +5001,7 @@
         // ===== ENHANCED SAVE (Firestore + localStorage) =====
         function saveAll() {
             if (readOnlyGuard()) return;
+            saveUserData(); // localStorage for userData
             saveValues(); // localStorage for values
             if (fbUser && fbDb) {
                 saveToFirestore();
@@ -16404,7 +16405,7 @@ body {
             
             // Save button
             html += '<div style="margin-top:24px; display:flex; gap:12px;">'
-                + '<button onclick="saveSettings(); showToast(\'Experience saved.\', \'success\')" style="'
+                + '<button onclick="saveAll(); showToast(\'Experience saved.\', \'success\')" style="'
                 + 'background:var(--accent); color:#fff; border:none; padding:12px 28px; border-radius:8px; '
                 + 'cursor:pointer; font-weight:600; font-size:0.95em;">'
                 + 'Save All Changes</button>'
@@ -18070,8 +18071,7 @@ body {
             
             showToast('Settings saved. Go to Opportunities and click Find Matching Jobs to see updated results.', 'success', 5000);
         }
-        
-        function selectPreset(key) {
+        window.saveSettings = saveSettings;
             currentPreset = key;
             
             // Apply preset logic to outcomes and values sharing flags
