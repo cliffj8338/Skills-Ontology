@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.17.2 | 20260219 | Feature: Auto-add/bump skills on cert save with impact notification -->
+    <!-- v4.18.0 | 20260219 | Feature: Function-based salary anchors, Values tab fix, cert auto-skill -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -5557,7 +5557,7 @@
                 };
             }
             
-            // REDESIGNED MODEL: Realistic premiums based on skill mix percentage
+            // REDESIGNED MODEL: Function-based salary anchors + evidence premiums
             
             // Helper: get the level to use based on mode
             function getLevelForMode(skill) {
@@ -5565,46 +5565,97 @@
                 return getValuationLevel(skill); // Evidence-backed
             }
             
-            // Step 1: Calculate base value from role tier
+            // ---- STEP 1: Detect functional area from title, roles, and skills ----
+            var titleStr = ((userData.profile || {}).currentTitle || '').toLowerCase();
+            var rolesStr = ((userData.roles || []).map(function(r) { return r.name || ''; }).join(' ')).toLowerCase();
+            var skillNames = (skillsData.skills || []).map(function(s) { return (s.name || '').toLowerCase(); }).join(' ');
+            var allSignals = titleStr + ' ' + rolesStr + ' ' + skillNames;
+            
+            // Function salary table: [entry, mid, senior, director, vp/c-suite]
+            var SALARY_TABLE = {
+                technology:  [65000, 95000, 130000, 170000, 250000],
+                hr:          [55000, 75000, 100000, 140000, 200000],
+                recruiting:  [52000, 72000, 95000,  135000, 195000],
+                marketing:   [55000, 80000, 110000, 150000, 220000],
+                finance:     [60000, 85000, 115000, 155000, 240000],
+                sales:       [55000, 80000, 110000, 145000, 210000],
+                operations:  [55000, 75000, 100000, 135000, 190000],
+                strategy:    [70000, 100000, 140000, 180000, 280000],
+                healthcare:  [55000, 75000, 95000,  130000, 200000],
+                education:   [45000, 60000, 80000,  110000, 160000],
+                legal:       [70000, 100000, 140000, 185000, 280000],
+                engineering: [60000, 85000, 115000, 150000, 220000],
+                general:     [50000, 70000, 95000,  130000, 200000]
+            };
+            
+            var functionPatterns = [
+                { fn: 'strategy', patterns: /\b(strategy|strategic|futurist|evangelist|thought leader|advisory|consulting|consultant)\b/ },
+                { fn: 'technology', patterns: /\b(software|developer|engineer|devops|cloud|aws|azure|kubernetes|programming|frontend|backend|full.?stack|data scientist|machine learning|ai engineer|cybersecurity|infosec|cissp)\b/ },
+                { fn: 'recruiting', patterns: /\b(recruit|talent acqui|sourcing|hiring|ats|applicant|staffing|headhunt)\b/ },
+                { fn: 'hr', patterns: /\b(human resource|hr |shrm|people ops|workforce|talent manage|employee relation|compensation|benefits|hris|organizational develop|learning.+develop)\b/ },
+                { fn: 'marketing', patterns: /\b(marketing|brand|content|seo|digital market|growth|demand gen|product market|communications|pr |public relation)\b/ },
+                { fn: 'finance', patterns: /\b(finance|financial|accounting|cpa|cfa|controller|treasury|audit|tax|revenue|fp&a|investment)\b/ },
+                { fn: 'sales', patterns: /\b(sales|account exec|business develop|revenue|quota|pipeline|customer success|client relation)\b/ },
+                { fn: 'operations', patterns: /\b(operations|supply chain|logistics|procurement|manufacturing|quality|lean|six sigma|process improve)\b/ },
+                { fn: 'healthcare', patterns: /\b(nurse|clinical|patient|medical|pharma|health|hospital|physician|therapy|diagnostic)\b/ },
+                { fn: 'education', patterns: /\b(teaching|teacher|professor|instructor|curriculum|education|academic|school|training)\b/ },
+                { fn: 'legal', patterns: /\b(legal|attorney|lawyer|litigation|compliance|regulatory|paralegal|contract law|bar exam)\b/ },
+                { fn: 'engineering', patterns: /\b(mechanical|electrical|civil|structural|pe |professional engineer|cad|construction|architect)\b/ }
+            ];
+            
+            var detectedFunction = 'general';
+            for (var fi = 0; fi < functionPatterns.length; fi++) {
+                if (functionPatterns[fi].patterns.test(allSignals)) {
+                    detectedFunction = functionPatterns[fi].fn;
+                    break;
+                }
+            }
+            
+            // ---- STEP 2: Detect seniority from title keywords + experience ----
+            var seniorityLevel = 0; // 0=entry, 1=mid, 2=senior, 3=director, 4=vp
+            
+            // Title-based seniority (strongest signal)
+            if (/\b(ceo|cto|cfo|coo|cmo|cio|ciso|chief|c-suite|president|evp|svp)\b/.test(titleStr)) {
+                seniorityLevel = 4;
+            } else if (/\b(vp|vice president)\b/.test(titleStr)) {
+                seniorityLevel = 4;
+            } else if (/\b(senior director|sr\.? director)\b/.test(titleStr)) {
+                seniorityLevel = 3;
+            } else if (/\b(director|head of)\b/.test(titleStr)) {
+                seniorityLevel = 3;
+            } else if (/\b(senior manager|sr\.? manager|principal|lead)\b/.test(titleStr)) {
+                seniorityLevel = 2;
+            } else if (/\b(senior|sr\.?|manager)\b/.test(titleStr)) {
+                seniorityLevel = 2;
+            } else if (/\b(associate|specialist|coordinator|analyst)\b/.test(titleStr)) {
+                seniorityLevel = 1;
+            }
+            
+            // Experience-based boost (if title doesn't already set high)
+            var yearsExp = parseInt(((userData.profile || {}).yearsExperience || '0').toString()) || 0;
+            if (yearsExp >= 20 && seniorityLevel < 4) seniorityLevel = Math.max(seniorityLevel, 3);
+            else if (yearsExp >= 12 && seniorityLevel < 3) seniorityLevel = Math.max(seniorityLevel, 2);
+            else if (yearsExp >= 5 && seniorityLevel < 2) seniorityLevel = Math.max(seniorityLevel, 1);
+            
+            // Skill depth can also boost seniority (secondary signal)
             const masteryCount = skillsData.skills.filter(s => getLevelForMode(s) === 'Mastery').length;
             const expertCount = skillsData.skills.filter(s => getLevelForMode(s) === 'Expert').length;
             const advancedCount = skillsData.skills.filter(s => getLevelForMode(s) === 'Advanced').length;
             const proficientCount = skillsData.skills.filter(s => getLevelForMode(s) === 'Proficient').length;
             const totalSkills = skillsData.skills.length;
-            
-            // Updated point system:
-            // Mastery (40+ yrs mastery): 4 points
-            // Expert (20-40 yrs expertise): 3 points
-            // Advanced (10-20 yrs strong): 2 points
-            // Proficient (5-10 yrs competent): 1 point
-            // Novice (0-5 yrs learning): 0 points
             const totalPoints = (masteryCount * 4) + (expertCount * 3) + (advancedCount * 2) + (proficientCount * 1);
             
-            let baseMarketRate = 0;
-            let roleLevel = '';
-            let percentile = '50th'; // Default to median
+            if (totalPoints >= 80 && seniorityLevel < 4) seniorityLevel = Math.max(seniorityLevel, 3);
+            else if (totalPoints >= 40 && seniorityLevel < 3) seniorityLevel = Math.max(seniorityLevel, 2);
+            else if (totalPoints >= 20 && seniorityLevel < 2) seniorityLevel = Math.max(seniorityLevel, 1);
             
-            // Adjusted thresholds for 5-level system
-            if (totalPoints >= 100) {
-                baseMarketRate = 280000; // Executive/C-Suite (Cliff: 230 pts)
-                roleLevel = 'VP/C-Suite';
-                percentile = '75th';
-            } else if (totalPoints >= 40) {
-                baseMarketRate = 165000; // Senior Management (Mike: 49 pts)
-                roleLevel = 'Senior Director';
-            } else if (totalPoints >= 30) {
-                baseMarketRate = 110000; // Director level (Sarah: 36 pts)
-                roleLevel = 'Director';
-            } else if (totalPoints >= 20) {
-                baseMarketRate = 55000; // Mid-level professional (Jamie: 28 pts)
-                roleLevel = 'Mid-Level Professional';
-            } else if (totalPoints >= 10) {
-                baseMarketRate = 38000; // Entry-level professional (Alex: 17 pts)
-                roleLevel = 'Entry Professional';
-            } else {
-                baseMarketRate = 30000; // Entry level
-                roleLevel = 'Entry Level';
-            }
+            // ---- STEP 3: Look up base salary ----
+            var salaryBand = SALARY_TABLE[detectedFunction] || SALARY_TABLE.general;
+            var baseMarketRate = salaryBand[seniorityLevel];
+            
+            var roleLevelNames = ['Entry', 'Mid-Level', 'Senior', 'Director', 'VP/C-Suite'];
+            var roleLevel = roleLevelNames[seniorityLevel];
+            var percentile = seniorityLevel >= 4 ? '75th' : '50th';
             
             // Step 2: Calculate comprehensive premium using 5-factor system
             
@@ -5766,6 +5817,8 @@
                 roleFloor: roleFloor,
                 roleFloorApplied: roleFloorApplied,
                 rawCalculatedValue: totalValue,
+                detectedFunction: detectedFunction,
+                seniorityIndex: seniorityLevel,
                 
                 breakdown: {
                     base: baseMarketRate,
@@ -11272,7 +11325,16 @@ body {
                 btn.classList.toggle('active', onclickStr.indexOf("'" + tab + "'") !== -1);
             });
             var contentEl = document.getElementById('blueprintTabContent');
-            if (contentEl) contentEl.innerHTML = renderBlueprintTabContent();
+            if (contentEl) {
+                try {
+                    contentEl.innerHTML = renderBlueprintTabContent();
+                } catch(e) {
+                    console.error('Blueprint tab render error (' + tab + '):', e);
+                    contentEl.innerHTML = '<div style="padding:40px; text-align:center; color:#ef4444;">'
+                        + '<div style="font-size:1.2em; margin-bottom:8px;">⚠ Rendering Error</div>'
+                        + '<div style="font-size:0.85em; color:' + tv('#9ca3af','#64748b') + ';">' + (e.message || e) + '</div></div>';
+                }
+            }
         }
         window.switchBlueprintTab = switchBlueprintTab;
         
@@ -11431,7 +11493,7 @@ body {
                         <div style="color: ${tv("#d1d5db","#334155")}; font-size: 0.95em; line-height: 1.6;">
                             <strong>Method:</strong> Impact-based role tier + skill premiums
                             <br><br>
-                            <strong>Base Market Rate:</strong> $${totalValue.marketRate.toLocaleString()} (${totalValue.roleLevel}, ${totalValue.percentile} percentile)
+                            <strong>Base Market Rate:</strong> $${totalValue.marketRate.toLocaleString()} (${totalValue.detectedFunction ? totalValue.detectedFunction.charAt(0).toUpperCase() + totalValue.detectedFunction.slice(1) : ''} / ${totalValue.roleLevel}, ${totalValue.percentile} percentile)
                             <br><strong>Critical Impact Skills (${totalValue.criticalSkills.length}):</strong> +$${totalValue.criticalBonus.toLocaleString()}
                             <br><strong>High Impact Skills (${totalValue.highSkills.length}):</strong> +$${totalValue.highBonus.toLocaleString()}
                             <br><strong>Rare Skill Combinations:</strong> +$${totalValue.rarityBonus.toLocaleString()}
@@ -11589,8 +11651,9 @@ body {
         }
         
         function renderValuesSection() {
-            var values = blueprintData.values;
-            var selectedCount = values.filter(function(v) { return v.selected; }).length;
+            var values = blueprintData.values || [];
+            if (!Array.isArray(values)) values = [];
+            var selectedCount = values.filter(function(v) { return v && v.selected; }).length;
             
             var html = '<div class="blueprint-section">'
                 + '<div class="blueprint-section-header">'
@@ -11612,8 +11675,9 @@ body {
         }
         
         function renderSelectedValues() {
-            var values = blueprintData.values;
-            var selectedCount = values.filter(function(v) { return v.selected; }).length;
+            var values = blueprintData.values || [];
+            if (!Array.isArray(values)) values = [];
+            var selectedCount = values.filter(function(v) { return v && v.selected; }).length;
             
             var html = '<div class="coaching-tip">'
                 + '<div class="coaching-tip-title">\uD83D\uDCA1 YOUR CORE VALUES</div>'
@@ -11628,6 +11692,7 @@ body {
             if (values.length > 0) {
                 html += '<div class="values-grid">';
                 values.forEach(function(value, idx) {
+                    if (!value || !value.name) return;
                     var evidence = getEvidenceForValue(value.name);
                     var evCount = evidence.length;
                     var catalogDesc = getCatalogDescription(value.name);
@@ -20456,7 +20521,7 @@ body {
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2 class="modal-title">Blueprint</h2>
-                        <p style="color: #9ca3af; margin-top: 5px;">v4.17.2 · Your career, fully represented</p>
+                        <p style="color: #9ca3af; margin-top: 5px;">v4.18.0 · Your career, fully represented</p>
                     </div>
                     <button class="modal-close" onclick="closeExportModal()">×</button>
                 </div>

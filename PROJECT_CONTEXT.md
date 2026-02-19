@@ -1,5 +1,5 @@
-# PROJECT_CONTEXT.md — Blueprint v4.17.1 (Role Floors + Valuation Toggle)
-**Updated:** 2026-02-19 | **Lines:** 20,480 | **Functions:** ~428 | **Size:** ~1.09 MB | **Braces:** 0 (balanced)
+# PROJECT_CONTEXT.md — Blueprint v4.18.0 (Function-Based Salary Anchors)
+**Updated:** 2026-02-19 | **Lines:** 20,674 | **Functions:** ~432 | **Size:** ~1.11 MB | **Braces:** 0 (balanced)
 
 ## What Is Blueprint
 
