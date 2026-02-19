@@ -1,5 +1,5 @@
-# PROJECT_CONTEXT.md — Blueprint v4.10.1
-**Updated:** 2026-02-19 | **Lines:** 17,848 | **Functions:** ~330 | **Braces:** 0 (balanced)
+# PROJECT_CONTEXT.md — Blueprint v4.12.0
+**Updated:** 2026-02-19 | **Lines:** 18,588 | **Functions:** ~345 | **Braces:** 0 (balanced)
 
 ## Architecture
 
@@ -17,7 +17,15 @@ Single-file SPA (`index.html`) deployed to GitHub Pages. No build step, no bundl
 
 ## Version History (This Session: v4.7.0 → v4.10.0)
 
-### v4.10.1 (current)
+### v4.12.0 (current)
+- **Library-only import mode:** Bulk import now has a destination toggle: "Skill Library only" (adds to searchable index for job matching without touching profile) vs "Library + Current Profile". Profile options (level, merge strategy, roles) hide when library-only is selected.
+- **Bulk Skill Manager:** New modal for managing existing profile skills in bulk. Searchable/filterable list of all profile skills with checkboxes. Select all/none toggle. Bulk actions toolbar appears when skills are selected: "Set Level" (inline 6-level picker) and "Remove Selected" (with confirmation). Accessible from Blueprint tab, Card view, and Admin dashboard.
+- **Roles optional everywhere:** All three skill modals (Create Custom, Edit Skill, Bulk Import) no longer require role selection. If no roles checked, skills default to all roles in the current profile. Labels updated to "(optional, defaults to all)".
+
+### v4.11.0
+- **Bulk skill import system:** Two input modes: paste text (one per line, comma-separated, or "Name, Level" pairs) or upload CSV/TSV. Smart CSV parser (flexible column names, quoted field support). Synonym-aware deduplication against existing profile skills. Three merge strategies: Skip, Keep higher, Overwrite. Two-step review flow with 4-column summary (New/Upgrading/Overwriting/Skipped). Per-skill action override dropdowns in review. Accessible from Blueprint tab, Card view, Admin panel.
+
+### v4.10.1
 - **Fix: "Updated null" toast** — `closeEditSkillModal()` nulled `currentEditingSkill` before the toast read it. Now saves name to local var first.
 - **Fix: Firestore "Unsupported field value: undefined"** — savedJobs serialization now defaults all fields to empty strings/arrays instead of passing `undefined` to Firestore.
 - **Fix: "Competent" missing from Create Custom Skill modal** — Was only fixed in Edit Skill modal. Now both modals have all 6 levels. Default changed from Advanced to Proficient for new custom skills.
@@ -97,7 +105,9 @@ Single-file SPA (`index.html`) deployed to GitHub Pages. No build step, no bundl
 | calculateMatchScore | ~13100 | For remote job results (synonym-aware) |
 | Applications Tracker | ~13750 | CRUD for job applications |
 | Settings | ~13800 | Profile editing, photo upload, theme, API key |
-| Edit Skill Modal | ~16600 | openEditSkillModal (6 proficiency levels), saveSkillEdit, deleteSkillFromProfile |
+| Edit Skill Modal | ~16800 | openEditSkillModal (6 proficiency levels), saveSkillEdit, deleteSkillFromProfile |
+| Bulk Import | ~16830 | openBulkImport, parseBulkSkills, executeBulkImport; text/CSV, library-only mode |
+| Bulk Skill Manager | ~17200 | openBulkManager, bulkManagerSetLevel, bulkManagerRemove; select/filter/bulk ops |
 | Profile Chip | ~16740 | updateProfileChip (photo-aware) |
 | Resize + History | ~16900 | Debounced resize, popstate handler |
 
@@ -188,4 +198,4 @@ Previous session transcripts are at `/mnt/transcripts/`:
 2. `2026-02-19-14-57-36-hero-animation-profile-switch-fixes.txt` — Hero animation, profile dropdown bugs
 3. `2026-02-19-15-17-20-hero-animation-profile-bugs-audit.txt` — Solar system animation, 30-defect audit
 4. `2026-02-19-15-40-07-v47-audit-fixes-ui-stub-inventory.txt` — v4.7.0 audit fixes, UI stub inventory
-5. Current session (v4.7.0 to v4.10.1): UI stubs completed, matching engine overhauled, toast fixed, skill editing expanded, sample jobs added, bug fixes
+5. Current session (v4.7.0 to v4.12.0): UI stubs, matching engine, toast, skill editing, sample jobs, bulk import/manager, library-only mode

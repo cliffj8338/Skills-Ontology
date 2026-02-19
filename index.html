@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.11.0 | 20260219 | Bulk skill import: text/CSV, dedup, synonym-aware merge, per-skill action override -->
+    <!-- v4.12.0 | 20260219 | Library-only import mode, Bulk Skill Manager (select/edit level/remove), roles optional everywhere -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -3697,31 +3697,48 @@
                         <div id="bulkCsvPreview" style="margin-top:12px; font-size:0.82em; color:var(--text-muted);"></div>
                     </div>
                     
-                    <div style="display:flex; gap:20px; margin-bottom:16px; flex-wrap:wrap;">
-                        <div>
-                            <label class="settings-label">Default proficiency</label>
-                            <select id="bulkDefaultLevel" style="padding:8px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;">
-                                <option value="Novice">Novice</option>
-                                <option value="Competent">Competent</option>
-                                <option value="Proficient" selected>Proficient</option>
-                                <option value="Advanced">Advanced</option>
-                                <option value="Expert">Expert</option>
-                                <option value="Mastery">Mastery</option>
-                            </select>
+                    <div style="margin-bottom:16px; padding:14px; border-radius:8px; background:rgba(139,92,246,0.06); border:1px solid rgba(139,92,246,0.15);">
+                        <label class="settings-label" style="margin-bottom:8px;">Destination</label>
+                        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer; padding:8px 14px; border-radius:6px; border:1px solid var(--border); background:var(--bg-card);">
+                                <input type="radio" name="bulkDestination" value="library" onchange="toggleBulkProfileOptions()">
+                                <span style="font-size:0.9em;">📚 Skill Library only</span>
+                            </label>
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer; padding:8px 14px; border-radius:6px; border:1px solid var(--border); background:var(--bg-card);">
+                                <input type="radio" name="bulkDestination" value="profile" checked onchange="toggleBulkProfileOptions()">
+                                <span style="font-size:0.9em;">👤 Library + Current Profile</span>
+                            </label>
                         </div>
-                        <div>
-                            <label class="settings-label">On duplicate</label>
-                            <select id="bulkMergeStrategy" style="padding:8px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;">
-                                <option value="skip">Skip (keep existing)</option>
-                                <option value="higher">Keep higher proficiency</option>
-                                <option value="overwrite">Overwrite with import</option>
-                            </select>
-                        </div>
+                        <div style="font-size:0.78em; color:var(--text-muted); margin-top:6px;">Library-only adds skills to the searchable index for job matching without adding them to your profile.</div>
                     </div>
                     
-                    <div style="margin-bottom:16px;">
-                        <label class="settings-label">Assign to roles <span style="font-weight:400; color:var(--text-muted); font-size:0.85em;">(optional, defaults to all)</span></label>
-                        <div id="bulkImportRoles" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:8px;">
+                    <div id="bulkProfileOptions">
+                        <div style="display:flex; gap:20px; margin-bottom:16px; flex-wrap:wrap;">
+                            <div>
+                                <label class="settings-label">Default proficiency</label>
+                                <select id="bulkDefaultLevel" style="padding:8px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;">
+                                    <option value="Novice">Novice</option>
+                                    <option value="Competent">Competent</option>
+                                    <option value="Proficient" selected>Proficient</option>
+                                    <option value="Advanced">Advanced</option>
+                                    <option value="Expert">Expert</option>
+                                    <option value="Mastery">Mastery</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="settings-label">On duplicate</label>
+                                <select id="bulkMergeStrategy" style="padding:8px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;">
+                                    <option value="skip">Skip (keep existing)</option>
+                                    <option value="higher">Keep higher proficiency</option>
+                                    <option value="overwrite">Overwrite with import</option>
+                                </select>
+                            </div>
+                        </div>
+                    
+                        <div style="margin-bottom:16px;">
+                            <label class="settings-label">Assign to roles <span style="font-weight:400; color:var(--text-muted); font-size:0.85em;">(optional, defaults to all)</span></label>
+                            <div id="bulkImportRoles" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:8px;">
+                            </div>
                         </div>
                     </div>
                     
@@ -3742,6 +3759,42 @@
                             Import Skills
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Skill Manager Modal -->
+    <div class="modal" id="bulkSkillManagerModal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <h2 class="modal-title">Manage Profile Skills</h2>
+                </div>
+                <button class="modal-close" onclick="closeBulkManager()">×</button>
+            </div>
+            <div class="modal-body" style="overflow-y: auto; padding: 20px;">
+                <div style="display:flex; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap;">
+                    <input type="text" id="bulkManagerSearch" placeholder="Filter skills..." oninput="filterBulkManager()"
+                        class="settings-input" style="flex:1; min-width:180px; padding:8px 12px;">
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.85em; color:var(--text-muted); white-space:nowrap;">
+                        <input type="checkbox" id="bulkManagerSelectAll" onchange="toggleBulkManagerAll(this.checked)">
+                        Select all
+                    </label>
+                    <span id="bulkManagerCount" style="font-size:0.82em; color:var(--text-muted); white-space:nowrap;"></span>
+                </div>
+                
+                <div id="bulkManagerActions" style="display:none; padding:12px 16px; margin-bottom:14px; border-radius:8px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); flex-wrap:wrap; gap:10px; align-items:center;">
+                    <span id="bulkManagerSelected" style="font-size:0.88em; font-weight:600; color:var(--accent); margin-right:8px;"></span>
+                    <button onclick="bulkManagerSetLevel()" style="padding:6px 14px; background:rgba(139,92,246,0.15); color:#a78bfa; border:1px solid rgba(139,92,246,0.3); border-radius:6px; cursor:pointer; font-size:0.85em;">
+                        Set Level
+                    </button>
+                    <button onclick="bulkManagerRemove()" style="padding:6px 14px; background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:6px; cursor:pointer; font-size:0.85em;">
+                        Remove Selected
+                    </button>
+                </div>
+                
+                <div id="bulkManagerList" style="max-height:450px; overflow-y:auto;">
                 </div>
             </div>
         </div>
@@ -4709,6 +4762,8 @@
                 + '<div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">'
                 + '<button onclick="closeExportModal(); openBulkImport();" style="padding:10px 20px; background:linear-gradient(135deg,#8b5cf6,#7c3aed); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
                 + '\uD83D\uDCCB Bulk Import Skills</button>'
+                + '<button onclick="closeExportModal(); openBulkManager();" style="padding:10px 20px; background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
+                + '\u270F\uFE0F Bulk Edit / Remove</button>'
                 + '</div>'
                 + '<div id="adminContent" style="color:' + tv('#d1d5db','#334155') + ';">Loading users...</div>'
                 + '</div>';
@@ -10261,6 +10316,9 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                         <button class="export-btn-large" onclick="openBulkImport()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border: none; color: white;">
                             📋 Bulk Import Skills
                         </button>
+                        <button class="export-btn-large" onclick="openBulkManager()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border: none; color: white;">
+                            ✏️ Bulk Edit / Remove
+                        </button>
                         <button class="export-btn-large" onclick="showNegotiationGuide()" style="flex: 1; min-width: 200px; background: ${tb("rgba(251,191,36,0.2)","rgba(217,119,6,0.12)")}; border-color: #fbbf24; color: #fbbf24;">
                             💼 Detailed Negotiation Guide
                         </button>
@@ -14997,6 +15055,9 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                         <button class="export-btn-large" onclick="openBulkImport()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
                             📋 Bulk Import
                         </button>
+                        <button class="export-btn-large" onclick="openBulkManager()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                            ✏️ Bulk Edit / Remove
+                        </button>
                     </div>
                     
                     <div class="skill-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 20px;">
@@ -17151,17 +17212,33 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
         }
         window.bulkImportBack = bulkImportBack;
         
+        function toggleBulkProfileOptions() {
+            var dest = document.querySelector('input[name="bulkDestination"]:checked');
+            var opts = document.getElementById('bulkProfileOptions');
+            if (dest && opts) {
+                opts.style.display = dest.value === 'library' ? 'none' : '';
+            }
+        }
+        window.toggleBulkProfileOptions = toggleBulkProfileOptions;
+        
         function executeBulkImport() {
-            var added = 0, upgraded = 0, overwritten = 0;
+            var dest = document.querySelector('input[name="bulkDestination"]:checked');
+            var libraryOnly = dest && dest.value === 'library';
+            var added = 0, upgraded = 0, overwritten = 0, registered = 0;
             
             _bulkParsedSkills.forEach(function(item) {
                 if (item.action === 'skip') return;
+                
+                // Always register in library
+                registerInSkillLibrary(item.name, item.category || 'unique');
+                registered++;
+                
+                if (libraryOnly) return; // Don't touch profile
                 
                 if (item.action === 'add') {
                     var newSkill = { name: item.name, category: item.category, level: item.level, roles: item.roles, key: item.core };
                     userData.skills.push(newSkill);
                     skillsData.skills.push(newSkill);
-                    registerInSkillLibrary(item.name, item.category);
                     added++;
                 } else if (item.action === 'upgrade' || item.action === 'overwrite') {
                     var existing = userData.skills.find(function(s) { return s.name.toLowerCase() === (item.conflict ? item.conflict.name.toLowerCase() : item.name.toLowerCase()); });
@@ -17170,7 +17247,6 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                         if (item.action === 'overwrite') {
                             existing.key = item.core;
                         }
-                        // Sync skillsData
                         var sdIdx = skillsData.skills.findIndex(function(s) { return s.name === existing.name; });
                         if (sdIdx !== -1) skillsData.skills[sdIdx] = {...existing};
                         if (item.action === 'upgrade') upgraded++;
@@ -17188,12 +17264,163 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             closeBulkImport();
             
             var parts = [];
-            if (added) parts.push(added + ' added');
-            if (upgraded) parts.push(upgraded + ' upgraded');
-            if (overwritten) parts.push(overwritten + ' overwritten');
+            if (libraryOnly) {
+                parts.push(registered + ' added to library');
+            } else {
+                if (added) parts.push(added + ' added');
+                if (upgraded) parts.push(upgraded + ' upgraded');
+                if (overwritten) parts.push(overwritten + ' overwritten');
+            }
             showToast('Bulk import: ' + parts.join(', ') + '.', 'success', 5000);
         }
         window.executeBulkImport = executeBulkImport;
+        
+        // ===== BULK SKILL MANAGER =====
+        function openBulkManager() {
+            var modal = document.getElementById('bulkSkillManagerModal');
+            if (!modal) return;
+            document.getElementById('bulkManagerSearch').value = '';
+            document.getElementById('bulkManagerSelectAll').checked = false;
+            renderBulkManagerList();
+            history.pushState({ modal: true }, ''); modal.classList.add('active');
+        }
+        window.openBulkManager = openBulkManager;
+        
+        function closeBulkManager() {
+            var modal = document.getElementById('bulkSkillManagerModal');
+            if (modal) modal.classList.remove('active');
+        }
+        window.closeBulkManager = closeBulkManager;
+        
+        function renderBulkManagerList() {
+            var search = (document.getElementById('bulkManagerSearch').value || '').toLowerCase();
+            var skills = (userData.skills || []).slice().sort(function(a, b) { return a.name.localeCompare(b.name); });
+            
+            if (search) {
+                skills = skills.filter(function(s) { return s.name.toLowerCase().indexOf(search) !== -1; });
+            }
+            
+            document.getElementById('bulkManagerCount').textContent = skills.length + ' skill' + (skills.length !== 1 ? 's' : '');
+            
+            var levelColors = { Novice: '#6b7280', Competent: '#22d3ee', Proficient: '#10b981', Advanced: '#3b82f6', Expert: '#f59e0b', Mastery: '#ef4444' };
+            
+            var html = skills.map(function(skill) {
+                var lc = levelColors[skill.level] || '#6b7280';
+                var roleNames = (skill.roles || []).map(function(rid) {
+                    var r = (userData.roles || []).find(function(role) { return role.id === rid; });
+                    return r ? r.name : rid;
+                }).join(', ') || 'All roles';
+                
+                return '<div class="bm-row" style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; border-bottom:1px solid var(--border);">'
+                    + '<input type="checkbox" class="bm-checkbox" value="' + skill.name.replace(/"/g, '&quot;') + '" onchange="updateBulkManagerSelection()">'
+                    + '<span style="flex:1; font-size:0.9em; font-weight:500; color:var(--text-primary);">' + skill.name + '</span>'
+                    + '<span style="font-size:0.75em; padding:3px 8px; border-radius:4px; background:' + lc + '22; color:' + lc + '; font-weight:600;">' + skill.level + '</span>'
+                    + '<span style="font-size:0.75em; color:var(--text-muted); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="' + roleNames + '">' + roleNames + '</span>'
+                    + '</div>';
+            }).join('');
+            
+            if (!html) html = '<div style="padding:20px; text-align:center; color:var(--text-muted);">No skills match your filter.</div>';
+            
+            document.getElementById('bulkManagerList').innerHTML = html;
+            updateBulkManagerSelection();
+        }
+        
+        function filterBulkManager() {
+            renderBulkManagerList();
+        }
+        window.filterBulkManager = filterBulkManager;
+        
+        function toggleBulkManagerAll(checked) {
+            var boxes = document.querySelectorAll('.bm-checkbox');
+            boxes.forEach(function(cb) { cb.checked = checked; });
+            updateBulkManagerSelection();
+        }
+        window.toggleBulkManagerAll = toggleBulkManagerAll;
+        
+        function updateBulkManagerSelection() {
+            var checked = document.querySelectorAll('.bm-checkbox:checked');
+            var bar = document.getElementById('bulkManagerActions');
+            var label = document.getElementById('bulkManagerSelected');
+            if (checked.length > 0) {
+                bar.style.display = 'flex';
+                label.textContent = checked.length + ' selected';
+            } else {
+                bar.style.display = 'none';
+            }
+        }
+        window.updateBulkManagerSelection = updateBulkManagerSelection;
+        
+        function getSelectedBulkSkillNames() {
+            return Array.from(document.querySelectorAll('.bm-checkbox:checked')).map(function(cb) { return cb.value; });
+        }
+        
+        function bulkManagerSetLevel() {
+            var names = getSelectedBulkSkillNames();
+            if (names.length === 0) return;
+            
+            // Build a small inline picker
+            var bar = document.getElementById('bulkManagerActions');
+            var levels = ['Novice', 'Competent', 'Proficient', 'Advanced', 'Expert', 'Mastery'];
+            var html = '<div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin-top:8px;" id="bmLevelPicker">'
+                + '<span style="font-size:0.82em; color:var(--text-muted);">Set ' + names.length + ' skill' + (names.length > 1 ? 's' : '') + ' to:</span>';
+            levels.forEach(function(l) {
+                html += '<button onclick="executeBulkSetLevel(\'' + l + '\')" style="padding:5px 12px; border-radius:5px; cursor:pointer; font-size:0.82em; font-weight:600; '
+                    + 'background:rgba(139,92,246,0.1); color:#a78bfa; border:1px solid rgba(139,92,246,0.25);">' + l + '</button>';
+            });
+            html += '<button onclick="document.getElementById(\'bmLevelPicker\').remove();" style="padding:5px 10px; border:none; background:none; cursor:pointer; color:var(--text-muted); font-size:0.82em;">Cancel</button>';
+            html += '</div>';
+            
+            // Remove existing picker if any
+            var existing = document.getElementById('bmLevelPicker');
+            if (existing) existing.remove();
+            
+            bar.insertAdjacentHTML('beforeend', html);
+        }
+        window.bulkManagerSetLevel = bulkManagerSetLevel;
+        
+        function executeBulkSetLevel(level) {
+            var names = getSelectedBulkSkillNames();
+            var count = 0;
+            names.forEach(function(name) {
+                var skill = userData.skills.find(function(s) { return s.name === name; });
+                if (skill) {
+                    skill.level = level;
+                    var sdIdx = skillsData.skills.findIndex(function(s) { return s.name === name; });
+                    if (sdIdx !== -1) skillsData.skills[sdIdx].level = level;
+                    count++;
+                }
+            });
+            
+            saveUserData();
+            if (fbUser) saveToFirestore();
+            rescoreAllJobs();
+            refreshAllViews();
+            renderBulkManagerList();
+            showToast('Set ' + count + ' skill' + (count !== 1 ? 's' : '') + ' to ' + level + '.', 'success');
+        }
+        window.executeBulkSetLevel = executeBulkSetLevel;
+        
+        function bulkManagerRemove() {
+            var names = getSelectedBulkSkillNames();
+            if (names.length === 0) return;
+            if (!confirm('Remove ' + names.length + ' skill' + (names.length > 1 ? 's' : '') + ' from this profile?\n\nThis cannot be undone.')) return;
+            
+            var count = 0;
+            names.forEach(function(name) {
+                var idx = userData.skills.findIndex(function(s) { return s.name === name; });
+                if (idx !== -1) { userData.skills.splice(idx, 1); count++; }
+                var sdIdx = skillsData.skills.findIndex(function(s) { return s.name === name; });
+                if (sdIdx !== -1) skillsData.skills.splice(sdIdx, 1);
+            });
+            
+            saveUserData();
+            if (fbUser) saveToFirestore();
+            rescoreAllJobs();
+            refreshAllViews();
+            renderBulkManagerList();
+            showToast('Removed ' + count + ' skill' + (count !== 1 ? 's' : '') + ' from profile.', 'info');
+        }
+        window.bulkManagerRemove = bulkManagerRemove;
         
         function openEditSkillModal(skillName, category) {
             const skill = userData.skills.find(s => s.name === skillName);
