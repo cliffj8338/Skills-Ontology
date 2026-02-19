@@ -1,10 +1,20 @@
-# Work Blueprint — Project Context
+# Blueprint — Project Context
 
-**Version:** v4.3.1 | **Build:** 20260218-0510 | **Lines:** ~16,240 | **Functions:** ~312
+**Version:** v4.4.0 | **Build:** 20260218-0520 | **Lines:** ~16,250 | **Functions:** ~312
 **Repository:** https://github.com/cliffj8338/Skills-Ontology
 **Live:** https://cliffj8338.github.io/Skills-Ontology/
+**Founder:** Cliff Jurkiewicz
+
+## Branding
+- **Name:** Blueprint (formerly "Work Blueprint")
+- **Logo:** B4 "Architect's Stamp" — network graph mark (5 nodes, 4 primary connections, 3 secondary) contained within a subtle circular ring
+- **Typography:** Outfit 500, spaced uppercase (letter-spacing: 0.22em)
+- **Mark colors:** Center node #60a5fa, outer nodes #93bbfc and #818cf8, ring #60a5fa at 22% opacity
+- **Light mode variant:** #2563eb, #3b82f6, #6366f1
+- **Font import:** Google Fonts — Outfit 400-700
+- **SVG mark viewBox:** 0 0 52 52 (scales cleanly to any size)
 **Creator:** Cliff Jurkiewicz
-**Page Title:** "Work Blueprint by Cliff Jurkiewicz"
+**Page Title:** "Blueprint by Cliff Jurkiewicz"
 
 ---
 
@@ -140,7 +150,7 @@ currentSkillsView = 'network'     // 'network' or 'card' within Skills tab
 
 ### Navigation
 
-**Header tabs:** Skills | Jobs | Applications | Work Blueprint
+**Header tabs:** Skills | Jobs | Applications | Blueprint
 **Header right:** Theme toggle | Sign In | Profile chip + dropdown | Overflow menu
 
 **Logo click** returns to welcome page.
@@ -156,7 +166,7 @@ currentSkillsView = 'network'     // 'network' or 'card' within Skills tab
 | Skills Card | cardView | cardViewInitialized | Grid cards |
 | Jobs | opportunitiesView | opportunitiesInitialized | Job matching |
 | Applications | applicationsView | applicationsInitialized | App tracker |
-| Work Blueprint | blueprintView | blueprintInitialized | Executive summary |
+| Blueprint | blueprintView | blueprintInitialized | Executive summary |
 | Consent | consentView | consentInitialized | Privacy/GDPR |
 | Settings | settingsView | settingsInitialized | Preferences |
 
@@ -303,7 +313,7 @@ All export options consolidated under Blueprint tab > Export sub-tab. Overflow m
 
 ### Removed
 - Old "Export Profile" modal with 3 stub options (Capability, LinkedIn, Interview)
-- Separate "Generate Work Blueprint" overflow menu item
+- Separate "Generate Blueprint" overflow menu item
 - `exportProfile()` function still exists but only 'resume' works, others toast "coming soon"
 
 ---
@@ -438,7 +448,7 @@ Each saved job in `userData.savedJobs[]`:
 | Consent presets don't propagate | Only 'full' preset had logic, others were no-ops | All 5 presets now apply appropriate sharing filters |
 | Consent hardcoded "all 73 skills" | Preset description assumed specific skill count | Replaced with dynamic skillsData.skills.length |
 | Export modal shows 3 stubs ("coming next release") | Old modal had Resume + 3 placeholder options | Removed modal export path, consolidated to Blueprint > Export tab |
-| Two redundant overflow menu export buttons | "Export Profile" (modal) and "Generate Work Blueprint" (direct) | Merged into single "Export Blueprint" pointing to Blueprint tab |
+| Two redundant overflow menu export buttons | "Export Profile" (modal) and "Generate Blueprint" (direct) | Merged into single "Export Blueprint" pointing to Blueprint tab |
 | Network view unusable on mobile | All skills rendered, too crowded, no touch optimization | Mobile shows top 25 key/expert skills, bigger circles, hidden labels, tighter forces |
 | Profile switch always shows network on mobile | switchProfile hardcoded switchView('network') | Added mobile detection to default to card view |
 
@@ -451,7 +461,7 @@ Each saved job in `userData.savedJobs[]`:
 | Network graphic behind hero text, hard to see | Full-bleed canvas with text overlay was muddy | Moved network to bordered showcase frame below CTAs |
 | "View Sample Profiles" button does nothing | `viewSampleProfile()` writes picker HTML, then `switchView('welcome')` calls `renderWelcomePage()` which overwrites it | Added `_welcomePickerActive` flag, switchView skips re-render when set |
 | Sample picker cards overlap footer disclaimer | No bottom padding on picker container | Added `padding-bottom:80px` to picker wrapper |
-| Sample click lands on Work Blueprint tab | `switchProfile` called `switchView('blueprint')` | Changed to `switchView('network')` (the wow factor) |
+| Sample click lands on Blueprint tab | `switchProfile` called `switchView('blueprint')` | Changed to `switchView('network')` (the wow factor) |
 | "Viewing: Name" toast appears at top-left then disappears | Unnecessary toast after clicking a sample card | Removed toast from switchProfile entirely |
 | Scroll position wrong after sample click | `scrollTo(0,0)` fires before view renders | Moved to `setTimeout(50ms)` after switchView |
 | Wizard completion calls unguarded initNetwork | Could render network into invisible container | Reset init flags and call `switchView('network')` instead (lazy init handles rendering) |
@@ -516,6 +526,7 @@ Skills-Ontology/
 | v4.2.0-0430 | 20260218 | Job Cart: JD analysis (Claude API + local fallback), match scoring, pipeline UI, Firestore persistence |
 | v4.3.0-0500 | 20260218 | Job Cart Phase 2: Network overlay (You/Job/Match toggle), job-only network, match visualization with legend |
 | v4.3.1-0510 | 20260218 | Parser rebuild: 100+ skill dictionary, phrase extraction, better title parsing. Edit/delete/re-analyze on jobs. Fuzzy word-overlap matching. |
+| v4.4.0-0520 | 20260218 | Rebrand: "Blueprint" → "Blueprint". B4 Architect's Stamp logo (Outfit 500 spaced caps). SVG network mark replaces ◈ diamond throughout. All user-facing strings updated. |
 
 ---
 
@@ -585,6 +596,10 @@ Skills-Ontology/
 - [x] Job management: edit info modal (title, company, URL, note)
 - [x] Job management: re-analyze button (re-runs parser against stored JD text)
 - [x] Job management: edit/remove buttons visible on pipeline cards and detail view header
+- [x] Rebrand: "Work Blueprint" → "Blueprint" across all 96 user-facing references
+- [x] Logo: B4 Architect's Stamp SVG mark replaces ◈ diamond in header, wizard, banners
+- [x] Typography: Outfit font imported, header uses spaced uppercase lockup
+- [x] Founder attribution: Cliff Jurkiewicz throughout
 
 ---
 
