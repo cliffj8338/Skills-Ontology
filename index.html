@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.18.0 | 20260219 | Feature: Function-based salary anchors, Values tab fix, cert auto-skill -->
+    <!-- v4.18.1 | 20260219 | Feature: Salary caps (90th percentile ceiling per function/seniority) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -5553,7 +5553,9 @@
                     premiumAmount: 0,
                     mode: useMode,
                     roleFloor: 0,
-                    roleFloorApplied: false
+                    roleFloorApplied: false,
+                    salaryCap: 0,
+                    salaryCapApplied: false
                 };
             }
             
@@ -5586,6 +5588,23 @@
                 legal:       [70000, 100000, 140000, 185000, 280000],
                 engineering: [60000, 85000, 115000, 150000, 220000],
                 general:     [50000, 70000, 95000,  130000, 200000]
+            };
+            
+            // Salary caps per function/seniority (90th percentile ceiling)
+            var SALARY_CAP = {
+                technology:  [90000, 130000, 175000, 230000, 350000],
+                hr:          [72000, 100000, 135000, 185000, 275000],
+                recruiting:  [68000, 95000,  125000, 175000, 260000],
+                marketing:   [72000, 105000, 145000, 200000, 300000],
+                finance:     [80000, 115000, 155000, 210000, 330000],
+                sales:       [72000, 110000, 150000, 200000, 300000],
+                operations:  [72000, 100000, 135000, 180000, 260000],
+                strategy:    [90000, 135000, 185000, 250000, 400000],
+                healthcare:  [72000, 100000, 130000, 175000, 275000],
+                education:   [58000, 80000,  105000, 145000, 220000],
+                legal:       [90000, 135000, 185000, 250000, 400000],
+                engineering: [80000, 115000, 155000, 200000, 300000],
+                general:     [65000, 95000,  125000, 175000, 275000]
             };
             
             var functionPatterns = [
@@ -5755,6 +5774,12 @@
             var finalValue = Math.max(totalValue, roleFloor);
             var roleFloorApplied = finalValue > totalValue;
             
+            // Apply salary cap (90th percentile ceiling for function/seniority)
+            var capBand = SALARY_CAP[detectedFunction] || SALARY_CAP.general;
+            var salaryCap = Math.round((capBand[seniorityLevel] || capBand[4]) * locationMultiplier);
+            var salaryCapApplied = finalValue > salaryCap;
+            if (salaryCapApplied) finalValue = salaryCap;
+            
             // Calculate offer ranges
             const conservativeOffer = Math.round(finalValue * 0.75);
             const standardOffer = Math.round(finalValue * 0.85);
@@ -5816,6 +5841,8 @@
                 mode: useMode,
                 roleFloor: roleFloor,
                 roleFloorApplied: roleFloorApplied,
+                salaryCap: salaryCap,
+                salaryCapApplied: salaryCapApplied,
                 rawCalculatedValue: totalValue,
                 detectedFunction: detectedFunction,
                 seniorityIndex: seniorityLevel,
@@ -11398,7 +11425,7 @@ body {
                         <div style="color: ${tv("#d1d5db","#334155")}; font-size: 1em; margin-bottom: 8px;">
                             ${totalValue.roleLevel} \u2022 ${totalValue.compaRatio}% of Market Median
                         </div>
-                        <div style="color: ${tv("#9ca3af","#64748b")}; font-size: 0.9em; margin-bottom: ${totalValue.mode === 'potential' || totalValue.roleFloorApplied ? '15' : '30'}px;">
+                        <div style="color: ${tv("#9ca3af","#64748b")}; font-size: 0.9em; margin-bottom: ${totalValue.mode === 'potential' || totalValue.roleFloorApplied || totalValue.salaryCapApplied ? '15' : '30'}px;">
                             Based on top 10 skills \u2022 ${userData.profile.location}
                         </div>
                         
@@ -11412,6 +11439,14 @@ body {
                                     var gap = totalValue.yourWorth - evidenceVal.yourWorth;
                                     return gap > 0 ? '<strong style="color:#f59e0b;">Adding evidence could close a $' + gap.toLocaleString() + ' gap.</strong>' : '';
                                 })()}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        ${totalValue.salaryCapApplied ? `
+                        <div style="background:rgba(139,92,246,0.08); border:1px solid rgba(139,92,246,0.15); border-radius:10px; padding:12px 16px; margin-bottom:20px; text-align:left;">
+                            <div style="color:#a78bfa; font-size:0.82em; line-height:1.4;">
+                                \uD83D\uDCCA Market ceiling applied: 90th percentile for ${totalValue.detectedFunction ? totalValue.detectedFunction.charAt(0).toUpperCase() + totalValue.detectedFunction.slice(1) : ''} / ${totalValue.roleLevel} is $${totalValue.salaryCap.toLocaleString()}.
                             </div>
                         </div>
                         ` : ''}
@@ -20521,7 +20556,7 @@ body {
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2 class="modal-title">Blueprint</h2>
-                        <p style="color: #9ca3af; margin-top: 5px;">v4.18.0 · Your career, fully represented</p>
+                        <p style="color: #9ca3af; margin-top: 5px;">v4.18.1 · Your career, fully represented</p>
                     </div>
                     <button class="modal-close" onclick="closeExportModal()">×</button>
                 </div>
