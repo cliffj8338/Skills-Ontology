@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.16.1 | 20260219 | Feature: Evidence CRUD, edit skill gap awareness, card view evidence indicators -->
+    <!-- v4.17.0 | 20260219 | Feature: Certification Library (191 credentials), tier-aware evidence floors, searchable picker -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -5836,9 +5836,12 @@
                 points += outcomeScore;
             });
             
-            // Certification floor check
+            // Certification floor check — tier-aware (highest cert wins)
             if (hasLinkedCertification(skill.name)) {
-                points = Math.max(points, evidenceConfig.certFloorPoints);
+                var tier = getHighestCertTier(skill.name);
+                var floorLevel = tier >= 2 ? 'Advanced' : 'Proficient';
+                var floorPts = evidenceConfig.thresholds[floorLevel] || evidenceConfig.certFloorPoints;
+                points = Math.max(points, floorPts);
             }
             
             return Math.round(points * 10) / 10; // one decimal
@@ -5860,14 +5863,47 @@
             return 'Novice';
         }
         
-        // Check if a skill has a linked certification
+        // Check if a skill has a linked certification (manual links OR library maps)
         function hasLinkedCertification(skillName) {
             var certs = userData.certifications || [];
             var sn = skillName.toLowerCase();
             return certs.some(function(c) {
+                // Check manual links first
                 var linkedSkills = c.linkedSkills || [];
-                return linkedSkills.some(function(ls) { return ls.toLowerCase() === sn; });
+                if (linkedSkills.some(function(ls) { return ls.toLowerCase() === sn; })) return true;
+                // Check library skill maps
+                var libCert = findCertInLibrary(c.name) || findCertInLibrary(c.abbr);
+                if (libCert && libCert.skills) {
+                    return libCert.skills.some(function(ls) { return ls.toLowerCase() === sn; });
+                }
+                return false;
             });
+        }
+        
+        // Get the highest cert tier that links to this skill
+        function getHighestCertTier(skillName) {
+            var certs = userData.certifications || [];
+            var sn = skillName.toLowerCase();
+            var highestTier = 0;
+            certs.forEach(function(c) {
+                var isLinked = false;
+                var linkedSkills = c.linkedSkills || [];
+                if (linkedSkills.some(function(ls) { return ls.toLowerCase() === sn; })) isLinked = true;
+                if (!isLinked) {
+                    var libCert = findCertInLibrary(c.name) || findCertInLibrary(c.abbr);
+                    if (libCert && libCert.skills && libCert.skills.some(function(ls) { return ls.toLowerCase() === sn; })) {
+                        isLinked = true;
+                        if (libCert.tier > highestTier) highestTier = libCert.tier;
+                    }
+                }
+                if (isLinked && highestTier < 2) {
+                    // Check tier from library
+                    var lib = findCertInLibrary(c.name) || findCertInLibrary(c.abbr);
+                    var tier = lib ? lib.tier : 1;
+                    if (tier > highestTier) highestTier = tier;
+                }
+            });
+            return highestTier;
         }
         
         // Get verifications for a skill (from verifications array on userData)
@@ -6294,6 +6330,84 @@
         };
         
         // Load skill valuations from JSON
+        var certLibrary = { credentials: [], tiers: {} };
+        
+        fetch('certification_library.json')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                certLibrary = data;
+                console.log('\u2705 Certification library loaded: ' + data.totalCredentials + ' credentials');
+            })
+            .catch(function(e) { console.warn('\u26A0\uFE0F Could not load certification library:', e); });
+        
+        // Search certification library by name, abbreviation, or description
+        function searchCertLibrary(query) {
+            if (!query || query.length < 2) return [];
+            var q = query.toLowerCase();
+            return (certLibrary.credentials || []).filter(function(c) {
+                return c.name.toLowerCase().includes(q) 
+                    || c.abbr.toLowerCase().includes(q)
+                    || c.description.toLowerCase().includes(q)
+                    || c.category.toLowerCase().includes(q);
+            }).slice(0, 15);
+        }
+        
+        // Find a specific cert by abbreviation or exact name
+        function findCertInLibrary(nameOrAbbr) {
+            if (!nameOrAbbr) return null;
+            var q = nameOrAbbr.toLowerCase().trim();
+            return (certLibrary.credentials || []).find(function(c) {
+                return c.abbr.toLowerCase() === q || c.name.toLowerCase() === q;
+            }) || null;
+        }
+        
+        // Get skill associations for a cert (curated first, fallback to category matching)
+        function getCertSkillAssociations(cert) {
+            if (!cert) return [];
+            // Curated maps take priority
+            if (cert.skills && cert.skills.length > 0) return cert.skills.slice();
+            // Fallback: match cert category keywords to profile skill names
+            return getFallbackSkillMatches(cert);
+        }
+        
+        // Fallback: keyword matching between cert description/category and profile skills
+        function getFallbackSkillMatches(cert) {
+            if (!cert) return [];
+            var keywords = (cert.description + ' ' + cert.category + ' ' + cert.name)
+                .toLowerCase().split(/[\s,.\-\/]+/).filter(function(w) { return w.length > 3; });
+            // Remove common stop words
+            var stops = ['and','the','for','with','from','that','this','level','based','state','national','professional','certified','certification','license','advanced'];
+            keywords = keywords.filter(function(w) { return stops.indexOf(w) < 0; });
+            
+            var matches = [];
+            (skillsData.skills || []).forEach(function(skill) {
+                var sn = skill.name.toLowerCase();
+                var matchCount = keywords.filter(function(kw) { return sn.includes(kw); }).length;
+                if (matchCount > 0) matches.push({ name: skill.name, score: matchCount });
+            });
+            matches.sort(function(a, b) { return b.score - a.score; });
+            return matches.slice(0, 6).map(function(m) { return m.name; });
+        }
+        
+        // Get cert floor level based on tier
+        function getCertFloorLevel(cert) {
+            if (!cert) return evidenceConfig.certFloor;
+            return cert.tier === 2 ? 'Advanced' : 'Proficient';
+        }
+        
+        // Get cert floor POINTS based on tier
+        function getCertFloorPoints(cert) {
+            if (!cert) return evidenceConfig.certFloorPoints;
+            var floor = getCertFloorLevel(cert);
+            return evidenceConfig.thresholds[floor] || evidenceConfig.certFloorPoints;
+        }
+        
+        // Expose
+        window.searchCertLibrary = searchCertLibrary;
+        window.findCertInLibrary = findCertInLibrary;
+        window.getCertSkillAssociations = getCertSkillAssociations;
+        window.getCertFloorLevel = getCertFloorLevel;
+        
         fetch('skill_valuations.json')
             .then(response => response.json())
             .then(data => {
@@ -16013,20 +16127,33 @@ body {
                 + '<div class="blueprint-section-header">'
                 + '<div class="blueprint-section-title">'
                 + '<span class="section-icon">\uD83C\uDFC5</span>'
-                + '<span>Certifications & Licenses</span>'
+                + '<span>Certifications, Licenses & Degrees</span>'
                 + '<span class="section-count">' + certItems.length + ' entries</span>'
                 + '</div>'
                 + '</div>';
             
             if (certItems.length > 0) {
                 certItems.forEach(function(cert, idx) {
+                    var tierColor = cert.tier >= 2 ? '#f59e0b' : '#10b981';
+                    var tierTag = cert.tier >= 2 ? 'ADV' : 'PRO';
+                    var linkedCount = (cert.linkedSkills || []).length;
+                    var libSkills = cert.libraryMatch ? (findCertInLibrary(cert.libraryMatch) || {}).skills : null;
+                    var totalLinks = linkedCount + (libSkills ? libSkills.length : 0);
+                    
                     html += '<div style="padding:12px 16px; margin-bottom:8px; background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; '
                         + 'border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.08)') + '; border-radius:8px; '
                         + 'display:flex; justify-content:space-between; align-items:center;">'
                         + '<div>'
-                        + '<div style="font-weight:600; color:' + tv('#e0e0e0','#1f2937') + '; font-size:0.9em;">' + (cert.name || '') + '</div>'
-                        + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.82em;">'
-                        + (cert.issuer || '') + (cert.year ? ' \u00B7 ' + cert.year : '') + '</div>'
+                        + '<div style="font-weight:600; color:' + tv('#e0e0e0','#1f2937') + '; font-size:0.9em;">'
+                        + (cert.name || '')
+                        + (cert.abbr ? ' <span style="color:' + tv('#60a5fa','#2563eb') + '; font-size:0.85em;">(' + cert.abbr + ')</span>' : '')
+                        + '</div>'
+                        + '<div style="display:flex; gap:6px; align-items:center; margin-top:3px;">'
+                        + '<span style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.82em;">'
+                        + (cert.issuer || '') + (cert.year ? ' \u00B7 ' + cert.year : '') + '</span>'
+                        + (cert.tier ? ' <span style="font-size:0.68em; padding:1px 6px; border-radius:6px; background:rgba(' + (cert.tier >= 2 ? '245,158,11' : '16,185,129') + ',0.12); color:' + tierColor + '; font-weight:700;">' + tierTag + '</span>' : '')
+                        + (totalLinks > 0 ? ' <span style="font-size:0.72em; color:' + tv('#a78bfa','#7c3aed') + ';">\uD83D\uDD17 ' + totalLinks + ' skills</span>' : '')
+                        + '</div>'
                         + '</div>'
                         + '<div style="display:flex; gap:6px;">'
                         + '<button onclick="editCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:' + tv('#60a5fa','#2563eb') + ';">\u270E</button>'
@@ -16035,7 +16162,7 @@ body {
                 });
             } else {
                 html += '<div style="text-align:center; padding:16px; color:' + tv('#6b7280','#9ca3af') + '; font-size:0.88em;">'
-                    + 'No certifications yet.'
+                    + 'No credentials yet. Add certifications, licenses, or degrees from the library.'
                     + '</div>';
             }
             
@@ -16044,7 +16171,7 @@ body {
                 + 'border:1px solid ' + tv('rgba(96,165,250,0.3)','rgba(30,64,175,0.2)') + '; '
                 + 'color:' + tv('#60a5fa','#1e40af') + '; padding:8px 16px; border-radius:8px; cursor:pointer; '
                 + 'font-size:0.85em; font-weight:600; margin-top:8px;">'
-                + '+ Add Certification</button>'
+                + '+ Add Credential</button>'
                 + '</div>';
             
             // Save button
@@ -16272,7 +16399,7 @@ body {
         }
         
         function openCertModal(idx) {
-            var cert = idx >= 0 ? userData.certifications[idx] : { name:'', issuer:'', year:'', linkedSkills:[] };
+            var cert = idx >= 0 ? userData.certifications[idx] : { name:'', abbr:'', issuer:'', year:'', type:'Certification', linkedSkills:[], tier:1, libraryMatch:null };
             var isEdit = idx >= 0;
             var modal = document.getElementById('exportModal');
             var mc = modal.querySelector('.modal-content');
@@ -16290,39 +16417,170 @@ body {
                 return '<option value="' + s.name.replace(/"/g,'&quot;') + '">';
             }).join('');
             
+            // Determine tier display
+            var tierLevel = cert.tier || 1;
+            var tierLabel = tierLevel >= 2 ? 'Advanced' : 'Proficient';
+            var tierColor = tierLevel >= 2 ? '#f59e0b' : '#10b981';
+            
             mc.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left">'
-                + '<h2 class="modal-title">' + (isEdit ? 'Edit Certification' : 'Add Certification') + '</h2>'
+                + '<h2 class="modal-title">' + (isEdit ? 'Edit Credential' : 'Add Credential') + '</h2>'
+                + '<p style="color:' + tv('#9ca3af','#64748b') + '; margin-top:4px; font-size:0.85em;">Search the library or enter manually</p>'
                 + '</div>'
                 + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
-                + '<div class="modal-body" style="padding:24px;">'
+                + '<div class="modal-body" style="padding:24px; max-height:75vh; overflow-y:auto;">'
+                
+                // Library search
+                + '<div class="settings-group" style="margin-bottom:16px; position:relative;">'
+                + '<label class="settings-label">\uD83D\uDD0D Search Credential Library <span style="font-weight:400; color:' + tv('#6b7280','#9ca3af') + '; font-size:0.88em;">(191 credentials)</span></label>'
+                + '<input type="text" class="settings-input" id="certLibrarySearch" '
+                + 'placeholder="Type name, abbreviation, or category..." '
+                + 'oninput="onCertLibrarySearch()" autocomplete="off" '
+                + 'style="font-size:0.9em;"'
+                + (isEdit ? ' value="' + (cert.name||'').replace(/"/g,'&quot;') + '"' : '') + '>'
+                + '<div id="certSearchResults" style="display:none; position:absolute; top:100%; left:0; right:0; z-index:100; max-height:240px; overflow-y:auto; '
+                + 'background:' + tv('#1e1e2e','#fff') + '; border:1px solid ' + tv('rgba(255,255,255,0.15)','#d1d5db') + '; border-radius:8px; margin-top:4px; '
+                + 'box-shadow:0 8px 24px rgba(0,0,0,0.3);"></div>'
+                + '</div>'
+                
+                // Tier badge
+                + '<div id="certTierBadge" style="margin-bottom:14px;' + (isEdit && cert.tier ? '' : ' display:none;') + '">'
+                + '<span style="font-size:0.78em; padding:3px 10px; border-radius:10px; font-weight:600; background:rgba(' + (tierLevel >= 2 ? '245,158,11' : '16,185,129') + ',0.12); color:' + tierColor + ';">'
+                + (tierLevel >= 2 ? '\u2B50 Tier 2: Advanced' : '\u2705 Tier 1: Proficient') + ' floor for linked skills</span>'
+                + '</div>'
+                
+                // Manual fields
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
-                + '<div class="settings-group" style="grid-column:1/-1;"><label class="settings-label">Certification Name</label>'
-                + '<input type="text" class="settings-input" id="certName" value="' + (cert.name||'').replace(/"/g,'&quot;') + '" placeholder="PMP, SHRM-SCP, AWS Solutions Architect, etc."></div>'
+                + '<div class="settings-group" style="grid-column:1/-1;"><label class="settings-label">Credential Name *</label>'
+                + '<input type="text" class="settings-input" id="certName" value="' + (cert.name||'').replace(/"/g,'&quot;') + '" placeholder="Full credential name"></div>'
+                + '<div class="settings-group"><label class="settings-label">Abbreviation</label>'
+                + '<input type="text" class="settings-input" id="certAbbr" value="' + (cert.abbr||'').replace(/"/g,'&quot;') + '" placeholder="PMP, CFA, CDL-A" style="font-size:0.9em;"></div>'
                 + '<div class="settings-group"><label class="settings-label">Issuing Organization</label>'
                 + '<input type="text" class="settings-input" id="certIssuer" value="' + (cert.issuer||'').replace(/"/g,'&quot;') + '" placeholder="PMI, SHRM, AWS, etc."></div>'
+                + '<div class="settings-group"><label class="settings-label">Type</label>'
+                + '<select class="settings-select" id="certType" style="font-size:0.88em;">'
+                + ['Certification','License','Degree','Rating','Endorsement','Credential','Certificate','Commission'].map(function(t) {
+                    return '<option value="' + t + '"' + ((cert.type || 'Certification') === t ? ' selected' : '') + '>' + t + '</option>';
+                }).join('')
+                + '</select></div>'
                 + '<div class="settings-group"><label class="settings-label">Year Obtained</label>'
                 + '<input type="text" class="settings-input" id="certYear" value="' + (cert.year||'') + '" placeholder="2023"></div>'
                 + '</div>'
+                
+                // Linked skills
                 + '<div class="settings-group" style="margin-top:14px;">'
-                + '<label class="settings-label">\uD83D\uDD17 Link to Profile Skills</label>'
-                + '<div class="settings-help" style="margin-bottom:8px;">Linked skills are automatically bumped to at least <strong>' + evidenceConfig.certFloor + '</strong> effective level for market valuation.</div>'
+                + '<label class="settings-label">\uD83D\uDD17 Linked Skills</label>'
+                + '<div class="settings-help" style="margin-bottom:8px;">Skills linked to this credential receive a <strong id="certFloorLabel">' + tierLabel + '</strong> evidence floor for market valuation.</div>'
                 + '<div id="certLinkedSkillsContainer" style="display:flex; flex-wrap:wrap; margin-bottom:8px;">' + linkedHTML + '</div>'
                 + '<div style="display:flex; gap:8px;">'
                 + '<input type="text" class="settings-input" id="certLinkSkillInput" list="certSkillSuggestions" placeholder="Type skill name..." style="flex:1; font-size:0.88em;">'
                 + '<datalist id="certSkillSuggestions">' + skillOptions + '</datalist>'
                 + '<button onclick="addCertLinkedSkill()" style="padding:6px 14px; background:' + tv('rgba(139,92,246,0.15)','rgba(139,92,246,0.08)') + '; color:' + tv('#a78bfa','#7c3aed') + '; border:1px solid ' + tv('rgba(139,92,246,0.3)','rgba(139,92,246,0.2)') + '; border-radius:6px; cursor:pointer; font-size:0.82em; white-space:nowrap;">+ Link</button>'
                 + '</div></div>'
+                
+                // Save/Cancel
                 + '<div style="display:flex; gap:10px; margin-top:20px;">'
                 + '<button onclick="saveCertFromModal(' + idx + ')" style="background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:8px; cursor:pointer; font-weight:600;">'
-                + (isEdit ? 'Save' : 'Add') + '</button>'
+                + (isEdit ? 'Save' : 'Add Credential') + '</button>'
                 + '<button onclick="closeExportModal()" style="background:transparent; color:' + tv('#9ca3af','#64748b') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','#d1d5db') + '; padding:10px 20px; border-radius:8px; cursor:pointer;">Cancel</button>'
                 + '</div></div>';
             
             modal.style.display = 'flex';
             initCertLinkedSkills(linkedSkills);
+            window._selectedLibCert = cert.libraryMatch || null;
         }
+        
+        // Library search handler
+        function onCertLibrarySearch() {
+            var input = document.getElementById('certLibrarySearch');
+            var results = document.getElementById('certSearchResults');
+            if (!input || !results) return;
+            
+            var query = input.value.trim();
+            if (query.length < 2) { results.style.display = 'none'; return; }
+            
+            var matches = searchCertLibrary(query);
+            if (matches.length === 0) {
+                results.innerHTML = '<div style="padding:12px 16px; color:' + tv('#6b7280','#9ca3af') + '; font-size:0.85em;">No matches. Enter the credential manually below.</div>';
+                results.style.display = 'block';
+                return;
+            }
+            
+            var html = '';
+            matches.forEach(function(c) {
+                var tierBg = c.tier >= 2 ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)';
+                var tierColor = c.tier >= 2 ? '#f59e0b' : '#10b981';
+                var tierTag = c.tier >= 2 ? 'ADV' : 'PRO';
+                
+                html += '<div onclick="selectCertFromLibrary(\'' + c.abbr.replace(/'/g,"\\'") + '\')" '
+                    + 'style="padding:10px 16px; cursor:pointer; border-bottom:1px solid ' + tv('rgba(255,255,255,0.05)','rgba(0,0,0,0.04)') + '; '
+                    + 'transition:background 0.1s;" '
+                    + 'onmouseover="this.style.background=\'' + tv('rgba(255,255,255,0.06)','rgba(0,0,0,0.03)') + '\'" '
+                    + 'onmouseout="this.style.background=\'transparent\'">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                    + '<div>'
+                    + '<div style="font-weight:600; color:' + tv('#e0e0e0','#1f2937') + '; font-size:0.88em;">'
+                    + c.name + ' <span style="color:' + tv('#60a5fa','#2563eb') + '; font-size:0.85em;">(' + c.abbr + ')</span></div>'
+                    + '<div style="font-size:0.78em; color:' + tv('#9ca3af','#64748b') + ';">' + c.category + ' \u00B7 ' + c.type
+                    + (c.skills ? ' \u00B7 ' + c.skills.length + ' skill links' : '') + '</div>'
+                    + '</div>'
+                    + '<span style="font-size:0.7em; padding:2px 8px; border-radius:8px; background:' + tierBg + '; color:' + tierColor + '; font-weight:700;">' + tierTag + '</span>'
+                    + '</div></div>';
+            });
+            
+            results.innerHTML = html;
+            results.style.display = 'block';
+        }
+        window.onCertLibrarySearch = onCertLibrarySearch;
+        
+        function selectCertFromLibrary(abbr) {
+            var cert = findCertInLibrary(abbr);
+            if (!cert) return;
+            
+            document.getElementById('certName').value = cert.name;
+            document.getElementById('certAbbr').value = cert.abbr;
+            document.getElementById('certLibrarySearch').value = cert.name;
+            
+            var typeSelect = document.getElementById('certType');
+            if (typeSelect) {
+                var opts = Array.from(typeSelect.options);
+                var match = opts.find(function(o) { return o.value === cert.type; });
+                if (match) typeSelect.value = cert.type;
+            }
+            
+            // Update tier badge
+            var badge = document.getElementById('certTierBadge');
+            var floorLabel = document.getElementById('certFloorLabel');
+            if (badge) {
+                var tColor = cert.tier >= 2 ? '#f59e0b' : '#10b981';
+                var tBg = cert.tier >= 2 ? '245,158,11' : '16,185,129';
+                badge.style.display = '';
+                badge.innerHTML = '<span style="font-size:0.78em; padding:3px 10px; border-radius:10px; font-weight:600; background:rgba(' + tBg + ',0.12); color:' + tColor + ';">'
+                    + (cert.tier >= 2 ? '\u2B50 Tier 2: Advanced' : '\u2705 Tier 1: Proficient') + ' floor for linked skills</span>'
+                    + (cert.skills ? ' <span style="font-size:0.72em; color:' + tv('#9ca3af','#64748b') + ';">\u00B7 ' + cert.skills.length + ' curated skill links</span>' : '');
+            }
+            if (floorLabel) floorLabel.textContent = cert.tier >= 2 ? 'Advanced' : 'Proficient';
+            
+            // Auto-suggest skill links
+            var associations = getCertSkillAssociations(cert);
+            if (associations.length > 0) {
+                window._certLinkedSkills = [];
+                var container = document.getElementById('certLinkedSkillsContainer');
+                container.innerHTML = '';
+                associations.forEach(function(sn) {
+                    window._certLinkedSkills.push(sn);
+                    var span = document.createElement('span');
+                    span.style.cssText = 'display:inline-flex; align-items:center; gap:4px; padding:3px 10px; background:' + tv('rgba(139,92,246,0.12)','rgba(139,92,246,0.08)') + '; color:' + tv('#a78bfa','#7c3aed') + '; border-radius:12px; font-size:0.82em; margin:2px 4px 2px 0;';
+                    span.innerHTML = sn + ' <button onclick="removeCertLinkedSkill(this, \'' + sn.replace(/'/g,"\\'") + '\')" style="background:none; border:none; cursor:pointer; color:inherit; font-size:1em; padding:0 2px;">\u00D7</button>';
+                    container.appendChild(span);
+                });
+            }
+            
+            window._selectedLibCert = cert;
+            document.getElementById('certSearchResults').style.display = 'none';
+        }
+        window.selectCertFromLibrary = selectCertFromLibrary;
         
         // Helper: track linked skills in modal state
         window._certLinkedSkills = [];
@@ -16353,12 +16611,17 @@ body {
         window.removeCertLinkedSkill = removeCertLinkedSkill;
         
         function saveCertFromModal(idx) {
+            var libCert = window._selectedLibCert || null;
             var entry = {
                 id: idx >= 0 ? (userData.certifications[idx].id || 'cert-' + Date.now()) : 'cert-' + Date.now(),
                 name: document.getElementById('certName').value.trim(),
+                abbr: (document.getElementById('certAbbr') || {}).value ? document.getElementById('certAbbr').value.trim() : '',
                 issuer: document.getElementById('certIssuer').value.trim(),
+                type: (document.getElementById('certType') || {}).value || 'Certification',
                 year: document.getElementById('certYear').value.trim(),
-                linkedSkills: window._certLinkedSkills ? window._certLinkedSkills.slice() : []
+                linkedSkills: window._certLinkedSkills ? window._certLinkedSkills.slice() : [],
+                tier: libCert ? libCert.tier : 1,
+                libraryMatch: libCert ? libCert.abbr : null
             };
             if (!entry.name) { showToast('Certification name is required.', 'warning'); return; }
             
@@ -19966,7 +20229,7 @@ body {
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2 class="modal-title">Blueprint</h2>
-                        <p style="color: #9ca3af; margin-top: 5px;">v4.16.1 · Your career, fully represented</p>
+                        <p style="color: #9ca3af; margin-top: 5px;">v4.17.0 · Your career, fully represented</p>
                     </div>
                     <button class="modal-close" onclick="closeExportModal()">×</button>
                 </div>

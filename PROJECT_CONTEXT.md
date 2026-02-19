@@ -1,5 +1,5 @@
-# PROJECT_CONTEXT.md — Blueprint v4.16.1 (Evidence CRUD + UX Consistency)
-**Updated:** 2026-02-19 | **Lines:** 20,119 | **Functions:** ~410 | **Size:** ~1.05 MB | **Braces:** 0 (balanced)
+# PROJECT_CONTEXT.md — Blueprint v4.17.0 (Certification Library)
+**Updated:** 2026-02-19 | **Lines:** 20,382 | **Functions:** ~425 | **Size:** ~1.08 MB | **Braces:** 0 (balanced)
 
 ## What Is Blueprint
 
@@ -35,6 +35,7 @@ Everything lives in one `index.html`: CSS (lines 1-3600), HTML structure (3600-3
 | `trades-creative-library.json` | Non-O*NET trade/creative skills |
 | `values-library.json` | Professional values catalog |
 | `skill_valuations.json` | Market value data per skill |
+| `certification_library.json` | 191 credentials with tiers, categories, curated skill maps |
 | `skill_evidence.json` | Pre-loaded evidence for demo profiles |
 | `onet-impact-ratings.json` | Skill impact scoring data |
 
@@ -48,7 +49,7 @@ Two primary state objects, kept in sync:
   skillDetails: {}, values: [], purpose: "", roles: [{id, name, color}],
   workHistory: [{id, title, company, location, startDate, endDate, current, description, achievements[]}],
   education: [{id, school, degree, field, year}],
-  certifications: [{id, name, issuer, year, linkedSkills[]}],
+  certifications: [{id, name, abbr, issuer, type, year, linkedSkills[], tier, libraryMatch}],
   verifications: [{id, skillName, claimedLevel, evidenceSummary, verifierName, verifierEmail, relationship, token, status, confirmedLevel, verifierNote, requestedAt, respondedAt}],
   preferences: {seniorityLevel, targetTitles, excludeRoles, ...},
   applications: [], savedJobs: [], templateId }
@@ -143,6 +144,46 @@ Alternative to network: grid of skill cards grouped by role, sorted by level. In
 
 ### Skill Modals (L9100-9400, 8 functions)
 `openSkillModal` — Rich detail modal for any skill: market value, proficiency bar, evidence list, related skills, coaching, category info. Accessible from both network nodes and card view.
+
+### Certification Library System (v4.17.0)
+**File:** `certification_library.json` — 191 credentials across 15 categories (University Degrees, Healthcare, Transportation, Technology, Finance, HR, Legal, Trades, Real Estate, Education, Food/Hospitality, Manufacturing, Marketing, Security, Environmental).
+
+**Data structure per credential:**
+```
+{ category, name, abbr, type (Certification|License|Degree|Rating|...), 
+  description, tier (1|2), skills? (curated array, present on 83 certs) }
+```
+
+**Tier system:**
+- Tier 1 (Foundation) → Proficient floor (5 pts). Standard professional credentials. 115 credentials.
+- Tier 2 (Advanced) → Advanced floor (10 pts). Expert/senior/highest-in-class. 76 credentials.
+- Highest cert wins: when multiple certs link to the same skill, the highest tier determines the floor.
+
+**Skill mapping (Option C hybrid):**
+- 83 credentials have curated skill maps (3-7 skills each) covering the most common certs
+- 108 uncurated credentials use fallback matching: keyword overlap between cert description/category and profile skill names
+- User can always edit/add/remove skill links manually
+
+**Key functions:**
+- `searchCertLibrary(query)` — Fuzzy search by name, abbreviation, description, or category. Returns top 15.
+- `findCertInLibrary(nameOrAbbr)` — Exact match by abbreviation or full name.
+- `getCertSkillAssociations(cert)` — Returns curated skills or fallback matches.
+- `getFallbackSkillMatches(cert)` — Keyword matching between cert metadata and profile skills.
+- `getCertFloorLevel(cert)` / `getCertFloorPoints(cert)` — Tier-aware floor calculation.
+- `getHighestCertTier(skillName)` — Scans all user certs for the highest tier linking to a skill.
+
+**UI: Cert Modal (Add/Edit Credential)**
+- Library search field with live dropdown showing matching credentials with tier badges (PRO/ADV)
+- Selecting from library auto-fills: name, abbreviation, type, tier badge, and suggested skill links
+- Manual entry supported for credentials not in library
+- New fields: abbreviation, type selector, tier badge display
+- Linked skills section shows dynamic floor label based on tier
+
+**Integration with Evidence Engine:**
+- `calculateEvidencePoints()` now calls `getHighestCertTier()` for tier-specific floors
+- `hasLinkedCertification()` checks both manual `linkedSkills[]` AND library curated skill maps
+- A PMP (tier 2) linking to "Project Management" bumps it to Advanced floor (10 pts)
+- A CompTIA A+ (tier 1) linking to "IT Support" bumps it to Proficient floor (5 pts)
 
 ### Evidence CRUD & UX Consistency (v4.16.1)
 **Principle:** Evidence editing lives in ONE canonical location (skill detail modal). All other surfaces link there. No duplicate editing paths that could diverge.
@@ -283,7 +324,16 @@ Theme toggle (dark/light), profile dropdown, filter panel, overflow menu. Help m
 
 ## Version History
 
-### v4.16.1 (current)
+### v4.17.0 (current)
+- **Certification Library:** 191 credentials (certifications, licenses, degrees, ratings) across 15 industry categories. Loaded from `certification_library.json`.
+- **Tier system:** Tier 1 (Foundation, 115 certs) → Proficient floor. Tier 2 (Advanced, 76 certs) → Advanced floor. Highest cert wins for overlapping skills.
+- **Curated skill maps:** 83 most common credentials have hand-built skill associations (PMP → Project Management, Risk Management, etc.). 108 use fallback keyword matching.
+- **Searchable cert picker:** Library search field in cert modal with live dropdown, tier badges (PRO/ADV), auto-fill of all fields, and auto-suggested skill links.
+- **Tier-aware evidence engine:** `calculateEvidencePoints()` uses `getHighestCertTier()` for dynamic floor calculation. `hasLinkedCertification()` checks library maps + manual links.
+- **Expanded cert data model:** Added `abbr`, `type`, `tier`, `libraryMatch` fields to certification records.
+- **Updated cert display:** Settings shows abbreviation, tier badge, linked skill count per credential.
+
+### v4.16.1
 - **Evidence CRUD:** Add/edit/remove outcomes directly in skill detail modal. Inline form with live point scoring preview. Each outcome shows its evidence point value (1-5) with edit/remove controls.
 - **Edit Skill gap awareness:** Edit Skill Modal now shows evidence status (points, effective level, outcome count). Level radio buttons trigger live gap warning when claimed level exceeds evidence. "+ Add Evidence" button links to skill detail modal.
 - **Card view indicators:** Evidence gap warning (⚠), evidence backing (✓), and verification (★) indicators on skill cards with hover tooltips.
@@ -392,7 +442,7 @@ Sessions are stored in `/mnt/transcripts/`:
 6. `2026-02-19-18-01-02-v410-skill-edit-sample-jobs-bugfix.txt`
 7. `2026-02-19-19-07-15-v412-v413-bulk-import-manager-overlay-panel.txt`
 8. Previous session: v4.14.0-v4.14.1 (calibrated sample jobs, overlay color fix, stabilization audit)
-9. Current session: v4.15.0-v4.16.1 (Work History/Education/Certs, Resume v2, Evidence Quality Engine, Verification System, Admin Thresholds, Evidence CRUD, UX Consistency)
+9. Current session: v4.15.0-v4.17.0 (Work History/Education/Certs, Resume v2, Evidence Engine, Verification, Evidence CRUD, UX Consistency, Certification Library)
 
 ---
 
@@ -417,6 +467,10 @@ Sessions are stored in `/mnt/transcripts/`:
 - **Code splitting** — Break monolith into modules (would require build tooling)
 - **Offline support** — Service worker for PWA capability
 - **Import from LinkedIn** — Parse LinkedIn data export
+
+### Completed (v4.17.0)
+- ✅ **Certification Library** — 191 credentials, searchable picker, tier system, curated skill maps
+- ✅ **Tier-aware evidence engine** — Dynamic floor calculation, highest cert wins
 
 ### Completed (v4.16.1)
 - ✅ **Evidence CRUD** — Add/edit/remove outcomes in skill modal with live scoring
