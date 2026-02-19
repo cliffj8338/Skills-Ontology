@@ -1,5 +1,5 @@
-# PROJECT_CONTEXT.md — Blueprint v4.14.1 (Stabilized)
-**Updated:** 2026-02-19 | **Lines:** 18,780 | **Functions:** 356 | **Size:** 947 KB | **Braces:** 0 (balanced)
+# PROJECT_CONTEXT.md — Blueprint v4.15.0 (Work History + Resume v2)
+**Updated:** 2026-02-19 | **Lines:** 19,316 | **Functions:** ~380 | **Size:** ~975 KB | **Braces:** 0 (balanced)
 
 ## What Is Blueprint
 
@@ -43,9 +43,12 @@ Two primary state objects, kept in sync:
 
 **`userData`** — The active profile:
 ```
-{ initialized, profile: {name, title, headline, photo, roleLevel},
+{ initialized, profile: {name, title, headline, photo, roleLevel, email, phone, linkedinUrl},
   skills: [{name, level, category, key, core, roles, evidence, synonyms}],
   skillDetails: {}, values: [], purpose: "", roles: [{id, name, color}],
+  workHistory: [{id, title, company, location, startDate, endDate, current, description, achievements[]}],
+  education: [{id, school, degree, field, year}],
+  certifications: [{id, name, issuer, year}],
   preferences: {seniorityLevel, targetTitles, excludeRoles, ...},
   applications: [], savedJobs: [], templateId }
 ```
@@ -140,8 +143,8 @@ Alternative to network: grid of skill cards grouped by role, sorted by level. In
 ### Skill Modals (L9100-9400, 8 functions)
 `openSkillModal` — Rich detail modal for any skill: market value, proficiency bar, evidence list, related skills, coaching, category info. Accessible from both network nodes and card view.
 
-### Resume & Document Generation (L9379-9936)
-`generateResume` — Full HTML resume with Crimson Pro typography, skill cards, outcomes, compensation framework. Opens in new window for printing.
+### Resume & Document Generation (L9379-9998)
+**Resume v2 (v4.15.0):** `generateResume` → `gatherResumeData` → `buildResumeHTML`. Full ATS-compatible HTML resume. Contact block includes email, phone, LinkedIn URL, location. Professional Experience section renders structured work history entries with per-role achievements. Education and Certifications sections. Falls back to single-entry stub if no work history data. Core competencies grid, values tags. Print-to-PDF via browser.
 
 `generateWorkBlueprint` / `gatherBlueprintData` / `createBlueprintHTML` — Executive Blueprint document.
 
@@ -168,6 +171,19 @@ Market valuation with role benchmarks. PDF generation with multi-page support. C
 **Remote job search:** Fetches from RemoteOK, Remotive, Arbeitnow APIs. Filters by match score, seniority, keywords.
 
 **Sample job locking (v4.14.0):** Jobs with `sample: true` flag. Non-admin cannot edit/remove/re-analyze. Guards in `removeJob()`, `editJobInfo()`, `reanalyzeJob()`. UI shows "🔒 Demo job" label.
+
+### Settings: Experience Tab (v4.15.0, ~24 functions)
+New "Experience" tab in Settings for managing structured career data:
+
+**Work History** (`renderExperienceSettings`, `openWorkHistoryModal`, `saveWorkHistoryFromModal`): Full CRUD for work positions. Each entry: title, company, location, start/end dates, current flag, description, achievements array. Modal-based editing with dynamic achievement inputs. Reverse chronological order. Data flows to resume generation.
+
+**Education** (`openEducationModal`, `saveEducationFromModal`): School, degree, field of study, year. Simple CRUD with modal editing.
+
+**Certifications** (`openCertModal`, `saveCertFromModal`): Cert name, issuing org, year. Simple CRUD with modal editing.
+
+**Profile Settings** also enhanced: phone and LinkedIn URL fields added alongside existing email. All contact fields appear in resume exports.
+
+All three data types persist through the same chain: `saveAll()` → Firestore (if signed in) + localStorage values.
 
 ### Applications Tracker (L15469-15800, 10 functions)
 Kanban-style tracker: Saved → Applied → Interviewing → Offer → Rejected. Add/edit/delete applications with company, role, salary, notes, next follow-up.
@@ -201,7 +217,15 @@ Theme toggle (dark/light), profile dropdown, filter panel, overflow menu. Help m
 
 ## Version History
 
-### v4.14.1 (current, stabilized)
+### v4.15.0 (current)
+- **Work History management:** Full CRUD in Settings → Experience tab. Title, company, location, dates, description, per-role achievements. Modal-based editing with dynamic achievement inputs.
+- **Education management:** School, degree, field, year. CRUD with modal editing.
+- **Certifications management:** Name, issuer, year. CRUD with modal editing.
+- **Profile contact fields:** Phone and LinkedIn URL added to Settings → Profile. Persisted through Firestore and included in exports.
+- **Resume v2:** Rebuilt `buildResumeHTML()` with structured Professional Experience (multiple entries with per-role achievements), Education section, Certifications section, full contact header (email, phone, LinkedIn, location). Falls back gracefully to single-entry stub when no work history exists. ATS-optimized, print-to-PDF ready.
+- **Data model expansion:** `userData.workHistory[]`, `userData.education[]`, `userData.certifications[]`, `userData.profile.phone`, `userData.profile.linkedinUrl` — all persisted through Firestore serializer/loader, template loading, and wizard builder.
+
+### v4.14.1 (stabilized)
 - Fixed match overlay role node colors: neutral slate instead of profile-colored (orange/blue)
 - Repositioned match legend panel: top-right on desktop, full-width bottom on mobile
 - Updated About dialog version reference (was stale at v4.6.0)
@@ -285,28 +309,36 @@ Sessions are stored in `/mnt/transcripts/`:
 5. `2026-02-19-16-59-35-v49-jobs-matching-overhaul.txt`
 6. `2026-02-19-18-01-02-v410-skill-edit-sample-jobs-bugfix.txt`
 7. `2026-02-19-19-07-15-v412-v413-bulk-import-manager-overlay-panel.txt`
-8. Current session: v4.14.0-v4.14.1 (calibrated sample jobs, overlay color fix, stabilization audit)
+8. Previous session: v4.14.0-v4.14.1 (calibrated sample jobs, overlay color fix, stabilization audit)
+9. Current session: v4.15.0 (Work History/Education/Certifications management, Resume v2, Profile contact expansion)
 
 ---
 
 ## Priority Queue (Next Features)
 
 ### High Priority
-- **Professional resume generation** — Next major feature per Cliff. Full ATS-compatible resume from profile data.
+- **Values System v2** — Editable descriptions (not just catalog defaults), drag-to-reorder or explicit ranking (top 3 marked as "core"), stronger evidence-linking UI, "value story" narrative field per value
+- **Evidence Management** — Add/edit/remove evidence items directly from skill cards and modals. Currently evidence comes through wizard or demo data with no inline editing path. Feeds both Outcomes and resume achievements.
+- **Consent-to-Export Pipeline** — Wire consent presets so they actually filter what appears in exports. "Preview what gets shared" summary before any export.
 - **Proficiency gap visualization on nodes** — Show visual indicator when user matches a job skill but at lower proficiency
 - **Job application tracking integration** — Connect pipeline jobs to application tracker
 
 ### Medium Priority
 - **Animated transitions between network modes** — Smooth morph between You/Job/Match views
 - **Drag-to-rearrange** in skill lists and card view
-- **Evidence management** — Add/edit/remove evidence items per skill
 - **Skill gap development plans** — Suggest learning paths for gap skills
+- **Work history import from wizard** — Parse work history entries from resume text during onboarding wizard AI parsing
 
 ### Low Priority
 - **var → const/let modernization** — Cleanup pass on older functions
 - **Code splitting** — Break monolith into modules (would require build tooling)
 - **Offline support** — Service worker for PWA capability
 - **Import from LinkedIn** — Parse LinkedIn data export
+
+### Completed (v4.15.0)
+- ✅ **Professional resume generation v2** — Full ATS-compatible resume with structured work history, education, certifications, full contact block
+- ✅ **Work History / Education / Certifications management** — Settings → Experience tab with full CRUD
+- ✅ **Profile contact expansion** — Phone and LinkedIn URL fields
 
 ---
 

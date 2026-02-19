@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.14.1 | 20260219 | Fix: overlay role nodes neutral (no orange/blue), tile repositioned top-right desktop/bottom mobile -->
+    <!-- v4.15.0 | 20260219 | Feature: Work History, Education, Certifications management + Resume v2 with structured experience -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4663,6 +4663,9 @@
                 outcomes: blueprintData.outcomes || [],
                 preferences: userData.preferences || {},
                 applications: userData.applications || [],
+                workHistory: userData.workHistory || [],
+                education: userData.education || [],
+                certifications: userData.certifications || [],
                 savedJobs: (userData.savedJobs || []).map(function(j) {
                     return { id: j.id || '', title: j.title || '', company: j.company || '', sourceUrl: j.sourceUrl || '', sourceNote: j.sourceNote || '',
                         rawText: j.rawText || '', parsedSkills: j.parsedSkills || [], parsedRoles: j.parsedRoles || [],
@@ -4711,6 +4714,9 @@
                     userData.preferences = data.preferences || userData.preferences;
                     userData.applications = data.applications || [];
                     userData.savedJobs = data.savedJobs || [];
+                    userData.workHistory = data.workHistory || [];
+                    userData.education = data.education || [];
+                    userData.certifications = data.certifications || [];
                     userData.templateId = 'firestore-' + uid;
                     
                     // Populate skillsData
@@ -5813,6 +5819,8 @@
             profile: {
                 name: "",
                 email: "",
+                phone: "",
+                linkedinUrl: "",
                 location: "Remote"
             },
             skills: [],
@@ -5820,6 +5828,9 @@
             values: [],
             purpose: "",
             roles: [],
+            workHistory: [],
+            education: [],
+            certifications: [],
             preferences: {
                 seniorityLevel: "Mid-Career",
                 targetTitles: [],
@@ -6254,6 +6265,9 @@
                 values: template.values ? [...template.values] : [],
                 purpose: template.purpose || "",
                 roles: [...template.roles],
+                workHistory: template.workHistory ? JSON.parse(JSON.stringify(template.workHistory)) : [],
+                education: template.education ? JSON.parse(JSON.stringify(template.education)) : [],
+                certifications: template.certifications ? JSON.parse(JSON.stringify(template.certifications)) : [],
                 preferences: {
                     seniorityLevel: template.profile.roleLevel || "Mid-Career",
                     targetTitles: [],
@@ -7444,6 +7458,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 })),
                 values: wizardState.values,
                 purpose: wizardState.purpose,
+                workHistory: wizardState.workHistory || [],
+                education: wizardState.education || [],
+                certifications: wizardState.certifications || [],
                 preferences: { seniorityLevel: 'Senior', minimumMatchScore: 60, minimumSkillMatches: 3 },
                 applications: []
             };
@@ -9394,7 +9411,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             const compensation = calculateTotalMarketValue();
 
             // --- Achievements: pull evidence items that have real outcomes ---
-            // Score each evidence item: prefer items with metrics, dollar amounts, percentages
             const allEvidence = [];
             skills.forEach(skill => {
                 (skill.evidence || []).forEach(ev => {
@@ -9426,12 +9442,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             // --- Core competencies: key + mastery skills, deduplicated by category ---
             const keySkills = skills.filter(s => s.key || s.level === 'Mastery' || s.level === 'Expert');
-            // Group into max 18 skills for the competencies grid — pick diverse ones
             const compSet = [];
             const seen = new Set();
-            // Key skills first
             keySkills.forEach(s => { if (!seen.has(s.name) && compSet.length < 18) { compSet.push(s); seen.add(s.name); } });
-            // Fill with advanced skills
             skills.filter(s => s.level === 'Advanced' && !seen.has(s.name))
                   .slice(0, 18 - compSet.length)
                   .forEach(s => { compSet.push(s); seen.add(s.name); });
@@ -9448,11 +9461,26 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .filter(v => v.selected !== false)
                 .map(v => v.name || v);
 
+            // --- Work History ---
+            const workHistory = (userData.workHistory || []).map(job => ({
+                ...job,
+                achievements: job.achievements || []
+            }));
+
+            // --- Education ---
+            const education = userData.education || [];
+
+            // --- Certifications ---
+            const certifications = userData.certifications || [];
+
             return {
                 name: profile.name || 'Your Name',
                 title: profile.currentTitle || 'Professional',
                 company: profile.currentCompany || '',
                 location: profile.location || '',
+                email: profile.email || '',
+                phone: profile.phone || '',
+                linkedinUrl: profile.linkedinUrl || '',
                 yearsExperience: profile.yearsExperience || '',
                 executiveSummary: profile.executiveSummary || userData.purpose || '',
                 purpose: userData.purpose || '',
@@ -9460,6 +9488,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 competencies: compSet,
                 roleGroups,
                 values: selectedValues,
+                workHistory,
+                education,
+                certifications,
                 compensation,
                 generatedDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
                 totalSkills: skills.length,
@@ -9479,15 +9510,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             // Achievement bullets
             const achievementHTML = d.topAchievements.map(item => {
-                // Format as a strong bullet: lead with outcome, add context
                 const outcome = item.outcome.trim().replace(/\.$/, '');
                 const desc = item.description.trim().replace(/\.$/, '');
-                // Keep description concise — truncate at ~120 chars
                 const shortDesc = desc.length > 120 ? desc.slice(0, 117) + '…' : desc;
                 return `<li><span class="ach-outcome">${outcome}.</span> <span class="ach-context">${shortDesc}.</span></li>`;
             }).join('\n');
 
-            // Competencies grid — just clean names
+            // Competencies grid
             const compHTML = d.competencies.map(s => {
                 const levelDot = s.level === 'Mastery' ? '●●●' : s.level === 'Expert' ? '●●○' : s.level === 'Advanced' ? '●○○' : '○○○';
                 return `<div class="comp-item"><span class="comp-name">${s.name}</span><span class="comp-dots">${levelDot}</span></div>`;
@@ -9498,10 +9527,62 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 ? d.values.map(v => `<span class="value-tag">${v}</span>`).join('')
                 : '';
 
-            // Salary target line (only if data exists)
+            // Contact items
+            const contactParts = [];
+            if (d.email) contactParts.push(`<div class="contact-item">${d.email}</div>`);
+            if (d.phone) contactParts.push(`<div class="contact-item">${d.phone}</div>`);
+            if (location) contactParts.push(`<div class="contact-item">${location}</div>`);
+            if (d.linkedinUrl) {
+                const shortLi = d.linkedinUrl.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+                contactParts.push(`<div class="contact-item"><a href="${d.linkedinUrl}" style="color:var(--ink-2); text-decoration:none;">${shortLi}</a></div>`);
+            }
+            if (d.yearsExperience) contactParts.push(`<div class="contact-item">${d.yearsExperience}+ Years Experience</div>`);
+            const contactHTML = contactParts.join('<div class="contact-sep">·</div>');
+
+            // Work History
+            const workHistoryHTML = (d.workHistory || []).map(job => {
+                const dateRange = (job.startDate || '') + ' – ' + (job.current ? 'Present' : (job.endDate || ''));
+                const achList = (job.achievements || []).map(a => 
+                    `<li>${a}</li>`
+                ).join('\n');
+                
+                return `
+                <div class="experience-block">
+                    <div class="exp-header">
+                        <div class="exp-title">${job.title || ''}</div>
+                        <div class="exp-dates">${dateRange}</div>
+                    </div>
+                    <div class="exp-company">${job.company || ''}${job.location ? ' · ' + job.location : ''}</div>
+                    ${job.description ? `<p class="exp-desc">${job.description}</p>` : ''}
+                    ${achList ? `<ul class="exp-achievements">${achList}</ul>` : ''}
+                </div>`;
+            }).join('\n');
+
+            // Education
+            const educationHTML = (d.education || []).map(ed => {
+                return `<div class="edu-item">
+                    <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                        <div><strong>${ed.degree || ''}${ed.field ? ' in ' + ed.field : ''}</strong></div>
+                        <div class="exp-dates">${ed.year || ''}</div>
+                    </div>
+                    <div style="color:var(--ink-2);">${ed.school || ''}</div>
+                </div>`;
+            }).join('\n');
+
+            // Certifications
+            const certHTML = (d.certifications || []).map(c => {
+                return `<span class="cert-tag">${c.name}${c.issuer ? ' (' + c.issuer + ')' : ''}${c.year ? ' · ' + c.year : ''}</span>`;
+            }).join('');
+
+            // Salary target line
             const salaryLine = salaryRange
-                ? `<div class="contact-item">Target Range: ${salaryRange}</div>`
+                ? `<div class="contact-item">Target: ${salaryRange}</div>`
                 : '';
+
+            // Determine if we have structured work history or need fallback
+            const hasWorkHistory = d.workHistory && d.workHistory.length > 0;
+            const hasEducation = d.education && d.education.length > 0;
+            const hasCerts = d.certifications && d.certifications.length > 0;
 
             return `<!DOCTYPE html>
 <html lang="en">
@@ -9511,8 +9592,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 <title>Resume — ${name}</title>
 <style>
 /* =====================================================
-   WORK BLUEPRINT RESUME — Professional Print-Ready
-   Designed for: ATS readability + human presentation
+   BLUEPRINT RESUME v2 — Professional Print-Ready
+   ATS-optimized structure + clean human presentation
    Print: File → Print → Save as PDF
    ===================================================== */
 
@@ -9583,20 +9664,12 @@ body {
   color: var(--ink-2);
 }
 
-.contact-item {
-  display: flex;
-  align-items: center;
-  gap: 4pt;
-}
-
-.contact-sep {
-  color: var(--rule);
-}
+.contact-item { display: flex; align-items: center; gap: 4pt; }
+.contact-item a { color: var(--ink-2); text-decoration: none; }
+.contact-sep { color: var(--rule); }
 
 /* ---- SECTION STRUCTURE ---- */
-.section {
-  margin-bottom: 18pt;
-}
+.section { margin-bottom: 18pt; }
 
 .section-label {
   font-family: 'Arial', sans-serif;
@@ -9641,18 +9714,9 @@ body {
   top: 6pt;
 }
 
-.achievements-list li:last-child {
-  border-bottom: none;
-}
-
-.ach-outcome {
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.ach-context {
-  color: var(--ink-2);
-}
+.achievements-list li:last-child { border-bottom: none; }
+.ach-outcome { font-weight: 600; color: var(--ink); }
+.ach-context { color: var(--ink-2); }
 
 /* ---- COMPETENCIES GRID ---- */
 .comp-grid {
@@ -9670,9 +9734,7 @@ body {
   border-bottom: 0.5pt solid #f5f5f5;
 }
 
-.comp-name {
-  color: var(--ink-2);
-}
+.comp-name { color: var(--ink-2); }
 
 .comp-dots {
   font-size: 7pt;
@@ -9682,10 +9744,8 @@ body {
   margin-left: 6pt;
 }
 
-/* ---- EXPERIENCE BLOCK ---- */
-.experience-block {
-  margin-bottom: 12pt;
-}
+/* ---- EXPERIENCE ---- */
+.experience-block { margin-bottom: 14pt; }
 
 .exp-header {
   display: flex;
@@ -9711,15 +9771,65 @@ body {
   font-family: 'Arial', sans-serif;
   font-size: 10pt;
   color: var(--ink-2);
+  margin-bottom: 4pt;
+}
+
+.exp-desc {
+  font-size: 9.5pt;
+  line-height: 1.55;
+  color: var(--ink-2);
   margin-bottom: 6pt;
 }
 
-/* ---- VALUES ---- */
-.values-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6pt;
+.exp-achievements {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
+
+.exp-achievements li {
+  font-size: 9.5pt;
+  line-height: 1.55;
+  padding: 2pt 0 2pt 14pt;
+  color: var(--ink-2);
+  position: relative;
+}
+
+.exp-achievements li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-size: 8.5pt;
+  top: 3pt;
+}
+
+/* ---- EDUCATION ---- */
+.edu-item {
+  margin-bottom: 8pt;
+  font-size: 10pt;
+}
+
+.edu-item strong {
+  color: var(--ink);
+  font-family: 'Arial', sans-serif;
+}
+
+/* ---- CERTIFICATIONS ---- */
+.cert-tag {
+  font-family: 'Arial', sans-serif;
+  font-size: 9pt;
+  color: var(--ink-2);
+  background: #f9fafb;
+  padding: 2pt 8pt;
+  border-radius: 2pt;
+  border: 0.5pt solid #e5e7eb;
+  display: inline-block;
+  margin: 0 6pt 4pt 0;
+}
+
+/* ---- VALUES ---- */
+.values-row { display: flex; flex-wrap: wrap; gap: 6pt; }
 
 .value-tag {
   font-family: 'Arial', sans-serif;
@@ -9743,7 +9853,6 @@ body {
   justify-content: space-between;
 }
 
-/* ---- LEGEND ---- */
 .legend {
   font-family: 'Arial', sans-serif;
   font-size: 8pt;
@@ -9762,10 +9871,10 @@ body {
     min-height: auto;
   }
   .section { page-break-inside: avoid; }
+  .experience-block { page-break-inside: avoid; }
   .no-print { display: none !important; }
 }
 
-/* ---- SCREEN PRINT BUTTON ---- */
 .print-bar {
   width: var(--pg-w);
   margin: 0 auto 10pt;
@@ -9788,61 +9897,7 @@ body {
 }
 
 .btn-print:hover { background: #1e40af; }
-
 @media print { .print-bar { display: none; } }
-
-/* Toast Notification System */
-#toastContainer {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 100000;
-    display: flex;
-    flex-direction: column-reverse;
-    gap: 10px;
-    pointer-events: none;
-}
-.toast {
-    pointer-events: auto;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    min-width: 280px;
-    max-width: 420px;
-    padding: 14px 18px;
-    border-radius: 10px;
-    font-size: 0.92em;
-    line-height: 1.45;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-    transform: translateX(120%);
-    opacity: 0;
-    transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.35s ease;
-}
-.toast.show { transform: translateX(0); opacity: 1; }
-.toast.hide { transform: translateX(120%); opacity: 0; }
-.toast-icon { font-size: 1.15em; flex-shrink: 0; margin-top: 1px; }
-.toast-body { flex: 1; }
-.toast-title { font-weight: 600; margin-bottom: 2px; }
-.toast-msg { opacity: 0.88; }
-.toast-close {
-    background: none; border: none; cursor: pointer;
-    font-size: 1.1em; opacity: 0.5; padding: 0 0 0 8px;
-    color: inherit; flex-shrink: 0;
-}
-.toast-close:hover { opacity: 1; }
-.toast-success { background: #065f46; color: #d1fae5; border-left: 4px solid #10b981; }
-.toast-error   { background: #7f1d1d; color: #fecaca; border-left: 4px solid #ef4444; }
-.toast-info    { background: #1e3a5f; color: #bfdbfe; border-left: 4px solid #60a5fa; }
-.toast-warning { background: #78350f; color: #fef3c7; border-left: 4px solid #f59e0b; }
-/* Light theme toast overrides */
-body[data-theme="light"] .toast-success { background: #ecfdf5; color: #065f46; }
-body[data-theme="light"] .toast-error   { background: #fef2f2; color: #7f1d1d; }
-body[data-theme="light"] .toast-info    { background: #eff6ff; color: #1e3a5f; }
-body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
-@media (max-width: 600px) {
-    #toastContainer { left: 12px; right: 12px; bottom: 16px; }
-    .toast { min-width: unset; max-width: unset; }
-}
 </style>
 </head>
 <body>
@@ -9858,9 +9913,7 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
     <div class="resume-name">${name}</div>
     <div class="resume-title">${title}</div>
     <div class="contact-row">
-      ${d.company ? `<div class="contact-item">${d.company}</div><div class="contact-sep">·</div>` : ''}
-      ${location ? `<div class="contact-item">${location}</div>` : ''}
-      ${d.yearsExperience ? `<div class="contact-sep">·</div><div class="contact-item">${d.yearsExperience}+ Years Experience</div>` : ''}
+      ${contactHTML}
       ${salaryLine}
     </div>
   </header>
@@ -9882,8 +9935,26 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
     <div class="legend" style="margin-top:8pt;">Proficiency: ●●● Mastery &nbsp;·&nbsp; ●●○ Expert &nbsp;·&nbsp; ●○○ Advanced</div>
   </section>` : ''}
 
+  <!-- PROFESSIONAL EXPERIENCE -->
+  ${hasWorkHistory ? `
+  <section class="section">
+    <div class="section-label">Professional Experience</div>
+    ${workHistoryHTML}
+  </section>` : `
+  <section class="section">
+    <div class="section-label">Professional Experience</div>
+    <div class="experience-block">
+      <div class="exp-header">
+        <div class="exp-title">${title}</div>
+        <div class="exp-dates">Present${d.yearsExperience ? ' · ' + d.yearsExperience + '+ years' : ''}</div>
+      </div>
+      <div class="exp-company">${d.company}${location ? ' · ' + location : ''}</div>
+    </div>
+    ${d.purpose ? '<p class="summary-text" style="font-size:9.5pt; color: #4b5563;">' + d.purpose + '</p>' : ''}
+  </section>`}
+
   <!-- SELECTED ACHIEVEMENTS -->
-  ${d.topAchievements.length > 0 ? `
+  ${d.topAchievements.length > 0 && !hasWorkHistory ? `
   <section class="section">
     <div class="section-label">Selected Achievements</div>
     <ul class="achievements-list">
@@ -9891,18 +9962,21 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
     </ul>
   </section>` : ''}
 
-  <!-- PROFESSIONAL EXPERIENCE -->
+  <!-- EDUCATION -->
+  ${hasEducation ? `
   <section class="section">
-    <div class="section-label">Professional Experience</div>
-    <div class="experience-block">
-      <div class="exp-header">
-        <div class="exp-title">${title}</div>
-        <div class="exp-dates">Present${d.yearsExperience ? ` · ${d.yearsExperience}+ years` : ''}</div>
-      </div>
-      <div class="exp-company">${d.company}${location ? ` · ${location}` : ''}</div>
+    <div class="section-label">Education</div>
+    ${educationHTML}
+  </section>` : ''}
+
+  <!-- CERTIFICATIONS -->
+  ${hasCerts ? `
+  <section class="section">
+    <div class="section-label">Certifications &amp; Licenses</div>
+    <div style="display:flex; flex-wrap:wrap; gap:4pt;">
+      ${certHTML}
     </div>
-    ${d.purpose ? `<p class="summary-text" style="font-size:9.5pt; color: #4b5563;">${d.purpose}</p>` : ''}
-  </section>
+  </section>` : ''}
 
   <!-- VALUES -->
   ${valuesHTML ? `
@@ -14963,6 +15037,10 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                                 onclick="switchSettingsTab('profile')">
                             👤 Profile
                         </button>
+                        <button class="settings-tab ${window.currentSettingsTab === 'experience' ? 'active' : ''}" 
+                                onclick="switchSettingsTab('experience')">
+                            💼 Experience
+                        </button>
                         <button class="settings-tab ${window.currentSettingsTab === 'preferences' ? 'active' : ''}" 
                                 onclick="switchSettingsTab('preferences')">
                             🎯 Preferences
@@ -14993,6 +15071,8 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             switch(window.currentSettingsTab) {
                 case 'profile':
                     return renderProfileSettings();
+                case 'experience':
+                    return renderExperienceSettings();
                 case 'preferences':
                     return renderJobPreferences();
                 case 'data':
@@ -15053,6 +15133,22 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                     </div>
                     
                     <div class="settings-group">
+                        <label class="settings-label">Phone (Optional)</label>
+                        <input type="tel" class="settings-input" id="settingPhone" 
+                               value="${userData.profile.phone || ''}" 
+                               placeholder="(555) 123-4567">
+                        <div class="settings-help">Included in resume exports</div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <label class="settings-label">LinkedIn URL (Optional)</label>
+                        <input type="url" class="settings-input" id="settingLinkedIn" 
+                               value="${userData.profile.linkedinUrl || ''}" 
+                               placeholder="https://linkedin.com/in/yourname">
+                        <div class="settings-help">Included in resume and executive blueprint exports</div>
+                    </div>
+                    
+                    <div class="settings-group">
                         <label class="settings-label">Location (for market valuation)</label>
                         <select class="settings-select" id="settingLocation">
                             <option value="Philadelphia, PA" ${userData.profile.location === 'Philadelphia, PA' ? 'selected' : ''}>Philadelphia, PA</option>
@@ -15088,6 +15184,444 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 </div>
             `;
         }
+        
+        // ===== EXPERIENCE SETTINGS (Work History, Education, Certifications) =====
+        
+        function renderExperienceSettings() {
+            var whItems = userData.workHistory || [];
+            var edItems = userData.education || [];
+            var certItems = userData.certifications || [];
+            
+            var html = '';
+            
+            // --- Work History ---
+            html += '<div class="blueprint-section">'
+                + '<div class="blueprint-section-header">'
+                + '<div class="blueprint-section-title">'
+                + '<span class="section-icon">\uD83D\uDCBC</span>'
+                + '<span>Work History</span>'
+                + '<span class="section-count">' + whItems.length + ' entries</span>'
+                + '</div>'
+                + '</div>'
+                + '<div class="coaching-tip">'
+                + '<div class="coaching-tip-title">\uD83D\uDCA1 BUILD YOUR CAREER TIMELINE</div>'
+                + '<div class="coaching-tip-content">'
+                + 'Add your work history in reverse chronological order. Achievements here will appear in resume exports. '
+                + 'For best results, include 2-4 quantified accomplishments per role.'
+                + '</div>'
+                + '</div>';
+            
+            if (whItems.length > 0) {
+                whItems.forEach(function(job, idx) {
+                    var dateRange = (job.startDate || '?') + ' \u2013 ' + (job.current ? 'Present' : (job.endDate || '?'));
+                    html += '<div style="padding:16px; margin-bottom:12px; background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; '
+                        + 'border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.08)') + '; border-radius:10px; position:relative;">';
+                    
+                    // Controls
+                    html += '<div style="position:absolute; top:10px; right:10px; display:flex; gap:6px;">'
+                        + '<button onclick="editWorkHistoryItem(' + idx + ')" title="Edit" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:' + tv('#60a5fa','#2563eb') + ';">\u270E</button>'
+                        + '<button onclick="removeWorkHistoryItem(' + idx + ')" title="Remove" style="background:none; border:none; cursor:pointer; font-size:0.9em; color:' + tv('#ef4444','#dc2626') + ';">\u00D7</button>'
+                        + '</div>';
+                    
+                    html += '<div style="font-weight:700; color:' + tv('#e0e0e0','#1f2937') + '; font-size:0.95em;">' + (job.title || 'Untitled Role') + '</div>'
+                        + '<div style="color:' + tv('#60a5fa','#2563eb') + '; font-size:0.88em; margin-top:2px;">' + (job.company || '') + (job.location ? ' \u00B7 ' + job.location : '') + '</div>'
+                        + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.82em; margin-top:2px;">' + dateRange + '</div>';
+                    
+                    if (job.description) {
+                        html += '<div style="color:' + tv('#d1d5db','#334155') + '; font-size:0.85em; margin-top:8px; line-height:1.5;">' + job.description + '</div>';
+                    }
+                    
+                    if (job.achievements && job.achievements.length > 0) {
+                        html += '<div style="margin-top:8px;">';
+                        job.achievements.forEach(function(ach) {
+                            html += '<div style="font-size:0.83em; color:' + tv('#d1d5db','#334155') + '; padding:3px 0 3px 14px; position:relative; line-height:1.45;">'
+                                + '<span style="position:absolute; left:0; color:' + tv('#10b981','#059669') + ';">\u25B8</span>'
+                                + ach + '</div>';
+                        });
+                        html += '</div>';
+                    }
+                    
+                    html += '</div>';
+                });
+            } else {
+                html += '<div style="text-align:center; padding:24px; color:' + tv('#6b7280','#9ca3af') + '; font-size:0.9em;">'
+                    + 'No work history added yet. Add your roles to power resume generation.'
+                    + '</div>';
+            }
+            
+            html += '<button onclick="addWorkHistoryItem()" style="'
+                + 'background:' + tv('rgba(96,165,250,0.12)','rgba(30,64,175,0.08)') + '; '
+                + 'border:1px solid ' + tv('rgba(96,165,250,0.3)','rgba(30,64,175,0.2)') + '; '
+                + 'color:' + tv('#60a5fa','#1e40af') + '; padding:10px 20px; border-radius:8px; cursor:pointer; '
+                + 'font-size:0.9em; font-weight:600; margin-top:12px;">'
+                + '+ Add Position</button>'
+                + '</div>';
+            
+            // --- Education ---
+            html += '<div class="blueprint-section" style="margin-top:24px;">'
+                + '<div class="blueprint-section-header">'
+                + '<div class="blueprint-section-title">'
+                + '<span class="section-icon">\uD83C\uDF93</span>'
+                + '<span>Education</span>'
+                + '<span class="section-count">' + edItems.length + ' entries</span>'
+                + '</div>'
+                + '</div>';
+            
+            if (edItems.length > 0) {
+                edItems.forEach(function(ed, idx) {
+                    html += '<div style="padding:12px 16px; margin-bottom:8px; background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; '
+                        + 'border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.08)') + '; border-radius:8px; '
+                        + 'display:flex; justify-content:space-between; align-items:center;">'
+                        + '<div>'
+                        + '<div style="font-weight:600; color:' + tv('#e0e0e0','#1f2937') + '; font-size:0.9em;">'
+                        + (ed.degree || '') + (ed.field ? ' in ' + ed.field : '') + '</div>'
+                        + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.82em;">'
+                        + (ed.school || '') + (ed.year ? ' \u00B7 ' + ed.year : '') + '</div>'
+                        + '</div>'
+                        + '<div style="display:flex; gap:6px;">'
+                        + '<button onclick="editEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:' + tv('#60a5fa','#2563eb') + ';">\u270E</button>'
+                        + '<button onclick="removeEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.9em; color:' + tv('#ef4444','#dc2626') + ';">\u00D7</button>'
+                        + '</div></div>';
+                });
+            } else {
+                html += '<div style="text-align:center; padding:16px; color:' + tv('#6b7280','#9ca3af') + '; font-size:0.88em;">'
+                    + 'No education entries yet.'
+                    + '</div>';
+            }
+            
+            html += '<button onclick="addEducationItem()" style="'
+                + 'background:' + tv('rgba(96,165,250,0.12)','rgba(30,64,175,0.08)') + '; '
+                + 'border:1px solid ' + tv('rgba(96,165,250,0.3)','rgba(30,64,175,0.2)') + '; '
+                + 'color:' + tv('#60a5fa','#1e40af') + '; padding:8px 16px; border-radius:8px; cursor:pointer; '
+                + 'font-size:0.85em; font-weight:600; margin-top:8px;">'
+                + '+ Add Education</button>'
+                + '</div>';
+            
+            // --- Certifications ---
+            html += '<div class="blueprint-section" style="margin-top:24px;">'
+                + '<div class="blueprint-section-header">'
+                + '<div class="blueprint-section-title">'
+                + '<span class="section-icon">\uD83C\uDFC5</span>'
+                + '<span>Certifications & Licenses</span>'
+                + '<span class="section-count">' + certItems.length + ' entries</span>'
+                + '</div>'
+                + '</div>';
+            
+            if (certItems.length > 0) {
+                certItems.forEach(function(cert, idx) {
+                    html += '<div style="padding:12px 16px; margin-bottom:8px; background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; '
+                        + 'border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.08)') + '; border-radius:8px; '
+                        + 'display:flex; justify-content:space-between; align-items:center;">'
+                        + '<div>'
+                        + '<div style="font-weight:600; color:' + tv('#e0e0e0','#1f2937') + '; font-size:0.9em;">' + (cert.name || '') + '</div>'
+                        + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.82em;">'
+                        + (cert.issuer || '') + (cert.year ? ' \u00B7 ' + cert.year : '') + '</div>'
+                        + '</div>'
+                        + '<div style="display:flex; gap:6px;">'
+                        + '<button onclick="editCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:' + tv('#60a5fa','#2563eb') + ';">\u270E</button>'
+                        + '<button onclick="removeCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.9em; color:' + tv('#ef4444','#dc2626') + ';">\u00D7</button>'
+                        + '</div></div>';
+                });
+            } else {
+                html += '<div style="text-align:center; padding:16px; color:' + tv('#6b7280','#9ca3af') + '; font-size:0.88em;">'
+                    + 'No certifications yet.'
+                    + '</div>';
+            }
+            
+            html += '<button onclick="addCertItem()" style="'
+                + 'background:' + tv('rgba(96,165,250,0.12)','rgba(30,64,175,0.08)') + '; '
+                + 'border:1px solid ' + tv('rgba(96,165,250,0.3)','rgba(30,64,175,0.2)') + '; '
+                + 'color:' + tv('#60a5fa','#1e40af') + '; padding:8px 16px; border-radius:8px; cursor:pointer; '
+                + 'font-size:0.85em; font-weight:600; margin-top:8px;">'
+                + '+ Add Certification</button>'
+                + '</div>';
+            
+            // Save button
+            html += '<div style="margin-top:24px; display:flex; gap:12px;">'
+                + '<button onclick="saveSettings(); showToast(\'Experience saved.\', \'success\')" style="'
+                + 'background:var(--accent); color:#fff; border:none; padding:12px 28px; border-radius:8px; '
+                + 'cursor:pointer; font-weight:600; font-size:0.95em;">'
+                + 'Save All Changes</button>'
+                + '</div>';
+            
+            return html;
+        }
+        
+        // --- Work History CRUD ---
+        function addWorkHistoryItem() {
+            if (readOnlyGuard()) return;
+            openWorkHistoryModal(-1);
+        }
+        function editWorkHistoryItem(idx) {
+            if (readOnlyGuard()) return;
+            openWorkHistoryModal(idx);
+        }
+        function removeWorkHistoryItem(idx) {
+            if (readOnlyGuard()) return;
+            if (!confirm('Remove this position?')) return;
+            userData.workHistory.splice(idx, 1);
+            saveAll();
+            document.getElementById('settingsTabContent').innerHTML = renderExperienceSettings();
+            showToast('Position removed.', 'info');
+        }
+        
+        function openWorkHistoryModal(idx) {
+            var job = idx >= 0 ? userData.workHistory[idx] : { title:'', company:'', location:'', startDate:'', endDate:'', current:false, description:'', achievements:[] };
+            var isEdit = idx >= 0;
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content');
+            
+            var achHTML = (job.achievements || []).map(function(a, i) {
+                return '<div style="display:flex; gap:8px; margin-bottom:8px;">'
+                    + '<input type="text" class="settings-input wh-ach-input" value="' + (a||'').replace(/"/g,'&quot;') + '" '
+                    + 'placeholder="e.g., Increased pipeline velocity 40% through process redesign" '
+                    + 'style="flex:1; font-size:0.88em;">'
+                    + '<button onclick="this.parentElement.remove()" style="background:none; border:none; color:' + tv('#ef4444','#dc2626') + '; cursor:pointer; font-size:1.1em; padding:0 4px;">\u00D7</button>'
+                    + '</div>';
+            }).join('');
+            
+            mc.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">' + (isEdit ? 'Edit Position' : 'Add Position') + '</h2>'
+                + '<p style="color:' + tv('#9ca3af','#64748b') + '; margin-top:5px;">Add your role details and key accomplishments</p>'
+                + '</div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:24px; max-height:70vh; overflow-y:auto;">'
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
+                + '<div class="settings-group"><label class="settings-label">Job Title *</label>'
+                + '<input type="text" class="settings-input" id="whTitle" value="' + (job.title||'').replace(/"/g,'&quot;') + '" placeholder="VP of Strategy"></div>'
+                + '<div class="settings-group"><label class="settings-label">Company *</label>'
+                + '<input type="text" class="settings-input" id="whCompany" value="' + (job.company||'').replace(/"/g,'&quot;') + '" placeholder="Acme Corp"></div>'
+                + '<div class="settings-group"><label class="settings-label">Location</label>'
+                + '<input type="text" class="settings-input" id="whLocation" value="' + (job.location||'').replace(/"/g,'&quot;') + '" placeholder="Philadelphia, PA"></div>'
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">'
+                + '<div class="settings-group"><label class="settings-label">Start Date</label>'
+                + '<input type="text" class="settings-input" id="whStartDate" value="' + (job.startDate||'') + '" placeholder="Jan 2020"></div>'
+                + '<div class="settings-group"><label class="settings-label">End Date</label>'
+                + '<input type="text" class="settings-input" id="whEndDate" value="' + (job.endDate||'') + '" placeholder="Present" ' + (job.current ? 'disabled' : '') + '></div>'
+                + '</div>'
+                + '</div>'
+                + '<div class="settings-group" style="margin-top:4px;">'
+                + '<label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.88em; color:' + tv('#d1d5db','#334155') + ';">'
+                + '<input type="checkbox" id="whCurrent" ' + (job.current ? 'checked' : '') + ' onchange="document.getElementById(\'whEndDate\').disabled=this.checked; if(this.checked) document.getElementById(\'whEndDate\').value=\'\';">'
+                + ' I currently work here</label>'
+                + '</div>'
+                + '<div class="settings-group" style="margin-top:10px;">'
+                + '<label class="settings-label">Role Description (Optional)</label>'
+                + '<textarea class="settings-input" id="whDescription" rows="2" style="resize:vertical; font-size:0.88em;" '
+                + 'placeholder="Brief summary of your responsibilities and scope">' + (job.description||'') + '</textarea>'
+                + '</div>'
+                + '<div class="settings-group" style="margin-top:10px;">'
+                + '<label class="settings-label">Key Achievements</label>'
+                + '<div class="settings-help" style="margin-bottom:8px;">Quantify where possible: revenue impact, team size, efficiency gains, etc.</div>'
+                + '<div id="whAchievementsContainer">' + achHTML + '</div>'
+                + '<button onclick="addAchievementInput()" style="background:none; border:1px dashed ' + tv('rgba(96,165,250,0.3)','rgba(30,64,175,0.2)') + '; '
+                + 'color:' + tv('#60a5fa','#2563eb') + '; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:0.82em; margin-top:4px;">'
+                + '+ Add Achievement</button>'
+                + '</div>'
+                + '<div style="display:flex; gap:10px; margin-top:20px;">'
+                + '<button onclick="saveWorkHistoryFromModal(' + idx + ')" style="background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:8px; cursor:pointer; font-weight:600;">'
+                + (isEdit ? 'Save Changes' : 'Add Position') + '</button>'
+                + '<button onclick="closeExportModal()" style="background:transparent; color:' + tv('#9ca3af','#64748b') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','#d1d5db') + '; padding:10px 20px; border-radius:8px; cursor:pointer;">'
+                + 'Cancel</button>'
+                + '</div></div>';
+            
+            modal.style.display = 'flex';
+        }
+        
+        function addAchievementInput() {
+            var container = document.getElementById('whAchievementsContainer');
+            var div = document.createElement('div');
+            div.style.cssText = 'display:flex; gap:8px; margin-bottom:8px;';
+            div.innerHTML = '<input type="text" class="settings-input wh-ach-input" placeholder="e.g., Led $2M digital transformation initiative" style="flex:1; font-size:0.88em;">'
+                + '<button onclick="this.parentElement.remove()" style="background:none; border:none; color:' + tv('#ef4444','#dc2626') + '; cursor:pointer; font-size:1.1em; padding:0 4px;">\u00D7</button>';
+            container.appendChild(div);
+            div.querySelector('input').focus();
+        }
+        
+        function saveWorkHistoryFromModal(idx) {
+            var title = document.getElementById('whTitle').value.trim();
+            var company = document.getElementById('whCompany').value.trim();
+            if (!title || !company) { showToast('Title and company are required.', 'warning'); return; }
+            
+            var achievements = [];
+            document.querySelectorAll('.wh-ach-input').forEach(function(inp) {
+                var v = inp.value.trim();
+                if (v) achievements.push(v);
+            });
+            
+            var entry = {
+                id: idx >= 0 ? (userData.workHistory[idx].id || 'wh-' + Date.now()) : 'wh-' + Date.now(),
+                title: title,
+                company: company,
+                location: document.getElementById('whLocation').value.trim(),
+                startDate: document.getElementById('whStartDate').value.trim(),
+                endDate: document.getElementById('whEndDate').value.trim(),
+                current: document.getElementById('whCurrent').checked,
+                description: document.getElementById('whDescription').value.trim(),
+                achievements: achievements
+            };
+            
+            if (idx >= 0) {
+                userData.workHistory[idx] = entry;
+            } else {
+                userData.workHistory.unshift(entry); // newest first
+            }
+            
+            closeExportModal();
+            saveAll();
+            document.getElementById('settingsTabContent').innerHTML = renderExperienceSettings();
+            showToast(idx >= 0 ? 'Position updated.' : 'Position added.', 'success');
+        }
+        
+        // --- Education CRUD ---
+        function addEducationItem() {
+            if (readOnlyGuard()) return;
+            openEducationModal(-1);
+        }
+        function editEducationItem(idx) {
+            if (readOnlyGuard()) return;
+            openEducationModal(idx);
+        }
+        function removeEducationItem(idx) {
+            if (readOnlyGuard()) return;
+            if (!confirm('Remove this education entry?')) return;
+            userData.education.splice(idx, 1);
+            saveAll();
+            document.getElementById('settingsTabContent').innerHTML = renderExperienceSettings();
+        }
+        
+        function openEducationModal(idx) {
+            var ed = idx >= 0 ? userData.education[idx] : { school:'', degree:'', field:'', year:'' };
+            var isEdit = idx >= 0;
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content');
+            
+            mc.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">' + (isEdit ? 'Edit Education' : 'Add Education') + '</h2>'
+                + '</div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:24px;">'
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
+                + '<div class="settings-group"><label class="settings-label">School / University</label>'
+                + '<input type="text" class="settings-input" id="edSchool" value="' + (ed.school||'').replace(/"/g,'&quot;') + '" placeholder="University of Pennsylvania"></div>'
+                + '<div class="settings-group"><label class="settings-label">Degree</label>'
+                + '<input type="text" class="settings-input" id="edDegree" value="' + (ed.degree||'').replace(/"/g,'&quot;') + '" placeholder="B.S., M.B.A., etc."></div>'
+                + '<div class="settings-group"><label class="settings-label">Field of Study</label>'
+                + '<input type="text" class="settings-input" id="edField" value="' + (ed.field||'').replace(/"/g,'&quot;') + '" placeholder="Business Administration"></div>'
+                + '<div class="settings-group"><label class="settings-label">Year</label>'
+                + '<input type="text" class="settings-input" id="edYear" value="' + (ed.year||'') + '" placeholder="2012"></div>'
+                + '</div>'
+                + '<div style="display:flex; gap:10px; margin-top:20px;">'
+                + '<button onclick="saveEducationFromModal(' + idx + ')" style="background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:8px; cursor:pointer; font-weight:600;">'
+                + (isEdit ? 'Save' : 'Add') + '</button>'
+                + '<button onclick="closeExportModal()" style="background:transparent; color:' + tv('#9ca3af','#64748b') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','#d1d5db') + '; padding:10px 20px; border-radius:8px; cursor:pointer;">Cancel</button>'
+                + '</div></div>';
+            
+            modal.style.display = 'flex';
+        }
+        
+        function saveEducationFromModal(idx) {
+            var entry = {
+                id: idx >= 0 ? (userData.education[idx].id || 'ed-' + Date.now()) : 'ed-' + Date.now(),
+                school: document.getElementById('edSchool').value.trim(),
+                degree: document.getElementById('edDegree').value.trim(),
+                field: document.getElementById('edField').value.trim(),
+                year: document.getElementById('edYear').value.trim()
+            };
+            if (!entry.school && !entry.degree) { showToast('Add at least a school or degree.', 'warning'); return; }
+            
+            if (idx >= 0) { userData.education[idx] = entry; }
+            else { userData.education.push(entry); }
+            
+            closeExportModal();
+            saveAll();
+            document.getElementById('settingsTabContent').innerHTML = renderExperienceSettings();
+            showToast(idx >= 0 ? 'Education updated.' : 'Education added.', 'success');
+        }
+        
+        // --- Certifications CRUD ---
+        function addCertItem() {
+            if (readOnlyGuard()) return;
+            openCertModal(-1);
+        }
+        function editCertItem(idx) {
+            if (readOnlyGuard()) return;
+            openCertModal(idx);
+        }
+        function removeCertItem(idx) {
+            if (readOnlyGuard()) return;
+            if (!confirm('Remove this certification?')) return;
+            userData.certifications.splice(idx, 1);
+            saveAll();
+            document.getElementById('settingsTabContent').innerHTML = renderExperienceSettings();
+        }
+        
+        function openCertModal(idx) {
+            var cert = idx >= 0 ? userData.certifications[idx] : { name:'', issuer:'', year:'' };
+            var isEdit = idx >= 0;
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content');
+            
+            mc.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">' + (isEdit ? 'Edit Certification' : 'Add Certification') + '</h2>'
+                + '</div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:24px;">'
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
+                + '<div class="settings-group" style="grid-column:1/-1;"><label class="settings-label">Certification Name</label>'
+                + '<input type="text" class="settings-input" id="certName" value="' + (cert.name||'').replace(/"/g,'&quot;') + '" placeholder="PMP, SHRM-SCP, AWS Solutions Architect, etc."></div>'
+                + '<div class="settings-group"><label class="settings-label">Issuing Organization</label>'
+                + '<input type="text" class="settings-input" id="certIssuer" value="' + (cert.issuer||'').replace(/"/g,'&quot;') + '" placeholder="PMI, SHRM, AWS, etc."></div>'
+                + '<div class="settings-group"><label class="settings-label">Year Obtained</label>'
+                + '<input type="text" class="settings-input" id="certYear" value="' + (cert.year||'') + '" placeholder="2023"></div>'
+                + '</div>'
+                + '<div style="display:flex; gap:10px; margin-top:20px;">'
+                + '<button onclick="saveCertFromModal(' + idx + ')" style="background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:8px; cursor:pointer; font-weight:600;">'
+                + (isEdit ? 'Save' : 'Add') + '</button>'
+                + '<button onclick="closeExportModal()" style="background:transparent; color:' + tv('#9ca3af','#64748b') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','#d1d5db') + '; padding:10px 20px; border-radius:8px; cursor:pointer;">Cancel</button>'
+                + '</div></div>';
+            
+            modal.style.display = 'flex';
+        }
+        
+        function saveCertFromModal(idx) {
+            var entry = {
+                id: idx >= 0 ? (userData.certifications[idx].id || 'cert-' + Date.now()) : 'cert-' + Date.now(),
+                name: document.getElementById('certName').value.trim(),
+                issuer: document.getElementById('certIssuer').value.trim(),
+                year: document.getElementById('certYear').value.trim()
+            };
+            if (!entry.name) { showToast('Certification name is required.', 'warning'); return; }
+            
+            if (idx >= 0) { userData.certifications[idx] = entry; }
+            else { userData.certifications.push(entry); }
+            
+            closeExportModal();
+            saveAll();
+            document.getElementById('settingsTabContent').innerHTML = renderExperienceSettings();
+            showToast(idx >= 0 ? 'Certification updated.' : 'Certification added.', 'success');
+        }
+        
+        // Expose experience functions to global scope
+        window.addWorkHistoryItem = addWorkHistoryItem;
+        window.editWorkHistoryItem = editWorkHistoryItem;
+        window.removeWorkHistoryItem = removeWorkHistoryItem;
+        window.addAchievementInput = addAchievementInput;
+        window.saveWorkHistoryFromModal = saveWorkHistoryFromModal;
+        window.addEducationItem = addEducationItem;
+        window.editEducationItem = editEducationItem;
+        window.removeEducationItem = removeEducationItem;
+        window.saveEducationFromModal = saveEducationFromModal;
+        window.addCertItem = addCertItem;
+        window.editCertItem = editCertItem;
+        window.removeCertItem = removeCertItem;
+        window.saveCertFromModal = saveCertFromModal;
         
         function renderJobPreferences() {
             return `
@@ -16121,6 +16655,8 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             // Get values from form
             userData.profile.name = document.getElementById('settingName').value;
             userData.profile.email = document.getElementById('settingEmail').value;
+            userData.profile.phone = document.getElementById('settingPhone') ? document.getElementById('settingPhone').value : '';
+            userData.profile.linkedinUrl = document.getElementById('settingLinkedIn') ? document.getElementById('settingLinkedIn').value : '';
             userData.profile.location = document.getElementById('settingLocation').value;
             
             const newSeniority = document.getElementById('settingSeniority').value;
@@ -18627,7 +19163,7 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2 class="modal-title">Blueprint</h2>
-                        <p style="color: #9ca3af; margin-top: 5px;">v4.14.1 · Your career, fully represented</p>
+                        <p style="color: #9ca3af; margin-top: 5px;">v4.15.0 · Your career, fully represented</p>
                     </div>
                     <button class="modal-close" onclick="closeExportModal()">×</button>
                 </div>
