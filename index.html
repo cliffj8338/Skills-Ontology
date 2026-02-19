@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.17.0 | 20260219 | Feature: Certification Library (191 credentials), tier-aware evidence floors, searchable picker -->
+    <!-- v4.17.1 | 20260219 | Feature: Role-based value floors, evidence/potential toggle, fix doubled word bug -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -5521,7 +5521,12 @@
             return getSkillImpact(skill);
         }
         
-        function calculateTotalMarketValue() {
+        // Valuation mode: 'evidence' (default, uses effective levels) or 'potential' (uses claimed levels)
+        var valuationMode = 'evidence';
+        
+        function calculateTotalMarketValue(mode) {
+            var useMode = mode || valuationMode || 'evidence';
+            
             if (!skillsData || !skillsData.skills) {
                 return { 
                     total: 0, 
@@ -5540,17 +5545,26 @@
                     criticalBonus: 0,
                     highBonus: 0,
                     rarityBonus: 0,
-                    premiumAmount: 0
+                    premiumAmount: 0,
+                    mode: useMode,
+                    roleFloor: 0,
+                    roleFloorApplied: false
                 };
             }
             
             // REDESIGNED MODEL: Realistic premiums based on skill mix percentage
             
-            // Step 1: Calculate base value from role tier (based on EFFECTIVE proficiency, not claimed)
-            const masteryCount = skillsData.skills.filter(s => getValuationLevel(s) === 'Mastery').length;
-            const expertCount = skillsData.skills.filter(s => getValuationLevel(s) === 'Expert').length;
-            const advancedCount = skillsData.skills.filter(s => getValuationLevel(s) === 'Advanced').length;
-            const proficientCount = skillsData.skills.filter(s => getValuationLevel(s) === 'Proficient').length;
+            // Helper: get the level to use based on mode
+            function getLevelForMode(skill) {
+                if (useMode === 'potential') return skill.level; // Trust claimed level
+                return getValuationLevel(skill); // Evidence-backed
+            }
+            
+            // Step 1: Calculate base value from role tier
+            const masteryCount = skillsData.skills.filter(s => getLevelForMode(s) === 'Mastery').length;
+            const expertCount = skillsData.skills.filter(s => getLevelForMode(s) === 'Expert').length;
+            const advancedCount = skillsData.skills.filter(s => getLevelForMode(s) === 'Advanced').length;
+            const proficientCount = skillsData.skills.filter(s => getLevelForMode(s) === 'Proficient').length;
             const totalSkills = skillsData.skills.length;
             
             // Updated point system:
@@ -5656,10 +5670,39 @@
             
             const totalValue = Math.round((baseMarketRate + premiumAmount) * locationMultiplier);
             
+            // Step 4: Role-based minimum floor from user's title/roles
+            var roleFloor = 0;
+            var titleStr = ((userData.profile || {}).currentTitle || '').toLowerCase()
+                + ' ' + ((userData.roles || []).map(function(r) { return r.name; }).join(' ')).toLowerCase();
+            
+            if (/\b(ceo|cto|cfo|coo|cmo|cio|ciso|chief|c-suite|president)\b/.test(titleStr)) {
+                roleFloor = 200000;
+            } else if (/\b(svp|evp|senior vice president|executive vice president)\b/.test(titleStr)) {
+                roleFloor = 180000;
+            } else if (/\b(vp|vice president)\b/.test(titleStr)) {
+                roleFloor = 150000;
+            } else if (/\b(senior director|sr\. director|sr director)\b/.test(titleStr)) {
+                roleFloor = 130000;
+            } else if (/\b(director)\b/.test(titleStr)) {
+                roleFloor = 110000;
+            } else if (/\b(senior manager|sr\. manager|sr manager|principal)\b/.test(titleStr)) {
+                roleFloor = 95000;
+            } else if (/\b(manager|lead|head of)\b/.test(titleStr)) {
+                roleFloor = 75000;
+            } else if (/\b(senior|sr\.)\b/.test(titleStr)) {
+                roleFloor = 65000;
+            }
+            
+            // Apply location multiplier to floor too
+            roleFloor = Math.round(roleFloor * locationMultiplier);
+            
+            var finalValue = Math.max(totalValue, roleFloor);
+            var roleFloorApplied = finalValue > totalValue;
+            
             // Calculate offer ranges
-            const conservativeOffer = Math.round(totalValue * 0.75);
-            const standardOffer = Math.round(totalValue * 0.85);
-            const competitiveOffer = Math.round(totalValue * 0.95);
+            const conservativeOffer = Math.round(finalValue * 0.75);
+            const standardOffer = Math.round(finalValue * 0.85);
+            const competitiveOffer = Math.round(finalValue * 0.95);
             
             // Build critical/high skills for compatibility
             const criticalSkills = skillsData.skills.filter(s => {
@@ -5679,11 +5722,11 @@
             ].slice(0, 10);
             
             // Calculate compa-ratio (your worth vs base market rate)
-            const compaRatio = baseMarketRate > 0 ? Math.round((totalValue / baseMarketRate) * 100) : 100;
+            const compaRatio = baseMarketRate > 0 ? Math.round((finalValue / baseMarketRate) * 100) : 100;
             
             return {
                 // New structure
-                total: totalValue,
+                total: finalValue,
                 baseMarketRate: baseMarketRate,
                 roleLevel: roleLevel,
                 criticalSkills: criticalSkills.map(s => ({ name: s.name, level: s.level })),
@@ -5697,11 +5740,11 @@
                 learningBonus: learningBonus,
                 
                 // Backward compatibility
-                criticalBonus: criticalDepthBonus, // Map to new system
-                highBonus: evidenceBonus, // Map to new system
+                criticalBonus: criticalDepthBonus,
+                highBonus: evidenceBonus,
                 
                 // Backward compatibility fields
-                yourWorth: totalValue,
+                yourWorth: finalValue,
                 marketRate: baseMarketRate,
                 conservativeOffer: conservativeOffer,
                 standardOffer: standardOffer,
@@ -5710,8 +5753,14 @@
                 totalPoints: totalPoints,
                 compaRatio: compaRatio,
                 premiumAmount: premiumAmount,
-                domainPremium: totalPremiumPct, // Now this is a proper percentage (0-0.60)
-                percentile: percentile, // 50th or 75th based on role level
+                domainPremium: totalPremiumPct,
+                percentile: percentile,
+                
+                // Mode and floor info
+                mode: useMode,
+                roleFloor: roleFloor,
+                roleFloorApplied: roleFloorApplied,
+                rawCalculatedValue: totalValue,
                 
                 breakdown: {
                     base: baseMarketRate,
@@ -5722,6 +5771,17 @@
                 }
             };
         }
+        
+        function setValuationMode(mode) {
+            valuationMode = mode;
+            // Re-render the Blueprint section
+            var blueprintContent = document.getElementById('blueprintContent');
+            if (blueprintContent) {
+                // Find the Blueprint tab panel and re-trigger its render
+                switchView('blueprint');
+            }
+        }
+        window.setValuationMode = setValuationMode;
         
         function getClosestRoleBenchmark(calculatedValue) {
             if (!skillValuations || !skillValuations.roleBenchmarks) {
@@ -11247,18 +11307,56 @@ body {
                     </div>
                     
                     <div style="text-align: center; padding: 30px 20px;">
-                        <div style="color: ${tv("#9ca3af","#64748b")}; font-size: 0.9em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">
-                            Your Market Worth
+                        
+                        <!-- Valuation Mode Toggle -->
+                        <div id="valuationToggle" style="display:inline-flex; background:${tb("rgba(255,255,255,0.06)","rgba(0,0,0,0.04)")}; border-radius:8px; padding:3px; margin-bottom:20px; border:1px solid ${tb("rgba(255,255,255,0.08)","rgba(0,0,0,0.08)")};">
+                            <button onclick="setValuationMode('evidence')" id="valModeEvidence"
+                                style="padding:8px 18px; border:none; border-radius:6px; cursor:pointer; font-size:0.82em; font-weight:600; transition:all 0.15s;
+                                background:${valuationMode === 'evidence' ? 'var(--accent)' : 'transparent'}; color:${valuationMode === 'evidence' ? '#fff' : tv('#9ca3af','#64748b')};">
+                                \uD83D\uDD12 Evidence-Backed
+                            </button>
+                            <button onclick="setValuationMode('potential')" id="valModePotential"
+                                style="padding:8px 18px; border:none; border-radius:6px; cursor:pointer; font-size:0.82em; font-weight:600; transition:all 0.15s;
+                                background:${valuationMode === 'potential' ? 'var(--accent)' : 'transparent'}; color:${valuationMode === 'potential' ? '#fff' : tv('#9ca3af','#64748b')};">
+                                \u2728 Potential Value
+                            </button>
                         </div>
-                        <div style="font-size: 3em; font-weight: 700; color: #10b981; margin-bottom: 10px;">
+                        
+                        <div style="color: ${tv("#9ca3af","#64748b")}; font-size: 0.9em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">
+                            ${totalValue.mode === 'potential' ? 'Your Potential Worth' : 'Your Market Worth'}
+                        </div>
+                        <div style="font-size: 3em; font-weight: 700; color: ${totalValue.mode === 'potential' ? '#f59e0b' : '#10b981'}; margin-bottom: 10px;">
                             $${totalValue.yourWorth.toLocaleString()}<span style="font-size: 0.4em; color: ${tv("#9ca3af","#64748b")};">/year</span>
                         </div>
                         <div style="color: ${tv("#d1d5db","#334155")}; font-size: 1em; margin-bottom: 8px;">
-                            ${totalValue.roleLevel} Level • ${totalValue.compaRatio}% of Market Median
+                            ${totalValue.roleLevel} \u2022 ${totalValue.compaRatio}% of Market Median
                         </div>
-                        <div style="color: ${tv("#9ca3af","#64748b")}; font-size: 0.9em; margin-bottom: 30px;">
-                            Based on top 10 skills • ${userData.profile.location}
+                        <div style="color: ${tv("#9ca3af","#64748b")}; font-size: 0.9em; margin-bottom: ${totalValue.mode === 'potential' || totalValue.roleFloorApplied ? '15' : '30'}px;">
+                            Based on top 10 skills \u2022 ${userData.profile.location}
                         </div>
+                        
+                        ${totalValue.mode === 'potential' ? `
+                        <div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2); border-radius:10px; padding:14px 18px; margin-bottom:20px; text-align:left;">
+                            <div style="color:#f59e0b; font-weight:700; font-size:0.85em; margin-bottom:6px;">\u26A0 This is your potential value, not your proven value</div>
+                            <div style="color:${tv('#d1d5db','#475569')}; font-size:0.82em; line-height:1.5;">
+                                This assumes all claimed proficiency levels are accurate. To unlock this valuation, add measurable outcomes to your skills. 
+                                ${(() => {
+                                    var evidenceVal = calculateTotalMarketValue('evidence');
+                                    var gap = totalValue.yourWorth - evidenceVal.yourWorth;
+                                    return gap > 0 ? '<strong style="color:#f59e0b;">Adding evidence could close a $' + gap.toLocaleString() + ' gap.</strong>' : '';
+                                })()}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        ${totalValue.roleFloorApplied ? `
+                        <div style="background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.15); border-radius:10px; padding:12px 16px; margin-bottom:20px; text-align:left;">
+                            <div style="color:#60a5fa; font-size:0.82em; line-height:1.4;">
+                                \uD83D\uDCCA Role floor applied: market minimum for your title is $${totalValue.roleFloor.toLocaleString()}. 
+                                Skill-based calculation was $${totalValue.rawCalculatedValue.toLocaleString()}.
+                            </div>
+                        </div>
+                        ` : ''}
                         
                         <div style="background: ${tb("rgba(255,255,255,0.03)","rgba(0,0,0,0.03)")}; padding: 25px; border-radius: 12px; margin-bottom: 25px;">
                             <div style="color: #60a5fa; font-weight: 600; margin-bottom: 15px; text-align: left;">📊 EXPECTED OFFER RANGES (Compa-Ratio Model)</div>
@@ -11328,7 +11426,7 @@ body {
                         <div style="color: ${tv("#d1d5db","#334155")}; font-size: 0.95em; line-height: 1.6;">
                             <strong>Method:</strong> Impact-based role tier + skill premiums
                             <br><br>
-                            <strong>Base Market Rate:</strong> $${totalValue.marketRate.toLocaleString()} (${totalValue.roleLevel} level, ${totalValue.percentile} percentile)
+                            <strong>Base Market Rate:</strong> $${totalValue.marketRate.toLocaleString()} (${totalValue.roleLevel}, ${totalValue.percentile} percentile)
                             <br><strong>Critical Impact Skills (${totalValue.criticalSkills.length}):</strong> +$${totalValue.criticalBonus.toLocaleString()}
                             <br><strong>High Impact Skills (${totalValue.highSkills.length}):</strong> +$${totalValue.highBonus.toLocaleString()}
                             <br><strong>Rare Skill Combinations:</strong> +$${totalValue.rarityBonus.toLocaleString()}
@@ -20229,7 +20327,7 @@ body {
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2 class="modal-title">Blueprint</h2>
-                        <p style="color: #9ca3af; margin-top: 5px;">v4.17.0 · Your career, fully represented</p>
+                        <p style="color: #9ca3af; margin-top: 5px;">v4.17.1 · Your career, fully represented</p>
                     </div>
                     <button class="modal-close" onclick="closeExportModal()">×</button>
                 </div>

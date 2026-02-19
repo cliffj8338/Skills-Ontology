@@ -1,5 +1,5 @@
-# PROJECT_CONTEXT.md — Blueprint v4.17.0 (Certification Library)
-**Updated:** 2026-02-19 | **Lines:** 20,382 | **Functions:** ~425 | **Size:** ~1.08 MB | **Braces:** 0 (balanced)
+# PROJECT_CONTEXT.md — Blueprint v4.17.1 (Role Floors + Valuation Toggle)
+**Updated:** 2026-02-19 | **Lines:** 20,480 | **Functions:** ~428 | **Size:** ~1.09 MB | **Braces:** 0 (balanced)
 
 ## What Is Blueprint
 
@@ -144,6 +144,33 @@ Alternative to network: grid of skill cards grouped by role, sorted by level. In
 
 ### Skill Modals (L9100-9400, 8 functions)
 `openSkillModal` — Rich detail modal for any skill: market value, proficiency bar, evidence list, related skills, coaching, category info. Accessible from both network nodes and card view.
+
+### Role-Based Value Floors & Valuation Toggle (v4.17.1)
+
+**Role-based minimum floors:**
+Title keywords from `userData.profile.currentTitle` and `userData.roles[].name` are scanned against seniority patterns. Floor is applied after location multiplier:
+- CEO/CTO/CFO/C-Suite/President: $200,000
+- SVP/EVP: $180,000
+- VP/Vice President: $150,000
+- Senior Director: $130,000
+- Director: $110,000
+- Senior Manager/Principal: $95,000
+- Manager/Lead/Head: $75,000
+- Senior: $65,000
+- `finalValue = Math.max(calculatedValue, roleFloor)`
+
+**Valuation mode toggle:**
+Global `valuationMode` ('evidence' | 'potential') switches how `calculateTotalMarketValue()` calculates proficiency points.
+- **Evidence-Backed** (🔒, default): Uses `getValuationLevel(skill)` — min(claimed, effective). This is the "real" number.
+- **Potential Value** (✨): Uses `skill.level` directly — trusts claimed levels. Shows amber warning: "This is your potential value, not your proven value. Adding evidence could close a $X gap."
+
+Key: `getLevelForMode(skill)` helper inside calc function switches between modes. Both modes still respect role floor.
+
+Toggle rendered as pill buttons in the Blueprint Market Valuation section. `setValuationMode(mode)` updates global and re-renders via `switchView('blueprint')`.
+
+**Bug fix:** "Entry Level Level" doubled word — removed redundant " Level" suffix from display template.
+
+**Return object additions:** `mode`, `roleFloor`, `roleFloorApplied`, `rawCalculatedValue`
 
 ### Certification Library System (v4.17.0)
 **File:** `certification_library.json` — 191 credentials across 15 categories (University Degrees, Healthcare, Transportation, Technology, Finance, HR, Legal, Trades, Real Estate, Education, Food/Hospitality, Manufacturing, Marketing, Security, Environmental).
@@ -324,7 +351,13 @@ Theme toggle (dark/light), profile dropdown, filter panel, overflow menu. Help m
 
 ## Version History
 
-### v4.17.0 (current)
+### v4.17.1 (current)
+- **Role-based value floors:** Title keyword detection sets minimum market value (VP → $150k, Director → $110k, etc.). Floor displayed when active.
+- **Evidence/Potential toggle:** Two-mode valuation in Blueprint. Evidence-Backed (default) uses effective levels. Potential shows value assuming claimed levels are true, with amber warning showing the gap and encouraging outcome entry.
+- **Bug fix:** "Entry Level Level" doubled word in Blueprint Market Valuation display.
+- **Return object enriched:** `mode`, `roleFloor`, `roleFloorApplied`, `rawCalculatedValue` added to market value return.
+
+### v4.17.0
 - **Certification Library:** 191 credentials (certifications, licenses, degrees, ratings) across 15 industry categories. Loaded from `certification_library.json`.
 - **Tier system:** Tier 1 (Foundation, 115 certs) → Proficient floor. Tier 2 (Advanced, 76 certs) → Advanced floor. Highest cert wins for overlapping skills.
 - **Curated skill maps:** 83 most common credentials have hand-built skill associations (PMP → Project Management, Risk Management, etc.). 108 use fallback keyword matching.
@@ -442,7 +475,7 @@ Sessions are stored in `/mnt/transcripts/`:
 6. `2026-02-19-18-01-02-v410-skill-edit-sample-jobs-bugfix.txt`
 7. `2026-02-19-19-07-15-v412-v413-bulk-import-manager-overlay-panel.txt`
 8. Previous session: v4.14.0-v4.14.1 (calibrated sample jobs, overlay color fix, stabilization audit)
-9. Current session: v4.15.0-v4.17.0 (Work History/Education/Certs, Resume v2, Evidence Engine, Verification, Evidence CRUD, UX Consistency, Certification Library)
+9. Current session: v4.15.0-v4.17.1 (Work History/Education/Certs, Resume v2, Evidence Engine, Verification, Evidence CRUD, Cert Library, Role Floors, Valuation Toggle)
 
 ---
 
