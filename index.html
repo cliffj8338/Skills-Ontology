@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.12.0 | 20260219 | Library-only import mode, Bulk Skill Manager (select/edit level/remove), roles optional everywhere -->
+    <!-- v4.13.0 | 20260219 | Match overlay stats panel: score, stats, legend, proficiency gaps, actions -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -2010,33 +2010,136 @@
         .match-legend {
             position: absolute;
             bottom: 16px;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 16px;
             display: flex;
-            gap: 16px;
-            padding: 8px 18px;
-            border-radius: 20px;
-            background: rgba(15,15,30,0.85);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(96,165,250,0.15);
+            flex-direction: column;
+            gap: 0;
+            padding: 0;
+            border-radius: 12px;
+            background: rgba(15,15,30,0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(96,165,250,0.2);
             z-index: 10;
-            font-size: 0.75em;
+            font-size: 0.82em;
+            min-width: 260px;
+            max-width: 320px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            overflow: hidden;
         }
         [data-theme="light"] .match-legend {
-            background: rgba(255,255,255,0.92);
-            border-color: rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.95);
+            border-color: rgba(0,0,0,0.12);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        }
+        .ml-header {
+            padding: 14px 16px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        [data-theme="light"] .ml-header {
+            border-bottom-color: rgba(0,0,0,0.06);
+        }
+        .ml-title {
+            font-weight: 700;
+            font-size: 1.05em;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .ml-company {
+            font-size: 0.88em;
+            color: var(--text-muted);
+        }
+        .ml-score-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            background: rgba(96,165,250,0.06);
+        }
+        .ml-score-num {
+            font-size: 1.8em;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .ml-score-bar {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.08);
+            overflow: hidden;
+        }
+        [data-theme="light"] .ml-score-bar { background: rgba(0,0,0,0.06); }
+        .ml-score-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        .ml-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0;
+        }
+        .ml-stat {
+            text-align: center;
+            padding: 10px 6px;
+            border-right: 1px solid rgba(255,255,255,0.04);
+        }
+        [data-theme="light"] .ml-stat { border-right-color: rgba(0,0,0,0.04); }
+        .ml-stat:last-child { border-right: none; }
+        .ml-stat-num {
+            font-size: 1.3em;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        .ml-stat-label {
+            font-size: 0.72em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .ml-legend-row {
+            display: flex;
+            gap: 12px;
+            padding: 8px 16px;
+            flex-wrap: wrap;
         }
         .match-legend-item {
             display: flex;
             align-items: center;
             gap: 5px;
             color: var(--text-muted);
+            font-size: 0.88em;
         }
         .match-legend-dot {
             width: 10px;
             height: 10px;
             border-radius: 50%;
+            flex-shrink: 0;
         }
+        .ml-actions {
+            display: flex;
+            gap: 6px;
+            padding: 8px 12px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        [data-theme="light"] .ml-actions { border-top-color: rgba(0,0,0,0.06); }
+        .ml-action-btn {
+            flex: 1;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.82em;
+            text-align: center;
+            transition: background 0.15s;
+        }
+        .ml-action-btn:hover { background: rgba(255,255,255,0.06); }
+        [data-theme="light"] .ml-action-btn { border-color: rgba(0,0,0,0.1); }
+        [data-theme="light"] .ml-action-btn:hover { background: rgba(0,0,0,0.04); }
         .match-active-badge {
             display: inline-flex;
             align-items: center;
@@ -2658,10 +2761,11 @@
                 font-size: 0.7em;
             }
             .match-legend {
-                gap: 8px;
-                padding: 6px 12px;
-                font-size: 0.68em;
+                min-width: 220px;
+                max-width: 260px;
+                font-size: 0.75em;
                 bottom: 70px; /* Above mobile nav */
+                left: 8px;
             }
             
             .blueprint-section {
@@ -8126,18 +8230,75 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var matchCount = (match.matched || []).length;
             var gapCount = (match.gaps || []).length;
             var surplusCount = (match.surplus || []).length;
+            var profGapCount = (match.matched || []).filter(function(m) { return m.profGap; }).length;
+            var score = match.score || 0;
+            
+            // Score color
+            var scoreColor = score >= 70 ? '#10b981' : score >= 45 ? '#f59e0b' : '#ef4444';
+            
+            // Job info
+            var job = activeJobForNetwork || {};
+            var jobTitle = job.title || 'Job Match';
+            var jobCompany = job.company || '';
             
             var legend = document.createElement('div');
             legend.id = 'matchLegend';
             legend.className = 'match-legend';
-            legend.innerHTML = '<div class="match-legend-item"><div class="match-legend-dot" style="background:#10b981;"></div> Matched (' + matchCount + ')</div>'
-                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#ef4444;"></div> Gaps (' + gapCount + ')</div>'
-                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#475569; opacity:0.5;"></div> Surplus (' + surplusCount + ')</div>'
-                + '<div class="match-legend-item" style="font-weight:700; color:' + (match.score >= 70 ? '#10b981' : match.score >= 45 ? '#f59e0b' : '#6b7280') + ';">' + match.score + '%</div>';
+            
+            legend.innerHTML = ''
+                // Header with job title
+                + '<div class="ml-header">'
+                + '<div class="ml-title" title="' + jobTitle + '">' + jobTitle + '</div>'
+                + (jobCompany ? '<div class="ml-company">' + jobCompany + '</div>' : '')
+                + '</div>'
+                
+                // Score row
+                + '<div class="ml-score-row">'
+                + '<div class="ml-score-num" style="color:' + scoreColor + ';">' + score + '%</div>'
+                + '<div style="flex:1;">'
+                + '<div style="font-size:0.78em; color:var(--text-muted); margin-bottom:4px;">Overall Match</div>'
+                + '<div class="ml-score-bar"><div class="ml-score-fill" style="width:' + score + '%; background:' + scoreColor + ';"></div></div>'
+                + '</div>'
+                + '</div>'
+                
+                // Stats grid
+                + '<div class="ml-stats">'
+                + '<div class="ml-stat"><div class="ml-stat-num" style="color:#10b981;">' + matchCount + '</div><div class="ml-stat-label">Matched</div></div>'
+                + '<div class="ml-stat"><div class="ml-stat-num" style="color:#ef4444;">' + gapCount + '</div><div class="ml-stat-label">Gaps</div></div>'
+                + '<div class="ml-stat"><div class="ml-stat-num" style="color:#64748b;">' + surplusCount + '</div><div class="ml-stat-label">Surplus</div></div>'
+                + '</div>'
+                
+                // Proficiency gaps if any
+                + (profGapCount > 0 ? '<div style="padding:6px 16px; font-size:0.78em; color:#f59e0b; background:rgba(245,158,11,0.06);">⚠ ' + profGapCount + ' skill' + (profGapCount > 1 ? 's' : '') + ' matched at a lower proficiency</div>' : '')
+                
+                // Legend dots
+                + '<div class="ml-legend-row">'
+                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#10b981;"></div>You have</div>'
+                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#ef4444;"></div>You need</div>'
+                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#475569; opacity:0.4;"></div>Your extra</div>'
+                + '</div>'
+                
+                // Action buttons
+                + '<div class="ml-actions">'
+                + '<button class="ml-action-btn" onclick="clearJobOverlay()">✕ Close</button>'
+                + '<button class="ml-action-btn" style="color:var(--accent); border-color:rgba(96,165,250,0.3);" '
+                + 'onclick="var idx=findJobIdx(); clearJobOverlay(); switchView(\'opportunities\'); setTimeout(function(){showJobDetail(idx);},200);">View Details</button>'
+                + '</div>';
             
             var container = document.getElementById('networkView').parentElement;
             if (container) { container.style.position = 'relative'; container.appendChild(legend); }
         }
+        
+        function findJobIdx() {
+            var job = activeJobForNetwork;
+            if (!job) return 0;
+            var jobs = userData.savedJobs || [];
+            for (var i = 0; i < jobs.length; i++) {
+                if (jobs[i].id === job.id || jobs[i].title === job.title) return i;
+            }
+            return 0;
+        }
+        window.findJobIdx = findJobIdx;
 
         function initCardView() {
             const cardView = document.getElementById('cardView');

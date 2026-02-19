@@ -1,5 +1,5 @@
-# PROJECT_CONTEXT.md — Blueprint v4.12.0
-**Updated:** 2026-02-19 | **Lines:** 18,588 | **Functions:** ~345 | **Braces:** 0 (balanced)
+# PROJECT_CONTEXT.md — Blueprint v4.13.0
+**Updated:** 2026-02-19 | **Lines:** 18,749 | **Functions:** ~350 | **Braces:** 0 (balanced)
 
 ## Architecture
 
@@ -17,7 +17,12 @@ Single-file SPA (`index.html`) deployed to GitHub Pages. No build step, no bundl
 
 ## Version History (This Session: v4.7.0 → v4.10.0)
 
-### v4.12.0 (current)
+### v4.13.0 (current)
+- **Match overlay stats panel:** Replaced minimal pill legend with comprehensive floating panel in bottom-left during job match overlay. Shows: job title/company, large score percentage with color-coded progress bar, 3-column stats grid (Matched/Gaps/Surplus), proficiency gap warning, color legend with human-readable labels ("You have"/"You need"/"Your extra"), action buttons (Close overlay, View Details navigates to Jobs tab). Glass-morphism design, theme-aware, mobile responsive.
+- **Fixed duplicate clearJobOverlay:** Removed accidental duplicate, kept the original that properly resets networkMatchMode and UI toggles.
+- **Added findJobIdx():** Helper to locate current overlay job's index in savedJobs for navigation.
+
+### v4.12.0
 - **Library-only import mode:** Bulk import now has a destination toggle: "Skill Library only" (adds to searchable index for job matching without touching profile) vs "Library + Current Profile". Profile options (level, merge strategy, roles) hide when library-only is selected.
 - **Bulk Skill Manager:** New modal for managing existing profile skills in bulk. Searchable/filterable list of all profile skills with checkboxes. Select all/none toggle. Bulk actions toolbar appears when skills are selected: "Set Level" (inline 6-level picker) and "Remove Selected" (with confirmation). Accessible from Blueprint tab, Card view, and Admin dashboard.
 - **Roles optional everywhere:** All three skill modals (Create Custom, Edit Skill, Bulk Import) no longer require role selection. If no roles checked, skills default to all roles in the current profile. Labels updated to "(optional, defaults to all)".
@@ -139,22 +144,13 @@ currentProfile, wbTheme, wbAnthropicKey, wbValues, wbPurpose, wbMagicLinkEmail
 
 ## PRIORITY WORK REMAINING
 
-### 1. 🔴 Jobs Network Overlay (NEXT — User Requested)
-Cliff explicitly said: "I want to revisit the jobs Ontology overlay functionality. It's not quite where I want it to be." This is the IMMEDIATE next priority.
-
-Current overlay functions:
-- `viewOnNetwork(jobId)` — Switches to skills tab, stores job, reinits network
-- `activateJobOverlay(idx)` — For "Your Jobs" detail view, calls initMatchNetwork
-- `initJobNetwork(job)` / `initMatchNetwork(job)` — D3 force layouts showing skill overlap
-
-**Known issues to investigate:**
-- Visual clarity of matched vs. gap vs. surplus skill distinction
-- Overlay dismiss/toggle behavior
-- Mobile responsiveness of overlay
-- Whether the overlay properly reflects proficiency-weighted matching
-- Node colors and labels during overlay mode
-- How to show proficiency gaps visually on the network (not just color coding)
-- Cliff hasn't fully articulated what's wrong yet, so needs discussion at start of next session
+### 1. 🟡 Jobs Network Overlay (Partially Addressed)
+v4.13.0 added comprehensive stats panel with legend, score, stats grid, proficiency gap indicator, and action buttons. Further refinements Cliff may want:
+- Visual representation of proficiency gaps on individual nodes (e.g., partial-fill circles)
+- Animated transitions between You/Job/Match modes
+- Drag-to-rearrange to manually explore cluster relationships
+- The "Job" view mode (`initJobNetwork`) still has no panel/legend
+- Cliff hasn't fully validated the current overlay yet, so additional feedback expected
 
 ### 2. 🟡 Remaining from Code Audit (v4.7.0)
 - **M4: Accessibility** — Minimal keyboard nav, no focus traps, few aria-labels
@@ -198,4 +194,4 @@ Previous session transcripts are at `/mnt/transcripts/`:
 2. `2026-02-19-14-57-36-hero-animation-profile-switch-fixes.txt` — Hero animation, profile dropdown bugs
 3. `2026-02-19-15-17-20-hero-animation-profile-bugs-audit.txt` — Solar system animation, 30-defect audit
 4. `2026-02-19-15-40-07-v47-audit-fixes-ui-stub-inventory.txt` — v4.7.0 audit fixes, UI stub inventory
-5. Current session (v4.7.0 to v4.12.0): UI stubs, matching engine, toast, skill editing, sample jobs, bulk import/manager, library-only mode
+5. Current session (v4.7.0 to v4.13.0): UI stubs, matching engine, toast, skill editing, sample jobs, bulk import/manager, library-only mode, overlay stats panel
