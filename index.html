@@ -5622,11 +5622,22 @@
                 { fn: 'engineering', patterns: /\b(mechanical|electrical|civil|structural|pe |professional engineer|cad|construction|architect)\b/ }
             ];
             
+            // Detect function: title+roles first (strongest signal), then skills as fallback
             var detectedFunction = 'general';
+            var titleAndRoles = titleStr + ' ' + rolesStr;
             for (var fi = 0; fi < functionPatterns.length; fi++) {
-                if (functionPatterns[fi].patterns.test(allSignals)) {
+                if (functionPatterns[fi].patterns.test(titleAndRoles)) {
                     detectedFunction = functionPatterns[fi].fn;
                     break;
+                }
+            }
+            // If title didn't match, try skills
+            if (detectedFunction === 'general') {
+                for (var fi2 = 0; fi2 < functionPatterns.length; fi2++) {
+                    if (functionPatterns[fi2].patterns.test(skillNames)) {
+                        detectedFunction = functionPatterns[fi2].fn;
+                        break;
+                    }
                 }
             }
             
@@ -5676,31 +5687,30 @@
             var roleLevel = roleLevelNames[seniorityLevel];
             var percentile = seniorityLevel >= 4 ? '75th' : '50th';
             
-            // Step 2: Calculate comprehensive premium using 5-factor system
+            // Step 2: Calculate premium factors (total capped at 35% of base)
             
-            // FACTOR 1: Work Styles & Soft Skills (20-30% max)
+            // FACTOR 1: Work Styles & Soft Skills (max 8%)
             const workStyleSkills = skillsData.skills.filter(s => 
-                s.category === 'workstyle' && (s.level === 'Advanced' || s.level === 'Expert' || s.level === 'Mastery')
+                s.category === 'workstyle' && (getLevelForMode(s) === 'Advanced' || getLevelForMode(s) === 'Expert' || getLevelForMode(s) === 'Mastery')
             );
-            const workStylesPct = Math.min((workStyleSkills.length * 0.015), 0.30); // 1.5% per skill, max 30%
+            const workStylesPct = Math.min((workStyleSkills.length * 0.01), 0.08);
             
-            // FACTOR 2: Evidence Quality (30-40% max)
+            // FACTOR 2: Evidence Quality (max 12%)
             let evidenceScore = 0;
             skillsData.skills.forEach(skill => {
                 if (skill.evidence && skill.evidence.length > 0) {
                     skill.evidence.forEach(ev => {
-                        // Has quantified outcome (numbers, %, $)
                         if (ev.outcome && (ev.outcome.match(/\d+%|\$\d+|[0-9,]+/) || ev.outcome.includes('reduced') || ev.outcome.includes('increased'))) {
-                            evidenceScore += 2; // High-quality evidence
+                            evidenceScore += 2;
                         } else if (ev.outcome) {
-                            evidenceScore += 1; // Basic evidence
+                            evidenceScore += 1;
                         }
                     });
                 }
             });
-            const evidenceQualityPct = Math.min((evidenceScore * 0.005), 0.40); // 0.5% per quality point, max 40%
+            const evidenceQualityPct = Math.min((evidenceScore * 0.003), 0.12);
             
-            // FACTOR 3: Skill Mix Rarity (15-25% max)
+            // FACTOR 3: Skill Mix Rarity (max 8%)
             let rarityPct = 0;
             const hasAI = skillsData.skills.some(s => s.name.toLowerCase().includes('ai') || s.name.toLowerCase().includes('machine learning'));
             const hasPilot = skillsData.skills.some(s => s.name.toLowerCase().includes('aviation') || s.name.toLowerCase().includes('ifr'));
@@ -5710,27 +5720,26 @@
             const hasCreative = skillsData.skills.some(s => s.name.toLowerCase().includes('color') || s.name.toLowerCase().includes('styling') || s.name.toLowerCase().includes('creative'));
             const hasBehavioral = skillsData.skills.some(s => s.name.toLowerCase().includes('behavioral') || s.name.toLowerCase().includes('economics'));
             
-            // Rare combinations add premium
-            if (hasPilot && hasStrategy) rarityPct += 0.10; // Very rare: Aviation + Strategy
-            if (hasAI && hasStrategy) rarityPct += 0.05; // Rare: AI + Strategy
-            if (hasTechnical && hasLeadership) rarityPct += 0.05; // Valuable: Tech + Leadership
-            if (hasCreative && hasTechnical) rarityPct += 0.08; // Uncommon: Creative + Technical
-            if (hasBehavioral && hasStrategy) rarityPct += 0.05; // Rare: Behavioral Econ + Strategy
-            rarityPct = Math.min(rarityPct, 0.25); // Max 25%
+            if (hasPilot && hasStrategy) rarityPct += 0.04;
+            if (hasAI && hasStrategy) rarityPct += 0.03;
+            if (hasTechnical && hasLeadership) rarityPct += 0.03;
+            if (hasCreative && hasTechnical) rarityPct += 0.03;
+            if (hasBehavioral && hasStrategy) rarityPct += 0.02;
+            rarityPct = Math.min(rarityPct, 0.08);
             
-            // FACTOR 4: Critical Depth (10-15% max)
+            // FACTOR 4: Critical Depth (max 5%)
             const masteryInCriticalSkills = skillsData.skills.filter(s => {
                 const impact = getSkillImpact(s);
-                return (s.level === 'Mastery' || s.level === 'Expert') && (impact.level === 'critical' || impact.level === 'high');
+                return (getLevelForMode(s) === 'Mastery' || getLevelForMode(s) === 'Expert') && (impact.level === 'critical' || impact.level === 'high');
             });
-            const criticalDepthPct = Math.min((masteryInCriticalSkills.length * 0.02), 0.15); // 2% per critical mastery, max 15%
+            const criticalDepthPct = Math.min((masteryInCriticalSkills.length * 0.01), 0.05);
             
-            // FACTOR 5: Learning & Growth (10-15% max)
+            // FACTOR 5: Learning & Growth (max 2%)
             const noviceSkills = skillsData.skills.filter(s => s.level === 'Novice');
-            const learningPct = Math.min((noviceSkills.length * 0.02), 0.15); // 2% per novice skill (shows growth), max 15%
+            const learningPct = Math.min((noviceSkills.length * 0.005), 0.02);
             
-            // Total premium percentage
-            const totalPremiumPct = workStylesPct + evidenceQualityPct + rarityPct + criticalDepthPct + learningPct;
+            // Total premium: hard cap at 35%
+            const totalPremiumPct = Math.min(workStylesPct + evidenceQualityPct + rarityPct + criticalDepthPct + learningPct, 0.35);
             
             // Calculate dollar amounts for breakdown
             const workStylesBonus = Math.round(baseMarketRate * workStylesPct);
@@ -5747,24 +5756,23 @@
             
             // Step 4: Role-based minimum floor from user's title/roles
             var roleFloor = 0;
-            var titleStr = ((userData.profile || {}).currentTitle || '').toLowerCase()
-                + ' ' + ((userData.roles || []).map(function(r) { return r.name; }).join(' ')).toLowerCase();
+            // Use titleAndRoles (title + roles combined) from Step 1
             
-            if (/\b(ceo|cto|cfo|coo|cmo|cio|ciso|chief|c-suite|president)\b/.test(titleStr)) {
+            if (/\b(ceo|cto|cfo|coo|cmo|cio|ciso|chief|c-suite|president)\b/.test(titleAndRoles)) {
                 roleFloor = 200000;
-            } else if (/\b(svp|evp|senior vice president|executive vice president)\b/.test(titleStr)) {
+            } else if (/\b(svp|evp|senior vice president|executive vice president)\b/.test(titleAndRoles)) {
                 roleFloor = 180000;
-            } else if (/\b(vp|vice president)\b/.test(titleStr)) {
+            } else if (/\b(vp|vice president)\b/.test(titleAndRoles)) {
                 roleFloor = 150000;
-            } else if (/\b(senior director|sr\. director|sr director)\b/.test(titleStr)) {
+            } else if (/\b(senior director|sr\. director|sr director)\b/.test(titleAndRoles)) {
                 roleFloor = 130000;
-            } else if (/\b(director)\b/.test(titleStr)) {
+            } else if (/\b(director)\b/.test(titleAndRoles)) {
                 roleFloor = 110000;
-            } else if (/\b(senior manager|sr\. manager|sr manager|principal)\b/.test(titleStr)) {
+            } else if (/\b(senior manager|sr\. manager|sr manager|principal)\b/.test(titleAndRoles)) {
                 roleFloor = 95000;
-            } else if (/\b(manager|lead|head of)\b/.test(titleStr)) {
+            } else if (/\b(manager|lead|head of)\b/.test(titleAndRoles)) {
                 roleFloor = 75000;
-            } else if (/\b(senior|sr\.)\b/.test(titleStr)) {
+            } else if (/\b(senior|sr\.)\b/.test(titleAndRoles)) {
                 roleFloor = 65000;
             }
             
