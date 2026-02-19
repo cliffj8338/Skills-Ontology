@@ -5774,11 +5774,9 @@
         
         function setValuationMode(mode) {
             valuationMode = mode;
-            // Re-render the Blueprint section
-            var blueprintContent = document.getElementById('blueprintContent');
-            if (blueprintContent) {
-                // Find the Blueprint tab panel and re-trigger its render
-                switchView('blueprint');
+            // Re-render the Blueprint content directly
+            if (typeof renderBlueprint === 'function') {
+                renderBlueprint();
             }
         }
         window.setValuationMode = setValuationMode;
