@@ -1,6 +1,6 @@
 # Work Blueprint — Project Context
 
-**Version:** v4.0.0 | **Build:** 20260219-0335 | **Lines:** ~14,570 | **Functions:** ~288
+**Version:** v4.1.0 | **Build:** 20260218-0400 | **Lines:** ~14,740 | **Functions:** ~295
 **Repository:** https://github.com/cliffj8338/Skills-Ontology
 **Live:** https://cliffj8338.github.io/Skills-Ontology/
 **Creator:** Cliff Jurkiewicz
@@ -216,7 +216,7 @@ currentSkillsView = 'network'     // 'network' or 'card' within Skills tab
 
 ---
 
-## Welcome Page (build 0335)
+## Welcome Page (build 0400)
 
 Layout top to bottom:
 1. Headline: "Know Your Worth. Own Your Narrative."
@@ -224,9 +224,11 @@ Layout top to bottom:
 3. Two CTA buttons: "View Sample Profiles" (outlined) | "Build Your Blueprint" (filled)
 4. Animated network canvas in bordered showcase frame (320px, rounded corners, subtle border glow)
 5. Caption text
-6. "HOW IT WORKS" — three numbered steps with colored circle badges
+6. "HOW IT WORKS" — three numbered steps with colored circle badges (stacks to 1-column on mobile via `.welcome-steps-grid`)
 7. Sign-in link
 8. Disclaimer with Full Disclaimer link
+
+**App footer** (`#appFooter`) is hidden when welcome view is active (welcome has its own disclaimer). Shown on all other views.
 
 **Hero Animation** (`initHeroNetwork()`): HTML5 Canvas, 35 nodes, 8 color-coded domains, center "YOU" node, IntersectionObserver pauses when offscreen, respects dark/light theme.
 
@@ -248,7 +250,81 @@ Layout top to bottom:
 
 ---
 
+## Values System (v4.1.0)
+
+### VALUES_CATALOG
+25 values across 5 groups (How I Think, How I Lead, How I Work, How I Connect, What I Protect). Each entry has `name`, `keywords` (for evidence matching), and `description` (one-sentence behavioral definition).
+
+### Value Cards (renderSelectedValues)
+- Show catalog description under the value name
+- "Add a personal note" button opens modal editor
+- Notes stored in `blueprintData.values[idx].note`
+- Notes appear in value cards, clipboard export, and PDF export
+- Evidence preview shows first matching skill evidence
+
+### Helper Functions
+- `getCatalogDescription(name)` — looks up description from VALUES_CATALOG
+- `editValueNote(idx)` — opens modal with textarea for personal note
+- `saveValueNote(idx)` — saves note and re-renders blueprint tab
+- `scoreValueByEvidence(valueDef)` — counts keyword matches in skill evidence
+
+---
+
+## Mobile Network (v4.1.0)
+
+### Behavior
+- `initNetwork()` detects mobile via `window.innerWidth <= 768`
+- On mobile: shows only top 25 skills (key + Mastery/Expert, backfilled with Advanced)
+- Reduced distances, tighter forces, stronger center pull
+- Circle radii slightly larger for touch targets
+- Skill labels hidden by default (too cluttered), role labels visible
+- Info badge at bottom: "Showing top N of M skills"
+- `switchProfile()` and `DOMContentLoaded` both default to card view on mobile
+
+### Force Parameters (mobile vs desktop)
+- Link distance: 90/100 vs 140/160
+- Charge strength: -200/-120 vs -250/-180
+- Collision radius: 50/45/35 vs 70/65/45
+- Center/radial force: 0.12/0.15 vs 0.08/0.1
+
+---
+
+## Export System (v4.1.0)
+
+### Single Export Path
+All export options consolidated under Blueprint tab > Export sub-tab. Overflow menu has single "Export Blueprint" button that navigates there.
+
+### Available Exports
+1. **Executive Blueprint** — standalone HTML document, editorial design (generateWorkBlueprint)
+2. **Professional Resume** — ATS-friendly HTML, print to PDF (generateResume)
+3. **PDF Summary** — jsPDF 2-page summary with outcomes, values+notes, skills, market (generatePDF)
+4. **Copy to Clipboard** — plain text with values+descriptions+notes (copyBlueprintText)
+5. **JSON Data** — structured export for backups/integration (exportBlueprint('json'))
+
+### Removed
+- Old "Export Profile" modal with 3 stub options (Capability, LinkedIn, Interview)
+- Separate "Generate Work Blueprint" overflow menu item
+- `exportProfile()` function still exists but only 'resume' works, others toast "coming soon"
+
+---
+
 ## Bugs Fixed This Session
+
+| Bug | Root Cause | Fix |
+|-----|-----------|-----|
+| Welcome page footer/disclaimer overlap | App footer always visible, welcome page has its own disclaimer, creating double text that overlaps "HOW IT WORKS" | Footer hidden on welcome view via switchView(), shown on all other views |
+| Mobile "HOW IT WORKS" 3-column too cramped | Inline grid-template-columns:repeat(3,1fr) with no mobile breakpoint | Added .welcome-steps-grid class with 1fr mobile override |
+| Mobile: no bottom padding for mobile nav bar | Welcome page content hidden behind fixed bottom nav | Added #welcomeView padding-bottom:80px at 768px |
+| Consent sharing counts always wrong | renderSharingStatus() checked 'all'/'top20' but presets use 'full'/'executive' | Fixed key names and added dynamic counting per preset |
+| Consent "stored locally" copy stale | Copy predated Firebase backend | Updated to mention Firebase (signed in) vs localStorage (not signed in) |
+| Consent presets don't propagate | Only 'full' preset had logic, others were no-ops | All 5 presets now apply appropriate sharing filters |
+| Consent hardcoded "all 73 skills" | Preset description assumed specific skill count | Replaced with dynamic skillsData.skills.length |
+| Export modal shows 3 stubs ("coming next release") | Old modal had Resume + 3 placeholder options | Removed modal export path, consolidated to Blueprint > Export tab |
+| Two redundant overflow menu export buttons | "Export Profile" (modal) and "Generate Work Blueprint" (direct) | Merged into single "Export Blueprint" pointing to Blueprint tab |
+| Network view unusable on mobile | All skills rendered, too crowded, no touch optimization | Mobile shows top 25 key/expert skills, bigger circles, hidden labels, tighter forces |
+| Profile switch always shows network on mobile | switchProfile hardcoded switchView('network') | Added mobile detection to default to card view |
+
+## Bugs Fixed Prior Session
 
 | Bug | Root Cause | Fix |
 |-----|-----------|-----|
@@ -265,16 +341,20 @@ Layout top to bottom:
 
 ---
 
-## Stabilization Audit (build 0335)
+## Stabilization Audit (build 0400)
 
 ```
-Brace balance:     {=2705 }=2705 ✓
+Brace balance:     {=2746 }=2746 ✓
+Paren balance:     (=5783 )=5783 ✓
 All views hidden:  8/8 ✓
 Controls hidden:   ✓
-initNetwork calls: All guarded (3 remaining, all behind currentView or networkInitialized checks) ✓
-Magic link:        Instance method + try-catch ✓
-Picker flag:       _welcomePickerActive working ✓
-switchProfile:     → network, scrollTo, no toast ✓
+initNetwork calls: All guarded ✓
+Mobile network:    Simplified (top 25 skills, bigger targets, hidden labels) ✓
+Mobile card default: switchProfile + DOMContentLoaded both set card view ✓
+Footer hidden on welcome: ✓
+Values descriptions: All 25 catalog entries have descriptions ✓
+Consent presets:   Keys match ('full'/'executive'/'advisory'/'board'/'custom') ✓
+Export paths:      Single path via Blueprint > Export tab ✓
 ```
 
 **Dead code exists but is low-risk** (old `buildProfileDropdown`, `showWizardPrompt`, `showWelcomeScreen` — never called). Attempted removal corrupted file; safer to leave as-is and clean in a future refactor pass.
@@ -315,6 +395,7 @@ Skills-Ontology/
 | v4.0.0-0325 | 20260219 | Fix: Sample picker overwritten by renderWelcomePage |
 | v4.0.0-0330 | 20260219 | Fix: Picker layout padding + footer overlap |
 | v4.0.0-0335 | 20260219 | Fix: Network default for samples, remove toast, guard initNetwork, stabilization |
+| v4.1.0-0400 | 20260218 | Mobile responsive + Values descriptions/notes + Consent fixes + Export consolidation |
 
 ---
 
@@ -326,19 +407,39 @@ Skills-Ontology/
 - [ ] Test all sign-in flows: Google, email/password, magic link
 - [ ] "Save to Cloud" indicator for user awareness
 - [ ] Verify admin panel loads user list correctly
+- [ ] Test mobile experience end-to-end (welcome → sample → card view → blueprint → export)
 
 ### Medium Priority
 - [ ] Real-time save indicator (checkmark/spinner)
 - [ ] Network resize handler (re-render on window resize)
-- [ ] Remove dead code: buildProfileDropdown, showWizardPrompt, showWelcomeScreen (do carefully, Python string replacement corrupts easily in this file)
+- [ ] Remove dead code: buildProfileDropdown, showWizardPrompt, showWelcomeScreen, exportProfile() stubs
 - [ ] Profile photo/avatar upload
 - [ ] Enforce read-only in UI (disable edit buttons when isReadOnlyProfile)
+- [ ] Add value notes to sample profile JSON templates
+- [ ] Persist consent preset selection to userData.preferences
 
 ### Lower Priority
 - [ ] Offline mode with Firebase persistence
-- [ ] Export to PDF
+- [ ] Export to PDF — improve layout with descriptions and notes
 - [ ] Mobile-optimized wizard
 - [ ] Analytics dashboard for admin
+- [ ] LinkedIn Profile export (clipboard formatted for LinkedIn sections)
+- [ ] Interview Prep STAR stories generator
+
+### Completed This Session
+- [x] Welcome page layout: footer overlap fixed, HOW IT WORKS responsive on mobile
+- [x] Mobile defaults: card view on mobile for switchProfile + initial load
+- [x] Simplified mobile network: top 25 skills, bigger touch targets, hidden labels, info badge
+- [x] VALUES_CATALOG: all 25 values have descriptions
+- [x] Value cards: show descriptions + personal note field with modal editor
+- [x] Value notes: saved to blueprintData, included in clipboard + PDF exports
+- [x] Values picker: description tooltips on hover
+- [x] Consent: preset key mismatches fixed (full/executive/advisory/board/custom)
+- [x] Consent: stale "stored locally" copy updated for Firebase
+- [x] Consent: all presets now apply sharing filters to outcomes/values
+- [x] Consent: dynamic skill counts in preset descriptions
+- [x] Export: consolidated to single path (Blueprint > Export tab)
+- [x] Export: removed stub modal, merged overflow menu items
 
 ---
 
@@ -359,6 +460,12 @@ Skills-Ontology/
 7. **The `tv(dark, light)` helper** returns theme-appropriate values at render time only. If theme changes, content using `tv()` must be re-rendered.
 
 8. **Always verify the shipped output file matches the local working file.** Earlier in this session, `/mnt/user-data/outputs/index.html` was stale while `/home/claude/index.html` had the correct fix. This caused a deployed bug.
+
+9. **The `exportModal` div is reused dynamically.** `editOutcome()`, `editValueNote()`, and `viewMyData()` all rewrite its innerHTML. The default HTML content in the modal is a redirect to the Blueprint export tab.
+
+10. **Mobile network shows a subset of skills.** `initNetwork()` filters to top 25 key/expert skills on mobile. The full dataset is still in `skillsData.skills`. The info badge reads from `skillsToShow.length` vs `skillsData.skills.length`.
+
+11. **App footer is hidden on welcome view.** `switchView()` toggles `#appFooter` display. The welcome page has its own disclaimer, so showing both created overlapping text.
 
 ---
 
