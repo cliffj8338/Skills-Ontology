@@ -8095,6 +8095,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 document.getElementById('networkView').style.display = 'none';
                 document.getElementById('cardView').style.display = 'block';
                 networkControls.style.display = 'none';
+                // Lazy-init card view if needed (e.g. after profile switch)
+                if (!window.cardViewInitialized) {
+                    initCardView();
+                    window.cardViewInitialized = true;
+                }
                 // Show filter button in card view
                 var filterBtn2 = document.getElementById('filterToggleBtn');
                 if (filterBtn2) filterBtn2.style.display = '';
