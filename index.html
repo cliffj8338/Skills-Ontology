@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Work Blueprint by Cliff Jurkiewicz</title>
-    <!-- v4.1.0-0400 | 20260218 | Mobile responsive + Values descriptions + Consent fixes + Export consolidation -->
+    <!-- v4.3.0-0500 | 20260218 | Job Cart Phase 2: Network overlay (You/Job/Match toggle) -->
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -1979,6 +1979,86 @@
             color: #6b7280;
         }
         
+        /* Network match overlay */
+        .match-mode-toggle {
+            display: inline-flex;
+            gap: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-left: 8px;
+        }
+        .match-mode-btn {
+            padding: 5px 14px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.78em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            border-right: 1px solid var(--border);
+        }
+        .match-mode-btn:last-child { border-right: none; }
+        .match-mode-btn:hover { color: var(--text-secondary); }
+        .match-mode-btn.active {
+            background: var(--accent);
+            color: #fff;
+        }
+        .match-legend {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 16px;
+            padding: 8px 18px;
+            border-radius: 20px;
+            background: rgba(15,15,30,0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(96,165,250,0.15);
+            z-index: 10;
+            font-size: 0.75em;
+        }
+        [data-theme="light"] .match-legend {
+            background: rgba(255,255,255,0.92);
+            border-color: rgba(0,0,0,0.1);
+        }
+        .match-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-muted);
+        }
+        .match-legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .match-active-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 6px;
+            background: rgba(96,165,250,0.1);
+            border: 1px solid rgba(96,165,250,0.25);
+            font-size: 0.78em;
+            color: var(--accent);
+            margin-left: 8px;
+        }
+        .match-active-badge button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.1em;
+            padding: 0 2px;
+            line-height: 1;
+        }
+        .match-active-badge button:hover { color: #ef4444; }
+        
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
@@ -2561,6 +2641,22 @@
             
             #welcomeView {
                 padding-bottom: 80px;
+            }
+            
+            .match-mode-toggle {
+                margin-left: 0;
+                margin-top: 4px;
+            }
+            .match-active-badge {
+                margin-left: 0;
+                margin-top: 4px;
+                font-size: 0.7em;
+            }
+            .match-legend {
+                gap: 8px;
+                padding: 6px 12px;
+                font-size: 0.68em;
+                bottom: 70px; /* Above mobile nav */
             }
             
             .blueprint-section {
@@ -3201,6 +3297,20 @@
             <div class="view-pills" id="skillsViewToggle">
                 <button class="view-pill active" data-view="network" onclick="toggleSkillsView('network')">Network</button>
                 <button class="view-pill" data-view="card" onclick="toggleSkillsView('card')">Card</button>
+            </div>
+
+            <!-- Job match mode toggle (hidden until a job is activated) -->
+            <div id="matchModeToggle" style="display:none;" class="match-mode-toggle">
+                <button class="match-mode-btn active" data-mode="you" onclick="setNetworkMatchMode('you')">You</button>
+                <button class="match-mode-btn" data-mode="job" onclick="setNetworkMatchMode('job')">Job</button>
+                <button class="match-mode-btn" data-mode="match" onclick="setNetworkMatchMode('match')">Match</button>
+            </div>
+            
+            <!-- Active job badge (hidden until a job is activated) -->
+            <div id="matchActiveBadge" style="display:none;" class="match-active-badge">
+                <span>🎯</span>
+                <span id="matchActiveTitle">Loading...</span>
+                <button onclick="clearJobOverlay()" title="Clear comparison">×</button>
             </div>
 
             <!-- Search -->
@@ -6865,6 +6975,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         let activeRole = 'all';
         let activeLevel = null;
         let simulation;
+        
+        // Job overlay state
+        let networkMatchMode = 'you'; // 'you' | 'job' | 'match'
+        let activeJobForNetwork = null; // saved job object when overlay is active
 
         function initNetwork() {
             const width = window.innerWidth;
@@ -7106,6 +7220,430 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (container) { container.style.position = 'relative'; container.appendChild(badge); }
                 }
             }
+        }
+
+        // ===== NETWORK OVERLAY ENGINE (Phase 2) =====
+        
+        function activateJobOverlay(idx) {
+            var job = (userData.savedJobs || [])[idx];
+            if (!job) { showToast('Job not found.', 'error'); return; }
+            
+            activeJobForNetwork = job;
+            networkMatchMode = 'match'; // Start on the overlay view
+            
+            // Switch to network view if not already there
+            currentSkillsView = 'network';
+            switchView('network');
+            
+            // Show the toggle and badge
+            updateMatchOverlayUI();
+            
+            // Render the match network
+            setNetworkMatchMode('match');
+        }
+        window.activateJobOverlay = activateJobOverlay;
+        
+        function clearJobOverlay() {
+            activeJobForNetwork = null;
+            networkMatchMode = 'you';
+            
+            // Hide toggle and badge
+            var toggle = document.getElementById('matchModeToggle');
+            var badge = document.getElementById('matchActiveBadge');
+            if (toggle) toggle.style.display = 'none';
+            if (badge) badge.style.display = 'none';
+            
+            // Remove legend
+            var legend = document.getElementById('matchLegend');
+            if (legend) legend.remove();
+            
+            // Re-render normal network
+            window.networkInitialized = false;
+            initNetwork();
+            window.networkInitialized = true;
+        }
+        window.clearJobOverlay = clearJobOverlay;
+        
+        function updateMatchOverlayUI() {
+            var toggle = document.getElementById('matchModeToggle');
+            var badge = document.getElementById('matchActiveBadge');
+            var titleEl = document.getElementById('matchActiveTitle');
+            
+            if (!activeJobForNetwork) {
+                if (toggle) toggle.style.display = 'none';
+                if (badge) badge.style.display = 'none';
+                return;
+            }
+            
+            if (toggle) toggle.style.display = 'inline-flex';
+            if (badge) badge.style.display = 'inline-flex';
+            if (titleEl) {
+                var t = activeJobForNetwork.title || 'Job';
+                titleEl.textContent = t.length > 25 ? t.substring(0, 24) + '\u2026' : t;
+            }
+            
+            // Update active mode button
+            document.querySelectorAll('.match-mode-btn').forEach(function(btn) {
+                btn.classList.toggle('active', btn.dataset.mode === networkMatchMode);
+            });
+        }
+        
+        function setNetworkMatchMode(mode) {
+            networkMatchMode = mode;
+            updateMatchOverlayUI();
+            
+            // Remove any existing legend
+            var legend = document.getElementById('matchLegend');
+            if (legend) legend.remove();
+            
+            if (mode === 'you') {
+                // Standard network
+                window.networkInitialized = false;
+                initNetwork();
+                window.networkInitialized = true;
+            } else if (mode === 'job') {
+                initJobNetwork(activeJobForNetwork);
+            } else if (mode === 'match') {
+                initMatchNetwork(activeJobForNetwork);
+            }
+        }
+        window.setNetworkMatchMode = setNetworkMatchMode;
+        
+        // ===== JOB-ONLY NETWORK =====
+        
+        function initJobNetwork(job) {
+            if (!job || !job.parsedSkills) return;
+            
+            var width = window.innerWidth;
+            var height = window.innerHeight - 160;
+            var isMobile = width <= 768;
+            
+            var svg = d3.select("#networkView")
+                .attr("width", width)
+                .attr("height", height);
+            svg.selectAll("*").remove();
+            if (simulation) simulation.stop();
+            
+            // Center node = the job title
+            var nodes = [
+                { id: "center", name: job.title || "Job", type: "center", x: width/2, y: height/2, fx: width/2, fy: height/2 }
+            ];
+            
+            // Group job skills by category into roles
+            var categoryMap = {};
+            var roleColors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#a855f7', '#ec4899', '#06b6d4', '#84cc16'];
+            job.parsedSkills.forEach(function(s) {
+                var cat = s.category || 'General';
+                if (!categoryMap[cat]) categoryMap[cat] = [];
+                categoryMap[cat].push(s);
+            });
+            
+            var categories = Object.keys(categoryMap);
+            categories.forEach(function(cat, i) {
+                var angle = (i / categories.length) * 2 * Math.PI;
+                var radius = isMobile ? 100 : 170;
+                nodes.push({
+                    id: 'role-' + cat,
+                    name: cat,
+                    type: 'role',
+                    color: roleColors[i % roleColors.length],
+                    x: width/2 + Math.cos(angle) * radius,
+                    y: height/2 + Math.sin(angle) * radius
+                });
+            });
+            
+            // Skill nodes
+            var allSkills = [];
+            categories.forEach(function(cat) {
+                categoryMap[cat].forEach(function(s) { allSkills.push({ skill: s, cat: cat }); });
+            });
+            
+            // Cap for mobile
+            var skillsToRender = isMobile ? allSkills.slice(0, 25) : allSkills;
+            
+            skillsToRender.forEach(function(entry, i) {
+                var isRequired = entry.skill.level === 'Required';
+                nodes.push({
+                    id: 'jskill-' + i,
+                    name: entry.skill.name,
+                    type: 'skill',
+                    level: entry.skill.level,
+                    category: entry.cat,
+                    required: isRequired
+                });
+            });
+            
+            // Links
+            var links = [];
+            categories.forEach(function(cat) { links.push({ source: 'center', target: 'role-' + cat, type: 'role' }); });
+            skillsToRender.forEach(function(entry, i) { links.push({ source: 'role-' + entry.cat, target: 'jskill-' + i, type: 'skill' }); });
+            
+            // Simulation
+            simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) { return d.type === 'role' ? (isMobile ? 80 : 130) : (isMobile ? 90 : 140); }))
+                .force("charge", d3.forceManyBody().strength(function(d) { return d.type === 'center' ? 0 : d.type === 'role' ? -200 : -100; }))
+                .force("center", d3.forceCenter(width/2, height/2))
+                .force("collision", d3.forceCollide().radius(function(d) { return d.type === 'center' ? 50 : d.type === 'role' ? 40 : 28; }))
+                .force("x", d3.forceX(width/2).strength(0.1))
+                .force("y", d3.forceY(height/2).strength(0.1));
+            
+            // Draw
+            var link = svg.append("g").selectAll("line").data(links).join("line")
+                .attr("class", "link").style("stroke-opacity", 0.2);
+            
+            var node = svg.append("g").selectAll("g").data(nodes).join("g")
+                .attr("class", function(d) { return 'node ' + d.type; })
+                .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
+            
+            node.append("circle")
+                .attr("r", function(d) {
+                    if (d.type === 'center') return isMobile ? 28 : 36;
+                    if (d.type === 'role') return isMobile ? 20 : 26;
+                    return d.required ? 12 : 9;
+                })
+                .attr("fill", function(d) {
+                    if (d.type === 'center') return '#f59e0b';
+                    if (d.type === 'role') return d.color;
+                    return d.required ? '#ef4444' : '#f97316';
+                })
+                .attr("stroke", function(d) { return d.required ? '#fff' : 'none'; })
+                .attr("stroke-width", function(d) { return d.required ? 2 : 0; });
+            
+            node.append("text")
+                .text(function(d) { return d.name; })
+                .attr("x", 0)
+                .attr("y", function(d) { return d.type === 'center' ? -42 : d.type === 'role' ? -30 : -14; })
+                .attr("text-anchor", "middle")
+                .style("font-size", function(d) { return d.type === 'center' ? '14px' : d.type === 'role' ? '11px' : '9px'; });
+            
+            if (isMobile) node.selectAll('text').filter(function(d) { return d.type === 'skill'; }).classed('hidden', true);
+            
+            simulation.on("tick", function() {
+                var padding = isMobile ? 50 : 80;
+                nodes.forEach(function(d) { if (d.type !== 'center') { d.x = Math.max(padding, Math.min(width - padding, d.x)); d.y = Math.max(padding, Math.min(height - padding, d.y)); } });
+                link.attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; }).attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
+                node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+            });
+        }
+        
+        // ===== MATCH OVERLAY NETWORK =====
+        
+        function initMatchNetwork(job) {
+            if (!job || !job.matchData) return;
+            
+            var width = window.innerWidth;
+            var height = window.innerHeight - 160;
+            var isMobile = width <= 768;
+            var match = job.matchData;
+            
+            var svg = d3.select("#networkView")
+                .attr("width", width)
+                .attr("height", height);
+            svg.selectAll("*").remove();
+            if (simulation) simulation.stop();
+            
+            // Build lookup sets for classification
+            var matchedUserSkills = new Set();
+            var matchedJobSkills = new Set();
+            (match.matched || []).forEach(function(m) {
+                matchedUserSkills.add(m.userSkill.toLowerCase());
+                matchedJobSkills.add(m.jobSkill.toLowerCase());
+            });
+            var gapSkills = new Set();
+            (match.gaps || []).forEach(function(g) { gapSkills.add(g.name.toLowerCase()); });
+            
+            // Center node
+            var nodes = [
+                { id: "center", name: userData.profile.name || "You", type: "center", matchState: 'center', x: width/2, y: height/2, fx: width/2, fy: height/2 }
+            ];
+            
+            // Use the user's actual roles
+            skillsData.roles.forEach(function(role, i) {
+                var angle = (i / skillsData.roles.length) * 2 * Math.PI;
+                var radius = isMobile ? 110 : 180;
+                nodes.push({
+                    id: role.id, name: role.name, type: 'role', color: role.color, matchState: 'role',
+                    x: width/2 + Math.cos(angle) * radius, y: height/2 + Math.sin(angle) * radius
+                });
+            });
+            
+            // Add a "job requirements" pseudo-role
+            var jobRoleAngle = Math.PI; // Put it opposite
+            var jobRoleRadius = isMobile ? 130 : 200;
+            nodes.push({
+                id: 'role-job-req', name: (job.title || 'Job') + ' Needs', type: 'role', color: '#ef4444', matchState: 'role',
+                x: width/2 + Math.cos(jobRoleAngle) * jobRoleRadius,
+                y: height/2 + Math.sin(jobRoleAngle) * jobRoleRadius
+            });
+            
+            var links = [];
+            var nodeIdx = 0;
+            
+            // Center → user roles
+            skillsData.roles.forEach(function(role) { links.push({ source: 'center', target: role.id, type: 'role' }); });
+            // Center → job req role
+            links.push({ source: 'center', target: 'role-job-req', type: 'role' });
+            
+            // User skills with match state
+            var userSkillsToShow = isMobile
+                ? skillsData.skills.filter(function(s) { return s.key || matchedUserSkills.has(s.name.toLowerCase()) || s.level === 'Mastery' || s.level === 'Expert'; }).slice(0, 30)
+                : skillsData.skills;
+            
+            userSkillsToShow.forEach(function(skill) {
+                var isMatched = matchedUserSkills.has(skill.name.toLowerCase());
+                var state = isMatched ? 'matched' : 'surplus';
+                var id = 'u-' + nodeIdx++;
+                nodes.push({
+                    id: id, name: skill.name, type: 'skill', level: skill.level, key: skill.key,
+                    matchState: state, roles: skill.roles, source: 'user'
+                });
+                // Link to user roles
+                (skill.roles || []).forEach(function(roleId) {
+                    links.push({ source: roleId, target: id, type: 'skill' });
+                });
+                // Matched skills also link to job req
+                if (isMatched) {
+                    links.push({ source: 'role-job-req', target: id, type: 'match' });
+                }
+            });
+            
+            // Gap skills (job needs, user doesn't have)
+            (match.gaps || []).forEach(function(gap) {
+                // Cap gaps on mobile
+                if (isMobile && nodeIdx > 40) return;
+                var id = 'g-' + nodeIdx++;
+                nodes.push({
+                    id: id, name: gap.name, type: 'skill', level: gap.level || 'Required',
+                    matchState: 'gap', source: 'job'
+                });
+                links.push({ source: 'role-job-req', target: id, type: 'skill' });
+            });
+            
+            // Color scheme
+            var matchColors = {
+                matched: '#10b981', // green
+                gap: '#ef4444',     // red
+                surplus: '#475569'  // slate grey (dimmed)
+            };
+            
+            // Simulation
+            simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) {
+                    if (d.type === 'role') return isMobile ? 90 : 150;
+                    if (d.type === 'match') return isMobile ? 60 : 100; // matched skills pulled between both
+                    return isMobile ? 80 : 130;
+                }))
+                .force("charge", d3.forceManyBody().strength(function(d) {
+                    if (d.type === 'center') return 0;
+                    if (d.type === 'role') return isMobile ? -180 : -250;
+                    if (d.matchState === 'gap') return isMobile ? -80 : -120;
+                    return isMobile ? -100 : -150;
+                }))
+                .force("center", d3.forceCenter(width/2, height/2))
+                .force("collision", d3.forceCollide().radius(function(d) {
+                    if (d.type === 'center') return isMobile ? 40 : 55;
+                    if (d.type === 'role') return isMobile ? 35 : 50;
+                    return isMobile ? 22 : 30;
+                }))
+                .force("x", d3.forceX(width/2).strength(0.08))
+                .force("y", d3.forceY(height/2).strength(0.08));
+            
+            // Draw links
+            var link = svg.append("g").selectAll("line").data(links).join("line")
+                .attr("class", "link")
+                .style("stroke", function(d) { return d.type === 'match' ? matchColors.matched : undefined; })
+                .style("stroke-opacity", function(d) { return d.type === 'match' ? 0.5 : 0.2; })
+                .style("stroke-width", function(d) { return d.type === 'match' ? 2 : 1.5; })
+                .style("stroke-dasharray", function(d) { return d.type === 'match' ? '4,3' : 'none'; });
+            
+            // Draw nodes
+            var node = svg.append("g").selectAll("g").data(nodes).join("g")
+                .attr("class", function(d) { return 'node ' + d.type; })
+                .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
+            
+            node.append("circle")
+                .attr("r", function(d) {
+                    if (d.type === 'center') return isMobile ? 28 : 38;
+                    if (d.type === 'role') return isMobile ? 22 : 28;
+                    if (d.matchState === 'matched') return isMobile ? 12 : 14;
+                    if (d.matchState === 'gap') return isMobile ? 10 : 12;
+                    return isMobile ? 7 : 8; // surplus
+                })
+                .attr("fill", function(d) {
+                    if (d.type === 'center') return '#60a5fa';
+                    if (d.type === 'role') return d.color;
+                    return matchColors[d.matchState] || '#6b7280';
+                })
+                .attr("opacity", function(d) {
+                    if (d.matchState === 'surplus') return 0.35;
+                    return 1;
+                })
+                .attr("stroke", function(d) {
+                    if (d.matchState === 'matched') return '#fff';
+                    if (d.matchState === 'gap') return '#fca5a5';
+                    return 'none';
+                })
+                .attr("stroke-width", function(d) {
+                    if (d.matchState === 'matched' || d.matchState === 'gap') return 2;
+                    return 0;
+                })
+                .on("click", function(event, d) {
+                    if (d.type === 'skill' && d.source === 'user') {
+                        var fullSkill = skillsData.skills.find(function(s) { return s.name === d.name; });
+                        if (fullSkill) openSkillModal(d.name, fullSkill);
+                    }
+                })
+                .on("mouseover", function(event, d) { showTooltip(event, d); })
+                .on("mouseout", hideTooltip);
+            
+            // Labels
+            node.append("text")
+                .text(function(d) { return d.name; })
+                .attr("x", 0)
+                .attr("y", function(d) { return d.type === 'center' ? -44 : d.type === 'role' ? -34 : -16; })
+                .attr("text-anchor", "middle")
+                .style("font-size", function(d) { return d.type === 'center' ? '14px' : d.type === 'role' ? '11px' : '9px'; })
+                .style("fill", function(d) {
+                    if (d.matchState === 'matched') return matchColors.matched;
+                    if (d.matchState === 'gap') return matchColors.gap;
+                    if (d.matchState === 'surplus') return '#64748b';
+                    return undefined;
+                })
+                .style("opacity", function(d) { return d.matchState === 'surplus' ? 0.4 : 1; });
+            
+            // On mobile hide skill labels
+            if (isMobile) node.selectAll('text').filter(function(d) { return d.type === 'skill'; }).classed('hidden', true);
+            
+            // Tick
+            simulation.on("tick", function() {
+                var padding = isMobile ? 50 : 80;
+                nodes.forEach(function(d) { if (d.type !== 'center') { d.x = Math.max(padding, Math.min(width - padding, d.x)); d.y = Math.max(padding, Math.min(height - padding, d.y)); } });
+                link.attr("x1", function(d) { return d.source.x; }).attr("y1", function(d) { return d.source.y; }).attr("x2", function(d) { return d.target.x; }).attr("y2", function(d) { return d.target.y; });
+                node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+            });
+            
+            // Add legend
+            addMatchLegend(match);
+        }
+        
+        function addMatchLegend(match) {
+            var existing = document.getElementById('matchLegend');
+            if (existing) existing.remove();
+            
+            var matchCount = (match.matched || []).length;
+            var gapCount = (match.gaps || []).length;
+            var surplusCount = (match.surplus || []).length;
+            
+            var legend = document.createElement('div');
+            legend.id = 'matchLegend';
+            legend.className = 'match-legend';
+            legend.innerHTML = '<div class="match-legend-item"><div class="match-legend-dot" style="background:#10b981;"></div> Matched (' + matchCount + ')</div>'
+                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#ef4444;"></div> Gaps (' + gapCount + ')</div>'
+                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#475569; opacity:0.5;"></div> Surplus (' + surplusCount + ')</div>'
+                + '<div class="match-legend-item" style="font-weight:700; color:' + (match.score >= 70 ? '#10b981' : match.score >= 45 ? '#f59e0b' : '#6b7280') + ';">' + match.score + '%</div>';
+            
+            var container = document.getElementById('networkView').parentElement;
+            if (container) { container.style.position = 'relative'; container.appendChild(legend); }
         }
 
         function initCardView() {
@@ -7367,6 +7905,16 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Hide controls bar — shown only for Skills tab
             document.getElementById('controlsBar').style.display = 'none';
             document.querySelector('.main-content')?.classList.remove('with-filters');
+            
+            // Hide match overlay UI when leaving network view
+            if (view !== 'network') {
+                var mt = document.getElementById('matchModeToggle');
+                var mb = document.getElementById('matchActiveBadge');
+                var ml = document.getElementById('matchLegend');
+                if (mt) mt.style.display = 'none';
+                if (mb) mb.style.display = 'none';
+                if (ml) ml.remove();
+            }
 
             // Update mobile nav
             document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
@@ -7418,6 +7966,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         initNetwork();
                         window.networkInitialized = true;
                     }
+                    // Restore match overlay UI if a job is active
+                    if (activeJobForNetwork) {
+                        updateMatchOverlayUI();
+                    }
                 } else {
                     document.getElementById('cardView').style.display = 'block';
                     if (!window.cardViewInitialized) {
@@ -7466,20 +8018,30 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         
         function toggleSkillsView(view) {
             currentSkillsView = view;
-            document.querySelectorAll('#skillsViewToggle .role-chip').forEach(chip => {
+            document.querySelectorAll('#skillsViewToggle .view-pill').forEach(chip => {
                 chip.classList.toggle('active', chip.dataset.view === view);
             });
             
             const networkControls = document.getElementById('networkControls');
+            var matchToggle = document.getElementById('matchModeToggle');
+            var matchBadge = document.getElementById('matchActiveBadge');
             
             if (view === 'network') {
                 document.getElementById('networkView').style.display = 'block';
                 document.getElementById('cardView').style.display = 'none';
                 networkControls.style.display = 'flex';
+                // Show match UI if a job is active
+                if (activeJobForNetwork) {
+                    if (matchToggle) matchToggle.style.display = 'inline-flex';
+                    if (matchBadge) matchBadge.style.display = 'inline-flex';
+                }
             } else {
                 document.getElementById('networkView').style.display = 'none';
                 document.getElementById('cardView').style.display = 'block';
                 networkControls.style.display = 'none';
+                // Hide match UI on card view
+                if (matchToggle) matchToggle.style.display = 'none';
+                if (matchBadge) matchBadge.style.display = 'none';
             }
         }
         
@@ -10980,16 +11542,17 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 html += '</div></div>';
             }
             
-            // Action: view in network overlay (Phase 2 placeholder)
+            // Action: view in network overlay
             html += '<div style="padding:20px; border-radius:10px; margin-top:16px; '
                 + 'background:linear-gradient(135deg, rgba(30,64,175,0.1), rgba(96,165,250,0.05)); '
                 + 'border:1px solid rgba(96,165,250,0.2);">'
                 + '<div style="display:flex; align-items:center; gap:12px;">'
-                + '<span style="font-size:1.5em;">\uD83D\uDD2E</span>'
-                + '<div>'
-                + '<div style="font-weight:600; color:var(--text-primary);">Network Overlay</div>'
-                + '<div style="font-size:0.85em; color:var(--text-muted);">Visual network comparison coming next. See matched, gap, and surplus skills as connected nodes.</div>'
-                + '</div></div></div>';
+                + '<button onclick="activateJobOverlay(' + idx + ')" style="'
+                + 'background:var(--accent); color:#fff; border:none; padding:12px 24px; border-radius:8px; '
+                + 'cursor:pointer; font-weight:600; font-size:0.95em; display:flex; align-items:center; gap:8px;">'
+                + '\uD83D\uDD2E View Network Overlay</button>'
+                + '<div style="font-size:0.85em; color:var(--text-muted);">See matched, gap, and surplus skills as connected nodes. Toggle between your network, job requirements, and the overlay.</div>'
+                + '</div></div>';
             
             el.innerHTML = html;
         }
@@ -11942,7 +12505,7 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             document.querySelector('.controls').style.display = 'flex';
             
             // Update toggle button state
-            document.querySelectorAll('#skillsViewToggle .role-chip').forEach(chip => {
+            document.querySelectorAll('#skillsViewToggle .view-pill').forEach(chip => {
                 chip.classList.toggle('active', chip.dataset.view === 'network');
             });
             

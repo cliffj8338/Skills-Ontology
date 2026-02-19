@@ -1,6 +1,6 @@
 # Work Blueprint — Project Context
 
-**Version:** v4.2.0 | **Build:** 20260218-0430 | **Lines:** ~15,420 | **Functions:** ~310
+**Version:** v4.3.0 | **Build:** 20260218-0500 | **Lines:** ~15,990 | **Functions:** ~318
 **Repository:** https://github.com/cliffj8338/Skills-Ontology
 **Live:** https://cliffj8338.github.io/Skills-Ontology/
 **Creator:** Cliff Jurkiewicz
@@ -378,11 +378,43 @@ Each saved job in `userData.savedJobs[]`:
 - Cap: 10 jobs max per user
 - Raw JD text capped at 5000 chars for storage
 
-### Phase 2 (Network Overlay) — NOT YET BUILT
-- Toggle in network view: You / Job / Match
-- Three node states: matched (green), gap (red/amber), surplus (dimmed)
-- Active job indicator in network controls
-- Physics-driven clustering showing fit visually
+### Phase 2: Network Overlay (v4.3.0)
+
+**State variables:**
+- `networkMatchMode` ('you' | 'job' | 'match') — current network display mode
+- `activeJobForNetwork` — the saved job object being compared (null when no overlay active)
+
+**UI Components:**
+- Match mode toggle: You/Job/Match pill buttons in controls bar (hidden until job activated)
+- Active job badge: shows truncated job title with × to clear, next to toggle
+- Floating legend: shows matched/gaps/surplus counts with match percentage
+- All hidden when not on network view or when no job is active
+
+**Three Network Modes:**
+1. **You** (`initNetwork()`) — the standard user skills network, unchanged
+2. **Job** (`initJobNetwork(job)`) — job requirements rendered as a network, with skills grouped by category (Technical, Leadership, etc.), center node is job title, required skills get white stroke
+3. **Match** (`initMatchNetwork(job)`) — overlay combining both:
+   - User roles as role clusters (original colors)
+   - "Job Needs" pseudo-role cluster (red) positioned opposite
+   - Matched skills: green (#10b981), larger circles, white stroke, connected to BOTH user roles and job cluster via dashed lines
+   - Gap skills: red (#ef4444), only connected to job cluster
+   - Surplus skills: dimmed grey (#475569, opacity 0.35), connected to user roles only
+   - Clicking matched/surplus user skills opens the skill detail modal
+   - Floating legend with live counts
+
+**Flow:**
+1. Jobs tab → Your Jobs → click a job → "View Network Overlay" button
+2. `activateJobOverlay(idx)` → sets active job, switches to network view, renders match mode
+3. You/Job/Match toggle switches between views instantly
+4. × button on badge calls `clearJobOverlay()` → returns to normal network
+5. Navigating away hides overlay UI; returning restores it if job still active
+
+**Mobile behavior:**
+- Match mode toggle and badge resize for small screens
+- Legend positioned above mobile nav bar (bottom: 70px)
+- Job and Match networks follow same mobile rules: capped skills, bigger targets, hidden labels
+
+**Bug fix included:** `toggleSkillsView()` and `initNetworkWithHighlight()` both referenced `.role-chip` but the actual buttons use `.view-pill` — corrected both selectors.
 
 ---
 
@@ -474,13 +506,14 @@ Skills-Ontology/
 | v4.0.0-0335 | 20260219 | Fix: Network default for samples, remove toast, guard initNetwork, stabilization |
 | v4.1.0-0400 | 20260218 | Mobile responsive + Values descriptions/notes + Consent fixes + Export consolidation |
 | v4.2.0-0430 | 20260218 | Job Cart: JD analysis (Claude API + local fallback), match scoring, pipeline UI, Firestore persistence |
+| v4.3.0-0500 | 20260218 | Job Cart Phase 2: Network overlay (You/Job/Match toggle), job-only network, match visualization with legend |
 
 ---
 
 ## Pending / Next Steps
 
 ### High Priority
-- [ ] **Job Cart Phase 2: Network Overlay** — You/Job/Match toggle in network view, three node states (matched/gap/surplus), physics-driven clustering
+- [ ] **Cover letter / interview prep from match data** — use matched + gap analysis to generate targeted content
 - [ ] Wire onboarding wizard to save directly to Firestore on completion
 - [ ] Move sample profiles to Firestore `samples/` collection for admin editing
 - [ ] Test all sign-in flows: Google, email/password, magic link
@@ -528,6 +561,15 @@ Skills-Ontology/
 - [x] Job Cart: Job detail view with matched/gaps/surplus chip breakdown
 - [x] Job Cart: Firestore persistence + localStorage fallback
 - [x] Job Cart: 10-job cap, remove functionality
+- [x] Network Overlay: You/Job/Match toggle in controls bar
+- [x] Network Overlay: Job-only network with category-grouped skills
+- [x] Network Overlay: Match overlay with matched (green), gap (red), surplus (dimmed grey) node states
+- [x] Network Overlay: Dashed connection lines between matched skills and both clusters
+- [x] Network Overlay: Floating legend with live counts + match percentage
+- [x] Network Overlay: Active job badge with clear button
+- [x] Network Overlay: State preserved when navigating away and back
+- [x] Network Overlay: Mobile responsive (legend above nav, badge compact)
+- [x] Bug fix: toggleSkillsView and initNetworkWithHighlight used wrong CSS selector (.role-chip → .view-pill)
 
 ---
 
