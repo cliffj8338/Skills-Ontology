@@ -11297,6 +11297,11 @@ body {
             } else {
                 blueprintData.purpose = "";
             }
+            
+            // Enforce max 7 values
+            if (blueprintData.values.length > 7) {
+                blueprintData.values = blueprintData.values.slice(0, 7);
+            }
         }
 
         var showingValuesPicker = false;
@@ -11898,13 +11903,15 @@ body {
             
             // Done button
             var count = blueprintData.values.filter(function(v) { return v.selected; }).length;
+            var countColor = count > 7 ? '#ef4444' : count >= 3 ? '#10b981' : '#f59e0b';
             html += '<div style="margin-top:16px; display:flex; gap:10px; align-items:center;">'
                 + '<button onclick="toggleValuesPicker()" style="'
                 + 'background:' + tv('#1e40af','#2563eb') + '; color:#fff; border:none; '
                 + 'padding:10px 24px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.92em;">'
-                + 'Done (' + count + ' selected)</button>'
+                + 'Done (' + count + '/7)</button>'
                 + '<span style="font-size:0.82em; color:' + tv('#6b7280','#9ca3af') + ';">'
                 + '\u2022 = evidence in your profile'
+                + (count >= 7 ? ' &nbsp;\u2022&nbsp; <span style="color:#f59e0b;">Maximum reached</span>' : '')
                 + '</span>'
                 + '</div>';
             
@@ -12405,6 +12412,11 @@ body {
                 // Remove it
                 blueprintData.values.splice(idx, 1);
             } else {
+                // Enforce max 7
+                if (blueprintData.values.length >= 7) {
+                    showToast('Maximum 7 values. Remove one before adding another.', 'warning');
+                    return;
+                }
                 // Add it
                 blueprintData.values.push({
                     name: name,
@@ -12458,6 +12470,11 @@ body {
             
             if (!name) {
                 showToast('Please enter a value name.', 'warning');
+                return;
+            }
+            
+            if (blueprintData.values.length >= 7) {
+                showToast('Maximum 7 values. Remove one before adding another.', 'warning');
                 return;
             }
             
