@@ -1,5 +1,5 @@
-# PROJECT_CONTEXT.md — Blueprint v4.10.0
-**Updated:** 2026-02-19 | **Lines:** 17,842 | **Functions:** ~330 | **Braces:** 0 (balanced)
+# PROJECT_CONTEXT.md — Blueprint v4.10.1
+**Updated:** 2026-02-19 | **Lines:** 17,848 | **Functions:** ~330 | **Braces:** 0 (balanced)
 
 ## Architecture
 
@@ -17,7 +17,12 @@ Single-file SPA (`index.html`) deployed to GitHub Pages. No build step, no bundl
 
 ## Version History (This Session: v4.7.0 → v4.10.0)
 
-### v4.10.0 (current)
+### v4.10.1 (current)
+- **Fix: "Updated null" toast** — `closeEditSkillModal()` nulled `currentEditingSkill` before the toast read it. Now saves name to local var first.
+- **Fix: Firestore "Unsupported field value: undefined"** — savedJobs serialization now defaults all fields to empty strings/arrays instead of passing `undefined` to Firestore.
+- **Fix: "Competent" missing from Create Custom Skill modal** — Was only fixed in Edit Skill modal. Now both modals have all 6 levels. Default changed from Advanced to Proficient for new custom skills.
+
+### v4.10.0
 - **Toast CSS fix:** Toast notifications had CSS only inside the resume template JS string, never in the main `<head>`. Toasts rendered unstyled at top-left. Moved full toast CSS into main `<style>` block. Added max 3 toast stacking limit.
 - **Skill editing from all views:** Skill detail modal (network + card view) now has Edit Skill, Assess, and Remove buttons at bottom. Previously edit was only reachable from card view.
 - **Competent proficiency level:** Added missing "Competent" radio button to edit skill modal (was jumping from Novice to Proficient). Now 6 levels: Novice, Competent, Proficient, Advanced, Expert, Mastery.
@@ -183,4 +188,4 @@ Previous session transcripts are at `/mnt/transcripts/`:
 2. `2026-02-19-14-57-36-hero-animation-profile-switch-fixes.txt` — Hero animation, profile dropdown bugs
 3. `2026-02-19-15-17-20-hero-animation-profile-bugs-audit.txt` — Solar system animation, 30-defect audit
 4. `2026-02-19-15-40-07-v47-audit-fixes-ui-stub-inventory.txt` — v4.7.0 audit fixes, UI stub inventory
-5. Current session (v4.7.0 to v4.10.0): UI stubs completed, matching engine overhauled, toast fixed, skill editing expanded, sample jobs added
+5. Current session (v4.7.0 to v4.10.1): UI stubs completed, matching engine overhauled, toast fixed, skill editing expanded, sample jobs added, bug fixes

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.10.0 | 20260219 | Toast CSS fix, skill editing from all views, sample jobs, Competent proficiency level -->
+    <!-- v4.10.1 | 20260219 | Fix: toast null name, Firestore undefined fields, Competent level in custom skill modal -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -3599,17 +3599,21 @@
                 
                 <div class="settings-group">
                     <label class="settings-label">Proficiency Level *</label>
-                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
                         <label style="cursor: pointer; text-align: center;">
                             <input type="radio" name="customSkillLevel" value="Novice" style="margin-right: 5px;">
                             Novice
                         </label>
                         <label style="cursor: pointer; text-align: center;">
-                            <input type="radio" name="customSkillLevel" value="Proficient" style="margin-right: 5px;">
+                            <input type="radio" name="customSkillLevel" value="Competent" style="margin-right: 5px;">
+                            Competent
+                        </label>
+                        <label style="cursor: pointer; text-align: center;">
+                            <input type="radio" name="customSkillLevel" value="Proficient" checked style="margin-right: 5px;">
                             Proficient
                         </label>
                         <label style="cursor: pointer; text-align: center;">
-                            <input type="radio" name="customSkillLevel" value="Advanced" checked style="margin-right: 5px;">
+                            <input type="radio" name="customSkillLevel" value="Advanced" style="margin-right: 5px;">
                             Advanced
                         </label>
                         <label style="cursor: pointer; text-align: center;">
@@ -4409,9 +4413,9 @@
                 preferences: userData.preferences || {},
                 applications: userData.applications || [],
                 savedJobs: (userData.savedJobs || []).map(function(j) {
-                    return { id: j.id, title: j.title, company: j.company, sourceUrl: j.sourceUrl, sourceNote: j.sourceNote,
-                        rawText: j.rawText, parsedSkills: j.parsedSkills || [], parsedRoles: j.parsedRoles || [],
-                        matchData: j.matchData || {}, addedAt: j.addedAt };
+                    return { id: j.id || '', title: j.title || '', company: j.company || '', sourceUrl: j.sourceUrl || '', sourceNote: j.sourceNote || '',
+                        rawText: j.rawText || '', parsedSkills: j.parsedSkills || [], parsedRoles: j.parsedRoles || [],
+                        seniority: j.seniority || '', matchData: j.matchData || {}, addedAt: j.addedAt || new Date().toISOString() };
                 }),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
@@ -16758,9 +16762,10 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             rescoreAllJobs();
             refreshAllViews();
             
+            var updatedName = currentEditingSkill;
             closeEditSkillModal();
             
-            showToast(`Updated "${currentEditingSkill}".`, 'success');
+            showToast('Updated "' + updatedName + '".', 'success');
         }
         
         function confirmDeleteSkill(skillName, category) {
