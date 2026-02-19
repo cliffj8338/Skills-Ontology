@@ -1,5 +1,5 @@
-# PROJECT_CONTEXT.md — Blueprint v4.13.0
-**Updated:** 2026-02-19 | **Lines:** 18,749 | **Functions:** ~350 | **Braces:** 0 (balanced)
+# PROJECT_CONTEXT.md — Blueprint v4.14.0
+**Updated:** 2026-02-19 | **Lines:** 18,770 | **Functions:** ~355 | **Braces:** 0 (balanced)
 
 ## Architecture
 
@@ -17,7 +17,13 @@ Single-file SPA (`index.html`) deployed to GitHub Pages. No build step, no bundl
 
 ## Version History (This Session: v4.7.0 → v4.10.0)
 
-### v4.13.0 (current)
+### v4.14.0 (current)
+- **Calibrated sample jobs:** Replaced hardcoded sample jobs with dynamic engine that reads the actual template skills. Three tiers per profile type: high (~80%+), mid (~50-65%), low (<50%). Jobs constructed by sampling from profile's key/other skills for overlap, then injecting gaps from alien-domain pools (technical, finance, operations, data). Match percentages calculated live by matchJobToProfile().
+- **Profile-specific job metadata:** Recruiter profiles get Datadog/Figma/McKinsey jobs. Product profiles get Notion/Stripe/Scale AI. Strategy profiles get ServiceNow/Deloitte/Palantir. Each has realistic titles, companies, and multi-paragraph rawText descriptions.
+- **Sample job locking:** All sample jobs flagged with `sample: true`. Non-admin users see "🔒 Demo job" label, edit/remove/re-analyze buttons hidden. Admin users see "🔒 Demo" label but retain full controls. Guards in removeJob(), editJobInfo(), reanalyzeJob() block non-admin calls even if invoked directly.
+- **Firestore serialization:** Added `sample: j.sample || false` to prevent undefined field errors.
+
+### v4.13.0
 - **Match overlay stats panel:** Replaced minimal pill legend with comprehensive floating panel in bottom-left during job match overlay. Shows: job title/company, large score percentage with color-coded progress bar, 3-column stats grid (Matched/Gaps/Surplus), proficiency gap warning, color legend with human-readable labels ("You have"/"You need"/"Your extra"), action buttons (Close overlay, View Details navigates to Jobs tab). Glass-morphism design, theme-aware, mobile responsive.
 - **Fixed duplicate clearJobOverlay:** Removed accidental duplicate, kept the original that properly resets networkMatchMode and UI toggles.
 - **Added findJobIdx():** Helper to locate current overlay job's index in savedJobs for navigation.
@@ -194,4 +200,4 @@ Previous session transcripts are at `/mnt/transcripts/`:
 2. `2026-02-19-14-57-36-hero-animation-profile-switch-fixes.txt` — Hero animation, profile dropdown bugs
 3. `2026-02-19-15-17-20-hero-animation-profile-bugs-audit.txt` — Solar system animation, 30-defect audit
 4. `2026-02-19-15-40-07-v47-audit-fixes-ui-stub-inventory.txt` — v4.7.0 audit fixes, UI stub inventory
-5. Current session (v4.7.0 to v4.13.0): UI stubs, matching engine, toast, skill editing, sample jobs, bulk import/manager, library-only mode, overlay stats panel
+5. Current session (v4.7.0 to v4.14.0): UI stubs, matching engine, toast, skill editing, sample jobs, bulk import/manager, library-only mode, overlay stats panel, calibrated demo jobs
