@@ -9862,7 +9862,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
 
         function closeExportModal() {
-            document.getElementById('exportModal').classList.remove('active');
+            var m = document.getElementById('exportModal');
+            m.classList.remove('active');
+            m.style.display = '';
         }
         
         // ===== WORK BLUEPRINT GENERATOR =====
