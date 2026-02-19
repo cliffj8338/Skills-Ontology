@@ -4717,59 +4717,36 @@
             var H = rect.height;
             
             var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-            
             var colors = ['#60a5fa', '#f472b6', '#34d399', '#fbbf24', '#a78bfa', '#fb923c', '#22d3ee', '#f87171'];
             var domainNames = ['Strategy', 'Leadership', 'Analytics', 'Innovation', 'Communication', 'Technology', 'Operations', 'Finance'];
             
             var nodes = [];
             var numNodes = 40;
             
-            // Center node
-            nodes.push({
-                x: W / 2, y: H / 2,
-                vx: 0, vy: 0,
-                r: 20, baseR: 20,
-                color: '#60a5fa', alpha: 0.95, baseAlpha: 0.95,
-                label: 'YOU', isCenter: true, isHub: false, domain: -1
-            });
+            // Center
+            nodes.push({ x: W/2, y: H/2, homeX: W/2, homeY: H/2, r: 20, color: '#60a5fa', alpha: 0.95, label: 'YOU', isCenter: true, isHub: false, domain: -1 });
             
-            // Domain hubs
+            // Domain hubs - fixed positions
             for (var d = 0; d < 8; d++) {
                 var angle = (d / 8) * Math.PI * 2 - Math.PI / 2;
                 var dist = 72 + Math.random() * 28;
-                var bx = W / 2 + Math.cos(angle) * dist;
-                var by = H / 2 + Math.sin(angle) * dist;
-                var br = 11 + Math.random() * 4;
-                nodes.push({
-                    x: bx, y: by,
-                    vx: (Math.random() - 0.5) * 0.25,
-                    vy: (Math.random() - 0.5) * 0.25,
-                    r: br, baseR: br,
-                    color: colors[d], alpha: 0.7, baseAlpha: 0.7,
-                    label: domainNames[d], isCenter: false, isHub: true, domain: d
-                });
+                var bx = W/2 + Math.cos(angle) * dist;
+                var by = H/2 + Math.sin(angle) * dist;
+                nodes.push({ x: bx, y: by, homeX: bx, homeY: by, r: 11 + Math.random() * 4, color: colors[d], alpha: 0.7, label: domainNames[d], isCenter: false, isHub: true, domain: d });
             }
             
-            // Skill nodes
+            // Skill nodes - fixed positions
             for (var i = 9; i < numNodes; i++) {
                 var dom = Math.floor(Math.random() * 8);
                 var parentIdx = dom + 1;
                 var spread = 25 + Math.random() * 55;
                 var a = Math.random() * Math.PI * 2;
-                var bx = nodes[parentIdx].x + Math.cos(a) * spread;
-                var by = nodes[parentIdx].y + Math.sin(a) * spread;
-                var br = 2.5 + Math.random() * 3.5;
-                nodes.push({
-                    x: bx, y: by,
-                    vx: (Math.random() - 0.5) * 0.3,
-                    vy: (Math.random() - 0.5) * 0.3,
-                    r: br, baseR: br,
-                    color: colors[dom], alpha: 0.35 + Math.random() * 0.3, baseAlpha: 0.35 + Math.random() * 0.3,
-                    label: '', isCenter: false, isHub: false, domain: dom
-                });
+                var bx = nodes[parentIdx].homeX + Math.cos(a) * spread;
+                var by = nodes[parentIdx].homeY + Math.sin(a) * spread;
+                nodes.push({ x: bx, y: by, homeX: bx, homeY: by, r: 2.5 + Math.random() * 3.5, color: colors[dom], alpha: 0.35 + Math.random() * 0.3, label: '', isCenter: false, isHub: false, domain: dom });
             }
             
-            // Build links + adjacency map
+            // Links + adjacency
             var links = [];
             var adjacency = {};
             function addLink(a, b, str) {
@@ -4779,189 +4756,108 @@
                 adjacency[a].push(b);
                 adjacency[b].push(a);
             }
-            for (var d = 1; d <= 8; d++) {
-                addLink(0, d, 0.6);
-            }
+            for (var d = 1; d <= 8; d++) addLink(0, d, 0.6);
             for (var i = 9; i < numNodes; i++) {
                 addLink(nodes[i].domain + 1, i, 0.3);
                 if (Math.random() < 0.12) {
-                    var otherDom = Math.floor(Math.random() * 8) + 1;
-                    if (otherDom !== nodes[i].domain + 1) {
-                        addLink(i, otherDom, 0.08);
-                    }
+                    var od = Math.floor(Math.random() * 8) + 1;
+                    if (od !== nodes[i].domain + 1) addLink(i, od, 0.08);
                 }
             }
             
-            // === SUBTLE CLICK SIMULATION ===
+            // Click simulation state
             var clickedNode = -1;
             var clickNeighbors = [];
             var clickPhase = 0;
             var clickTimer = 2.5;
-            var clickDuration = 2.0;
+            var clickDuration = 2.5;
             var clickElapsed = 0;
-            
             var skillIndices = [];
             for (var i = 9; i < numNodes; i++) skillIndices.push(i);
             
-            function pickNextClick() {
-                var idx = skillIndices[Math.floor(Math.random() * skillIndices.length)];
-                clickedNode = idx;
-                var neighbors = (adjacency[idx] || []).slice();
-                if (neighbors.length < 3) {
-                    var sameDomain = skillIndices.filter(function(si) {
-                        return si !== idx && nodes[si].domain === nodes[idx].domain;
-                    });
-                    for (var j = 0; j < 2 && neighbors.length < 4; j++) {
-                        if (sameDomain[j] && neighbors.indexOf(sameDomain[j]) === -1) {
-                            neighbors.push(sameDomain[j]);
-                        }
+            function pickClick() {
+                clickedNode = skillIndices[Math.floor(Math.random() * skillIndices.length)];
+                var nb = (adjacency[clickedNode] || []).filter(function(n) { return n > 0; });
+                if (nb.length < 3) {
+                    var same = skillIndices.filter(function(si) { return si !== clickedNode && nodes[si].domain === nodes[clickedNode].domain; });
+                    for (var j = 0; j < 2 && nb.length < 4; j++) {
+                        if (same[j] && nb.indexOf(same[j]) === -1) nb.push(same[j]);
                     }
                 }
-                clickNeighbors = neighbors.slice(0, 4);
+                clickNeighbors = nb.slice(0, 4);
                 clickElapsed = 0;
             }
             
-            var t = 0;
             var animId = null;
             var lastTime = performance.now();
             
             function draw(now) {
                 var dt = Math.min((now - lastTime) / 1000, 0.05);
                 lastTime = now;
-                t += 0.008;
                 
                 // Click timing
                 if (clickedNode === -1) {
                     clickTimer -= dt;
-                    if (clickTimer <= 0) {
-                        pickNextClick();
-                        clickTimer = 3 + Math.random() * 2;
-                    }
+                    if (clickTimer <= 0) { pickClick(); clickTimer = 4 + Math.random() * 3; }
                 } else {
                     clickElapsed += dt;
-                    var progress = clickElapsed / clickDuration;
-                    if (progress >= 1) {
-                        clickedNode = -1;
-                        clickNeighbors = [];
-                        clickPhase = 0;
+                    var p = clickElapsed / clickDuration;
+                    if (p >= 1) { clickedNode = -1; clickNeighbors = []; clickPhase = 0; }
+                    else { clickPhase = Math.sin(p * Math.PI); }
+                }
+                
+                // Position nodes: neighbors offset from home, everyone else at home
+                for (var i = 1; i < nodes.length; i++) {
+                    var n = nodes[i];
+                    if (clickPhase > 0 && clickedNode >= 0 && clickNeighbors.indexOf(i) !== -1) {
+                        var cn = nodes[clickedNode];
+                        var dx = n.homeX - cn.homeX;
+                        var dy = n.homeY - cn.homeY;
+                        var d = Math.sqrt(dx * dx + dy * dy) || 1;
+                        var offset = clickPhase * 8;
+                        n.x += ((n.homeX + (dx / d) * offset) - n.x) * 0.1;
+                        n.y += ((n.homeY + (dy / d) * offset) - n.y) * 0.1;
                     } else {
-                        clickPhase = Math.sin(progress * Math.PI) * (progress < 0.5 ? 1 : 0.8);
+                        n.x += (n.homeX - n.x) * 0.08;
+                        n.y += (n.homeY - n.y) * 0.08;
                     }
                 }
                 
                 ctx.clearRect(0, 0, W, H);
                 
-                // Update positions
-                for (var i = 1; i < nodes.length; i++) {
-                    var n = nodes[i];
-                    
-                    n.x += n.vx + Math.sin(t + i * 0.7) * 0.12;
-                    n.y += n.vy + Math.cos(t + i * 0.5) * 0.1;
-                    
-                    if (n.x < 20) n.vx += 0.04;
-                    if (n.x > W - 20) n.vx -= 0.04;
-                    if (n.y < 20) n.vy += 0.04;
-                    if (n.y > H - 20) n.vy -= 0.04;
-                    n.vx *= 0.997;
-                    n.vy *= 0.997;
-                    
-                    var originAngle = ((n.domain) / 8) * Math.PI * 2 - Math.PI / 2;
-                    var originDist = n.isHub ? 80 : 80 + (i % 45);
-                    var ox = W / 2 + Math.cos(originAngle + t * 0.08) * originDist;
-                    var oy = H / 2 + Math.sin(originAngle + t * 0.08) * originDist;
-                    n.vx += (ox - n.x) * 0.0007;
-                    n.vy += (oy - n.y) * 0.0007;
-                    
-                    // Click expansion: neighbors push outward from clicked node
-                    if (clickPhase > 0 && clickedNode >= 0 && clickNeighbors.indexOf(i) !== -1) {
-                        var cn = nodes[clickedNode];
-                        var dx = n.x - cn.x;
-                        var dy = n.y - cn.y;
-                        var dist = Math.sqrt(dx * dx + dy * dy) || 1;
-                        var push = clickPhase * 0.25;
-                        n.vx += (dx / dist) * push;
-                        n.vy += (dy / dist) * push;
-                    }
-                    
-                    // Visual states
-                    var isClicked = (i === clickedNode);
-                    var isNeighbor = (clickNeighbors.indexOf(i) !== -1);
-                    
-                    if (isClicked && clickPhase > 0) {
-                        n.r += ((n.baseR * (1 + 0.6 * clickPhase)) - n.r) * 0.15;
-                        n.alpha += ((Math.min(n.baseAlpha + 0.4 * clickPhase, 1)) - n.alpha) * 0.15;
-                    } else if (isNeighbor && clickPhase > 0) {
-                        n.r += ((n.baseR * (1 + 0.3 * clickPhase)) - n.r) * 0.12;
-                        n.alpha += ((Math.min(n.baseAlpha + 0.25 * clickPhase, 1)) - n.alpha) * 0.12;
-                    } else {
-                        n.r += (n.baseR - n.r) * 0.04;
-                        n.alpha += (n.baseAlpha - n.alpha) * 0.04;
-                    }
-                }
-                
-                // Draw links
+                // Links - static appearance
                 for (var i = 0; i < links.length; i++) {
-                    var l = links[i];
-                    var s = nodes[l.source];
-                    var e = nodes[l.target];
-                    var dx = e.x - s.x;
-                    var dy = e.y - s.y;
+                    var l = links[i]; var s = nodes[l.source]; var e = nodes[l.target];
+                    var dx = e.x - s.x; var dy = e.y - s.y;
                     var dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist > 170) continue;
-                    
-                    var alpha = l.strength * (1 - dist / 170) * (0.6 + Math.sin(t * 2 + i) * 0.15);
-                    
-                    var linkActive = clickPhase > 0 && clickedNode >= 0 &&
-                        (l.source === clickedNode || l.target === clickedNode ||
-                         clickNeighbors.indexOf(l.source) !== -1 || clickNeighbors.indexOf(l.target) !== -1);
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(s.x, s.y);
-                    ctx.lineTo(e.x, e.y);
-                    
-                    if (linkActive) {
-                        var activeColor = nodes[clickedNode].color;
-                        ctx.strokeStyle = activeColor;
-                        ctx.globalAlpha = alpha * (0.5 + 0.5 * clickPhase);
-                        ctx.lineWidth = 1 + clickPhase * 0.5;
-                    } else {
-                        ctx.strokeStyle = isDark ? 'rgba(96,165,250,1)' : 'rgba(37,99,235,1)';
-                        ctx.globalAlpha = alpha * 0.35;
-                        ctx.lineWidth = 1;
-                    }
-                    ctx.stroke();
-                    ctx.globalAlpha = 1;
+                    var alpha = l.strength * (1 - dist / 170) * 0.6;
+                    ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(e.x, e.y);
+                    ctx.strokeStyle = isDark ? 'rgba(96,165,250,1)' : 'rgba(37,99,235,1)';
+                    ctx.globalAlpha = alpha * 0.35; ctx.lineWidth = 1;
+                    ctx.stroke(); ctx.globalAlpha = 1;
                 }
                 
-                // Draw nodes
+                // Nodes - static except clicked node gets subtle brightening
                 for (var i = nodes.length - 1; i >= 0; i--) {
                     var n = nodes[i];
-                    var pulse = 1 + Math.sin(t * 3 + i * 0.8) * 0.06;
-                    var r = n.r * pulse;
+                    var r = n.r;
+                    var a = n.alpha;
                     
-                    var isClicked = (i === clickedNode && clickPhase > 0);
-                    
-                    // Glow
-                    if (r > 5 || isClicked) {
-                        var glowR = isClicked ? r * 3.5 : r * 2.5;
-                        var glowAlpha = isClicked ? n.alpha * 0.18 : n.alpha * 0.07;
-                        ctx.beginPath();
-                        ctx.arc(n.x, n.y, glowR, 0, Math.PI * 2);
-                        ctx.fillStyle = n.color;
-                        ctx.globalAlpha = glowAlpha;
-                        ctx.fill();
-                        ctx.globalAlpha = 1;
+                    if (i === clickedNode && clickPhase > 0) {
+                        r = n.r * (1 + 0.15 * clickPhase);
+                        a = Math.min(n.alpha + 0.12 * clickPhase, 1);
                     }
                     
-                    // Node body
-                    ctx.beginPath();
-                    ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
-                    ctx.fillStyle = n.color;
-                    ctx.globalAlpha = n.alpha * pulse;
-                    ctx.fill();
-                    ctx.globalAlpha = 1;
+                    if (r > 5) {
+                        ctx.beginPath(); ctx.arc(n.x, n.y, r * 2.5, 0, Math.PI * 2);
+                        ctx.fillStyle = n.color; ctx.globalAlpha = a * 0.07;
+                        ctx.fill(); ctx.globalAlpha = 1;
+                    }
+                    ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+                    ctx.fillStyle = n.color; ctx.globalAlpha = a;
+                    ctx.fill(); ctx.globalAlpha = 1;
                     
-                    // Labels
                     if (n.label && (r > 6 || n.isCenter)) {
                         ctx.font = (n.isCenter ? 'bold 10px' : '8.5px') + ' "Outfit", -apple-system, system-ui, sans-serif';
                         ctx.fillStyle = isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)';
@@ -4969,27 +4865,17 @@
                         ctx.fillText(n.label, n.x, n.y + r + 13);
                     }
                 }
-                
                 animId = requestAnimationFrame(draw);
             }
             
             animId = requestAnimationFrame(draw);
-            
             var observer = new IntersectionObserver(function(entries) {
-                if (entries[0].isIntersecting) {
-                    if (!animId) { lastTime = performance.now(); animId = requestAnimationFrame(draw); }
-                } else {
-                    if (animId) { cancelAnimationFrame(animId); animId = null; }
-                }
+                if (entries[0].isIntersecting) { if (!animId) { lastTime = performance.now(); animId = requestAnimationFrame(draw); } }
+                else { if (animId) { cancelAnimationFrame(animId); animId = null; } }
             });
             observer.observe(canvas);
-            
-            window._heroNetworkCleanup = function() {
-                if (animId) cancelAnimationFrame(animId);
-                observer.disconnect();
-            };
+            window._heroNetworkCleanup = function() { if (animId) cancelAnimationFrame(animId); observer.disconnect(); };
         }
-
         function viewSampleProfile() {
             // Show sample profile picker
             var manifest = window.profilesManifest;
