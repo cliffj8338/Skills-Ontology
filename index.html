@@ -8078,6 +8078,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 document.getElementById('networkView').style.display = 'block';
                 document.getElementById('cardView').style.display = 'none';
                 networkControls.style.display = 'flex';
+                // Lazy-init network if needed (e.g. after profile switch)
+                if (!window.networkInitialized) {
+                    initNetwork();
+                    window.networkInitialized = true;
+                }
                 // Hide filter button/panel in network view (filtering via node clicks)
                 var filterBtn = document.getElementById('filterToggleBtn');
                 var filterPnl = document.getElementById('filterPanel');
