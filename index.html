@@ -5530,6 +5530,9 @@
         function switchProfile(templateId) {
             console.log('🔄 Switching profile to:', templateId);
             
+            // Close dropdown immediately before rebuilding DOM
+            closeProfileDropdown();
+            
             if (!templates[templateId]) {
                 console.error('Template not found:', templateId);
                 showToast('Profile not found.', 'error');
@@ -16553,8 +16556,10 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
         window.initTheme = initTheme;
 
         // ===== PROFILE DROPDOWN =====
+        var _profileDropdownClosing = false;
         function toggleProfileDropdown(event) {
             event.stopPropagation();
+            if (_profileDropdownClosing) return;
             var dropdown = document.getElementById('profileDropdown');
             var options = document.getElementById('profileDropdownOptions');
             // If click came from inside the dropdown options, don't toggle (let the option's own onclick handle it)
@@ -16566,6 +16571,9 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
         function closeProfileDropdown() {
             const dropdown = document.getElementById('profileDropdown');
             if (dropdown) dropdown.classList.remove('open');
+            // Brief flag to prevent the bubbling click from re-opening
+            _profileDropdownClosing = true;
+            setTimeout(function() { _profileDropdownClosing = false; }, 100);
         }
         window.closeProfileDropdown = closeProfileDropdown;
 
