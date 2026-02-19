@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.8.0 | 20260219 | Splash screen, save indicator, photo upload, read-only enforcement, CORS fallback -->
+    <!-- v4.9.0 | 20260219 | Jobs matching overhaul: synonym system, registry fix, role suggestions, proficiency gap UI -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -7900,6 +7900,33 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             });
             
             html += '</div>';
+            
+            // Role-based skill suggestions
+            var suggestions = getRoleSuggestions();
+            if (suggestions.length > 0) {
+                html += '<div style="margin-top:20px; padding:20px; border-radius:12px; '
+                    + 'background:linear-gradient(135deg, rgba(96,165,250,0.06), rgba(139,92,246,0.04)); '
+                    + 'border:1px solid rgba(96,165,250,0.15);">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
+                    + '<h3 style="font-size:0.92em; font-weight:700; color:var(--accent); margin:0;">'
+                    + '\uD83D\uDCA1 Suggested Skills for Your Roles</h3>'
+                    + '<span style="font-size:0.72em; color:var(--text-muted);">Based on industry standards</span></div>'
+                    + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+                suggestions.slice(0, 20).forEach(function(s) {
+                    html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:16px; '
+                        + 'font-size:0.82em; cursor:pointer; transition:all 0.15s; '
+                        + 'background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); color:var(--text-secondary);" '
+                        + 'onclick="quickAddSuggested(\'' + s.name.replace(/'/g, "\\'") + '\', \'' + s.level + '\', \'' + s.roleId + '\')" '
+                        + 'title="Expected for ' + s.reason + ' (' + s.level + ') — click to add">'
+                        + '<span style="font-size:0.9em;">+</span> ' + s.name
+                        + '<span style="font-size:0.7em; opacity:0.5;">' + s.reason + '</span></span>';
+                });
+                if (suggestions.length > 20) {
+                    html += '<span style="font-size:0.78em; color:var(--text-muted); padding:5px 8px;">+' + (suggestions.length - 20) + ' more</span>';
+                }
+                html += '</div></div>';
+            }
+            
             cardView.innerHTML = html;
         }
 
@@ -11675,9 +11702,14 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 + '<h2 style="font-size:1.3em; font-weight:700; color:var(--text-primary); margin:0;">Job Pipeline</h2>'
                 + '<p style="font-size:0.85em; color:var(--text-muted); margin-top:4px;">Paste a job description to analyze your fit</p>'
                 + '</div>'
+                + '<div style="display:flex; gap:8px;">'
+                + '<button onclick="rescoreAllJobs(); renderJobsSubTab();" style="'
+                + 'background:none; border:1px solid var(--border); color:var(--text-muted); padding:10px 16px; border-radius:8px; '
+                + 'cursor:pointer; font-size:0.85em;" title="Re-calculate match scores based on current skills">\u21BB Refresh Matches</button>'
                 + '<button onclick="showAddJobModal()" style="'
                 + 'background:var(--accent); color:#fff; border:none; padding:10px 20px; border-radius:8px; '
                 + 'cursor:pointer; font-weight:600; font-size:0.9em;">+ Add a Job</button>'
+                + '</div>'
                 + '</div>';
             
             if (jobs.length === 0) {
@@ -11926,6 +11958,16 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             var userSkillNames = (skillsData.skills || []).map(function(s) { return s.name; });
             
             var systemPrompt = 'You extract structured data from job descriptions. Respond ONLY with valid JSON, no markdown fences, no preamble.';
+            
+            // Build vocabulary hint: user skills + canonical synonym keys
+            var vocabSet = new Set();
+            userSkillNames.slice(0, 60).forEach(function(n) { vocabSet.add(n); });
+            Object.keys(SKILL_SYNONYMS).forEach(function(k) {
+                // Capitalize for display
+                vocabSet.add(k.replace(/\b\w/g, function(c) { return c.toUpperCase(); }));
+            });
+            var vocabHint = Array.from(vocabSet).slice(0, 120).join(', ');
+            
             var userPrompt = 'Extract from this job description:\n\n' + jdText.substring(0, 4000) + '\n\n'
                 + 'Return JSON with this exact structure:\n'
                 + '{\n'
@@ -11934,16 +11976,24 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 + '  "seniority": "Entry|Mid|Senior|Executive",\n'
                 + '  "roles": ["functional area 1", "functional area 2"],\n'
                 + '  "skills": [\n'
-                + '    {"name": "Skill Name", "level": "Required|Preferred|Nice-to-have", "category": "Technical|Leadership|Business|Communication|Domain"}\n'
+                + '    {"name": "Skill Name", "requirement": "Required|Preferred|Nice-to-have", "proficiency": "Novice|Competent|Proficient|Expert|Mastery", "category": "Technical|Leadership|Business|Communication|Domain"}\n'
                 + '  ]\n'
                 + '}\n\n'
                 + 'Rules:\n'
-                + '- Extract 10-30 distinct skills from explicit requirements AND implied competencies\n'
+                + '- Extract 15-30 distinct skills from explicit requirements AND implied competencies\n'
                 + '- Use professional skill names (e.g., "Strategic Planning" not "plan stuff")\n'
-                + '- Where possible, use names from this list to maximize matching: ' + userSkillNames.slice(0, 50).join(', ') + '\n'
+                + '- CRITICAL: Normalize skill names to match this vocabulary where possible: ' + vocabHint + '\n'
+                + '- Use the FULL form of abbreviations (e.g., "Applicant Tracking System" not "ATS", "Customer Relationship Management" not "CRM") so matching works across profiles\n'
+                + '- For skills NOT in the above list, use standard industry terminology (O*NET, LinkedIn Skills, etc.)\n'
                 + '- Include both hard and soft skills\n'
                 + '- Infer skills from responsibilities even if not explicitly listed\n'
-                + '- Set level: Required for must-haves, Preferred for should-haves, Nice-to-have for bonus skills';
+                + '- requirement: Required for must-haves, Preferred for should-haves, Nice-to-have for bonus skills\n'
+                + '- proficiency: infer the MINIMUM proficiency the job demands for each skill based on seniority and context:\n'
+                + '  Novice = basic awareness, Competent = can do with guidance, Proficient = independent and effective,\n'
+                + '  Expert = deep mastery and can teach others, Mastery = industry-leading authority\n'
+                + '  For Executive/Senior roles, default most core skills to Expert or Mastery.\n'
+                + '  For Mid roles, default to Proficient. For Entry, default to Competent or Novice.\n'
+                + '- For common role-implied skills that are obvious but unstated (e.g., ATS for recruiters, Excel for analysts, Git for developers), include them as Preferred';
             
             var response = await fetch('https://api.anthropic.com/v1/messages', {
                 method: 'POST',
@@ -12015,6 +12065,12 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 if (aboutMatch && aboutMatch[1].length < 50) company = aboutMatch[1].trim();
             }
             
+            // ===== SENIORITY (detect early for proficiency inference) =====
+            var seniority = 'Mid';
+            if (/\b(vp|vice president|chief|c-suite|head of|svp|evp)\b/i.test(jdText)) seniority = 'Executive';
+            else if (/\b(senior director|director|principal|senior manager)\b/i.test(jdText)) seniority = 'Senior';
+            else if (/\b(junior|entry|associate|intern|coordinator)\b/i.test(jdText)) seniority = 'Entry';
+            
             // ===== SKILL EXTRACTION =====
             var skillMatches = [];
             var seen = new Set();
@@ -12027,22 +12083,24 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                     seen.add(skillLower);
                     skillMatches.push({
                         name: skill.name,
-                        level: classifyRequirementLevel(text, skillLower),
+                        requirement: classifyRequirementLevel(text, skillLower),
+                        proficiency: inferJobProficiency(text, skillLower, seniority),
                         category: skill.category || 'General'
                     });
                 }
             });
             
             // Second pass: check the full O*NET library if loaded
-            if (skillLibraryIndex && skillLibraryIndex.skills) {
-                skillLibraryIndex.skills.forEach(function(libSkill) {
-                    var n = (libSkill.name || libSkill.n || '').toLowerCase();
+            if (skillLibraryIndex && skillLibraryIndex.index) {
+                skillLibraryIndex.index.forEach(function(libSkill) {
+                    var n = (libSkill.n || libSkill.name || '').toLowerCase();
                     if (n.length > 3 && text.indexOf(n) !== -1 && !seen.has(n)) {
                         seen.add(n);
                         skillMatches.push({
-                            name: libSkill.name || libSkill.n,
-                            level: classifyRequirementLevel(text, n),
-                            category: libSkill.category || libSkill.c || 'General'
+                            name: libSkill.n || libSkill.name,
+                            requirement: classifyRequirementLevel(text, n),
+                            proficiency: inferJobProficiency(text, n, seniority),
+                            category: libSkill.c || libSkill.category || 'General'
                         });
                     }
                 });
@@ -12098,7 +12156,7 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 var lower = skill.toLowerCase();
                 if (text.indexOf(lower) !== -1 && !seen.has(lower)) {
                     seen.add(lower);
-                    skillMatches.push({ name: skill, level: classifyRequirementLevel(text, lower), category: 'General' });
+                    skillMatches.push({ name: skill, requirement: classifyRequirementLevel(text, lower), proficiency: inferJobProficiency(text, lower, seniority), category: 'General' });
                 }
             });
             
@@ -12128,18 +12186,12 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                                 seen.add(phrase.toLowerCase());
                                 // Capitalize first letter of each word
                                 var clean = phrase.replace(/\b\w/g, function(c) { return c.toUpperCase(); });
-                                skillMatches.push({ name: clean, level: classifyRequirementLevel(text, phrase.toLowerCase()), category: 'Extracted' });
+                                skillMatches.push({ name: clean, requirement: classifyRequirementLevel(text, phrase.toLowerCase()), proficiency: inferJobProficiency(text, phrase.toLowerCase(), seniority), category: 'Extracted' });
                             }
                         });
                     }
                 });
             });
-            
-            // Determine seniority
-            var seniority = 'Mid';
-            if (/\b(vp|vice president|chief|c-suite|head of|svp|evp)\b/i.test(jdText)) seniority = 'Executive';
-            else if (/\b(senior director|director|principal|senior manager)\b/i.test(jdText)) seniority = 'Senior';
-            else if (/\b(junior|entry|associate|intern|coordinator)\b/i.test(jdText)) seniority = 'Entry';
             
             // Extract roles/departments
             var roles = [];
@@ -12171,6 +12223,360 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             return 'Required';
         }
         
+        function inferJobProficiency(text, skillLower, seniority) {
+            // Infer minimum proficiency from context and seniority
+            var idx = text.indexOf(skillLower);
+            var context = idx >= 0 ? text.substring(Math.max(0, idx - 150), Math.min(text.length, idx + 150)) : '';
+            
+            // Context clues for specific proficiency
+            if (/master|authority|world.class|industry.leading|thought leader|deep expertise/i.test(context)) return 'Mastery';
+            if (/expert|extensive|advanced|senior|deep|strong|proven track/i.test(context)) return 'Expert';
+            if (/proficien|solid|experienced|demonstrated|working knowledge/i.test(context)) return 'Proficient';
+            if (/familiar|basic|exposure|awareness|entry|junior/i.test(context)) return 'Competent';
+            
+            // Years context
+            var yearsMatch = context.match(/(\d+)\+?\s*years/);
+            if (yearsMatch) {
+                var yrs = parseInt(yearsMatch[1]);
+                if (yrs >= 10) return 'Mastery';
+                if (yrs >= 7) return 'Expert';
+                if (yrs >= 4) return 'Proficient';
+                if (yrs >= 2) return 'Competent';
+                return 'Novice';
+            }
+            
+            // Fall back to seniority-based default
+            if (seniority === 'Executive') return 'Expert';
+            if (seniority === 'Senior') return 'Proficient';
+            if (seniority === 'Entry') return 'Competent';
+            return 'Proficient'; // Mid default
+        }
+        
+        // ===== PROFICIENCY SCALE =====
+        var PROFICIENCY_SCALE = { 'Novice': 1, 'Competent': 2, 'Proficient': 3, 'Advanced': 3.5, 'Expert': 4, 'Mastery': 5 };
+        
+        function proficiencyValue(level) {
+            return PROFICIENCY_SCALE[level] || PROFICIENCY_SCALE['Proficient'];
+        }
+        
+        // ===== SKILL REGISTRY UTILITIES =====
+        
+        // Register a skill in the searchable library index (deduped by name)
+        function registerInSkillLibrary(skillName, category) {
+            if (!skillLibraryIndex) return;
+            if (!skillLibraryIndex.index) skillLibraryIndex.index = [];
+            var lower = skillName.toLowerCase();
+            var exists = skillLibraryIndex.index.some(function(s) {
+                return (s.n || s.name || '').toLowerCase() === lower;
+            });
+            if (!exists) {
+                skillLibraryIndex.index.push({ n: skillName, c: category || 'Custom', source: 'custom' });
+                if (skillLibraryIndex.totalSkills) skillLibraryIndex.totalSkills++;
+                console.log('📚 Registered in skill library:', skillName);
+            }
+        }
+        window.registerInSkillLibrary = registerInSkillLibrary;
+        
+        // ===== COMPREHENSIVE SKILL SYNONYMS =====
+        // Bidirectional: abbreviation ↔ full name, plus common variants
+        var SKILL_SYNONYMS = {
+            // Recruiting & HR
+            'ats': ['applicant tracking system', 'applicant tracking systems', 'applicant tracking'],
+            'applicant tracking system': ['ats'],
+            'hris': ['human resources information system', 'hr information system', 'hcm'],
+            'hcm': ['human capital management', 'hris'],
+            'deib': ['diversity equity inclusion belonging', 'dei', 'diversity recruiting'],
+            'dei': ['diversity equity inclusion', 'deib', 'diversity recruiting'],
+            // Business & Strategy
+            'crm': ['customer relationship management', 'salesforce', 'hubspot crm'],
+            'erp': ['enterprise resource planning', 'sap', 'oracle erp'],
+            'kpi': ['key performance indicator', 'key performance indicators', 'metrics'],
+            'kpis': ['key performance indicators', 'kpi', 'metrics'],
+            'roi': ['return on investment'],
+            'p&l': ['profit and loss', 'p&l management', 'financial management'],
+            'gtm': ['go-to-market', 'go to market', 'gtm strategy'],
+            'go-to-market': ['gtm', 'gtm strategy'],
+            'okr': ['objectives and key results', 'okrs'],
+            'okrs': ['objectives and key results', 'okr'],
+            'b2b': ['business-to-business', 'business to business'],
+            'b2c': ['business-to-consumer', 'business to consumer'],
+            'saas': ['software as a service', 'cloud software'],
+            // Technical
+            'ml': ['machine learning'],
+            'ai': ['artificial intelligence'],
+            'nlp': ['natural language processing'],
+            'ci/cd': ['continuous integration', 'continuous deployment', 'continuous integration/continuous deployment'],
+            'devops': ['development operations', 'dev ops'],
+            'seo': ['search engine optimization'],
+            'sem': ['search engine marketing', 'paid search'],
+            'ux': ['user experience', 'ux design'],
+            'ui': ['user interface', 'ui design'],
+            'qa': ['quality assurance', 'testing'],
+            'api': ['application programming interface', 'api design', 'api development'],
+            'sdk': ['software development kit'],
+            'sql': ['structured query language', 'database querying'],
+            'aws': ['amazon web services'],
+            'gcp': ['google cloud platform'],
+            // Project Management
+            'pmp': ['project management professional', 'project management'],
+            'scrum': ['scrum methodology', 'agile scrum'],
+            'jira': ['jira project management', 'atlassian jira'],
+            // Communication & Leadership
+            'executive presence': ['leadership presence', 'gravitas'],
+            'storytelling': ['narrative', 'business storytelling', 'data storytelling'],
+            'stakeholder management': ['stakeholder engagement', 'stakeholder relations'],
+            'change management': ['organizational change', 'change leadership', 'transformation'],
+            'cross-functional collaboration': ['cross functional collaboration', 'cross-team collaboration', 'interdepartmental collaboration'],
+            // Common variations (singular/plural, hyphenation)
+            'problem solving': ['problem-solving'],
+            'decision making': ['decision-making'],
+            'team leadership': ['team management', 'people management', 'people leadership'],
+            'people management': ['team management', 'team leadership', 'direct reports management'],
+            'data analysis': ['data analytics', 'analytics', 'data-driven decision making'],
+            'strategic planning': ['strategy development', 'strategic thinking', 'business strategy'],
+            'talent acquisition': ['recruiting', 'recruitment', 'talent management'],
+            'full-cycle recruiting': ['full cycle recruiting', 'full lifecycle recruiting', 'end-to-end recruiting'],
+            'boolean search': ['boolean sourcing', 'advanced sourcing', 'sourcing techniques'],
+            'sourcing': ['talent sourcing', 'candidate sourcing'],
+            'offer negotiation': ['compensation negotiation', 'salary negotiation'],
+            'employer branding': ['employer brand', 'employment branding', 'talent branding'],
+            'workforce planning': ['headcount planning', 'capacity planning', 'workforce strategy'],
+            'employee engagement': ['engagement strategy', 'employee experience'],
+            'performance management': ['performance review', 'performance evaluation', 'performance coaching'],
+            'succession planning': ['talent pipeline planning', 'leadership pipeline'],
+            'compensation': ['compensation and benefits', 'total rewards', 'comp and ben'],
+            'vendor management': ['vendor relations', 'supplier management', 'third-party management'],
+            'process improvement': ['continuous improvement', 'lean', 'six sigma', 'process optimization'],
+            'digital transformation': ['digital strategy', 'digitalization'],
+            'market research': ['market analysis', 'competitive intelligence', 'market intelligence'],
+            'business development': ['biz dev', 'business growth', 'partnership development'],
+            'account management': ['account management', 'client management', 'key account management'],
+            'financial analysis': ['financial modeling', 'financial planning', 'fp&a'],
+            'fp&a': ['financial planning and analysis', 'financial analysis'],
+            'content marketing': ['content strategy', 'content creation'],
+            'demand generation': ['demand gen', 'lead generation', 'pipeline generation'],
+            'marketing automation': ['martech', 'marketing technology'],
+            'product management': ['product strategy', 'product development', 'product ownership'],
+            'user research': ['ux research', 'customer research', 'user testing']
+        };
+        
+        // Build a fast lookup: lowercased name → array of synonym lowercased names
+        var _synonymLookup = {};
+        Object.keys(SKILL_SYNONYMS).forEach(function(key) {
+            var lower = key.toLowerCase();
+            if (!_synonymLookup[lower]) _synonymLookup[lower] = [];
+            SKILL_SYNONYMS[key].forEach(function(syn) {
+                var synLower = syn.toLowerCase();
+                _synonymLookup[lower].push(synLower);
+                // Bidirectional: also map synonym back to key
+                if (!_synonymLookup[synLower]) _synonymLookup[synLower] = [];
+                if (_synonymLookup[synLower].indexOf(lower) === -1) _synonymLookup[synLower].push(lower);
+            });
+        });
+        
+        // Get all known synonyms for a skill name (lowercased)
+        function getSkillSynonyms(skillNameLower) {
+            return _synonymLookup[skillNameLower] || [];
+        }
+        
+        // ===== ROLE-TO-SKILL MAPPING =====
+        // Expected skills for common roles with typical proficiency levels
+        var ROLE_SKILL_MAP = {
+            'recruiter': [
+                { name: 'Applicant Tracking System', level: 'Proficient' }, { name: 'Full-Cycle Recruiting', level: 'Proficient' },
+                { name: 'Boolean Search', level: 'Proficient' }, { name: 'Sourcing', level: 'Expert' },
+                { name: 'Candidate Experience', level: 'Proficient' }, { name: 'Interviewing', level: 'Expert' },
+                { name: 'Offer Negotiation', level: 'Proficient' }, { name: 'Employer Branding', level: 'Competent' },
+                { name: 'Diversity Recruiting', level: 'Competent' }, { name: 'Talent Pipeline', level: 'Proficient' },
+                { name: 'Screening', level: 'Expert' }, { name: 'Stakeholder Management', level: 'Proficient' },
+                { name: 'Recruitment Marketing', level: 'Competent' }, { name: 'Workforce Planning', level: 'Competent' }
+            ],
+            'talent acquisition': [
+                { name: 'Applicant Tracking System', level: 'Expert' }, { name: 'Full-Cycle Recruiting', level: 'Expert' },
+                { name: 'Sourcing', level: 'Expert' }, { name: 'Boolean Search', level: 'Proficient' },
+                { name: 'Employer Branding', level: 'Proficient' }, { name: 'Workforce Planning', level: 'Proficient' },
+                { name: 'Diversity Recruiting', level: 'Proficient' }, { name: 'Talent Pipeline', level: 'Expert' },
+                { name: 'Stakeholder Management', level: 'Expert' }, { name: 'Data Analysis', level: 'Competent' },
+                { name: 'Recruitment Marketing', level: 'Proficient' }, { name: 'Vendor Management', level: 'Competent' }
+            ],
+            'product manager': [
+                { name: 'Product Management', level: 'Expert' }, { name: 'Roadmap', level: 'Expert' },
+                { name: 'A/B Testing', level: 'Proficient' }, { name: 'User Research', level: 'Proficient' },
+                { name: 'Data Analysis', level: 'Proficient' }, { name: 'Stakeholder Management', level: 'Expert' },
+                { name: 'Go-to-Market', level: 'Proficient' }, { name: 'Agile', level: 'Expert' },
+                { name: 'Strategic Planning', level: 'Proficient' }, { name: 'Cross-Functional Collaboration', level: 'Expert' },
+                { name: 'JIRA', level: 'Proficient' }, { name: 'SQL', level: 'Competent' }
+            ],
+            'software engineer': [
+                { name: 'System Design', level: 'Proficient' }, { name: 'API Design', level: 'Proficient' },
+                { name: 'CI/CD', level: 'Proficient' }, { name: 'Git', level: 'Expert' },
+                { name: 'Code Review', level: 'Proficient' }, { name: 'Testing', level: 'Proficient' },
+                { name: 'Agile', level: 'Proficient' }, { name: 'Problem Solving', level: 'Expert' },
+                { name: 'Technical Writing', level: 'Competent' }, { name: 'Cloud Computing', level: 'Competent' }
+            ],
+            'data analyst': [
+                { name: 'SQL', level: 'Expert' }, { name: 'Excel', level: 'Expert' },
+                { name: 'Data Analysis', level: 'Expert' }, { name: 'Tableau', level: 'Proficient' },
+                { name: 'Python', level: 'Competent' }, { name: 'Reporting', level: 'Expert' },
+                { name: 'Business Intelligence', level: 'Proficient' }, { name: 'Dashboards', level: 'Proficient' },
+                { name: 'Forecasting', level: 'Competent' }, { name: 'Presentation', level: 'Proficient' }
+            ],
+            'marketing manager': [
+                { name: 'Content Marketing', level: 'Expert' }, { name: 'SEO', level: 'Proficient' },
+                { name: 'Social Media', level: 'Expert' }, { name: 'Email Marketing', level: 'Proficient' },
+                { name: 'Brand Strategy', level: 'Expert' }, { name: 'Marketing Automation', level: 'Proficient' },
+                { name: 'Data Analysis', level: 'Competent' }, { name: 'CRM', level: 'Proficient' },
+                { name: 'Demand Generation', level: 'Proficient' }, { name: 'Budgeting', level: 'Proficient' }
+            ],
+            'hr': [
+                { name: 'Human Resources', level: 'Expert' }, { name: 'Employee Relations', level: 'Proficient' },
+                { name: 'Performance Management', level: 'Proficient' }, { name: 'Compensation', level: 'Proficient' },
+                { name: 'HRIS', level: 'Proficient' }, { name: 'Compliance', level: 'Proficient' },
+                { name: 'Succession Planning', level: 'Competent' }, { name: 'Employee Engagement', level: 'Proficient' },
+                { name: 'Training and Development', level: 'Competent' }, { name: 'Change Management', level: 'Competent' }
+            ],
+            'strategy': [
+                { name: 'Strategic Planning', level: 'Expert' }, { name: 'Business Strategy', level: 'Expert' },
+                { name: 'Competitive Analysis', level: 'Expert' }, { name: 'Market Analysis', level: 'Expert' },
+                { name: 'Financial Analysis', level: 'Proficient' }, { name: 'Stakeholder Management', level: 'Expert' },
+                { name: 'Change Management', level: 'Proficient' }, { name: 'Presentation', level: 'Expert' },
+                { name: 'Data Analysis', level: 'Proficient' }, { name: 'Innovation', level: 'Expert' }
+            ],
+            'sales': [
+                { name: 'Sales Strategy', level: 'Expert' }, { name: 'Pipeline Management', level: 'Expert' },
+                { name: 'CRM', level: 'Expert' }, { name: 'Negotiation', level: 'Expert' },
+                { name: 'Account Management', level: 'Proficient' }, { name: 'Client Relations', level: 'Expert' },
+                { name: 'Revenue Growth', level: 'Proficient' }, { name: 'Presentation', level: 'Proficient' },
+                { name: 'Forecasting', level: 'Proficient' }, { name: 'Business Development', level: 'Proficient' }
+            ],
+            'project manager': [
+                { name: 'Project Management', level: 'Expert' }, { name: 'Agile', level: 'Expert' },
+                { name: 'Stakeholder Management', level: 'Expert' }, { name: 'Risk Management', level: 'Proficient' },
+                { name: 'Budgeting', level: 'Proficient' }, { name: 'JIRA', level: 'Expert' },
+                { name: 'Change Management', level: 'Proficient' }, { name: 'Process Improvement', level: 'Proficient' },
+                { name: 'Cross-Functional Collaboration', level: 'Expert' }, { name: 'Communication', level: 'Expert' }
+            ],
+            'ux designer': [
+                { name: 'UX Design', level: 'Expert' }, { name: 'User Research', level: 'Expert' },
+                { name: 'Wireframing', level: 'Expert' }, { name: 'Prototyping', level: 'Expert' },
+                { name: 'Usability Testing', level: 'Proficient' }, { name: 'Design Systems', level: 'Proficient' },
+                { name: 'Figma', level: 'Expert' }, { name: 'Accessibility', level: 'Proficient' },
+                { name: 'Information Architecture', level: 'Proficient' }, { name: 'Interaction Design', level: 'Expert' }
+            ],
+            'customer success': [
+                { name: 'Customer Success', level: 'Expert' }, { name: 'Account Management', level: 'Expert' },
+                { name: 'CRM', level: 'Proficient' }, { name: 'Client Relations', level: 'Expert' },
+                { name: 'Onboarding', level: 'Proficient' }, { name: 'Data Analysis', level: 'Competent' },
+                { name: 'Presentation', level: 'Proficient' }, { name: 'Negotiation', level: 'Proficient' },
+                { name: 'Process Improvement', level: 'Competent' }, { name: 'Cross-Functional Collaboration', level: 'Proficient' }
+            ],
+            'operations': [
+                { name: 'Process Improvement', level: 'Expert' }, { name: 'Project Management', level: 'Proficient' },
+                { name: 'Data Analysis', level: 'Proficient' }, { name: 'Budgeting', level: 'Proficient' },
+                { name: 'Vendor Management', level: 'Expert' }, { name: 'Risk Management', level: 'Proficient' },
+                { name: 'Compliance', level: 'Proficient' }, { name: 'Strategic Planning', level: 'Proficient' },
+                { name: 'Change Management', level: 'Proficient' }, { name: 'Reporting', level: 'Expert' }
+            ],
+            'executive': [
+                { name: 'Strategic Planning', level: 'Mastery' }, { name: 'Executive Presence', level: 'Expert' },
+                { name: 'Stakeholder Management', level: 'Mastery' }, { name: 'Change Management', level: 'Expert' },
+                { name: 'P&L Management', level: 'Expert' }, { name: 'Board Relations', level: 'Proficient' },
+                { name: 'Cross-Functional Collaboration', level: 'Expert' }, { name: 'Innovation', level: 'Expert' },
+                { name: 'Talent Development', level: 'Expert' }, { name: 'Business Strategy', level: 'Mastery' }
+            ],
+            'futurist': [
+                { name: 'Strategic Planning', level: 'Mastery' }, { name: 'Innovation', level: 'Mastery' },
+                { name: 'Thought Leadership', level: 'Expert' }, { name: 'Market Research', level: 'Expert' },
+                { name: 'Data Analysis', level: 'Proficient' }, { name: 'Public Speaking', level: 'Expert' },
+                { name: 'Storytelling', level: 'Expert' }, { name: 'Digital Transformation', level: 'Expert' },
+                { name: 'Competitive Analysis', level: 'Expert' }, { name: 'Presentation', level: 'Expert' }
+            ],
+            'content': [
+                { name: 'Content Marketing', level: 'Expert' }, { name: 'Copywriting', level: 'Expert' },
+                { name: 'SEO', level: 'Proficient' }, { name: 'Storytelling', level: 'Expert' },
+                { name: 'Social Media', level: 'Proficient' }, { name: 'Brand Strategy', level: 'Proficient' },
+                { name: 'Data Analysis', level: 'Competent' }, { name: 'Email Marketing', level: 'Proficient' },
+                { name: 'Content Marketing', level: 'Expert' }, { name: 'Technical Writing', level: 'Competent' }
+            ],
+            'general manager': [
+                { name: 'P&L Management', level: 'Expert' }, { name: 'Strategic Planning', level: 'Expert' },
+                { name: 'Team Leadership', level: 'Expert' }, { name: 'Budgeting', level: 'Expert' },
+                { name: 'Stakeholder Management', level: 'Expert' }, { name: 'Cross-Functional Collaboration', level: 'Expert' },
+                { name: 'Business Development', level: 'Proficient' }, { name: 'Change Management', level: 'Proficient' },
+                { name: 'Data Analysis', level: 'Proficient' }, { name: 'Vendor Management', level: 'Proficient' }
+            ]
+        };
+        
+        // Get suggested skills for a user based on their roles
+        function getRoleSuggestions() {
+            var userRoles = userData.roles || [];
+            var userSkillNames = new Set((skillsData.skills || []).map(function(s) { return s.name.toLowerCase(); }));
+            // Also build synonym-aware set
+            var userSkillSynonyms = new Set();
+            userSkillNames.forEach(function(n) {
+                userSkillSynonyms.add(n);
+                getSkillSynonyms(n).forEach(function(syn) { userSkillSynonyms.add(syn); });
+            });
+            
+            var suggestions = [];
+            var seen = new Set();
+            
+            // Role-name-to-map-key matching with keyword fallbacks
+            var ROLE_KEYWORDS = {
+                'recruiter': ['recruit', 'sourcing', 'talent acquisition'],
+                'talent acquisition': ['talent acquisition', 'ta ', 'recruiting lead', 'head of recruiting'],
+                'product manager': ['product', 'pm'],
+                'software engineer': ['engineer', 'developer', 'programmer', 'coder'],
+                'data analyst': ['data analyst', 'analytics', 'business analyst'],
+                'marketing manager': ['marketing', 'growth', 'demand gen'],
+                'hr': ['human resource', 'people operations', 'people ops', 'hrbp'],
+                'strategy': ['strateg', 'futur', 'advisory', 'consulting'],
+                'sales': ['sales', 'revenue', 'business development', 'account executive'],
+                'project manager': ['project manager', 'program manager', 'delivery manager'],
+                'ux designer': ['ux', 'design', 'user experience'],
+                'customer success': ['customer success', 'client success', 'csm'],
+                'operations': ['operations', 'ops', 'supply chain'],
+                'executive': ['executive', 'vp ', 'vice president', 'chief', 'c-suite', 'general manager', 'gm'],
+                'futurist': ['futurist', 'thought leader', 'evangelist'],
+                'content': ['content', 'copywrite', 'editorial'],
+                'general manager': ['general manager', 'gm', 'country manager', 'regional manager']
+            };
+            
+            userRoles.forEach(function(role) {
+                var roleName = role.name.toLowerCase();
+                
+                // Try exact/partial match first
+                var mapKey = Object.keys(ROLE_SKILL_MAP).find(function(k) {
+                    return roleName.indexOf(k) !== -1 || k.indexOf(roleName) !== -1;
+                });
+                
+                // Try keyword fallback
+                if (!mapKey) {
+                    mapKey = Object.keys(ROLE_KEYWORDS).find(function(k) {
+                        return ROLE_KEYWORDS[k].some(function(kw) { return roleName.indexOf(kw) !== -1; });
+                    });
+                }
+                
+                if (!mapKey || !ROLE_SKILL_MAP[mapKey]) return;
+                
+                ROLE_SKILL_MAP[mapKey].forEach(function(suggested) {
+                    var lower = suggested.name.toLowerCase();
+                    // Check both direct name AND synonyms to avoid suggesting skills the user already has under a different name
+                    if (!userSkillSynonyms.has(lower) && !seen.has(lower)) {
+                        seen.add(lower);
+                        suggestions.push({
+                            name: suggested.name,
+                            level: suggested.level,
+                            reason: role.name,
+                            roleId: role.id
+                        });
+                    }
+                });
+            });
+            
+            return suggestions;
+        }
+        
         // ===== MATCH CALCULATION =====
         
         function matchJobToProfile(parsed) {
@@ -12178,14 +12584,21 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             var userSkills = skillsData.skills || [];
             
             // Build lookup of user's skills (lowercase → skill object)
+            // Include synonym variants for fuzzy matching
             var userMap = {};
+            var userNameIndex = []; // for word-overlap search
             userSkills.forEach(function(s) {
-                userMap[s.name.toLowerCase()] = s;
-                // Also add key word variants
-                var words = s.name.toLowerCase().split(/\s+/);
-                if (words.length > 1) {
-                    words.forEach(function(w) { if (w.length > 4 && !userMap[w]) userMap[w] = s; });
-                }
+                var lower = s.name.toLowerCase();
+                userMap[lower] = s;
+                userNameIndex.push({ lower: lower, skill: s, words: lower.split(/[\s\-\/&]+/).filter(function(w) { return w.length > 2; }) });
+                // Also add simplified versions (strip extra spaces, ampersands)
+                var simplified = lower.replace(/\s*&\s*/g, ' ').replace(/\s+/g, ' ').trim();
+                if (simplified !== lower) userMap[simplified] = s;
+                // Register all known synonyms
+                var synonyms = getSkillSynonyms(lower);
+                synonyms.forEach(function(syn) {
+                    if (!userMap[syn]) userMap[syn] = s;
+                });
             });
             
             var matched = [];
@@ -12195,63 +12608,102 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             var earnedWeight = 0;
             
             jobSkills.forEach(function(jobSkill) {
-                var weight = jobSkill.level === 'Required' ? 3 : jobSkill.level === 'Preferred' ? 2 : 1;
-                totalWeight += weight;
+                // Backward compat: support old 'level' field as 'requirement'
+                var requirement = jobSkill.requirement || jobSkill.level || 'Required';
+                var reqWeight = requirement === 'Required' ? 3 : requirement === 'Preferred' ? 2 : 1;
+                totalWeight += reqWeight;
+                
+                // Job's demanded proficiency (default Proficient if not specified)
+                var jobProf = proficiencyValue(jobSkill.proficiency || 'Proficient');
                 
                 var jLower = jobSkill.name.toLowerCase();
-                var jWords = jLower.split(/[\s\-\/]+/).filter(function(w) { return w.length > 2; });
+                var jWords = jLower.split(/[\s\-\/&]+/).filter(function(w) { return w.length > 2; });
                 var found = null;
-                var matchQuality = 0; // 0-1
+                var nameMatchQuality = 0;
                 
-                // Exact match
+                // 1. Exact match
                 if (userMap[jLower]) {
                     found = userMap[jLower];
-                    matchQuality = 1.0;
+                    nameMatchQuality = 1.0;
                 }
                 
-                // Fuzzy: substring containment
+                // 1b. Synonym match: check all synonyms of the job skill
                 if (!found) {
-                    for (var key in userMap) {
-                        if (key.length > 3 && (jLower.indexOf(key) !== -1 || key.indexOf(jLower) !== -1)) {
-                            found = userMap[key];
-                            matchQuality = 0.8;
+                    var jobSynonyms = getSkillSynonyms(jLower);
+                    for (var si = 0; si < jobSynonyms.length; si++) {
+                        if (userMap[jobSynonyms[si]]) {
+                            found = userMap[jobSynonyms[si]];
+                            nameMatchQuality = 0.95; // near-exact via synonym
                             break;
                         }
                     }
                 }
                 
-                // Word overlap: if 50%+ of job skill words appear in a user skill name
+                // 2. Substring containment (one contains the other)
+                if (!found) {
+                    for (var key in userMap) {
+                        if (key.length > 3 && (jLower.indexOf(key) !== -1 || key.indexOf(jLower) !== -1)) {
+                            found = userMap[key];
+                            nameMatchQuality = 0.85;
+                            break;
+                        }
+                    }
+                }
+                
+                // 3. Word overlap: 50%+ of words match
                 if (!found && jWords.length > 0) {
                     var bestOverlap = 0;
                     var bestSkill = null;
-                    userSkills.forEach(function(s) {
-                        var uWords = s.name.toLowerCase().split(/[\s\-\/]+/).filter(function(w) { return w.length > 2; });
+                    userNameIndex.forEach(function(entry) {
                         var overlap = 0;
                         jWords.forEach(function(jw) {
-                            if (uWords.some(function(uw) { return uw.indexOf(jw) !== -1 || jw.indexOf(uw) !== -1; })) overlap++;
+                            if (entry.words.some(function(uw) { return uw === jw || (uw.length > 4 && (uw.indexOf(jw) !== -1 || jw.indexOf(uw) !== -1)); })) overlap++;
                         });
                         var score = overlap / Math.max(jWords.length, 1);
                         if (score > bestOverlap && score >= 0.5) {
                             bestOverlap = score;
-                            bestSkill = s;
+                            bestSkill = entry.skill;
                         }
                     });
                     if (bestSkill) {
                         found = bestSkill;
-                        matchQuality = bestOverlap * 0.7;
+                        nameMatchQuality = bestOverlap * 0.75;
                     }
                 }
                 
                 if (found) {
-                    // Proficiency bonus
-                    var profBonus = found.level === 'Mastery' ? 1.0 : found.level === 'Expert' ? 0.9 :
-                        found.level === 'Advanced' ? 0.75 : found.level === 'Proficient' ? 0.6 : 0.4;
-                    earnedWeight += weight * profBonus * matchQuality;
-                    matched.push({ jobSkill: jobSkill.name, userSkill: found.name, level: found.level, 
-                        requirement: jobSkill.level, category: jobSkill.category });
+                    // Proficiency comparison
+                    var userProf = proficiencyValue(found.level);
+                    var profMatch;
+                    if (userProf >= jobProf) {
+                        profMatch = 1.0; // Meets or exceeds requirement
+                    } else {
+                        profMatch = userProf / jobProf; // Partial credit (e.g., Competent/Expert = 0.5)
+                    }
+                    
+                    var skillCredit = reqWeight * nameMatchQuality * profMatch;
+                    earnedWeight += skillCredit;
+                    
+                    var profGap = userProf < jobProf;
+                    matched.push({
+                        jobSkill: jobSkill.name,
+                        userSkill: found.name,
+                        userLevel: found.level,
+                        jobProficiency: jobSkill.proficiency || 'Proficient',
+                        requirement: requirement,
+                        category: jobSkill.category,
+                        nameMatch: nameMatchQuality,
+                        profMatch: profMatch,
+                        profGap: profGap
+                    });
                     matchedUserSkills.add(found.name.toLowerCase());
                 } else {
-                    gaps.push({ name: jobSkill.name, level: jobSkill.level, category: jobSkill.category });
+                    gaps.push({
+                        name: jobSkill.name,
+                        requirement: requirement,
+                        proficiency: jobSkill.proficiency || 'Proficient',
+                        category: jobSkill.category
+                    });
                 }
             });
             
@@ -12275,6 +12727,148 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             };
         }
         
+        // ===== RE-SCORE ALL SAVED JOBS =====
+        // Called whenever profile skills change (add, edit, remove, proficiency change)
+        function rescoreAllJobs() {
+            if (!userData.savedJobs || userData.savedJobs.length === 0) return;
+            
+            var updated = 0;
+            userData.savedJobs.forEach(function(job) {
+                if (!job.parsedSkills || job.parsedSkills.length === 0) return;
+                var oldScore = job.matchData ? job.matchData.score : 0;
+                job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles || [] });
+                if (job.matchData.score !== oldScore) updated++;
+            });
+            
+            if (updated > 0) {
+                saveUserData();
+                if (fbUser) saveToFirestore();
+                showToast(updated + ' job match score' + (updated > 1 ? 's' : '') + ' updated.', 'info', 3000);
+            }
+        }
+        window.rescoreAllJobs = rescoreAllJobs;
+        
+        function rescoreOneJob(idx) {
+            var job = (userData.savedJobs || [])[idx];
+            if (!job || !job.parsedSkills || job.parsedSkills.length === 0) {
+                showToast('No parsed skills for this job. Try Re-analyze instead.', 'warning');
+                return;
+            }
+            var oldScore = job.matchData ? job.matchData.score : 0;
+            job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles || [] });
+            saveUserData();
+            if (fbUser) saveToFirestore();
+            showJobDetail(idx);
+            var delta = job.matchData.score - oldScore;
+            var deltaStr = delta > 0 ? ' (+' + delta + ')' : delta < 0 ? ' (' + delta + ')' : '';
+            showToast('Match rescored: ' + job.matchData.score + '%' + deltaStr, 'success', 3000);
+        }
+        window.rescoreOneJob = rescoreOneJob;
+        
+        // ===== QUICK-ADD GAP SKILL FROM JOB DETAIL =====
+        function quickAddGapSkill(skillName, suggestedLevel, jobIdx) {
+            if (readOnlyGuard()) return;
+            
+            // Check if already in profile
+            if (userData.skills.some(function(s) { return s.name.toLowerCase() === skillName.toLowerCase(); })) {
+                showToast('"' + skillName + '" is already in your profile.', 'info');
+                // Still rescore in case something changed
+                rescoreAllJobs();
+                showJobDetail(jobIdx);
+                return;
+            }
+            
+            // Show inline proficiency picker
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content');
+            var levels = ['Novice', 'Competent', 'Proficient', 'Expert', 'Mastery'];
+            var sugIdx = levels.indexOf(suggestedLevel);
+            if (sugIdx === -1) sugIdx = 2;
+            
+            mc.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left"><h2 class="modal-title">Add Skill: ' + skillName + '</h2></div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button></div>'
+                + '<div class="modal-body" style="padding:24px;">'
+                + '<p style="color:var(--text-secondary); margin-bottom:16px;">This job expects <strong>' + suggestedLevel + '</strong> proficiency. What\'s your actual level?</p>'
+                + '<div style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;">'
+                + levels.map(function(lvl, i) {
+                    var isSelected = i === sugIdx;
+                    var barWidth = ((i + 1) / 5 * 100);
+                    var barColor = i < sugIdx ? '#f59e0b' : i === sugIdx ? '#10b981' : '#60a5fa';
+                    return '<label style="display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:8px; cursor:pointer; '
+                        + 'border:1px solid ' + (isSelected ? 'var(--accent)' : 'var(--border)') + '; '
+                        + 'background:' + (isSelected ? 'var(--accent-glow)' : 'transparent') + ';">'
+                        + '<input type="radio" name="gapSkillLevel" value="' + lvl + '"' + (isSelected ? ' checked' : '') + ' style="margin:0;">'
+                        + '<div style="flex:1;">'
+                        + '<div style="font-weight:600; font-size:0.92em;">' + lvl + '</div>'
+                        + '<div style="height:4px; width:100%; background:var(--border); border-radius:2px; margin-top:4px;">'
+                        + '<div style="height:100%; width:' + barWidth + '%; background:' + barColor + '; border-radius:2px;"></div></div>'
+                        + '</div></label>';
+                }).join('')
+                + '</div>'
+                + '<p style="font-size:0.82em; color:var(--text-muted); margin-bottom:16px;">The skill will be added to your profile and all job matches will be rescored automatically.</p>'
+                + '<div style="display:flex; gap:10px; justify-content:flex-end;">'
+                + '<button onclick="closeExportModal()" style="padding:10px 20px; background:rgba(255,255,255,0.1); border:1px solid var(--border); border-radius:6px; cursor:pointer; color:var(--text-primary);">Cancel</button>'
+                + '<button onclick="confirmQuickAddGapSkill(\'' + skillName.replace(/'/g, "\\'") + '\', ' + jobIdx + ')" style="'
+                + 'padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Add to Profile</button>'
+                + '</div></div>';
+            
+            history.pushState({ modal: true }, ''); modal.classList.add('active');
+        }
+        window.quickAddGapSkill = quickAddGapSkill;
+        
+        function confirmQuickAddGapSkill(skillName, jobIdx) {
+            var level = 'Proficient';
+            var checked = document.querySelector('input[name="gapSkillLevel"]:checked');
+            if (checked) level = checked.value;
+            
+            // Add to profile
+            var firstRole = (userData.roles && userData.roles[0]) ? userData.roles[0].id : 'general';
+            var newSkill = {
+                name: skillName,
+                category: 'unique',
+                level: level,
+                roles: [firstRole],
+                key: false,
+                addedFrom: 'job-gap'
+            };
+            userData.skills.push(newSkill);
+            skillsData.skills.push(newSkill);
+            
+            // Register in library
+            registerInSkillLibrary(skillName, 'unique');
+            
+            saveUserData();
+            if (fbUser) saveToFirestore();
+            rescoreAllJobs();
+            
+            closeExportModal();
+            showJobDetail(jobIdx);
+            showToast('Added "' + skillName + '" at ' + level + '. Match scores updated.', 'success', 4000);
+        }
+        window.confirmQuickAddGapSkill = confirmQuickAddGapSkill;
+        
+        // ===== QUICK-ADD ROLE SUGGESTION =====
+        function quickAddSuggested(skillName, level, roleId) {
+            if (readOnlyGuard()) return;
+            if (userData.skills.some(function(s) { return s.name.toLowerCase() === skillName.toLowerCase(); })) {
+                showToast('"' + skillName + '" is already in your profile.', 'info');
+                return;
+            }
+            var newSkill = { name: skillName, category: 'unique', level: level, roles: [roleId], key: false, addedFrom: 'role-suggestion' };
+            userData.skills.push(newSkill);
+            skillsData.skills.push(newSkill);
+            registerInSkillLibrary(skillName, 'unique');
+            saveUserData();
+            rescoreAllJobs();
+            // Re-render card view to update suggestions
+            window.cardViewInitialized = false;
+            initCardView();
+            window.cardViewInitialized = true;
+            showToast('Added "' + skillName + '" at ' + level + '.', 'success', 3000);
+        }
+        window.quickAddSuggested = quickAddSuggested;
+
         // ===== JOB DETAIL VIEW =====
         
         function showJobDetail(idx) {
@@ -12297,6 +12891,8 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 + '<div style="display:flex; gap:8px;">'
                 + '<button onclick="editJobInfo(' + idx + ')" style="background:none; border:1px solid var(--border); '
                 + 'color:var(--text-muted); padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.78em;">\u270E Edit Info</button>'
+                + '<button onclick="rescoreOneJob(' + idx + ')" style="background:none; border:1px solid var(--border); '
+                + 'color:var(--text-muted); padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.78em;">\u21BB Refresh Match</button>'
                 + '<button onclick="reanalyzeJob(' + idx + ')" style="background:none; border:1px solid var(--border); '
                 + 'color:var(--text-muted); padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.78em;">\u21BB Re-analyze</button>'
                 + '<button onclick="removeJob(' + idx + ')" style="background:none; border:1px solid rgba(239,68,68,0.3); '
@@ -12317,43 +12913,119 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 + '</div></div>';
             
             // Summary stats
-            html += '<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-bottom:24px;">'
+            var profGapCount = matched.filter(function(m) { return m.profGap; }).length;
+            html += '<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:24px;">'
                 + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2);">'
                 + '<div style="font-size:1.6em; font-weight:700; color:#10b981;">' + matched.length + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Skills Matched</div></div>'
+                + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.15);">'
+                + '<div style="font-size:1.6em; font-weight:700; color:#f59e0b;">' + profGapCount + '</div>'
+                + '<div style="font-size:0.78em; color:var(--text-muted);">Proficiency Gaps</div></div>'
                 + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.2);">'
                 + '<div style="font-size:1.6em; font-weight:700; color:#ef4444;">' + gaps.length + '</div>'
-                + '<div style="font-size:0.78em; color:var(--text-muted);">Gaps to Close</div></div>'
+                + '<div style="font-size:0.78em; color:var(--text-muted);">Missing Skills</div></div>'
                 + '<div style="text-align:center; padding:16px; border-radius:10px; background:rgba(107,114,128,0.06); border:1px solid rgba(107,114,128,0.15);">'
                 + '<div style="font-size:1.6em; font-weight:700; color:#6b7280;">' + surplus.length + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Your Surplus</div></div>'
                 + '</div>';
             
-            // Matched skills
+            // Matched skills (with proficiency comparison)
             if (matched.length > 0) {
                 html += '<div style="margin-bottom:20px;">'
                     + '<h3 style="font-size:0.95em; font-weight:700; color:#10b981; margin-bottom:10px;">\u2713 Matched Skills</h3>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 matched.forEach(function(m) {
-                    var levelBadge = m.level ? ' \u00B7 ' + m.level : '';
-                    var reqBadge = m.requirement === 'Required' ? ' \u2605' : '';
-                    html += '<span class="jd-skill-chip jd-chip-matched">' + m.userSkill + levelBadge + reqBadge + '</span>';
+                    var profColor = m.profGap ? '#f59e0b' : '#10b981';
+                    var profLabel = m.userLevel || '';
+                    var reqLabel = m.requirement === 'Required' ? ' \u2605' : '';
+                    var profTip = m.profGap ? ' (job wants ' + (m.jobProficiency || '?') + ')' : '';
+                    html += '<span class="jd-skill-chip jd-chip-matched" style="border-color:' + profColor + '40;" '
+                        + 'title="Your level: ' + profLabel + profTip + '">'
+                        + m.userSkill + ' <span style="font-size:0.75em; opacity:0.7;">' + profLabel + '</span>' + reqLabel + '</span>';
                 });
                 html += '</div></div>';
             }
             
-            // Gaps
+            // Gaps (clickable to quick-add)
             if (gaps.length > 0) {
                 html += '<div style="margin-bottom:20px;">'
                     + '<h3 style="font-size:0.95em; font-weight:700; color:#ef4444; margin-bottom:10px;">\u25CB Gaps (Job Needs, You Don\u2019t Have)</h3>'
+                    + '<p style="font-size:0.75em; color:var(--text-muted); margin-bottom:8px;">Click a skill to add it to your profile</p>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
-                gaps.forEach(function(g) {
-                    var reqBadge = g.level === 'Required' ? ' \u2605' : '';
-                    html += '<span class="jd-skill-chip jd-chip-gap">' + g.name + reqBadge + '</span>';
+                gaps.forEach(function(g, gi) {
+                    var reqBadge = g.requirement === 'Required' ? ' \u2605' : '';
+                    var profLabel = g.proficiency ? ' (' + g.proficiency + ')' : '';
+                    html += '<span class="jd-skill-chip jd-chip-gap" style="cursor:pointer;" '
+                        + 'onclick="quickAddGapSkill(\'' + g.name.replace(/'/g, "\\'") + '\', \'' + (g.proficiency || 'Proficient') + '\', ' + idx + ')" '
+                        + 'title="Click to add to your profile">'
+                        + g.name + '<span style="font-size:0.72em; opacity:0.6;">' + profLabel + '</span>' + reqBadge + '</span>';
                 });
                 html += '</div>'
                     + '<div style="margin-top:8px; font-size:0.75em; color:var(--text-muted);">\u2605 = Required by employer</div>'
                     + '</div>';
+            }
+            
+            // Proficiency gaps (matched skills where you're below the required level)
+            var profGaps = matched.filter(function(m) { return m.profGap; });
+            if (profGaps.length > 0) {
+                html += '<div style="margin-bottom:20px; padding:16px; border-radius:10px; '
+                    + 'background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.15);">'
+                    + '<h3 style="font-size:0.95em; font-weight:700; color:#f59e0b; margin-bottom:10px;">\u26A0 Proficiency Gaps (You Have It, But Need to Level Up)</h3>'
+                    + '<div style="display:flex; flex-direction:column; gap:6px;">';
+                profGaps.forEach(function(m) {
+                    var userVal = proficiencyValue(m.userLevel);
+                    var jobVal = proficiencyValue(m.jobProficiency);
+                    var pct = Math.round((userVal / jobVal) * 100);
+                    html += '<div style="display:flex; align-items:center; gap:10px; padding:6px 10px; '
+                        + 'background:rgba(251,191,36,0.04); border-radius:6px; font-size:0.85em;">'
+                        + '<span style="font-weight:600; min-width:160px; color:var(--text-primary);">' + m.userSkill + '</span>'
+                        + '<span style="color:#f59e0b; min-width:80px;">You: ' + m.userLevel + '</span>'
+                        + '<span style="color:var(--text-muted);">\u2192</span>'
+                        + '<span style="color:#ef4444; min-width:80px;">Need: ' + m.jobProficiency + '</span>'
+                        + '<div style="flex:1; height:4px; background:var(--border); border-radius:2px; min-width:60px;">'
+                        + '<div style="width:' + pct + '%; height:100%; background:#f59e0b; border-radius:2px;"></div></div>'
+                        + '<span style="font-size:0.82em; color:var(--text-muted);">' + pct + '%</span>'
+                        + '</div>';
+                });
+                html += '</div></div>';
+            }
+            
+            // Role-based skill suggestions (skills expected for your roles but not in profile)
+            var roleSuggestions = getRoleSuggestions();
+            // Filter to suggestions that are ALSO in the job gaps (most actionable)
+            var gapNames = new Set(gaps.map(function(g) { return g.name.toLowerCase(); }));
+            var roleGapOverlap = roleSuggestions.filter(function(s) { return gapNames.has(s.name.toLowerCase()); });
+            var roleOther = roleSuggestions.filter(function(s) { return !gapNames.has(s.name.toLowerCase()); });
+            
+            if (roleGapOverlap.length > 0 || roleOther.length > 0) {
+                html += '<div style="margin-bottom:20px; padding:16px; border-radius:10px; '
+                    + 'background:linear-gradient(135deg, rgba(96,165,250,0.06), rgba(139,92,246,0.04)); '
+                    + 'border:1px solid rgba(96,165,250,0.15);">'
+                    + '<h3 style="font-size:0.95em; font-weight:700; color:var(--accent); margin-bottom:4px;">'
+                    + '\uD83D\uDCA1 Suggested for Your Roles</h3>'
+                    + '<p style="font-size:0.75em; color:var(--text-muted); margin-bottom:10px;">Industry-standard skills for your roles. Click to add.</p>';
+                if (roleGapOverlap.length > 0) {
+                    html += '<p style="font-size:0.78em; font-weight:600; color:#f59e0b; margin-bottom:6px;">Also needed by this job:</p>'
+                        + '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">';
+                    roleGapOverlap.forEach(function(s) {
+                        html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:16px; '
+                            + 'font-size:0.82em; cursor:pointer; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.25); color:var(--text-secondary);" '
+                            + 'onclick="quickAddSuggested(\'' + s.name.replace(/'/g, "\\'") + '\', \'' + s.level + '\', \'' + s.roleId + '\'); showJobDetail(' + idx + ');" '
+                            + 'title="Expected for ' + s.reason + ' at ' + s.level + '">+ ' + s.name + '</span>';
+                    });
+                    html += '</div>';
+                }
+                if (roleOther.length > 0) {
+                    html += '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+                    roleOther.slice(0, 12).forEach(function(s) {
+                        html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:16px; '
+                            + 'font-size:0.82em; cursor:pointer; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); color:var(--text-secondary);" '
+                            + 'onclick="quickAddSuggested(\'' + s.name.replace(/'/g, "\\'") + '\', \'' + s.level + '\', \'' + s.roleId + '\'); showJobDetail(' + idx + ');" '
+                            + 'title="Expected for ' + s.reason + ' at ' + s.level + '">+ ' + s.name + '</span>';
+                    });
+                    html += '</div>';
+                }
+                html += '</div>';
             }
             
             // Top surplus (capped at 15 to avoid wall of chips)
@@ -12531,16 +13203,16 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             let matchedSkills = [];
             let gapSkills = [];
             
-            // Build lookup of your skills
+            // Build lookup of your skills (with synonyms)
             const yourSkillsMap = {};
             skillsData.skills.forEach(skill => {
-                yourSkillsMap[skill.name.toLowerCase()] = skill;
-                // Also add simplified versions
-                const simplified = skill.name.toLowerCase()
-                    .replace(/\s*&\s*/g, ' ')
-                    .replace(/\s+/g, ' ')
-                    .trim();
-                yourSkillsMap[simplified] = skill;
+                var lower = skill.name.toLowerCase();
+                yourSkillsMap[lower] = skill;
+                var simplified = lower.replace(/\s*&\s*/g, ' ').replace(/\s+/g, ' ').trim();
+                if (simplified !== lower) yourSkillsMap[simplified] = skill;
+                // Register synonyms
+                var syns = getSkillSynonyms(lower);
+                syns.forEach(function(syn) { if (!yourSkillsMap[syn]) yourSkillsMap[syn] = skill; });
             });
             
             // Score each required skill
@@ -12549,7 +13221,7 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 let matched = false;
                 let matchPoints = 5; // base points for any match
                 
-                // Try exact match first
+                // Try exact match first (includes synonym-expanded user map)
                 if (yourSkillsMap[reqLower]) {
                     const yourSkill = yourSkillsMap[reqLower];
                     matched = true;
@@ -12569,7 +13241,22 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                     }
                     
                     matchedSkills.push(yourSkill.name);
-                } else {
+                }
+                
+                // Try job-side synonym resolution
+                if (!matched) {
+                    var reqSyns = getSkillSynonyms(reqLower);
+                    for (var rsi = 0; rsi < reqSyns.length; rsi++) {
+                        if (yourSkillsMap[reqSyns[rsi]]) {
+                            matched = true;
+                            matchPoints = 4; // synonym match
+                            matchedSkills.push(yourSkillsMap[reqSyns[rsi]].name);
+                            break;
+                        }
+                    }
+                }
+                
+                if (!matched) {
                     // Try fuzzy matching for related skills
                     for (const [skillName, skillData] of Object.entries(yourSkillsMap)) {
                         if (reqLower.includes(skillName) || skillName.includes(reqLower)) {
@@ -15620,6 +16307,7 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             
             // Save and refresh
             saveUserData();
+            rescoreAllJobs();
             refreshAllViews();
             
             closeONETPicker();
@@ -15689,8 +16377,12 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             userData.skills.push(newSkill);
             skillsData.skills.push(newSkill);
             
-            // Save and refresh
+            // Register in skill library index so future job parses can match it
+            registerInSkillLibrary(name, 'unique');
+            
+            // Save, re-score jobs, refresh
             saveUserData();
+            rescoreAllJobs();
             refreshAllViews();
             
             closeCustomSkillBuilder();
@@ -15756,8 +16448,9 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 skillsData.skills[skillDataIndex] = {...skill};
             }
             
-            // Save and refresh
+            // Save, re-score jobs, refresh
             saveUserData();
+            rescoreAllJobs();
             refreshAllViews();
             
             closeEditSkillModal();
@@ -15786,11 +16479,10 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 skillsData.skills.splice(skillsIndex, 1);
             }
             
-            // Save and refresh
+            // Save, re-score, refresh
             saveUserData();
+            rescoreAllJobs();
             refreshAllViews();
-            
-            console.log(`Deleted skill: ${skillName}`);
         }
         
         // ===== SKILL ASSESSMENT FUNCTIONS =====
