@@ -1,6 +1,6 @@
 # Blueprint — Project Context
 
-**Version:** v4.6.0 | **Build:** 20260218-0600 | **Lines:** ~16,963 | **Functions:** ~329
+**Version:** v4.6.0 | **Build:** 20260218-0600 | **Lines:** ~17,140 | **Functions:** ~330
 **Repository:** https://github.com/cliffj8338/Skills-Ontology
 **Live:** https://cliffj8338.github.io/Skills-Ontology/
 **Founder:** Cliff Jurkiewicz
@@ -340,6 +340,26 @@ All exports include © 2026 Cliff Jurkiewicz / Blueprint™ attribution.
 
 ---
 
+## Hero Animation (Welcome Page)
+
+Canvas-based force network (`initHeroNetwork()`) with simulated user interaction sequence:
+
+- **42 nodes:** 1 center ("YOU"), 8 domain hubs, 33 skill nodes
+- **Frameless canvas:** No border/background, breathes into the page
+- **14-second interaction cycle** looping through 8 domains in varied order:
+  - 0-2s: Idle floating
+  - 2-3.5s: Simulated cursor approaches a domain hub (fades in)
+  - 3.5-6s: Hover state (hub pulses larger, glow ring, connections brighten, other domains dim)
+  - 6-9s: Expand state (domain's skills push outward, non-active domains fade further)
+  - 9-11.5s: Settle (everything eases back to baseline)
+  - 11.5-14s: Idle transition to next domain
+- **Cursor rendering:** Arrow cursor drawn on canvas, follows eased path to active hub
+- **Performance:** `requestAnimationFrame` with `IntersectionObserver` pause when offscreen
+- **Theme-aware:** Adjusts link/label colors for dark/light mode
+- **Font:** Outfit for labels (matches brand typography)
+
+---
+
 ## Admin & GDPR
 
 - `role: "admin"` in Firestore → admin badge, bypass read-only, admin panel
@@ -378,7 +398,7 @@ Skills-Ontology/
 | v4.3.1-0510 | 20260218 | Parser rebuild: 100+ skill dictionary, phrase extraction, fuzzy word-overlap matching. Job edit/delete/re-analyze UI. |
 | v4.4.0-0520 | 20260218 | Rebrand: "Work Blueprint" → "Blueprint". B4 Architect's Stamp logo (Outfit 500 spaced caps). SVG network mark throughout. Copyright/trademark/IP legal notice. All exports carry attribution. |
 | v4.5.0-0530 | 20260218 | Nav: Outfit spaced caps. Network filtering via node clicks (filter button hidden). Center node reset. Role toggle. Floating filter pill. Profile dropdown fix. Removed subtitle. |
-| v4.6.0-0600 | 20260218 | Wizard→Firestore pipeline fix. Cover Letter generator (Claude API + template). Interview Prep with STAR stories + gap bridging. LinkedIn Profile export. All export stubs replaced. About page updated (v4.6.0, removed "no account required"). Wizard step copy updated for Firebase. |
+| v4.6.0-0600 | 20260218 | Wizard→Firestore pipeline fix. Cover Letter generator (Claude API + template). Interview Prep with STAR stories + gap bridging. LinkedIn Profile export. All export stubs replaced. About page updated (v4.6.0, removed "no account required"). Wizard step copy updated for Firebase. Hero animation: removed bordered panel, added simulated interaction sequence (cursor approaches domain, hover glow, expand/focus, settle cycle across 8 domains on 14s loop). Canvas uses Outfit font for labels. |
 
 ---
 
