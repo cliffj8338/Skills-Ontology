@@ -1,6 +1,6 @@
 # Blueprint — Project Context
 
-**Version:** v4.5.0 | **Build:** 20260218-0530 | **Lines:** ~16,370 | **Functions:** ~313
+**Version:** v4.6.0 | **Build:** 20260218-0600 | **Lines:** ~16,963 | **Functions:** ~329
 **Repository:** https://github.com/cliffj8338/Skills-Ontology
 **Live:** https://cliffj8338.github.io/Skills-Ontology/
 **Founder:** Cliff Jurkiewicz
@@ -304,11 +304,27 @@ currentSkillsView = 'network'     // 'network' or 'card' within Skills tab
 
 All exports under Blueprint tab > Export sub-tab.
 
+### Core Exports
 1. **Executive Blueprint** — standalone HTML (generateWorkBlueprint)
 2. **Professional Resume** — ATS-friendly HTML (generateResume)
 3. **PDF Summary** — jsPDF 2-page (generatePDF)
 4. **Copy to Clipboard** — plain text (copyBlueprintText)
 5. **Full JSON** — complete data backup (exportFullJSON)
+
+### Job-Specific Tools (visible when savedJobs.length > 0)
+6. **Cover Letter** — `generateCoverLetter()` → job picker modal → Claude API or template fallback → editable textarea with copy/download
+7. **Interview Prep** — `generateInterviewPrep()` → job picker → STAR stories for matched skills, bridging language for gaps, surplus differentiators, smart questions → copy/download
+
+### Networking & Profile
+8. **LinkedIn Profile** — `generateLinkedInProfile()` → optimized headline, About section (2000 char), skills list → copy to clipboard
+
+### AI Generation Pattern
+All three new generators follow the same architecture:
+- Check for Anthropic API key in localStorage (`wbAnthropicKey`)
+- If key exists: Claude Sonnet API call with structured prompt including matched skills, evidence, outcomes, values, purpose
+- If no key: template-based fallback with the same data, user fills in STAR details manually
+- Result shown in editable textarea modal with Copy and Download buttons
+- `anthropic-dangerous-direct-browser-access` header for browser-direct API calls
 
 All exports include © 2026 Cliff Jurkiewicz / Blueprint™ attribution.
 
@@ -362,14 +378,15 @@ Skills-Ontology/
 | v4.3.1-0510 | 20260218 | Parser rebuild: 100+ skill dictionary, phrase extraction, fuzzy word-overlap matching. Job edit/delete/re-analyze UI. |
 | v4.4.0-0520 | 20260218 | Rebrand: "Work Blueprint" → "Blueprint". B4 Architect's Stamp logo (Outfit 500 spaced caps). SVG network mark throughout. Copyright/trademark/IP legal notice. All exports carry attribution. |
 | v4.5.0-0530 | 20260218 | Nav: Outfit spaced caps. Network filtering via node clicks (filter button hidden). Center node reset. Role toggle. Floating filter pill. Profile dropdown fix. Removed subtitle. |
+| v4.6.0-0600 | 20260218 | Wizard→Firestore pipeline fix. Cover Letter generator (Claude API + template). Interview Prep with STAR stories + gap bridging. LinkedIn Profile export. All export stubs replaced. About page updated (v4.6.0, removed "no account required"). Wizard step copy updated for Firebase. |
 
 ---
 
 ## Pending / Next Steps
 
 ### High Priority
-- [ ] Cover letter / interview prep generation from match data
-- [ ] Wire onboarding wizard to save directly to Firestore
+- [ ] Wire onboarding wizard to save directly to Firestore ✅ DONE v4.6.0
+- [ ] Cover letter / interview prep generation from match data ✅ DONE v4.6.0
 - [ ] Move sample profiles to Firestore `samples/` collection
 - [ ] Test all sign-in flows end-to-end
 - [ ] Loading screen / welcome page lockup with B4 logo
@@ -377,7 +394,7 @@ Skills-Ontology/
 ### Medium Priority
 - [ ] Real-time save indicator (checkmark/spinner)
 - [ ] Network resize handler
-- [ ] Remove dead code (old buildProfileDropdown, showWizardPrompt, etc.)
+- [ ] Remove dead code (old buildProfileDropdown, showWelcomeScreen, etc.)
 - [ ] Profile photo/avatar upload
 - [ ] Enforce read-only in UI (disable edit buttons)
 - [ ] Persist consent preset to userData.preferences
@@ -386,9 +403,10 @@ Skills-Ontology/
 - [ ] Offline mode with Firebase persistence
 - [ ] Mobile-optimized wizard
 - [ ] Analytics dashboard for admin
-- [ ] LinkedIn Profile export
-- [ ] Interview Prep STAR stories generator
+- [ ] LinkedIn Profile export ✅ DONE v4.6.0
+- [ ] Interview Prep STAR stories generator ✅ DONE v4.6.0
 - [ ] Domain registration (blueprint.work recommended)
+- [ ] URL-based JD import (requires server proxy for CORS)
 
 ---
 
@@ -425,6 +443,10 @@ Skills-Ontology/
 15. **Firebase project ID is `work-blueprint`** (infrastructure). User-facing name is "Blueprint" everywhere.
 
 16. **Network filter pill only in network view.** `filterByRole()` checks `currentSkillsView`.
+
+17. **AI generators (cover letter, interview prep, LinkedIn) use the same API pattern.** Key in localStorage, Sonnet model, `anthropic-dangerous-direct-browser-access` header. Template fallback always available.
+
+18. **Export section conditionally shows Job-Specific Tools.** Only visible when `userData.savedJobs.length > 0`.
 
 ---
 

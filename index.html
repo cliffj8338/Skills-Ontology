@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint by Cliff Jurkiewicz</title>
-    <!-- v4.4.0-0520 | 20260218 | Rebrand: Blueprint → Blueprint, B4 logo, Outfit typography -->
+    <!-- v4.6.0-0600 | 20260218 | Wizard→Firestore, cover letter, interview prep, LinkedIn export -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -6175,7 +6175,7 @@
                 </div>
 
                 <p style="text-align:center; font-size:0.8em; color:var(--text-muted); margin-top:8px;">
-                    🔒 Your data never leaves your browser. No account required. You own everything.
+                    🔒 Your data is saved securely to your account. You own everything.
                 </p>
             `;
         }
@@ -6856,7 +6856,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 </div>
 
                 <p style="text-align:center; font-size:0.8em; color:var(--text-muted);">
-                    Your profile is stored in your browser. Download the JSON file to back it up or use it on another device.
+                    Your profile is saved to your account automatically. Download the JSON file as a backup.
                 </p>
             `;
         }
@@ -6912,6 +6912,15 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             // Store wizard profile in templates so it loads on reload
             templates['wizard-built'] = built;
+
+            // Save to Firestore if signed in
+            if (fbUser && fbDb) {
+                saveToFirestore();
+                showToast('Profile saved to your account.', 'success');
+            } else {
+                // Prompt to sign in so data persists
+                showToast('Sign in to save your profile permanently.', 'info');
+            }
 
             closeWizard();
             // Re-initialize the app with new data
@@ -8699,11 +8708,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (format === 'resume') {
                 generateResume();
             } else if (format === 'capability') {
-                showToast('Capability Statement coming in the next release.', 'info');
+                generateWorkBlueprint();
             } else if (format === 'linkedin') {
-                showToast('LinkedIn Profile export coming in the next release.', 'info');
+                generateLinkedInProfile();
             } else if (format === 'interview') {
-                showToast('Interview Prep (STAR stories) coming in the next release.', 'info');
+                generateInterviewPrep();
             }
         }
 
@@ -10245,6 +10254,53 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 + '</div>'
                 + '</div>'
                 + '</div>'
+
+                // === JOB-SPECIFIC TOOLS SECTION ===
+                + (function() {
+                    var jobs = userData.savedJobs || [];
+                    if (jobs.length === 0) return '';
+                    return '<div style="margin-top:32px; padding-top:24px; border-top:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.08)') + ';">'
+                    + '<div style="font-size:0.8em; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-muted); margin-bottom:16px;">Job-Specific Tools</div>'
+                    + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px;">'
+                    // Cover Letter card
+                    + '<div style="background:linear-gradient(135deg, rgba(16,185,129,0.12), rgba(16,185,129,0.04)); border:1px solid rgba(16,185,129,0.25); border-radius:12px; padding:20px; cursor:pointer;" onclick="generateCoverLetter()">'
+                    + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
+                    + '<span style="font-size:1.4em;">\u2709\uFE0F</span>'
+                    + '<div style="font-weight:600; color:#10b981;">Cover Letter</div>'
+                    + '</div>'
+                    + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.88em; line-height:1.5;">'
+                    + 'AI-generated cover letter tailored to a saved job. Uses your matched skills, outcomes, and values.'
+                    + '</div>'
+                    + '</div>'
+                    // Interview Prep card
+                    + '<div style="background:linear-gradient(135deg, rgba(251,191,36,0.12), rgba(251,191,36,0.04)); border:1px solid rgba(251,191,36,0.25); border-radius:12px; padding:20px; cursor:pointer;" onclick="generateInterviewPrep()">'
+                    + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
+                    + '<span style="font-size:1.4em;">\uD83C\uDFAF</span>'
+                    + '<div style="font-weight:600; color:#fbbf24;">Interview Prep</div>'
+                    + '</div>'
+                    + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.88em; line-height:1.5;">'
+                    + 'STAR stories for matched skills, bridging language for gaps, and talking points for your strengths.'
+                    + '</div>'
+                    + '</div>'
+                    + '</div></div>';
+                })()
+
+                // === NETWORKING TOOLS SECTION ===
+                + '<div style="margin-top:32px; padding-top:24px; border-top:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.08)') + ';">'
+                + '<div style="font-size:0.8em; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-muted); margin-bottom:16px;">Networking &amp; Profile</div>'
+                + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px;">'
+                // LinkedIn Profile card
+                + '<div style="background:linear-gradient(135deg, rgba(10,102,194,0.12), rgba(10,102,194,0.04)); border:1px solid rgba(10,102,194,0.25); border-radius:12px; padding:20px; cursor:pointer;" onclick="generateLinkedInProfile()">'
+                + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
+                + '<span style="font-size:1.4em;">\uD83D\uDD17</span>'
+                + '<div style="font-weight:600; color:#0a66c2;">LinkedIn Profile</div>'
+                + '</div>'
+                + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.88em; line-height:1.5;">'
+                + 'Optimized headline, About section, and skills list formatted for LinkedIn. Copy and paste directly.'
+                + '</div>'
+                + '</div>'
+                + '</div></div>'
+
                 + '</div>';
         }
         
@@ -11015,6 +11071,543 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
         window.generateWorkBlueprint = generateWorkBlueprint;
         window.generateResume = generateResume;
         window.exportBlueprint = exportBlueprint;
+
+        // ===== COVER LETTER GENERATOR =====
+
+        function generateCoverLetter() {
+            var jobs = userData.savedJobs || [];
+            if (jobs.length === 0) {
+                showToast('Add a job in the Jobs tab first, then generate a cover letter.', 'info');
+                return;
+            }
+            // Show job picker modal
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content');
+            mc.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">Generate Cover Letter</h2>'
+                + '<p style="color:var(--text-secondary); margin-top:5px;">Select a job to tailor your letter</p>'
+                + '</div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00d7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:24px;">'
+                + jobs.map(function(j, i) {
+                    var score = j.matchData ? Math.round(j.matchData.score) : 0;
+                    var scoreColor = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
+                    return '<div onclick="buildCoverLetter(' + i + ')" style="display:flex; align-items:center; gap:14px; '
+                        + 'padding:16px; border:1px solid var(--border); border-radius:10px; cursor:pointer; '
+                        + 'margin-bottom:10px; transition:all 0.15s;" '
+                        + 'onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
+                        + '<div style="width:44px; height:44px; border-radius:10px; background:rgba(96,165,250,0.1); '
+                        + 'display:flex; align-items:center; justify-content:center; font-weight:700; color:' + scoreColor + '; font-size:0.85em;">'
+                        + score + '%</div>'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="font-weight:600; color:var(--text-primary); font-size:0.92em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'
+                        + (j.title || 'Untitled') + '</div>'
+                        + '<div style="font-size:0.82em; color:var(--text-muted);">' + (j.company || 'Unknown company') + '</div>'
+                        + '</div>'
+                        + '<div style="color:var(--text-muted); font-size:1.2em;">\u2192</div>'
+                        + '</div>';
+                }).join('')
+                + '</div>';
+            modal.classList.add('active');
+        }
+        window.generateCoverLetter = generateCoverLetter;
+
+        function buildCoverLetter(jobIdx) {
+            var job = (userData.savedJobs || [])[jobIdx];
+            if (!job || !job.matchData) { showToast('No match data for this job.', 'error'); return; }
+            closeExportModal();
+
+            var name = (userData.profile && userData.profile.name) || 'Professional';
+            var title = (userData.profile && userData.profile.currentTitle) || '';
+            var purpose = userData.purpose || blueprintData.purpose || '';
+            var matched = job.matchData.matched || [];
+            var gaps = job.matchData.gaps || [];
+            var sharedOutcomes = (blueprintData.outcomes || []).filter(function(o) { return o.shared; });
+            var selectedValues = (blueprintData.values || []).filter(function(v) { return v.selected; });
+
+            var apiKey = localStorage.getItem('wbAnthropicKey');
+
+            if (apiKey) {
+                showToast('Generating cover letter with AI...', 'info');
+                var prompt = 'Write a professional cover letter for ' + name
+                    + (title ? ', currently ' + title : '')
+                    + ', applying for ' + (job.title || 'a role') + ' at ' + (job.company || 'the company') + '.\n\n'
+                    + 'MATCHED SKILLS (strengths to emphasize): ' + matched.map(function(m) { return m.name || m; }).join(', ') + '\n\n'
+                    + 'SKILL GAPS (acknowledge indirectly or show transferable experience): ' + gaps.map(function(g) { return g.name || g; }).join(', ') + '\n\n'
+                    + 'KEY OUTCOMES: ' + sharedOutcomes.slice(0, 5).map(function(o) { return o.text; }).join('; ') + '\n\n'
+                    + 'CORE VALUES: ' + selectedValues.slice(0, 5).map(function(v) { return v.name; }).join(', ') + '\n\n'
+                    + (purpose ? 'PURPOSE STATEMENT: ' + purpose + '\n\n' : '')
+                    + 'INSTRUCTIONS: Write 3-4 paragraphs. Opening: show specific knowledge of the company and role. '
+                    + 'Middle: connect 2-3 matched skills to outcomes with concrete evidence. '
+                    + 'Address gaps by showing adjacent experience. '
+                    + 'Close: express genuine interest, reference values alignment. '
+                    + 'Tone: confident but not arrogant, specific not generic. No cliches. '
+                    + 'Do NOT include placeholder brackets like [Company] or [Name]. Use the actual names provided.';
+
+                fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey,
+                        'anthropic-version': '2023-06-01',
+                        'anthropic-dangerous-direct-browser-access': 'true'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1500,
+                        messages: [{ role: 'user', content: prompt }]
+                    })
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var text = (data.content || []).map(function(c) { return c.text || ''; }).join('\n');
+                    if (!text) throw new Error('Empty response');
+                    showCoverLetterResult(text, job);
+                })
+                .catch(function(err) {
+                    console.error('Cover letter API error:', err);
+                    showToast('AI generation failed, using template.', 'warning');
+                    showCoverLetterResult(buildTemplateCoverLetter(job, name, title, matched, sharedOutcomes, purpose), job);
+                });
+            } else {
+                showCoverLetterResult(buildTemplateCoverLetter(job, name, title, matched, sharedOutcomes, purpose), job);
+            }
+        }
+        window.buildCoverLetter = buildCoverLetter;
+
+        function buildTemplateCoverLetter(job, name, title, matched, outcomes, purpose) {
+            var matchedNames = matched.slice(0, 5).map(function(m) { return m.name || m; });
+            var outcomeTexts = outcomes.slice(0, 3).map(function(o) { return o.text; });
+            var lines = [];
+            lines.push('Dear Hiring Manager,');
+            lines.push('');
+            lines.push('I am writing to express my interest in the ' + (job.title || 'open position')
+                + ' at ' + (job.company || 'your organization') + '.'
+                + (title ? ' As a ' + title + ',' : '') + ' I bring a combination of '
+                + (matchedNames.length > 2 ? matchedNames.slice(0, 2).join(', ') + ', and ' + matchedNames[2] : matchedNames.join(' and '))
+                + ' that aligns directly with what you are looking for.');
+            lines.push('');
+            if (outcomeTexts.length > 0) {
+                lines.push('In my current and recent roles, I have delivered measurable results: '
+                    + outcomeTexts.join('. ') + '.'
+                    + ' These outcomes reflect the same capabilities your team needs to succeed.');
+            }
+            lines.push('');
+            if (purpose) {
+                lines.push(purpose + ' This philosophy drives my approach to every challenge and every team I join.');
+            }
+            lines.push('');
+            lines.push('I would welcome the opportunity to discuss how my experience and approach can contribute to '
+                + (job.company || 'your team') + '\'s continued success.');
+            lines.push('');
+            lines.push('Sincerely,');
+            lines.push(name);
+            return lines.join('\n');
+        }
+
+        function showCoverLetterResult(text, job) {
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content');
+            mc.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">Cover Letter</h2>'
+                + '<p style="color:var(--text-secondary); margin-top:5px;">'
+                + (job.title || '') + ' at ' + (job.company || '') + '</p>'
+                + '</div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00d7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:24px;">'
+                + '<textarea id="coverLetterOutput" style="width:100%; min-height:350px; padding:18px; '
+                + 'background:var(--input-bg); border:1px solid var(--border); border-radius:10px; '
+                + 'color:var(--text-primary); font-size:0.95em; line-height:1.7; font-family:inherit; resize:vertical;">'
+                + text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                + '</textarea>'
+                + '<div style="display:flex; gap:10px; margin-top:16px;">'
+                + '<button onclick="copyCoverLetter()" style="flex:1; background:var(--accent); color:#fff; border:none; '
+                + 'padding:12px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
+                + '\uD83D\uDCCB Copy to Clipboard</button>'
+                + '<button onclick="downloadCoverLetter(\'' + (job.company || 'company').replace(/'/g, '') + '\')" '
+                + 'style="background:var(--input-bg); color:var(--text-primary); border:1px solid var(--border); '
+                + 'padding:12px 20px; border-radius:8px; cursor:pointer; font-size:0.9em;">'
+                + '\uD83D\uDCE5 Download</button>'
+                + '</div></div>';
+            modal.classList.add('active');
+        }
+
+        function copyCoverLetter() {
+            var ta = document.getElementById('coverLetterOutput');
+            if (ta) {
+                navigator.clipboard.writeText(ta.value).then(function() {
+                    showToast('Cover letter copied to clipboard.', 'success');
+                });
+            }
+        }
+        window.copyCoverLetter = copyCoverLetter;
+
+        function downloadCoverLetter(company) {
+            var ta = document.getElementById('coverLetterOutput');
+            if (!ta) return;
+            var blob = new Blob([ta.value], { type: 'text/plain' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'cover-letter-' + company.toLowerCase().replace(/\s+/g, '-') + '.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Cover letter downloaded.', 'success');
+        }
+        window.downloadCoverLetter = downloadCoverLetter;
+
+        // ===== INTERVIEW PREP GENERATOR =====
+
+        function generateInterviewPrep() {
+            var jobs = userData.savedJobs || [];
+            if (jobs.length === 0) {
+                showToast('Add a job in the Jobs tab first, then generate interview prep.', 'info');
+                return;
+            }
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content');
+            mc.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">Interview Prep</h2>'
+                + '<p style="color:var(--text-secondary); margin-top:5px;">Select a job for tailored STAR stories and talking points</p>'
+                + '</div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00d7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:24px;">'
+                + jobs.map(function(j, i) {
+                    var score = j.matchData ? Math.round(j.matchData.score) : 0;
+                    var scoreColor = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
+                    return '<div onclick="buildInterviewPrep(' + i + ')" style="display:flex; align-items:center; gap:14px; '
+                        + 'padding:16px; border:1px solid var(--border); border-radius:10px; cursor:pointer; '
+                        + 'margin-bottom:10px; transition:all 0.15s;" '
+                        + 'onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
+                        + '<div style="width:44px; height:44px; border-radius:10px; background:rgba(96,165,250,0.1); '
+                        + 'display:flex; align-items:center; justify-content:center; font-weight:700; color:' + scoreColor + '; font-size:0.85em;">'
+                        + score + '%</div>'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="font-weight:600; color:var(--text-primary); font-size:0.92em;">' + (j.title || 'Untitled') + '</div>'
+                        + '<div style="font-size:0.82em; color:var(--text-muted);">' + (j.company || 'Unknown') + '</div>'
+                        + '</div>'
+                        + '<div style="color:var(--text-muted); font-size:1.2em;">\u2192</div>'
+                        + '</div>';
+                }).join('')
+                + '</div>';
+            modal.classList.add('active');
+        }
+        window.generateInterviewPrep = generateInterviewPrep;
+
+        function buildInterviewPrep(jobIdx) {
+            var job = (userData.savedJobs || [])[jobIdx];
+            if (!job || !job.matchData) { showToast('No match data.', 'error'); return; }
+            closeExportModal();
+
+            var name = (userData.profile && userData.profile.name) || 'Professional';
+            var title = (userData.profile && userData.profile.currentTitle) || '';
+            var matched = job.matchData.matched || [];
+            var gaps = job.matchData.gaps || [];
+            var surplus = job.matchData.surplus || [];
+            var sharedOutcomes = (blueprintData.outcomes || []).filter(function(o) { return o.shared; });
+            var skills = skillsData.skills || [];
+
+            var apiKey = localStorage.getItem('wbAnthropicKey');
+
+            if (apiKey) {
+                showToast('Generating interview prep with AI...', 'info');
+
+                // Build skill-evidence map
+                var skillEvidence = {};
+                skills.forEach(function(s) {
+                    if (s.evidence && s.evidence.length > 0) {
+                        skillEvidence[s.name] = s.evidence.slice(0, 2).map(function(e) { return typeof e === 'string' ? e : e.text || ''; });
+                    }
+                });
+
+                var prompt = 'Create an interview preparation guide for ' + name
+                    + (title ? ' (' + title + ')' : '')
+                    + ' interviewing for ' + (job.title || 'a role') + ' at ' + (job.company || 'the company') + '.\n\n'
+                    + 'MATCHED SKILLS WITH EVIDENCE:\n'
+                    + matched.slice(0, 10).map(function(m) {
+                        var n = m.name || m;
+                        var ev = skillEvidence[n];
+                        return '- ' + n + (ev ? ': ' + ev.join('; ') : '');
+                    }).join('\n') + '\n\n'
+                    + 'SKILL GAPS (job requires, candidate lacks): ' + gaps.slice(0, 8).map(function(g) { return (g.name || g) + (g.required ? ' [REQUIRED]' : ''); }).join(', ') + '\n\n'
+                    + 'SURPLUS STRENGTHS: ' + surplus.slice(0, 5).map(function(s) { return s.name || s; }).join(', ') + '\n\n'
+                    + 'KEY OUTCOMES: ' + sharedOutcomes.slice(0, 5).map(function(o) { return o.text; }).join('; ') + '\n\n'
+                    + 'INSTRUCTIONS:\n'
+                    + '1. For the top 5 matched skills, write a STAR story framework: Situation (one sentence setup), Task, Action, Result. Use the evidence provided.\n'
+                    + '2. For each gap, write bridging language that connects adjacent experience. Frame: "While I haven\'t done X specifically, my experience with Y translates because..."\n'
+                    + '3. Write 3 surplus strengths as "unexpected value" talking points. These differentiate the candidate.\n'
+                    + '4. Write 3 smart questions to ask the interviewer that demonstrate strategic thinking.\n'
+                    + 'Format with clear section headers. Be specific, not generic.';
+
+                fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey,
+                        'anthropic-version': '2023-06-01',
+                        'anthropic-dangerous-direct-browser-access': 'true'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 2500,
+                        messages: [{ role: 'user', content: prompt }]
+                    })
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var text = (data.content || []).map(function(c) { return c.text || ''; }).join('\n');
+                    if (!text) throw new Error('Empty response');
+                    showInterviewPrepResult(text, job);
+                })
+                .catch(function(err) {
+                    console.error('Interview prep API error:', err);
+                    showToast('AI generation failed, using template.', 'warning');
+                    showInterviewPrepResult(buildTemplateInterviewPrep(job, matched, gaps, surplus, skills, sharedOutcomes), job);
+                });
+            } else {
+                showInterviewPrepResult(buildTemplateInterviewPrep(job, matched, gaps, surplus, skills, sharedOutcomes), job);
+            }
+        }
+        window.buildInterviewPrep = buildInterviewPrep;
+
+        function buildTemplateInterviewPrep(job, matched, gaps, surplus, skills, outcomes) {
+            var lines = [];
+            lines.push('INTERVIEW PREP: ' + (job.title || 'Role') + ' at ' + (job.company || 'Company'));
+            lines.push('Match Score: ' + Math.round(job.matchData.score) + '%');
+            lines.push('');
+
+            lines.push('=== YOUR STRONGEST TALKING POINTS ===');
+            lines.push('');
+            matched.slice(0, 6).forEach(function(m) {
+                var n = m.name || m;
+                var skill = skills.find(function(s) { return s.name === n; });
+                var evidence = (skill && skill.evidence) ? skill.evidence.slice(0, 2) : [];
+                lines.push('\u2705 ' + n + (m.level ? ' (' + m.level + ')' : ''));
+                if (evidence.length > 0) {
+                    evidence.forEach(function(e) {
+                        var txt = typeof e === 'string' ? e : e.text || '';
+                        if (txt) lines.push('   Evidence: ' + txt);
+                    });
+                }
+                lines.push('   STAR Framework: [Situation] Describe when you used this skill. [Task] What was the challenge? [Action] What specifically did you do? [Result] What was the measurable outcome?');
+                lines.push('');
+            });
+
+            if (gaps.length > 0) {
+                lines.push('=== BRIDGING LANGUAGE FOR GAPS ===');
+                lines.push('');
+                gaps.slice(0, 5).forEach(function(g) {
+                    var n = g.name || g;
+                    lines.push('\u26A0\uFE0F ' + n + (g.required ? ' [REQUIRED]' : ''));
+                    lines.push('   "While I haven\'t worked with ' + n + ' specifically, my experience with [related skill] translates directly because..."');
+                    lines.push('');
+                });
+            }
+
+            if (surplus.length > 0) {
+                lines.push('=== UNEXPECTED VALUE (YOUR DIFFERENTIATORS) ===');
+                lines.push('');
+                surplus.slice(0, 4).forEach(function(s) {
+                    lines.push('\uD83D\uDCA1 ' + (s.name || s));
+                    lines.push('   This skill isn\'t in the job description but adds value because...');
+                    lines.push('');
+                });
+            }
+
+            lines.push('=== QUESTIONS TO ASK ===');
+            lines.push('');
+            lines.push('1. What does success look like in this role at the 6-month mark?');
+            lines.push('2. How does the team approach [a key matched skill area] today, and where do you want it to go?');
+            lines.push('3. What\'s the biggest challenge the person in this role will face in the first quarter?');
+            lines.push('');
+            lines.push('Generated by Blueprint\u2122 \u2022 ' + new Date().toLocaleDateString());
+            return lines.join('\n');
+        }
+
+        function showInterviewPrepResult(text, job) {
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content');
+            mc.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">Interview Prep</h2>'
+                + '<p style="color:var(--text-secondary); margin-top:5px;">'
+                + (job.title || '') + ' at ' + (job.company || '') + '</p>'
+                + '</div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00d7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:24px;">'
+                + '<textarea id="interviewPrepOutput" style="width:100%; min-height:400px; padding:18px; '
+                + 'background:var(--input-bg); border:1px solid var(--border); border-radius:10px; '
+                + 'color:var(--text-primary); font-size:0.92em; line-height:1.7; font-family:inherit; resize:vertical;">'
+                + text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                + '</textarea>'
+                + '<div style="display:flex; gap:10px; margin-top:16px;">'
+                + '<button onclick="copyInterviewPrep()" style="flex:1; background:var(--accent); color:#fff; border:none; '
+                + 'padding:12px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
+                + '\uD83D\uDCCB Copy to Clipboard</button>'
+                + '<button onclick="downloadInterviewPrep(\'' + (job.company || 'company').replace(/'/g, '') + '\')" '
+                + 'style="background:var(--input-bg); color:var(--text-primary); border:1px solid var(--border); '
+                + 'padding:12px 20px; border-radius:8px; cursor:pointer; font-size:0.9em;">'
+                + '\uD83D\uDCE5 Download</button>'
+                + '</div></div>';
+            modal.classList.add('active');
+        }
+
+        function copyInterviewPrep() {
+            var ta = document.getElementById('interviewPrepOutput');
+            if (ta) {
+                navigator.clipboard.writeText(ta.value).then(function() {
+                    showToast('Interview prep copied to clipboard.', 'success');
+                });
+            }
+        }
+        window.copyInterviewPrep = copyInterviewPrep;
+
+        function downloadInterviewPrep(company) {
+            var ta = document.getElementById('interviewPrepOutput');
+            if (!ta) return;
+            var blob = new Blob([ta.value], { type: 'text/plain' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'interview-prep-' + company.toLowerCase().replace(/\s+/g, '-') + '.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Interview prep downloaded.', 'success');
+        }
+        window.downloadInterviewPrep = downloadInterviewPrep;
+
+        // ===== LINKEDIN PROFILE GENERATOR =====
+
+        function generateLinkedInProfile() {
+            var name = (userData.profile && userData.profile.name) || 'Professional';
+            var title = (userData.profile && userData.profile.currentTitle) || '';
+            var purpose = userData.purpose || blueprintData.purpose || '';
+            var sharedOutcomes = (blueprintData.outcomes || []).filter(function(o) { return o.shared; });
+            var selectedValues = (blueprintData.values || []).filter(function(v) { return v.selected; });
+            var skills = skillsData.skills || [];
+            var topSkills = skills.filter(function(s) { return s.key; }).slice(0, 15);
+            var allSkills = skills.slice(0, 50);
+
+            var apiKey = localStorage.getItem('wbAnthropicKey');
+
+            if (apiKey) {
+                showToast('Generating LinkedIn profile with AI...', 'info');
+                var prompt = 'Generate an optimized LinkedIn profile for ' + name
+                    + (title ? ', ' + title : '') + '.\n\n'
+                    + 'PURPOSE: ' + (purpose || 'Not provided') + '\n\n'
+                    + 'KEY OUTCOMES:\n' + sharedOutcomes.slice(0, 6).map(function(o) { return '- ' + o.text; }).join('\n') + '\n\n'
+                    + 'CORE VALUES: ' + selectedValues.slice(0, 5).map(function(v) { return v.name; }).join(', ') + '\n\n'
+                    + 'TOP SKILLS: ' + topSkills.map(function(s) { return s.name; }).join(', ') + '\n\n'
+                    + 'INSTRUCTIONS:\n'
+                    + '1. HEADLINE (max 220 chars): Title | Value proposition | 2-3 key differentiators. No buzzwords.\n'
+                    + '2. ABOUT SECTION (2000 chars max, ~3 paragraphs): First paragraph hooks with a specific outcome. Second connects purpose to capabilities. Third is forward-looking, what you are building toward. End with a brief "Specialties:" line. Write in first person. No generic openers like "Passionate professional" or "Results-driven leader".\n'
+                    + '3. SKILLS LIST: The top 15 skills ordered by impact, one per line.\n'
+                    + 'Separate each section with a clear header.';
+
+                fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey,
+                        'anthropic-version': '2023-06-01',
+                        'anthropic-dangerous-direct-browser-access': 'true'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1500,
+                        messages: [{ role: 'user', content: prompt }]
+                    })
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var text = (data.content || []).map(function(c) { return c.text || ''; }).join('\n');
+                    if (!text) throw new Error('Empty response');
+                    showLinkedInResult(text);
+                })
+                .catch(function(err) {
+                    console.error('LinkedIn API error:', err);
+                    showToast('AI generation failed, using template.', 'warning');
+                    showLinkedInResult(buildTemplateLinkedIn(name, title, purpose, sharedOutcomes, selectedValues, topSkills));
+                });
+            } else {
+                showLinkedInResult(buildTemplateLinkedIn(name, title, purpose, sharedOutcomes, selectedValues, topSkills));
+            }
+        }
+        window.generateLinkedInProfile = generateLinkedInProfile;
+
+        function buildTemplateLinkedIn(name, title, purpose, outcomes, values, topSkills) {
+            var lines = [];
+            lines.push('=== HEADLINE ===');
+            lines.push(title + (values.length > 0 ? ' | ' + values.slice(0, 3).map(function(v) { return v.name; }).join(' \u00B7 ') : '')
+                + (topSkills.length > 0 ? ' | ' + topSkills.slice(0, 3).map(function(s) { return s.name; }).join(', ') : ''));
+            lines.push('');
+            lines.push('=== ABOUT ===');
+            if (outcomes.length > 0) {
+                lines.push(outcomes[0].text + '\n');
+            }
+            if (purpose) {
+                lines.push(purpose + '\n');
+            }
+            if (outcomes.length > 1) {
+                lines.push('Key results I have delivered:');
+                outcomes.slice(1, 5).forEach(function(o) {
+                    lines.push('\u2022 ' + o.text);
+                });
+                lines.push('');
+            }
+            if (topSkills.length > 0) {
+                lines.push('Specialties: ' + topSkills.map(function(s) { return s.name; }).join(' \u00B7 '));
+            }
+            lines.push('');
+            lines.push('=== SKILLS (Top 15) ===');
+            topSkills.forEach(function(s, i) {
+                lines.push((i + 1) + '. ' + s.name);
+            });
+            lines.push('');
+            lines.push('Generated by Blueprint\u2122');
+            return lines.join('\n');
+        }
+
+        function showLinkedInResult(text) {
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content');
+            mc.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">LinkedIn Profile</h2>'
+                + '<p style="color:var(--text-secondary); margin-top:5px;">Copy each section directly to LinkedIn</p>'
+                + '</div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00d7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:24px;">'
+                + '<textarea id="linkedinOutput" style="width:100%; min-height:380px; padding:18px; '
+                + 'background:var(--input-bg); border:1px solid var(--border); border-radius:10px; '
+                + 'color:var(--text-primary); font-size:0.92em; line-height:1.7; font-family:inherit; resize:vertical;">'
+                + text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                + '</textarea>'
+                + '<div style="display:flex; gap:10px; margin-top:16px;">'
+                + '<button onclick="copyLinkedIn()" style="flex:1; background:#0a66c2; color:#fff; border:none; '
+                + 'padding:12px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
+                + '\uD83D\uDD17 Copy to Clipboard</button>'
+                + '</div></div>';
+            modal.classList.add('active');
+        }
+
+        function copyLinkedIn() {
+            var ta = document.getElementById('linkedinOutput');
+            if (ta) {
+                navigator.clipboard.writeText(ta.value).then(function() {
+                    showToast('LinkedIn profile copied. Open LinkedIn to paste.', 'success');
+                });
+            }
+        }
+        window.copyLinkedIn = copyLinkedIn;
         
         // ===== OPPORTUNITIES SYSTEM =====
 
@@ -16013,7 +16606,7 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2 class="modal-title">Blueprint</h2>
-                        <p style="color: #9ca3af; margin-top: 5px;">v3.5.2 · Your career, fully represented</p>
+                        <p style="color: #9ca3af; margin-top: 5px;">v4.6.0 · Your career, fully represented</p>
                     </div>
                     <button class="modal-close" onclick="closeExportModal()">×</button>
                 </div>
@@ -16046,7 +16639,7 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                             <div style="color: #9ca3af; font-size: 0.9em;">Generate a company-specific page and recruiter email — one link that tells your story their way.</div>
                         </div>
                     </div>
-                    <p style="color: #6b7280; font-size: 0.85em; text-align: center;">Free and open · No account required · Your data stays yours</p>
+                    <p style="color: #6b7280; font-size: 0.85em; text-align: center;">Free to explore · Sign in to save your profile · Your data stays yours</p>
                 </div>
             `;
             modal.classList.add('active');
