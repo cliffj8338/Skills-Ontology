@@ -6230,7 +6230,7 @@
             jobs.sort(function(a, b) { return (b.matchData.score || 0) - (a.matchData.score || 0); });
             
             console.log('📋 Injected ' + jobs.length + ' calibrated sample jobs for ' + profileName);
-            jobs.forEach(function(j) { console.log('  → ' + j.title + ' (' + j.company + '): ' + j.matchData.score + '%'); });
+            
             return jobs;
         }
         
@@ -9363,8 +9363,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         
         function openSkillModalFromCard(skillName) {
             const skill = skillsData.skills.find(s => s.name === skillName);
-            console.log('🔍 Opening modal for:', skillName);
-            console.log('  → Found skill:', skill ? 'YES' : 'NO');
+            
             if (skill) {
                 console.log('  → Skill has evidence:', skill.evidence ? `YES (${skill.evidence.length} items)` : 'NO');
                 openSkillModal(skillName, skill);
@@ -18628,7 +18627,7 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2 class="modal-title">Blueprint</h2>
-                        <p style="color: #9ca3af; margin-top: 5px;">v4.6.0 · Your career, fully represented</p>
+                        <p style="color: #9ca3af; margin-top: 5px;">v4.14.1 · Your career, fully represented</p>
                     </div>
                     <button class="modal-close" onclick="closeExportModal()">×</button>
                 </div>
