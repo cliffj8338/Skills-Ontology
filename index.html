@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.16.0 | 20260219 | Feature: Evidence Quality Engine, effective levels, verification system, admin thresholds -->
+    <!-- v4.16.1 | 20260219 | Feature: Evidence CRUD, edit skill gap awareness, card view evidence indicators -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -3923,32 +3923,34 @@
                 
                 <div class="settings-group">
                     <label class="settings-label">Proficiency Level *</label>
+                    <div id="editSkillEvidenceStatus" style="margin-bottom:10px;"></div>
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
                         <label style="cursor: pointer; text-align: center;">
-                            <input type="radio" name="editSkillLevel" value="Novice" style="margin-right: 5px;">
+                            <input type="radio" name="editSkillLevel" value="Novice" style="margin-right: 5px;" onchange="updateEditSkillGapWarning()">
                             Novice
                         </label>
                         <label style="cursor: pointer; text-align: center;">
-                            <input type="radio" name="editSkillLevel" value="Competent" style="margin-right: 5px;">
+                            <input type="radio" name="editSkillLevel" value="Competent" style="margin-right: 5px;" onchange="updateEditSkillGapWarning()">
                             Competent
                         </label>
                         <label style="cursor: pointer; text-align: center;">
-                            <input type="radio" name="editSkillLevel" value="Proficient" style="margin-right: 5px;">
+                            <input type="radio" name="editSkillLevel" value="Proficient" style="margin-right: 5px;" onchange="updateEditSkillGapWarning()">
                             Proficient
                         </label>
                         <label style="cursor: pointer; text-align: center;">
-                            <input type="radio" name="editSkillLevel" value="Advanced" style="margin-right: 5px;">
+                            <input type="radio" name="editSkillLevel" value="Advanced" style="margin-right: 5px;" onchange="updateEditSkillGapWarning()">
                             Advanced
                         </label>
                         <label style="cursor: pointer; text-align: center;">
-                            <input type="radio" name="editSkillLevel" value="Expert" style="margin-right: 5px;">
+                            <input type="radio" name="editSkillLevel" value="Expert" style="margin-right: 5px;" onchange="updateEditSkillGapWarning()">
                             Expert
                         </label>
                         <label style="cursor: pointer; text-align: center;">
-                            <input type="radio" name="editSkillLevel" value="Mastery" style="margin-right: 5px;">
+                            <input type="radio" name="editSkillLevel" value="Mastery" style="margin-right: 5px;" onchange="updateEditSkillGapWarning()">
                             Mastery
                         </label>
                     </div>
+                    <div id="editSkillGapWarning" style="margin-top:8px;"></div>
                 </div>
                 
                 <div class="settings-group">
@@ -6121,6 +6123,158 @@
         window.confirmVerification = confirmVerification;
         window.declineVerification = declineVerification;
         window.getVerificationStats = getVerificationStats;
+        
+        // ===== EVIDENCE CRUD (v4.16.1) =====
+        
+        function addOutcomeToSkill(skillName) {
+            if (readOnlyGuard()) return;
+            showOutcomeForm(skillName, -1);
+        }
+        
+        function editSkillOutcome(skillName, idx) {
+            if (readOnlyGuard()) return;
+            showOutcomeForm(skillName, idx);
+        }
+        
+        function removeOutcome(skillName, idx) {
+            if (readOnlyGuard()) return;
+            var skill = (skillsData.skills || []).find(function(s) { return s.name === skillName; });
+            var userSkill = (userData.skills || []).find(function(s) { return s.name === skillName; });
+            if (!skill || !skill.evidence || idx < 0 || idx >= skill.evidence.length) return;
+            
+            skill.evidence.splice(idx, 1);
+            if (userSkill && userSkill.evidence) userSkill.evidence.splice(idx, 1);
+            
+            saveAll();
+            // Re-open skill modal to refresh
+            closeSkillModal();
+            setTimeout(function() { openSkillModal(skillName, skill); }, 100);
+            showToast('Outcome removed.', 'info');
+        }
+        
+        function showOutcomeForm(skillName, idx) {
+            var skill = (skillsData.skills || []).find(function(s) { return s.name === skillName; });
+            if (!skill) return;
+            if (!skill.evidence) skill.evidence = [];
+            
+            var existing = idx >= 0 ? skill.evidence[idx] : { description: '', outcome: '' };
+            var isEdit = idx >= 0;
+            var escapedName = skillName.replace(/'/g, "\\'");
+            
+            // Inject form into the evidence list area of the open modal
+            var container = document.getElementById('skillEvidenceList');
+            if (!container) {
+                // Fallback: use export modal
+                var modal = document.getElementById('exportModal');
+                var mc = modal.querySelector('.modal-content');
+                container = mc;
+            }
+            
+            // Calculate live score preview
+            var previewText = ((existing.outcome || '') + ' ' + (existing.description || '')).trim();
+            var previewScore = previewText ? scoreOutcome(previewText) : 0;
+            
+            var formHTML = '<div id="outcomeFormContainer" style="padding:16px; margin:8px 0; background:' + tv('rgba(16,185,129,0.06)','rgba(16,185,129,0.03)') + '; '
+                + 'border:1px solid ' + tv('rgba(16,185,129,0.2)','rgba(16,185,129,0.12)') + '; border-radius:10px;">'
+                + '<div style="font-weight:700; font-size:0.88em; color:' + tv('#10b981','#059669') + '; margin-bottom:12px;">'
+                + (isEdit ? '\u270E Edit Outcome' : '+ New Outcome') + '</div>'
+                
+                + '<div class="settings-group" style="margin-bottom:10px;">'
+                + '<label class="settings-label" style="font-size:0.82em;">What was the measurable result? *</label>'
+                + '<input type="text" class="settings-input" id="outcomeResult" '
+                + 'value="' + (existing.outcome || '').replace(/"/g, '&quot;') + '" '
+                + 'placeholder="e.g., Increased pipeline velocity 40% saving $2.3M annually" '
+                + 'oninput="updateOutcomeScorePreview()" '
+                + 'style="font-size:0.88em;">'
+                + '<div class="settings-help">Include numbers, dollars, percentages, or scale for maximum evidence points</div>'
+                + '</div>'
+                
+                + '<div class="settings-group" style="margin-bottom:10px;">'
+                + '<label class="settings-label" style="font-size:0.82em;">Context: what did you do?</label>'
+                + '<textarea class="settings-input" id="outcomeDescription" rows="2" '
+                + 'placeholder="e.g., Redesigned the lead qualification process across 3 sales teams" '
+                + 'oninput="updateOutcomeScorePreview()" '
+                + 'style="font-size:0.88em; resize:vertical;">' + (existing.description || '') + '</textarea>'
+                + '</div>'
+                
+                + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                + '<div id="outcomeScorePreview" style="font-size:0.82em; color:' + tv('#9ca3af','#64748b') + ';">'
+                + 'Score: <strong>' + previewScore + '</strong> pts</div>'
+                + '<div style="display:flex; gap:8px;">'
+                + '<button onclick="saveOutcomeForm(\'' + escapedName + '\',' + idx + ')" '
+                + 'style="padding:7px 18px; background:#10b981; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85em;">'
+                + (isEdit ? 'Save' : 'Add Outcome') + '</button>'
+                + '<button onclick="cancelOutcomeForm(\'' + escapedName + '\')" '
+                + 'style="padding:7px 14px; background:transparent; color:' + tv('#9ca3af','#64748b') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','#d1d5db') + '; border-radius:6px; cursor:pointer; font-size:0.85em;">'
+                + 'Cancel</button>'
+                + '</div></div>'
+                + '</div>';
+            
+            // Insert at top of evidence list
+            var existingForm = document.getElementById('outcomeFormContainer');
+            if (existingForm) existingForm.remove();
+            container.insertAdjacentHTML('afterbegin', formHTML);
+            
+            // Focus the result field
+            var resultField = document.getElementById('outcomeResult');
+            if (resultField) resultField.focus();
+        }
+        
+        function updateOutcomeScorePreview() {
+            var result = (document.getElementById('outcomeResult') || {}).value || '';
+            var desc = (document.getElementById('outcomeDescription') || {}).value || '';
+            var text = (result + ' ' + desc).trim();
+            var score = text ? scoreOutcome(text) : 0;
+            var preview = document.getElementById('outcomeScorePreview');
+            if (preview) {
+                var color = score >= 4 ? '#10b981' : score >= 2.5 ? '#60a5fa' : tv('#9ca3af','#64748b');
+                preview.innerHTML = 'Score: <strong style="color:' + color + ';">' + score + '</strong> pts'
+                    + (score >= 4 ? ' \uD83D\uDD25 High impact' : score >= 2.5 ? ' \u2714 Solid' : score > 0 ? ' \u2197 Add metrics for more' : '');
+            }
+        }
+        
+        function saveOutcomeForm(skillName, idx) {
+            var result = (document.getElementById('outcomeResult') || {}).value.trim();
+            var desc = (document.getElementById('outcomeDescription') || {}).value.trim();
+            
+            if (!result) { showToast('Outcome result is required.', 'warning'); return; }
+            
+            var skill = (skillsData.skills || []).find(function(s) { return s.name === skillName; });
+            var userSkill = (userData.skills || []).find(function(s) { return s.name === skillName; });
+            if (!skill) return;
+            if (!skill.evidence) skill.evidence = [];
+            if (userSkill && !userSkill.evidence) userSkill.evidence = [];
+            
+            var entry = { description: desc, outcome: result };
+            
+            if (idx >= 0 && idx < skill.evidence.length) {
+                skill.evidence[idx] = entry;
+                if (userSkill && userSkill.evidence) userSkill.evidence[idx] = entry;
+            } else {
+                skill.evidence.push(entry);
+                if (userSkill && userSkill.evidence) userSkill.evidence.push(entry);
+            }
+            
+            saveAll();
+            
+            // Refresh skill modal
+            closeSkillModal();
+            setTimeout(function() { openSkillModal(skillName, skill); }, 100);
+            showToast(idx >= 0 ? 'Outcome updated.' : 'Outcome added. Evidence points recalculated.', 'success');
+        }
+        
+        function cancelOutcomeForm(skillName) {
+            var form = document.getElementById('outcomeFormContainer');
+            if (form) form.remove();
+        }
+        
+        window.addOutcomeToSkill = addOutcomeToSkill;
+        window.editSkillOutcome = editSkillOutcome;
+        window.removeOutcome = removeOutcome;
+        window.showOutcomeForm = showOutcomeForm;
+        window.updateOutcomeScorePreview = updateOutcomeScorePreview;
+        window.saveOutcomeForm = saveOutcomeForm;
+        window.cancelOutcomeForm = cancelOutcomeForm;
         
         // ===== END EVIDENCE & VERIFICATION ENGINE =====
         
@@ -8958,6 +9112,20 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         categoryBadge = '<span class="skill-badge" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24; font-size: 0.7em; padding: 2px 6px; border-radius: 3px; margin-left: 6px;">UNIQUE</span>';
                     }
                     
+                    // Evidence indicator (v4.16.1)
+                    let evidenceBadge = '';
+                    if (typeof getEvidenceSummary === 'function') {
+                        const evs = getEvidenceSummary(skill);
+                        if (evs.hasGap) {
+                            evidenceBadge = '<span style="font-size:0.65em; color:#fbbf24; margin-left:4px;" title="Evidence gap: claimed ' + evs.claimedLevel + ', evidence supports ' + evs.effectiveLevel + '">\u26A0</span>';
+                        } else if (evs.evidenceCount > 0) {
+                            evidenceBadge = '<span style="font-size:0.65em; color:#10b981; margin-left:4px;" title="' + evs.points + ' evidence pts, ' + evs.evidenceCount + ' outcomes">\u2713</span>';
+                        }
+                        if (evs.verifiedCount > 0) {
+                            evidenceBadge += '<span style="font-size:0.6em; color:#a78bfa; margin-left:2px;" title="Verified by ' + evs.verifiedCount + '">\u2605</span>';
+                        }
+                    }
+                    
                     html += `
                         <div class="skill-item ${levelClass}" title="${rolesList}" onclick='openSkillModalFromCard("${skill.name.replace(/'/g, "\\'")}")' style="cursor: pointer;">
                             <div class="skill-dot" style="background: ${levelColors[skill.level]}"></div>
@@ -8966,6 +9134,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                             ${yearsBadge}
                             ${keyBadge}
                             ${impactBadge}
+                            ${evidenceBadge}
                         </div>
                     `;
                 });
@@ -9742,31 +9911,55 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             });
             bodyHTML += `</div></div>`;
             
-            // Evidence section
-            if (evidence && evidence.length > 0) {
-                bodyHTML += `
-                    <div class="modal-section">
-                        <div class="modal-section-title">
-                            <span class="modal-section-icon">✓</span>
-                            Evidence & Defensibility
-                        </div>
-                        <ul class="evidence-list">
-                `;
-                evidence.forEach(item => {
-                    bodyHTML += `<li class="evidence-item">${item}</li>`;
+            // Evidence section — EDITABLE (v4.16.1)
+            var rawEvidence = skillData.evidence || [];
+            var escapedSkillName = skillName.replace(/'/g, "\\'");
+            
+            bodyHTML += '<div class="modal-section">';
+            bodyHTML += '<div class="modal-section-title" style="display:flex; justify-content:space-between; align-items:center;">';
+            bodyHTML += '<div><span class="modal-section-icon">\u2713</span> Evidence & Outcomes</div>';
+            bodyHTML += '<button onclick="addOutcomeToSkill(\'' + escapedSkillName + '\')" '
+                + 'style="padding:5px 14px; background:' + tv('rgba(16,185,129,0.15)','rgba(16,185,129,0.08)') + '; '
+                + 'color:#10b981; border:1px solid ' + tv('rgba(16,185,129,0.3)','rgba(16,185,129,0.2)') + '; border-radius:6px; cursor:pointer; font-size:0.82em; font-weight:600;">'
+                + '+ Add Outcome</button>';
+            bodyHTML += '</div>';
+            
+            bodyHTML += '<div id="skillEvidenceList">';
+            
+            if (rawEvidence.length > 0) {
+                rawEvidence.forEach(function(ev, idx) {
+                    var pts = scoreOutcome(((ev.outcome || '') + ' ' + (ev.description || '')).trim());
+                    var ptColor = pts >= 4 ? '#10b981' : pts >= 2.5 ? '#60a5fa' : tv('#9ca3af','#64748b');
+                    
+                    bodyHTML += '<div style="padding:10px 12px; margin-bottom:8px; background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; '
+                        + 'border:1px solid ' + tv('rgba(255,255,255,0.06)','rgba(0,0,0,0.06)') + '; border-radius:8px; position:relative;">';
+                    
+                    // Score badge + controls
+                    bodyHTML += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">'
+                        + '<span style="font-size:0.72em; padding:1px 8px; border-radius:8px; background:' + tv('rgba(255,255,255,0.06)','rgba(0,0,0,0.04)') + '; color:' + ptColor + '; font-weight:600;">'
+                        + pts + ' pt' + (pts !== 1 ? 's' : '') + '</span>'
+                        + '<div style="display:flex; gap:6px;">'
+                        + '<button onclick="editSkillOutcome(\'' + escapedSkillName + '\',' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.8em; color:' + tv('#60a5fa','#2563eb') + ';">\u270E</button>'
+                        + '<button onclick="removeOutcome(\'' + escapedSkillName + '\',' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:' + tv('#ef4444','#dc2626') + ';">\u00D7</button>'
+                        + '</div></div>';
+                    
+                    if (ev.outcome) {
+                        bodyHTML += '<div style="font-size:0.88em; font-weight:600; color:' + tv('#e0e0e0','#1f2937') + '; line-height:1.45;">' + ev.outcome + '</div>';
+                    }
+                    if (ev.description) {
+                        bodyHTML += '<div style="font-size:0.82em; color:' + tv('#9ca3af','#64748b') + '; margin-top:3px; line-height:1.4;">' + ev.description + '</div>';
+                    }
+                    
+                    bodyHTML += '</div>';
                 });
-                bodyHTML += `</ul></div>`;
             } else {
-                bodyHTML += `
-                    <div class="modal-section">
-                        <div class="modal-section-title">
-                            <span class="modal-section-icon">✓</span>
-                            Evidence & Defensibility
-                        </div>
-                        <p class="placeholder-text">Evidence for this skill will be added soon.</p>
-                    </div>
-                `;
+                bodyHTML += '<div style="text-align:center; padding:20px; color:' + tv('#6b7280','#9ca3af') + '; font-size:0.88em;">'
+                    + 'No evidence yet. Add outcomes to increase this skill\'s effective level and market value.'
+                    + '</div>';
             }
+            
+            bodyHTML += '</div>'; // end skillEvidenceList
+            bodyHTML += '</div>'; // end modal-section
             
             // MARKET IMPACT SECTION
             const skillImpact = calculateSkillValue(skillData);
@@ -18748,6 +18941,22 @@ body {
             `).join('');
             
             history.pushState({ modal: true }, ''); modal.classList.add('active');
+            
+            // Populate evidence status (v4.16.1)
+            var evStatus = document.getElementById('editSkillEvidenceStatus');
+            if (evStatus && typeof getEvidenceSummary === 'function') {
+                var evs = getEvidenceSummary(skill);
+                var evColor = evs.hasGap ? tv('#fbbf24','#d97706') : tv('#10b981','#059669');
+                var evBg = evs.hasGap ? tv('rgba(251,191,36,0.08)','rgba(251,191,36,0.05)') : tv('rgba(16,185,129,0.08)','rgba(16,185,129,0.05)');
+                evStatus.innerHTML = '<div style="padding:10px 14px; background:' + evBg + '; border-radius:8px; font-size:0.82em;">'
+                    + '<span style="color:' + evColor + '; font-weight:600;">' + evs.points + ' evidence pts \u2192 ' + evs.effectiveLevel + '</span>'
+                    + '<span style="color:' + tv('#9ca3af','#64748b') + '; margin-left:8px;">(' + evs.evidenceCount + ' outcome' + (evs.evidenceCount !== 1 ? 's' : '') + ')</span>'
+                    + (evs.verifiedCount > 0 ? ' <span style="color:#10b981;"> \u2713 ' + evs.verifiedCount + ' verified</span>' : '')
+                    + '<br><button onclick="closeEditSkillModal(); setTimeout(function(){ var sk = (skillsData.skills||[]).find(function(s){return s.name===\'' + skillName.replace(/'/g,"\\'") + '\';}); if(sk) openSkillModal(\'' + skillName.replace(/'/g,"\\'") + '\', sk); }, 100);" '
+                    + 'style="margin-top:6px; padding:3px 10px; background:transparent; border:1px solid ' + tv('rgba(16,185,129,0.3)','rgba(16,185,129,0.2)') + '; color:#10b981; border-radius:4px; cursor:pointer; font-size:0.88em;">+ Add Evidence</button>'
+                    + '</div>';
+            }
+            updateEditSkillGapWarning();
         }
         
         function closeEditSkillModal() {
@@ -18755,6 +18964,30 @@ body {
             modal.classList.remove('active');
             currentEditingSkill = null;
         }
+        
+        function updateEditSkillGapWarning() {
+            var warning = document.getElementById('editSkillGapWarning');
+            if (!warning || !currentEditingSkill) return;
+            
+            var skill = (skillsData.skills || []).find(function(s) { return s.name === currentEditingSkill; });
+            if (!skill) return;
+            
+            var selectedLevel = (document.querySelector('input[name="editSkillLevel"]:checked') || {}).value || 'Novice';
+            var evs = getEvidenceSummary(skill);
+            var selectedVal = proficiencyValue(selectedLevel);
+            var effectiveVal = proficiencyValue(evs.effectiveLevel);
+            
+            if (selectedVal > effectiveVal) {
+                warning.innerHTML = '<div style="padding:8px 12px; background:' + tv('rgba(251,191,36,0.08)','rgba(251,191,36,0.05)') + '; '
+                    + 'border:1px solid ' + tv('rgba(251,191,36,0.2)','rgba(251,191,36,0.12)') + '; border-radius:6px; font-size:0.82em; color:' + tv('#fbbf24','#d97706') + ';">'
+                    + '\u26A0 Claiming <strong>' + selectedLevel + '</strong> but evidence supports <strong>' + evs.effectiveLevel + '</strong>. '
+                    + 'Market valuation will use ' + evs.effectiveLevel + ' until more evidence is added.'
+                    + '</div>';
+            } else {
+                warning.innerHTML = '';
+            }
+        }
+        window.updateEditSkillGapWarning = updateEditSkillGapWarning;
         
         function deleteSkillFromProfile(skillName) {
             var idx = userData.skills.findIndex(function(s) { return s.name === skillName; });
@@ -19733,7 +19966,7 @@ body {
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2 class="modal-title">Blueprint</h2>
-                        <p style="color: #9ca3af; margin-top: 5px;">v4.16.0 · Your career, fully represented</p>
+                        <p style="color: #9ca3af; margin-top: 5px;">v4.16.1 · Your career, fully represented</p>
                     </div>
                     <button class="modal-close" onclick="closeExportModal()">×</button>
                 </div>

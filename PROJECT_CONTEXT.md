@@ -1,5 +1,5 @@
-# PROJECT_CONTEXT.md — Blueprint v4.16.0 (Evidence Engine + Verification)
-**Updated:** 2026-02-19 | **Lines:** 19,888 | **Functions:** ~400 | **Size:** ~1.02 MB | **Braces:** 0 (balanced)
+# PROJECT_CONTEXT.md — Blueprint v4.16.1 (Evidence CRUD + UX Consistency)
+**Updated:** 2026-02-19 | **Lines:** 20,119 | **Functions:** ~410 | **Size:** ~1.05 MB | **Braces:** 0 (balanced)
 
 ## What Is Blueprint
 
@@ -144,6 +144,41 @@ Alternative to network: grid of skill cards grouped by role, sorted by level. In
 ### Skill Modals (L9100-9400, 8 functions)
 `openSkillModal` — Rich detail modal for any skill: market value, proficiency bar, evidence list, related skills, coaching, category info. Accessible from both network nodes and card view.
 
+### Evidence CRUD & UX Consistency (v4.16.1)
+**Principle:** Evidence editing lives in ONE canonical location (skill detail modal). All other surfaces link there. No duplicate editing paths that could diverge.
+
+**Skill Detail Modal (canonical evidence editor):**
+- "Evidence & Outcomes" section now fully editable: each outcome shows point score, edit ✎ and remove × buttons
+- "+ Add Outcome" button at section header opens inline form
+- Outcome form: result field (required, what happened), description field (context), live score preview showing 1-5 points as user types
+- `scoreOutcome()` runs in real-time via `updateOutcomeScorePreview()`, showing "🔥 High impact" / "✔ Solid" / "↗ Add metrics for more"
+- Save/cancel keeps user in the modal flow (close + reopen with fresh data)
+
+**Edit Skill Modal (evidence-aware, not editor):**
+- Now shows evidence status panel: points, effective level, outcome count, verification count
+- Level radio buttons trigger `updateEditSkillGapWarning()` on change
+- Gap warning appears if selected level exceeds evidence: "⚠ Claiming Expert but evidence supports Competent. Market valuation will use Competent..."
+- "+ Add Evidence" button links back to skill detail modal (the canonical editor)
+- Users CAN still change level freely (soft gate), but they see the consequence immediately
+
+**Card View (indicator only):**
+- ⚠ warning icon on skills with evidence gap (claimed > effective)
+- ✓ checkmark on skills with evidence backing
+- ★ star on verified skills
+- Hover tooltips show evidence details
+
+**Function naming:** `editSkillOutcome(skillName, idx)` for skill evidence editing. Blueprint outcomes editor remains `editOutcome(idx)`. No collision.
+
+**UX Flow Map:**
+```
+Card View ──click──→ Skill Detail Modal (view + evidence CRUD + verify)
+                         ├── ✏️ Edit ──→ Edit Skill Modal (level/roles/core + gap warning)
+                         ├── 📝 Assess ──→ Assessment Modal (unique skills)
+                         └── ✅ Verify ──→ Verification Request Modal
+Network ──click──→ Skill Detail Modal (same as above)
+Blueprint > Outcomes ──→ Read-only extraction from evidence (editOutcome for Blueprint text only)
+```
+
 ### Evidence Quality Engine (L5750-5930, v4.16.0)
 **Core concept:** Skills have a `claimedLevel` (user-set) and an `effectiveLevel` (evidence-derived). Market valuation uses the evidence-backed level, creating a natural incentive to provide quality outcomes.
 
@@ -248,7 +283,14 @@ Theme toggle (dark/light), profile dropdown, filter panel, overflow menu. Help m
 
 ## Version History
 
-### v4.16.0 (current)
+### v4.16.1 (current)
+- **Evidence CRUD:** Add/edit/remove outcomes directly in skill detail modal. Inline form with live point scoring preview. Each outcome shows its evidence point value (1-5) with edit/remove controls.
+- **Edit Skill gap awareness:** Edit Skill Modal now shows evidence status (points, effective level, outcome count). Level radio buttons trigger live gap warning when claimed level exceeds evidence. "+ Add Evidence" button links to skill detail modal.
+- **Card view indicators:** Evidence gap warning (⚠), evidence backing (✓), and verification (★) indicators on skill cards with hover tooltips.
+- **UX consistency audit:** All evidence editing flows through one canonical location (skill detail modal). Edit Skill Modal is evidence-aware but not an editor. No duplicate editing paths.
+- **Function naming fix:** Renamed skill evidence editor to `editSkillOutcome()` to avoid collision with Blueprint's `editOutcome()`.
+
+### v4.16.0
 - **Evidence Quality Engine:** Each outcome scored 1-5 points based on impact signals (financial scale, percentages, scope, recognition). One exceptional outcome ($340M transformation) outweighs three minor ones. `effectiveLevel` derived from cumulative evidence points, not self-reported claims.
 - **Evidence-weighted valuation:** `calculateTotalMarketValue()` now uses `getValuationLevel()` which returns the evidence-backed level. Claimed levels above evidence don't inflate compensation. Gap is shown transparently in skill modal with coaching guidance.
 - **Certification-to-skill linking:** Certs have `linkedSkills[]` array. Linked skills auto-bump to Proficient floor in evidence calculations. Linking UI with profile skill autocomplete in cert modal.
@@ -350,7 +392,7 @@ Sessions are stored in `/mnt/transcripts/`:
 6. `2026-02-19-18-01-02-v410-skill-edit-sample-jobs-bugfix.txt`
 7. `2026-02-19-19-07-15-v412-v413-bulk-import-manager-overlay-panel.txt`
 8. Previous session: v4.14.0-v4.14.1 (calibrated sample jobs, overlay color fix, stabilization audit)
-9. Current session: v4.15.0-v4.16.0 (Work History/Education/Certs, Resume v2, Evidence Quality Engine, Verification System, Admin Thresholds)
+9. Current session: v4.15.0-v4.16.1 (Work History/Education/Certs, Resume v2, Evidence Quality Engine, Verification System, Admin Thresholds, Evidence CRUD, UX Consistency)
 
 ---
 
@@ -358,7 +400,7 @@ Sessions are stored in `/mnt/transcripts/`:
 
 ### High Priority
 - **Values System v2** — Editable descriptions (not just catalog defaults), drag-to-reorder or explicit ranking (top 3 marked as "core"), stronger evidence-linking UI, "value story" narrative field per value
-- **Evidence Management UI** — Add/edit/remove evidence items directly from skill cards and modals. Engine exists (v4.16.0) but evidence entry still requires wizard or demo data. Need inline "Add Outcome" button on skill cards and evidence editing in skill modal.
+- **Evidence Management UI** — ✅ COMPLETED in v4.16.1. Add/edit/remove outcomes in skill detail modal with live scoring. Edit skill modal has gap awareness. Card view has indicators.
 - **Consent-to-Export Pipeline** — Wire consent presets so they actually filter what appears in exports. "Preview what gets shared" summary before any export.
 - **Proficiency gap visualization on nodes** — Show visual indicator when user matches a job skill but at lower proficiency
 - **Job application tracking integration** — Connect pipeline jobs to application tracker
@@ -375,6 +417,12 @@ Sessions are stored in `/mnt/transcripts/`:
 - **Code splitting** — Break monolith into modules (would require build tooling)
 - **Offline support** — Service worker for PWA capability
 - **Import from LinkedIn** — Parse LinkedIn data export
+
+### Completed (v4.16.1)
+- ✅ **Evidence CRUD** — Add/edit/remove outcomes in skill modal with live scoring
+- ✅ **Edit Skill gap awareness** — Evidence status panel, live gap warnings on level change
+- ✅ **Card view evidence indicators** — Gap/backed/verified badges
+- ✅ **UX consistency audit** — Single canonical editor, no duplicate paths
 
 ### Completed (v4.16.0)
 - ✅ **Evidence Quality Engine** — Outcome scoring (1-5 pts), effective levels, evidence-weighted valuation
