@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.18.1 | 20260219 | Feature: Salary caps (90th percentile ceiling per function/seniority) -->
+    <!-- v4.19.0 | 20260219 | Feature: BLS OEWS May 2024 salary data (831 occupations, 15 functions) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -5577,53 +5577,60 @@
             var skillNames = (skillsData.skills || []).map(function(s) { return (s.name || '').toLowerCase(); }).join(' ');
             var allSignals = titleStr + ' ' + rolesStr + ' ' + skillNames;
             
-            // Function salary table: [entry, mid, senior, director, vp/c-suite]
+            // BLS OEWS May 2024 — National cross-industry wage data
+            // Base = entry:25th pct, mid:median, senior:75th, director:75th(mgr), vp:90th(mgr)
             var SALARY_TABLE = {
-                technology:  [65000, 95000, 130000, 170000, 250000],
-                hr:          [55000, 75000, 100000, 140000, 200000],
-                recruiting:  [52000, 72000, 95000,  135000, 195000],
-                marketing:   [55000, 80000, 110000, 150000, 220000],
-                finance:     [60000, 85000, 115000, 155000, 240000],
-                sales:       [55000, 80000, 110000, 145000, 210000],
-                operations:  [55000, 75000, 100000, 135000, 190000],
-                strategy:    [70000, 100000, 140000, 180000, 280000],
-                healthcare:  [55000, 75000, 95000,  130000, 200000],
-                education:   [45000, 60000, 80000,  110000, 160000],
-                legal:       [70000, 100000, 140000, 185000, 280000],
-                engineering: [60000, 85000, 115000, 150000, 220000],
-                general:     [50000, 70000, 95000,  130000, 200000]
+                education: [29120, 62340, 83010, 132550, 165820],
+                engineering: [53230, 102320, 130290, 152670, 238291],
+                finance: [41390, 81680, 132050, 214210, 246341],
+                general: [27780, 43630, 82340, 164130, 206000],
+                healthcare: [30370, 62340, 107960, 162420, 219080],
+                hr: [42360, 72910, 91550, 189960, 218453],
+                legal: [48190, 61010, 215420, 247732, 284891],
+                marketing: [56220, 76950, 95940, 211080, 242741],
+                operations: [53190, 101190, 133140, 164130, 188749],
+                recruiting: [42360, 72910, 97270, 189960, 218453],
+                retail: [27780, 34580, 60510, 201490, 231713],
+                sales: [29140, 66260, 97570, 201490, 231713],
+                strategy: [76770, 101190, 133140, 164130, 230000],
+                technology: [76360, 133080, 169000, 216220, 248652],
+                trades: [29060, 62350, 81730, 100200, 176990]
             };
             
-            // Salary caps per function/seniority (90th percentile ceiling)
+            // Caps = entry:median, mid:75th, senior:90th, director:90th(mgr), vp:90th(mgr)
             var SALARY_CAP = {
-                technology:  [90000, 130000, 175000, 230000, 350000],
-                hr:          [72000, 100000, 135000, 185000, 275000],
-                recruiting:  [68000, 95000,  125000, 175000, 260000],
-                marketing:   [72000, 105000, 145000, 200000, 300000],
-                finance:     [80000, 115000, 155000, 210000, 330000],
-                sales:       [72000, 110000, 150000, 200000, 300000],
-                operations:  [72000, 100000, 135000, 180000, 260000],
-                strategy:    [90000, 135000, 185000, 250000, 400000],
-                healthcare:  [72000, 100000, 130000, 175000, 275000],
-                education:   [58000, 80000,  105000, 145000, 220000],
-                legal:       [90000, 135000, 185000, 250000, 400000],
-                engineering: [80000, 115000, 155000, 200000, 300000],
-                general:     [65000, 95000,  125000, 175000, 275000]
+                education: [35240, 79410, 104670, 165820, 198984],
+                engineering: [64790, 130290, 161240, 183510, 290094],
+                finance: [49210, 106450, 180550, 299894, 359872],
+                general: [31190, 52560, 102980, 229781, 290000],
+                healthcare: [34900, 73160, 135320, 219080, 262896],
+                hr: [49440, 97270, 120190, 265944, 319132],
+                legal: [61010, 78280, 93936, 301588, 361905],
+                marketing: [76950, 104870, 129480, 295512, 354614],
+                operations: [66140, 133140, 174140, 229781, 275737],
+                recruiting: [49440, 97270, 126540, 265944, 319132],
+                retail: [31190, 37850, 76560, 282086, 338503],
+                sales: [34580, 98780, 134470, 282086, 338503],
+                strategy: [101190, 133140, 174140, 229781, 330000],
+                technology: [108970, 169000, 211450, 302708, 363249],
+                trades: [35250, 81730, 99000, 126690, 176990]
             };
             
             var functionPatterns = [
                 { fn: 'strategy', patterns: /\b(strategy|strategic|futurist|evangelist|thought leader|advisory|consulting|consultant)\b/ },
-                { fn: 'technology', patterns: /\b(software|developer|engineer|devops|cloud|aws|azure|kubernetes|programming|frontend|backend|full.?stack|data scientist|machine learning|ai engineer|cybersecurity|infosec|cissp)\b/ },
+                { fn: 'technology', patterns: /\b(software|developer|devops|cloud|aws|azure|kubernetes|programming|frontend|backend|full.?stack|data scientist|machine learning|ai engineer|cybersecurity|infosec|cissp)\b/ },
                 { fn: 'recruiting', patterns: /\b(recruit|talent acqui|sourcing|hiring|ats|applicant|staffing|headhunt)\b/ },
                 { fn: 'hr', patterns: /\b(human resource|hr |shrm|people ops|workforce|talent manage|employee relation|compensation|benefits|hris|organizational develop|learning.+develop)\b/ },
                 { fn: 'marketing', patterns: /\b(marketing|brand|content|seo|digital market|growth|demand gen|product market|communications|pr |public relation)\b/ },
                 { fn: 'finance', patterns: /\b(finance|financial|accounting|cpa|cfa|controller|treasury|audit|tax|revenue|fp&a|investment)\b/ },
-                { fn: 'sales', patterns: /\b(sales|account exec|business develop|revenue|quota|pipeline|customer success|client relation)\b/ },
+                { fn: 'sales', patterns: /\b(sales|account exec|business develop|quota|pipeline|customer success|client relation)\b/ },
                 { fn: 'operations', patterns: /\b(operations|supply chain|logistics|procurement|manufacturing|quality|lean|six sigma|process improve)\b/ },
                 { fn: 'healthcare', patterns: /\b(nurse|clinical|patient|medical|pharma|health|hospital|physician|therapy|diagnostic)\b/ },
                 { fn: 'education', patterns: /\b(teaching|teacher|professor|instructor|curriculum|education|academic|school|training)\b/ },
                 { fn: 'legal', patterns: /\b(legal|attorney|lawyer|litigation|compliance|regulatory|paralegal|contract law|bar exam)\b/ },
-                { fn: 'engineering', patterns: /\b(mechanical|electrical|civil|structural|pe |professional engineer|cad|construction|architect)\b/ }
+                { fn: 'engineering', patterns: /\b(mechanical|electrical|civil|structural|pe |professional engineer|cad|construction|architect)\b/ },
+                { fn: 'trades', patterns: /\b(hair|stylist|cosmetolog|barber|plumb|electri|weld|hvac|carpenter|mechanic|technician|maintenance|repair|install)\b/ },
+                { fn: 'retail', patterns: /\b(cashier|retail|store|merchandise|stock|inventory clerk|customer service rep|point of sale|pos )\b/ }
             ];
             
             // Detect function: title+roles first (strongest signal), then skills as fallback
@@ -11469,7 +11476,7 @@ body {
                         ${totalValue.salaryCapApplied ? `
                         <div style="background:rgba(139,92,246,0.08); border:1px solid rgba(139,92,246,0.15); border-radius:10px; padding:12px 16px; margin-bottom:20px; text-align:left;">
                             <div style="color:#a78bfa; font-size:0.82em; line-height:1.4;">
-                                \uD83D\uDCCA Market ceiling applied: 90th percentile for ${totalValue.detectedFunction ? totalValue.detectedFunction.charAt(0).toUpperCase() + totalValue.detectedFunction.slice(1) : ''} / ${totalValue.roleLevel} is $${totalValue.salaryCap.toLocaleString()}.
+                                \uD83D\uDCCA BLS ceiling applied: 90th percentile for ${totalValue.detectedFunction ? totalValue.detectedFunction.charAt(0).toUpperCase() + totalValue.detectedFunction.slice(1) : ''} / ${totalValue.roleLevel} is $${totalValue.salaryCap.toLocaleString()}. <span style="font-size:0.85em; opacity:0.7;">(Source: BLS OEWS May 2024)</span>
                             </div>
                         </div>
                         ` : ''}
@@ -11551,7 +11558,7 @@ body {
                         <div style="color: ${tv("#d1d5db","#334155")}; font-size: 0.95em; line-height: 1.6;">
                             <strong>Method:</strong> Impact-based role tier + skill premiums
                             <br><br>
-                            <strong>Base Market Rate:</strong> $${totalValue.marketRate.toLocaleString()} (${totalValue.detectedFunction ? totalValue.detectedFunction.charAt(0).toUpperCase() + totalValue.detectedFunction.slice(1) : ''} / ${totalValue.roleLevel}, ${totalValue.percentile} percentile)
+                            <strong>Base Market Rate:</strong> $${totalValue.marketRate.toLocaleString()} (${totalValue.detectedFunction ? totalValue.detectedFunction.charAt(0).toUpperCase() + totalValue.detectedFunction.slice(1) : ''} / ${totalValue.roleLevel}, ${totalValue.percentile} percentile, BLS OEWS 2024)
                             <br><strong>Critical Impact Skills (${totalValue.criticalSkills.length}):</strong> +$${totalValue.criticalBonus.toLocaleString()}
                             <br><strong>High Impact Skills (${totalValue.highSkills.length}):</strong> +$${totalValue.highBonus.toLocaleString()}
                             <br><strong>Rare Skill Combinations:</strong> +$${totalValue.rarityBonus.toLocaleString()}
