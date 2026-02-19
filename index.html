@@ -4721,7 +4721,10 @@
                     userData.roles = data.roles || [];
                     userData.preferences = data.preferences || userData.preferences;
                     userData.applications = data.applications || [];
-                    userData.savedJobs = data.savedJobs || [];
+                    // Preserve sample jobs from demo profiles — Firestore won't have them
+                    var existingSampleJobs = (userData.savedJobs || []).filter(function(j) { return j && j.sample; });
+                    var firestoreJobs = data.savedJobs || [];
+                    userData.savedJobs = firestoreJobs.length > 0 ? firestoreJobs : existingSampleJobs;
                     userData.workHistory = data.workHistory || [];
                     userData.education = data.education || [];
                     userData.certifications = data.certifications || [];
@@ -7306,8 +7309,9 @@
             // Determine which view to show
             var targetView = 'welcome'; // Default: welcome page
             
-            // CASE 1: Signed-in user with Firestore data
-            if (fbUser && fbDb) {
+            // CASE 1: Signed-in user with Firestore data (skip for demo profiles)
+            var isDemoProfile = scaffoldId && scaffoldId.indexOf('demo') !== -1;
+            if (fbUser && fbDb && !isDemoProfile) {
                 try {
                     var loaded = await loadUserFromFirestore(fbUser.uid);
                     if (loaded) {
@@ -7317,6 +7321,11 @@
                 } catch(e) {
                     console.warn('Firestore load failed:', e);
                 }
+                checkReadOnly();
+                rebuildProfileDropdown();
+            } else if (fbUser && fbDb && isDemoProfile) {
+                console.log('📋 Demo profile active — skipping Firestore load');
+                targetView = 'blueprint';
                 checkReadOnly();
                 rebuildProfileDropdown();
             }
