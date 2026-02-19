@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.14.0 | 20260219 | Calibrated sample jobs (3 tiers per profile), dynamic from template skills, locked for non-admin -->
+    <!-- v4.14.1 | 20260219 | Fix: overlay role nodes neutral (no orange/blue), tile repositioned top-right desktop/bottom mobile -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -2009,8 +2009,8 @@
         }
         .match-legend {
             position: absolute;
-            bottom: 16px;
-            left: 16px;
+            top: 16px;
+            right: 16px;
             display: flex;
             flex-direction: column;
             gap: 0;
@@ -2761,11 +2761,13 @@
                 font-size: 0.7em;
             }
             .match-legend {
-                min-width: 220px;
-                max-width: 260px;
-                font-size: 0.75em;
-                bottom: 70px; /* Above mobile nav */
+                top: auto;
+                right: 8px;
                 left: 8px;
+                bottom: 70px;
+                min-width: unset;
+                max-width: unset;
+                font-size: 0.75em;
             }
             
             .blueprint-section {
@@ -8172,7 +8174,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 })
                 .attr("fill", function(d) {
                     if (d.type === 'center') return '#60a5fa';
-                    if (d.type === 'role') return d.color;
+                    if (d.type === 'role') {
+                        // Job needs role = subtle red outline feel; user roles = neutral slate
+                        return d.id === 'role-job-req' ? 'rgba(239,68,68,0.25)' : 'rgba(148,163,184,0.25)';
+                    }
                     return matchColors[d.matchState] || '#6b7280';
                 })
                 .attr("opacity", function(d) {
@@ -8180,11 +8185,15 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     return 1;
                 })
                 .attr("stroke", function(d) {
+                    if (d.type === 'role') {
+                        return d.id === 'role-job-req' ? '#ef4444' : '#64748b';
+                    }
                     if (d.matchState === 'matched') return '#fff';
                     if (d.matchState === 'gap') return '#fca5a5';
                     return 'none';
                 })
                 .attr("stroke-width", function(d) {
+                    if (d.type === 'role') return 2;
                     if (d.matchState === 'matched' || d.matchState === 'gap') return 2;
                     return 0;
                 })
@@ -8208,6 +8217,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.matchState === 'matched') return matchColors.matched;
                     if (d.matchState === 'gap') return matchColors.gap;
                     if (d.matchState === 'surplus') return '#64748b';
+                    if (d.type === 'role' && d.id === 'role-job-req') return '#ef4444';
+                    if (d.type === 'role') return '#94a3b8';
                     return undefined;
                 })
                 .style("opacity", function(d) { return d.matchState === 'surplus' ? 0.4 : 1; });
