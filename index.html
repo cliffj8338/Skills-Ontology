@@ -8093,6 +8093,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             } else if (view === 'network') {
                 // Skills Ontology view
                 controls.style.display = 'flex';
+                // Sync toggle pills with current sub-view
+                document.querySelectorAll('#skillsViewToggle .view-pill').forEach(function(chip) {
+                    chip.classList.toggle('active', chip.dataset.view === currentSkillsView);
+                });
                 if (currentSkillsView === 'network') {
                     document.getElementById('networkView').style.display = 'block';
                     networkControls.style.display = 'flex';
@@ -8115,6 +8119,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     }
                 } else {
                     document.getElementById('cardView').style.display = 'block';
+                    networkControls.style.display = 'none';
                     // Show filter button in card view
                     var fBtn2 = document.getElementById('filterToggleBtn');
                     if (fBtn2) fBtn2.style.display = '';
