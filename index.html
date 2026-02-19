@@ -7117,9 +7117,10 @@
                 };
             });
             
-            // Score each job against the profile
+            // Score each job against the profile and match to BLS
             jobs.forEach(function(job) {
                 job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles });
+                job.blsSalary = matchJobToBLS(job.title, job.rawText);
             });
             
             // Sort: high match first
@@ -7302,6 +7303,16 @@
                 console.log('✓ Values library loaded:', valuesLibrary.length, 'values');
             } catch (e) {
                 console.error('Error loading values library:', e);
+            }
+            
+            // Load BLS OEWS wage data
+            try {
+                const blsData = await fetch('bls-wages.json').then(r => r.json());
+                window.blsWages = blsData;
+                console.log(`✅ BLS wage data loaded: ${blsData.count} occupations (${blsData.period})`);
+            } catch (e) {
+                console.warn('BLS wage data not found (bls-wages.json). Salary engine will use built-in tables only.');
+                window.blsWages = null;
             }
             
             // ===== PROFILE DECISION FLOW =====
@@ -13529,6 +13540,20 @@ body {
                     + '<span style="color:#6b7280;">\u25CF ' + surplusCount + ' surplus</span>'
                     + '</div>';
                 
+                // BLS salary range (if available)
+                if (job.blsSalary && job.blsSalary.median) {
+                    var bls = job.blsSalary;
+                    var lo = bls.pct25 ? '$' + bls.pct25.toLocaleString() : '';
+                    var hi = bls.pct75 ? '$' + bls.pct75.toLocaleString() : '';
+                    var med = '$' + bls.median.toLocaleString();
+                    var rangeStr = lo && hi ? lo + ' \u2013 ' + hi : 'Median ' + med;
+                    html += '<div style="margin-top:8px; font-size:0.78em; color:var(--text-muted); display:flex; align-items:center; gap:6px;">'
+                        + '<span style="color:#a78bfa;">\uD83D\uDCB0</span> '
+                        + '<span style="color:#a78bfa;">' + rangeStr + '</span>'
+                        + '<span style="opacity:0.5;"> \u00B7 ' + bls.title + ' (BLS)</span>'
+                        + '</div>';
+                }
+                
                 // Edit/remove — hidden for sample jobs unless admin
                 var isSampleJob = job.sample === true;
                 if (isSampleJob && !fbIsAdmin) {
@@ -13644,6 +13669,81 @@ body {
         
         // ===== JOB ANALYSIS ENGINE =====
         
+        // ===== BLS OCCUPATION MATCHING =====
+        function matchJobToBLS(titleText, descText) {
+            if (!window.blsWages) return null;
+            var bls = window.blsWages;
+            var text = ((titleText || '') + ' ' + (descText || '').substring(0, 500)).toLowerCase();
+            var scores = {};
+            
+            // Phase 1: Alias matching (strongest signal, weight 5)
+            if (bls.aliases) {
+                // Sort aliases by length descending so longer phrases match first
+                var sortedAliases = Object.keys(bls.aliases).sort(function(a, b) { return b.length - a.length; });
+                for (var ai = 0; ai < sortedAliases.length; ai++) {
+                    var alias = sortedAliases[ai];
+                    if (text.indexOf(alias) !== -1) {
+                        var soc = bls.aliases[alias];
+                        scores[soc] = (scores[soc] || 0) + 5;
+                    }
+                }
+            }
+            
+            // Phase 2: Title keyword matching (weight 1 per word)
+            var words = text.match(/[a-z]+/g) || [];
+            var skip = {and:1,or:1,the:1,of:1,for:1,all:1,other:1,except:1,a:1,an:1,in:1,to:1,with:1,by:1,is:1,are:1,was:1,will:1,this:1,that:1,you:1,our:1,your:1,we:1};
+            words = words.filter(function(w) { return !skip[w] && w.length > 2; });
+            
+            for (var oi = 0; oi < bls.occupations.length; oi++) {
+                var occ = bls.occupations[oi];
+                var occWords = (occ.keywords || []);
+                var overlap = 0;
+                for (var wi = 0; wi < words.length; wi++) {
+                    if (occWords.indexOf(words[wi]) !== -1) overlap++;
+                }
+                if (overlap > 0) {
+                    scores[occ.soc] = (scores[occ.soc] || 0) + overlap;
+                }
+            }
+            
+            // Find best match
+            var best = null;
+            var bestScore = 0;
+            for (var soc in scores) {
+                if (scores[soc] > bestScore) {
+                    bestScore = scores[soc];
+                    best = soc;
+                }
+            }
+            
+            if (!best) return null;
+            
+            // Look up the occupation data
+            var matched = null;
+            for (var mi = 0; mi < bls.occupations.length; mi++) {
+                if (bls.occupations[mi].soc === best) {
+                    matched = bls.occupations[mi];
+                    break;
+                }
+            }
+            
+            if (!matched) return null;
+            
+            return {
+                soc: matched.soc,
+                title: matched.title,
+                median: matched.a_median,
+                pct10: matched.a_pct10,
+                pct25: matched.a_pct25,
+                pct75: matched.a_pct75,
+                pct90: matched.a_pct90,
+                employment: matched.employment,
+                confidence: bestScore,
+                source: 'BLS OEWS ' + (bls.period || '2024')
+            };
+        }
+        window.matchJobToBLS = matchJobToBLS;
+        
         async function analyzeJob() {
             var jdText = (document.getElementById('jdTextInput').value || '').trim();
             if (!jdText || jdText.length < 50) {
@@ -13681,6 +13781,7 @@ body {
                 var matchData = matchJobToProfile(parsed);
                 
                 // Build the job object
+                var blsSalary = matchJobToBLS(parsed.title, jdText);
                 var job = {
                     id: 'job-' + Date.now(),
                     title: parsed.title || 'Untitled Position',
@@ -13692,6 +13793,7 @@ body {
                     parsedRoles: parsed.roles || [],
                     seniority: parsed.seniority || '',
                     matchData: matchData,
+                    blsSalary: blsSalary,
                     addedAt: new Date().toISOString()
                 };
                 
@@ -14708,6 +14810,43 @@ body {
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Your Surplus</div></div>'
                 + '</div>';
             
+            // BLS Salary Range (if available)
+            if (job.blsSalary && job.blsSalary.median) {
+                var bls = job.blsSalary;
+                html += '<div style="margin-bottom:24px; padding:16px 20px; border-radius:10px; '
+                    + 'background:rgba(167,139,250,0.06); border:1px solid rgba(167,139,250,0.2);">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">'
+                    + '<div>'
+                    + '<div style="font-size:0.82em; font-weight:600; color:#a78bfa; margin-bottom:4px;">\uD83D\uDCB0 Market Salary Range</div>'
+                    + '<div style="font-size:0.78em; color:var(--text-muted);">BLS Match: ' + bls.title + ' (SOC ' + bls.soc + ')</div>'
+                    + '</div>'
+                    + '<div style="text-align:right;">'
+                    + '<div style="font-size:1.3em; font-weight:700; color:#a78bfa;">$' + bls.median.toLocaleString() + '</div>'
+                    + '<div style="font-size:0.72em; color:var(--text-muted);">median annual</div>'
+                    + '</div></div>';
+                
+                // Percentile bar
+                if (bls.pct10 && bls.pct90) {
+                    var range = bls.pct90 - bls.pct10;
+                    var p25Pos = bls.pct25 ? ((bls.pct25 - bls.pct10) / range * 100) : 15;
+                    var medPos = ((bls.median - bls.pct10) / range * 100);
+                    var p75Pos = bls.pct75 ? ((bls.pct75 - bls.pct10) / range * 100) : 85;
+                    
+                    html += '<div style="margin-top:12px;">'
+                        + '<div style="position:relative; height:8px; background:rgba(167,139,250,0.15); border-radius:4px; margin:8px 0;">'
+                        + '<div style="position:absolute; left:' + p25Pos + '%; right:' + (100 - p75Pos) + '%; height:100%; background:rgba(167,139,250,0.4); border-radius:4px;"></div>'
+                        + '<div style="position:absolute; left:' + medPos + '%; width:3px; height:14px; top:-3px; background:#a78bfa; border-radius:2px;"></div>'
+                        + '</div>'
+                        + '<div style="display:flex; justify-content:space-between; font-size:0.72em; color:var(--text-muted);">'
+                        + '<span>$' + bls.pct10.toLocaleString() + ' (10th)</span>'
+                        + '<span>$' + (bls.pct90 || 0).toLocaleString() + ' (90th)</span>'
+                        + '</div></div>';
+                }
+                
+                html += '<div style="margin-top:8px; font-size:0.7em; color:var(--text-muted); opacity:0.6;">Source: ' + bls.source + ' \u00B7 National cross-industry</div>'
+                    + '</div>';
+            }
+            
             // Matched skills (with proficiency comparison)
             if (matched.length > 0) {
                 html += '<div style="margin-bottom:20px;">'
@@ -14958,6 +15097,7 @@ body {
                     job.parsedSkills = parsed.skills || [];
                     job.parsedRoles = parsed.roles || [];
                     job.matchData = matchData;
+                    job.blsSalary = matchJobToBLS(job.title, job.rawText);
                     if (parsed.title && parsed.title !== 'Untitled Position') job.title = parsed.title;
                     if (parsed.company) job.company = parsed.company;
                     
