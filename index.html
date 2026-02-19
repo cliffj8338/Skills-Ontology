@@ -7164,8 +7164,8 @@
                 templateId: templateId  // Store which template this is
             };
             
-            // Inject sample jobs for demo profiles if none provided in template
-            if (userData.savedJobs.length === 0 && templateId.indexOf('demo') !== -1) {
+            // Inject sample jobs for demo profiles (always refresh on load)
+            if (templateId.indexOf('demo') !== -1) {
                 userData.savedJobs = getSampleJobsForProfile(templateId, template);
             }
             
@@ -18072,6 +18072,8 @@ body {
             showToast('Settings saved. Go to Opportunities and click Find Matching Jobs to see updated results.', 'success', 5000);
         }
         window.saveSettings = saveSettings;
+        
+        function selectPreset(key) {
             currentPreset = key;
             
             // Apply preset logic to outcomes and values sharing flags
@@ -18097,6 +18099,7 @@ body {
             saveUserData();
             initConsent(); // Re-render to show selection
         }
+        window.selectPreset = selectPreset;
         
         function filterSkillsView(searchTerm) {
             const term = searchTerm.toLowerCase().trim();
