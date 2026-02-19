@@ -1,496 +1,132 @@
-# Blueprint — Project Context
+# PROJECT_CONTEXT.md — Blueprint v4.7.0
+**Updated:** 2026-02-19 | **Lines:** 16,696 | **Functions:** 313
 
-**Version:** v4.6.0 | **Build:** 20260218-0600 | **Lines:** ~17,057 | **Functions:** ~330
+## Architecture
+
+Single-file SPA (`index.html`) deployed to GitHub Pages. No build step, no bundler. All HTML, CSS, and JS in one file. Firebase for auth + Firestore for persistence. D3.js for network visualization. jsPDF for PDF export. Claude API for AI-powered generation features.
+
 **Repository:** https://github.com/cliffj8338/Skills-Ontology
-**Live:** https://cliffj8338.github.io/Skills-Ontology/
-**Founder:** Cliff Jurkiewicz
 
----
-
-## Branding
-
-- **Name:** Blueprint (formerly "Work Blueprint")
-- **Logo:** B4 "Architect's Stamp" — network graph mark (5 nodes, 4 primary connections, 3 secondary) contained within a circular ring
-- **Typography:** Outfit 500, spaced uppercase (letter-spacing: 0.22em) for header and nav
-- **Mark colors:** Center node #60a5fa, outer nodes #93bbfc and #818cf8, ring #60a5fa at 22% opacity
-- **Type color:** #93bbfc (light blue) on dark backgrounds
-- **Font import:** Google Fonts — Outfit 400-700
-- **SVG mark viewBox:** 0 0 52 52 (scales cleanly to any size)
-- **Trademark:** Blueprint™ — ™ symbol in header (superscript, 55% size, 60% opacity)
-- **Copyright:** © 2026 Cliff Jurkiewicz. All rights reserved.
-- **Legal:** Full IP/legal notice modal (`showLegalNotice()`) covering trademark, copyright, IP (ontology system, match algorithm, network visualization, proprietary frameworks), third-party data, user data policy
-- **Copyright in exports:** Travels with PDF footer, HTML Blueprint export, resume export, and text export
-- **Nav typography:** Outfit 500, uppercase, 0.08em letter-spacing (desktop), 0.06em (mobile)
-
----
-
-## What This Is
-
-A single-page web application that maps professional skills to O*NET/ESCO taxonomies, visualizes them as an interactive D3 force-directed network, calculates market valuation, and generates exportable executive blueprints. Built as a single `index.html` file (~16.4K lines) hosted on GitHub Pages with Firebase backend.
-
-## Tech Stack
-
-- **Frontend:** Vanilla JS, D3.js v7 (force network), HTML5 Canvas (hero animation)
-- **Backend:** Firebase Auth + Cloud Firestore
-- **Hosting:** GitHub Pages (static)
-- **CDN Libraries:** D3, Ajv (JSON schema validation), Firebase SDK v10.7.0 (compat builds)
-- **Typography:** Google Fonts — Outfit (brand), system fonts (body)
-- **No build step:** Everything runs from a single HTML file + JSON data files in the repo
-
----
-
-## Firebase Configuration
-
+### File Structure
 ```
-Project: work-blueprint
-Auth Domain: work-blueprint.firebaseapp.com
-Project ID: work-blueprint
-API Key: AIzaSyBO703p11FdLojH6ogB50XrxoFVy_7bHLE (public, domain-restricted)
+index.html               — The entire application (16,696 lines)
+profiles-manifest.json   — Sample profile metadata
+skill_valuations.json    — Market value data for skills
+skill_evidence.json      — Evidence/outcome data for skills
+templates/               — Sample profile JSON files
 ```
 
-**API Key Security:** Restricted in Google Cloud Console to HTTP referrers: `cliffj8338.github.io/*`, `localhost/*`, `work-blueprint.firebaseapp.com/*`, `work-blueprint.web.app/*`. Safe for Firebase client-side keys. Security enforced by Firestore Rules + Firebase Auth.
-
-### Auth Methods
-1. Google Sign-In (OAuth popup)
-2. Email/Password
-3. Magic Link (passwordless email)
-
-### Firestore Data Model
-
-```
-users/{uid}
-  email, displayName, createdAt, lastLogin
-  role: 'user' | 'admin'
-  profile: { name, email, location, seniority, ... }
-  skills: [ { name, level, category, key, roles, evidence[] } ]
-  values: [ { name, selected, inferred, custom } ]
-  purpose: string
-  outcomes: [ { text, skill, category, shared, ... } ]
-  preferences: { consentPreset, theme, ... }
-  applications: [ ... ]
-  savedJobs: [ ... ]
-  updatedAt: timestamp
-
-samples/{sampleId}  (reserved in rules, not yet wired)
-```
-
-### Firestore Security Rules
-
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read: if request.auth != null && (
-        request.auth.uid == userId || isAdmin()
-      );
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-    match /samples/{sampleId} {
-      allow read: if true;
-      allow write: if request.auth != null && isAdmin();
-    }
-    function isAdmin() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-    }
-  }
-}
-```
-
-**Admin seeding:** After first sign-in, manually set `role: "admin"` in Firebase Console, Firestore, Data, users/{cliff-uid}.
-
----
-
-## Application Architecture
-
-### Page Load / Init Flow
-
-**1. HTML baseline:** All 8 view containers and controls bar start with `style="display:none;"`. Nothing visible until JS explicitly shows a view via `switchView()`.
-
-**2. DOMContentLoaded** (async):
-```
-checkMagicLinkSignIn()        // wrapped in try-catch
-await authReadyPromise         // waits for onAuthStateChanged
-targetView = await initializeApp()  // loads manifest, templates, determines view
-if userData.initialized → update profile chip, init card view data, start auto-save
-switchView(targetView)         // welcome, blueprint, or network
-deferred rebuildProfileDropdown() at 500ms
-```
-
-**3. initializeApp()** (async, returns string):
-```
-Fetch profiles-manifest.json → load all enabled profile templates
-Load skill library index, values library
-Load scaffold template from localStorage or default cliff-jones-demo
-Call initializeMainApp() to wire up globals
-DECISION:
-  - If fbUser && fbDb → await loadUserFromFirestore(uid)
-    - If data found → return 'blueprint'
-    - If no data → return 'welcome'
-  - If not signed in → return 'welcome'
-```
-
-**4. switchView(view)** — master view controller:
-- Hides all 8 views + controls bar
-- Shows requested view
-- Scroll to top on every view switch
-- Lazy-initializes views on first visit via `window.xxxInitialized` flags
-- Welcome page: only re-renders if `_welcomePickerActive` flag is not set
-- Network view: hides filter button, shows filter pill if role active
-- Card view: shows filter button, hides network filter pill
-
-### Key Globals
-
-```javascript
-fbApp, fbAuth, fbDb              // Firebase instances
-fbUser = null                     // Current Firebase user or null
-fbIsAdmin = false                 // Admin role flag
-authReadyPromise                  // Resolves when onAuthStateChanged fires once
-
-userData = { initialized, profile, skills, values, purpose, outcomes, savedJobs, ... }
-skillsData = { skills, roles, skillDetails }
-templates = {}                    // Loaded profile templates keyed by ID
-isReadOnlyProfile = false         // True when viewing sample as non-admin
-activeRole = 'all'                // Currently filtered role in network view
-
-currentView = 'network'           // Active view
-currentSkillsView = 'network'     // 'network' or 'card' within Skills tab
-```
-
-### Navigation
-
-**Header tabs:** Skills | Jobs | Applications | Blueprint (Outfit spaced caps)
-**Header right:** Theme toggle | Sign In | Profile chip + dropdown | Overflow menu
-
-**Logo click** returns to welcome page.
-
-**Profile dropdown** (rebuilt by `rebuildProfileDropdown()`): current user section with ADMIN badge, sample profiles from manifest, Admin Dashboard / Sign Out actions. Click propagation fix: clicks inside dropdown options don't bubble to the chip toggle.
-
-### Views
-
-| View | ID | Lazy Init Flag | Default |
-|------|----|---------------|---------|
-| Welcome | welcomeView | No (rendered each time) | Landing page |
-| Skills Network | networkView | networkInitialized | D3 force graph |
-| Skills Card | cardView | cardViewInitialized | Grid cards |
-| Jobs | opportunitiesView | opportunitiesInitialized | Job matching |
-| Applications | applicationsView | applicationsInitialized | App tracker |
-| Blueprint | blueprintView | blueprintInitialized | Executive summary |
-| Consent | consentView | consentInitialized | Privacy/GDPR |
-| Settings | settingsView | settingsInitialized | Preferences |
-
----
-
-## Network Filtering (v4.5.0)
-
-### Interaction Model
-- **Filter button hidden** in network view (filtering via direct node interaction)
-- **Filter button visible** in card view (traditional panel with roles + levels)
-- **Click role node** to filter to that role's skills (dims everything else)
-- **Click same role again** to toggle back to "all" (deselect)
-- **Click center node (your name)** to reset to show all
-- **All interactive nodes have cursor:pointer** (center, role, skill)
-
-### Floating Filter Pill
-- ID: `networkFilterPill`
-- Appears at top-center when a role is actively filtered
-- Shows role name with color dot matching the role's node color
-- × button clears the filter via `filterByRole('all')`
-- Hidden when "all" is active or when in card view
-- Styled: backdrop-blur, elevated bg, accent border, Outfit font
-
-### filterByRole(roleId) Updates
-- Manages both the role-chip panel state AND the network filter pill
-- Looks up role name and color from `window.networkData.nodes`
-- Shows/hides pill based on whether filtering is active
-
----
-
-## Profile System
-
-### Sample Profiles
-- Load from JSON files in the repo, not Firestore
-- `profiles-manifest.json` lists enabled profiles
-- Currently: Cliff Jones (VP Strategy), Sarah Chen (Tech Recruiter), Mike Rodriguez (Eng Lead), Jamie Martinez (Hair Stylist), Alex Thompson (Retail Cashier)
-
-### Profile Switching (`switchProfile(templateId)`)
-- Loads template inline, no page reload
-- Resets ALL view init flags
-- **Navigates to Skills Network view** (card on mobile)
-- Scrolls to top with 50ms delay
-
-### Profile Dropdown Fix (v4.5.0)
-- `toggleProfileDropdown()` checks if click originated inside `profileDropdownOptions`
-- If yes, returns early (lets the option's own onclick handle closing)
-- Prevents re-toggle bug
-
----
-
-## Authentication
-
-### Auth Modal (`showAuthModal(mode)`)
-- Sign-in / Sign-up toggle, Google OAuth, email/password, magic link
-
-### Post Sign-In (`handlePostSignIn(user, isNewUser)`)
-- Creates Firestore doc on first sign-in
-- Loads Firestore data or offers wizard for new users
-
-### Magic Link
-- **CRITICAL:** Uses `fbAuth.isSignInWithEmailLink()` (instance method), NOT `firebase.auth.isSignInWithEmailLink()` (static, does not exist in compat SDK)
-
----
-
-## Job Cart System (v4.2.0+)
-
-### Data Structure
-```javascript
-{
-  id: 'job_1708300000000',
-  title: 'Senior Talent Strategist',
-  company: 'Acme Corp',
-  sourceUrl: 'https://...',
-  sourceNote: 'Found on LinkedIn',
-  rawText: '...',               // Original JD text (capped 5000 chars)
-  parsedSkills: [...],
-  parsedRoles: [...],
-  seniority: 'Senior',
-  matchData: { score, matched[], gaps[], surplus[], totalJobSkills, totalUserSkills },
-  addedAt: '2026-02-18T...'
-}
-```
-
-### Parsing Engines
-
-**Claude API (`parseJobWithAPI`):**
-- Claude Sonnet via direct browser access (`anthropic-dangerous-direct-browser-access` header)
-- API key in localStorage ('wbAnthropicKey'), never sent to our servers
-
-**Local Fallback (`parseJobLocally`):**
-- Title extraction: skips meta lines, prioritizes role keywords, scans first 15 lines
-- Company extraction: "Company:", "About [Company]" patterns
-- Four-pass skill extraction: user skills → O*NET library → 100+ keyword dictionary → phrase-level regex
-- Word-overlap fuzzy matching: 50%+ word overlap = partial match at reduced quality
-
-### Match Algorithm (`matchJobToProfile`)
-- Exact match first, then fuzzy (substring for terms > 4 chars)
-- Weighted: Required=3x, Preferred=2x, Nice-to-have=1x
-- Proficiency bonus: Mastery=1.0, Expert=0.9, Advanced=0.75, Proficient=0.6, Novice=0.4
-
-### Job Management UI
-- `editJobInfo(idx)` — modal for title, company, URL, note
-- `reanalyzeJob(idx)` — re-runs parser against stored JD text
-- `removeJob(idx)` — confirm and delete, clears overlay if affected
-- Edit/Remove buttons on pipeline cards and detail view header
-- 10-job cap per user
-
-### Network Overlay (v4.3.0)
-
-**Three modes:** You / Job / Match (pill toggle in controls bar)
-- **You:** Standard user skills network
-- **Job:** Job requirements as network, skills grouped by category
-- **Match:** Overlay combining both — green matched, red gaps, grey surplus, dashed cross-links
-- Active job badge with × clear button
-- Floating legend with live counts + match percentage
-
----
-
-## Values System (v4.1.0)
-
-25 values across 5 groups. Each has name, keywords, description. Personal notes per value. Notes appear in cards, clipboard, and PDF exports.
-
----
-
-## Export System
-
-All exports under Blueprint tab > Export sub-tab.
-
-### Core Exports
-1. **Executive Blueprint** — standalone HTML (generateWorkBlueprint)
-2. **Professional Resume** — ATS-friendly HTML (generateResume)
-3. **PDF Summary** — jsPDF 2-page (generatePDF)
-4. **Copy to Clipboard** — plain text (copyBlueprintText)
-5. **Full JSON** — complete data backup (exportFullJSON)
-
-### Job-Specific Tools (visible when savedJobs.length > 0)
-6. **Cover Letter** — `generateCoverLetter()` → job picker modal → Claude API or template fallback → editable textarea with copy/download
-7. **Interview Prep** — `generateInterviewPrep()` → job picker → STAR stories for matched skills, bridging language for gaps, surplus differentiators, smart questions → copy/download
-
-### Networking & Profile
-8. **LinkedIn Profile** — `generateLinkedInProfile()` → optimized headline, About section (2000 char), skills list → copy to clipboard
-
-### AI Generation Pattern
-All three new generators follow the same architecture:
-- Check for Anthropic API key in localStorage (`wbAnthropicKey`)
-- If key exists: Claude Sonnet API call with structured prompt including matched skills, evidence, outcomes, values, purpose
-- If no key: template-based fallback with the same data, user fills in STAR details manually
-- Result shown in editable textarea modal with Copy and Download buttons
-- `anthropic-dangerous-direct-browser-access` header for browser-direct API calls
-
-All exports include © 2026 Cliff Jurkiewicz / Blueprint™ attribution.
-
----
-
-## Mobile Behavior
-
-- `initNetwork()` detects mobile via `window.innerWidth <= 768`
-- Mobile: top 25 skills, bigger touch targets, hidden skill labels
-- `switchProfile()` defaults to card view on mobile
-- Mobile nav bar at bottom with Outfit uppercase labels
-- Network filter pill, match overlay legend all responsive
-
----
-
-## Hero Animation (Welcome Page)
-
-Canvas-based force network (`initHeroNetwork()`) with subtle simulated click interaction:
-
-- **40 nodes:** 1 center ("YOU"), 8 domain hubs, 31 skill nodes
-- **Frameless canvas:** No border/background, breathes into the page (360px height)
-- **Base behavior:** All nodes float gently with orbital pull, soft boundary constraints, damping
-- **Click simulation:** Every 3-5 seconds, a random skill node is "clicked":
-  - Clicked node pulses larger (1.6x) and brighter
-  - 3-4 adjacent neighbors expand outward from clicked node and brighten
-  - Connected links glow in the clicked node's domain color
-  - Bell curve timing: rises over ~0.7s, holds briefly, eases back over ~1.3s
-  - Everything returns to baseline before next click
-- **No cursor drawn, no domain-wide dimming, no phase engine** — just quiet node-level interaction
-- **Adjacency map** built during link creation for neighbor lookups
-- **Performance:** `requestAnimationFrame` with delta-time, `IntersectionObserver` pause when offscreen
-- **Font:** Outfit for labels (matches brand typography)
-
----
-
-## Admin & GDPR
-
-- `role: "admin"` in Firestore → admin badge, bypass read-only, admin panel
-- GDPR: `viewMyData()`, `exportMyData()`, `requestDataDeletion()`
-
----
-
-## File Structure
-
-```
-Skills-Ontology/
-  index.html              # Entire app (~16.4K lines)
-  profiles-manifest.json  # Enabled sample profiles
-  cliff-jones-demo.json   # Sample profiles...
-  sarah-chen-demo.json
-  mike-rodriguez-demo.json
-  jamie-martinez-demo.json
-  alex-thompson-demo.json
-  skill_evidence.json
-  skills/
-    index-v3.json         # 13,960+ skills
-  firestore.rules
-  PROJECT_CONTEXT.md      # This file
-```
-
----
-
-## Version History
-
-| Build | Date | Changes |
-|-------|------|---------|
-| v4.0.0 | 20260218 | Firebase Auth + Firestore + admin + GDPR + welcome page + read-only samples + nav restructure + hero animation + async init fixes |
-| v4.1.0-0400 | 20260218 | Mobile responsive + Values descriptions/notes + Consent fixes + Export consolidation |
-| v4.2.0-0430 | 20260218 | Job Cart: JD analysis (Claude API + local fallback), match scoring, pipeline UI, Firestore persistence |
-| v4.3.0-0500 | 20260218 | Job Cart Phase 2: Network overlay (You/Job/Match toggle), match visualization with legend |
-| v4.3.1-0510 | 20260218 | Parser rebuild: 100+ skill dictionary, phrase extraction, fuzzy word-overlap matching. Job edit/delete/re-analyze UI. |
-| v4.4.0-0520 | 20260218 | Rebrand: "Work Blueprint" → "Blueprint". B4 Architect's Stamp logo (Outfit 500 spaced caps). SVG network mark throughout. Copyright/trademark/IP legal notice. All exports carry attribution. |
-| v4.5.0-0530 | 20260218 | Nav: Outfit spaced caps. Network filtering via node clicks (filter button hidden). Center node reset. Role toggle. Floating filter pill. Profile dropdown fix. Removed subtitle. |
-| v4.6.0-0600 | 20260218 | Wizard→Firestore pipeline fix. Cover Letter generator (Claude API + template). Interview Prep with STAR stories + gap bridging. LinkedIn Profile export. All export stubs replaced. About page updated (v4.6.0, removed "no account required"). Wizard step copy updated for Firebase. Hero animation: removed bordered panel, added simulated interaction sequence (cursor approaches domain, hover glow, expand/focus, settle cycle across 8 domains on 14s loop). Canvas uses Outfit font for labels. |
-
----
-
-## Pending / Next Steps
-
-### High Priority
-- [ ] Wire onboarding wizard to save directly to Firestore ✅ DONE v4.6.0
-- [ ] Cover letter / interview prep generation from match data ✅ DONE v4.6.0
-- [ ] Move sample profiles to Firestore `samples/` collection
-- [ ] Test all sign-in flows end-to-end
-- [ ] Loading screen / welcome page lockup with B4 logo
-
-### Medium Priority
-- [ ] Real-time save indicator (checkmark/spinner)
-- [ ] Network resize handler
-- [ ] Remove dead code (old buildProfileDropdown, showWelcomeScreen, etc.)
-- [ ] Profile photo/avatar upload
-- [ ] Enforce read-only in UI (disable edit buttons)
-- [ ] Persist consent preset to userData.preferences
-
-### Lower Priority
-- [ ] Offline mode with Firebase persistence
-- [ ] Mobile-optimized wizard
-- [ ] Analytics dashboard for admin
-- [ ] LinkedIn Profile export ✅ DONE v4.6.0
-- [ ] Interview Prep STAR stories generator ✅ DONE v4.6.0
-- [ ] Domain registration (blueprint.work recommended)
-- [ ] URL-based JD import (requires server proxy for CORS)
-
----
-
-## Common Pitfalls
-
-1. **Never call `initNetwork()` before Skills tab is visible.** D3 needs visible container dimensions.
-
-2. **Firebase compat SDK:** Use `fbAuth.isSignInWithEmailLink()` (instance), NOT `firebase.auth.isSignInWithEmailLink()`.
-
-3. **`rebuildProfileDropdown()` must run after both manifest AND auth resolve.**
-
-4. **`switchView()` is the only way to show a view.** All views start hidden.
-
-5. **The `_welcomePickerActive` flag** prevents switchView from overwriting welcomeView content.
-
-6. **Python string replacement is dangerous on this file.** Use `str_replace` tool or targeted `sed`.
-
-7. **The `tv(dark, light)` helper** returns theme-appropriate values at render time only.
-
-8. **Always verify shipped output matches working file.**
-
-9. **The `exportModal` div is reused dynamically** by multiple functions.
-
-10. **Mobile network shows subset of skills.** Top 25 key/expert.
-
-11. **App footer hidden on welcome view.** Welcome has its own disclaimer.
-
-12. **Claude API uses direct browser access.** `anthropic-dangerous-direct-browser-access` header required.
-
-13. **Jobs tab reinitializes on every visit.** `opportunitiesInitialized` resets after add/remove.
-
-14. **Local JD parsing depends on skill library index.**
-
-15. **Firebase project ID is `work-blueprint`** (infrastructure). User-facing name is "Blueprint" everywhere.
-
-16. **Network filter pill only in network view.** `filterByRole()` checks `currentSkillsView`.
-
-17. **AI generators (cover letter, interview prep, LinkedIn) use the same API pattern.** Key in localStorage, Sonnet model, `anthropic-dangerous-direct-browser-access` header. Template fallback always available.
-
-18. **Export section conditionally shows Job-Specific Tools.** Only visible when `userData.savedJobs.length > 0`.
-
----
-
-## Competitive Landscape (Blueprint name)
-
-Searched Feb 2026. No conflicts in our space:
-- **blueprint.tech** — ad tech / media spend optimization
-- **Blueprint (healthtech)** — mental health tools for clinicians
-- **BlueprintSys** — RPA migration/automation
-- **Blueprint (Seattle)** — data solutions firm
-- **Blueprint HR Software** — India SAP implementation (acquired by HR Path)
-- **Blueprint HC** — management process platform
-
-None in personal professional ontology / career intelligence. Clear daylight.
-
----
-
-## Cliff's Writing/Style Preferences
-
-- Limit em/en dashes, rephrase or use commas
-- Avoid redundancy and excessive examples
-- Never use "the uncomfortable truth" or "talent wars"
-- Avoid jargon, superlatives, borrowed authority
-- Precise verbs over generic ones
-- Newsletter emails: SHORT and PUNCHY, 10-second read max
-- Editorial board review: WSJ, NY Times, The Atlantic, HR Executive
-- Terse communication with AI is for efficiency, not dissatisfaction
+### External Dependencies (CDN)
+- D3.js v7 (network visualization)
+- jsPDF 2.5.1 (PDF generation)
+- Firebase 10.7.0 (auth + Firestore)
+- Google Fonts: Outfit (400/500/600/700)
+
+## Key Sections & Line Ranges (approximate)
+
+| Section | Start | Fns | Notes |
+|---------|-------|-----|-------|
+| CSS Styles | 15 | — | ~3200 lines, CSS variables, light/dark themes |
+| HTML Structure | 3200 | — | Nav, modals, controls, footer |
+| Firebase Auth | 3920 | 7 | Google sign-in, email/password, magic link |
+| Admin Panel | 4500 | 5 | User management (admin-only) |
+| Hero Animation | 4707 | 1 | Solar system orbital model, click-emit particles |
+| Sample Profiles | 4980 | 3 | Manifest loading, picker, viewSampleProfile |
+| Profile Switching | 5490 | 4 | switchProfile, saveUserData, rebuildProfileDropdown |
+| Skill Library | 5600 | 6 | ESCO/O*NET search, category browsing |
+| Onboarding Wizard | 5990 | ~30 | 8-step wizard, resume parsing via Claude API |
+| Network Visualization | 7000 | 15 | D3 force layout, role filtering, node interactions |
+| Card View | 7649 | 3 | initCardView, domain grouping, level badges |
+| View Router | 7918 | 5 | switchView, toggleSkillsView, updateStatsBar |
+| Skill Detail Modal | 8400 | 8 | openSkillModal, edit, assess, evidence |
+| Resume Generator | 8660 | 6 | HTML resume, print-to-PDF |
+| Work Blueprint | 8800 | 10 | AI-powered via Claude API |
+| Values System | 9200 | 47 | Evidence matching, notes, ordering |
+| Purpose System | 9800 | 8 | AI generation, manual editing |
+| Export Tab | 10100 | 8 | Cover letter, interview prep, LinkedIn |
+| Cover Letter | 11000 | 6 | AI-powered via Claude API |
+| Interview Prep | 11200 | 6 | AI-powered via Claude API |
+| LinkedIn Profile | 11450 | 6 | AI-powered via Claude API |
+| Opportunities/Jobs | 11700 | 26 | Job search, detail view, bookmarking |
+| Job APIs | 12500 | 3 | RemoteOK, Remotive, ArbeitNow (CORS blocked) |
+| Match Overlay | 12800 | 18 | Job-to-skill matching visualization |
+| Applications Tracker | 13500 | 9 | Application status tracking |
+| Settings | 13700 | 11 | Profile editing, theme, API key |
+| Consent & Sharing | 14500 | 10 | CCPA/GDPR, sharing preferences |
+| Impact/Valuation | 14700 | 12 | Skill market valuation, breakdown |
+| Skill Search/Filter | 14700 | 3 | Network + card view filtering |
+| UI Utilities | 15800 | 15 | Toast, legal notice, about, help |
+| Profile Dropdown | 16500 | 5 | Toggle, close, switch, chip update |
+| Filter Panel | 16600 | 3 | Toggle, apply, chip rendering |
+| Resize + History | 16700 | 2 | Debounced resize, popstate handler |
+
+## State Management
+
+### Global Variables
+- `userData` — Current profile (profile, skills, roles, outcomes, values, purpose)
+- `skillsData` — Reference alias to userData.skills / userData.roles
+- `currentView` — Active view ('network','opportunities','applications','blueprint','welcome','settings','consent')
+- `currentSkillsView` — Sub-view ('network' or 'card')
+- `activeRole` — Filtered role ID or 'all'
+- `activeJobForNetwork` — Job object for match overlay, or null
+- `fbUser` / `fbDb` / `fbIsAdmin` — Firebase auth state
+
+### Init Flags (all reset on profile switch)
+networkInitialized, cardViewInitialized, blueprintInitialized, opportunitiesInitialized, applicationsInitialized, consentInitialized, settingsInitialized
+
+### localStorage Keys
+currentProfile, wbTheme, wbAnthropicKey, wbValues, wbPurpose, wbMagicLinkEmail
+
+## Completed Fixes (v4.7.0)
+
+- C1: Debounced resize handler for network SVG
+- C2: Browser back button (pushState/popstate)
+- C3: Neutral profile chip on load (was hardcoded "Cliff Jurkiewicz")
+- C4: Dynamic document title on profile switch
+- H2-H6: Removed 370 lines dead functions (bulk mgmt, skill templates, old stubs)
+- H7: Removed unused .bulk-mode CSS
+- H8: Removed dead exportProfile pass-through
+- M3: Modal open pushes history (back button closes modals)
+- M5: Reset activeRole, activeJobForNetwork, search on profile switch
+- M6: Fixed card view search (wrong DOM selectors)
+- M9: Preconnect hints for Google Fonts
+- L5: Removed orphaned wbHasVisited reference
+- L7: Dynamic copyright year
+- Profile toggle pill sync on mobile
+- Network + card lazy-init in toggleSkillsView
+- Profile dropdown race condition fix
+- Hero network: solar system orbital + gravitational repulsion
+
+## Known Issues — Remaining
+
+### Functional Gaps
+- M4: Zero accessibility (187 buttons, 1 aria-label)
+- M8: Job APIs CORS-blocked in production (RemoteOK, Remotive, ArbeitNow)
+- L8: Unnecessary initConsent() calls on theme change
+- L9: 51 console statements need debug flag
+
+### Features Not Yet Built
+- Loading screen / splash with B4 logo
+- Real-time save indicator
+- Profile photo upload
+- Read-only UI for sample profiles
+- Consent preset persistence
+- Move sample profiles to Firestore samples/ collection
+
+### API-Dependent Features (need Claude API key in Settings)
+generateWorkBlueprint, generateCoverLetter, generateInterviewPrep, generateLinkedInProfile, wizard resume parsing, purpose generation
+
+## Hero Animation Details
+
+Solar system model: center "YOU" fixed, 8 domain hubs in 3 orbital bands (inner 58-68px, mid 75-92px, outer 100-112px). Each hub has unique angular speed. ~31 skill nodes inherit parent speed ±12.5%. Hub-hub gravitational repulsion (angular nudge + radial push within 65px, hard limit 38px). Click-emit particles every 1.2-2s. Canvas-based, RAF with delta-time, IntersectionObserver pause.
+
+## Development Gotchas
+
+- `switchView('network')` = skills tab, not network-only
+- `currentSkillsView` tracks network vs card sub-view
+- Profile switch resets all init flags
+- `skillsData` is reference alias, not copy
+- `tv(darkVal, lightVal)` helper for theme-aware values
+- `window.X = fn` makes closure functions accessible to onclick
+- Hero uses polar coordinates (angle + dist from center)
+- Brace balance: 0 (balanced). Parens: -2 (regex offset, not error)
