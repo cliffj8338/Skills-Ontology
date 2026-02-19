@@ -3628,7 +3628,7 @@
                 </div>
                 
                 <div class="settings-group">
-                    <label class="settings-label">Used in Roles *</label>
+                    <label class="settings-label">Used in Roles <span style="font-weight:400; color:var(--text-muted); font-size:0.85em;">(optional, defaults to all)</span></label>
                     <div id="customSkillRoles" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
                         <!-- Populated by JavaScript -->
                     </div>
@@ -3720,7 +3720,7 @@
                     </div>
                     
                     <div style="margin-bottom:16px;">
-                        <label class="settings-label">Assign to roles</label>
+                        <label class="settings-label">Assign to roles <span style="font-weight:400; color:var(--text-muted); font-size:0.85em;">(optional, defaults to all)</span></label>
                         <div id="bulkImportRoles" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:8px;">
                         </div>
                     </div>
@@ -3793,7 +3793,7 @@
                 </div>
                 
                 <div class="settings-group">
-                    <label class="settings-label">Used in Roles *</label>
+                    <label class="settings-label">Used in Roles <span style="font-weight:400; color:var(--text-muted); font-size:0.85em;">(optional, defaults to all)</span></label>
                     <div id="editSkillRoles" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
                         <!-- Populated by JavaScript -->
                     </div>
@@ -16746,8 +16746,7 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             }
             
             if (roles.length === 0) {
-                showToast('Please select at least one role.', 'warning');
-                return;
+                roles = (userData.roles || []).map(function(r) { return r.id; });
             }
             
             // Check for duplicates
@@ -16800,11 +16799,11 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             document.getElementById('bulkImportStep2').style.display = 'none';
             switchBulkTab('text');
             
-            // Populate role checkboxes
+            // Populate role checkboxes from current profile
             var rolesEl = document.getElementById('bulkImportRoles');
-            rolesEl.innerHTML = (userData.roles || []).map(function(role, i) {
+            rolesEl.innerHTML = (userData.roles || []).map(function(role) {
                 return '<label style="display:flex; align-items:center; gap:8px; cursor:pointer;">'
-                    + '<input type="checkbox" value="' + role.id + '" class="bulk-role-checkbox"' + (i === 0 ? ' checked' : '') + '>'
+                    + '<input type="checkbox" value="' + role.id + '" class="bulk-role-checkbox">'
                     + '<span style="font-size:0.9em;">' + role.name + '</span></label>';
             }).join('');
             
@@ -16847,9 +16846,9 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             var defaultLevel = document.getElementById('bulkDefaultLevel').value;
             var roles = Array.from(document.querySelectorAll('.bulk-role-checkbox:checked')).map(function(cb) { return cb.value; });
             
+            // If no roles checked, assign to all current roles
             if (roles.length === 0) {
-                showToast('Select at least one role.', 'warning');
-                return;
+                roles = (userData.roles || []).map(function(r) { return r.id; });
             }
             
             var rawItems = [];
@@ -17253,12 +17252,11 @@ body[data-theme="light"] .toast-warning { background: #fffbeb; color: #78350f; }
             
             const level = document.querySelector('input[name="editSkillLevel"]:checked').value;
             const core = document.getElementById('editSkillCore').checked;
-            const roles = Array.from(document.querySelectorAll('.edit-skill-role-checkbox:checked')).map(cb => cb.value);
+            var roles = Array.from(document.querySelectorAll('.edit-skill-role-checkbox:checked')).map(cb => cb.value);
             
-            // Validate
+            // Default to all roles if none selected
             if (roles.length === 0) {
-                showToast('Please select at least one role.', 'warning');
-                return;
+                roles = (userData.roles || []).map(function(r) { return r.id; });
             }
             
             // Update skill
