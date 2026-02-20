@@ -3492,23 +3492,22 @@
     <!-- Loading Splash -->
     <div id="appSplash" style="position:fixed; inset:0; z-index:999999; background:var(--bg, #0a0a1a); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:20px; transition:opacity 0.4s ease;">
         <div style="display:flex; align-items:center; gap:14px;">
-            <svg width="40" height="40" viewBox="0 0 100 100" style="filter: drop-shadow(0 0 20px rgba(96,165,250,0.3));">
-                <defs><linearGradient id="splashGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient></defs>
-                <circle cx="50" cy="50" r="8" fill="url(#splashGrad)"/>
-                <circle cx="50" cy="20" r="5" fill="#f472b6" opacity="0.8"/>
-                <circle cx="76" cy="35" r="5" fill="#34d399" opacity="0.8"/>
-                <circle cx="76" cy="65" r="5" fill="#fbbf24" opacity="0.8"/>
-                <circle cx="50" cy="80" r="5" fill="#a78bfa" opacity="0.8"/>
-                <circle cx="24" cy="65" r="5" fill="#fb923c" opacity="0.8"/>
-                <circle cx="24" cy="35" r="5" fill="#22d3ee" opacity="0.8"/>
-                <line x1="50" y1="50" x2="50" y2="20" stroke="#60a5fa" stroke-width="1" opacity="0.3"/>
-                <line x1="50" y1="50" x2="76" y2="35" stroke="#60a5fa" stroke-width="1" opacity="0.3"/>
-                <line x1="50" y1="50" x2="76" y2="65" stroke="#60a5fa" stroke-width="1" opacity="0.3"/>
-                <line x1="50" y1="50" x2="50" y2="80" stroke="#60a5fa" stroke-width="1" opacity="0.3"/>
-                <line x1="50" y1="50" x2="24" y2="65" stroke="#60a5fa" stroke-width="1" opacity="0.3"/>
-                <line x1="50" y1="50" x2="24" y2="35" stroke="#60a5fa" stroke-width="1" opacity="0.3"/>
+            <svg width="48" height="48" viewBox="0 0 52 52" fill="none" style="filter: drop-shadow(0 0 20px rgba(96,165,250,0.3));">
+                <circle cx="26" cy="26" r="24" stroke="#60a5fa" stroke-width="1.5" opacity="0.22"/>
+                <line x1="26" y1="26" x2="12" y2="10" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
+                <line x1="26" y1="26" x2="42" y2="12" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
+                <line x1="26" y1="26" x2="40" y2="40" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
+                <line x1="26" y1="26" x2="10" y2="40" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
+                <line x1="12" y1="10" x2="42" y2="12" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
+                <line x1="42" y1="12" x2="40" y2="40" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
+                <line x1="10" y1="40" x2="40" y2="40" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
+                <circle cx="26" cy="26" r="4.5" fill="#60a5fa"/>
+                <circle cx="12" cy="10" r="3" fill="#93bbfc"/>
+                <circle cx="42" cy="12" r="2.5" fill="#818cf8"/>
+                <circle cx="40" cy="40" r="3" fill="#93bbfc"/>
+                <circle cx="10" cy="40" r="2.5" fill="#818cf8"/>
             </svg>
-            <span style="font-family:'Outfit',sans-serif; font-size:1.6em; font-weight:700; color:var(--accent, #60a5fa); letter-spacing:0.05em;">BLUEPRINT<span style="font-size:0.6em; vertical-align:super;">™</span></span>
+            <span style="font-family:'Outfit',sans-serif; font-size:1.6em; font-weight:700; color:var(--accent, #60a5fa); letter-spacing:0.05em;">Blueprint<span style="font-size:0.55em; vertical-align:super; letter-spacing:0; opacity:0.6;">&trade;</span></span>
         </div>
         <div style="width:120px; height:2px; background:rgba(96,165,250,0.15); border-radius:2px; overflow:hidden;">
             <div id="splashProgress" style="width:0%; height:100%; background:linear-gradient(90deg,#60a5fa,#3b82f6); border-radius:2px; transition:width 0.3s ease;"></div>
@@ -4123,7 +4122,7 @@
             <div class="modal-body">
                 <div class="coaching-tip" style="margin-bottom: 25px;">
                     <div class="coaching-tip-title">
-                        💡 WHY ASSESS THIS SKILL?
+                        ${bpIcon('lightbulb',14)} WHY ASSESS THIS SKILL?
                     </div>
                     <div class="coaching-tip-content">
                         This skill doesn't have a direct O*NET match. Answer a few questions so we can accurately rate its market impact.
@@ -8454,7 +8453,7 @@ ${wizardState.resumeText}` }]
             const isFromResume = !!wizardState.parsedData;
 
             el.innerHTML = `
-                ${wizardHeading('💡',
+                ${wizardHeading(bpIcon('lightbulb',16),
                     'Your Professional Values',
                     isFromResume ? 'Claude inferred these from your career history. Select the ones that feel true. You can edit descriptions to make them personal.'
                                  : 'Select the values that define how you work. These appear in your Blueprint.')}
@@ -8558,7 +8557,7 @@ ${wizardState.resumeText}` }]
                 <div style="background:var(--accent-glow); border:1px solid var(--border);
                             border-radius:10px; padding:16px; margin-bottom:24px;">
                     <div style="font-size:0.82em; color:var(--text-secondary); line-height:1.6;">
-                        <strong style="color:var(--accent);">💡 What makes a strong purpose statement:</strong><br>
+                        <strong style="color:var(--accent);">${bpIcon('lightbulb',12)} What makes a strong purpose statement:</strong><br>
                         Specific about who you help · Describes real outcomes, not activities · Reflects your actual approach · Sounds like a person, not a job description
                     </div>
                 </div>
@@ -8627,7 +8626,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     ${[
                         ['🗺️', skillCount, 'Skills'],
                         [bpIcon('clipboard',12), evidenceCount, 'Evidence Items'],
-                        ['💡', valueCount, 'Values']
+                        [bpIcon('lightbulb',12), valueCount, 'Values']
                     ].map(([icon, n, label]) => `
                         <div style="background:var(--bg-elevated); border:1px solid var(--border);
                                     border-radius:12px; padding:20px; text-align:center;">
@@ -10390,6 +10389,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 return !relevantSkills.includes(d.id); // Hide non-relevant skill labels
             });
         }
+        window.filterByRole = filterByRole;
 
         function filterByLevel(level) {
             activeLevel = activeLevel === level ? null : level;
@@ -10795,7 +10795,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         </div>
                         
                         <div style="margin-top: 15px; padding: 12px; background: rgba(251, 191, 36, 0.1); border-radius: 6px;">
-                            <div style="color: #fbbf24; font-weight: 600; margin-bottom: 5px;">💡 How This Affects Your Strategic Value</div>
+                            <div style="color: #fbbf24; font-weight: 600; margin-bottom: 5px;">${bpIcon('lightbulb',14)} How This Affects Your Strategic Value</div>
                             <div style="color: #d1d5db; font-size: 0.85em; line-height: 1.5;">
                                 Your compensation positioning is driven by your <strong>Critical and High Impact skills combined</strong> with your experience level. Focus on developing and demonstrating these capabilities to command premium offers.
                             </div>
@@ -12022,7 +12022,7 @@ body {
                             </div>
                             
                             <div style="margin-top: 20px; padding: 15px; background: ${tb("rgba(251,191,36,0.2)","rgba(217,119,6,0.12)")}; border-radius: 8px; text-align: left;">
-                                <div style="color: #fbbf24; font-weight: 600; margin-bottom: 5px;">💡 Your Negotiation Gap: $${negotiationGap.toLocaleString()}</div>
+                                <div style="color: #fbbf24; font-weight: 600; margin-bottom: 5px;">${bpIcon('lightbulb',14)} Your Negotiation Gap: $${negotiationGap.toLocaleString()}</div>
                                 <div style="color: ${tv("#d1d5db","#334155")}; font-size: 0.9em;">
                                     Between standard offer ($${totalValue.standardOffer.toLocaleString()}) and your worth ($${totalValue.yourWorth.toLocaleString()}). This is your leverage.
                                 </div>
@@ -12178,7 +12178,7 @@ body {
             const sensitiveWarning = outcome.sensitive ? 
                 '<span class="meta-tag sensitive">⚠️ SENSITIVE: Consider context before sharing</span>' : '';
             const coachingNote = outcome.coachingSuggestion ? 
-                `<div class="outcome-coaching">💡 ${outcome.coachingSuggestion}</div>` : '';
+                `<div class="outcome-coaching">${bpIcon('lightbulb',12)} ${outcome.coachingSuggestion}</div>` : '';
             
             return `
                 <div class="outcome-item" data-idx="${idx}">
@@ -12669,7 +12669,7 @@ body {
                     </div>
                     
                     <div style="background: rgba(251, 191, 36, 0.1); border-left: 3px solid #fbbf24; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
-                        <strong style="color: #fbbf24;">💡 COACHING TIP:</strong>
+                        <strong style="color: #fbbf24;">${bpIcon('lightbulb',12)} COACHING TIP:</strong>
                         <p style="color: #d1d5db; margin-top: 8px; font-size: 0.9em;">
                             Strong outcomes include:
                             <br>• Quantification (numbers, percentages, time saved)
@@ -12818,7 +12818,7 @@ body {
                     </div>
                     
                     <div style="background: rgba(251, 191, 36, 0.1); border-left: 3px solid #fbbf24; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
-                        <strong style="color: #fbbf24;">💡 REFLECTION PROMPTS:</strong>
+                        <strong style="color: #fbbf24;">${bpIcon('lightbulb',12)} REFLECTION PROMPTS:</strong>
                         <ul style="color: #d1d5db; margin-top: 8px; font-size: 0.9em; margin-left: 20px;">
                             <li>What problem did you solve that others couldn't?</li>
                             <li>What measurable change resulted from your work?</li>
@@ -14139,6 +14139,10 @@ body {
                 + 'onkeydown="if(event.key===\'Enter\') searchOpportunities();" '
                 + 'style="flex:1; min-width:200px; padding:10px 14px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; '
                 + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.92em;" />'
+                
+                + '<button onclick="document.getElementById(\'findJobsKeyword\').value=\'\'; document.getElementById(\'findJobsCategory\').selectedIndex=0; window._lastJobSearch=\'\'; opportunitiesData=[]; var r=document.getElementById(\'opportunitiesResults\'); if(r) r.innerHTML=\'\';" '
+                + 'style="padding:10px 12px; background:none; border:1px solid var(--border); border-radius:8px; '
+                + 'color:var(--text-muted); cursor:pointer;" title="Clear search">' + bpIcon('x',14) + '</button>'
                 
                 + '<select id="findJobsCategory" style="padding:10px 14px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; '
                 + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.88em; min-width:150px;">'
@@ -18585,7 +18589,7 @@ body {
                     
                     <div class="coaching-tip">
                         <div class="coaching-tip-title">
-                            💡 CHOOSE YOUR SHARING LEVEL
+                            ${bpIcon('lightbulb',14)} CHOOSE YOUR SHARING LEVEL
                         </div>
                         <div class="coaching-tip-content">
                             Select a preset that matches your audience, or use Custom to choose exactly what to share.
@@ -19187,7 +19191,7 @@ body {
                         </div>
                         
                         <div style="margin-top: 15px; padding: 15px; background: rgba(251, 191, 36, 0.2); border-radius: 8px;">
-                            <div style="color: #fbbf24; font-weight: 600; margin-bottom: 5px;">💡 Your Negotiation Gap</div>
+                            <div style="color: #fbbf24; font-weight: 600; margin-bottom: 5px;">${bpIcon('lightbulb',14)} Your Negotiation Gap</div>
                             <div style="color: #d1d5db; font-size: 0.95em;">
                                 <strong>$${negotiationGap.toLocaleString()}</strong> between standard offer and your worth
                                 <br>This is your leverage. Start at your worth ($${totalValue.yourWorth.toLocaleString()}) and negotiate down to competitive range ($${totalValue.competitiveOffer.toLocaleString()}+).
