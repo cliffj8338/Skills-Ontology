@@ -7012,12 +7012,19 @@
         // ===== SAMPLE JOBS FOR DEMO PROFILES =====
         function getSampleJobsForProfile(templateId, template) {
             var allRoles = (template.roles || []).map(function(r) { return r.name.toLowerCase(); }).join(' ');
+            var titleStr = ((template.profile || {}).currentTitle || '').toLowerCase();
             var profileName = (template.profile && template.profile.name) || '';
             var skills = template.skills || [];
+            var allSkillNames = skills.map(function(s) { return s.name.toLowerCase(); }).join(' ');
             
-            // Detect profile type
-            var isRecruiter = allRoles.indexOf('recruit') !== -1 || allRoles.indexOf('talent') !== -1;
-            var isProduct = allRoles.indexOf('product') !== -1;
+            // Detect profile type — check title first, then roles, then skills
+            var allSignals = titleStr + ' ' + allRoles + ' ' + allSkillNames;
+            
+            var isRecruiter = /recruit|talent acqui|sourcing|staffing/.test(allSignals);
+            var isProduct = /product manager|product lead|product director/.test(allSignals);
+            var isTech = /engineer|developer|architect|software|devops|frontend|backend|full.?stack|programming|python|java|kubernetes/.test(allSignals);
+            var isRetail = /cashier|retail|store|merchandise|customer service|point of sale|barista/.test(allSignals);
+            var isTrades = /hair|stylist|cosmetolog|barber|electrician|plumb|hvac|carpenter|mechanic|weld/.test(allSignals);
             
             // Job metadata per profile type — 3 tiers: high (~80%+), mid (~50-65%), low (<50%)
             var jobMeta;
@@ -7045,8 +7052,44 @@
                       rawText: 'Scale AI seeks a VP of Engineering to lead our ML Infrastructure division. This role requires hands-on expertise in distributed systems architecture, GPU cluster management, model training pipelines, MLOps automation, Kubernetes orchestration, and C++ performance optimization. You will manage 60+ engineers, own a $40M infrastructure budget, and drive our technical roadmap for foundation model training.',
                       parsedRoles: ['Engineering', 'ML Infrastructure'], seniority: 'Executive', tier: 'low' }
                 ];
+            } else if (isTech) {
+                jobMeta = [
+                    { id: 'sample-high', title: 'Senior Software Engineer, Platform', company: 'Cloudflare',
+                      rawText: 'Cloudflare is hiring a Senior Software Engineer for our core platform team. You will design and build distributed systems that handle millions of requests per second, improve observability and reliability, mentor junior engineers, and contribute to architecture decisions. Strong experience with systems programming, networking, and performance optimization required. Experience with Go, Rust, or C++ preferred.',
+                      parsedRoles: ['Engineering', 'Platform'], seniority: 'Senior', tier: 'high' },
+                    { id: 'sample-mid', title: 'Staff Engineer, Infrastructure', company: 'Datadog',
+                      rawText: 'Datadog seeks a Staff Engineer to lead technical direction for our cloud infrastructure platform. You will design large-scale distributed systems, drive cross-team technical initiatives, evaluate build vs buy decisions, and own system reliability targets. Requires deep expertise in cloud architecture, container orchestration, database internals, and capacity planning. Must have shipped production systems at significant scale.',
+                      parsedRoles: ['Engineering', 'Infrastructure'], seniority: 'Staff', tier: 'mid' },
+                    { id: 'sample-low', title: 'Director of Engineering, AI/ML', company: 'Anthropic',
+                      rawText: 'Anthropic seeks a Director of Engineering to lead our AI/ML training infrastructure team. This role requires deep expertise in distributed training systems, GPU cluster management, model optimization, research engineering management, and scientific computing. You will manage a team of 25+ research engineers, own training compute budget and efficiency, and drive technical strategy for next-generation model development.',
+                      parsedRoles: ['Engineering Management', 'AI/ML'], seniority: 'Director', tier: 'low' }
+                ];
+            } else if (isRetail) {
+                jobMeta = [
+                    { id: 'sample-high', title: 'Customer Service Associate', company: 'Target',
+                      rawText: 'Target is hiring a Customer Service Associate for our guest services team. You will handle transactions, assist customers with returns and exchanges, maintain store standards, and support team goals. Strong communication skills, cash handling experience, and a friendly attitude required. Flexible scheduling including weekends and holidays.',
+                      parsedRoles: ['Customer Service', 'Retail'], seniority: 'Entry', tier: 'high' },
+                    { id: 'sample-mid', title: 'Shift Supervisor', company: 'Starbucks',
+                      rawText: 'Starbucks is looking for a Shift Supervisor to lead store operations during assigned shifts. You will manage team workflow, handle customer escalations, oversee cash management and inventory counts, train new partners, and ensure food safety compliance. Prior retail supervisory experience, barista skills, and ability to work in fast-paced environments required.',
+                      parsedRoles: ['Retail Management', 'Food Service'], seniority: 'Entry', tier: 'mid' },
+                    { id: 'sample-low', title: 'Assistant Store Manager', company: 'Nordstrom',
+                      rawText: 'Nordstrom seeks an Assistant Store Manager to oversee daily store operations, manage a team of 20+ associates, drive sales performance, handle P&L responsibilities, lead visual merchandising strategy, and manage vendor relationships. Requires 3+ years retail management experience, strong analytical skills, inventory management expertise, and ability to develop and coach teams.',
+                      parsedRoles: ['Store Management', 'Retail Operations'], seniority: 'Mid', tier: 'low' }
+                ];
+            } else if (isTrades) {
+                jobMeta = [
+                    { id: 'sample-high', title: 'Stylist', company: 'Great Clips',
+                      rawText: 'Great Clips is hiring a licensed Stylist to join our team. You will provide haircuts, styling services, color applications, and consultations. Strong customer service, time management, and technical hair skills required. Must hold valid cosmetology license. Competitive base pay plus tips and product commission.',
+                      parsedRoles: ['Stylist', 'Customer Service'], seniority: 'Entry', tier: 'high' },
+                    { id: 'sample-mid', title: 'Senior Stylist & Colorist', company: 'Aveda Salon',
+                      rawText: 'Aveda Salon seeks a Senior Stylist & Colorist with advanced color correction experience. You will manage a full book of clients, mentor junior stylists, drive retail product sales, and maintain expertise in current trends and techniques. Requires 3+ years behind the chair, balayage and vivid color certification preferred, and strong client retention track record.',
+                      parsedRoles: ['Senior Stylist', 'Colorist'], seniority: 'Senior', tier: 'mid' },
+                    { id: 'sample-low', title: 'Salon Manager', company: 'Ulta Beauty',
+                      rawText: 'Ulta Beauty is looking for a Salon Manager to lead a team of 10+ stylists, manage scheduling and payroll, drive salon revenue targets, handle inventory and vendor ordering, maintain health and safety compliance, and build client loyalty programs. Requires cosmetology license, 3+ years management experience, P&L knowledge, and retail operations expertise.',
+                      parsedRoles: ['Salon Management', 'Retail Operations'], seniority: 'Mid', tier: 'low' }
+                ];
             } else {
-                // Strategy/Advisory/Executive (default)
+                // Strategy/Advisory/Executive (default — Cliff Jones)
                 jobMeta = [
                     { id: 'sample-high', title: 'VP of Strategy & Transformation', company: 'ServiceNow',
                       rawText: 'ServiceNow is hiring a VP of Strategy & Transformation to lead enterprise-wide strategic initiatives. You will drive digital transformation programs, develop competitive positioning, lead cross-functional teams, present to C-suite stakeholders, and shape thought leadership content. This role requires deep experience in strategic planning, change management, and executive communication.',
@@ -7119,6 +7162,26 @@
                     { name: 'Natural Language Processing', cat: 'Technical' },
                     { name: 'Computer Vision Systems', cat: 'Technical' },
                     { name: 'GPU Cluster Management', cat: 'Technical' }
+                ],
+                management: [
+                    { name: 'P&L Management', cat: 'Business' },
+                    { name: 'Team Scheduling', cat: 'Operations' },
+                    { name: 'Payroll Administration', cat: 'Business' },
+                    { name: 'Visual Merchandising', cat: 'Retail' },
+                    { name: 'Loss Prevention', cat: 'Operations' },
+                    { name: 'Vendor Negotiation', cat: 'Business' },
+                    { name: 'Health & Safety Compliance', cat: 'Operations' },
+                    { name: 'Employee Training Programs', cat: 'Management' }
+                ],
+                creative: [
+                    { name: 'Color Correction (Advanced)', cat: 'Technical' },
+                    { name: 'Chemical Processing Knowledge', cat: 'Technical' },
+                    { name: 'Retail Product Sales', cat: 'Business' },
+                    { name: 'Social Media Marketing', cat: 'Marketing' },
+                    { name: 'Client Consultation Techniques', cat: 'Domain' },
+                    { name: 'Salon Software Proficiency', cat: 'Technical' },
+                    { name: 'Continuing Education Credits', cat: 'Professional' },
+                    { name: 'Portfolio Development', cat: 'Professional' }
                 ]
             };
             
@@ -7145,8 +7208,9 @@
                             category: s.category || 'Domain'
                         });
                     });
-                    // 1-2 soft gaps (Preferred, low level)
-                    cleanGaps(gapPools.operations).slice(0, 2).forEach(function(g) {
+                    // 1-2 soft gaps from a relevant-but-stretch pool
+                    var softPool = isRetail || isTrades ? gapPools.management : gapPools.operations;
+                    cleanGaps(softPool).slice(0, 2).forEach(function(g) {
                         parsedSkills.push({ name: g.name, requirement: 'Preferred', proficiency: 'Competent', category: g.cat });
                     });
                     
@@ -7163,9 +7227,12 @@
                             category: s.category || 'Domain'
                         });
                     });
-                    // 5-6 Required gaps at Proficient+
-                    var pool1 = cleanGaps(gapPools.finance).slice(0, 3);
-                    var pool2 = cleanGaps(gapPools.technical).slice(0, 3);
+                    // 5-6 Required gaps — profile-appropriate
+                    var pool1, pool2;
+                    if (isRetail) { pool1 = cleanGaps(gapPools.management).slice(0, 3); pool2 = cleanGaps(gapPools.operations).slice(0, 3); }
+                    else if (isTrades) { pool1 = cleanGaps(gapPools.creative).slice(0, 3); pool2 = cleanGaps(gapPools.management).slice(0, 3); }
+                    else if (isTech) { pool1 = cleanGaps(gapPools.data).slice(0, 3); pool2 = cleanGaps(gapPools.operations).slice(0, 3); }
+                    else { pool1 = cleanGaps(gapPools.finance).slice(0, 3); pool2 = cleanGaps(gapPools.technical).slice(0, 3); }
                     pool1.concat(pool2).forEach(function(g) {
                         parsedSkills.push({ name: g.name, requirement: 'Required', proficiency: 'Proficient', category: g.cat });
                     });
@@ -7184,9 +7251,11 @@
                         });
                     });
                     // 9-10 Required gaps at Expert from alien domains
-                    var pool1 = cleanGaps(gapPools.technical).slice(0, 4);
-                    var pool2 = cleanGaps(gapPools.data).slice(0, 3);
-                    var pool3 = cleanGaps(gapPools.finance).slice(0, 3);
+                    var pool1, pool2, pool3;
+                    if (isRetail) { pool1 = cleanGaps(gapPools.management).slice(0, 4); pool2 = cleanGaps(gapPools.finance).slice(0, 3); pool3 = cleanGaps(gapPools.operations).slice(0, 3); }
+                    else if (isTrades) { pool1 = cleanGaps(gapPools.management).slice(0, 4); pool2 = cleanGaps(gapPools.finance).slice(0, 3); pool3 = cleanGaps(gapPools.creative).slice(0, 3); }
+                    else if (isTech) { pool1 = cleanGaps(gapPools.finance).slice(0, 4); pool2 = cleanGaps(gapPools.operations).slice(0, 3); pool3 = cleanGaps(gapPools.data).slice(0, 3); }
+                    else { pool1 = cleanGaps(gapPools.technical).slice(0, 4); pool2 = cleanGaps(gapPools.data).slice(0, 3); pool3 = cleanGaps(gapPools.finance).slice(0, 3); }
                     pool1.concat(pool2).concat(pool3).forEach(function(g) {
                         parsedSkills.push({ name: g.name, requirement: 'Required', proficiency: 'Expert', category: g.cat });
                     });
@@ -7211,7 +7280,8 @@
             // Sort: high match first
             jobs.sort(function(a, b) { return (b.matchData.score || 0) - (a.matchData.score || 0); });
             
-            console.log('📋 Injected ' + jobs.length + ' calibrated sample jobs for ' + profileName);
+            var detectedType = isRecruiter ? 'recruiter' : isProduct ? 'product' : isTech ? 'technology' : isRetail ? 'retail' : isTrades ? 'trades' : 'strategy';
+            console.log('📋 Injected ' + jobs.length + ' calibrated sample jobs for ' + profileName + ' (type: ' + detectedType + ')');
             
             return jobs;
         }
@@ -7260,8 +7330,8 @@
                 templateId: templateId  // Store which template this is
             };
             
-            // Inject sample jobs for demo profiles (always refresh on load)
-            if (templateId.indexOf('demo') !== -1) {
+            // Inject sample jobs for demo/sample profiles (always refresh on load)
+            if (templateId.indexOf('demo') !== -1 || templateId.indexOf('sample') !== -1) {
                 userData.savedJobs = getSampleJobsForProfile(templateId, template);
             }
             
@@ -7412,8 +7482,8 @@
             // Determine which view to show
             var targetView = 'welcome'; // Default: welcome page
             
-            // CASE 1: Signed-in user with Firestore data (skip for demo profiles)
-            var isDemoProfile = scaffoldId && scaffoldId.indexOf('demo') !== -1;
+            // CASE 1: Signed-in user with Firestore data (skip for demo/sample profiles)
+            var isDemoProfile = scaffoldId && (scaffoldId.indexOf('demo') !== -1 || scaffoldId.indexOf('sample') !== -1);
             if (fbUser && fbDb && !isDemoProfile) {
                 try {
                     var loaded = await loadUserFromFirestore(fbUser.uid);
