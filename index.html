@@ -3668,8 +3668,8 @@
             <!-- Auth button (shown when not logged in) -->
             <button class="auth-nav-btn" id="authNavBtn" onclick="showAuthModal('signin')" style="display:none;">Sign In</button>
 
-            <!-- Profile badge (display only - shows current profile) -->
-            <div class="profile-chip" id="profileChip" style="cursor:default;">
+            <!-- Profile badge (display only - shows current user when signed in) -->
+            <div class="profile-chip" id="profileChip" style="cursor:default; display:none;">
                 <div class="profile-avatar" id="profileAvatar">...</div>
                 <span class="profile-name" id="profileChipName">Loading</span>
             </div>
@@ -4974,16 +4974,21 @@
                     var avatarEl = document.getElementById('profileAvatar');
                     var displayName = fbUser.displayName || fbUser.email.split('@')[0];
                     if (nameEl) nameEl.textContent = displayName;
-                    if (avatarEl) avatarEl.textContent = getInitials(displayName);
+                    if (avatarEl) {
+                        if (fbUser.photoURL) {
+                            avatarEl.innerHTML = '<img src="' + fbUser.photoURL + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+                        } else {
+                            avatarEl.textContent = getInitials(displayName);
+                        }
+                    }
                 }
             } else {
-                // Not signed in
+                // Not signed in — hide chip entirely
                 if (authBtn) authBtn.style.display = '';
                 if (overflowSignIn) overflowSignIn.style.display = '';
                 if (overflowSignOut) overflowSignOut.style.display = 'none';
                 if (overflowAdmin) overflowAdmin.style.display = 'none';
-                // Profile chip still shows for sample browsing
-                if (profileChip) profileChip.style.display = '';
+                if (profileChip) profileChip.style.display = 'none';
             }
         }
 
@@ -7479,8 +7484,8 @@
                 skillsData.roles = userData.roles;
             }
             
-            // Update profile chip
-            if (userData.profile && userData.profile.name) {
+            // Update profile chip (only for non-signed-in sample browsing)
+            if (!fbUser && userData.profile && userData.profile.name) {
                 updateProfileChip(userData.profile.name);
             }
             
@@ -22990,12 +22995,14 @@ body {
         function buildProfileDropdown() { /* no-op */ }
 
         function updateProfileChip(name) {
+            if (!name) return;
             const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
             const avatar = document.getElementById('profileAvatar');
             const chipName = document.getElementById('profileChipName');
             if (avatar) {
-                if (userData.profile && userData.profile.photo) {
-                    avatar.innerHTML = '<img src="' + userData.profile.photo + '" alt="Profile photo" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+                var photoURL = (userData.profile && userData.profile.photo) || (fbUser && fbUser.photoURL) || null;
+                if (photoURL) {
+                    avatar.innerHTML = '<img src="' + photoURL + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
                 } else {
                     avatar.textContent = initials;
                 }
