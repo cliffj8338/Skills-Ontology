@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.19.1 | 20260219 | Feature: Job info tile upper-left in network match view, BLS salary on tile -->
+    <!-- v4.19.2 | 20260219 | Stability: lifecycle audit, view-transition cleanup, profile-switch reset, sample job detection -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -9793,9 +9793,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 var mt = document.getElementById('matchModeToggle');
                 var mb = document.getElementById('matchActiveBadge');
                 var ml = document.getElementById('matchLegend');
+                var jt = document.getElementById('jobInfoTile');
                 if (mt) mt.style.display = 'none';
                 if (mb) mb.style.display = 'none';
                 if (ml) ml.remove();
+                if (jt) jt.remove();
             }
 
             // Update mobile nav
@@ -9863,6 +9865,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     // Restore match overlay UI if a job is active
                     if (activeJobForNetwork) {
                         updateMatchOverlayUI();
+                        // Re-render the match/job network since overlays were removed on view exit
+                        if (networkMatchMode !== 'you') {
+                            setNetworkMatchMode(networkMatchMode);
+                        }
                     }
                 } else {
                     document.getElementById('cardView').style.display = 'block';
