@@ -3648,18 +3648,18 @@
             
             <!-- Active job badge (hidden until a job is activated) -->
             <div id="matchActiveBadge" style="display:none;" class="match-active-badge">
-                <span>🎯</span>
+                <span data-icon="target" class="nav-icon"></span>
                 <span id="matchActiveTitle">Loading...</span>
                 <button onclick="clearJobOverlay()" title="Clear comparison">×</button>
             </div>
 
             <!-- Search -->
-            <input type="text" id="skillSearch" class="filter-search" placeholder="🔍 Search skills..."
+            <input type="text" id="skillSearch" class="filter-search" placeholder="Search skills..."
                    onkeyup="filterSkillsView(this.value)">
 
             <!-- Filter toggle -->
             <button class="filter-toggle-btn" id="filterToggleBtn" onclick="toggleFilterPanel()">
-                <span>⚙ Filter</span>
+                <span><span data-icon="settings" class="nav-icon"></span> Filter</span>
                 <span id="filterActiveCount" style="display:none; background:var(--accent); color:#fff; border-radius:8px; padding:1px 6px; font-size:0.75em;"></span>
             </button>
         </div>
@@ -4354,11 +4354,11 @@
                             </button>
                             <button onclick="searchAddSkillsByCategory('Business')" 
                                     style="padding: 8px 16px; background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.4); color: #a78bfa; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                                💼 Business
+                                <span data-icon="briefcase" class="nav-icon"></span> Business
                             </button>
                             <button onclick="searchAddSkillsByCategory('Finance')" 
                                     style="padding: 8px 16px; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #10b981; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                                💰 Finance
+                                <span data-icon="money" class="nav-icon"></span> Finance
                             </button>
                             <button onclick="searchAddSkillsByCategory('Marketing')" 
                                     style="padding: 8px 16px; background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
@@ -4370,7 +4370,7 @@
                             </button>
                             <button onclick="searchAddSkillsByCategory('Leadership')" 
                                     style="padding: 8px 16px; background: rgba(100, 116, 139, 0.2); border: 1px solid rgba(100, 116, 139, 0.4); color: #94a3b8; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                                ⭐ Leadership
+                                <span data-icon="star" class="nav-icon"></span> Leadership
                             </button>
                             <button onclick="searchAddSkillsByCategory('Trades')" 
                                     style="padding: 8px 16px; background: rgba(180, 83, 9, 0.2); border: 1px solid rgba(180, 83, 9, 0.4); color: #d97706; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
@@ -4501,6 +4501,9 @@
                 'pipeline':     '<svg ' + s + '><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>',
                 'tracker':      '<svg ' + s + '><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>',
                 'magic':        '<svg ' + s + '><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>',
+                'flame':        '<svg ' + s + '><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
+                'diamond':      '<svg ' + s + '><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M10 3l-2 6 4 12 4-12-2-6"/></svg>',
+                'money':        '<svg ' + s + '><rect x="1" y="4" width="22" height="16" rx="2"/><circle cx="12" cy="12" r="4"/><path d="M1 8h2M21 8h2M1 16h2M21 16h2"/></svg>',
             };
             return icons[name] || '<svg ' + s + '><circle cx="12" cy="12" r="1"/></svg>';
         }
@@ -6839,7 +6842,7 @@
         // Data structure
         const skillsData = {
             roles: [
-                { id: "strategy", name: "VP Global Strategy", icon: "🎯", color: "#ef4444" },
+                { id: "strategy", name: "VP Global Strategy", icon: "target", color: "#ef4444" },
                 { id: "futurist", name: "Futurist & Evangelist", icon: "🔮", color: "#f59e0b" },
                 { id: "pilot", name: "IFR Pilot", icon: "✈️", color: "#3b82f6" },
                 { id: "musician", name: "Musician", icon: "🎵", color: "#8b5cf6" },
@@ -7983,7 +7986,7 @@
                                 text-align:center;"
                          onmouseover="this.style.borderColor='var(--accent)'"
                          onmouseout="this.style.borderColor='var(--border)'">
-                        <div style="font-size:2.2em; margin-bottom:12px;">✍️</div>
+                        <div style="font-size:2.2em; margin-bottom:12px;">${bpIcon('edit',32)}</div>
                         <div style="font-weight:700; color:var(--text-primary); margin-bottom:6px;">Start Fresh</div>
                         <div style="font-size:0.85em; color:var(--text-secondary); line-height:1.5;">
                             Build your profile step by step. Good if you don't have a resume handy.
@@ -8315,7 +8318,7 @@ ${wizardState.resumeText}` }]
             const isFromResume = !!wizardState.parsedData;
 
             el.innerHTML = `
-                ${wizardHeading(isFromResume ? '✅' : '👤', 
+                ${wizardHeading(isFromResume ? bpIcon('check',22) : bpIcon('profile',22), 
                     isFromResume ? 'Review Your Profile' : 'Your Profile',
                     isFromResume ? 'Claude extracted this from your resume. Review and correct anything that’s off.' 
                                  : 'Fill in your basic information to get started.')}
@@ -8397,7 +8400,7 @@ ${wizardState.resumeText}` }]
             const levelColors = { Mastery:'#ef4444', Expert:'#f97316', Advanced:'#f59e0b', Proficient:'#10b981', Novice:'#6b7280' };
 
             el.innerHTML = `
-                ${wizardHeading('🗺️',
+                ${wizardHeading(bpIcon('compass',22),
                     isFromResume ? `${skills.length} Skills Extracted` : 'Your Skills',
                     isFromResume ? 'Claude identified these from your resume. Toggle any off you do not want to include. You can add more later.'
                                  : 'Add your key skills. You can build this out further after setup.')}
@@ -8548,7 +8551,7 @@ ${wizardState.resumeText}` }]
             const isFromResume = !!wizardState.parsedData;
 
             el.innerHTML = `
-                ${wizardHeading('✍️',
+                ${wizardHeading(bpIcon('edit',22),
                     'Your Purpose Statement',
                     isFromResume ? 'Claude drafted this from your resume. Often the hardest thing to write about yourself — edit it until it sounds like you.'
                                  : 'Write a brief statement about what you do, who you help, and what makes your approach distinctive.')}
@@ -8645,7 +8648,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
                 <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px;">
                     ${[
-                        ['🗺️', skillCount, 'Skills'],
+                        [bpIcon('compass',14), skillCount, 'Skills'],
                         [bpIcon('clipboard',12), evidenceCount, 'Evidence Items'],
                         [bpIcon('lightbulb',12), valueCount, 'Values']
                     ].map(([icon, n, label]) => `
@@ -10608,7 +10611,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Set subtitle (level, years, core badge, category badge)
             const levelClass = skillData.level.toLowerCase();
-            const coreBadge = skillData.key ? '<span class="modal-core-badge">⭐ CORE DIFFERENTIATOR</span>' : '';
+            const coreBadge = skillData.key ? '<span class="modal-core-badge">' + bpIcon('star',12) + ' CORE DIFFERENTIATOR</span>' : '';
             const details = skillsData.skillDetails[skillName] || {};
             
             // DEBUG: Log evidence availability
@@ -10630,9 +10633,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             } else if (skillData.category === 'ability') {
                 categoryBadge = '<span class="modal-category-badge" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa;">🧠 O*NET Ability</span>';
             } else if (skillData.category === 'workstyle') {
-                categoryBadge = '<span class="modal-category-badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">💼 O*NET Work Style</span>';
+                categoryBadge = '<span class="modal-category-badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">' + bpIcon('briefcase',12) + ' O*NET Work Style</span>';
             } else if (skillData.category === 'unique') {
-                categoryBadge = '<span class="modal-category-badge" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24;">⭐ Unique Differentiator</span>';
+                categoryBadge = '<span class="modal-category-badge" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24;">' + bpIcon('star',12) + ' Unique Differentiator</span>';
             }
             
             subtitle.innerHTML = `
@@ -10812,11 +10815,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         <div style="background: rgba(96, 165, 250, 0.1); padding: 15px; border-radius: 6px; margin-top: 15px;">
                             <div style="color: #60a5fa; font-weight: 600; margin-bottom: 8px; display:flex; align-items:center; gap:6px;">${bpIcon("bar-chart",16)} Impact Scale</div>
                             <div style="color: #d1d5db; font-size: 0.9em; line-height: 1.6;">
-                                • <strong style="color: #ef4444;">🔥 Critical:</strong> Top 5% differentiators, significant premium<br>
-                                • <strong style="color: #f59e0b;">⭐ High:</strong> Top 20% skills, strong differentiator<br>
-                                • <strong style="color: #3b82f6;">💎 Moderate:</strong> Expected for role level, valuable<br>
-                                • <strong style="color: #6b7280;">✓ Standard:</strong> Baseline expectations<br>
-                                • <strong style="color: #9ca3af;">○ Supplementary:</strong> Supporting capabilities
+                                • <strong style="color: #ef4444;">${bpIcon('flame',13)} Critical:</strong> Top 5% differentiators, significant premium<br>
+                                • <strong style="color: #f59e0b;">${bpIcon('star',13)} High:</strong> Top 20% skills, strong differentiator<br>
+                                • <strong style="color: #3b82f6;">${bpIcon('diamond',13)} Moderate:</strong> Expected for role level, valuable<br>
+                                • <strong style="color: #6b7280;">${bpIcon('check',13)} Standard:</strong> Baseline expectations<br>
+                                • <strong style="color: #9ca3af;">${bpIcon('check',13)} Supplementary:</strong> Supporting capabilities
                             </div>
                         </div>
                         
@@ -10848,7 +10851,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 bodyHTML += `
                     <div class="modal-section">
                         <div class="modal-section-title">
-                            <span class="modal-section-icon">🔗</span>
+                            <span class="modal-section-icon">${bpIcon("external",16)}</span>
                             Related Skills
                         </div>
                         <div class="related-skills">
@@ -10865,13 +10868,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var actionsHtml = '<div style="display:flex; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">'
                 + '<button onclick="closeSkillModal(); openEditSkillModal(\'' + skillName.replace(/'/g, "\\'") + '\', \'' + (skillData.category || 'unique') + '\');" '
                 + 'style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
-                + '✏️ Edit Skill</button>'
+                + '' + bpIcon('edit',14) + ' Edit Skill</button>'
                 + '<button onclick="closeSkillModal(); openAssessSkillModal(\'' + skillName.replace(/'/g, "\\'") + '\');" '
                 + 'style="padding:10px 20px; background:rgba(96,165,250,0.15); color:var(--accent); border:1px solid rgba(96,165,250,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
                 + '📝 Assess</button>'
                 + '<button onclick="closeSkillModal(); requestVerification([\'' + skillName.replace(/'/g, "\\'") + '\']);" '
                 + 'style="padding:10px 20px; background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
-                + '✅ Verify</button>'
+                + '' + bpIcon('check',14) + ' Verify</button>'
                 + '<button onclick="if(confirm(\'Remove ' + skillName.replace(/'/g, "\\'") + ' from your profile?\')){deleteSkillFromProfile(\'' + skillName.replace(/'/g, "\\'") + '\'); closeSkillModal();}" '
                 + 'style="margin-left:auto; padding:10px 16px; background:none; color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
                 + '🗑 Remove</button>'
@@ -11944,7 +11947,7 @@ body {
                 <div class="blueprint-section" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(96, 165, 250, 0.1) 100%); border: 2px solid rgba(16, 185, 129, 0.3); margin-bottom: 30px;">
                     <div class="blueprint-section-header">
                         <div class="blueprint-section-title">
-                            <span class="section-icon">💰</span>
+                            <span class="section-icon">${bpIcon('money',22)}</span>
                             <span>Your Market Valuation</span>
                         </div>
                     </div>
@@ -12088,7 +12091,7 @@ body {
                     </div>
                     
                     <div style="margin: 20px;">
-                        <div style="color: #60a5fa; font-weight: 600; margin-bottom: 15px;">🔥 Top 10 Skills Used in Calculation:</div>
+                        <div style="color: #60a5fa; font-weight: 600; margin-bottom: 15px;">${bpIcon("flame",16)} Top 10 Skills Used in Calculation:</div>
                         <div style="color: ${tv("#9ca3af","#64748b")}; font-size: 0.85em; margin-bottom: 12px;">
                             Roles typically require 10-15 core skills, not all ${skillsData.skills.length}. These are your highest impact:
                         </div>
@@ -12103,7 +12106,7 @@ body {
                                         <span style="color: ${tv("#9ca3af","#64748b")}; font-size: 0.85em; margin-left: 8px;">(${skill.level})</span>
                                     </div>
                                     <div style="color: ${isCritical ? '#ef4444' : '#fbbf24'}; font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px;">
-                                        ${isCritical ? '⭐' : '🔥'} ${skill.impactLabel}
+                                        ${isCritical ? bpIcon('star',12) : bpIcon('flame',12)} ${skill.impactLabel}
                                     </div>
                                 </div>
                             `}).join('')}
@@ -16540,7 +16543,7 @@ body {
                     </div>
                     <div style="display: flex; gap: 15px; justify-content: flex-end;">
                         <button class="action-btn" onclick="copyPitch()" style="padding: 10px 20px;">
-                            📋 Copy to Clipboard
+                            ${bpIcon('clipboard',14)} Copy to Clipboard
                         </button>
                         <button class="action-btn" onclick="downloadPitch('${job.title}', '${job.company}')" style="padding: 10px 20px;">
                             💾 Download as Text
@@ -18158,7 +18161,7 @@ body {
                                 <div style="display: flex; gap: 8px; flex-shrink: 0;">
                                     <button onclick="openEditSkillModal('${skill.name.replace(/'/g, "\\'")}', '${category}')" 
                                             style="padding: 6px 12px; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 4px; cursor: pointer; font-size: 0.9em; white-space: nowrap;">
-                                        ✏️ Edit
+                                        ' + bpIcon('edit',12) + ' Edit
                                     </button>
                                     <button onclick="confirmDeleteSkill('${skill.name.replace(/'/g, "\\'")}', '${category}')" 
                                             style="padding: 6px 12px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 4px; cursor: pointer; font-size: 0.9em; white-space: nowrap;">
@@ -18271,7 +18274,7 @@ body {
             if (!userData.applications || userData.applications.length === 0) {
                 container.innerHTML = `
                     <div style="text-align: center; padding: 60px 20px; color: #9ca3af;">
-                        <div style="font-size: 3em; margin-bottom: 20px;">📋</div>
+                        <div style="margin-bottom: 20px;">${bpIcon("clipboard",48)}</div>
                         <h3 style="color: #d1d5db; margin-bottom: 10px;">No applications tracked yet</h3>
                         <p>Click "Add Application" above to start tracking your job search</p>
                         <div style="margin-top: 30px; text-align: left; max-width: 500px; margin-left: auto; margin-right: auto;">
@@ -19053,25 +19056,25 @@ body {
                                 <div style="color: #ef4444; font-size: 1.8em; font-weight: 700;">
                                     ${allSkillsWithImpact.filter(s => s.impactLevel === 'critical').length}
                                 </div>
-                                <div style="color: #9ca3af; font-size: 0.9em;">🔥 Critical</div>
+                                <div style="color: #9ca3af; font-size: 0.9em;">${bpIcon('flame',14)} Critical</div>
                             </div>
                             <div>
                                 <div style="color: #f59e0b; font-size: 1.8em; font-weight: 700;">
                                     ${allSkillsWithImpact.filter(s => s.impactLevel === 'high').length}
                                 </div>
-                                <div style="color: #9ca3af; font-size: 0.9em;">⭐ High</div>
+                                <div style="color: #9ca3af; font-size: 0.9em;">${bpIcon('star',14)} High</div>
                             </div>
                             <div>
                                 <div style="color: #3b82f6; font-size: 1.8em; font-weight: 700;">
                                     ${allSkillsWithImpact.filter(s => s.impactLevel === 'moderate').length}
                                 </div>
-                                <div style="color: #9ca3af; font-size: 0.9em;">💎 Moderate</div>
+                                <div style="color: #9ca3af; font-size: 0.9em;">${bpIcon('diamond',14)} Moderate</div>
                             </div>
                             <div>
                                 <div style="color: #6b7280; font-size: 1.8em; font-weight: 700;">
                                     ${allSkillsWithImpact.filter(s => s.impactLevel === 'standard').length}
                                 </div>
-                                <div style="color: #9ca3af; font-size: 0.9em;">✓ Standard</div>
+                                <div style="color: #9ca3af; font-size: 0.9em;">${bpIcon('check',14)} Standard</div>
                             </div>
                         </div>
                     </div>
@@ -19226,7 +19229,7 @@ body {
                     </div>
                     
                     <div style="background: rgba(251, 191, 36, 0.1); padding: 20px; border-radius: 8px; border-left: 3px solid #fbbf24; margin-bottom: 25px;">
-                        <h3 style="color: #fbbf24; margin-bottom: 15px;">🎯 Your Talking Points</h3>
+                        <h3 style="color: #fbbf24; margin-bottom: 15px;">${bpIcon('target',16)} Your Talking Points</h3>
                         <div style="color: #d1d5db; line-height: 1.8;">
                             <p style="margin-bottom: 15px;">
                                 <strong style="color: #fbbf24;">1. Lead with Your Worth:</strong><br>
@@ -19448,14 +19451,14 @@ body {
         }
         
         function getImpactIcon(level) {
-            const icons = {
-                'critical': '🔥',
-                'high': '⭐',
-                'moderate': '💎',
-                'standard': '✓',
-                'supplementary': '○'
+            var icons = {
+                'critical': bpIcon('flame', 14),
+                'high': bpIcon('star', 14),
+                'moderate': bpIcon('diamond', 14),
+                'standard': bpIcon('check', 14),
+                'supplementary': bpIcon('check', 14)
             };
-            return icons[level] || '💎';
+            return icons[level] || bpIcon('diamond', 14);
         }
         
         function getImpactColor(level) {
