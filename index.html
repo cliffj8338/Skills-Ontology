@@ -3676,7 +3676,7 @@
                 <span class="profile-caret">▾</span>
                 <!-- Dropdown -->
                 <div class="profile-dropdown" id="profileDropdown">
-                    <div class="profile-dropdown-label">Switch Profile</div>
+                    <div class="profile-dropdown-label" id="profileDropdownLabel">Account</div>
                     <div id="profileDropdownOptions">
                         <!-- Populated dynamically -->
                     </div>
@@ -4661,7 +4661,9 @@
                     console.log('🔐 Signed in:', user.email);
                     checkAdminRole(user.uid).then(function(isAdmin) {
                         fbIsAdmin = isAdmin;
+                        detectAppMode();
                         updateAuthUI();
+                        rebuildProfileDropdown();
                         authReadyResolve(user);
                     });
                 } else {
@@ -4918,12 +4920,16 @@
             return fbDb.collection('users').doc(uid).get()
                 .then(function(doc) {
                     if (doc.exists && doc.data().role === 'admin') {
-                        console.log('👑 Admin role confirmed');
+                        console.log('👑 Admin role confirmed for', uid);
                         return true;
                     }
+                    console.log('ℹ️ User role:', doc.exists ? (doc.data().role || 'user') : 'no document');
                     return false;
                 })
-                .catch(function() { return false; });
+                .catch(function(err) {
+                    console.error('⚠️ Admin check failed:', err.code || err.message || err);
+                    return false;
+                });
         }
 
         // ===== AUTH UI UPDATE =====
@@ -4962,6 +4968,10 @@
             var container = document.getElementById('profileDropdownOptions');
             if (!container) return;
             
+            // Update dropdown header label
+            var ddLabel = document.getElementById('profileDropdownLabel');
+            if (ddLabel) ddLabel.textContent = fbIsAdmin ? 'Admin \u00B7 Switch Profile' : 'Account';
+            
             var html = '';
             
             // Current user section
@@ -4972,9 +4982,12 @@
                     + '</div>';
             }
             
-            // Sample profiles from manifest
+            // Sample profiles from manifest — admins and non-signed-in (demo) users only
             var manifest = window.profilesManifest;
-            if (manifest && manifest.profiles) {
+            if ((fbIsAdmin || !fbUser) && manifest && manifest.profiles) {
+                if (fbIsAdmin) {
+                    html += '<div style="padding:6px 12px; font-size:0.7em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em;">Sample Profiles</div>';
+                }
                 manifest.profiles.filter(function(p) { return p.enabled; }).forEach(function(p) {
                     var isCurrent = (userData.templateId === p.id);
                     var initials = p.name.split(' ').map(function(w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
@@ -5111,7 +5124,12 @@
                         updateProfileChip(userData.profile.name);
                     }
                     
-                    console.log('✓ Loaded from Firestore:', data.skills.length, 'skills');
+                    // Refresh app mode and UI state after data load
+                    if (typeof detectAppMode === 'function') detectAppMode();
+                    if (typeof checkReadOnly === 'function') checkReadOnly();
+                    if (typeof rebuildProfileDropdown === 'function') rebuildProfileDropdown();
+                    
+                    console.log('✓ Loaded from Firestore:', data.skills.length, 'skills | admin:', fbIsAdmin, '| mode:', appMode);
                     return true;
                 })
                 .catch(function(err) {
@@ -5544,6 +5562,11 @@
         var waitlistEmail = null;
         
         function detectAppMode() {
+            // Admins always get full access
+            if (fbUser && fbIsAdmin) {
+                appMode = 'active';
+                return;
+            }
             // Active Firestore user with data = active
             if (fbUser && userData.templateId && userData.templateId.indexOf('firestore') !== -1) {
                 appMode = 'active';
@@ -12396,6 +12419,9 @@ body {
             var purpose = blueprintData.purpose || '';
             var totalValue = calculateTotalMarketValue();
             var hasValuation = totalValue && totalValue.total > 0 && skillValuations && Object.keys(skillValuations.skillBaseValues || {}).length > 0;
+            // Calculate both modes for dual cards
+            var evidenceValue = hasValuation ? calculateTotalMarketValue('evidence') : null;
+            var potentialValue = hasValuation ? calculateTotalMarketValue('potential') : null;
             
             var masteryCount = skills.filter(function(s) { return s.level === 'Mastery'; }).length;
             var advancedCount = skills.filter(function(s) { return s.level === 'Advanced'; }).length;
@@ -12423,14 +12449,25 @@ body {
             // ── STAT CARDS ROW ──
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:20px;">';
             
-            // Market Worth card
-            if (hasValuation) {
-                var worthColor = totalValue.mode === 'potential' ? '#f59e0b' : '#10b981';
-                html += '<div style="background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:12px; padding:18px; cursor:pointer;" onclick="toggleValuationExpand()">'
-                    + '<div style="font-size:0.78em; color:' + tv('#9ca3af','#64748b') + '; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">'
-                    + (totalValue.mode === 'potential' ? 'Potential Worth' : 'Market Worth') + '</div>'
-                    + '<div style="font-size:1.8em; font-weight:800; color:' + worthColor + ';">$' + totalValue.yourWorth.toLocaleString() + '</div>'
-                    + '<div style="font-size:0.75em; color:' + tv('#6b7280','#9ca3af') + '; margin-top:4px;">' + totalValue.compaRatio + '% of median \u00B7 ' + totalValue.roleLevel + '</div>'
+            // Evidence-Based Value card
+            if (hasValuation && evidenceValue) {
+                var evActive = valuationMode === 'evidence';
+                html += '<div style="background:' + (evActive ? tv('rgba(16,185,129,0.08)','rgba(16,185,129,0.05)') : tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)')) + '; border:' + (evActive ? '2px' : '1px') + ' solid ' + (evActive ? tv('rgba(16,185,129,0.35)','rgba(16,185,129,0.25)') : tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)')) + '; border-radius:12px; padding:18px; cursor:pointer;" onclick="setValuationMode(\'evidence\'); switchBlueprintTab(\'dashboard\');">'
+                    + '<div style="display:flex; align-items:center; gap:5px; font-size:0.78em; color:' + tv('#9ca3af','#64748b') + '; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">'
+                    + bpIcon('lock',11) + ' Evidence-Based</div>'
+                    + '<div style="font-size:1.8em; font-weight:800; color:#10b981;">$' + evidenceValue.yourWorth.toLocaleString() + '</div>'
+                    + '<div style="font-size:0.75em; color:' + tv('#6b7280','#9ca3af') + '; margin-top:4px;">' + evidenceValue.compaRatio + '% of median</div>'
+                    + '</div>';
+            }
+            
+            // Potential Value card
+            if (hasValuation && potentialValue) {
+                var potActive = valuationMode === 'potential';
+                html += '<div style="background:' + (potActive ? tv('rgba(245,158,11,0.08)','rgba(245,158,11,0.05)') : tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)')) + '; border:' + (potActive ? '2px' : '1px') + ' solid ' + (potActive ? tv('rgba(245,158,11,0.35)','rgba(245,158,11,0.25)') : tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)')) + '; border-radius:12px; padding:18px; cursor:pointer;" onclick="setValuationMode(\'potential\'); switchBlueprintTab(\'dashboard\');">'
+                    + '<div style="display:flex; align-items:center; gap:5px; font-size:0.78em; color:' + tv('#9ca3af','#64748b') + '; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">'
+                    + bpIcon('star',11) + ' Potential</div>'
+                    + '<div style="font-size:1.8em; font-weight:800; color:#f59e0b;">$' + potentialValue.yourWorth.toLocaleString() + '</div>'
+                    + '<div style="font-size:0.75em; color:' + tv('#6b7280','#9ca3af') + '; margin-top:4px;">' + potentialValue.compaRatio + '% of median</div>'
                     + '</div>';
             }
             
@@ -12625,7 +12662,7 @@ body {
                     + '<div style="display:flex; align-items:center; gap:14px;">'
                     + '<span style="color:#10b981;">' + bpIcon('money',20) + '</span>'
                     + '<div>'
-                    + '<div style="font-weight:700; color:' + tv('#e0e0e0','#1e293b') + ';">Market Position</div>'
+                    + '<div style="font-weight:700; color:' + tv('#e0e0e0','#1e293b') + ';">Market Position <span style="font-size:0.72em; font-weight:600; color:' + (valuationMode === 'potential' ? '#f59e0b' : '#10b981') + ';">\u00B7 ' + (valuationMode === 'potential' ? 'Potential' : 'Evidence') + '</span></div>'
                     + '<div style="font-size:0.82em; color:' + tv('#9ca3af','#64748b') + ';">Offers: $' + totalValue.conservativeOffer.toLocaleString() + ' \u2013 $' + totalValue.competitiveOffer.toLocaleString() + '</div>'
                     + '</div></div>'
                     + '<div style="display:flex; align-items:center; gap:14px;">'
@@ -12654,10 +12691,14 @@ body {
                 });
                 html += '</div>';
                 
-                // Valuation mode toggle
-                html += '<div style="display:flex; gap:8px; margin-bottom:14px;">'
-                    + '<button onclick="setValuationMode(\'evidence\'); switchBlueprintTab(\'dashboard\');" style="flex:1; padding:8px; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.1)') + '; border-radius:6px; background:' + (valuationMode === 'evidence' ? 'var(--accent)' : 'transparent') + '; color:' + (valuationMode === 'evidence' ? '#fff' : tv('#9ca3af','#64748b')) + '; cursor:pointer; font-size:0.82em; font-weight:600;">' + bpIcon('lock',12) + ' Evidence-Backed</button>'
-                    + '<button onclick="setValuationMode(\'potential\'); switchBlueprintTab(\'dashboard\');" style="flex:1; padding:8px; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.1)') + '; border-radius:6px; background:' + (valuationMode === 'potential' ? 'var(--accent)' : 'transparent') + '; color:' + (valuationMode === 'potential' ? '#fff' : tv('#9ca3af','#64748b')) + '; cursor:pointer; font-size:0.82em; font-weight:600;">' + bpIcon('star',12) + ' Potential</button>'
+                // Static mode indicator
+                var modeLabel = valuationMode === 'potential' ? 'Potential Value' : 'Evidence-Based Value';
+                var modeColor = valuationMode === 'potential' ? '#f59e0b' : '#10b981';
+                var modeIcon = valuationMode === 'potential' ? bpIcon('star',12) : bpIcon('lock',12);
+                html += '<div style="display:flex; align-items:center; gap:6px; margin-bottom:14px; padding:8px 12px; background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; border-radius:8px; border-left:3px solid ' + modeColor + ';">'
+                    + '<span style="color:' + modeColor + ';">' + modeIcon + '</span>'
+                    + '<span style="font-size:0.82em; font-weight:600; color:' + modeColor + ';">Showing: ' + modeLabel + '</span>'
+                    + '<span style="font-size:0.72em; color:' + tv('#6b7280','#9ca3af') + '; margin-left:auto;">Switch using cards above</span>'
                     + '</div>';
                 
                 // Compact stats row
