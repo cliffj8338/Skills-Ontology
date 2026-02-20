@@ -14399,6 +14399,9 @@ body {
                 }
             });
             
+            // Active roles (used by network viz and distribution pages)
+            var roleList = Object.keys(roleGroups).filter(function(k) { return roleGroups[k].skills.length > 0; });
+            
             // Render each role group
             Object.keys(roleGroups).forEach(function(roleId) {
                 var group = roleGroups[roleId];
@@ -14489,7 +14492,6 @@ body {
                 var graphLinks = [];
                 
                 // Role nodes (hubs) — evenly spaced around inner ring
-                var roleList = Object.keys(roleGroups).filter(function(k) { return roleGroups[k].skills.length > 0; });
                 roleList.forEach(function(roleId, i) {
                     var group = roleGroups[roleId];
                     var angle = (i / roleList.length) * Math.PI * 2 - Math.PI / 2;
