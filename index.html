@@ -1268,13 +1268,13 @@
         .bp-tab {
             display: flex;
             align-items: center;
-            gap: 7px;
-            padding: 10px 18px 12px;
+            gap: 6px;
+            padding: 10px 14px 12px;
             background: transparent;
             border: none;
             border-bottom: 3px solid transparent;
             color: var(--text-muted);
-            font-size: 0.9em;
+            font-size: 0.85em;
             font-weight: 500;
             cursor: pointer;
             white-space: nowrap;
@@ -10439,8 +10439,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     var nudge = document.createElement('div');
                     nudge.id = 'ahaNudge';
                     nudge.style.cssText = 'position:fixed; bottom:24px; right:24px; z-index:9000; '
-                        + 'background:var(--card-bg); border:1px solid var(--accent); border-radius:14px; '
-                        + 'padding:18px 22px; max-width:320px; box-shadow:0 12px 40px rgba(0,0,0,0.3); '
+                        + 'background:' + tv('#1a1a2e','#ffffff') + '; border:1px solid var(--accent); border-radius:14px; '
+                        + 'padding:18px 22px; max-width:320px; box-shadow:0 12px 40px rgba(0,0,0,0.4); '
                         + 'animation: nudgeIn 0.4s ease; font-size:0.88em;';
                     nudge.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:8px;">'
                         + '<div style="font-weight:700; color:var(--accent);">\u25C8 Imagine your skills here</div>'
@@ -12344,10 +12344,19 @@ body {
             
             view.innerHTML = `
                 <div class="blueprint-container">
-                    <div class="blueprint-subnav" id="blueprintSubnav" style="position:sticky; top:0; z-index:20; background:var(--bg-base); padding-top:8px;">
+                    <div class="blueprint-subnav" id="blueprintSubnav" style="position:sticky; top:56px; z-index:20; background:var(--bg-base); padding:8px 0 4px; border-bottom:1px solid ${tv('rgba(255,255,255,0.06)','rgba(0,0,0,0.06)')}; margin-bottom:12px;">
                         <button class="bp-tab ${blueprintTab === 'dashboard' ? 'active' : ''}" onclick="switchBlueprintTab('dashboard')">
                             <span class="bp-tab-icon">${bpIcon('blueprint',16)}</span>
                             <span class="bp-tab-label">Dashboard</span>
+                        </button>
+                        <button class="bp-tab ${blueprintTab === 'skills' ? 'active' : ''}" onclick="switchBlueprintTab('skills')">
+                            <span class="bp-tab-icon">${bpIcon('skills',16)}</span>
+                            <span class="bp-tab-label">Skills</span>
+                            <span class="bp-tab-count">${skillCount}</span>
+                        </button>
+                        <button class="bp-tab ${blueprintTab === 'experience' ? 'active' : ''}" onclick="switchBlueprintTab('experience')">
+                            <span class="bp-tab-icon">${bpIcon('experience',16)}</span>
+                            <span class="bp-tab-label">Experience</span>
                         </button>
                         <button class="bp-tab ${blueprintTab === 'outcomes' ? 'active' : ''}" onclick="switchBlueprintTab('outcomes')">
                             <span class="bp-tab-icon">${bpIcon('outcomes',16)}</span>
@@ -12394,6 +12403,8 @@ body {
         
         function renderBlueprintTabContent() {
             if (blueprintTab === 'dashboard') return renderDashboardTab();
+            if (blueprintTab === 'skills')    return renderSkillsManagementTab();
+            if (blueprintTab === 'experience') return renderExperienceTab();
             if (blueprintTab === 'outcomes') return renderOutcomesSection();
             if (blueprintTab === 'values')   return renderValuesSection();
             if (blueprintTab === 'purpose')  return renderDashboardTab(); // redirect legacy
@@ -12557,8 +12568,10 @@ body {
                 html += '<div style="background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; border:1px solid ' + tv('rgba(255,255,255,0.06)','rgba(0,0,0,0.05)') + '; border-radius:10px; padding:14px 16px; margin-bottom:16px;">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
                     + '<div style="font-size:0.75em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:' + tv('#6b7280','#9ca3af') + ';">Skill Distribution</div>'
-                    + '<div style="font-size:0.72em; color:' + tv('#6b7280','#9ca3af') + ';">' + roles.length + ' domains</div>'
-                    + '</div>';
+                    + '<div style="display:flex; align-items:center; gap:12px;">'
+                    + '<span style="font-size:0.72em; color:' + tv('#6b7280','#9ca3af') + ';">' + roles.length + ' domains</span>'
+                    + '<button onclick="switchBlueprintTab(\'skills\')" style="font-size:0.72em; color:#60a5fa; background:none; border:none; cursor:pointer; font-weight:600;">Manage Skills \u2192</button>'
+                    + '</div></div>';
                 
                 // Stacked bar
                 html += '<div style="display:flex; height:10px; border-radius:5px; overflow:hidden; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.04)') + '; margin-bottom:10px;">';
@@ -12602,6 +12615,13 @@ body {
             html += '<div style="margin-bottom:20px;">'
                 + '<div style="font-size:0.78em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:' + tv('#6b7280','#9ca3af') + '; margin-bottom:10px;">Quick Actions</div>'
                 + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px;">';
+            
+            // Manage Skills
+            html += '<button onclick="switchBlueprintTab(\'skills\')" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:' + tv('rgba(16,185,129,0.08)','rgba(16,185,129,0.06)') + '; border:1px solid ' + tv('rgba(16,185,129,0.25)','rgba(16,185,129,0.15)') + '; border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
+                + '<span style="color:#10b981;">' + bpIcon('skills',18) + '</span>'
+                + '<div><div style="font-weight:600; color:' + tv('#e0e0e0','#1e293b') + '; font-size:0.9em;">Manage Skills</div>'
+                + '<div style="font-size:0.75em; color:' + tv('#9ca3af','#64748b') + ';">Add, edit, organize</div></div>'
+                + '</button>';
             
             // Scouting Report
             html += '<button onclick="showScoutingReportPicker()" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:' + tv('rgba(96,165,250,0.08)','rgba(59,130,246,0.06)') + '; border:1px solid ' + tv('rgba(96,165,250,0.25)','rgba(59,130,246,0.15)') + '; border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
@@ -12739,6 +12759,114 @@ body {
             
             
             return html;
+        }
+        
+        // ===== SKILLS MANAGEMENT TAB =====
+        function renderSkillsManagementTab() {
+            var skills = skillsData.skills || [];
+            var roles = skillsData.roles || [];
+            var html = '';
+            
+            // Action bar
+            html += '<div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;">';
+            html += '<button onclick="showAddSkillsEmpty()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:linear-gradient(135deg, rgba(96,165,250,0.15), rgba(96,165,250,0.08)); border:1px solid ' + tv('rgba(96,165,250,0.3)','rgba(37,99,235,0.2)') + '; border-radius:8px; color:#60a5fa; cursor:pointer; font-weight:600; font-size:0.88em;">'
+                + bpIcon('plus',14) + ' Add Skill</button>';
+            html += '<button onclick="openBulkImport()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.08)') + '; border-radius:8px; color:' + tv('#d1d5db','#475569') + '; cursor:pointer; font-weight:600; font-size:0.88em;">'
+                + bpIcon('upload',14) + ' Bulk Import</button>';
+            html += '<button onclick="switchView(\'skills\')" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.08)') + '; border-radius:8px; color:' + tv('#d1d5db','#475569') + '; cursor:pointer; font-weight:600; font-size:0.88em; margin-left:auto;">'
+                + bpIcon('skills',14) + ' Network View</button>';
+            html += '</div>';
+            
+            if (skills.length === 0) {
+                html += '<div style="text-align:center; padding:60px 20px; color:' + tv('#6b7280','#9ca3af') + ';">'
+                    + '<div style="font-size:2em; margin-bottom:12px; opacity:0.5;">' + bpIcon('skills',48) + '</div>'
+                    + '<div style="font-size:1.1em; font-weight:600; color:' + tv('#d1d5db','#334155') + '; margin-bottom:6px;">No skills mapped yet</div>'
+                    + '<div style="font-size:0.9em; max-width:400px; margin:0 auto; line-height:1.5;">Start by adding skills from the library, importing a resume, or using bulk import to build your professional profile.</div>'
+                    + '</div>';
+                return html;
+            }
+            
+            // Stats summary
+            var levelCounts = { 'Mastery': 0, 'Advanced': 0, 'Intermediate': 0, 'Foundational': 0 };
+            var levelColors = { 'Mastery': '#10b981', 'Advanced': '#3b82f6', 'Intermediate': '#8b5cf6', 'Foundational': '#6b7280' };
+            skills.forEach(function(s) { var lv = s.level || 'Foundational'; if (levelCounts[lv] !== undefined) levelCounts[lv]++; else levelCounts['Foundational']++; });
+            
+            html += '<div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:20px;">';
+            ['Mastery','Advanced','Intermediate','Foundational'].forEach(function(lv) {
+                if (levelCounts[lv] > 0) {
+                    html += '<div style="display:flex; align-items:center; gap:6px; font-size:0.85em;">'
+                        + '<div style="width:10px; height:10px; border-radius:3px; background:' + levelColors[lv] + ';"></div>'
+                        + '<span style="color:' + tv('#9ca3af','#64748b') + ';">' + lv + '</span>'
+                        + '<span style="font-weight:700; color:' + tv('#d1d5db','#334155') + ';">' + levelCounts[lv] + '</span>'
+                        + '</div>';
+                }
+            });
+            html += '<div style="font-size:0.85em; color:' + tv('#6b7280','#9ca3af') + '; margin-left:auto;">' + skills.length + ' total \u00B7 ' + roles.length + ' domains</div>';
+            html += '</div>';
+            
+            // Group skills by role
+            var skillsByRole = {};
+            var unassigned = [];
+            skills.forEach(function(s) {
+                var assigned = false;
+                (s.roles || []).forEach(function(roleIdx) {
+                    var role = roles[roleIdx];
+                    var roleName = role ? role.name : 'Unknown';
+                    if (!skillsByRole[roleName]) skillsByRole[roleName] = [];
+                    skillsByRole[roleName].push(s);
+                    assigned = true;
+                });
+                if (!assigned) unassigned.push(s);
+            });
+            
+            // Render each domain
+            var domainNames = Object.keys(skillsByRole).sort();
+            if (unassigned.length > 0) domainNames.push('_unassigned');
+            
+            domainNames.forEach(function(domain) {
+                var domainSkills = domain === '_unassigned' ? unassigned : skillsByRole[domain];
+                var displayName = domain === '_unassigned' ? 'Uncategorized' : domain;
+                domainSkills.sort(function(a,b) {
+                    var order = {'Mastery':0,'Advanced':1,'Intermediate':2,'Foundational':3};
+                    return (order[a.level]||3) - (order[b.level]||3);
+                });
+                
+                html += '<div style="margin-bottom:16px; border:1px solid ' + tv('rgba(255,255,255,0.06)','rgba(0,0,0,0.06)') + '; border-radius:10px; overflow:hidden;">';
+                
+                // Domain header
+                html += '<div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; border-bottom:1px solid ' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.04)') + ';">'
+                    + '<div style="font-weight:600; font-size:0.88em; color:' + tv('#d1d5db','#334155') + ';">' + bpIcon('layers',14) + ' ' + displayName + '</div>'
+                    + '<span style="font-size:0.75em; color:' + tv('#6b7280','#9ca3af') + ';">' + domainSkills.length + ' skills</span>'
+                    + '</div>';
+                
+                // Skills list
+                domainSkills.forEach(function(s) {
+                    var lv = s.level || 'Foundational';
+                    var lvColor = levelColors[lv] || '#6b7280';
+                    var escapedName = s.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    
+                    html += '<div style="display:flex; align-items:center; gap:10px; padding:10px 16px; border-bottom:1px solid ' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.03)') + ';">'
+                        + '<div style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.88em; color:' + tv('#e0e0e0','#1e293b') + '; cursor:pointer;" onclick="openSkillModalFromCard(\'' + escapedName + '\')">' + s.name + '</div>'
+                        + '<span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:' + lvColor + '22; color:' + lvColor + '; font-weight:600; white-space:nowrap;">' + lv + '</span>';
+                    
+                    if (s.core) {
+                        html += '<span style="font-size:0.65em; padding:2px 6px; border-radius:8px; background:' + tv('rgba(245,158,11,0.15)','rgba(245,158,11,0.1)') + '; color:#f59e0b; font-weight:600;">CORE</span>';
+                    }
+                    
+                    html += '<button onclick="openSkillModalFromCard(\'' + escapedName + '\')" title="Edit" style="background:none; border:none; cursor:pointer; color:#60a5fa; padding:4px;">' + bpIcon('edit',14) + '</button>'
+                        + '<button onclick="if(confirm(\'Remove skill: ' + escapedName + '?\')) { removeSkillFromProfile(\'' + escapedName + '\', \'' + (s.category || 'skill') + '\'); switchBlueprintTab(\'skills\'); }" title="Remove" style="background:none; border:none; cursor:pointer; color:' + tv('#6b7280','#9ca3af') + '; padding:4px;">' + bpIcon('trash',14) + '</button>'
+                        + '</div>';
+                });
+                
+                html += '</div>';
+            });
+            
+            return html;
+        }
+        
+        // ===== EXPERIENCE TAB (wraps Settings Experience content) =====
+        function renderExperienceTab() {
+            return renderExperienceSettings();
         }
         
         function toggleValuationExpand() {
@@ -18469,17 +18597,13 @@ body {
                 <div class="blueprint-container">
                     <div class="blueprint-header">
                         <h1 class="blueprint-title">Settings</h1>
-                        <p class="blueprint-subtitle">Configure Your Profile and Preferences</p>
+                        <p class="blueprint-subtitle">Site &amp; Personal Settings</p>
                     </div>
                     
                     <div class="settings-tabs">
                         <button class="settings-tab ${window.currentSettingsTab === 'profile' ? 'active' : ''}" 
                                 onclick="switchSettingsTab('profile')">
                             ${bpIcon('profile',15)} Profile
-                        </button>
-                        <button class="settings-tab ${window.currentSettingsTab === 'experience' ? 'active' : ''}" 
-                                onclick="switchSettingsTab('experience')">
-                            ${bpIcon('experience',15)} Experience
                         </button>
                         <button class="settings-tab ${window.currentSettingsTab === 'preferences' ? 'active' : ''}" 
                                 onclick="switchSettingsTab('preferences')">
@@ -18512,7 +18636,9 @@ body {
                 case 'profile':
                     return renderProfileSettings();
                 case 'experience':
-                    return renderExperienceSettings();
+                    // Moved to Blueprint > Experience tab
+                    window.currentSettingsTab = 'profile';
+                    return renderProfileSettings();
                 case 'preferences':
                     return renderJobPreferences();
                 case 'privacy':
@@ -18626,6 +18752,14 @@ body {
         }
         
         // ===== EXPERIENCE SETTINGS (Work History, Education, Certifications) =====
+        
+        function refreshExperienceContent() {
+            // Works from both Blueprint > Experience and Settings > Experience (legacy)
+            var target = document.getElementById('blueprintTabContent') || document.getElementById('settingsTabContent');
+            if (target && (blueprintTab === 'experience' || window.currentSettingsTab === 'experience')) {
+                target.innerHTML = renderExperienceSettings();
+            }
+        }
         
         function renderExperienceSettings() {
             var whItems = userData.workHistory || [];
@@ -18814,7 +18948,7 @@ body {
             if (!confirm('Remove this position?')) return;
             userData.workHistory.splice(idx, 1);
             saveAll();
-            document.getElementById('settingsTabContent').innerHTML = renderExperienceSettings();
+            refreshExperienceContent();
             showToast('Position removed.', 'info');
         }
         
@@ -18924,7 +19058,7 @@ body {
             
             closeExportModal();
             saveAll();
-            document.getElementById('settingsTabContent').innerHTML = renderExperienceSettings();
+            refreshExperienceContent();
             showToast(idx >= 0 ? 'Position updated.' : 'Position added.', 'success');
         }
         
@@ -18942,7 +19076,7 @@ body {
             if (!confirm('Remove this education entry?')) return;
             userData.education.splice(idx, 1);
             saveAll();
-            document.getElementById('settingsTabContent').innerHTML = renderExperienceSettings();
+            refreshExperienceContent();
         }
         
         function openEducationModal(idx) {
@@ -18992,7 +19126,7 @@ body {
             
             closeExportModal();
             saveAll();
-            document.getElementById('settingsTabContent').innerHTML = renderExperienceSettings();
+            refreshExperienceContent();
             showToast(idx >= 0 ? 'Education updated.' : 'Education added.', 'success');
         }
         
@@ -19010,7 +19144,7 @@ body {
             if (!confirm('Remove this certification?')) return;
             userData.certifications.splice(idx, 1);
             saveAll();
-            document.getElementById('settingsTabContent').innerHTML = renderExperienceSettings();
+            refreshExperienceContent();
         }
         
         function openCertModal(idx) {
@@ -19294,7 +19428,7 @@ body {
             saveAll();
             rescoreAllJobs();
             refreshAllViews();
-            document.getElementById('settingsTabContent').innerHTML = renderExperienceSettings();
+            refreshExperienceContent();
             
             // Build notification
             var msgs = [];

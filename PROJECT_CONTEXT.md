@@ -13,7 +13,7 @@ Blueprint is a career intelligence platform that maps professional skills throug
 
 ## FILE & ARCHITECTURE
 
-**Single file:** `/mnt/user-data/outputs/index.html` — ~23,190 lines, ~1.07MB
+**Single file:** `/mnt/user-data/outputs/index.html` — ~23,360 lines, ~1.08MB
 **No build system.** Pure HTML/CSS/JS. CDN dependencies only.
 
 ### CDN Dependencies
@@ -29,11 +29,11 @@ skillsData                  — { skills: [], roles: [] }
 userData                    — { profile: {}, savedJobs: [], applications: [], preferences: {} }
 blueprintData               — { outcomes: [], values: [], purpose: '' }
 isReadOnlyProfile           — True when viewing sample as non-admin
-appMode                     — 'demo' | 'waitlisted' | 'invited' | 'active'
+appMode                     — 'demo' | 'waitlisted' | 'invited' | 'active' (admin → always active)
 waitlistPosition            — Queue number (int or null)
 currentView                 — Current main nav view
 blueprintTab                — 'dashboard' | 'outcomes' | 'values' | 'export'
-valuationMode               — 'evidence' | 'potential'
+valuationMode               — 'evidence' | 'potential' (drives dual cards + detail section)
 skillValuations             — Market value data (BLS-based)
 ```
 
@@ -42,14 +42,16 @@ skillValuations             — Market value data (BLS-based)
 Primary Nav:  [Skills] [Jobs] [Blueprint] [Settings]
 Skills:       Network graph / Card view (toggle)
 Jobs:         Find Jobs (API) / Pipeline (saved) / Tracker (applications)
-Blueprint:    Dashboard / Outcomes / Values / Export
-Settings:     Profile / Preferences / Privacy / Data / Theme
+Blueprint:    Dashboard / Skills / Experience / Outcomes / Values / Export
+Settings:     Profile / Preferences / Privacy & Data
 ```
 
 ### Key Functions
 ```
-renderBlueprint()              — Main Blueprint tab renderer
-renderDashboardTab()           — Dashboard command center (session 12-13)
+renderBlueprint()              — Main Blueprint tab renderer (6 tabs)
+renderDashboardTab()           — Dashboard command center
+renderSkillsManagementTab()    — Skills management by domain
+renderExperienceTab()          — Wraps renderExperienceSettings()
 renderExportSection()          — Export tab with 4 grouped sections + exportCard() helper
 generatePDF(data, targetJob)   — PDF gen (optional job for scouting reports)
 showScoutingReportPicker()     — Job picker modal for scouting reports
@@ -59,6 +61,7 @@ calculateTotalMarketValue()    — BLS-based salary model
 exportBlueprint(format)        — Export dispatcher (pdf/html/json/clipboard)
 switchView(view)               — Main nav router
 deleteBlueprintOutcome(idx)    — Delete outcome with confirm
+refreshExperienceContent()     — Context-aware experience refresh helper
 showWaitlist()                 — Waitlist registration modal
 demoGate(featureName)          — Feature gating for demo/waitlist users
 detectAppMode()                — Sets appMode from auth + localStorage + Firestore
@@ -71,22 +74,32 @@ detectAppMode()                — Sets appMode from auth + localStorage + Fires
 ### Working Features
 - **Skills:** D3 force network, card view, role grouping, proficiency levels, skill modals, evidence tracking
 - **Jobs:** 3 APIs (Remotive/Himalayas/Jobicy), job parsing, skill matching, pipeline, tracker
-- **Blueprint Dashboard:** Career Readiness Score (SVG ring), stat cards (worth/skills/outcomes/values), skill distribution bar, inline purpose editor, collapsible market valuation, quick actions, best job match card
+- **Blueprint Dashboard:** Career Readiness Score (SVG ring), stat cards (worth/skills/outcomes/values), skill distribution bar with manage link, inline purpose editor, collapsible market valuation, quick actions (incl. Manage Skills), best job match card
+- **Blueprint Skills Tab:** Skills grouped by domain, proficiency badges, inline edit/remove, Add Skill/Bulk Import/Network View actions
+- **Blueprint Experience Tab:** Work history, education, certifications (moved from Settings)
 - **PDF Export:** Career Intelligence Report (cover, skill architecture, network viz, proficiency charts, evidence, values, market valuation, job pipeline, back cover)
 - **Scouting Report:** Targeted PDF (match overview, alignment table, gap analysis, surplus value, talking points)
 - **Export Tab:** Organized into 4 sections (Career Intelligence, Job-Specific Tools, Networking & Profile, Data & Backup) with reusable card helper
 - **Market Valuation:** BLS OEWS model, compa-ratio, role tiers, impact skills, evidence vs potential
 - **Firebase:** Google auth, Firestore, admin roles, waitlist collection
-- **Demo Mode:** 4-state funnel, feature gating, waitlist modal, admin invites, aha-moment nudge
+- **Demo Mode:** 4-state funnel (admin auto-active), feature gating, waitlist modal, admin invites, aha-moment nudge, profile dropdown admin-gated
 - **SVG Icons:** ~80 custom icons, zero emoji in Blueprint section
 - **Theming:** Dark/light with CSS variables
 
 ### Session 13 Changes (Current)
 1. **Dead Code Removal** — removed `renderMarketValuationSection()` (218 lines) and `renderPurposeSection()` (25 lines), both superseded by Dashboard
-2. **Skill Distribution Bar** — compact horizontal stacked bar (Mastery/Advanced/Intermediate/Foundational) with color legend, inserted between stat cards and purpose
+2. **Skill Distribution Bar** — compact horizontal stacked bar (Mastery/Advanced/Intermediate/Foundational) with color legend and "Manage Skills →" link
 3. **Career Readiness Score** — SVG score ring with percentage, status label, and actionable incomplete-item buttons; replaces old bottom completeness tracker; shows compact badge when 100%
 4. **Outcomes SVG Cleanup + Delete** — replaced text characters (✓, ✎) with SVG icons (check, edit); replaced emoji (🔒, ✨) with SVG icons (lock, star) in valuation toggle; added `deleteBlueprintOutcome()` with confirm dialog
-5. **Export Tab Reorganization** — restructured from flat grid into 4 labeled sections with dividers; added `exportCard()` helper function; Cover Letter/Interview Prep/Resume always visible (with hint when no jobs saved); moved Clipboard to Networking section
+5. **Export Tab Reorganization** — restructured from flat grid into 4 labeled sections with dividers; added `exportCard()` helper function; Cover Letter/Interview Prep/Resume always visible (with hint when no jobs saved)
+6. **Blueprint Tab Restructure** — added Skills and Experience tabs to Blueprint (now 6 tabs: Dashboard/Skills/Experience/Outcomes/Values/Export); sticky sub-nav offset to sit below main nav at `top:56px`
+7. **Skills Management Tab** — new `renderSkillsManagementTab()` with action bar (Add Skill, Bulk Import, Network View), proficiency legend, skills grouped by domain with inline edit/remove buttons
+8. **Experience Migration** — moved Experience (work history, education, certs) from Settings to Blueprint; Settings now Profile/Preferences/Privacy only; added `refreshExperienceContent()` helper for context-aware rendering
+9. **Aha Nudge Fix** — replaced transparent `var(--card-bg)` with solid theme-aware background color
+10. **Quick Actions Update** — added "Manage Skills" as first quick action with green accent styling
+6. **Dual Valuation Cards** — replaced single "Market Worth" card with two top-level cards: "Evidence-Based" and "Potential", each showing its own value. Clicking a card sets `valuationMode` and refreshes. Expandable detail section now shows static mode indicator (no toggle inside).
+7. **Admin Login Fix** — `detectAppMode()` now runs in `onAuthStateChanged` handler after admin role resolves (was only running once at startup). Admin users now always get `appMode = 'active'` as first check in `detectAppMode()`.
+8. **Profile Dropdown Cleanup** — sample profile selector now admin-only in dropdown. Non-admin users see just Account info + Sign Out. Dropdown label dynamically shows "Admin · Switch Profile" vs "Account".
 
 ### Session 12 Changes
 1. **Blueprint Dashboard** — tabs at top (sticky), stat cards, inline purpose, collapsible valuation, quick actions, completeness tracker. Purpose no longer a separate tab.
@@ -95,9 +108,10 @@ detectAppMode()                — Sets appMode from auth + localStorage + Fires
 4. **PDF Fixes** — deterministic network (hashStr), roleList scoping fix
 
 ### Tech Debt
-- Skill management buttons need a home (removed from Dashboard, should go to Skills tab)
 - Job APIs need network access (CORS proxied)
 - Consider code splitting at 25K lines
+- Settings > Experience redirect (legacy path) may need cleanup
+- Overflow menu "View Sample Profiles" still accessible to all users (intentional for demo browsing)
 
 ---
 
@@ -148,12 +162,12 @@ searchOpportunities, showOnboardingWizard, openSkillManagement, openONETPicker, 
 10. PDF network viz + charts + domain branding (v4.23.0)
 11. Demo mode + waitlist + scouting report + admin panel
 12. Blueprint Dashboard restructure
-13. Dashboard polish (readiness score, skill distribution, outcomes delete, export reorg, dead code removal) — THIS SESSION
+13. Dashboard polish + Blueprint restructure (Skills/Experience tabs, sticky fix, nudge fix, export reorg, dead code removal) — THIS SESSION
 
 ---
 
 ## SUPPORTING FILES (all in /mnt/user-data/outputs/)
-- `index.html` — Main app (~23,190 lines)
+- `index.html` — Main app (~23,360 lines)
 - `teaser.html` — Landing page with animated network
 - `WHY_BLUEPRINT.md` — Positioning document
 - `LAUNCH_PLAN.md` — Invite-only launch spec
@@ -163,7 +177,7 @@ searchOpportunities, showOnboardingWizard, openSkillManagement, openONETPicker, 
 
 ## NEXT STEPS
 
-**Immediate:** Test Dashboard readiness score ring, verify export tab sections render correctly, test outcome delete
-**Short-term:** Sample profile audit, "Why Blueprint" modal, social proof, email notifications, relocate skill management buttons to Skills tab
+**Immediate:** Test Blueprint 6-tab layout, verify Skills tab domain grouping, verify Experience works from Blueprint, test sticky sub-nav offset
+**Short-term:** Sample profile audit, "Why Blueprint" modal, social proof, email notifications
 **Medium-term:** Ambassador mechanic, analytics, LinkedIn sharing
-**Tech debt:** Code splitting at 25K lines
+**Tech debt:** Code splitting at 25K lines, mobile tab scroll testing
