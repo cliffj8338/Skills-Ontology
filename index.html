@@ -5103,6 +5103,9 @@
         function checkReadOnly() {
             var templateId = userData.templateId || '';
             var isSample = templateId.indexOf('demo') !== -1 || templateId.indexOf('sample') !== -1;
+            if (!isSample && window.profilesManifest && window.profilesManifest.profiles) {
+                isSample = window.profilesManifest.profiles.some(function(p) { return p.id === templateId; });
+            }
             isReadOnlyProfile = isSample && !fbIsAdmin;
             
             // Toggle body class for CSS-based enforcement
@@ -6890,8 +6893,19 @@
             // Reset network state for new profile
             if (typeof activeRole !== 'undefined') activeRole = 'all';
             if (typeof activeJobForNetwork !== 'undefined') activeJobForNetwork = null;
+            if (typeof networkMatchMode !== 'undefined') networkMatchMode = 'you';
             var searchInput = document.getElementById('skillSearch');
             if (searchInput) searchInput.value = '';
+            
+            // Clean up any network overlay DOM elements
+            var legend = document.getElementById('matchLegend');
+            if (legend) legend.remove();
+            var jobTile = document.getElementById('jobInfoTile');
+            if (jobTile) jobTile.remove();
+            var toggle = document.getElementById('matchModeToggle');
+            if (toggle) toggle.style.display = 'none';
+            var badge = document.getElementById('matchActiveBadge');
+            if (badge) badge.style.display = 'none';
             
             // Check read-only status
             checkReadOnly();
@@ -7017,16 +7031,17 @@
             var skills = template.skills || [];
             var allSkillNames = skills.map(function(s) { return s.name.toLowerCase(); }).join(' ');
             
-            // Detect profile type — check title first, then roles, then skills
-            var allSignals = titleStr + ' ' + allRoles + ' ' + allSkillNames;
+            // Detect profile type — roles and title are primary signals, skills only for retail/trades
+            var roleSignals = titleStr + ' ' + allRoles;
             
-            var isRecruiter = /recruit|talent acqui|sourcing|staffing/.test(allSignals);
-            var isProduct = /product manager|product lead|product director/.test(allSignals);
-            var isTech = /engineer|developer|architect|software|devops|frontend|backend|full.?stack|programming|python|java|kubernetes/.test(allSignals);
-            var isRetail = /cashier|retail|store|merchandise|customer service|point of sale|barista/.test(allSignals);
-            var isTrades = /hair|stylist|cosmetolog|barber|electrician|plumb|hvac|carpenter|mechanic|weld/.test(allSignals);
+            var isRecruiter = /recruit|talent acqui|sourcing|staffing/.test(roleSignals);
+            var isProduct = /product manager|product lead|product director|product owner/.test(roleSignals);
+            var isStrategy = /strateg|advisory|futurist|evangelist|transformation|chief|vp |vice president|executive/.test(roleSignals);
+            var isTech = /\b(engineer|developer|architect|software|devops|frontend|backend|full.?stack|sre|infrastructure)\b/.test(roleSignals);
+            // Retail and trades check skills too since role names may be generic
+            var isRetail = /cashier|retail|store|merchandise|customer service|point of sale|barista/.test(roleSignals + ' ' + allSkillNames);
+            var isTrades = /hair|stylist|cosmetolog|barber|electrician|plumb|hvac|carpenter|mechanic|weld/.test(roleSignals + ' ' + allSkillNames);
             
-            // Job metadata per profile type — 3 tiers: high (~80%+), mid (~50-65%), low (<50%)
             var jobMeta;
             if (isRecruiter) {
                 jobMeta = [
@@ -7052,18 +7067,6 @@
                       rawText: 'Scale AI seeks a VP of Engineering to lead our ML Infrastructure division. This role requires hands-on expertise in distributed systems architecture, GPU cluster management, model training pipelines, MLOps automation, Kubernetes orchestration, and C++ performance optimization. You will manage 60+ engineers, own a $40M infrastructure budget, and drive our technical roadmap for foundation model training.',
                       parsedRoles: ['Engineering', 'ML Infrastructure'], seniority: 'Executive', tier: 'low' }
                 ];
-            } else if (isTech) {
-                jobMeta = [
-                    { id: 'sample-high', title: 'Senior Software Engineer, Platform', company: 'Cloudflare',
-                      rawText: 'Cloudflare is hiring a Senior Software Engineer for our core platform team. You will design and build distributed systems that handle millions of requests per second, improve observability and reliability, mentor junior engineers, and contribute to architecture decisions. Strong experience with systems programming, networking, and performance optimization required. Experience with Go, Rust, or C++ preferred.',
-                      parsedRoles: ['Engineering', 'Platform'], seniority: 'Senior', tier: 'high' },
-                    { id: 'sample-mid', title: 'Staff Engineer, Infrastructure', company: 'Datadog',
-                      rawText: 'Datadog seeks a Staff Engineer to lead technical direction for our cloud infrastructure platform. You will design large-scale distributed systems, drive cross-team technical initiatives, evaluate build vs buy decisions, and own system reliability targets. Requires deep expertise in cloud architecture, container orchestration, database internals, and capacity planning. Must have shipped production systems at significant scale.',
-                      parsedRoles: ['Engineering', 'Infrastructure'], seniority: 'Staff', tier: 'mid' },
-                    { id: 'sample-low', title: 'Director of Engineering, AI/ML', company: 'Anthropic',
-                      rawText: 'Anthropic seeks a Director of Engineering to lead our AI/ML training infrastructure team. This role requires deep expertise in distributed training systems, GPU cluster management, model optimization, research engineering management, and scientific computing. You will manage a team of 25+ research engineers, own training compute budget and efficiency, and drive technical strategy for next-generation model development.',
-                      parsedRoles: ['Engineering Management', 'AI/ML'], seniority: 'Director', tier: 'low' }
-                ];
             } else if (isRetail) {
                 jobMeta = [
                     { id: 'sample-high', title: 'Customer Service Associate', company: 'Target',
@@ -7088,8 +7091,8 @@
                       rawText: 'Ulta Beauty is looking for a Salon Manager to lead a team of 10+ stylists, manage scheduling and payroll, drive salon revenue targets, handle inventory and vendor ordering, maintain health and safety compliance, and build client loyalty programs. Requires cosmetology license, 3+ years management experience, P&L knowledge, and retail operations expertise.',
                       parsedRoles: ['Salon Management', 'Retail Operations'], seniority: 'Mid', tier: 'low' }
                 ];
-            } else {
-                // Strategy/Advisory/Executive (default — Cliff Jones)
+            } else if (isStrategy || (!isTech && !isRecruiter)) {
+                // Strategy/Advisory/Executive — Cliff Jones and any unmatched exec profiles
                 jobMeta = [
                     { id: 'sample-high', title: 'VP of Strategy & Transformation', company: 'ServiceNow',
                       rawText: 'ServiceNow is hiring a VP of Strategy & Transformation to lead enterprise-wide strategic initiatives. You will drive digital transformation programs, develop competitive positioning, lead cross-functional teams, present to C-suite stakeholders, and shape thought leadership content. This role requires deep experience in strategic planning, change management, and executive communication.',
@@ -7100,6 +7103,19 @@
                     { id: 'sample-low', title: 'Chief Data Officer', company: 'Palantir',
                       rawText: 'Palantir is seeking a Chief Data Officer to build our enterprise data governance function from the ground up. This role requires deep expertise in data architecture, SQL and Python programming, statistical modeling, regulatory compliance (GDPR, CCPA, SOX), data mesh architecture, ETL pipeline design, and cloud infrastructure management. You will own a $25M data platform budget, build a 40-person data engineering team, and implement real-time analytics infrastructure.',
                       parsedRoles: ['Data', 'Executive'], seniority: 'Executive', tier: 'low' }
+                ];
+            } else {
+                // Technology/Engineering — Mike Rodriguez
+                jobMeta = [
+                    { id: 'sample-high', title: 'Senior Software Engineer, Platform', company: 'Cloudflare',
+                      rawText: 'Cloudflare is hiring a Senior Software Engineer for our core platform team. You will design and build distributed systems that handle millions of requests per second, improve observability and reliability, mentor junior engineers, and contribute to architecture decisions. Strong experience with systems programming, networking, and performance optimization required. Experience with Go, Rust, or C++ preferred.',
+                      parsedRoles: ['Engineering', 'Platform'], seniority: 'Senior', tier: 'high' },
+                    { id: 'sample-mid', title: 'Staff Engineer, Infrastructure', company: 'Datadog',
+                      rawText: 'Datadog seeks a Staff Engineer to lead technical direction for our cloud infrastructure platform. You will design large-scale distributed systems, drive cross-team technical initiatives, evaluate build vs buy decisions, and own system reliability targets. Requires deep expertise in cloud architecture, container orchestration, database internals, and capacity planning. Must have shipped production systems at significant scale.',
+                      parsedRoles: ['Engineering', 'Infrastructure'], seniority: 'Staff', tier: 'mid' },
+                    { id: 'sample-low', title: 'Director of Engineering, AI/ML', company: 'Anthropic',
+                      rawText: 'Anthropic seeks a Director of Engineering to lead our AI/ML training infrastructure team. This role requires deep expertise in distributed training systems, GPU cluster management, model optimization, research engineering management, and scientific computing. You will manage a team of 25+ research engineers, own training compute budget and efficiency, and drive technical strategy for next-generation model development.',
+                      parsedRoles: ['Engineering Management', 'AI/ML'], seniority: 'Director', tier: 'low' }
                 ];
             }
             
@@ -7280,7 +7296,7 @@
             // Sort: high match first
             jobs.sort(function(a, b) { return (b.matchData.score || 0) - (a.matchData.score || 0); });
             
-            var detectedType = isRecruiter ? 'recruiter' : isProduct ? 'product' : isTech ? 'technology' : isRetail ? 'retail' : isTrades ? 'trades' : 'strategy';
+            var detectedType = isRecruiter ? 'recruiter' : isProduct ? 'product' : isRetail ? 'retail' : isTrades ? 'trades' : (isStrategy || !isTech) ? 'strategy' : 'technology';
             console.log('📋 Injected ' + jobs.length + ' calibrated sample jobs for ' + profileName + ' (type: ' + detectedType + ')');
             
             return jobs;
@@ -7330,8 +7346,12 @@
                 templateId: templateId  // Store which template this is
             };
             
-            // Inject sample jobs for demo/sample profiles (always refresh on load)
-            if (templateId.indexOf('demo') !== -1 || templateId.indexOf('sample') !== -1) {
+            // Inject sample jobs for manifest-loaded sample profiles (always refresh on load)
+            var isManifestProfile = false;
+            if (window.profilesManifest && window.profilesManifest.profiles) {
+                isManifestProfile = window.profilesManifest.profiles.some(function(p) { return p.id === templateId; });
+            }
+            if (isManifestProfile || templateId.indexOf('demo') !== -1 || templateId.indexOf('sample') !== -1) {
                 userData.savedJobs = getSampleJobsForProfile(templateId, template);
             }
             
@@ -7482,8 +7502,12 @@
             // Determine which view to show
             var targetView = 'welcome'; // Default: welcome page
             
-            // CASE 1: Signed-in user with Firestore data (skip for demo/sample profiles)
-            var isDemoProfile = scaffoldId && (scaffoldId.indexOf('demo') !== -1 || scaffoldId.indexOf('sample') !== -1);
+            // CASE 1: Signed-in user with Firestore data (skip for manifest sample profiles)
+            var isDemoProfile = false;
+            if (window.profilesManifest && window.profilesManifest.profiles) {
+                isDemoProfile = window.profilesManifest.profiles.some(function(p) { return p.id === scaffoldId; });
+            }
+            if (!isDemoProfile) isDemoProfile = scaffoldId && (scaffoldId.indexOf('demo') !== -1 || scaffoldId.indexOf('sample') !== -1);
             if (fbUser && fbDb && !isDemoProfile) {
                 try {
                     var loaded = await loadUserFromFirestore(fbUser.uid);
