@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blueprint — See Your Full Professional Architecture</title>
+    <meta name="description" content="Blueprint maps your complete professional capability — not just your job history. The career intelligence platform that sees what resumes can't.">
+    <meta property="og:title" content="Blueprint — You're not a resume.">
+    <meta property="og:description" content="Map your complete professional architecture. 14,000+ skills. Evidence-backed. Market-aware.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://myblueprint.work">
+    <link rel="canonical" href="https://myblueprint.work">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #050510;
+            --bg-surface: #0a0a1a;
+            --accent: #60a5fa;
+            --accent-bright: #93c5fd;
+            --purple: #818cf8;
+            --green: #10b981;
+            --amber: #f59e0b;
+            --rose: #f472b6;
+            --text-primary: #f0f0f8;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: rgba(96, 165, 250, 0.12);
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+        body { font-family: 'Source Serif 4', Georgia, serif; background: var(--bg-deep); color: var(--text-primary); line-height: 1.7; overflow-x: hidden; }
+        h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; line-height: 1.15; letter-spacing: -0.02em; }
+
+        /* NAV */
+        nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; transition: background 0.4s, backdrop-filter 0.4s; }
+        nav.scrolled { background: rgba(5,5,16,0.88); backdrop-filter: blur(24px); border-bottom: 1px solid var(--border); }
+        .nav-logo { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.05em; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 12px; }
+        .nav-logo .tm { font-size: 0.5em; vertical-align: super; letter-spacing: 0; opacity: 0.5; }
+        .nav-cta { font-family: 'Outfit', sans-serif; font-size: 0.82em; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 10px 28px; border: 1px solid rgba(96,165,250,0.5); color: var(--accent); background: transparent; border-radius: 4px; cursor: pointer; transition: all 0.3s; text-decoration: none; }
+        .nav-cta:hover { background: var(--accent); color: var(--bg-deep); }
+
+        /* HERO */
+        .hero { position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 120px 24px 80px; overflow: hidden; }
+        .hero-canvas { position: absolute; inset: 0; z-index: 0; }
+        .hero-gradient { position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse 70% 50% at 50% 50%, transparent 0%, var(--bg-deep) 70%), radial-gradient(ellipse 50% 70% at 50% 100%, rgba(37,99,235,0.05) 0%, transparent 60%); }
+        .hero-content { position: relative; z-index: 2; max-width: 800px; }
+        .hero-badge { display: inline-block; font-family: 'Outfit', sans-serif; font-size: 0.72em; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); padding: 8px 20px; border: 1px solid rgba(96,165,250,0.25); border-radius: 100px; margin-bottom: 40px; opacity: 0; animation: fadeUp 0.8s ease 0.3s forwards; }
+        .hero h1 { font-size: clamp(2.8em, 7vw, 5.2em); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 28px; opacity: 0; animation: fadeUp 0.8s ease 0.5s forwards; }
+        .hero h1 em { font-style: normal; background: linear-gradient(135deg, var(--accent-bright) 0%, var(--accent) 50%, var(--purple) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero-sub { font-size: clamp(1.05em, 2vw, 1.28em); color: var(--text-secondary); max-width: 580px; margin: 0 auto 48px; opacity: 0; animation: fadeUp 0.8s ease 0.7s forwards; }
+        .hero-form { display: flex; gap: 0; max-width: 480px; margin: 0 auto; opacity: 0; animation: fadeUp 0.8s ease 0.9s forwards; }
+        .hero-form input { flex: 1; padding: 16px 20px; font-family: 'Outfit', sans-serif; font-size: 0.95em; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-right: none; border-radius: 6px 0 0 6px; color: var(--text-primary); outline: none; transition: border-color 0.3s, background 0.3s; }
+        .hero-form input::placeholder { color: var(--text-muted); }
+        .hero-form input:focus { border-color: var(--accent); background: rgba(96,165,250,0.06); }
+        .hero-form button { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.88em; letter-spacing: 0.08em; text-transform: uppercase; padding: 16px 32px; background: var(--accent); color: var(--bg-deep); border: 1px solid var(--accent); border-radius: 0 6px 6px 0; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
+        .hero-form button:hover { background: var(--accent-bright); border-color: var(--accent-bright); }
+        .hero-note { font-family: 'Outfit', sans-serif; font-size: 0.75em; color: var(--text-muted); margin-top: 14px; opacity: 0; animation: fadeUp 0.8s ease 1.1s forwards; }
+        .form-success { display: none; font-family: 'Outfit', sans-serif; color: var(--green); font-weight: 600; font-size: 0.95em; padding: 16px; }
+
+        /* SECTIONS */
+        section { padding: 120px 24px; max-width: 1100px; margin: 0 auto; }
+        .section-label { font-family: 'Outfit', sans-serif; font-size: 0.72em; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; }
+        .section-heading { font-size: clamp(2em, 4.5vw, 3.2em); font-weight: 700; margin-bottom: 24px; max-width: 700px; }
+        .section-lead { font-size: 1.15em; color: var(--text-secondary); max-width: 620px; margin-bottom: 64px; }
+
+        /* PROBLEM */
+        .problem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+        .problem-card { padding: 48px 36px; background: var(--bg-surface); border: 1px solid var(--border); position: relative; overflow: hidden; transition: transform 0.3s, border-color 0.3s; }
+        .problem-card:first-child { border-radius: 12px 0 0 12px; }
+        .problem-card:last-child { border-radius: 0 12px 12px 0; }
+        .problem-card:hover { border-color: rgba(96,165,250,0.3); transform: translateY(-2px); }
+        .problem-number { font-family: 'Outfit', sans-serif; font-size: 4em; font-weight: 900; color: rgba(96,165,250,0.06); position: absolute; top: -10px; right: 16px; line-height: 1; }
+        .problem-stat { font-family: 'Outfit', sans-serif; font-size: 2.4em; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 8px; }
+        .problem-stat-label { font-family: 'Outfit', sans-serif; font-size: 0.78em; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 24px; }
+        .problem-title { font-family: 'Outfit', sans-serif; font-size: 1.2em; font-weight: 700; margin-bottom: 12px; }
+        .problem-text { font-size: 0.95em; color: var(--text-secondary); line-height: 1.65; }
+
+        /* SHIFT */
+        .shift-section { position: relative; padding: 120px 24px; max-width: 100%; }
+        .shift-section::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-surface) 30%, var(--bg-surface) 70%, var(--bg-deep) 100%); z-index: 0; }
+        .shift-inner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
+        .shift-grid { display: grid; grid-template-columns: 1fr 80px 1fr; gap: 0; align-items: start; margin-top: 48px; }
+        .shift-column h3 { font-size: 0.78em; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; padding-bottom: 20px; margin-bottom: 24px; border-bottom: 2px solid; }
+        .shift-column.old h3 { color: var(--text-muted); border-color: rgba(255,255,255,0.08); }
+        .shift-column.new h3 { color: var(--accent); border-color: var(--accent); }
+        .shift-item { padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.95em; }
+        .shift-column.old .shift-item { color: var(--text-muted); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.15); }
+        .shift-column.new .shift-item { color: var(--text-primary); font-weight: 500; }
+        .shift-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 60px; }
+        .shift-arrow-line { width: 1px; flex: 1; background: linear-gradient(180deg, transparent, var(--accent), transparent); min-height: 300px; }
+
+        /* CAPABILITIES */
+        .capabilities { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 48px; }
+        .capability-card { padding: 40px 36px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px; transition: border-color 0.3s, transform 0.3s; }
+        .capability-card:hover { border-color: rgba(96,165,250,0.3); transform: translateY(-3px); }
+        .capability-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+        .capability-icon svg { width: 24px; height: 24px; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+        .cap-ontology .capability-icon { background: rgba(96,165,250,0.1); }
+        .cap-ontology .capability-icon svg { stroke: var(--accent); }
+        .cap-evidence .capability-icon { background: rgba(16,185,129,0.1); }
+        .cap-evidence .capability-icon svg { stroke: var(--green); }
+        .cap-market .capability-icon { background: rgba(245,158,11,0.1); }
+        .cap-market .capability-icon svg { stroke: var(--amber); }
+        .cap-matching .capability-icon { background: rgba(129,140,248,0.1); }
+        .cap-matching .capability-icon svg { stroke: var(--purple); }
+        .capability-card h3 { font-size: 1.15em; font-weight: 700; margin-bottom: 10px; }
+        .capability-card p { font-size: 0.92em; color: var(--text-secondary); line-height: 1.6; }
+
+        /* NUMBERS */
+        .numbers { display: flex; justify-content: center; gap: 0; padding: 80px 24px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); max-width: 100%; }
+        .number-item { text-align: center; padding: 0 60px; border-right: 1px solid var(--border); }
+        .number-item:last-child { border-right: none; }
+        .number-value { font-family: 'Outfit', sans-serif; font-size: 3em; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 8px; }
+        .number-label { font-family: 'Outfit', sans-serif; font-size: 0.75em; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.12em; }
+
+        /* FINAL CTA */
+        .final-cta { text-align: center; padding: 140px 24px; position: relative; }
+        .final-cta::before { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(96,165,250,0.04) 0%, transparent 70%); pointer-events: none; }
+        .final-cta h2 { font-size: clamp(2.2em, 5vw, 3.8em); font-weight: 800; margin-bottom: 20px; }
+        .final-cta p { font-size: 1.15em; color: var(--text-secondary); max-width: 520px; margin: 0 auto 48px; }
+        .final-cta .hero-form { opacity: 1; animation: none; }
+
+        footer { padding: 48px 24px; text-align: center; border-top: 1px solid var(--border); }
+        footer p { font-family: 'Outfit', sans-serif; font-size: 0.78em; color: var(--text-muted); }
+        footer a { color: var(--text-secondary); text-decoration: none; }
+        footer a:hover { color: var(--accent); }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 768px) {
+            nav { padding: 16px 20px; }
+            .nav-cta { padding: 8px 18px; font-size: 0.78em; }
+            section { padding: 80px 20px; }
+            .problem-grid { grid-template-columns: 1fr; gap: 16px; }
+            .problem-card { border-radius: 12px !important; padding: 36px 28px; }
+            .shift-grid { grid-template-columns: 1fr; gap: 32px; }
+            .shift-arrow { display: none; }
+            .capabilities { grid-template-columns: 1fr; }
+            .numbers { flex-direction: column; gap: 36px; align-items: center; }
+            .number-item { border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 36px; width: 200px; }
+            .number-item:last-child { border-bottom: none; padding-bottom: 0; }
+            .hero-form { flex-direction: column; gap: 12px; }
+            .hero-form input { border-radius: 6px; border-right: 1px solid rgba(255,255,255,0.12); }
+            .hero-form input:focus { border-color: var(--accent); }
+            .hero-form button { border-radius: 6px; padding: 16px; }
+            .final-cta { padding: 100px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <nav id="navBar">
+        <a href="#" class="nav-logo">
+            <svg width="28" height="28" viewBox="0 0 52 52" fill="none" style="filter: drop-shadow(0 0 12px rgba(96,165,250,0.3));">
+                <circle cx="26" cy="26" r="24" stroke="#60a5fa" stroke-width="1.5" opacity="0.22"/>
+                <line x1="26" y1="26" x2="12" y2="10" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
+                <line x1="26" y1="26" x2="42" y2="12" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
+                <line x1="26" y1="26" x2="40" y2="40" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
+                <line x1="26" y1="26" x2="10" y2="40" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
+                <line x1="12" y1="10" x2="42" y2="12" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
+                <line x1="42" y1="12" x2="40" y2="40" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
+                <line x1="10" y1="40" x2="40" y2="40" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
+                <circle cx="26" cy="26" r="4.5" fill="#60a5fa"/>
+                <circle cx="12" cy="10" r="3" fill="#93bbfc"/>
+                <circle cx="42" cy="12" r="2.5" fill="#818cf8"/>
+                <circle cx="40" cy="40" r="3" fill="#93bbfc"/>
+                <circle cx="10" cy="40" r="2.5" fill="#818cf8"/>
+            </svg>
+            Blueprint<span class="tm">&trade;</span>
+        </a>
+        <a href="#early-access" class="nav-cta">Get Early Access</a>
+    </nav>
+
+    <section class="hero">
+        <canvas class="hero-canvas" id="heroCanvas"></canvas>
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+            <div class="hero-badge">Coming 2026</div>
+            <h1>You're not a résumé.<br>You're a <em>Blueprint</em>.</h1>
+            <p class="hero-sub">The first career intelligence platform that maps your complete professional architecture — not just where you've been, but everything you bring to the table.</p>
+            <form class="hero-form" id="heroForm" onsubmit="return handleSignup(event, this)">
+                <input type="email" placeholder="Enter your email" required autocomplete="email">
+                <button type="submit">Early Access</button>
+            </form>
+            <div class="form-success">You're on the list. We'll be in touch.</div>
+            <p class="hero-note">Free for individuals. No spam. Unsubscribe anytime.</p>
+        </div>
+    </section>
+
+    <section class="reveal">
+        <div class="section-label">The Problem</div>
+        <h2 class="section-heading">You're making million-dollar career decisions with almost no data.</h2>
+        <p class="section-lead">The average professional can name 15–20 skills under pressure. They actually have 150–300. That gap is the most expensive blind spot in your career.</p>
+        <div class="problem-grid">
+            <div class="problem-card reveal">
+                <div class="problem-number">01</div>
+                <div class="problem-stat">60–80%</div>
+                <div class="problem-stat-label">Skills go unrecognized</div>
+                <div class="problem-title">You don't know what you're worth.</div>
+                <div class="problem-text">Not your salary — your capability. Most professionals underestimate their skill inventory by 60–80%. You're navigating career-defining decisions essentially blind.</div>
+            </div>
+            <div class="problem-card reveal">
+                <div class="problem-number">02</div>
+                <div class="problem-stat">7.4 sec</div>
+                <div class="problem-stat-label">Average résumé review</div>
+                <div class="problem-title">The system can't see you either.</div>
+                <div class="problem-text">Recruiters spend 7.4 seconds on your résumé. ATS rejects 75% before a human looks. The hiring system is optimized for keywords, not capability.</div>
+            </div>
+            <div class="problem-card reveal">
+                <div class="problem-number">03</div>
+                <div class="problem-stat">100%</div>
+                <div class="problem-stat-label">Of jobs are changing</div>
+                <div class="problem-title">The ground is shifting.</div>
+                <div class="problem-text">AI is rewriting every job description in real time. Nobody's given you a map of what you have, what the market wants, and where the gaps are.</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="shift-section">
+        <div class="shift-inner reveal">
+            <div class="section-label">The Shift</div>
+            <h2 class="section-heading">From static résumé to living architecture.</h2>
+            <div class="shift-grid">
+                <div class="shift-column old">
+                    <h3>The old way</h3>
+                    <div class="shift-item">You are your job title</div>
+                    <div class="shift-item">Résumés describe the past</div>
+                    <div class="shift-item">"I'm a Director of Marketing"</div>
+                    <div class="shift-item">Apply and hope</div>
+                    <div class="shift-item">Negotiate from gut feel</div>
+                    <div class="shift-item">Career planning = job searching</div>
+                </div>
+                <div class="shift-arrow"><div class="shift-arrow-line"></div></div>
+                <div class="shift-column new">
+                    <h3>The Blueprint way</h3>
+                    <div class="shift-item">You are your skill architecture</div>
+                    <div class="shift-item">Blueprints map living capability</div>
+                    <div class="shift-item">"I have 47 interconnected skills with mastery in 6"</div>
+                    <div class="shift-item">Match with precision</div>
+                    <div class="shift-item">Negotiate from market data</div>
+                    <div class="shift-item">Career planning = portfolio management</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section>
+        <div class="reveal">
+            <div class="section-label">What Blueprint Sees</div>
+            <h2 class="section-heading">The career tool that sees what résumés can't.</h2>
+            <p class="section-lead">Blueprint maps your complete professional DNA — every skill, its connections, its evidence, and its market value — into an interactive intelligence layer you own.</p>
+        </div>
+        <div class="capabilities">
+            <div class="capability-card cap-ontology reveal">
+                <div class="capability-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="18" r="2"/><line x1="9.5" y1="10" x2="6.5" y2="7.5"/><line x1="14.5" y1="10" x2="17.5" y2="7.5"/><line x1="9.5" y1="14" x2="6.5" y2="16.5"/><line x1="14.5" y1="14" x2="17.5" y2="16.5"/></svg></div>
+                <h3>Skill Ontology</h3>
+                <p>Maps your entire capability using O*NET and ESCO — the taxonomies used by the U.S. Department of Labor and European Commission. Not a list. A living, interconnected network of 14,000+ professional skills.</p>
+            </div>
+            <div class="capability-card cap-evidence reveal">
+                <div class="capability-icon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></div>
+                <h3>Evidence Engine</h3>
+                <p>Every skill claim backed by measurable outcomes. Not "proficient in leadership" — but verified accomplishments with metrics, context, and impact. Proof, not promises.</p>
+            </div>
+            <div class="capability-card cap-market reveal">
+                <div class="capability-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+                <h3>Market Valuation</h3>
+                <p>Real-time valuation of your skill portfolio against market demand. Know which skills command premium compensation, which are commoditizing, and where gaps create vulnerability.</p>
+            </div>
+            <div class="capability-card cap-matching reveal">
+                <div class="capability-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="11" y1="8" x2="11" y2="14"/></svg></div>
+                <h3>Intelligent Matching</h3>
+                <p>Goes beyond keywords. Blueprint understands that "stakeholder alignment" and "cross-functional leadership" are the same muscle applied differently — and matches on actual capability transfer.</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="numbers reveal">
+        <div class="number-item">
+            <div class="number-value" data-count="14000">0</div>
+            <div class="number-label">Skills in the Ontology</div>
+        </div>
+        <div class="number-item">
+            <div class="number-value">O*NET + ESCO</div>
+            <div class="number-label">Dual Taxonomy Framework</div>
+        </div>
+        <div class="number-item">
+            <div class="number-value" data-count="54">0</div>
+            <div class="number-label">&times; More Valuable with AI</div>
+        </div>
+        <div class="number-item">
+            <div class="number-value">100%</div>
+            <div class="number-label">Your Data, Portable</div>
+        </div>
+    </div>
+
+    <section class="final-cta reveal" id="early-access">
+        <h2>Your career has a blueprint.<br><em style="font-style:normal; color:var(--accent);">Now you can see it.</em></h2>
+        <p>Join the early access list. Be first to map your complete professional architecture.</p>
+        <form class="hero-form" id="ctaForm" onsubmit="return handleSignup(event, this)">
+            <input type="email" placeholder="Enter your email" required autocomplete="email">
+            <button type="submit">Get Early Access</button>
+        </form>
+        <div class="form-success">You're on the list. We'll be in touch.</div>
+        <p class="hero-note" style="opacity:1; animation:none;">Free for individuals. Built for professionals who take their career seriously.</p>
+    </section>
+
+    <footer>
+        <p style="margin-bottom: 8px;">
+            <span style="font-family:'Outfit',sans-serif; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent);">Blueprint<span style="font-size:0.55em; vertical-align:super; opacity:0.5;">&trade;</span></span>
+            &nbsp;&mdash;&nbsp; Career Intelligence Platform
+        </p>
+        <p>&copy; 2026 Blueprint. All rights reserved. · <a href="https://myblueprint.work">myblueprint.work</a></p>
+    </footer>
+
+    <script>
+    // ================================================================
+    // CINEMATIC NETWORK GRAPH — mirrors Blueprint's skill architecture
+    // ================================================================
+    (function() {
+        const canvas = document.getElementById('heroCanvas');
+        const ctx = canvas.getContext('2d');
+        let W, H, dpr, nodes = [], links = [];
+        let mouse = { x: -1000, y: -1000 };
+        const MOUSE_RADIUS = 200;
+
+        const palette = [
+            { fill: '#60a5fa', glow: 'rgba(96,165,250,0.25)'  },
+            { fill: '#818cf8', glow: 'rgba(129,140,248,0.25)' },
+            { fill: '#10b981', glow: 'rgba(16,185,129,0.25)'  },
+            { fill: '#f59e0b', glow: 'rgba(245,158,11,0.25)'  },
+            { fill: '#f472b6', glow: 'rgba(244,114,182,0.25)' },
+            { fill: '#93bbfc', glow: 'rgba(147,187,252,0.2)'  },
+        ];
+
+        const roleData = [
+            { label: 'Strategy', color: 0 },
+            { label: 'Leadership', color: 3 },
+            { label: 'Technology', color: 1 },
+            { label: 'Analytics', color: 5 },
+        ];
+
+        const skillLabels = [
+            'Stakeholder Mgmt', 'Data Analysis', 'Public Speaking', 'Team Building',
+            'Risk Assessment', 'Agile Methods', 'Negotiation', 'Product Strategy',
+            'AI Governance', 'UX Research', 'Budget Planning', 'Innovation',
+            'Talent Dev', 'Process Design', 'Market Analysis', 'Coaching',
+            'Systems Thinking', 'Forecasting', 'Content Strategy', 'Change Mgmt',
+            'Conflict Resolution', 'Revenue Ops', 'Brand Strategy', 'Decision Making',
+            'Executive Comm', 'Competitive Intel', 'Portfolio Mgmt', 'Facilitation',
+            'Cross-functional', 'Org Design', 'Due Diligence', 'Client Advisory',
+            'Storytelling', 'Pattern Recog', 'Empathy', 'Persuasion',
+            'Scenario Planning', 'Vendor Mgmt', 'Architecture', 'Compliance',
+        ];
+
+        function resize() {
+            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            W = window.innerWidth;
+            H = window.innerHeight;
+            canvas.width = W * dpr;
+            canvas.height = H * dpr;
+            canvas.style.width = W + 'px';
+            canvas.style.height = H + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function createGraph() {
+            nodes = []; links = [];
+            const cx = W / 2, cy = H / 2;
+            const mobile = W < 768;
+            const count = mobile ? 26 : 48;
+            const spread = mobile ? Math.min(W, H) * 0.42 : Math.min(W, H) * 0.38;
+
+            // Role (hub) nodes
+            roleData.forEach((rn, i) => {
+                const angle = (i / roleData.length) * Math.PI * 2 - Math.PI / 2;
+                const dist = spread * 0.32;
+                nodes.push({
+                    x: cx + Math.cos(angle) * dist,
+                    y: cy + Math.sin(angle) * dist,
+                    vx: (Math.random() - 0.5) * 0.12,
+                    vy: (Math.random() - 0.5) * 0.12,
+                    r: mobile ? 7 : 11,
+                    type: 'role', colorIdx: rn.color, label: rn.label,
+                    baseOpacity: 0.9
+                });
+            });
+
+            // Skill (satellite) nodes
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const dist = (Math.random() * 0.82 + 0.18) * spread;
+                nodes.push({
+                    x: cx + Math.cos(angle) * dist + (Math.random() - 0.5) * 30,
+                    y: cy + Math.sin(angle) * dist + (Math.random() - 0.5) * 30,
+                    vx: (Math.random() - 0.5) * 0.2,
+                    vy: (Math.random() - 0.5) * 0.2,
+                    r: mobile ? (Math.random() * 2.5 + 1.5) : (Math.random() * 3.5 + 2),
+                    type: 'skill',
+                    colorIdx: Math.floor(Math.random() * palette.length),
+                    label: skillLabels[i % skillLabels.length],
+                    baseOpacity: Math.random() * 0.3 + 0.2
+                });
+            }
+
+            // Link each skill to nearest role
+            const roleCount = roleData.length;
+            for (let i = roleCount; i < nodes.length; i++) {
+                let best = 0, bestD = Infinity;
+                for (let r = 0; r < roleCount; r++) {
+                    const dx = nodes[i].x - nodes[r].x, dy = nodes[i].y - nodes[r].y;
+                    const d = Math.sqrt(dx * dx + dy * dy);
+                    if (d < bestD) { bestD = d; best = r; }
+                }
+                if (bestD < spread * 0.75) links.push({ a: i, b: best });
+            }
+
+            // Skill-to-skill proximity links
+            for (let i = roleCount; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y;
+                    const d = Math.sqrt(dx * dx + dy * dy);
+                    if (d < 140 && Math.random() < 0.35) links.push({ a: i, b: j });
+                }
+            }
+        }
+
+        let t0 = 0;
+        function draw(ts) {
+            if (!t0) t0 = ts;
+            const elapsed = (ts - t0) / 1000;
+            const fadeIn = Math.min(elapsed / 2.2, 1);
+
+            ctx.clearRect(0, 0, W, H);
+
+            // Links
+            links.forEach(lk => {
+                const a = nodes[lk.a], b = nodes[lk.b];
+                const dx = a.x - b.x, dy = a.y - b.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const isRole = a.type === 'role' || b.type === 'role';
+                const maxD = isRole ? 300 : 160;
+                if (dist > maxD) return;
+
+                const mx = (a.x + b.x) / 2 - mouse.x, my = (a.y + b.y) / 2 - mouse.y;
+                const mDist = Math.sqrt(mx * mx + my * my);
+                const boost = mDist < MOUSE_RADIUS ? (1 - mDist / MOUSE_RADIUS) * 0.15 : 0;
+
+                const alpha = ((1 - dist / maxD) * (isRole ? 0.12 : 0.08) + boost) * fadeIn;
+                ctx.strokeStyle = `rgba(96,165,250,${alpha})`;
+                ctx.lineWidth = isRole ? 0.8 : 0.5;
+                ctx.beginPath();
+                ctx.moveTo(a.x, a.y);
+                ctx.lineTo(b.x, b.y);
+                ctx.stroke();
+            });
+
+            // Nodes
+            nodes.forEach(node => {
+                const c = palette[node.colorIdx];
+                const mdx = mouse.x - node.x, mdy = mouse.y - node.y;
+                const mDist = Math.sqrt(mdx * mdx + mdy * mdy);
+                const hover = mDist < MOUSE_RADIUS ? (1 - mDist / MOUSE_RADIUS) : 0;
+
+                const dr = node.r + hover * 3;
+                const op = (node.baseOpacity + hover * 0.4) * fadeIn;
+
+                // Role glow
+                if (node.type === 'role') {
+                    const gr = dr * 3.5;
+                    const grad = ctx.createRadialGradient(node.x, node.y, dr, node.x, node.y, gr);
+                    grad.addColorStop(0, c.glow);
+                    grad.addColorStop(1, 'transparent');
+                    ctx.globalAlpha = 0.4 * fadeIn;
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, gr, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+
+                // Circle
+                ctx.globalAlpha = op;
+                ctx.fillStyle = c.fill;
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, dr, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+
+                // Labels on hover
+                if (fadeIn > 0.8 && hover > 0.15) {
+                    const isRole = node.type === 'role';
+                    ctx.font = isRole ? '600 12px Outfit, sans-serif' : '400 9px Outfit, sans-serif';
+                    ctx.fillStyle = `rgba(240,240,248,${hover * (isRole ? 0.95 : 0.8)})`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(node.label, node.x, node.y - dr - (isRole ? 10 : 6));
+                }
+
+                // Physics
+                node.x += node.vx;
+                node.y += node.vy;
+                if (mDist < MOUSE_RADIUS && mDist > 1) {
+                    node.vx -= (mdx / mDist) * (1 - mDist / MOUSE_RADIUS) * 0.25;
+                    node.vy -= (mdy / mDist) * (1 - mDist / MOUSE_RADIUS) * 0.25;
+                }
+                node.vx *= 0.995;
+                node.vy *= 0.995;
+                node.vx += (W / 2 - node.x) * 0.000025;
+                node.vy += (H / 2 - node.y) * 0.000025;
+                if (node.x < 30) node.vx += 0.04;
+                if (node.x > W - 30) node.vx -= 0.04;
+                if (node.y < 30) node.vy += 0.04;
+                if (node.y > H - 30) node.vy -= 0.04;
+            });
+
+            requestAnimationFrame(draw);
+        }
+
+        canvas.addEventListener('mousemove', e => {
+            const r = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
+        });
+        canvas.addEventListener('mouseleave', () => { mouse.x = -1000; mouse.y = -1000; });
+        canvas.addEventListener('touchmove', e => {
+            const r = canvas.getBoundingClientRect();
+            mouse.x = e.touches[0].clientX - r.left; mouse.y = e.touches[0].clientY - r.top;
+        }, { passive: true });
+        canvas.addEventListener('touchend', () => { mouse.x = -1000; mouse.y = -1000; });
+
+        resize(); createGraph(); requestAnimationFrame(draw);
+        window.addEventListener('resize', () => { resize(); createGraph(); });
+    })();
+
+    // Nav scroll
+    window.addEventListener('scroll', () => {
+        document.getElementById('navBar').classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    // Scroll reveal
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Number counter
+    const numObs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            const el = entry.target, target = parseInt(el.dataset.count);
+            if (!target) return;
+            const start = performance.now();
+            (function tick(now) {
+                const p = Math.min((now - start) / 1800, 1);
+                el.textContent = Math.floor(target * (1 - Math.pow(1 - p, 3))).toLocaleString() + '+';
+                if (p < 1) requestAnimationFrame(tick);
+            })(start);
+            numObs.unobserve(el);
+        });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('[data-count]').forEach(el => numObs.observe(el));
+
+    // Form
+    function handleSignup(e, form) {
+        e.preventDefault();
+        const email = form.querySelector('input[type="email"]').value;
+        try {
+            const s = JSON.parse(localStorage.getItem('bp_signups') || '[]');
+            if (!s.includes(email)) { s.push(email); localStorage.setItem('bp_signups', JSON.stringify(s)); }
+        } catch(err) {}
+        form.style.display = 'none';
+        const ok = form.nextElementSibling;
+        if (ok && ok.classList.contains('form-success')) ok.style.display = 'block';
+        return false;
+    }
+    </script>
+</body>
+</html>
