@@ -4645,7 +4645,8 @@
             fbAuth = firebase.auth();
             fbDb = firebase.firestore();
             fbReady = true;
-            console.log('✓ Firebase initialized');
+            console.log('✓ Firebase initialized (project: ' + firebaseConfig.projectId + ', auth domain: ' + firebaseConfig.authDomain + ')');
+            console.log('ℹ️ Ensure ' + window.location.hostname + ' is in Firebase Console → Authentication → Settings → Authorized domains');
         } catch(e) {
             console.warn('⚠ Firebase not available, running in offline mode:', e.message);
         }
@@ -4764,7 +4765,21 @@
         function authWithGoogle() {
             if (!fbAuth) return;
             var provider = new firebase.auth.GoogleAuthProvider();
-            fbAuth.signInWithRedirect(provider);
+            fbAuth.signInWithPopup(provider)
+                .then(function(result) {
+                    closeAuthModal();
+                    var isNew = result.additionalUserInfo && result.additionalUserInfo.isNewUser;
+                    handlePostSignIn(result.user, isNew);
+                })
+                .catch(function(err) {
+                    if (err.code === 'auth/popup-closed-by-user') return;
+                    if (err.code === 'auth/popup-blocked') {
+                        showAuthError('Popup blocked. Please allow popups for this site, or use email sign-in below.');
+                        return;
+                    }
+                    console.error('Google auth error:', err);
+                    showAuthError(err.message || 'Google sign-in failed. Try email sign-in below.');
+                });
         }
         window.authWithGoogle = authWithGoogle;
 
@@ -23029,6 +23044,8 @@ body {
         function toggleProfileDropdown(event) {
             event.stopPropagation();
             if (_profileDropdownClosing) return;
+            // Close overflow menu if open
+            closeOverflowMenu();
             var dropdown = document.getElementById('profileDropdown');
             var options = document.getElementById('profileDropdownOptions');
             // If click came from inside the dropdown options, don't toggle (let the option's own onclick handle it)
@@ -23103,6 +23120,8 @@ body {
             if (event) {
                 event.stopPropagation();
             }
+            // Close profile dropdown if open
+            closeProfileDropdown();
             
             const menu = document.getElementById('overflowMenu');
             const btn = document.getElementById('overflowMenuBtn');
