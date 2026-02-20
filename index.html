@@ -13008,6 +13008,22 @@ body {
                 + 'Compact one-to-two page PDF. Outcomes, values, purpose, skills summary, and market context.'
                 + '</div>'
                 + '</div>'
+                // Scouting Report card
+                + '<div style="background:' + tv('rgba(96,165,250,0.06)','rgba(59,130,246,0.04)') + '; border:1px solid ' + tv('rgba(96,165,250,0.25)','rgba(59,130,246,0.15)') + '; border-radius:12px; padding:20px; cursor:pointer;" onclick="showScoutingReportPicker()">'
+                + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
+                + '<span style="color:#60a5fa;">' + bpIcon('target',22) + '</span>'
+                + '<div style="font-weight:600; color:' + tv('#e0e0e0','#1f2937') + ';">\u25C8 Scouting Report</div>'
+                + '<span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:rgba(96,165,250,0.2); color:#60a5fa; font-weight:600;">NEW</span>'
+                + '</div>'
+                + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.88em; line-height:1.5;">'
+                + 'Career intelligence report targeted to a specific job. Includes match analysis, skill alignment, gaps, talking points, and market positioning. Built to send to recruiters and hiring managers.'
+                + '</div>'
+                + '<div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">'
+                + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:' + tv('rgba(96,165,250,0.15)','rgba(96,165,250,0.1)') + '; color:#60a5fa;">PDF</span>'
+                + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:' + tv('rgba(16,185,129,0.15)','rgba(16,185,129,0.1)') + '; color:#10b981;">Match Analysis</span>'
+                + '<span style="font-size:0.75em; padding:3px 10px; border-radius:20px; background:' + tv('rgba(245,158,11,0.15)','rgba(245,158,11,0.1)') + '; color:#f59e0b;">Send to Recruiter</span>'
+                + '</div>'
+                + '</div>'
                 // Copy to Clipboard card
                 + '<div style="background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.1)') + '; border-radius:12px; padding:20px; cursor:pointer;" onclick="copyBlueprintText()">'
                 + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
@@ -13523,6 +13539,97 @@ body {
             saveValues();
         }
         
+        // ===== SCOUTING REPORT JOB PICKER =====
+        function showScoutingReportPicker() {
+            var savedJobs = (userData.savedJobs || []).filter(function(j) { return j && j.title && j.matchData; });
+            
+            var modal = document.getElementById('exportModal');
+            var modalContent = modal.querySelector('.modal-content');
+            
+            if (savedJobs.length === 0) {
+                modalContent.innerHTML = '<div class="modal-header">'
+                    + '<div class="modal-header-left"><h2 class="modal-title">\u25C8 Scouting Report</h2></div>'
+                    + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                    + '</div>'
+                    + '<div class="modal-body" style="padding:40px 32px; text-align:center;">'
+                    + '<div style="font-size:2.4em; margin-bottom:16px; opacity:0.5;">' + bpIcon('target',48) + '</div>'
+                    + '<div style="font-size:1.1em; font-weight:600; color:var(--text-primary); margin-bottom:10px;">No jobs in your pipeline yet</div>'
+                    + '<div style="font-size:0.9em; color:var(--text-secondary); line-height:1.6; margin-bottom:24px;">'
+                    + 'Save a job from Find Jobs, or paste a job description in the Jobs tab. Blueprint will score the match and you can generate a targeted scouting report.</div>'
+                    + '<button onclick="closeExportModal(); switchView(\'jobs\');" style="padding:10px 24px; border-radius:8px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer;">Go to Jobs</button>'
+                    + '</div>';
+                history.pushState({ modal: true }, '');
+                modal.classList.add('active');
+                return;
+            }
+            
+            // Sort by match score descending
+            savedJobs.sort(function(a, b) { return (b.matchData.score || 0) - (a.matchData.score || 0); });
+            
+            var jobCardsHTML = savedJobs.map(function(job, idx) {
+                var score = (job.matchData && job.matchData.score) || 0;
+                var matchedCount = (job.matchData && job.matchData.matched) ? job.matchData.matched.length : 0;
+                var gapCount = (job.matchData && job.matchData.gaps) ? job.matchData.gaps.length : 0;
+                var scoreColor = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
+                var realIdx = userData.savedJobs.indexOf(job);
+                
+                return '<div onclick="generateScoutingReport(' + realIdx + ')" style="padding:16px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.02)') + '; '
+                    + 'border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.08)') + '; border-radius:10px; cursor:pointer; transition:border-color 0.2s; display:flex; justify-content:space-between; align-items:center;" '
+                    + 'onmouseover="this.style.borderColor=\'rgba(96,165,250,0.4)\'" onmouseout="this.style.borderColor=\'' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.08)') + '\'">'
+                    + '<div style="flex:1; min-width:0;">'
+                    + '<div style="font-weight:600; color:' + tv('#e0e0e0','#1e293b') + '; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + job.title + '</div>'
+                    + '<div style="font-size:0.82em; color:' + tv('#9ca3af','#64748b') + ';">' + (job.company || 'Unknown company')
+                    + ' \u00B7 ' + matchedCount + ' matched \u00B7 ' + gapCount + ' gap' + (gapCount !== 1 ? 's' : '') + '</div>'
+                    + '</div>'
+                    + '<div style="text-align:center; min-width:56px; margin-left:12px;">'
+                    + '<div style="font-size:1.5em; font-weight:800; color:' + scoreColor + ';">' + score + '%</div>'
+                    + '<div style="font-size:0.65em; color:' + tv('#9ca3af','#64748b') + '; text-transform:uppercase; letter-spacing:0.5px;">Match</div>'
+                    + '</div>'
+                    + '</div>';
+            }).join('');
+            
+            modalContent.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left"><h2 class="modal-title">\u25C8 Scouting Report</h2></div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:24px;">'
+                + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:16px; line-height:1.5;">'
+                + 'Select a job to generate a targeted career intelligence report. This is your scouting report \u2014 built to send to recruiters and hiring managers.</div>'
+                + '<div style="display:grid; gap:10px;">' + jobCardsHTML + '</div>'
+                + '<div style="margin-top:16px; padding-top:14px; border-top:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + ';">'
+                + '<button onclick="closeExportModal(); exportBlueprint(\'pdf\')" style="width:100%; padding:10px; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.1)') + '; background:transparent; color:var(--text-secondary); border-radius:8px; cursor:pointer; font-size:0.88em;">'
+                + 'Or generate a general Blueprint PDF (no job targeting)</button>'
+                + '</div>'
+                + '</div>';
+            
+            history.pushState({ modal: true }, '');
+            modal.classList.add('active');
+        }
+        window.showScoutingReportPicker = showScoutingReportPicker;
+        
+        function generateScoutingReport(jobIdx) {
+            var job = (userData.savedJobs || [])[jobIdx];
+            if (!job) { showToast('Job not found.', 'error'); return; }
+            
+            closeExportModal();
+            
+            // Build shared data same as normal export
+            var sharedData = {
+                profile: userData.profile || {},
+                outcomes: blueprintData.outcomes.filter(function(o) { return o.shared; }),
+                values: blueprintData.values.filter(function(v) { return v.selected; }),
+                purpose: blueprintData.purpose,
+                skills: (skillsData.skills || []).map(function(s) {
+                    return { name: s.name, level: s.level, category: s.category, key: s.key, roles: s.roles };
+                }),
+                roles: skillsData.roles || [],
+                exportedAt: new Date().toISOString()
+            };
+            
+            generatePDF(sharedData, job);
+        }
+        window.generateScoutingReport = generateScoutingReport;
+        
         function exportBlueprint(format) {
             var sharedData = {
                 profile: userData.profile || {},
@@ -13552,9 +13659,11 @@ body {
             }
         }
         
-        function generatePDF(data) {
+        function generatePDF(data, targetJob) {
             var jsPDF = window.jspdf.jsPDF;
             var doc = new jsPDF({ unit: 'mm', format: 'a4' });
+            
+            var isScoutingReport = !!(targetJob && targetJob.matchData);
             
             var pageWidth = doc.internal.pageSize.getWidth();   // 210
             var pageHeight = doc.internal.pageSize.getHeight();  // 297
@@ -13750,6 +13859,18 @@ body {
             doc.setTextColor(148, 163, 184);
             doc.text('CAREER INTELLIGENCE REPORT', cx, cy + 42, { align: 'center' });
             
+            // Target job subtitle on cover
+            if (isScoutingReport) {
+                doc.setFontSize(8);
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(200, 210, 230);
+                doc.text('PREPARED FOR: ' + (targetJob.title || '').toUpperCase(), cx, cy + 48, { align: 'center' });
+                if (targetJob.company) {
+                    doc.setFontSize(7);
+                    doc.text(targetJob.company.toUpperCase(), cx, cy + 53, { align: 'center' });
+                }
+            }
+            
             // Name block
             doc.setFontSize(28);
             doc.setFont(undefined, 'bold');
@@ -13784,12 +13905,23 @@ body {
             skills.forEach(function(s) { evidenceCount += (s.evidence || []).length; });
             var outcomeCount = (data.outcomes || []).length;
             
-            var stats = [
-                { value: String(skills.length), label: 'Total Skills' },
-                { value: String(roles.length), label: 'Roles' },
-                { value: String(masteryCount + advancedCount), label: 'Expert+' },
-                { value: String(evidenceCount), label: 'Evidence Items' }
-            ];
+            var stats = [];
+            if (isScoutingReport) {
+                var matchScore = targetJob.matchData.score || 0;
+                stats = [
+                    { value: matchScore + '%', label: 'Match Score' },
+                    { value: String(skills.length), label: 'Total Skills' },
+                    { value: String((targetJob.matchData.matched || []).length), label: 'Skills Aligned' },
+                    { value: String((targetJob.matchData.gaps || []).length), label: 'Gaps' }
+                ];
+            } else {
+                stats = [
+                    { value: String(skills.length), label: 'Total Skills' },
+                    { value: String(roles.length), label: 'Roles' },
+                    { value: String(masteryCount + advancedCount), label: 'Expert+' },
+                    { value: String(evidenceCount), label: 'Evidence Items' }
+                ];
+            }
             
             var boxW = (maxWidth - 9) / 4;
             var boxX = margin;
@@ -13868,6 +14000,367 @@ body {
             setColor(C.textMuted);
             doc.text('CONFIDENTIAL \u2014 This document contains proprietary career intelligence data.', cx, pageHeight - 20, { align: 'center' });
             addFooter();
+            
+            // ============================================================
+            // SCOUTING REPORT: MATCH ANALYSIS (if targeting a job)
+            // ============================================================
+            if (isScoutingReport) {
+                var match = targetJob.matchData;
+                var matchScore = match.score || 0;
+                var matchedSkills = match.matched || [];
+                var gapSkills = match.gaps || [];
+                var surplusSkills = match.surplus || [];
+                
+                // ---- PAGE: MATCH OVERVIEW ----
+                newPage();
+                sectionHead('Match Analysis', (targetJob.title || 'Target Position') + ' \u2014 ' + (targetJob.company || ''));
+                
+                // Score circle (large, centered)
+                var scoreCx = pageWidth / 2;
+                var scoreCy = yPos + 28;
+                var scoreR = 22;
+                var scoreColor = matchScore >= 70 ? C.green : matchScore >= 50 ? C.amber : C.rose;
+                
+                // Background ring
+                setDraw(C.border);
+                doc.setLineWidth(3);
+                doc.circle(scoreCx, scoreCy, scoreR, 'S');
+                
+                // Score arc (filled portion)
+                setDraw(scoreColor);
+                doc.setLineWidth(3.5);
+                var arcEnd = (matchScore / 100) * 360;
+                // Draw arc as series of line segments
+                for (var ai = 0; ai < arcEnd; ai += 2) {
+                    var a1 = ((ai - 90) * Math.PI) / 180;
+                    var a2 = ((ai + 2 - 90) * Math.PI) / 180;
+                    doc.line(
+                        scoreCx + Math.cos(a1) * scoreR,
+                        scoreCy + Math.sin(a1) * scoreR,
+                        scoreCx + Math.cos(a2) * scoreR,
+                        scoreCy + Math.sin(a2) * scoreR
+                    );
+                }
+                
+                // Score text
+                doc.setFontSize(28);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(scoreColor[0], scoreColor[1], scoreColor[2]);
+                doc.text(matchScore + '%', scoreCx, scoreCy + 4, { align: 'center' });
+                doc.setFontSize(7);
+                doc.setFont(undefined, 'normal');
+                setColor(C.textMuted);
+                doc.text('MATCH SCORE', scoreCx, scoreCy + 11, { align: 'center' });
+                
+                // Flanking stats
+                doc.setFontSize(18);
+                doc.setFont(undefined, 'bold');
+                setColor(C.green);
+                doc.text(String(matchedSkills.length), scoreCx - 50, scoreCy + 2, { align: 'center' });
+                doc.setFontSize(6.5);
+                doc.setFont(undefined, 'normal');
+                setColor(C.textMuted);
+                doc.text('SKILLS ALIGNED', scoreCx - 50, scoreCy + 8, { align: 'center' });
+                
+                doc.setFontSize(18);
+                doc.setFont(undefined, 'bold');
+                setColor(C.rose);
+                doc.text(String(gapSkills.length), scoreCx + 50, scoreCy + 2, { align: 'center' });
+                doc.setFontSize(6.5);
+                doc.setFont(undefined, 'normal');
+                setColor(C.textMuted);
+                doc.text('GAPS', scoreCx + 50, scoreCy + 8, { align: 'center' });
+                
+                yPos = scoreCy + scoreR + 14;
+                
+                // Executive match summary
+                var strongMatches = matchedSkills.filter(function(m) { return m.profMatch >= 0.9 && m.requirement === 'Required'; });
+                var partialMatches = matchedSkills.filter(function(m) { return m.profMatch < 0.9; });
+                var requiredGaps = gapSkills.filter(function(g) { return g.requirement === 'Required'; });
+                
+                setFill(C.bgLight);
+                setDraw(C.border);
+                doc.setLineWidth(0.3);
+                var summaryH = 32;
+                doc.roundedRect(margin, yPos, maxWidth, summaryH, 3, 3, 'FD');
+                
+                doc.setFontSize(8);
+                doc.setFont(undefined, 'bold');
+                setColor(C.dark);
+                doc.text('EXECUTIVE SUMMARY', margin + 8, yPos + 7);
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(8);
+                setColor(C.text);
+                
+                var summaryText = name + ' demonstrates a ' + matchScore + '% skill alignment with the '
+                    + (targetJob.title || 'target') + ' position'
+                    + (targetJob.company ? ' at ' + targetJob.company : '') + '. ';
+                if (strongMatches.length > 0) {
+                    summaryText += strongMatches.length + ' of ' + matchedSkills.length + ' matched skills meet or exceed the required proficiency level. ';
+                }
+                if (requiredGaps.length > 0) {
+                    summaryText += requiredGaps.length + ' required skill' + (requiredGaps.length > 1 ? 's' : '') + ' represent development opportunities. ';
+                }
+                if (surplusSkills.length > 5) {
+                    summaryText += 'Additionally, ' + surplusSkills.length + ' skills in the candidate\'s portfolio extend beyond the stated requirements, indicating breadth and adaptability.';
+                }
+                
+                var sumLines = doc.splitTextToSize(summaryText, maxWidth - 16);
+                doc.text(sumLines.slice(0, 4), margin + 8, yPos + 13);
+                yPos += summaryH + 8;
+                
+                // ---- PAGE: SKILL ALIGNMENT TABLE ----
+                if (matchedSkills.length > 0) {
+                    checkPage(30);
+                    if (yPos > 130) newPage();
+                    
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'bold');
+                    setColor(C.dark);
+                    doc.text('Skill Alignment (' + matchedSkills.length + ' matched)', margin, yPos);
+                    doc.setFont(undefined, 'normal');
+                    yPos += 6;
+                    
+                    // Table header
+                    setFill(C.dark);
+                    doc.roundedRect(margin, yPos, maxWidth, 7, 1, 1, 'F');
+                    doc.setFontSize(6.5);
+                    doc.setFont(undefined, 'bold');
+                    doc.setTextColor(200, 210, 230);
+                    doc.text('REQUIRED SKILL', margin + 4, yPos + 4.5);
+                    doc.text('CANDIDATE SKILL', margin + 62, yPos + 4.5);
+                    doc.text('LEVEL', margin + 118, yPos + 4.5);
+                    doc.text('FIT', pageWidth - margin - 4, yPos + 4.5, { align: 'right' });
+                    yPos += 9;
+                    
+                    // Sort: Required first, then by proficiency match desc
+                    var sortedMatched = matchedSkills.slice().sort(function(a, b) {
+                        if (a.requirement !== b.requirement) return a.requirement === 'Required' ? -1 : 1;
+                        return b.profMatch - a.profMatch;
+                    });
+                    
+                    sortedMatched.forEach(function(m, idx) {
+                        checkPage(8);
+                        var rowY = yPos;
+                        
+                        if (idx % 2 === 0) {
+                            setFill(C.bgLight);
+                            doc.rect(margin, rowY - 3, maxWidth, 7, 'F');
+                        }
+                        
+                        // Requirement indicator
+                        var reqColor = m.requirement === 'Required' ? C.brand : C.textMuted;
+                        setFill(reqColor);
+                        doc.circle(margin + 2, rowY + 0.5, 1, 'F');
+                        
+                        doc.setFontSize(7.5);
+                        doc.setFont(undefined, 'normal');
+                        setColor(C.text);
+                        var jobName = (m.jobSkill || '').length > 28 ? m.jobSkill.slice(0, 26) + '\u2026' : m.jobSkill;
+                        doc.text(jobName, margin + 5, rowY + 1);
+                        
+                        setColor(C.brand);
+                        var userName = (m.userSkill || '').length > 26 ? m.userSkill.slice(0, 24) + '\u2026' : m.userSkill;
+                        doc.text(userName, margin + 62, rowY + 1);
+                        
+                        // Level comparison
+                        doc.setFontSize(6.5);
+                        var lc = levelColor[m.userLevel] || C.textMuted;
+                        doc.setTextColor(lc[0], lc[1], lc[2]);
+                        doc.text(m.userLevel || '', margin + 118, rowY + 1);
+                        
+                        // Fit indicator
+                        var fitColor = m.profMatch >= 0.9 ? C.green : m.profMatch >= 0.6 ? C.amber : C.rose;
+                        var fitText = m.profMatch >= 0.9 ? '\u2713' : m.profMatch >= 0.6 ? '\u223C' : '\u2191';
+                        doc.setFontSize(9);
+                        doc.setFont(undefined, 'bold');
+                        doc.setTextColor(fitColor[0], fitColor[1], fitColor[2]);
+                        doc.text(fitText, pageWidth - margin - 4, rowY + 1.5, { align: 'right' });
+                        
+                        yPos += 7;
+                    });
+                    yPos += 4;
+                }
+                
+                // ---- GAP ANALYSIS ----
+                if (gapSkills.length > 0) {
+                    checkPage(30);
+                    if (yPos > 200) newPage();
+                    
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'bold');
+                    setColor(C.dark);
+                    doc.text('Gap Analysis (' + gapSkills.length + ' skills)', margin, yPos);
+                    doc.setFont(undefined, 'normal');
+                    yPos += 6;
+                    
+                    // Table header
+                    setFill([60, 20, 30]);
+                    doc.roundedRect(margin, yPos, maxWidth, 7, 1, 1, 'F');
+                    doc.setFontSize(6.5);
+                    doc.setFont(undefined, 'bold');
+                    doc.setTextColor(230, 180, 180);
+                    doc.text('SKILL NEEDED', margin + 4, yPos + 4.5);
+                    doc.text('PRIORITY', margin + 90, yPos + 4.5);
+                    doc.text('LEVEL REQUIRED', margin + 120, yPos + 4.5);
+                    yPos += 9;
+                    
+                    gapSkills.forEach(function(g, idx) {
+                        checkPage(8);
+                        var rowY = yPos;
+                        
+                        if (idx % 2 === 0) {
+                            setFill([255, 248, 248]);
+                            doc.rect(margin, rowY - 3, maxWidth, 7, 'F');
+                        }
+                        
+                        doc.setFontSize(7.5);
+                        doc.setFont(undefined, 'normal');
+                        setColor(C.text);
+                        doc.text(g.name || '', margin + 4, rowY + 1);
+                        
+                        // Priority badge
+                        var priColor = g.requirement === 'Required' ? C.rose : C.amber;
+                        doc.setFontSize(6);
+                        doc.setTextColor(priColor[0], priColor[1], priColor[2]);
+                        doc.setFont(undefined, 'bold');
+                        doc.text(g.requirement || 'Preferred', margin + 90, rowY + 1);
+                        
+                        doc.setFont(undefined, 'normal');
+                        setColor(C.textMuted);
+                        doc.setFontSize(6.5);
+                        doc.text(g.proficiency || 'Proficient', margin + 120, rowY + 1);
+                        
+                        yPos += 7;
+                    });
+                    yPos += 4;
+                }
+                
+                // ---- SURPLUS VALUE / DIFFERENTIATORS ----
+                if (surplusSkills.length > 0) {
+                    checkPage(30);
+                    if (yPos > 200) newPage();
+                    
+                    doc.setFontSize(10);
+                    doc.setFont(undefined, 'bold');
+                    setColor(C.dark);
+                    doc.text('Additional Value \u2014 Beyond Requirements', margin, yPos);
+                    doc.setFont(undefined, 'normal');
+                    yPos += 3;
+                    doc.setFontSize(8);
+                    setColor(C.textLight);
+                    doc.text('Skills in the candidate\u2019s portfolio not listed in the job requirements, representing untapped value.', margin, yPos);
+                    yPos += 7;
+                    
+                    // Show top surplus skills sorted by level
+                    var levelVal = { 'Mastery': 5, 'Advanced': 4, 'Proficient': 3, 'Developing': 2, 'Foundational': 1 };
+                    var topSurplus = surplusSkills.slice().sort(function(a, b) { return (levelVal[b.level] || 0) - (levelVal[a.level] || 0); }).slice(0, 20);
+                    
+                    // 3-column layout
+                    var col3W = (maxWidth - 8) / 3;
+                    topSurplus.forEach(function(s, idx) {
+                        var colIdx = idx % 3;
+                        var xPos = margin + colIdx * (col3W + 4);
+                        
+                        if (colIdx === 0) checkPage(7);
+                        
+                        doc.setFontSize(7);
+                        setColor(C.text);
+                        var sName = s.name.length > 24 ? s.name.slice(0, 22) + '\u2026' : s.name;
+                        doc.text(sName, xPos, yPos);
+                        
+                        var lc2 = levelColor[s.level] || C.textMuted;
+                        doc.setFontSize(5.5);
+                        doc.setTextColor(lc2[0], lc2[1], lc2[2]);
+                        doc.text(s.level || '', xPos + doc.getTextWidth(sName) + 2, yPos);
+                        
+                        if (colIdx === 2 || idx === topSurplus.length - 1) yPos += 5;
+                    });
+                    yPos += 4;
+                }
+                
+                // ---- TALKING POINTS ----
+                checkPage(40);
+                if (yPos > 180) newPage();
+                
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'bold');
+                setColor(C.dark);
+                doc.text('Recommended Talking Points', margin, yPos);
+                doc.setFont(undefined, 'normal');
+                yPos += 3;
+                doc.setFontSize(8);
+                setColor(C.textLight);
+                doc.text('Key narratives for interview preparation and recruiter conversations.', margin, yPos);
+                yPos += 8;
+                
+                var talkingPoints = [];
+                
+                // Generate talking points based on data
+                if (strongMatches.length >= 3) {
+                    var topNames = strongMatches.slice(0, 3).map(function(m) { return m.userSkill; }).join(', ');
+                    talkingPoints.push({
+                        title: 'Core Alignment',
+                        text: 'Direct proficiency match in ' + strongMatches.length + ' required skills, including ' + topNames + '. These represent immediate contribution areas with no ramp-up needed.'
+                    });
+                }
+                
+                if (surplusSkills.length > 10) {
+                    var topSurp = surplusSkills.filter(function(s) { return s.level === 'Mastery' || s.level === 'Advanced'; }).slice(0, 3);
+                    if (topSurp.length > 0) {
+                        talkingPoints.push({
+                            title: 'Hidden Depth',
+                            text: skills.length + ' total documented skills vs ' + (targetJob.parsedSkills || []).length + ' listed in the job description. Advanced capabilities in ' + topSurp.map(function(s) { return s.name; }).join(', ') + ' provide strategic value beyond the defined role.'
+                        });
+                    }
+                }
+                
+                if (requiredGaps.length > 0 && requiredGaps.length <= 5) {
+                    talkingPoints.push({
+                        title: 'Growth Trajectory',
+                        text: requiredGaps.length + ' gap' + (requiredGaps.length > 1 ? 's' : '') + ' identified (' + requiredGaps.map(function(g) { return g.name; }).join(', ') + '). With ' + skills.length + ' existing skills, the candidate\u2019s learning velocity and adjacent competencies suggest rapid closure.'
+                    });
+                }
+                
+                if (comp && comp.marketRate) {
+                    talkingPoints.push({
+                        title: 'Market Position',
+                        text: 'Skill portfolio supports a competitive compensation range of $' + Math.round(comp.conservativeOffer || comp.marketRate * 1.1).toLocaleString() + '\u2013$' + Math.round(comp.competitiveOffer || comp.marketRate * 1.3).toLocaleString() + ' based on ' + skills.length + ' documented skills, ' + (masteryCount + advancedCount) + ' at expert level or above.'
+                    });
+                }
+                
+                if (matchScore >= 70) {
+                    talkingPoints.push({
+                        title: 'Recommendation',
+                        text: 'At ' + matchScore + '% alignment with ' + matchedSkills.length + ' skill matches, this candidate is a strong fit for the role. Recommend advancing to interview stage with focus on ' + (requiredGaps.length > 0 ? 'assessing gap areas in ' + requiredGaps[0].name : 'verifying depth in top matched skills') + '.'
+                    });
+                } else if (matchScore >= 50) {
+                    talkingPoints.push({
+                        title: 'Recommendation',
+                        text: 'At ' + matchScore + '% alignment, this candidate shows solid foundational fit with development potential. ' + (surplusSkills.length > 15 ? 'The breadth of ' + surplusSkills.length + ' additional skills suggests strong adaptability.' : 'Recommend evaluating transferable skills in conversation.')
+                    });
+                }
+                
+                talkingPoints.forEach(function(tp) {
+                    checkPage(18);
+                    
+                    // Title with accent bar
+                    setFill(C.accent);
+                    doc.rect(margin, yPos, 2, 5, 'F');
+                    doc.setFontSize(8.5);
+                    doc.setFont(undefined, 'bold');
+                    setColor(C.dark);
+                    doc.text(tp.title, margin + 5, yPos + 3.5);
+                    doc.setFont(undefined, 'normal');
+                    yPos += 7;
+                    
+                    doc.setFontSize(8);
+                    setColor(C.text);
+                    var tpLines = doc.splitTextToSize(tp.text, maxWidth - 6);
+                    doc.text(tpLines, margin + 5, yPos);
+                    yPos += tpLines.length * 3.8 + 6;
+                });
+            } // end scouting report pages
             
             // ============================================================
             // PAGE 2: SKILL ARCHITECTURE
@@ -14022,16 +14515,24 @@ body {
                 var levelSizes = { 'Mastery': 2.8, 'Advanced': 2.2, 'Proficient': 1.8, 'Developing': 1.4, 'Foundational': 1.0 };
                 var skillNodeStart = graphNodes.length;
                 
+                // Deterministic hash for consistent layout
+                function hashStr(s) { var h = 0; for (var i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; } return h; }
+                function hashFloat(s, min, max) { var h = Math.abs(hashStr(s)) % 10000; return min + (h / 10000) * (max - min); }
+                
                 roleList.forEach(function(roleId, ri) {
                     var group = roleGroups[roleId];
                     var parentAngle = (ri / roleList.length) * Math.PI * 2 - Math.PI / 2;
-                    var parentX = graphCx + Math.cos(parentAngle) * graphR * 0.38;
-                    var parentY = graphCy + Math.sin(parentAngle) * graphR * 0.38;
                     
-                    group.skills.forEach(function(skill, si) {
-                        var spreadAngle = parentAngle + ((si / Math.max(group.skills.length, 1)) - 0.5) * 1.8;
-                        var dist = graphR * (0.55 + Math.random() * 0.4);
-                        var jitter = (Math.random() - 0.5) * 8;
+                    // Sort skills by level for consistent ordering
+                    var sortedSkills = group.skills.slice().sort(function(a, b) {
+                        var lv = { 'Mastery': 0, 'Advanced': 1, 'Proficient': 2, 'Developing': 3, 'Foundational': 4 };
+                        return (lv[a.level] || 4) - (lv[b.level] || 4) || a.name.localeCompare(b.name);
+                    });
+                    
+                    sortedSkills.forEach(function(skill, si) {
+                        var spreadAngle = parentAngle + ((si / Math.max(sortedSkills.length, 1)) - 0.5) * 1.8;
+                        var dist = graphR * (0.55 + hashFloat(skill.name + ri, 0, 0.4));
+                        var jitter = hashFloat(skill.name + 'j', -4, 4);
                         
                         var lc = levelColor[skill.level] || C.textMuted;
                         graphNodes.push({
@@ -14049,13 +14550,13 @@ body {
                     });
                 });
                 
-                // Add cross-links between nearby skills
+                // Add cross-links between nearby skills (deterministic)
                 for (var si = skillNodeStart; si < graphNodes.length; si++) {
                     for (var sj = si + 1; sj < Math.min(si + 6, graphNodes.length); sj++) {
                         var ddx = graphNodes[si].x - graphNodes[sj].x;
                         var ddy = graphNodes[si].y - graphNodes[sj].y;
                         var dd = Math.sqrt(ddx * ddx + ddy * ddy);
-                        if (dd < 18 && Math.random() < 0.3) {
+                        if (dd < 18 && ((si * 7 + sj * 13) % 10 < 3)) {
                             graphLinks.push({ from: si, to: sj });
                         }
                     }
@@ -14594,6 +15095,10 @@ body {
             setColor(C.textLight);
             doc.text('This report was generated from ' + name + '\'s Blueprint profile.', cx, finalY, { align: 'center' });
             finalY += 5;
+            if (isScoutingReport) {
+                doc.text('Targeted analysis for: ' + (targetJob.title || 'Target Position') + (targetJob.company ? ' at ' + targetJob.company : ''), cx, finalY, { align: 'center' });
+                finalY += 5;
+            }
             doc.text('It represents a living capability analysis, not a static document.', cx, finalY, { align: 'center' });
             
             finalY += 12;
@@ -14616,9 +15121,15 @@ body {
             // SAVE
             // ============================================================
             var dateStr = new Date().toISOString().split('T')[0];
-            var fileName = ('Blueprint_' + name.replace(/\s+/g, '_') + '_' + dateStr + '.pdf').replace(/[^a-zA-Z0-9_\-.]/g, '');
+            var fileName;
+            if (isScoutingReport) {
+                var jobSlug = (targetJob.company || targetJob.title || 'job').replace(/[^a-zA-Z0-9]+/g, '_').slice(0, 30);
+                fileName = ('Blueprint_' + name.replace(/\s+/g, '_') + '_ScoutingReport_' + jobSlug + '_' + dateStr + '.pdf').replace(/[^a-zA-Z0-9_\-.]/g, '');
+            } else {
+                fileName = ('Blueprint_' + name.replace(/\s+/g, '_') + '_' + dateStr + '.pdf').replace(/[^a-zA-Z0-9_\-.]/g, '');
+            }
             doc.save(fileName);
-            showToast('Career Intelligence Report downloaded.', 'success');
+            showToast(isScoutingReport ? 'Scouting Report downloaded.' : 'Career Intelligence Report downloaded.', 'success');
         }
         
         function copyBlueprintText() {
