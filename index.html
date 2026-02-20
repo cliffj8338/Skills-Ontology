@@ -3431,6 +3431,66 @@
         .readonly-mode [onclick*="removeSelected"],
         .readonly-mode [onclick*="addCustomValue"],
         .readonly-mode [onclick*="saveAll"] { opacity: 0.35; pointer-events: none; }
+        
+        /* Demo mode lock icons on nav */
+        .nav-lock-icon { font-size: 0.65em; margin-left: 3px; opacity: 0.6; vertical-align: super; }
+        
+        /* Waitlist modal */
+        .waitlist-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+            z-index: 10000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.25s; pointer-events: none;
+        }
+        .waitlist-overlay.active { opacity: 1; pointer-events: auto; }
+        .waitlist-modal {
+            background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px;
+            width: 92%; max-width: 440px; padding: 36px 32px; position: relative;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+        }
+        .waitlist-modal h3 { font-size: 1.35em; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+        .waitlist-modal .wl-subtitle { font-size: 0.88em; color: var(--text-secondary); margin-bottom: 22px; line-height: 1.55; }
+        .waitlist-modal input, .waitlist-modal select {
+            width: 100%; padding: 12px 14px; border-radius: 8px; font-size: 0.92em;
+            background: var(--bg); border: 1px solid var(--border); color: var(--text-primary);
+            margin-bottom: 12px; outline: none; transition: border-color 0.2s;
+        }
+        .waitlist-modal input:focus, .waitlist-modal select:focus { border-color: var(--accent); }
+        .waitlist-modal label { font-size: 0.82em; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; display: block; }
+        .wl-submit-btn {
+            width: 100%; padding: 14px; border: none; border-radius: 10px; cursor: pointer;
+            font-size: 0.95em; font-weight: 700; color: #fff; margin-top: 8px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8); transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .wl-submit-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59,130,246,0.35); }
+        .wl-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        .wl-close { position: absolute; top: 14px; right: 18px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.4em; }
+        .wl-skill-question { font-size: 0.82em; color: var(--text-muted); margin-top: 8px; text-align: center; }
+        
+        /* Gated feature prompt */
+        .gated-prompt {
+            background: linear-gradient(135deg, rgba(96,165,250,0.08), rgba(129,140,248,0.06));
+            border: 1px dashed rgba(96,165,250,0.3); border-radius: 12px;
+            padding: 24px; text-align: center; margin: 12px 0;
+        }
+        .gated-prompt .gp-icon { font-size: 1.8em; margin-bottom: 8px; }
+        .gated-prompt .gp-title { font-weight: 700; color: var(--accent); font-size: 1em; margin-bottom: 6px; }
+        .gated-prompt .gp-text { font-size: 0.85em; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px; }
+        .gated-prompt .gp-btn {
+            display: inline-block; padding: 10px 24px; border-radius: 8px; font-weight: 600; font-size: 0.88em;
+            background: var(--accent); color: #fff; border: none; cursor: pointer; transition: transform 0.15s;
+        }
+        .gated-prompt .gp-btn:hover { transform: translateY(-1px); }
+        
+        /* Waitlist position badge */
+        @keyframes nudgeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .wl-position-badge {
+            display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px;
+            background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.2);
+            border-radius: 20px; font-size: 0.78em; font-weight: 600; color: #60a5fa;
+        }
         .welcome-hero {
             max-width: 720px; margin: 60px auto; padding: 0 24px; text-align: center;
         }
@@ -5228,7 +5288,12 @@
                 + '</div>'
                 + '</div>'
                 
+                + '<div style="display:flex; gap:2px; margin-bottom:16px; background:' + tv('rgba(255,255,255,0.05)','rgba(0,0,0,0.04)') + '; border-radius:8px; padding:3px;">'
+                + '<button onclick="document.getElementById(\'adminContent\').style.display=\'block\'; document.getElementById(\'adminWaitlistContent\').style.display=\'none\'; this.style.background=\'var(--accent)\'; this.style.color=\'#fff\'; this.nextElementSibling.style.background=\'transparent\'; this.nextElementSibling.style.color=\'var(--text-secondary)\';" style="flex:1; padding:8px 16px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85em; background:var(--accent); color:#fff;">Users</button>'
+                + '<button onclick="document.getElementById(\'adminWaitlistContent\').style.display=\'block\'; document.getElementById(\'adminContent\').style.display=\'none\'; this.style.background=\'var(--accent)\'; this.style.color=\'#fff\'; this.previousElementSibling.style.background=\'transparent\'; this.previousElementSibling.style.color=\'var(--text-secondary)\'; loadAdminWaitlist();" style="flex:1; padding:8px 16px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary);">Waitlist</button>'
+                + '</div>'
                 + '<div id="adminContent" style="color:' + tv('#d1d5db','#334155') + ';">Loading users...</div>'
+                + '<div id="adminWaitlistContent" style="color:' + tv('#d1d5db','#334155') + '; display:none;">Loading waitlist...</div>'
                 + '</div>';
             
             history.pushState({ modal: true }, ''); modal.classList.add('active');
@@ -5306,6 +5371,116 @@
             showToast('Thresholds reset to defaults.', 'info');
         }
         window.resetAdminThresholds = resetAdminThresholds;
+        
+        // ===== ADMIN WAITLIST MANAGEMENT =====
+        function loadAdminWaitlist() {
+            if (!fbIsAdmin || !fbDb) return;
+            var container = document.getElementById('adminWaitlistContent');
+            if (!container) return;
+            
+            container.innerHTML = '<div style="text-align:center; padding:20px; color:' + tv('#9ca3af','#64748b') + ';">Loading waitlist...</div>';
+            
+            fbDb.collection('waitlist').orderBy('createdAt', 'desc').get().then(function(snapshot) {
+                var waiting = [];
+                var invited = [];
+                
+                snapshot.forEach(function(doc) {
+                    var d = doc.data();
+                    d._id = doc.id;
+                    if (d.status === 'invited') invited.push(d);
+                    else waiting.push(d);
+                });
+                
+                var html = '<div style="display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap;">'
+                    + '<div style="flex:1; min-width:120px; padding:14px; background:' + tv('rgba(96,165,250,0.1)','rgba(59,130,246,0.08)') + '; border-radius:10px; text-align:center;">'
+                    + '<div style="font-size:1.6em; font-weight:700; color:#60a5fa;">' + (waiting.length + invited.length) + '</div>'
+                    + '<div style="font-size:0.78em; color:' + tv('#9ca3af','#64748b') + ';">Total</div></div>'
+                    + '<div style="flex:1; min-width:120px; padding:14px; background:' + tv('rgba(251,191,36,0.1)','rgba(245,158,11,0.08)') + '; border-radius:10px; text-align:center;">'
+                    + '<div style="font-size:1.6em; font-weight:700; color:#fbbf24;">' + waiting.length + '</div>'
+                    + '<div style="font-size:0.78em; color:' + tv('#9ca3af','#64748b') + ';">Waiting</div></div>'
+                    + '<div style="flex:1; min-width:120px; padding:14px; background:' + tv('rgba(16,185,129,0.1)','rgba(16,185,129,0.08)') + '; border-radius:10px; text-align:center;">'
+                    + '<div style="font-size:1.6em; font-weight:700; color:#10b981;">' + invited.length + '</div>'
+                    + '<div style="font-size:0.78em; color:' + tv('#9ca3af','#64748b') + ';">Invited</div></div>'
+                    + '</div>';
+                
+                if (waiting.length > 0) {
+                    html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
+                        + '<div style="font-weight:700; color:' + tv('#e0e0e0','#1e293b') + ';">Waiting (' + waiting.length + ')</div>'
+                        + '<button onclick="bulkInviteWaitlist()" style="padding:6px 16px; background:#10b981; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.82em;">Invite All</button>'
+                        + '</div>';
+                    
+                    html += '<div style="display:grid; gap:8px; margin-bottom:20px;">';
+                    waiting.forEach(function(user) {
+                        var created = user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleDateString() : '?';
+                        html += '<div style="padding:12px 16px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; '
+                            + 'border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">'
+                            + '<div>'
+                            + '<strong style="color:' + tv('#e0e0e0','#1e293b') + ';">' + (user.name || 'Anonymous') + '</strong>'
+                            + '<span style="font-size:0.75em; padding:2px 8px; margin-left:8px; border-radius:10px; background:' + tv('rgba(251,191,36,0.15)','rgba(245,158,11,0.1)') + '; color:#fbbf24;">' + (user.type || 'individual') + '</span>'
+                            + '<div style="font-size:0.8em; color:' + tv('#9ca3af','#64748b') + ';">' + (user.email || '') + ' \u00B7 #' + (user.position || '?') + ' \u00B7 ' + created + '</div>'
+                            + '</div>'
+                            + '<button onclick="inviteWaitlistUser(\'' + user._id + '\', \'' + (user.name || '').replace(/'/g,"\\'") + '\')" '
+                            + 'style="padding:6px 14px; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8em; white-space:nowrap;">Invite</button>'
+                            + '</div>';
+                    });
+                    html += '</div>';
+                }
+                
+                if (invited.length > 0) {
+                    html += '<div style="font-weight:700; color:' + tv('#e0e0e0','#1e293b') + '; margin-bottom:10px;">Invited (' + invited.length + ')</div>';
+                    html += '<div style="display:grid; gap:6px;">';
+                    invited.forEach(function(user) {
+                        html += '<div style="padding:10px 14px; background:' + tv('rgba(16,185,129,0.06)','rgba(16,185,129,0.04)') + '; '
+                            + 'border:1px solid ' + tv('rgba(16,185,129,0.15)','rgba(16,185,129,0.1)') + '; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">'
+                            + '<div>'
+                            + '<strong style="color:' + tv('#e0e0e0','#1e293b') + ';">' + (user.name || 'Anonymous') + '</strong>'
+                            + ' <span style="font-size:0.75em; color:#10b981;">\u2714 Invited</span>'
+                            + '<div style="font-size:0.8em; color:' + tv('#9ca3af','#64748b') + ';">' + (user.email || '') + '</div>'
+                            + '</div></div>';
+                    });
+                    html += '</div>';
+                }
+                
+                if (waiting.length === 0 && invited.length === 0) {
+                    html += '<div style="text-align:center; padding:20px; color:' + tv('#9ca3af','#64748b') + ';">No waitlist entries yet.</div>';
+                }
+                
+                container.innerHTML = html;
+            }).catch(function(err) {
+                container.innerHTML = '<div style="color:#ef4444;">Error: ' + err.message + '</div>';
+            });
+        }
+        window.loadAdminWaitlist = loadAdminWaitlist;
+        
+        function inviteWaitlistUser(docId, name) {
+            if (!fbDb) return;
+            fbDb.collection('waitlist').doc(docId).update({ status: 'invited' }).then(function() {
+                showToast('Invited ' + (name || docId) + '!', 'success');
+                loadAdminWaitlist(); // Refresh
+            }).catch(function(err) {
+                showToast('Invite failed: ' + err.message, 'error');
+            });
+        }
+        window.inviteWaitlistUser = inviteWaitlistUser;
+        
+        function bulkInviteWaitlist() {
+            if (!fbDb) return;
+            if (!confirm('Invite ALL waiting users? This cannot be undone.')) return;
+            
+            fbDb.collection('waitlist').where('status', '==', 'waiting').get().then(function(snapshot) {
+                var batch = fbDb.batch();
+                snapshot.forEach(function(doc) {
+                    batch.update(doc.ref, { status: 'invited' });
+                });
+                return batch.commit().then(function() { return snapshot.size; });
+            }).then(function(count) {
+                showToast('Invited ' + count + ' users!', 'success');
+                loadAdminWaitlist();
+            }).catch(function(err) {
+                showToast('Bulk invite failed: ' + err.message, 'error');
+            });
+        }
+        window.bulkInviteWaitlist = bulkInviteWaitlist;
 
         // ===== ENHANCED SAVE (Firestore + localStorage) =====
         function saveAll() {
@@ -5339,9 +5514,12 @@
                     banner = document.createElement('div');
                     banner.id = 'readonlyBanner';
                     banner.className = 'readonly-banner';
-                    banner.innerHTML = '\uD83D\uDD12 You are viewing a sample profile (read-only). '
-                        + '<a href="#" onclick="event.preventDefault(); showAuthModal(\'signup\');" style="color:inherit; text-decoration:underline;">Create your own</a> '
-                        + 'or <a href="#" onclick="event.preventDefault(); showOnboardingWizard();" style="color:inherit; text-decoration:underline;">build your blueprint</a>.';
+                    var bannerCTA = appMode === 'waitlisted'
+                        ? '\uD83D\uDD12 You\u2019re #<span id="bannerPosition">' + (waitlistPosition || '...') + '</span> on the waitlist. Explore sample profiles while you wait.'
+                        : '\uD83D\uDD12 You\u2019re viewing a sample profile. '
+                          + '<a href="#" onclick="event.preventDefault(); showWaitlist();" style="color:inherit; text-decoration:underline; font-weight:700;">Join the waitlist</a> for early access '
+                          + 'or <a href="#" onclick="event.preventDefault(); showAuthModal(\'signup\');" style="color:inherit; text-decoration:underline;">sign in</a>.';
+                    banner.innerHTML = bannerCTA;
                     var header = document.querySelector('.header');
                     if (header) header.parentNode.insertBefore(banner, header.nextSibling);
                 }
@@ -5353,10 +5531,239 @@
         window.checkReadOnly = checkReadOnly;
         function readOnlyGuard() {
             if (isReadOnlyProfile) {
-                showToast('This is a read-only sample profile. Create your own to make changes.', 'warning');
+                demoGate('edit this profile');
                 return true;
             }
             return false;
+        }
+        
+        // ===== DEMO MODE & WAITLIST SYSTEM =====
+        // Modes: 'demo' (no account), 'waitlisted' (signed up), 'invited' (admin unlocked), 'active' (full user)
+        var appMode = 'demo';
+        var waitlistPosition = null;
+        var waitlistEmail = null;
+        
+        function detectAppMode() {
+            // Active Firestore user with data = active
+            if (fbUser && userData.templateId && userData.templateId.indexOf('firestore') !== -1) {
+                appMode = 'active';
+                return;
+            }
+            // Check localStorage for waitlist status
+            var wlData = safeGet('blueprint_waitlist');
+            if (wlData) {
+                try {
+                    var parsed = JSON.parse(wlData);
+                    if (parsed.status === 'invited') { appMode = 'invited'; return; }
+                    if (parsed.status === 'waiting') {
+                        appMode = 'waitlisted';
+                        waitlistPosition = parsed.position || null;
+                        waitlistEmail = parsed.email || null;
+                        return;
+                    }
+                } catch(e) {}
+            }
+            // Logged-in user viewing samples
+            if (fbUser) { appMode = 'invited'; return; }
+            // Default
+            appMode = 'demo';
+        }
+        
+        function demoGate(featureName) {
+            if (appMode === 'active' || appMode === 'invited') return false;
+            
+            var msg = appMode === 'waitlisted'
+                ? 'You\u2019re #' + (waitlistPosition || '?') + ' on the waitlist! We\u2019ll unlock <strong>' + featureName + '</strong> when it\u2019s your turn.'
+                : 'Join the waitlist to unlock <strong>' + featureName + '</strong> and build your own Blueprint.';
+            var btnText = appMode === 'waitlisted' ? 'Check Your Position' : 'Join the Waitlist';
+            var btnAction = appMode === 'waitlisted' ? 'closeExportModal(); showToast("You\\'re #' + (waitlistPosition || '?') + ' on the waitlist. We\\'ll be in touch!", "info");' : 'closeExportModal(); showWaitlist();';
+            
+            // Show as a modal overlay
+            var modal = document.getElementById('exportModal');
+            var modalContent = modal.querySelector('.modal-content');
+            modalContent.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left"><h2 class="modal-title">\uD83D\uDD12 Early Access Feature</h2></div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:40px 32px; text-align:center;">'
+                + '<div style="font-size:2.8em; margin-bottom:16px; opacity:0.8;">\u25C8</div>'
+                + '<div style="font-size:1.1em; color:var(--text-primary); margin-bottom:8px; font-weight:600;">This feature is available to invited members</div>'
+                + '<div style="font-size:0.9em; color:var(--text-secondary); margin-bottom:24px; line-height:1.6;">' + msg + '</div>'
+                + '<button onclick="' + btnAction + '" style="padding:12px 32px; border-radius:10px; border:none; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:#fff; font-weight:700; font-size:0.95em; cursor:pointer;">' + btnText + '</button>'
+                + '<div style="margin-top:16px; font-size:0.78em; color:var(--text-muted);">Explore sample profiles in the meantime \u2014 they\u2019re fully interactive.</div>'
+                + '</div>';
+            
+            history.pushState({ modal: true }, '');
+            modal.classList.add('active');
+            return true;
+        }
+        window.demoGate = demoGate;
+        
+        // Gated feature helper — returns a gated-prompt HTML block for inline use
+        function gatedPromptHTML(featureName, description) {
+            if (appMode === 'active' || appMode === 'invited') return '';
+            var btnAction = appMode === 'waitlisted' ? 'showToast("You\\'re on the waitlist! We\\'ll unlock this soon.", "info")' : 'showWaitlist()';
+            var btnText = appMode === 'waitlisted' ? 'You\u2019re on the list \u2714' : 'Join Waitlist for Access';
+            return '<div class="gated-prompt">'
+                + '<div class="gp-icon">\uD83D\uDD12</div>'
+                + '<div class="gp-title">' + featureName + '</div>'
+                + '<div class="gp-text">' + description + '</div>'
+                + '<button class="gp-btn" onclick="' + btnAction + '">' + btnText + '</button>'
+                + '</div>';
+        }
+        window.gatedPromptHTML = gatedPromptHTML;
+        
+        // ===== WAITLIST MODAL =====
+        function showWaitlist(source) {
+            var overlay = document.getElementById('waitlistOverlay');
+            if (!overlay) return;
+            
+            // If already waitlisted, show confirmation view
+            if (appMode === 'waitlisted') {
+                document.getElementById('waitlistFormView').style.display = 'none';
+                document.getElementById('waitlistConfirmView').style.display = 'block';
+                document.getElementById('wlPositionMsg').textContent = 'You\u2019re #' + (waitlistPosition || '?') + ' on the waitlist.';
+                document.getElementById('wlPositionBadge').innerHTML = '\u25C8 Position #' + (waitlistPosition || '?');
+            } else {
+                document.getElementById('waitlistFormView').style.display = 'block';
+                document.getElementById('waitlistConfirmView').style.display = 'none';
+            }
+            
+            overlay.classList.add('active');
+            var nameInput = document.getElementById('wlName');
+            if (nameInput && !nameInput.value) setTimeout(function() { nameInput.focus(); }, 200);
+        }
+        window.showWaitlist = showWaitlist;
+        
+        function closeWaitlist() {
+            var overlay = document.getElementById('waitlistOverlay');
+            if (overlay) overlay.classList.remove('active');
+        }
+        window.closeWaitlist = closeWaitlist;
+        
+        function submitWaitlist() {
+            var name = (document.getElementById('wlName').value || '').trim();
+            var email = (document.getElementById('wlEmail').value || '').trim();
+            var type = document.getElementById('wlType').value;
+            
+            if (!name || !email) {
+                showToast('Please enter your name and email.', 'warning');
+                return;
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showToast('Please enter a valid email address.', 'warning');
+                return;
+            }
+            
+            var btn = document.getElementById('wlSubmitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Joining...';
+            
+            // Try Firestore first, fallback to localStorage
+            if (fbDb) {
+                // Get current count for position
+                fbDb.collection('waitlist').get().then(function(snapshot) {
+                    var position = snapshot.size + 1;
+                    
+                    return fbDb.collection('waitlist').doc(email.toLowerCase().replace(/[^a-z0-9]/g, '_')).set({
+                        name: name,
+                        email: email.toLowerCase(),
+                        type: type || 'individual',
+                        status: 'waiting',
+                        position: position,
+                        source: 'app',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(function() {
+                        return position;
+                    });
+                }).then(function(position) {
+                    onWaitlistSuccess(name, email, position);
+                }).catch(function(err) {
+                    console.warn('Firestore waitlist error, using localStorage:', err);
+                    onWaitlistSuccess(name, email, Math.floor(Math.random() * 50) + 10);
+                });
+            } else {
+                // Offline fallback
+                var position = Math.floor(Math.random() * 50) + 10;
+                onWaitlistSuccess(name, email, position);
+            }
+        }
+        window.submitWaitlist = submitWaitlist;
+        
+        function onWaitlistSuccess(name, email, position) {
+            waitlistPosition = position;
+            waitlistEmail = email;
+            appMode = 'waitlisted';
+            
+            // Persist
+            safeSet('blueprint_waitlist', JSON.stringify({
+                name: name,
+                email: email,
+                status: 'waiting',
+                position: position,
+                joinedAt: new Date().toISOString()
+            }));
+            
+            // Update UI
+            document.getElementById('waitlistFormView').style.display = 'none';
+            document.getElementById('waitlistConfirmView').style.display = 'block';
+            document.getElementById('wlPositionMsg').textContent = 'You\u2019re #' + position + ' on the waitlist. We\u2019ll notify you when it\u2019s your turn.';
+            document.getElementById('wlPositionBadge').innerHTML = '\u25C8 Position #' + position;
+            
+            var btn = document.getElementById('wlSubmitBtn');
+            btn.disabled = false;
+            btn.textContent = 'Join the Waitlist';
+            
+            // Update readonly banner
+            var banner = document.getElementById('readonlyBanner');
+            if (banner) {
+                banner.innerHTML = '\uD83D\uDD12 You\u2019re #' + position + ' on the waitlist. Explore sample profiles while you wait.';
+            }
+            
+            showToast('Welcome, ' + name + '! You\u2019re #' + position + ' on the waitlist.', 'success');
+        }
+        
+        // Check if waitlisted user has been invited (on app load)
+        function checkWaitlistInviteStatus() {
+            if (appMode !== 'waitlisted' || !waitlistEmail || !fbDb) return;
+            
+            var docId = waitlistEmail.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            fbDb.collection('waitlist').doc(docId).get().then(function(doc) {
+                if (doc.exists) {
+                    var data = doc.data();
+                    if (data.status === 'invited') {
+                        appMode = 'invited';
+                        safeSet('blueprint_waitlist', JSON.stringify({
+                            name: data.name,
+                            email: data.email,
+                            status: 'invited',
+                            position: data.position
+                        }));
+                        
+                        // Show welcome modal
+                        showToast('\uD83C\uDF89 You\u2019ve been invited! Full access is now unlocked.', 'success');
+                        var banner = document.getElementById('readonlyBanner');
+                        if (banner) banner.style.display = 'none';
+                    }
+                }
+            }).catch(function(e) { console.warn('Waitlist status check failed:', e); });
+        }
+        
+        // FOMO counter — show today's signups
+        function updateWaitlistCounter() {
+            if (!fbDb) return;
+            var today = new Date();
+            today.setHours(0,0,0,0);
+            
+            fbDb.collection('waitlist')
+                .where('createdAt', '>=', today)
+                .get().then(function(snapshot) {
+                    var count = snapshot.size;
+                    if (count > 0) {
+                        var hint = document.getElementById('wlSkillHint');
+                        if (hint) hint.innerHTML = '\uD83D\uDD25 <strong>' + count + ' professional' + (count > 1 ? 's' : '') + '</strong> joined today. How many skills do you think you have?';
+                    }
+                }).catch(function() {});
         }
 
         // ===== WELCOME / LANDING PAGE =====
@@ -5381,10 +5788,10 @@
                 + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; '
                 + 'background:transparent; color:var(--accent); border:2px solid var(--accent); transition:all 0.2s;'
                 + '">' + bpIcon('users',16) + ' View Sample Profiles</button>'
-                + '<button onclick="showAuthModal(\x27signup\x27)" style="'
+                + '<button onclick="' + (appMode === 'active' || appMode === 'invited' ? 'showOnboardingWizard()' : 'showWaitlist()') + '" style="'
                 + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; '
                 + 'background:var(--accent); color:#fff; border:2px solid var(--accent); transition:all 0.2s;'
-                + '">\u25C8 Build Your Blueprint</button>'
+                + '">\u25C8 ' + (appMode === 'waitlisted' ? 'You\u2019re on the List!' : 'Get Early Access') + '</button>'
                 + '</div>'
                 + '</div>'
                 
@@ -7818,6 +8225,7 @@
         };
 
         function showOnboardingWizard() {
+            if (demoGate('Build Your Blueprint')) return;
             // Remove any existing wizard
             const existing = document.getElementById('onboardingWizard');
             if (existing) existing.remove();
@@ -9951,6 +10359,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Initialize app and get target view
             var targetView = await initializeApp();
             
+            // Detect app mode (demo/waitlisted/invited/active)
+            detectAppMode();
+            checkWaitlistInviteStatus();
+            updateWaitlistCounter();
+            console.log('\uD83C\uDFAF App mode:', appMode, waitlistPosition ? '(#' + waitlistPosition + ')' : '');
+            
             // If user has profile, set up UI
             if (userData.initialized) {
                 // Update profile chip with loaded user's name
@@ -9994,6 +10408,30 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     splash.style.opacity = '0';
                     setTimeout(function() { splash.remove(); }, 400);
                 }, 300);
+            }
+            // Demo mode: floating "aha moment" nudge after 2 minutes
+            if (appMode === 'demo' || appMode === 'waitlisted') {
+                setTimeout(function() {
+                    if (appMode === 'active' || appMode === 'invited') return; // User signed up meanwhile
+                    var nudge = document.createElement('div');
+                    nudge.id = 'ahaNudge';
+                    nudge.style.cssText = 'position:fixed; bottom:24px; right:24px; z-index:9000; '
+                        + 'background:var(--card-bg); border:1px solid var(--accent); border-radius:14px; '
+                        + 'padding:18px 22px; max-width:320px; box-shadow:0 12px 40px rgba(0,0,0,0.3); '
+                        + 'animation: nudgeIn 0.4s ease; font-size:0.88em;';
+                    nudge.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:8px;">'
+                        + '<div style="font-weight:700; color:var(--accent);">\u25C8 Imagine your skills here</div>'
+                        + '<button onclick="this.closest(\'#ahaNudge\').remove();" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.1em; padding:0 0 0 10px;">\u00D7</button>'
+                        + '</div>'
+                        + '<div style="color:var(--text-secondary); line-height:1.5; margin-bottom:12px;">'
+                        + 'You\u2019re exploring a sample Blueprint. Your portfolio could have <strong>150\u2013300 skills</strong> you don\u2019t even know about yet.</div>'
+                        + '<button onclick="this.closest(\'#ahaNudge\').remove(); showWaitlist();" '
+                        + 'style="padding:8px 20px; border-radius:8px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; font-size:0.9em;">'
+                        + 'Map Your Blueprint</button>';
+                    document.body.appendChild(nudge);
+                    // Auto-dismiss after 20 seconds
+                    setTimeout(function() { var n = document.getElementById('ahaNudge'); if (n) n.remove(); }, 20000);
+                }, 120000); // 2 minutes
             }
         }); // Close DOMContentLoaded
         
@@ -16793,6 +17231,7 @@ body {
         }
         
         function searchOpportunities() {
+            if (demoGate('Find Jobs')) return;
             var keyword = (document.getElementById('findJobsKeyword') || {}).value || '';
             keyword = keyword.trim();
             window._lastJobSearch = keyword;
@@ -19952,6 +20391,7 @@ body {
         let currentEditingSkill = null;
         
         function openONETPicker() {
+            if (demoGate('O*NET Skill Explorer')) return;
             const modal = document.getElementById('onetPickerModal');
             history.pushState({ modal: true }, ''); modal.classList.add('active');
             switchONETTab('skills');
@@ -20223,6 +20663,7 @@ body {
         }
         
         function openCustomSkillBuilder() {
+            if (demoGate('Custom Skill Builder')) return;
             const modal = document.getElementById('customSkillModal');
             
             // Populate roles checkboxes
@@ -21173,6 +21614,7 @@ body {
         let currentSkillManagementTab = 'yours';
 
         function openSkillManagement() {
+            if (demoGate('Skill Library')) return;
             const modal = document.getElementById('skillManagementModal');
             history.pushState({ modal: true }, ''); modal.classList.add('active');
             
@@ -22078,5 +22520,40 @@ body {
             _skipHistoryPush = false;
         });
     </script>
+
+    <!-- Waitlist Registration Modal -->
+    <div class="waitlist-overlay" id="waitlistOverlay">
+        <div class="waitlist-modal">
+            <button class="wl-close" onclick="closeWaitlist()">&times;</button>
+            <div id="waitlistFormView">
+                <h3>&#9672; Get Early Access</h3>
+                <p class="wl-subtitle">Most professionals can name 15&ndash;20 skills. Blueprint maps 150&ndash;300. Join the waitlist to see your full professional architecture.</p>
+                <label>Name</label>
+                <input type="text" id="wlName" placeholder="Your name" autocomplete="name">
+                <label>Email</label>
+                <input type="email" id="wlEmail" placeholder="you@company.com" autocomplete="email">
+                <label>What describes you best?</label>
+                <select id="wlType">
+                    <option value="">Select one...</option>
+                    <option value="individual">Individual professional</option>
+                    <option value="leader">Talent / People leader</option>
+                    <option value="recruiter">Recruiter / TA professional</option>
+                    <option value="executive">Executive / C-suite</option>
+                    <option value="other">Other</option>
+                </select>
+                <button class="wl-submit-btn" id="wlSubmitBtn" onclick="submitWaitlist()">Join the Waitlist</button>
+                <div class="wl-skill-question" id="wlSkillHint">How many skills do you think you have? Most people guess 15&ndash;20. The real number will surprise you.</div>
+            </div>
+            <div id="waitlistConfirmView" style="display:none; text-align:center; padding:20px 0;">
+                <div style="font-size:2.2em; margin-bottom:12px;">&#10003;</div>
+                <h3 style="color:var(--accent); margin-bottom:8px;">You're on the list!</h3>
+                <div id="wlPositionMsg" style="font-size:0.95em; color:var(--text-secondary); margin-bottom:16px;"></div>
+                <div class="wl-position-badge" id="wlPositionBadge" style="margin:0 auto 20px;"></div>
+                <p style="font-size:0.85em; color:var(--text-muted); line-height:1.5;">We'll notify you when it's your turn. In the meantime, explore the sample profiles to see what Blueprint can do.</p>
+                <button onclick="closeWaitlist()" style="margin-top:16px; padding:10px 28px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text-primary); cursor:pointer; font-weight:600;">Continue Exploring</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
