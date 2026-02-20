@@ -476,14 +476,12 @@
             background: var(--input-bg);
             border: 1px solid var(--border);
             border-radius: 20px;
-            cursor: pointer;
             transition: all 0.2s;
             position: relative;
         }
 
         .profile-chip:hover {
-            border-color: var(--accent);
-            background: var(--accent-glow);
+            border-color: var(--border);
         }
 
         .profile-avatar {
@@ -1257,9 +1255,8 @@
         .blueprint-subnav {
             display: flex;
             gap: 8px;
-            margin-bottom: 24px;
+            padding-bottom: 12px;
             border-bottom: 2px solid rgba(96, 165, 250, 0.15);
-            padding-bottom: 0;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
@@ -3656,6 +3653,8 @@
                 <span class="nav-icon" data-icon="blueprint"></span> Blueprint</button>
             <button class="nav-btn" id="nav-settings" onclick="switchView('settings', event)">
                 <span class="nav-icon" data-icon="settings"></span> Settings</button>
+            <button class="nav-btn" id="nav-samples" onclick="viewSampleProfile(); if(event) event.stopPropagation();">
+                <span class="nav-icon" data-icon="users"></span> Samples</button>
         </div>
 
         <!-- Right: theme toggle + profile switcher + more -->
@@ -3669,18 +3668,10 @@
             <!-- Auth button (shown when not logged in) -->
             <button class="auth-nav-btn" id="authNavBtn" onclick="showAuthModal('signin')" style="display:none;">Sign In</button>
 
-            <!-- Profile switcher -->
-            <div class="profile-chip" onclick="toggleProfileDropdown(event)" id="profileChip">
+            <!-- Profile badge (display only - shows current profile) -->
+            <div class="profile-chip" id="profileChip" style="cursor:default;">
                 <div class="profile-avatar" id="profileAvatar">...</div>
                 <span class="profile-name" id="profileChipName">Loading</span>
-                <span class="profile-caret">▾</span>
-                <!-- Dropdown -->
-                <div class="profile-dropdown" id="profileDropdown">
-                    <div class="profile-dropdown-label" id="profileDropdownLabel">Account</div>
-                    <div id="profileDropdownOptions">
-                        <!-- Populated dynamically -->
-                    </div>
-                </div>
             </div>
 
             <!-- Hidden select for backward-compat with switchProfile() -->
@@ -3694,13 +3685,13 @@
             <div id="overflowMenu" class="overflow-menu" style="display:none;">
                 <button onclick="closeOverflowMenu(); switchView('welcome');" style="color: var(--accent); font-weight: 600;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="home"></span> Home</button>
                 <button onclick="closeOverflowMenu(); showOnboardingWizard();" style="color: var(--accent); font-weight: 600;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="wand"></span> Build My Blueprint</button>
-                <button onclick="closeOverflowMenu(); viewSampleProfile();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="users"></span> View Sample Profiles</button>
                 <div style="height:1px; background:var(--border); margin:4px 0;"></div>
                 <button onclick="closeOverflowMenu(); switchView('blueprint'); setTimeout(function(){ switchBlueprintTab('export'); }, 100);" class="overflow-icon-btn"><span class="overflow-icon" data-icon="export"></span> Export Blueprint</button>
                 <button onclick="showHelp(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="help"></span> Help</button>
                 <button onclick="showAbout(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="about"></span> About</button>
                 <div style="height:1px; background:var(--border); margin:4px 0;"></div>
                 <button id="overflowSignIn" onclick="showAuthModal('signin'); closeOverflowMenu();" style="color: var(--accent);" class="overflow-icon-btn"><span class="overflow-icon" data-icon="sign-in"></span> Sign In</button>
+                <button id="overflowAdmin" onclick="showAdminPanel(); closeOverflowMenu();" style="color: #fbbf24; display:none;" class="overflow-icon-btn"><span style="margin-right:2px;">👑</span> Admin Dashboard</button>
                 <button id="overflowSignOut" onclick="authSignOut(); closeOverflowMenu();" style="color: #ef4444; display:none;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="power"></span> Sign Out</button>
             </div>
         </div>
@@ -4905,15 +4896,31 @@
                 var userRef = fbDb.collection('users').doc(user.uid);
                 userRef.get().then(function(doc) {
                     if (!doc.exists) {
-                        // First sign-in: create user document
+                        // First sign-in: create user document with profile name
+                        var displayName = user.displayName || user.email.split('@')[0];
                         userRef.set({
                             email: user.email,
-                            displayName: user.displayName || '',
+                            displayName: displayName,
                             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                             lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                            role: 'user'
+                            role: 'user',
+                            profile: { name: displayName, email: user.email },
+                            skills: [],
+                            roles: []
                         });
                         console.log('✓ Created Firestore user document');
+                        
+                        // Set local profile so chip updates immediately
+                        userData.profile = { name: displayName, email: user.email };
+                        userData.skills = [];
+                        userData.templateId = 'firestore-' + user.uid;
+                        if (typeof skillsData !== 'undefined') {
+                            skillsData.skills = [];
+                            skillsData.roles = [];
+                        }
+                        updateProfileChip(displayName);
+                        if (typeof initializeMainApp === 'function') initializeMainApp();
+                        
                         // Offer wizard for new users
                         setTimeout(function() { showOnboardingWizard(); }, 600);
                     } else {
@@ -4953,91 +4960,35 @@
             var profileChip = document.getElementById('profileChip');
             var overflowSignIn = document.getElementById('overflowSignIn');
             var overflowSignOut = document.getElementById('overflowSignOut');
+            var overflowAdmin = document.getElementById('overflowAdmin');
             
             if (fbUser) {
                 // Signed in
                 if (authBtn) authBtn.style.display = 'none';
                 if (overflowSignIn) overflowSignIn.style.display = 'none';
                 if (overflowSignOut) overflowSignOut.style.display = '';
+                if (overflowAdmin) overflowAdmin.style.display = fbIsAdmin ? '' : 'none';
                 if (profileChip) {
                     profileChip.style.display = '';
                     var nameEl = document.getElementById('profileChipName');
                     var avatarEl = document.getElementById('profileAvatar');
                     var displayName = fbUser.displayName || fbUser.email.split('@')[0];
-                    if (nameEl) nameEl.textContent = displayName + (fbIsAdmin ? '' : '');
+                    if (nameEl) nameEl.textContent = displayName;
                     if (avatarEl) avatarEl.textContent = getInitials(displayName);
                 }
-                // Add admin badge and sign-out to dropdown
-                rebuildProfileDropdown();
             } else {
                 // Not signed in
                 if (authBtn) authBtn.style.display = '';
                 if (overflowSignIn) overflowSignIn.style.display = '';
                 if (overflowSignOut) overflowSignOut.style.display = 'none';
+                if (overflowAdmin) overflowAdmin.style.display = 'none';
                 // Profile chip still shows for sample browsing
                 if (profileChip) profileChip.style.display = '';
             }
         }
 
-        function rebuildProfileDropdown() {
-            var container = document.getElementById('profileDropdownOptions');
-            if (!container) return;
-            
-            // Update dropdown header label
-            var ddLabel = document.getElementById('profileDropdownLabel');
-            if (ddLabel) ddLabel.textContent = fbIsAdmin ? 'Admin \u00B7 Switch Profile' : 'Account';
-            
-            var html = '';
-            
-            // Current user section
-            if (fbUser) {
-                html += '<div style="padding:8px 12px; font-size:0.82em; color:var(--text-muted); border-bottom:1px solid var(--border); margin-bottom:4px;">'
-                    + (fbUser.displayName || fbUser.email)
-                    + (fbIsAdmin ? ' <span class="admin-badge">ADMIN</span>' : '')
-                    + '</div>';
-            }
-            
-            // Sample profiles from manifest — admins and non-signed-in (demo) users only
-            var manifest = window.profilesManifest;
-            if ((fbIsAdmin || !fbUser) && manifest && manifest.profiles) {
-                if (fbIsAdmin) {
-                    html += '<div style="padding:6px 12px; font-size:0.7em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em;">Sample Profiles</div>';
-                }
-                manifest.profiles.filter(function(p) { return p.enabled; }).forEach(function(p) {
-                    var isCurrent = (userData.templateId === p.id);
-                    var initials = p.name.split(' ').map(function(w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
-                    html += '<div class="profile-option' + (isCurrent ? ' active-profile' : '') + '" '
-                        + 'onclick="switchProfile(\'' + p.id + '\'); closeProfileDropdown();">'
-                        + '<div class="profile-option-avatar">' + initials + '</div>'
-                        + '<div class="profile-option-info">'
-                        + '<div class="profile-option-name">' + p.name + ' <span style="font-size:0.7em; color:var(--text-muted); font-weight:400;">SAMPLE</span></div>'
-                        + '<div class="profile-option-title">' + (p.title || '') + '</div>'
-                        + '</div>'
-                        + (isCurrent ? '<span class="profile-option-check">\u2713</span>' : '')
-                        + '</div>';
-                });
-            }
-            
-            // Divider + auth actions
-            if (fbUser) {
-                html += '<div style="height:1px; background:var(--border); margin:6px 0;"></div>';
-                if (fbIsAdmin) {
-                    html += '<div class="profile-option" onclick="showAdminPanel(); closeProfileDropdown();">'
-                        + '<div class="profile-option-avatar" style="background:rgba(251,191,36,0.2); color:#fbbf24;">\uD83D\uDC51</div>'
-                        + '<div class="profile-option-info"><div class="profile-option-name">Admin Dashboard</div></div></div>';
-                }
-                html += '<div class="profile-option" onclick="authSignOut(); closeProfileDropdown();">'
-                    + '<div class="profile-option-avatar" style="background:rgba(239,68,68,0.15); color:#ef4444;">\u23FB</div>'
-                    + '<div class="profile-option-info"><div class="profile-option-name" style="color:#ef4444;">Sign Out</div></div></div>';
-            } else {
-                html += '<div style="height:1px; background:var(--border); margin:6px 0;"></div>';
-                html += '<div class="profile-option" onclick="showAuthModal(\'signin\'); closeProfileDropdown();">'
-                    + '<div class="profile-option-avatar" style="background:rgba(96,165,250,0.2); color:#60a5fa;">\uD83D\uDD10</div>'
-                    + '<div class="profile-option-info"><div class="profile-option-name" style="color:var(--accent);">Sign In / Create Account</div></div></div>';
-            }
-            
-            container.innerHTML = html;
-        }
+        // Profile dropdown removed — stub for backward compat
+        function rebuildProfileDropdown() { /* no-op — dropdown removed */ }
 
         function getInitials(name) {
             if (!name) return '?';
@@ -5050,7 +5001,7 @@
         function saveToFirestore() {
             if (!fbDb || !fbUser) return Promise.resolve(false);
             var si = document.getElementById('saveIndicator');
-            if (si) { si.textContent = bpIcon('upload',12) + ' Saving...'; si.style.opacity = '0.6'; si.style.color = 'var(--text-muted)'; }
+            if (si) { si.innerHTML = bpIcon('upload',12) + ' Saving...'; si.style.opacity = '0.6'; si.style.color = 'var(--text-muted)'; }
             
             var uid = fbUser.uid;
             var data = {
@@ -5081,13 +5032,13 @@
                 .then(function() {
                     console.log('☁ Saved to Firestore');
                     var si = document.getElementById('saveIndicator');
-                    if (si) { si.textContent = bpIcon('check',12) + ' Saved'; si.style.opacity = '1'; si.style.color = '#10b981'; setTimeout(function() { si.style.opacity = '0'; }, 2500); }
+                    if (si) { si.innerHTML = bpIcon('check',12) + ' Saved'; si.style.opacity = '1'; si.style.color = '#10b981'; setTimeout(function() { si.style.opacity = '0'; }, 2500); }
                     return true;
                 })
                 .catch(function(err) {
                     console.error('Firestore save error:', err);
                     var si = document.getElementById('saveIndicator');
-                    if (si) { si.textContent = bpIcon('warning',12) + ' Save failed'; si.style.opacity = '1'; si.style.color = '#ef4444'; setTimeout(function() { si.style.opacity = '0'; }, 4000); }
+                    if (si) { si.innerHTML = bpIcon('warning',12) + ' Save failed'; si.style.opacity = '1'; si.style.color = '#ef4444'; setTimeout(function() { si.style.opacity = '0'; }, 4000); }
                     return false;
                 });
         }
@@ -5101,24 +5052,24 @@
                     if (!doc.exists) return false;
                     var data = doc.data();
                     
-                    // Only load if user has actual skill data
-                    if (!data.skills || data.skills.length === 0) return false;
-                    
                     console.log('☁ Loading profile from Firestore...');
                     
-                    // Populate userData
+                    // Populate userData — even if empty, this is YOUR profile
                     userData.initialized = true;
                     userData.profile = data.profile || {};
+                    
+                    // If no profile name set, use Firebase display name
+                    if (!userData.profile.name && fbUser) {
+                        userData.profile.name = fbUser.displayName || fbUser.email.split('@')[0];
+                    }
+                    
                     userData.skills = data.skills || [];
                     userData.values = data.values || [];
                     userData.purpose = data.purpose || '';
                     userData.roles = data.roles || [];
                     userData.preferences = data.preferences || userData.preferences;
                     userData.applications = data.applications || [];
-                    // Preserve sample jobs from demo profiles — Firestore won't have them
-                    var existingSampleJobs = (userData.savedJobs || []).filter(function(j) { return j && j.sample; });
-                    var firestoreJobs = data.savedJobs || [];
-                    userData.savedJobs = firestoreJobs.length > 0 ? firestoreJobs : existingSampleJobs;
+                    userData.savedJobs = data.savedJobs || [];
                     userData.workHistory = data.workHistory || [];
                     userData.education = data.education || [];
                     userData.certifications = data.certifications || [];
@@ -5135,16 +5086,20 @@
                     if (typeof initializeMainApp === 'function') {
                         initializeMainApp();
                     }
-                    if (userData.profile.name) {
-                        updateProfileChip(userData.profile.name);
-                    }
+                    updateProfileChip(userData.profile.name);
                     
                     // Refresh app mode and UI state after data load
                     if (typeof detectAppMode === 'function') detectAppMode();
                     if (typeof checkReadOnly === 'function') checkReadOnly();
-                    if (typeof rebuildProfileDropdown === 'function') rebuildProfileDropdown();
                     
-                    console.log('✓ Loaded from Firestore:', data.skills.length, 'skills | admin:', fbIsAdmin, '| mode:', appMode);
+                    var skillCount = (data.skills || []).length;
+                    console.log('✓ Loaded from Firestore:', skillCount, 'skills | admin:', fbIsAdmin, '| mode:', appMode);
+                    
+                    // If empty profile, prompt to build
+                    if (skillCount === 0) {
+                        showToast('Your Blueprint is empty. Use Build My Blueprint to get started!', 'info');
+                    }
+                    
                     return true;
                 })
                 .catch(function(err) {
@@ -6222,6 +6177,10 @@
             el.innerHTML = html;
             window._welcomePickerActive = true;
             switchView('welcome');
+            // Highlight Samples nav button
+            document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+            var samplesBtn = document.getElementById('nav-samples');
+            if (samplesBtn) samplesBtn.classList.add('active');
         }
         window.viewSampleProfile = viewSampleProfile;
 
@@ -12685,30 +12644,26 @@ body {
                     + '</div></div>';
             }
             
-            // ── MARKET POSITION (collapsible) ──
+            // ── MARKET POSITION ──
             if (hasValuation) {
                 var negotiationGap = totalValue.yourWorth - totalValue.standardOffer;
                 
                 html += '<div style="border:1px solid ' + tv('rgba(16,185,129,0.25)','rgba(16,185,129,0.15)') + '; border-radius:12px; overflow:hidden; margin-bottom:20px;">'
                     
-                    // Compact header (always visible)
-                    + '<div onclick="var detail=document.getElementById(\'valDetailExpand\'); var arrow=document.getElementById(\'valExpandArrow\'); if(detail.style.display===\'none\'){detail.style.display=\'block\'; arrow.textContent=\'\u25B2\';}else{detail.style.display=\'none\'; arrow.textContent=\'\u25BC\';}" '
-                    + 'style="padding:18px 20px; background:' + tv('linear-gradient(135deg, rgba(16,185,129,0.08), rgba(96,165,250,0.06))','linear-gradient(135deg, rgba(16,185,129,0.06), rgba(96,165,250,0.04))') + '; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">'
+                    // Header
+                    + '<div style="padding:18px 20px; background:' + tv('linear-gradient(135deg, rgba(16,185,129,0.08), rgba(96,165,250,0.06))','linear-gradient(135deg, rgba(16,185,129,0.06), rgba(96,165,250,0.04))') + '; display:flex; justify-content:space-between; align-items:center;">'
                     + '<div style="display:flex; align-items:center; gap:14px;">'
                     + '<span style="color:#10b981;">' + bpIcon('money',20) + '</span>'
                     + '<div>'
                     + '<div style="font-weight:700; color:' + tv('#e0e0e0','#1e293b') + ';">Market Position <span style="font-size:0.72em; font-weight:600; color:' + (valuationMode === 'potential' ? '#f59e0b' : '#10b981') + ';">\u00B7 ' + (valuationMode === 'potential' ? 'Potential' : 'Evidence') + '</span></div>'
                     + '<div style="font-size:0.82em; color:' + tv('#9ca3af','#64748b') + ';">Offers: $' + totalValue.conservativeOffer.toLocaleString() + ' \u2013 $' + totalValue.competitiveOffer.toLocaleString() + '</div>'
                     + '</div></div>'
-                    + '<div style="display:flex; align-items:center; gap:14px;">'
                     + '<div style="text-align:right;">'
                     + '<div style="font-weight:700; color:#fbbf24; font-size:0.88em;">Gap: $' + negotiationGap.toLocaleString() + '</div>'
-                    + '</div>'
-                    + '<span id="valExpandArrow" style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.9em;">\u25BC</span>'
                     + '</div></div>'
                     
-                    // Expandable detail
-                    + '<div id="valDetailExpand" style="display:none; padding:20px;">';
+                    // Detail (always visible)
+                    + '<div style="padding:20px;">';
                 
                 // Offer ranges
                 html += '<div style="display:grid; gap:10px; margin-bottom:16px;">';
@@ -12769,7 +12724,7 @@ body {
                     + bpIcon('dollar',12) + ' Negotiation Guide</button>'
                     + '</div>';
                 
-                html += '</div></div>'; // close expandable + container
+                html += '</div></div>'; // close detail + container
             }
             
             
@@ -12884,19 +12839,6 @@ body {
             return renderExperienceSettings();
         }
         
-        function toggleValuationExpand() {
-            var detail = document.getElementById('valDetailExpand');
-            var arrow = document.getElementById('valExpandArrow');
-            if (!detail) return;
-            if (detail.style.display === 'none') {
-                detail.style.display = 'block';
-                if (arrow) arrow.textContent = '\u25B2';
-            } else {
-                detail.style.display = 'none';
-                if (arrow) arrow.textContent = '\u25BC';
-            }
-        }
-        window.toggleValuationExpand = toggleValuationExpand;
         
         function renderOutcomesSection() {
             const outcomes = blueprintData.outcomes;
@@ -23040,45 +22982,12 @@ body {
         window.initTheme = initTheme;
 
         // ===== PROFILE DROPDOWN =====
-        var _profileDropdownClosing = false;
-        function toggleProfileDropdown(event) {
-            event.stopPropagation();
-            if (_profileDropdownClosing) return;
-            // Close overflow menu if open
-            closeOverflowMenu();
-            var dropdown = document.getElementById('profileDropdown');
-            var options = document.getElementById('profileDropdownOptions');
-            // If click came from inside the dropdown options, don't toggle (let the option's own onclick handle it)
-            if (options && options.contains(event.target)) return;
-            dropdown.classList.toggle('open');
-        }
+        // Profile dropdown removed — stubs for backward compat
+        function toggleProfileDropdown(event) { if (event) event.stopPropagation(); }
         window.toggleProfileDropdown = toggleProfileDropdown;
-
-        function closeProfileDropdown() {
-            const dropdown = document.getElementById('profileDropdown');
-            if (dropdown) dropdown.classList.remove('open');
-            // Brief flag to prevent the bubbling click from re-opening
-            _profileDropdownClosing = true;
-            setTimeout(function() { _profileDropdownClosing = false; }, 100);
-        }
+        function closeProfileDropdown() { /* no-op */ }
         window.closeProfileDropdown = closeProfileDropdown;
-
-        function buildProfileDropdown(profiles, currentId) {
-            const container = document.getElementById('profileDropdownOptions');
-            if (!container) return;
-            container.innerHTML = profiles.map(p => {
-                const initials = p.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-                const isActive = p.id === currentId;
-                return `<div class="profile-option ${isActive ? 'active-profile' : ''}" onclick="switchProfile('${p.id}'); closeProfileDropdown();">
-                    <div class="profile-option-avatar">${initials}</div>
-                    <div class="profile-option-info">
-                        <div class="profile-option-name">${p.name}</div>
-                        <div class="profile-option-title">${p.title || ''}</div>
-                    </div>
-                    ${isActive ? '<span class="profile-option-check">✓</span>' : ''}
-                </div>`;
-            }).join('');
-        }
+        function buildProfileDropdown() { /* no-op */ }
 
         function updateProfileChip(name) {
             const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
@@ -23111,9 +23020,6 @@ body {
             if (menu && moreBtn && menu.style.display === 'block') {
                 if (!menu.contains(e.target) && !moreBtn.contains(e.target)) closeOverflowMenu();
             }
-            // Close profile dropdown
-            const chip = document.getElementById('profileChip');
-            if (chip && !chip.contains(e.target)) closeProfileDropdown();
         });
 
         function toggleOverflowMenu(event) {
