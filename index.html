@@ -1925,6 +1925,9 @@
             font-size: 0.9em;
             font-weight: 600;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
         .jobs-subtab:hover { color: var(--text-secondary); }
         .jobs-subtab.active {
@@ -3271,6 +3274,31 @@
             background: rgba(255,255,255,0.06);
             transform: translateX(4px);
         }
+
+        /* === Blueprint Icon System (v4.20.0) === */
+        .nav-icon {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            margin-right: 4px;
+            opacity: 0.85;
+        }
+        .nav-icon svg, .mobile-nav-icon svg, .overflow-icon svg,
+        .bp-tab-icon svg, .settings-tab svg, .section-icon svg {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .nav-btn { display: inline-flex; align-items: center; gap: 5px; }
+        .mobile-nav-icon { display: flex; align-items: center; justify-content: center; margin-bottom: 2px; }
+        .overflow-icon-btn { display: flex; align-items: center; gap: 8px; }
+        .overflow-icon { display: inline-flex; align-items: center; flex-shrink: 0; opacity: 0.7; }
+        .section-icon { display: inline-flex; align-items: center; }
+        .section-icon svg { opacity: 0.8; }
+        .settings-tab { display: inline-flex; align-items: center; gap: 5px; }
+        .settings-tab svg { opacity: 0.75; }
+        .bp-tab-icon { display: inline-flex; align-items: center; }
+        .bp-tab-icon svg { opacity: 0.8; }
+
         /* ===== AUTH MODAL ===== */
         .auth-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -3515,10 +3543,14 @@
 
         <!-- Center: Primary navigation -->
         <div class="header-center" id="mainNav">
-            <button class="nav-btn active" id="nav-skills"      onclick="switchView('skills', event)">🎯 Skills</button>
-            <button class="nav-btn"         id="nav-jobs"        onclick="switchView('jobs', event)">💼 Jobs</button>
-            <button class="nav-btn"         id="nav-applications" onclick="switchView('applications', event)">📋 Applications</button>
-            <button class="nav-btn"         id="nav-blueprint"   onclick="switchView('blueprint', event)">📊 Blueprint</button>
+            <button class="nav-btn active" id="nav-skills" onclick="switchView('skills', event)">
+                <span class="nav-icon" data-icon="skills"></span> Skills</button>
+            <button class="nav-btn" id="nav-jobs" onclick="switchView('jobs', event)">
+                <span class="nav-icon" data-icon="jobs"></span> Jobs</button>
+            <button class="nav-btn" id="nav-blueprint" onclick="switchView('blueprint', event)">
+                <span class="nav-icon" data-icon="blueprint"></span> Blueprint</button>
+            <button class="nav-btn" id="nav-settings" onclick="switchView('settings', event)">
+                <span class="nav-icon" data-icon="settings"></span> Settings</button>
         </div>
 
         <!-- Right: theme toggle + profile switcher + more -->
@@ -3553,20 +3585,18 @@
             <span id="saveIndicator" style="font-size:0.72em; color:var(--text-muted); opacity:0; transition:opacity 0.3s; white-space:nowrap; margin-right:4px;"></span>
 
             <!-- More menu -->
-            <button class="more-btn" onclick="toggleOverflowMenu(event)" id="overflowMenuBtn" title="More options">···</button>
+            <button class="more-btn" onclick="toggleOverflowMenu(event)" id="overflowMenuBtn" title="More options"><span data-icon="more" style="display:inline-flex;"></span></button>
             <div id="overflowMenu" class="overflow-menu" style="display:none;">
-                <button onclick="closeOverflowMenu(); switchView('welcome');" style="color: var(--accent); font-weight: 600;">🏠 Home</button>
-                <button onclick="closeOverflowMenu(); showOnboardingWizard();" style="color: var(--accent); font-weight: 600;">Build My Blueprint</button>
-                <button onclick="closeOverflowMenu(); viewSampleProfile();">📊 View Sample Profiles</button>
+                <button onclick="closeOverflowMenu(); switchView('welcome');" style="color: var(--accent); font-weight: 600;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="home"></span> Home</button>
+                <button onclick="closeOverflowMenu(); showOnboardingWizard();" style="color: var(--accent); font-weight: 600;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="wand"></span> Build My Blueprint</button>
+                <button onclick="closeOverflowMenu(); viewSampleProfile();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="users"></span> View Sample Profiles</button>
                 <div style="height:1px; background:var(--border); margin:4px 0;"></div>
-                <button onclick="switchView('settings', event); closeOverflowMenu();">⚙️ Settings</button>
-                <button onclick="closeOverflowMenu(); switchView('blueprint'); setTimeout(function(){ switchBlueprintTab('export'); }, 100);">📄 Export Blueprint</button>
-                <button onclick="switchView('consent'); closeOverflowMenu();">🔒 Consent Settings</button>
-                <button onclick="showHelp(); closeOverflowMenu();">❓ Help</button>
-                <button onclick="showAbout(); closeOverflowMenu();">ℹ️ About</button>
+                <button onclick="closeOverflowMenu(); switchView('blueprint'); setTimeout(function(){ switchBlueprintTab('export'); }, 100);" class="overflow-icon-btn"><span class="overflow-icon" data-icon="export"></span> Export Blueprint</button>
+                <button onclick="showHelp(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="help"></span> Help</button>
+                <button onclick="showAbout(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="about"></span> About</button>
                 <div style="height:1px; background:var(--border); margin:4px 0;"></div>
-                <button id="overflowSignIn" onclick="showAuthModal('signin'); closeOverflowMenu();" style="color: var(--accent);">🔐 Sign In</button>
-                <button id="overflowSignOut" onclick="authSignOut(); closeOverflowMenu();" style="color: #ef4444; display:none;">⏻ Sign Out</button>
+                <button id="overflowSignIn" onclick="showAuthModal('signin'); closeOverflowMenu();" style="color: var(--accent);" class="overflow-icon-btn"><span class="overflow-icon" data-icon="sign-in"></span> Sign In</button>
+                <button id="overflowSignOut" onclick="authSignOut(); closeOverflowMenu();" style="color: #ef4444; display:none;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="power"></span> Sign Out</button>
             </div>
         </div>
     </div>
@@ -3664,25 +3694,25 @@
     <!-- App Footer / Attribution -->
     <footer id="appFooter" style="text-align:center; padding:16px 20px; font-size:0.75em; opacity:0.5; line-height:1.8;">
         <div style="margin-bottom:4px;">&copy; <script>document.write(new Date().getFullYear())</script> Cliff Jurkiewicz. All rights reserved. Blueprint&trade; and its associated methodologies, ontology structures, and matching algorithms are the intellectual property of Cliff Jurkiewicz.</div>
-        <div>Uses the <a href="https://esco.ec.europa.eu" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">ESCO classification</a> of the European Commission and <a href="https://www.onetonline.org" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">O*NET</a> occupational data. <a href="#" onclick="event.preventDefault(); showLegalNotice();" style="color:inherit; text-decoration:underline;">Legal &amp; IP Notice</a> &middot; <a href="#" onclick="event.preventDefault(); switchView('consent'); setTimeout(function(){ var el=document.getElementById('disclaimerSection'); if(el) el.scrollIntoView({behavior:'smooth'}); }, 300);" style="color:inherit; text-decoration:underline;">Disclaimer</a></div>
+        <div>Uses the <a href="https://esco.ec.europa.eu" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">ESCO classification</a> of the European Commission and <a href="https://www.onetonline.org" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">O*NET</a> occupational data. <a href="#" onclick="event.preventDefault(); showLegalNotice();" style="color:inherit; text-decoration:underline;">Legal &amp; IP Notice</a> &middot; <a href="#" onclick="event.preventDefault(); switchView('settings'); setTimeout(function(){ window.currentSettingsTab='privacy'; initSettings(); window.settingsInitialized=true; }, 100);" style="color:inherit; text-decoration:underline;">Privacy & Terms</a></div>
     </footer>
     
     <!-- Mobile bottom nav (hidden on desktop via CSS) -->
     <div class="mobile-nav" id="mobileNav" style="display:none;">
         <button class="mobile-nav-btn active" id="mob-skills" onclick="switchView('skills',event)">
-            <span class="mobile-nav-icon">🎯</span>Skills
+            <span class="mobile-nav-icon" data-icon="skills"></span>Skills
         </button>
         <button class="mobile-nav-btn" id="mob-jobs" onclick="switchView('jobs',event)">
-            <span class="mobile-nav-icon">💼</span>Jobs
-        </button>
-        <button class="mobile-nav-btn" id="mob-applications" onclick="switchView('applications',event)">
-            <span class="mobile-nav-icon">📋</span>Apps
+            <span class="mobile-nav-icon" data-icon="jobs"></span>Jobs
         </button>
         <button class="mobile-nav-btn" id="mob-blueprint" onclick="switchView('blueprint',event)">
-            <span class="mobile-nav-icon">📊</span>Blueprint
+            <span class="mobile-nav-icon" data-icon="blueprint"></span>Blueprint
+        </button>
+        <button class="mobile-nav-btn" id="mob-settings" onclick="switchView('settings',event)">
+            <span class="mobile-nav-icon" data-icon="settings"></span>Settings
         </button>
         <button class="mobile-nav-btn" id="mob-more" onclick="toggleOverflowMenu(event)">
-            <span class="mobile-nav-icon">···</span>More
+            <span class="mobile-nav-icon" data-icon="more"></span>More
         </button>
     </div>
 
@@ -4333,14 +4363,113 @@
 
     <script>
         // ============================================================
-        // WORK BLUEPRINT v4.0.0 - BUILD 20260219-0335
+        // BLUEPRINT v4.20.0 - BUILD 20260219-0335
         // Samples default to Network view + scroll-to-top on all view switches
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   WORK BLUEPRINT v4.0.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260219-0335                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   BLUEPRINT v4.20.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260220-nav-icons                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+
+
+        // ===== BLUEPRINT ICON SYSTEM (v4.20.0) =====
+        // Stroke-based SVG icons using currentColor for theme-awareness
+        function bpIcon(name, size) {
+            size = size || 18;
+            var s = 'xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+            var icons = {
+                // -- Navigation --
+                'skills':       '<svg ' + s + '><circle cx="12" cy="12" r="3"/><circle cx="4" cy="8" r="2"/><circle cx="20" cy="8" r="2"/><circle cx="4" cy="18" r="2"/><circle cx="20" cy="18" r="2"/><line x1="6" y1="8" x2="9.5" y2="10.5"/><line x1="18" y1="8" x2="14.5" y2="10.5"/><line x1="6" y1="18" x2="9.5" y2="13.5"/><line x1="18" y1="18" x2="14.5" y2="13.5"/></svg>',
+                'jobs':         '<svg ' + s + '><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12.01"/></svg>',
+                'blueprint':    '<svg ' + s + '><path d="M2 6l10-3 10 3"/><path d="M2 6v12l10 3 10-3V6"/><path d="M12 3v18"/><path d="M2 12l10 3 10-3"/></svg>',
+                'settings':     '<svg ' + s + '><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>',
+                'more':         '<svg ' + s + '><circle cx="5" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="19" cy="12" r="1" fill="currentColor"/></svg>',
+
+                // -- Overflow menu --
+                'home':         '<svg ' + s + '><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+                'wand':         '<svg ' + s + '><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8l1.4 1.4M17.8 6.2l1.4-1.4M12.2 11.8l-1.4 1.4M12.2 6.2l-1.4-1.4"/><line x1="2" y1="22" x2="15" y2="9"/></svg>',
+                'users':        '<svg ' + s + '><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+                'help':         '<svg ' + s + '><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+                'about':        '<svg ' + s + '><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+                'sign-in':      '<svg ' + s + '><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>',
+                'sign-out':     '<svg ' + s + '><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>',
+                'export':       '<svg ' + s + '><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',
+
+                // -- Blueprint tabs --
+                'outcomes':     '<svg ' + s + '><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+                'values':       '<svg ' + s + '><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+                'purpose':      '<svg ' + s + '><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+
+                // -- Settings tabs --
+                'profile':      '<svg ' + s + '><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+                'experience':   '<svg ' + s + '><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>',
+                'preferences':  '<svg ' + s + '><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>',
+                'privacy':      '<svg ' + s + '><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+
+                // -- Section icons --
+                'lightbulb':    '<svg ' + s + '><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>',
+                'graduation':   '<svg ' + s + '><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1 4 3 6 3s6-2 6-3v-5"/></svg>',
+                'award':        '<svg ' + s + '><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>',
+                'search':       '<svg ' + s + '><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+                'filter':       '<svg ' + s + '><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>',
+                'plus':         '<svg ' + s + '><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+                'edit':         '<svg ' + s + '><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>',
+                'trash':        '<svg ' + s + '><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+                'warning':      '<svg ' + s + '><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+                'lock':         '<svg ' + s + '><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+                'scale':        '<svg ' + s + '><path d="M12 3v19M5 8l7-5 7 5"/><path d="M5 8l-3 9h6L5 8z"/><path d="M19 8l-3 9h6l-3-9z"/></svg>',
+                'database':     '<svg ' + s + '><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>',
+                'camera':       '<svg ' + s + '><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>',
+                'map-pin':      '<svg ' + s + '><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+                'mail':         '<svg ' + s + '><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>',
+                'phone':        '<svg ' + s + '><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+                'linkedin':     '<svg ' + s + '><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>',
+                'save':         '<svg ' + s + '><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>',
+                'clock':        '<svg ' + s + '><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+                'star':         '<svg ' + s + '><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+                'check':        '<svg ' + s + '><polyline points="20 6 9 17 4 12"/></svg>',
+                'target':       '<svg ' + s + '><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+                'share':        '<svg ' + s + '><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>',
+                'clipboard':    '<svg ' + s + '><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>',
+                'file-text':    '<svg ' + s + '><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>',
+                'download':     '<svg ' + s + '><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+                'upload':       '<svg ' + s + '><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',
+                'layers':       '<svg ' + s + '><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',
+                'network':      '<svg ' + s + '><circle cx="12" cy="12" r="3"/><circle cx="4" cy="8" r="2"/><circle cx="20" cy="8" r="2"/><circle cx="4" cy="18" r="2"/><circle cx="20" cy="18" r="2"/><line x1="6" y1="8" x2="9.5" y2="10.5"/><line x1="18" y1="8" x2="14.5" y2="10.5"/><line x1="6" y1="18" x2="9.5" y2="13.5"/><line x1="18" y1="18" x2="14.5" y2="13.5"/></svg>',
+                'grid':         '<svg ' + s + '><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+                'bar-chart':    '<svg ' + s + '><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>',
+                'dollar':       '<svg ' + s + '><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+                'trending-up':  '<svg ' + s + '><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
+                'briefcase':    '<svg ' + s + '><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>',
+                'tool':         '<svg ' + s + '><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+                'compass':      '<svg ' + s + '><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>',
+                'send':         '<svg ' + s + '><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
+                'message':      '<svg ' + s + '><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+                'external':     '<svg ' + s + '><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
+                'chevron-right':'<svg ' + s + '><polyline points="9 18 15 12 9 6"/></svg>',
+                'x':            '<svg ' + s + '><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+                'power':        '<svg ' + s + '><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>',
+                'pie-chart':    '<svg ' + s + '><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>',
+                'share-preset': '<svg ' + s + '><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>',
+                'eye':          '<svg ' + s + '><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+                'zap':          '<svg ' + s + '><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+                'flag':         '<svg ' + s + '><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>',
+                'heart':        '<svg ' + s + '><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+                'book':         '<svg ' + s + '><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+                'copy':         '<svg ' + s + '><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+                'interview':    '<svg ' + s + '><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+                'salary':       '<svg ' + s + '><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
+                'document':     '<svg ' + s + '><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+                'json':         '<svg ' + s + '><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
+                'pdf':          '<svg ' + s + '><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>',
+                'pipeline':     '<svg ' + s + '><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>',
+                'tracker':      '<svg ' + s + '><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>',
+                'magic':        '<svg ' + s + '><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>',
+            };
+            return icons[name] || '<svg ' + s + '><circle cx="12" cy="12" r="1"/></svg>';
+        }
+        window.bpIcon = bpIcon;
 
         // ===== FIREBASE INITIALIZATION =====
         var firebaseConfig = {
@@ -7372,6 +7501,20 @@
         }
         
         // Initialize app - check for profile or show welcome
+
+        // ===== HYDRATE SVG ICONS =====
+        // Replaces data-icon placeholder spans with actual SVG markup
+        function hydrateIcons() {
+            document.querySelectorAll('[data-icon]').forEach(function(el) {
+                var name = el.getAttribute('data-icon');
+                var size = el.classList.contains('mobile-nav-icon') ? 20 : 
+                           el.classList.contains('nav-icon') ? 16 : 
+                           el.classList.contains('overflow-icon') ? 16 : 18;
+                el.innerHTML = bpIcon(name, size);
+                el.removeAttribute('data-icon');
+            });
+        }
+
         async function initializeApp() {
             initTheme(); // Apply saved theme before anything renders
             // Load profile manifest and templates dynamically
@@ -8642,6 +8785,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             }
             
             console.log('✓ Main app initialized with', userData.skills.length, 'skills');
+            hydrateIcons();
         }
         
         // Export current profile
@@ -9781,6 +9925,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Map new view names to existing views
             if (view === 'skills') view = 'network';
             if (view === 'jobs') view = 'opportunities';
+            if (view === 'applications') { view = 'opportunities'; jobsSubTab = 'tracker'; }
             
             currentView = view;
             window.scrollTo(0, 0);
@@ -9791,7 +9936,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             }
             // Update nav button active state
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            const navMap = { network: 'nav-skills', skills: 'nav-skills', opportunities: 'nav-jobs', jobs: 'nav-jobs', applications: 'nav-applications', blueprint: 'nav-blueprint' };
+            const navMap = { network: 'nav-skills', skills: 'nav-skills', opportunities: 'nav-jobs', jobs: 'nav-jobs', applications: 'nav-jobs', blueprint: 'nav-blueprint', settings: 'nav-settings', consent: 'nav-settings' };
             const navId = navMap[view] || navMap[currentView];
             if (navId) { const nb = document.getElementById(navId); if (nb) nb.classList.add('active'); }
             
@@ -9817,7 +9962,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             // Update mobile nav
             document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
-            const mobMap = { network: 'mob-skills', opportunities: 'mob-jobs', applications: 'mob-applications', blueprint: 'mob-blueprint' };
+            const mobMap = { network: 'mob-skills', opportunities: 'mob-jobs', applications: 'mob-jobs', blueprint: 'mob-blueprint', settings: 'mob-settings', consent: 'mob-settings' };
             const mobId = mobMap[view];
             if (mobId) { const mb = document.getElementById(mobId); if (mb) mb.classList.add('active'); }
 
@@ -9905,6 +10050,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 if (!window.opportunitiesInitialized) {
                     initOpportunities();
                     window.opportunitiesInitialized = true;
+                } else {
+                    // Re-render to reflect current sub-tab (e.g. tracker from applications redirect)
+                    initOpportunities();
                 }
                 updateStatsBar();
             } else if (view === 'applications') {
@@ -11614,21 +11762,21 @@ body {
                     
                     <div class="blueprint-subnav" id="blueprintSubnav">
                         <button class="bp-tab ${blueprintTab === 'outcomes' ? 'active' : ''}" onclick="switchBlueprintTab('outcomes')">
-                            <span class="bp-tab-icon">&#x1F4CA;</span>
+                            <span class="bp-tab-icon">${bpIcon('outcomes',16)}</span>
                             <span class="bp-tab-label">Outcomes</span>
                             <span class="bp-tab-count">${outcomesCount}</span>
                         </button>
                         <button class="bp-tab ${blueprintTab === 'values' ? 'active' : ''}" onclick="switchBlueprintTab('values')">
-                            <span class="bp-tab-icon">&#x2B50;</span>
+                            <span class="bp-tab-icon">${bpIcon('values',16)}</span>
                             <span class="bp-tab-label">Values</span>
                             <span class="bp-tab-count">${valuesCount}</span>
                         </button>
                         <button class="bp-tab ${blueprintTab === 'purpose' ? 'active' : ''}" onclick="switchBlueprintTab('purpose')">
-                            <span class="bp-tab-icon">&#x1F3AF;</span>
+                            <span class="bp-tab-icon">${bpIcon('purpose',16)}</span>
                             <span class="bp-tab-label">Purpose</span>
                         </button>
                         <button class="bp-tab ${blueprintTab === 'export' ? 'active' : ''}" onclick="switchBlueprintTab('export')">
-                            <span class="bp-tab-icon">&#x1F4E4;</span>
+                            <span class="bp-tab-icon">${bpIcon('export',16)}</span>
                             <span class="bp-tab-label">Export</span>
                         </button>
                     </div>
@@ -12010,7 +12158,7 @@ body {
             var selectedCount = values.filter(function(v) { return v && v.selected; }).length;
             
             var html = '<div class="coaching-tip">'
-                + '<div class="coaching-tip-title">\uD83D\uDCA1 YOUR CORE VALUES</div>'
+                + '<div class="coaching-tip-title">' + bpIcon('lightbulb',14) + ' YOUR CORE VALUES</div>'
                 + '<div class="coaching-tip-content">'
                 + (selectedCount === 0
                     ? 'You haven\u2019t selected any values yet. Use the picker below to choose 3-7 that represent how you operate.'
@@ -12145,7 +12293,7 @@ body {
             blueprintData.values.forEach(function(v) { selectedNames[v.name] = true; });
             
             var html = '<div class="coaching-tip">'
-                + '<div class="coaching-tip-title">\uD83D\uDCA1 PICK 3-7 VALUES</div>'
+                + '<div class="coaching-tip-title">' + bpIcon('lightbulb',14) + ' PICK 3-7 VALUES</div>'
                 + '<div class="coaching-tip-content">'
                 + 'Tap values that resonate with how you actually work. Values with evidence in your profile are highlighted.'
                 + '</div>'
@@ -12241,12 +12389,12 @@ body {
             return '<div class="blueprint-section">'
                 + '<div class="blueprint-section-header">'
                 + '<div class="blueprint-section-title">'
-                + '<span class="section-icon">\uD83D\uDCE4</span>'
+                + '<span class="section-icon">' + bpIcon('export',20) + '</span>'
                 + '<span>Export Your Blueprint</span>'
                 + '</div>'
                 + '</div>'
                 + '<div class="coaching-tip">'
-                + '<div class="coaching-tip-title">\uD83D\uDCA1 CHOOSE YOUR FORMAT</div>'
+                + '<div class="coaching-tip-title">' + bpIcon('lightbulb',14) + ' CHOOSE YOUR FORMAT</div>'
                 + '<div class="coaching-tip-content">'
                 + 'Currently sharing <strong>' + sharedOutcomes + ' outcomes</strong>, '
                 + '<strong>' + sharedValues + ' values</strong>, '
@@ -12258,7 +12406,7 @@ body {
                 // Executive Blueprint card (featured)
                 + '<div style="grid-column:1/-1; background:linear-gradient(135deg, rgba(30,64,175,0.15), rgba(96,165,250,0.1)); border:2px solid ' + tv('rgba(96,165,250,0.4)','rgba(30,64,175,0.3)') + '; border-radius:12px; padding:24px; cursor:pointer;" onclick="generateWorkBlueprint()">'
                 + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">'
-                + '<span style="font-size:1.8em;">\uD83C\uDFAF</span>'
+                + '<span style="color:var(--accent);">' + bpIcon('compass',28) + '</span>'
                 + '<div>'
                 + '<div style="font-size:1.15em; font-weight:700; color:' + tv('#60a5fa','#1e40af') + ';">Executive Blueprint</div>'
                 + '<div style="font-size:0.85em; color:' + tv('#9ca3af','#64748b') + ';">Recommended for recruiters and hiring managers</div>'
@@ -12276,7 +12424,7 @@ body {
                 // Resume card
                 + '<div style="background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.1)') + '; border-radius:12px; padding:20px; cursor:pointer;" onclick="generateResume()">'
                 + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
-                + '<span style="font-size:1.4em;">\uD83D\uDCC4</span>'
+                + '<span style="color:var(--text-primary); opacity:0.8;">' + bpIcon('file-text',22) + '</span>'
                 + '<div style="font-weight:600; color:' + tv('#e0e0e0','#1f2937') + ';">Professional Resume</div>'
                 + '</div>'
                 + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.88em; line-height:1.5;">'
@@ -12286,7 +12434,7 @@ body {
                 // PDF Summary card
                 + '<div style="background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.1)') + '; border-radius:12px; padding:20px; cursor:pointer;" onclick="exportBlueprint(\u0027pdf\u0027)">'
                 + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
-                + '<span style="font-size:1.4em;">\uD83D\uDCD1</span>'
+                + '<span style="color:var(--text-primary); opacity:0.8;">' + bpIcon('pdf',22) + '</span>'
                 + '<div style="font-weight:600; color:' + tv('#e0e0e0','#1f2937') + ';">PDF Summary</div>'
                 + '</div>'
                 + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.88em; line-height:1.5;">'
@@ -12296,7 +12444,7 @@ body {
                 // Copy to Clipboard card
                 + '<div style="background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.1)') + '; border-radius:12px; padding:20px; cursor:pointer;" onclick="copyBlueprintText()">'
                 + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
-                + '<span style="font-size:1.4em;">\uD83D\uDCCB</span>'
+                + '<span style="color:var(--text-primary); opacity:0.8;">' + bpIcon('copy',22) + '</span>'
                 + '<div style="font-weight:600; color:' + tv('#e0e0e0','#1f2937') + ';">Copy to Clipboard</div>'
                 + '</div>'
                 + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.88em; line-height:1.5;">'
@@ -12306,7 +12454,7 @@ body {
                 // JSON card
                 + '<div style="background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.1)') + '; border-radius:12px; padding:20px; cursor:pointer;" onclick="exportBlueprint(\u0027json\u0027)">'
                 + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
-                + '<span style="font-size:1.4em;">\uD83D\uDCBE</span>'
+                + '<span style="color:var(--text-primary); opacity:0.8;">' + bpIcon('json',22) + '</span>'
                 + '<div style="font-weight:600; color:' + tv('#e0e0e0','#1f2937') + ';">JSON Data</div>'
                 + '</div>'
                 + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.88em; line-height:1.5;">'
@@ -12325,7 +12473,7 @@ body {
                     // Cover Letter card
                     + '<div style="background:linear-gradient(135deg, rgba(16,185,129,0.12), rgba(16,185,129,0.04)); border:1px solid rgba(16,185,129,0.25); border-radius:12px; padding:20px; cursor:pointer;" onclick="generateCoverLetter()">'
                     + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
-                    + '<span style="font-size:1.4em;">\u2709\uFE0F</span>'
+                    + '<span style="color:#10b981;">' + bpIcon('send',22) + '</span>'
                     + '<div style="font-weight:600; color:#10b981;">Cover Letter</div>'
                     + '</div>'
                     + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.88em; line-height:1.5;">'
@@ -12335,7 +12483,7 @@ body {
                     // Interview Prep card
                     + '<div style="background:linear-gradient(135deg, rgba(251,191,36,0.12), rgba(251,191,36,0.04)); border:1px solid rgba(251,191,36,0.25); border-radius:12px; padding:20px; cursor:pointer;" onclick="generateInterviewPrep()">'
                     + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
-                    + '<span style="font-size:1.4em;">\uD83C\uDFAF</span>'
+                    + '<span style="color:#fbbf24;">' + bpIcon('interview',22) + '</span>'
                     + '<div style="font-weight:600; color:#fbbf24;">Interview Prep</div>'
                     + '</div>'
                     + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.88em; line-height:1.5;">'
@@ -12352,7 +12500,7 @@ body {
                 // LinkedIn Profile card
                 + '<div style="background:linear-gradient(135deg, rgba(10,102,194,0.12), rgba(10,102,194,0.04)); border:1px solid rgba(10,102,194,0.25); border-radius:12px; padding:20px; cursor:pointer;" onclick="generateLinkedInProfile()">'
                 + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
-                + '<span style="font-size:1.4em;">\uD83D\uDD17</span>'
+                + '<span style="color:#0a66c2;">' + bpIcon('linkedin',22) + '</span>'
                 + '<div style="font-weight:600; color:#0a66c2;">LinkedIn Profile</div>'
                 + '</div>'
                 + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.88em; line-height:1.5;">'
@@ -13690,11 +13838,13 @@ body {
         function initOpportunities() {
             const view = document.getElementById('opportunitiesView');
             var savedCount = (userData.savedJobs || []).length;
+            var appCount = (userData.applications || []).length;
             
             view.innerHTML = '<div style="max-width:1200px; margin:0 auto; padding:24px;">'
                 + '<div class="jobs-subtabs">'
-                + '<button class="jobs-subtab ' + (jobsSubTab === 'your-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'your-jobs\')">🎯 Your Jobs' + (savedCount > 0 ? ' (' + savedCount + ')' : '') + '</button>'
-                + '<button class="jobs-subtab ' + (jobsSubTab === 'find-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'find-jobs\')">🔍 Find Jobs</button>'
+                + '<button class="jobs-subtab ' + (jobsSubTab === 'your-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'your-jobs\')">' + bpIcon('target',14) + ' Pipeline' + (savedCount > 0 ? ' (' + savedCount + ')' : '') + '</button>'
+                + '<button class="jobs-subtab ' + (jobsSubTab === 'tracker' ? 'active' : '') + '" onclick="switchJobsSubTab(\'tracker\')">' + bpIcon('tracker',14) + ' Tracker' + (appCount > 0 ? ' (' + appCount + ')' : '') + '</button>'
+                + '<button class="jobs-subtab ' + (jobsSubTab === 'find-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'find-jobs\')">' + bpIcon('search',14) + ' Find Jobs</button>'
                 + '</div>'
                 + '<div id="jobsSubTabContent"></div>'
                 + '</div>';
@@ -13704,11 +13854,10 @@ body {
         
         function switchJobsSubTab(tab) {
             jobsSubTab = tab;
-            document.querySelectorAll('.jobs-subtab').forEach(function(b) { b.classList.remove('active'); });
-            document.querySelectorAll('.jobs-subtab').forEach(function(b) {
-                if (b.textContent.toLowerCase().indexOf(tab === 'your-jobs' ? 'your' : 'find') !== -1) b.classList.add('active');
-            });
-            renderJobsSubTab();
+            // Re-render the full jobs view to update subtab active states and counts
+            window.opportunitiesInitialized = false;
+            initOpportunities();
+            window.opportunitiesInitialized = true;
         }
         window.switchJobsSubTab = switchJobsSubTab;
         
@@ -13717,11 +13866,61 @@ body {
             if (!el) return;
             if (jobsSubTab === 'your-jobs') {
                 el.innerHTML = renderSavedJobs();
+            } else if (jobsSubTab === 'tracker') {
+                el.innerHTML = renderTrackerInJobs();
             } else {
                 el.innerHTML = renderFindJobs();
                 searchOpportunities();
             }
         }
+        
+        // Render the Application Tracker inline within Jobs tab
+        function renderTrackerInJobs() {
+            var apps = userData.applications || [];
+            var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">'
+                + '<div>'
+                + '<h2 style="font-size:1.3em; font-weight:700; color:var(--text-primary); margin:0;">Application Tracker</h2>'
+                + '<p style="font-size:0.85em; color:var(--text-muted); margin-top:4px;">Track your applications and follow-ups</p>'
+                + '</div>'
+                + '<button onclick="addApplicationModal()" style="'
+                + 'background:var(--accent); color:#fff; border:none; padding:10px 20px; border-radius:8px; '
+                + 'cursor:pointer; font-weight:600; font-size:0.9em;">+ Add Application</button>'
+                + '</div>';
+            
+            if (apps.length === 0) {
+                html += '<div style="text-align:center; padding:60px 20px;">'
+                    + '<div style="margin-bottom:16px; opacity:0.4;">' + bpIcon('tracker',48) + '</div>'
+                    + '<div style="font-size:1.1em; font-weight:600; color:var(--text-primary); margin-bottom:8px;">No applications tracked yet</div>'
+                    + '<div style="color:var(--text-muted); max-width:400px; margin:0 auto 24px; line-height:1.5;">'
+                    + 'When you add a job to your pipeline and generate a pitch, you can track the application here.</div>'
+                    + '<button onclick="addApplicationModal()" style="'
+                    + 'background:var(--accent); color:#fff; border:none; padding:12px 28px; border-radius:8px; '
+                    + 'cursor:pointer; font-weight:600; font-size:0.95em;">+ Track an Application</button>'
+                    + '</div>';
+                return html;
+            }
+            
+            // Status summary
+            var grouped = {
+                applied: apps.filter(function(a) { return a.status === 'applied'; }),
+                interviewing: apps.filter(function(a) { return a.status === 'interviewing'; }),
+                offer: apps.filter(function(a) { return a.status === 'offer'; }),
+                rejected: apps.filter(function(a) { return a.status === 'rejected'; })
+            };
+            
+            html += '<div style="margin-bottom:20px; display:flex; gap:15px; flex-wrap:wrap;">'
+                + '<div class="application-status status-applied">' + grouped.applied.length + ' Applied</div>'
+                + '<div class="application-status status-interviewing">' + grouped.interviewing.length + ' Interviewing</div>'
+                + '<div class="application-status status-offer">' + grouped.offer.length + ' Offers</div>'
+                + '<div class="application-status status-rejected">' + grouped.rejected.length + ' Closed</div>'
+                + '</div>'
+                + '<div class="applications-grid">'
+                + apps.map(function(app, idx) { return renderApplicationCard(app, idx); }).join('')
+                + '</div>';
+            
+            return html;
+        }
+        window.renderTrackerInJobs = renderTrackerInJobs;
         
         function renderSavedJobs() {
             var jobs = userData.savedJobs || [];
@@ -16496,19 +16695,19 @@ body {
                     <div class="settings-tabs">
                         <button class="settings-tab ${window.currentSettingsTab === 'profile' ? 'active' : ''}" 
                                 onclick="switchSettingsTab('profile')">
-                            👤 Profile
+                            ${bpIcon('profile',15)} Profile
                         </button>
                         <button class="settings-tab ${window.currentSettingsTab === 'experience' ? 'active' : ''}" 
                                 onclick="switchSettingsTab('experience')">
-                            💼 Experience
+                            ${bpIcon('experience',15)} Experience
                         </button>
                         <button class="settings-tab ${window.currentSettingsTab === 'preferences' ? 'active' : ''}" 
                                 onclick="switchSettingsTab('preferences')">
-                            🎯 Preferences
+                            ${bpIcon('preferences',15)} Preferences
                         </button>
-                        <button class="settings-tab ${window.currentSettingsTab === 'data' ? 'active' : ''}" 
-                                onclick="switchSettingsTab('data')">
-                            💾 Data & Export
+                        <button class="settings-tab ${window.currentSettingsTab === 'privacy' ? 'active' : ''}" 
+                                onclick="switchSettingsTab('privacy')">
+                            ${bpIcon('privacy',15)} Privacy & Data
                         </button>
                     </div>
                     
@@ -16536,8 +16735,8 @@ body {
                     return renderExperienceSettings();
                 case 'preferences':
                     return renderJobPreferences();
-                case 'data':
-                    return renderDataExport();
+                case 'privacy':
+                    return renderPrivacyAndData();
                 default:
                     return renderProfileSettings();
             }
@@ -16548,7 +16747,7 @@ body {
                 <div class="blueprint-section">
                     <div class="blueprint-section-header">
                         <div class="blueprint-section-title">
-                            <span class="section-icon">👤</span>
+                            <span class="section-icon">${bpIcon("profile",20)}</span>
                             <span>Profile Information</span>
                         </div>
                     </div>
@@ -16659,13 +16858,13 @@ body {
             html += '<div class="blueprint-section">'
                 + '<div class="blueprint-section-header">'
                 + '<div class="blueprint-section-title">'
-                + '<span class="section-icon">\uD83D\uDCBC</span>'
+                + '<span class="section-icon">' + bpIcon('briefcase',20) + '</span>'
                 + '<span>Work History</span>'
                 + '<span class="section-count">' + whItems.length + ' entries</span>'
                 + '</div>'
                 + '</div>'
                 + '<div class="coaching-tip">'
-                + '<div class="coaching-tip-title">\uD83D\uDCA1 BUILD YOUR CAREER TIMELINE</div>'
+                + '<div class="coaching-tip-title">' + bpIcon('lightbulb',14) + ' BUILD YOUR CAREER TIMELINE</div>'
                 + '<div class="coaching-tip-content">'
                 + 'Add your work history in reverse chronological order. Achievements here will appear in resume exports. '
                 + 'For best results, include 2-4 quantified accomplishments per role.'
@@ -16722,7 +16921,7 @@ body {
             html += '<div class="blueprint-section" style="margin-top:24px;">'
                 + '<div class="blueprint-section-header">'
                 + '<div class="blueprint-section-title">'
-                + '<span class="section-icon">\uD83C\uDF93</span>'
+                + '<span class="section-icon">' + bpIcon('graduation',20) + '</span>'
                 + '<span>Education</span>'
                 + '<span class="section-count">' + edItems.length + ' entries</span>'
                 + '</div>'
@@ -16762,7 +16961,7 @@ body {
             html += '<div class="blueprint-section" style="margin-top:24px;">'
                 + '<div class="blueprint-section-header">'
                 + '<div class="blueprint-section-title">'
-                + '<span class="section-icon">\uD83C\uDFC5</span>'
+                + '<span class="section-icon">' + bpIcon('award',20) + '</span>'
                 + '<span>Certifications, Licenses & Degrees</span>'
                 + '<span class="section-count">' + certItems.length + ' entries</span>'
                 + '</div>'
@@ -17414,14 +17613,14 @@ body {
                 <div class="blueprint-section">
                     <div class="blueprint-section-header">
                         <div class="blueprint-section-title">
-                            <span class="section-icon">🎯</span>
+                            <span class="section-icon">${bpIcon("target",20)}</span>
                             <span>Job Matching Preferences</span>
                         </div>
                     </div>
                     
                     <div class="coaching-tip">
                         <div class="coaching-tip-title">
-                            💡 HOW JOB MATCHING WORKS
+                            ${bpIcon("lightbulb",14)} HOW JOB MATCHING WORKS
                         </div>
                         <div class="coaching-tip-content">
                             These settings control which jobs appear in your Opportunities feed. 
@@ -17483,14 +17682,14 @@ body {
                 <div class="blueprint-section">
                     <div class="blueprint-section-header">
                         <div class="blueprint-section-title">
-                            <span class="section-icon">💾</span>
+                            <span class="section-icon">${bpIcon("save",20)}</span>
                             <span>Backup & Restore</span>
                         </div>
                     </div>
                     
                     <div class="coaching-tip">
                         <div class="coaching-tip-title">
-                            💡 DATA PORTABILITY
+                            ${bpIcon("lightbulb",14)} DATA PORTABILITY
                         </div>
                         <div class="coaching-tip-content">
                             Export your complete Blueprint as JSON to back up all your data. 
@@ -17532,6 +17731,119 @@ body {
             `;
         }
         
+
+        // ===== PRIVACY & DATA (v4.20.0, absorbed from Consent + Data Export) =====
+        function renderPrivacyAndData() {
+            var tc = tv('#d1d5db','#334155');
+            var hc = tv('#60a5fa','#1e40af');
+            var sc = tv('#9ca3af','#64748b');
+            var bgCard = tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)');
+            
+            var html = '';
+            
+            // --- Sharing Presets (from Consent) ---
+            html += '<div class="blueprint-section">'
+                + '<div class="blueprint-section-header">'
+                + '<div class="blueprint-section-title">'
+                + '<span class="section-icon">' + bpIcon('share',20) + '</span>'
+                + '<span>Sharing Presets</span>'
+                + '</div>'
+                + '</div>'
+                + '<div class="coaching-tip">'
+                + '<div class="coaching-tip-title">'
+                + bpIcon('lightbulb',14) + ' CHOOSE YOUR SHARING LEVEL'
+                + '</div>'
+                + '<div class="coaching-tip-content">'
+                + 'Select a preset that matches your audience. These control what data appears in exports and shared views.'
+                + '</div>'
+                + '</div>'
+                + '<div class="values-grid">'
+                + Object.entries(sharePresets).map(function(entry) { return renderPresetCard(entry[0], entry[1]); }).join('')
+                + '</div>'
+                + '</div>';
+            
+            // --- What You're Sharing (from Consent) ---
+            var skillCount = (skillsData.skills || []).length;
+            var sharedSkills = currentPreset === 'full' ? skillCount : 
+                                currentPreset === 'executive' ? Math.min(20, skillCount) :
+                                currentPreset === 'advisory' ? skillsData.skills.filter(function(s) { return s.key; }).length :
+                                currentPreset === 'board' ? skillsData.skills.filter(function(s) { return s.key || s.level === 'Mastery'; }).length :
+                                skillCount;
+            var sharedOutcomes = blueprintData.outcomes.filter(function(o) { return o.shared; }).length;
+            var sharedValues = blueprintData.values.filter(function(v) { return v.selected; }).length;
+            
+            html += '<div class="blueprint-section">'
+                + '<div class="blueprint-section-header">'
+                + '<div class="blueprint-section-title">'
+                + '<span class="section-icon">' + bpIcon('eye',20) + '</span>'
+                + '<span>What You\'re Sharing</span>'
+                + '</div>'
+                + '</div>'
+                + '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px;">'
+                + '<div style="background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.3); border-radius:8px; padding:20px; text-align:center;">'
+                + '<div style="font-size:2em; color:#60a5fa; font-weight:bold;">' + sharedSkills + '</div>'
+                + '<div style="color:' + sc + '; margin-top:5px;">Skills</div></div>'
+                + '<div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:8px; padding:20px; text-align:center;">'
+                + '<div style="font-size:2em; color:#10b981; font-weight:bold;">' + sharedOutcomes + '</div>'
+                + '<div style="color:' + sc + '; margin-top:5px;">Outcomes</div></div>'
+                + '<div style="background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); border-radius:8px; padding:20px; text-align:center;">'
+                + '<div style="font-size:2em; color:#fbbf24; font-weight:bold;">' + sharedValues + '</div>'
+                + '<div style="color:' + sc + '; margin-top:5px;">Values</div></div>'
+                + '</div>'
+                + '<div style="margin-top:16px; padding:12px 15px; background:rgba(251,191,36,0.08); border-left:3px solid #fbbf24; border-radius:4px; font-size:0.9em;">'
+                + '<strong style="color:#fbbf24;">Note:</strong> '
+                + '<span style="color:' + tc + ';">Sensitive content (recovery, personal loss) is flagged in Blueprint. Review before sharing.</span>'
+                + '</div>'
+                + '</div>';
+            
+            // --- Backup & Restore ---
+            html += renderDataExport();
+            
+            // --- Privacy & Legal (from Consent) ---
+            html += '<div class="blueprint-section">'
+                + '<div class="blueprint-section-header">'
+                + '<div class="blueprint-section-title">'
+                + '<span class="section-icon">' + bpIcon('privacy',20) + '</span>'
+                + '<span>Privacy & Data Rights</span>'
+                + '</div>'
+                + '</div>'
+                + '<div style="color:' + tc + '; line-height:1.7;">'
+                + '<p style="margin-bottom:16px;">When signed in, your Blueprint data is stored securely in Firebase (Google Cloud). '
+                + 'When not signed in, data persists locally in your browser. You have complete control over what you share.</p>'
+                + '<div style="display:grid; gap:8px;">'
+                + '<div style="padding:10px; background:' + bgCard + '; border-radius:6px;">'
+                + '<strong>CCPA</strong> &mdash; <span style="font-size:0.9em; color:' + sc + ';">Right to know, delete, and opt-out of data sale</span></div>'
+                + '<div style="padding:10px; background:' + bgCard + '; border-radius:6px;">'
+                + '<strong>GDPR</strong> &mdash; <span style="font-size:0.9em; color:' + sc + ';">Right to access, rectify, erase, and port your data</span></div>'
+                + '<div style="padding:10px; background:' + bgCard + '; border-radius:6px;">'
+                + '<strong>EEOC</strong> &mdash; <span style="font-size:0.9em; color:' + sc + ';">Employers must handle your data fairly, no discrimination</span></div>'
+                + '</div>'
+                + '</div></div>';
+            
+            // --- Data Rights Actions ---
+            html += '<div class="blueprint-section">'
+                + '<div class="blueprint-section-header">'
+                + '<div class="blueprint-section-title">'
+                + '<span class="section-icon">' + bpIcon('lock',20) + '</span>'
+                + '<span>Your Data Rights</span>'
+                + '</div>'
+                + '</div>'
+                + '<div style="color:' + tc + '; line-height:1.7; font-size:0.93em;">'
+                + '<p style="margin-bottom:16px;">Under GDPR and similar privacy regulations, you have the right to access, export, and delete your personal data at any time.</p>'
+                + '<div style="display:flex; gap:12px; flex-wrap:wrap;">'
+                + '<button onclick="viewMyData()" style="background:' + tv('rgba(96,165,250,0.12)','rgba(30,64,175,0.08)') + '; border:1px solid ' + tv('rgba(96,165,250,0.3)','rgba(30,64,175,0.2)') + '; color:' + tv('#60a5fa','#1e40af') + '; padding:12px 20px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">' + bpIcon('eye',14) + ' View My Stored Data</button>'
+                + '<button onclick="exportMyData()" style="background:' + tv('rgba(16,185,129,0.12)','rgba(5,150,105,0.08)') + '; border:1px solid ' + tv('rgba(16,185,129,0.3)','rgba(5,150,105,0.2)') + '; color:' + tv('#10b981','#059669') + '; padding:12px 20px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">' + bpIcon('download',14) + ' Export My Data</button>'
+                + '<button onclick="requestDataDeletion()" style="background:' + tv('rgba(239,68,68,0.08)','rgba(220,38,38,0.05)') + '; border:1px solid ' + tv('rgba(239,68,68,0.3)','rgba(220,38,38,0.2)') + '; color:' + tv('#ef4444','#dc2626') + '; padding:12px 20px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">' + bpIcon('trash',14) + ' Delete All My Data</button>'
+                + '</div>'
+                + '<div style="margin-top:12px; font-size:0.82em; color:' + tv('#6b7280','#9ca3af') + ';">'
+                + 'You must be signed in to use these features. Data deletion is permanent and cannot be undone.'
+                + '</div>'
+                + '</div></div>';
+            
+            return html;
+        }
+        window.renderPrivacyAndData = renderPrivacyAndData;
+
         function renderSkillManagement() {
             const skillCount = userData.skills?.length || 0;
             const onetSkillsCount = userData.skills?.filter(s => s.category === 'skill').length || 0;
@@ -17543,14 +17855,14 @@ body {
                 <div class="blueprint-section" style="margin-top: 30px;">
                     <div class="blueprint-section-header">
                         <div class="blueprint-section-title">
-                            <span class="section-icon">🛠️</span>
+                            <span class="section-icon">${bpIcon("tool",20)}</span>
                             <span>Manage Skills (${skillCount})</span>
                         </div>
                     </div>
                     
                     <div class="coaching-tip">
                         <div class="coaching-tip-title">
-                            💡 BUILD YOUR SKILLS PROFILE
+                            ${bpIcon("lightbulb",14)} BUILD YOUR SKILLS PROFILE
                         </div>
                         <div class="coaching-tip-content">
                             Add skills from the official O*NET library (validated by U.S. Department of Labor) or create custom skills unique to your experience. Your skills appear in the network graph and drive job matching.
@@ -18245,7 +18557,7 @@ body {
             return '<div id="disclaimerSection" class="blueprint-section">'
                 + '<div class="blueprint-section-header">'
                 + '<div class="blueprint-section-title">'
-                + '<span class="section-icon">\u26A0\uFE0F</span>'
+                + '<span class="section-icon">' + bpIcon('warning',20) + '</span>'
                 + '<span>Disclaimer & Terms of Use</span>'
                 + '</div>'
                 + '</div>'
@@ -18320,7 +18632,7 @@ body {
                 + '<div class="blueprint-section">'
                 + '<div class="blueprint-section-header">'
                 + '<div class="blueprint-section-title">'
-                + '<span class="section-icon">\u2696\uFE0F</span>'
+                + '<span class="section-icon">' + bpIcon('scale',20) + '</span>'
                 + '<span>Privacy & Data Rights</span>'
                 + '</div>'
                 + '</div>'
@@ -18359,7 +18671,7 @@ body {
                 + '<div class="blueprint-section">'
                 + '<div class="blueprint-section-header">'
                 + '<div class="blueprint-section-title">'
-                + '<span class="section-icon">\uD83D\uDD12</span>'
+                + '<span class="section-icon">' + bpIcon('lock',20) + '</span>'
                 + '<span>Your Data Rights</span>'
                 + '</div>'
                 + '</div>'
