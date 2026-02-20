@@ -256,7 +256,8 @@ Theme toggle (dark/light), profile dropdown, filter panel, overflow menu. Help m
 - **Outfit font + uppercase titles** — All page-level headings (Blueprint, Settings, Consent, Pipeline, Tracker, Find Jobs) now use Outfit font with `text-transform: uppercase` and proper letter-spacing. Splash screen logo also uppercase.
 - **Mobile network graph fixes** — Increased force spacing (link distance 90→120, charge -200→-350), reduced gravity (0.12→0.08), role labels truncated to 22 chars, font 12px→9px, skill font 10px→8px, enhanced text-shadow for readability
 - **Role info card close button fix** — Direct `display:none` in onclick (bypasses conditional check), bigger touch target (padding 0→8px), z-index 50→150
-- Build: 20260220-emoji-final
+- **Site audit & stabilization** — Removed 12 dead functions (439 lines), fixed "undefined" in settings email/name fields, added alt text to all images, replaced 19 inline label styles with `.settings-label` CSS class, added `safeGet/safeSet/safeRemove` localStorage wrappers (24 critical calls protected), fixed 2 template literal rendering bugs in manage-skills and consent views, fixed last stray emoji (✈️→compass in pilot role), eliminated role node tooltip (redundant with info card)
+- Build: 20260220-audit
 
 ### v4.21.0
 - **Find Jobs — Live API integration** — Complete rewrite of Find Jobs tab. Searches 3 free, no-auth job board APIs in parallel: Remotive (`remotive.com/api/remote-jobs`), Himalayas (`himalayas.app/jobs/api`), and Jobicy (`jobicy.com/api/v2/remote-jobs`). CORS proxy fallback chain (`corsproxy.io`, `allorigins.win`) for browser compatibility.

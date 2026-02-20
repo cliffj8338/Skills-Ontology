@@ -4414,7 +4414,18 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.22.0 - BUILD 20260220-emoji-final
+        // BLUEPRINT v4.22.0 - BUILD 20260220-audit
+
+        // Safe localStorage wrapper (handles private browsing, quota exceeded)
+        function safeGet(key, fallback) {
+            try { return localStorage.getItem(key); } catch(e) { return fallback || null; }
+        }
+        function safeSet(key, val) {
+            try { localStorage.setItem(key, val); return true; } catch(e) { return false; }
+        }
+        function safeRemove(key) {
+            try { localStorage.removeItem(key); } catch(e) {}
+        }
         // Samples default to Network view + scroll-to-top on all view switches
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -5098,9 +5109,9 @@
                 })
                 .then(function() {
                     // Clear local storage
-                    localStorage.removeItem('wbValues');
-                    localStorage.removeItem('wbPurpose');
-                    localStorage.removeItem('currentProfile');
+                    safeRemove('wbValues');
+                    safeRemove('wbPurpose');
+                    safeRemove('currentProfile');
                     
                     showToast('Your data has been permanently deleted.', 'info', 6000);
                     fbUser = null;
@@ -6182,25 +6193,7 @@
             }
         }
         window.setValuationMode = setValuationMode;
-        
-        function getClosestRoleBenchmark(calculatedValue) {
-            if (!skillValuations || !skillValuations.roleBenchmarks) {
-                return null;
-            }
-            
-            let closest = null;
-            let minDiff = Infinity;
-            
-            Object.entries(skillValuations.roleBenchmarks).forEach(([role, data]) => {
-                const diff = Math.abs(data.median - calculatedValue);
-                if (diff < minDiff) {
-                    minDiff = diff;
-                    closest = { role, ...data };
-                }
-            });
-            
-            return closest;
-        }
+        // [removed] getClosestRoleBenchmark — dead code cleanup v4.22.0
         
         // ===== SKILL VALUATIONS SYSTEM =====
         
@@ -6227,7 +6220,7 @@
         // Load/save admin-configured thresholds
         function loadEvidenceConfig() {
             try {
-                var stored = localStorage.getItem('wbEvidenceConfig');
+                var stored = safeGet('wbEvidenceConfig');
                 if (stored) {
                     var parsed = JSON.parse(stored);
                     if (parsed.thresholds) evidenceConfig.thresholds = parsed.thresholds;
@@ -6241,7 +6234,7 @@
         
         function saveEvidenceConfig() {
             try {
-                localStorage.setItem('wbEvidenceConfig', JSON.stringify(evidenceConfig));
+                safeSet('wbEvidenceConfig', JSON.stringify(evidenceConfig));
             } catch (e) { /* quota */ }
         }
         
@@ -6856,11 +6849,7 @@
         }
         
         // Get cert floor POINTS based on tier
-        function getCertFloorPoints(cert) {
-            if (!cert) return evidenceConfig.certFloorPoints;
-            var floor = getCertFloorLevel(cert);
-            return evidenceConfig.thresholds[floor] || evidenceConfig.certFloorPoints;
-        }
+        // [removed] getCertFloorPoints — dead code cleanup v4.22.0
         
         // Expose
         window.searchCertLibrary = searchCertLibrary;
@@ -6887,7 +6876,7 @@
             roles: [
                 { id: "strategy", name: "VP Global Strategy", icon: "target", color: "#ef4444" },
                 { id: "futurist", name: "Futurist & Evangelist", icon: "zap", color: "#f59e0b" },
-                { id: "pilot", name: "IFR Pilot", icon: "✈️", color: "#3b82f6" },
+                { id: "pilot", name: "IFR Pilot", icon: "compass", color: "#3b82f6" },
                 { id: "musician", name: "Musician", icon: "heart", color: "#8b5cf6" },
                 { id: "advocate", name: "Recovery Advocate", icon: "heart", color: "#10b981" },
                 { id: "tech", name: "Technology Strategist", icon: "settings", color: "#06b6d4" },
@@ -7043,7 +7032,7 @@
         function buildProfileSelector(profiles) {
             // Hidden select (kept for backward compatibility)
             const selector = document.getElementById('profileSelector');
-            const currentId = localStorage.getItem('currentProfile') || profiles[0]?.id;
+            const currentId = safeGet('currentProfile') || profiles[0]?.id;
 
             if (selector) {
                 selector.innerHTML = profiles.map(p =>
@@ -7078,7 +7067,7 @@
             
             // Load template inline (no page reload)
             loadTemplate(templateId);
-            localStorage.setItem('currentProfile', templateId);
+            safeSet('currentProfile', templateId);
             
             // Re-initialize views with new data
             if (typeof skillsData !== 'undefined') {
@@ -7136,7 +7125,7 @@
                 // Don't save userData to localStorage anymore
                 // Only save which profile is active
                 const currentProfileId = userData.templateId || 'cliff-jones-demo';
-                localStorage.setItem('currentProfile', currentProfileId);
+                safeSet('currentProfile', currentProfileId);
                 console.log('✓ Profile preference saved:', currentProfileId);
                 return true;
             } catch (e) {
@@ -7715,7 +7704,7 @@
             }
             
             // ===== PROFILE DECISION FLOW =====
-            const currentProfile = localStorage.getItem('currentProfile');
+            const currentProfile = safeGet('currentProfile');
             
             // Always load a scaffold template so nav/rendering works
             var scaffoldId = currentProfile || 'cliff-jones-demo';
@@ -7968,13 +7957,7 @@
         }
 
         // ── Shared UI helpers ─────────────────────────────────────────────────
-
-        function wizardCard(content) {
-            return `<div style="background:var(--bg-elevated); border:1px solid var(--border);
-                                border-radius:14px; padding:28px; margin-bottom:20px;">
-                        ${content}
-                    </div>`;
-        }
+        // [removed] wizardCard — dead code cleanup v4.22.0
 
         function wizardHeading(icon, title, subtitle) {
             return `<div style="text-align:center; margin-bottom:32px;">
@@ -8794,7 +8777,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         function wizardApplyAndLaunch(built) {
             userData = built;
             userData.initialized = true;
-            localStorage.setItem('currentProfile', 'wizard-built');
+            safeSet('currentProfile', 'wizard-built');
 
             // Store wizard profile in templates so it loads on reload
             templates['wizard-built'] = built;
@@ -10528,10 +10511,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 d.fy = null;
             }
         }
-
-        function openExportModal() {
-            history.pushState({ modal: true }, ''); document.getElementById('exportModal').classList.add('active');
-        }
+        // [removed] openExportModal — dead code cleanup v4.22.0
 
         function closeExportModal() {
             var m = document.getElementById('exportModal');
@@ -10908,16 +10888,16 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var actionsHtml = '<div style="display:flex; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">'
                 + '<button onclick="closeSkillModal(); openEditSkillModal(\'' + skillName.replace(/'/g, "\\'") + '\', \'' + (skillData.category || 'unique') + '\');" '
                 + 'style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
-                + '' + bpIcon('edit',14) + ' Edit Skill</button>'
+                + `${bpIcon('edit',14)} Edit Skill</button>`
                 + '<button onclick="closeSkillModal(); openAssessSkillModal(\'' + skillName.replace(/'/g, "\\'") + '\');" '
                 + 'style="padding:10px 20px; background:rgba(96,165,250,0.15); color:var(--accent); border:1px solid rgba(96,165,250,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
-                + '' + bpIcon('clipboard',14) + ' Assess</button>'
+                + `${bpIcon('clipboard',14)} Assess</button>`
                 + '<button onclick="closeSkillModal(); requestVerification([\'' + skillName.replace(/'/g, "\\'") + '\']);" '
                 + 'style="padding:10px 20px; background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
-                + '' + bpIcon('check',14) + ' Verify</button>'
+                + `${bpIcon('check',14)} Verify</button>`
                 + '<button onclick="if(confirm(\'Remove ' + skillName.replace(/'/g, "\\'") + ' from your profile?\')){deleteSkillFromProfile(\'' + skillName.replace(/'/g, "\\'") + '\'); closeSkillModal();}" '
                 + 'style="margin-left:auto; padding:10px 16px; background:none; color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
-                + '' + bpIcon('trash',14) + ' Remove</button>'
+                + `${bpIcon('trash',14)} Remove</button>`
                 + '</div>';
             body.innerHTML += actionsHtml;
             
@@ -11714,14 +11694,14 @@ body {
 
         function saveValues() {
             try {
-                localStorage.setItem('wbValues', JSON.stringify(blueprintData.values));
-                localStorage.setItem('wbPurpose', blueprintData.purpose || '');
+                safeSet('wbValues', JSON.stringify(blueprintData.values));
+                safeSet('wbPurpose', blueprintData.purpose || '');
             } catch (e) { /* quota exceeded or private mode */ }
         }
 
         function loadSavedValues() {
             try {
-                var stored = localStorage.getItem('wbValues');
+                var stored = safeGet('wbValues');
                 if (stored) return JSON.parse(stored);
             } catch (e) { /* parse error */ }
             return null;
@@ -11876,7 +11856,7 @@ body {
             
             // Purpose
             var savedPurpose = null;
-            try { savedPurpose = localStorage.getItem('wbPurpose'); } catch(e) {}
+            try { savedPurpose = safeGet('wbPurpose'); } catch(e) {}
             if (savedPurpose !== null && savedPurpose.trim().length > 0) {
                 blueprintData.purpose = savedPurpose;
             } else if (userData.purpose && userData.purpose.trim().length > 0) {
@@ -12682,7 +12662,7 @@ body {
                 </div>
                 <div class="modal-body" style="padding: 30px;">
                     <div style="margin-bottom: 20px;">
-                        <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">
+                        <label class="settings-label">
                             Outcome Text
                         </label>
                         <textarea id="editOutcomeText" style="
@@ -12701,7 +12681,7 @@ body {
                     </div>
                     
                     <div style="margin-bottom: 20px;">
-                        <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">
+                        <label class="settings-label">
                             Category
                         </label>
                         <select id="editOutcomeCategory" style="
@@ -12807,7 +12787,7 @@ body {
                 </div>
                 <div class="modal-body" style="padding: 30px;">
                     <div style="margin-bottom: 20px;">
-                        <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">
+                        <label class="settings-label">
                             Outcome Template
                         </label>
                         <select id="outcomeTemplate" onchange="fillOutcomeTemplate(this.value)" style="
@@ -12846,7 +12826,7 @@ body {
                     </div>
                     
                     <div style="margin-bottom: 20px;">
-                        <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">
+                        <label class="settings-label">
                             Category
                         </label>
                         <select id="customOutcomeCategory" style="
@@ -12869,7 +12849,7 @@ body {
                     </div>
                     
                     <div style="margin-bottom: 20px;">
-                        <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">
+                        <label class="settings-label">
                             Related Skill (Optional)
                         </label>
                         <select id="customOutcomeSkill" style="
@@ -13494,7 +13474,7 @@ body {
             var sharedOutcomes = (blueprintData.outcomes || []).filter(function(o) { return o.shared; });
             var selectedValues = (blueprintData.values || []).filter(function(v) { return v.selected; });
 
-            var apiKey = localStorage.getItem('wbAnthropicKey');
+            var apiKey = safeGet('wbAnthropicKey');
 
             if (apiKey) {
                 showToast('Generating cover letter with AI...', 'info');
@@ -13680,7 +13660,7 @@ body {
             var sharedOutcomes = (blueprintData.outcomes || []).filter(function(o) { return o.shared; });
             var skills = skillsData.skills || [];
 
-            var apiKey = localStorage.getItem('wbAnthropicKey');
+            var apiKey = safeGet('wbAnthropicKey');
 
             if (apiKey) {
                 showToast('Generating interview prep with AI...', 'info');
@@ -13862,7 +13842,7 @@ body {
             var topSkills = skills.filter(function(s) { return s.key; }).slice(0, 15);
             var allSkills = skills.slice(0, 50);
 
-            var apiKey = localStorage.getItem('wbAnthropicKey');
+            var apiKey = safeGet('wbAnthropicKey');
 
             if (apiKey) {
                 showToast('Generating LinkedIn profile with AI...', 'info');
@@ -14260,7 +14240,7 @@ body {
         function showAddJobModal() {
             var modal = document.getElementById('exportModal');
             var mc = modal.querySelector('.modal-content');
-            var savedKey = localStorage.getItem('wbAnthropicKey') || '';
+            var savedKey = safeGet('wbAnthropicKey') || '';
             
             mc.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left">'
@@ -15729,7 +15709,7 @@ body {
                 return;
             }
             
-            var apiKey = localStorage.getItem('wbAnthropicKey') || '';
+            var apiKey = safeGet('wbAnthropicKey') || '';
             
             // Re-parse
             var statusEl = document.getElementById('jobsSubTabContent');
@@ -15863,224 +15843,9 @@ body {
                 gaps: gapSkills
             };
         }
-        
-        
-
-        function extractSkillsFromJobEnhanced(job) {
-            const searchText = `${job.position} ${job.description || ''} ${(job.tags || []).join(' ')}`.toLowerCase();
-            const extractedSkills = [];
-            
-            // ENHANCED: Expanded skill mapping with synonyms and variations
-            const skillMapping = {
-                // Strategic Core
-                'Enterprise AI Strategy': ['ai strategy', 'artificial intelligence strategy', 'enterprise ai', 'ai transformation', 'ai roadmap', 'ai leadership'],
-                'Strategic Foresight & Market Prediction': ['market prediction', 'strategic foresight', 'forecasting', 'trend analysis', 'future of work', 'market intelligence', 'competitive intelligence'],
-                'Go-to-Market Strategy': ['go-to-market', 'gtm strategy', 'market strategy', 'launch strategy', 'product launch', 'market entry'],
-                'Business Case Development': ['business case', 'roi analysis', 'business development', 'financial modeling', 'investment analysis'],
-                'C-Suite Advisory & Influence': ['c-suite', 'executive advisory', 'board advisory', 'executive coaching', 'executive stakeholder', 'ceo advisor'],
-                'Organizational Transformation': ['transformation', 'change management', 'organizational change', 'digital transformation', 'org transformation', 'restructuring'],
-                
-                // Technology & Innovation
-                'AI/ML Product Strategy': ['ai product', 'ml product', 'machine learning strategy', 'ai/ml', 'ai product management', 'ml roadmap'],
-                'Technology Trend Forecasting': ['technology trends', 'tech forecasting', 'innovation trends', 'emerging tech', 'technology radar'],
-                'Disruptive Innovation Identification': ['disruptive innovation', 'innovation strategy', 'breakthrough innovation', 'radical innovation'],
-                'Human-AI Collaboration Model Design': ['human-ai', 'ai collaboration', 'human-centered ai', 'ai interaction', 'human augmentation'],
-                'Technology Lifecycle & Disruption Analysis': ['technology lifecycle', 'disruption analysis', 'tech adoption', 'innovation curve'],
-                'Platform Integration Architecture': ['platform integration', 'system architecture', 'enterprise architecture', 'integration strategy'],
-                
-                // Communication & Leadership
-                'Industry Evangelism': ['evangelist', 'developer relations', 'community building', 'developer advocacy', 'technical evangelism'],
-                'Thought Leadership Authorship': ['thought leadership', 'content strategy', 'industry speaking', 'executive writing', 'industry expert'],
-                'Technical Concept Translation': ['technical communication', 'executive communication', 'technical writing', 'concept translation'],
-                'Public Speaking & Keynote Delivery': ['public speaking', 'keynote', 'conference speaking', 'presentations', 'speaker'],
-                'Media Relations & Spokesperson Work': ['media relations', 'spokesperson', 'press relations', 'public relations', 'media spokesperson'],
-                
-                // Domain Expertise - Talent/HR Tech
-                'Talent Intelligence Platform Design': ['talent platform', 'hr tech', 'talent technology', 'talent systems', 'hris', 'applicant tracking'],
-                'Workforce Intelligence & Analytics': ['workforce analytics', 'people analytics', 'talent analytics', 'hr analytics', 'workforce planning'],
-                'HR Technology Market Intelligence': ['hr technology', 'hrtech', 'talent tech', 'hr software', 'talent management'],
-                'Talent Acquisition Strategy': ['talent acquisition', 'recruitment strategy', 'hiring strategy', 'sourcing strategy', 'recruiting'],
-                'Candidate Experience Architecture': ['candidate experience', 'recruitment experience', 'hiring experience', 'candidate journey'],
-                
-                // Leadership & Management
-                'Executive Presence & Authority': ['executive presence', 'executive leadership', 'leadership presence', 'executive impact'],
-                'Crisis Leadership & Decision Making': ['crisis management', 'crisis leadership', 'emergency response', 'incident management'],
-                'Strategic Team Building': ['team building', 'organizational design', 'team strategy', 'talent development', 'team leadership'],
-                'Multi-Stakeholder Alignment': ['stakeholder management', 'stakeholder alignment', 'cross-functional', 'stakeholder engagement'],
-                'Revenue Pipeline Development': ['pipeline development', 'revenue strategy', 'sales pipeline', 'pipeline management'],
-                
-                // Data & Analysis
-                'Data-Driven Strategy Development': ['data-driven', 'data strategy', 'analytics strategy', 'data-informed', 'evidence-based'],
-                'Predictive Framework Development': ['predictive framework', 'predictive modeling', 'forecasting models', 'prediction systems'],
-                'Research Synthesis & Forecasting': ['research synthesis', 'market research', 'competitive analysis', 'industry research'],
-                'Critical Analysis & Evaluation': ['critical analysis', 'evaluation', 'assessment', 'analytical thinking'],
-                
-                // Product & Strategy
-                'Scenario Planning & Strategic Alternatives': ['scenario planning', 'strategic planning', 'contingency planning', 'alternative strategies'],
-                'Rhetorical Strategy & Persuasion': ['persuasion', 'influence', 'negotiation', 'storytelling'],
-                'Customer Advisory Board Leadership': ['advisory board', 'customer advisory', 'cab leadership', 'advisory council'],
-                'Enterprise Client Relationship Management': ['enterprise sales', 'account management', 'client relationship', 'enterprise accounts']
-            };
-            
-            // Weight skills by importance in job posting
-            const skillMatches = {};
-            
-            Object.entries(skillMapping).forEach(([skill, keywords]) => {
-                let matchCount = 0;
-                let matchWeight = 0;
-                
-                keywords.forEach((keyword) => {
-                    const regex = new RegExp('\\b' + keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi');
-                    const matches = searchText.match(regex);
-                    if (matches) {
-                        matchCount += matches.length;
-                        
-                        // Weight based on where keyword appears
-                        if (job.position.toLowerCase().includes(keyword)) {
-                            matchWeight += 3;  // Title match is most important
-                        } else if (searchText.indexOf(keyword) < 200) {
-                            matchWeight += 2;  // Early mention is important
-                        } else {
-                            matchWeight += 1;  // Later mention
-                        }
-                    }
-                });
-                
-                if (matchCount > 0) {
-                    skillMatches[skill] = matchWeight;
-                }
-            });
-            
-            // Sort by weight and extract top matches
-            const sortedSkills = Object.entries(skillMatches)
-                .sort((a, b) => b[1] - a[1])
-                .map(([skill]) => skill);
-            
-            return sortedSkills;
-        }
-        
-        function loadSampleData() {
-            const sampleJobs = [
-                {
-                    id: 1,
-                    title: "VP of AI Strategy",
-                    company: "TechCorp",
-                    location: "San Francisco, CA / Remote",
-                    type: "Full-time",
-                    url: "#",
-                    salary: "$200k-$300k",
-                    requiredSkills: ["Enterprise AI Strategy", "Strategic Foresight & Market Prediction", "C-Suite Advisory & Influence", "Technology Trend Forecasting", "Business Case Development", "Go-to-Market Strategy"]
-                },
-                {
-                    id: 2,
-                    title: "Chief Strategy Officer",
-                    company: "GrowthCo",
-                    location: "New York, NY / Remote",
-                    type: "Full-time",
-                    url: "#",
-                    salary: "$250k-$350k",
-                    requiredSkills: ["Go-to-Market Strategy", "Business Case Development", "Strategic Foresight & Market Prediction", "Multi-Stakeholder Alignment", "Revenue Pipeline Development", "Financial Management & Budget Discipline"]
-                },
-                {
-                    id: 3,
-                    title: "Director of Technology Strategy",
-                    company: "Innovation Labs",
-                    location: "Austin, TX / Remote",
-                    type: "Full-time",
-                    url: "#",
-                    salary: "$180k-$240k",
-                    requiredSkills: ["Technology Lifecycle & Disruption Analysis", "Platform Integration Architecture", "Computational & Systems Thinking", "Data-Driven Strategy Development", "Market & Competitive Intelligence"]
-                },
-                {
-                    id: 4,
-                    title: "Head of Talent Intelligence",
-                    company: "WorkTech Inc",
-                    location: "Remote",
-                    type: "Full-time",
-                    url: "#",
-                    salary: "$160k-$220k",
-                    requiredSkills: ["Talent Intelligence Platform Design", "Workforce Intelligence & Analytics", "AI/ML Product Strategy", "Candidate Experience Architecture", "Talent Acquisition Strategy", "HR Technology Market Intelligence"]
-                },
-                {
-                    id: 5,
-                    title: "Chief Evangelist",
-                    company: "AI Startup",
-                    location: "Boston, MA / Remote",
-                    type: "Full-time",
-                    url: "#",
-                    salary: "$150k-$200k + equity",
-                    requiredSkills: ["Industry Evangelism", "Technical Concept Translation", "Thought Leadership Authorship", "Public Speaking & Keynote Delivery", "Media Relations & Spokesperson Work"]
-                },
-                {
-                    id: 6,
-                    title: "VP of Product Strategy",
-                    company: "SaaS Platform",
-                    location: "Seattle, WA / Remote",
-                    type: "Full-time",
-                    url: "#",
-                    salary: "$190k-$260k",
-                    requiredSkills: ["AI/ML Product Strategy", "Human-AI Collaboration Model Design", "Predictive Framework Development", "Scenario Planning & Strategic Alternatives", "Disruptive Innovation Identification"]
-                }
-            ];
-            
-            opportunitiesData = sampleJobs.map(job => {
-                const match = calculateMatchScore(job.requiredSkills, job.requiredSkills);
-                return {
-                    ...job,
-                    matchScore: match.score,
-                    matchedSkills: match.matched,
-                    gapSkills: match.gaps
-                };
-            });
-            
-            opportunitiesData.sort((a, b) => b.matchScore - a.matchScore);
-            renderOpportunities();
-        }
-        
-        function extractSkillsFromJob(job) {
-            // Extract skills from job description and tags
-            const searchText = `${job.position} ${job.description || ''} ${(job.tags || []).join(' ')}`.toLowerCase();
-            const extractedSkills = [];
-            
-            // Map common job keywords to Cliff's skills
-            const skillKeywords = {
-                'ai strategy': 'Enterprise AI Strategy',
-                'artificial intelligence': 'AI/ML Product Strategy',
-                'machine learning': 'AI/ML Product Strategy',
-                'strategic planning': 'Strategic Foresight & Market Prediction',
-                'business strategy': 'Go-to-Market Strategy',
-                'product strategy': 'AI/ML Product Strategy',
-                'thought leadership': 'Thought Leadership Authorship',
-                'public speaking': 'Public Speaking & Keynote Delivery',
-                'evangelist': 'Industry Evangelism',
-                'technology strategy': 'Technology Lifecycle & Disruption Analysis',
-                'data analytics': 'Data-Driven Strategy Development',
-                'talent': 'Talent Acquisition Strategy',
-                'hr tech': 'HR Technology Market Intelligence',
-                'workforce': 'Workforce Intelligence & Analytics',
-                'crisis management': 'Crisis Leadership & Decision Making',
-                'team building': 'Strategic Team Building',
-                'c-suite': 'C-Suite Advisory & Influence',
-                'executive': 'Executive Presence & Authority',
-                'innovation': 'Disruptive Innovation Identification',
-                'transformation': 'Organizational Transformation',
-                'advisory': 'C-Suite Advisory & Influence'
-            };
-            
-            // Check which skills are mentioned
-            Object.entries(skillKeywords).forEach(([keyword, skill]) => {
-                if (searchText.includes(keyword) && !extractedSkills.includes(skill)) {
-                    extractedSkills.push(skill);
-                }
-            });
-            
-            // If no specific skills found, add some generic strategic ones
-            if (extractedSkills.length === 0) {
-                extractedSkills.push('Strategic Foresight & Market Prediction', 'Go-to-Market Strategy', 'Business Case Development');
-            }
-            
-            return extractedSkills;
-        }
+        // [removed] extractSkillsFromJobEnhanced — dead code cleanup v4.22.0
+        // [removed] loadSampleData — dead code cleanup v4.22.0
+        // [removed] extractSkillsFromJob — dead code cleanup v4.22.0
         
         function filterOpportunities() {
             renderOpportunities();
@@ -16501,69 +16266,7 @@ body {
             renderOpportunities();
         }
         window.addRemoteJobToPipeline = addRemoteJobToPipeline;
-        
-        function generatePitch(jobId) {
-            const job = opportunitiesData.find(j => j.id === jobId);
-            if (!job) return;
-            
-            // Get shared outcomes from blueprint
-            const sharedOutcomes = blueprintData.outcomes.filter(o => o.shared);
-            const selectedValues = blueprintData.values.filter(v => v.selected);
-            
-            // Build pitch using matched skills
-            let pitch = `Dear Hiring Manager,\n\n`;
-            pitch += `I'm writing to express my interest in the ${job.title} position at ${job.company}. `;
-            pitch += `My background aligns strongly with your requirements, with a ${job.matchScore}% match to the role's key competencies.\n\n`;
-            
-            // Outcomes section
-            if (sharedOutcomes.length > 0) {
-                pitch += `**Key Outcomes I've Driven:**\n\n`;
-                // Prioritize outcomes related to matched skills
-                const relevantOutcomes = sharedOutcomes.filter(outcome => 
-                    job.matchedSkills.some(skill => outcome.skill.includes(skill) || outcome.text.toLowerCase().includes(skill.toLowerCase()))
-                ).slice(0, 3);
-                
-                if (relevantOutcomes.length > 0) {
-                    relevantOutcomes.forEach(outcome => {
-                        pitch += `• ${outcome.text}\n`;
-                    });
-                } else {
-                    sharedOutcomes.slice(0, 3).forEach(outcome => {
-                        pitch += `• ${outcome.text}\n`;
-                    });
-                }
-                pitch += `\n`;
-            }
-            
-            // Skills match section
-            pitch += `**Your Requirements - My Experience:**\n\n`;
-            job.matchedSkills.slice(0, 5).forEach(skill => {
-                const skillData = skillsData.skills.find(s => s.name === skill);
-                const evidence = skillsData.skillDetails[skill];
-                if (evidence && evidence.evidence && evidence.evidence.length > 0) {
-                    pitch += `• **${skill}**: ${evidence.evidence[0]}\n`;
-                } else {
-                    pitch += `• **${skill}**: ${skillData ? skillData.level + ' level proficiency' : 'Demonstrated expertise'}\n`;
-                }
-            });
-            pitch += `\n`;
-            
-            // Values alignment
-            if (selectedValues.length > 0) {
-                pitch += `**My Approach:**\n\n`;
-                pitch += `I bring ${selectedValues.map(v => v.name.toLowerCase()).slice(0, 3).join(', ')} to this role. `;
-                if (blueprintData.purpose) {
-                    pitch += blueprintData.purpose;
-                }
-                pitch += `\n\n`;
-            }
-            
-            pitch += `I'd welcome the opportunity to discuss how my experience can contribute to ${job.company}'s success.\n\n`;
-            pitch += `Best regards,\n${userData.profile.name || 'Your Name'}`;
-            
-            // Show pitch in modal
-            showPitchModal(job, pitch);
-        }
+        // [removed] generatePitch — dead code cleanup v4.22.0
         
         function showPitchModal(job, pitch) {
             const modal = document.getElementById('exportModal');
@@ -16626,47 +16329,7 @@ body {
             closeExportModal();
             addApplicationModal(job);
         }
-        
-        function viewOnNetwork(jobId) {
-            const job = opportunitiesData.find(j => j.id === jobId);
-            if (!job) return;
-            
-            // Store job for network highlighting
-            window.currentHighlightJob = job;
-            
-            // Switch to Skills Ontology view (network mode)
-            currentView = 'network';
-            currentSkillsView = 'network';
-            
-            // Update navigation
-            document.querySelectorAll('.view-toggle button').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.textContent.includes('Skills Ontology')) {
-                    btn.classList.add('active');
-                }
-            });
-            
-            // Show network view
-            document.getElementById('networkView').style.display = 'block';
-            document.getElementById('cardView').style.display = 'none';
-            document.getElementById('opportunitiesView').style.display = 'none';
-            document.getElementById('blueprintView').style.display = 'none';
-            document.getElementById('consentView').style.display = 'none';
-            document.getElementById('settingsView').style.display = 'none';
-            document.getElementById('networkControls').style.display = 'flex';
-            document.querySelector('.controls').style.display = 'flex';
-            
-            // Update toggle button state
-            document.querySelectorAll('#skillsViewToggle .view-pill').forEach(chip => {
-                chip.classList.toggle('active', chip.dataset.view === 'network');
-            });
-            
-            // Reinitialize network with highlighting
-            initNetworkWithHighlight(job);
-            
-            // Update stats bar
-            updateStatsBar();
-        }
+        // [removed] viewOnNetwork — dead code cleanup v4.22.0
         
         function initNetworkWithHighlight(job) {
             const svg = d3.select("#networkView");
@@ -16916,7 +16579,7 @@ body {
                     <div class="settings-group">
                         <label class="settings-label">Your Name</label>
                         <input type="text" class="settings-input" id="settingName" 
-                               value="${userData.profile.name}" 
+                               value="${userData.profile.name || ''}" 
                                placeholder="Enter your name">
                         <div class="settings-help">This appears in the header and exports</div>
                     </div>
@@ -16930,7 +16593,7 @@ body {
                                         cursor:pointer; overflow:hidden; border:2px solid var(--border); flex-shrink:0;
                                         ${userData.profile.photo ? 'padding:0' : ''}">
                                 ${userData.profile.photo 
-                                    ? '<img src="' + userData.profile.photo + '" style="width:100%;height:100%;object-fit:cover;">' 
+                                    ? '<img src="' + userData.profile.photo + '" alt="Profile photo" style="width:100%;height:100%;object-fit:cover;">' 
                                     : (userData.profile.name || 'U').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase()}
                             </div>
                             <div>
@@ -16948,7 +16611,7 @@ body {
                     <div class="settings-group">
                         <label class="settings-label">Email (Optional)</label>
                         <input type="email" class="settings-input" id="settingEmail" 
-                               value="${userData.profile.email}" 
+                               value="${userData.profile.email || ''}" 
                                placeholder="your.email@example.com">
                         <div class="settings-help">For export contact information</div>
                     </div>
@@ -18035,84 +17698,7 @@ body {
             }
         }
         window.disableBulkActionsInSampleMode = disableBulkActionsInSampleMode;
-
-        function renderSkillManagement() {
-            const skillCount = userData.skills?.length || 0;
-            const onetSkillsCount = userData.skills?.filter(s => s.category === 'skill').length || 0;
-            const abilitiesCount = userData.skills?.filter(s => s.category === 'ability').length || 0;
-            const workStylesCount = userData.skills?.filter(s => s.category === 'workstyle').length || 0;
-            const uniqueCount = userData.skills?.filter(s => s.category === 'unique').length || 0;
-            
-            return `
-                <div class="blueprint-section" style="margin-top: 30px;">
-                    <div class="blueprint-section-header">
-                        <div class="blueprint-section-title">
-                            <span class="section-icon">${bpIcon("tool",20)}</span>
-                            <span>Manage Skills (${skillCount})</span>
-                        </div>
-                    </div>
-                    
-                    <div class="coaching-tip">
-                        <div class="coaching-tip-title">
-                            ${bpIcon("lightbulb",14)} BUILD YOUR SKILLS PROFILE
-                        </div>
-                        <div class="coaching-tip-content">
-                            Add skills from the official O*NET library (validated by U.S. Department of Labor) or create custom skills unique to your experience. Your skills appear in the network graph and drive job matching.
-                        </div>
-                    </div>
-                    
-                    <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
-                        <button class="export-btn-large" onclick="openSkillManagement()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);">
-                            ${bpIcon("layers",16)} Manage Skills
-                        </button>
-                        <button class="export-btn-large" onclick="openCustomSkillBuilder()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);">
-                            ${bpIcon("star",16)} Create Custom
-                        </button>
-                        <button class="export-btn-large bulk-action-btn" onclick="openBulkImport()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
-                            ${bpIcon("upload",16)} Bulk Import
-                        </button>
-                        <button class="export-btn-large bulk-action-btn" onclick="openBulkManager()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
-                            ${bpIcon("edit",16)} Bulk Edit / Remove
-                        </button>
-                    </div>
-                    
-                    <div class="skill-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 20px;">
-                        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 10px; border-radius: 6px; text-align: center;">
-                            <div style="font-size: 1.5em; font-weight: 700; color: #60a5fa;">${onetSkillsCount}</div>
-                            <div style="font-size: 0.8em; color: #9ca3af;">Skills</div>
-                        </div>
-                        <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); padding: 10px; border-radius: 6px; text-align: center;">
-                            <div style="font-size: 1.5em; font-weight: 700; color: #a78bfa;">${abilitiesCount}</div>
-                            <div style="font-size: 0.8em; color: #9ca3af;">Abilities</div>
-                        </div>
-                        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 10px; border-radius: 6px; text-align: center;">
-                            <div style="font-size: 1.5em; font-weight: 700; color: #10b981;">${workStylesCount}</div>
-                            <div style="font-size: 0.8em; color: #9ca3af;">Work Styles</div>
-                        </div>
-                        <div style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); padding: 10px; border-radius: 6px; text-align: center;">
-                            <div style="font-size: 1.5em; font-weight: 700; color: #fbbf24;">${uniqueCount}</div>
-                            <div style="font-size: 0.8em; color: #9ca3af;">Unique</div>
-                        </div>
-                    </div>
-                    
-                    <div class="skill-filter-controls" style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                        <select id="skillCategoryFilter" onchange="filterSkillsList()" class="settings-select" style="max-width: 200px;">
-                            <option value="all">All Categories</option>
-                            <option value="skill">O*NET Skills (${onetSkillsCount})</option>
-                            <option value="ability">O*NET Abilities (${abilitiesCount})</option>
-                            <option value="workstyle">Work Styles (${workStylesCount})</option>
-                            <option value="unique">Unique (${uniqueCount})</option>
-                        </select>
-                        <input type="text" id="skillSearchInput" placeholder="Search skills..." class="settings-input" 
-                               style="max-width: 300px;" oninput="filterSkillsList()">
-                    </div>
-                    
-                    <div id="skillsList" style="max-height: 600px; overflow-y: auto;">
-                        ${renderSkillsList()}
-                    </div>
-                </div>
-            `;
-        }
+        // [removed] renderSkillManagement — dead code cleanup v4.22.0
         
         function renderSkillsList() {
             const categoryFilter = document.getElementById('skillCategoryFilter')?.value || 'all';
@@ -18201,7 +17787,7 @@ body {
                                 <div style="display: flex; gap: 8px; flex-shrink: 0;">
                                     <button onclick="openEditSkillModal('${skill.name.replace(/'/g, "\\'")}', '${category}')" 
                                             style="padding: 6px 12px; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 4px; cursor: pointer; font-size: 0.9em; white-space: nowrap;">
-                                        ' + bpIcon('edit',12) + ' Edit
+                                        ${bpIcon("edit",12)} Edit
                                     </button>
                                     <button onclick="confirmDeleteSkill('${skill.name.replace(/'/g, "\\'")}', '${category}')" 
                                             style="padding: 6px 12px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 4px; cursor: pointer; font-size: 0.9em; white-space: nowrap;">
@@ -18429,22 +18015,22 @@ body {
                 <div class="modal-body" style="padding: 30px;">
                     <div style="display: grid; gap: 20px;">
                         <div>
-                            <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">Job Title *</label>
+                            <label class="settings-label">Job Title *</label>
                             <input type="text" id="appTitle" value="${jobData?.title || ''}" class="settings-input" required>
                         </div>
                         
                         <div>
-                            <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">Company *</label>
+                            <label class="settings-label">Company *</label>
                             <input type="text" id="appCompany" value="${jobData?.company || ''}" class="settings-input" required>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                             <div>
-                                <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">Applied Date *</label>
+                                <label class="settings-label">Applied Date *</label>
                                 <input type="date" id="appDate" value="${new Date().toISOString().split('T')[0]}" class="settings-input" required>
                             </div>
                             <div>
-                                <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">Status</label>
+                                <label class="settings-label">Status</label>
                                 <select id="appStatus" class="settings-select">
                                     <option value="applied">Applied</option>
                                     <option value="interviewing">Interviewing</option>
@@ -18456,27 +18042,27 @@ body {
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                             <div>
-                                <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">Salary Range</label>
+                                <label class="settings-label">Salary Range</label>
                                 <input type="text" id="appSalary" value="${jobData?.salary || ''}" placeholder="e.g., $150k-$200k" class="settings-input">
                             </div>
                             <div>
-                                <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">Match Score</label>
+                                <label class="settings-label">Match Score</label>
                                 <input type="number" id="appMatch" value="${jobData?.matchScore || ''}" min="0" max="100" class="settings-input">
                             </div>
                         </div>
                         
                         <div>
-                            <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">Job URL</label>
+                            <label class="settings-label">Job URL</label>
                             <input type="url" id="appUrl" value="${jobData?.url || ''}" placeholder="https://" class="settings-input">
                         </div>
                         
                         <div>
-                            <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">Follow-Up Date</label>
+                            <label class="settings-label">Follow-Up Date</label>
                             <input type="date" id="appFollowUp" class="settings-input">
                         </div>
                         
                         <div>
-                            <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">Notes</label>
+                            <label class="settings-label">Notes</label>
                             <textarea id="appNotes" class="purpose-editor" style="min-height: 80px;" placeholder="Contact names, interview details, etc."></textarea>
                         </div>
                     </div>
@@ -18555,17 +18141,17 @@ body {
                 <div class="modal-body" style="padding: 30px;">
                     <div style="display: grid; gap: 20px;">
                         <div>
-                            <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">Job Title</label>
+                            <label class="settings-label">Job Title</label>
                             <input type="text" id="editAppTitle" value="${app.title}" class="settings-input">
                         </div>
                         
                         <div>
-                            <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">Company</label>
+                            <label class="settings-label">Company</label>
                             <input type="text" id="editAppCompany" value="${app.company}" class="settings-input">
                         </div>
                         
                         <div>
-                            <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">Status</label>
+                            <label class="settings-label">Status</label>
                             <select id="editAppStatus" class="settings-select">
                                 <option value="applied" ${app.status === 'applied' ? 'selected' : ''}>Applied</option>
                                 <option value="interviewing" ${app.status === 'interviewing' ? 'selected' : ''}>Interviewing</option>
@@ -18575,12 +18161,12 @@ body {
                         </div>
                         
                         <div>
-                            <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">Follow-Up Date</label>
+                            <label class="settings-label">Follow-Up Date</label>
                             <input type="date" id="editAppFollowUp" value="${app.nextFollowUp || ''}" class="settings-input">
                         </div>
                         
                         <div>
-                            <label style="color: #60a5fa; font-weight: 600; display: block; margin-bottom: 8px;">Notes</label>
+                            <label class="settings-label">Notes</label>
                             <textarea id="editAppNotes" class="purpose-editor" style="min-height: 80px;">${app.notes || ''}</textarea>
                         </div>
                     </div>
@@ -18707,7 +18293,7 @@ body {
                 <div class="blueprint-section">
                     <div class="blueprint-section-header">
                         <div class="blueprint-section-title">
-                            <span class="section-icon">' + bpIcon('bar-chart',18) + '</span>
+                            <span class="section-icon">${bpIcon('bar-chart',18)}</span>
                             <span>What You're Sharing</span>
                         </div>
                     </div>
@@ -18915,10 +18501,10 @@ body {
                     userData.profile.photo = dataUrl;
                     // Update preview
                     var preview = document.getElementById('settingPhotoPreview');
-                    if (preview) preview.innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;object-fit:cover;">';
+                    if (preview) preview.innerHTML = '<img src="' + dataUrl + '" alt="Profile photo" style="width:100%;height:100%;object-fit:cover;">';
                     // Update header chip
                     var avatar = document.getElementById('profileAvatar');
-                    if (avatar) { avatar.innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'; }
+                    if (avatar) { avatar.innerHTML = '<img src="' + dataUrl + '" alt="Profile photo" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'; }
                     saveUserData();
                     showToast('Profile photo updated.', 'success');
                 };
@@ -21313,7 +20899,7 @@ body {
             const isDark = html.getAttribute('data-theme') !== 'light';
             html.setAttribute('data-theme', isDark ? 'light' : 'dark');
             document.getElementById('themeToggleBtn').textContent = isDark ? '☀️' : '🌙';
-            localStorage.setItem('wbTheme', isDark ? 'light' : 'dark');
+            safeSet('wbTheme', isDark ? 'light' : 'dark');
             
             // Re-render current view so tv()/tb() inline styles pick up new theme
             if (typeof currentView !== 'undefined' && currentView) {
@@ -21338,7 +20924,7 @@ body {
         window.toggleTheme = toggleTheme;
 
         function initTheme() {
-            const saved = localStorage.getItem('wbTheme') || 'dark';
+            const saved = safeGet('wbTheme') || 'dark';
             document.documentElement.setAttribute('data-theme', saved);
             const btn = document.getElementById('themeToggleBtn');
             if (btn) btn.textContent = saved === 'light' ? '☀️' : '🌙';
@@ -21390,7 +20976,7 @@ body {
             const chipName = document.getElementById('profileChipName');
             if (avatar) {
                 if (userData.profile && userData.profile.photo) {
-                    avatar.innerHTML = '<img src="' + userData.profile.photo + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+                    avatar.innerHTML = '<img src="' + userData.profile.photo + '" alt="Profile photo" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
                 } else {
                     avatar.textContent = initials;
                 }
@@ -21595,22 +21181,8 @@ body {
         
         let bulkSelectionMode = false;
         let selectedSkills = [];
-        
-        
-        
-        function selectAllSkills() {
-            selectedSkills = userData.skills.map(s => s.name);
-            refreshSkillsList();
-        }
-        
-        
-        function updateBulkModeBar() {
-            const bar = document.getElementById('bulkModeBar');
-            if (bar) {
-                const count = selectedSkills.length;
-                bar.querySelector('.selected-count').textContent = `${count} selected`;
-            }
-        }
+        // [removed] selectAllSkills — dead code cleanup v4.22.0
+        // [removed] updateBulkModeBar — dead code cleanup v4.22.0
         
         
         
