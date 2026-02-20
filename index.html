@@ -5576,7 +5576,7 @@
                 ? 'You\u2019re #' + (waitlistPosition || '?') + ' on the waitlist! We\u2019ll unlock <strong>' + featureName + '</strong> when it\u2019s your turn.'
                 : 'Join the waitlist to unlock <strong>' + featureName + '</strong> and build your own Blueprint.';
             var btnText = appMode === 'waitlisted' ? 'Check Your Position' : 'Join the Waitlist';
-            var btnAction = appMode === 'waitlisted' ? 'closeExportModal(); showToast("You\\'re #' + (waitlistPosition || '?') + ' on the waitlist. We\\'ll be in touch!", "info");' : 'closeExportModal(); showWaitlist();';
+            var btnAction = appMode === 'waitlisted' ? "closeExportModal(); showToast('You are #" + (waitlistPosition || '?') + " on the waitlist. We will be in touch!', 'info');" : 'closeExportModal(); showWaitlist();';
             
             // Show as a modal overlay
             var modal = document.getElementById('exportModal');
@@ -5602,7 +5602,7 @@
         // Gated feature helper — returns a gated-prompt HTML block for inline use
         function gatedPromptHTML(featureName, description) {
             if (appMode === 'active' || appMode === 'invited') return '';
-            var btnAction = appMode === 'waitlisted' ? 'showToast("You\\'re on the waitlist! We\\'ll unlock this soon.", "info")' : 'showWaitlist()';
+            var btnAction = appMode === 'waitlisted' ? "showToast('You are on the waitlist! We will unlock this soon.', 'info')" : 'showWaitlist()';
             var btnText = appMode === 'waitlisted' ? 'You\u2019re on the list \u2714' : 'Join Waitlist for Access';
             return '<div class="gated-prompt">'
                 + '<div class="gp-icon">\uD83D\uDD12</div>'
