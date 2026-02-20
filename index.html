@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.0 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
+    <!-- v4.25.1.9 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4465,7 +4465,7 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.0 - BUILD 20260220-s14
+        // BLUEPRINT v4.25.1.9 - BUILD 20260220-s14
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -4480,7 +4480,7 @@
         // Samples default to Network view + scroll-to-top on all view switches
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   BLUEPRINT v4.25.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   BLUEPRINT v4.25.1.9                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Build: 20260220-find-jobs                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -5096,6 +5096,10 @@
                     // Refresh app mode and UI state after data load
                     if (typeof detectAppMode === 'function') detectAppMode();
                     if (typeof checkReadOnly === 'function') checkReadOnly();
+                    
+                    // Rescore jobs against current skills and reset views
+                    if (typeof rescoreAllJobs === 'function') rescoreAllJobs();
+                    window.opportunitiesInitialized = false;
                     
                     var skillCount = (data.skills || []).length;
                     console.log('✓ Loaded from Firestore:', skillCount, 'skills | admin:', fbIsAdmin, '| mode:', appMode);
@@ -7501,6 +7505,9 @@
             window.settingsInitialized = false;
             window.networkInitialized = false;
             window.cardViewInitialized = false;
+            
+            // Rescore jobs against the new profile's skills
+            if (typeof rescoreAllJobs === 'function') rescoreAllJobs();
             
             // Reset network state for new profile
             if (typeof activeRole !== 'undefined') activeRole = 'all';
@@ -16105,7 +16112,7 @@ body {
             html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">'
                 + '<div>'
                 + '<h2 style="font-family:Outfit,sans-serif; font-size:1.3em; font-weight:700; color:var(--text-primary); margin:0; letter-spacing:0.08em; text-transform:uppercase;">Job Pipeline</h2>'
-                + '<p style="font-size:0.85em; color:var(--text-muted); margin-top:4px;">Paste a job description to analyze your fit</p>'
+                + '<p style="font-size:0.85em; color:var(--text-muted); margin-top:4px;">Your saved jobs and skill match analysis</p>'
                 + '</div>'
                 + '<div style="display:flex; gap:8px;">'
                 + '<button onclick="rescoreAllJobs(); renderJobsSubTab();" style="'
@@ -23117,7 +23124,7 @@ body {
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2 class="modal-title">Blueprint</h2>
-                        <p style="color: #9ca3af; margin-top: 5px;">v4.18.1 · Your career, fully represented</p>
+                        <p style="color: #9ca3af; margin-top: 5px;">v4.25.1.9 · Your career, fully represented</p>
                     </div>
                     <button class="modal-close" onclick="closeExportModal()">×</button>
                 </div>
