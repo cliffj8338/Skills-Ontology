@@ -2423,6 +2423,19 @@
             letter-spacing: 0.5px;
         }
         
+        @media (max-width: 768px) {
+            .node.role text {
+                font-size: 9px;
+                letter-spacing: 0.3px;
+            }
+            .node.skill text {
+                font-size: 8px;
+            }
+            .node text {
+                text-shadow: 0 0 5px #000, 0 0 5px #000, 0 0 5px #000, 0 0 5px #000;
+            }
+        }
+        
         .node.center text {
             font-size: 16px;
             font-weight: bold;
@@ -8934,9 +8947,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             });
 
             // Create simulation with viewport-scaled forces
-            var linkDist = isMobile ? [90, 100] : [140 * scaleFactor, 160 * scaleFactor];
-            var chargeStr = isMobile ? [-200, -120] : [-250 * scaleFactor, -180 * scaleFactor];
-            var collisionR = isMobile ? [50, 45, 35] : [70 * scaleFactor, 65 * scaleFactor, 45 * scaleFactor];
+            var linkDist = isMobile ? [120, 110] : [140 * scaleFactor, 160 * scaleFactor];
+            var chargeStr = isMobile ? [-350, -150] : [-250 * scaleFactor, -180 * scaleFactor];
+            var collisionR = isMobile ? [55, 50, 30] : [70 * scaleFactor, 65 * scaleFactor, 45 * scaleFactor];
             var gravityCenter = height * 0.48; // Gravity pulls network toward visual center (below pinned name)
             
             simulation = d3.forceSimulation(nodes)
@@ -8955,10 +8968,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.type === "role") return collisionR[1];
                     return collisionR[2];
                 }))
-                .force("x", d3.forceX(width / 2).strength(isMobile ? 0.12 : 0.08))
-                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.12 : 0.08))
+                .force("x", d3.forceX(width / 2).strength(isMobile ? 0.08 : 0.08))
+                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.08 : 0.08))
                 .force("radial", d3.forceRadial(d => {
-                    if (d.type === "skill") return Math.min(width, height) * (isMobile ? 0.35 : 0.4) * scaleFactor;
+                    if (d.type === "skill") return Math.min(width, height) * (isMobile ? 0.38 : 0.4) * scaleFactor;
                     return 0;
                 }).strength(isMobile ? 0.15 : 0.1));
 
@@ -9023,7 +9036,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.type === 'skill') {
                         // Split long skill names into multiple lines
                         const words = d.name.split(' ');
-                        const maxWidth = 15; // characters per line
+                        const maxWidth = isMobile ? 12 : 15; // characters per line
                         let lines = [];
                         let currentLine = '';
                         
@@ -9048,8 +9061,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         });
                     } else {
                         // Single line for center and role nodes
+                        var label = d.name;
+                        // Truncate long role names on mobile
+                        if (isMobile && d.type === 'role' && label.length > 22) {
+                            label = label.substring(0, 20) + '\u2026';
+                        }
                         d3.select(this)
-                            .text(d.name)
+                            .text(label)
                             .attr("x", 0)
                             .attr("y", d => {
                                 if (d.type === "center") return Math.round(-45 * scaleFactor);
