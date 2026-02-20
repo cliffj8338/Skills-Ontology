@@ -1,5 +1,5 @@
-# PROJECT_CONTEXT.md — Blueprint v4.20.2 (Emoji Cleanup + Sample Mode)
-**Updated:** 2026-02-20 | **Lines:** 21,581 | **Functions:** ~435 | **Size:** ~1,157 KB | **Braces:** 0 (balanced)
+# PROJECT_CONTEXT.md — Blueprint v4.21.0 (Find Jobs — Live API Integration)
+**Updated:** 2026-02-20 | **Lines:** 21,592 | **Functions:** ~440 | **Size:** ~1,149 KB | **Braces:** 0 (balanced)
 
 ## What Is Blueprint
 
@@ -250,7 +250,16 @@ Theme toggle (dark/light), profile dropdown, filter panel, overflow menu. Help m
 
 ## Version History
 
-### v4.20.2 (current)
+### v4.21.0 (current)
+- **Find Jobs — Live API integration** — Complete rewrite of Find Jobs tab. Searches 3 free, no-auth job board APIs in parallel: Remotive (`remotive.com/api/remote-jobs`), Himalayas (`himalayas.app/jobs/api`), and Jobicy (`jobicy.com/api/v2/remote-jobs`). CORS proxy fallback chain (`corsproxy.io`, `allorigins.win`) for browser compatibility.
+- **Search UI** — Keyword input with Enter key support, category dropdown (12 categories mapped to each API's taxonomy), match threshold slider, and role suggestion chips from user's profile roles.
+- **Skill matching** — `quickScoreJob()` scores each remote job against user's skill profile using exact name matching + SKILL_SYNONYMS dictionary. Returns matched skills, gap skills, and percentage score. Replaces old `extractSkillsFromJobEnhanced` + `calculateMatchScore` pipeline for API results.
+- **Job result cards** — Each result shows title (linked), company, location, match percentage (color-coded), job type, salary, source badge (Remotive purple, Himalayas green, Jobicy blue), matched skill chips (green), gap skill chips (red), and action buttons (View, Add to Pipeline).
+- **Add to Pipeline** — `addRemoteJobToPipeline()` takes a remote job, runs full `parseJobLocally()` + `matchJobToProfile()` analysis, adds to `userData.savedJobs`, and persists to Firestore. Dedup check against existing pipeline. "In Pipeline" badge replaces Add button for already-saved jobs.
+- **Removed** old fetch functions (`fetchRemoteOKJobs`, `fetchWeWorkRemotelyJobs`, old `fetchRemotiveJobs`, `fetchArbeitnowJobs`) replaced with 3 new API-specific functions.
+- **API response normalization** — Each API returns different JSON schemas; fetch functions normalize to common `{id, title, company, location, type, url, salary, description, tags, matchScore, matchedSkills, gapSkills, source}` format.
+
+### v4.20.2
 - **Blueprint section header icons** — Outcomes I Drive (bar-chart), Values & Principles (star), Purpose Statement (target) all use bpIcon SVGs instead of emoji.
 - **Action button icons** — View All Skills, Manage Skills, Create Custom Skill, Bulk Import, Bulk Edit/Remove, Negotiation Guide all converted from emoji to bpIcon in both compensation modal and Settings > Manage Skills panel.
 - **Radio button icons** — "Skill Library only" and "Library + Current Profile" destination radio buttons in Bulk Import modal use data-icon hydration for book/profile SVGs.
@@ -449,7 +458,7 @@ Sessions stored in `/mnt/transcripts/`:
 ### High Priority
 - **Professional resume generation** — Next major feature per Cliff. Full ATS-compatible resume from profile data.
 - **Job application tracking integration** — Connect pipeline jobs to tracker (basic integration done in v4.20.0, needs "Track This" button from job detail)
-- **Find Jobs tab** — Remote API job search functionality (UI stub exists)
+- **Find Jobs enhancements** — Add pagination, sorting options, save search preferences, more API sources
 - **Remaining emoji cleanup** — ~50 emoji instances in deep UI (wizard, role data, filter chips, skill modal badges). Low priority since user-facing surfaces are clean.
 
 ### Medium Priority
