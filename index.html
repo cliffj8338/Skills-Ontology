@@ -2244,9 +2244,8 @@
         .match-active-badge button:hover { color: #ef4444; }
         
         .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-            gap: 25px;
+            column-count: 3;
+            column-gap: 20px;
             max-width: 1600px;
             margin: 0 auto;
         }
@@ -2257,6 +2256,8 @@
             border-radius: 12px;
             padding: 20px;
             transition: all 0.3s ease;
+            break-inside: avoid;
+            margin-bottom: 20px;
         }
         
         .domain-card:hover {
@@ -2274,7 +2275,10 @@
         }
         
         .domain-icon {
-            font-size: 24px;
+            display: inline-flex;
+            align-items: center;
+            color: #60a5fa;
+            opacity: 0.8;
         }
         
         .domain-title {
@@ -2337,8 +2341,7 @@
         /* Mobile card view */
         @media (max-width: 768px) {
             .cards-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
+                column-count: 1;
             }
             
             #cardView {
@@ -2367,6 +2370,12 @@
             /* On mobile, badges wrap below the skill name naturally */
             .skill-badge, .skill-years, .skill-impact-badge {
                 font-size: 0.68em;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 1200px) {
+            .cards-grid {
+                column-count: 2;
             }
         }
         
@@ -3666,18 +3675,24 @@
             </div>
         </div>
         
-        <!-- Network active filter indicator (floats when role is selected via node click) -->
-        <div id="networkFilterPill" style="display:none; position:absolute; top:110px; left:50%; transform:translateX(-50%);
-            z-index:50; background:var(--bg-elevated); border:1px solid var(--accent); border-radius:20px;
-            padding:6px 14px 6px 12px; font-family:'Outfit',sans-serif; font-size:0.75em; font-weight:500;
-            color:var(--accent); display:none; align-items:center; gap:8px; backdrop-filter:blur(12px);
-            box-shadow:0 4px 16px rgba(0,0,0,0.2); cursor:default; letter-spacing:0.04em;">
-            <span id="networkFilterPillDot" style="width:8px; height:8px; border-radius:50%; flex-shrink:0;"></span>
-            <span id="networkFilterPillText"></span>
-            <button onclick="filterByRole('all')" style="background:none; border:none; color:var(--text-muted);
-                cursor:pointer; font-size:1.2em; padding:0 0 0 4px; line-height:1;"
-                onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'">&times;</button>
+        <!-- Role Info Card (appears when role node clicked in network) -->
+        <div id="roleInfoCard" style="display:none; position:absolute; top:108px; left:16px;
+            z-index:50; background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px;
+            padding:16px 18px; font-family:'Outfit',sans-serif; min-width:220px; max-width:280px;
+            backdrop-filter:blur(16px); box-shadow:0 8px 32px rgba(0,0,0,0.3); cursor:default;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span id="roleInfoDot" style="width:10px; height:10px; border-radius:50%; flex-shrink:0;"></span>
+                    <span id="roleInfoName" style="font-weight:700; font-size:0.95em; color:var(--text-primary);"></span>
+                </div>
+                <button onclick="filterByRole('all')" style="background:none; border:none; color:var(--text-muted);
+                    cursor:pointer; font-size:1.1em; padding:0; line-height:1; margin-left:8px;"
+                    onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'">&times;</button>
+            </div>
+            <div id="roleInfoStats" style="font-size:0.82em; color:var(--text-secondary); line-height:1.6;"></div>
         </div>
+        <!-- Legacy pill reference kept for compat -->
+        <div id="networkFilterPill" style="display:none;"><span id="networkFilterPillDot"></span><span id="networkFilterPillText"></span></div>
     </div>
     
     <div class="main-content">
@@ -4363,12 +4378,12 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.20.0 - BUILD 20260219-0335
+        // BLUEPRINT v4.20.1 - BUILD 20260219-0335
         // Samples default to Network view + scroll-to-top on all view switches
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   BLUEPRINT v4.20.0                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260220-nav-icons                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   BLUEPRINT v4.20.1                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260220-ux-polish                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -5288,7 +5303,7 @@
                 + '<button onclick="viewSampleProfile()" style="'
                 + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; '
                 + 'background:transparent; color:var(--accent); border:2px solid var(--accent); transition:all 0.2s;'
-                + '">\uD83D\uDCCA View Sample Profiles</button>'
+                + '">' + bpIcon('users',16) + ' View Sample Profiles</button>'
                 + '<button onclick="showAuthModal(\x27signup\x27)" style="'
                 + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; '
                 + 'background:var(--accent); color:#fff; border:2px solid var(--accent); transition:all 0.2s;'
@@ -9058,6 +9073,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             });
 
             window.networkData = { nodes, links, svg, link, node };
+            setTimeout(applyLabelToggles, 100);
             
             // On mobile: hide skill labels by default (too cluttered), show role labels
             if (isMobile) {
@@ -9149,6 +9165,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         function setNetworkMatchMode(mode) {
             networkMatchMode = mode;
             updateMatchOverlayUI();
+            // Ensure label toggles are visible for all network modes
+            var nc = document.getElementById('networkControls');
+            if (nc) nc.style.display = '';
             
             // Remove any existing overlays
             var legend = document.getElementById('matchLegend');
@@ -9291,6 +9310,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Add job info tile
             addJobInfoTile(job);
+            setTimeout(applyLabelToggles, 100);
         }
         
         // ===== MATCH OVERLAY NETWORK =====
@@ -9505,6 +9525,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Add legend and job info tile
             addMatchLegend(match);
             addJobInfoTile(job);
+            setTimeout(applyLabelToggles, 100);
         }
         
         function addJobInfoTile(job) {
@@ -9636,36 +9657,36 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // then fall back to O*NET category, then "Other Skills" catch-all.
 
             const roleIconMap = {
-                // Common role name patterns → icon
-                'strategy': '🎯', 'vp': '🎯', 'director': '🎯', 'executive': '🎯', 'chief': '🎯',
-                'technology': '⚙️', 'engineer': '⚙️', 'developer': '⚙️', 'tech': '⚙️', 'software': '⚙️',
-                'product': '📦', 'manager': '📦',
-                'data': '🔬', 'analyst': '🔬', 'research': '🔬', 'science': '🔬',
-                'design': '🎨', 'creative': '🎨', 'ux': '🎨', 'artist': '🎨',
-                'marketing': '📣', 'communication': '📣', 'sales': '📣', 'content': '📣',
-                'hr': '👥', 'talent': '👥', 'people': '👥', 'recruiting': '👥',
-                'finance': '💰', 'accounting': '💰', 'operations': '💰',
-                'pilot': '✈️', 'aviation': '✈️', 'flight': '✈️',
-                'music': '🎵', 'musician': '🎵', 'performer': '🎵', 'artist': '🎵',
-                'advocate': '💚', 'nonprofit': '💚', 'community': '💚',
-                'futurist': '🔮', 'innovation': '🔮', 'evangelist': '🔮',
-                'entrepreneur': '🚀', 'founder': '🚀', 'startup': '🚀',
-                'consultant': '💼', 'advisor': '💼',
+                // Common role name patterns → SVG icon name
+                'strategy': 'target', 'vp': 'target', 'director': 'target', 'executive': 'target', 'chief': 'target',
+                'technology': 'tool', 'engineer': 'tool', 'developer': 'tool', 'tech': 'tool', 'software': 'tool',
+                'product': 'layers', 'manager': 'layers',
+                'data': 'database', 'analyst': 'database', 'research': 'database', 'science': 'database',
+                'design': 'compass', 'creative': 'compass', 'ux': 'compass', 'artist': 'compass',
+                'marketing': 'send', 'communication': 'send', 'sales': 'send', 'content': 'send',
+                'hr': 'users', 'talent': 'users', 'people': 'users', 'recruiting': 'users',
+                'finance': 'dollar', 'accounting': 'dollar', 'operations': 'dollar',
+                'pilot': 'compass', 'aviation': 'compass', 'flight': 'compass',
+                'music': 'heart', 'musician': 'heart', 'performer': 'heart',
+                'advocate': 'heart', 'nonprofit': 'heart', 'community': 'heart',
+                'futurist': 'zap', 'innovation': 'zap', 'evangelist': 'zap',
+                'entrepreneur': 'trending-up', 'founder': 'trending-up', 'startup': 'trending-up',
+                'consultant': 'briefcase', 'advisor': 'briefcase',
             };
 
             const categoryMeta = {
-                'skill':      { label: 'Skills',       icon: '🗺️' },
-                'ability':    { label: 'Abilities',     icon: '⚡' },
-                'workstyle':  { label: 'Work Style',    icon: '🧭' },
-                'unique':     { label: 'Unique Strengths', icon: '⭐' },
+                'skill':      { label: 'Skills',       iconName: 'compass' },
+                'ability':    { label: 'Abilities',     iconName: 'zap' },
+                'workstyle':  { label: 'Work Style',    iconName: 'flag' },
+                'unique':     { label: 'Unique Strengths', iconName: 'star' },
             };
 
             function getRoleIcon(roleName) {
                 const lower = (roleName || '').toLowerCase();
-                for (const [keyword, icon] of Object.entries(roleIconMap)) {
-                    if (lower.includes(keyword)) return icon;
+                for (const [keyword, iconName] of Object.entries(roleIconMap)) {
+                    if (lower.includes(keyword)) return bpIcon(iconName, 20);
                 }
-                return '💼';
+                return bpIcon('briefcase', 20);
             }
 
             const domains = {};
@@ -9682,7 +9703,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             });
 
             // Catch-all domains for skills without a role or for category fallback
-            const uncategorized = { label: 'Other Skills', icon: '🗺️', skills: [] };
+            const uncategorized = { label: 'Other Skills', icon: bpIcon('compass', 20), skills: [] };
 
             // Level priority for sorting within domains
             const levelPriority = { Mastery: 5, Expert: 4, Advanced: 3, Proficient: 2, Novice: 1 };
@@ -9725,7 +9746,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         const meta = categoryMeta[cat] || categoryMeta['skill'];
                         const key = '__cat_' + cat;
                         if (!finalDomains[key]) {
-                            finalDomains[key] = { label: meta.label, icon: meta.icon, skills: [] };
+                            finalDomains[key] = { label: meta.label, icon: bpIcon(meta.iconName || 'compass', 20), skills: [] };
                         }
                         finalDomains[key].skills.push(skill);
                     });
@@ -9737,7 +9758,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     const cat = skill.category || 'skill';
                     const meta = categoryMeta[cat] || categoryMeta['skill'];
                     if (!finalDomains[cat]) {
-                        finalDomains[cat] = { label: meta.label, icon: meta.icon, skills: [] };
+                        finalDomains[cat] = { label: meta.label, icon: bpIcon(meta.iconName || 'compass', 20), skills: [] };
                     }
                     finalDomains[cat].skills.push(skill);
                 });
@@ -9840,7 +9861,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     + 'border:1px solid rgba(96,165,250,0.15);">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                     + '<h3 style="font-size:0.92em; font-weight:700; color:var(--accent); margin:0;">'
-                    + '\uD83D\uDCA1 Suggested Skills for Your Roles</h3>'
+                    + bpIcon('lightbulb',16) + ' Suggested Skills for Your Roles</h3>'
                     + '<span style="font-size:0.72em; color:var(--text-muted);">Based on industry standards</span></div>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 suggestions.slice(0, 20).forEach(function(s) {
@@ -9954,10 +9975,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 var mb = document.getElementById('matchActiveBadge');
                 var ml = document.getElementById('matchLegend');
                 var jt = document.getElementById('jobInfoTile');
+                var ric = document.getElementById('roleInfoCard');
                 if (mt) mt.style.display = 'none';
                 if (mb) mb.style.display = 'none';
                 if (ml) ml.remove();
                 if (jt) jt.remove();
+                if (ric) ric.style.display = 'none';
             }
 
             // Update mobile nav
@@ -10193,15 +10216,42 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
         
         function toggleLabels(type) {
-            if (!window.networkData) return;
-            const { node } = window.networkData;
+            // v4.20.1: Read actual checkbox state and apply to ANY active network SVG
+            var svg = d3.select("#networkView");
+            if (svg.empty()) return;
             
-            node.selectAll('text')
-                .filter(d => d.type === type)
-                .classed('hidden', function() {
-                    return !this.classList.contains('hidden');
-                });
+            // Find the checkbox for this type
+            var checkboxes = document.querySelectorAll('#networkControls input[type="checkbox"]');
+            var isChecked = true;
+            checkboxes.forEach(function(cb) {
+                // Role checkbox is first, Skill checkbox is second
+                if (type === 'role' && cb === checkboxes[0]) isChecked = cb.checked;
+                if (type === 'skill' && cb === checkboxes[1]) isChecked = cb.checked;
+            });
+            
+            svg.selectAll('text')
+                .filter(function(d) { return d && d.type === type; })
+                .classed('hidden', !isChecked);
         }
+        
+        // Apply current toggle states to network after any re-render
+        function applyLabelToggles() {
+            var checkboxes = document.querySelectorAll('#networkControls input[type="checkbox"]');
+            if (checkboxes.length >= 2) {
+                var roleChecked = checkboxes[0].checked;
+                var skillChecked = checkboxes[1].checked;
+                var svg = d3.select("#networkView");
+                if (!svg.empty()) {
+                    svg.selectAll('text')
+                        .filter(function(d) { return d && d.type === 'role'; })
+                        .classed('hidden', !roleChecked);
+                    svg.selectAll('text')
+                        .filter(function(d) { return d && d.type === 'skill'; })
+                        .classed('hidden', !skillChecked);
+                }
+            }
+        }
+        window.applyLabelToggles = applyLabelToggles;
 
         // Render dynamic role chips and level counts from current profile data
         function renderFilterChips() {
@@ -10242,15 +10292,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 chip.classList.toggle('active', chip.dataset.role === roleId);
             });
             
-            // Update network filter pill indicator
-            var nfPill = document.getElementById('networkFilterPill');
-            var nfText = document.getElementById('networkFilterPillText');
-            var nfDot = document.getElementById('networkFilterPillDot');
-            if (nfPill && currentSkillsView === 'network') {
+            // Update Role Info Card
+            var ric = document.getElementById('roleInfoCard');
+            if (ric && currentSkillsView === 'network') {
                 if (roleId === 'all') {
-                    nfPill.style.display = 'none';
+                    ric.style.display = 'none';
                 } else {
-                    // Find the role name and color
                     var roleName = roleId;
                     var roleColor = 'var(--accent)';
                     if (window.networkData && window.networkData.nodes) {
@@ -10260,11 +10307,42 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                             roleColor = roleNode.color || 'var(--accent)';
                         }
                     }
-                    if (nfText) nfText.textContent = roleName;
-                    if (nfDot) nfDot.style.background = roleColor;
-                    nfPill.style.display = 'flex';
+                    
+                    document.getElementById('roleInfoName').textContent = roleName;
+                    document.getElementById('roleInfoDot').style.background = roleColor;
+                    
+                    // Build stats from skills data
+                    var roleSkills = skillsData.skills.filter(function(s) { return s.roles && s.roles.includes(roleId); });
+                    var levelCounts = {};
+                    var keyCount = 0;
+                    roleSkills.forEach(function(s) {
+                        levelCounts[s.level] = (levelCounts[s.level] || 0) + 1;
+                        if (s.key) keyCount++;
+                    });
+                    
+                    var statsHtml = '<div style="margin-bottom:6px;">' + bpIcon('layers',13) + ' <strong>' + roleSkills.length + '</strong> skills</div>';
+                    var levelOrder = ['Mastery', 'Expert', 'Advanced', 'Proficient', 'Novice'];
+                    var levelIcons = { Mastery: '#f59e0b', Expert: '#a855f7', Advanced: '#3b82f6', Proficient: '#10b981', Novice: '#6b7280' };
+                    var levelBars = '';
+                    levelOrder.forEach(function(lv) {
+                        if (levelCounts[lv]) {
+                            levelBars += '<div style="display:flex; align-items:center; gap:6px;">'
+                                + '<span style="width:6px; height:6px; border-radius:50%; background:' + levelIcons[lv] + ';"></span>'
+                                + '<span style="min-width:65px;">' + lv + '</span>'
+                                + '<span style="font-weight:600; color:' + levelIcons[lv] + ';">' + levelCounts[lv] + '</span>'
+                                + '</div>';
+                        }
+                    });
+                    if (levelBars) statsHtml += '<div style="display:flex; flex-direction:column; gap:3px; margin-top:6px;">' + levelBars + '</div>';
+                    if (keyCount > 0) statsHtml += '<div style="margin-top:8px; padding-top:8px; border-top:1px solid var(--border);">' + bpIcon('star',13) + ' <strong>' + keyCount + '</strong> core competencies</div>';
+                    
+                    document.getElementById('roleInfoStats').innerHTML = statsHtml;
+                    ric.style.display = 'block';
                 }
             }
+            // Keep legacy pill in sync for any external references
+            var nfPill = document.getElementById('networkFilterPill');
+            if (nfPill) nfPill.style.display = 'none';
 
             if (!window.networkData) return;
 
@@ -10303,10 +10381,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 return d.source.id === roleId && relevantSkills.includes(d.target.id);
             });
             
-            // STORYTELLING MODE: Hide skill labels that aren't in this role
+            // STORYTELLING MODE: Show only relevant labels + selected role
             node.selectAll('text').classed('hidden', function(d) {
                 if (d.type === 'center') return false;
-                if (d.type === 'role') return d.id !== roleId; // Hide non-active role labels
+                if (d.type === 'role') return true; // Hide ALL role labels (info card shows selected role)
                 return !relevantSkills.includes(d.id); // Hide non-relevant skill labels
             });
         }
@@ -13944,7 +14022,7 @@ body {
             
             if (jobs.length === 0) {
                 html += '<div style="text-align:center; padding:60px 20px;">'
-                    + '<div style="font-size:2.5em; margin-bottom:12px;">🎯</div>'
+                    + '<div style="margin-bottom:16px; opacity:0.4;">' + bpIcon('target',48) + '</div>'
                     + '<div style="font-size:1.1em; font-weight:600; color:var(--text-primary); margin-bottom:8px;">No jobs yet</div>'
                     + '<div style="color:var(--text-muted); max-width:400px; margin:0 auto 24px; line-height:1.5;">'
                     + 'Paste a job description and see exactly how your skills map to what they need. Not a percentage. A network.</div>'
@@ -15246,6 +15324,18 @@ body {
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Overall Match</div>'
                 + '</div></div>';
             
+            // Network Overlay CTA (prominent, above the fold)
+            html += '<div style="display:flex; align-items:center; gap:16px; padding:16px 20px; margin-bottom:20px; '
+                + 'border-radius:10px; background:linear-gradient(135deg, rgba(30,64,175,0.12), rgba(96,165,250,0.06)); '
+                + 'border:1px solid rgba(96,165,250,0.25);">'
+                + '<button onclick="activateJobOverlay(' + idx + ')" style="'
+                + 'background:var(--accent); color:#fff; border:none; padding:10px 20px; border-radius:8px; '
+                + 'cursor:pointer; font-weight:600; font-size:0.9em; display:flex; align-items:center; gap:8px; white-space:nowrap;">'
+                + bpIcon('network',16) + ' Compare Skills</button>'
+                + '<div style="font-size:0.82em; color:var(--text-muted); line-height:1.4;">'
+                + 'See your skills as connected nodes alongside job requirements. Toggle between your network, job view, and match overlay.</div>'
+                + '</div>';
+            
             // Summary stats
             var profGapCount = matched.filter(function(m) { return m.profGap; }).length;
             html += '<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:24px;">'
@@ -15412,17 +15502,7 @@ body {
                 html += '</div></div>';
             }
             
-            // Action: view in network overlay
-            html += '<div style="padding:20px; border-radius:10px; margin-top:16px; '
-                + 'background:linear-gradient(135deg, rgba(30,64,175,0.1), rgba(96,165,250,0.05)); '
-                + 'border:1px solid rgba(96,165,250,0.2);">'
-                + '<div style="display:flex; align-items:center; gap:12px;">'
-                + '<button onclick="activateJobOverlay(' + idx + ')" style="'
-                + 'background:var(--accent); color:#fff; border:none; padding:12px 24px; border-radius:8px; '
-                + 'cursor:pointer; font-weight:600; font-size:0.95em; display:flex; align-items:center; gap:8px;">'
-                + '\uD83D\uDD2E View Network Overlay</button>'
-                + '<div style="font-size:0.85em; color:var(--text-muted);">See matched, gap, and surplus skills as connected nodes. Toggle between your network, job requirements, and the overlay.</div>'
-                + '</div></div>';
+            // [v4.20.1] Overlay CTA moved to top of job detail
             
             el.innerHTML = html;
         }

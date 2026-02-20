@@ -1,5 +1,5 @@
-# PROJECT_CONTEXT.md — Blueprint v4.19.2 (Stabilized)
-**Updated:** 2026-02-20 | **Lines:** 21,149 | **Functions:** 415 | **Size:** 1,091 KB | **Braces:** 0 (balanced)
+# PROJECT_CONTEXT.md — Blueprint v4.20.1 (UX Polish + Network Fixes)
+**Updated:** 2026-02-20 | **Lines:** 21,540 | **Functions:** ~430 | **Size:** ~1,153 KB | **Braces:** 0 (balanced)
 
 ## What Is Blueprint
 
@@ -12,7 +12,10 @@ Blueprint is a single-page career ontology platform that maps a person's full pr
 ## Architecture Overview
 
 ### Single-File SPA
-Everything lives in one `index.html`: CSS (lines 1-3600), HTML structure (3600-3700), JavaScript (3700-21149). No build tools, no bundler, no framework. Pure vanilla JS with D3.js for network visualization.
+Everything lives in one `index.html`: CSS (lines 1-3600), HTML structure (3600-3700), JavaScript (3700-21460). No build tools, no bundler, no framework. Pure vanilla JS with D3.js for network visualization.
+
+### Icon System (v4.20.0)
+`bpIcon(name, size)` — Returns inline SVG strings for ~60 stroke-based icons using `currentColor`. Icons are theme-aware (dark/light) and replace all emoji throughout the UI. Hydrated at init via `hydrateIcons()` for static HTML elements (nav, mobile nav, overflow menu). Dynamic elements call `bpIcon()` directly in render functions.
 
 ### External Dependencies
 - **D3.js v7** — Network graph visualization (CDN)
@@ -87,14 +90,20 @@ Two primary state objects, kept in sync:
 | Toast Notifications | 2400-2500 | Toast container, animations |
 | Wizard | 2500-2650 | Onboarding wizard overlay |
 | Mobile Responsiveness | 2650-3189 | `@media (max-width: 768px)` overrides |
-| Auth Modal | 3189-3600 | Sign in/up modal styles |
+| Icon System | 3189-3210 | `.nav-icon`, `.overflow-icon`, `.section-icon` SVG alignment |
+| Auth Modal | 3210-3600 | Sign in/up modal styles |
 
 ---
 
 ## JavaScript Architecture (Lines 3700-21149)
 
-### Firebase & Auth (L4280-4700, 18 functions)
+### Firebase & Auth (L4400-4800, 18 functions)
 `showAuthModal`, `authWithGoogle`, `authEmailSignIn`, `authEmailSignUp`, `authSendMagicLink`, `authSignOut`, `checkMagicLinkSignIn`, `handlePostSignIn`, `checkAdminRole`, `updateAuthUI`, `rebuildProfileDropdown`, `saveToFirestore`, `loadUserFromFirestore`
+
+### Icon System (L4375-4500, 2 functions)
+`bpIcon(name, size)` — Returns inline SVG string for named icon. ~60 icons covering nav, settings, export, sections.
+`hydrateIcons()` — Scans DOM for `[data-icon]` elements and injects SVG markup. Called once after init.
+`applyLabelToggles()` — Reads checkbox state from networkControls and applies hidden/visible to SVG text elements. Called after every network init (You/Job/Match).
 
 Key patterns: Auth state listener updates `fbUser`/`fbIsAdmin`, triggers `updateAuthUI()`. Post-signin loads from Firestore or falls back to localStorage. Firestore serializer preserves all fields including `sample` flag on jobs.
 
@@ -241,7 +250,26 @@ Theme toggle (dark/light), profile dropdown, filter panel, overflow menu. Help m
 
 ## Version History
 
-### v4.19.2 (current, stabilized)
+### v4.20.1 (current)
+- **"Compare Skills" CTA moved above the fold** in Job detail. Previously "View Network Overlay" was buried at bottom of job detail page. Now positioned right after job header + match score, with bpIcon('network') icon and descriptive text.
+- **Card view masonry layout** — CSS columns (3-col desktop, 2-col tablet, 1-col mobile) replace fixed grid. `break-inside: avoid` eliminates empty space between domain cards. Cards stack naturally by content height.
+- **Toggle label fixes** — `toggleLabels()` rewritten to read actual checkbox state and query SVG directly (works across You/Job/Match networks). New `applyLabelToggles()` syncs toggle state after every network re-render. Called via `setTimeout` after `initNetwork()`, `initJobNetwork()`, `initMatchNetwork()`.
+- **Role Info Card** — Replaces the small filter pill. When clicking a role node in the network, a glass-morphism card appears (top-left, 220-280px wide) showing: role name with color dot, total skill count, proficiency distribution (Mastery/Expert/Advanced/Proficient/Novice with colored dots), and core competency count. All role labels hidden on network when a role is selected (card carries the context). Card dismissed via X button or clicking "All" filter.
+- **Card view SVG icons** — `roleIconMap` and `categoryMeta` converted from emoji to bpIcon names. `getRoleIcon()` returns SVG HTML. Domain header icons now theme-aware via `currentColor`.
+- **Empty state icons** — Jobs "no jobs yet" and Applications "no applications" use SVG icons instead of large emoji.
+- **Network controls visible in all modes** — Label toggles now show when in Job and Match network views, not just You view.
+
+### v4.20.0
+- **SVG Icon System:** `bpIcon()` function with ~60 stroke-based icons replacing all emoji. Icons use `currentColor` for automatic theme awareness. `hydrateIcons()` populates `data-icon` placeholders in static HTML.
+- **Nav Restructure:** Desktop nav reduced from 4+hidden to 4 clean tabs: Skills | Jobs | Blueprint | Settings. Applications folded into Jobs as "Tracker" sub-tab. Settings promoted from overflow menu to primary nav. Consent absorbed into Settings > Privacy & Data tab.
+- **Jobs sub-tabs:** Pipeline (was "Your Jobs") | Tracker (was standalone Applications view) | Find Jobs. Three-tab layout with icon labels.
+- **Settings Privacy & Data tab:** New `renderPrivacyAndData()` combines sharing presets, sharing summary, backup/restore, legal/privacy info, and GDPR data rights actions. Replaces separate Consent view.
+- **Overflow menu cleanup:** Removed Settings and Consent entries. Reduced to: Home, Build, Sample Profiles, Export, Help, About, Sign In/Out. All entries use SVG icons.
+- **Mobile nav:** Updated to match desktop: Skills | Jobs | Blueprint | Settings | More. SVG icons throughout.
+- **Export card icons:** All document generation cards (Executive Blueprint, Resume, PDF, Cover Letter, Interview Prep, LinkedIn, JSON) use purpose-specific SVG icons instead of emoji.
+- **Section header icons:** All coaching tips, section headers, and action buttons across Settings, Blueprint, and Export use `bpIcon()` calls.
+
+### v4.19.2 (stabilized)
 - **Stability audit:** 22-point lifecycle, safety, and functional integration check
 - **Network scaling:** Viewport-responsive `scaleFactor` (0.8-1.6) applied to all three network views
 - **Center node positioning:** Name pinned to upper area (`height * 0.22`) with gravity at `height * 0.48`
@@ -338,7 +366,15 @@ Theme toggle (dark/light), profile dropdown, filter panel, overflow menu. Help m
 Most modals reuse `exportModal` container by swapping `.modal-content` innerHTML. Dedicated modals: `skillModal`, `customSkillModal`, `editSkillModal`, `assessSkillModal`, `bulkImportModal`, `bulkSkillManagerModal`, `onetPickerModal`, `skillManagementModal`.
 
 ### View System
-`switchView(viewName)` manages: 'skills' (network/card), 'opportunities' (jobs), 'applications', 'blueprint'. Each has an `init*` function called on first visit (lazy init). Cleanup on exit removes match overlays; return restores them.
+`switchView(viewName)` manages: 'skills' (network/card), 'opportunities' (jobs with pipeline/tracker/find sub-tabs), 'blueprint', 'settings' (profile/experience/preferences/privacy tabs), 'consent' (legacy, redirects to settings>privacy), 'welcome'. Each has an `init*` function called on first visit (lazy init). Cleanup on exit removes match overlays; return restores them.
+
+**Navigation structure (v4.20.0):**
+- **Desktop nav:** Skills | Jobs | Blueprint | Settings (4 primary tabs)
+- **Mobile nav:** Skills | Jobs | Blueprint | Settings | More (5 buttons)
+- **Jobs sub-tabs:** Pipeline | Tracker | Find Jobs (Applications folded into Jobs)
+- **Settings tabs:** Profile | Experience | Preferences | Privacy & Data (Consent absorbed)
+- **Blueprint tabs:** Outcomes | Values | Purpose | Export
+- **Overflow menu:** Home, Build My Blueprint, Sample Profiles, Export, Help, About, Sign In/Out
 
 ### Skill Level Scale
 6 levels: Novice (1) -> Competent (2) -> Proficient (3) -> Advanced (4) -> Expert (5) -> Mastery (6). `proficiencyValue(level)` converts name to number.
@@ -353,9 +389,15 @@ All sample/demo profile detection uses `profilesManifest.profiles.some(p => p.id
 
 ## Known Considerations
 
-1. **Parenthesis count is off by 3** — False alarm from parens inside regex patterns and template strings. Braces are perfectly balanced (4046/4046). App executes correctly.
+1. **Parenthesis count is off by 3** — False alarm from parens inside regex patterns and template strings. Braces are perfectly balanced (4091/4091). App executes correctly.
 
-2. **Console.logs (129)** — Kept intentionally for admin debugging. Key lifecycle markers (Firebase init, template loading, job scoring, profile type detection). No debugger statements.
+2. **Legacy Consent view still exists** — The `consentView` div and `initConsent()` function remain in the DOM/JS for backward compatibility. The consent view is no longer in primary navigation but can still be rendered if navigated to directly. Its content has been absorbed into Settings > Privacy & Data tab via `renderPrivacyAndData()`. Safe to remove in a future cleanup pass.
+
+3. **Legacy Applications view still exists** — The `applicationsView` div and `initApplications()` remain but `switchView('applications')` now redirects to Jobs > Tracker sub-tab. The old view is never displayed in normal navigation.
+
+4. **~80 emoji instances remain in deeper UI** — Skill modals, compensation modal, wizard steps, toast messages, filter panel labels ("📊 Your Skills"), and various inline labels still use native emoji. A systematic cleanup pass is queued.
+
+5. **Console.logs (129+)** — Kept intentionally for admin debugging. Key lifecycle markers (Firebase init, template loading, job scoring, profile type detection). No debugger statements.
 
 3. **var/let/const mix** — 1763 var, 75 let, 689 const. Older code uses var, newer uses const/let. Not causing issues but could be modernized.
 
@@ -386,7 +428,8 @@ Sessions stored in `/mnt/transcripts/`:
 14. `2026-02-19-23-18-33-valuation-caps-values-limit-fix.txt`
 15. `2026-02-19-23-47-43-salary-caps-sample-jobs-bls-data.txt`
 16. `2026-02-20-00-30-03-bls-wage-data-integration-v4-19.txt`
-17. `2026-02-20-01-00-26-job-info-tile-sample-jobs-v4-19-2.txt` (current session)
+17. `2026-02-20-01-00-26-job-info-tile-sample-jobs-v4-19-2.txt`
+18. `2026-02-20-nav-restructure-icon-system-v4-20.txt` (current session)
 
 ---
 
@@ -394,10 +437,12 @@ Sessions stored in `/mnt/transcripts/`:
 
 ### High Priority
 - **Professional resume generation** — Next major feature per Cliff. Full ATS-compatible resume from profile data.
-- **Job application tracking integration** — Connect pipeline jobs to application tracker
+- **Job application tracking integration** — Connect pipeline jobs to tracker (basic integration done in v4.20.0, needs "Track This" button from job detail)
 - **Find Jobs tab** — Remote API job search functionality (UI stub exists)
+- **Remaining emoji cleanup** — ~80 emoji instances remain in deeper UI (skill modals, compensation modal, wizard steps, toast messages, filter panel labels). Systematic pass to convert all to bpIcon()
 
 ### Medium Priority
+- **Career Narrative generator** — Synthesize outcomes + values + purpose into coherent story (enhances Purpose tab and export quality)
 - **Animated transitions between network modes** — Smooth morph between You/Job/Match views
 - **Drag-to-rearrange** in skill lists and card view
 - **Evidence management UX improvements** — Streamline add/edit/remove evidence workflow
@@ -408,6 +453,7 @@ Sessions stored in `/mnt/transcripts/`:
 - **Code splitting** — Break monolith into modules (would require build tooling)
 - **Offline support** — Service worker for PWA capability
 - **Import from LinkedIn** — Parse LinkedIn data export
+- **Remove legacy Consent view** — Currently still exists but redirects to Settings>Privacy. Can be fully removed after confirming no deep links depend on it.
 
 ---
 
