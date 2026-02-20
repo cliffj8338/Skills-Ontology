@@ -3938,11 +3938,11 @@
                         <div style="display:flex; gap:12px; flex-wrap:wrap;">
                             <label style="display:flex; align-items:center; gap:6px; cursor:pointer; padding:8px 14px; border-radius:6px; border:1px solid var(--border); background:var(--bg-card);">
                                 <input type="radio" name="bulkDestination" value="library" onchange="toggleBulkProfileOptions()">
-                                <span style="font-size:0.9em;">📚 Skill Library only</span>
+                                <span style="font-size:0.9em; display:inline-flex; align-items:center; gap:5px;"><span data-icon="book" class="nav-icon"></span> Skill Library only</span>
                             </label>
                             <label style="display:flex; align-items:center; gap:6px; cursor:pointer; padding:8px 14px; border-radius:6px; border:1px solid var(--border); background:var(--bg-card);">
                                 <input type="radio" name="bulkDestination" value="profile" checked onchange="toggleBulkProfileOptions()">
-                                <span style="font-size:0.9em;">👤 Library + Current Profile</span>
+                                <span style="font-size:0.9em; display:inline-flex; align-items:center; gap:5px;"><span data-icon="profile" class="nav-icon"></span> Library + Current Profile</span>
                             </label>
                         </div>
                         <div style="font-size:0.78em; color:var(--text-muted); margin-top:6px;">Library-only adds skills to the searchable index for job matching without adding them to your profile.</div>
@@ -4254,7 +4254,7 @@
             <!-- Tabs -->
             <div style="display: flex; gap: 10px; padding: 0 20px; border-bottom: 2px solid rgba(255,255,255,0.1);">
                 <button id="yourSkillsTab" class="skill-mgmt-tab active" onclick="switchSkillManagementTab('yours')">
-                    📊 Your Skills (<span id="yourSkillsCount">0</span>)
+                    <span style="display:inline-flex; align-items:center; gap:4px;" data-icon="bar-chart" class="nav-icon"></span> Your Skills (<span id="yourSkillsCount">0</span>)
                 </button>
                 <button id="addSkillsTab" class="skill-mgmt-tab" onclick="switchSkillManagementTab('add')">
                     ➕ Add Skills (<span id="availableSkillsCount">2,384+</span>)
@@ -4378,12 +4378,12 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.20.1 - BUILD 20260219-0335
+        // BLUEPRINT v4.20.2 - BUILD 20260219-0335
         // Samples default to Network view + scroll-to-top on all view switches
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   BLUEPRINT v4.20.1                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260220-ux-polish                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   BLUEPRINT v4.20.2                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260220-emoji-cleanup                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -5115,9 +5115,9 @@
                 + '<div class="modal-body" style="padding:24px;">'
                 + '<div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">'
                 + '<button onclick="closeExportModal(); openBulkImport();" style="padding:10px 20px; background:linear-gradient(135deg,#8b5cf6,#7c3aed); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
-                + '\uD83D\uDCCB Bulk Import Skills</button>'
+                + bpIcon('upload',14) + ' Bulk Import Skills</button>'
                 + '<button onclick="closeExportModal(); openBulkManager();" style="padding:10px 20px; background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
-                + '\u270F\uFE0F Bulk Edit / Remove</button>'
+                + bpIcon('edit',14) + ' Bulk Edit / Remove</button>'
                 + '</div>'
                 
                 // Evidence Threshold Configuration
@@ -8626,7 +8626,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px;">
                     ${[
                         ['🗺️', skillCount, 'Skills'],
-                        ['📋', evidenceCount, 'Evidence Items'],
+                        [bpIcon('clipboard',12), evidenceCount, 'Evidence Items'],
                         ['💡', valueCount, 'Values']
                     ].map(([icon, n, label]) => `
                         <div style="background:var(--bg-elevated); border:1px solid var(--border);
@@ -10673,7 +10673,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             bodyHTML += `
                 <div class="modal-section">
                     <div class="modal-section-title">
-                        <span class="modal-section-icon">🎯</span>
+                        <span class="modal-section-icon">${bpIcon("target",18)}</span>
                         Used in These Roles
                     </div>
                     <div class="roles-tags">
@@ -10743,7 +10743,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             bodyHTML += `
                 <div class="modal-section" style="background: rgba(${impactColor === '#ef4444' ? '239, 68, 68' : impactColor === '#f59e0b' ? '245, 158, 11' : impactColor === '#3b82f6' ? '59, 130, 246' : '107, 114, 128'}, 0.1); border-left: 3px solid ${impactColor}; padding: 20px; border-radius: 8px;">
                     <div class="modal-section-title">
-                        <span class="modal-section-icon">📊</span>
+                        <span class="modal-section-icon">${bpIcon("bar-chart",18)}</span>
                         Market Impact
                     </div>
                     <div style="margin-top: 15px;">
@@ -10782,7 +10782,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         ` : ''}
                         
                         <div style="background: rgba(96, 165, 250, 0.1); padding: 15px; border-radius: 6px; margin-top: 15px;">
-                            <div style="color: #60a5fa; font-weight: 600; margin-bottom: 8px;">📊 Impact Scale</div>
+                            <div style="color: #60a5fa; font-weight: 600; margin-bottom: 8px; display:flex; align-items:center; gap:6px;">${bpIcon("bar-chart",16)} Impact Scale</div>
                             <div style="color: #d1d5db; font-size: 0.9em; line-height: 1.6;">
                                 • <strong style="color: #ef4444;">🔥 Critical:</strong> Top 5% differentiators, significant premium<br>
                                 • <strong style="color: #f59e0b;">⭐ High:</strong> Top 20% skills, strong differentiator<br>
@@ -11744,7 +11744,7 @@ body {
                 + '<button onclick="saveValueNote(' + idx + ')" style="'
                 + 'background:' + tv('#1e40af','#2563eb') + '; color:#fff; border:none; '
                 + 'padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
-                + '\uD83D\uDCBE Save Note</button>'
+                + bpIcon('save',14) + ' Save Note</button>'
                 + '</div></div>';
             
             history.pushState({ modal: true }, ''); modal.classList.add('active');
@@ -11982,7 +11982,7 @@ body {
                         ` : ''}
                         
                         <div style="background: ${tb("rgba(255,255,255,0.03)","rgba(0,0,0,0.03)")}; padding: 25px; border-radius: 12px; margin-bottom: 25px;">
-                            <div style="color: #60a5fa; font-weight: 600; margin-bottom: 15px; text-align: left;">📊 EXPECTED OFFER RANGES (Compa-Ratio Model)</div>
+                            <div style="color: #60a5fa; font-weight: 600; margin-bottom: 15px; text-align: left; display:flex; align-items:center; gap:6px;">${bpIcon("dollar",16)} EXPECTED OFFER RANGES (Compa-Ratio Model)</div>
                             <div style="color: ${tv("#9ca3af","#64748b")}; font-size: 0.85em; margin-bottom: 20px; text-align: left;">
                                 Companies typically offer 75-95% of market value. You negotiate within this range.
                             </div>
@@ -12045,7 +12045,7 @@ body {
                     </div>
                     
                     <div style="background: ${tb("rgba(96,165,250,0.1)","rgba(37,99,235,0.07)")}; padding: 20px; border-radius: 8px; margin: 20px;">
-                        <div style="color: #60a5fa; font-weight: 600; margin-bottom: 10px;">🎯 How This Was Calculated</div>
+                        <div style="color: #60a5fa; font-weight: 600; margin-bottom: 10px; display:flex; align-items:center; gap:6px;">${bpIcon("target",16)} How This Was Calculated</div>
                         <div style="color: ${tv("#d1d5db","#334155")}; font-size: 0.95em; line-height: 1.6;">
                             <strong>Method:</strong> Impact-based role tier + skill premiums
                             <br><br>
@@ -12086,7 +12086,7 @@ body {
                     </div>
                     
                     <div style="margin: 20px; padding: 20px; background: ${tb("rgba(251,191,36,0.1)","rgba(217,119,6,0.08)")}; border-left: 3px solid #fbbf24; border-radius: 4px;">
-                        <div style="color: #fbbf24; font-weight: 600; margin-bottom: 10px;">💼 USING THIS IN NEGOTIATIONS</div>
+                        <div style="color: #fbbf24; font-weight: 600; margin-bottom: 10px; display:flex; align-items:center; gap:6px;">${bpIcon("briefcase",16)} USING THIS IN NEGOTIATIONS</div>
                         <div style="color: ${tv("#d1d5db","#334155")}; font-size: 0.9em; line-height: 1.8;">
                             <strong>The Strategy:</strong>
                             <br>• Companies typically offer 75-90% of target range
@@ -12100,22 +12100,22 @@ body {
                     
                     <div style="display: flex; gap: 15px; margin: 20px; flex-wrap: wrap;">
                         <button class="export-btn-large" onclick="showValuationBreakdown()" style="flex: 1; min-width: 200px;">
-                            📊 View All ${skillsData.skills.length} Skills
+                            ${bpIcon("bar-chart",16)} View All ${skillsData.skills.length} Skills
                         </button>
                         <button class="export-btn-large" onclick="openSkillManagement()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); border: none; color: white;">
-                            📊 Manage Skills
+                            ${bpIcon("layers",16)} Manage Skills
                         </button>
                         <button class="export-btn-large" onclick="openCustomSkillBuilder()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); border: none; color: white;">
-                            ⭐ Create Custom Skill
+                            ${bpIcon("star",16)} Create Custom Skill
                         </button>
-                        <button class="export-btn-large" onclick="openBulkImport()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border: none; color: white;">
-                            📋 Bulk Import Skills
+                        <button class="export-btn-large bulk-action-btn" onclick="openBulkImport()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border: none; color: white;">
+                            ${bpIcon("upload",16)} Bulk Import Skills
                         </button>
-                        <button class="export-btn-large" onclick="openBulkManager()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border: none; color: white;">
-                            ✏️ Bulk Edit / Remove
+                        <button class="export-btn-large bulk-action-btn" onclick="openBulkManager()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border: none; color: white;">
+                            ${bpIcon("edit",16)} Bulk Edit / Remove
                         </button>
                         <button class="export-btn-large" onclick="showNegotiationGuide()" style="flex: 1; min-width: 200px; background: ${tb("rgba(251,191,36,0.2)","rgba(217,119,6,0.12)")}; border-color: #fbbf24; color: #fbbf24;">
-                            💼 Detailed Negotiation Guide
+                            ${bpIcon("dollar",16)} Negotiation Guide
                         </button>
                     </div>
                 </div>
@@ -12129,7 +12129,7 @@ body {
                 <div class="blueprint-section">
                     <div class="blueprint-section-header">
                         <div class="blueprint-section-title">
-                            <span class="section-icon">📊</span>
+                            <span class="section-icon">${bpIcon("outcomes",20)}</span>
                             <span>Outcomes I Drive</span>
                             <span class="section-count">${outcomes.length}</span>
                         </div>
@@ -12137,7 +12137,7 @@ body {
                     
                     <div class="coaching-tip">
                         <div class="coaching-tip-title">
-                            💡 COACHING TIP
+                            ${bpIcon("lightbulb",14)} COACHING TIP
                         </div>
                         <div class="coaching-tip-content">
                             Top performers quantify impact. Notice the pattern:
@@ -12214,7 +12214,7 @@ body {
             var html = '<div class="blueprint-section">'
                 + '<div class="blueprint-section-header">'
                 + '<div class="blueprint-section-title">'
-                + '<span class="section-icon">\u2B50</span>'
+                + '<span class="section-icon">' + bpIcon('values',20) + '</span>'
                 + '<span>Values & Principles</span>'
                 + '<span class="section-count">' + selectedCount + ' selected</span>'
                 + '</div>'
@@ -12439,14 +12439,14 @@ body {
                 <div class="blueprint-section">
                     <div class="blueprint-section-header">
                         <div class="blueprint-section-title">
-                            <span class="section-icon">🎯</span>
+                            <span class="section-icon">${bpIcon("purpose",20)}</span>
                             <span>Purpose Statement</span>
                         </div>
                     </div>
                     
                     <div class="coaching-tip">
                         <div class="coaching-tip-title">
-                            💡 YOUR "WHY"
+                            ${bpIcon("lightbulb",14)} YOUR "WHY"
                         </div>
                         <div class="coaching-tip-content">
                             This statement is inferred from your work and advocacy. Edit to make it yours.
@@ -17924,6 +17924,37 @@ body {
         }
         window.renderPrivacyAndData = renderPrivacyAndData;
 
+
+        // ===== SAMPLE MODE BULK ACTION DISABLING (v4.20.2) =====
+        function disableBulkActionsInSampleMode() {
+            // Check if viewing a sample profile
+            var isSample = window.isReadOnlyProfile || (window.currentProfileType && window.currentProfileType !== 'user');
+            if (!isSample && typeof skillsData !== 'undefined' && skillsData.sample) isSample = true;
+            
+            if (isSample) {
+                // Disable all bulk action buttons
+                document.querySelectorAll('.bulk-action-btn').forEach(function(btn) {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.35';
+                    btn.style.cursor = 'not-allowed';
+                    btn.style.pointerEvents = 'none';
+                    btn.title = 'Not available in sample/demo mode';
+                });
+                
+                // Also handle inline onclick buttons for openBulkImport and openBulkManager
+                document.querySelectorAll('.export-btn-large').forEach(function(btn) {
+                    var onclick = btn.getAttribute('onclick') || '';
+                    if (onclick.includes('openBulkImport') || onclick.includes('openBulkManager')) {
+                        btn.disabled = true;
+                        btn.style.opacity = '0.35';
+                        btn.style.cursor = 'not-allowed';
+                        btn.title = 'Not available in sample/demo mode';
+                    }
+                });
+            }
+        }
+        window.disableBulkActionsInSampleMode = disableBulkActionsInSampleMode;
+
         function renderSkillManagement() {
             const skillCount = userData.skills?.length || 0;
             const onetSkillsCount = userData.skills?.filter(s => s.category === 'skill').length || 0;
@@ -17951,16 +17982,16 @@ body {
                     
                     <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
                         <button class="export-btn-large" onclick="openSkillManagement()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);">
-                            📊 Manage Skills
+                            ${bpIcon("layers",16)} Manage Skills
                         </button>
                         <button class="export-btn-large" onclick="openCustomSkillBuilder()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);">
-                            ⭐ Create Custom
+                            ${bpIcon("star",16)} Create Custom
                         </button>
-                        <button class="export-btn-large" onclick="openBulkImport()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
-                            📋 Bulk Import
+                        <button class="export-btn-large bulk-action-btn" onclick="openBulkImport()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                            ${bpIcon("upload",16)} Bulk Import
                         </button>
-                        <button class="export-btn-large" onclick="openBulkManager()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
-                            ✏️ Bulk Edit / Remove
+                        <button class="export-btn-large bulk-action-btn" onclick="openBulkManager()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                            ${bpIcon("edit",16)} Bulk Edit / Remove
                         </button>
                     </div>
                     
@@ -19755,6 +19786,11 @@ body {
         var _bulkCsvData = null;    // Raw CSV text from file upload
         
         function openBulkImport() {
+            // Block in sample mode
+            var isSample = window.isReadOnlyProfile || (window.currentProfileType && window.currentProfileType !== 'user');
+            if (!isSample && typeof skillsData !== 'undefined' && skillsData.sample) isSample = true;
+            if (isSample) { showToast('Bulk import is not available in sample/demo mode.', 'warning'); return; }
+
             var modal = document.getElementById('bulkImportModal');
             if (!modal) return;
             
@@ -20185,6 +20221,11 @@ body {
         
         // ===== BULK SKILL MANAGER =====
         function openBulkManager() {
+            // Block in sample mode
+            var isSample = window.isReadOnlyProfile || (window.currentProfileType && window.currentProfileType !== 'user');
+            if (!isSample && typeof skillsData !== 'undefined' && skillsData.sample) isSample = true;
+            if (isSample) { showToast('Bulk edit is not available in sample/demo mode.', 'warning'); return; }
+
             var modal = document.getElementById('bulkSkillManagerModal');
             if (!modal) return;
             document.getElementById('bulkManagerSearch').value = '';

@@ -1,5 +1,5 @@
-# PROJECT_CONTEXT.md — Blueprint v4.20.1 (UX Polish + Network Fixes)
-**Updated:** 2026-02-20 | **Lines:** 21,540 | **Functions:** ~430 | **Size:** ~1,153 KB | **Braces:** 0 (balanced)
+# PROJECT_CONTEXT.md — Blueprint v4.20.2 (Emoji Cleanup + Sample Mode)
+**Updated:** 2026-02-20 | **Lines:** 21,581 | **Functions:** ~435 | **Size:** ~1,157 KB | **Braces:** 0 (balanced)
 
 ## What Is Blueprint
 
@@ -250,7 +250,18 @@ Theme toggle (dark/light), profile dropdown, filter panel, overflow menu. Help m
 
 ## Version History
 
-### v4.20.1 (current)
+### v4.20.2 (current)
+- **Blueprint section header icons** — Outcomes I Drive (bar-chart), Values & Principles (star), Purpose Statement (target) all use bpIcon SVGs instead of emoji.
+- **Action button icons** — View All Skills, Manage Skills, Create Custom Skill, Bulk Import, Bulk Edit/Remove, Negotiation Guide all converted from emoji to bpIcon in both compensation modal and Settings > Manage Skills panel.
+- **Radio button icons** — "Skill Library only" and "Library + Current Profile" destination radio buttons in Bulk Import modal use data-icon hydration for book/profile SVGs.
+- **Admin Dashboard icons** — Admin modal header, Evidence Threshold, Bulk Import/Edit buttons all converted.
+- **Skill modal section icons** — Target and bar-chart replace emoji in skill detail modal sections.
+- **Compensation section icons** — Impact Scale, Expected Offer Ranges, How This Was Calculated, Using This In Negotiations all converted.
+- **Coaching tips** — Multiple remaining 💡 instances converted to bpIcon("lightbulb",14) in Coaching Tip, YOUR "WHY", and other tip headers.
+- **Sample mode button disabling** — `openBulkImport()` and `openBulkManager()` now check `isReadOnlyProfile` flag and show warning toast if in sample/demo mode. `disableBulkActionsInSampleMode()` visually dims buttons with `.bulk-action-btn` class. Called after Settings init.
+- **Remaining emoji** — ~50 emoji instances remain in deep UI (onboarding wizard steps, role definition data, O*NET category chips in filter panel, some skill modal badges). These are low-visibility or data-layer items.
+
+### v4.20.1
 - **"Compare Skills" CTA moved above the fold** in Job detail. Previously "View Network Overlay" was buried at bottom of job detail page. Now positioned right after job header + match score, with bpIcon('network') icon and descriptive text.
 - **Card view masonry layout** — CSS columns (3-col desktop, 2-col tablet, 1-col mobile) replace fixed grid. `break-inside: avoid` eliminates empty space between domain cards. Cards stack naturally by content height.
 - **Toggle label fixes** — `toggleLabels()` rewritten to read actual checkbox state and query SVG directly (works across You/Job/Match networks). New `applyLabelToggles()` syncs toggle state after every network re-render. Called via `setTimeout` after `initNetwork()`, `initJobNetwork()`, `initMatchNetwork()`.
@@ -395,7 +406,7 @@ All sample/demo profile detection uses `profilesManifest.profiles.some(p => p.id
 
 3. **Legacy Applications view still exists** — The `applicationsView` div and `initApplications()` remain but `switchView('applications')` now redirects to Jobs > Tracker sub-tab. The old view is never displayed in normal navigation.
 
-4. **~80 emoji instances remain in deeper UI** — Skill modals, compensation modal, wizard steps, toast messages, filter panel labels ("📊 Your Skills"), and various inline labels still use native emoji. A systematic cleanup pass is queued.
+4. **~50 emoji instances remain in deep UI** — Onboarding wizard step icons, role definition data (icon field in role objects), O*NET category chips in filter panel, some skill modal badges (core differentiator, category badges), and inline coaching tips in wizard. These are data-layer or low-frequency UI surfaces.
 
 5. **Console.logs (129+)** — Kept intentionally for admin debugging. Key lifecycle markers (Firebase init, template loading, job scoring, profile type detection). No debugger statements.
 
@@ -439,7 +450,7 @@ Sessions stored in `/mnt/transcripts/`:
 - **Professional resume generation** — Next major feature per Cliff. Full ATS-compatible resume from profile data.
 - **Job application tracking integration** — Connect pipeline jobs to tracker (basic integration done in v4.20.0, needs "Track This" button from job detail)
 - **Find Jobs tab** — Remote API job search functionality (UI stub exists)
-- **Remaining emoji cleanup** — ~80 emoji instances remain in deeper UI (skill modals, compensation modal, wizard steps, toast messages, filter panel labels). Systematic pass to convert all to bpIcon()
+- **Remaining emoji cleanup** — ~50 emoji instances in deep UI (wizard, role data, filter chips, skill modal badges). Low priority since user-facing surfaces are clean.
 
 ### Medium Priority
 - **Career Narrative generator** — Synthesize outcomes + values + purpose into coherent story (enhances Purpose tab and export quality)
