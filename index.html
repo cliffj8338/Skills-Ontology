@@ -12311,23 +12311,21 @@ body {
 
         var showingValuesPicker = false;
         
-        let blueprintTab = 'outcomes';
+        let blueprintTab = 'dashboard';
         
         function renderBlueprint() {
             const view = document.getElementById('blueprintView');
             const outcomesCount = blueprintData.outcomes.length;
             const valuesCount = blueprintData.values.filter(v => v.selected).length;
+            const skillCount = (skillsData.skills || []).length;
             
             view.innerHTML = `
                 <div class="blueprint-container">
-                    <div class="blueprint-header">
-                        <h1 class="blueprint-title">Blueprint</h1>
-                        
-                    </div>
-                    
-                    ${renderMarketValuationSection()}
-                    
-                    <div class="blueprint-subnav" id="blueprintSubnav">
+                    <div class="blueprint-subnav" id="blueprintSubnav" style="position:sticky; top:0; z-index:20; background:var(--bg-base); padding-top:8px;">
+                        <button class="bp-tab ${blueprintTab === 'dashboard' ? 'active' : ''}" onclick="switchBlueprintTab('dashboard')">
+                            <span class="bp-tab-icon">${bpIcon('blueprint',16)}</span>
+                            <span class="bp-tab-label">Dashboard</span>
+                        </button>
                         <button class="bp-tab ${blueprintTab === 'outcomes' ? 'active' : ''}" onclick="switchBlueprintTab('outcomes')">
                             <span class="bp-tab-icon">${bpIcon('outcomes',16)}</span>
                             <span class="bp-tab-label">Outcomes</span>
@@ -12337,10 +12335,6 @@ body {
                             <span class="bp-tab-icon">${bpIcon('values',16)}</span>
                             <span class="bp-tab-label">Values</span>
                             <span class="bp-tab-count">${valuesCount}</span>
-                        </button>
-                        <button class="bp-tab ${blueprintTab === 'purpose' ? 'active' : ''}" onclick="switchBlueprintTab('purpose')">
-                            <span class="bp-tab-icon">${bpIcon('purpose',16)}</span>
-                            <span class="bp-tab-label">Purpose</span>
                         </button>
                         <button class="bp-tab ${blueprintTab === 'export' ? 'active' : ''}" onclick="switchBlueprintTab('export')">
                             <span class="bp-tab-icon">${bpIcon('export',16)}</span>
@@ -12376,11 +12370,12 @@ body {
         window.switchBlueprintTab = switchBlueprintTab;
         
         function renderBlueprintTabContent() {
+            if (blueprintTab === 'dashboard') return renderDashboardTab();
             if (blueprintTab === 'outcomes') return renderOutcomesSection();
             if (blueprintTab === 'values')   return renderValuesSection();
-            if (blueprintTab === 'purpose')  return renderPurposeSection();
+            if (blueprintTab === 'purpose')  return renderDashboardTab(); // redirect legacy
             if (blueprintTab === 'export')   return renderExportSection();
-            return renderOutcomesSection();
+            return renderDashboardTab();
         }
         
         // Theme-aware color helper for inline styles
@@ -12392,6 +12387,259 @@ body {
             return document.documentElement.getAttribute('data-theme') === 'light' ? lightBg : darkBg;
         }
 
+        function renderDashboardTab() {
+            var skills = skillsData.skills || [];
+            var roles = skillsData.roles || [];
+            var outcomes = blueprintData.outcomes || [];
+            var sharedOutcomes = outcomes.filter(function(o) { return o.shared; }).length;
+            var values = (blueprintData.values || []).filter(function(v) { return v.selected; });
+            var purpose = blueprintData.purpose || '';
+            var totalValue = calculateTotalMarketValue();
+            var hasValuation = totalValue && totalValue.total > 0 && skillValuations && Object.keys(skillValuations.skillBaseValues || {}).length > 0;
+            
+            var masteryCount = skills.filter(function(s) { return s.level === 'Mastery'; }).length;
+            var advancedCount = skills.filter(function(s) { return s.level === 'Advanced'; }).length;
+            var savedJobs = (userData.savedJobs || []).filter(function(j) { return j && j.title; });
+            var topMatch = savedJobs.length > 0 ? savedJobs.reduce(function(best, j) { return (j.matchData && j.matchData.score || 0) > (best.matchData && best.matchData.score || 0) ? j : best; }, savedJobs[0]) : null;
+            var topMatchScore = topMatch && topMatch.matchData ? topMatch.matchData.score : 0;
+            
+            var html = '';
+            
+            // ── STAT CARDS ROW ──
+            html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:20px;">';
+            
+            // Market Worth card
+            if (hasValuation) {
+                var worthColor = totalValue.mode === 'potential' ? '#f59e0b' : '#10b981';
+                html += '<div style="background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:12px; padding:18px; cursor:pointer;" onclick="toggleValuationExpand()">'
+                    + '<div style="font-size:0.78em; color:' + tv('#9ca3af','#64748b') + '; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">'
+                    + (totalValue.mode === 'potential' ? 'Potential Worth' : 'Market Worth') + '</div>'
+                    + '<div style="font-size:1.8em; font-weight:800; color:' + worthColor + ';">$' + totalValue.yourWorth.toLocaleString() + '</div>'
+                    + '<div style="font-size:0.75em; color:' + tv('#6b7280','#9ca3af') + '; margin-top:4px;">' + totalValue.compaRatio + '% of median \u00B7 ' + totalValue.roleLevel + '</div>'
+                    + '</div>';
+            }
+            
+            // Skills card
+            html += '<div style="background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:12px; padding:18px; cursor:pointer;" onclick="switchView(\'skills\')">'
+                + '<div style="font-size:0.78em; color:' + tv('#9ca3af','#64748b') + '; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Skills</div>'
+                + '<div style="font-size:1.8em; font-weight:800; color:#60a5fa;">' + skills.length + '</div>'
+                + '<div style="font-size:0.75em; color:' + tv('#6b7280','#9ca3af') + '; margin-top:4px;">' + roles.length + ' domains \u00B7 ' + (masteryCount + advancedCount) + ' expert+</div>'
+                + '</div>';
+            
+            // Outcomes card
+            html += '<div style="background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:12px; padding:18px; cursor:pointer;" onclick="switchBlueprintTab(\'outcomes\')">'
+                + '<div style="font-size:0.78em; color:' + tv('#9ca3af','#64748b') + '; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Outcomes</div>'
+                + '<div style="font-size:1.8em; font-weight:800; color:#f59e0b;">' + outcomes.length + '</div>'
+                + '<div style="font-size:0.75em; color:' + tv('#6b7280','#9ca3af') + '; margin-top:4px;">' + sharedOutcomes + ' shared \u00B7 ' + (outcomes.length - sharedOutcomes) + ' private</div>'
+                + '</div>';
+            
+            // Values card
+            html += '<div style="background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:12px; padding:18px; cursor:pointer;" onclick="switchBlueprintTab(\'values\')">'
+                + '<div style="font-size:0.78em; color:' + tv('#9ca3af','#64748b') + '; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Values</div>'
+                + '<div style="font-size:1.8em; font-weight:800; color:#818cf8;">' + values.length + '</div>'
+                + '<div style="font-size:0.75em; color:' + tv('#6b7280','#9ca3af') + '; margin-top:4px;">' + (values.length >= 3 ? '\u2713 Selected' : 'Pick 3\u20137') + '</div>'
+                + '</div>';
+            
+            html += '</div>'; // end stats grid
+            
+            // ── PURPOSE (inline, editable) ──
+            html += '<div style="background:' + tv('rgba(96,165,250,0.06)','rgba(37,99,235,0.04)') + '; border:1px solid ' + tv('rgba(96,165,250,0.15)','rgba(37,99,235,0.1)') + '; border-radius:12px; padding:20px; margin-bottom:20px;">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
+                + '<div style="font-size:0.82em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:' + tv('#60a5fa','#2563eb') + '; display:flex; align-items:center; gap:6px;">'
+                + bpIcon('purpose',14) + ' Purpose Statement</div>'
+                + '<button onclick="var ta=document.getElementById(\'dashPurposeEdit\'); if(ta.readOnly){ta.readOnly=false; ta.focus(); ta.style.background=\'' + tv('rgba(0,0,0,0.2)','#fff') + '\'; this.textContent=\'Save\';} else {ta.readOnly=true; ta.style.background=\'transparent\'; updatePurpose(ta.value); this.textContent=\'Edit\';}" '
+                + 'style="font-size:0.78em; padding:4px 12px; border-radius:6px; border:1px solid ' + tv('rgba(96,165,250,0.2)','rgba(37,99,235,0.15)') + '; background:transparent; color:#60a5fa; cursor:pointer;">'
+                + 'Edit</button></div>'
+                + '<textarea id="dashPurposeEdit" readonly onchange="updatePurpose(this.value)" style="'
+                + 'width:100%; min-height:48px; background:transparent; border:none; color:' + tv('#d1d5db','#334155') + '; '
+                + 'font-size:0.95em; line-height:1.6; resize:vertical; outline:none; font-style:italic;">'
+                + (purpose || 'No purpose statement yet. Click Edit to add yours.')
+                + '</textarea></div>';
+            
+            // ── QUICK ACTIONS ──
+            html += '<div style="margin-bottom:20px;">'
+                + '<div style="font-size:0.78em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:' + tv('#6b7280','#9ca3af') + '; margin-bottom:10px;">Quick Actions</div>'
+                + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px;">';
+            
+            // Scouting Report
+            html += '<button onclick="showScoutingReportPicker()" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:' + tv('rgba(96,165,250,0.08)','rgba(59,130,246,0.06)') + '; border:1px solid ' + tv('rgba(96,165,250,0.25)','rgba(59,130,246,0.15)') + '; border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
+                + '<span style="color:#60a5fa;">' + bpIcon('target',18) + '</span>'
+                + '<div><div style="font-weight:600; color:' + tv('#e0e0e0','#1e293b') + '; font-size:0.9em;">\u25C8 Scouting Report</div>'
+                + '<div style="font-size:0.75em; color:' + tv('#9ca3af','#64748b') + ';">Targeted job analysis</div></div>'
+                + '</button>';
+            
+            // PDF Summary
+            html += '<button onclick="exportBlueprint(\'pdf\')" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.08)') + '; border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
+                + '<span style="color:' + tv('#d1d5db','#475569') + ';">' + bpIcon('pdf',18) + '</span>'
+                + '<div><div style="font-weight:600; color:' + tv('#e0e0e0','#1e293b') + '; font-size:0.9em;">PDF Summary</div>'
+                + '<div style="font-size:0.75em; color:' + tv('#9ca3af','#64748b') + ';">Full career report</div></div>'
+                + '</button>';
+            
+            // Executive Blueprint
+            html += '<button onclick="exportBlueprint(\'html\')" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.08)') + '; border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
+                + '<span style="color:' + tv('#d1d5db','#475569') + ';">' + bpIcon('export',18) + '</span>'
+                + '<div><div style="font-weight:600; color:' + tv('#e0e0e0','#1e293b') + '; font-size:0.9em;">Executive Blueprint</div>'
+                + '<div style="font-size:0.75em; color:' + tv('#9ca3af','#64748b') + ';">HTML for email</div></div>'
+                + '</button>';
+            
+            // Negotiation Guide
+            if (hasValuation) {
+                html += '<button onclick="showNegotiationGuide()" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:' + tv('rgba(251,191,36,0.08)','rgba(217,119,6,0.06)') + '; border:1px solid ' + tv('rgba(251,191,36,0.2)','rgba(217,119,6,0.15)') + '; border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
+                    + '<span style="color:#fbbf24;">' + bpIcon('dollar',18) + '</span>'
+                    + '<div><div style="font-weight:600; color:' + tv('#e0e0e0','#1e293b') + '; font-size:0.9em;">Negotiation Guide</div>'
+                    + '<div style="font-size:0.75em; color:' + tv('#9ca3af','#64748b') + ';">Salary strategy</div></div>'
+                    + '</button>';
+            }
+            
+            html += '</div></div>'; // end quick actions
+            
+            // ── TOP JOB MATCH (if jobs saved) ──
+            if (topMatch && topMatchScore > 0) {
+                var tmColor = topMatchScore >= 70 ? '#10b981' : topMatchScore >= 50 ? '#f59e0b' : '#ef4444';
+                html += '<div style="background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:12px; padding:18px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="switchView(\'jobs\')">'
+                    + '<div>'
+                    + '<div style="font-size:0.75em; color:' + tv('#9ca3af','#64748b') + '; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Best Job Match</div>'
+                    + '<div style="font-weight:600; color:' + tv('#e0e0e0','#1e293b') + ';">' + topMatch.title + '</div>'
+                    + '<div style="font-size:0.82em; color:' + tv('#9ca3af','#64748b') + ';">' + (topMatch.company || '') + ' \u00B7 ' + savedJobs.length + ' jobs tracked</div>'
+                    + '</div>'
+                    + '<div style="text-align:center;">'
+                    + '<div style="font-size:1.6em; font-weight:800; color:' + tmColor + ';">' + topMatchScore + '%</div>'
+                    + '<div style="font-size:0.65em; color:' + tv('#9ca3af','#64748b') + '; text-transform:uppercase;">Match</div>'
+                    + '</div></div>';
+            }
+            
+            // ── MARKET POSITION (collapsible) ──
+            if (hasValuation) {
+                var negotiationGap = totalValue.yourWorth - totalValue.standardOffer;
+                
+                html += '<div style="border:1px solid ' + tv('rgba(16,185,129,0.25)','rgba(16,185,129,0.15)') + '; border-radius:12px; overflow:hidden; margin-bottom:20px;">'
+                    
+                    // Compact header (always visible)
+                    + '<div onclick="var detail=document.getElementById(\'valDetailExpand\'); var arrow=document.getElementById(\'valExpandArrow\'); if(detail.style.display===\'none\'){detail.style.display=\'block\'; arrow.textContent=\'\u25B2\';}else{detail.style.display=\'none\'; arrow.textContent=\'\u25BC\';}" '
+                    + 'style="padding:18px 20px; background:' + tv('linear-gradient(135deg, rgba(16,185,129,0.08), rgba(96,165,250,0.06))','linear-gradient(135deg, rgba(16,185,129,0.06), rgba(96,165,250,0.04))') + '; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">'
+                    + '<div style="display:flex; align-items:center; gap:14px;">'
+                    + '<span style="color:#10b981;">' + bpIcon('money',20) + '</span>'
+                    + '<div>'
+                    + '<div style="font-weight:700; color:' + tv('#e0e0e0','#1e293b') + ';">Market Position</div>'
+                    + '<div style="font-size:0.82em; color:' + tv('#9ca3af','#64748b') + ';">Offers: $' + totalValue.conservativeOffer.toLocaleString() + ' \u2013 $' + totalValue.competitiveOffer.toLocaleString() + '</div>'
+                    + '</div></div>'
+                    + '<div style="display:flex; align-items:center; gap:14px;">'
+                    + '<div style="text-align:right;">'
+                    + '<div style="font-weight:700; color:#fbbf24; font-size:0.88em;">Gap: $' + negotiationGap.toLocaleString() + '</div>'
+                    + '</div>'
+                    + '<span id="valExpandArrow" style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.9em;">\u25BC</span>'
+                    + '</div></div>'
+                    
+                    // Expandable detail
+                    + '<div id="valDetailExpand" style="display:none; padding:20px;">';
+                
+                // Offer ranges
+                html += '<div style="display:grid; gap:10px; margin-bottom:16px;">';
+                var offerData = [
+                    { label: 'Conservative (75%)', value: totalValue.conservativeOffer, desc: 'Budget-constrained', color: '#9ca3af', bg: tv('rgba(107,114,128,0.15)','rgba(107,114,128,0.08)') },
+                    { label: 'Standard (85%)', value: totalValue.standardOffer, desc: 'Most common', color: '#60a5fa', bg: tv('rgba(96,165,250,0.15)','rgba(37,99,235,0.08)') },
+                    { label: 'Competitive (95%)', value: totalValue.competitiveOffer, desc: 'Top employers', color: '#10b981', bg: tv('rgba(16,185,129,0.15)','rgba(5,150,105,0.08)') }
+                ];
+                offerData.forEach(function(o) {
+                    html += '<div style="background:' + o.bg + '; padding:12px 16px; border-radius:8px; border-left:3px solid ' + o.color + '; display:flex; justify-content:space-between; align-items:center;">'
+                        + '<div><div style="color:' + o.color + '; font-weight:600; font-size:0.88em;">' + o.label + '</div>'
+                        + '<div style="color:' + tv('#9ca3af','#64748b') + '; font-size:0.78em;">' + o.desc + '</div></div>'
+                        + '<div style="font-weight:700; font-size:1.15em; color:' + tv('#e0e0e0','#1e293b') + ';">$' + o.value.toLocaleString() + '</div>'
+                        + '</div>';
+                });
+                html += '</div>';
+                
+                // Valuation mode toggle
+                html += '<div style="display:flex; gap:8px; margin-bottom:14px;">'
+                    + '<button onclick="setValuationMode(\'evidence\'); switchBlueprintTab(\'dashboard\');" style="flex:1; padding:8px; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.1)') + '; border-radius:6px; background:' + (valuationMode === 'evidence' ? 'var(--accent)' : 'transparent') + '; color:' + (valuationMode === 'evidence' ? '#fff' : tv('#9ca3af','#64748b')) + '; cursor:pointer; font-size:0.82em; font-weight:600;">\uD83D\uDD12 Evidence-Backed</button>'
+                    + '<button onclick="setValuationMode(\'potential\'); switchBlueprintTab(\'dashboard\');" style="flex:1; padding:8px; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.1)') + '; border-radius:6px; background:' + (valuationMode === 'potential' ? 'var(--accent)' : 'transparent') + '; color:' + (valuationMode === 'potential' ? '#fff' : tv('#9ca3af','#64748b')) + '; cursor:pointer; font-size:0.82em; font-weight:600;">\u2728 Potential</button>'
+                    + '</div>';
+                
+                // Compact stats row
+                html += '<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:14px;">'
+                    + '<div style="text-align:center; padding:10px; background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; border-radius:8px;">'
+                    + '<div style="font-size:0.72em; color:' + tv('#9ca3af','#64748b') + ';">Market Rate</div>'
+                    + '<div style="font-weight:700; color:#60a5fa;">$' + totalValue.marketRate.toLocaleString() + '</div></div>'
+                    + '<div style="text-align:center; padding:10px; background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; border-radius:8px;">'
+                    + '<div style="font-size:0.72em; color:' + tv('#9ca3af','#64748b') + ';">Premium</div>'
+                    + '<div style="font-weight:700; color:#10b981;">+$' + totalValue.premiumAmount.toLocaleString() + '</div></div>'
+                    + '<div style="text-align:center; padding:10px; background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; border-radius:8px;">'
+                    + '<div style="font-size:0.72em; color:' + tv('#9ca3af','#64748b') + ';">Compa-Ratio</div>'
+                    + '<div style="font-weight:700; color:' + tv('#e0e0e0','#1e293b') + ';">' + totalValue.compaRatio + '%</div></div>'
+                    + '</div>';
+                
+                // Top skills (compact)
+                html += '<div style="font-size:0.82em; font-weight:600; color:#60a5fa; margin-bottom:8px;">' + bpIcon('flame',12) + ' Top Skills Driving Value</div>'
+                    + '<div style="display:grid; gap:4px; margin-bottom:14px;">';
+                (totalValue.top10Skills || []).slice(0, 5).forEach(function(skill, idx) {
+                    var isCritical = skill.impact === 'Critical';
+                    html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 10px; background:' + (isCritical ? 'rgba(239,68,68,0.1)' : 'rgba(251,191,36,0.1)') + '; border-radius:5px; font-size:0.85em;">'
+                        + '<span style="color:' + tv('#e0e0e0','#1e293b') + ';"><span style="color:' + tv('#6b7280','#9ca3af') + ';">' + (idx + 1) + '.</span> ' + skill.skill + ' <span style="color:' + tv('#6b7280','#9ca3af') + '; font-size:0.85em;">(' + skill.level + ')</span></span>'
+                        + '<span style="color:' + (isCritical ? '#ef4444' : '#fbbf24') + '; font-size:0.78em; font-weight:600;">' + skill.impactLabel + '</span>'
+                        + '</div>';
+                });
+                html += '</div>';
+                
+                // View all + methodology link
+                html += '<div style="display:flex; gap:8px;">'
+                    + '<button onclick="showValuationBreakdown()" style="flex:1; padding:8px 14px; background:transparent; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.08)') + '; border-radius:6px; color:' + tv('#d1d5db','#475569') + '; cursor:pointer; font-size:0.82em;">'
+                    + bpIcon('bar-chart',12) + ' View All ' + skills.length + ' Skills</button>'
+                    + '<button onclick="showNegotiationGuide()" style="flex:1; padding:8px 14px; background:transparent; border:1px solid ' + tv('rgba(251,191,36,0.2)','rgba(217,119,6,0.15)') + '; border-radius:6px; color:#fbbf24; cursor:pointer; font-size:0.82em;">'
+                    + bpIcon('dollar',12) + ' Negotiation Guide</button>'
+                    + '</div>';
+                
+                html += '</div></div>'; // close expandable + container
+            }
+            
+            // ── PROFILE COMPLETENESS ──
+            var completeness = [];
+            if (skills.length > 0) completeness.push({ label: 'Skills mapped', done: true });
+            else completeness.push({ label: 'Map your skills', done: false });
+            if (outcomes.length > 0) completeness.push({ label: 'Outcomes documented', done: true });
+            else completeness.push({ label: 'Add outcomes', done: false });
+            if (values.length >= 3) completeness.push({ label: 'Values selected', done: true });
+            else completeness.push({ label: 'Select values (3\u20137)', done: false });
+            if (purpose && purpose.length > 10) completeness.push({ label: 'Purpose defined', done: true });
+            else completeness.push({ label: 'Write purpose statement', done: false });
+            if (savedJobs.length > 0) completeness.push({ label: 'Jobs tracked', done: true });
+            else completeness.push({ label: 'Add target jobs', done: false });
+            
+            var doneCount = completeness.filter(function(c) { return c.done; }).length;
+            var pct = Math.round((doneCount / completeness.length) * 100);
+            
+            if (pct < 100) {
+                html += '<div style="background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:12px; padding:18px; margin-bottom:20px;">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
+                    + '<div style="font-size:0.82em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:' + tv('#6b7280','#9ca3af') + ';">Blueprint Completeness</div>'
+                    + '<div style="font-weight:700; color:' + (pct >= 80 ? '#10b981' : pct >= 60 ? '#f59e0b' : '#ef4444') + ';">' + pct + '%</div></div>'
+                    + '<div style="height:6px; background:' + tv('rgba(255,255,255,0.06)','rgba(0,0,0,0.06)') + '; border-radius:3px; margin-bottom:12px; overflow:hidden;">'
+                    + '<div style="height:100%; width:' + pct + '%; background:linear-gradient(90deg, #3b82f6, #10b981); border-radius:3px; transition:width 0.3s;"></div>'
+                    + '</div>'
+                    + '<div style="display:grid; gap:6px;">';
+                completeness.forEach(function(c) {
+                    html += '<div style="display:flex; align-items:center; gap:8px; font-size:0.85em; color:' + (c.done ? tv('#10b981','#059669') : tv('#9ca3af','#64748b')) + ';">'
+                        + (c.done ? '\u2713' : '\u25CB') + ' ' + c.label + '</div>';
+                });
+                html += '</div></div>';
+            }
+            
+            return html;
+        }
+        
+        function toggleValuationExpand() {
+            var detail = document.getElementById('valDetailExpand');
+            var arrow = document.getElementById('valExpandArrow');
+            if (!detail) return;
+            if (detail.style.display === 'none') {
+                detail.style.display = 'block';
+                if (arrow) arrow.textContent = '\u25B2';
+            } else {
+                detail.style.display = 'none';
+                if (arrow) arrow.textContent = '\u25BC';
+            }
+        }
+        window.toggleValuationExpand = toggleValuationExpand;
+        
         function renderMarketValuationSection() {
             const totalValue = calculateTotalMarketValue();
             
