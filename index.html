@@ -3924,10 +3924,10 @@
                 <div id="bulkImportStep1">
                     <div style="display:flex; gap:12px; margin-bottom:16px;">
                         <button id="bulkTabText" class="onet-tab active" onclick="switchBulkTab('text')" style="flex:1;">
-                            📝 Paste List
+                            <span data-icon="clipboard" class="nav-icon"></span> Paste List
                         </button>
                         <button id="bulkTabCsv" class="onet-tab" onclick="switchBulkTab('csv')" style="flex:1;">
-                            📄 Upload CSV
+                            <span data-icon="upload" class="nav-icon"></span> Upload CSV
                         </button>
                     </div>
                     
@@ -4277,7 +4277,7 @@
                     <span style="display:inline-flex; align-items:center; gap:4px;" data-icon="bar-chart" class="nav-icon"></span> Your Skills (<span id="yourSkillsCount">0</span>)
                 </button>
                 <button id="addSkillsTab" class="skill-mgmt-tab" onclick="switchSkillManagementTab('add')">
-                    ➕ Add Skills (<span id="availableSkillsCount">2,384+</span>)
+                    <span data-icon="plus" class="nav-icon"></span> Add Skills (<span id="availableSkillsCount">2,384+</span>)
                 </button>
             </div>
             
@@ -4294,7 +4294,7 @@
                             style="width: 100%; padding-right: 40px;"
                             oninput="filterYourSkills()">
                         <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 1.2em;">
-                            🔍
+                            ${bpIcon("search",14)}
                         </span>
                     </div>
                     
@@ -4331,13 +4331,13 @@
                             oninput="handleAddSkillsSearch()"
                             autofocus>
                         <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 1.2em;">
-                            🔍
+                            ${bpIcon("search",14)}
                         </span>
                     </div>
                     
                     <div id="addSkillsResults" style="min-height: 200px;">
                         <div style="text-align: center; padding: 60px 20px; color: #9ca3af;">
-                            <div style="font-size: 3em; margin-bottom: 10px;">🔍</div>
+                            <div style="margin-bottom: 10px;">' + bpIcon('search',48) + '</div>
                             <div style="font-size: 1.1em;">Start typing to search skills</div>
                             <div style="font-size: 0.9em; margin-top: 10px;">Try: "python", "marketing", "leadership"</div>
                         </div>
@@ -4350,7 +4350,7 @@
                         <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                             <button onclick="searchAddSkillsByCategory('Technology')" 
                                     style="padding: 8px 16px; background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                                💻 Technology
+                                <span data-icon="tool" class="nav-icon"></span> Technology
                             </button>
                             <button onclick="searchAddSkillsByCategory('Business')" 
                                     style="padding: 8px 16px; background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.4); color: #a78bfa; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
@@ -4362,11 +4362,11 @@
                             </button>
                             <button onclick="searchAddSkillsByCategory('Marketing')" 
                                     style="padding: 8px 16px; background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                                📢 Marketing
+                                <span data-icon="send" class="nav-icon"></span> Marketing
                             </button>
                             <button onclick="searchAddSkillsByCategory('Creative')" 
                                     style="padding: 8px 16px; background: rgba(249, 115, 22, 0.2); border: 1px solid rgba(249, 115, 22, 0.4); color: #fb923c; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                                🎨 Creative
+                                <span data-icon="compass" class="nav-icon"></span> Creative
                             </button>
                             <button onclick="searchAddSkillsByCategory('Leadership')" 
                                     style="padding: 8px 16px; background: rgba(100, 116, 139, 0.2); border: 1px solid rgba(100, 116, 139, 0.4); color: #94a3b8; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
@@ -4374,7 +4374,7 @@
                             </button>
                             <button onclick="searchAddSkillsByCategory('Trades')" 
                                     style="padding: 8px 16px; background: rgba(180, 83, 9, 0.2); border: 1px solid rgba(180, 83, 9, 0.4); color: #d97706; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                                🔨 Trades
+                                <span data-icon="tool" class="nav-icon"></span> Trades
                             </button>
                         </div>
                     </div>
@@ -4508,6 +4508,33 @@
             return icons[name] || '<svg ' + s + '><circle cx="12" cy="12" r="1"/></svg>';
         }
         window.bpIcon = bpIcon;
+
+        // Global role-name-to-SVG icon resolver
+        function getRoleIconSvg(roleName, size) {
+            size = size || 16;
+            var lower = (roleName || '').toLowerCase();
+            var map = {
+                'strategy': 'target', 'vp': 'target', 'director': 'target', 'executive': 'target', 'chief': 'target',
+                'technology': 'tool', 'engineer': 'tool', 'developer': 'tool', 'tech': 'tool', 'software': 'tool',
+                'product': 'layers', 'manager': 'layers',
+                'data': 'database', 'analyst': 'database', 'research': 'database', 'science': 'database',
+                'design': 'compass', 'creative': 'compass', 'ux': 'compass',
+                'marketing': 'send', 'communication': 'send', 'sales': 'send',
+                'hr': 'users', 'talent': 'users', 'people': 'users', 'recruiting': 'users', 'recruiter': 'users',
+                'finance': 'dollar', 'accounting': 'dollar', 'operations': 'dollar',
+                'pilot': 'compass', 'aviation': 'compass', 'flight': 'compass',
+                'music': 'heart', 'musician': 'heart',
+                'advocate': 'heart', 'nonprofit': 'heart', 'community': 'heart',
+                'futurist': 'zap', 'innovation': 'zap', 'evangelist': 'zap',
+                'entrepreneur': 'trending-up', 'founder': 'trending-up',
+                'consultant': 'briefcase', 'advisor': 'briefcase', 'partner': 'briefcase', 'stakeholder': 'users',
+            };
+            for (var keyword in map) {
+                if (lower.indexOf(keyword) !== -1) return bpIcon(map[keyword], size);
+            }
+            return bpIcon('briefcase', size);
+        }
+        window.getRoleIconSvg = getRoleIconSvg;
 
         // ===== FIREBASE INITIALIZATION =====
         var firebaseConfig = {
@@ -4908,7 +4935,7 @@
         function saveToFirestore() {
             if (!fbDb || !fbUser) return Promise.resolve(false);
             var si = document.getElementById('saveIndicator');
-            if (si) { si.textContent = '☁ Saving...'; si.style.opacity = '0.6'; si.style.color = 'var(--text-muted)'; }
+            if (si) { si.textContent = bpIcon('upload',12) + ' Saving...'; si.style.opacity = '0.6'; si.style.color = 'var(--text-muted)'; }
             
             var uid = fbUser.uid;
             var data = {
@@ -4939,13 +4966,13 @@
                 .then(function() {
                     console.log('☁ Saved to Firestore');
                     var si = document.getElementById('saveIndicator');
-                    if (si) { si.textContent = '☁ Saved'; si.style.opacity = '1'; si.style.color = '#10b981'; setTimeout(function() { si.style.opacity = '0'; }, 2500); }
+                    if (si) { si.textContent = bpIcon('check',12) + ' Saved'; si.style.opacity = '1'; si.style.color = '#10b981'; setTimeout(function() { si.style.opacity = '0'; }, 2500); }
                     return true;
                 })
                 .catch(function(err) {
                     console.error('Firestore save error:', err);
                     var si = document.getElementById('saveIndicator');
-                    if (si) { si.textContent = '⚠ Save failed'; si.style.opacity = '1'; si.style.color = '#ef4444'; setTimeout(function() { si.style.opacity = '0'; }, 4000); }
+                    if (si) { si.textContent = bpIcon('warning',12) + ' Save failed'; si.style.opacity = '1'; si.style.color = '#ef4444'; setTimeout(function() { si.style.opacity = '0'; }, 4000); }
                     return false;
                 });
         }
@@ -6843,14 +6870,14 @@
         const skillsData = {
             roles: [
                 { id: "strategy", name: "VP Global Strategy", icon: "target", color: "#ef4444" },
-                { id: "futurist", name: "Futurist & Evangelist", icon: "🔮", color: "#f59e0b" },
+                { id: "futurist", name: "Futurist & Evangelist", icon: "zap", color: "#f59e0b" },
                 { id: "pilot", name: "IFR Pilot", icon: "✈️", color: "#3b82f6" },
-                { id: "musician", name: "Musician", icon: "🎵", color: "#8b5cf6" },
-                { id: "advocate", name: "Recovery Advocate", icon: "💚", color: "#10b981" },
-                { id: "tech", name: "Technology Strategist", icon: "⚙️", color: "#06b6d4" },
-                { id: "creative", name: "Creative Director", icon: "🎨", color: "#ec4899" },
-                { id: "operations", name: "Operations Leader", icon: "🍔", color: "#f97316" },
-                { id: "entrepreneur", name: "Entrepreneur", icon: "🚀", color: "#a855f7" }
+                { id: "musician", name: "Musician", icon: "heart", color: "#8b5cf6" },
+                { id: "advocate", name: "Recovery Advocate", icon: "heart", color: "#10b981" },
+                { id: "tech", name: "Technology Strategist", icon: "settings", color: "#06b6d4" },
+                { id: "creative", name: "Creative Director", icon: "creative", color: "#ec4899" },
+                { id: "operations", name: "Operations Leader", icon: "layers", color: "#f97316" },
+                { id: "entrepreneur", name: "Entrepreneur", icon: "trending-up", color: "#a855f7" }
             ],
             
             skills: [
@@ -7960,7 +7987,7 @@
 
         function renderWizardStep1(el) {
             el.innerHTML = `
-                ${wizardHeading('🔵', 'Build Your Blueprint',
+                ${wizardHeading(bpIcon('blueprint',22), 'Build Your Blueprint',
                     'Most people undersell themselves when applying for work — not because they lack ability, but because they’ve never had the right tool to articulate it. This changes that.')}
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px;">
@@ -7970,7 +7997,7 @@
                                 text-align:center;"
                          onmouseover="this.style.borderColor='var(--accent)'"
                          onmouseout="this.style.borderColor='var(--border)'">
-                        <div style="font-size:2.2em; margin-bottom:12px;">📄</div>
+                        <div style="margin-bottom:12px;">${bpIcon("file-text",32)}</div>
                         <div style="font-weight:700; color:var(--text-primary); margin-bottom:6px;">Upload Resume</div>
                         <div style="font-size:0.85em; color:var(--text-secondary); line-height:1.5;">
                             PDF or paste text. Claude reads it and builds your profile automatically.
@@ -8000,7 +8027,7 @@
                             display:flex; align-items:center; gap:16px; margin-bottom:24px;"
                      onmouseover="this.style.borderColor='var(--accent)'"
                      onmouseout="this.style.borderColor='var(--border)'">
-                    <div style="font-size:1.8em;">📂</div>
+                    <div>${bpIcon("layers",28)}</div>
                     <div>
                         <div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">
                             Import Saved Blueprint
@@ -8014,7 +8041,7 @@
                 </div>
 
                 <p style="text-align:center; font-size:0.8em; color:var(--text-muted); margin-top:8px;">
-                    🔒 Your data is saved securely to your account. You own everything.
+                    ${bpIcon("lock",14)} Your data is saved securely to your account. You own everything.
                 </p>
             `;
         }
@@ -8057,7 +8084,7 @@
 
         function renderWizardStep2(el) {
             el.innerHTML = `
-                ${wizardHeading('📄', 'Add Your Resume',
+                ${wizardHeading(bpIcon('file-text',22), 'Add Your Resume',
                     'Paste your resume text below, or upload a PDF. Claude will read it and extract your skills, experience, and outcomes automatically.')}
 
                 <div style="background:var(--bg-elevated); border:1px solid var(--border);
@@ -8176,7 +8203,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
             el.innerHTML = `
                 <div style="display:flex; flex-direction:column; align-items:center;
                             justify-content:center; min-height:320px; text-align:center; gap:24px;">
-                    <div id="wizardParsingIcon" style="font-size:3em; animation:spin 2s linear infinite;">⚙️</div>
+                    <div id="wizardParsingIcon" style="animation:spin 2s linear infinite;">${bpIcon("settings",48)}</div>
                     <div>
                         <h2 style="color:var(--text-primary); font-size:1.4em; margin-bottom:10px;">
                             Claude is reading your resume
@@ -8643,7 +8670,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             const evidenceCount = wizardState.skills.reduce((n, s) => n + (s.evidence?.length || 0), 0);
 
             el.innerHTML = `
-                ${wizardHeading('🎉', 'Your Blueprint is Ready',
+                ${wizardHeading(bpIcon('star',22), 'Your Blueprint is Ready',
                     'Here is what we built together. Download your profile to save it, then explore your full dashboard.')}
 
                 <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px;">
@@ -8685,7 +8712,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                             style="flex:1; background:var(--accent); color:#fff; border:none;
                                    padding:14px 24px; border-radius:10px; cursor:pointer;
                                    font-size:0.95em; font-weight:700; min-width:200px;">
-                        💾 Save Profile & Go to Dashboard
+                        ${bpIcon("save",14)} Save Profile & Go to Dashboard
                     </button>
                     <button onclick="wizardLaunchOnly()"
                             style="background:var(--input-bg); color:var(--text-primary); border:1px solid var(--border);
@@ -9646,7 +9673,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + '</div>'
                 
                 // Proficiency gaps if any
-                + (profGapCount > 0 ? '<div style="padding:6px 16px; font-size:0.78em; color:#f59e0b; background:rgba(245,158,11,0.06);">⚠ ' + profGapCount + ' skill' + (profGapCount > 1 ? 's' : '') + ' matched at a lower proficiency</div>' : '')
+                + (profGapCount > 0 ? '<div style="padding:6px 16px; font-size:0.78em; color:#f59e0b; background:rgba(245,158,11,0.06);">' + bpIcon('warning',12) + ' ' + profGapCount + ' skill' + (profGapCount > 1 ? 's' : '') + ' matched at a lower proficiency</div>' : '')
                 
                 // Legend dots
                 + '<div class="ml-legend-row">'
@@ -10629,9 +10656,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Category badge for all O*NET types + Unique
             let categoryBadge = '';
             if (skillData.category === 'skill') {
-                categoryBadge = '<span class="modal-category-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">🏛️ O*NET Skill</span>';
+                categoryBadge = '<span class="modal-category-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">' + bpIcon('graduation',12) + ' O*NET Skill</span>';
             } else if (skillData.category === 'ability') {
-                categoryBadge = '<span class="modal-category-badge" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa;">🧠 O*NET Ability</span>';
+                categoryBadge = '<span class="modal-category-badge" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa;">' + bpIcon('zap',12) + ' O*NET Ability</span>';
             } else if (skillData.category === 'workstyle') {
                 categoryBadge = '<span class="modal-category-badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">' + bpIcon('briefcase',12) + ' O*NET Work Style</span>';
             } else if (skillData.category === 'unique') {
@@ -10712,7 +10739,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             skillData.roles.forEach(roleId => {
                 const role = skillsData.roles.find(r => r.id === roleId);
                 if (role) {
-                    bodyHTML += `<div class="role-tag">${role.icon} ${role.name}</div>`;
+                    bodyHTML += `<div class="role-tag">${getRoleIconSvg(role.name, 14)} ${role.name}</div>`;
                 }
             });
             bodyHTML += `</div></div>`;
@@ -10723,7 +10750,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             bodyHTML += '<div class="modal-section">';
             bodyHTML += '<div class="modal-section-title" style="display:flex; justify-content:space-between; align-items:center;">';
-            bodyHTML += '<div><span class="modal-section-icon">\u2713</span> Evidence & Outcomes</div>';
+            bodyHTML += '<div><span class="modal-section-icon">' + bpIcon('check',16) + '</span> Evidence & Outcomes</div>';
             bodyHTML += '<button onclick="addOutcomeToSkill(\'' + escapedSkillName + '\')" '
                 + 'style="padding:5px 14px; background:' + tv('rgba(16,185,129,0.15)','rgba(16,185,129,0.08)') + '; '
                 + 'color:#10b981; border:1px solid ' + tv('rgba(16,185,129,0.3)','rgba(16,185,129,0.2)') + '; border-radius:6px; cursor:pointer; font-size:0.82em; font-weight:600;">'
@@ -10788,13 +10815,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         
                         ${skillData.category === 'unique' && skillImpact.needsAssessment ? `
                             <div style="background: rgba(251, 191, 36, 0.1); padding: 15px; border-radius: 6px; margin-bottom: 15px; border-left: 3px solid #fbbf24;">
-                                <div style="color: #fbbf24; font-weight: 600; margin-bottom: 8px;">⚠️ Estimated Rating</div>
+                                <div style="color: #fbbf24; font-weight: 600; margin-bottom: 8px;">${bpIcon("warning",14)} Estimated Rating</div>
                                 <div style="color: #d1d5db; font-size: 0.9em; line-height: 1.5; margin-bottom: 12px;">
                                     ${skillImpact.rationale}
                                 </div>
                                 <button onclick="closeSkillModal(); openAssessSkillModal('${skillData.name.replace(/'/g, "\\'")}');" 
                                         style="padding: 8px 16px; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); border: none; border-radius: 6px; cursor: pointer; font-weight: 600; color: #000;">
-                                    📝 Assess This Skill
+                                    ${bpIcon("clipboard",14)} Assess This Skill
                                 </button>
                             </div>
                         ` : ''}
@@ -10838,7 +10865,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 bodyHTML += `
                     <div class="modal-section">
                         <div class="modal-section-title">
-                            <span class="modal-section-icon">📖</span>
+                            <span class="modal-section-icon">${bpIcon("book",16)}</span>
                             Context & Story
                         </div>
                         <div class="story-text">${details.story}</div>
@@ -10871,13 +10898,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + '' + bpIcon('edit',14) + ' Edit Skill</button>'
                 + '<button onclick="closeSkillModal(); openAssessSkillModal(\'' + skillName.replace(/'/g, "\\'") + '\');" '
                 + 'style="padding:10px 20px; background:rgba(96,165,250,0.15); color:var(--accent); border:1px solid rgba(96,165,250,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
-                + '📝 Assess</button>'
+                + '' + bpIcon('clipboard',14) + ' Assess</button>'
                 + '<button onclick="closeSkillModal(); requestVerification([\'' + skillName.replace(/'/g, "\\'") + '\']);" '
                 + 'style="padding:10px 20px; background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
                 + '' + bpIcon('check',14) + ' Verify</button>'
                 + '<button onclick="if(confirm(\'Remove ' + skillName.replace(/'/g, "\\'") + ' from your profile?\')){deleteSkillFromProfile(\'' + skillName.replace(/'/g, "\\'") + '\'); closeSkillModal();}" '
                 + 'style="margin-left:auto; padding:10px 16px; background:none; color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
-                + '🗑 Remove</button>'
+                + '' + bpIcon('trash',14) + ' Remove</button>'
                 + '</div>';
             body.innerHTML += actionsHtml;
             
@@ -11910,7 +11937,7 @@ body {
                 } catch(e) {
                     console.error('Blueprint tab render error (' + tab + '):', e);
                     contentEl.innerHTML = '<div style="padding:40px; text-align:center; color:#ef4444;">'
-                        + '<div style="font-size:1.2em; margin-bottom:8px;">⚠ Rendering Error</div>'
+                        + '<div style="font-size:1.2em; margin-bottom:8px;">' + bpIcon('warning',18) + ' Rendering Error</div>'
                         + '<div style="font-size:0.85em; color:' + tv('#9ca3af','#64748b') + ';">' + (e.message || e) + '</div></div>';
                 }
             }
@@ -12185,12 +12212,12 @@ body {
                     </div>
                     
                     <button class="add-outcome-btn" onclick="addCustomOutcome()">
-                        <span>➕</span>
+                        <span>${bpIcon("plus",14)}</span>
                         <span>Add Custom Outcome</span>
                     </button>
                     
                     <div class="reflection-prompts">
-                        <div class="reflection-title">💭 REFLECTION PROMPTS</div>
+                        <div class="reflection-title">${bpIcon("message",14)} REFLECTION PROMPTS</div>
                         <ul>
                             <li>What problem did you solve that others couldn't?</li>
                             <li>What changed because of your work?</li>
@@ -12205,7 +12232,7 @@ body {
         function renderOutcomeItem(outcome, idx) {
             const shareChecked = outcome.shared ? 'checked' : '';
             const sensitiveWarning = outcome.sensitive ? 
-                '<span class="meta-tag sensitive">⚠️ SENSITIVE: Consider context before sharing</span>' : '';
+                '<span class="meta-tag sensitive">${bpIcon("warning",12)} SENSITIVE: Consider context before sharing</span>' : '';
             const coachingNote = outcome.coachingSuggestion ? 
                 `<div class="outcome-coaching">${bpIcon('lightbulb',12)} ${outcome.coachingSuggestion}</div>` : '';
             
@@ -12222,7 +12249,7 @@ body {
                     </div>
                     
                     <div class="outcome-meta">
-                        <span class="meta-tag category">📂 ${outcome.category}</span>
+                        <span class="meta-tag category">${bpIcon("layers",12)} ${outcome.category}</span>
                         <span class="meta-tag evidence">✓ From: ${outcome.skill}</span>
                         ${sensitiveWarning}
                     </div>
@@ -12231,7 +12258,7 @@ body {
                     
                     <div class="outcome-actions">
                         <button class="outcome-btn" onclick="editOutcome(${idx})">✎ Edit</button>
-                        <button class="outcome-btn" onclick="viewOutcomeEvidence(${idx})">🔍 View Evidence</button>
+                        <button class="outcome-btn" onclick="viewOutcomeEvidence(${idx})">${bpIcon("search",12)} View Evidence</button>
                     </div>
                 </div>
             `;
@@ -12713,7 +12740,7 @@ body {
                             Cancel
                         </button>
                         <button class="export-btn-large" onclick="saveOutcomeEdit(${idx})" style="padding: 10px 20px;">
-                            💾 Save Changes
+                            ${bpIcon("save",14)} Save Changes
                         </button>
                     </div>
                 </div>
@@ -12861,7 +12888,7 @@ body {
                             Cancel
                         </button>
                         <button class="export-btn-large" onclick="saveCustomOutcome()" style="padding: 10px 20px;">
-                            ➕ Add Outcome
+                            ${bpIcon("plus",14)} Add Outcome
                         </button>
                     </div>
                 </div>
@@ -16546,10 +16573,10 @@ body {
                             ${bpIcon('clipboard',14)} Copy to Clipboard
                         </button>
                         <button class="action-btn" onclick="downloadPitch('${job.title}', '${job.company}')" style="padding: 10px 20px;">
-                            💾 Download as Text
+                            ${bpIcon("download",14)} Download as Text
                         </button>
                         <button class="action-btn" onclick="trackFromPitch('${job.id}')" style="padding: 10px 20px; background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #10b981;">
-                            ➕ Track Application
+                            ${bpIcon("plus",14)} Track Application
                         </button>
                         <button class="export-btn-large" onclick="closeExportModal()" style="padding: 10px 20px;">
                             Done
@@ -17792,7 +17819,7 @@ body {
                     </div>
                     
                     <button class="save-settings-btn" onclick="saveSettings()">
-                        💾 Save Settings
+                        ${bpIcon("save",14)} Save Settings
                     </button>
                 </div>
             `;
@@ -17820,7 +17847,7 @@ body {
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                         <div style="background: rgba(96, 165, 250, 0.1); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 8px; padding: 20px;">
-                            <h3 style="color: #60a5fa; margin-bottom: 10px;">📤 Export Profile</h3>
+                            <h3 style="color: #60a5fa; margin-bottom: 10px;">${bpIcon("upload",14)} Export Profile</h3>
                             <p style="color: #9ca3af; font-size: 0.9em; margin-bottom: 15px;">
                                 Download complete backup including skills, outcomes, values, and all settings
                             </p>
@@ -17830,7 +17857,7 @@ body {
                         </div>
                         
                         <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 20px;">
-                            <h3 style="color: #10b981; margin-bottom: 10px;">📥 Import Profile</h3>
+                            <h3 style="color: #10b981; margin-bottom: 10px;">${bpIcon("download",14)} Import Profile</h3>
                             <p style="color: #9ca3af; font-size: 0.9em; margin-bottom: 15px;">
                                 Restore from a previous backup or transfer from another device
                             </p>
@@ -17843,7 +17870,7 @@ body {
                     </div>
                     
                     <div style="margin-top: 20px; padding: 15px; background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444; border-radius: 4px;">
-                        <strong style="color: #ef4444;">⚠️ Warning:</strong>
+                        <strong style="color: #ef4444;">${bpIcon("warning",14)} Warning:</strong>
                         <span style="color: #d1d5db; font-size: 0.9em;">
                             Importing will replace all current data. Make sure to export first if you want to keep your current profile!
                         </span>
@@ -18165,7 +18192,7 @@ body {
                                     </button>
                                     <button onclick="confirmDeleteSkill('${skill.name.replace(/'/g, "\\'")}', '${category}')" 
                                             style="padding: 6px 12px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 4px; cursor: pointer; font-size: 0.9em; white-space: nowrap;">
-                                        🗑️
+                                        ${bpIcon("trash",14)}
                                     </button>
                                 </div>
                             </div>
@@ -18258,7 +18285,7 @@ body {
                     <h2 style="font-size: 2em; color: #60a5fa; margin-bottom: 10px;">Application Tracker</h2>
                     <p style="color: #9ca3af; margin-bottom: 20px;">Track your job applications and follow-ups</p>
                     <button class="export-btn-large" onclick="addApplicationModal()" style="display: inline-flex; align-items: center; gap: 8px;">
-                        ➕ Add Application
+                        ${bpIcon("plus",14)} Add Application
                     </button>
                 </div>
                 
@@ -18350,24 +18377,24 @@ body {
                     
                     ${app.notes ? `
                         <div class="application-notes">
-                            📝 ${app.notes}
+                            ${bpIcon("edit",12)} ${app.notes}
                         </div>
                     ` : ''}
                     
                     <div class="application-actions">
                         <button class="application-btn" onclick="updateApplicationStatus(${idx})">
-                            🔄 Update Status
+                            ${bpIcon("clock",12)} Update Status
                         </button>
                         <button class="application-btn" onclick="editApplication(${idx})">
                             ✏️ Edit
                         </button>
                         ${app.url ? `
                             <button class="application-btn" onclick="window.open('${app.url}', '_blank')">
-                                🔗 View Job
+                                ${bpIcon("external",12)} View Job
                             </button>
                         ` : ''}
                         <button class="application-btn delete" onclick="deleteApplication(${idx})">
-                            🗑️ Remove
+                            ${bpIcon("trash",14)} Remove
                         </button>
                     </div>
                 </div>
@@ -18446,7 +18473,7 @@ body {
                             Cancel
                         </button>
                         <button class="export-btn-large" onclick="saveApplication()" style="padding: 10px 20px;">
-                            ➕ Add Application
+                            ${bpIcon("plus",14)} Add Application
                         </button>
                     </div>
                 </div>
@@ -18547,7 +18574,7 @@ body {
                     
                     <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 25px;">
                         <button class="action-btn" onclick="closeExportModal()">Cancel</button>
-                        <button class="export-btn-large" onclick="saveApplicationEdit(${idx})">💾 Save Changes</button>
+                        <button class="export-btn-large" onclick="saveApplicationEdit(${idx})">${bpIcon("save",14)} Save Changes</button>
                     </div>
                 </div>
             `;
@@ -18611,7 +18638,7 @@ body {
                 <div class="blueprint-section">
                     <div class="blueprint-section-header">
                         <div class="blueprint-section-title">
-                            <span class="section-icon">🎚️</span>
+                            <span class="section-icon">${bpIcon("preferences",18)}</span>
                             <span>Share Profile Presets</span>
                         </div>
                     </div>
@@ -18667,7 +18694,7 @@ body {
                 <div class="blueprint-section">
                     <div class="blueprint-section-header">
                         <div class="blueprint-section-title">
-                            <span class="section-icon">📊</span>
+                            <span class="section-icon">' + bpIcon('bar-chart',18) + '</span>
                             <span>What You're Sharing</span>
                         </div>
                     </div>
@@ -19151,7 +19178,7 @@ body {
             modalContent.innerHTML = `
                 <div class="modal-header">
                     <div class="modal-header-left">
-                        <h2 class="modal-title">💼 Salary Negotiation Strategy</h2>
+                        <h2 class="modal-title">${bpIcon("briefcase",18)} Salary Negotiation Strategy</h2>
                         <p style="color: #9ca3af; margin-top: 5px;">Compa-ratio based negotiation guidance</p>
                     </div>
                     <button class="modal-close" onclick="closeExportModal()">×</button>
@@ -19168,7 +19195,7 @@ body {
                     </div>
                     
                     <div style="background: rgba(96, 165, 250, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-                        <h3 style="color: #60a5fa; margin-bottom: 15px;">📊 Understanding Compa-Ratios</h3>
+                        <h3 style="color: #60a5fa; margin-bottom: 15px;">${bpIcon("bar-chart",14)} Understanding Compa-Ratios</h3>
                         <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.7;">
                             <strong>Compa-ratio</strong> = Your salary ÷ Market median × 100%
                             <br><br>
@@ -19184,7 +19211,7 @@ body {
                     </div>
                     
                     <div style="margin-bottom: 25px;">
-                        <h3 style="color: #fbbf24; margin-bottom: 15px;">💰 Expected Offer Ranges</h3>
+                        <h3 style="color: #fbbf24; margin-bottom: 15px;">${bpIcon("dollar",14)} Expected Offer Ranges</h3>
                         <div style="color: #9ca3af; font-size: 0.9em; margin-bottom: 15px;">
                             Companies typically offer <strong>75-95%</strong> of your market worth. Here's what to expect:
                         </div>
@@ -19251,7 +19278,7 @@ body {
                     </div>
                     
                     <div style="background: rgba(96, 165, 250, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-                        <h3 style="color: #60a5fa; margin-bottom: 15px;">📋 Negotiation Script</h3>
+                        <h3 style="color: #60a5fa; margin-bottom: 15px;">${bpIcon("clipboard",14)} Negotiation Script</h3>
                         <div style="color: #d1d5db; line-height: 1.8; font-size: 0.95em;">
                             <strong>When they ask for salary expectations:</strong>
                             <br><br>
@@ -19321,7 +19348,7 @@ body {
         
         function getSkillImpact(skill) {
             if (!impactRatings) {
-                return { level: 'moderate', label: 'Moderate Impact', icon: '💎', rationale: 'Loading ratings...' };
+                return { level: 'moderate', label: 'Moderate Impact', icon: bpIcon('diamond',14), rationale: 'Loading ratings...' };
             }
             
             // Handle unique skills (no O*NET match)
@@ -19334,12 +19361,12 @@ body {
             const categoryData = impactRatings[category + 's']; // 'skills', 'abilities', 'workstyles'
             
             if (!categoryData || !skill.onetId) {
-                return { level: 'moderate', label: 'Moderate Impact', icon: '💎', rationale: 'No rating data available' };
+                return { level: 'moderate', label: 'Moderate Impact', icon: bpIcon('diamond',14), rationale: 'No rating data available' };
             }
             
             const skillRating = categoryData[skill.onetId];
             if (!skillRating) {
-                return { level: 'moderate', label: 'Moderate Impact', icon: '💎', rationale: 'Skill not found in ratings' };
+                return { level: 'moderate', label: 'Moderate Impact', icon: bpIcon('diamond',14), rationale: 'Skill not found in ratings' };
             }
             
             // Apply proficiency multiplier
@@ -20719,12 +20746,12 @@ body {
             const currentVal = select.value;
             
             const categoryMeta = {
-                'skill':         { label: 'Skills',           icon: '🗺️' },
-                'ability':       { label: 'Abilities',        icon: '⚡' },
-                'workstyle':     { label: 'Work Styles',      icon: '🧭' },
-                'knowledge':     { label: 'Knowledge',        icon: '📚' },
-                'workactivity':  { label: 'Work Activities',  icon: '⚙️' },
-                'trades':        { label: 'Trade Skills',     icon: '🔨' },
+                'skill':         { label: 'Skills',           icon: bpIcon('compass',14) },
+                'ability':       { label: 'Abilities',        icon: bpIcon('zap',14) },
+                'workstyle':     { label: 'Work Styles',      icon: bpIcon('flag',14) },
+                'knowledge':     { label: 'Knowledge',        icon: bpIcon('book',14) },
+                'workactivity':  { label: 'Work Activities',  icon: bpIcon('settings',14) },
+                'trades':        { label: 'Trade Skills',     icon: bpIcon('tool',14) },
                 'unique':        { label: 'Custom Skills',    icon: '⭐' },
             };
             
@@ -20824,7 +20851,7 @@ body {
             if (skills.length === 0) {
                 container.innerHTML = `
                     <div style="text-align: center; padding: 60px 20px; color: #9ca3af;">
-                        <div style="font-size: 3em; margin-bottom: 10px;">📋</div>
+                        <div style="font-size: 3em; margin-bottom: 10px;">${bpIcon("clipboard",14)}</div>
                         <div style="font-size: 1.1em;">No skills found</div>
                         <div style="font-size: 0.9em; margin-top: 10px;">Try adjusting your filters</div>
                     </div>
@@ -20906,7 +20933,7 @@ body {
             const container = document.getElementById('addSkillsResults');
             container.innerHTML = `
                 <div style="text-align: center; padding: 60px 20px; color: #9ca3af;">
-                    <div style="font-size: 3em; margin-bottom: 10px;">🔍</div>
+                    <div style="margin-bottom: 10px;">' + bpIcon('search',48) + '</div>
                     <div style="font-size: 1.1em;">Start typing to search skills</div>
                     <div style="font-size: 0.9em; margin-top: 10px;">Try: "python", "marketing", "leadership"</div>
                 </div>
@@ -21135,7 +21162,7 @@ body {
                 if (container) {
                     container.innerHTML = `
                         <div style="text-align: center; padding: 60px 20px; color: #ef4444;">
-                            <div style="font-size: 3em; margin-bottom: 10px;">⚠️</div>
+                            <div style="margin-bottom: 10px;">${bpIcon("warning",48)}</div>
                             <div style="font-size: 1.1em; font-weight: bold;">Search Error</div>
                             <div style="font-size: 0.9em; margin-top: 10px; font-family: monospace;">
                                 ${error.message}
@@ -21418,35 +21445,35 @@ body {
                 <div class="modal-body" style="padding: 30px;">
                     <div style="display: flex; flex-direction: column; gap: 20px;">
                         <div style="display: flex; gap: 15px; align-items: start;">
-                            <div style="font-size: 2em; min-width: 40px;">🗺️</div>
+                            <div style="min-width: 40px;">${bpIcon("compass",28)}</div>
                             <div>
                                 <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Skills Tab</div>
                                 <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">View your full skill network as an interactive graph or card view. Click any skill to see your evidence and outcomes. Use the role and level filters to explore different facets of your profile.</div>
                             </div>
                         </div>
                         <div style="display: flex; gap: 15px; align-items: start;">
-                            <div style="font-size: 2em; min-width: 40px;">💼</div>
+                            <div style="min-width: 40px;">${bpIcon("briefcase",28)}</div>
                             <div>
                                 <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Jobs Tab</div>
                                 <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">Find opportunities matched to your actual skill profile. Skills you have are highlighted green; gaps shown in red. Generate a personalized outreach message for any role.</div>
                             </div>
                         </div>
                         <div style="display: flex; gap: 15px; align-items: start;">
-                            <div style="font-size: 2em; min-width: 40px;">📋</div>
+                            <div style="font-size: 2em; min-width: 40px;">${bpIcon("clipboard",14)}</div>
                             <div>
                                 <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Applications Tab</div>
                                 <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">Track every role you've applied to. Log status, salary targets, contacts and notes. Keep your job search organized in one place.</div>
                             </div>
                         </div>
                         <div style="display: flex; gap: 15px; align-items: start;">
-                            <div style="font-size: 2em; min-width: 40px;">📊</div>
+                            <div style="font-size: 2em; min-width: 40px;">${bpIcon("bar-chart",14)}</div>
                             <div>
                                 <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Blueprint Tab</div>
                                 <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">See your market valuation, manage your outcomes, choose your values, and write your purpose statement. This is your source of truth. Export as a resume or personalized page to share with recruiters.</div>
                             </div>
                         </div>
                         <div style="display: flex; gap: 15px; align-items: start;">
-                            <div style="font-size: 2em; min-width: 40px;">⚙️</div>
+                            <div style="min-width: 40px;">${bpIcon("settings",28)}</div>
                             <div>
                                 <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Settings (More menu)</div>
                                 <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">Update your profile info, preferences, and manage your skills. Export your full profile as JSON to save your work or move it to another device.</div>
@@ -21482,19 +21509,19 @@ body {
                     </p>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
                         <div style="background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.3); border-radius: 8px; padding: 15px;">
-                            <div style="color: #60a5fa; font-weight: 600; margin-bottom: 8px;">🗺️ Skills Ontology</div>
+                            <div style="color: #60a5fa; font-weight: 600; margin-bottom: 8px;">${bpIcon("compass",14)} Skills Ontology</div>
                             <div style="color: #9ca3af; font-size: 0.9em;">Map your full skill landscape — O*NET standard skills, abilities, work styles, and unique differentiators.</div>
                         </div>
                         <div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 15px;">
-                            <div style="color: #10b981; font-weight: 600; margin-bottom: 8px;">💰 Market Valuation</div>
+                            <div style="color: #10b981; font-weight: 600; margin-bottom: 8px;">${bpIcon("dollar",14)} Market Valuation</div>
                             <div style="color: #9ca3af; font-size: 0.9em;">See what your specific skill portfolio is worth — with negotiation ranges, not just a single number.</div>
                         </div>
                         <div style="background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); border-radius: 8px; padding: 15px;">
-                            <div style="color: #fbbf24; font-weight: 600; margin-bottom: 8px;">📊 Blueprint</div>
+                            <div style="color: #fbbf24; font-weight: 600; margin-bottom: 8px;">${bpIcon("bar-chart",14)} Blueprint</div>
                             <div style="color: #9ca3af; font-size: 0.9em;">Build your complete professional narrative — outcomes, values, purpose — with full control over what you share.</div>
                         </div>
                         <div style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); border-radius: 8px; padding: 15px;">
-                            <div style="color: #a78bfa; font-weight: 600; margin-bottom: 8px;">🔗 Personalized Outreach</div>
+                            <div style="color: #a78bfa; font-weight: 600; margin-bottom: 8px;">${bpIcon("external",14)} Personalized Outreach</div>
                             <div style="color: #9ca3af; font-size: 0.9em;">Generate a company-specific page and recruiter email — one link that tells your story their way.</div>
                         </div>
                     </div>
