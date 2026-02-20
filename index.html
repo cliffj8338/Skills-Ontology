@@ -8624,9 +8624,15 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         skillsToShow.push(s);
                     }
                 });
-                // If still too few, backfill with Advanced
-                if (skillsToShow.length < 15) {
+                // If still under 25, backfill with Advanced
+                if (skillsToShow.length < 25) {
                     skillsData.skills.filter(function(s) { return s.level === 'Advanced' && !seen.has(s.name); })
+                        .slice(0, 25 - skillsToShow.length)
+                        .forEach(function(s) { skillsToShow.push(s); seen.add(s.name); });
+                }
+                // If still under 25, backfill with Proficient
+                if (skillsToShow.length < 25) {
+                    skillsData.skills.filter(function(s) { return s.level === 'Proficient' && !seen.has(s.name); })
                         .slice(0, 25 - skillsToShow.length)
                         .forEach(function(s) { skillsToShow.push(s); seen.add(s.name); });
                 }
@@ -20995,15 +21001,20 @@ body {
         
         
         
-        // Resize handler
+        // Resize handler — preserves active job match mode
         var _resizeTimer = null;
         window.addEventListener('resize', function() {
             clearTimeout(_resizeTimer);
             _resizeTimer = setTimeout(function() {
                 if (currentView === 'network' && currentSkillsView === 'network') {
-                    window.networkInitialized = false;
-                    initNetwork();
-                    window.networkInitialized = true;
+                    if (activeJobForNetwork && networkMatchMode !== 'you') {
+                        // Re-render the active match/job view
+                        setNetworkMatchMode(networkMatchMode);
+                    } else {
+                        window.networkInitialized = false;
+                        initNetwork();
+                        window.networkInitialized = true;
+                    }
                 }
             }, 250);
         });
