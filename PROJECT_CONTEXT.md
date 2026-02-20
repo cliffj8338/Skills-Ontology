@@ -1,4 +1,4 @@
-# PROJECT_CONTEXT.md — Blueprint v4.21.0 (Find Jobs — Live API Integration)
+# PROJECT_CONTEXT.md — Blueprint v4.22.0 (SVG Icon System Completion + Mobile Polish)
 **Updated:** 2026-02-20 | **Lines:** 21,592 | **Functions:** ~440 | **Size:** ~1,149 KB | **Braces:** 0 (balanced)
 
 ## What Is Blueprint
@@ -250,7 +250,15 @@ Theme toggle (dark/light), profile dropdown, filter panel, overflow menu. Help m
 
 ## Version History
 
-### v4.21.0 (current)
+### v4.22.0 (current)
+- **SVG icon system completion** — Converted ~100+ remaining emoji to SVG across all UI surfaces (impact badges, market valuation, skill modal, wizard, settings, tracker, O*NET explorer, about/welcome modals). Only theme toggle sun/moon emoji remain intentionally.
+- **New bpIcon entries:** flame, diamond, money + global `getRoleIconSvg()` function for role-name-to-SVG resolution
+- **Outfit font + uppercase titles** — All page-level headings (Blueprint, Settings, Consent, Pipeline, Tracker, Find Jobs) now use Outfit font with `text-transform: uppercase` and proper letter-spacing. Splash screen logo also uppercase.
+- **Mobile network graph fixes** — Increased force spacing (link distance 90→120, charge -200→-350), reduced gravity (0.12→0.08), role labels truncated to 22 chars, font 12px→9px, skill font 10px→8px, enhanced text-shadow for readability
+- **Role info card close button fix** — Direct `display:none` in onclick (bypasses conditional check), bigger touch target (padding 0→8px), z-index 50→150
+- Build: 20260220-emoji-final
+
+### v4.21.0
 - **Find Jobs — Live API integration** — Complete rewrite of Find Jobs tab. Searches 3 free, no-auth job board APIs in parallel: Remotive (`remotive.com/api/remote-jobs`), Himalayas (`himalayas.app/jobs/api`), and Jobicy (`jobicy.com/api/v2/remote-jobs`). CORS proxy fallback chain (`corsproxy.io`, `allorigins.win`) for browser compatibility.
 - **Search UI** — Keyword input with Enter key support, category dropdown (12 categories mapped to each API's taxonomy), match threshold slider, and role suggestion chips from user's profile roles.
 - **Skill matching** — `quickScoreJob()` scores each remote job against user's skill profile using exact name matching + SKILL_SYNONYMS dictionary. Returns matched skills, gap skills, and percentage score. Replaces old `extractSkillsFromJobEnhanced` + `calculateMatchScore` pipeline for API results.
