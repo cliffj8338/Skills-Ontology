@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.27.1.1 | 20260221 | Values panel collapse/close, hub label cleanup, possessive grammar fix -->
+    <!-- v4.27.1.2 | 20260221 | Values panel: merged job tile, fixed positioning, draggable, collapse/close -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -899,8 +899,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.27.1.1 - BUILD 20260221-values-ui
-        var BP_VERSION = 'v4.27.1.1';
+        // BLUEPRINT v4.27.1.2 - BUILD 20260221-values-panel
+        var BP_VERSION = 'v4.27.1.2';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -916,7 +916,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260221-values-ui                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260221-values-panel                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -7715,9 +7715,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
             });
             
-            // Add panels
+            // Add panels — values panel includes job info, so skip separate tile
             addValuesAlignmentPanel(alignment, job, cv);
-            addJobInfoTile(job);
+            // Remove job info tile if present (values panel has it)
+            var existingJIT = document.getElementById('jobInfoTile');
+            if (existingJIT) existingJIT.remove();
             setTimeout(applyLabelToggles, 100);
         }
         
@@ -7734,11 +7736,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             var html = '';
             
-            // Header with collapse + close controls
-            html += '<div class="vap-header">'
+            // Draggable header with job info + controls
+            html += '<div class="vap-header" id="vapDragHandle">'
                 + '<div class="vap-header-left">'
-                + '<span class="vap-score" style="color:' + scoreColor + ';">' + score + '%</span>'
-                + '<span class="vap-title">Values Alignment</span>'
+                + '<div class="vap-job-info">'
+                + '<div class="vap-job-title">' + (job.title || 'Untitled Position') + '</div>'
+                + '<div class="vap-job-company">' + (job.company || '') + '</div>'
+                + '</div>'
                 + '</div>'
                 + '<div class="vap-header-controls">'
                 + '<button class="vap-ctrl-btn" onclick="toggleValuesPanel()" title="Collapse" id="vapCollapseBtn">−</button>'
@@ -7749,9 +7753,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Collapsible body
             html += '<div class="vap-body" id="vapBody">';
             
-            // Score bar
-            html += '<div style="padding:0 16px 10px;">'
+            // Score row
+            html += '<div class="vap-score-row">'
+                + '<div class="vap-score-num" style="color:' + scoreColor + ';">' + score + '%</div>'
+                + '<div style="flex:1;">'
+                + '<div style="font-size:0.78em; color:var(--text-muted); margin-bottom:4px;">Values Alignment</div>'
                 + '<div class="ml-score-bar"><div class="ml-score-fill" style="width:' + score + '%; background:' + scoreColor + ';"></div></div>'
+                + '</div>'
                 + '</div>';
             
             // Stats grid
@@ -7806,8 +7814,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             panel.innerHTML = html;
             
-            var container = document.getElementById('networkView').parentElement;
-            if (container) { container.style.position = 'relative'; container.appendChild(panel); }
+            // Append to body for fixed positioning
+            document.body.appendChild(panel);
+            
+            // Make draggable by header
+            initPanelDrag(panel, document.getElementById('vapDragHandle'));
         }
         
         function toggleValuesPanel() {
@@ -7825,6 +7836,71 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (panel) panel.remove();
         }
         window.closeValuesPanel = closeValuesPanel;
+        
+        function initPanelDrag(panel, handle) {
+            var isDragging = false;
+            var startX, startY, panelStartX, panelStartY;
+            
+            handle.style.cursor = 'grab';
+            
+            handle.addEventListener('mousedown', function(e) {
+                if (e.target.closest('.vap-ctrl-btn')) return; // don't drag from buttons
+                isDragging = true;
+                handle.style.cursor = 'grabbing';
+                var rect = panel.getBoundingClientRect();
+                startX = e.clientX;
+                startY = e.clientY;
+                panelStartX = rect.left;
+                panelStartY = rect.top;
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                var dx = e.clientX - startX;
+                var dy = e.clientY - startY;
+                var newX = Math.max(0, Math.min(window.innerWidth - 100, panelStartX + dx));
+                var newY = Math.max(0, Math.min(window.innerHeight - 50, panelStartY + dy));
+                panel.style.left = newX + 'px';
+                panel.style.top = newY + 'px';
+                panel.style.bottom = 'auto';
+                panel.style.right = 'auto';
+            });
+            
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    handle.style.cursor = 'grab';
+                }
+            });
+            
+            // Touch support
+            handle.addEventListener('touchstart', function(e) {
+                if (e.target.closest('.vap-ctrl-btn')) return;
+                isDragging = true;
+                var touch = e.touches[0];
+                var rect = panel.getBoundingClientRect();
+                startX = touch.clientX;
+                startY = touch.clientY;
+                panelStartX = rect.left;
+                panelStartY = rect.top;
+            }, { passive: true });
+            
+            document.addEventListener('touchmove', function(e) {
+                if (!isDragging) return;
+                var touch = e.touches[0];
+                var dx = touch.clientX - startX;
+                var dy = touch.clientY - startY;
+                var newX = Math.max(0, Math.min(window.innerWidth - 100, panelStartX + dx));
+                var newY = Math.max(0, Math.min(window.innerHeight - 50, panelStartY + dy));
+                panel.style.left = newX + 'px';
+                panel.style.top = newY + 'px';
+                panel.style.bottom = 'auto';
+                panel.style.right = 'auto';
+            }, { passive: true });
+            
+            document.addEventListener('touchend', function() { isDragging = false; });
+        }
         
         function findJobIdx() {
             var job = activeJobForNetwork;
