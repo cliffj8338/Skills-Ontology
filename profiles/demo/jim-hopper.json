@@ -1,365 +1,301 @@
 {
+  "templateId": "jim-hopper",
   "profile": {
     "name": "Jim Hopper",
-    "currentTitle": "Chief of Police, Hawkins PD",
+    "currentTitle": "Chief of Police, Hawkins Police Department",
     "location": "Hawkins, IN",
     "roleLevel": "Senior",
-    "summary": "Veteran law enforcement leader with a decorated military background and experience spanning NYC homicide investigation to small-town policing. Combines big-city investigative expertise with community-oriented leadership. Proven ability to manage complex, multi-stakeholder crises under extreme pressure."
+    "headline": "Small-town police chief who led multi-agency crisis response operations against unprecedented threats while maintaining public safety and civilian trust. Former NYPD homicide detective with 20+ years of law enforcement experience.",
+    "executiveSummary": "Veteran law enforcement leader who transitioned from big-city homicide investigation to small-town police administration, only to face threats that dwarfed anything encountered in his prior career. Led crisis response operations requiring coordination with federal agencies, military assets, and civilian volunteers while keeping public panic contained. Known for unconventional leadership, fierce protection of community, and willingness to personally lead from the front in dangerous operations."
   },
   "roles": [
-    {
-      "name": "Police Chief"
-    },
-    {
-      "name": "Homicide Detective"
-    },
-    {
-      "name": "Military Veteran"
-    }
+    { "name": "Police Administration", "id": "admin" },
+    { "name": "Crisis Leadership", "id": "crisis" },
+    { "name": "Investigation", "id": "investigation" },
+    { "name": "Community Relations", "id": "community" },
+    { "name": "Inter-Agency Coordination", "id": "interagency" }
   ],
   "skills": [
     {
-      "name": "Law Enforcement Leadership",
+      "name": "Crisis Leadership",
+      "level": "Mastery",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Police Chief"
-      ],
+      "key": true,
+      "roles": ["crisis"],
       "evidence": [
-        {
-          "outcome": "Managed department of 12 officers serving 30,000-person community",
-          "description": "Rebuilt department morale and community trust after period of institutional neglect"
-        }
+        { "outcome": "Led emergency response to 4 existential-level threats to Hawkins over 3 years with zero civilian casualties", "description": "Coordinated multi-agency response including military, federal, and civilian assets against unprecedented threats" },
+        { "outcome": "Managed crisis communications preventing mass panic during 3 containment events", "description": "Developed cover narratives and coordinated with federal agencies to maintain public calm during extraordinary circumstances" }
       ]
     },
     {
       "name": "Criminal Investigation",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Police Chief",
-        "Homicide Detective"
-      ],
+      "key": true,
+      "roles": ["investigation"],
       "evidence": [
-        {
-          "outcome": "Solved 85% of assigned homicide cases over 6-year NYPD career",
-          "description": "Clearance rate significantly above department average of 65%"
-        }
+        { "outcome": "Solved Will Byers disappearance case when state and federal agencies classified it as presumed drowning", "description": "Pursued investigation against official findings, uncovering Hawkins Lab involvement and locating missing child" },
+        { "outcome": "Closed 45+ homicide cases during NYPD tenure with 82% clearance rate", "description": "Applied thorough investigative methodology and witness development skills in complex urban homicide cases" }
       ]
     },
     {
-      "name": "Crisis Management",
+      "name": "Community Relations",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Police Chief"
-      ],
+      "key": true,
+      "roles": ["community", "admin"],
       "evidence": [
-        {
-          "outcome": "Led emergency response to 3 consecutive community-wide crisis events",
-          "description": "Coordinated civilian evacuation, federal liaison, and media management simultaneously"
-        }
+        { "outcome": "Maintained community trust during 3 crisis events requiring information suppression", "description": "Balanced need for public safety communication with classified containment requirements, preserving civilian confidence" },
+        { "outcome": "Rebuilt department credibility after predecessor's corruption scandals", "description": "Implemented transparency initiatives and personal community engagement restoring public trust in HPD" }
       ]
     },
     {
-      "name": "Missing Persons Investigation",
+      "name": "Department Administration",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Police Chief",
-        "Homicide Detective"
-      ]
-    },
-    {
-      "name": "Community Policing",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Police Chief"
-      ]
-    },
-    {
-      "name": "Government Liaison",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Police Chief"
-      ],
+      "key": true,
+      "roles": ["admin"],
       "evidence": [
-        {
-          "outcome": "Negotiated classified cooperation agreement with Department of Energy facility",
-          "description": "Secured community safety guarantees while maintaining operational security"
-        }
+        { "outcome": "Managed 8-officer department covering 25,000 residents on limited municipal budget", "description": "Optimized shift scheduling, resource allocation, and equipment procurement to maximize coverage and response time" }
       ]
     },
     {
-      "name": "Interrogation Techniques",
+      "name": "Inter-Agency Coordination",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Homicide Detective"
+      "key": true,
+      "roles": ["interagency", "crisis"],
+      "evidence": [
+        { "outcome": "Coordinated operations with DOE, military special operations, and state police during containment events", "description": "Navigated complex jurisdiction and classification issues while maintaining operational effectiveness" },
+        { "outcome": "Built working relationship with Dr. Owens and DOE providing intelligence access and operational support", "description": "Established trust with federal officials enabling information sharing critical to threat response" }
       ]
     },
     {
-      "name": "Evidence Analysis",
+      "name": "Tactical Operations",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Homicide Detective"
+      "key": true,
+      "roles": ["crisis", "investigation"],
+      "evidence": [
+        { "outcome": "Led armed entry into Hawkins National Laboratory facility to rescue civilian", "description": "Planned and executed tactical operation inside secure federal facility against armed opposition" },
+        { "outcome": "Survived and escaped from Soviet military detention facility in Kamchatka", "description": "Applied tactical training and improvisation to survive captivity and lead escape from hostile foreign military installation" }
       ]
     },
     {
-      "name": "Combat Training",
+      "name": "Emergency Management",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Military Veteran"
+      "roles": ["crisis", "admin"],
+      "evidence": [
+        { "outcome": "Managed town-wide evacuation during Starcourt Mall incident without mass casualties", "description": "Coordinated emergency services, civilian evacuation, and threat containment simultaneously" }
       ]
     },
     {
-      "name": "Survival Skills",
+      "name": "Personnel Management",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Military Veteran"
+      "roles": ["admin"],
+      "evidence": [
+        { "outcome": "Developed Officer Powell and Officer Callahan from rookies to competent officers", "description": "Provided on-the-job training and mentorship to small department staff with limited formal training resources" }
       ]
     },
     {
-      "name": "Team Leadership",
-      "category": "workstyle",
-      "proficiency": "Advanced",
-      "roles": [
-        "Police Chief",
-        "Military Veteran"
+      "name": "Evidence Collection",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["investigation"],
+      "evidence": [
+        { "outcome": "Collected and preserved evidence from non-standard crime scenes including government facilities", "description": "Adapted evidence collection protocols for unusual circumstances while maintaining evidentiary value" }
       ]
     },
     {
-      "name": "Physical Fitness",
-      "category": "ability",
-      "proficiency": "Advanced",
-      "roles": [
-        "Police Chief",
-        "Military Veteran"
+      "name": "Witness Interview",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["investigation"],
+      "evidence": [
+        { "outcome": "Obtained critical testimony from traumatized witnesses including children", "description": "Applied empathetic interview techniques to build trust with witnesses experiencing extreme psychological distress" }
+      ]
+    },
+    {
+      "name": "Surveillance",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["investigation"],
+      "evidence": [
+        { "outcome": "Conducted covert surveillance of Hawkins National Laboratory revealing classified operations", "description": "Used physical surveillance and document analysis to uncover government facility's secret programs" }
       ]
     },
     {
       "name": "Firearms Proficiency",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Police Chief",
-        "Military Veteran"
+      "roles": ["crisis"],
+      "evidence": [
+        { "outcome": "Maintained expert firearms qualification across handgun, shotgun, and rifle platforms", "description": "Annual qualification scores consistently in top tier, applied effectively in multiple armed confrontations" }
       ]
     },
     {
-      "name": "Decision Making Under Pressure",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Police Chief",
-        "Military Veteran"
+      "name": "Budget Management",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["admin"],
+      "evidence": [
+        { "outcome": "Managed HPD budget of $400K covering salaries, equipment, and operations", "description": "Stretched limited municipal budget to maintain department operations and equipment readiness" }
       ]
     },
     {
       "name": "Report Writing",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Police Chief",
-        "Homicide Detective"
+      "roles": ["investigation", "admin"],
+      "evidence": [
+        { "outcome": "Authored investigation reports and incident documentation for 4 major crisis events", "description": "Produced official reports balancing accuracy with classified information restrictions" }
       ]
     },
     {
-      "name": "Emergency Response Planning",
+      "name": "First Aid & Emergency Medical",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Police Chief"
+      "roles": ["crisis"],
+      "evidence": [
+        { "outcome": "Provided field medical assistance to wounded civilians during multiple crisis events", "description": "Applied first responder medical training in austere conditions when EMS was unavailable or delayed" }
       ]
     },
     {
-      "name": "Protective Services",
+      "name": "Survival Skills",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Police Chief"
+      "roles": ["crisis"],
+      "evidence": [
+        { "outcome": "Survived 8+ months in Soviet forced labor camp maintaining physical and mental resilience", "description": "Applied survival training and mental toughness to endure captivity, malnutrition, and forced labor in extreme conditions" }
+      ]
+    },
+    {
+      "name": "Courage Under Fire",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["crisis"],
+      "evidence": [
+        { "outcome": "Personally led front-line operations against threats that terrified trained military personnel", "description": "Consistently chose to lead from the front in situations where personal survival was uncertain" }
+      ]
+    },
+    {
+      "name": "Protective Instinct",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["community", "crisis"],
+      "evidence": [
+        { "outcome": "Adopted and protected Eleven at personal legal and physical risk", "description": "Took in vulnerable individual, providing safety, stability, and parental care despite danger to his own position and safety" }
+      ]
+    },
+    {
+      "name": "Adaptability",
+      "level": "Expert",
+      "category": "work style",
+      "roles": ["crisis"],
+      "evidence": [
+        { "outcome": "Adapted from conventional policing to unconventional threat response without training or precedent", "description": "Rapidly adjusted investigative and tactical approaches when confronting threats outside any law enforcement protocol" }
       ]
     },
     {
       "name": "Resilience",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Police Chief",
-        "Military Veteran"
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["crisis"],
+      "evidence": [
+        { "outcome": "Recovered from loss of daughter, addiction, Soviet captivity, and multiple near-death experiences", "description": "Demonstrated extraordinary capacity to endure personal tragedy and extreme adversity while maintaining duty and purpose" }
+      ]
+    },
+    {
+      "name": "Leadership Under Stress",
+      "level": "Expert",
+      "category": "work style",
+      "roles": ["crisis", "admin"],
+      "evidence": [
+        { "outcome": "Maintained command presence and decision-making clarity during 4 existential crisis events", "description": "Led teams of mixed military, civilian, and law enforcement personnel through unprecedented threats" }
       ]
     },
     {
       "name": "Empathy",
-      "category": "workstyle",
-      "proficiency": "Advanced",
-      "roles": [
-        "Police Chief"
+      "level": "Advanced",
+      "category": "work style",
+      "roles": ["community"],
+      "evidence": [
+        { "outcome": "Built trust with traumatized children and families affected by crisis events", "description": "Provided emotional support and protection to affected civilians, particularly children, during and after crisis" }
       ]
     },
     {
-      "name": "Resourcefulness",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Police Chief",
-        "Military Veteran"
-      ]
-    },
-    {
-      "name": "Conflict De-escalation",
+      "name": "Physical Conditioning",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Police Chief"
+      "roles": ["crisis"],
+      "evidence": [
+        { "outcome": "Maintained operational physical fitness through 20+ year career including post-injury recovery", "description": "Sustained physical capability for field operations despite injuries, age, and environmental challenges" }
+      ]
+    },
+    {
+      "name": "Conflict De-Escalation",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["community", "admin"],
+      "evidence": [
+        { "outcome": "Resolved domestic disputes and community conflicts through de-escalation versus force", "description": "Applied communication skills and patience to resolve volatile situations without escalation" }
+      ]
+    },
+    {
+      "name": "Information Security",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["interagency"],
+      "evidence": [
+        { "outcome": "Maintained classified information security across 4 containment events", "description": "Protected sensitive information from public disclosure while coordinating with multiple agencies and civilian participants" }
       ]
     }
+  ],
+  "values": [
+    { "name": "Protection", "level": "core" },
+    { "name": "Justice", "level": "core" },
+    { "name": "Courage", "level": "core" },
+    { "name": "Family", "level": "important" },
+    { "name": "Community", "level": "important" }
   ],
   "workHistory": [
     {
       "title": "Chief of Police",
       "company": "Hawkins Police Department",
-      "location": "Hawkins, IN",
-      "startDate": "1980-01",
-      "endDate": "",
+      "startYear": 2011,
+      "endYear": null,
       "current": true,
-      "description": "Lead all law enforcement operations for the town of Hawkins. Manage officer team, coordinate with state police and federal agencies, handle community relations and public safety planning.",
-      "achievements": [
-        "Led 3 major community crisis responses",
-        "Negotiated DOE cooperation agreement",
-        "Rebuilt department morale and community trust"
-      ]
+      "description": "Chief of 8-officer department serving 25,000 residents. Led response to 4 major crisis events requiring multi-agency coordination. Rebuilt department credibility and community trust."
     },
     {
       "title": "Homicide Detective",
-      "company": "New York City Police Department",
-      "location": "New York, NY",
-      "startDate": "1972-09",
-      "endDate": "1979-12",
-      "current": false,
-      "description": "Investigated homicide cases in one of the nation's busiest precincts. Worked closely with forensics, DA's office, and witness protection. Specialized in complex cases involving organized crime.",
-      "achievements": [
-        "85% case clearance rate vs. 65% department average",
-        "Worked 150+ homicide investigations",
-        "Commendation for undercover work"
-      ]
-    },
-    {
-      "title": "Chemical Corps Specialist",
-      "company": "United States Army",
-      "location": "Vietnam",
-      "startDate": "1959-06",
-      "endDate": "1963-08",
-      "current": false,
-      "description": "Served in the Chemical Corps during the Vietnam War. Worked with defoliant operations. Received honorable discharge with decorations.",
-      "achievements": [
-        "Honorable discharge with commendations",
-        "Chemical Corps specialist training"
-      ]
+      "company": "New York Police Department",
+      "startYear": 1998,
+      "endYear": 2011,
+      "description": "Investigated 45+ homicide cases with 82% clearance rate. Left NYPD following personal tragedy to take small-town posting."
     }
   ],
   "education": [
     {
-      "school": "Hawkins High School",
-      "degree": "High School Diploma",
-      "field": "General Studies",
-      "year": "1959",
-      "id": "ed-jh-1"
+      "institution": "John Jay College of Criminal Justice",
+      "degree": "B.S. Criminal Justice",
+      "year": 1996
     },
     {
-      "school": "NYPD Police Academy",
-      "degree": "Certificate",
-      "field": "Law Enforcement",
-      "year": "1972",
-      "id": "ed-jh-2"
+      "institution": "NYPD Police Academy",
+      "degree": "Police Officer Training",
+      "year": 1996
     }
   ],
   "certifications": [
-    {
-      "name": "Indiana Law Enforcement Academy",
-      "abbr": "ILEA",
-      "issuer": "State of Indiana",
-      "year": "1980",
-      "type": "Certification",
-      "linkedSkills": [
-        "Law Enforcement Leadership"
-      ],
-      "tier": 2,
-      "libraryMatch": null,
-      "id": "cert-jh-1"
-    }
+    { "name": "Indiana Law Enforcement Academy", "issuer": "State of Indiana" },
+    { "name": "Crisis Management Certification", "issuer": "FEMA" },
+    { "name": "Advanced Tactical Operations", "issuer": "NYPD" }
   ],
-  "savedJobs": [
-    {
-      "title": "Director of Emergency Management",
-      "company": "FEMA Region V",
-      "location": "Chicago, IL",
-      "description": "Lead regional disaster preparedness and emergency response coordination. Manage multi-agency operations during natural disasters and public safety emergencies.",
-      "parsedSkills": [
-        "Crisis Management",
-        "Emergency Response Planning",
-        "Team Leadership",
-        "Government Liaison",
-        "Decision Making Under Pressure",
-        "Community Policing",
-        "Report Writing",
-        "Resource Allocation",
-        "Incident Command System",
-        "Federal Budget Management",
-        "Congressional Reporting",
-        "GIS Mapping",
-        "Hazmat Certification"
-      ],
-      "curated": true
-    },
-    {
-      "title": "VP of Security Operations",
-      "company": "Tesla Inc.",
-      "location": "Austin, TX",
-      "description": "Lead physical security, executive protection, and facility security for manufacturing operations across multiple continents.",
-      "parsedSkills": [
-        "Law Enforcement Leadership",
-        "Team Leadership",
-        "Crisis Management",
-        "Physical Fitness",
-        "Protective Services",
-        "Risk Assessment",
-        "Emergency Response Planning",
-        "Access Control Systems",
-        "CCTV Analytics",
-        "Threat Intelligence",
-        "Executive Travel Security",
-        "Workplace Violence Prevention"
-      ],
-      "curated": true
-    },
-    {
-      "title": "County Sheriff",
-      "company": "Monroe County, IN",
-      "location": "Bloomington, IN",
-      "description": "Elected law enforcement leader overseeing county-wide policing, jail operations, court security, and community programs.",
-      "parsedSkills": [
-        "Law Enforcement Leadership",
-        "Criminal Investigation",
-        "Community Policing",
-        "Crisis Management",
-        "Team Leadership",
-        "Emergency Response Planning",
-        "Report Writing",
-        "Conflict De-escalation",
-        "Budget Management",
-        "Public Relations",
-        "Jail Administration",
-        "Court Liaison"
-      ],
-      "curated": true
-    }
-  ],
-  "values": [],
-  "purpose": ""
+  "purpose": "I don't care what the protocols say. I care about the people. And I'll go through whatever door I have to."
 }

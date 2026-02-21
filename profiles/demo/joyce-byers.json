@@ -1,297 +1,215 @@
 {
+  "templateId": "joyce-byers",
   "profile": {
     "name": "Joyce Byers",
-    "currentTitle": "Sales Clerk, Melvald's General Store",
-    "location": "Hawkins, IN",
+    "currentTitle": "Retail Associate, Melvald's General Store",
+    "location": "Hawkins, IN → Lenora Hills, CA",
     "roleLevel": "Mid-Career",
-    "summary": "Resourceful and determined professional with 15+ years in retail operations and an extraordinary track record of investigation and advocacy when it matters most. Known for relentless persistence, deep intuition, and an unwavering commitment to protecting others \u2014 especially the most vulnerable."
+    "headline": "Single mother and retail professional who has demonstrated investigative tenacity, crisis leadership, and protective determination that would put most federal agents to shame. When institutions failed, she didn't.",
+    "executiveSummary": "A retail worker and single mother whose professional resume barely hints at her true capabilities. When her son disappeared and every authority said he was dead, Joyce refused to accept it and conducted her own investigation that proved correct. She has since navigated government conspiracies, traveled to Soviet Russia, and rescued people from interdimensional threats — all while working retail and raising two boys alone."
   },
   "roles": [
-    {
-      "name": "Retail Manager"
-    },
-    {
-      "name": "Investigator"
-    },
-    {
-      "name": "Advocate"
-    }
+    { "name": "Retail Operations", "id": "retail" },
+    { "name": "Investigation & Research", "id": "investigation" },
+    { "name": "Crisis Response", "id": "crisis" },
+    { "name": "Family Management", "id": "family" }
   ],
   "skills": [
     {
-      "name": "Retail Operations",
+      "name": "Investigative Tenacity",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Retail Manager"
-      ],
+      "key": true,
+      "roles": ["investigation"],
       "evidence": [
-        {
-          "outcome": "Managed store operations solo during peak holiday seasons serving 200+ daily customers",
-          "description": "Handled inventory, customer service, cash management, and vendor relations single-handedly"
-        }
+        { "outcome": "Located missing child when police, state investigators, and federal agents all declared him dead", "description": "Pursued independent investigation against unanimous institutional conclusions, proving that Will was alive in an alternate dimension" },
+        { "outcome": "Identified electromagnetic anomalies in Hawkins before any scientist or government agency", "description": "Connected seemingly random compass and magnet behavior to larger pattern indicating dimensional breach" }
       ]
     },
     {
-      "name": "Customer Service",
+      "name": "Crisis Decision Making",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Retail Manager"
-      ]
-    },
-    {
-      "name": "Investigation",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Investigator"
-      ],
+      "key": true,
+      "roles": ["crisis"],
       "evidence": [
-        {
-          "outcome": "Located missing child when professional law enforcement had exhausted all leads",
-          "description": "Pursued unconventional investigative methods that proved successful"
-        }
-      ]
-    },
-    {
-      "name": "Advocacy",
-      "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Advocate"
-      ],
-      "evidence": [
-        {
-          "outcome": "Successfully challenged government agency cover-up to protect community",
-          "description": "Persisted against institutional resistance and gaslighting to expose truth"
-        }
-      ]
-    },
-    {
-      "name": "Persistence",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Investigator",
-        "Advocate"
-      ]
-    },
-    {
-      "name": "Intuition",
-      "category": "ability",
-      "proficiency": "Mastery",
-      "roles": [
-        "Investigator"
+        { "outcome": "Made life-or-death decisions for family across 4 crisis events with consistently right judgment", "description": "Assessed threats accurately and chose correct course of action when stakes were highest and information was minimal" },
+        { "outcome": "Decided to relocate family across country to protect children from government surveillance", "description": "Made difficult strategic decision to uproot family when staying put posed unacceptable risk" }
       ]
     },
     {
       "name": "Resourcefulness",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Investigator",
-        "Retail Manager"
-      ]
-    },
-    {
-      "name": "Crisis Response",
+      "level": "Mastery",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Advocate"
-      ],
+      "key": true,
+      "roles": ["crisis", "investigation"],
       "evidence": [
-        {
-          "outcome": "Organized and executed 3 rescue operations under extreme conditions",
-          "description": "Coordinated with law enforcement and civilians to save lives"
-        }
+        { "outcome": "Built interdimensional communication system using Christmas lights and alphabet", "description": "Improvised functional communication channel to contact son in alternate dimension using household materials" },
+        { "outcome": "Traveled to Soviet Union and infiltrated military prison to rescue Jim Hopper", "description": "Organized and executed international rescue mission without government support, military training, or resources" }
       ]
     },
     {
-      "name": "Cash Handling",
+      "name": "Customer Service",
+      "level": "Proficient",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Retail Manager"
+      "roles": ["retail"],
+      "evidence": [
+        { "outcome": "Maintained reliable customer service at Melvald's through extraordinary personal circumstances", "description": "Continued to show up and perform retail duties while managing crises that would have incapacitated most people" }
       ]
     },
     {
-      "name": "Inventory Management",
+      "name": "Retail Operations",
+      "level": "Proficient",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Retail Manager"
+      "roles": ["retail"],
+      "evidence": [
+        { "outcome": "Managed daily operations at Melvald's General Store for 8+ years", "description": "Handled inventory, customer service, cash management, and store opening/closing procedures reliably" }
       ]
     },
     {
-      "name": "Vendor Relations",
+      "name": "Pattern Recognition",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Retail Manager"
+      "key": true,
+      "roles": ["investigation"],
+      "evidence": [
+        { "outcome": "Connected electromagnetic anomalies to dimensional gate activity before scientists did", "description": "Noticed magnets falling off refrigerator and traced the pattern to its source, identifying threat when trained professionals missed it" }
       ]
     },
     {
-      "name": "Communication",
+      "name": "Household Management",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Advocate"
+      "roles": ["family"],
+      "evidence": [
+        { "outcome": "Raised two sons as single parent on retail worker salary", "description": "Managed household finances, childcare, and domestic operations with minimal resources and no partner support" }
+      ]
+    },
+    {
+      "name": "Budget Management",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["family", "retail"],
+      "evidence": [
+        { "outcome": "Maintained household on single retail income for 10+ years", "description": "Stretched limited budget across rent, food, utilities, and children's needs without external support" }
+      ]
+    },
+    {
+      "name": "First Aid",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["crisis", "family"],
+      "evidence": [
+        { "outcome": "Provided emergency medical care to children and adults during crisis events", "description": "Applied basic medical knowledge to treat injuries when professional medical help was unavailable" }
+      ]
+    },
+    {
+      "name": "Driving & Navigation",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["crisis"],
+      "evidence": [
+        { "outcome": "Served as driver and navigator during multiple crisis response operations", "description": "Provided reliable transportation under stressful and dangerous conditions" }
+      ]
+    },
+    {
+      "name": "International Travel",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["crisis"],
+      "evidence": [
+        { "outcome": "Traveled to Soviet Union and navigated foreign country without language skills or preparation", "description": "Managed international travel logistics in hostile foreign environment to execute rescue mission" }
+      ]
+    },
+    {
+      "name": "Protective Determination",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["crisis", "family"],
+      "evidence": [
+        { "outcome": "Fought interdimensional threats, government conspiracies, and Soviet military to protect her children", "description": "No force — natural or supernatural — has ever stopped Joyce Byers from protecting the people she loves" }
+      ]
+    },
+    {
+      "name": "Intuition",
+      "level": "Expert",
+      "category": "work style",
+      "key": true,
+      "roles": ["investigation"],
+      "evidence": [
+        { "outcome": "Trusted maternal instinct when every authority figure told her she was wrong — and was right every time", "description": "Followed gut feeling that Will was alive, that magnets meant something, that Hopper was alive, proving correct each time" }
+      ]
+    },
+    {
+      "name": "Resilience",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["crisis", "family"],
+      "evidence": [
+        { "outcome": "Maintained family stability through 4 existential crises, divorce, poverty, and relocation", "description": "Kept functioning as parent, employee, and crisis responder through sustained adversity that would break most people" }
+      ]
+    },
+    {
+      "name": "Courage",
+      "level": "Expert",
+      "category": "work style",
+      "roles": ["crisis"],
+      "evidence": [
+        { "outcome": "Entered alternate dimension to rescue her son with no training, equipment, or backup", "description": "Walked into the Upside Down armed with nothing but determination and an axe" }
       ]
     },
     {
       "name": "Empathy",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Advocate"
+      "level": "Advanced",
+      "category": "work style",
+      "roles": ["family"],
+      "evidence": [
+        { "outcome": "Took in Eleven providing maternal care and stability to traumatized child", "description": "Extended protective instinct beyond biological children to provide home and family to a child who had never known either" }
       ]
     },
     {
-      "name": "Decision Making Under Pressure",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Investigator"
-      ]
-    },
-    {
-      "name": "Negotiation",
-      "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Advocate"
-      ]
-    },
-    {
-      "name": "Physical Endurance",
-      "category": "ability",
-      "proficiency": "Advanced",
-      "roles": [
-        "Investigator"
-      ]
-    },
-    {
-      "name": "Emotional Resilience",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Advocate"
-      ]
-    },
-    {
-      "name": "Parenting",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Advocate"
+      "name": "Persistence",
+      "level": "Expert",
+      "category": "work style",
+      "roles": ["investigation"],
+      "evidence": [
+        { "outcome": "Continued investigation for weeks when everyone including her own son told her to stop", "description": "Maintained belief and effort when completely alone in her conviction, sustaining investigation against unanimous opposition" }
       ]
     }
   ],
+  "values": [
+    { "name": "Family", "level": "core" },
+    { "name": "Protection", "level": "core" },
+    { "name": "Determination", "level": "core" },
+    { "name": "Loyalty", "level": "important" },
+    { "name": "Courage", "level": "important" }
+  ],
   "workHistory": [
     {
-      "title": "Sales Clerk / Floor Manager",
+      "title": "Retail Associate",
       "company": "Melvald's General Store",
-      "location": "Hawkins, IN",
-      "startDate": "1975-03",
-      "endDate": "",
-      "current": true,
-      "description": "Managed day-to-day store operations including customer service, inventory management, cash handling, opening/closing procedures, and seasonal merchandising. Frequently served as sole employee during shifts.",
-      "achievements": [
-        "Managed store solo during peak seasons (200+ daily customers)",
-        "Maintained vendor relationships for 50+ product categories",
-        "Zero cash discrepancies in 8+ years"
-      ]
+      "startYear": 1978,
+      "endYear": 1985,
+      "description": "Customer service, inventory management, and daily store operations at Hawkins general store for 8 years."
     },
     {
-      "title": "Waitress",
-      "company": "Big Buy Supermarket Deli",
-      "location": "Hawkins, IN",
-      "startDate": "1972-06",
-      "endDate": "1975-02",
-      "current": false,
-      "description": "Food service and customer-facing role in grocery deli department. Gained foundational customer service and food handling skills.",
-      "achievements": []
+      "title": "Retail Associate",
+      "company": "Various — Lenora Hills, CA",
+      "startYear": 1986,
+      "endYear": null,
+      "current": true,
+      "description": "Continued retail work after relocating family to California for safety."
     }
   ],
   "education": [
     {
-      "school": "Hawkins High School",
+      "institution": "Hawkins High School",
       "degree": "High School Diploma",
-      "field": "General Studies",
-      "year": "1961",
-      "id": "ed-jb-1"
+      "year": 1974
     }
   ],
   "certifications": [],
-  "savedJobs": [
-    {
-      "title": "Director of Victim Advocacy",
-      "company": "National Center for Missing & Exploited Children (NCMEC)",
-      "location": "Alexandria, VA",
-      "description": "Lead victim advocacy programs supporting families of missing and exploited children. Coordinate with law enforcement, social services, and media for family support and case resolution.",
-      "parsedSkills": [
-        "Advocacy",
-        "Investigation",
-        "Communication",
-        "Empathy",
-        "Crisis Response",
-        "Persistence",
-        "Emotional Resilience",
-        "Negotiation",
-        "Case Management",
-        "Trauma-Informed Care",
-        "Media Relations",
-        "Federal Agency Liaison",
-        "Victim Rights Law"
-      ],
-      "curated": true
-    },
-    {
-      "title": "Store Manager",
-      "company": "Ace Hardware",
-      "location": "Bloomington, IN",
-      "description": "Manage all aspects of locally-owned hardware store including staff, inventory, vendor relations, community events, and customer experience.",
-      "parsedSkills": [
-        "Retail Operations",
-        "Customer Service",
-        "Cash Handling",
-        "Inventory Management",
-        "Vendor Relations",
-        "Resourcefulness",
-        "Communication",
-        "Persistence",
-        "Staff Scheduling",
-        "Merchandising",
-        "POS Systems",
-        "Local Marketing",
-        "Contractor Relations"
-      ],
-      "curated": true
-    },
-    {
-      "title": "Licensed Private Investigator",
-      "company": "Self-Employed",
-      "location": "Indianapolis, IN",
-      "description": "Conduct investigations for attorneys, insurance companies, and private clients. Missing persons, background checks, surveillance, and asset searches.",
-      "parsedSkills": [
-        "Investigation",
-        "Persistence",
-        "Intuition",
-        "Resourcefulness",
-        "Communication",
-        "Decision Making Under Pressure",
-        "Report Writing",
-        "Photography",
-        "Surveillance Equipment",
-        "Database Research",
-        "PI License Required",
-        "Skip Tracing"
-      ],
-      "curated": true
-    }
-  ],
-  "values": [],
-  "purpose": ""
+  "purpose": "Don't tell me what's possible. I found my son in another dimension with Christmas lights. I know what's possible."
 }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.27.2.3 | 20260221 | Values panel overlay on mobile (like Match), full-height SVG restored -->
+    <!-- v4.27.2.4 | 20260221 | Proficiency labels standardized (5-level), demo profile overhaul -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -890,8 +890,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.27.2.3 - BUILD 20260221-values-overlay
-        var BP_VERSION = 'v4.27.2.3';
+        // BLUEPRINT v4.27.2.4 - BUILD 20260221-proficiency-fix
+        var BP_VERSION = 'v4.27.2.4';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -10766,17 +10766,18 @@ body {
             // ── SKILL DISTRIBUTION BAR ──
             if (skills.length > 0) {
                 var profLevels = [
-                    { key: 'Mastery', color: '#10b981', label: 'Mastery' },
-                    { key: 'Advanced', color: '#3b82f6', label: 'Advanced' },
-                    { key: 'Intermediate', color: '#8b5cf6', label: 'Intermediate' },
-                    { key: 'Foundational', color: '#6b7280', label: 'Foundational' }
+                    { key: 'Mastery', color: '#ef4444', label: 'Mastery' },
+                    { key: 'Expert', color: '#f97316', label: 'Expert' },
+                    { key: 'Advanced', color: '#f59e0b', label: 'Advanced' },
+                    { key: 'Proficient', color: '#10b981', label: 'Proficient' },
+                    { key: 'Novice', color: '#6b7280', label: 'Novice' }
                 ];
                 var profCounts = {};
                 profLevels.forEach(function(p) { profCounts[p.key] = 0; });
                 skills.forEach(function(s) {
-                    var lv = s.level || 'Foundational';
+                    var lv = s.level || 'Novice';
                     if (profCounts[lv] !== undefined) profCounts[lv]++;
-                    else profCounts['Foundational']++;
+                    else profCounts['Novice']++;
                 });
                 var total = skills.length;
                 
@@ -11050,12 +11051,12 @@ body {
             }
             
             // Stats summary
-            var levelCounts = { 'Mastery': 0, 'Advanced': 0, 'Intermediate': 0, 'Foundational': 0 };
-            var levelColors = { 'Mastery': '#10b981', 'Advanced': '#3b82f6', 'Intermediate': '#8b5cf6', 'Foundational': '#6b7280' };
-            skills.forEach(function(s) { var lv = s.level || 'Foundational'; if (levelCounts[lv] !== undefined) levelCounts[lv]++; else levelCounts['Foundational']++; });
+            var levelCounts = { 'Mastery': 0, 'Expert': 0, 'Advanced': 0, 'Proficient': 0, 'Novice': 0 };
+            var levelColors = { 'Mastery': '#ef4444', 'Expert': '#f97316', 'Advanced': '#f59e0b', 'Proficient': '#10b981', 'Novice': '#6b7280' };
+            skills.forEach(function(s) { var lv = s.level || 'Novice'; if (levelCounts[lv] !== undefined) levelCounts[lv]++; else levelCounts['Novice']++; });
             
             html += '<div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:20px;">';
-            ['Mastery','Advanced','Intermediate','Foundational'].forEach(function(lv) {
+            ['Mastery','Expert','Advanced','Proficient','Novice'].forEach(function(lv) {
                 if (levelCounts[lv] > 0) {
                     html += '<div style="display:flex; align-items:center; gap:6px; font-size:0.85em;">'
                         + '<div style="width:10px; height:10px; border-radius:3px; background:' + levelColors[lv] + ';"></div>'
@@ -11090,7 +11091,7 @@ body {
                 var domainSkills = domain === '_unassigned' ? unassigned : skillsByRole[domain];
                 var displayName = domain === '_unassigned' ? 'Uncategorized' : domain;
                 domainSkills.sort(function(a,b) {
-                    var order = {'Mastery':0,'Advanced':1,'Intermediate':2,'Foundational':3};
+                    var order = {'Mastery':0,'Expert':1,'Advanced':2,'Proficient':3,'Novice':4};
                     return (order[a.level]||3) - (order[b.level]||3);
                 });
                 
@@ -11104,7 +11105,7 @@ body {
                 
                 // Skills list
                 domainSkills.forEach(function(s) {
-                    var lv = s.level || 'Foundational';
+                    var lv = s.level || 'Novice';
                     var lvColor = levelColors[lv] || '#6b7280';
                     var escapedName = s.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     
@@ -12244,16 +12245,18 @@ body {
                 purple: [129, 140, 248],     // #818cf8
                 bgLight: [248, 250, 252],    // #f8fafc
                 border: [226, 232, 240],     // #e2e8f0
-                white: [255, 255, 255]
+                white: [255, 255, 255],
+                red: [239, 68, 68],          // #ef4444
+                orange: [249, 115, 22]       // #f97316
             };
             
             // Level colors
             var levelColor = {
-                'Mastery': C.amber,
-                'Advanced': C.accent,
+                'Mastery': C.red,
+                'Expert': C.orange,
+                'Advanced': C.amber,
                 'Proficient': C.green,
-                'Developing': C.purple,
-                'Foundational': C.textMuted
+                'Novice': C.textMuted
             };
             
             // ============================================================
@@ -12796,7 +12799,7 @@ body {
                     yPos += 7;
                     
                     // Show top surplus skills sorted by level
-                    var levelVal = { 'Mastery': 5, 'Advanced': 4, 'Proficient': 3, 'Developing': 2, 'Foundational': 1 };
+                    var levelVal = { 'Mastery': 5, 'Expert': 4, 'Advanced': 3, 'Proficient': 2, 'Novice': 1 };
                     var topSurplus = surplusSkills.slice().sort(function(a, b) { return (levelVal[b.level] || 0) - (levelVal[a.level] || 0); }).slice(0, 20);
                     
                     // 3-column layout
@@ -12977,7 +12980,7 @@ body {
                 var rowH = 5.8;
                 
                 // Sort: Mastery first, then Advanced, etc.
-                var levelOrder = { 'Mastery': 0, 'Advanced': 1, 'Proficient': 2, 'Developing': 3, 'Foundational': 4 };
+                var levelOrder = { 'Mastery': 0, 'Expert': 1, 'Advanced': 2, 'Proficient': 3, 'Novice': 4 };
                 group.skills.sort(function(a, b) {
                     return (levelOrder[a.level] || 4) - (levelOrder[b.level] || 4);
                 });
@@ -13057,7 +13060,7 @@ body {
                 });
                 
                 // Skill nodes — spread around their parent role
-                var levelSizes = { 'Mastery': 2.8, 'Advanced': 2.2, 'Proficient': 1.8, 'Developing': 1.4, 'Foundational': 1.0 };
+                var levelSizes = { 'Mastery': 2.8, 'Expert': 2.4, 'Advanced': 2.0, 'Proficient': 1.6, 'Novice': 1.0 };
                 var skillNodeStart = graphNodes.length;
                 
                 // Deterministic hash for consistent layout
@@ -13070,7 +13073,7 @@ body {
                     
                     // Sort skills by level for consistent ordering
                     var sortedSkills = group.skills.slice().sort(function(a, b) {
-                        var lv = { 'Mastery': 0, 'Advanced': 1, 'Proficient': 2, 'Developing': 3, 'Foundational': 4 };
+                        var lv = { 'Mastery': 0, 'Expert': 1, 'Advanced': 2, 'Proficient': 3, 'Novice': 4 };
                         return (lv[a.level] || 4) - (lv[b.level] || 4) || a.name.localeCompare(b.name);
                     });
                     
@@ -13158,11 +13161,11 @@ body {
                 doc.text('PROFICIENCY LEVELS:', margin, yPos);
                 var legendX = margin + 32;
                 var legendItems = [
-                    { label: 'Mastery', color: C.amber, r: 2.8 },
-                    { label: 'Advanced', color: C.accent, r: 2.2 },
-                    { label: 'Proficient', color: C.green, r: 1.8 },
-                    { label: 'Developing', color: C.purple, r: 1.4 },
-                    { label: 'Foundational', color: C.textMuted, r: 1.0 }
+                    { label: 'Mastery', color: C.red, r: 2.8 },
+                    { label: 'Expert', color: C.orange, r: 2.4 },
+                    { label: 'Advanced', color: C.amber, r: 2.0 },
+                    { label: 'Proficient', color: C.green, r: 1.6 },
+                    { label: 'Novice', color: C.textMuted, r: 1.0 }
                 ];
                 legendItems.forEach(function(item) {
                     setFill(item.color);
@@ -13183,7 +13186,7 @@ body {
                 sectionHead('Skill Distribution', 'Proficiency Breakdown & Role Coverage');
                 
                 // --- PROFICIENCY BAR CHART ---
-                var levelOrder = ['Mastery', 'Advanced', 'Proficient', 'Developing', 'Foundational'];
+                var levelOrder = ['Mastery', 'Expert', 'Advanced', 'Proficient', 'Novice'];
                 var levelCounts = {};
                 levelOrder.forEach(function(l) { levelCounts[l] = 0; });
                 skills.forEach(function(s) { if (levelCounts[s.level] !== undefined) levelCounts[s.level]++; });

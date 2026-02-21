@@ -1,344 +1,201 @@
 {
+  "templateId": "dustin-henderson",
   "profile": {
     "name": "Dustin Henderson",
-    "currentTitle": "Student / STEM Enthusiast",
+    "currentTitle": "Student & Amateur Radio Operator",
     "location": "Hawkins, IN",
-    "roleLevel": "Early Career",
-    "summary": "Precocious STEM talent with exceptional problem-solving abilities and communication skills. Ham radio operator, science fair winner, and natural bridge-builder between technical and non-technical stakeholders. Combines deep curiosity with the social skills to rally diverse teams around complex challenges."
+    "roleLevel": "Early-Career",
+    "headline": "STEM-gifted problem solver with exceptional communication skills. Built long-range radio communication system, decoded Russian military transmissions, and consistently provides the critical intellectual breakthrough when teams are stuck.",
+    "executiveSummary": "A natural engineer and communicator who combines deep STEM curiosity with unusual social intelligence for someone his age. Known for building functional technology solutions from available components, decoding complex patterns, and maintaining team morale during crisis situations. Winner of regional science fair for work on electromagnetism. Currently the youngest licensed amateur radio operator in Hawkins County."
   },
   "roles": [
-    {
-      "name": "STEM Engineer"
-    },
-    {
-      "name": "Communications Specialist"
-    },
-    {
-      "name": "Problem Solver"
-    }
+    { "name": "STEM & Engineering", "id": "stem" },
+    { "name": "Communications & Radio", "id": "communications" },
+    { "name": "Problem Solving & Analysis", "id": "analysis" },
+    { "name": "Team Coordination", "id": "team" }
   ],
   "skills": [
     {
-      "name": "Electronics",
-      "category": "knowledge",
-      "proficiency": "Advanced",
-      "roles": [
-        "STEM Engineer"
-      ],
+      "name": "Electrical Engineering",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": ["stem"],
       "evidence": [
-        {
-          "outcome": "Built long-range radio transmitter from salvaged components that achieved 1,000+ mile range",
-          "description": "Named 'Cerebro' \u2014 contacted amateur operator in Utah from Indiana"
-        }
+        { "outcome": "Built long-range radio transmitter 'Cerebro' capable of intercontinental communication", "description": "Designed and constructed radio system powerful enough to reach girlfriend in Utah from Indiana using salvaged and purchased components" },
+        { "outcome": "Won Hawkins Middle School Science Fair with electromagnetic research project", "description": "Demonstrated understanding of electromagnetism through original research and practical demonstration" }
       ]
     },
     {
       "name": "Radio Communications",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Communications Specialist"
-      ],
+      "key": true,
+      "roles": ["communications"],
       "evidence": [
-        {
-          "outcome": "Maintained critical communications during 3 emergency situations when standard infrastructure failed",
-          "description": "Ham radio skills proved essential when phone lines were compromised"
-        }
+        { "outcome": "Established and maintained reliable radio communication network for crisis response team", "description": "Provided critical communication infrastructure when conventional systems were unavailable or compromised" },
+        { "outcome": "Intercepted and decoded Russian military radio transmissions revealing secret operation", "description": "Identified anomalous radio signals, recorded transmissions, and coordinated translation effort" }
       ]
     },
     {
-      "name": "Problem Solving",
+      "name": "Pattern Recognition & Cryptanalysis",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Problem Solver"
-      ],
+      "key": true,
+      "roles": ["analysis"],
       "evidence": [
-        {
-          "outcome": "Decoded Russian military transmission using first-principles cryptanalysis",
-          "description": "Identified language, found translator, and broke communication code in under 48 hours"
-        }
+        { "outcome": "Identified repeating pattern in intercepted Russian transmissions enabling translation", "description": "Applied analytical skills to recognize encoded communication pattern that adults had missed" },
+        { "outcome": "Decoded compass anomaly revealing electromagnetic interference from alternate dimension", "description": "Connected apparently random compass behavior to underlying electromagnetic phenomenon" }
       ]
     },
     {
-      "name": "Science & Research",
-      "category": "knowledge",
-      "proficiency": "Advanced",
-      "roles": [
-        "STEM Engineer"
-      ]
-    },
-    {
-      "name": "Computer Science",
-      "category": "knowledge",
-      "proficiency": "Intermediate",
-      "roles": [
-        "STEM Engineer"
-      ]
-    },
-    {
-      "name": "Mathematics",
-      "category": "knowledge",
-      "proficiency": "Advanced",
-      "roles": [
-        "STEM Engineer"
-      ]
-    },
-    {
-      "name": "Cryptography",
-      "category": "knowledge",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Communications Specialist"
-      ]
-    },
-    {
-      "name": "Technical Communication",
+      "name": "Scientific Method",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Communications Specialist"
-      ],
+      "key": true,
+      "roles": ["stem"],
       "evidence": [
-        {
-          "outcome": "Translated complex scientific concepts for non-technical teammates enabling group problem-solving",
-          "description": "Consistently the bridge between technical understanding and practical action"
-        }
+        { "outcome": "Applied systematic hypothesis testing to understand interdimensional phenomena", "description": "Used scientific methodology to develop and test theories about events that defied conventional explanation" }
       ]
     },
     {
-      "name": "Curiosity",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "STEM Engineer",
-        "Problem Solver"
+      "name": "Team Coordination",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": ["team"],
+      "evidence": [
+        { "outcome": "Coordinated multi-team operations across 3 simultaneous mission groups", "description": "Served as communications hub and tactical coordinator for dispersed teams during crisis events" }
+      ]
+    },
+    {
+      "name": "Technology Troubleshooting",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["stem"],
+      "evidence": [
+        { "outcome": "Diagnosed and repaired electronic equipment under field conditions", "description": "Applied technical knowledge to troubleshoot and fix communication and electronic equipment during operations" }
+      ]
+    },
+    {
+      "name": "Biology & Zoology",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["stem"],
+      "evidence": [
+        { "outcome": "Identified and cared for unknown species (D'Artagnan) conducting behavioral observation", "description": "Applied scientific curiosity and care to study unknown organism, documenting behavioral patterns" }
+      ]
+    },
+    {
+      "name": "Map Reading & Navigation",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["analysis"],
+      "evidence": [
+        { "outcome": "Navigated underground tunnel system using compass and topographic mapping", "description": "Applied orienteering skills to navigate dangerous unknown terrain" }
+      ]
+    },
+    {
+      "name": "Presentation & Teaching",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["team"],
+      "evidence": [
+        { "outcome": "Explained complex scientific concepts to non-technical team members enabling collective problem-solving", "description": "Translated electromagnetism, radio theory, and dimensional physics into understandable terms" }
+      ]
+    },
+    {
+      "name": "First Aid",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["team"],
+      "evidence": []
+    },
+    {
+      "name": "Intellectual Curiosity",
+      "level": "Expert",
+      "category": "work style",
+      "key": true,
+      "roles": ["stem"],
+      "evidence": [
+        { "outcome": "Self-taught radio engineering, cryptanalysis, and advanced electromagnetism before high school", "description": "Pursued deep learning in technical subjects driven by genuine curiosity rather than external requirements" }
       ]
     },
     {
       "name": "Creative Problem Solving",
-      "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Problem Solver"
-      ]
-    },
-    {
-      "name": "Teamwork",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Problem Solver"
-      ]
-    },
-    {
-      "name": "Persuasion",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Communications Specialist"
-      ]
-    },
-    {
-      "name": "Resilience",
-      "category": "workstyle",
-      "proficiency": "Advanced",
-      "roles": [
-        "Problem Solver"
-      ]
-    },
-    {
-      "name": "Biology",
-      "category": "knowledge",
-      "proficiency": "Intermediate",
-      "roles": [
-        "STEM Engineer"
-      ],
+      "level": "Expert",
+      "category": "work style",
+      "key": true,
+      "roles": ["analysis"],
       "evidence": [
-        {
-          "outcome": "Successfully identified and documented previously unknown biological species",
-          "description": "Conducted independent study of organism behavior and life cycle"
-        }
+        { "outcome": "Provided critical breakthrough insight in 4 out of 4 crisis events", "description": "Consistently identified the key connection or solution that moved the team from stuck to actionable" }
       ]
     },
     {
-      "name": "Mechanical Aptitude",
-      "category": "ability",
-      "proficiency": "Advanced",
-      "roles": [
-        "STEM Engineer"
-      ]
-    },
-    {
-      "name": "Compass Reading & Navigation",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Problem Solver"
-      ]
-    },
-    {
-      "name": "Public Speaking",
-      "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Communications Specialist"
-      ]
-    },
-    {
-      "name": "Leadership",
-      "category": "workstyle",
-      "proficiency": "Advanced",
-      "roles": [
-        "Problem Solver"
-      ]
-    },
-    {
-      "name": "Humor & Morale Building",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Communications Specialist"
+      "name": "Optimism & Morale",
+      "level": "Advanced",
+      "category": "work style",
+      "key": true,
+      "roles": ["team"],
+      "evidence": [
+        { "outcome": "Maintained team morale and humor during life-threatening situations", "description": "Provided emotional resilience and levity that kept team functioning when stress was highest" }
       ]
     },
     {
       "name": "Loyalty",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Problem Solver"
+      "level": "Advanced",
+      "category": "work style",
+      "roles": ["team"],
+      "evidence": [
+        { "outcome": "Maintained unwavering loyalty to friends across 4 crisis events spanning 3 years", "description": "Never abandoned teammates regardless of personal risk or pressure" }
       ]
     },
     {
-      "name": "Strategic Thinking",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Problem Solver"
+      "name": "Communication Skills",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": ["team", "communications"],
+      "evidence": [
+        { "outcome": "Served as primary communicator and diplomat for the group across all crisis events", "description": "Applied natural verbal skills to negotiate, persuade, and coordinate across different personality types" }
+      ]
+    },
+    {
+      "name": "Persistence",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": ["stem"],
+      "evidence": [
+        { "outcome": "Spent 3 months building Cerebro radio through trial, error, and iterative improvement", "description": "Demonstrated sustained effort on complex technical project despite multiple failures and setbacks" }
       ]
     }
   ],
+  "values": [
+    { "name": "Curiosity", "level": "core" },
+    { "name": "Friendship", "level": "core" },
+    { "name": "Innovation", "level": "core" },
+    { "name": "Loyalty", "level": "important" },
+    { "name": "Fun", "level": "important" }
+  ],
   "workHistory": [
     {
-      "title": "Science Fair Competitor & AV Club President",
-      "company": "Hawkins Middle School",
-      "location": "Hawkins, IN",
-      "startDate": "1982-09",
-      "endDate": "1986-06",
-      "current": false,
-      "description": "Led audio-visual club supporting school events. Competed in district and state science fairs. Built and maintained school's AV equipment including projectors, sound systems, and radio equipment.",
-      "achievements": [
-        "1st place, Hawkins Middle Science Fair",
-        "Built 'Cerebro' long-range radio transmitter",
-        "Maintained all school AV equipment"
-      ]
-    },
-    {
-      "title": "Ham Radio Operator",
-      "company": "Self \u2014 Licensed Amateur Radio",
-      "location": "Hawkins, IN",
-      "startDate": "1983-01",
-      "endDate": "",
+      "title": "Student",
+      "company": "Hawkins High School",
+      "startYear": 1984,
+      "endYear": null,
       "current": true,
-      "description": "Licensed amateur radio operator. Built and operated custom radio equipment. Provided emergency communications support during multiple community crises.",
-      "achievements": [
-        "Achieved 1,000+ mile transmission range with custom-built equipment",
-        "Provided critical emergency communications during infrastructure failures"
-      ]
+      "description": "Honor roll student with focus on science and mathematics. Science fair winner. Active in AV Club and amateur radio."
     }
   ],
   "education": [
     {
-      "school": "Hawkins Middle School",
+      "institution": "Hawkins High School",
       "degree": "In Progress",
-      "field": "General Studies \u2014 Honors Science Track",
-      "year": "1986",
-      "id": "ed-dh-1"
+      "year": null
     }
   ],
   "certifications": [
-    {
-      "name": "FCC Amateur Radio License \u2014 General Class",
-      "abbr": "HAM",
-      "issuer": "Federal Communications Commission",
-      "year": "1983",
-      "type": "License",
-      "linkedSkills": [
-        "Radio Communications"
-      ],
-      "tier": 2,
-      "libraryMatch": null,
-      "id": "cert-dh-1"
-    }
+    { "name": "Amateur Radio License (General Class)", "issuer": "FCC" },
+    { "name": "Hawkins Science Fair — 1st Place, Electromagnetism", "issuer": "Hawkins Middle School" }
   ],
-  "savedJobs": [
-    {
-      "title": "Research Engineer",
-      "company": "MIT Lincoln Laboratory",
-      "location": "Lexington, MA",
-      "description": "Design and develop advanced sensor and communication systems for national defense applications. Work in multidisciplinary teams on cutting-edge RF, signal processing, and embedded systems projects.",
-      "parsedSkills": [
-        "Electronics",
-        "Radio Communications",
-        "Computer Science",
-        "Mathematics",
-        "Science & Research",
-        "Problem Solving",
-        "Mechanical Aptitude",
-        "Technical Communication",
-        "Signal Processing",
-        "RF Engineering",
-        "MATLAB",
-        "Security Clearance Required",
-        "Embedded Systems"
-      ],
-      "curated": true
-    },
-    {
-      "title": "Cryptanalyst",
-      "company": "National Security Agency",
-      "location": "Fort Meade, MD",
-      "description": "Analyze and break encrypted communications to support national security missions. Develop novel cryptanalytic techniques and tools.",
-      "parsedSkills": [
-        "Cryptography",
-        "Mathematics",
-        "Problem Solving",
-        "Computer Science",
-        "Pattern Recognition",
-        "Creative Problem Solving",
-        "Strategic Thinking",
-        "Technical Communication",
-        "Python Programming",
-        "Machine Learning",
-        "Number Theory",
-        "TS/SCI Clearance"
-      ],
-      "curated": true
-    },
-    {
-      "title": "STEM Education Director",
-      "company": "Smithsonian National Air and Space Museum",
-      "location": "Washington, DC",
-      "description": "Lead development and delivery of STEM education programs reaching 1M+ visitors annually. Design hands-on exhibits, curriculum, and outreach initiatives.",
-      "parsedSkills": [
-        "Science & Research",
-        "Technical Communication",
-        "Public Speaking",
-        "Creative Problem Solving",
-        "Curiosity",
-        "Leadership",
-        "Humor & Morale Building",
-        "Teamwork",
-        "Biology",
-        "Electronics",
-        "Exhibit Design",
-        "Curriculum Development",
-        "Grant Management",
-        "Volunteer Coordination"
-      ],
-      "curated": true
-    }
-  ],
-  "values": [],
-  "purpose": ""
+  "purpose": "Science isn't just about knowing stuff. It's about figuring stuff out when nobody else can. That's what I do."
 }

@@ -1,454 +1,460 @@
 {
+  "templateId": "gus-fring",
   "profile": {
-    "name": "Gus Fring",
-    "currentTitle": "Owner & President, Los Pollos Hermanos",
+    "name": "Gustavo Fring",
+    "currentTitle": "Owner & CEO, Los Pollos Hermanos / Madrigal Electromotive",
     "location": "Albuquerque, NM",
     "roleLevel": "Executive",
-    "summary": "Accomplished restaurant and hospitality executive with 20+ years building a beloved regional fast-food chain from a single location to 14 stores across the Southwest. Known for operational precision, supply chain mastery, community philanthropy, and an uncompromising commitment to quality standards."
+    "headline": "Built a multi-state restaurant chain and parallel distribution network spanning international borders, achieving 99.1% product quality standards while maintaining zero compliance incidents across the legitimate operation.",
+    "executiveSummary": "Visionary operator who built Los Pollos Hermanos from a single location into a multi-state fast food operation while simultaneously constructing a vertically integrated distribution network spanning three countries. Known for exceptional quality control, process optimization, and an ability to manage complex multi-stakeholder relationships across legitimate and non-traditional business channels."
   },
   "roles": [
-    {
-      "name": "Restaurant Executive"
-    },
-    {
-      "name": "Supply Chain Director"
-    },
-    {
-      "name": "Community Leader"
-    }
+    { "name": "Chief Executive Officer", "id": "ceo" },
+    { "name": "Operations & Supply Chain", "id": "operations" },
+    { "name": "Financial Management", "id": "finance" },
+    { "name": "Quality & Compliance", "id": "quality" },
+    { "name": "International Distribution", "id": "distribution" },
+    { "name": "Human Resources & Talent", "id": "hr" }
   ],
   "skills": [
     {
-      "name": "Restaurant Operations",
-      "category": "knowledge",
-      "proficiency": "Mastery",
-      "roles": [
-        "Restaurant Executive"
-      ],
-      "evidence": [
-        {
-          "outcome": "Grew Los Pollos Hermanos from 1 location to 14 stores generating $12M annual revenue",
-          "description": "Expanded across New Mexico, Texas, and Colorado over 15-year period"
-        }
-      ]
-    },
-    {
-      "name": "Multi-Unit Management",
+      "name": "Strategic Operations",
+      "level": "Mastery",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Restaurant Executive"
-      ],
+      "key": true,
+      "roles": ["ceo", "operations"],
       "evidence": [
-        {
-          "outcome": "Maintained 97% food safety compliance across all 14 locations",
-          "description": "Implemented rigorous quality control and inspection protocols"
-        }
+        { "outcome": "Built parallel operational infrastructure supporting $80M+ annual revenue across two distinct business lines", "description": "Designed and operated dual systems: legitimate fast food chain and covert distribution network, both achieving industry-leading efficiency" },
+        { "outcome": "Maintained zero operational crossover between legitimate and covert business lines for 20+ years", "description": "Implemented strict operational separation protocols ensuring neither operation could compromise the other" }
       ]
     },
     {
       "name": "Supply Chain Management",
+      "level": "Mastery",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Supply Chain Director"
-      ],
+      "key": true,
+      "roles": ["operations", "distribution"],
       "evidence": [
-        {
-          "outcome": "Reduced food cost by 14% through direct supplier partnerships",
-          "description": "Established vertical integration with regional produce farms and meat suppliers"
-        }
+        { "outcome": "Built international supply chain spanning 3 countries with 99.1% product quality consistency", "description": "Engineered end-to-end logistics from raw material sourcing through production and distribution across Mexico, US Southwest, and European markets" },
+        { "outcome": "Maintained uninterrupted supply despite loss of primary supplier, transitioning to new production in 72 hours", "description": "Had contingency suppliers and production capability pre-positioned, enabling rapid pivot when primary source was disrupted" }
       ]
     },
     {
-      "name": "Logistics",
+      "name": "Risk Management",
+      "level": "Mastery",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Supply Chain Director"
-      ],
+      "key": true,
+      "roles": ["ceo"],
       "evidence": [
-        {
-          "outcome": "Built proprietary distribution network serving 14 locations across 3 states",
-          "description": "Industrial laundry facility doubled as centralized distribution hub"
-        }
+        { "outcome": "Operated high-risk enterprise for 20+ years without a single enforcement action against legitimate operations", "description": "Implemented multi-layered risk mitigation including corporate separation, personnel compartmentalization, and financial structuring" },
+        { "outcome": "Identified and neutralized competitive threats before they materialized", "description": "Maintained intelligence network providing early warning of regulatory attention, competitor moves, and internal security risks" }
       ]
     },
     {
-      "name": "Financial Management",
+      "name": "Multi-Unit Restaurant Management",
+      "level": "Mastery",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Restaurant Executive"
-      ],
+      "key": true,
+      "roles": ["ceo", "operations"],
       "evidence": [
-        {
-          "outcome": "Maintained 22% profit margins vs. industry average of 6-9%",
-          "description": "Achieved through operational efficiency and supply chain optimization"
-        }
+        { "outcome": "Scaled Los Pollos Hermanos from 1 location to 14+ franchise units across the Southwest", "description": "Standardized operations, training, and quality protocols enabling consistent customer experience across all locations" },
+        { "outcome": "Achieved highest health inspection ratings across all locations for 12 consecutive years", "description": "Implemented quality assurance protocols exceeding industry standards, using restaurant as model of operational excellence" }
+      ]
+    },
+    {
+      "name": "Financial Planning & Analysis",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": ["finance", "ceo"],
+      "evidence": [
+        { "outcome": "Managed $80M+ combined revenue with clean financials passing annual external audits", "description": "Designed financial structures that integrated multiple revenue streams while maintaining audit-ready books" },
+        { "outcome": "Structured international capital flows across 3 jurisdictions without triggering compliance flags", "description": "Worked with financial advisors to create legitimate holding structures supporting cross-border operations" }
       ]
     },
     {
       "name": "Quality Assurance",
+      "level": "Mastery",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Restaurant Executive"
-      ]
-    },
-    {
-      "name": "Food Safety Compliance",
-      "category": "knowledge",
-      "proficiency": "Advanced",
-      "roles": [
-        "Restaurant Executive"
-      ]
-    },
-    {
-      "name": "Strategic Planning",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Restaurant Executive"
-      ]
-    },
-    {
-      "name": "Business Development",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Restaurant Executive"
-      ]
-    },
-    {
-      "name": "Employee Training",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Restaurant Executive"
-      ],
+      "key": true,
+      "roles": ["quality", "operations"],
       "evidence": [
-        {
-          "outcome": "Developed training program that reduced employee turnover by 35%",
-          "description": "Created bilingual onboarding curriculum and management development track"
-        }
+        { "outcome": "Achieved 99.1% product purity standard — highest in the industry", "description": "Recruited top scientific talent and invested in state-of-the-art production facility to ensure consistent product quality" },
+        { "outcome": "Maintained food safety compliance record with zero violations across 14+ restaurant locations", "description": "Implemented rigorous quality control protocols, regular staff training, and surprise inspections across all units" }
       ]
     },
     {
-      "name": "Public Relations",
+      "name": "Talent Recruitment",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Community Leader"
-      ]
-    },
-    {
-      "name": "Community Engagement",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Community Leader"
-      ],
+      "key": true,
+      "roles": ["hr", "ceo"],
       "evidence": [
-        {
-          "outcome": "Raised $200K annually for DEA charity fun run through corporate sponsorship",
-          "description": "Los Pollos Hermanos became the event's largest single donor"
-        }
+        { "outcome": "Recruited industry-leading chemist achieving 99.1% product purity, up from 70% industry average", "description": "Identified Walter White's unique capabilities and structured compensation package to secure exclusive commitment" },
+        { "outcome": "Built and retained management team of 25+ across legitimate and covert operations", "description": "Developed talent pipeline, offered competitive compensation, and maintained loyalty through organizational culture" }
       ]
     },
     {
-      "name": "Crisis Management",
+      "name": "Competitive Strategy",
+      "level": "Mastery",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Restaurant Executive"
+      "key": true,
+      "roles": ["ceo"],
+      "evidence": [
+        { "outcome": "Eliminated primary competitor and captured 100% market share across Southwest distribution territory", "description": "Executed multi-year competitive strategy combining supply disruption, talent acquisition, and market positioning" }
       ]
     },
     {
-      "name": "Bilingual Communication",
+      "name": "Organizational Design",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Restaurant Executive",
-        "Community Leader"
-      ]
-    },
-    {
-      "name": "Vendor Negotiation",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Supply Chain Director"
-      ]
-    },
-    {
-      "name": "Inventory Management",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Supply Chain Director"
-      ]
-    },
-    {
-      "name": "Facility Management",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Supply Chain Director"
-      ]
-    },
-    {
-      "name": "Team Leadership",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Restaurant Executive"
-      ]
-    },
-    {
-      "name": "Risk Assessment",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Restaurant Executive"
-      ]
-    },
-    {
-      "name": "Franchise Development",
-      "category": "knowledge",
-      "proficiency": "Advanced",
-      "roles": [
-        "Restaurant Executive"
+      "roles": ["ceo", "hr"],
+      "evidence": [
+        { "outcome": "Designed compartmentalized organization where no single employee had visibility into full operations", "description": "Created cell-based organizational structure minimizing systemic risk from any individual point of failure" }
       ]
     },
     {
       "name": "Regulatory Compliance",
-      "category": "knowledge",
-      "proficiency": "Advanced",
-      "roles": [
-        "Restaurant Executive"
-      ]
-    },
-    {
-      "name": "Real Estate Acquisition",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Restaurant Executive"
-      ],
+      "roles": ["quality", "ceo"],
       "evidence": [
-        {
-          "outcome": "Acquired 14 commercial properties valued at $8.5M total",
-          "description": "Owned rather than leased all restaurant locations"
-        }
+        { "outcome": "Passed 100% of health department inspections and tax audits across all legitimate business entities", "description": "Maintained meticulous compliance records and proactively engaged with regulators to build institutional trust" }
       ]
     },
     {
-      "name": "Marketing Strategy",
+      "name": "International Logistics",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Community Leader"
+      "key": true,
+      "roles": ["distribution", "operations"],
+      "evidence": [
+        { "outcome": "Built cross-border distribution network with 98% on-time delivery across 3 countries", "description": "Designed logistics infrastructure using legitimate commercial channels to transport product reliably and covertly" }
       ]
     },
     {
-      "name": "P&L Management",
+      "name": "Crisis Management",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Restaurant Executive"
+      "roles": ["ceo"],
+      "evidence": [
+        { "outcome": "Contained multiple operational crises without business interruption or exposure", "description": "Responded to supplier disruptions, security breaches, and personnel issues with pre-planned contingency protocols" },
+        { "outcome": "Managed DEA investigation proximity without triggering search of business operations", "description": "Maintained composure and consistent narrative while federal investigation operated adjacent to core operations" }
       ]
     },
     {
-      "name": "Competitive Analysis",
+      "name": "Vendor Management",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Restaurant Executive"
+      "roles": ["operations"],
+      "evidence": [
+        { "outcome": "Managed 50+ vendor relationships across restaurant and distribution operations", "description": "Negotiated contracts, maintained quality standards, and built redundancy into critical supply relationships" }
       ]
     },
     {
-      "name": "Customer Experience",
+      "name": "Process Engineering",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Restaurant Executive"
+      "roles": ["operations", "quality"],
+      "evidence": [
+        { "outcome": "Designed state-of-the-art production facility beneath existing commercial building", "description": "Oversaw engineering and construction of industrial lab with ventilation, power, and environmental controls, disguised as legitimate construction project" }
+      ]
+    },
+    {
+      "name": "Food Safety Compliance",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["quality"],
+      "evidence": [
+        { "outcome": "Achieved highest food safety certification across all Los Pollos Hermanos locations", "description": "Implemented HACCP-compliant food handling protocols and regular training programs exceeding regulatory requirements" }
+      ]
+    },
+    {
+      "name": "Employee Training & Development",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["hr"],
+      "evidence": [
+        { "outcome": "Developed comprehensive training program achieving 85% employee retention rate", "description": "Created standardized onboarding, skills development, and advancement pathways for restaurant and operations staff" }
+      ]
+    },
+    {
+      "name": "Security Operations",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["ceo"],
+      "evidence": [
+        { "outcome": "Maintained operational security across all business lines with zero unauthorized disclosures over 20 years", "description": "Implemented physical, digital, and human intelligence security protocols across organization" }
+      ]
+    },
+    {
+      "name": "Franchising",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["ceo", "operations"],
+      "evidence": [
+        { "outcome": "Developed franchise model generating consistent per-unit economics across 14+ locations", "description": "Created operational playbook, site selection criteria, and quality standards enabling scalable franchise expansion" }
+      ]
+    },
+    {
+      "name": "Marketing & Brand Management",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["ceo"],
+      "evidence": [
+        { "outcome": "Built Los Pollos Hermanos into recognized regional brand with high customer loyalty", "description": "Invested in community marketing, sponsorships, and consistent brand experience driving repeat business" }
+      ]
+    },
+    {
+      "name": "Real Estate Site Selection",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["operations"],
+      "evidence": [
+        { "outcome": "Selected 14+ restaurant locations with average site performance exceeding industry benchmarks by 22%", "description": "Analyzed traffic patterns, demographics, and competitive density to optimize location strategy" }
+      ]
+    },
+    {
+      "name": "Community Relations",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["ceo"],
+      "evidence": [
+        { "outcome": "Established reputation as model corporate citizen through charitable giving and community engagement", "description": "Sponsored DEA charity events, local youth programs, and business association initiatives building institutional credibility" }
+      ]
+    },
+    {
+      "name": "Negotiation",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["ceo", "distribution"],
+      "evidence": [
+        { "outcome": "Negotiated exclusive distribution rights across Southwest territory against established competitors", "description": "Secured territory through combination of relationship leverage, operational capability demonstration, and strategic patience" }
+      ]
+    },
+    {
+      "name": "Foreign Language Fluency",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["distribution"],
+      "evidence": [
+        { "outcome": "Conducted business negotiations fluently in English, Spanish, and German across 3 countries", "description": "Managed relationships with partners and suppliers in their native languages, building trust and reducing misunderstandings" }
+      ]
+    },
+    {
+      "name": "Corporate Philanthropy",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["ceo"],
+      "evidence": [
+        { "outcome": "Donated $500K+ annually to local law enforcement and community organizations", "description": "Strategically directed charitable giving to build relationships with law enforcement and community leaders" }
+      ]
+    },
+    {
+      "name": "Inventory Management",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["operations"],
+      "evidence": [
+        { "outcome": "Maintained 99.5% inventory accuracy across restaurant and distribution operations", "description": "Implemented perpetual inventory systems with automated reorder points and regular cycle counts" }
+      ]
+    },
+    {
+      "name": "Tax Strategy",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["finance"],
+      "evidence": [
+        { "outcome": "Structured multi-entity corporate structure optimizing tax position across 3 jurisdictions", "description": "Worked with professional advisors to create holding company and subsidiary structures supporting operations" }
+      ]
+    },
+    {
+      "name": "Budgeting & Forecasting",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["finance"],
+      "evidence": [
+        { "outcome": "Maintained budget variance under 3% across all business units for 10 consecutive years", "description": "Implemented rolling forecast methodology with monthly variance analysis and reforecasting" }
+      ]
+    },
+    {
+      "name": "Construction Project Management",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["operations"],
+      "evidence": [
+        { "outcome": "Oversaw construction of $8M production facility delivered on time and on budget", "description": "Managed contractors, permits, and construction timeline for complex industrial build-out beneath commercial structure" }
+      ]
+    },
+    {
+      "name": "Conflict Resolution",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": ["ceo", "hr"],
+      "evidence": [
+        { "outcome": "Resolved multi-party disputes between suppliers, distributors, and production teams", "description": "Applied measured approach to de-escalate conflicts while maintaining operational relationships" }
+      ]
+    },
+    {
+      "name": "Strategic Patience",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["ceo"],
+      "evidence": [
+        { "outcome": "Executed 20-year competitive strategy requiring sustained discipline and delayed gratification", "description": "Waited decades to achieve strategic objectives, maintaining operational excellence and composure throughout" }
       ]
     },
     {
       "name": "Attention to Detail",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Restaurant Executive",
-        "Supply Chain Director"
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["quality", "ceo"],
+      "evidence": [
+        { "outcome": "Personally inspected restaurant operations maintaining standards others delegated", "description": "Known for walking kitchen lines, checking fryer oil temperature, and adjusting employee uniforms personally" }
       ]
     },
     {
       "name": "Composure Under Pressure",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Restaurant Executive"
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["ceo"],
+      "evidence": [
+        { "outcome": "Maintained consistent demeanor during federal investigation and multiple life-threatening situations", "description": "Demonstrated unshakeable calm during DEA interactions, competitive confrontations, and operational crises" }
       ]
     },
     {
-      "name": "Cultural Intelligence",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Community Leader"
+      "name": "Analytical Thinking",
+      "level": "Expert",
+      "category": "work style",
+      "roles": ["ceo", "finance"],
+      "evidence": [
+        { "outcome": "Identified and exploited competitive vulnerabilities through systematic analysis of rival operations", "description": "Applied data-driven analysis to map competitor supply chains, financials, and personnel to find strategic openings" }
       ]
+    },
+    {
+      "name": "Interpersonal Intelligence",
+      "level": "Expert",
+      "category": "work style",
+      "roles": ["ceo", "hr"],
+      "evidence": [
+        { "outcome": "Read and manipulated interpersonal dynamics across criminal and legitimate organizations", "description": "Assessed personality types, motivations, and vulnerabilities to manage relationships strategically" }
+      ]
+    },
+    {
+      "name": "Discipline",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["ceo"],
+      "evidence": [
+        { "outcome": "Maintained dual-identity lifestyle for 20+ years without a single break in character", "description": "Adhered to strict personal protocols governing behavior, schedule, and social interactions to preserve operational security" }
+      ]
+    },
+    {
+      "name": "Delegation",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": ["ceo"],
+      "evidence": [
+        { "outcome": "Built management layer enabling hands-off operation of 14+ restaurant locations", "description": "Trained and empowered district and unit managers to operate independently within defined parameters" }
+      ]
+    },
+    {
+      "name": "Cross-Cultural Communication",
+      "level": "Expert",
+      "category": "work style",
+      "roles": ["distribution", "ceo"],
+      "evidence": [
+        { "outcome": "Managed business relationships across Chilean, Mexican, German, and American cultural contexts", "description": "Adapted communication style and business approach to each cultural context while maintaining consistent strategic objectives" }
+      ]
+    },
+    {
+      "name": "Menu Engineering",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["operations"],
+      "evidence": [
+        { "outcome": "Optimized menu pricing achieving 68% gross margin across all locations", "description": "Applied menu engineering principles to balance food costs, pricing psychology, and operational simplicity" }
+      ]
+    },
+    {
+      "name": "Environmental Health & Safety",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["quality"],
+      "evidence": [
+        { "outcome": "Maintained OSHA-compliant workplace across all facilities with zero lost-time incidents", "description": "Implemented safety protocols for restaurant and industrial operations exceeding regulatory requirements" }
+      ]
+    },
+    {
+      "name": "Cash Flow Management",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["finance"],
+      "evidence": [
+        { "outcome": "Managed complex cash flows across multiple entities maintaining liquidity and compliance", "description": "Structured cash management systems handling high-volume transactions across legitimate and non-traditional channels" }
+      ]
+    },
+    {
+      "name": "Insurance & Liability Management",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["finance"],
+      "evidence": []
+    },
+    {
+      "name": "Digital Marketing",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["ceo"],
+      "evidence": []
+    },
+    {
+      "name": "Social Media",
+      "level": "Novice",
+      "category": "skill",
+      "roles": ["ceo"],
+      "evidence": []
     }
+  ],
+  "values": [
+    { "name": "Excellence", "level": "core" },
+    { "name": "Control", "level": "core" },
+    { "name": "Loyalty", "level": "core" },
+    { "name": "Discipline", "level": "important" },
+    { "name": "Legacy", "level": "important" }
   ],
   "workHistory": [
     {
-      "title": "Owner & President",
+      "title": "Owner & CEO",
       "company": "Los Pollos Hermanos",
-      "location": "Albuquerque, NM",
-      "startDate": "1994-03",
-      "endDate": "2009-10",
-      "current": false,
-      "description": "Founded and operated fast-casual restaurant chain specializing in fried chicken. Managed all aspects of a 14-location operation including finance, HR, supply chain, marketing, and community relations.",
-      "achievements": [
-        "Grew from 1 to 14 locations across 3 states",
-        "12M annual revenue with 22% margins",
-        "Won 'Best Restaurant' in Albuquerque 4 consecutive years",
-        "Zero foodborne illness incidents in 15 years"
-      ]
+      "startYear": 1989,
+      "endYear": null,
+      "current": true,
+      "description": "Founded and scaled fast-casual restaurant chain from single location to 14+ franchise units across the American Southwest. Built parallel distribution network spanning international borders with $80M+ combined annual revenue."
     },
     {
-      "title": "Director of Industrial Operations",
-      "company": "Lavander\u00eda Brillante",
-      "location": "Albuquerque, NM",
-      "startDate": "2001-01",
-      "endDate": "2009-10",
-      "current": false,
-      "description": "Managed industrial laundry facility servicing hospitality and restaurant clients. Oversaw logistics, equipment maintenance, and distribution operations.",
-      "achievements": [
-        "Served 50+ commercial clients across the Southwest",
-        "Built integrated distribution hub for restaurant supply chain"
-      ]
-    },
-    {
-      "title": "Import/Export Manager",
+      "title": "Regional Director",
       "company": "Madrigal Electromotive GmbH",
-      "location": "Santiago, Chile / Houston, TX",
-      "startDate": "1989-01",
-      "endDate": "1994-02",
-      "current": false,
-      "description": "Managed North American import operations for German industrial conglomerate. Coordinated international shipping, customs compliance, and vendor relationships.",
-      "achievements": [
-        "Established US distribution network for 200+ product SKUs",
-        "Reduced import duty costs by 12% through free trade zone optimization"
-      ]
+      "startYear": 1986,
+      "endYear": 1989,
+      "description": "Managed North American operations for German industrial conglomerate. Built relationships and infrastructure that would support future independent ventures."
     }
   ],
   "education": [
     {
-      "school": "Universidad de Santiago de Chile",
-      "degree": "Licenciatura",
-      "field": "Biochemistry",
-      "year": "1986",
-      "id": "ed-gf-1"
-    },
-    {
-      "school": "Universidad de Chile",
-      "degree": "MBA",
-      "field": "Business Administration",
-      "year": "1988",
-      "id": "ed-gf-2"
+      "institution": "Universidad de Santiago de Chile",
+      "degree": "Biochemistry (coursework)",
+      "year": 1982
     }
   ],
   "certifications": [
-    {
-      "name": "ServSafe Food Protection Manager",
-      "abbr": "ServSafe",
-      "issuer": "National Restaurant Association",
-      "year": "1995",
-      "type": "Certification",
-      "linkedSkills": [
-        "Food Safety Compliance"
-      ],
-      "tier": 2,
-      "libraryMatch": null,
-      "id": "cert-gf-1"
-    }
+    { "name": "ServSafe Food Protection Manager", "issuer": "National Restaurant Association" },
+    { "name": "Better Business Bureau A+ Rating", "issuer": "BBB" }
   ],
-  "savedJobs": [
-    {
-      "title": "VP of Operations",
-      "company": "Yum! Brands",
-      "location": "Louisville, KY",
-      "description": "Lead operational strategy for 2,000+ restaurant locations. Oversee food safety, supply chain, franchise standards, and P&L for regional division.",
-      "parsedSkills": [
-        "Restaurant Operations",
-        "Multi-Unit Management",
-        "Supply Chain Management",
-        "P&L Management",
-        "Quality Assurance",
-        "Employee Training",
-        "Strategic Planning",
-        "Financial Management",
-        "Franchise Development",
-        "Food Safety Compliance",
-        "Team Leadership",
-        "Vendor Negotiation",
-        "Customer Experience",
-        "Labor Relations",
-        "Sustainability Programs",
-        "Digital Ordering Systems"
-      ],
-      "curated": true
-    },
-    {
-      "title": "SVP, Supply Chain & Procurement",
-      "company": "Sysco Corporation",
-      "location": "Houston, TX",
-      "description": "Direct global supply chain operations for the world's largest foodservice distributor. Manage 10,000+ supplier relationships and $40B procurement budget.",
-      "parsedSkills": [
-        "Supply Chain Management",
-        "Logistics",
-        "Vendor Negotiation",
-        "Inventory Management",
-        "Financial Management",
-        "Strategic Planning",
-        "Quality Assurance",
-        "Risk Assessment",
-        "Regulatory Compliance",
-        "Team Leadership",
-        "Data Analytics",
-        "Demand Forecasting",
-        "Cold Chain Logistics",
-        "ERP Systems",
-        "Sustainability Reporting"
-      ],
-      "curated": true
-    },
-    {
-      "title": "Director of Development",
-      "company": "Chipotle Mexican Grill",
-      "location": "Newport Beach, CA",
-      "description": "Lead new market entry strategy and restaurant development pipeline. Site selection, construction management, and market analysis for 200+ annual openings.",
-      "parsedSkills": [
-        "Business Development",
-        "Real Estate Acquisition",
-        "Strategic Planning",
-        "Financial Management",
-        "Market Analysis",
-        "Competitive Analysis",
-        "Franchise Development",
-        "Regulatory Compliance",
-        "Restaurant Operations",
-        "Construction Management",
-        "Demographic Analysis",
-        "Lease Negotiation",
-        "Architecture Review",
-        "Municipal Permitting"
-      ],
-      "curated": true
-    }
-  ],
-  "values": [],
-  "purpose": ""
+  "purpose": "I believe in order. In precision. In building something that lasts — something no one can take from me."
 }

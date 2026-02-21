@@ -1,402 +1,338 @@
 {
+  "templateId": "saul-goodman",
   "profile": {
     "name": "Saul Goodman",
-    "currentTitle": "Managing Attorney & Legal Marketing Strategist",
+    "currentTitle": "Managing Attorney, Saul Goodman & Associates",
     "location": "Albuquerque, NM",
     "roleLevel": "Mid-Career",
-    "summary": "Entrepreneurial attorney and legal marketing innovator who built the most recognized legal brand in the Southwest. Expertise in criminal defense, personal injury, and elder law. Pioneered direct-response legal advertising and community-centered client acquisition strategies."
+    "headline": "Built a solo legal practice into a full-service firm through unconventional marketing and a 94% client retention rate. Specializes in criminal defense, elder law, and creative deal structuring.",
+    "executiveSummary": "Self-made attorney who transformed from a struggling public defender into the most recognized legal brand in the Southwest. Pioneered guerrilla marketing strategies for legal services, built a client base spanning criminal defense, elder law, and corporate advisory, and developed a reputation for creative problem-solving in high-stakes situations. Former mailroom clerk who passed the bar through sheer determination and unconventional intelligence."
   },
   "roles": [
-    {
-      "name": "Attorney"
-    },
-    {
-      "name": "Legal Marketing Director"
-    },
-    {
-      "name": "Crisis Manager"
-    }
+    { "name": "Legal Practice", "id": "legal" },
+    { "name": "Marketing & Business Development", "id": "marketing" },
+    { "name": "Negotiation & Mediation", "id": "negotiation" },
+    { "name": "Client Relations", "id": "client" },
+    { "name": "Crisis Management", "id": "crisis" }
   ],
   "skills": [
     {
-      "name": "Legal Strategy",
-      "category": "knowledge",
-      "proficiency": "Advanced",
-      "roles": [
-        "Attorney"
-      ],
-      "evidence": [
-        {
-          "outcome": "Achieved 94% case resolution rate across 1,200+ client matters",
-          "description": "Specializing in creative plea negotiations and alternative sentencing"
-        }
-      ]
-    },
-    {
-      "name": "Criminal Defense",
-      "category": "knowledge",
-      "proficiency": "Advanced",
-      "roles": [
-        "Attorney"
-      ]
-    },
-    {
-      "name": "Personal Injury Law",
-      "category": "knowledge",
-      "proficiency": "Advanced",
-      "roles": [
-        "Attorney"
-      ]
-    },
-    {
       "name": "Negotiation",
+      "level": "Mastery",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Attorney",
-        "Crisis Manager"
-      ],
+      "key": true,
+      "roles": ["negotiation", "legal"],
       "evidence": [
-        {
-          "outcome": "Negotiated $4.2M in total client settlements in single fiscal year",
-          "description": "Largest individual settlement: $850K in Sandpiper Crossing elder care case"
-        }
-      ]
-    },
-    {
-      "name": "Legal Marketing",
-      "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Legal Marketing Director"
-      ],
-      "evidence": [
-        {
-          "outcome": "Generated 400% increase in client inquiries through TV advertising campaign",
-          "description": "Produced and directed 30+ television commercials at 1/10th industry production cost"
-        }
-      ]
-    },
-    {
-      "name": "Client Acquisition",
-      "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Legal Marketing Director"
-      ]
-    },
-    {
-      "name": "Crisis Communications",
-      "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Crisis Manager"
-      ],
-      "evidence": [
-        {
-          "outcome": "Successfully managed 15+ high-profile client reputation crises",
-          "description": "Prevented media escalation through strategic press management and counter-narratives"
-        }
-      ]
-    },
-    {
-      "name": "Public Speaking",
-      "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Attorney",
-        "Legal Marketing Director"
+        { "outcome": "Negotiated plea deals reducing client sentences by an average of 60% versus initial prosecution offers", "description": "Applied creative deal structuring and relationship leverage to achieve outcomes exceeding client expectations consistently" },
+        { "outcome": "Brokered $1.6M elder care settlement (Sandpiper Crossing) for class of 120+ residents", "description": "Identified systematic overcharging pattern, built class action case, and negotiated settlement without going to trial" }
       ]
     },
     {
       "name": "Persuasion",
+      "level": "Mastery",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Attorney"
+      "key": true,
+      "roles": ["legal", "negotiation"],
+      "evidence": [
+        { "outcome": "Achieved 94% client retention rate through consultative approach and creative legal strategies", "description": "Built deep trust with clients by translating complex legal situations into clear options with honest risk assessments" },
+        { "outcome": "Convinced multiple hostile witnesses to cooperate through relationship-building and strategic framing", "description": "Turned adversarial situations into collaborative outcomes through empathy, persistence, and creative incentive structuring" }
       ]
     },
     {
-      "name": "Brand Development",
+      "name": "Criminal Defense Law",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Legal Marketing Director"
+      "key": true,
+      "roles": ["legal"],
+      "evidence": [
+        { "outcome": "Defended 200+ criminal cases with 78% favorable outcome rate", "description": "Specialized in drug offenses, white collar crime, and complex multi-defendant cases requiring creative defense strategies" },
+        { "outcome": "Won dismissal in high-profile case by identifying constitutional violation in evidence collection", "description": "Identified Fourth Amendment issue that led to suppression of key evidence and case dismissal" }
       ]
     },
     {
-      "name": "Media Production",
+      "name": "Marketing Strategy",
+      "level": "Mastery",
       "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Legal Marketing Director"
-      ]
-    },
-    {
-      "name": "Elder Law",
-      "category": "knowledge",
-      "proficiency": "Advanced",
-      "roles": [
-        "Attorney"
+      "key": true,
+      "roles": ["marketing"],
+      "evidence": [
+        { "outcome": "Built most recognized legal brand in the Southwest through $50K/year guerrilla marketing budget", "description": "Pioneered late-night TV advertising, bus bench campaigns, and community outreach generating 300+ inbound leads monthly" },
+        { "outcome": "Achieved top-of-mind brand recognition with zero traditional agency support", "description": "Created, produced, and placed all advertising personally, developing distinctive visual identity and memorable taglines" }
       ]
     },
     {
       "name": "Contract Law",
-      "category": "knowledge",
-      "proficiency": "Advanced",
-      "roles": [
-        "Attorney"
-      ]
-    },
-    {
-      "name": "Courtroom Presentation",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Attorney"
+      "key": true,
+      "roles": ["legal"],
+      "evidence": [
+        { "outcome": "Drafted complex multi-party agreements protecting client interests across 100+ transactions", "description": "Specialized in employment contracts, business formation documents, and settlement agreements with creative provisions" }
       ]
     },
     {
-      "name": "Client Relationship Management",
+      "name": "Client Relations",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Attorney"
+      "key": true,
+      "roles": ["client"],
+      "evidence": [
+        { "outcome": "Maintained 94% client retention rate across diverse practice areas", "description": "Built lasting relationships through 24/7 availability, plain-language communication, and genuine advocacy for client interests" }
       ]
     },
     {
-      "name": "Networking",
+      "name": "Crisis Management",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Attorney",
-        "Legal Marketing Director"
+      "key": true,
+      "roles": ["crisis", "legal"],
+      "evidence": [
+        { "outcome": "Resolved 50+ emergency client situations requiring immediate legal intervention", "description": "Provided same-day crisis response including emergency motions, bail hearings, and witness management" },
+        { "outcome": "Managed high-profile client exposure risk during federal investigation without disclosure", "description": "Coordinated legal strategy across multiple parties to contain information and protect client privilege" }
       ]
     },
     {
-      "name": "Creative Problem Solving",
+      "name": "Elder Law",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Attorney",
-        "Crisis Manager"
+      "roles": ["legal"],
+      "evidence": [
+        { "outcome": "Led Sandpiper Crossing class action recovering $1.6M for 120+ elderly residents", "description": "Identified systematic overcharging, gathered evidence through forensic accounting, and built compelling class action case" }
       ]
     },
     {
-      "name": "Adaptability",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Attorney",
-        "Crisis Manager"
-      ]
-    },
-    {
-      "name": "Budget Management",
+      "name": "Courtroom Litigation",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Attorney"
+      "roles": ["legal"],
+      "evidence": [
+        { "outcome": "Delivered closing arguments resulting in acquittal in 3 cases prosecution considered unwinnable for defense", "description": "Combined emotional storytelling with precise legal argument to create reasonable doubt in jury's mind" }
+      ]
+    },
+    {
+      "name": "Evidence Management",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["legal"],
+      "evidence": [
+        { "outcome": "Identified exculpatory evidence overlooked by prosecution in 15+ cases", "description": "Applied thorough discovery review and independent investigation to uncover evidence favorable to client defense" }
       ]
     },
     {
       "name": "Business Development",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Legal Marketing Director"
+      "roles": ["marketing"],
+      "evidence": [
+        { "outcome": "Grew solo practice from 0 to 300+ active clients within 3 years", "description": "Combined marketing innovation with referral network development and community presence to build rapid client base" }
       ]
     },
     {
-      "name": "Community Engagement",
+      "name": "Public Speaking",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Legal Marketing Director"
+      "roles": ["legal", "marketing"],
+      "evidence": [
+        { "outcome": "Delivered persuasive arguments in 200+ court appearances and depositions", "description": "Developed commanding courtroom presence combining humor, empathy, and logical precision" }
       ]
     },
     {
-      "name": "Emotional Intelligence",
-      "category": "workstyle",
-      "proficiency": "Advanced",
-      "roles": [
-        "Attorney",
-        "Crisis Manager"
+      "name": "Advertising Production",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["marketing"],
+      "evidence": [
+        { "outcome": "Self-produced 40+ TV commercials on shoestring budget generating measurable client acquisition", "description": "Wrote, directed, and often starred in low-budget but highly effective legal advertising spots" }
       ]
     },
     {
-      "name": "Risk Assessment",
+      "name": "Financial Structuring",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Attorney"
+      "roles": ["legal", "negotiation"],
+      "evidence": [
+        { "outcome": "Structured complex financial arrangements for high-net-worth clients requiring discretion", "description": "Designed holding company structures, trust arrangements, and payment flows for clients with complex financial situations" }
       ]
     },
     {
-      "name": "Written Communication",
+      "name": "Regulatory Compliance",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Attorney"
+      "roles": ["legal"],
+      "evidence": [
+        { "outcome": "Navigated state bar ethics requirements while operating at the boundary of conventional practice", "description": "Maintained active law license and bar standing while pursuing aggressive client advocacy strategies" }
+      ]
+    },
+    {
+      "name": "Conflict Resolution",
+      "level": "Expert",
+      "category": "work style",
+      "roles": ["negotiation", "client"],
+      "evidence": [
+        { "outcome": "Mediated disputes between hostile parties achieving settlement in 85% of cases", "description": "Applied creative problem-solving to find mutually acceptable solutions in seemingly intractable conflicts" }
+      ]
+    },
+    {
+      "name": "Creative Problem Solving",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["legal", "crisis"],
+      "evidence": [
+        { "outcome": "Devised legal strategies that opposing counsel described as 'unprecedented but effective'", "description": "Approached legal challenges from unconventional angles, finding solutions within the law that others couldn't conceive" }
+      ]
+    },
+    {
+      "name": "Resourcefulness",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["crisis", "marketing"],
+      "evidence": [
+        { "outcome": "Built thriving legal practice with zero startup capital and no professional network", "description": "Leveraged creativity, hustle, and unconventional marketing to overcome resource disadvantages against established firms" }
+      ]
+    },
+    {
+      "name": "Empathy",
+      "level": "Expert",
+      "category": "work style",
+      "roles": ["client"],
+      "evidence": [
+        { "outcome": "Built deep trust with clients from diverse backgrounds including elderly, criminal defendants, and business owners", "description": "Demonstrated genuine concern for client wellbeing beyond legal outcomes, earning fierce loyalty and referrals" }
+      ]
+    },
+    {
+      "name": "Adaptability",
+      "level": "Expert",
+      "category": "work style",
+      "roles": ["legal", "crisis"],
+      "evidence": [
+        { "outcome": "Successfully pivoted practice focus three times in response to market opportunities", "description": "Transitioned from public defender to elder law to criminal defense, adapting expertise to each domain rapidly" }
+      ]
+    },
+    {
+      "name": "Resilience",
+      "level": "Expert",
+      "category": "work style",
+      "roles": ["legal"],
+      "evidence": [
+        { "outcome": "Rebuilt career from mailroom clerk to licensed attorney through self-directed study", "description": "Passed bar exam through correspondence law school while working full-time, overcoming institutional disadvantages" }
+      ]
+    },
+    {
+      "name": "Risk Tolerance",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": ["legal", "crisis"],
+      "evidence": [
+        { "outcome": "Took on high-risk cases other attorneys declined, achieving favorable outcomes in majority", "description": "Calculated risk-reward and accepted cases with uncertain outcomes when potential client benefit justified the effort" }
+      ]
+    },
+    {
+      "name": "Networking",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["marketing", "client"],
+      "evidence": [
+        { "outcome": "Built referral network generating 40% of new client intake", "description": "Cultivated relationships with bail bondsmen, law enforcement contacts, and community organizations" }
+      ]
+    },
+    {
+      "name": "Real Estate Law",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["legal"],
+      "evidence": [
+        { "outcome": "Handled 30+ residential and commercial real estate transactions", "description": "Managed property purchases, lease negotiations, and title disputes for small business clients" }
+      ]
+    },
+    {
+      "name": "Digital Marketing",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["marketing"],
+      "evidence": []
+    },
+    {
+      "name": "Bookkeeping",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["legal"],
+      "evidence": []
+    },
+    {
+      "name": "Spanish Language",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["client"],
+      "evidence": [
+        { "outcome": "Served Spanish-speaking clients directly without interpreter in 50+ cases", "description": "Developed working fluency to better serve Albuquerque's bilingual community" }
+      ]
+    },
+    {
+      "name": "Technology Adoption",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["legal"],
+      "evidence": []
+    },
+    {
+      "name": "Research & Investigation",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["legal"],
+      "evidence": [
+        { "outcome": "Conducted independent investigations uncovering evidence missed by both prosecution and police", "description": "Applied resourceful investigation techniques to build stronger defense cases" }
       ]
     }
+  ],
+  "values": [
+    { "name": "Resourcefulness", "level": "core" },
+    { "name": "Independence", "level": "core" },
+    { "name": "Recognition", "level": "core" },
+    { "name": "Loyalty", "level": "important" },
+    { "name": "Creativity", "level": "important" }
   ],
   "workHistory": [
     {
       "title": "Managing Attorney",
       "company": "Saul Goodman & Associates",
-      "location": "Albuquerque, NM",
-      "startDate": "2005-01",
-      "endDate": "2010-03",
-      "current": false,
-      "description": "Founded and operated high-volume legal practice specializing in criminal defense, personal injury, and elder law. Created iconic brand through innovative direct-response advertising. Managed staff of 4 including paralegals and administrative support.",
-      "achievements": [
-        "94% case resolution rate across 1,200+ matters",
-        "$4.2M in client settlements in peak year",
-        "400% increase in client inquiries through TV advertising",
-        "Built most recognized legal brand in New Mexico"
-      ]
+      "startYear": 2004,
+      "endYear": null,
+      "current": true,
+      "description": "Founded and grew solo practice into the most recognized legal brand in New Mexico. 300+ active clients across criminal defense, elder law, and business advisory. Pioneered guerrilla marketing for legal services."
     },
     {
       "title": "Associate Attorney",
       "company": "Davis & Main",
-      "location": "Albuquerque, NM",
-      "startDate": "2003-06",
-      "endDate": "2004-08",
-      "current": false,
-      "description": "Associate in established corporate law firm. Handled class action elder care litigation. Left firm to pursue independent practice.",
-      "achievements": [
-        "Led Sandpiper Crossing elder care class action ($850K settlement)",
-        "Brought in 3 new elder care clients independently"
-      ]
+      "startYear": 2003,
+      "endYear": 2004,
+      "description": "Associate at prestigious Santa Fe law firm. Led Sandpiper Crossing elder care class action. Departed to pursue independent practice."
     },
     {
-      "title": "Solo Practitioner",
-      "company": "James M. McGill, Esq.",
-      "location": "Albuquerque, NM",
-      "startDate": "1999-01",
-      "endDate": "2003-05",
-      "current": false,
-      "description": "General practice attorney operating out of a small office. Handled public defender appointments, traffic court, wills and estates, and small claims matters.",
-      "achievements": [
-        "Built practice from zero to 200+ annual cases",
-        "Developed relationships with courthouse staff and judges"
-      ]
+      "title": "Public Defender",
+      "company": "Bernalillo County Public Defender's Office",
+      "startYear": 2001,
+      "endYear": 2003,
+      "description": "Represented indigent criminal defendants. Handled 150+ cases building trial experience and client advocacy skills."
     },
     {
       "title": "Mailroom Clerk",
       "company": "Hamlin, Hamlin & McGill",
-      "location": "Albuquerque, NM",
-      "startDate": "1993-01",
-      "endDate": "1998-12",
-      "current": false,
-      "description": "Started in mailroom while pursuing law degree via correspondence courses at University of American Samoa. Passed New Mexico bar exam in 1998.",
-      "achievements": [
-        "Passed bar exam while working full-time",
-        "Promoted from mailroom to document review"
-      ]
+      "startYear": 1994,
+      "endYear": 2001,
+      "description": "Started in the mailroom while pursuing law degree through correspondence school. Passed bar exam on first attempt."
     }
   ],
   "education": [
     {
-      "school": "University of American Samoa",
+      "institution": "University of American Samoa",
       "degree": "J.D.",
-      "field": "Law",
-      "year": "1998",
-      "id": "ed-sg-1"
-    },
-    {
-      "school": "University of American Samoa",
-      "degree": "B.A.",
-      "field": "Political Science",
-      "year": "1995",
-      "id": "ed-sg-2"
+      "year": 2001
     }
   ],
   "certifications": [
-    {
-      "name": "New Mexico State Bar License",
-      "abbr": "NM Bar",
-      "issuer": "Supreme Court of New Mexico",
-      "year": "1998",
-      "type": "License",
-      "linkedSkills": [
-        "Legal Strategy"
-      ],
-      "tier": 3,
-      "libraryMatch": null,
-      "id": "cert-sg-1"
-    }
+    { "name": "New Mexico State Bar License", "issuer": "State Bar of New Mexico" }
   ],
-  "savedJobs": [
-    {
-      "title": "VP of Legal Marketing",
-      "company": "Morgan & Morgan",
-      "location": "Orlando, FL",
-      "description": "Lead marketing strategy for the largest personal injury firm in the US. Manage $100M annual advertising budget across TV, digital, and social channels.",
-      "parsedSkills": [
-        "Legal Marketing",
-        "Brand Development",
-        "Client Acquisition",
-        "Media Production",
-        "Public Speaking",
-        "Business Development",
-        "Budget Management",
-        "Persuasion",
-        "Community Engagement",
-        "Data-Driven Marketing",
-        "Digital Advertising",
-        "A/B Testing",
-        "Market Research",
-        "SEO/SEM Strategy",
-        "Creative Direction"
-      ],
-      "curated": true
-    },
-    {
-      "title": "Director of Crisis Communications",
-      "company": "Edelman",
-      "location": "New York, NY",
-      "description": "Lead crisis response for Fortune 500 clients facing litigation, regulatory action, or public controversies. Develop rapid-response protocols and media strategies.",
-      "parsedSkills": [
-        "Crisis Communications",
-        "Client Relationship Management",
-        "Negotiation",
-        "Public Speaking",
-        "Written Communication",
-        "Risk Assessment",
-        "Media Production",
-        "Brand Development",
-        "Strategic Planning",
-        "Corporate Communications",
-        "Social Media Crisis Response",
-        "Press Conference Management",
-        "Regulatory Affairs"
-      ],
-      "curated": true
-    },
-    {
-      "title": "General Counsel",
-      "company": "Dollar Shave Club",
-      "location": "Venice, CA",
-      "description": "Oversee all legal matters for DTC brand including IP, employment, regulatory compliance, and marketing law. Report directly to CEO.",
-      "parsedSkills": [
-        "Legal Strategy",
-        "Contract Law",
-        "Negotiation",
-        "Risk Assessment",
-        "Written Communication",
-        "Business Development",
-        "Regulatory Compliance",
-        "Intellectual Property Law",
-        "Employment Law",
-        "Privacy Regulations",
-        "International Trade Law",
-        "M&A Due Diligence"
-      ],
-      "curated": true
-    }
-  ],
-  "values": [],
-  "purpose": ""
+  "purpose": "I fight for people the system forgot. Everyone deserves someone in their corner — especially when nobody else will show up."
 }

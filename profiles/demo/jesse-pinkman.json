@@ -1,336 +1,230 @@
 {
+  "templateId": "jesse-pinkman",
   "profile": {
     "name": "Jesse Pinkman",
-    "currentTitle": "Artisan Woodworker & Craftsman",
-    "location": "Albuquerque, NM",
-    "roleLevel": "Early Career",
-    "summary": "Self-taught craftsman with natural artistic talent and hands-on technical skills. Background in custom furniture making and retail sales. Strong interpersonal skills and an authentic connection with diverse communities. Passionate about creative work and mentoring at-risk youth."
+    "currentTitle": "Independent Craftsman & Woodworker",
+    "location": "Haines, AK",
+    "roleLevel": "Early-Career",
+    "headline": "Self-taught chemical production specialist turned master woodworker. Rose from apprentice to independent operator in high-stakes production environment. Now applying precision craftsmanship to woodworking.",
+    "executiveSummary": "A scrappy, self-taught operator who learned advanced chemical production on the job from one of the most demanding mentors in the field. Despite lacking formal education, demonstrated ability to master complex technical processes, manage distribution operations, and adapt to extreme pressure. Now channeling precision and craft into woodworking, bringing the same obsessive attention to quality that defined his earlier career."
   },
   "roles": [
-    {
-      "name": "Artisan Craftsman"
-    },
-    {
-      "name": "Sales Associate"
-    },
-    {
-      "name": "Youth Mentor"
-    }
+    { "name": "Production & Manufacturing", "id": "production" },
+    { "name": "Sales & Distribution", "id": "sales" },
+    { "name": "Craftsmanship", "id": "craft" },
+    { "name": "Operations", "id": "operations" }
   ],
   "skills": [
     {
+      "name": "Chemical Production",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": ["production"],
+      "evidence": [
+        { "outcome": "Achieved 96% product purity operating independently after 12-month apprenticeship", "description": "Developed from zero chemistry knowledge to competent independent operator under Walter White's mentorship" },
+        { "outcome": "Maintained consistent production output of 200 lbs/week as sole operator", "description": "Managed full production cycle independently including setup, synthesis, quality testing, and cleanup" }
+      ]
+    },
+    {
       "name": "Woodworking",
-      "category": "trade",
-      "proficiency": "Advanced",
-      "roles": [
-        "Artisan Craftsman"
-      ],
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": ["craft"],
       "evidence": [
-        {
-          "outcome": "Built custom jewelry box selected for display at ABQ Makers Market",
-          "description": "Hand-carved from reclaimed walnut with dovetail joints and felt lining"
-        }
+        { "outcome": "Designed and built custom wooden box described as 'the finest craftsmanship' by demanding mentor", "description": "Created precision joinery piece that earned recognition from Walter White, who praised virtually nothing" }
       ]
     },
     {
-      "name": "Furniture Making",
-      "category": "trade",
-      "proficiency": "Advanced",
-      "roles": [
-        "Artisan Craftsman"
-      ]
-    },
-    {
-      "name": "Hand Tool Proficiency",
-      "category": "trade",
-      "proficiency": "Advanced",
-      "roles": [
-        "Artisan Craftsman"
-      ]
-    },
-    {
-      "name": "Design Thinking",
+      "name": "Sales & Distribution",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Artisan Craftsman"
-      ]
-    },
-    {
-      "name": "Creative Problem Solving",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Artisan Craftsman"
-      ]
-    },
-    {
-      "name": "Custom Fabrication",
-      "category": "trade",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Artisan Craftsman"
-      ]
-    },
-    {
-      "name": "Finishing Techniques",
-      "category": "trade",
-      "proficiency": "Advanced",
-      "roles": [
-        "Artisan Craftsman"
-      ]
-    },
-    {
-      "name": "Sales",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Sales Associate"
-      ],
+      "key": true,
+      "roles": ["sales"],
       "evidence": [
-        {
-          "outcome": "Consistently exceeded monthly sales targets by 20%",
-          "description": "Built loyal customer base through authentic relationship-building"
-        }
+        { "outcome": "Built street-level distribution network covering Albuquerque metro area", "description": "Recruited and managed 5+ distributors, negotiated territory agreements, and managed customer relationships" },
+        { "outcome": "Expanded distribution from local to regional territory covering 3 states", "description": "Scaled distribution operation leveraging product quality reputation and partnership leverage" }
       ]
     },
     {
-      "name": "Customer Service",
+      "name": "Equipment Operation & Maintenance",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Sales Associate"
-      ]
-    },
-    {
-      "name": "Relationship Building",
-      "category": "workstyle",
-      "proficiency": "Advanced",
-      "roles": [
-        "Sales Associate",
-        "Youth Mentor"
-      ]
-    },
-    {
-      "name": "Negotiation",
-      "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Sales Associate"
-      ]
-    },
-    {
-      "name": "Adaptability",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Artisan Craftsman",
-        "Sales Associate"
-      ]
-    },
-    {
-      "name": "Resilience",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Youth Mentor"
-      ],
+      "roles": ["production", "craft"],
       "evidence": [
-        {
-          "outcome": "Achieved and maintained sobriety, becoming a peer recovery advocate",
-          "description": "Personal experience with addiction recovery informs authentic mentorship"
-        }
-      ]
-    },
-    {
-      "name": "Youth Mentoring",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Youth Mentor"
-      ],
-      "evidence": [
-        {
-          "outcome": "Mentored 8 at-risk teens through community art program",
-          "description": "Taught woodworking and life skills at Albuquerque Youth Center"
-        }
-      ]
-    },
-    {
-      "name": "Empathy",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Youth Mentor"
-      ]
-    },
-    {
-      "name": "Chemistry",
-      "category": "knowledge",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Artisan Craftsman"
-      ]
-    },
-    {
-      "name": "Street Smarts",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Sales Associate"
+        { "outcome": "Operated and maintained complex production equipment with 98% uptime", "description": "Learned to operate, troubleshoot, and perform basic repairs on industrial equipment without formal training" }
       ]
     },
     {
       "name": "Inventory Management",
+      "level": "Proficient",
       "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Sales Associate"
+      "roles": ["production", "sales"],
+      "evidence": [
+        { "outcome": "Managed raw material and finished product inventory across multiple locations", "description": "Tracked precursor chemicals, production supplies, and finished inventory with accuracy" }
       ]
     },
     {
-      "name": "Vehicle Maintenance",
-      "category": "trade",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Artisan Craftsman"
+      "name": "Negotiation",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["sales"],
+      "evidence": [
+        { "outcome": "Negotiated distribution terms with partners in high-stakes competitive environment", "description": "Secured favorable terms despite limited leverage through combination of product quality and persistence" }
       ]
     },
     {
-      "name": "Graphic Arts",
-      "category": "creative",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Artisan Craftsman"
+      "name": "Customer Relationship Management",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["sales"],
+      "evidence": [
+        { "outcome": "Built and maintained distributor loyalty across volatile market conditions", "description": "Maintained relationships through personal connection, reliability, and fair dealing" }
       ]
     },
     {
-      "name": "Teamwork",
-      "category": "workstyle",
-      "proficiency": "Advanced",
-      "roles": [
-        "Sales Associate",
-        "Youth Mentor"
+      "name": "Safety Protocols",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["production"],
+      "evidence": [
+        { "outcome": "Maintained personal safety record across 500+ production hours in hazardous environment", "description": "Followed rigorous safety protocols for handling volatile chemicals and operating dangerous equipment" }
+      ]
+    },
+    {
+      "name": "Quality Control",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["production", "craft"],
+      "evidence": [
+        { "outcome": "Learned to perform purity testing and reject batches below 96% threshold", "description": "Developed quality standards that would have been unthinkable at the start of apprenticeship" }
+      ]
+    },
+    {
+      "name": "Precision Craftsmanship",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": ["craft"],
+      "evidence": [
+        { "outcome": "Applied production precision skills to fine woodworking achieving furniture-grade quality", "description": "Transferred attention to detail and process discipline from chemical work to traditional craftsmanship" }
+      ]
+    },
+    {
+      "name": "Adaptability",
+      "level": "Expert",
+      "category": "work style",
+      "key": true,
+      "roles": ["production", "sales"],
+      "evidence": [
+        { "outcome": "Adapted to 5 completely different operational environments within 2 years", "description": "Operated in RV, basement, commercial lab, underground facility, and mobile operations, adapting processes each time" }
+      ]
+    },
+    {
+      "name": "Resilience",
+      "level": "Expert",
+      "category": "work style",
+      "key": true,
+      "roles": ["production"],
+      "evidence": [
+        { "outcome": "Recovered from multiple traumatic experiences to rebuild productive life", "description": "Demonstrated extraordinary capacity to endure adversity and emerge with purpose and renewed direction" }
+      ]
+    },
+    {
+      "name": "Loyalty",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": ["sales"],
+      "evidence": [
+        { "outcome": "Maintained partner loyalty under extreme duress including threats to personal safety", "description": "Refused to compromise colleagues even under severe personal risk" }
+      ]
+    },
+    {
+      "name": "Street Intelligence",
+      "level": "Expert",
+      "category": "work style",
+      "key": true,
+      "roles": ["sales"],
+      "evidence": [
+        { "outcome": "Navigated complex and dangerous interpersonal dynamics across criminal and civilian contexts", "description": "Applied instinctive social intelligence to assess threats, build alliances, and avoid dangerous situations" }
+      ]
+    },
+    {
+      "name": "Creativity",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": ["craft"],
+      "evidence": [
+        { "outcome": "Applied artistic sensibility to both chemical production and woodworking", "description": "Brought creative thinking and aesthetic appreciation to technical disciplines" }
+      ]
+    },
+    {
+      "name": "Empathy",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": ["sales"],
+      "evidence": [
+        { "outcome": "Built genuine relationships with vulnerable individuals others exploited", "description": "Demonstrated deep empathy for people struggling with addiction and difficult circumstances" }
+      ]
+    },
+    {
+      "name": "Driving & Vehicle Operation",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["operations"],
+      "evidence": []
+    },
+    {
+      "name": "Basic Accounting",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["sales"],
+      "evidence": [
+        { "outcome": "Managed cash-based financial operations across distribution network", "description": "Tracked revenue, expenses, and distributor payments in cash-intensive business" }
+      ]
+    },
+    {
+      "name": "Art & Design",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["craft"],
+      "evidence": [
+        { "outcome": "Applied artistic eye to furniture design and finish work", "description": "Brought natural aesthetic sensibility to woodworking design" }
       ]
     }
   ],
+  "values": [
+    { "name": "Loyalty", "level": "core" },
+    { "name": "Freedom", "level": "core" },
+    { "name": "Craftsmanship", "level": "core" },
+    { "name": "Empathy", "level": "important" },
+    { "name": "Redemption", "level": "important" }
+  ],
   "workHistory": [
     {
-      "title": "Artisan Woodworker",
+      "title": "Independent Craftsman",
       "company": "Self-Employed",
-      "location": "Albuquerque, NM",
-      "startDate": "2006-03",
-      "endDate": "2008-08",
-      "current": false,
-      "description": "Designed and built custom furniture and decorative items. Sold pieces at local markets and through word-of-mouth commissions. Sourced reclaimed materials from local salvage yards.",
-      "achievements": [
-        "Jewelry box selected for ABQ Makers Market display",
-        "Completed 15+ custom furniture commissions",
-        "Built client base through word-of-mouth referrals"
-      ]
+      "startYear": 2012,
+      "endYear": null,
+      "current": true,
+      "description": "Custom woodworking and furniture making. Applying precision craftsmanship skills to create hand-built pieces."
     },
     {
-      "title": "Sales Associate",
-      "company": "Various Retail",
-      "location": "Albuquerque, NM",
-      "startDate": "2003-06",
-      "endDate": "2006-02",
-      "current": false,
-      "description": "Worked various retail positions. Developed strong customer service skills and an ability to read people quickly.",
-      "achievements": [
-        "Consistently exceeded monthly sales targets by 20%"
-      ]
-    },
-    {
-      "title": "Youth Arts Volunteer",
-      "company": "Albuquerque Youth Center",
-      "location": "Albuquerque, NM",
-      "startDate": "2007-01",
-      "endDate": "2008-06",
-      "current": false,
-      "description": "Taught basic woodworking and art skills to at-risk teens. Provided informal mentoring and life skills guidance.",
-      "achievements": [
-        "Mentored 8 at-risk teens",
-        "Designed hands-on curriculum for beginner woodworkers"
-      ]
+      "title": "Production Specialist / Operator",
+      "company": "Confidential",
+      "startYear": 2008,
+      "endYear": 2011,
+      "description": "Apprenticed under leading industry expert. Advanced from trainee to independent operator achieving 96% product quality standard. Managed production operations and distribution logistics."
     }
   ],
   "education": [
     {
-      "school": "J.P. Wynne High School",
-      "degree": "High School Diploma",
-      "field": "General Studies",
-      "year": "2002",
-      "id": "ed-jp-1"
+      "institution": "J.P. Wynne High School",
+      "degree": "High School (incomplete)",
+      "year": null
     }
   ],
   "certifications": [],
-  "savedJobs": [
-    {
-      "title": "Artisan Furniture Maker",
-      "company": "West Elm (Williams-Sonoma)",
-      "location": "Brooklyn, NY",
-      "description": "Design and produce handcrafted furniture pieces for the West Elm LOCAL program, featuring artisan-made goods from regional makers.",
-      "parsedSkills": [
-        "Woodworking",
-        "Furniture Making",
-        "Hand Tool Proficiency",
-        "Design Thinking",
-        "Custom Fabrication",
-        "Finishing Techniques",
-        "Creative Problem Solving",
-        "Customer Service",
-        "CNC Operation",
-        "CAD Software",
-        "Production Scheduling",
-        "Upholstery",
-        "Metal Fabrication"
-      ],
-      "curated": true
-    },
-    {
-      "title": "Field Sales Representative",
-      "company": "Snap-on Tools",
-      "location": "Albuquerque, NM",
-      "description": "Operate mobile tool store serving professional mechanics and technicians. Build relationships, manage inventory, and grow territory sales.",
-      "parsedSkills": [
-        "Sales",
-        "Customer Service",
-        "Relationship Building",
-        "Negotiation",
-        "Inventory Management",
-        "Vehicle Maintenance",
-        "Hand Tool Proficiency",
-        "Territory Management",
-        "CRM Software",
-        "Financial Reporting",
-        "CDL License",
-        "Route Optimization"
-      ],
-      "curated": true
-    },
-    {
-      "title": "Youth Program Coordinator",
-      "company": "Boys & Girls Clubs of America",
-      "location": "Albuquerque, NM",
-      "description": "Coordinate after-school and summer programs for youth ages 12-18. Develop curriculum, recruit volunteers, and build community partnerships.",
-      "parsedSkills": [
-        "Youth Mentoring",
-        "Relationship Building",
-        "Empathy",
-        "Teamwork",
-        "Creative Problem Solving",
-        "Customer Service",
-        "Adaptability",
-        "Program Design",
-        "Grant Writing",
-        "Volunteer Management",
-        "CPR Certification",
-        "Background Check Required"
-      ],
-      "curated": true
-    }
-  ],
-  "values": [],
-  "purpose": ""
+  "purpose": "I'm done with shortcuts. I build things with my hands now. Real things. Things that last."
 }

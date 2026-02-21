@@ -1,327 +1,203 @@
 {
+  "templateId": "steve-harrington",
   "profile": {
     "name": "Steve Harrington",
-    "currentTitle": "Shift Manager, Scoops Ahoy",
+    "currentTitle": "Shift Manager, Family Video / Former Scoops Ahoy Associate",
     "location": "Hawkins, IN",
-    "roleLevel": "Early Career",
-    "summary": "Natural leader with proven ability to inspire and protect teams under pressure. Strong customer service background and genuine connection with young people. Demonstrated growth from individual contributor to team-first leader. Known for reliability, courage, and stepping up when it matters most."
+    "roleLevel": "Early-Career",
+    "headline": "Retail team leader and accidental crisis responder who has survived more existential threats than most military veterans. Known for stepping up when it matters, mentoring younger team members, and delivering surprisingly effective customer service.",
+    "executiveSummary": "Former high school athlete turned retail professional who discovered unexpected leadership abilities during a series of extreme crisis events in Hawkins, Indiana. While his resume might look like standard retail experience, Steve has repeatedly demonstrated crisis leadership, protective instincts, and team coordination skills that belie his job title. Currently managing shifts at Family Video while serving as de facto team leader for an ad hoc crisis response group."
   },
   "roles": [
-    {
-      "name": "Retail Manager"
-    },
-    {
-      "name": "Youth Leader"
-    },
-    {
-      "name": "Team Protector"
-    }
+    { "name": "Retail & Customer Service", "id": "retail" },
+    { "name": "Crisis Response", "id": "crisis" },
+    { "name": "Team Leadership", "id": "leadership" }
   ],
   "skills": [
     {
       "name": "Customer Service",
+      "level": "Proficient",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Retail Manager"
-      ],
+      "key": true,
+      "roles": ["retail"],
       "evidence": [
-        {
-          "outcome": "Achieved highest customer satisfaction scores in Starcourt Mall food court",
-          "description": "Built reputation for friendly, personalized service"
-        }
+        { "outcome": "Maintained positive customer satisfaction ratings across two retail positions", "description": "Provided friendly, knowledgeable service at Scoops Ahoy and Family Video despite unconventional work disruptions" },
+        { "outcome": "Developed product knowledge enabling personalized movie recommendations at Family Video", "description": "Built expertise in film catalog to provide tailored recommendations driving repeat customer visits" }
       ]
     },
     {
-      "name": "Youth Mentoring",
+      "name": "Crisis Leadership",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Youth Leader"
-      ],
+      "key": true,
+      "roles": ["crisis"],
       "evidence": [
-        {
-          "outcome": "Mentored and protected group of 6 young people through multiple crisis situations",
-          "description": "Earned lasting trust and respect as reliable guardian figure"
-        }
+        { "outcome": "Led civilian defense during 4 existential threat events with zero casualties among team members", "description": "Organized and directed untrained group of teenagers through situations that would challenge trained military personnel" },
+        { "outcome": "Coordinated tactical response at Starcourt Mall under extreme duress", "description": "Directed team movement, resource allocation, and defensive positioning during sustained threat engagement" }
       ]
     },
     {
-      "name": "Team Leadership",
-      "category": "workstyle",
-      "proficiency": "Advanced",
-      "roles": [
-        "Team Protector"
-      ],
+      "name": "Team Mentoring",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": ["leadership"],
       "evidence": [
-        {
-          "outcome": "Led civilian team of 4 through dangerous reconnaissance mission with zero casualties",
-          "description": "Made real-time tactical decisions under extreme pressure"
-        }
+        { "outcome": "Mentored Dustin Henderson through personal development and crisis situations", "description": "Provided guidance, emotional support, and practical life advice to younger team member across multiple years" },
+        { "outcome": "Served as protective role model for group of 6 younger team members", "description": "Stepped into de facto big brother role providing leadership, protection, and emotional stability" }
       ]
     },
     {
-      "name": "Conflict Resolution",
+      "name": "Physical Combat",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Youth Leader",
-        "Team Protector"
+      "roles": ["crisis"],
+      "evidence": [
+        { "outcome": "Engaged and survived hand-to-hand combat against both human and non-human threats", "description": "Applied athletic ability and improvised weapons effectively in multiple physical confrontations" }
       ]
     },
     {
-      "name": "Physical Fitness",
-      "category": "ability",
-      "proficiency": "Advanced",
-      "roles": [
-        "Team Protector"
-      ]
-    },
-    {
-      "name": "Adaptability",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Retail Manager",
-        "Team Protector"
-      ]
-    },
-    {
-      "name": "Courage",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Team Protector"
-      ]
-    },
-    {
-      "name": "Reliability",
-      "category": "workstyle",
-      "proficiency": "Advanced",
-      "roles": [
-        "Retail Manager",
-        "Youth Leader"
-      ]
-    },
-    {
-      "name": "Cash Handling",
+      "name": "Cash Register & POS Operations",
+      "level": "Proficient",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Retail Manager"
+      "roles": ["retail"],
+      "evidence": [
+        { "outcome": "Managed daily cash operations with 100% accuracy at two retail locations", "description": "Handled cash transactions, daily reconciliation, and deposit preparation" }
       ]
     },
     {
       "name": "Inventory Management",
+      "level": "Proficient",
       "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Retail Manager"
+      "roles": ["retail"],
+      "evidence": [
+        { "outcome": "Managed video inventory of 5,000+ titles at Family Video", "description": "Tracked inventory, processed returns, managed late fees, and maintained shelf organization" }
       ]
     },
     {
       "name": "Food Service",
+      "level": "Proficient",
       "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Retail Manager"
+      "roles": ["retail"],
+      "evidence": [
+        { "outcome": "Operated ice cream service counter at Scoops Ahoy in Starcourt Mall", "description": "Prepared ice cream products, maintained food safety standards, and managed customer queue" }
       ]
     },
     {
-      "name": "Driving",
+      "name": "Vehicle Operation",
+      "level": "Proficient",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Youth Leader"
+      "roles": ["crisis"],
+      "evidence": [
+        { "outcome": "Served as primary driver/logistics for crisis response team across 4 events", "description": "Provided reliable transportation under dangerous conditions including high-speed pursuit scenarios" }
       ]
     },
     {
       "name": "First Aid",
+      "level": "Proficient",
       "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Team Protector"
+      "roles": ["crisis"],
+      "evidence": [
+        { "outcome": "Provided basic first aid to team members during and after crisis events", "description": "Applied wound care, stabilization, and recovery support for injured team members" }
       ]
     },
     {
-      "name": "Communication",
+      "name": "Athletic Skills",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Retail Manager",
-        "Youth Leader"
+      "roles": ["crisis"],
+      "evidence": [
+        { "outcome": "Former varsity basketball player applying athleticism to crisis response situations", "description": "Leveraged athletic conditioning, coordination, and competitive instincts in physical confrontations" }
       ]
     },
     {
-      "name": "Empathy",
-      "category": "workstyle",
-      "proficiency": "Advanced",
-      "roles": [
-        "Youth Leader"
+      "name": "Protective Leadership",
+      "level": "Expert",
+      "category": "work style",
+      "key": true,
+      "roles": ["crisis", "leadership"],
+      "evidence": [
+        { "outcome": "Consistently placed himself between threats and younger team members", "description": "Made instinctive decisions to protect others at personal risk across all crisis events" }
       ]
     },
     {
-      "name": "Personal Growth",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Youth Leader"
+      "name": "Courage",
+      "level": "Expert",
+      "category": "work style",
+      "key": true,
+      "roles": ["crisis"],
+      "evidence": [
+        { "outcome": "Volunteered for most dangerous assignments despite having no obligation or training", "description": "Stepped up repeatedly when he could have walked away, facing threats far beyond his experience level" }
       ]
     },
     {
-      "name": "Problem Solving",
+      "name": "Humility",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": ["leadership", "retail"],
+      "evidence": [
+        { "outcome": "Transitioned from popular athlete to retail worker without ego or bitterness", "description": "Accepted changed circumstances with grace, finding purpose in service and mentoring rather than status" }
+      ]
+    },
+    {
+      "name": "Reliability",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": ["leadership"],
+      "evidence": [
+        { "outcome": "100% attendance when team needed support during crisis events", "description": "Never failed to show up when friends needed help, regardless of personal risk or inconvenience" }
+      ]
+    },
+    {
+      "name": "Adaptability",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": ["crisis"],
+      "evidence": [
+        { "outcome": "Adapted from normal teenage life to repeated crisis response without psychological breakdown", "description": "Demonstrated remarkable ability to process extreme experiences and continue functioning" }
+      ]
+    },
+    {
+      "name": "Communication Skills",
+      "level": "Proficient",
       "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Team Protector"
+      "roles": ["retail", "leadership"],
+      "evidence": [
+        { "outcome": "Provided clear, calm direction to team members during high-stress situations", "description": "Communicated effectively under pressure, keeping team informed and coordinated" }
       ]
     }
+  ],
+  "values": [
+    { "name": "Loyalty", "level": "core" },
+    { "name": "Protection", "level": "core" },
+    { "name": "Courage", "level": "core" },
+    { "name": "Friendship", "level": "important" },
+    { "name": "Humility", "level": "important" }
   ],
   "workHistory": [
     {
       "title": "Shift Manager",
-      "company": "Scoops Ahoy \u2014 Starcourt Mall",
-      "location": "Hawkins, IN",
-      "startDate": "1985-05",
-      "endDate": "1985-07",
-      "current": false,
-      "description": "Managed ice cream shop operations including customer service, inventory, cash handling, and staff coordination. Mall location was destroyed in structural incident July 1985.",
-      "achievements": [
-        "Highest customer satisfaction scores in Starcourt food court",
-        "Trained 2 new employees"
-      ]
-    },
-    {
-      "title": "Lifeguard",
-      "company": "Hawkins Community Pool",
-      "location": "Hawkins, IN",
-      "startDate": "1984-06",
-      "endDate": "1984-08",
-      "current": false,
-      "description": "Ensured swimmer safety, enforced pool rules, performed water rescues, and maintained pool area cleanliness.",
-      "achievements": [
-        "Zero incidents during shifts",
-        "CPR certified"
-      ]
-    },
-    {
-      "title": "Volunteer Youth Mentor",
-      "company": "Hawkins Community Center",
-      "location": "Hawkins, IN",
-      "startDate": "1984-01",
-      "endDate": "",
+      "company": "Family Video",
+      "startYear": 1986,
+      "endYear": null,
       "current": true,
-      "description": "Informal mentoring and supervision of middle school-aged youth group. Provided transportation, conflict mediation, and general guidance.",
-      "achievements": [
-        "Earned trust of 6 young people as their primary adult ally",
-        "Successfully de-escalated multiple youth conflicts"
-      ]
+      "description": "Managing shifts, customer service, and inventory at video rental store. Providing movie recommendations and maintaining store operations."
+    },
+    {
+      "title": "Associate",
+      "company": "Scoops Ahoy — Starcourt Mall",
+      "startYear": 1985,
+      "endYear": 1985,
+      "description": "Ice cream counter service. Position ended when Starcourt Mall was destroyed in an incident officially attributed to a fire."
     }
   ],
   "education": [
     {
-      "school": "Hawkins High School",
+      "institution": "Hawkins High School",
       "degree": "High School Diploma",
-      "field": "General Studies",
-      "year": "1984",
-      "id": "ed-sh-1"
+      "year": 1985
     }
   ],
-  "certifications": [
-    {
-      "name": "CPR & First Aid",
-      "abbr": "CPR",
-      "issuer": "American Red Cross",
-      "year": "1984",
-      "type": "Certification",
-      "linkedSkills": [
-        "First Aid"
-      ],
-      "tier": 1,
-      "libraryMatch": null,
-      "id": "cert-sh-1"
-    },
-    {
-      "name": "ServSafe Food Handler",
-      "abbr": "ServSafe",
-      "issuer": "National Restaurant Association",
-      "year": "1985",
-      "type": "Certification",
-      "linkedSkills": [
-        "Food Service"
-      ],
-      "tier": 1,
-      "libraryMatch": null,
-      "id": "cert-sh-1b"
-    }
-  ],
-  "savedJobs": [
-    {
-      "title": "Youth Program Director",
-      "company": "YMCA of Greater Indianapolis",
-      "location": "Indianapolis, IN",
-      "description": "Lead youth development programs for ages 10-18. Design curriculum, recruit and train volunteers, manage budget, and build community partnerships.",
-      "parsedSkills": [
-        "Youth Mentoring",
-        "Team Leadership",
-        "Communication",
-        "Empathy",
-        "Conflict Resolution",
-        "Adaptability",
-        "Reliability",
-        "Problem Solving",
-        "Program Design",
-        "Budget Management",
-        "Grant Writing",
-        "CPR Certification",
-        "Wilderness First Responder"
-      ],
-      "curated": true
-    },
-    {
-      "title": "District Manager",
-      "company": "Target Corporation",
-      "location": "Indianapolis, IN",
-      "description": "Oversee operations of 8-12 Target stores in district. Responsible for P&L, hiring, training, merchandising, and customer experience standards.",
-      "parsedSkills": [
-        "Customer Service",
-        "Team Leadership",
-        "Cash Handling",
-        "Inventory Management",
-        "Communication",
-        "Adaptability",
-        "P&L Management",
-        "Hiring & Onboarding",
-        "Visual Merchandising",
-        "Loss Prevention",
-        "RFID Systems",
-        "Supply Chain Logistics"
-      ],
-      "curated": true
-    },
-    {
-      "title": "Camp Director",
-      "company": "Camp Tecumseh YMCA",
-      "location": "Brookston, IN",
-      "description": "Direct all operations for 500-camper residential summer camp. Hire and supervise 120 seasonal staff. Ensure safety, programming quality, and camper experience.",
-      "parsedSkills": [
-        "Youth Mentoring",
-        "Team Leadership",
-        "Physical Fitness",
-        "First Aid",
-        "Courage",
-        "Reliability",
-        "Communication",
-        "Conflict Resolution",
-        "Driving",
-        "Risk Management",
-        "Outdoor Education",
-        "Aquatics Director Certification",
-        "Emergency Action Plans"
-      ],
-      "curated": true
-    }
-  ],
-  "values": [],
-  "purpose": ""
+  "certifications": [],
+  "purpose": "I'm not the hero type. But when the kids need someone? I grab the bat."
 }

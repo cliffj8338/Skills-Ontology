@@ -1,298 +1,195 @@
 {
+  "templateId": "eleven",
   "profile": {
     "name": "Eleven (Jane Hopper)",
-    "currentTitle": "Research Subject / Crisis Response Specialist",
-    "location": "Hawkins, IN",
-    "roleLevel": "Early Career",
-    "summary": "Extraordinary individual with unique sensory and perceptual abilities developed through intensive government research programs. Demonstrated crisis leadership and threat assessment capabilities far beyond chronological experience. Currently transitioning from classified research background to civilian applications."
+    "currentTitle": "Independent — Interdimensional Threat Response",
+    "location": "Hawkins, IN → Lenora Hills, CA",
+    "roleLevel": "Early-Career",
+    "headline": "The world's only verified telekinetic operative with combat experience against interdimensional threats. Escaped government captivity, closed dimensional breaches, and saved an entire town — multiple times — before her 16th birthday.",
+    "executiveSummary": "Raised in a classified government laboratory and trained from birth in psychokinetic abilities, Eleven escaped captivity and became the primary defense against interdimensional incursions threatening Hawkins, Indiana. Despite severe social skill gaps from institutional upbringing, she has demonstrated extraordinary courage, emotional growth, and the ability to form deep bonds. Her unique capabilities have no equivalent in any known workforce."
   },
   "roles": [
-    {
-      "name": "Research Subject"
-    },
-    {
-      "name": "Crisis Specialist"
-    },
-    {
-      "name": "Threat Analyst"
-    }
+    { "name": "Psychokinetic Operations", "id": "psycho" },
+    { "name": "Threat Response", "id": "threat" },
+    { "name": "Intelligence & Remote Viewing", "id": "intel" }
   ],
   "skills": [
     {
-      "name": "Sensory Perception",
-      "category": "ability",
-      "proficiency": "Mastery",
-      "roles": [
-        "Research Subject",
-        "Threat Analyst"
-      ],
+      "name": "Telekinesis",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": ["psycho"],
       "evidence": [
-        {
-          "outcome": "Demonstrated remote sensory perception capabilities validated by government researchers",
-          "description": "Abilities verified through controlled laboratory testing by Hawkins National Laboratory"
-        }
+        { "outcome": "Closed interdimensional gate preventing extinction-level event", "description": "Applied maximum telekinetic force to seal breach between dimensions, saving population of Hawkins and potentially beyond" },
+        { "outcome": "Defeated Demogorgon, Mind Flayer avatar, and Vecna using psychokinetic abilities", "description": "Engaged and neutralized multiple existential threats through focused application of telekinetic power" }
+      ]
+    },
+    {
+      "name": "Remote Viewing",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["intel"],
+      "evidence": [
+        { "outcome": "Located missing persons across state lines through psychic remote viewing", "description": "Used sensory deprivation technique to project consciousness and locate individuals at great distance" },
+        { "outcome": "Gathered real-time intelligence on enemy positions and movements", "description": "Provided actionable intelligence through remote viewing that enabled tactical planning" }
+      ]
+    },
+    {
+      "name": "Combat Operations",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["threat"],
+      "evidence": [
+        { "outcome": "Engaged and defeated 5+ hostile entities in direct combat across 4 crisis events", "description": "Applied telekinetic abilities in combat situations against threats that conventional weapons could not stop" }
       ]
     },
     {
       "name": "Threat Assessment",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Threat Analyst"
-      ],
+      "roles": ["threat"],
       "evidence": [
-        {
-          "outcome": "Identified and neutralized 4 critical threats to civilian population",
-          "description": "Threat detection capabilities instrumental in preventing mass casualty events"
-        }
+        { "outcome": "Identified Vecna as primary threat and developed strategy to engage him in psychic domain", "description": "Assessed threat hierarchy and determined that direct psychic engagement was only viable approach" }
       ]
     },
     {
-      "name": "Crisis Response",
+      "name": "Sensory Deprivation Techniques",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Crisis Specialist"
-      ],
+      "roles": ["intel"],
       "evidence": [
-        {
-          "outcome": "Led crisis response saving 30+ civilian lives across 3 separate incidents",
-          "description": "Demonstrated calm under extreme pressure in life-threatening scenarios"
-        }
+        { "outcome": "Developed improvised sensory deprivation environments in field conditions", "description": "Used bathtubs, pools, and improvised containers to achieve states required for remote viewing capabilities" }
       ]
     },
     {
-      "name": "Pattern Recognition",
-      "category": "ability",
-      "proficiency": "Mastery",
-      "roles": [
-        "Research Subject",
-        "Threat Analyst"
+      "name": "Emotional Regulation Under Stress",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["psycho", "threat"],
+      "evidence": [
+        { "outcome": "Maintained focus and emotional control during life-threatening combat situations", "description": "Channeled emotions constructively rather than destructively when using abilities under extreme stress" }
       ]
     },
     {
       "name": "Nonverbal Communication",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Crisis Specialist"
-      ]
-    },
-    {
-      "name": "Emotional Intelligence",
-      "category": "workstyle",
-      "proficiency": "Advanced",
-      "roles": [
-        "Crisis Specialist"
-      ]
-    },
-    {
-      "name": "Resilience",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Crisis Specialist"
-      ],
+      "roles": [],
       "evidence": [
-        {
-          "outcome": "Recovered and regained full capabilities after complete ability loss",
-          "description": "Demonstrated extraordinary psychological resilience following traumatic events"
-        }
+        { "outcome": "Communicated effectively with limited vocabulary during early post-laboratory period", "description": "Used gesture, expression, and emotional resonance to build connections despite severe language limitations" }
       ]
     },
     {
-      "name": "Focus & Concentration",
-      "category": "ability",
-      "proficiency": "Mastery",
-      "roles": [
-        "Research Subject"
+      "name": "English Language (ESL)",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": [],
+      "evidence": [
+        { "outcome": "Progressed from 50-word vocabulary to conversational fluency within 2 years", "description": "Rapidly acquired language skills through immersion, mentorship from Hopper, and social interaction with peers" }
       ]
     },
     {
-      "name": "Adaptability",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Crisis Specialist"
+      "name": "Survival Skills",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["threat"],
+      "evidence": [
+        { "outcome": "Survived independently in wilderness and urban environments as a child", "description": "Applied resourcefulness and determination to survive alone after escaping laboratory, finding shelter and food independently" }
       ]
     },
     {
       "name": "Courage",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Crisis Specialist"
-      ]
-    },
-    {
-      "name": "Observation",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Threat Analyst"
-      ]
-    },
-    {
-      "name": "Trauma-Informed Practice",
-      "category": "knowledge",
-      "proficiency": "Advanced",
-      "roles": [
-        "Crisis Specialist"
-      ],
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["threat"],
       "evidence": [
-        {
-          "outcome": "Personal experience with institutional trauma informs deep understanding of PTSD",
-          "description": "Unique perspective on recovery and resilience from lived experience"
-        }
+        { "outcome": "Voluntarily faced existential threats that no one else could, accepting personal sacrifice", "description": "Chose to confront Vecna and close the gate knowing it could mean her own death" }
       ]
     },
     {
-      "name": "Teamwork",
-      "category": "workstyle",
-      "proficiency": "Advanced",
-      "roles": [
-        "Crisis Specialist"
+      "name": "Resilience",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["threat"],
+      "evidence": [
+        { "outcome": "Recovered from institutional abuse, isolation, and loss of abilities to fight again", "description": "Overcame childhood trauma, social isolation, and temporary loss of powers to return stronger" }
       ]
     },
     {
-      "name": "Problem Solving",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Threat Analyst"
+      "name": "Empathy",
+      "level": "Expert",
+      "category": "work style",
+      "key": true,
+      "roles": [],
+      "evidence": [
+        { "outcome": "Formed deep emotional bonds despite severe social deprivation in childhood", "description": "Demonstrated extraordinary capacity for love and connection despite institutional upbringing designed to suppress emotion" }
       ]
     },
     {
-      "name": "Self-Directed Learning",
-      "category": "workstyle",
-      "proficiency": "Advanced",
-      "roles": [
-        "Research Subject"
+      "name": "Determination",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["threat", "psycho"],
+      "evidence": [
+        { "outcome": "Regained lost telekinetic abilities through sheer force of will and emotional breakthrough", "description": "Recovered powers through confronting traumatic memories, demonstrating that determination can overcome even neurological limitations" }
+      ]
+    },
+    {
+      "name": "Adaptability",
+      "level": "Expert",
+      "category": "work style",
+      "roles": [],
+      "evidence": [
+        { "outcome": "Adapted from laboratory captivity to normal teenage life within 2 years", "description": "Navigated enormous transition from controlled institutional environment to family, school, and social life" }
       ]
     },
     {
       "name": "Loyalty",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Crisis Specialist"
+      "level": "Expert",
+      "category": "work style",
+      "roles": [],
+      "evidence": [
+        { "outcome": "Returned from California to Hawkins to protect friends when threat emerged", "description": "Traveled across the country to rejoin friends in danger, choosing them over personal safety" }
       ]
     }
   ],
+  "values": [
+    { "name": "Protection", "level": "core" },
+    { "name": "Belonging", "level": "core" },
+    { "name": "Courage", "level": "core" },
+    { "name": "Freedom", "level": "important" },
+    { "name": "Love", "level": "important" }
+  ],
   "workHistory": [
     {
-      "title": "Crisis Response Operative",
-      "company": "Classified \u2014 Hawkins, IN",
-      "location": "Hawkins, IN",
-      "startDate": "1983-11",
-      "endDate": "",
+      "title": "Primary Threat Response Operative",
+      "company": "Informal — Hawkins Crisis Response",
+      "startYear": 1983,
+      "endYear": null,
       "current": true,
-      "description": "Led frontline response to multiple community-threatening events. Coordinated with civilian volunteers and law enforcement. Instrumental in neutralizing existential threats to the town of Hawkins.",
-      "achievements": [
-        "Saved 30+ civilian lives across 3 crisis events",
-        "Closed dimensional breach threatening entire community",
-        "Rebuilt personal capabilities after traumatic setback"
-      ]
+      "description": "Sole individual capable of engaging interdimensional threats. Closed gates, defeated entities, and protected civilian population across 4 major crisis events."
     },
     {
-      "title": "Research Subject",
+      "title": "Test Subject 011",
       "company": "Hawkins National Laboratory (DOE)",
-      "location": "Hawkins, IN",
-      "startDate": "1971-01",
-      "endDate": "1983-11",
-      "current": false,
-      "description": "Participant in classified government research program studying enhanced human perception. Developed and demonstrated extraordinary sensory capabilities under controlled laboratory conditions.",
-      "achievements": [
-        "Demonstrated validated remote perception capabilities",
-        "Subject of multiple classified research publications"
-      ]
+      "startYear": 1971,
+      "endYear": 1983,
+      "description": "Raised in classified government facility. Trained in psychokinetic abilities. Escaped at age 12."
     }
   ],
   "education": [
     {
-      "school": "Hawkins National Laboratory \u2014 Education Program",
-      "degree": "Equivalent",
-      "field": "General Studies & Laboratory Science",
-      "year": "1983",
-      "id": "ed-el-1"
-    },
-    {
-      "school": "Hawkins Middle School (enrolled)",
+      "institution": "Lenora Hills High School",
       "degree": "In Progress",
-      "field": "General Studies",
-      "year": "1984",
-      "id": "ed-el-2"
+      "year": null
     }
   ],
   "certifications": [],
-  "savedJobs": [
-    {
-      "title": "Neuroscience Research Associate",
-      "company": "Johns Hopkins University",
-      "location": "Baltimore, MD",
-      "description": "Support research on sensory perception and brain plasticity in the Department of Neuroscience. Assist with experimental design, data collection, and publication.",
-      "parsedSkills": [
-        "Sensory Perception",
-        "Pattern Recognition",
-        "Focus & Concentration",
-        "Observation",
-        "Problem Solving",
-        "Self-Directed Learning",
-        "Research Methodology",
-        "Statistical Analysis",
-        "SPSS Software",
-        "Published Research",
-        "IRB Compliance",
-        "Bachelor's Degree Required",
-        "Matlab",
-        "Hadoop"
-      ],
-      "curated": true
-    },
-    {
-      "title": "Crisis Intervention Specialist",
-      "company": "SAMHSA",
-      "location": "Washington, DC",
-      "description": "Provide direct crisis intervention services and support to communities affected by disasters and traumatic events. Deploy as part of federal crisis response teams.",
-      "parsedSkills": [
-        "Crisis Response",
-        "Trauma-Informed Practice",
-        "Emotional Intelligence",
-        "Resilience",
-        "Adaptability",
-        "Nonverbal Communication",
-        "Teamwork",
-        "Observation",
-        "Empathy",
-        "Cultural Competency",
-        "Peer Support Certification",
-        "Motivational Interviewing",
-        "De-escalation"
-      ],
-      "curated": true
-    },
-    {
-      "title": "Intelligence Analyst",
-      "company": "National Security Agency",
-      "location": "Fort Meade, MD",
-      "description": "Analyze intelligence data to identify threats to national security. Produce analytical reports and brief senior leadership on findings.",
-      "parsedSkills": [
-        "Threat Assessment",
-        "Pattern Recognition",
-        "Observation",
-        "Focus & Concentration",
-        "Problem Solving",
-        "Report Writing",
-        "Security Clearance Required",
-        "Signals Intelligence",
-        "Geospatial Analysis",
-        "Cryptanalysis",
-        "Python Programming",
-        "Database Management"
-      ],
-      "curated": true
-    }
-  ],
-  "values": [],
-  "purpose": ""
+  "purpose": "Friends don't lie. And I don't let my friends get hurt."
 }

@@ -1,408 +1,352 @@
 {
+  "templateId": "hank-schrader",
   "profile": {
     "name": "Hank Schrader",
-    "currentTitle": "ASAC, DEA Albuquerque Division",
+    "currentTitle": "ASAC, DEA Albuquerque Field Division",
     "location": "Albuquerque, NM",
     "roleLevel": "Senior",
-    "summary": "Decorated federal law enforcement officer with 13+ years at the Drug Enforcement Administration. Expertise in narcotics investigation, intelligence analysis, and leading multi-agency task forces. Known for dogged investigative instincts and an ability to connect disparate evidence into prosecutable cases."
+    "headline": "Assistant Special Agent in Charge leading multi-agency investigations that dismantled Southwest drug networks. 18-year federal law enforcement career with expertise in complex criminal investigations, forensic analysis, and cross-border operations.",
+    "executiveSummary": "Decorated federal agent who rose from field agent to ASAC through relentless investigation work and leadership under fire. Led the investigation that ultimately identified and dismantled one of the largest methamphetamine operations in the Southwest. Known for combining instinctive investigative judgment with methodical evidence collection, and for maintaining pursuit of cases that others abandoned."
   },
   "roles": [
-    {
-      "name": "Federal Law Enforcement"
-    },
-    {
-      "name": "Intelligence Analyst"
-    },
-    {
-      "name": "Team Commander"
-    }
+    { "name": "Criminal Investigation", "id": "investigation" },
+    { "name": "Law Enforcement Leadership", "id": "leadership" },
+    { "name": "Forensic Analysis", "id": "forensics" },
+    { "name": "Inter-Agency Operations", "id": "interagency" },
+    { "name": "Intelligence & Surveillance", "id": "intel" }
   ],
   "skills": [
     {
       "name": "Criminal Investigation",
+      "level": "Mastery",
       "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Federal Law Enforcement"
-      ],
+      "key": true,
+      "roles": ["investigation"],
       "evidence": [
-        {
-          "outcome": "Led investigation resulting in 47 felony convictions and seizure of $80M in assets",
-          "description": "Dismantled Ju\u00e1rez Cartel distribution network across New Mexico corridor"
-        }
-      ]
-    },
-    {
-      "name": "Narcotics Enforcement",
-      "category": "knowledge",
-      "proficiency": "Mastery",
-      "roles": [
-        "Federal Law Enforcement"
-      ]
-    },
-    {
-      "name": "Intelligence Analysis",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Intelligence Analyst"
-      ],
-      "evidence": [
-        {
-          "outcome": "Identified and mapped the largest methamphetamine distribution network in the Southwest",
-          "description": "Connected 14 separate cases through pattern analysis of financial and communications data"
-        }
-      ]
-    },
-    {
-      "name": "Evidence Collection",
-      "category": "skill",
-      "proficiency": "Mastery",
-      "roles": [
-        "Federal Law Enforcement"
-      ]
-    },
-    {
-      "name": "Surveillance Operations",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Federal Law Enforcement"
+        { "outcome": "Led investigation that identified and dismantled $80M+ methamphetamine operation", "description": "Connected disparate evidence threads across multiple years, ultimately identifying the manufacturer operating under deep cover" },
+        { "outcome": "Achieved 85% case closure rate across 200+ investigations over 18-year career", "description": "Applied combination of instinctive judgment, methodical evidence collection, and relentless pursuit" }
       ]
     },
     {
       "name": "Forensic Analysis",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Intelligence Analyst"
-      ]
-    },
-    {
-      "name": "Interrogation Techniques",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Federal Law Enforcement"
-      ]
-    },
-    {
-      "name": "Federal Law",
-      "category": "knowledge",
-      "proficiency": "Advanced",
-      "roles": [
-        "Federal Law Enforcement"
-      ]
-    },
-    {
-      "name": "Interagency Coordination",
-      "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Team Commander"
-      ],
+      "key": true,
+      "roles": ["forensics", "investigation"],
       "evidence": [
-        {
-          "outcome": "Coordinated 6-agency task force that reduced cartel activity by 40% in ABQ corridor",
-          "description": "Integrated DEA, FBI, CBP, state police, and local PD into unified command structure"
-        }
+        { "outcome": "Identified chemical signature linking multiple drug seizures to single production source", "description": "Analyzed purity levels and chemical composition across seizures to build pattern connecting disparate cases" },
+        { "outcome": "Traced mineral evidence connecting suspect to specific geographic production location", "description": "Applied geological and chemical analysis to physical evidence establishing location-based connections" }
       ]
     },
     {
       "name": "Team Leadership",
-      "category": "workstyle",
-      "proficiency": "Advanced",
-      "roles": [
-        "Team Commander"
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["leadership"],
+      "evidence": [
+        { "outcome": "Led team of 12 agents and analysts in ASAC role managing 40+ concurrent investigations", "description": "Directed resource allocation, case prioritization, and agent development across Albuquerque field division" },
+        { "outcome": "Mentored 8 junior agents, 4 of whom advanced to supervisory positions", "description": "Invested in agent development through field mentorship, case review, and leadership coaching" }
       ]
     },
     {
-      "name": "Risk Assessment",
+      "name": "Surveillance Operations",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Federal Law Enforcement"
+      "key": true,
+      "roles": ["intel", "investigation"],
+      "evidence": [
+        { "outcome": "Designed and executed surveillance operations leading to 25+ high-value arrests", "description": "Planned complex physical and electronic surveillance incorporating GPS tracking, wiretaps, and undercover operations" }
       ]
     },
     {
-      "name": "Report Writing",
+      "name": "Case Management",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Federal Law Enforcement",
-        "Intelligence Analyst"
+      "key": true,
+      "roles": ["investigation", "leadership"],
+      "evidence": [
+        { "outcome": "Managed complex multi-year investigation maintaining evidence chain across 500+ exhibits", "description": "Organized case files, witness statements, and physical evidence for successful prosecution referral" }
+      ]
+    },
+    {
+      "name": "Interrogation & Interview",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["investigation"],
+      "evidence": [
+        { "outcome": "Obtained actionable intelligence from 100+ suspect interviews leading to case breakthroughs", "description": "Applied Reid technique and rapport-building approaches to extract information from uncooperative subjects" },
+        { "outcome": "Turned Tuco Salamanca associate into cooperating informant providing network intelligence", "description": "Built relationship with reluctant witness, securing cooperation through combination of pressure and protection" }
+      ]
+    },
+    {
+      "name": "Inter-Agency Coordination",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["interagency"],
+      "evidence": [
+        { "outcome": "Coordinated multi-agency operations with FBI, CBP, and Mexican Federal Police", "description": "Led joint task force operations requiring diplomatic coordination across agencies with competing priorities" },
+        { "outcome": "Built intelligence-sharing protocols between DEA and local law enforcement agencies", "description": "Established formal and informal information exchange channels improving regional drug enforcement effectiveness" }
+      ]
+    },
+    {
+      "name": "Intelligence Analysis",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["intel"],
+      "evidence": [
+        { "outcome": "Mapped Cartel supply chain from Mexico to Southwest distribution network", "description": "Synthesized signals intelligence, financial records, and human source reporting to build comprehensive network picture" }
+      ]
+    },
+    {
+      "name": "Evidence Collection & Chain of Custody",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["forensics", "investigation"],
+      "evidence": [
+        { "outcome": "Maintained 100% evidence admissibility rate across 50+ prosecuted cases", "description": "Implemented rigorous chain of custody protocols ensuring no evidence was excluded on procedural grounds" }
       ]
     },
     {
       "name": "Firearms Proficiency",
+      "level": "Expert",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Federal Law Enforcement"
+      "roles": ["investigation"],
+      "evidence": [
+        { "outcome": "Qualified expert marksman in annual DEA firearms certification for 15 consecutive years", "description": "Maintained highest-level firearms qualification including tactical shooting and active threat response" }
       ]
     },
     {
-      "name": "Physical Fitness",
-      "category": "ability",
-      "proficiency": "Advanced",
-      "roles": [
-        "Federal Law Enforcement"
+      "name": "Cross-Border Operations",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": ["interagency", "investigation"],
+      "evidence": [
+        { "outcome": "Led 8 cross-border operations coordinating with Mexican law enforcement agencies", "description": "Navigated complex jurisdictional and diplomatic challenges in US-Mexico drug enforcement operations" }
+      ]
+    },
+    {
+      "name": "Report Writing",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["investigation"],
+      "evidence": [
+        { "outcome": "Authored investigation reports cited by US Attorney's office as exemplary for prosecution preparation", "description": "Produced detailed, evidence-based reports supporting successful prosecution in complex drug trafficking cases" }
       ]
     },
     {
       "name": "Undercover Operations",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Federal Law Enforcement"
-      ]
-    },
-    {
-      "name": "Asset Forfeiture Law",
-      "category": "knowledge",
-      "proficiency": "Advanced",
-      "roles": [
-        "Federal Law Enforcement"
-      ],
+      "roles": ["investigation", "intel"],
       "evidence": [
-        {
-          "outcome": "Processed $80M in asset seizures following major cartel takedown",
-          "description": "Largest single forfeiture case in Albuquerque DEA history"
-        }
+        { "outcome": "Managed undercover operations resulting in infiltration of Salamanca distribution network", "description": "Directed undercover agents and informants in high-risk operations against violent criminal organization" }
       ]
     },
     {
-      "name": "Data Analysis",
+      "name": "Financial Crime Investigation",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Intelligence Analyst"
+      "roles": ["investigation"],
+      "evidence": [
+        { "outcome": "Traced $9M+ in illicit financial flows through car wash and other front businesses", "description": "Applied financial forensics to identify money laundering patterns and connect cash flows to criminal enterprise" }
       ]
     },
     {
-      "name": "Crisis Management",
+      "name": "Crisis Response",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Advanced",
-      "roles": [
-        "Team Commander"
+      "roles": ["leadership"],
+      "evidence": [
+        { "outcome": "Led field response to active shooter situation at Tuco Salamanca compound", "description": "Coordinated tactical response and agent safety during violent confrontation in remote location" }
       ]
     },
     {
-      "name": "Public Speaking",
+      "name": "Budgeting & Resource Allocation",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Team Commander"
+      "roles": ["leadership"],
+      "evidence": [
+        { "outcome": "Managed $3M+ annual investigation budget across 40+ concurrent cases", "description": "Allocated surveillance equipment, overtime, and travel resources to maximize case outcomes within budget constraints" }
       ]
     },
     {
-      "name": "Budget Management",
+      "name": "Community Engagement",
+      "level": "Proficient",
       "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Team Commander"
+      "roles": ["leadership"],
+      "evidence": [
+        { "outcome": "Represented DEA at community events and charity functions building public trust", "description": "Participated in DEA community outreach including charity events and public education programs" }
       ]
     },
     {
-      "name": "Mineralogy",
-      "category": "knowledge",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Intelligence Analyst"
+      "name": "Mineralogy & Geology",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["forensics"],
+      "evidence": [
+        { "outcome": "Applied mineral analysis expertise to connect physical evidence to geographic locations", "description": "Leveraged personal mineral collecting expertise in forensic applications connecting suspects to crime scenes" }
       ]
     },
     {
-      "name": "Decision Making Under Pressure",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Federal Law Enforcement",
-        "Team Commander"
+      "name": "Instinctive Judgment",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["investigation"],
+      "evidence": [
+        { "outcome": "Identified Heisenberg operation based on instinctive connections others dismissed", "description": "Followed investigative intuition when evidence was circumstantial, ultimately proving the hypothesis correct" }
+      ]
+    },
+    {
+      "name": "Tenacity",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["investigation"],
+      "evidence": [
+        { "outcome": "Continued Heisenberg investigation for 2+ years when superiors wanted case closed", "description": "Maintained pursuit on personal time when official resources were redirected, ultimately solving the case" }
+      ]
+    },
+    {
+      "name": "Courage Under Fire",
+      "level": "Expert",
+      "category": "work style",
+      "roles": ["investigation"],
+      "evidence": [
+        { "outcome": "Survived ambush by cartel assassins, returning fire while critically wounded", "description": "Engaged multiple armed attackers in parking lot ambush, eliminating one threat despite being shot multiple times" },
+        { "outcome": "Confronted armed suspect alone in desert with no backup available", "description": "Made tactical decision to pursue dangerous suspect despite personal risk and isolation" }
+      ]
+    },
+    {
+      "name": "Resilience",
+      "level": "Expert",
+      "category": "work style",
+      "roles": ["leadership"],
+      "evidence": [
+        { "outcome": "Returned to full duty after surviving assassination attempt requiring 6 months recovery", "description": "Completed physical rehabilitation and psychological recovery to resume active investigation duties" }
+      ]
+    },
+    {
+      "name": "Analytical Thinking",
+      "level": "Expert",
+      "category": "work style",
+      "roles": ["investigation", "forensics"],
+      "evidence": [
+        { "outcome": "Connected Gale Boetticher notebook to industrial equipment purchase, breaking case open", "description": "Applied systematic analysis to victim's personal effects, identifying critical evidence others overlooked" }
       ]
     },
     {
       "name": "Pattern Recognition",
-      "category": "ability",
-      "proficiency": "Advanced",
-      "roles": [
-        "Intelligence Analyst"
+      "level": "Expert",
+      "category": "work style",
+      "roles": ["investigation", "intel"],
+      "evidence": [
+        { "outcome": "Identified blue methamphetamine signature as single-source indicator across multiple seizures", "description": "Recognized distinctive product characteristic as investigative lead before forensics confirmed connection" }
       ]
     },
     {
-      "name": "Conflict Resolution",
+      "name": "Decisiveness",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": ["leadership"],
+      "evidence": [
+        { "outcome": "Made critical tactical decisions under time pressure in 15+ field operations", "description": "Demonstrated ability to commit to action plans decisively when stakes and uncertainty were high" }
+      ]
+    },
+    {
+      "name": "Mentoring",
+      "level": "Advanced",
       "category": "skill",
-      "proficiency": "Intermediate",
-      "roles": [
-        "Team Commander"
+      "roles": ["leadership"],
+      "evidence": [
+        { "outcome": "Developed 8 junior agents into effective investigators with 4 advancing to supervisory roles", "description": "Provided field mentorship, case guidance, and career development support to agents under his supervision" }
       ]
     },
     {
-      "name": "Persistence",
-      "category": "workstyle",
-      "proficiency": "Mastery",
-      "roles": [
-        "Federal Law Enforcement"
+      "name": "Testimony & Depositions",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["investigation"],
+      "evidence": [
+        { "outcome": "Provided expert testimony in 30+ federal cases with 95% prosecution success rate", "description": "Delivered clear, credible testimony under cross-examination supporting successful prosecution outcomes" }
+      ]
+    },
+    {
+      "name": "Physical Fitness",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["investigation"],
+      "evidence": []
+    },
+    {
+      "name": "Spanish Language",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["interagency"],
+      "evidence": [
+        { "outcome": "Conducted field interviews in Spanish during cross-border operations", "description": "Developed working Spanish language capability for operational effectiveness in border region" }
+      ]
+    },
+    {
+      "name": "Digital Forensics",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["forensics"],
+      "evidence": [
+        { "outcome": "Traced prepaid cell phone patterns linking suspect communications to distribution network", "description": "Applied basic digital forensics to analyze phone records and communication patterns" }
       ]
     }
   ],
+  "values": [
+    { "name": "Justice", "level": "core" },
+    { "name": "Tenacity", "level": "core" },
+    { "name": "Integrity", "level": "core" },
+    { "name": "Family", "level": "important" },
+    { "name": "Achievement", "level": "important" }
+  ],
   "workHistory": [
     {
-      "title": "Assistant Special Agent in Charge (ASAC)",
-      "company": "DEA - Albuquerque Division",
-      "location": "Albuquerque, NM",
-      "startDate": "2006-03",
-      "endDate": "2010-03",
-      "current": false,
-      "description": "Second-in-command of the Albuquerque DEA field division. Supervised 40+ special agents. Led high-priority investigations including the Heisenberg case. Managed division budget and interagency task forces.",
-      "achievements": [
-        "Led investigation resulting in 47 felony convictions",
-        "Seized $80M in cartel assets",
-        "Identified Southwest's largest meth distribution network"
-      ]
+      "title": "ASAC (Assistant Special Agent in Charge)",
+      "company": "Drug Enforcement Administration — Albuquerque Division",
+      "startYear": 2006,
+      "endYear": null,
+      "current": true,
+      "description": "Led Albuquerque field division managing 12 agents and 40+ concurrent investigations. Directed multi-year investigation that dismantled region's largest methamphetamine operation."
     },
     {
-      "title": "Senior Special Agent",
-      "company": "DEA - Albuquerque Division",
-      "location": "Albuquerque, NM",
-      "startDate": "2001-01",
-      "endDate": "2006-02",
-      "current": false,
-      "description": "Led narcotics investigation teams. Managed confidential informants. Conducted surveillance operations and coordinated multi-agency raids.",
-      "achievements": [
-        "Promoted to ASAC based on case closure rate",
-        "Received DEA Administrator's Award for Excellence"
-      ]
+      "title": "Supervisory Special Agent",
+      "company": "Drug Enforcement Administration",
+      "startYear": 2001,
+      "endYear": 2006,
+      "description": "Led investigative teams targeting cross-border drug trafficking networks. Coordinated with Mexican federal police and CBP on joint operations."
     },
     {
       "title": "Special Agent",
-      "company": "DEA - El Paso Division",
-      "location": "El Paso, TX",
-      "startDate": "1995-06",
-      "endDate": "2000-12",
-      "current": false,
-      "description": "Frontline narcotics enforcement along the US-Mexico border. Conducted undercover operations, managed informant networks, and processed evidence for federal prosecution.",
-      "achievements": [
-        "Participated in 200+ enforcement actions",
-        "Completed DEA Advanced Training Program"
-      ]
+      "company": "Drug Enforcement Administration",
+      "startYear": 1995,
+      "endYear": 2001,
+      "description": "Field agent conducting drug investigations, surveillance operations, and arrests. Built expertise in cartel network analysis and forensic evidence."
     }
   ],
   "education": [
     {
-      "school": "University of New Mexico",
-      "degree": "B.S.",
-      "field": "Criminal Justice",
-      "year": "1994",
-      "id": "ed-hs-1"
+      "institution": "DEA Training Academy, Quantico",
+      "degree": "Federal Law Enforcement Training",
+      "year": 1995
     },
     {
-      "school": "DEA Training Academy",
-      "degree": "Certificate",
-      "field": "Federal Law Enforcement",
-      "year": "1995",
-      "id": "ed-hs-2"
+      "institution": "University of New Mexico",
+      "degree": "B.S. Criminal Justice",
+      "year": 1993
     }
   ],
   "certifications": [
-    {
-      "name": "Federal Law Enforcement Officer",
-      "abbr": "FLEO",
-      "issuer": "US Department of Justice",
-      "year": "1995",
-      "type": "License",
-      "linkedSkills": [
-        "Federal Law"
-      ],
-      "tier": 3,
-      "libraryMatch": null,
-      "id": "cert-hs-1"
-    },
-    {
-      "name": "DEA Advanced Intelligence Training",
-      "abbr": "AIT",
-      "issuer": "Drug Enforcement Administration",
-      "year": "2003",
-      "type": "Certification",
-      "linkedSkills": [
-        "Intelligence Analysis"
-      ],
-      "tier": 2,
-      "libraryMatch": null,
-      "id": "cert-hs-2"
-    }
+    { "name": "DEA Expert Marksman", "issuer": "DEA" },
+    { "name": "Advanced Forensic Analysis", "issuer": "FBI Academy" },
+    { "name": "Cross-Border Operations Certification", "issuer": "DEA International Training" }
   ],
-  "savedJobs": [
-    {
-      "title": "Director of Investigations",
-      "company": "Amazon Corporate Security",
-      "location": "Seattle, WA",
-      "description": "Lead global investigations team protecting $500B+ in annual transactions. Manage internal fraud, organized retail crime, and supply chain integrity programs.",
-      "parsedSkills": [
-        "Criminal Investigation",
-        "Intelligence Analysis",
-        "Team Leadership",
-        "Evidence Collection",
-        "Data Analysis",
-        "Risk Assessment",
-        "Interagency Coordination",
-        "Crisis Management",
-        "Report Writing",
-        "Surveillance Operations",
-        "Budget Management",
-        "Forensic Accounting",
-        "Digital Forensics",
-        "Corporate Governance",
-        "Vendor Risk Management",
-        "Machine Learning Applications"
-      ],
-      "curated": true
-    },
-    {
-      "title": "Director of Intelligence",
-      "company": "Department of Homeland Security",
-      "location": "Washington, DC",
-      "description": "Lead strategic intelligence analysis for domestic threat assessment. Coordinate with FBI, CIA, and state law enforcement on counternarcotics and counterterrorism operations.",
-      "parsedSkills": [
-        "Intelligence Analysis",
-        "Interagency Coordination",
-        "Criminal Investigation",
-        "Federal Law",
-        "Report Writing",
-        "Risk Assessment",
-        "Team Leadership",
-        "Surveillance Operations",
-        "Crisis Management",
-        "Public Speaking",
-        "Strategic Communications",
-        "Classified Information Management",
-        "Congressional Testimony",
-        "Policy Development"
-      ],
-      "curated": true
-    },
-    {
-      "title": "VP of Global Security",
-      "company": "Walmart Inc.",
-      "location": "Bentonville, AR",
-      "description": "Oversee loss prevention, corporate security, and investigations for 10,500+ retail locations. Manage team of 2,000+ security professionals.",
-      "parsedSkills": [
-        "Criminal Investigation",
-        "Team Leadership",
-        "Risk Assessment",
-        "Crisis Management",
-        "Budget Management",
-        "Surveillance Operations",
-        "Data Analysis",
-        "Vendor Negotiation",
-        "Retail Loss Prevention",
-        "Physical Security Design",
-        "Executive Protection",
-        "Cybersecurity Governance",
-        "Emergency Response Planning"
-      ],
-      "curated": true
-    }
-  ],
-  "values": [],
-  "purpose": ""
+  "purpose": "The bad guys don't stop. So neither do I. Someone has to stand between the monsters and the people they hurt."
 }
