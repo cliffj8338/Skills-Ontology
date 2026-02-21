@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.27.1.8 | 20260221 | Admin profile guard: skip Firestore save for demo profiles, fix name override -->
+    <!-- v4.27.2.0 | 20260221 | Comp system: curated demo values, self-reported input, formatCompValue, getEffectiveComp -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -890,8 +890,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.27.1.8 - BUILD 20260221-chip-fix
-        var BP_VERSION = 'v4.27.1.8';
+        // BLUEPRINT v4.27.2.0 - BUILD 20260221-comp-system
+        var BP_VERSION = 'v4.27.2.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -907,7 +907,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260221-chip-fix                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260221-comp-system                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -3841,6 +3841,80 @@
             }
         }
         window.setValuationMode = setValuationMode;
+        
+        // ===== COMPENSATION DISPLAY SYSTEM =====
+        
+        // Format compensation value for display
+        // Under $1M: full number "$185,000"
+        // $1M+: abbreviated "$4.5M"
+        // $1B+: abbreviated "$1.2B"
+        function formatCompValue(value) {
+            if (!value || value <= 0) return '';
+            if (value >= 1e9) {
+                var b = value / 1e9;
+                return '$' + (b % 1 === 0 ? b.toFixed(0) : b.toFixed(1)) + 'B';
+            }
+            if (value >= 1e6) {
+                var m = value / 1e6;
+                return '$' + (m % 1 === 0 ? m.toFixed(0) : m.toFixed(1)) + 'M';
+            }
+            return '$' + Math.round(value).toLocaleString();
+        }
+        window.formatCompValue = formatCompValue;
+        
+        // Curated compensation for demo profiles (total comp, not just base)
+        var DEMO_COMP = {
+            'steve-harrington': 45000,
+            'jesse-pinkman': 38000,
+            'dustin-henderson': 75000,
+            'eleven': 65000,
+            'joyce-byers': 52000,
+            'saul-goodman': 280000,
+            'walter-white': 185000,
+            'hank-schrader': 165000,
+            'jim-hopper': 135000,
+            'gus-fring': 4500000,
+            'kendall-roy': 8500000,
+            'shiv-roy': 5200000,
+            'roman-roy': 6800000,
+            'tom-wambsgans': 3800000,
+            'logan-roy': 95000000
+        };
+        
+        // Get the effective compensation to display
+        // Priority: 1) user-reported comp  2) curated demo value  3) algorithm estimate
+        function getEffectiveComp() {
+            var calculated = calculateTotalMarketValue();
+            var templateId = userData.templateId || '';
+            
+            // User-reported comp (real users)
+            var reported = (userData.profile || {}).reportedComp;
+            if (reported && reported > 0) {
+                calculated.displayComp = reported;
+                calculated.compSource = 'reported';
+                calculated.compLabel = 'Your Compensation';
+                calculated.algorithmEstimate = calculated.total;
+                return calculated;
+            }
+            
+            // Curated demo value
+            if (DEMO_COMP[templateId]) {
+                calculated.displayComp = DEMO_COMP[templateId];
+                calculated.compSource = 'curated';
+                calculated.compLabel = 'Market Value';
+                calculated.algorithmEstimate = calculated.total;
+                return calculated;
+            }
+            
+            // Algorithm estimate (default)
+            calculated.displayComp = calculated.total;
+            calculated.compSource = 'algorithm';
+            calculated.compLabel = 'Market Estimate';
+            calculated.algorithmEstimate = calculated.total;
+            return calculated;
+        }
+        window.getEffectiveComp = getEffectiveComp;
+        
         // [removed] getClosestRoleBenchmark — dead code cleanup v4.22.0
         
         // ===== SKILL VALUATIONS SYSTEM =====
@@ -5995,6 +6069,7 @@ ${wizardState.resumeText}` }]
                         ${wizardField('Email', 'wizardEmail', p.email || '', 'your@email.com')}
                         ${wizardField('Years of Experience', 'wizardYears', p.yearsExperience || '', 'e.g. 15')}
                         ${wizardField('Phone (optional)', 'wizardPhone', p.phone || '', '')}
+                        ${wizardField('Total Compensation (optional)', 'wizardComp', p.reportedComp ? Math.round(p.reportedComp).toLocaleString() : '', 'e.g. 350,000')}
                     </div>
                     <div style="margin-top:16px;">
                         <label style="display:block; font-size:0.82em; font-weight:600;
@@ -6045,7 +6120,8 @@ ${wizardState.resumeText}` }]
                 email: document.getElementById('wizardEmail')?.value?.trim() || '',
                 phone: document.getElementById('wizardPhone')?.value?.trim() || '',
                 yearsExperience: parseInt(document.getElementById('wizardYears')?.value) || 0,
-                executiveSummary: document.getElementById('wizardSummary')?.value?.trim() || ''
+                executiveSummary: document.getElementById('wizardSummary')?.value?.trim() || '',
+                reportedComp: parseInt((document.getElementById('wizardComp')?.value || '').replace(/[^0-9]/g, ''), 10) || null
             };
 
             if (!wizardState.profile.name) {
@@ -8521,9 +8597,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             const statsBar = document.getElementById('statsBar');
             if (currentView === 'network') {
                 // Calculate total market value
-                const totalValue = calculateTotalMarketValue();
-                const valueFormatted = totalValue.total > 0 ? `$${(totalValue.total/1000).toFixed(0)}k` : '';
-                const valueDisplay = valueFormatted ? ` • <span style="color: #10b981; font-weight: 700;">Market Value: ${valueFormatted}/year</span>` : '';
+                const totalValue = getEffectiveComp();
+                const valueFormatted = totalValue.displayComp > 0 ? formatCompValue(totalValue.displayComp) : '';
+                const valueDisplay = valueFormatted ? ` • <span style="color: #10b981; font-weight: 700;">${totalValue.compLabel}: ${valueFormatted}/yr</span>` : '';
                 
                 // Dynamic counts by category
                 const skillCount = userData.skills?.length || 0;
@@ -8960,7 +9036,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         function gatherBlueprintData() {
             const skills = skillsData.skills || userData.skills || [];
             const topSkills = skills.map(skill => ({ ...skill, impact: getSkillImpact(skill) })).sort((a, b) => (b.impact?.score || 0) - (a.impact?.score || 0)).slice(0, 10);
-            const compensation = calculateTotalMarketValue();
+            const compensation = getEffectiveComp();
 
             // Pull real strategic outcomes from skill evidence — prefer items with metrics
             const allEvidence = [];
@@ -9368,7 +9444,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         function gatherResumeData() {
             const skills = skillsData.skills || userData.skills || [];
             const profile = userData.profile || {};
-            const compensation = calculateTotalMarketValue();
+            const compensation = getEffectiveComp();
 
             // --- Achievements: pull evidence items that have real outcomes ---
             const allEvidence = [];
@@ -10518,8 +10594,9 @@ body {
             var sharedOutcomes = outcomes.filter(function(o) { return o.shared; }).length;
             var values = (blueprintData.values || []).filter(function(v) { return v.selected; });
             var purpose = blueprintData.purpose || '';
-            var totalValue = calculateTotalMarketValue();
+            var totalValue = getEffectiveComp();
             var hasValuation = totalValue && totalValue.total > 0 && skillValuations && Object.keys(skillValuations.skillBaseValues || {}).length > 0;
+            var hasCuratedComp = totalValue.compSource === 'curated' || totalValue.compSource === 'reported';
             // Calculate both modes for dual cards
             var evidenceValue = hasValuation ? calculateTotalMarketValue('evidence') : null;
             var potentialValue = hasValuation ? calculateTotalMarketValue('potential') : null;
@@ -10761,25 +10838,74 @@ body {
             }
             
             // ── MARKET POSITION ──
-            if (hasValuation) {
-                var negotiationGap = totalValue.yourWorth - totalValue.standardOffer;
+            if (hasValuation || hasCuratedComp) {
+                var displayCompFormatted = formatCompValue(totalValue.displayComp);
                 
                 html += '<div style="border:1px solid var(--c-green-border-1); border-radius:12px; overflow:hidden; margin-bottom:20px;">'
                     
-                    // Header
+                    // Header — always shows the effective comp
                     + '<div style="padding:18px 20px; background:var(--c-gradient-success); display:flex; justify-content:space-between; align-items:center;">'
                     + '<div style="display:flex; align-items:center; gap:14px;">'
                     + '<span style="color:#10b981;">' + bpIcon('money',20) + '</span>'
                     + '<div>'
-                    + '<div style="font-weight:700; color:var(--c-text);">Market Position <span style="font-size:0.72em; font-weight:600; color:' + (valuationMode === 'potential' ? '#f59e0b' : '#10b981') + ';">\u00B7 ' + (valuationMode === 'potential' ? 'Potential' : 'Evidence') + '</span></div>'
-                    + '<div style="font-size:0.82em; color:var(--c-muted);">Offers: $' + totalValue.conservativeOffer.toLocaleString() + ' \u2013 $' + totalValue.competitiveOffer.toLocaleString() + '</div>'
-                    + '</div></div>'
+                    + '<div style="font-weight:700; color:var(--c-text);">' + totalValue.compLabel + '</div>';
+                
+                if (hasCuratedComp && totalValue.algorithmEstimate > 0) {
+                    // Show algorithm benchmark below for context
+                    html += '<div style="font-size:0.82em; color:var(--c-muted);">BLS Benchmark: ' + formatCompValue(totalValue.algorithmEstimate) + '/yr</div>';
+                } else {
+                    html += '<div style="font-size:0.82em; color:var(--c-muted);">Offers: $' + totalValue.conservativeOffer.toLocaleString() + ' \u2013 $' + totalValue.competitiveOffer.toLocaleString() + '</div>';
+                }
+                
+                html += '</div></div>'
                     + '<div style="text-align:right;">'
-                    + '<div style="font-weight:700; color:#fbbf24; font-size:0.88em;">Gap: $' + negotiationGap.toLocaleString() + '</div>'
-                    + '</div></div>'
+                    + '<div style="font-weight:800; color:#10b981; font-size:1.4em;">' + displayCompFormatted + '</div>'
+                    + '<div style="font-size:0.68em; color:var(--c-muted); text-transform:uppercase;">/year</div>'
+                    + '</div></div>';
+                
+                if (hasCuratedComp) {
+                    // Curated/reported: simplified display — skip algorithm breakdown
+                    var delta = totalValue.displayComp - totalValue.algorithmEstimate;
+                    var deltaPct = totalValue.algorithmEstimate > 0 ? Math.round((delta / totalValue.algorithmEstimate) * 100) : 0;
+                    var deltaColor = delta >= 0 ? '#10b981' : '#f59e0b';
+                    var deltaSign = delta >= 0 ? '+' : '';
                     
-                    // Detail (always visible)
-                    + '<div style="padding:20px;">';
+                    html += '<div style="padding:20px;">';
+                    
+                    // Comparison bar
+                    if (totalValue.algorithmEstimate > 0 && totalValue.displayComp < 50000000) {
+                        html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">'
+                            + '<div style="text-align:center; padding:14px; background:var(--c-surface-1); border-radius:8px;">'
+                            + '<div style="font-size:0.72em; color:var(--c-muted);">' + totalValue.compLabel + '</div>'
+                            + '<div style="font-weight:700; color:#10b981; font-size:1.1em;">' + displayCompFormatted + '</div></div>'
+                            + '<div style="text-align:center; padding:14px; background:var(--c-surface-1); border-radius:8px;">'
+                            + '<div style="font-size:0.72em; color:var(--c-muted);">vs. BLS Benchmark</div>'
+                            + '<div style="font-weight:700; color:' + deltaColor + '; font-size:1.1em;">' + deltaSign + deltaPct + '%</div></div>'
+                            + '</div>';
+                    }
+                    
+                    // Top skills still valuable context
+                    html += '<div style="font-size:0.82em; font-weight:600; color:#60a5fa; margin-bottom:8px;">' + bpIcon('flame',12) + ' Top Skills Driving Value</div>'
+                        + '<div style="display:grid; gap:4px; margin-bottom:14px;">';
+                    (totalValue.top10Skills || []).slice(0, 5).forEach(function(skill, idx) {
+                        var isCritical = skill.impact === 'Critical';
+                        html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 10px; background:' + (isCritical ? 'rgba(239,68,68,0.1)' : 'rgba(251,191,36,0.1)') + '; border-radius:5px; font-size:0.85em;">'
+                            + '<span style="color:var(--c-text);"><span style="color:var(--c-faint);">' + (idx + 1) + '.</span> ' + skill.skill + ' <span style="color:var(--c-faint); font-size:0.85em;">(' + skill.level + ')</span></span>'
+                            + '<span style="color:' + (isCritical ? '#ef4444' : '#fbbf24') + '; font-size:0.78em; font-weight:600;">' + skill.impactLabel + '</span>'
+                            + '</div>';
+                    });
+                    html += '</div>';
+                    
+                    html += '<div style="display:flex; gap:8px;">'
+                        + '<button onclick="showNegotiationGuide()" style="flex:1; padding:8px 14px; background:transparent; border:1px solid var(--c-amber-border-1); border-radius:6px; color:#fbbf24; cursor:pointer; font-size:0.82em;">'
+                        + bpIcon('dollar',12) + ' Negotiation Guide</button>'
+                        + '</div>';
+                    
+                    html += '</div></div>'; // close detail + container
+                    
+                } else {
+                    // Algorithm-only: full breakdown
+                    var negotiationGap = totalValue.yourWorth - totalValue.standardOffer;
                 
                 // Offer ranges
                 html += '<div style="display:grid; gap:10px; margin-bottom:16px;">';
@@ -10841,6 +10967,7 @@ body {
                     + '</div>';
                 
                 html += '</div></div>'; // close detail + container
+                } // end algorithm-only else block
             }
             
             
@@ -12256,7 +12383,7 @@ body {
             yPos += 12;
             
             // Quick stats boxes
-            var comp = calculateTotalMarketValue();
+            var comp = getEffectiveComp();
             var masteryCount = skills.filter(function(s) { return s.level === 'Mastery'; }).length;
             var advancedCount = skills.filter(function(s) { return s.level === 'Advanced'; }).length;
             var evidenceCount = 0;
@@ -12319,18 +12446,28 @@ body {
             }
             
             // Market positioning on cover
-            if (comp && comp.marketRate) {
+            if (comp && (comp.displayComp || comp.marketRate)) {
                 yPos += 4;
                 setFill(C.dark);
                 doc.roundedRect(margin, yPos, maxWidth, 28, 3, 3, 'F');
                 
                 var colW = maxWidth / 3;
-                var mLabels = ['Base Market Rate', 'Conservative Range', 'Competitive Range'];
-                var mValues = [
-                    '$' + Math.round(comp.marketRate).toLocaleString(),
-                    '$' + Math.round(comp.conservativeOffer || comp.marketRate * 1.1).toLocaleString(),
-                    '$' + Math.round(comp.competitiveOffer || comp.marketRate * 1.3).toLocaleString()
-                ];
+                var mLabels, mValues;
+                if (comp.compSource === 'curated' || comp.compSource === 'reported') {
+                    mLabels = [comp.compLabel, 'BLS Benchmark', 'Function'];
+                    mValues = [
+                        formatCompValue(comp.displayComp),
+                        formatCompValue(comp.algorithmEstimate),
+                        (comp.detectedFunction || 'general').charAt(0).toUpperCase() + (comp.detectedFunction || 'general').slice(1)
+                    ];
+                } else {
+                    mLabels = ['Base Market Rate', 'Conservative Range', 'Competitive Range'];
+                    mValues = [
+                        '$' + Math.round(comp.marketRate).toLocaleString(),
+                        '$' + Math.round(comp.conservativeOffer || comp.marketRate * 1.1).toLocaleString(),
+                        '$' + Math.round(comp.competitiveOffer || comp.marketRate * 1.3).toLocaleString()
+                    ];
+                }
                 
                 mLabels.forEach(function(label, i) {
                     var cx2 = margin + (colW * i) + colW / 2;
@@ -13542,12 +13679,18 @@ body {
             }
             
             // Market context
-            var comp = calculateTotalMarketValue();
-            if (comp && comp.marketRate) {
+            var comp = getEffectiveComp();
+            if (comp && (comp.displayComp || comp.marketRate)) {
                 lines.push('MARKET POSITIONING');
-                lines.push('Market Rate: $' + Math.round(comp.marketRate).toLocaleString());
-                if (comp.competitiveOffer) {
-                    lines.push('Competitive Range: $' + Math.round(comp.competitiveOffer).toLocaleString());
+                lines.push(comp.compLabel + ': ' + formatCompValue(comp.displayComp));
+                if (comp.compSource !== 'algorithm' && comp.algorithmEstimate > 0) {
+                    lines.push('BLS Benchmark: ' + formatCompValue(comp.algorithmEstimate));
+                }
+                if (comp.compSource === 'algorithm' && comp.marketRate) {
+                    lines.push('Market Rate: $' + Math.round(comp.marketRate).toLocaleString());
+                    if (comp.competitiveOffer) {
+                        lines.push('Competitive Range: $' + Math.round(comp.competitiveOffer).toLocaleString());
+                    }
                 }
                 lines.push('');
             }
@@ -16552,6 +16695,19 @@ body {
                         </select>
                         <div class="settings-help">Your location affects skill market valuations (cost of living adjustment)</div>
                     </div>
+                    
+                    <div class="settings-group">
+                        <label class="settings-label">Current Total Compensation (Optional)</label>
+                        <div style="position:relative;">
+                            <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-weight:600;">$</span>
+                            <input type="text" class="settings-input" id="settingComp" 
+                                   value="${userData.profile.reportedComp ? Math.round(userData.profile.reportedComp).toLocaleString() : ''}" 
+                                   placeholder="e.g. 350,000"
+                                   style="padding-left:24px;"
+                                   oninput="this.value = this.value.replace(/[^0-9,]/g, '')">
+                        </div>
+                        <div class="settings-help">Base + bonus + equity. Used to compare against market benchmarks. Never shared externally.</div>
+                    </div>
                 </div>
             `;
         }
@@ -18433,6 +18589,13 @@ body {
             userData.profile.linkedinUrl = document.getElementById('settingLinkedIn') ? document.getElementById('settingLinkedIn').value : '';
             userData.profile.location = document.getElementById('settingLocation').value;
             
+            // Parse and save reported compensation
+            var compInput = document.getElementById('settingComp');
+            if (compInput) {
+                var compVal = parseInt((compInput.value || '').replace(/[^0-9]/g, ''), 10);
+                userData.profile.reportedComp = compVal > 0 ? compVal : null;
+            }
+            
             const newSeniority = document.getElementById('settingSeniority').value;
             userData.preferences.seniorityLevel = newSeniority;
             userData.preferences.minimumMatchScore = parseInt(document.querySelector('#settingsView .match-slider').value);
@@ -18667,8 +18830,9 @@ body {
         
         function showNegotiationGuide() {
             logAnalyticsEvent('negotiation_guide', {});
-            const totalValue = calculateTotalMarketValue();
+            const totalValue = getEffectiveComp();
             const negotiationGap = totalValue.yourWorth - totalValue.standardOffer;
+            const displayFormatted = formatCompValue(totalValue.displayComp);
             
             const modal = document.getElementById('exportModal');
             const modalContent = modal.querySelector('.modal-content');
@@ -18683,12 +18847,12 @@ body {
                 </div>
                 <div class="modal-body" style="padding: 30px; max-height: 70vh; overflow-y: auto;">
                     <div style="background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-                        <div style="color: #10b981; font-weight: 600; margin-bottom: 10px;">Your Market Worth</div>
+                        <div style="color: #10b981; font-weight: 600; margin-bottom: 10px;">${totalValue.compLabel}</div>
                         <div style="font-size: 2em; font-weight: 700; color: #e0e0e0;">
-                            $${totalValue.yourWorth.toLocaleString()}/year
+                            ${displayFormatted}/yr
                         </div>
                         <div style="color: #9ca3af; margin-top: 8px;">
-                            ${totalValue.roleLevel} • ${totalValue.compaRatio}% compa-ratio • ${userData.profile.location}
+                            ${totalValue.roleLevel} • ${totalValue.compSource === 'algorithm' ? totalValue.compaRatio + '% compa-ratio • ' : ''}${userData.profile.location || ''}
                         </div>
                     </div>
                     
