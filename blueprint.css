@@ -3295,18 +3295,16 @@
                 font-size: 0.75em;
             }
             .values-alignment-panel {
-                position: relative !important;
-                bottom: auto !important;
-                left: auto !important;
-                right: auto !important;
+                position: absolute !important;
+                bottom: 70px !important;
+                left: 8px !important;
+                right: 8px !important;
                 top: auto !important;
-                width: 100%;
-                border-radius: 0;
-                border-left: none;
-                border-right: none;
-                font-size: 0.85em;
-                box-shadow: none;
-                border-top: 1px solid rgba(255,255,255,0.08);
+                width: auto;
+                border-radius: 12px;
+                font-size: 0.78em;
+                max-height: 55vh;
+                overflow-y: auto;
             }
             .vap-header { cursor: default; }
             .jd-cta-box {
