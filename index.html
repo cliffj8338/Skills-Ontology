@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.30 | 20260221 | Remove cliff-jones-demo, dynamic manifest fallback, Skills Mgmt read-only -->
+    <!-- v4.25.1.31 | 20260221 | Network: offset center node for asymmetric layout; fix tooltip undefined level -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4508,8 +4508,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.30 - BUILD 20260221-s17
-        var BP_VERSION = 'v4.25.1.30';
+        // BLUEPRINT v4.25.1.31 - BUILD 20260221-s18
+        var BP_VERSION = 'v4.25.1.31';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -10157,10 +10157,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             svg.selectAll("*").remove();
 
-            // Create nodes — center pinned to upper area so name is readable
+            // Create nodes — center pinned with asymmetric offset for visual interest
             var centerY = Math.max(80, height * 0.22);
+            // Offset center node horizontally — creates a more dynamic, readable network
+            var centerX = isMobile ? width / 2 : width * 0.62;
             const nodes = [
-                { id: "center", name: userData.profile.name || "You", type: "center", x: width/2, y: centerY, fx: width/2, fy: centerY }
+                { id: "center", name: userData.profile.name || "You", type: "center", x: centerX, y: centerY, fx: centerX, fy: centerY }
             ];
 
             // Add role nodes
@@ -10173,7 +10175,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     name: role.name,
                     type: "role",
                     color: role.color,
-                    x: width/2 + Math.cos(angle) * radius,
+                    x: centerX + Math.cos(angle) * radius,
                     y: centerY + Math.sin(angle) * radius
                 });
             });
@@ -10286,13 +10288,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.type === "role") return chargeStr[0];
                     return chargeStr[1];
                 }))
-                .force("center", d3.forceCenter(width / 2, gravityCenter))
+                .force("center", d3.forceCenter(centerX, gravityCenter))
                 .force("collision", d3.forceCollide().radius(d => {
                     if (d.type === "center") return collisionR[0];
                     if (d.type === "role") return collisionR[1];
                     return collisionR[2];
                 }))
-                .force("x", d3.forceX(width / 2).strength(isMobile ? 0.08 : 0.08))
+                .force("x", d3.forceX(centerX).strength(isMobile ? 0.08 : 0.06))
                 .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.08 : 0.08))
                 .force("radial", d3.forceRadial(d => {
                     if (d.type === "skill") return Math.min(width, height) * (isMobile ? 0.38 : 0.4) * scaleFactor;
@@ -10327,7 +10329,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .attr("fill", d => {
                     if (d.type === "center") return "#60a5fa";
                     if (d.type === "role") return d.color;
-                    return levelColors[d.level];
+                    return levelColors[d.level] || '#6b7280';
                 })
                 .on("click", (event, d) => {
                     if (d.type === "center") {
@@ -11857,13 +11859,20 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             let html = `<div class="tooltip-title">${d.name}</div>`;
 
             if (d.type === 'skill') {
-                html += `<div class="tooltip-level">${d.level}${d.key ? ' • Core Differentiator' : ''}</div>`;
-                html += `<div class="tooltip-roles">Used in: `;
-                d.roles.forEach(roleId => {
-                    const role = skillsData.roles.find(r => r.id === roleId);
-                    html += `<span class="tooltip-role-tag">${role.name}</span>`;
-                });
-                html += `</div>`;
+                var levelText = d.level || '';
+                var keyText = d.key ? ' • Core Differentiator' : '';
+                if (levelText || keyText) {
+                    html += `<div class="tooltip-level">${levelText}${keyText}</div>`;
+                }
+                var skillRoles = d.roles || [];
+                if (skillRoles.length > 0) {
+                    html += `<div class="tooltip-roles">Used in: `;
+                    skillRoles.forEach(roleId => {
+                        const role = skillsData.roles.find(r => r.id === roleId || r.name === roleId);
+                        html += `<span class="tooltip-role-tag">${role ? role.name : roleId}</span>`;
+                    });
+                    html += `</div>`;
+                }
             }
 
             tooltip
