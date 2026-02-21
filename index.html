@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.26.0.0 | 20260221 | Phase 1 CSS extraction: 3,610 lines to blueprint.css, 449 tv() calls replaced with CSS custom properties, 297 lines dead code removed -->
+    <!-- v4.26.0.1 | 20260221 | Network: hard pin nodes on drag, center offset 0.72, click-to-reset with pulse -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -898,8 +898,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.26.0.0 - BUILD 20260221-s19
-        var BP_VERSION = 'v4.26.0.0';
+        // BLUEPRINT v4.26.0.1 - BUILD 20260221-s19
+        var BP_VERSION = 'v4.26.0.1';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -6550,7 +6550,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Create nodes — center pinned with asymmetric offset for visual interest
             var centerY = Math.max(80, height * 0.22);
             // Offset center node horizontally — creates a more dynamic, readable network
-            var centerX = isMobile ? width / 2 : width * 0.62;
+            var centerX = isMobile ? width / 2 : width * 0.72;
             const nodes = [
                 { id: "center", name: userData.profile.name || "You", type: "center", x: centerX, y: centerY, fx: centerX, fy: centerY }
             ];
@@ -6721,9 +6721,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.type === "role") return d.color;
                     return levelColors[d.level] || '#6b7280';
                 })
+                .style("cursor", d => d.type === "center" ? "pointer" : "grab")
                 .on("click", (event, d) => {
                     if (d.type === "center") {
-                        // Center node click resets to show all
+                        // Center node click resets layout and filters
+                        resetNetworkLayout();
                         filterByRole('all');
                     } else if (d.type === "role") {
                         // Toggle: click active role again to reset
@@ -6743,7 +6745,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         }
                     }
                 })
-                .style("cursor", d => (d.type === "center" || d.type === "role" || d.type === "skill") ? "pointer" : "default")
                 .on("mouseover", (event, d) => showTooltip(event, d))
                 .on("mouseout", hideTooltip);
 
@@ -8243,12 +8244,15 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
 
         function showTooltip(event, d) {
-            if (d.type === 'center' || d.type === 'role') return;
-
             const tooltip = d3.select('#tooltip');
-            let html = `<div class="tooltip-title">${d.name}</div>`;
+            let html = '';
 
-            if (d.type === 'skill') {
+            if (d.type === 'center') {
+                html = `<div class="tooltip-title" style="font-size:0.85em; opacity:0.7;">Click to reset layout</div>`;
+            } else if (d.type === 'role') {
+                html = `<div class="tooltip-title">${d.name}</div>`;
+            } else {
+                html = `<div class="tooltip-title">${d.name}</div>`;
                 var levelText = d.level || '';
                 var keyText = d.key ? ' • Core Differentiator' : '';
                 if (levelText || keyText) {
@@ -8280,6 +8284,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (!event.active) simulation.alphaTarget(0.3).restart();
             d.fx = d.x;
             d.fy = d.y;
+            d3.select(event.sourceEvent.target).style("cursor", "grabbing");
         }
 
         function dragged(event, d) {
@@ -8289,10 +8294,39 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
         function dragended(event, d) {
             if (!event.active) simulation.alphaTarget(0);
+            d3.select(event.sourceEvent.target).style("cursor", d.type === "center" ? "pointer" : "grab");
+            // Hard pin: node stays where the user dropped it (fx/fy remain set)
+            // Add subtle stroke ring to indicate pinned state
             if (d.type !== 'center') {
-                d.fx = null;
-                d.fy = null;
+                var circle = d3.select(event.sourceEvent.target);
+                circle.attr("stroke", "rgba(255,255,255,0.4)").attr("stroke-width", 2);
             }
+        }
+
+        // Reset all pinned nodes when center node is clicked
+        function resetNetworkLayout() {
+            if (!simulation) return;
+            var hadPins = false;
+            simulation.nodes().forEach(function(d) {
+                if (d.type !== 'center' && (d.fx !== null || d.fy !== null)) {
+                    d.fx = null;
+                    d.fy = null;
+                    hadPins = true;
+                }
+            });
+            // Clear pinned ring indicators
+            d3.selectAll('#networkView circle').attr('stroke', null).attr('stroke-width', null);
+            simulation.alpha(0.8).restart();
+            
+            // Pulse the center node to confirm reset
+            var centerCircle = d3.select('#networkView .center circle');
+            if (!centerCircle.empty()) {
+                var origR = parseFloat(centerCircle.attr('r'));
+                centerCircle
+                    .transition().duration(150).attr('r', origR * 1.4).attr('opacity', 0.7)
+                    .transition().duration(300).attr('r', origR).attr('opacity', 1);
+            }
+            if (hadPins) showToast('Network reset', 'info', 1500);
         }
         // [removed] openExportModal — dead code cleanup v4.22.0
 
