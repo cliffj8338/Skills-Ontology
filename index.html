@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.21 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
+    <!-- v4.25.1.22 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4465,8 +4465,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.21 - BUILD 20260220-s14
-        var BP_VERSION = 'v4.25.1.21';
+        // BLUEPRINT v4.25.1.22 - BUILD 20260220-s14
+        var BP_VERSION = 'v4.25.1.22';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -6831,7 +6831,7 @@
             
             // Header
             html += '<div style="text-align:center; margin-bottom:36px;">'
-                + '<h2 style="font-size:2.2em; font-weight:800; color:var(--text-primary); margin-bottom:8px; font-family:Outfit,sans-serif;">Sample Blueprints</h2>'
+                + '<h2 style="font-size:2.2em; font-weight:800; color:var(--text-primary); margin-bottom:8px; font-family:Outfit,sans-serif; text-transform:uppercase; letter-spacing:0.08em;">Sample Blueprints</h2>'
                 + '<p style="color:var(--text-secondary); font-size:1.05em; line-height:1.6; max-width:700px; margin:0 auto;">'
                 + 'Famous fictional characters \u2192 real-world career Blueprints. <br>Explore their skills, outcomes, and job matches to see how Blueprint works.'
                 + '</p></div>';
@@ -10293,6 +10293,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     }
                 });
 
+            // Bring center and role nodes to front (SVG z-order = draw order)
+            node.filter(d => d.type === 'role').raise();
+            node.filter(d => d.type === 'center').raise();
+
             simulation.on("tick", () => {
                 // Constrain nodes to viewport with padding
                 const padding = isMobile ? 60 : 100;
@@ -10541,6 +10545,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             if (isMobile) node.selectAll('text').filter(function(d) { return d.type === 'skill'; }).classed('hidden', true);
             
+            // Bring center and role nodes to front
+            node.filter(function(d) { return d.type === 'role'; }).raise();
+            node.filter(function(d) { return d.type === 'center'; }).raise();
+            
             simulation.on("tick", function() {
                 var padding = isMobile ? 50 : 80;
                 nodes.forEach(function(d) { if (d.type !== 'center') { d.x = Math.max(padding, Math.min(width - padding, d.x)); d.y = Math.max(padding, Math.min(height - padding, d.y)); } });
@@ -10758,6 +10766,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // On mobile hide skill labels
             if (isMobile) node.selectAll('text').filter(function(d) { return d.type === 'skill'; }).classed('hidden', true);
+            
+            // Bring center and role nodes to front
+            node.filter(function(d) { return d.type === 'role'; }).raise();
+            node.filter(function(d) { return d.type === 'center'; }).raise();
             
             // Tick
             simulation.on("tick", function() {
@@ -12118,8 +12130,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             body.innerHTML = bodyHTML;
             
-            // Add action bar at bottom of modal
-            var actionsHtml = '<div style="display:flex; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">'
+            // Add action bar at bottom of modal (hide for read-only sample profiles)
+            var actionsHtml = '';
+            if (!isReadOnlyProfile) {
+            actionsHtml = '<div style="display:flex; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">'
                 + '<button onclick="closeSkillModal(); openEditSkillModal(\'' + skillName.replace(/'/g, "\\'") + '\', \'' + (skillData.category || 'unique') + '\');" '
                 + 'style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
                 + `${bpIcon('edit',14)} Edit Skill</button>`
@@ -12133,6 +12147,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + 'style="margin-left:auto; padding:10px 16px; background:none; color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
                 + `${bpIcon('trash',14)} Remove</button>`
                 + '</div>';
+            } // end !isReadOnlyProfile
             body.innerHTML += actionsHtml;
             
             history.pushState({ modal: true }, ''); modal.classList.add('active');
@@ -19306,6 +19321,10 @@ body {
                 .style("font-weight", d => d.isMatch ? "bold" : "normal")
                 .style("fill", d => d.isMatch ? "#10b981" : "#e0e0e0");
             
+            // Bring center and role nodes to front
+            node.filter(d => d.type === 'role').raise();
+            node.filter(d => d.type === 'center').raise();
+            
             // Update positions on tick
             simulation.on("tick", () => {
                 const padding = 100;
@@ -20645,7 +20664,7 @@ body {
                                         ${roleNames ? ` • ${roleNames}` : ''}
                                     </div>
                                 </div>
-                                <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                                <div style="display: flex; gap: 8px; flex-shrink: 0; ${isReadOnlyProfile ? 'display:none;' : ''}">
                                     <button onclick="openEditSkillModal('${skill.name.replace(/'/g, "\\'")}', '${category}')" 
                                             style="padding: 6px 12px; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 4px; cursor: pointer; font-size: 0.9em; white-space: nowrap;">
                                         ${bpIcon("edit",12)} Edit
@@ -22903,6 +22922,7 @@ body {
         window.bulkManagerRemove = bulkManagerRemove;
         
         function openEditSkillModal(skillName, category) {
+            if (readOnlyGuard()) return;
             const skill = userData.skills.find(s => s.name === skillName);
             if (!skill) return;
             
