@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.15 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
+    <!-- v4.25.1.17 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4465,8 +4465,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.15 - BUILD 20260220-s14
-        var BP_VERSION = 'v4.25.1.15';
+        // BLUEPRINT v4.25.1.17 - BUILD 20260220-s14
+        var BP_VERSION = 'v4.25.1.17';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -5710,19 +5710,109 @@
                     + '<span>' + outcomeCount + ' outcomes</span>'
                     + '</div>'
                     + '<div style="display:flex; gap:6px;">'
+                    + '<button onclick="editSampleProfile(\'' + p.id + '\');" style="padding:6px 14px; background:' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.82em; font-weight:600;">Edit</button>'
                     + '<button onclick="switchProfile(\'' + p.id + '\'); switchView(\'blueprint\');" style="padding:6px 14px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.82em; font-weight:600;">View</button>'
                     + '<span style="padding:6px 12px; border-radius:6px; font-size:0.78em; font-weight:600; '
                     + 'background:' + (p.enabled ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)') + '; '
                     + 'color:' + (p.enabled ? '#10b981' : '#ef4444') + ';">' + (p.enabled ? 'Enabled' : 'Disabled') + '</span>'
                     + '</div>'
                     + '</div></div>'
-                    + '<div style="margin-top:10px; font-size:0.75em; color:var(--text-muted);">ID: ' + p.id + ' \u00B7 Path: ' + p.path + '</div>'
                     + '</div>';
             });
             html += '</div>';
             
             el.innerHTML = html;
         }
+        
+        // ===== EDIT SAMPLE PROFILE =====
+        function editSampleProfile(profileId) {
+            var manifest = window.profilesManifest;
+            var meta = manifest && manifest.profiles ? manifest.profiles.find(function(p) { return p.id === profileId; }) : null;
+            var template = templates[profileId];
+            if (!meta || !template) { showToast('Profile not found', 'error'); return; }
+            
+            var modal = document.getElementById('exportModal');
+            var modalContent = modal.querySelector('.modal-content');
+            
+            var skillCount = template.skills ? template.skills.length : 0;
+            var roleCount = template.roles ? template.roles.length : 0;
+            var outcomeCount = template.values ? template.values.length : 0;
+            
+            modalContent.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left"><h2 class="modal-title">' + bpIcon('skills',18) + ' Edit Sample Profile</h2>'
+                + '<p style="color:var(--text-muted); margin-top:4px; font-size:0.88em;">Changes apply to in-memory template. Export JSON to persist.</p></div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button></div>'
+                + '<div class="modal-body" style="padding:24px; max-height:70vh; overflow-y:auto;">'
+                + '<div style="display:grid; gap:16px;">'
+                + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Name</label>'
+                + '<input type="text" id="editSampleName" class="settings-input" value="' + (template.profile.name || '').replace(/"/g,'&quot;') + '"></div>'
+                + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Title</label>'
+                + '<input type="text" id="editSampleTitle" class="settings-input" value="' + (template.profile.currentTitle || '').replace(/"/g,'&quot;') + '"></div>'
+                + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Description</label>'
+                + '<textarea id="editSampleDesc" class="settings-input" rows="3" style="resize:vertical;">' + (meta.description || '') + '</textarea></div>'
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
+                + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Location</label>'
+                + '<input type="text" id="editSampleLocation" class="settings-input" value="' + (template.profile.location || '').replace(/"/g,'&quot;') + '"></div>'
+                + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Role Level</label>'
+                + '<input type="text" id="editSampleLevel" class="settings-input" value="' + (template.profile.roleLevel || '').replace(/"/g,'&quot;') + '"></div>'
+                + '</div>'
+                + '<div style="padding:14px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; border-radius:8px; font-size:0.85em; color:var(--text-muted);">'
+                + '<strong style="color:var(--text-secondary);">Profile Contents:</strong> ' + skillCount + ' skills \u00B7 ' + roleCount + ' roles \u00B7 ' + outcomeCount + ' outcomes'
+                + '</div>'
+                + '<div style="display:flex; gap:10px; justify-content:flex-end; margin-top:8px;">'
+                + '<button onclick="exportSampleJSON(\'' + profileId + '\')" style="padding:10px 20px; background:' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border:1px solid var(--border); color:var(--text-secondary); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('export',14) + ' Export JSON</button>'
+                + '<button onclick="saveSampleEdits(\'' + profileId + '\')" style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('check',14) + ' Save Changes</button>'
+                + '</div></div></div>';
+            
+            modal.classList.add('active');
+        }
+        window.editSampleProfile = editSampleProfile;
+        
+        function saveSampleEdits(profileId) {
+            var template = templates[profileId];
+            var manifest = window.profilesManifest;
+            var meta = manifest ? manifest.profiles.find(function(p) { return p.id === profileId; }) : null;
+            if (!template) return;
+            
+            var newName = document.getElementById('editSampleName').value.trim();
+            var newTitle = document.getElementById('editSampleTitle').value.trim();
+            var newDesc = document.getElementById('editSampleDesc').value.trim();
+            var newLocation = document.getElementById('editSampleLocation').value.trim();
+            var newLevel = document.getElementById('editSampleLevel').value.trim();
+            
+            if (newName) template.profile.name = newName;
+            if (newTitle) template.profile.currentTitle = newTitle;
+            if (newLocation) template.profile.location = newLocation;
+            if (newLevel) template.profile.roleLevel = newLevel;
+            if (meta) {
+                meta.name = newName || meta.name;
+                meta.title = newTitle || meta.title;
+                meta.description = newDesc;
+            }
+            
+            // Also update templateName if it exists
+            if (template.templateName) template.templateName = newName + ' - ' + newTitle;
+            
+            closeExportModal();
+            showToast('Profile updated in memory. Export JSON to save permanently.', 'success');
+            renderAdminTabContent();
+        }
+        window.saveSampleEdits = saveSampleEdits;
+        
+        function exportSampleJSON(profileId) {
+            var template = templates[profileId];
+            if (!template) return;
+            var json = JSON.stringify(template, null, 2);
+            var blob = new Blob([json], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = profileId + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Exported ' + profileId + '.json', 'success');
+        }
+        window.exportSampleJSON = exportSampleJSON;
         
         function renderAdminWaitlist(el) {
             if (!fbDb) { el.innerHTML = '<div style="color:#ef4444;">Firebase not connected.</div>'; return; }
@@ -6670,52 +6760,98 @@
         }
 
         function viewSampleProfile() {
-            // Show sample profile picker
-            var manifest = window.profilesManifest;
-            var profiles = (manifest && manifest.profiles) ? manifest.profiles.filter(function(p) { return p.enabled; }) : [];
-            
-            if (profiles.length === 0) {
-                // Fallback: just load cliff
-                switchProfile('cliff-jones-demo');
-                return;
-            }
-            
-            if (profiles.length === 1) {
-                // Only one sample, load it directly
-                switchProfile(profiles[0].id);
-                return;
-            }
-            
-            // Multiple samples: show picker on welcome page
             var el = document.getElementById('welcomeView');
-            if (!el) { switchProfile(profiles[0].id); return; }
+            if (!el) return;
             
-            // Build picker content
-            var html = '<div style="max-width:920px; margin:0 auto; padding:48px 24px 80px;">'
-                + '<div style="text-align:center; margin-bottom:32px;">'
-                + '<h2 style="font-size:2em; font-weight:700; color:var(--accent); margin-bottom:10px;">Sample Profiles</h2>'
-                + '<p style="color:var(--text-secondary); font-size:1em; line-height:1.6;">'
-                + 'Explore complete Blueprints to see how skills, outcomes, and market valuation come together.'
-                + '</p></div>'
-                + '<div class="welcome-cards">';
+            // ===== TV SHOW COLLECTIONS =====
+            var collections = [
+                {
+                    id: 'breaking-bad',
+                    show: 'Breaking Bad',
+                    color: '#22c55e',
+                    tagline: 'From Albuquerque labs to the boardroom',
+                    description: 'Five characters from Breaking Bad prove that even the most unconventional career paths map to real-world professional skills.',
+                    characters: [
+                        { id: 'walter-white', name: 'Walter White', title: 'Chemistry Educator & Researcher', emoji: '\u2697\uFE0F',
+                          desc: 'PhD chemist with 20 years in education, groundbreaking research background, and an unexpected talent for operations management.' },
+                        { id: 'gus-fring', name: 'Gus Fring', title: 'Restaurant Chain Owner & Operator', emoji: '\uD83C\uDF54',
+                          desc: 'Multi-unit restaurant operator with ruthless operational discipline, supply chain mastery, and a spotless community reputation.' },
+                        { id: 'hank-schrader', name: 'Hank Schrader', title: 'DEA Senior Agent', emoji: '\uD83D\uDD75\uFE0F',
+                          desc: 'Federal law enforcement leader with deep investigative analytics, team leadership, and relentless pattern recognition.' },
+                        { id: 'jesse-pinkman', name: 'Jesse Pinkman', title: 'Artisan & Entrepreneur', emoji: '\uD83E\uDE91',
+                          desc: 'Skilled woodworker, natural salesman, and street-smart entrepreneur with untapped creative and technical talent.' },
+                        { id: 'saul-goodman', name: 'Saul Goodman', title: 'Attorney & Marketing Strategist', emoji: '\u2696\uFE0F',
+                          desc: 'Creative legal mind with unmatched client acquisition skills, crisis management expertise, and brand-building instincts.' }
+                    ]
+                },
+                {
+                    id: 'stranger-things',
+                    show: 'Stranger Things',
+                    color: '#ef4444',
+                    tagline: 'Small-town heroes with world-class skills',
+                    description: 'The residents of Hawkins, Indiana demonstrate that extraordinary capability exists in the most ordinary settings.',
+                    characters: [
+                        { id: 'jim-hopper', name: 'Jim Hopper', title: 'Police Chief & Crisis Leader', emoji: '\uD83D\uDE93',
+                          desc: 'Military veteran turned law enforcement leader. Crisis management, community protection, and unwavering resilience under impossible conditions.' },
+                        { id: 'eleven', name: 'Eleven', title: 'Research Subject & Field Operative', emoji: '\uD83E\uDDE0',
+                          desc: 'Raised in a government research facility. Extraordinary sensory perception, pattern recognition, nonverbal communication, and crisis leadership.' },
+                        { id: 'steve-harrington', name: 'Steve Harrington', title: 'Customer Service & Youth Mentor', emoji: '\uD83C\uDFD2',
+                          desc: 'Former high school king turned selfless leader. Customer service excellence, youth mentoring, and a growth arc that defines career reinvention.' },
+                        { id: 'dustin-henderson', name: 'Dustin Henderson', title: 'STEM Prodigy & Communicator', emoji: '\uD83D\uDCE1',
+                          desc: 'Electronics and radio expert, cryptography enthusiast, born problem-solver. Bridges technical complexity with infectious enthusiasm.' },
+                        { id: 'joyce-byers', name: 'Joyce Byers', title: 'Retail Worker & Investigator', emoji: '\uD83D\uDD26',
+                          desc: 'Single mother, retail veteran, and the most tenacious investigator in Hawkins. Proves that determination outperforms credentials every time.' }
+                    ]
+                },
+                {
+                    id: 'succession',
+                    show: 'Succession',
+                    color: '#c4a035',
+                    tagline: 'Power, ambition, and corporate warfare',
+                    description: 'The Roy family and their orbit showcase every shade of corporate strategy, media empire management, and ruthless executive leadership.',
+                    characters: [
+                        { id: 'logan-roy', name: 'Logan Roy', title: 'Media Conglomerate CEO', emoji: '\uD83D\uDC51',
+                          desc: 'Self-made media titan. Five decades of M&A, board-level dominance, and empire-building that redefined an industry.' },
+                        { id: 'kendall-roy', name: 'Kendall Roy', title: 'Corporate Strategy & Acquisitions', emoji: '\uD83D\uDCC8',
+                          desc: 'Ivy League-educated dealmaker with deep M&A experience, digital media vision, and the relentless drive to step out of a massive shadow.' },
+                        { id: 'shiv-roy', name: 'Siobhan "Shiv" Roy', title: 'Political Strategist & Consultant', emoji: '\u265F\uFE0F',
+                          desc: 'Sharp political operative turned corporate strategist. Combines policy expertise with boardroom instincts and razor-sharp communication.' },
+                        { id: 'roman-roy', name: 'Roman Roy', title: 'Entertainment & Business Development', emoji: '\uD83C\uDFAC',
+                          desc: 'Irreverent dealmaker with genuine instincts for entertainment and emerging markets. The wild card who often reads the room better than anyone.' },
+                        { id: 'tom-wambsgans', name: 'Tom Wambsgans', title: 'Media Operations & Compliance', emoji: '\uD83D\uDCBC',
+                          desc: 'The consummate corporate climber. Network operations, regulatory compliance, and a masterclass in navigating organizational politics.' }
+                    ]
+                }
+            ];
             
-            profiles.forEach(function(p) {
-                var initials = p.name.split(' ').map(function(w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
-                html += '<div class="welcome-card" onclick="switchProfile(\'' + p.id + '\')">'
-                    + '<div style="display:flex; align-items:center; gap:14px; margin-bottom:12px;">'
-                    + '<div style="width:48px; height:48px; border-radius:50%; background:var(--accent); color:#fff; '
-                    + 'display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.1em;">'
-                    + initials + '</div>'
-                    + '<div style="text-align:left;">'
-                    + '<h3 style="margin:0;">' + p.name + '</h3>'
-                    + '<div style="color:var(--text-muted); font-size:0.85em;">' + (p.title || '') + '</div>'
-                    + '</div></div>'
-                    + '<p>' + (p.description || 'View this complete Blueprint with skills, outcomes, and market valuation.') + '</p>'
-                    + '</div>';
+            // Store for reference
+            window._sampleCollections = collections;
+            
+            var html = '<div style="max-width:1100px; margin:0 auto; padding:48px 24px 80px;">';
+            
+            // Header
+            html += '<div style="text-align:center; margin-bottom:36px;">'
+                + '<h2 style="font-size:2.2em; font-weight:800; color:var(--text-primary); margin-bottom:8px; font-family:Outfit,sans-serif;">Sample Blueprints</h2>'
+                + '<p style="color:var(--text-secondary); font-size:1.05em; line-height:1.6; max-width:700px; margin:0 auto;">'
+                + 'Famous fictional characters \u2192 real-world career Blueprints. <br>Explore their skills, outcomes, and job matches to see how Blueprint works.'
+                + '</p></div>';
+            
+            // Show selector tabs
+            html += '<div style="display:flex; justify-content:center; gap:8px; margin-bottom:32px; flex-wrap:wrap;">';
+            collections.forEach(function(col, i) {
+                html += '<button onclick="selectShowCollection(\'' + col.id + '\')" id="showTab-' + col.id + '" '
+                    + 'style="padding:12px 24px; border-radius:10px; cursor:pointer; font-weight:700; font-size:0.95em; '
+                    + 'transition: all 0.2s; border:2px solid ' + col.color + '; '
+                    + (i === 0 ? 'background:' + col.color + '; color:#000;' : 'background:transparent; color:' + col.color + ';')
+                    + '">' + col.show + '</button>';
             });
+            html += '</div>';
             
-            html += '</div>'
-                + '<div style="text-align:center; margin-top:24px;">'
+            // Collection content area
+            html += '<div id="showCollectionContent"></div>';
+            
+            // Back link
+            html += '<div style="text-align:center; margin-top:32px;">'
                 + '<a href="#" onclick="event.preventDefault(); window._welcomePickerActive=false; switchView(\'welcome\');" '
                 + 'style="color:var(--text-muted); font-size:0.9em; text-decoration:underline;">\u2190 Back to home</a>'
                 + '</div></div>';
@@ -6723,12 +6859,100 @@
             el.innerHTML = html;
             window._welcomePickerActive = true;
             switchView('welcome');
-            // Highlight Samples nav button
+            
+            // Highlight Samples nav
             document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
             var samplesBtn = document.getElementById('nav-samples');
             if (samplesBtn) samplesBtn.classList.add('active');
+            
+            // Show first collection
+            selectShowCollection(collections[0].id);
         }
         window.viewSampleProfile = viewSampleProfile;
+        
+        function selectShowCollection(showId) {
+            var collections = window._sampleCollections;
+            if (!collections) return;
+            var col = collections.find(function(c) { return c.id === showId; });
+            if (!col) return;
+            
+            // Update tabs
+            collections.forEach(function(c) {
+                var tab = document.getElementById('showTab-' + c.id);
+                if (!tab) return;
+                if (c.id === showId) {
+                    tab.style.background = c.color;
+                    tab.style.color = '#000';
+                } else {
+                    tab.style.background = 'transparent';
+                    tab.style.color = c.color;
+                }
+            });
+            
+            // Render collection content
+            var container = document.getElementById('showCollectionContent');
+            if (!container) return;
+            
+            var html = '';
+            
+            // Show banner
+            html += '<div style="padding:24px 28px; border-radius:14px; margin-bottom:24px; '
+                + 'background: linear-gradient(135deg, ' + col.color + '18, ' + col.color + '08); '
+                + 'border:1px solid ' + col.color + '30;">'
+                + '<div style="font-size:0.82em; text-transform:uppercase; letter-spacing:0.1em; color:' + col.color + '; font-weight:700; margin-bottom:4px;">' + col.show + '</div>'
+                + '<div style="font-size:1.1em; color:var(--text-primary); font-weight:600; font-style:italic; margin-bottom:6px;">\u201C' + col.tagline + '\u201D</div>'
+                + '<div style="font-size:0.88em; color:var(--text-secondary); line-height:1.5;">' + col.description + '</div>'
+                + '</div>';
+            
+            // Character cards grid
+            html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:14px;">';
+            
+            col.characters.forEach(function(ch) {
+                var profileId = ch.id;
+                var hasProfile = !!templates[profileId];
+                var template = templates[profileId];
+                var skillCount = template ? (template.skills || []).length : 0;
+                var initials = ch.name.split(' ').map(function(w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
+                
+                html += '<div style="padding:20px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; '
+                    + 'cursor:' + (hasProfile ? 'pointer' : 'default') + '; transition: all 0.2s; position:relative; '
+                    + 'opacity:' + (hasProfile ? '1' : '0.5') + ';" '
+                    + (hasProfile ? 'onclick="switchProfile(\'' + profileId + '\')" ' : '')
+                    + 'onmouseover="if(' + hasProfile + ')this.style.borderColor=\'' + col.color + '\';this.style.transform=\'translateY(-2px)\'" '
+                    + 'onmouseout="this.style.borderColor=\'var(--border)\';this.style.transform=\'none\'">'
+                    
+                    // Avatar + name row
+                    + '<div style="display:flex; align-items:center; gap:14px; margin-bottom:12px;">'
+                    + '<div style="width:50px; height:50px; border-radius:50%; '
+                    + 'background:linear-gradient(135deg, ' + col.color + ', ' + col.color + 'cc); '
+                    + 'color:#000; display:flex; align-items:center; justify-content:center; '
+                    + 'font-weight:800; font-size:1.1em; flex-shrink:0;">'
+                    + initials + '</div>'
+                    + '<div style="flex:1; min-width:0;">'
+                    + '<div style="font-weight:700; color:var(--text-primary); font-size:1.05em;">' + ch.emoji + ' ' + ch.name + '</div>'
+                    + '<div style="font-size:0.82em; color:' + col.color + '; font-weight:600;">' + ch.title + '</div>'
+                    + '</div>'
+                    + (skillCount > 0 ? '<div style="font-size:0.78em; color:var(--text-muted); text-align:right;">' + skillCount + ' skills</div>' : '')
+                    + '</div>'
+                    
+                    // Description
+                    + '<div style="font-size:0.85em; color:var(--text-secondary); line-height:1.5;">' + ch.desc + '</div>'
+                    
+                    // Status
+                    + (hasProfile 
+                        ? '<div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">'
+                            + '<span style="font-size:0.75em; color:var(--text-muted);">Click to explore Blueprint</span>'
+                            + '<span style="font-size:0.78em; font-weight:600; color:' + col.color + ';">View \u2192</span></div>'
+                        : '<div style="margin-top:12px; font-size:0.78em; color:var(--text-muted); font-style:italic;">Profile coming soon</div>')
+                    
+                    + '</div>';
+            });
+            
+            html += '</div>';
+            
+            container.innerHTML = html;
+        }
+        window.selectShowCollection = selectShowCollection;
 
         function showWelcomeView() {
             switchView('welcome');
@@ -11025,7 +11249,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Hide app footer on welcome view (welcome has its own disclaimer)
             var appFooter = document.getElementById('appFooter');
             if (appFooter) {
-                appFooter.style.display = (view === 'welcome') ? 'none' : 'block';
+                appFooter.style.display = (view === 'welcome' || view === 'admin') ? 'none' : 'block';
             }
             
             // Show selected view
