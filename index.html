@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.23 | 20260220 | Fix manifest loading - normalize array format to {profiles:[...]} object -->
+    <!-- v4.25.1.24 | 20260220 | Format ISO work history dates to human-readable (Mar 1994) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4465,8 +4465,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.23 - BUILD 20260220-s16
-        var BP_VERSION = 'v4.25.1.23';
+        // BLUEPRINT v4.25.1.24 - BUILD 20260220-s17
+        var BP_VERSION = 'v4.25.1.24';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -4486,6 +4486,27 @@
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
+
+        // ===== DATE FORMATTING UTILITY =====
+        // Converts ISO-style dates (e.g. "1994-03", "2009-10") to readable format ("Mar 1994", "Oct 2009")
+        // Passes through already-formatted strings (e.g. "Jan 2020", "Present") unchanged
+        function formatWorkDate(dateStr) {
+            if (!dateStr) return '';
+            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            // Match YYYY-MM or YYYY-MM-DD patterns
+            var isoMatch = dateStr.match(/^(\d{4})-(\d{1,2})(?:-\d{1,2})?$/);
+            if (isoMatch) {
+                var monthIdx = parseInt(isoMatch[2], 10) - 1;
+                if (monthIdx >= 0 && monthIdx < 12) {
+                    return months[monthIdx] + ' ' + isoMatch[1];
+                }
+                return isoMatch[1]; // fallback to just the year
+            }
+            // Match bare year "1994"
+            if (/^\d{4}$/.test(dateStr)) return dateStr;
+            // Already formatted or other string — pass through
+            return dateStr;
+        }
 
         // ===== BLUEPRINT ICON SYSTEM (v4.20.0) =====
         // Stroke-based SVG icons using currentColor for theme-awareness
@@ -12332,7 +12353,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             // Work History
             const workHistoryHTML = (d.workHistory || []).map(job => {
-                const dateRange = (job.startDate || '') + ' – ' + (job.current ? 'Present' : (job.endDate || ''));
+                const dateRange = formatWorkDate(job.startDate || '') + ' – ' + (job.current ? 'Present' : formatWorkDate(job.endDate || ''));
                 const achList = (job.achievements || []).map(a => 
                     `<li>${a}</li>`
                 ).join('\n');
@@ -19581,7 +19602,7 @@ body {
             
             if (whItems.length > 0) {
                 whItems.forEach(function(job, idx) {
-                    var dateRange = (job.startDate || '?') + ' \u2013 ' + (job.current ? 'Present' : (job.endDate || '?'));
+                    var dateRange = formatWorkDate(job.startDate || '?') + ' \u2013 ' + (job.current ? 'Present' : formatWorkDate(job.endDate || '?'));
                     html += '<div style="padding:16px; margin-bottom:12px; background:' + tv('rgba(255,255,255,0.03)','rgba(0,0,0,0.02)') + '; '
                         + 'border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.08)') + '; border-radius:10px; position:relative;">';
                     

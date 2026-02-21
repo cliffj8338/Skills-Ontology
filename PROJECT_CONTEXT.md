@@ -1,11 +1,11 @@
 # Blueprint — Project Context
-## Last Updated: 2026-02-20 (Session 15) · v4.25.1.22
+## Last Updated: 2026-02-20 (Session 16 Final) · v4.25.1.23
 
 ---
 
 ## WHAT IS BLUEPRINT
 
-Blueprint is a career intelligence platform that maps professional skills through interactive visualizations and generates career deliverables. Built as a single-page application (~24,124 lines) in one `index.html` file. Domain: **myblueprint.work** (primary), **getblueprint.work** (redirect/marketing).
+Blueprint is a career intelligence platform that maps professional skills through interactive visualizations and generates career deliverables. Built as a single-page application (~24,128 lines) in one `index.html` file. Domain: **myblueprint.work** (primary), **getblueprint.work** (redirect/marketing).
 
 **Core insight:** "You are not your resume." Most professionals can name 15–20 skills. Blueprint maps 150–300 using a 14,000+ skill ontology (O*NET + ESCO datasets).
 
@@ -13,7 +13,7 @@ Blueprint is a career intelligence platform that maps professional skills throug
 
 ## FILE & ARCHITECTURE
 
-**Single file:** `index.html` — ~24,124 lines, ~1.2MB
+**Single file:** `index.html` — ~24,128 lines, ~1.2MB
 **No build system.** Pure HTML/CSS/JS. CDN dependencies only.
 **Hosted:** GitHub Pages at `cliffj8338.github.io/Skills-Ontology/`
 
@@ -24,7 +24,7 @@ Blueprint is a career intelligence platform that maps professional skills throug
 - Google Fonts (Outfit, JetBrains Mono)
 
 ### Versioning
-4-part version: `v{major}.{minor}.{patch}.{build}` (e.g., v4.25.1.22)
+4-part version: `v{major}.{minor}.{patch}.{build}` (e.g., v4.25.1.23)
 - `BP_VERSION` constant at top of script — single source of truth
 - Referenced in: console banner, About modal, admin overview
 - HTML comment + boot comment are hardcoded labels
@@ -45,7 +45,7 @@ blueprintTab                — 'dashboard' | 'skills' | 'experience' | 'outcome
 valuationMode               — 'evidence' | 'potential' (drives dual cards + detail section)
 skillValuations             — Market value data (BLS-based)
 adminSubTab                 — 'overview' | 'users' | 'samples' | 'waitlist' | 'config'
-BP_VERSION                  — Version constant (e.g., 'v4.25.1.22')
+BP_VERSION                  — Version constant (e.g., 'v4.25.1.23')
 ```
 
 ### Navigation Structure
@@ -89,66 +89,69 @@ initNetwork()                  — Main D3 force network (calls normalizeUserRol
 
 ---
 
-## SAMPLE PROFILES SYSTEM (v4.25.1.17–22, data refresh Session 15)
+## SAMPLE PROFILES SYSTEM (v4.25.1.17–23)
 
 ### Architecture
 - `profiles-manifest.json` — registry of all 15 profiles with id, name, title, path, enabled
 - `profiles/demo/{id}.json` — individual profile data files
 - Profiles loaded at boot via manifest → fetch each JSON → stored in `templates[id]`
 - Profile switching via `switchProfile(templateId)` → `loadTemplate()` → `initializeMainApp()`
+- **Manifest normalization (v4.25.1.23):** Code handles both array `[...]` and object `{profiles: [...]}` — bare arrays get wrapped at load time
 
 ### TV Show Collections (15 profiles)
 
-All profiles include lore-accurate work history with dates, education, certifications, and skill evidence that auto-generates outcomes via `extractOutcomesFromEvidence()`.
+**Breaking Bad** (green `#22c55e`):
+| ID | Character | Skills | Evidence | Work History | Education | Certs |
+|----|-----------|--------|----------|--------------|-----------|-------|
+| `walter-white` | Walter White | 32 | 6 | 5 | 3 | 1 |
+| `gus-fring` | Gus Fring | 29 | 5 | 4 | 2 | 1 |
+| `hank-schrader` | Hank Schrader | 25 | 5 | 4 | 2 | 2 |
+| `jesse-pinkman` | Jesse Pinkman | 21 | 4 | 3 | 1 | 0 |
+| `saul-goodman` | Saul Goodman | 24 | 5 | 4 | 3 | 1 |
 
-**Breaking Bad** (green `#22c55e`) — set 2008–2010, Albuquerque NM:
-| ID | Character | Skills | Evidence | Work History | Education | Jobs |
-|----|-----------|--------|----------|-------------|-----------|------|
-| `walter-white` | Walter White | 32 | 11 | 4 (Caltech PhD → Sandia Labs → Gray Matter → JP Wynne HS) | 3 (Caltech PhD/MS, UNM BS) | 3 |
-| `gus-fring` | Gus Fring | 29 | 8 | 3 (Madrigal → Los Pollos Hermanos → Lavandería Brillante) | 2 (U Santiago, U Chile MBA) | 3 |
-| `hank-schrader` | Hank Schrader | 25 | 4 | 3 (DEA El Paso → DEA ABQ Agent → ASAC) | 2 (UNM, DEA Academy) | 3 |
-| `jesse-pinkman` | Jesse Pinkman | 21 | 4 | 3 (Retail → Woodworking → Youth Volunteer) | 1 (JP Wynne HS) | 3 |
-| `saul-goodman` | Saul Goodman | 24 | 4 | 4 (HHM Mailroom → Solo → Davis & Main → Saul Goodman & Assoc) | 2 (U American Samoa JD/BA) | 3 |
+**Stranger Things** (red `#ef4444`):
+| ID | Character | Skills | Evidence | Work History | Education | Certs |
+|----|-----------|--------|----------|--------------|-----------|-------|
+| `jim-hopper` | Jim Hopper | 21 | 5 | 4 | 2 | 2 |
+| `eleven` | Eleven (Jane Hopper) | 16 | 3 | 2 | 1 | 0 |
+| `steve-harrington` | Steve Harrington | 17 | 4 | 3 | 1 | 1 |
+| `dustin-henderson` | Dustin Henderson | 21 | 5 | 3 | 2 | 0 |
+| `joyce-byers` | Joyce Byers | 18 | 4 | 4 | 1 | 0 |
 
-**Stranger Things** (red `#ef4444`) — set 1983–1986, Hawkins IN:
-| ID | Character | Skills | Evidence | Work History | Education | Jobs |
-|----|-----------|--------|----------|-------------|-----------|------|
-| `jim-hopper` | Jim Hopper | 21 | 4 | 3 (US Army Vietnam → NYPD Homicide → Hawkins Chief) | 2 (Hawkins HS, NYPD Academy) | 3 |
-| `eleven` | Eleven (Jane Hopper) | 16 | 5 | 2 (Hawkins Lab Research Subject → Crisis Response) | 2 (Lab Education, Hawkins Middle) | 3 |
-| `steve-harrington` | Steve Harrington | 17 | 3 | 3 (Lifeguard → Scoops Ahoy → Youth Mentor) | 1 (Hawkins HS) | 3 |
-| `dustin-henderson` | Dustin Henderson | 21 | 5 | 2 (AV Club/Science Fair → Ham Radio Operator) | 1 (Hawkins Middle) | 3 |
-| `joyce-byers` | Joyce Byers | 18 | 4 | 2 (Big Buy Deli → Melvald's General Store) | 1 (Hawkins HS) | 3 |
+**Succession** (gold `#c4a035`):
+| ID | Character | Skills | Evidence | Work History | Education | Certs |
+|----|-----------|--------|----------|--------------|-----------|-------|
+| `logan-roy` | Logan Roy | 20 | 5 | 4 | 2 | 0 |
+| `kendall-roy` | Kendall Roy | 19 | 4 | 4 | 3 | 0 |
+| `shiv-roy` | Siobhan "Shiv" Roy | 21 | 5 | 4 | 3 | 0 |
+| `roman-roy` | Roman Roy | 17 | 3 | 3 | 2 | 0 |
+| `tom-wambsgans` | Tom Wambsgans | 22 | 5 | 4 | 2 | 1 |
 
-**Succession** (gold `#c4a035`) — set ~2018–2020, NYC:
-| ID | Character | Skills | Evidence | Work History | Education | Jobs |
-|----|-----------|--------|----------|-------------|-----------|------|
-| `logan-roy` | Logan Roy | 20 | 4 | 2 (Royco Holdings Canada → Waystar Royco CEO 1972–2020) | 1 (Self-educated) | 3 |
-| `kendall-roy` | Kendall Roy | 19 | 3 | 3 (Goldman Sachs → Waystar VP → Head of Corp Dev/Acting CEO) | 3 (Harvard MBA/BA, Buckley School) | 3 |
-| `shiv-roy` | Siobhan "Shiv" Roy | 21 | 3 | 4 (Senate Aide → Political Consultant → Eavis Campaign → Waystar President) | 2 (Yale MA, Georgetown BA) | 3 |
-| `roman-roy` | Roman Roy | 17 | 2 | 3 (Waystar Studios Associate → VP BizDev LA → COO) | 2 (Brown BA, Buckley School) | 3 |
-| `tom-wambsgans` | Tom Wambsgans | 22 | 4 | 5 (Bain → Waystar VP → SVP Parks/Cruises → ATN Chairman → CEO) | 2 (U Minnesota MBA/BA) | 3 |
+**Totals:** 323 skills, 68 evidence items, 46 work history entries, 27 education records, 10 certifications
 
-**Totals: 323 skills, 68 evidence items, 46 work history entries, 27 education records, 10 certifications, 45 curated jobs**
-
-*Match percentages are raw skill overlap. The match engine adds fuzzy/synonym matching so live scores run ~5-10% higher.*
-
-### Outcomes Auto-Generation
-Outcomes are NOT stored in profile JSONs — they're extracted at runtime by `extractOutcomesFromEvidence()` from skill evidence entries. Evidence items that contain metrics ($, %, x) or result verbs (achieved, reduced, launched, etc.) become blueprint outcomes. Each profile has 2-11 evidence entries designed to generate meaningful outcomes.
+### Profile Data Structure
+Each profile JSON contains:
+```json
+{
+  "profile": { "name", "title", "location", "summary", "roleLevel" },
+  "skills": [{ "name", "level", "category", "evidence": [{ "description", "outcome" }] }],
+  "roles": [{ "name" }],
+  "workHistory": [{ "title", "company", "startDate", "endDate", "description", "achievements" }],
+  "education": [{ "degree", "institution", "year", "field" }],
+  "certifications": [{ "name", "issuer", "year" }],
+  "values": [{ "name", "selected" }],
+  "savedJobs": [{ "title", "company", "parsedSkills", "curated": true }]
+}
+```
 
 ### Job Match Realism
-Each job has 13-20 `parsedSkills` — a mix of skills the character HAS (creating matches) and skills they DON'T have (creating realistic gaps). Gap skills are character-authentic:
-- Walter White lacks "Grant Writing," "FDA Regulatory Affairs," "Management Consulting"
-- Steve Harrington lacks "Wilderness First Responder," "P&L Management," "RFID Systems"
-- Eleven lacks "Bachelor's Degree Required," "SPSS Statistical Analysis," "Hadoop"
-
-Jobs use `curated: true` flag to skip auto-generated sample jobs. `matchJobToProfile()` normalizes string arrays to objects.
+Each job has 13-20 `parsedSkills` — a mix of skills the character HAS (creating matches) and skills they DON'T have (creating realistic gaps). Jobs use `curated: true` flag to skip auto-generated sample jobs. `matchJobToProfile()` normalizes string arrays to objects.
 
 ### Samples Page UI
 - Header: "SAMPLE BLUEPRINTS" (uppercase, Outfit font, letter-spacing 0.08em)
 - Three color-coded tab selectors (Breaking Bad green, Stranger Things red, Succession gold)
 - Show banner with tagline + description
 - 5 character cards per show with initials avatar, emoji, title, description, skill count, "View →" button
-- `selectShowCollection(showId)` handles tab switching with show-specific content
 
 ### Read-Only Protection
 - `isReadOnlyProfile` = true when viewing sample as non-admin
@@ -156,18 +159,6 @@ Jobs use `curated: true` flag to skip auto-generated sample jobs. `matchJobToPro
 - Skill detail modal hides Edit/Assess/Verify/Remove action bar for read-only
 - Card view hides Edit/Delete buttons for read-only
 - Admin retains full editing + JSON export via admin panel
-
----
-
-## ROLE NORMALIZATION
-
-Profiles store bare roles as `{name: 'Chemistry Professor'}`. The app requires `{id, name, color, skills[]}` for D3 network rendering. `normalizeUserRoles()` handles this:
-
-- Assigns `role.id = role.name`
-- Assigns `role.color` from 8-color palette
-- Builds `role.skills[]` by scanning `userData.skills` for role references
-
-Called in: `switchProfile()`, wizard completion, `initializeMainApp()`, and as safety net inside `initNetwork()`.
 
 ---
 
@@ -184,6 +175,23 @@ All four views call `.raise()` on role and center nodes after initial draw, ensu
 
 ### Link Safety
 All network views validate links before passing to D3 via `validRoleIds` / `validMatchRoleIds` / `validNodeIds` sets. Missing role references are silently skipped.
+
+### Mobile Skills Labels (v4.25.1.23)
+- Label visibility controlled via `.hide-skill-labels` CSS class on SVG element
+- Touch targets enlarged to 48×28px for toggle controls
+- CSS-class-based approach replaced fragile D3 data-bound filtering on mobile
+
+---
+
+## ROLE NORMALIZATION
+
+Profiles store bare roles as `{name: 'Chemistry Professor'}`. The app requires `{id, name, color, skills[]}` for D3 network rendering. `normalizeUserRoles()` handles this:
+
+- Assigns `role.id = role.name`
+- Assigns `role.color` from 8-color palette
+- Builds `role.skills[]` by scanning `userData.skills` for role references
+
+Called in: `switchProfile()`, wizard completion, `initializeMainApp()`, and as safety net inside `initNetwork()`.
 
 ---
 
@@ -227,6 +235,11 @@ analytics_events/{auto}/  — type, uid, displayName, meta, timestamp
 
 | Source | Library | Count |
 |--------|---------|-------|
+| Custom | Skills (index-v3.json) | 13,960 |
+| Custom | Certification library | 191 |
+| Custom | Skill evidence | 73 skills |
+| Custom | Skill valuations | ✓ |
+| Custom | Impact ratings | ✓ |
 | O*NET | Skills (nested) | ~120 |
 | O*NET | Abilities | 52 |
 | O*NET | Work Styles | 21 |
@@ -235,7 +248,6 @@ analytics_events/{auto}/  — type, uid, displayName, meta, timestamp
 | Custom | Trades & Creative | 64 |
 | Custom | Values | 30 |
 | BLS | Wages | 831 occupations |
-| ESCO | (Planned) | ~13,890 |
 
 ---
 
@@ -247,7 +259,7 @@ analytics_events/{auto}/  — type, uid, displayName, meta, timestamp
 
 ---
 
-## SESSION 14 VERSION HISTORY
+## VERSION HISTORY (Sessions 14–16)
 
 | Version | Changes |
 |---------|---------|
@@ -266,18 +278,16 @@ analytics_events/{auto}/  — type, uid, displayName, meta, timestamp
 | v4.25.1.20 | normalizeUserRoles() — roles get id, color, skills[] for D3 |
 | v4.25.1.21 | D3 link guards in all 4 networks, safety normalize in initNetwork() |
 | v4.25.1.22 | Heading font fix, edit disabled for demos, center node z-order in all networks |
+| v4.25.1.23 | Manifest array normalization, mobile label toggle CSS fix, null safety on saveSampleEdits |
 
-## SESSION 15 CHANGES
+### Session 14: Profile Data Enrichment
+Generated 15 TV character profiles with timeline-accurate work history, education, certifications, and skill evidence. 323 skills, 68 evidence items, 46 work history entries, 27 education records, 10 certifications.
 
-| Change | Details |
-|--------|---------|
-| Profile data refresh | All 15 profiles rebuilt with lore-accurate work history, education, certifications, and skill evidence |
-| Work history | 46 entries total with accurate dates from show timelines (BB: 2008-2010, ST: 1983-1986, Succession: 2018-2020) |
-| Education | 27 entries — Walter's Caltech PhD, Kendall's Harvard MBA, Saul's U American Samoa JD, Hopper's NYPD Academy, etc. |
-| Certifications | 10 entries — teaching licenses, ServSafe, DEA training, CPR, FCC amateur radio, bar licenses |
-| Skill evidence | 68 evidence items with metrics/outcomes that auto-generate blueprint outcomes via extractOutcomesFromEvidence() |
-| Profile summaries | Professional summaries added to all 15 profiles for export readiness |
-| Skills recount | 323 skills (down from 385 — removed filler, added evidence-bearing skills) |
+### Session 15: Mobile Skills Label Toggle Fix
+Root cause: D3 data-bound filtering fragile on mobile. Solution: CSS-class-based approach using `.hide-skill-labels` class on SVG element. Touch targets enlarged to 48×28px.
+
+### Session 16: Manifest Loading Error Fix
+Root cause: Profile generation script wrote manifest as bare JSON array `[...]` but `initializeApp()` expected `{profiles: [...]}`. Fix: Added normalization after fetch — `if (Array.isArray(manifest)) { manifest = { profiles: manifest }; }`. Also added null safety to `saveSampleEdits()`.
 
 ---
 
@@ -285,13 +295,16 @@ analytics_events/{auto}/  — type, uid, displayName, meta, timestamp
 
 | File | Description |
 |------|-------------|
-| `index.html` | Main app (~24,124 lines) |
+| `index.html` | Main app (~24,128 lines) |
 | `teaser.html` | Landing page with animated network |
-| `profiles-manifest.json` | 15-profile registry (TV characters) |
+| `profiles-manifest.json` | 15-profile registry (bare array or `{profiles:[...]}`) |
 | `profiles/demo/*.json` | 15 character profile JSONs |
+| `skills/index-v3.json` | Master skill library (13,960 skills) |
 | `onet-*.json` | O*NET data libraries (5 files) |
 | `trades-creative-library.json` | Trades & creative skills |
 | `bls-wages.json` | BLS salary data |
+| `certification-library.json` | 191 certifications |
+| `skill_evidence.json` | Evidence for 73 skills |
 | `WHY_BLUEPRINT.md` | Positioning document |
 | `LAUNCH_PLAN.md` | Invite-only launch spec |
 | `PROJECT_CONTEXT.md` | This file |
@@ -306,13 +319,13 @@ analytics_events/{auto}/  — type, uid, displayName, meta, timestamp
 - `analytics_events` needs Firestore composite indexes
 - Old 5 sample profiles (cliff-jones, sarah-chen, etc.) should be deleted from repo
 - Mobile tab scroll testing needed
+- Manifest should be standardized to `{profiles: [...]}` format (currently normalized at runtime)
 
 ---
 
 ## NEXT STEPS
 
-**Immediate:** Deploy updated 15 profile JSONs + manifest. Delete old profiles from repo.
-**Short-term:** ESCO library integration, email invite notifications, sample evidence population refinement
+**Immediate:** Deploy v4.25.1.23 + 15 profile JSONs + manifest. Delete old profiles from repo.
+**Short-term:** ESCO library integration, email invite notifications, sample evidence population
 **Medium-term:** Ambassador mechanic, LinkedIn sharing, analytics time-series, IAM Phenom prep
 **Content:** Articles on recruiting transformation, AI in TA, org restructuring
-**Profile refinement:** Adjust skill evidence wording for better outcome extraction, add values to profiles, test match percentages across all 45 jobs
