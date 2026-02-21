@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.30 | 20260221 | Fix: demo users land on Welcome, not Blueprint (scaffold no longer triggers blueprint view) -->
+    <!-- v4.25.1.30 | 20260221 | Remove cliff-jones-demo, dynamic manifest fallback, Skills Mgmt read-only -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -8374,7 +8374,7 @@
             try {
                 // Don't save userData to localStorage anymore
                 // Only save which profile is active
-                const currentProfileId = userData.templateId || 'cliff-jones-demo';
+                const currentProfileId = userData.templateId || Object.keys(templates)[0] || 'walter-white';
                 safeSet('currentProfile', currentProfileId);
                 console.log('✓ Profile preference saved:', currentProfileId);
                 return true;
@@ -8953,8 +8953,9 @@
             }
             
             // CASE 2: Not signed in — load scaffold for demo browsing
-            var scaffoldId = currentProfile || 'cliff-jones-demo';
-            if (!templates[scaffoldId]) scaffoldId = 'cliff-jones-demo';
+            var firstTemplateId = Object.keys(templates).find(function(k) { return k !== 'blank'; }) || 'walter-white';
+            var scaffoldId = currentProfile || firstTemplateId;
+            if (!templates[scaffoldId]) scaffoldId = firstTemplateId;
             if (templates[scaffoldId]) loadTemplate(scaffoldId);
             initializeMainApp();
             
