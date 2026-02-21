@@ -1,122 +1,22 @@
-[
-  {
-    "id": "walter-white",
-    "name": "Walter White",
-    "title": "Chemistry Teacher \u2192 Gray Matter Co-Founder",
-    "show": "breaking-bad",
-    "path": "profiles/demo/walter-white.json",
-    "enabled": true
-  },
-  {
-    "id": "gus-fring",
-    "name": "Gus Fring",
-    "title": "Owner & President, Los Pollos Hermanos",
-    "show": "breaking-bad",
-    "path": "profiles/demo/gus-fring.json",
-    "enabled": true
-  },
-  {
-    "id": "hank-schrader",
-    "name": "Hank Schrader",
-    "title": "ASAC, DEA Albuquerque Division",
-    "show": "breaking-bad",
-    "path": "profiles/demo/hank-schrader.json",
-    "enabled": true
-  },
-  {
-    "id": "jesse-pinkman",
-    "name": "Jesse Pinkman",
-    "title": "Artisan Woodworker & Craftsman",
-    "show": "breaking-bad",
-    "path": "profiles/demo/jesse-pinkman.json",
-    "enabled": true
-  },
-  {
-    "id": "saul-goodman",
-    "name": "Saul Goodman",
-    "title": "Managing Attorney & Legal Marketing Strategist",
-    "show": "breaking-bad",
-    "path": "profiles/demo/saul-goodman.json",
-    "enabled": true
-  },
-  {
-    "id": "jim-hopper",
-    "name": "Jim Hopper",
-    "title": "Chief of Police, Hawkins PD",
-    "show": "stranger-things",
-    "path": "profiles/demo/jim-hopper.json",
-    "enabled": true
-  },
-  {
-    "id": "eleven",
-    "name": "Eleven (Jane Hopper)",
-    "title": "Research Subject / Crisis Response Specialist",
-    "show": "stranger-things",
-    "path": "profiles/demo/eleven.json",
-    "enabled": true
-  },
-  {
-    "id": "steve-harrington",
-    "name": "Steve Harrington",
-    "title": "Shift Manager, Scoops Ahoy",
-    "show": "stranger-things",
-    "path": "profiles/demo/steve-harrington.json",
-    "enabled": true
-  },
-  {
-    "id": "dustin-henderson",
-    "name": "Dustin Henderson",
-    "title": "Student / STEM Enthusiast",
-    "show": "stranger-things",
-    "path": "profiles/demo/dustin-henderson.json",
-    "enabled": true
-  },
-  {
-    "id": "joyce-byers",
-    "name": "Joyce Byers",
-    "title": "Sales Clerk, Melvald's General Store",
-    "show": "stranger-things",
-    "path": "profiles/demo/joyce-byers.json",
-    "enabled": true
-  },
-  {
-    "id": "logan-roy",
-    "name": "Logan Roy",
-    "title": "Founder & CEO, Waystar Royco",
-    "show": "succession",
-    "path": "profiles/demo/logan-roy.json",
-    "enabled": true
-  },
-  {
-    "id": "kendall-roy",
-    "name": "Kendall Roy",
-    "title": "Head of Corporate Development, Waystar Royco",
-    "show": "succession",
-    "path": "profiles/demo/kendall-roy.json",
-    "enabled": true
-  },
-  {
-    "id": "shiv-roy",
-    "name": "Siobhan \"Shiv\" Roy",
-    "title": "President of Domestic Operations, Waystar Royco",
-    "show": "succession",
-    "path": "profiles/demo/shiv-roy.json",
-    "enabled": true
-  },
-  {
-    "id": "roman-roy",
-    "name": "Roman Roy",
-    "title": "COO, Waystar Royco",
-    "show": "succession",
-    "path": "profiles/demo/roman-roy.json",
-    "enabled": true
-  },
-  {
-    "id": "tom-wambsgans",
-    "name": "Tom Wambsgans",
-    "title": "Chairman, ATN / CEO, Waystar Royco",
-    "show": "succession",
-    "path": "profiles/demo/tom-wambsgans.json",
-    "enabled": true
-  }
-]
+{
+  "profiles": [
+    { "id": "walter-white", "name": "Walter White", "title": "Chemistry Educator & Researcher", "path": "profiles/demo/walter-white.json", "enabled": true },
+    { "id": "gus-fring", "name": "Gus Fring", "title": "Restaurant Chain Owner & Operator", "path": "profiles/demo/gus-fring.json", "enabled": true },
+    { "id": "hank-schrader", "name": "Hank Schrader", "title": "DEA Senior Agent", "path": "profiles/demo/hank-schrader.json", "enabled": true },
+    { "id": "jesse-pinkman", "name": "Jesse Pinkman", "title": "Artisan & Entrepreneur", "path": "profiles/demo/jesse-pinkman.json", "enabled": true },
+    { "id": "saul-goodman", "name": "Saul Goodman", "title": "Attorney & Marketing Strategist", "path": "profiles/demo/saul-goodman.json", "enabled": true },
+    { "id": "tuco-salamanca", "name": "Tuco Salamanca", "title": "Regional Distribution Director", "path": "profiles/demo/tuco-salamanca.json", "enabled": true },
+    { "id": "jim-hopper", "name": "Jim Hopper", "title": "Police Chief & Crisis Leader", "path": "profiles/demo/jim-hopper.json", "enabled": true },
+    { "id": "eleven", "name": "Eleven", "title": "Research Subject & Field Operative", "path": "profiles/demo/eleven.json", "enabled": true },
+    { "id": "steve-harrington", "name": "Steve Harrington", "title": "Customer Service & Youth Mentor", "path": "profiles/demo/steve-harrington.json", "enabled": true },
+    { "id": "dustin-henderson", "name": "Dustin Henderson", "title": "STEM Prodigy & Communicator", "path": "profiles/demo/dustin-henderson.json", "enabled": true },
+    { "id": "joyce-byers", "name": "Joyce Byers", "title": "Retail Worker & Investigator", "path": "profiles/demo/joyce-byers.json", "enabled": true },
+    { "id": "vecna", "name": "Vecna", "title": "Interdimensional Architect", "path": "profiles/demo/vecna.json", "enabled": true },
+    { "id": "logan-roy", "name": "Logan Roy", "title": "Media Conglomerate CEO", "path": "profiles/demo/logan-roy.json", "enabled": true },
+    { "id": "kendall-roy", "name": "Kendall Roy", "title": "Corporate Strategy & Acquisitions", "path": "profiles/demo/kendall-roy.json", "enabled": true },
+    { "id": "shiv-roy", "name": "Siobhan 'Shiv' Roy", "title": "Political Strategist & Consultant", "path": "profiles/demo/shiv-roy.json", "enabled": true },
+    { "id": "roman-roy", "name": "Roman Roy", "title": "Entertainment & Business Development", "path": "profiles/demo/roman-roy.json", "enabled": true },
+    { "id": "tom-wambsgans", "name": "Tom Wambsgans", "title": "Media Operations & Compliance", "path": "profiles/demo/tom-wambsgans.json", "enabled": true },
+    { "id": "connor-roy", "name": "Connor Roy", "title": "Rancher, Producer & Ambassador", "path": "profiles/demo/connor-roy.json", "enabled": true }
+  ]
+}

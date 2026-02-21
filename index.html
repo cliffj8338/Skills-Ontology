@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.27.2.5 | 20260221 | Values system overhaul (7-value profiles), 3 new profiles (Vecna, Tuco, Connor) -->
+    <!-- v4.27.2.6 | 20260221 | Added Vecna, Tuco, Connor to samples + manifest -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -890,8 +890,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.27.2.5 - BUILD 20260221-values-profiles
-        var BP_VERSION = 'v4.27.2.5';
+        // BLUEPRINT v4.27.2.6 - BUILD 20260221-samples-manifest
+        var BP_VERSION = 'v4.27.2.6';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -907,7 +907,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260221-values-profiles                   ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260221-samples-manifest                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -3244,7 +3244,7 @@
                     show: 'Breaking Bad',
                     color: '#22c55e',
                     tagline: 'From Albuquerque labs to the boardroom',
-                    description: 'Five characters from Breaking Bad prove that even the most unconventional career paths map to real-world professional skills.',
+                    description: 'Six characters from Breaking Bad prove that even the most unconventional career paths map to real-world professional skills.',
                     characters: [
                         { id: 'walter-white', name: 'Walter White', title: 'Chemistry Educator & Researcher', emoji: '\u2697\uFE0F',
                           desc: 'PhD chemist with 20 years in education, groundbreaking research background, and an unexpected talent for operations management.' },
@@ -3255,7 +3255,9 @@
                         { id: 'jesse-pinkman', name: 'Jesse Pinkman', title: 'Artisan & Entrepreneur', emoji: '\uD83E\uDE91',
                           desc: 'Skilled woodworker, natural salesman, and street-smart entrepreneur with untapped creative and technical talent.' },
                         { id: 'saul-goodman', name: 'Saul Goodman', title: 'Attorney & Marketing Strategist', emoji: '\u2696\uFE0F',
-                          desc: 'Creative legal mind with unmatched client acquisition skills, crisis management expertise, and brand-building instincts.' }
+                          desc: 'Creative legal mind with unmatched client acquisition skills, crisis management expertise, and brand-building instincts.' },
+                        { id: 'tuco-salamanca', name: 'Tuco Salamanca', title: 'Regional Distribution Director', emoji: '\uD83D\uDCA5',
+                          desc: 'High-energy distribution leader with explosive intensity, instinctive product assessment, and territory control through sheer force of personality.' }
                     ]
                 },
                 {
@@ -3274,7 +3276,9 @@
                         { id: 'dustin-henderson', name: 'Dustin Henderson', title: 'STEM Prodigy & Communicator', emoji: '\uD83D\uDCE1',
                           desc: 'Electronics and radio expert, cryptography enthusiast, born problem-solver. Bridges technical complexity with infectious enthusiasm.' },
                         { id: 'joyce-byers', name: 'Joyce Byers', title: 'Retail Worker & Investigator', emoji: '\uD83D\uDD26',
-                          desc: 'Single mother, retail veteran, and the most tenacious investigator in Hawkins. Proves that determination outperforms credentials every time.' }
+                          desc: 'Single mother, retail veteran, and the most tenacious investigator in Hawkins. Proves that determination outperforms credentials every time.' },
+                        { id: 'vecna', name: 'Vecna', title: 'Interdimensional Architect', emoji: '\uD83D\uDD73\uFE0F',
+                          desc: 'Visionary who restructured an entire dimension, built a hive-mind network, and executed a multi-decade strategic campaign. The ultimate hostile takeover.' }
                     ]
                 },
                 {
@@ -3293,7 +3297,9 @@
                         { id: 'roman-roy', name: 'Roman Roy', title: 'Entertainment & Business Development', emoji: '\uD83C\uDFAC',
                           desc: 'Irreverent dealmaker with genuine instincts for entertainment and emerging markets. The wild card who often reads the room better than anyone.' },
                         { id: 'tom-wambsgans', name: 'Tom Wambsgans', title: 'Media Operations & Compliance', emoji: '\uD83D\uDCBC',
-                          desc: 'The consummate corporate climber. Network operations, regulatory compliance, and a masterclass in navigating organizational politics.' }
+                          desc: 'The consummate corporate climber. Network operations, regulatory compliance, and a masterclass in navigating organizational politics.' },
+                        { id: 'connor-roy', name: 'Connor Roy', title: 'Rancher, Producer & Ambassador', emoji: '\uD83E\uDD20',
+                          desc: 'The eldest Roy son. Gentleman rancher, Broadway producer, presidential candidate, and the only family member everyone can still talk to.' }
                     ]
                 }
             ];
