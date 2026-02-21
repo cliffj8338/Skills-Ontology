@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.27.1.4 | 20260221 | Mobile: compact SVG height in values mode, panel stacks below graph -->
+    <!-- v4.27.1.5 | 20260221 | Firestore: sanitize undefined values, null-guard skill fields, mobile SVG height -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -899,8 +899,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.27.1.4 - BUILD 20260221-mobile-svgfit
-        var BP_VERSION = 'v4.27.1.4';
+        // BLUEPRINT v4.27.1.5 - BUILD 20260221-firestore-fix
+        var BP_VERSION = 'v4.27.1.5';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -916,7 +916,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260221-mobile-svgfit                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260221-firestore-fix                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -1459,6 +1459,20 @@
         }
 
         // ===== FIRESTORE PERSISTENCE =====
+        // Recursively strip undefined values (Firestore rejects them)
+        function sanitizeForFirestore(obj) {
+            if (obj === null || obj === undefined) return null;
+            if (typeof obj !== 'object') return obj;
+            if (Array.isArray(obj)) return obj.map(sanitizeForFirestore).filter(function(v) { return v !== undefined; });
+            var clean = {};
+            Object.keys(obj).forEach(function(k) {
+                var v = obj[k];
+                if (v === undefined) return; // skip undefined
+                clean[k] = (typeof v === 'object' && v !== null) ? sanitizeForFirestore(v) : v;
+            });
+            return clean;
+        }
+        
         function saveToFirestore() {
             if (!fbDb || !fbUser) return Promise.resolve(false);
             
@@ -1474,7 +1488,7 @@
             var data = {
                 profile: userData.profile || {},
                 skills: (skillsData && skillsData.skills) ? skillsData.skills.map(function(s) {
-                    return { name: s.name, level: s.level, category: s.category, key: s.key, roles: s.roles || [], evidence: s.evidence || [] };
+                    return { name: s.name || '', level: s.level || 1, category: s.category || '', key: s.key || s.name || '', roles: s.roles || [], evidence: s.evidence || [] };
                 }) : [],
                 roles: (skillsData && skillsData.roles) || [],
                 values: blueprintData.values || [],
@@ -1494,6 +1508,11 @@
                 }),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
+            
+            // Strip any remaining undefined values (Firestore rejects them)
+            data = sanitizeForFirestore(data);
+            // Restore server timestamp (sanitizer converts it to plain object)
+            data.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
             
             return fbDb.collection('users').doc(uid).set(data, { merge: true })
                 .then(function() {
