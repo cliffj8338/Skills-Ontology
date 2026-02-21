@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.10 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
+    <!-- v4.25.1.11 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -3791,6 +3791,7 @@
         <div id="blueprintView" style="display:none;"></div>
         <div id="consentView" style="display:none;"></div>
         <div id="settingsView" style="display:none;"></div>
+        <div id="adminView" style="display:none;"></div>
     </div>
 
     <!-- App Footer / Attribution -->
@@ -4465,7 +4466,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.10 - BUILD 20260220-s14
+        // BLUEPRINT v4.25.1.11 - BUILD 20260220-s14
+        var BP_VERSION = 'v4.25.1.11';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -4480,7 +4482,7 @@
         // Samples default to Network view + scroll-to-top on all view switches
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   BLUEPRINT v4.25.1.10                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Build: 20260220-find-jobs                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -5256,103 +5258,380 @@
 
         // ===== ADMIN PANEL =====
         function showAdminPanel() {
-            if (!fbIsAdmin || !fbDb) {
+            if (!fbIsAdmin) {
                 showToast('Admin access required.', 'error');
                 return;
             }
+            switchView('admin');
+        }
+        window.showAdminPanel = showAdminPanel;
+        
+        var adminSubTab = 'overview';
+        
+        function switchAdminTab(tab) {
+            adminSubTab = tab;
+            renderAdminTabContent();
+            // Update tab active states
+            document.querySelectorAll('.admin-tab').forEach(function(t) {
+                var isActive = t.dataset.tab === tab;
+                t.style.background = isActive ? 'var(--accent)' : 'transparent';
+                t.style.color = isActive ? '#fff' : 'var(--text-secondary)';
+            });
+        }
+        window.switchAdminTab = switchAdminTab;
+        
+        function initAdminView() {
+            var view = document.getElementById('adminView');
+            if (!view) return;
             
-            var modal = document.getElementById('exportModal');
-            var modalContent = modal.querySelector('.modal-content');
+            var authName = fbUser ? (fbUser.displayName || fbUser.email) : 'Admin';
             
-            modalContent.innerHTML = '<div class="modal-header">'
-                + '<div class="modal-header-left"><h2 class="modal-title">\uD83D\uDC51 Admin Dashboard</h2></div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
-                + '</div>'
-                + '<div class="modal-body" style="padding:24px;">'
-                + '<div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">'
-                + '<button onclick="closeExportModal(); openBulkImport();" style="padding:10px 20px; background:linear-gradient(135deg,#8b5cf6,#7c3aed); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
-                + bpIcon('upload',14) + ' Bulk Import Skills</button>'
-                + '<button onclick="closeExportModal(); openBulkManager();" style="padding:10px 20px; background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
-                + bpIcon('edit',14) + ' Bulk Edit / Remove</button>'
+            view.innerHTML = '<div style="max-width:1200px; margin:0 auto; padding:32px 24px 80px;">'
+                // Header
+                + '<div style="text-align:center; margin-bottom:32px;">'
+                + '<h1 style="font-family:Outfit,sans-serif; font-size:2em; font-weight:700; color:#fbbf24; letter-spacing:0.1em; text-transform:uppercase; margin:0;">'
+                + '\uD83D\uDC51 Admin Dashboard</h1>'
+                + '<p style="color:var(--text-muted); margin-top:6px;">Signed in as <strong style="color:var(--text-primary);">' + authName + '</strong></p>'
                 + '</div>'
                 
-                // Evidence Threshold Configuration
-                + '<div style="margin-bottom:24px; padding:20px; background:' + tv('rgba(16,185,129,0.06)','rgba(16,185,129,0.04)') + '; border:1px solid ' + tv('rgba(16,185,129,0.2)','rgba(16,185,129,0.12)') + '; border-radius:10px;">'
-                + '<div style="font-weight:700; color:' + tv('#10b981','#059669') + '; margin-bottom:12px; font-size:0.95em;">\uD83C\uDFAF Evidence Threshold Configuration</div>'
-                + '<div style="font-size:0.82em; color:' + tv('#9ca3af','#64748b') + '; margin-bottom:16px;">Points required for each effective level. Quality outcomes earn 1-5 points each. Adjust these to change how evidence maps to levels.</div>'
-                + '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">'
-                + ['Competent','Proficient','Advanced','Expert','Mastery'].map(function(level) {
-                    return '<div style="display:flex; flex-direction:column; gap:4px;">'
-                        + '<label style="font-size:0.78em; color:' + tv('#d1d5db','#334155') + '; font-weight:600;">' + level + '</label>'
-                        + '<input type="number" id="threshold_' + level + '" value="' + evidenceConfig.thresholds[level] + '" min="1" max="50" '
-                        + 'style="width:100%; padding:6px 10px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; border:1px solid ' + tv('rgba(255,255,255,0.15)','#d1d5db') + '; border-radius:6px; color:' + tv('#e0e0e0','#1f2937') + '; font-size:0.9em; text-align:center;">'
-                        + '</div>';
-                }).join('')
-                + '</div>'
-                + '<div style="display:flex; gap:10px; margin-top:14px; align-items:center;">'
-                + '<div style="flex:1;">'
-                + '<label style="font-size:0.78em; color:' + tv('#d1d5db','#334155') + '; font-weight:600;">Cert Floor</label>'
-                + '<select id="threshold_certFloor" style="width:100%; padding:6px 10px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; border:1px solid ' + tv('rgba(255,255,255,0.15)','#d1d5db') + '; border-radius:6px; color:' + tv('#e0e0e0','#1f2937') + '; font-size:0.88em;">'
-                + ['Novice','Competent','Proficient','Advanced'].map(function(l) { return '<option value="' + l + '"' + (evidenceConfig.certFloor === l ? ' selected' : '') + '>' + l + '</option>'; }).join('')
-                + '</select></div>'
-                + '<div style="flex:1;">'
-                + '<label style="font-size:0.78em; color:' + tv('#d1d5db','#334155') + '; font-weight:600;">Verification Multiplier</label>'
-                + '<input type="number" id="threshold_verifyMult" value="' + evidenceConfig.verificationMultiplier + '" min="1" max="3" step="0.1" '
-                + 'style="width:100%; padding:6px 10px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; border:1px solid ' + tv('rgba(255,255,255,0.15)','#d1d5db') + '; border-radius:6px; color:' + tv('#e0e0e0','#1f2937') + '; font-size:0.9em; text-align:center;">'
-                + '</div>'
-                + '</div>'
-                + '<div style="display:flex; gap:10px; margin-top:14px;">'
-                + '<button onclick="saveAdminThresholds()" style="padding:8px 18px; background:#10b981; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85em;">Save Thresholds</button>'
-                + '<button onclick="resetAdminThresholds()" style="padding:8px 18px; background:transparent; color:' + tv('#9ca3af','#64748b') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','#d1d5db') + '; border-radius:6px; cursor:pointer; font-size:0.85em;">Reset Defaults</button>'
-                + '</div>'
+                // Tabs
+                + '<div style="display:flex; gap:2px; margin-bottom:24px; background:' + tv('rgba(255,255,255,0.05)','rgba(0,0,0,0.04)') + '; border-radius:10px; padding:4px; flex-wrap:wrap;">'
+                + '<button class="admin-tab active" data-tab="overview" onclick="switchAdminTab(\'overview\')" style="flex:1; min-width:100px; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; background:var(--accent); color:#fff; transition:all 0.2s;">' + bpIcon('blueprint',14) + ' Overview</button>'
+                + '<button class="admin-tab" data-tab="users" onclick="switchAdminTab(\'users\')" style="flex:1; min-width:100px; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('users',14) + ' Users</button>'
+                + '<button class="admin-tab" data-tab="samples" onclick="switchAdminTab(\'samples\')" style="flex:1; min-width:100px; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('skills',14) + ' Samples</button>'
+                + '<button class="admin-tab" data-tab="waitlist" onclick="switchAdminTab(\'waitlist\')" style="flex:1; min-width:100px; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('target',14) + ' Waitlist</button>'
+                + '<button class="admin-tab" data-tab="config" onclick="switchAdminTab(\'config\')" style="flex:1; min-width:100px; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('settings',14) + ' Config</button>'
                 + '</div>'
                 
-                + '<div style="display:flex; gap:2px; margin-bottom:16px; background:' + tv('rgba(255,255,255,0.05)','rgba(0,0,0,0.04)') + '; border-radius:8px; padding:3px;">'
-                + '<button onclick="document.getElementById(\'adminContent\').style.display=\'block\'; document.getElementById(\'adminWaitlistContent\').style.display=\'none\'; this.style.background=\'var(--accent)\'; this.style.color=\'#fff\'; this.nextElementSibling.style.background=\'transparent\'; this.nextElementSibling.style.color=\'var(--text-secondary)\';" style="flex:1; padding:8px 16px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85em; background:var(--accent); color:#fff;">Users</button>'
-                + '<button onclick="document.getElementById(\'adminWaitlistContent\').style.display=\'block\'; document.getElementById(\'adminContent\').style.display=\'none\'; this.style.background=\'var(--accent)\'; this.style.color=\'#fff\'; this.previousElementSibling.style.background=\'transparent\'; this.previousElementSibling.style.color=\'var(--text-secondary)\'; loadAdminWaitlist();" style="flex:1; padding:8px 16px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary);">Waitlist</button>'
-                + '</div>'
-                + '<div id="adminContent" style="color:' + tv('#d1d5db','#334155') + ';">Loading users...</div>'
-                + '<div id="adminWaitlistContent" style="color:' + tv('#d1d5db','#334155') + '; display:none;">Loading waitlist...</div>'
+                // Content area
+                + '<div id="adminTabContent"></div>'
                 + '</div>';
             
-            history.pushState({ modal: true }, ''); modal.classList.add('active');
+            renderAdminTabContent();
+        }
+        window.initAdminView = initAdminView;
+        
+        function renderAdminTabContent() {
+            var el = document.getElementById('adminTabContent');
+            if (!el) return;
             
-            // Fetch all users
+            if (adminSubTab === 'overview') renderAdminOverview(el);
+            else if (adminSubTab === 'users') renderAdminUsers(el);
+            else if (adminSubTab === 'samples') renderAdminSamples(el);
+            else if (adminSubTab === 'waitlist') renderAdminWaitlist(el);
+            else if (adminSubTab === 'config') renderAdminConfig(el);
+        }
+        
+        function renderAdminOverview(el) {
+            var manifest = window.profilesManifest;
+            var sampleCount = manifest && manifest.profiles ? manifest.profiles.filter(function(p) { return p.enabled; }).length : 0;
+            var skillLibCount = window.onetSkillsLibrary ? (window.onetSkillsLibrary.skills || []).length : 0;
+            var abilitiesCount = window.onetAbilitiesLibrary ? (window.onetAbilitiesLibrary.abilities || []).length : 0;
+            var wsCount = window.onetWorkStylesLibrary ? (window.onetWorkStylesLibrary.workStyles || []).length : 0;
+            var knowledgeCount = window.onetKnowledgeLibrary ? (window.onetKnowledgeLibrary.knowledge || []).length : 0;
+            var activitiesCount = window.onetWorkActivitiesLibrary ? (window.onetWorkActivitiesLibrary.activities || []).length : 0;
+            var tradesCount = window.tradesCreativeLibrary ? (window.tradesCreativeLibrary.count || 0) : 0;
+            var valuesCount = (typeof valuesLibrary !== 'undefined') ? valuesLibrary.length : 0;
+            var blsLoaded = window.blsWages ? (window.blsWages.count + ' occupations') : 'Not loaded';
+            
+            var html = '';
+            
+            // Stats cards row
+            html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:28px;">';
+            
+            var cards = [
+                { label: 'App Version', value: BP_VERSION, color: '#60a5fa' },
+                { label: 'App Mode', value: appMode || 'unknown', color: '#fbbf24' },
+                { label: 'Sample Profiles', value: sampleCount, color: '#8b5cf6' },
+                { label: 'Firebase', value: fbDb ? 'Connected' : 'Offline', color: fbDb ? '#10b981' : '#ef4444' },
+                { label: 'Admin UID', value: fbUser ? fbUser.uid.substring(0,12) + '...' : 'N/A', color: '#6b7280' }
+            ];
+            
+            cards.forEach(function(c) {
+                html += '<div style="padding:18px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; '
+                    + 'border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:10px;">'
+                    + '<div style="font-size:0.75em; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); margin-bottom:6px;">' + c.label + '</div>'
+                    + '<div style="font-size:1.3em; font-weight:700; color:' + c.color + ';">' + c.value + '</div>'
+                    + '</div>';
+            });
+            html += '</div>';
+            
+            // Data libraries section
+            html += '<div style="padding:20px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; '
+                + 'border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:10px; margin-bottom:20px;">'
+                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 16px; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">Data Libraries</h3>'
+                + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">';
+            
+            var libs = [
+                { name: 'O*NET Skills', count: skillLibCount, loaded: skillLibCount > 0 },
+                { name: 'O*NET Abilities', count: abilitiesCount, loaded: abilitiesCount > 0 },
+                { name: 'Work Styles', count: wsCount, loaded: wsCount > 0 },
+                { name: 'Knowledge', count: knowledgeCount, loaded: knowledgeCount > 0 },
+                { name: 'Work Activities', count: activitiesCount, loaded: activitiesCount > 0 },
+                { name: 'Trades & Creative', count: tradesCount, loaded: tradesCount > 0 },
+                { name: 'Values', count: valuesCount, loaded: valuesCount > 0 },
+                { name: 'BLS Wages', count: blsLoaded, loaded: !!window.blsWages }
+            ];
+            
+            libs.forEach(function(lib) {
+                html += '<div style="display:flex; align-items:center; gap:8px; font-size:0.88em;">'
+                    + '<span style="color:' + (lib.loaded ? '#10b981' : '#ef4444') + ';">' + (lib.loaded ? '\u2713' : '\u2717') + '</span>'
+                    + '<span style="color:var(--text-secondary);">' + lib.name + '</span>'
+                    + '<span style="color:var(--text-muted); margin-left:auto;">' + lib.count + '</span>'
+                    + '</div>';
+            });
+            
+            html += '</div></div>';
+            
+            // Quick actions
+            html += '<div style="padding:20px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; '
+                + 'border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:10px;">'
+                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 16px; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">Quick Actions</h3>'
+                + '<div style="display:flex; gap:10px; flex-wrap:wrap;">'
+                + '<button onclick="switchView(\'blueprint\')" style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('blueprint',14) + ' My Blueprint</button>'
+                + '<button onclick="switchAdminTab(\'users\')" style="padding:10px 20px; background:linear-gradient(135deg,#8b5cf6,#7c3aed); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('users',14) + ' Manage Users</button>'
+                + '<button onclick="switchAdminTab(\'samples\')" style="padding:10px 20px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('skills',14) + ' Edit Samples</button>'
+                + '<button onclick="switchView(\'welcome\')" style="padding:10px 20px; background:transparent; border:1px solid var(--border); color:var(--text-secondary); border-radius:8px; cursor:pointer; font-size:0.88em;">' + bpIcon('home',14) + ' View Welcome Page</button>'
+                + '</div></div>';
+            
+            el.innerHTML = html;
+        }
+        
+        function renderAdminUsers(el) {
+            if (!fbDb) { el.innerHTML = '<div style="color:#ef4444;">Firebase not connected.</div>'; return; }
+            
+            el.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Loading users...</div>';
+            
             fbDb.collection('users').orderBy('lastLogin', 'desc').get()
                 .then(function(snapshot) {
-                    var html = '<div style="margin-bottom:16px; font-size:0.9em; color:' + tv('#9ca3af','#64748b') + ';">'
-                        + snapshot.size + ' registered users</div>';
+                    var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">'
+                        + '<div>'
+                        + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1.1em; letter-spacing:0.06em; text-transform:uppercase;">Registered Users</h3>'
+                        + '<p style="color:var(--text-muted); font-size:0.85em; margin-top:4px;">' + snapshot.size + ' total accounts</p>'
+                        + '</div>'
+                        + '</div>';
                     
                     html += '<div style="display:grid; gap:10px;">';
                     snapshot.forEach(function(doc) {
                         var d = doc.data();
                         var skillCount = d.skills ? d.skills.length : 0;
-                        var lastLogin = d.lastLogin ? new Date(d.lastLogin.seconds * 1000).toLocaleDateString() : 'Never';
+                        var outcomeCount = d.values ? d.values.length : 0;
+                        var jobCount = d.savedJobs ? d.savedJobs.length : 0;
+                        var lastLogin = d.lastLogin ? new Date(d.lastLogin.seconds * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Never';
+                        var created = d.createdAt ? new Date(d.createdAt.seconds * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '?';
                         var isAdmin = d.role === 'admin';
+                        var isCurrentUser = fbUser && doc.id === fbUser.uid;
                         
-                        html += '<div style="padding:14px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; '
-                            + 'border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:8px;">'
-                            + '<div style="display:flex; justify-content:space-between; align-items:center;">'
-                            + '<div>'
-                            + '<strong style="color:' + tv('#e0e0e0','#1e293b') + ';">' + (d.displayName || d.email || doc.id) + '</strong>'
-                            + (isAdmin ? ' <span class="admin-badge">ADMIN</span>' : '')
-                            + '<div style="font-size:0.82em; color:' + tv('#9ca3af','#64748b') + ';">'
-                            + (d.email || '') + '</div>'
+                        html += '<div style="padding:16px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; '
+                            + 'border:1px solid ' + (isCurrentUser ? 'var(--accent)' : tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)')) + '; border-radius:10px;'
+                            + (isCurrentUser ? ' box-shadow:0 0 0 1px var(--accent);' : '') + '">'
+                            + '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">'
+                            + '<div style="flex:1; min-width:200px;">'
+                            + '<div style="display:flex; align-items:center; gap:8px;">'
+                            + '<strong style="color:var(--text-primary); font-size:1.05em;">' + (d.displayName || d.email || doc.id) + '</strong>'
+                            + (isAdmin ? ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:rgba(251,191,36,0.15); color:#fbbf24; font-weight:700;">ADMIN</span>' : '')
+                            + (isCurrentUser ? ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:rgba(96,165,250,0.15); color:#60a5fa; font-weight:600;">YOU</span>' : '')
                             + '</div>'
-                            + '<div style="text-align:right; font-size:0.82em; color:' + tv('#9ca3af','#64748b') + ';">'
-                            + skillCount + ' skills<br>Last: ' + lastLogin
+                            + '<div style="font-size:0.82em; color:var(--text-muted); margin-top:2px;">' + (d.email || '') + '</div>'
+                            + '<div style="font-size:0.78em; color:var(--text-muted); margin-top:4px;">Joined ' + created + '</div>'
+                            + '</div>'
+                            + '<div style="display:flex; gap:20px; font-size:0.85em; color:var(--text-muted);">'
+                            + '<div style="text-align:center;"><div style="font-weight:700; color:var(--text-primary); font-size:1.2em;">' + skillCount + '</div>skills</div>'
+                            + '<div style="text-align:center;"><div style="font-weight:700; color:var(--text-primary); font-size:1.2em;">' + outcomeCount + '</div>outcomes</div>'
+                            + '<div style="text-align:center;"><div style="font-weight:700; color:var(--text-primary); font-size:1.2em;">' + jobCount + '</div>jobs</div>'
+                            + '<div style="text-align:center;"><div style="font-size:0.82em;">Last login</div><div style="font-weight:600; color:var(--text-secondary);">' + lastLogin + '</div></div>'
                             + '</div>'
                             + '</div></div>';
                     });
                     html += '</div>';
                     
-                    document.getElementById('adminContent').innerHTML = html;
+                    el.innerHTML = html;
                 })
                 .catch(function(err) {
-                    document.getElementById('adminContent').innerHTML = '<div style="color:#ef4444;">Error loading users: ' + err.message + '</div>';
+                    el.innerHTML = '<div style="color:#ef4444;">Error loading users: ' + err.message + '</div>';
                 });
         }
-        window.showAdminPanel = showAdminPanel;
+        
+        function renderAdminSamples(el) {
+            var manifest = window.profilesManifest;
+            var profiles = manifest && manifest.profiles ? manifest.profiles : [];
+            
+            var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">'
+                + '<div>'
+                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1.1em; letter-spacing:0.06em; text-transform:uppercase;">Sample Profiles</h3>'
+                + '<p style="color:var(--text-muted); font-size:0.85em; margin-top:4px;">' + profiles.length + ' profiles in manifest</p>'
+                + '</div>'
+                + '</div>';
+            
+            html += '<div style="display:grid; gap:12px;">';
+            profiles.forEach(function(p) {
+                var template = templates[p.id];
+                var skillCount = template && template.skills ? template.skills.length : '?';
+                var outcomeCount = template && template.values ? template.values.length : '?';
+                var initials = p.name.split(' ').map(function(w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
+                
+                html += '<div style="padding:18px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; '
+                    + 'border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:10px;'
+                    + (!p.enabled ? ' opacity:0.5;' : '') + '">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">'
+                    + '<div style="display:flex; align-items:center; gap:14px; flex:1;">'
+                    + '<div style="width:44px; height:44px; border-radius:50%; background:var(--accent); color:#fff; '
+                    + 'display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1em; flex-shrink:0;">'
+                    + initials + '</div>'
+                    + '<div>'
+                    + '<div style="font-weight:700; color:var(--text-primary); font-size:1.05em;">' + p.name + '</div>'
+                    + '<div style="font-size:0.85em; color:var(--text-muted);">' + (p.title || 'No title') + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--text-muted); margin-top:3px;">' + (p.description || '') + '</div>'
+                    + '</div></div>'
+                    + '<div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">'
+                    + '<div style="display:flex; gap:16px; font-size:0.85em; color:var(--text-muted);">'
+                    + '<span>' + skillCount + ' skills</span>'
+                    + '<span>' + outcomeCount + ' outcomes</span>'
+                    + '</div>'
+                    + '<div style="display:flex; gap:6px;">'
+                    + '<button onclick="switchProfile(\'' + p.id + '\'); switchView(\'blueprint\');" style="padding:6px 14px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.82em; font-weight:600;">View</button>'
+                    + '<span style="padding:6px 12px; border-radius:6px; font-size:0.78em; font-weight:600; '
+                    + 'background:' + (p.enabled ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)') + '; '
+                    + 'color:' + (p.enabled ? '#10b981' : '#ef4444') + ';">' + (p.enabled ? 'Enabled' : 'Disabled') + '</span>'
+                    + '</div>'
+                    + '</div></div>'
+                    + '<div style="margin-top:10px; font-size:0.75em; color:var(--text-muted);">ID: ' + p.id + ' \u00B7 Path: ' + p.path + '</div>'
+                    + '</div>';
+            });
+            html += '</div>';
+            
+            el.innerHTML = html;
+        }
+        
+        function renderAdminWaitlist(el) {
+            if (!fbDb) { el.innerHTML = '<div style="color:#ef4444;">Firebase not connected.</div>'; return; }
+            
+            el.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Loading waitlist...</div>';
+            
+            fbDb.collection('waitlist').orderBy('createdAt', 'desc').get().then(function(snapshot) {
+                var waiting = [];
+                var invited = [];
+                
+                snapshot.forEach(function(doc) {
+                    var d = doc.data();
+                    d._id = doc.id;
+                    if (d.status === 'invited') invited.push(d);
+                    else waiting.push(d);
+                });
+                
+                var html = '';
+                
+                // Summary cards
+                html += '<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-bottom:24px;">';
+                html += '<div style="padding:18px; background:' + tv('rgba(96,165,250,0.1)','rgba(59,130,246,0.06)') + '; border-radius:10px; text-align:center;">'
+                    + '<div style="font-size:1.8em; font-weight:700; color:#60a5fa;">' + (waiting.length + invited.length) + '</div>'
+                    + '<div style="font-size:0.82em; color:var(--text-muted);">Total</div></div>';
+                html += '<div style="padding:18px; background:' + tv('rgba(251,191,36,0.1)','rgba(245,158,11,0.06)') + '; border-radius:10px; text-align:center;">'
+                    + '<div style="font-size:1.8em; font-weight:700; color:#fbbf24;">' + waiting.length + '</div>'
+                    + '<div style="font-size:0.82em; color:var(--text-muted);">Waiting</div></div>';
+                html += '<div style="padding:18px; background:' + tv('rgba(16,185,129,0.1)','rgba(16,185,129,0.06)') + '; border-radius:10px; text-align:center;">'
+                    + '<div style="font-size:1.8em; font-weight:700; color:#10b981;">' + invited.length + '</div>'
+                    + '<div style="font-size:0.82em; color:var(--text-muted);">Invited</div></div>';
+                html += '</div>';
+                
+                // Waiting list
+                if (waiting.length > 0) {
+                    html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
+                        + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em;">Waiting (' + waiting.length + ')</h3>'
+                        + '<button onclick="bulkInviteWaitlist()" style="padding:8px 18px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Invite All</button>'
+                        + '</div>';
+                    
+                    html += '<div style="display:grid; gap:8px; margin-bottom:24px;">';
+                    waiting.forEach(function(user) {
+                        var created = user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '?';
+                        html += '<div style="padding:14px 16px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; '
+                            + 'border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">'
+                            + '<div>'
+                            + '<strong style="color:var(--text-primary);">' + (user.name || 'Anonymous') + '</strong>'
+                            + ' <span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:' + tv('rgba(251,191,36,0.15)','rgba(245,158,11,0.1)') + '; color:#fbbf24;">' + (user.type || 'individual') + '</span>'
+                            + '<div style="font-size:0.82em; color:var(--text-muted); margin-top:2px;">' + (user.email || '') + ' \u00B7 #' + (user.position || '?') + ' \u00B7 ' + created + '</div>'
+                            + '</div>'
+                            + '<button onclick="inviteWaitlistUser(\'' + user._id + '\', \'' + (user.name || '').replace(/'/g,"\\'") + '\'); setTimeout(function(){renderAdminWaitlist(document.getElementById(\'adminTabContent\'));}, 500);" '
+                            + 'style="padding:8px 16px; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap;">Invite</button>'
+                            + '</div>';
+                    });
+                    html += '</div>';
+                }
+                
+                // Invited list
+                if (invited.length > 0) {
+                    html += '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 12px; font-size:1em;">Invited (' + invited.length + ')</h3>';
+                    html += '<div style="display:grid; gap:6px;">';
+                    invited.forEach(function(user) {
+                        html += '<div style="padding:12px 16px; background:' + tv('rgba(16,185,129,0.06)','rgba(16,185,129,0.04)') + '; '
+                            + 'border:1px solid ' + tv('rgba(16,185,129,0.15)','rgba(16,185,129,0.1)') + '; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">'
+                            + '<div>'
+                            + '<strong style="color:var(--text-primary);">' + (user.name || 'Anonymous') + '</strong>'
+                            + ' <span style="font-size:0.72em; color:#10b981; font-weight:600;">\u2714 Invited</span>'
+                            + '<div style="font-size:0.82em; color:var(--text-muted); margin-top:2px;">' + (user.email || '') + '</div>'
+                            + '</div></div>';
+                    });
+                    html += '</div>';
+                }
+                
+                if (waiting.length === 0 && invited.length === 0) {
+                    html += '<div style="text-align:center; padding:40px; color:var(--text-muted);">No waitlist entries yet.</div>';
+                }
+                
+                el.innerHTML = html;
+            }).catch(function(err) {
+                el.innerHTML = '<div style="color:#ef4444;">Error: ' + err.message + '</div>';
+            });
+        }
+        
+        function renderAdminConfig(el) {
+            var html = '';
+            
+            // Evidence Threshold Configuration
+            html += '<div style="padding:20px; background:' + tv('rgba(16,185,129,0.06)','rgba(16,185,129,0.04)') + '; '
+                + 'border:1px solid ' + tv('rgba(16,185,129,0.2)','rgba(16,185,129,0.12)') + '; border-radius:10px; margin-bottom:20px;">'
+                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:#10b981; margin:0 0 8px; font-size:1em;">Evidence Threshold Configuration</h3>'
+                + '<p style="font-size:0.82em; color:var(--text-muted); margin-bottom:16px;">Points required for each effective level. Quality outcomes earn 1-5 points each.</p>'
+                + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px;">';
+            
+            ['Competent','Proficient','Advanced','Expert','Mastery'].forEach(function(level) {
+                html += '<div style="display:flex; flex-direction:column; gap:4px;">'
+                    + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600;">' + level + '</label>'
+                    + '<input type="number" id="threshold_' + level + '" value="' + evidenceConfig.thresholds[level] + '" min="1" max="50" '
+                    + 'style="width:100%; padding:8px 10px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; border:1px solid ' + tv('rgba(255,255,255,0.15)','#d1d5db') + '; border-radius:6px; color:var(--text-primary); font-size:0.9em; text-align:center;">'
+                    + '</div>';
+            });
+            
+            html += '</div>'
+                + '<div style="display:flex; gap:10px; margin-top:14px; align-items:center;">'
+                + '<div style="flex:1;">'
+                + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600;">Cert Floor</label>'
+                + '<select id="threshold_certFloor" style="width:100%; padding:8px 10px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; border:1px solid ' + tv('rgba(255,255,255,0.15)','#d1d5db') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em;">'
+                + ['Novice','Competent','Proficient','Advanced'].map(function(l) { return '<option value="' + l + '"' + (evidenceConfig.certFloor === l ? ' selected' : '') + '>' + l + '</option>'; }).join('')
+                + '</select></div>'
+                + '<div style="flex:1;">'
+                + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600;">Verification Multiplier</label>'
+                + '<input type="number" id="threshold_verifyMult" value="' + evidenceConfig.verificationMultiplier + '" min="1" max="3" step="0.1" '
+                + 'style="width:100%; padding:8px 10px; background:' + tv('rgba(0,0,0,0.2)','#fff') + '; border:1px solid ' + tv('rgba(255,255,255,0.15)','#d1d5db') + '; border-radius:6px; color:var(--text-primary); font-size:0.9em; text-align:center;">'
+                + '</div></div>'
+                + '<div style="display:flex; gap:10px; margin-top:16px;">'
+                + '<button onclick="saveAdminThresholds()" style="padding:10px 20px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">Save Thresholds</button>'
+                + '<button onclick="resetAdminThresholds()" style="padding:10px 20px; background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:8px; cursor:pointer; font-size:0.88em;">Reset Defaults</button>'
+                + '</div></div>';
+            
+            // Bulk skill tools
+            html += '<div style="padding:20px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; '
+                + 'border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:10px;">'
+                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 12px; font-size:1em;">Bulk Skill Tools</h3>'
+                + '<div style="display:flex; gap:10px; flex-wrap:wrap;">'
+                + '<button onclick="openBulkImport();" style="padding:10px 20px; background:linear-gradient(135deg,#8b5cf6,#7c3aed); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">'
+                + bpIcon('upload',14) + ' Bulk Import Skills</button>'
+                + '<button onclick="openBulkManager();" style="padding:10px 20px; background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">'
+                + bpIcon('edit',14) + ' Bulk Edit / Remove</button>'
+                + '</div></div>';
+            
+            el.innerHTML = html;
+        }
         
         function saveAdminThresholds() {
             ['Competent','Proficient','Advanced','Expert','Mastery'].forEach(function(level) {
@@ -8163,14 +8442,15 @@
                     var loaded = await loadUserFromFirestore(fbUser.uid);
                     if (loaded) {
                         console.log('☁ Firestore profile applied for', fbUser.displayName || fbUser.email);
-                        targetView = 'blueprint';
+                        targetView = fbIsAdmin ? 'admin' : 'blueprint';
                     } else {
-                        // New user with no Firestore data yet — show welcome
-                        console.log('ℹ️ No Firestore data for signed-in user, showing welcome');
-                        targetView = 'welcome';
+                        // New user with no Firestore data yet
+                        console.log('ℹ️ No Firestore data for signed-in user');
+                        targetView = fbIsAdmin ? 'admin' : 'welcome';
                     }
                 } catch(e) {
                     console.warn('Firestore load failed:', e);
+                    if (fbIsAdmin) targetView = 'admin';
                 }
                 checkReadOnly();
             }
@@ -10420,6 +10700,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Navigate to the target view
             if (targetView === 'welcome') {
                 switchView('welcome');
+            } else if (targetView === 'admin') {
+                switchView('admin');
             } else if (targetView === 'blueprint') {
                 switchView('blueprint');
             } else {
@@ -10527,12 +10809,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             document.getElementById('blueprintView').style.display = 'none';
             document.getElementById('consentView').style.display = 'none';
             document.getElementById('settingsView').style.display = 'none';
+            var adminV = document.getElementById('adminView');
+            if (adminV) adminV.style.display = 'none';
             networkControls.style.display = 'none';
             controls.style.display = 'none';
             
             // Hide readonly banner on non-profile views
             var roBanner = document.getElementById('readonlyBanner');
-            if (roBanner && (view === 'welcome' || view === 'consent' || view === 'settings')) {
+            if (roBanner && (view === 'welcome' || view === 'consent' || view === 'settings' || view === 'admin')) {
                 roBanner.style.display = 'none';
             }
             
@@ -10635,6 +10919,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     window.settingsInitialized = true;
                 }
                 updateStatsBar();
+            } else if (view === 'admin') {
+                var av = document.getElementById('adminView');
+                if (av) {
+                    av.style.display = 'block';
+                    initAdminView();
+                }
             }
         }
         
@@ -23149,7 +23439,7 @@ body {
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2 class="modal-title">Blueprint</h2>
-                        <p style="color: #9ca3af; margin-top: 5px;">v4.25.1.10 · Your career, fully represented</p>
+                        <p style="color: #9ca3af; margin-top: 5px;">${BP_VERSION} · Your career, fully represented</p>
                     </div>
                     <button class="modal-close" onclick="closeExportModal()">×</button>
                 </div>
