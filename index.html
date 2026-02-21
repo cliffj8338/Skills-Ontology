@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.27 | 20260220 | Block all import functions in demo/read-only mode -->
+    <!-- v4.25.1.28 | 20260220 | Comprehensive read-only lockdown: 65 guards, CSS blocklist, hide JSON export -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -3442,6 +3442,33 @@
         .readonly-mode [onclick*="importFileInput"],
         .readonly-mode [onclick*="openBulkImport"],
         .readonly-mode [onclick*="wizardChooseImport"],
+        .readonly-mode [onclick*="wizardChooseUpload"],
+        .readonly-mode [onclick*="wizardChooseManual"],
+        .readonly-mode [onclick*="addOutcome"],
+        .readonly-mode [onclick*="editOutcome"],
+        .readonly-mode [onclick*="deleteBlueprint"],
+        .readonly-mode [onclick*="addCustomOutcome"],
+        .readonly-mode [onclick*="saveOutcome"],
+        .readonly-mode [onclick*="toggleValue("],
+        .readonly-mode [onclick*="saveValues"],
+        .readonly-mode [onclick*="updatePurpose"],
+        .readonly-mode [onclick*="editWorkHistory"],
+        .readonly-mode [onclick*="removeWorkHistory"],
+        .readonly-mode [onclick*="addWorkHistory"],
+        .readonly-mode [onclick*="editEducation"],
+        .readonly-mode [onclick*="removeEducation"],
+        .readonly-mode [onclick*="addEducation"],
+        .readonly-mode [onclick*="editCert"],
+        .readonly-mode [onclick*="removeCert"],
+        .readonly-mode [onclick*="addCert"],
+        .readonly-mode [onclick*="showAddJobModal"],
+        .readonly-mode [onclick*="quickAddGap"],
+        .readonly-mode [onclick*="quickAddSuggested"],
+        .readonly-mode [onclick*="exportBlueprint('json')"],
+        .readonly-mode [onclick*="exportMyData"],
+        .readonly-mode [onclick*="requestDataDeletion"],
+        .readonly-mode [onclick*="saveProfile"],
+        .readonly-mode [onclick*="savePreferences"],
         .readonly-mode [onchange*="importFullProfile"],
         .readonly-mode [onchange*="wizardImportProfile"] { opacity: 0.35; pointer-events: none; }
         
@@ -4481,8 +4508,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.27 - BUILD 20260220-s17
-        var BP_VERSION = 'v4.25.1.27';
+        // BLUEPRINT v4.25.1.28 - BUILD 20260220-s17
+        var BP_VERSION = 'v4.25.1.28';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -5187,6 +5214,7 @@
 
         // ===== GDPR DATA FUNCTIONS =====
         function exportMyData() {
+            if (readOnlyGuard()) return;
             if (!fbDb || !fbUser) {
                 showToast('You must be signed in to export your data.', 'warning');
                 return;
@@ -5216,6 +5244,7 @@
         window.exportMyData = exportMyData;
 
         function requestDataDeletion() {
+            if (readOnlyGuard()) return;
             if (!fbDb || !fbUser) {
                 showToast('You must be signed in to request deletion.', 'warning');
                 return;
@@ -7444,6 +7473,7 @@
         loadEvidenceConfig();
         
         function saveEvidenceConfig() {
+            if (readOnlyGuard()) return;
             try {
                 safeSet('wbEvidenceConfig', JSON.stringify(evidenceConfig));
             } catch (e) { /* quota */ }
@@ -7934,6 +7964,7 @@
         }
         
         function saveOutcomeForm(skillName, idx) {
+            if (readOnlyGuard()) return;
             var result = (document.getElementById('outcomeResult') || {}).value.trim();
             var desc = (document.getElementById('outcomeDescription') || {}).value.trim();
             
@@ -9006,6 +9037,7 @@
         };
 
         function showOnboardingWizard() {
+            if (readOnlyGuard()) return;
             if (demoGate('Build Your Blueprint')) return;
             // Remove any existing wizard
             const existing = document.getElementById('onboardingWizard');
@@ -9592,6 +9624,7 @@ ${wizardState.resumeText}` }]
         }
 
         function wizardSaveProfile() {
+            if (readOnlyGuard()) return;
             wizardState.profile = {
                 name: document.getElementById('wizardName')?.value?.trim() || '',
                 currentTitle: document.getElementById('wizardTitle')?.value?.trim() || '',
@@ -9671,6 +9704,7 @@ ${wizardState.resumeText}` }]
         }
 
         function wizardSaveSkills() {
+            if (readOnlyGuard()) return;
             // Filter to only checked skills
             wizardState.skills = wizardState.skills.filter((s, i) => {
                 const cb = document.getElementById(`skill-check-${i}`);
@@ -9739,6 +9773,7 @@ ${wizardState.resumeText}` }]
         }
 
         function wizardToggleValue(i) {
+            if (readOnlyGuard()) return;
             wizardState.values[i].selected = !wizardState.values[i].selected;
             // Re-render step without full wizard rebuild
             const card = document.getElementById(`val-card-${i}`);
@@ -9759,6 +9794,7 @@ ${wizardState.resumeText}` }]
         }
 
         function wizardSaveValues() {
+            if (readOnlyGuard()) return;
             wizardNext();
         }
 
@@ -9812,6 +9848,7 @@ ${wizardState.resumeText}` }]
         }
 
         async function wizardRegeneratePurpose() {
+            if (readOnlyGuard()) return;
             const btn = event.target.closest('button');
             if (btn) { btn.textContent = '⟳ Regenerating...'; btn.disabled = true; }
 
@@ -9849,6 +9886,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
 
         function wizardSavePurpose() {
+            if (readOnlyGuard()) return;
             wizardState.purpose = document.getElementById('wizardPurpose')?.value?.trim() || '';
             wizardNext();
         }
@@ -13043,6 +13081,7 @@ body {
         ];
 
         function saveValues() {
+            if (readOnlyGuard()) return;
             try {
                 safeSet('wbValues', JSON.stringify(blueprintData.values));
                 safeSet('wbPurpose', blueprintData.purpose || '');
@@ -13118,6 +13157,7 @@ body {
         }
         
         function editValueNote(idx) {
+            if (readOnlyGuard()) return;
             var value = blueprintData.values[idx];
             var currentNote = value.note || '';
             var modal = document.getElementById('exportModal');
@@ -13154,6 +13194,7 @@ body {
         window.editValueNote = editValueNote;
         
         function saveValueNote(idx) {
+            if (readOnlyGuard()) return;
             var noteEl = document.getElementById('valueNoteInput');
             if (!noteEl) return;
             blueprintData.values[idx].note = noteEl.value.trim();
@@ -14223,7 +14264,8 @@ body {
             
             html += '</div>'; // end Networking grid
             
-            // ── DATA & BACKUP ──
+            // ── DATA & BACKUP ── (hidden for sample profiles)
+            if (!isReadOnlyProfile) {
             html += sectionHead('json', 'Data & Backup');
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px;">';
             
@@ -14234,6 +14276,7 @@ body {
             });
             
             html += '</div>'; // end Data grid
+            }
             
             html += '</div>'; // close blueprint-section
             return html;
@@ -14259,6 +14302,7 @@ body {
         window.deleteBlueprintOutcome = deleteBlueprintOutcome;
         
         function editOutcome(idx) {
+            if (readOnlyGuard()) return;
             const outcome = blueprintData.outcomes[idx];
             const modal = document.getElementById('exportModal');
             const modalContent = modal.querySelector('.modal-content');
@@ -14354,6 +14398,7 @@ body {
         }
         
         function saveOutcomeEdit(idx) {
+            if (readOnlyGuard()) return;
             const newText = document.getElementById('editOutcomeText').value;
             const newCategory = document.getElementById('editOutcomeCategory').value;
             const newSensitive = document.getElementById('editOutcomeSensitive').checked;
@@ -14385,6 +14430,7 @@ body {
         }
         
         function addCustomOutcome() {
+            if (readOnlyGuard()) return;
             const modal = document.getElementById('exportModal');
             const modalContent = modal.querySelector('.modal-content');
             
@@ -14520,6 +14566,7 @@ body {
         }
         
         function saveCustomOutcome() {
+            if (readOnlyGuard()) return;
             const text = document.getElementById('customOutcomeText').value.trim();
             if (!text) {
                 showToast('Please enter an outcome description.', 'warning');
@@ -14553,6 +14600,7 @@ body {
         }
         
         function toggleValue(idx) {
+            if (readOnlyGuard()) return;
             blueprintData.values[idx].selected = !blueprintData.values[idx].selected;
             saveValues();
             refreshValuesUI();
@@ -14609,6 +14657,7 @@ body {
         window.pickValue = pickValue;
         
         function removeSelectedValue(idx) {
+            if (readOnlyGuard()) return;
             var value = blueprintData.values[idx];
             if (!value) return;
             blueprintData.values.splice(idx, 1);
@@ -14643,6 +14692,7 @@ body {
         window.hideAddValueForm = hideAddValueForm;
         
         function addCustomValue() {
+            if (readOnlyGuard()) return;
             var nameEl = document.getElementById('newValueName');
             var name = (nameEl ? nameEl.value : '').trim();
             
@@ -14692,6 +14742,7 @@ body {
         window.updatePurpose = updatePurpose;
         
         function updatePurpose(newPurpose) {
+            if (readOnlyGuard()) return;
             blueprintData.purpose = newPurpose;
             saveValues();
         }
@@ -14789,6 +14840,11 @@ body {
         window.generateScoutingReport = generateScoutingReport;
         
         function exportBlueprint(format) {
+            // Allow PDF exports on sample profiles (marketing showcase), block raw data exports
+            if (format === 'json' && isReadOnlyProfile) {
+                showToast('Data export is not available on sample profiles. Sign up to export your own Blueprint.', 'info');
+                return;
+            }
             logAnalyticsEvent('export_' + format, { format: format });
             var sharedData = {
                 profile: userData.profile || {},
@@ -17198,6 +17254,7 @@ body {
         // ===== ADD JOB MODAL =====
         
         function showAddJobModal() {
+            if (readOnlyGuard()) return;
             var modal = document.getElementById('exportModal');
             var mc = modal.querySelector('.modal-content');
             var savedKey = safeGet('wbAnthropicKey') || '';
@@ -18295,6 +18352,7 @@ body {
         window.quickAddGapSkill = quickAddGapSkill;
         
         function confirmQuickAddGapSkill(skillName, jobIdx) {
+            if (readOnlyGuard()) return;
             var level = 'Proficient';
             var checked = document.querySelector('input[name="gapSkillLevel"]:checked');
             if (checked) level = checked.value;
@@ -18581,6 +18639,7 @@ body {
         window.showJobDetail = showJobDetail;
         
         function removeJob(idx) {
+            if (readOnlyGuard()) return;
             var job = (userData.savedJobs || [])[idx];
             if (job && job.sample && !fbIsAdmin) { showToast('Demo jobs cannot be removed.', 'warning'); return; }
             if (!confirm('Remove this job from your pipeline?')) return;
@@ -18651,6 +18710,7 @@ body {
         window.editJobInfo = editJobInfo;
         
         function saveJobEdit(idx) {
+            if (readOnlyGuard()) return;
             var job = (userData.savedJobs || [])[idx];
             if (!job) return;
             
@@ -19918,6 +19978,7 @@ body {
         }
         
         function saveWorkHistoryFromModal(idx) {
+            if (readOnlyGuard()) return;
             var title = document.getElementById('whTitle').value.trim();
             var company = document.getElementById('whCompany').value.trim();
             if (!title || !company) { showToast('Title and company are required.', 'warning'); return; }
@@ -20002,6 +20063,7 @@ body {
         }
         
         function saveEducationFromModal(idx) {
+            if (readOnlyGuard()) return;
             var entry = {
                 id: idx >= 0 ? (userData.education[idx].id || 'ed-' + Date.now()) : 'ed-' + Date.now(),
                 school: document.getElementById('edSchool').value.trim(),
@@ -20250,6 +20312,7 @@ body {
         window.removeCertLinkedSkill = removeCertLinkedSkill;
         
         function saveCertFromModal(idx) {
+            if (readOnlyGuard()) return;
             var libCert = window._selectedLibCert || null;
             var entry = {
                 id: idx >= 0 ? (userData.certifications[idx].id || 'cert-' + Date.now()) : 'cert-' + Date.now(),
@@ -20800,6 +20863,7 @@ body {
         // This comment replaces duplicate/conflicting definitions that were removed in v3.5.2.
         
         function exportFullProfile() {
+            if (readOnlyGuard()) return;
             const fullData = {
                 userData: userData,
                 blueprintData: blueprintData,
@@ -20982,6 +21046,7 @@ body {
         }
         
         function addApplicationModal(jobData = null) {
+            if (readOnlyGuard()) return;
             const modal = document.getElementById('exportModal');
             const modalContent = modal.querySelector('.modal-content');
             
@@ -21063,6 +21128,7 @@ body {
         }
         
         function saveApplication() {
+            if (readOnlyGuard()) return;
             const title = document.getElementById('appTitle').value.trim();
             const company = document.getElementById('appCompany').value.trim();
             
@@ -21108,6 +21174,7 @@ body {
         }
         
         function editApplication(idx) {
+            if (readOnlyGuard()) return;
             const app = userData.applications[idx];
             const modal = document.getElementById('exportModal');
             const modalContent = modal.querySelector('.modal-content');
@@ -21163,6 +21230,7 @@ body {
         }
         
         function saveApplicationEdit(idx) {
+            if (readOnlyGuard()) return;
             userData.applications[idx].title = document.getElementById('editAppTitle').value;
             userData.applications[idx].company = document.getElementById('editAppCompany').value;
             userData.applications[idx].status = document.getElementById('editAppStatus').value;
@@ -23100,6 +23168,7 @@ body {
         window.updateEditSkillGapWarning = updateEditSkillGapWarning;
         
         function deleteSkillFromProfile(skillName) {
+            if (readOnlyGuard()) return;
             var idx = userData.skills.findIndex(function(s) { return s.name === skillName; });
             if (idx === -1) return;
             userData.skills.splice(idx, 1);
@@ -23113,6 +23182,7 @@ body {
         window.deleteSkillFromProfile = deleteSkillFromProfile;
         
         function saveSkillEdit() {
+            if (readOnlyGuard()) return;
             if (!currentEditingSkill) return;
             
             const skill = userData.skills.find(s => s.name === currentEditingSkill);
@@ -23311,6 +23381,7 @@ body {
         let currentSkillManagementTab = 'yours';
 
         function openSkillManagement() {
+            if (readOnlyGuard()) return;
             if (demoGate('Skill Library')) return;
             const modal = document.getElementById('skillManagementModal');
             history.pushState({ modal: true }, ''); modal.classList.add('active');
@@ -23496,6 +23567,7 @@ body {
         }
 
         function removeSkillFromProfile(skillName, category) {
+            if (readOnlyGuard()) return;
             if (!confirm(`Remove "${skillName}" from your profile?`)) return;
             
             const skillIndex = userData.skills.findIndex(s => s.name === skillName && s.category === category);
@@ -23801,6 +23873,7 @@ body {
         }
 
         function addSkillFromLibrary(skillId) {
+            if (readOnlyGuard()) return;
             // Find the skill across all libraries
             let skillName = null, category = 'skill', definition = '';
             
