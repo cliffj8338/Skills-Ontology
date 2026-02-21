@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.26.0.5 | 20260221 | Fix: null guards in openSkillModal for level, roles -->
+    <!-- v4.26.0.6 | 20260221 | Audit: remove 87 lines dead code, null guard d.level, clean debug logs -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -898,8 +898,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.26.0.5 - BUILD 20260221-s19
-        var BP_VERSION = 'v4.26.0.5';
+        // BLUEPRINT v4.26.0.6 - BUILD 20260221-s20
+        var BP_VERSION = 'v4.26.0.6';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -8240,7 +8240,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             node.classed('dimmed', d => {
                 if (d.type !== 'skill') return false;
-                return d.level.toLowerCase() !== activeLevel;
+                return (d.level || '').toLowerCase() !== activeLevel;
             });
         }
 
@@ -8500,15 +8500,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             const coreBadge = skillData.key ? '<span class="modal-core-badge">' + bpIcon('star',12) + ' CORE DIFFERENTIATOR</span>' : '';
             const details = skillsData.skillDetails[skillName] || {};
             
-            // DEBUG: Log evidence availability
-            console.log('=== EVIDENCE DEBUG ===');
-            console.log('Skill:', skillName);
-            console.log('skillData.evidence:', skillData.evidence);
-            console.log('details.evidence:', details.evidence);
-            
             // Get evidence from skill object if not in skillDetails
             const evidence = details.evidence || (skillData.evidence ? skillData.evidence.map(e => `${e.description}<br><strong>Outcome:</strong> ${e.outcome}`) : null);
-            console.log('Final evidence:', evidence);
             
             const years = details.years || skillData.yearsExperience || 'N/A';
             
@@ -11466,26 +11459,7 @@ body {
                 doc.setFont(undefined, 'normal');
             }
             
-            function bodyText(text, indent) {
-                indent = indent || 0;
-                doc.setFontSize(9);
-                setColor(C.text);
-                doc.setFont(undefined, 'normal');
-                var lines = doc.splitTextToSize(text, maxWidth - indent);
-                checkPage(lines.length * 4.2 + 2);
-                doc.text(lines, margin + indent, yPos);
-                yPos += lines.length * 4.2;
-            }
             
-            function drawPill(x, y, text, bgColor, textColor) {
-                doc.setFontSize(6);
-                var w = doc.getTextWidth(text) + 5;
-                setFill(bgColor);
-                doc.roundedRect(x, y - 3, w, 4.5, 2, 2, 'F');
-                doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-                doc.text(text, x + 2.5, y);
-                return w + 1.5;
-            }
             
             // ============================================================
             // PAGE 1: COVER
@@ -15689,38 +15663,11 @@ body {
         // [removed] generatePitch — dead code cleanup v4.22.0
         
         
-        function copyPitch() {
-            const pitchText = document.getElementById('pitchText');
-            pitchText.select();
-            document.execCommand('copy');
-            showToast('Pitch copied to clipboard.', 'success');
-        }
         
-        function downloadPitch(jobTitle, company) {
-            const pitchText = document.getElementById('pitchText').value;
-            const blob = new Blob([pitchText], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `pitch-${jobTitle.replace(/\s+/g, '-')}-${company.replace(/\s+/g, '-')}.txt`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
         
-        function trackFromPitch(jobId) {
-            const job = opportunitiesData.find(j => j.id == jobId);
-            if (!job) return;
-            
-            closeExportModal();
-            addApplicationModal(job);
-        }
         // [removed] viewOnNetwork — dead code cleanup v4.22.0
         
         
-        function returnToOpportunities() {
-            window.currentHighlightJob = null;
-            switchView('opportunities');
-        }
         
         // ===== SETTINGS SYSTEM =====
         
@@ -18337,13 +18284,6 @@ body {
         let currentONETTab = 'skills';
         let currentEditingSkill = null;
         
-        function openONETPicker() {
-            if (demoGate('O*NET Skill Explorer')) return;
-            const modal = document.getElementById('onetPickerModal');
-            history.pushState({ modal: true }, ''); modal.classList.add('active');
-            switchONETTab('skills');
-            updateONETSelectedCount(); // Initialize count display
-        }
         
         function closeONETPicker() {
             const modal = document.getElementById('onetPickerModal');
@@ -18609,25 +18549,6 @@ body {
             showToast(`Added ${onetSelectedSkills.length} skill${onetSelectedSkills.length > 1 ? 's' : ''}.`, 'success');
         }
         
-        function openCustomSkillBuilder() {
-            if (demoGate('Custom Skill Builder')) return;
-            const modal = document.getElementById('customSkillModal');
-            
-            // Populate roles checkboxes
-            const rolesContainer = document.getElementById('customSkillRoles');
-            rolesContainer.innerHTML = userData.roles.map(role => `
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                    <input type="checkbox" value="${role.id}" class="custom-skill-role-checkbox">
-                    <span>${role.name}</span>
-                </label>
-            `).join('');
-            
-            // Reset form
-            document.getElementById('customSkillName').value = '';
-            document.getElementById('customSkillCore').checked = false;
-            
-            history.pushState({ modal: true }, ''); modal.classList.add('active');
-        }
         
         function closeCustomSkillBuilder() {
             const modal = document.getElementById('customSkillModal');
@@ -19561,22 +19482,7 @@ body {
         
         // ===== UNIFIED SKILL MANAGEMENT SYSTEM (v2.4.0) =====
         
-        let currentSkillManagementTab = 'yours';
 
-        function openSkillManagement() {
-            if (readOnlyGuard()) return;
-            if (demoGate('Skill Library')) return;
-            const modal = document.getElementById('skillManagementModal');
-            history.pushState({ modal: true }, ''); modal.classList.add('active');
-            
-            if (!skillLibraryIndex || !skillLibraryIndex.index) {
-                loadSkillLibraryIndex();
-            }
-            
-            populateCategoryFilter();
-            updateSkillManagementCounts();
-            switchSkillManagementTab('yours');
-        }
 
         // Build category dropdown from actual skills in this profile — only show categories that exist
         window.populateCategoryFilter = function populateCategoryFilter() {
