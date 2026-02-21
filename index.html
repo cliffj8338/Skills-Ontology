@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.25 | 20260220 | Fix mobile: network skill filter fallback, role-link assignment, layout height -->
+    <!-- v4.25.1.26 | 20260220 | Fix card view null safety for skill.level and skill.roles -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4474,8 +4474,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.25 - BUILD 20260220-s17
-        var BP_VERSION = 'v4.25.1.25';
+        // BLUEPRINT v4.25.1.26 - BUILD 20260220-s17
+        var BP_VERSION = 'v4.25.1.26';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -11119,9 +11119,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 `;
                 
                 data.skills.forEach(skill => {
-                    const levelClass = skill.level.toLowerCase();
+                    const levelClass = (skill.level || 'proficient').toLowerCase();
                     const keyBadge = skill.key ? '<span class="skill-badge">CORE</span>' : '';
-                    const rolesList = skill.roles.map(roleId => {
+                    const rolesList = (skill.roles || []).map(roleId => {
                         const role = skillsData.roles.find(r => r.id === roleId);
                         return role ? role.name : roleId;
                     }).join(', ');
@@ -11164,7 +11164,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     
                     html += `
                         <div class="skill-item ${levelClass}" title="${rolesList}" onclick='openSkillModalFromCard("${skill.name.replace(/'/g, "\\'")}")' style="cursor: pointer;">
-                            <div class="skill-dot" style="background: ${levelColors[skill.level]}"></div>
+                            <div class="skill-dot" style="background: ${levelColors[skill.level] || '#6b7280'}"></div>
                             <span class="skill-name">${skill.name}</span>
                             ${categoryBadge}
                             ${yearsBadge}
