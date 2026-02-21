@@ -9,9 +9,18 @@
     "executiveSummary": "Former high school athlete turned retail professional who discovered unexpected leadership abilities during a series of extreme crisis events in Hawkins, Indiana. While his resume might look like standard retail experience, Steve has repeatedly demonstrated crisis leadership, protective instincts, and team coordination skills that belie his job title. Currently managing shifts at Family Video while serving as de facto team leader for an ad hoc crisis response group."
   },
   "roles": [
-    { "name": "Retail & Customer Service", "id": "retail" },
-    { "name": "Crisis Response", "id": "crisis" },
-    { "name": "Team Leadership", "id": "leadership" }
+    {
+      "name": "Retail & Customer Service",
+      "id": "retail"
+    },
+    {
+      "name": "Crisis Response",
+      "id": "crisis"
+    },
+    {
+      "name": "Team Leadership",
+      "id": "leadership"
+    }
   ],
   "skills": [
     {
@@ -19,10 +28,18 @@
       "level": "Proficient",
       "category": "skill",
       "key": true,
-      "roles": ["retail"],
+      "roles": [
+        "retail"
+      ],
       "evidence": [
-        { "outcome": "Maintained positive customer satisfaction ratings across two retail positions", "description": "Provided friendly, knowledgeable service at Scoops Ahoy and Family Video despite unconventional work disruptions" },
-        { "outcome": "Developed product knowledge enabling personalized movie recommendations at Family Video", "description": "Built expertise in film catalog to provide tailored recommendations driving repeat customer visits" }
+        {
+          "outcome": "Maintained positive customer satisfaction ratings across two retail positions",
+          "description": "Provided friendly, knowledgeable service at Scoops Ahoy and Family Video despite unconventional work disruptions"
+        },
+        {
+          "outcome": "Developed product knowledge enabling personalized movie recommendations at Family Video",
+          "description": "Built expertise in film catalog to provide tailored recommendations driving repeat customer visits"
+        }
       ]
     },
     {
@@ -30,10 +47,18 @@
       "level": "Advanced",
       "category": "skill",
       "key": true,
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Led civilian defense during 4 existential threat events with zero casualties among team members", "description": "Organized and directed untrained group of teenagers through situations that would challenge trained military personnel" },
-        { "outcome": "Coordinated tactical response at Starcourt Mall under extreme duress", "description": "Directed team movement, resource allocation, and defensive positioning during sustained threat engagement" }
+        {
+          "outcome": "Led civilian defense during 4 existential threat events with zero casualties among team members",
+          "description": "Organized and directed untrained group of teenagers through situations that would challenge trained military personnel"
+        },
+        {
+          "outcome": "Coordinated tactical response at Starcourt Mall under extreme duress",
+          "description": "Directed team movement, resource allocation, and defensive positioning during sustained threat engagement"
+        }
       ]
     },
     {
@@ -41,73 +66,116 @@
       "level": "Advanced",
       "category": "skill",
       "key": true,
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Mentored Dustin Henderson through personal development and crisis situations", "description": "Provided guidance, emotional support, and practical life advice to younger team member across multiple years" },
-        { "outcome": "Served as protective role model for group of 6 younger team members", "description": "Stepped into de facto big brother role providing leadership, protection, and emotional stability" }
+        {
+          "outcome": "Mentored Dustin Henderson through personal development and crisis situations",
+          "description": "Provided guidance, emotional support, and practical life advice to younger team member across multiple years"
+        },
+        {
+          "outcome": "Served as protective role model for group of 6 younger team members",
+          "description": "Stepped into de facto big brother role providing leadership, protection, and emotional stability"
+        }
       ]
     },
     {
       "name": "Physical Combat",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Engaged and survived hand-to-hand combat against both human and non-human threats", "description": "Applied athletic ability and improvised weapons effectively in multiple physical confrontations" }
+        {
+          "outcome": "Engaged and survived hand-to-hand combat against both human and non-human threats",
+          "description": "Applied athletic ability and improvised weapons effectively in multiple physical confrontations"
+        }
       ]
     },
     {
       "name": "Cash Register & POS Operations",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["retail"],
+      "roles": [
+        "retail"
+      ],
       "evidence": [
-        { "outcome": "Managed daily cash operations with 100% accuracy at two retail locations", "description": "Handled cash transactions, daily reconciliation, and deposit preparation" }
+        {
+          "outcome": "Managed daily cash operations with 100% accuracy at two retail locations",
+          "description": "Handled cash transactions, daily reconciliation, and deposit preparation"
+        }
       ]
     },
     {
       "name": "Inventory Management",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["retail"],
+      "roles": [
+        "retail"
+      ],
       "evidence": [
-        { "outcome": "Managed video inventory of 5,000+ titles at Family Video", "description": "Tracked inventory, processed returns, managed late fees, and maintained shelf organization" }
+        {
+          "outcome": "Managed video inventory of 5,000+ titles at Family Video",
+          "description": "Tracked inventory, processed returns, managed late fees, and maintained shelf organization"
+        }
       ]
     },
     {
       "name": "Food Service",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["retail"],
+      "roles": [
+        "retail"
+      ],
       "evidence": [
-        { "outcome": "Operated ice cream service counter at Scoops Ahoy in Starcourt Mall", "description": "Prepared ice cream products, maintained food safety standards, and managed customer queue" }
+        {
+          "outcome": "Operated ice cream service counter at Scoops Ahoy in Starcourt Mall",
+          "description": "Prepared ice cream products, maintained food safety standards, and managed customer queue"
+        }
       ]
     },
     {
       "name": "Vehicle Operation",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Served as primary driver/logistics for crisis response team across 4 events", "description": "Provided reliable transportation under dangerous conditions including high-speed pursuit scenarios" }
+        {
+          "outcome": "Served as primary driver/logistics for crisis response team across 4 events",
+          "description": "Provided reliable transportation under dangerous conditions including high-speed pursuit scenarios"
+        }
       ]
     },
     {
       "name": "First Aid",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Provided basic first aid to team members during and after crisis events", "description": "Applied wound care, stabilization, and recovery support for injured team members" }
+        {
+          "outcome": "Provided basic first aid to team members during and after crisis events",
+          "description": "Applied wound care, stabilization, and recovery support for injured team members"
+        }
       ]
     },
     {
       "name": "Athletic Skills",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Former varsity basketball player applying athleticism to crisis response situations", "description": "Leveraged athletic conditioning, coordination, and competitive instincts in physical confrontations" }
+        {
+          "outcome": "Former varsity basketball player applying athleticism to crisis response situations",
+          "description": "Leveraged athletic conditioning, coordination, and competitive instincts in physical confrontations"
+        }
       ]
     },
     {
@@ -115,9 +183,15 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["crisis", "leadership"],
+      "roles": [
+        "crisis",
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Consistently placed himself between threats and younger team members", "description": "Made instinctive decisions to protect others at personal risk across all crisis events" }
+        {
+          "outcome": "Consistently placed himself between threats and younger team members",
+          "description": "Made instinctive decisions to protect others at personal risk across all crisis events"
+        }
       ]
     },
     {
@@ -125,54 +199,104 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Volunteered for most dangerous assignments despite having no obligation or training", "description": "Stepped up repeatedly when he could have walked away, facing threats far beyond his experience level" }
+        {
+          "outcome": "Volunteered for most dangerous assignments despite having no obligation or training",
+          "description": "Stepped up repeatedly when he could have walked away, facing threats far beyond his experience level"
+        }
       ]
     },
     {
       "name": "Humility",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["leadership", "retail"],
+      "roles": [
+        "leadership",
+        "retail"
+      ],
       "evidence": [
-        { "outcome": "Transitioned from popular athlete to retail worker without ego or bitterness", "description": "Accepted changed circumstances with grace, finding purpose in service and mentoring rather than status" }
+        {
+          "outcome": "Transitioned from popular athlete to retail worker without ego or bitterness",
+          "description": "Accepted changed circumstances with grace, finding purpose in service and mentoring rather than status"
+        }
       ]
     },
     {
       "name": "Reliability",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "100% attendance when team needed support during crisis events", "description": "Never failed to show up when friends needed help, regardless of personal risk or inconvenience" }
+        {
+          "outcome": "100% attendance when team needed support during crisis events",
+          "description": "Never failed to show up when friends needed help, regardless of personal risk or inconvenience"
+        }
       ]
     },
     {
       "name": "Adaptability",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Adapted from normal teenage life to repeated crisis response without psychological breakdown", "description": "Demonstrated remarkable ability to process extreme experiences and continue functioning" }
+        {
+          "outcome": "Adapted from normal teenage life to repeated crisis response without psychological breakdown",
+          "description": "Demonstrated remarkable ability to process extreme experiences and continue functioning"
+        }
       ]
     },
     {
       "name": "Communication Skills",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["retail", "leadership"],
+      "roles": [
+        "retail",
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Provided clear, calm direction to team members during high-stress situations", "description": "Communicated effectively under pressure, keeping team informed and coordinated" }
+        {
+          "outcome": "Provided clear, calm direction to team members during high-stress situations",
+          "description": "Communicated effectively under pressure, keeping team informed and coordinated"
+        }
       ]
     }
   ],
   "values": [
-    { "name": "Loyalty", "level": "core" },
-    { "name": "Protection", "level": "core" },
-    { "name": "Courage", "level": "core" },
-    { "name": "Friendship", "level": "important" },
-    { "name": "Humility", "level": "important" }
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Accountability",
+      "selected": true
+    },
+    {
+      "name": "Trust",
+      "selected": true
+    },
+    {
+      "name": "Servant Leadership",
+      "selected": true
+    },
+    {
+      "name": "Resilience",
+      "selected": true
+    },
+    {
+      "name": "Authenticity",
+      "selected": true
+    },
+    {
+      "name": "Empathy",
+      "selected": true
+    }
   ],
   "workHistory": [
     {
@@ -185,7 +309,7 @@
     },
     {
       "title": "Associate",
-      "company": "Scoops Ahoy — Starcourt Mall",
+      "company": "Scoops Ahoy \u2014 Starcourt Mall",
       "startYear": 1985,
       "endYear": 1985,
       "description": "Ice cream counter service. Position ended when Starcourt Mall was destroyed in an incident officially attributed to a fire."

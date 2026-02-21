@@ -2,16 +2,25 @@
   "templateId": "eleven",
   "profile": {
     "name": "Eleven (Jane Hopper)",
-    "currentTitle": "Independent — Interdimensional Threat Response",
-    "location": "Hawkins, IN → Lenora Hills, CA",
+    "currentTitle": "Independent \u2014 Interdimensional Threat Response",
+    "location": "Hawkins, IN \u2192 Lenora Hills, CA",
     "roleLevel": "Early-Career",
-    "headline": "The world's only verified telekinetic operative with combat experience against interdimensional threats. Escaped government captivity, closed dimensional breaches, and saved an entire town — multiple times — before her 16th birthday.",
+    "headline": "The world's only verified telekinetic operative with combat experience against interdimensional threats. Escaped government captivity, closed dimensional breaches, and saved an entire town \u2014 multiple times \u2014 before her 16th birthday.",
     "executiveSummary": "Raised in a classified government laboratory and trained from birth in psychokinetic abilities, Eleven escaped captivity and became the primary defense against interdimensional incursions threatening Hawkins, Indiana. Despite severe social skill gaps from institutional upbringing, she has demonstrated extraordinary courage, emotional growth, and the ability to form deep bonds. Her unique capabilities have no equivalent in any known workforce."
   },
   "roles": [
-    { "name": "Psychokinetic Operations", "id": "psycho" },
-    { "name": "Threat Response", "id": "threat" },
-    { "name": "Intelligence & Remote Viewing", "id": "intel" }
+    {
+      "name": "Psychokinetic Operations",
+      "id": "psycho"
+    },
+    {
+      "name": "Threat Response",
+      "id": "threat"
+    },
+    {
+      "name": "Intelligence & Remote Viewing",
+      "id": "intel"
+    }
   ],
   "skills": [
     {
@@ -19,10 +28,18 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["psycho"],
+      "roles": [
+        "psycho"
+      ],
       "evidence": [
-        { "outcome": "Closed interdimensional gate preventing extinction-level event", "description": "Applied maximum telekinetic force to seal breach between dimensions, saving population of Hawkins and potentially beyond" },
-        { "outcome": "Defeated Demogorgon, Mind Flayer avatar, and Vecna using psychokinetic abilities", "description": "Engaged and neutralized multiple existential threats through focused application of telekinetic power" }
+        {
+          "outcome": "Closed interdimensional gate preventing extinction-level event",
+          "description": "Applied maximum telekinetic force to seal breach between dimensions, saving population of Hawkins and potentially beyond"
+        },
+        {
+          "outcome": "Defeated Demogorgon, Mind Flayer avatar, and Vecna using psychokinetic abilities",
+          "description": "Engaged and neutralized multiple existential threats through focused application of telekinetic power"
+        }
       ]
     },
     {
@@ -30,10 +47,18 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["intel"],
+      "roles": [
+        "intel"
+      ],
       "evidence": [
-        { "outcome": "Located missing persons across state lines through psychic remote viewing", "description": "Used sensory deprivation technique to project consciousness and locate individuals at great distance" },
-        { "outcome": "Gathered real-time intelligence on enemy positions and movements", "description": "Provided actionable intelligence through remote viewing that enabled tactical planning" }
+        {
+          "outcome": "Located missing persons across state lines through psychic remote viewing",
+          "description": "Used sensory deprivation technique to project consciousness and locate individuals at great distance"
+        },
+        {
+          "outcome": "Gathered real-time intelligence on enemy positions and movements",
+          "description": "Provided actionable intelligence through remote viewing that enabled tactical planning"
+        }
       ]
     },
     {
@@ -41,36 +66,57 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["threat"],
+      "roles": [
+        "threat"
+      ],
       "evidence": [
-        { "outcome": "Engaged and defeated 5+ hostile entities in direct combat across 4 crisis events", "description": "Applied telekinetic abilities in combat situations against threats that conventional weapons could not stop" }
+        {
+          "outcome": "Engaged and defeated 5+ hostile entities in direct combat across 4 crisis events",
+          "description": "Applied telekinetic abilities in combat situations against threats that conventional weapons could not stop"
+        }
       ]
     },
     {
       "name": "Threat Assessment",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["threat"],
+      "roles": [
+        "threat"
+      ],
       "evidence": [
-        { "outcome": "Identified Vecna as primary threat and developed strategy to engage him in psychic domain", "description": "Assessed threat hierarchy and determined that direct psychic engagement was only viable approach" }
+        {
+          "outcome": "Identified Vecna as primary threat and developed strategy to engage him in psychic domain",
+          "description": "Assessed threat hierarchy and determined that direct psychic engagement was only viable approach"
+        }
       ]
     },
     {
       "name": "Sensory Deprivation Techniques",
       "level": "Expert",
       "category": "skill",
-      "roles": ["intel"],
+      "roles": [
+        "intel"
+      ],
       "evidence": [
-        { "outcome": "Developed improvised sensory deprivation environments in field conditions", "description": "Used bathtubs, pools, and improvised containers to achieve states required for remote viewing capabilities" }
+        {
+          "outcome": "Developed improvised sensory deprivation environments in field conditions",
+          "description": "Used bathtubs, pools, and improvised containers to achieve states required for remote viewing capabilities"
+        }
       ]
     },
     {
       "name": "Emotional Regulation Under Stress",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["psycho", "threat"],
+      "roles": [
+        "psycho",
+        "threat"
+      ],
       "evidence": [
-        { "outcome": "Maintained focus and emotional control during life-threatening combat situations", "description": "Channeled emotions constructively rather than destructively when using abilities under extreme stress" }
+        {
+          "outcome": "Maintained focus and emotional control during life-threatening combat situations",
+          "description": "Channeled emotions constructively rather than destructively when using abilities under extreme stress"
+        }
       ]
     },
     {
@@ -79,7 +125,10 @@
       "category": "skill",
       "roles": [],
       "evidence": [
-        { "outcome": "Communicated effectively with limited vocabulary during early post-laboratory period", "description": "Used gesture, expression, and emotional resonance to build connections despite severe language limitations" }
+        {
+          "outcome": "Communicated effectively with limited vocabulary during early post-laboratory period",
+          "description": "Used gesture, expression, and emotional resonance to build connections despite severe language limitations"
+        }
       ]
     },
     {
@@ -88,16 +137,24 @@
       "category": "skill",
       "roles": [],
       "evidence": [
-        { "outcome": "Progressed from 50-word vocabulary to conversational fluency within 2 years", "description": "Rapidly acquired language skills through immersion, mentorship from Hopper, and social interaction with peers" }
+        {
+          "outcome": "Progressed from 50-word vocabulary to conversational fluency within 2 years",
+          "description": "Rapidly acquired language skills through immersion, mentorship from Hopper, and social interaction with peers"
+        }
       ]
     },
     {
       "name": "Survival Skills",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["threat"],
+      "roles": [
+        "threat"
+      ],
       "evidence": [
-        { "outcome": "Survived independently in wilderness and urban environments as a child", "description": "Applied resourcefulness and determination to survive alone after escaping laboratory, finding shelter and food independently" }
+        {
+          "outcome": "Survived independently in wilderness and urban environments as a child",
+          "description": "Applied resourcefulness and determination to survive alone after escaping laboratory, finding shelter and food independently"
+        }
       ]
     },
     {
@@ -105,9 +162,14 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["threat"],
+      "roles": [
+        "threat"
+      ],
       "evidence": [
-        { "outcome": "Voluntarily faced existential threats that no one else could, accepting personal sacrifice", "description": "Chose to confront Vecna and close the gate knowing it could mean her own death" }
+        {
+          "outcome": "Voluntarily faced existential threats that no one else could, accepting personal sacrifice",
+          "description": "Chose to confront Vecna and close the gate knowing it could mean her own death"
+        }
       ]
     },
     {
@@ -115,9 +177,14 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["threat"],
+      "roles": [
+        "threat"
+      ],
       "evidence": [
-        { "outcome": "Recovered from institutional abuse, isolation, and loss of abilities to fight again", "description": "Overcame childhood trauma, social isolation, and temporary loss of powers to return stronger" }
+        {
+          "outcome": "Recovered from institutional abuse, isolation, and loss of abilities to fight again",
+          "description": "Overcame childhood trauma, social isolation, and temporary loss of powers to return stronger"
+        }
       ]
     },
     {
@@ -127,7 +194,10 @@
       "key": true,
       "roles": [],
       "evidence": [
-        { "outcome": "Formed deep emotional bonds despite severe social deprivation in childhood", "description": "Demonstrated extraordinary capacity for love and connection despite institutional upbringing designed to suppress emotion" }
+        {
+          "outcome": "Formed deep emotional bonds despite severe social deprivation in childhood",
+          "description": "Demonstrated extraordinary capacity for love and connection despite institutional upbringing designed to suppress emotion"
+        }
       ]
     },
     {
@@ -135,9 +205,15 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["threat", "psycho"],
+      "roles": [
+        "threat",
+        "psycho"
+      ],
       "evidence": [
-        { "outcome": "Regained lost telekinetic abilities through sheer force of will and emotional breakthrough", "description": "Recovered powers through confronting traumatic memories, demonstrating that determination can overcome even neurological limitations" }
+        {
+          "outcome": "Regained lost telekinetic abilities through sheer force of will and emotional breakthrough",
+          "description": "Recovered powers through confronting traumatic memories, demonstrating that determination can overcome even neurological limitations"
+        }
       ]
     },
     {
@@ -146,7 +222,10 @@
       "category": "work style",
       "roles": [],
       "evidence": [
-        { "outcome": "Adapted from laboratory captivity to normal teenage life within 2 years", "description": "Navigated enormous transition from controlled institutional environment to family, school, and social life" }
+        {
+          "outcome": "Adapted from laboratory captivity to normal teenage life within 2 years",
+          "description": "Navigated enormous transition from controlled institutional environment to family, school, and social life"
+        }
       ]
     },
     {
@@ -155,21 +234,47 @@
       "category": "work style",
       "roles": [],
       "evidence": [
-        { "outcome": "Returned from California to Hawkins to protect friends when threat emerged", "description": "Traveled across the country to rejoin friends in danger, choosing them over personal safety" }
+        {
+          "outcome": "Returned from California to Hawkins to protect friends when threat emerged",
+          "description": "Traveled across the country to rejoin friends in danger, choosing them over personal safety"
+        }
       ]
     }
   ],
   "values": [
-    { "name": "Protection", "level": "core" },
-    { "name": "Belonging", "level": "core" },
-    { "name": "Courage", "level": "core" },
-    { "name": "Freedom", "level": "important" },
-    { "name": "Love", "level": "important" }
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Resilience",
+      "selected": true
+    },
+    {
+      "name": "Empathy",
+      "selected": true
+    },
+    {
+      "name": "Integrity",
+      "selected": true
+    },
+    {
+      "name": "Purpose Over Profit",
+      "selected": true
+    },
+    {
+      "name": "Trust",
+      "selected": true
+    },
+    {
+      "name": "Authenticity",
+      "selected": true
+    }
   ],
   "workHistory": [
     {
       "title": "Primary Threat Response Operative",
-      "company": "Informal — Hawkins Crisis Response",
+      "company": "Informal \u2014 Hawkins Crisis Response",
       "startYear": 1983,
       "endYear": null,
       "current": true,

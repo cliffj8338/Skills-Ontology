@@ -3,16 +3,28 @@
   "profile": {
     "name": "Joyce Byers",
     "currentTitle": "Retail Associate, Melvald's General Store",
-    "location": "Hawkins, IN → Lenora Hills, CA",
+    "location": "Hawkins, IN \u2192 Lenora Hills, CA",
     "roleLevel": "Mid-Career",
     "headline": "Single mother and retail professional who has demonstrated investigative tenacity, crisis leadership, and protective determination that would put most federal agents to shame. When institutions failed, she didn't.",
-    "executiveSummary": "A retail worker and single mother whose professional resume barely hints at her true capabilities. When her son disappeared and every authority said he was dead, Joyce refused to accept it and conducted her own investigation that proved correct. She has since navigated government conspiracies, traveled to Soviet Russia, and rescued people from interdimensional threats — all while working retail and raising two boys alone."
+    "executiveSummary": "A retail worker and single mother whose professional resume barely hints at her true capabilities. When her son disappeared and every authority said he was dead, Joyce refused to accept it and conducted her own investigation that proved correct. She has since navigated government conspiracies, traveled to Soviet Russia, and rescued people from interdimensional threats \u2014 all while working retail and raising two boys alone."
   },
   "roles": [
-    { "name": "Retail Operations", "id": "retail" },
-    { "name": "Investigation & Research", "id": "investigation" },
-    { "name": "Crisis Response", "id": "crisis" },
-    { "name": "Family Management", "id": "family" }
+    {
+      "name": "Retail Operations",
+      "id": "retail"
+    },
+    {
+      "name": "Investigation & Research",
+      "id": "investigation"
+    },
+    {
+      "name": "Crisis Response",
+      "id": "crisis"
+    },
+    {
+      "name": "Family Management",
+      "id": "family"
+    }
   ],
   "skills": [
     {
@@ -20,10 +32,18 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Located missing child when police, state investigators, and federal agents all declared him dead", "description": "Pursued independent investigation against unanimous institutional conclusions, proving that Will was alive in an alternate dimension" },
-        { "outcome": "Identified electromagnetic anomalies in Hawkins before any scientist or government agency", "description": "Connected seemingly random compass and magnet behavior to larger pattern indicating dimensional breach" }
+        {
+          "outcome": "Located missing child when police, state investigators, and federal agents all declared him dead",
+          "description": "Pursued independent investigation against unanimous institutional conclusions, proving that Will was alive in an alternate dimension"
+        },
+        {
+          "outcome": "Identified electromagnetic anomalies in Hawkins before any scientist or government agency",
+          "description": "Connected seemingly random compass and magnet behavior to larger pattern indicating dimensional breach"
+        }
       ]
     },
     {
@@ -31,10 +51,18 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Made life-or-death decisions for family across 4 crisis events with consistently right judgment", "description": "Assessed threats accurately and chose correct course of action when stakes were highest and information was minimal" },
-        { "outcome": "Decided to relocate family across country to protect children from government surveillance", "description": "Made difficult strategic decision to uproot family when staying put posed unacceptable risk" }
+        {
+          "outcome": "Made life-or-death decisions for family across 4 crisis events with consistently right judgment",
+          "description": "Assessed threats accurately and chose correct course of action when stakes were highest and information was minimal"
+        },
+        {
+          "outcome": "Decided to relocate family across country to protect children from government surveillance",
+          "description": "Made difficult strategic decision to uproot family when staying put posed unacceptable risk"
+        }
       ]
     },
     {
@@ -42,28 +70,47 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["crisis", "investigation"],
+      "roles": [
+        "crisis",
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Built interdimensional communication system using Christmas lights and alphabet", "description": "Improvised functional communication channel to contact son in alternate dimension using household materials" },
-        { "outcome": "Traveled to Soviet Union and infiltrated military prison to rescue Jim Hopper", "description": "Organized and executed international rescue mission without government support, military training, or resources" }
+        {
+          "outcome": "Built interdimensional communication system using Christmas lights and alphabet",
+          "description": "Improvised functional communication channel to contact son in alternate dimension using household materials"
+        },
+        {
+          "outcome": "Traveled to Soviet Union and infiltrated military prison to rescue Jim Hopper",
+          "description": "Organized and executed international rescue mission without government support, military training, or resources"
+        }
       ]
     },
     {
       "name": "Customer Service",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["retail"],
+      "roles": [
+        "retail"
+      ],
       "evidence": [
-        { "outcome": "Maintained reliable customer service at Melvald's through extraordinary personal circumstances", "description": "Continued to show up and perform retail duties while managing crises that would have incapacitated most people" }
+        {
+          "outcome": "Maintained reliable customer service at Melvald's through extraordinary personal circumstances",
+          "description": "Continued to show up and perform retail duties while managing crises that would have incapacitated most people"
+        }
       ]
     },
     {
       "name": "Retail Operations",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["retail"],
+      "roles": [
+        "retail"
+      ],
       "evidence": [
-        { "outcome": "Managed daily operations at Melvald's General Store for 8+ years", "description": "Handled inventory, customer service, cash management, and store opening/closing procedures reliably" }
+        {
+          "outcome": "Managed daily operations at Melvald's General Store for 8+ years",
+          "description": "Handled inventory, customer service, cash management, and store opening/closing procedures reliably"
+        }
       ]
     },
     {
@@ -71,54 +118,86 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Connected electromagnetic anomalies to dimensional gate activity before scientists did", "description": "Noticed magnets falling off refrigerator and traced the pattern to its source, identifying threat when trained professionals missed it" }
+        {
+          "outcome": "Connected electromagnetic anomalies to dimensional gate activity before scientists did",
+          "description": "Noticed magnets falling off refrigerator and traced the pattern to its source, identifying threat when trained professionals missed it"
+        }
       ]
     },
     {
       "name": "Household Management",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["family"],
+      "roles": [
+        "family"
+      ],
       "evidence": [
-        { "outcome": "Raised two sons as single parent on retail worker salary", "description": "Managed household finances, childcare, and domestic operations with minimal resources and no partner support" }
+        {
+          "outcome": "Raised two sons as single parent on retail worker salary",
+          "description": "Managed household finances, childcare, and domestic operations with minimal resources and no partner support"
+        }
       ]
     },
     {
       "name": "Budget Management",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["family", "retail"],
+      "roles": [
+        "family",
+        "retail"
+      ],
       "evidence": [
-        { "outcome": "Maintained household on single retail income for 10+ years", "description": "Stretched limited budget across rent, food, utilities, and children's needs without external support" }
+        {
+          "outcome": "Maintained household on single retail income for 10+ years",
+          "description": "Stretched limited budget across rent, food, utilities, and children's needs without external support"
+        }
       ]
     },
     {
       "name": "First Aid",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["crisis", "family"],
+      "roles": [
+        "crisis",
+        "family"
+      ],
       "evidence": [
-        { "outcome": "Provided emergency medical care to children and adults during crisis events", "description": "Applied basic medical knowledge to treat injuries when professional medical help was unavailable" }
+        {
+          "outcome": "Provided emergency medical care to children and adults during crisis events",
+          "description": "Applied basic medical knowledge to treat injuries when professional medical help was unavailable"
+        }
       ]
     },
     {
       "name": "Driving & Navigation",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Served as driver and navigator during multiple crisis response operations", "description": "Provided reliable transportation under stressful and dangerous conditions" }
+        {
+          "outcome": "Served as driver and navigator during multiple crisis response operations",
+          "description": "Provided reliable transportation under stressful and dangerous conditions"
+        }
       ]
     },
     {
       "name": "International Travel",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Traveled to Soviet Union and navigated foreign country without language skills or preparation", "description": "Managed international travel logistics in hostile foreign environment to execute rescue mission" }
+        {
+          "outcome": "Traveled to Soviet Union and navigated foreign country without language skills or preparation",
+          "description": "Managed international travel logistics in hostile foreign environment to execute rescue mission"
+        }
       ]
     },
     {
@@ -126,9 +205,15 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["crisis", "family"],
+      "roles": [
+        "crisis",
+        "family"
+      ],
       "evidence": [
-        { "outcome": "Fought interdimensional threats, government conspiracies, and Soviet military to protect her children", "description": "No force — natural or supernatural — has ever stopped Joyce Byers from protecting the people she loves" }
+        {
+          "outcome": "Fought interdimensional threats, government conspiracies, and Soviet military to protect her children",
+          "description": "No force \u2014 natural or supernatural \u2014 has ever stopped Joyce Byers from protecting the people she loves"
+        }
       ]
     },
     {
@@ -136,9 +221,14 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Trusted maternal instinct when every authority figure told her she was wrong — and was right every time", "description": "Followed gut feeling that Will was alive, that magnets meant something, that Hopper was alive, proving correct each time" }
+        {
+          "outcome": "Trusted maternal instinct when every authority figure told her she was wrong \u2014 and was right every time",
+          "description": "Followed gut feeling that Will was alive, that magnets meant something, that Hopper was alive, proving correct each time"
+        }
       ]
     },
     {
@@ -146,45 +236,89 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["crisis", "family"],
+      "roles": [
+        "crisis",
+        "family"
+      ],
       "evidence": [
-        { "outcome": "Maintained family stability through 4 existential crises, divorce, poverty, and relocation", "description": "Kept functioning as parent, employee, and crisis responder through sustained adversity that would break most people" }
+        {
+          "outcome": "Maintained family stability through 4 existential crises, divorce, poverty, and relocation",
+          "description": "Kept functioning as parent, employee, and crisis responder through sustained adversity that would break most people"
+        }
       ]
     },
     {
       "name": "Courage",
       "level": "Expert",
       "category": "work style",
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Entered alternate dimension to rescue her son with no training, equipment, or backup", "description": "Walked into the Upside Down armed with nothing but determination and an axe" }
+        {
+          "outcome": "Entered alternate dimension to rescue her son with no training, equipment, or backup",
+          "description": "Walked into the Upside Down armed with nothing but determination and an axe"
+        }
       ]
     },
     {
       "name": "Empathy",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["family"],
+      "roles": [
+        "family"
+      ],
       "evidence": [
-        { "outcome": "Took in Eleven providing maternal care and stability to traumatized child", "description": "Extended protective instinct beyond biological children to provide home and family to a child who had never known either" }
+        {
+          "outcome": "Took in Eleven providing maternal care and stability to traumatized child",
+          "description": "Extended protective instinct beyond biological children to provide home and family to a child who had never known either"
+        }
       ]
     },
     {
       "name": "Persistence",
       "level": "Expert",
       "category": "work style",
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Continued investigation for weeks when everyone including her own son told her to stop", "description": "Maintained belief and effort when completely alone in her conviction, sustaining investigation against unanimous opposition" }
+        {
+          "outcome": "Continued investigation for weeks when everyone including her own son told her to stop",
+          "description": "Maintained belief and effort when completely alone in her conviction, sustaining investigation against unanimous opposition"
+        }
       ]
     }
   ],
   "values": [
-    { "name": "Family", "level": "core" },
-    { "name": "Protection", "level": "core" },
-    { "name": "Determination", "level": "core" },
-    { "name": "Loyalty", "level": "important" },
-    { "name": "Courage", "level": "important" }
+    {
+      "name": "Resilience",
+      "selected": true
+    },
+    {
+      "name": "Resourcefulness",
+      "selected": true
+    },
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Empathy",
+      "selected": true
+    },
+    {
+      "name": "Trust",
+      "selected": true
+    },
+    {
+      "name": "Accountability",
+      "selected": true
+    },
+    {
+      "name": "Purpose Over Profit",
+      "selected": true
+    }
   ],
   "workHistory": [
     {
@@ -196,7 +330,7 @@
     },
     {
       "title": "Retail Associate",
-      "company": "Various — Lenora Hills, CA",
+      "company": "Various \u2014 Lenora Hills, CA",
       "startYear": 1986,
       "endYear": null,
       "current": true,

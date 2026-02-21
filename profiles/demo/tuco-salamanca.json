@@ -1,0 +1,218 @@
+{
+  "templateId": "tuco-salamanca",
+  "profile": {
+    "name": "Tuco Salamanca",
+    "currentTitle": "Regional Distribution Director, Salamanca Organization",
+    "location": "Albuquerque, NM / Juárez, Mexico",
+    "roleLevel": "Mid-Career",
+    "headline": "High-energy distribution leader who scaled regional operations from local street-level to multi-state territory through aggressive market capture, supplier intimidation, and an absolutely unhinged commitment to product quality.",
+    "executiveSummary": "Second-generation operator in the Salamanca family enterprise who brought explosive intensity and fearless ambition to regional distribution leadership. Known for rapid decision-making, zero tolerance for disrespect, and an ability to immediately recognize product quality that most operators lack. While his management style creates significant HR challenges, his capacity to move product, control territory, and inspire fear-based loyalty in subordinates is unmatched in the Southwest market."
+  },
+  "roles": [
+    { "name": "Distribution Operations", "id": "distribution" },
+    { "name": "Territory Management", "id": "territory" },
+    { "name": "Supplier Relations", "id": "supplier" },
+    { "name": "Enforcement & Security", "id": "enforcement" }
+  ],
+  "skills": [
+    {
+      "name": "Distribution Network Management",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["distribution"],
+      "evidence": [
+        { "outcome": "Controlled dominant distribution network across Albuquerque metro generating $5M+ monthly revenue", "description": "Managed network of street-level distributors, mid-level dealers, and retail operations across the metro area" },
+        { "outcome": "Scaled territory from single neighborhood to tri-county coverage within 2 years", "description": "Aggressively expanded distribution footprint through competitive elimination and market capture" }
+      ]
+    },
+    {
+      "name": "Product Quality Assessment",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["supplier"],
+      "evidence": [
+        { "outcome": "Immediately recognized Walter White's 99.1% product as superior to all competitors on first sample", "description": "Demonstrated instinctive quality assessment capability, famously declaring the product 'tight, tight, tight!'" },
+        { "outcome": "Rejected inferior product from 3 suppliers maintaining quality standards across territory", "description": "Enforced strict quality requirements from suppliers, refusing to distribute substandard product" }
+      ]
+    },
+    {
+      "name": "Intimidation & Territory Control",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": ["enforcement", "territory"],
+      "evidence": [
+        { "outcome": "Maintained territorial control through reputation alone — competitors avoided Salamanca territory", "description": "Built reputation for unpredictable violence that served as effective deterrent against territorial encroachment" },
+        { "outcome": "Enforced distribution agreements through physical presence and implied threat", "description": "Conducted supplier and distributor meetings where his reputation preceded any negotiation" }
+      ]
+    },
+    {
+      "name": "Supplier Negotiation",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": ["supplier"],
+      "evidence": [
+        { "outcome": "Negotiated exclusive supply arrangement with Walter White securing best product in the market", "description": "Recognized strategic value of superior product and moved aggressively to lock down exclusive access" },
+        { "outcome": "Secured favorable pricing terms from suppliers through aggressive negotiation tactics", "description": "Applied combination of market leverage and personal intensity to extract terms other buyers couldn't achieve" }
+      ]
+    },
+    {
+      "name": "Revenue Collection",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["distribution"],
+      "evidence": [
+        { "outcome": "Maintained 95%+ collection rate across distribution network", "description": "Implemented enforcement-backed collection system ensuring reliable cash flow from all distribution points" }
+      ]
+    },
+    {
+      "name": "Rapid Decision Making",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["territory", "distribution"],
+      "evidence": [
+        { "outcome": "Made deal decisions within minutes that other operators deliberated on for weeks", "description": "Applied instinctive judgment to rapidly evaluate opportunities, threats, and personnel — often correctly" }
+      ]
+    },
+    {
+      "name": "Personnel Management",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["distribution", "enforcement"],
+      "evidence": [
+        { "outcome": "Managed team of 20+ distributors and enforcers across metro territory", "description": "Maintained operational discipline through combination of loyalty, fear, and compensation. High turnover but high output." }
+      ]
+    },
+    {
+      "name": "Cash Management",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["distribution"],
+      "evidence": [
+        { "outcome": "Managed high-volume cash operations processing $5M+ monthly", "description": "Handled large cash flows, distributor payments, and supplier transactions across the operation" }
+      ]
+    },
+    {
+      "name": "Physical Combat",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["enforcement"],
+      "evidence": [
+        { "outcome": "Personally resolved 15+ physical confrontations maintaining territorial authority", "description": "Applied raw physical intensity to resolve disputes, often single-handedly" }
+      ]
+    },
+    {
+      "name": "Family Network Leveraging",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["territory"],
+      "evidence": [
+        { "outcome": "Leveraged Salamanca family name and cartel connections to secure operational protection", "description": "Used family reputation and connections to Don Eladio's cartel for territorial legitimacy and resource access" }
+      ]
+    },
+    {
+      "name": "Counter-Surveillance",
+      "level": "Proficient",
+      "category": "skill",
+      "roles": ["enforcement"],
+      "evidence": [
+        { "outcome": "Identified DEA surveillance on 2 occasions relocating operations before raids", "description": "Applied street-level awareness to detect law enforcement attention and take evasive action" }
+      ]
+    },
+    {
+      "name": "Competitive Elimination",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["territory"],
+      "evidence": [
+        { "outcome": "Eliminated 4 competing distribution operations establishing market dominance", "description": "Applied aggressive competitive tactics to remove rival operators from Albuquerque market" }
+      ]
+    },
+    {
+      "name": "Explosive Intensity",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["enforcement", "territory"],
+      "evidence": [
+        { "outcome": "Leveraged unpredictable energy to dominate every room, negotiation, and confrontation", "description": "Applied sheer force of personality and physical intensity as a business tool — nobody ever knew what Tuco would do next" }
+      ]
+    },
+    {
+      "name": "Decisiveness",
+      "level": "Expert",
+      "category": "work style",
+      "key": true,
+      "roles": ["distribution"],
+      "evidence": [
+        { "outcome": "Made snap decisions on product, territory, and personnel that kept operations moving at speed", "description": "Rarely deliberated — acted on instinct and adjusted later, maintaining operational tempo others couldn't match" }
+      ]
+    },
+    {
+      "name": "Family Loyalty",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["territory"],
+      "evidence": [
+        { "outcome": "Maintained absolute loyalty to Salamanca family despite personal risk and operational cost", "description": "Prioritized family obligations above business optimization, including caring for Tio Hector at personal expense" }
+      ]
+    },
+    {
+      "name": "Fearlessness",
+      "level": "Expert",
+      "category": "work style",
+      "roles": ["enforcement"],
+      "evidence": [
+        { "outcome": "Confronted armed opponents and law enforcement without hesitation", "description": "Demonstrated complete absence of fear in dangerous situations, treating physical confrontation as normal business operations" }
+      ]
+    },
+    {
+      "name": "Product Instinct",
+      "level": "Advanced",
+      "category": "work style",
+      "roles": ["supplier"],
+      "evidence": [
+        { "outcome": "Recognized quality differentials that more analytical competitors missed", "description": "Applied instinctive product assessment that identified Walter White's superiority instantly" }
+      ]
+    }
+  ],
+  "values": [
+    {"name": "Courage", "selected": true},
+    {"name": "Bias Toward Action", "selected": true},
+    {"name": "Candor", "selected": true},
+    {"name": "Tight Tight Tight!", "selected": true},
+    {"name": "Fear Is Respect", "selected": true},
+    {"name": "Blood Is Business", "selected": true},
+    {"name": "Explosive Energy", "selected": true}
+  ],
+  "workHistory": [
+    {
+      "title": "Regional Distribution Director",
+      "company": "Salamanca Organization",
+      "startYear": 2004,
+      "endYear": 2009,
+      "description": "Managed dominant distribution network across Albuquerque metro area. Controlled 20+ distributors and generated $5M+ monthly revenue. Secured exclusive supply arrangement with industry-leading producer."
+    },
+    {
+      "title": "Street-Level Distributor",
+      "company": "Salamanca Organization",
+      "startYear": 1998,
+      "endYear": 2004,
+      "description": "Built distribution operation from single corner to neighborhood-level territory. Earned promotion to regional leadership through aggressive growth and reliability."
+    }
+  ],
+  "education": [
+    {
+      "institution": "School of Hard Knocks",
+      "degree": "Advanced Street Operations",
+      "year": null
+    }
+  ],
+  "certifications": [],
+  "purpose": "You got the product? I move the product. That's the deal. Don't make it complicated. TIGHT TIGHT TIGHT!"
+}

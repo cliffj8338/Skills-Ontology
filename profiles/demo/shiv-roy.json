@@ -9,11 +9,26 @@
     "executiveSummary": "Uniquely positioned executive who built independent credentials in political consulting before transitioning to corporate leadership at Waystar Royco. Brings rare combination of political campaign strategy, stakeholder management, and organizational psychology to executive leadership. Led crisis communications during major corporate scandal, directed organizational restructuring, and managed complex board-level succession dynamics."
   },
   "roles": [
-    { "name": "Political & Government Strategy", "id": "political" },
-    { "name": "Organizational Leadership", "id": "leadership" },
-    { "name": "Corporate Communications", "id": "communications" },
-    { "name": "Stakeholder Management", "id": "stakeholder" },
-    { "name": "Human Capital Strategy", "id": "hr" }
+    {
+      "name": "Political & Government Strategy",
+      "id": "political"
+    },
+    {
+      "name": "Organizational Leadership",
+      "id": "leadership"
+    },
+    {
+      "name": "Corporate Communications",
+      "id": "communications"
+    },
+    {
+      "name": "Stakeholder Management",
+      "id": "stakeholder"
+    },
+    {
+      "name": "Human Capital Strategy",
+      "id": "hr"
+    }
   ],
   "skills": [
     {
@@ -21,10 +36,18 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["political"],
+      "roles": [
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Managed senatorial campaign achieving 8-point polling reversal in final 6 weeks", "description": "Directed campaign strategy, messaging, opposition research, and coalition building for competitive senate race" },
-        { "outcome": "Advised 3 congressional campaigns on messaging strategy with 2 winning", "description": "Developed campaign narratives and media strategies for candidates across competitive districts" }
+        {
+          "outcome": "Managed senatorial campaign achieving 8-point polling reversal in final 6 weeks",
+          "description": "Directed campaign strategy, messaging, opposition research, and coalition building for competitive senate race"
+        },
+        {
+          "outcome": "Advised 3 congressional campaigns on messaging strategy with 2 winning",
+          "description": "Developed campaign narratives and media strategies for candidates across competitive districts"
+        }
       ]
     },
     {
@@ -32,10 +55,19 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["stakeholder", "leadership"],
+      "roles": [
+        "stakeholder",
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Managed competing interests of family shareholders, institutional investors, and independent directors during succession crisis", "description": "Navigated complex multi-stakeholder dynamics where personal, family, and corporate interests intersected" },
-        { "outcome": "Built coalition of board members supporting organizational restructuring proposal", "description": "Conducted individual director outreach, addressed concerns, and secured votes for major governance change" }
+        {
+          "outcome": "Managed competing interests of family shareholders, institutional investors, and independent directors during succession crisis",
+          "description": "Navigated complex multi-stakeholder dynamics where personal, family, and corporate interests intersected"
+        },
+        {
+          "outcome": "Built coalition of board members supporting organizational restructuring proposal",
+          "description": "Conducted individual director outreach, addressed concerns, and secured votes for major governance change"
+        }
       ]
     },
     {
@@ -43,10 +75,19 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["leadership", "hr"],
+      "roles": [
+        "leadership",
+        "hr"
+      ],
       "evidence": [
-        { "outcome": "Diagnosed cultural dysfunction in Waystar executive team and proposed structural remedies", "description": "Applied organizational psychology principles to identify toxic dynamics and design governance improvements" },
-        { "outcome": "Led organizational redesign merging 3 Waystar divisions into unified digital-first structure", "description": "Designed new organizational model, managed change communication, and oversaw leadership transitions" }
+        {
+          "outcome": "Diagnosed cultural dysfunction in Waystar executive team and proposed structural remedies",
+          "description": "Applied organizational psychology principles to identify toxic dynamics and design governance improvements"
+        },
+        {
+          "outcome": "Led organizational redesign merging 3 Waystar divisions into unified digital-first structure",
+          "description": "Designed new organizational model, managed change communication, and oversaw leadership transitions"
+        }
       ]
     },
     {
@@ -54,19 +95,32 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["communications"],
+      "roles": [
+        "communications"
+      ],
       "evidence": [
-        { "outcome": "Directed communications strategy during cruises division scandal limiting reputational damage", "description": "Coordinated messaging across media, investor relations, employee communications, and government affairs" },
-        { "outcome": "Managed press narrative during CEO succession dispute keeping coverage factual versus sensational", "description": "Built relationships with key journalists and provided strategic guidance on coverage framing" }
+        {
+          "outcome": "Directed communications strategy during cruises division scandal limiting reputational damage",
+          "description": "Coordinated messaging across media, investor relations, employee communications, and government affairs"
+        },
+        {
+          "outcome": "Managed press narrative during CEO succession dispute keeping coverage factual versus sensational",
+          "description": "Built relationships with key journalists and provided strategic guidance on coverage framing"
+        }
       ]
     },
     {
       "name": "Corporate Communications",
       "level": "Expert",
       "category": "skill",
-      "roles": ["communications"],
+      "roles": [
+        "communications"
+      ],
       "evidence": [
-        { "outcome": "Overhauled Waystar internal communications framework reaching 120,000 employees", "description": "Redesigned employee communications strategy to improve transparency, engagement, and change readiness" }
+        {
+          "outcome": "Overhauled Waystar internal communications framework reaching 120,000 employees",
+          "description": "Redesigned employee communications strategy to improve transparency, engagement, and change readiness"
+        }
       ]
     },
     {
@@ -74,109 +128,179 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["leadership", "stakeholder"],
+      "roles": [
+        "leadership",
+        "stakeholder"
+      ],
       "evidence": [
-        { "outcome": "Negotiated governance provisions in GoJo merger protecting family voting rights", "description": "Secured structural protections ensuring Roy family influence in post-merger entity" },
-        { "outcome": "Mediated boardroom disputes between family factions achieving temporary alignment", "description": "Applied political mediation skills to corporate governance conflicts" }
+        {
+          "outcome": "Negotiated governance provisions in GoJo merger protecting family voting rights",
+          "description": "Secured structural protections ensuring Roy family influence in post-merger entity"
+        },
+        {
+          "outcome": "Mediated boardroom disputes between family factions achieving temporary alignment",
+          "description": "Applied political mediation skills to corporate governance conflicts"
+        }
       ]
     },
     {
       "name": "Government Relations",
       "level": "Expert",
       "category": "skill",
-      "roles": ["political"],
+      "roles": [
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Built relationships with 15+ congressional staffers and 3 committee chairs for Waystar policy interests", "description": "Leveraged political network to influence media regulation and merger review processes" }
+        {
+          "outcome": "Built relationships with 15+ congressional staffers and 3 committee chairs for Waystar policy interests",
+          "description": "Leveraged political network to influence media regulation and merger review processes"
+        }
       ]
     },
     {
       "name": "Campaign Management",
       "level": "Expert",
       "category": "skill",
-      "roles": ["political"],
+      "roles": [
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Managed $12M campaign budget across digital, broadcast, and ground operations", "description": "Allocated resources across advertising, field operations, and digital campaigns to maximize voter contact" }
+        {
+          "outcome": "Managed $12M campaign budget across digital, broadcast, and ground operations",
+          "description": "Allocated resources across advertising, field operations, and digital campaigns to maximize voter contact"
+        }
       ]
     },
     {
       "name": "Strategic Planning",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Developed 3-year transformation roadmap for Waystar cultural and structural overhaul", "description": "Created comprehensive plan addressing organizational culture, governance, and operational efficiency" }
+        {
+          "outcome": "Developed 3-year transformation roadmap for Waystar cultural and structural overhaul",
+          "description": "Created comprehensive plan addressing organizational culture, governance, and operational efficiency"
+        }
       ]
     },
     {
       "name": "Media Relations",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["communications", "political"],
+      "roles": [
+        "communications",
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Managed press relationships across 10+ major outlets during corporate and political crises", "description": "Built journalist relationships enabling favorable coverage placement and narrative management" }
+        {
+          "outcome": "Managed press relationships across 10+ major outlets during corporate and political crises",
+          "description": "Built journalist relationships enabling favorable coverage placement and narrative management"
+        }
       ]
     },
     {
       "name": "Executive Coaching",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["hr", "leadership"],
+      "roles": [
+        "hr",
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Assessed and developed leadership capability across Waystar executive team", "description": "Applied organizational behavior expertise to evaluate leadership readiness and development needs" }
+        {
+          "outcome": "Assessed and developed leadership capability across Waystar executive team",
+          "description": "Applied organizational behavior expertise to evaluate leadership readiness and development needs"
+        }
       ]
     },
     {
       "name": "Diversity & Inclusion Strategy",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["hr"],
+      "roles": [
+        "hr"
+      ],
       "evidence": [
-        { "outcome": "Proposed board diversity initiatives increasing independent director representation", "description": "Advocated for governance reforms bringing diverse perspectives to Waystar board" }
+        {
+          "outcome": "Proposed board diversity initiatives increasing independent director representation",
+          "description": "Advocated for governance reforms bringing diverse perspectives to Waystar board"
+        }
       ]
     },
     {
       "name": "Public Speaking",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["communications", "political"],
+      "roles": [
+        "communications",
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Delivered keynote at Global Women in Media conference to audience of 2,000", "description": "Presented vision for leadership transformation in traditional media industry" }
+        {
+          "outcome": "Delivered keynote at Global Women in Media conference to audience of 2,000",
+          "description": "Presented vision for leadership transformation in traditional media industry"
+        }
       ]
     },
     {
       "name": "Data-Driven Decision Making",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["political", "leadership"],
+      "roles": [
+        "political",
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Applied polling data and analytics to refine campaign messaging achieving measurable opinion shifts", "description": "Used quantitative analysis to test and optimize political messaging and corporate communications" }
+        {
+          "outcome": "Applied polling data and analytics to refine campaign messaging achieving measurable opinion shifts",
+          "description": "Used quantitative analysis to test and optimize political messaging and corporate communications"
+        }
       ]
     },
     {
       "name": "Talent Assessment",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["hr", "leadership"],
+      "roles": [
+        "hr",
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Evaluated C-suite candidates for restructured Waystar leadership team", "description": "Applied behavioral assessment and competency evaluation to senior leadership selection" }
+        {
+          "outcome": "Evaluated C-suite candidates for restructured Waystar leadership team",
+          "description": "Applied behavioral assessment and competency evaluation to senior leadership selection"
+        }
       ]
     },
     {
       "name": "Policy Analysis",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["political"],
+      "roles": [
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Analyzed regulatory proposals affecting media ownership and antitrust enforcement", "description": "Evaluated policy impact on Waystar operations and developed advocacy positions" }
+        {
+          "outcome": "Analyzed regulatory proposals affecting media ownership and antitrust enforcement",
+          "description": "Evaluated policy impact on Waystar operations and developed advocacy positions"
+        }
       ]
     },
     {
       "name": "Change Management",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["leadership", "hr"],
+      "roles": [
+        "leadership",
+        "hr"
+      ],
       "evidence": [
-        { "outcome": "Managed organizational change affecting 5,000+ employees during divisional restructuring", "description": "Designed and executed change management plan including communication, training, and support programs" }
+        {
+          "outcome": "Managed organizational change affecting 5,000+ employees during divisional restructuring",
+          "description": "Designed and executed change management plan including communication, training, and support programs"
+        }
       ]
     },
     {
@@ -184,9 +308,14 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Identified organizational culture as primary risk factor before external analysts flagged it", "description": "Applied systems thinking to connect governance structure, culture, and operational risk" }
+        {
+          "outcome": "Identified organizational culture as primary risk factor before external analysts flagged it",
+          "description": "Applied systems thinking to connect governance structure, culture, and operational risk"
+        }
       ]
     },
     {
@@ -194,68 +323,122 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["political", "stakeholder"],
+      "roles": [
+        "political",
+        "stakeholder"
+      ],
       "evidence": [
-        { "outcome": "Read and navigated boardroom power dynamics achieving coalition support for her positions", "description": "Applied political acumen developed in campaigns to corporate governance context" }
+        {
+          "outcome": "Read and navigated boardroom power dynamics achieving coalition support for her positions",
+          "description": "Applied political acumen developed in campaigns to corporate governance context"
+        }
       ]
     },
     {
       "name": "Persuasion",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["communications", "stakeholder"],
+      "roles": [
+        "communications",
+        "stakeholder"
+      ],
       "evidence": [
-        { "outcome": "Shifted board sentiment on succession plan through targeted one-on-one engagement", "description": "Applied tailored persuasion approaches to individual directors based on their priorities and concerns" }
+        {
+          "outcome": "Shifted board sentiment on succession plan through targeted one-on-one engagement",
+          "description": "Applied tailored persuasion approaches to individual directors based on their priorities and concerns"
+        }
       ]
     },
     {
       "name": "Composure",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Maintained professional composure during high-stakes family conflicts that affected corporate governance", "description": "Separated personal dynamics from professional responsibilities during contentious succession period" }
+        {
+          "outcome": "Maintained professional composure during high-stakes family conflicts that affected corporate governance",
+          "description": "Separated personal dynamics from professional responsibilities during contentious succession period"
+        }
       ]
     },
     {
       "name": "Intellectual Curiosity",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": []
     },
     {
       "name": "Fundraising",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["political"],
+      "roles": [
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Raised $4M for senatorial campaign through donor cultivation and events", "description": "Built fundraising strategy combining major donor outreach with digital grassroots campaigns" }
+        {
+          "outcome": "Raised $4M for senatorial campaign through donor cultivation and events",
+          "description": "Built fundraising strategy combining major donor outreach with digital grassroots campaigns"
+        }
       ]
     },
     {
       "name": "Digital Advertising",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["political"],
+      "roles": [
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Directed $2M digital ad spend across platforms for political campaign", "description": "Managed targeted digital advertising campaigns across social media and search platforms" }
+        {
+          "outcome": "Directed $2M digital ad spend across platforms for political campaign",
+          "description": "Managed targeted digital advertising campaigns across social media and search platforms"
+        }
       ]
     },
     {
       "name": "Financial Literacy",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": []
     }
   ],
   "values": [
-    { "name": "Power", "level": "core" },
-    { "name": "Independence", "level": "core" },
-    { "name": "Achievement", "level": "core" },
-    { "name": "Fairness", "level": "important" },
-    { "name": "Innovation", "level": "important" }
+    {
+      "name": "Strategic Thinking",
+      "selected": true
+    },
+    {
+      "name": "Empowerment",
+      "selected": true
+    },
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Candor",
+      "selected": true
+    },
+    {
+      "name": "Transparency",
+      "selected": true
+    },
+    {
+      "name": "Power Over Permission",
+      "selected": true
+    },
+    {
+      "name": "Redesign the Table",
+      "selected": true
+    }
   ],
   "workHistory": [
     {

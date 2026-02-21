@@ -9,11 +9,26 @@
     "executiveSummary": "Youngest Roy sibling who rose through Waystar Royco's entertainment and digital divisions, bringing an intuitive grasp of audience psychology and content strategy that contrasts with the company's traditional analytical approach. Successfully managed international partner relationships including the complex GoJo/Matsson negotiation. Known for irreverent communication style that masks sharp strategic instincts and surprising emotional intelligence in one-on-one settings."
   },
   "roles": [
-    { "name": "Content & Entertainment", "id": "content" },
-    { "name": "Digital Media", "id": "digital" },
-    { "name": "Brand & Marketing", "id": "brand" },
-    { "name": "Corporate Leadership", "id": "leadership" },
-    { "name": "International Partnerships", "id": "international" }
+    {
+      "name": "Content & Entertainment",
+      "id": "content"
+    },
+    {
+      "name": "Digital Media",
+      "id": "digital"
+    },
+    {
+      "name": "Brand & Marketing",
+      "id": "brand"
+    },
+    {
+      "name": "Corporate Leadership",
+      "id": "leadership"
+    },
+    {
+      "name": "International Partnerships",
+      "id": "international"
+    }
   ],
   "skills": [
     {
@@ -21,10 +36,18 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["content"],
+      "roles": [
+        "content"
+      ],
       "evidence": [
-        { "outcome": "Identified content gaps in Waystar entertainment portfolio before analytics confirmed them", "description": "Applied intuitive understanding of audience psychology to spot programming weaknesses others missed" },
-        { "outcome": "Championed digital-first content initiative that drove 40% increase in younger demographic engagement", "description": "Advocated for content format and distribution changes targeting underserved audience segments" }
+        {
+          "outcome": "Identified content gaps in Waystar entertainment portfolio before analytics confirmed them",
+          "description": "Applied intuitive understanding of audience psychology to spot programming weaknesses others missed"
+        },
+        {
+          "outcome": "Championed digital-first content initiative that drove 40% increase in younger demographic engagement",
+          "description": "Advocated for content format and distribution changes targeting underserved audience segments"
+        }
       ]
     },
     {
@@ -32,10 +55,18 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["brand"],
+      "roles": [
+        "brand"
+      ],
       "evidence": [
-        { "outcome": "Repositioned Brightstar Parks brand driving 15% attendance increase in first year", "description": "Directed brand refresh including visual identity, messaging, and experiential design" },
-        { "outcome": "Developed brand architecture strategy for Waystar's consumer-facing properties", "description": "Created framework defining brand relationships across ATN, Brightstar, and entertainment divisions" }
+        {
+          "outcome": "Repositioned Brightstar Parks brand driving 15% attendance increase in first year",
+          "description": "Directed brand refresh including visual identity, messaging, and experiential design"
+        },
+        {
+          "outcome": "Developed brand architecture strategy for Waystar's consumer-facing properties",
+          "description": "Created framework defining brand relationships across ATN, Brightstar, and entertainment divisions"
+        }
       ]
     },
     {
@@ -43,10 +74,19 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["international", "leadership"],
+      "roles": [
+        "international",
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Managed relationship with Lukas Matsson during GoJo merger negotiations", "description": "Built personal rapport with GoJo CEO facilitating deal progression when formal negotiations stalled" },
-        { "outcome": "Explored expansion opportunities across 5 Asian markets for Waystar entertainment properties", "description": "Evaluated market entry strategies including joint ventures, licensing, and direct investment" }
+        {
+          "outcome": "Managed relationship with Lukas Matsson during GoJo merger negotiations",
+          "description": "Built personal rapport with GoJo CEO facilitating deal progression when formal negotiations stalled"
+        },
+        {
+          "outcome": "Explored expansion opportunities across 5 Asian markets for Waystar entertainment properties",
+          "description": "Evaluated market entry strategies including joint ventures, licensing, and direct investment"
+        }
       ]
     },
     {
@@ -54,108 +94,173 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["digital"],
+      "roles": [
+        "digital"
+      ],
       "evidence": [
-        { "outcome": "Developed digital engagement strategy achieving 25% year-over-year audience growth", "description": "Created multi-platform content distribution approach leveraging social media, streaming, and interactive formats" }
+        {
+          "outcome": "Developed digital engagement strategy achieving 25% year-over-year audience growth",
+          "description": "Created multi-platform content distribution approach leveraging social media, streaming, and interactive formats"
+        }
       ]
     },
     {
       "name": "Entertainment Operations",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["content"],
+      "roles": [
+        "content"
+      ],
       "evidence": [
-        { "outcome": "Managed Waystar's theme park and entertainment division operations", "description": "Oversaw Brightstar Parks operational improvements including guest experience enhancement and new attraction development" }
+        {
+          "outcome": "Managed Waystar's theme park and entertainment division operations",
+          "description": "Oversaw Brightstar Parks operational improvements including guest experience enhancement and new attraction development"
+        }
       ]
     },
     {
       "name": "Audience Analytics",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["digital", "content"],
+      "roles": [
+        "digital",
+        "content"
+      ],
       "evidence": [
-        { "outcome": "Applied audience behavior insights to inform content commissioning decisions", "description": "Translated viewership patterns and engagement data into actionable content development recommendations" }
+        {
+          "outcome": "Applied audience behavior insights to inform content commissioning decisions",
+          "description": "Translated viewership patterns and engagement data into actionable content development recommendations"
+        }
       ]
     },
     {
       "name": "Partner Relationship Management",
       "level": "Expert",
       "category": "skill",
-      "roles": ["international"],
+      "roles": [
+        "international"
+      ],
       "evidence": [
-        { "outcome": "Maintained productive relationship with difficult international partner through personal diplomacy", "description": "Used humor, authenticity, and strategic patience to navigate cultural and personality differences with key partners" }
+        {
+          "outcome": "Maintained productive relationship with difficult international partner through personal diplomacy",
+          "description": "Used humor, authenticity, and strategic patience to navigate cultural and personality differences with key partners"
+        }
       ]
     },
     {
       "name": "Strategic Communications",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["leadership", "brand"],
+      "roles": [
+        "leadership",
+        "brand"
+      ],
       "evidence": [
-        { "outcome": "Drafted investor messaging that resonated with younger institutional analysts", "description": "Brought contemporary communication style to traditionally conservative corporate communications" }
+        {
+          "outcome": "Drafted investor messaging that resonated with younger institutional analysts",
+          "description": "Brought contemporary communication style to traditionally conservative corporate communications"
+        }
       ]
     },
     {
       "name": "Product Innovation",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["digital", "content"],
+      "roles": [
+        "digital",
+        "content"
+      ],
       "evidence": [
-        { "outcome": "Proposed interactive content format that became Waystar's fastest-growing digital product", "description": "Identified consumer trend toward interactive and participatory media experiences" }
+        {
+          "outcome": "Proposed interactive content format that became Waystar's fastest-growing digital product",
+          "description": "Identified consumer trend toward interactive and participatory media experiences"
+        }
       ]
     },
     {
       "name": "Social Media Strategy",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["digital", "brand"],
+      "roles": [
+        "digital",
+        "brand"
+      ],
       "evidence": [
-        { "outcome": "Directed Waystar social media strategy across 5 platforms reaching 50M+ combined followers", "description": "Applied native understanding of social media culture to corporate brand management" }
+        {
+          "outcome": "Directed Waystar social media strategy across 5 platforms reaching 50M+ combined followers",
+          "description": "Applied native understanding of social media culture to corporate brand management"
+        }
       ]
     },
     {
       "name": "Competitive Intelligence",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Tracked competitor content strategies across streaming, social, and broadcast platforms", "description": "Monitored Netflix, Disney+, and platform competitor moves to inform Waystar content strategy" }
+        {
+          "outcome": "Tracked competitor content strategies across streaming, social, and broadcast platforms",
+          "description": "Monitored Netflix, Disney+, and platform competitor moves to inform Waystar content strategy"
+        }
       ]
     },
     {
       "name": "Negotiation",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["international", "leadership"],
+      "roles": [
+        "international",
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Negotiated content licensing deals worth $200M+ across international markets", "description": "Structured licensing agreements balancing revenue optimization with market development goals" }
+        {
+          "outcome": "Negotiated content licensing deals worth $200M+ across international markets",
+          "description": "Structured licensing agreements balancing revenue optimization with market development goals"
+        }
       ]
     },
     {
       "name": "Marketing Strategy",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["brand"],
+      "roles": [
+        "brand"
+      ],
       "evidence": [
-        { "outcome": "Redesigned Brightstar Parks marketing approach increasing digital ticket sales 60%", "description": "Shifted marketing spend from traditional channels to social and influencer-driven campaigns" }
+        {
+          "outcome": "Redesigned Brightstar Parks marketing approach increasing digital ticket sales 60%",
+          "description": "Shifted marketing spend from traditional channels to social and influencer-driven campaigns"
+        }
       ]
     },
     {
       "name": "Executive Presence",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Represented Waystar at international media summits and partner negotiations", "description": "Despite unconventional style, demonstrated ability to command executive settings when required" }
+        {
+          "outcome": "Represented Waystar at international media summits and partner negotiations",
+          "description": "Despite unconventional style, demonstrated ability to command executive settings when required"
+        }
       ]
     },
     {
       "name": "Talent Scouting",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["content"],
+      "roles": [
+        "content"
+      ],
       "evidence": [
-        { "outcome": "Identified emerging creative talent for Waystar entertainment properties", "description": "Leveraged cultural awareness and industry relationships to source content creators and performers" }
+        {
+          "outcome": "Identified emerging creative talent for Waystar entertainment properties",
+          "description": "Leveraged cultural awareness and industry relationships to source content creators and performers"
+        }
       ]
     },
     {
@@ -163,18 +268,29 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["content"],
+      "roles": [
+        "content"
+      ],
       "evidence": [
-        { "outcome": "Consistently predicted content performance with higher accuracy than data-driven models", "description": "Applied instinctive audience understanding to content evaluation, outperforming analytical approaches in hit prediction" }
+        {
+          "outcome": "Consistently predicted content performance with higher accuracy than data-driven models",
+          "description": "Applied instinctive audience understanding to content evaluation, outperforming analytical approaches in hit prediction"
+        }
       ]
     },
     {
       "name": "Emotional Intelligence",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["leadership", "international"],
+      "roles": [
+        "leadership",
+        "international"
+      ],
       "evidence": [
-        { "outcome": "Read interpersonal dynamics in Matsson relationship that other executives missed", "description": "Identified emotional subtext and personal motivations driving partner behavior, enabling more effective engagement" }
+        {
+          "outcome": "Read interpersonal dynamics in Matsson relationship that other executives missed",
+          "description": "Identified emotional subtext and personal motivations driving partner behavior, enabling more effective engagement"
+        }
       ]
     },
     {
@@ -182,68 +298,123 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Used humor to defuse tense boardroom situations and build rapport in negotiations", "description": "Applied irreverent communication style strategically to create openings in high-pressure corporate settings" }
+        {
+          "outcome": "Used humor to defuse tense boardroom situations and build rapport in negotiations",
+          "description": "Applied irreverent communication style strategically to create openings in high-pressure corporate settings"
+        }
       ]
     },
     {
       "name": "Adaptability",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Transitioned from entertainment focus to COO responsibilities during succession period", "description": "Expanded operational scope rapidly when opportunity required broader leadership capability" }
+        {
+          "outcome": "Transitioned from entertainment focus to COO responsibilities during succession period",
+          "description": "Expanded operational scope rapidly when opportunity required broader leadership capability"
+        }
       ]
     },
     {
       "name": "Risk Appetite",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["leadership", "content"],
+      "roles": [
+        "leadership",
+        "content"
+      ],
       "evidence": [
-        { "outcome": "Championed high-risk content investments that outperformed conservative alternatives", "description": "Advocated for unconventional content bets that more risk-averse executives would have rejected" }
+        {
+          "outcome": "Championed high-risk content investments that outperformed conservative alternatives",
+          "description": "Advocated for unconventional content bets that more risk-averse executives would have rejected"
+        }
       ]
     },
     {
       "name": "Trend Forecasting",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["digital", "content"],
+      "roles": [
+        "digital",
+        "content"
+      ],
       "evidence": [
-        { "outcome": "Predicted shift to short-form content 2 years before TikTok dominated media landscape", "description": "Identified emerging consumer preference for bite-sized content formats based on cultural observation" }
+        {
+          "outcome": "Predicted shift to short-form content 2 years before TikTok dominated media landscape",
+          "description": "Identified emerging consumer preference for bite-sized content formats based on cultural observation"
+        }
       ]
     },
     {
       "name": "Financial Analysis",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": []
     },
     {
       "name": "Operations Management",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": []
     },
     {
       "name": "Influencer Marketing",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["brand", "digital"],
+      "roles": [
+        "brand",
+        "digital"
+      ],
       "evidence": [
-        { "outcome": "Pioneered influencer partnership program for Brightstar Parks generating earned media worth $5M+", "description": "Built influencer relationships and created experiential partnerships driving organic social reach" }
+        {
+          "outcome": "Pioneered influencer partnership program for Brightstar Parks generating earned media worth $5M+",
+          "description": "Built influencer relationships and created experiential partnerships driving organic social reach"
+        }
       ]
     }
   ],
   "values": [
-    { "name": "Creativity", "level": "core" },
-    { "name": "Independence", "level": "core" },
-    { "name": "Recognition", "level": "important" },
-    { "name": "Power", "level": "important" },
-    { "name": "Fun", "level": "important" }
+    {
+      "name": "Authenticity",
+      "selected": true
+    },
+    {
+      "name": "Candor",
+      "selected": true
+    },
+    {
+      "name": "Curiosity",
+      "selected": true
+    },
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Resourcefulness",
+      "selected": true
+    },
+    {
+      "name": "Chaos as Strategy",
+      "selected": true
+    },
+    {
+      "name": "Comedy Is Tragedy Plus Time",
+      "selected": true
+    }
   ],
   "workHistory": [
     {
@@ -277,5 +448,5 @@
     }
   ],
   "certifications": [],
-  "purpose": "Everyone wants to be profound. I just want to be right — and have a good time getting there."
+  "purpose": "Everyone wants to be profound. I just want to be right \u2014 and have a good time getting there."
 }

@@ -5,15 +5,30 @@
     "currentTitle": "Chemistry Teacher / Independent Consultant",
     "location": "Albuquerque, NM",
     "roleLevel": "Mid-Career",
-    "headline": "Award-winning chemist with 20+ years in academia and research, co-founder of a technology startup (now valued at $2B+), and developer of a proprietary chemical process achieving 99.1% purity — the highest in any known application.",
+    "headline": "Award-winning chemist with 20+ years in academia and research, co-founder of a technology startup (now valued at $2B+), and developer of a proprietary chemical process achieving 99.1% purity \u2014 the highest in any known application.",
     "executiveSummary": "Decorated research chemist and educator who transitioned from prestigious academic career and tech startup co-founding into independent consulting. Published researcher in proton radiography and X-ray crystallography with work contributing to a Nobel Prize-winning team. Developed proprietary synthesis methodologies achieving industry-leading 99.1% product purity. Demonstrated ability to scale production operations from proof-of-concept to industrial output while mentoring next-generation talent."
   },
   "roles": [
-    { "name": "Chemistry & Research", "id": "chemistry" },
-    { "name": "Education & Mentoring", "id": "education" },
-    { "name": "Production Operations", "id": "production" },
-    { "name": "Business & Entrepreneurship", "id": "business" },
-    { "name": "Laboratory Management", "id": "lab" }
+    {
+      "name": "Chemistry & Research",
+      "id": "chemistry"
+    },
+    {
+      "name": "Education & Mentoring",
+      "id": "education"
+    },
+    {
+      "name": "Production Operations",
+      "id": "production"
+    },
+    {
+      "name": "Business & Entrepreneurship",
+      "id": "business"
+    },
+    {
+      "name": "Laboratory Management",
+      "id": "lab"
+    }
   ],
   "skills": [
     {
@@ -21,10 +36,18 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["chemistry"],
+      "roles": [
+        "chemistry"
+      ],
       "evidence": [
-        { "outcome": "Developed proprietary synthesis achieving 99.1% product purity — highest recorded in the field", "description": "Designed novel reductive amination process using unconventional precursors, achieving purity levels no other chemist could replicate" },
-        { "outcome": "Published 12 peer-reviewed papers on organic synthesis and crystallography", "description": "Research contributions to proton radiography cited in Nobel Prize committee materials" }
+        {
+          "outcome": "Developed proprietary synthesis achieving 99.1% product purity \u2014 highest recorded in the field",
+          "description": "Designed novel reductive amination process using unconventional precursors, achieving purity levels no other chemist could replicate"
+        },
+        {
+          "outcome": "Published 12 peer-reviewed papers on organic synthesis and crystallography",
+          "description": "Research contributions to proton radiography cited in Nobel Prize committee materials"
+        }
       ]
     },
     {
@@ -32,10 +55,19 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["chemistry", "production"],
+      "roles": [
+        "chemistry",
+        "production"
+      ],
       "evidence": [
-        { "outcome": "Scaled chemical production from 2 lbs/week to 200 lbs/week while maintaining 99.1% purity", "description": "Re-engineered synthesis process for industrial-scale output, designing custom equipment and workflow optimization" },
-        { "outcome": "Designed production facility capable of processing 600 lbs/month with 3 operators", "description": "Specified equipment, ventilation, safety systems, and workflow for high-volume chemical production" }
+        {
+          "outcome": "Scaled chemical production from 2 lbs/week to 200 lbs/week while maintaining 99.1% purity",
+          "description": "Re-engineered synthesis process for industrial-scale output, designing custom equipment and workflow optimization"
+        },
+        {
+          "outcome": "Designed production facility capable of processing 600 lbs/month with 3 operators",
+          "description": "Specified equipment, ventilation, safety systems, and workflow for high-volume chemical production"
+        }
       ]
     },
     {
@@ -43,10 +75,19 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["lab", "chemistry"],
+      "roles": [
+        "lab",
+        "chemistry"
+      ],
       "evidence": [
-        { "outcome": "Managed research and production laboratories for 20+ years across academic and commercial settings", "description": "Oversaw equipment procurement, safety protocols, waste disposal, and quality control in multiple lab environments" },
-        { "outcome": "Designed and commissioned state-of-the-art production laboratory from scratch", "description": "Specified all equipment, ventilation, power, and safety systems for industrial-scale chemical production facility" }
+        {
+          "outcome": "Managed research and production laboratories for 20+ years across academic and commercial settings",
+          "description": "Oversaw equipment procurement, safety protocols, waste disposal, and quality control in multiple lab environments"
+        },
+        {
+          "outcome": "Designed and commissioned state-of-the-art production laboratory from scratch",
+          "description": "Specified all equipment, ventilation, power, and safety systems for industrial-scale chemical production facility"
+        }
       ]
     },
     {
@@ -54,9 +95,14 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["chemistry"],
+      "roles": [
+        "chemistry"
+      ],
       "evidence": [
-        { "outcome": "Contributed research to project awarded Nobel Prize in Chemistry", "description": "Work on proton radiography and X-ray crystallography at Sandia National Laboratory contributed to prize-winning research" }
+        {
+          "outcome": "Contributed research to project awarded Nobel Prize in Chemistry",
+          "description": "Work on proton radiography and X-ray crystallography at Sandia National Laboratory contributed to prize-winning research"
+        }
       ]
     },
     {
@@ -64,9 +110,15 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["chemistry", "lab"],
+      "roles": [
+        "chemistry",
+        "lab"
+      ],
       "evidence": [
-        { "outcome": "Developed testing protocols capable of detecting impurities at 0.1% threshold", "description": "Designed quality assurance methodology using spectroscopy and chromatography for real-time production monitoring" }
+        {
+          "outcome": "Developed testing protocols capable of detecting impurities at 0.1% threshold",
+          "description": "Designed quality assurance methodology using spectroscopy and chromatography for real-time production monitoring"
+        }
       ]
     },
     {
@@ -74,19 +126,32 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["education"],
+      "roles": [
+        "education"
+      ],
       "evidence": [
-        { "outcome": "Taught high school chemistry for 16 years with consistently high student performance on AP exams", "description": "Developed engaging curriculum making complex chemistry concepts accessible to teenagers" },
-        { "outcome": "Mentored apprentice from zero chemistry background to independent operator within 12 months", "description": "Developed structured training program transforming Jesse Pinkman from unskilled to competent chemical operator" }
+        {
+          "outcome": "Taught high school chemistry for 16 years with consistently high student performance on AP exams",
+          "description": "Developed engaging curriculum making complex chemistry concepts accessible to teenagers"
+        },
+        {
+          "outcome": "Mentored apprentice from zero chemistry background to independent operator within 12 months",
+          "description": "Developed structured training program transforming Jesse Pinkman from unskilled to competent chemical operator"
+        }
       ]
     },
     {
       "name": "Curriculum Development",
       "level": "Expert",
       "category": "skill",
-      "roles": ["education"],
+      "roles": [
+        "education"
+      ],
       "evidence": [
-        { "outcome": "Designed AP Chemistry curriculum adopted across Albuquerque school district", "description": "Created comprehensive course materials, lab exercises, and assessment frameworks aligned to College Board standards" }
+        {
+          "outcome": "Designed AP Chemistry curriculum adopted across Albuquerque school district",
+          "description": "Created comprehensive course materials, lab exercises, and assessment frameworks aligned to College Board standards"
+        }
       ]
     },
     {
@@ -94,10 +159,19 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["production", "chemistry"],
+      "roles": [
+        "production",
+        "chemistry"
+      ],
       "evidence": [
-        { "outcome": "Increased production yield from 72% to 96% through process redesign", "description": "Identified temperature control inefficiencies and precursor timing issues, redesigning workflow to minimize waste" },
-        { "outcome": "Reduced production cycle time from 48 hours to 18 hours per batch", "description": "Streamlined process by parallelizing preparation steps and optimizing reaction conditions" }
+        {
+          "outcome": "Increased production yield from 72% to 96% through process redesign",
+          "description": "Identified temperature control inefficiencies and precursor timing issues, redesigning workflow to minimize waste"
+        },
+        {
+          "outcome": "Reduced production cycle time from 48 hours to 18 hours per batch",
+          "description": "Streamlined process by parallelizing preparation steps and optimizing reaction conditions"
+        }
       ]
     },
     {
@@ -105,9 +179,15 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["production", "lab"],
+      "roles": [
+        "production",
+        "lab"
+      ],
       "evidence": [
-        { "outcome": "Maintained 99.1% purity standard across 500+ production batches", "description": "Implemented real-time quality monitoring with batch rejection protocol for any output below 96% threshold" }
+        {
+          "outcome": "Maintained 99.1% purity standard across 500+ production batches",
+          "description": "Implemented real-time quality monitoring with batch rejection protocol for any output below 96% threshold"
+        }
       ]
     },
     {
@@ -115,118 +195,192 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["chemistry", "production"],
+      "roles": [
+        "chemistry",
+        "production"
+      ],
       "evidence": [
-        { "outcome": "Improvised alternative synthesis using available materials when primary precursors were unavailable", "description": "Designed completely new production methodology using pseudoephedrine reduction when methylamine supply was disrupted" },
-        { "outcome": "Resolved critical equipment failure during active production run preventing $3M in losses", "description": "Diagnosed and repaired generator malfunction using improvised tools to maintain temperature-critical reaction" }
+        {
+          "outcome": "Improvised alternative synthesis using available materials when primary precursors were unavailable",
+          "description": "Designed completely new production methodology using pseudoephedrine reduction when methylamine supply was disrupted"
+        },
+        {
+          "outcome": "Resolved critical equipment failure during active production run preventing $3M in losses",
+          "description": "Diagnosed and repaired generator malfunction using improvised tools to maintain temperature-critical reaction"
+        }
       ]
     },
     {
       "name": "Startup Co-Founding",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["business"],
+      "roles": [
+        "business"
+      ],
       "evidence": [
-        { "outcome": "Co-founded Gray Matter Technologies, now valued at $2.16B", "description": "Contributed foundational research and co-developed intellectual property that became core to company's success. Departed early, selling share for $5,000" }
+        {
+          "outcome": "Co-founded Gray Matter Technologies, now valued at $2.16B",
+          "description": "Contributed foundational research and co-developed intellectual property that became core to company's success. Departed early, selling share for $5,000"
+        }
       ]
     },
     {
       "name": "Intellectual Property Development",
       "level": "Expert",
       "category": "skill",
-      "roles": ["chemistry", "business"],
+      "roles": [
+        "chemistry",
+        "business"
+      ],
       "evidence": [
-        { "outcome": "Developed proprietary methodologies worth estimated $200M+ in market applications", "description": "Created novel chemical processes and IP that no competitor could replicate, representing significant trade secret value" }
+        {
+          "outcome": "Developed proprietary methodologies worth estimated $200M+ in market applications",
+          "description": "Created novel chemical processes and IP that no competitor could replicate, representing significant trade secret value"
+        }
       ]
     },
     {
       "name": "Grant Writing",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["chemistry", "education"],
+      "roles": [
+        "chemistry",
+        "education"
+      ],
       "evidence": [
-        { "outcome": "Secured $1.2M in research funding across NSF and DOE grants", "description": "Authored competitive grant proposals during tenure at Sandia National Laboratory and academic positions" }
+        {
+          "outcome": "Secured $1.2M in research funding across NSF and DOE grants",
+          "description": "Authored competitive grant proposals during tenure at Sandia National Laboratory and academic positions"
+        }
       ]
     },
     {
       "name": "Scientific Writing",
       "level": "Expert",
       "category": "skill",
-      "roles": ["chemistry"],
+      "roles": [
+        "chemistry"
+      ],
       "evidence": [
-        { "outcome": "Published 12 peer-reviewed papers in top chemistry journals", "description": "Authored research on proton radiography, X-ray crystallography, and advanced synthesis methodologies" }
+        {
+          "outcome": "Published 12 peer-reviewed papers in top chemistry journals",
+          "description": "Authored research on proton radiography, X-ray crystallography, and advanced synthesis methodologies"
+        }
       ]
     },
     {
       "name": "Safety Protocols & Chemical Handling",
       "level": "Expert",
       "category": "skill",
-      "roles": ["lab", "production"],
+      "roles": [
+        "lab",
+        "production"
+      ],
       "evidence": [
-        { "outcome": "Managed hazardous chemical operations for 20+ years with zero serious safety incidents", "description": "Implemented rigorous safety protocols for handling volatile, corrosive, and toxic materials in production environments" }
+        {
+          "outcome": "Managed hazardous chemical operations for 20+ years with zero serious safety incidents",
+          "description": "Implemented rigorous safety protocols for handling volatile, corrosive, and toxic materials in production environments"
+        }
       ]
     },
     {
       "name": "Inventory Management",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["production"],
+      "roles": [
+        "production"
+      ],
       "evidence": [
-        { "outcome": "Managed precursor chemical inventory across multiple production sites", "description": "Tracked raw materials, intermediates, and finished product with precision accounting for regulatory compliance" }
+        {
+          "outcome": "Managed precursor chemical inventory across multiple production sites",
+          "description": "Tracked raw materials, intermediates, and finished product with precision accounting for regulatory compliance"
+        }
       ]
     },
     {
       "name": "Supply Chain Procurement",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["production", "business"],
+      "roles": [
+        "production",
+        "business"
+      ],
       "evidence": [
-        { "outcome": "Sourced and secured critical raw materials through alternative channels when primary supply was disrupted", "description": "Identified and negotiated with non-traditional suppliers to maintain production continuity during supply chain disruptions" }
+        {
+          "outcome": "Sourced and secured critical raw materials through alternative channels when primary supply was disrupted",
+          "description": "Identified and negotiated with non-traditional suppliers to maintain production continuity during supply chain disruptions"
+        }
       ]
     },
     {
       "name": "Revenue Generation",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["business"],
+      "roles": [
+        "business"
+      ],
       "evidence": [
-        { "outcome": "Generated $80M in revenue within 18 months as independent operator", "description": "Scaled from zero to $80M through production excellence, strategic distribution partnerships, and market positioning" }
+        {
+          "outcome": "Generated $80M in revenue within 18 months as independent operator",
+          "description": "Scaled from zero to $80M through production excellence, strategic distribution partnerships, and market positioning"
+        }
       ]
     },
     {
       "name": "Negotiation",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["business"],
+      "roles": [
+        "business"
+      ],
       "evidence": [
-        { "outcome": "Negotiated distribution agreements with multiple partners across competitive territory", "description": "Leveraged product quality differentiation to command premium pricing and favorable distribution terms" }
+        {
+          "outcome": "Negotiated distribution agreements with multiple partners across competitive territory",
+          "description": "Leveraged product quality differentiation to command premium pricing and favorable distribution terms"
+        }
       ]
     },
     {
       "name": "Strategic Planning",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["business"],
+      "roles": [
+        "business"
+      ],
       "evidence": [
-        { "outcome": "Developed market entry strategy capturing dominant position within 12 months", "description": "Identified distribution gaps, quality differentiation opportunity, and partnership strategy to rapidly scale operations" }
+        {
+          "outcome": "Developed market entry strategy capturing dominant position within 12 months",
+          "description": "Identified distribution gaps, quality differentiation opportunity, and partnership strategy to rapidly scale operations"
+        }
       ]
     },
     {
       "name": "Team Leadership",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["production", "education"],
+      "roles": [
+        "production",
+        "education"
+      ],
       "evidence": [
-        { "outcome": "Built and led 3-person production team achieving consistent output targets", "description": "Recruited, trained, and managed small team executing complex technical operations under demanding conditions" }
+        {
+          "outcome": "Built and led 3-person production team achieving consistent output targets",
+          "description": "Recruited, trained, and managed small team executing complex technical operations under demanding conditions"
+        }
       ]
     },
     {
       "name": "Mentoring & Coaching",
       "level": "Expert",
       "category": "skill",
-      "roles": ["education"],
+      "roles": [
+        "education"
+      ],
       "evidence": [
-        { "outcome": "Developed Jesse Pinkman from untrained apprentice to competent independent operator in 12 months", "description": "Created structured training program building technical competency progressively from basic safety to complex synthesis" }
+        {
+          "outcome": "Developed Jesse Pinkman from untrained apprentice to competent independent operator in 12 months",
+          "description": "Created structured training program building technical competency progressively from basic safety to complex synthesis"
+        }
       ]
     },
     {
@@ -234,18 +388,29 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["chemistry"],
+      "roles": [
+        "chemistry"
+      ],
       "evidence": [
-        { "outcome": "Solved novel synthesis challenges that stumped PhD-level chemists at competing operations", "description": "Applied first-principles reasoning to design solutions that others couldn't conceive, consistently outperforming competitors with more resources" }
+        {
+          "outcome": "Solved novel synthesis challenges that stumped PhD-level chemists at competing operations",
+          "description": "Applied first-principles reasoning to design solutions that others couldn't conceive, consistently outperforming competitors with more resources"
+        }
       ]
     },
     {
       "name": "Adaptability",
       "level": "Expert",
       "category": "work style",
-      "roles": ["business", "production"],
+      "roles": [
+        "business",
+        "production"
+      ],
       "evidence": [
-        { "outcome": "Pivoted entire career trajectory and scaled from $43K salary to $80M revenue in 18 months", "description": "Demonstrated extraordinary ability to apply academic expertise in commercial context, adapting to entirely new operational demands" }
+        {
+          "outcome": "Pivoted entire career trajectory and scaled from $43K salary to $80M revenue in 18 months",
+          "description": "Demonstrated extraordinary ability to apply academic expertise in commercial context, adapting to entirely new operational demands"
+        }
       ]
     },
     {
@@ -253,120 +418,204 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["chemistry", "lab"],
+      "roles": [
+        "chemistry",
+        "lab"
+      ],
       "evidence": [
-        { "outcome": "Maintained 99.1% purity requiring precision at molecular level across 500+ batches", "description": "Obsessive attention to temperature, timing, and measurement tolerances enabling unmatched product consistency" }
+        {
+          "outcome": "Maintained 99.1% purity requiring precision at molecular level across 500+ batches",
+          "description": "Obsessive attention to temperature, timing, and measurement tolerances enabling unmatched product consistency"
+        }
       ]
     },
     {
       "name": "Resilience Under Pressure",
       "level": "Expert",
       "category": "work style",
-      "roles": ["business", "production"],
+      "roles": [
+        "business",
+        "production"
+      ],
       "evidence": [
-        { "outcome": "Maintained operational output through multiple life-threatening situations and crises", "description": "Continued production and business operations while navigating extreme personal and professional adversity" }
+        {
+          "outcome": "Maintained operational output through multiple life-threatening situations and crises",
+          "description": "Continued production and business operations while navigating extreme personal and professional adversity"
+        }
       ]
     },
     {
       "name": "Creative Problem Solving",
       "level": "Expert",
       "category": "work style",
-      "roles": ["chemistry", "production"],
+      "roles": [
+        "chemistry",
+        "production"
+      ],
       "evidence": [
-        { "outcome": "Improvised thermite, battery, and explosive solutions from commonly available materials", "description": "Applied chemistry expertise to solve novel field problems requiring immediate creative solutions with limited resources" }
+        {
+          "outcome": "Improvised thermite, battery, and explosive solutions from commonly available materials",
+          "description": "Applied chemistry expertise to solve novel field problems requiring immediate creative solutions with limited resources"
+        }
       ]
     },
     {
       "name": "Risk Assessment",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["business"],
+      "roles": [
+        "business"
+      ],
       "evidence": [
-        { "outcome": "Evaluated and mitigated operational risks across production and distribution", "description": "Assessed threats from competitors, law enforcement, and supply chain disruptions, implementing mitigation strategies" }
+        {
+          "outcome": "Evaluated and mitigated operational risks across production and distribution",
+          "description": "Assessed threats from competitors, law enforcement, and supply chain disruptions, implementing mitigation strategies"
+        }
       ]
     },
     {
       "name": "Presentation Skills",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["education"],
+      "roles": [
+        "education"
+      ],
       "evidence": [
-        { "outcome": "Delivered engaging chemistry lectures for 16 years", "description": "Made complex organic chemistry concepts accessible and interesting to high school students" }
+        {
+          "outcome": "Delivered engaging chemistry lectures for 16 years",
+          "description": "Made complex organic chemistry concepts accessible and interesting to high school students"
+        }
       ]
     },
     {
       "name": "Financial Management",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["business"],
+      "roles": [
+        "business"
+      ],
       "evidence": [
-        { "outcome": "Managed cash reserves of $80M requiring secure storage and asset protection", "description": "Handled large-scale financial management including asset protection planning and succession provisions" }
+        {
+          "outcome": "Managed cash reserves of $80M requiring secure storage and asset protection",
+          "description": "Handled large-scale financial management including asset protection planning and succession provisions"
+        }
       ]
     },
     {
       "name": "Brand Development",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["business"],
+      "roles": [
+        "business"
+      ],
       "evidence": [
-        { "outcome": "Built product brand recognition achieving premium pricing across distribution territory", "description": "Blue product became market identifier commanding 3x competitor pricing based on quality reputation" }
+        {
+          "outcome": "Built product brand recognition achieving premium pricing across distribution territory",
+          "description": "Blue product became market identifier commanding 3x competitor pricing based on quality reputation"
+        }
       ]
     },
     {
       "name": "Marketing",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["business"],
+      "roles": [
+        "business"
+      ],
       "evidence": []
     },
     {
       "name": "Equipment Maintenance",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["lab", "production"],
+      "roles": [
+        "lab",
+        "production"
+      ],
       "evidence": [
-        { "outcome": "Maintained and repaired complex laboratory and production equipment extending useful life", "description": "Diagnosed and repaired HVAC, electrical, and chemical processing equipment using first-principles engineering knowledge" }
+        {
+          "outcome": "Maintained and repaired complex laboratory and production equipment extending useful life",
+          "description": "Diagnosed and repaired HVAC, electrical, and chemical processing equipment using first-principles engineering knowledge"
+        }
       ]
     },
     {
       "name": "Waste Management & Disposal",
       "level": "Expert",
       "category": "skill",
-      "roles": ["lab", "production"],
+      "roles": [
+        "lab",
+        "production"
+      ],
       "evidence": [
-        { "outcome": "Developed chemical waste disposal protocols preventing environmental detection", "description": "Designed decomposition processes for hazardous byproducts ensuring complete neutralization of trace evidence" }
+        {
+          "outcome": "Developed chemical waste disposal protocols preventing environmental detection",
+          "description": "Designed decomposition processes for hazardous byproducts ensuring complete neutralization of trace evidence"
+        }
       ]
     },
     {
       "name": "Student Assessment",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["education"],
+      "roles": [
+        "education"
+      ],
       "evidence": [
-        { "outcome": "Designed assessment frameworks measuring true chemical understanding versus memorization", "description": "Created lab practical exams testing applied chemistry knowledge, not just textbook recall" }
+        {
+          "outcome": "Designed assessment frameworks measuring true chemical understanding versus memorization",
+          "description": "Created lab practical exams testing applied chemistry knowledge, not just textbook recall"
+        }
       ]
     },
     {
       "name": "Digital Literacy",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["education"],
+      "roles": [
+        "education"
+      ],
       "evidence": []
     },
     {
       "name": "Public Speaking",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["education"],
+      "roles": [
+        "education"
+      ],
       "evidence": []
     }
   ],
   "values": [
-    { "name": "Excellence", "level": "core" },
-    { "name": "Legacy", "level": "core" },
-    { "name": "Recognition", "level": "core" },
-    { "name": "Autonomy", "level": "important" },
-    { "name": "Family", "level": "important" }
+    {
+      "name": "Excellence",
+      "selected": true
+    },
+    {
+      "name": "Craftsmanship",
+      "selected": true
+    },
+    {
+      "name": "Evidence-Based Decision Making",
+      "selected": true
+    },
+    {
+      "name": "Strategic Thinking",
+      "selected": true
+    },
+    {
+      "name": "Bias Toward Action",
+      "selected": true
+    },
+    {
+      "name": "Empire Building",
+      "selected": true
+    },
+    {
+      "name": "Say My Name",
+      "selected": true
+    }
   ],
   "workHistory": [
     {
@@ -413,8 +662,14 @@
     }
   ],
   "certifications": [
-    { "name": "New Mexico Teaching License - Chemistry", "issuer": "NM Public Education Department" },
-    { "name": "Crystallography Research Award", "issuer": "American Chemical Society" }
+    {
+      "name": "New Mexico Teaching License - Chemistry",
+      "issuer": "NM Public Education Department"
+    },
+    {
+      "name": "Crystallography Research Award",
+      "issuer": "American Chemical Society"
+    }
   ],
   "purpose": "Chemistry is the study of matter. But I prefer to see it as the study of change. And I have embraced that change."
 }

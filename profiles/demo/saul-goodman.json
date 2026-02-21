@@ -9,11 +9,26 @@
     "executiveSummary": "Self-made attorney who transformed from a struggling public defender into the most recognized legal brand in the Southwest. Pioneered guerrilla marketing strategies for legal services, built a client base spanning criminal defense, elder law, and corporate advisory, and developed a reputation for creative problem-solving in high-stakes situations. Former mailroom clerk who passed the bar through sheer determination and unconventional intelligence."
   },
   "roles": [
-    { "name": "Legal Practice", "id": "legal" },
-    { "name": "Marketing & Business Development", "id": "marketing" },
-    { "name": "Negotiation & Mediation", "id": "negotiation" },
-    { "name": "Client Relations", "id": "client" },
-    { "name": "Crisis Management", "id": "crisis" }
+    {
+      "name": "Legal Practice",
+      "id": "legal"
+    },
+    {
+      "name": "Marketing & Business Development",
+      "id": "marketing"
+    },
+    {
+      "name": "Negotiation & Mediation",
+      "id": "negotiation"
+    },
+    {
+      "name": "Client Relations",
+      "id": "client"
+    },
+    {
+      "name": "Crisis Management",
+      "id": "crisis"
+    }
   ],
   "skills": [
     {
@@ -21,10 +36,19 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["negotiation", "legal"],
+      "roles": [
+        "negotiation",
+        "legal"
+      ],
       "evidence": [
-        { "outcome": "Negotiated plea deals reducing client sentences by an average of 60% versus initial prosecution offers", "description": "Applied creative deal structuring and relationship leverage to achieve outcomes exceeding client expectations consistently" },
-        { "outcome": "Brokered $1.6M elder care settlement (Sandpiper Crossing) for class of 120+ residents", "description": "Identified systematic overcharging pattern, built class action case, and negotiated settlement without going to trial" }
+        {
+          "outcome": "Negotiated plea deals reducing client sentences by an average of 60% versus initial prosecution offers",
+          "description": "Applied creative deal structuring and relationship leverage to achieve outcomes exceeding client expectations consistently"
+        },
+        {
+          "outcome": "Brokered $1.6M elder care settlement (Sandpiper Crossing) for class of 120+ residents",
+          "description": "Identified systematic overcharging pattern, built class action case, and negotiated settlement without going to trial"
+        }
       ]
     },
     {
@@ -32,10 +56,19 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["legal", "negotiation"],
+      "roles": [
+        "legal",
+        "negotiation"
+      ],
       "evidence": [
-        { "outcome": "Achieved 94% client retention rate through consultative approach and creative legal strategies", "description": "Built deep trust with clients by translating complex legal situations into clear options with honest risk assessments" },
-        { "outcome": "Convinced multiple hostile witnesses to cooperate through relationship-building and strategic framing", "description": "Turned adversarial situations into collaborative outcomes through empathy, persistence, and creative incentive structuring" }
+        {
+          "outcome": "Achieved 94% client retention rate through consultative approach and creative legal strategies",
+          "description": "Built deep trust with clients by translating complex legal situations into clear options with honest risk assessments"
+        },
+        {
+          "outcome": "Convinced multiple hostile witnesses to cooperate through relationship-building and strategic framing",
+          "description": "Turned adversarial situations into collaborative outcomes through empathy, persistence, and creative incentive structuring"
+        }
       ]
     },
     {
@@ -43,10 +76,18 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["legal"],
+      "roles": [
+        "legal"
+      ],
       "evidence": [
-        { "outcome": "Defended 200+ criminal cases with 78% favorable outcome rate", "description": "Specialized in drug offenses, white collar crime, and complex multi-defendant cases requiring creative defense strategies" },
-        { "outcome": "Won dismissal in high-profile case by identifying constitutional violation in evidence collection", "description": "Identified Fourth Amendment issue that led to suppression of key evidence and case dismissal" }
+        {
+          "outcome": "Defended 200+ criminal cases with 78% favorable outcome rate",
+          "description": "Specialized in drug offenses, white collar crime, and complex multi-defendant cases requiring creative defense strategies"
+        },
+        {
+          "outcome": "Won dismissal in high-profile case by identifying constitutional violation in evidence collection",
+          "description": "Identified Fourth Amendment issue that led to suppression of key evidence and case dismissal"
+        }
       ]
     },
     {
@@ -54,10 +95,18 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["marketing"],
+      "roles": [
+        "marketing"
+      ],
       "evidence": [
-        { "outcome": "Built most recognized legal brand in the Southwest through $50K/year guerrilla marketing budget", "description": "Pioneered late-night TV advertising, bus bench campaigns, and community outreach generating 300+ inbound leads monthly" },
-        { "outcome": "Achieved top-of-mind brand recognition with zero traditional agency support", "description": "Created, produced, and placed all advertising personally, developing distinctive visual identity and memorable taglines" }
+        {
+          "outcome": "Built most recognized legal brand in the Southwest through $50K/year guerrilla marketing budget",
+          "description": "Pioneered late-night TV advertising, bus bench campaigns, and community outreach generating 300+ inbound leads monthly"
+        },
+        {
+          "outcome": "Achieved top-of-mind brand recognition with zero traditional agency support",
+          "description": "Created, produced, and placed all advertising personally, developing distinctive visual identity and memorable taglines"
+        }
       ]
     },
     {
@@ -65,9 +114,14 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["legal"],
+      "roles": [
+        "legal"
+      ],
       "evidence": [
-        { "outcome": "Drafted complex multi-party agreements protecting client interests across 100+ transactions", "description": "Specialized in employment contracts, business formation documents, and settlement agreements with creative provisions" }
+        {
+          "outcome": "Drafted complex multi-party agreements protecting client interests across 100+ transactions",
+          "description": "Specialized in employment contracts, business formation documents, and settlement agreements with creative provisions"
+        }
       ]
     },
     {
@@ -75,9 +129,14 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["client"],
+      "roles": [
+        "client"
+      ],
       "evidence": [
-        { "outcome": "Maintained 94% client retention rate across diverse practice areas", "description": "Built lasting relationships through 24/7 availability, plain-language communication, and genuine advocacy for client interests" }
+        {
+          "outcome": "Maintained 94% client retention rate across diverse practice areas",
+          "description": "Built lasting relationships through 24/7 availability, plain-language communication, and genuine advocacy for client interests"
+        }
       ]
     },
     {
@@ -85,91 +144,148 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["crisis", "legal"],
+      "roles": [
+        "crisis",
+        "legal"
+      ],
       "evidence": [
-        { "outcome": "Resolved 50+ emergency client situations requiring immediate legal intervention", "description": "Provided same-day crisis response including emergency motions, bail hearings, and witness management" },
-        { "outcome": "Managed high-profile client exposure risk during federal investigation without disclosure", "description": "Coordinated legal strategy across multiple parties to contain information and protect client privilege" }
+        {
+          "outcome": "Resolved 50+ emergency client situations requiring immediate legal intervention",
+          "description": "Provided same-day crisis response including emergency motions, bail hearings, and witness management"
+        },
+        {
+          "outcome": "Managed high-profile client exposure risk during federal investigation without disclosure",
+          "description": "Coordinated legal strategy across multiple parties to contain information and protect client privilege"
+        }
       ]
     },
     {
       "name": "Elder Law",
       "level": "Expert",
       "category": "skill",
-      "roles": ["legal"],
+      "roles": [
+        "legal"
+      ],
       "evidence": [
-        { "outcome": "Led Sandpiper Crossing class action recovering $1.6M for 120+ elderly residents", "description": "Identified systematic overcharging, gathered evidence through forensic accounting, and built compelling class action case" }
+        {
+          "outcome": "Led Sandpiper Crossing class action recovering $1.6M for 120+ elderly residents",
+          "description": "Identified systematic overcharging, gathered evidence through forensic accounting, and built compelling class action case"
+        }
       ]
     },
     {
       "name": "Courtroom Litigation",
       "level": "Expert",
       "category": "skill",
-      "roles": ["legal"],
+      "roles": [
+        "legal"
+      ],
       "evidence": [
-        { "outcome": "Delivered closing arguments resulting in acquittal in 3 cases prosecution considered unwinnable for defense", "description": "Combined emotional storytelling with precise legal argument to create reasonable doubt in jury's mind" }
+        {
+          "outcome": "Delivered closing arguments resulting in acquittal in 3 cases prosecution considered unwinnable for defense",
+          "description": "Combined emotional storytelling with precise legal argument to create reasonable doubt in jury's mind"
+        }
       ]
     },
     {
       "name": "Evidence Management",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["legal"],
+      "roles": [
+        "legal"
+      ],
       "evidence": [
-        { "outcome": "Identified exculpatory evidence overlooked by prosecution in 15+ cases", "description": "Applied thorough discovery review and independent investigation to uncover evidence favorable to client defense" }
+        {
+          "outcome": "Identified exculpatory evidence overlooked by prosecution in 15+ cases",
+          "description": "Applied thorough discovery review and independent investigation to uncover evidence favorable to client defense"
+        }
       ]
     },
     {
       "name": "Business Development",
       "level": "Expert",
       "category": "skill",
-      "roles": ["marketing"],
+      "roles": [
+        "marketing"
+      ],
       "evidence": [
-        { "outcome": "Grew solo practice from 0 to 300+ active clients within 3 years", "description": "Combined marketing innovation with referral network development and community presence to build rapid client base" }
+        {
+          "outcome": "Grew solo practice from 0 to 300+ active clients within 3 years",
+          "description": "Combined marketing innovation with referral network development and community presence to build rapid client base"
+        }
       ]
     },
     {
       "name": "Public Speaking",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["legal", "marketing"],
+      "roles": [
+        "legal",
+        "marketing"
+      ],
       "evidence": [
-        { "outcome": "Delivered persuasive arguments in 200+ court appearances and depositions", "description": "Developed commanding courtroom presence combining humor, empathy, and logical precision" }
+        {
+          "outcome": "Delivered persuasive arguments in 200+ court appearances and depositions",
+          "description": "Developed commanding courtroom presence combining humor, empathy, and logical precision"
+        }
       ]
     },
     {
       "name": "Advertising Production",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["marketing"],
+      "roles": [
+        "marketing"
+      ],
       "evidence": [
-        { "outcome": "Self-produced 40+ TV commercials on shoestring budget generating measurable client acquisition", "description": "Wrote, directed, and often starred in low-budget but highly effective legal advertising spots" }
+        {
+          "outcome": "Self-produced 40+ TV commercials on shoestring budget generating measurable client acquisition",
+          "description": "Wrote, directed, and often starred in low-budget but highly effective legal advertising spots"
+        }
       ]
     },
     {
       "name": "Financial Structuring",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["legal", "negotiation"],
+      "roles": [
+        "legal",
+        "negotiation"
+      ],
       "evidence": [
-        { "outcome": "Structured complex financial arrangements for high-net-worth clients requiring discretion", "description": "Designed holding company structures, trust arrangements, and payment flows for clients with complex financial situations" }
+        {
+          "outcome": "Structured complex financial arrangements for high-net-worth clients requiring discretion",
+          "description": "Designed holding company structures, trust arrangements, and payment flows for clients with complex financial situations"
+        }
       ]
     },
     {
       "name": "Regulatory Compliance",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["legal"],
+      "roles": [
+        "legal"
+      ],
       "evidence": [
-        { "outcome": "Navigated state bar ethics requirements while operating at the boundary of conventional practice", "description": "Maintained active law license and bar standing while pursuing aggressive client advocacy strategies" }
+        {
+          "outcome": "Navigated state bar ethics requirements while operating at the boundary of conventional practice",
+          "description": "Maintained active law license and bar standing while pursuing aggressive client advocacy strategies"
+        }
       ]
     },
     {
       "name": "Conflict Resolution",
       "level": "Expert",
       "category": "work style",
-      "roles": ["negotiation", "client"],
+      "roles": [
+        "negotiation",
+        "client"
+      ],
       "evidence": [
-        { "outcome": "Mediated disputes between hostile parties achieving settlement in 85% of cases", "description": "Applied creative problem-solving to find mutually acceptable solutions in seemingly intractable conflicts" }
+        {
+          "outcome": "Mediated disputes between hostile parties achieving settlement in 85% of cases",
+          "description": "Applied creative problem-solving to find mutually acceptable solutions in seemingly intractable conflicts"
+        }
       ]
     },
     {
@@ -177,9 +293,15 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["legal", "crisis"],
+      "roles": [
+        "legal",
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Devised legal strategies that opposing counsel described as 'unprecedented but effective'", "description": "Approached legal challenges from unconventional angles, finding solutions within the law that others couldn't conceive" }
+        {
+          "outcome": "Devised legal strategies that opposing counsel described as 'unprecedented but effective'",
+          "description": "Approached legal challenges from unconventional angles, finding solutions within the law that others couldn't conceive"
+        }
       ]
     },
     {
@@ -187,111 +309,189 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["crisis", "marketing"],
+      "roles": [
+        "crisis",
+        "marketing"
+      ],
       "evidence": [
-        { "outcome": "Built thriving legal practice with zero startup capital and no professional network", "description": "Leveraged creativity, hustle, and unconventional marketing to overcome resource disadvantages against established firms" }
+        {
+          "outcome": "Built thriving legal practice with zero startup capital and no professional network",
+          "description": "Leveraged creativity, hustle, and unconventional marketing to overcome resource disadvantages against established firms"
+        }
       ]
     },
     {
       "name": "Empathy",
       "level": "Expert",
       "category": "work style",
-      "roles": ["client"],
+      "roles": [
+        "client"
+      ],
       "evidence": [
-        { "outcome": "Built deep trust with clients from diverse backgrounds including elderly, criminal defendants, and business owners", "description": "Demonstrated genuine concern for client wellbeing beyond legal outcomes, earning fierce loyalty and referrals" }
+        {
+          "outcome": "Built deep trust with clients from diverse backgrounds including elderly, criminal defendants, and business owners",
+          "description": "Demonstrated genuine concern for client wellbeing beyond legal outcomes, earning fierce loyalty and referrals"
+        }
       ]
     },
     {
       "name": "Adaptability",
       "level": "Expert",
       "category": "work style",
-      "roles": ["legal", "crisis"],
+      "roles": [
+        "legal",
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Successfully pivoted practice focus three times in response to market opportunities", "description": "Transitioned from public defender to elder law to criminal defense, adapting expertise to each domain rapidly" }
+        {
+          "outcome": "Successfully pivoted practice focus three times in response to market opportunities",
+          "description": "Transitioned from public defender to elder law to criminal defense, adapting expertise to each domain rapidly"
+        }
       ]
     },
     {
       "name": "Resilience",
       "level": "Expert",
       "category": "work style",
-      "roles": ["legal"],
+      "roles": [
+        "legal"
+      ],
       "evidence": [
-        { "outcome": "Rebuilt career from mailroom clerk to licensed attorney through self-directed study", "description": "Passed bar exam through correspondence law school while working full-time, overcoming institutional disadvantages" }
+        {
+          "outcome": "Rebuilt career from mailroom clerk to licensed attorney through self-directed study",
+          "description": "Passed bar exam through correspondence law school while working full-time, overcoming institutional disadvantages"
+        }
       ]
     },
     {
       "name": "Risk Tolerance",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["legal", "crisis"],
+      "roles": [
+        "legal",
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Took on high-risk cases other attorneys declined, achieving favorable outcomes in majority", "description": "Calculated risk-reward and accepted cases with uncertain outcomes when potential client benefit justified the effort" }
+        {
+          "outcome": "Took on high-risk cases other attorneys declined, achieving favorable outcomes in majority",
+          "description": "Calculated risk-reward and accepted cases with uncertain outcomes when potential client benefit justified the effort"
+        }
       ]
     },
     {
       "name": "Networking",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["marketing", "client"],
+      "roles": [
+        "marketing",
+        "client"
+      ],
       "evidence": [
-        { "outcome": "Built referral network generating 40% of new client intake", "description": "Cultivated relationships with bail bondsmen, law enforcement contacts, and community organizations" }
+        {
+          "outcome": "Built referral network generating 40% of new client intake",
+          "description": "Cultivated relationships with bail bondsmen, law enforcement contacts, and community organizations"
+        }
       ]
     },
     {
       "name": "Real Estate Law",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["legal"],
+      "roles": [
+        "legal"
+      ],
       "evidence": [
-        { "outcome": "Handled 30+ residential and commercial real estate transactions", "description": "Managed property purchases, lease negotiations, and title disputes for small business clients" }
+        {
+          "outcome": "Handled 30+ residential and commercial real estate transactions",
+          "description": "Managed property purchases, lease negotiations, and title disputes for small business clients"
+        }
       ]
     },
     {
       "name": "Digital Marketing",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["marketing"],
+      "roles": [
+        "marketing"
+      ],
       "evidence": []
     },
     {
       "name": "Bookkeeping",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["legal"],
+      "roles": [
+        "legal"
+      ],
       "evidence": []
     },
     {
       "name": "Spanish Language",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["client"],
+      "roles": [
+        "client"
+      ],
       "evidence": [
-        { "outcome": "Served Spanish-speaking clients directly without interpreter in 50+ cases", "description": "Developed working fluency to better serve Albuquerque's bilingual community" }
+        {
+          "outcome": "Served Spanish-speaking clients directly without interpreter in 50+ cases",
+          "description": "Developed working fluency to better serve Albuquerque's bilingual community"
+        }
       ]
     },
     {
       "name": "Technology Adoption",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["legal"],
+      "roles": [
+        "legal"
+      ],
       "evidence": []
     },
     {
       "name": "Research & Investigation",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["legal"],
+      "roles": [
+        "legal"
+      ],
       "evidence": [
-        { "outcome": "Conducted independent investigations uncovering evidence missed by both prosecution and police", "description": "Applied resourceful investigation techniques to build stronger defense cases" }
+        {
+          "outcome": "Conducted independent investigations uncovering evidence missed by both prosecution and police",
+          "description": "Applied resourceful investigation techniques to build stronger defense cases"
+        }
       ]
     }
   ],
   "values": [
-    { "name": "Resourcefulness", "level": "core" },
-    { "name": "Independence", "level": "core" },
-    { "name": "Recognition", "level": "core" },
-    { "name": "Loyalty", "level": "important" },
-    { "name": "Creativity", "level": "important" }
+    {
+      "name": "Resourcefulness",
+      "selected": true
+    },
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Candor",
+      "selected": true
+    },
+    {
+      "name": "Bias Toward Action",
+      "selected": true
+    },
+    {
+      "name": "Authenticity",
+      "selected": true
+    },
+    {
+      "name": "Creative Ethics",
+      "selected": true
+    },
+    {
+      "name": "Hustle Over Pedigree",
+      "selected": true
+    }
   ],
   "workHistory": [
     {
@@ -332,7 +532,10 @@
     }
   ],
   "certifications": [
-    { "name": "New Mexico State Bar License", "issuer": "State Bar of New Mexico" }
+    {
+      "name": "New Mexico State Bar License",
+      "issuer": "State Bar of New Mexico"
+    }
   ],
-  "purpose": "I fight for people the system forgot. Everyone deserves someone in their corner — especially when nobody else will show up."
+  "purpose": "I fight for people the system forgot. Everyone deserves someone in their corner \u2014 especially when nobody else will show up."
 }

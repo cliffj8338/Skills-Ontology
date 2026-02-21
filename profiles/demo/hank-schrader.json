@@ -9,11 +9,26 @@
     "executiveSummary": "Decorated federal agent who rose from field agent to ASAC through relentless investigation work and leadership under fire. Led the investigation that ultimately identified and dismantled one of the largest methamphetamine operations in the Southwest. Known for combining instinctive investigative judgment with methodical evidence collection, and for maintaining pursuit of cases that others abandoned."
   },
   "roles": [
-    { "name": "Criminal Investigation", "id": "investigation" },
-    { "name": "Law Enforcement Leadership", "id": "leadership" },
-    { "name": "Forensic Analysis", "id": "forensics" },
-    { "name": "Inter-Agency Operations", "id": "interagency" },
-    { "name": "Intelligence & Surveillance", "id": "intel" }
+    {
+      "name": "Criminal Investigation",
+      "id": "investigation"
+    },
+    {
+      "name": "Law Enforcement Leadership",
+      "id": "leadership"
+    },
+    {
+      "name": "Forensic Analysis",
+      "id": "forensics"
+    },
+    {
+      "name": "Inter-Agency Operations",
+      "id": "interagency"
+    },
+    {
+      "name": "Intelligence & Surveillance",
+      "id": "intel"
+    }
   ],
   "skills": [
     {
@@ -21,10 +36,18 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Led investigation that identified and dismantled $80M+ methamphetamine operation", "description": "Connected disparate evidence threads across multiple years, ultimately identifying the manufacturer operating under deep cover" },
-        { "outcome": "Achieved 85% case closure rate across 200+ investigations over 18-year career", "description": "Applied combination of instinctive judgment, methodical evidence collection, and relentless pursuit" }
+        {
+          "outcome": "Led investigation that identified and dismantled $80M+ methamphetamine operation",
+          "description": "Connected disparate evidence threads across multiple years, ultimately identifying the manufacturer operating under deep cover"
+        },
+        {
+          "outcome": "Achieved 85% case closure rate across 200+ investigations over 18-year career",
+          "description": "Applied combination of instinctive judgment, methodical evidence collection, and relentless pursuit"
+        }
       ]
     },
     {
@@ -32,10 +55,19 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["forensics", "investigation"],
+      "roles": [
+        "forensics",
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Identified chemical signature linking multiple drug seizures to single production source", "description": "Analyzed purity levels and chemical composition across seizures to build pattern connecting disparate cases" },
-        { "outcome": "Traced mineral evidence connecting suspect to specific geographic production location", "description": "Applied geological and chemical analysis to physical evidence establishing location-based connections" }
+        {
+          "outcome": "Identified chemical signature linking multiple drug seizures to single production source",
+          "description": "Analyzed purity levels and chemical composition across seizures to build pattern connecting disparate cases"
+        },
+        {
+          "outcome": "Traced mineral evidence connecting suspect to specific geographic production location",
+          "description": "Applied geological and chemical analysis to physical evidence establishing location-based connections"
+        }
       ]
     },
     {
@@ -43,10 +75,18 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Led team of 12 agents and analysts in ASAC role managing 40+ concurrent investigations", "description": "Directed resource allocation, case prioritization, and agent development across Albuquerque field division" },
-        { "outcome": "Mentored 8 junior agents, 4 of whom advanced to supervisory positions", "description": "Invested in agent development through field mentorship, case review, and leadership coaching" }
+        {
+          "outcome": "Led team of 12 agents and analysts in ASAC role managing 40+ concurrent investigations",
+          "description": "Directed resource allocation, case prioritization, and agent development across Albuquerque field division"
+        },
+        {
+          "outcome": "Mentored 8 junior agents, 4 of whom advanced to supervisory positions",
+          "description": "Invested in agent development through field mentorship, case review, and leadership coaching"
+        }
       ]
     },
     {
@@ -54,9 +94,15 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["intel", "investigation"],
+      "roles": [
+        "intel",
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Designed and executed surveillance operations leading to 25+ high-value arrests", "description": "Planned complex physical and electronic surveillance incorporating GPS tracking, wiretaps, and undercover operations" }
+        {
+          "outcome": "Designed and executed surveillance operations leading to 25+ high-value arrests",
+          "description": "Planned complex physical and electronic surveillance incorporating GPS tracking, wiretaps, and undercover operations"
+        }
       ]
     },
     {
@@ -64,9 +110,15 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["investigation", "leadership"],
+      "roles": [
+        "investigation",
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Managed complex multi-year investigation maintaining evidence chain across 500+ exhibits", "description": "Organized case files, witness statements, and physical evidence for successful prosecution referral" }
+        {
+          "outcome": "Managed complex multi-year investigation maintaining evidence chain across 500+ exhibits",
+          "description": "Organized case files, witness statements, and physical evidence for successful prosecution referral"
+        }
       ]
     },
     {
@@ -74,47 +126,79 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Obtained actionable intelligence from 100+ suspect interviews leading to case breakthroughs", "description": "Applied Reid technique and rapport-building approaches to extract information from uncooperative subjects" },
-        { "outcome": "Turned Tuco Salamanca associate into cooperating informant providing network intelligence", "description": "Built relationship with reluctant witness, securing cooperation through combination of pressure and protection" }
+        {
+          "outcome": "Obtained actionable intelligence from 100+ suspect interviews leading to case breakthroughs",
+          "description": "Applied Reid technique and rapport-building approaches to extract information from uncooperative subjects"
+        },
+        {
+          "outcome": "Turned Tuco Salamanca associate into cooperating informant providing network intelligence",
+          "description": "Built relationship with reluctant witness, securing cooperation through combination of pressure and protection"
+        }
       ]
     },
     {
       "name": "Inter-Agency Coordination",
       "level": "Expert",
       "category": "skill",
-      "roles": ["interagency"],
+      "roles": [
+        "interagency"
+      ],
       "evidence": [
-        { "outcome": "Coordinated multi-agency operations with FBI, CBP, and Mexican Federal Police", "description": "Led joint task force operations requiring diplomatic coordination across agencies with competing priorities" },
-        { "outcome": "Built intelligence-sharing protocols between DEA and local law enforcement agencies", "description": "Established formal and informal information exchange channels improving regional drug enforcement effectiveness" }
+        {
+          "outcome": "Coordinated multi-agency operations with FBI, CBP, and Mexican Federal Police",
+          "description": "Led joint task force operations requiring diplomatic coordination across agencies with competing priorities"
+        },
+        {
+          "outcome": "Built intelligence-sharing protocols between DEA and local law enforcement agencies",
+          "description": "Established formal and informal information exchange channels improving regional drug enforcement effectiveness"
+        }
       ]
     },
     {
       "name": "Intelligence Analysis",
       "level": "Expert",
       "category": "skill",
-      "roles": ["intel"],
+      "roles": [
+        "intel"
+      ],
       "evidence": [
-        { "outcome": "Mapped Cartel supply chain from Mexico to Southwest distribution network", "description": "Synthesized signals intelligence, financial records, and human source reporting to build comprehensive network picture" }
+        {
+          "outcome": "Mapped Cartel supply chain from Mexico to Southwest distribution network",
+          "description": "Synthesized signals intelligence, financial records, and human source reporting to build comprehensive network picture"
+        }
       ]
     },
     {
       "name": "Evidence Collection & Chain of Custody",
       "level": "Expert",
       "category": "skill",
-      "roles": ["forensics", "investigation"],
+      "roles": [
+        "forensics",
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Maintained 100% evidence admissibility rate across 50+ prosecuted cases", "description": "Implemented rigorous chain of custody protocols ensuring no evidence was excluded on procedural grounds" }
+        {
+          "outcome": "Maintained 100% evidence admissibility rate across 50+ prosecuted cases",
+          "description": "Implemented rigorous chain of custody protocols ensuring no evidence was excluded on procedural grounds"
+        }
       ]
     },
     {
       "name": "Firearms Proficiency",
       "level": "Expert",
       "category": "skill",
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Qualified expert marksman in annual DEA firearms certification for 15 consecutive years", "description": "Maintained highest-level firearms qualification including tactical shooting and active threat response" }
+        {
+          "outcome": "Qualified expert marksman in annual DEA firearms certification for 15 consecutive years",
+          "description": "Maintained highest-level firearms qualification including tactical shooting and active threat response"
+        }
       ]
     },
     {
@@ -122,72 +206,114 @@
       "level": "Advanced",
       "category": "skill",
       "key": true,
-      "roles": ["interagency", "investigation"],
+      "roles": [
+        "interagency",
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Led 8 cross-border operations coordinating with Mexican law enforcement agencies", "description": "Navigated complex jurisdictional and diplomatic challenges in US-Mexico drug enforcement operations" }
+        {
+          "outcome": "Led 8 cross-border operations coordinating with Mexican law enforcement agencies",
+          "description": "Navigated complex jurisdictional and diplomatic challenges in US-Mexico drug enforcement operations"
+        }
       ]
     },
     {
       "name": "Report Writing",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Authored investigation reports cited by US Attorney's office as exemplary for prosecution preparation", "description": "Produced detailed, evidence-based reports supporting successful prosecution in complex drug trafficking cases" }
+        {
+          "outcome": "Authored investigation reports cited by US Attorney's office as exemplary for prosecution preparation",
+          "description": "Produced detailed, evidence-based reports supporting successful prosecution in complex drug trafficking cases"
+        }
       ]
     },
     {
       "name": "Undercover Operations",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["investigation", "intel"],
+      "roles": [
+        "investigation",
+        "intel"
+      ],
       "evidence": [
-        { "outcome": "Managed undercover operations resulting in infiltration of Salamanca distribution network", "description": "Directed undercover agents and informants in high-risk operations against violent criminal organization" }
+        {
+          "outcome": "Managed undercover operations resulting in infiltration of Salamanca distribution network",
+          "description": "Directed undercover agents and informants in high-risk operations against violent criminal organization"
+        }
       ]
     },
     {
       "name": "Financial Crime Investigation",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Traced $9M+ in illicit financial flows through car wash and other front businesses", "description": "Applied financial forensics to identify money laundering patterns and connect cash flows to criminal enterprise" }
+        {
+          "outcome": "Traced $9M+ in illicit financial flows through car wash and other front businesses",
+          "description": "Applied financial forensics to identify money laundering patterns and connect cash flows to criminal enterprise"
+        }
       ]
     },
     {
       "name": "Crisis Response",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Led field response to active shooter situation at Tuco Salamanca compound", "description": "Coordinated tactical response and agent safety during violent confrontation in remote location" }
+        {
+          "outcome": "Led field response to active shooter situation at Tuco Salamanca compound",
+          "description": "Coordinated tactical response and agent safety during violent confrontation in remote location"
+        }
       ]
     },
     {
       "name": "Budgeting & Resource Allocation",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Managed $3M+ annual investigation budget across 40+ concurrent cases", "description": "Allocated surveillance equipment, overtime, and travel resources to maximize case outcomes within budget constraints" }
+        {
+          "outcome": "Managed $3M+ annual investigation budget across 40+ concurrent cases",
+          "description": "Allocated surveillance equipment, overtime, and travel resources to maximize case outcomes within budget constraints"
+        }
       ]
     },
     {
       "name": "Community Engagement",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Represented DEA at community events and charity functions building public trust", "description": "Participated in DEA community outreach including charity events and public education programs" }
+        {
+          "outcome": "Represented DEA at community events and charity functions building public trust",
+          "description": "Participated in DEA community outreach including charity events and public education programs"
+        }
       ]
     },
     {
       "name": "Mineralogy & Geology",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["forensics"],
+      "roles": [
+        "forensics"
+      ],
       "evidence": [
-        { "outcome": "Applied mineral analysis expertise to connect physical evidence to geographic locations", "description": "Leveraged personal mineral collecting expertise in forensic applications connecting suspects to crime scenes" }
+        {
+          "outcome": "Applied mineral analysis expertise to connect physical evidence to geographic locations",
+          "description": "Leveraged personal mineral collecting expertise in forensic applications connecting suspects to crime scenes"
+        }
       ]
     },
     {
@@ -195,9 +321,14 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Identified Heisenberg operation based on instinctive connections others dismissed", "description": "Followed investigative intuition when evidence was circumstantial, ultimately proving the hypothesis correct" }
+        {
+          "outcome": "Identified Heisenberg operation based on instinctive connections others dismissed",
+          "description": "Followed investigative intuition when evidence was circumstantial, ultimately proving the hypothesis correct"
+        }
       ]
     },
     {
@@ -205,112 +336,192 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Continued Heisenberg investigation for 2+ years when superiors wanted case closed", "description": "Maintained pursuit on personal time when official resources were redirected, ultimately solving the case" }
+        {
+          "outcome": "Continued Heisenberg investigation for 2+ years when superiors wanted case closed",
+          "description": "Maintained pursuit on personal time when official resources were redirected, ultimately solving the case"
+        }
       ]
     },
     {
       "name": "Courage Under Fire",
       "level": "Expert",
       "category": "work style",
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Survived ambush by cartel assassins, returning fire while critically wounded", "description": "Engaged multiple armed attackers in parking lot ambush, eliminating one threat despite being shot multiple times" },
-        { "outcome": "Confronted armed suspect alone in desert with no backup available", "description": "Made tactical decision to pursue dangerous suspect despite personal risk and isolation" }
+        {
+          "outcome": "Survived ambush by cartel assassins, returning fire while critically wounded",
+          "description": "Engaged multiple armed attackers in parking lot ambush, eliminating one threat despite being shot multiple times"
+        },
+        {
+          "outcome": "Confronted armed suspect alone in desert with no backup available",
+          "description": "Made tactical decision to pursue dangerous suspect despite personal risk and isolation"
+        }
       ]
     },
     {
       "name": "Resilience",
       "level": "Expert",
       "category": "work style",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Returned to full duty after surviving assassination attempt requiring 6 months recovery", "description": "Completed physical rehabilitation and psychological recovery to resume active investigation duties" }
+        {
+          "outcome": "Returned to full duty after surviving assassination attempt requiring 6 months recovery",
+          "description": "Completed physical rehabilitation and psychological recovery to resume active investigation duties"
+        }
       ]
     },
     {
       "name": "Analytical Thinking",
       "level": "Expert",
       "category": "work style",
-      "roles": ["investigation", "forensics"],
+      "roles": [
+        "investigation",
+        "forensics"
+      ],
       "evidence": [
-        { "outcome": "Connected Gale Boetticher notebook to industrial equipment purchase, breaking case open", "description": "Applied systematic analysis to victim's personal effects, identifying critical evidence others overlooked" }
+        {
+          "outcome": "Connected Gale Boetticher notebook to industrial equipment purchase, breaking case open",
+          "description": "Applied systematic analysis to victim's personal effects, identifying critical evidence others overlooked"
+        }
       ]
     },
     {
       "name": "Pattern Recognition",
       "level": "Expert",
       "category": "work style",
-      "roles": ["investigation", "intel"],
+      "roles": [
+        "investigation",
+        "intel"
+      ],
       "evidence": [
-        { "outcome": "Identified blue methamphetamine signature as single-source indicator across multiple seizures", "description": "Recognized distinctive product characteristic as investigative lead before forensics confirmed connection" }
+        {
+          "outcome": "Identified blue methamphetamine signature as single-source indicator across multiple seizures",
+          "description": "Recognized distinctive product characteristic as investigative lead before forensics confirmed connection"
+        }
       ]
     },
     {
       "name": "Decisiveness",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Made critical tactical decisions under time pressure in 15+ field operations", "description": "Demonstrated ability to commit to action plans decisively when stakes and uncertainty were high" }
+        {
+          "outcome": "Made critical tactical decisions under time pressure in 15+ field operations",
+          "description": "Demonstrated ability to commit to action plans decisively when stakes and uncertainty were high"
+        }
       ]
     },
     {
       "name": "Mentoring",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Developed 8 junior agents into effective investigators with 4 advancing to supervisory roles", "description": "Provided field mentorship, case guidance, and career development support to agents under his supervision" }
+        {
+          "outcome": "Developed 8 junior agents into effective investigators with 4 advancing to supervisory roles",
+          "description": "Provided field mentorship, case guidance, and career development support to agents under his supervision"
+        }
       ]
     },
     {
       "name": "Testimony & Depositions",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Provided expert testimony in 30+ federal cases with 95% prosecution success rate", "description": "Delivered clear, credible testimony under cross-examination supporting successful prosecution outcomes" }
+        {
+          "outcome": "Provided expert testimony in 30+ federal cases with 95% prosecution success rate",
+          "description": "Delivered clear, credible testimony under cross-examination supporting successful prosecution outcomes"
+        }
       ]
     },
     {
       "name": "Physical Fitness",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": []
     },
     {
       "name": "Spanish Language",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["interagency"],
+      "roles": [
+        "interagency"
+      ],
       "evidence": [
-        { "outcome": "Conducted field interviews in Spanish during cross-border operations", "description": "Developed working Spanish language capability for operational effectiveness in border region" }
+        {
+          "outcome": "Conducted field interviews in Spanish during cross-border operations",
+          "description": "Developed working Spanish language capability for operational effectiveness in border region"
+        }
       ]
     },
     {
       "name": "Digital Forensics",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["forensics"],
+      "roles": [
+        "forensics"
+      ],
       "evidence": [
-        { "outcome": "Traced prepaid cell phone patterns linking suspect communications to distribution network", "description": "Applied basic digital forensics to analyze phone records and communication patterns" }
+        {
+          "outcome": "Traced prepaid cell phone patterns linking suspect communications to distribution network",
+          "description": "Applied basic digital forensics to analyze phone records and communication patterns"
+        }
       ]
     }
   ],
   "values": [
-    { "name": "Justice", "level": "core" },
-    { "name": "Tenacity", "level": "core" },
-    { "name": "Integrity", "level": "core" },
-    { "name": "Family", "level": "important" },
-    { "name": "Achievement", "level": "important" }
+    {
+      "name": "Integrity",
+      "selected": true
+    },
+    {
+      "name": "Accountability",
+      "selected": true
+    },
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Evidence-Based Decision Making",
+      "selected": true
+    },
+    {
+      "name": "Resilience",
+      "selected": true
+    },
+    {
+      "name": "Relentless Pursuit",
+      "selected": true
+    },
+    {
+      "name": "The Badge Means Something",
+      "selected": true
+    }
   ],
   "workHistory": [
     {
       "title": "ASAC (Assistant Special Agent in Charge)",
-      "company": "Drug Enforcement Administration — Albuquerque Division",
+      "company": "Drug Enforcement Administration \u2014 Albuquerque Division",
       "startYear": 2006,
       "endYear": null,
       "current": true,
@@ -344,9 +555,18 @@
     }
   ],
   "certifications": [
-    { "name": "DEA Expert Marksman", "issuer": "DEA" },
-    { "name": "Advanced Forensic Analysis", "issuer": "FBI Academy" },
-    { "name": "Cross-Border Operations Certification", "issuer": "DEA International Training" }
+    {
+      "name": "DEA Expert Marksman",
+      "issuer": "DEA"
+    },
+    {
+      "name": "Advanced Forensic Analysis",
+      "issuer": "FBI Academy"
+    },
+    {
+      "name": "Cross-Border Operations Certification",
+      "issuer": "DEA International Training"
+    }
   ],
   "purpose": "The bad guys don't stop. So neither do I. Someone has to stand between the monsters and the people they hurt."
 }

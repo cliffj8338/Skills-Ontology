@@ -9,10 +9,22 @@
     "executiveSummary": "A scrappy, self-taught operator who learned advanced chemical production on the job from one of the most demanding mentors in the field. Despite lacking formal education, demonstrated ability to master complex technical processes, manage distribution operations, and adapt to extreme pressure. Now channeling precision and craft into woodworking, bringing the same obsessive attention to quality that defined his earlier career."
   },
   "roles": [
-    { "name": "Production & Manufacturing", "id": "production" },
-    { "name": "Sales & Distribution", "id": "sales" },
-    { "name": "Craftsmanship", "id": "craft" },
-    { "name": "Operations", "id": "operations" }
+    {
+      "name": "Production & Manufacturing",
+      "id": "production"
+    },
+    {
+      "name": "Sales & Distribution",
+      "id": "sales"
+    },
+    {
+      "name": "Craftsmanship",
+      "id": "craft"
+    },
+    {
+      "name": "Operations",
+      "id": "operations"
+    }
   ],
   "skills": [
     {
@@ -20,10 +32,18 @@
       "level": "Advanced",
       "category": "skill",
       "key": true,
-      "roles": ["production"],
+      "roles": [
+        "production"
+      ],
       "evidence": [
-        { "outcome": "Achieved 96% product purity operating independently after 12-month apprenticeship", "description": "Developed from zero chemistry knowledge to competent independent operator under Walter White's mentorship" },
-        { "outcome": "Maintained consistent production output of 200 lbs/week as sole operator", "description": "Managed full production cycle independently including setup, synthesis, quality testing, and cleanup" }
+        {
+          "outcome": "Achieved 96% product purity operating independently after 12-month apprenticeship",
+          "description": "Developed from zero chemistry knowledge to competent independent operator under Walter White's mentorship"
+        },
+        {
+          "outcome": "Maintained consistent production output of 200 lbs/week as sole operator",
+          "description": "Managed full production cycle independently including setup, synthesis, quality testing, and cleanup"
+        }
       ]
     },
     {
@@ -31,9 +51,14 @@
       "level": "Advanced",
       "category": "skill",
       "key": true,
-      "roles": ["craft"],
+      "roles": [
+        "craft"
+      ],
       "evidence": [
-        { "outcome": "Designed and built custom wooden box described as 'the finest craftsmanship' by demanding mentor", "description": "Created precision joinery piece that earned recognition from Walter White, who praised virtually nothing" }
+        {
+          "outcome": "Designed and built custom wooden box described as 'the finest craftsmanship' by demanding mentor",
+          "description": "Created precision joinery piece that earned recognition from Walter White, who praised virtually nothing"
+        }
       ]
     },
     {
@@ -41,64 +66,105 @@
       "level": "Advanced",
       "category": "skill",
       "key": true,
-      "roles": ["sales"],
+      "roles": [
+        "sales"
+      ],
       "evidence": [
-        { "outcome": "Built street-level distribution network covering Albuquerque metro area", "description": "Recruited and managed 5+ distributors, negotiated territory agreements, and managed customer relationships" },
-        { "outcome": "Expanded distribution from local to regional territory covering 3 states", "description": "Scaled distribution operation leveraging product quality reputation and partnership leverage" }
+        {
+          "outcome": "Built street-level distribution network covering Albuquerque metro area",
+          "description": "Recruited and managed 5+ distributors, negotiated territory agreements, and managed customer relationships"
+        },
+        {
+          "outcome": "Expanded distribution from local to regional territory covering 3 states",
+          "description": "Scaled distribution operation leveraging product quality reputation and partnership leverage"
+        }
       ]
     },
     {
       "name": "Equipment Operation & Maintenance",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["production", "craft"],
+      "roles": [
+        "production",
+        "craft"
+      ],
       "evidence": [
-        { "outcome": "Operated and maintained complex production equipment with 98% uptime", "description": "Learned to operate, troubleshoot, and perform basic repairs on industrial equipment without formal training" }
+        {
+          "outcome": "Operated and maintained complex production equipment with 98% uptime",
+          "description": "Learned to operate, troubleshoot, and perform basic repairs on industrial equipment without formal training"
+        }
       ]
     },
     {
       "name": "Inventory Management",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["production", "sales"],
+      "roles": [
+        "production",
+        "sales"
+      ],
       "evidence": [
-        { "outcome": "Managed raw material and finished product inventory across multiple locations", "description": "Tracked precursor chemicals, production supplies, and finished inventory with accuracy" }
+        {
+          "outcome": "Managed raw material and finished product inventory across multiple locations",
+          "description": "Tracked precursor chemicals, production supplies, and finished inventory with accuracy"
+        }
       ]
     },
     {
       "name": "Negotiation",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["sales"],
+      "roles": [
+        "sales"
+      ],
       "evidence": [
-        { "outcome": "Negotiated distribution terms with partners in high-stakes competitive environment", "description": "Secured favorable terms despite limited leverage through combination of product quality and persistence" }
+        {
+          "outcome": "Negotiated distribution terms with partners in high-stakes competitive environment",
+          "description": "Secured favorable terms despite limited leverage through combination of product quality and persistence"
+        }
       ]
     },
     {
       "name": "Customer Relationship Management",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["sales"],
+      "roles": [
+        "sales"
+      ],
       "evidence": [
-        { "outcome": "Built and maintained distributor loyalty across volatile market conditions", "description": "Maintained relationships through personal connection, reliability, and fair dealing" }
+        {
+          "outcome": "Built and maintained distributor loyalty across volatile market conditions",
+          "description": "Maintained relationships through personal connection, reliability, and fair dealing"
+        }
       ]
     },
     {
       "name": "Safety Protocols",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["production"],
+      "roles": [
+        "production"
+      ],
       "evidence": [
-        { "outcome": "Maintained personal safety record across 500+ production hours in hazardous environment", "description": "Followed rigorous safety protocols for handling volatile chemicals and operating dangerous equipment" }
+        {
+          "outcome": "Maintained personal safety record across 500+ production hours in hazardous environment",
+          "description": "Followed rigorous safety protocols for handling volatile chemicals and operating dangerous equipment"
+        }
       ]
     },
     {
       "name": "Quality Control",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["production", "craft"],
+      "roles": [
+        "production",
+        "craft"
+      ],
       "evidence": [
-        { "outcome": "Learned to perform purity testing and reject batches below 96% threshold", "description": "Developed quality standards that would have been unthinkable at the start of apprenticeship" }
+        {
+          "outcome": "Learned to perform purity testing and reject batches below 96% threshold",
+          "description": "Developed quality standards that would have been unthinkable at the start of apprenticeship"
+        }
       ]
     },
     {
@@ -106,9 +172,14 @@
       "level": "Advanced",
       "category": "skill",
       "key": true,
-      "roles": ["craft"],
+      "roles": [
+        "craft"
+      ],
       "evidence": [
-        { "outcome": "Applied production precision skills to fine woodworking achieving furniture-grade quality", "description": "Transferred attention to detail and process discipline from chemical work to traditional craftsmanship" }
+        {
+          "outcome": "Applied production precision skills to fine woodworking achieving furniture-grade quality",
+          "description": "Transferred attention to detail and process discipline from chemical work to traditional craftsmanship"
+        }
       ]
     },
     {
@@ -116,9 +187,15 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["production", "sales"],
+      "roles": [
+        "production",
+        "sales"
+      ],
       "evidence": [
-        { "outcome": "Adapted to 5 completely different operational environments within 2 years", "description": "Operated in RV, basement, commercial lab, underground facility, and mobile operations, adapting processes each time" }
+        {
+          "outcome": "Adapted to 5 completely different operational environments within 2 years",
+          "description": "Operated in RV, basement, commercial lab, underground facility, and mobile operations, adapting processes each time"
+        }
       ]
     },
     {
@@ -126,18 +203,28 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["production"],
+      "roles": [
+        "production"
+      ],
       "evidence": [
-        { "outcome": "Recovered from multiple traumatic experiences to rebuild productive life", "description": "Demonstrated extraordinary capacity to endure adversity and emerge with purpose and renewed direction" }
+        {
+          "outcome": "Recovered from multiple traumatic experiences to rebuild productive life",
+          "description": "Demonstrated extraordinary capacity to endure adversity and emerge with purpose and renewed direction"
+        }
       ]
     },
     {
       "name": "Loyalty",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["sales"],
+      "roles": [
+        "sales"
+      ],
       "evidence": [
-        { "outcome": "Maintained partner loyalty under extreme duress including threats to personal safety", "description": "Refused to compromise colleagues even under severe personal risk" }
+        {
+          "outcome": "Maintained partner loyalty under extreme duress including threats to personal safety",
+          "description": "Refused to compromise colleagues even under severe personal risk"
+        }
       ]
     },
     {
@@ -145,61 +232,111 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["sales"],
+      "roles": [
+        "sales"
+      ],
       "evidence": [
-        { "outcome": "Navigated complex and dangerous interpersonal dynamics across criminal and civilian contexts", "description": "Applied instinctive social intelligence to assess threats, build alliances, and avoid dangerous situations" }
+        {
+          "outcome": "Navigated complex and dangerous interpersonal dynamics across criminal and civilian contexts",
+          "description": "Applied instinctive social intelligence to assess threats, build alliances, and avoid dangerous situations"
+        }
       ]
     },
     {
       "name": "Creativity",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["craft"],
+      "roles": [
+        "craft"
+      ],
       "evidence": [
-        { "outcome": "Applied artistic sensibility to both chemical production and woodworking", "description": "Brought creative thinking and aesthetic appreciation to technical disciplines" }
+        {
+          "outcome": "Applied artistic sensibility to both chemical production and woodworking",
+          "description": "Brought creative thinking and aesthetic appreciation to technical disciplines"
+        }
       ]
     },
     {
       "name": "Empathy",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["sales"],
+      "roles": [
+        "sales"
+      ],
       "evidence": [
-        { "outcome": "Built genuine relationships with vulnerable individuals others exploited", "description": "Demonstrated deep empathy for people struggling with addiction and difficult circumstances" }
+        {
+          "outcome": "Built genuine relationships with vulnerable individuals others exploited",
+          "description": "Demonstrated deep empathy for people struggling with addiction and difficult circumstances"
+        }
       ]
     },
     {
       "name": "Driving & Vehicle Operation",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["operations"],
+      "roles": [
+        "operations"
+      ],
       "evidence": []
     },
     {
       "name": "Basic Accounting",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["sales"],
+      "roles": [
+        "sales"
+      ],
       "evidence": [
-        { "outcome": "Managed cash-based financial operations across distribution network", "description": "Tracked revenue, expenses, and distributor payments in cash-intensive business" }
+        {
+          "outcome": "Managed cash-based financial operations across distribution network",
+          "description": "Tracked revenue, expenses, and distributor payments in cash-intensive business"
+        }
       ]
     },
     {
       "name": "Art & Design",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["craft"],
+      "roles": [
+        "craft"
+      ],
       "evidence": [
-        { "outcome": "Applied artistic eye to furniture design and finish work", "description": "Brought natural aesthetic sensibility to woodworking design" }
+        {
+          "outcome": "Applied artistic eye to furniture design and finish work",
+          "description": "Brought natural aesthetic sensibility to woodworking design"
+        }
       ]
     }
   ],
   "values": [
-    { "name": "Loyalty", "level": "core" },
-    { "name": "Freedom", "level": "core" },
-    { "name": "Craftsmanship", "level": "core" },
-    { "name": "Empathy", "level": "important" },
-    { "name": "Redemption", "level": "important" }
+    {
+      "name": "Craftsmanship",
+      "selected": true
+    },
+    {
+      "name": "Resilience",
+      "selected": true
+    },
+    {
+      "name": "Empathy",
+      "selected": true
+    },
+    {
+      "name": "Authenticity",
+      "selected": true
+    },
+    {
+      "name": "Trust",
+      "selected": true
+    },
+    {
+      "name": "Loyalty Over Logic",
+      "selected": true
+    },
+    {
+      "name": "No More Half Measures",
+      "selected": true
+    }
   ],
   "workHistory": [
     {

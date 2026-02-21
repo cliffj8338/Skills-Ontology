@@ -6,15 +6,33 @@
     "location": "New York, NY",
     "roleLevel": "C-Suite",
     "headline": "Built a single Dundee newspaper into a $95B global media conglomerate across broadcast, news, digital, theme parks, and cruise lines.",
-    "executiveSummary": "Six decades of relentless empire-building in global media. Founded and scaled Waystar Royco from a single Scottish newspaper acquisition into one of the world's largest media and entertainment conglomerates. Navigated hostile takeovers, congressional inquiries, multi-billion dollar acquisitions, and a contested succession across four children — while maintaining operational control and shareholder confidence through every crisis."
+    "executiveSummary": "Six decades of relentless empire-building in global media. Founded and scaled Waystar Royco from a single Scottish newspaper acquisition into one of the world's largest media and entertainment conglomerates. Navigated hostile takeovers, congressional inquiries, multi-billion dollar acquisitions, and a contested succession across four children \u2014 while maintaining operational control and shareholder confidence through every crisis."
   },
   "roles": [
-    { "name": "Chief Executive Officer", "id": "ceo" },
-    { "name": "Chairman & Board Governance", "id": "chairman" },
-    { "name": "Media & Entertainment", "id": "media" },
-    { "name": "Mergers & Acquisitions", "id": "ma" },
-    { "name": "Political & Government Affairs", "id": "political" },
-    { "name": "Finance & Capital Markets", "id": "finance" }
+    {
+      "name": "Chief Executive Officer",
+      "id": "ceo"
+    },
+    {
+      "name": "Chairman & Board Governance",
+      "id": "chairman"
+    },
+    {
+      "name": "Media & Entertainment",
+      "id": "media"
+    },
+    {
+      "name": "Mergers & Acquisitions",
+      "id": "ma"
+    },
+    {
+      "name": "Political & Government Affairs",
+      "id": "political"
+    },
+    {
+      "name": "Finance & Capital Markets",
+      "id": "finance"
+    }
   ],
   "skills": [
     {
@@ -22,10 +40,18 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Grew single newspaper acquisition into $95B+ global media conglomerate over 50 years", "description": "Identified and executed a multi-decade vertical integration strategy spanning broadcast, cable news, digital media, theme parks, and cruise operations" },
-        { "outcome": "Successfully defended against hostile takeover attempt by Sandy Furness and Stewy Hosseini", "description": "Outmaneuvered a coordinated activist investor campaign by securing proxy votes and leveraging board relationships" }
+        {
+          "outcome": "Grew single newspaper acquisition into $95B+ global media conglomerate over 50 years",
+          "description": "Identified and executed a multi-decade vertical integration strategy spanning broadcast, cable news, digital media, theme parks, and cruise operations"
+        },
+        {
+          "outcome": "Successfully defended against hostile takeover attempt by Sandy Furness and Stewy Hosseini",
+          "description": "Outmaneuvered a coordinated activist investor campaign by securing proxy votes and leveraging board relationships"
+        }
       ]
     },
     {
@@ -33,11 +59,23 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["ma", "ceo"],
+      "roles": [
+        "ma",
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Acquired Pierce Global Media (PGM) for $10B, adding prestige journalism to portfolio", "description": "Personally negotiated deal terms with Nan Pierce over a weekend, overcoming family resistance and competitor bids" },
-        { "outcome": "Negotiated $192B merger with GoJo streaming platform", "description": "Structured complex cross-border deal with Lukas Matsson involving equity swap and operational control provisions" },
-        { "outcome": "Completed 30+ acquisitions across six decades building Waystar Royco empire", "description": "Led all major transactions personally including hostile acquisitions, friendly mergers, and strategic divestitures" }
+        {
+          "outcome": "Acquired Pierce Global Media (PGM) for $10B, adding prestige journalism to portfolio",
+          "description": "Personally negotiated deal terms with Nan Pierce over a weekend, overcoming family resistance and competitor bids"
+        },
+        {
+          "outcome": "Negotiated $192B merger with GoJo streaming platform",
+          "description": "Structured complex cross-border deal with Lukas Matsson involving equity swap and operational control provisions"
+        },
+        {
+          "outcome": "Completed 30+ acquisitions across six decades building Waystar Royco empire",
+          "description": "Led all major transactions personally including hostile acquisitions, friendly mergers, and strategic divestitures"
+        }
       ]
     },
     {
@@ -45,10 +83,18 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Maintained CEO position for 50+ years through multiple succession crises and board challenges", "description": "Navigated attempted coups by family members while preserving operational control and shareholder confidence" },
-        { "outcome": "Built and managed C-suite of 15+ direct reports across global operations", "description": "Recruited, developed, and when necessary replaced executive talent including Frank Vernon, Gerri Kellman, and Karl Muller" }
+        {
+          "outcome": "Maintained CEO position for 50+ years through multiple succession crises and board challenges",
+          "description": "Navigated attempted coups by family members while preserving operational control and shareholder confidence"
+        },
+        {
+          "outcome": "Built and managed C-suite of 15+ direct reports across global operations",
+          "description": "Recruited, developed, and when necessary replaced executive talent including Frank Vernon, Gerri Kellman, and Karl Muller"
+        }
       ]
     },
     {
@@ -56,10 +102,19 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["ceo", "ma"],
+      "roles": [
+        "ceo",
+        "ma"
+      ],
       "evidence": [
-        { "outcome": "Secured favorable terms in GoJo merger despite weakened bargaining position", "description": "Used information asymmetry and relationship leverage to extract concessions from Lukas Matsson's team" },
-        { "outcome": "Resolved hostile proxy fight without losing board control", "description": "Personally called shareholders and board members, trading favors and making promises to secure votes" }
+        {
+          "outcome": "Secured favorable terms in GoJo merger despite weakened bargaining position",
+          "description": "Used information asymmetry and relationship leverage to extract concessions from Lukas Matsson's team"
+        },
+        {
+          "outcome": "Resolved hostile proxy fight without losing board control",
+          "description": "Personally called shareholders and board members, trading favors and making promises to secure votes"
+        }
       ]
     },
     {
@@ -67,10 +122,18 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["chairman"],
+      "roles": [
+        "chairman"
+      ],
       "evidence": [
-        { "outcome": "Maintained board control through 50 years of shareholder meetings and proxy fights", "description": "Structured dual-class share system ensuring family voting control even as public float increased" },
-        { "outcome": "Navigated board revolt during cruises scandal while retaining chairman position", "description": "Secured enough independent director support by promising governance reforms and executive accountability" }
+        {
+          "outcome": "Maintained board control through 50 years of shareholder meetings and proxy fights",
+          "description": "Structured dual-class share system ensuring family voting control even as public float increased"
+        },
+        {
+          "outcome": "Navigated board revolt during cruises scandal while retaining chairman position",
+          "description": "Secured enough independent director support by promising governance reforms and executive accountability"
+        }
       ]
     },
     {
@@ -78,10 +141,19 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["ceo", "chairman"],
+      "roles": [
+        "ceo",
+        "chairman"
+      ],
       "evidence": [
-        { "outcome": "Managed congressional testimony during cruises division scandal without criminal referral", "description": "Prepared extensively with legal team, delivered measured testimony that contained political damage while preserving company operations" },
-        { "outcome": "Contained fallout from leaked internal documents to minimize share price impact", "description": "Deployed crisis communications strategy coordinating legal, PR, and investor relations simultaneously" }
+        {
+          "outcome": "Managed congressional testimony during cruises division scandal without criminal referral",
+          "description": "Prepared extensively with legal team, delivered measured testimony that contained political damage while preserving company operations"
+        },
+        {
+          "outcome": "Contained fallout from leaked internal documents to minimize share price impact",
+          "description": "Deployed crisis communications strategy coordinating legal, PR, and investor relations simultaneously"
+        }
       ]
     },
     {
@@ -89,9 +161,14 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Anticipated and blocked competitor moves across 5 market verticals for 30+ years", "description": "Built intelligence network across media, finance, and political circles to maintain information advantage" }
+        {
+          "outcome": "Anticipated and blocked competitor moves across 5 market verticals for 30+ years",
+          "description": "Built intelligence network across media, finance, and political circles to maintain information advantage"
+        }
       ]
     },
     {
@@ -99,9 +176,15 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["ceo", "media"],
+      "roles": [
+        "ceo",
+        "media"
+      ],
       "evidence": [
-        { "outcome": "Positioned ATN News as dominant cable news network reaching 85M+ households", "description": "Identified and exploited underserved conservative media market before competitors, building loyal viewer base" }
+        {
+          "outcome": "Positioned ATN News as dominant cable news network reaching 85M+ households",
+          "description": "Identified and exploited underserved conservative media market before competitors, building loyal viewer base"
+        }
       ]
     },
     {
@@ -109,9 +192,14 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["media"],
+      "roles": [
+        "media"
+      ],
       "evidence": [
-        { "outcome": "Built and operated media portfolio generating $15B+ annual revenue across broadcast, print, digital, and entertainment", "description": "Oversaw operations spanning ATN News, newspaper chains, Brightstar theme parks, and Waystar cruise lines" }
+        {
+          "outcome": "Built and operated media portfolio generating $15B+ annual revenue across broadcast, print, digital, and entertainment",
+          "description": "Oversaw operations spanning ATN News, newspaper chains, Brightstar theme parks, and Waystar cruise lines"
+        }
       ]
     },
     {
@@ -119,9 +207,14 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Evaluated and stress-tested four children as potential successors over 20-year period", "description": "Created competitive dynamics among Kendall, Siobhan, Roman, and Connor to identify leadership capability under pressure" }
+        {
+          "outcome": "Evaluated and stress-tested four children as potential successors over 20-year period",
+          "description": "Created competitive dynamics among Kendall, Siobhan, Roman, and Connor to identify leadership capability under pressure"
+        }
       ]
     },
     {
@@ -129,9 +222,15 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["finance", "ceo"],
+      "roles": [
+        "finance",
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Deployed $50B+ in capital across acquisitions, share buybacks, and expansion over 40 years", "description": "Maintained disciplined capital allocation framework balancing growth investments against shareholder returns" }
+        {
+          "outcome": "Deployed $50B+ in capital across acquisitions, share buybacks, and expansion over 40 years",
+          "description": "Maintained disciplined capital allocation framework balancing growth investments against shareholder returns"
+        }
       ]
     },
     {
@@ -139,9 +238,15 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["ceo", "chairman"],
+      "roles": [
+        "ceo",
+        "chairman"
+      ],
       "evidence": [
-        { "outcome": "Balanced competing interests of family shareholders, institutional investors, and board members", "description": "Navigated complex stakeholder dynamics where family members held board seats, management roles, and significant equity" }
+        {
+          "outcome": "Balanced competing interests of family shareholders, institutional investors, and board members",
+          "description": "Navigated complex stakeholder dynamics where family members held board seats, management roles, and significant equity"
+        }
       ]
     },
     {
@@ -149,18 +254,29 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["finance", "ceo"],
+      "roles": [
+        "finance",
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Maintained institutional investor confidence through multiple crises including 15% share price recovery post-scandal", "description": "Conducted personal investor roadshows and one-on-one meetings with top 20 institutional holders" }
+        {
+          "outcome": "Maintained institutional investor confidence through multiple crises including 15% share price recovery post-scandal",
+          "description": "Conducted personal investor roadshows and one-on-one meetings with top 20 institutional holders"
+        }
       ]
     },
     {
       "name": "Financial Modeling",
       "level": "Expert",
       "category": "skill",
-      "roles": ["finance"],
+      "roles": [
+        "finance"
+      ],
       "evidence": [
-        { "outcome": "Structured $192B GoJo merger with complex equity swap and earnout provisions", "description": "Personally reviewed financial models and challenged assumptions, catching valuation gaps missed by advisory teams" }
+        {
+          "outcome": "Structured $192B GoJo merger with complex equity swap and earnout provisions",
+          "description": "Personally reviewed financial models and challenged assumptions, catching valuation gaps missed by advisory teams"
+        }
       ]
     },
     {
@@ -168,18 +284,30 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["ceo", "chairman"],
+      "roles": [
+        "ceo",
+        "chairman"
+      ],
       "evidence": [
-        { "outcome": "Identified and contained cruises division liability before it threatened core media operations", "description": "Isolated reputational and financial risk by establishing independent investigation and cooperating selectively with regulators" }
+        {
+          "outcome": "Identified and contained cruises division liability before it threatened core media operations",
+          "description": "Isolated reputational and financial risk by establishing independent investigation and cooperating selectively with regulators"
+        }
       ]
     },
     {
       "name": "Public Relations",
       "level": "Expert",
       "category": "skill",
-      "roles": ["ceo", "media"],
+      "roles": [
+        "ceo",
+        "media"
+      ],
       "evidence": [
-        { "outcome": "Controlled media narrative during family succession crisis across 3 news cycles", "description": "Leveraged ownership of ATN and relationships with external outlets to manage coverage of internal power struggles" }
+        {
+          "outcome": "Controlled media narrative during family succession crisis across 3 news cycles",
+          "description": "Leveraged ownership of ATN and relationships with external outlets to manage coverage of internal power struggles"
+        }
       ]
     },
     {
@@ -187,271 +315,436 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["political"],
+      "roles": [
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Influenced presidential election outcomes through ATN editorial direction and personal political relationships", "description": "Maintained direct access to sitting presidents and presidential candidates, trading media coverage for policy influence" },
-        { "outcome": "Navigated DOJ regulatory review of GoJo merger by leveraging political connections", "description": "Used relationships with administration officials to shape regulatory environment favorable to deal approval" }
+        {
+          "outcome": "Influenced presidential election outcomes through ATN editorial direction and personal political relationships",
+          "description": "Maintained direct access to sitting presidents and presidential candidates, trading media coverage for policy influence"
+        },
+        {
+          "outcome": "Navigated DOJ regulatory review of GoJo merger by leveraging political connections",
+          "description": "Used relationships with administration officials to shape regulatory environment favorable to deal approval"
+        }
       ]
     },
     {
       "name": "Succession Planning",
       "level": "Expert",
       "category": "skill",
-      "roles": ["chairman", "ceo"],
+      "roles": [
+        "chairman",
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Managed multi-year succession process evaluating 4 internal candidates and external options", "description": "Created structured evaluation of Kendall, Siobhan, Roman, and external candidates while maintaining operational continuity" }
+        {
+          "outcome": "Managed multi-year succession process evaluating 4 internal candidates and external options",
+          "description": "Created structured evaluation of Kendall, Siobhan, Roman, and external candidates while maintaining operational continuity"
+        }
       ]
     },
     {
       "name": "International Business",
       "level": "Expert",
       "category": "skill",
-      "roles": ["ceo", "media"],
+      "roles": [
+        "ceo",
+        "media"
+      ],
       "evidence": [
-        { "outcome": "Expanded Waystar Royco operations across 12 countries spanning 4 continents", "description": "Navigated diverse regulatory environments, cultural contexts, and competitive landscapes in global expansion" }
+        {
+          "outcome": "Expanded Waystar Royco operations across 12 countries spanning 4 continents",
+          "description": "Navigated diverse regulatory environments, cultural contexts, and competitive landscapes in global expansion"
+        }
       ]
     },
     {
       "name": "Brand Architecture",
       "level": "Expert",
       "category": "skill",
-      "roles": ["media"],
+      "roles": [
+        "media"
+      ],
       "evidence": [
-        { "outcome": "Built portfolio of 8 distinct media brands under Waystar Royco umbrella", "description": "Maintained brand differentiation between ATN News, Waystar Studios, Brightstar Parks, and cruise operations while leveraging parent company scale" }
+        {
+          "outcome": "Built portfolio of 8 distinct media brands under Waystar Royco umbrella",
+          "description": "Maintained brand differentiation between ATN News, Waystar Studios, Brightstar Parks, and cruise operations while leveraging parent company scale"
+        }
       ]
     },
     {
       "name": "Content Strategy",
       "level": "Expert",
       "category": "skill",
-      "roles": ["media"],
+      "roles": [
+        "media"
+      ],
       "evidence": [
-        { "outcome": "Shaped ATN editorial direction that captured 35% cable news market share", "description": "Defined programming strategy targeting underserved audience segment, building dominant position in cable news" }
+        {
+          "outcome": "Shaped ATN editorial direction that captured 35% cable news market share",
+          "description": "Defined programming strategy targeting underserved audience segment, building dominant position in cable news"
+        }
       ]
     },
     {
       "name": "Revenue Optimization",
       "level": "Expert",
       "category": "skill",
-      "roles": ["finance", "ceo"],
+      "roles": [
+        "finance",
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Improved operating margins from 18% to 28% across media portfolio over 15 years", "description": "Implemented cost discipline and revenue diversification strategy including advertising, subscriptions, and licensing" }
+        {
+          "outcome": "Improved operating margins from 18% to 28% across media portfolio over 15 years",
+          "description": "Implemented cost discipline and revenue diversification strategy including advertising, subscriptions, and licensing"
+        }
       ]
     },
     {
       "name": "Organizational Design",
       "level": "Expert",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Restructured Waystar Royco from divisional to matrix organization serving $15B+ revenue", "description": "Reorganized to create shared services across media properties while maintaining divisional P&L accountability" }
+        {
+          "outcome": "Restructured Waystar Royco from divisional to matrix organization serving $15B+ revenue",
+          "description": "Reorganized to create shared services across media properties while maintaining divisional P&L accountability"
+        }
       ]
     },
     {
       "name": "Strategic Communications",
       "level": "Expert",
       "category": "skill",
-      "roles": ["ceo", "political"],
+      "roles": [
+        "ceo",
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Delivered congressional testimony that preserved company operations and avoided criminal referral", "description": "Crafted messaging strategy with legal team that acknowledged issues while protecting executive liability" }
+        {
+          "outcome": "Delivered congressional testimony that preserved company operations and avoided criminal referral",
+          "description": "Crafted messaging strategy with legal team that acknowledged issues while protecting executive liability"
+        }
       ]
     },
     {
       "name": "Deal Structuring",
       "level": "Expert",
       "category": "skill",
-      "roles": ["ma", "finance"],
+      "roles": [
+        "ma",
+        "finance"
+      ],
       "evidence": [
-        { "outcome": "Structured Pierce Global Media acquisition to minimize regulatory scrutiny", "description": "Designed deal terms including editorial independence provisions that satisfied DOJ antitrust review" }
+        {
+          "outcome": "Structured Pierce Global Media acquisition to minimize regulatory scrutiny",
+          "description": "Designed deal terms including editorial independence provisions that satisfied DOJ antitrust review"
+        }
       ]
     },
     {
       "name": "Business Development",
       "level": "Expert",
       "category": "skill",
-      "roles": ["ceo", "ma"],
+      "roles": [
+        "ceo",
+        "ma"
+      ],
       "evidence": [
-        { "outcome": "Identified and developed new revenue streams generating $3B+ in adjacent markets", "description": "Expanded from core media into theme parks, cruise lines, and digital streaming through strategic acquisitions" }
+        {
+          "outcome": "Identified and developed new revenue streams generating $3B+ in adjacent markets",
+          "description": "Expanded from core media into theme parks, cruise lines, and digital streaming through strategic acquisitions"
+        }
       ]
     },
     {
       "name": "Regulatory Navigation",
       "level": "Expert",
       "category": "skill",
-      "roles": ["ceo", "political"],
+      "roles": [
+        "ceo",
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Secured FCC approval for 5 major broadcast acquisitions across 20 years", "description": "Navigated media ownership rules and antitrust review through combination of legal strategy and political relationships" }
+        {
+          "outcome": "Secured FCC approval for 5 major broadcast acquisitions across 20 years",
+          "description": "Navigated media ownership rules and antitrust review through combination of legal strategy and political relationships"
+        }
       ]
     },
     {
       "name": "Legal Strategy",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["ceo", "chairman"],
+      "roles": [
+        "ceo",
+        "chairman"
+      ],
       "evidence": [
-        { "outcome": "Managed $2B+ in litigation exposure during cruises scandal", "description": "Coordinated with Gerri Kellman and outside counsel to develop legal strategy minimizing corporate liability" }
+        {
+          "outcome": "Managed $2B+ in litigation exposure during cruises scandal",
+          "description": "Coordinated with Gerri Kellman and outside counsel to develop legal strategy minimizing corporate liability"
+        }
       ]
     },
     {
       "name": "Real Estate Portfolio Management",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["finance"],
+      "roles": [
+        "finance"
+      ],
       "evidence": [
-        { "outcome": "Managed corporate real estate portfolio including Manhattan headquarters and global offices", "description": "Oversaw strategic real estate decisions supporting operations across 12 countries" }
+        {
+          "outcome": "Managed corporate real estate portfolio including Manhattan headquarters and global offices",
+          "description": "Oversaw strategic real estate decisions supporting operations across 12 countries"
+        }
       ]
     },
     {
       "name": "Digital Transformation",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["media", "ceo"],
+      "roles": [
+        "media",
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Launched Waystar digital streaming initiative to counter cord-cutting disruption", "description": "Recognized market shift and approved $2B investment in streaming infrastructure and content acquisition" }
+        {
+          "outcome": "Launched Waystar digital streaming initiative to counter cord-cutting disruption",
+          "description": "Recognized market shift and approved $2B investment in streaming infrastructure and content acquisition"
+        }
       ]
     },
     {
       "name": "Marketing Strategy",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["media"],
+      "roles": [
+        "media"
+      ],
       "evidence": [
-        { "outcome": "Repositioned ATN brand to capture largest cable news audience segment", "description": "Directed brand strategy that differentiated ATN from competitors through editorial positioning and talent recruitment" }
+        {
+          "outcome": "Repositioned ATN brand to capture largest cable news audience segment",
+          "description": "Directed brand strategy that differentiated ATN from competitors through editorial positioning and talent recruitment"
+        }
       ]
     },
     {
       "name": "Supply Chain Management",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["media"],
+      "roles": [
+        "media"
+      ],
       "evidence": [
-        { "outcome": "Optimized content distribution supply chain across broadcast, cable, and digital channels", "description": "Managed complex content licensing and distribution agreements spanning domestic and international markets" }
+        {
+          "outcome": "Optimized content distribution supply chain across broadcast, cable, and digital channels",
+          "description": "Managed complex content licensing and distribution agreements spanning domestic and international markets"
+        }
       ]
     },
     {
       "name": "Corporate Communications",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Managed internal and external communications during 3 major corporate crises", "description": "Directed messaging strategy coordinating PR, investor relations, and employee communications teams" }
+        {
+          "outcome": "Managed internal and external communications during 3 major corporate crises",
+          "description": "Directed messaging strategy coordinating PR, investor relations, and employee communications teams"
+        }
       ]
     },
     {
       "name": "Lobbying",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["political"],
+      "roles": [
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Influenced media regulation policy through direct political engagement", "description": "Maintained relationships with key congressional committee chairs and regulatory agency heads" }
+        {
+          "outcome": "Influenced media regulation policy through direct political engagement",
+          "description": "Maintained relationships with key congressional committee chairs and regulatory agency heads"
+        }
       ]
     },
     {
       "name": "Tax Strategy",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["finance"],
+      "roles": [
+        "finance"
+      ],
       "evidence": [
-        { "outcome": "Structured international operations to optimize global tax position", "description": "Worked with tax advisors to implement transfer pricing and holding company structures across 12 jurisdictions" }
+        {
+          "outcome": "Structured international operations to optimize global tax position",
+          "description": "Worked with tax advisors to implement transfer pricing and holding company structures across 12 jurisdictions"
+        }
       ]
     },
     {
       "name": "Workforce Planning",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Managed workforce of 120,000+ employees across global media operations", "description": "Oversaw strategic headcount planning, union negotiations, and talent pipeline development" }
+        {
+          "outcome": "Managed workforce of 120,000+ employees across global media operations",
+          "description": "Oversaw strategic headcount planning, union negotiations, and talent pipeline development"
+        }
       ]
     },
     {
       "name": "Media Buying",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["media"],
+      "roles": [
+        "media"
+      ],
       "evidence": [
-        { "outcome": "Negotiated $4B+ in advertising revenue across ATN and Waystar properties annually", "description": "Set advertising rate strategy and personally engaged top 10 advertisers during upfronts" }
+        {
+          "outcome": "Negotiated $4B+ in advertising revenue across ATN and Waystar properties annually",
+          "description": "Set advertising rate strategy and personally engaged top 10 advertisers during upfronts"
+        }
       ]
     },
     {
       "name": "Executive Compensation Design",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["chairman", "ceo"],
+      "roles": [
+        "chairman",
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Designed executive compensation structure aligning C-suite incentives with shareholder value", "description": "Structured equity, bonus, and retention packages for senior leadership team of 15+ executives" }
+        {
+          "outcome": "Designed executive compensation structure aligning C-suite incentives with shareholder value",
+          "description": "Structured equity, bonus, and retention packages for senior leadership team of 15+ executives"
+        }
       ]
     },
     {
       "name": "Competitive Analysis",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Tracked and countered competitive moves from 8 major media conglomerates over 30 years", "description": "Maintained intelligence on Disney, Comcast, News Corp, and tech platform competitors" }
+        {
+          "outcome": "Tracked and countered competitive moves from 8 major media conglomerates over 30 years",
+          "description": "Maintained intelligence on Disney, Comcast, News Corp, and tech platform competitors"
+        }
       ]
     },
     {
       "name": "Debt Financing",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["finance"],
+      "roles": [
+        "finance"
+      ],
       "evidence": [
-        { "outcome": "Managed $25B+ debt portfolio across investment grade and high-yield instruments", "description": "Worked with banks and bond markets to maintain favorable terms even during credit downgrades" }
+        {
+          "outcome": "Managed $25B+ debt portfolio across investment grade and high-yield instruments",
+          "description": "Worked with banks and bond markets to maintain favorable terms even during credit downgrades"
+        }
       ]
     },
     {
       "name": "Philanthropy Strategy",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["chairman"],
+      "roles": [
+        "chairman"
+      ],
       "evidence": [
-        { "outcome": "Established Waystar Foundation with $500M endowment for media literacy programs", "description": "Used philanthropic initiatives strategically to enhance corporate reputation and political relationships" }
+        {
+          "outcome": "Established Waystar Foundation with $500M endowment for media literacy programs",
+          "description": "Used philanthropic initiatives strategically to enhance corporate reputation and political relationships"
+        }
       ]
     },
     {
       "name": "Editorial Oversight",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["media"],
+      "roles": [
+        "media"
+      ],
       "evidence": [
-        { "outcome": "Shaped editorial direction of ATN News influencing national political discourse", "description": "Made key editorial decisions on election night coverage and breaking news that moved public opinion" }
+        {
+          "outcome": "Shaped editorial direction of ATN News influencing national political discourse",
+          "description": "Made key editorial decisions on election night coverage and breaking news that moved public opinion"
+        }
       ]
     },
     {
       "name": "Multi-Unit Operations",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["ceo", "media"],
+      "roles": [
+        "ceo",
+        "media"
+      ],
       "evidence": [
-        { "outcome": "Managed 6 distinct business units with combined revenue exceeding $15B", "description": "Maintained operational oversight of news, entertainment, parks, cruises, digital, and print divisions" }
+        {
+          "outcome": "Managed 6 distinct business units with combined revenue exceeding $15B",
+          "description": "Maintained operational oversight of news, entertainment, parks, cruises, digital, and print divisions"
+        }
       ]
     },
     {
       "name": "Union Negotiations",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Resolved 3 major labor disputes without prolonged work stoppages", "description": "Negotiated directly with union leadership when necessary, combining hardline cost positions with strategic concessions" }
+        {
+          "outcome": "Resolved 3 major labor disputes without prolonged work stoppages",
+          "description": "Negotiated directly with union leadership when necessary, combining hardline cost positions with strategic concessions"
+        }
       ]
     },
     {
       "name": "Contract Negotiation",
       "level": "Expert",
       "category": "skill",
-      "roles": ["ma", "ceo"],
+      "roles": [
+        "ma",
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Personally negotiated 10+ deals valued over $1B each", "description": "Known for aggressive opening positions and ability to close complex multi-party transactions under time pressure" }
+        {
+          "outcome": "Personally negotiated 10+ deals valued over $1B each",
+          "description": "Known for aggressive opening positions and ability to close complex multi-party transactions under time pressure"
+        }
       ]
     },
     {
       "name": "Crisis Communications",
       "level": "Expert",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Contained share price damage to 12% during cruises scandal versus analyst predictions of 30%+", "description": "Deployed coordinated crisis response across media, investor relations, legal, and government affairs teams" }
+        {
+          "outcome": "Contained share price damage to 12% during cruises scandal versus analyst predictions of 30%+",
+          "description": "Deployed coordinated crisis response across media, investor relations, legal, and government affairs teams"
+        }
       ]
     },
     {
@@ -459,9 +752,15 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["ceo", "political"],
+      "roles": [
+        "ceo",
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Influenced presidential election outcomes through media empire and personal political relationships", "description": "Leveraged ATN editorial direction and personal access to shape political outcomes over multiple election cycles" }
+        {
+          "outcome": "Influenced presidential election outcomes through media empire and personal political relationships",
+          "description": "Leveraged ATN editorial direction and personal access to shape political outcomes over multiple election cycles"
+        }
       ]
     },
     {
@@ -469,9 +768,14 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Anticipated industry shift to streaming 5 years before competitors, positioning for GoJo acquisition", "description": "Recognized cord-cutting trend early and began strategic repositioning including digital investments and partnership exploration" }
+        {
+          "outcome": "Anticipated industry shift to streaming 5 years before competitors, positioning for GoJo acquisition",
+          "description": "Recognized cord-cutting trend early and began strategic repositioning including digital investments and partnership exploration"
+        }
       ]
     },
     {
@@ -479,27 +783,43 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Made $10B+ acquisition decisions under time pressure with incomplete information", "description": "Pierce Global Media acquisition negotiated and approved within 72 hours during competitive bid situation" }
+        {
+          "outcome": "Made $10B+ acquisition decisions under time pressure with incomplete information",
+          "description": "Pierce Global Media acquisition negotiated and approved within 72 hours during competitive bid situation"
+        }
       ]
     },
     {
       "name": "Resilience",
       "level": "Expert",
       "category": "work style",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Recovered from stroke to resume full CEO duties within 6 months", "description": "Maintained strategic control through deputies while recovering, then returned to hands-on management" }
+        {
+          "outcome": "Recovered from stroke to resume full CEO duties within 6 months",
+          "description": "Maintained strategic control through deputies while recovering, then returned to hands-on management"
+        }
       ]
     },
     {
       "name": "Analytical Thinking",
       "level": "Expert",
       "category": "work style",
-      "roles": ["ceo", "finance"],
+      "roles": [
+        "ceo",
+        "finance"
+      ],
       "evidence": [
-        { "outcome": "Identified valuation discrepancy in GoJo financial models that saved $8B in deal terms", "description": "Personally reviewed detailed financial projections and challenged growth assumptions others accepted" }
+        {
+          "outcome": "Identified valuation discrepancy in GoJo financial models that saved $8B in deal terms",
+          "description": "Personally reviewed detailed financial projections and challenged growth assumptions others accepted"
+        }
       ]
     },
     {
@@ -507,89 +827,150 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["political", "ceo"],
+      "roles": [
+        "political",
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Maintained political influence across 8 presidential administrations spanning both parties", "description": "Built bipartisan relationship network through media access, campaign support, and personal engagement with leaders" }
+        {
+          "outcome": "Maintained political influence across 8 presidential administrations spanning both parties",
+          "description": "Built bipartisan relationship network through media access, campaign support, and personal engagement with leaders"
+        }
       ]
     },
     {
       "name": "Delegation & Accountability",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Built executive team capable of managing $15B+ enterprise during CEO absence", "description": "Developed and empowered key lieutenants including Frank Vernon and Gerri Kellman to operate independently" }
+        {
+          "outcome": "Built executive team capable of managing $15B+ enterprise during CEO absence",
+          "description": "Developed and empowered key lieutenants including Frank Vernon and Gerri Kellman to operate independently"
+        }
       ]
     },
     {
       "name": "Conflict Resolution",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["ceo", "chairman"],
+      "roles": [
+        "ceo",
+        "chairman"
+      ],
       "evidence": [
-        { "outcome": "Mediated boardroom disputes between family and independent directors across 20+ years", "description": "Balanced competing interests of family shareholders and institutional investors during contentious governance decisions" }
+        {
+          "outcome": "Mediated boardroom disputes between family and independent directors across 20+ years",
+          "description": "Balanced competing interests of family shareholders and institutional investors during contentious governance decisions"
+        }
       ]
     },
     {
       "name": "Emotional Intelligence",
       "level": "Proficient",
       "category": "work style",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": []
     },
     {
       "name": "Technology Adoption",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": []
     },
     {
       "name": "Social Media Strategy",
       "level": "Novice",
       "category": "skill",
-      "roles": ["media"],
+      "roles": [
+        "media"
+      ],
       "evidence": []
     },
     {
       "name": "Data Analytics",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["media", "finance"],
+      "roles": [
+        "media",
+        "finance"
+      ],
       "evidence": [
-        { "outcome": "Approved analytics-driven audience targeting strategy for ATN digital properties", "description": "Reviewed and authorized investment in viewer analytics platform based on team recommendations" }
+        {
+          "outcome": "Approved analytics-driven audience targeting strategy for ATN digital properties",
+          "description": "Reviewed and authorized investment in viewer analytics platform based on team recommendations"
+        }
       ]
     },
     {
       "name": "Cybersecurity Governance",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["chairman"],
+      "roles": [
+        "chairman"
+      ],
       "evidence": []
     },
     {
       "name": "Sustainability Reporting",
       "level": "Novice",
       "category": "skill",
-      "roles": ["chairman"],
+      "roles": [
+        "chairman"
+      ],
       "evidence": []
     },
     {
       "name": "Innovation Management",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Approved $2B digital transformation initiative including streaming and OTT investments", "description": "Evaluated and greenlit innovation proposals while maintaining core business profitability" }
+        {
+          "outcome": "Approved $2B digital transformation initiative including streaming and OTT investments",
+          "description": "Evaluated and greenlit innovation proposals while maintaining core business profitability"
+        }
       ]
     }
   ],
   "values": [
-    { "name": "Achievement", "level": "core" },
-    { "name": "Power", "level": "core" },
-    { "name": "Legacy", "level": "core" },
-    { "name": "Independence", "level": "important" },
-    { "name": "Competition", "level": "important" }
+    {
+      "name": "Strategic Thinking",
+      "selected": true
+    },
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Candor",
+      "selected": true
+    },
+    {
+      "name": "Accountability",
+      "selected": true
+    },
+    {
+      "name": "Bias Toward Action",
+      "selected": true
+    },
+    {
+      "name": "Absolute Control",
+      "selected": true
+    },
+    {
+      "name": "Legacy Through Dominance",
+      "selected": true
+    }
   ],
   "workHistory": [
     {

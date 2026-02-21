@@ -9,11 +9,26 @@
     "executiveSummary": "Self-made corporate operator who climbed from Midwest regional management to the top of one of the world's largest media companies. Built deep institutional expertise across operations, regulatory compliance, and corporate communications at Waystar Royco, navigating cruises division scandal, congressional inquiry, and contested succession to emerge as CEO in the GoJo merger. Known for operational discipline, political survival instincts, and ability to build loyalty in complex institutional environments."
   },
   "roles": [
-    { "name": "Chief Executive Officer", "id": "ceo" },
-    { "name": "Operations & Administration", "id": "operations" },
-    { "name": "Regulatory & Compliance", "id": "compliance" },
-    { "name": "Corporate Communications", "id": "communications" },
-    { "name": "Media Operations", "id": "media" }
+    {
+      "name": "Chief Executive Officer",
+      "id": "ceo"
+    },
+    {
+      "name": "Operations & Administration",
+      "id": "operations"
+    },
+    {
+      "name": "Regulatory & Compliance",
+      "id": "compliance"
+    },
+    {
+      "name": "Corporate Communications",
+      "id": "communications"
+    },
+    {
+      "name": "Media Operations",
+      "id": "media"
+    }
   ],
   "skills": [
     {
@@ -21,10 +36,19 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["operations", "ceo"],
+      "roles": [
+        "operations",
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Managed operational integration of 5 Waystar divisions serving $15B+ combined revenue", "description": "Oversaw shared services, technology infrastructure, and administrative operations across media empire" },
-        { "outcome": "Reduced operational overhead by 12% through process standardization across business units", "description": "Implemented operational efficiency initiatives while maintaining service quality across divisions" }
+        {
+          "outcome": "Managed operational integration of 5 Waystar divisions serving $15B+ combined revenue",
+          "description": "Oversaw shared services, technology infrastructure, and administrative operations across media empire"
+        },
+        {
+          "outcome": "Reduced operational overhead by 12% through process standardization across business units",
+          "description": "Implemented operational efficiency initiatives while maintaining service quality across divisions"
+        }
       ]
     },
     {
@@ -32,10 +56,18 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["compliance"],
+      "roles": [
+        "compliance"
+      ],
       "evidence": [
-        { "outcome": "Led Waystar through congressional investigation without criminal corporate indictment", "description": "Coordinated legal, compliance, and communications response to congressional scrutiny of cruises division" },
-        { "outcome": "Rebuilt compliance infrastructure across Waystar following scandal, passing all subsequent audits", "description": "Designed and implemented enhanced compliance framework including new reporting structures and oversight mechanisms" }
+        {
+          "outcome": "Led Waystar through congressional investigation without criminal corporate indictment",
+          "description": "Coordinated legal, compliance, and communications response to congressional scrutiny of cruises division"
+        },
+        {
+          "outcome": "Rebuilt compliance infrastructure across Waystar following scandal, passing all subsequent audits",
+          "description": "Designed and implemented enhanced compliance framework including new reporting structures and oversight mechanisms"
+        }
       ]
     },
     {
@@ -43,10 +75,19 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["ceo", "communications"],
+      "roles": [
+        "ceo",
+        "communications"
+      ],
       "evidence": [
-        { "outcome": "Navigated cruises division scandal that threatened $30B+ in market capitalization", "description": "Managed crisis response across legal, regulatory, media, and investor relations channels simultaneously" },
-        { "outcome": "Survived congressional testimony without incriminating self or company", "description": "Delivered carefully prepared testimony under intense questioning from hostile committee members" }
+        {
+          "outcome": "Navigated cruises division scandal that threatened $30B+ in market capitalization",
+          "description": "Managed crisis response across legal, regulatory, media, and investor relations channels simultaneously"
+        },
+        {
+          "outcome": "Survived congressional testimony without incriminating self or company",
+          "description": "Delivered carefully prepared testimony under intense questioning from hostile committee members"
+        }
       ]
     },
     {
@@ -54,10 +95,18 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["communications"],
+      "roles": [
+        "communications"
+      ],
       "evidence": [
-        { "outcome": "Directed ATN News division communications reaching 85M+ households", "description": "Oversaw editorial coordination, talent management, and content strategy for dominant cable news network" },
-        { "outcome": "Managed internal communications during 3 leadership transitions without operational disruption", "description": "Designed employee communication strategies maintaining morale and productivity during uncertainty" }
+        {
+          "outcome": "Directed ATN News division communications reaching 85M+ households",
+          "description": "Oversaw editorial coordination, talent management, and content strategy for dominant cable news network"
+        },
+        {
+          "outcome": "Managed internal communications during 3 leadership transitions without operational disruption",
+          "description": "Designed employee communication strategies maintaining morale and productivity during uncertainty"
+        }
       ]
     },
     {
@@ -65,19 +114,32 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Built trust relationship with Lukas Matsson enabling appointment as post-merger CEO", "description": "Positioned himself as reliable operational partner through consistent delivery and strategic transparency" },
-        { "outcome": "Maintained productive relationships across competing Roy family factions", "description": "Navigated complex interpersonal dynamics maintaining access and influence with all key stakeholders" }
+        {
+          "outcome": "Built trust relationship with Lukas Matsson enabling appointment as post-merger CEO",
+          "description": "Positioned himself as reliable operational partner through consistent delivery and strategic transparency"
+        },
+        {
+          "outcome": "Maintained productive relationships across competing Roy family factions",
+          "description": "Navigated complex interpersonal dynamics maintaining access and influence with all key stakeholders"
+        }
       ]
     },
     {
       "name": "Media Operations",
       "level": "Expert",
       "category": "skill",
-      "roles": ["media"],
+      "roles": [
+        "media"
+      ],
       "evidence": [
-        { "outcome": "Managed ATN News operations including talent contracts, programming schedule, and election coverage", "description": "Oversaw day-to-day operations of highest-rated cable news network during critical election cycles" }
+        {
+          "outcome": "Managed ATN News operations including talent contracts, programming schedule, and election coverage",
+          "description": "Oversaw day-to-day operations of highest-rated cable news network during critical election cycles"
+        }
       ]
     },
     {
@@ -85,99 +147,159 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Rose from regional manager to CEO through masterful navigation of corporate power dynamics", "description": "Built alliances, managed threats, and positioned strategically through 15 years of complex institutional politics" }
+        {
+          "outcome": "Rose from regional manager to CEO through masterful navigation of corporate power dynamics",
+          "description": "Built alliances, managed threats, and positioned strategically through 15 years of complex institutional politics"
+        }
       ]
     },
     {
       "name": "Legal & Governance Coordination",
       "level": "Expert",
       "category": "skill",
-      "roles": ["compliance", "ceo"],
+      "roles": [
+        "compliance",
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Coordinated legal strategy across 5 outside law firms during multi-front litigation", "description": "Managed complex legal landscape including congressional investigation, DOJ inquiry, and shareholder litigation" }
+        {
+          "outcome": "Coordinated legal strategy across 5 outside law firms during multi-front litigation",
+          "description": "Managed complex legal landscape including congressional investigation, DOJ inquiry, and shareholder litigation"
+        }
       ]
     },
     {
       "name": "Human Resources Management",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["operations"],
+      "roles": [
+        "operations"
+      ],
       "evidence": [
-        { "outcome": "Managed workforce decisions affecting 25,000+ employees during divisional restructuring", "description": "Oversaw headcount planning, reorganization, and talent retention during period of corporate uncertainty" }
+        {
+          "outcome": "Managed workforce decisions affecting 25,000+ employees during divisional restructuring",
+          "description": "Oversaw headcount planning, reorganization, and talent retention during period of corporate uncertainty"
+        }
       ]
     },
     {
       "name": "Budget Management",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["operations"],
+      "roles": [
+        "operations"
+      ],
       "evidence": [
-        { "outcome": "Managed $2B+ operational budget across Waystar corporate and ATN operations", "description": "Oversaw budget planning, allocation, and variance management across multiple cost centers" }
+        {
+          "outcome": "Managed $2B+ operational budget across Waystar corporate and ATN operations",
+          "description": "Oversaw budget planning, allocation, and variance management across multiple cost centers"
+        }
       ]
     },
     {
       "name": "Vendor & Contract Management",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["operations"],
+      "roles": [
+        "operations"
+      ],
       "evidence": [
-        { "outcome": "Renegotiated $500M in vendor contracts achieving 8% cost reduction", "description": "Applied competitive bidding and relationship leverage to improve terms across technology, content, and services vendors" }
+        {
+          "outcome": "Renegotiated $500M in vendor contracts achieving 8% cost reduction",
+          "description": "Applied competitive bidding and relationship leverage to improve terms across technology, content, and services vendors"
+        }
       ]
     },
     {
       "name": "Investor Relations",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["ceo", "communications"],
+      "roles": [
+        "ceo",
+        "communications"
+      ],
       "evidence": [
-        { "outcome": "Conducted investor briefings during crisis period maintaining institutional shareholder confidence", "description": "Presented operational stability narrative to counter market concerns during corporate leadership uncertainty" }
+        {
+          "outcome": "Conducted investor briefings during crisis period maintaining institutional shareholder confidence",
+          "description": "Presented operational stability narrative to counter market concerns during corporate leadership uncertainty"
+        }
       ]
     },
     {
       "name": "Executive Presentation",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["ceo", "communications"],
+      "roles": [
+        "ceo",
+        "communications"
+      ],
       "evidence": [
-        { "outcome": "Delivered board presentations influencing governance decisions during succession period", "description": "Presented operational data and strategic analysis to support board decision-making" }
+        {
+          "outcome": "Delivered board presentations influencing governance decisions during succession period",
+          "description": "Presented operational data and strategic analysis to support board decision-making"
+        }
       ]
     },
     {
       "name": "Risk Management",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["compliance", "ceo"],
+      "roles": [
+        "compliance",
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Identified and escalated cruises division liability before it became public crisis", "description": "Recognized emerging risk pattern and advocated for proactive response before external exposure" }
+        {
+          "outcome": "Identified and escalated cruises division liability before it became public crisis",
+          "description": "Recognized emerging risk pattern and advocated for proactive response before external exposure"
+        }
       ]
     },
     {
       "name": "Talent Management",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["operations", "media"],
+      "roles": [
+        "operations",
+        "media"
+      ],
       "evidence": [
-        { "outcome": "Managed relationships with on-air talent representing $100M+ in annual contracts", "description": "Navigated personality-driven negotiations and retention challenges in cable news talent market" }
+        {
+          "outcome": "Managed relationships with on-air talent representing $100M+ in annual contracts",
+          "description": "Navigated personality-driven negotiations and retention challenges in cable news talent market"
+        }
       ]
     },
     {
       "name": "Strategic Planning",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Developed operational integration plan for GoJo merger transition", "description": "Created 100-day integration blueprint covering organizational structure, technology, and culture alignment" }
+        {
+          "outcome": "Developed operational integration plan for GoJo merger transition",
+          "description": "Created 100-day integration blueprint covering organizational structure, technology, and culture alignment"
+        }
       ]
     },
     {
       "name": "Process Improvement",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["operations"],
+      "roles": [
+        "operations"
+      ],
       "evidence": [
-        { "outcome": "Standardized reporting processes across 5 divisions reducing reporting cycle from 15 to 5 days", "description": "Implemented unified KPI framework and automated reporting dashboards across business units" }
+        {
+          "outcome": "Standardized reporting processes across 5 divisions reducing reporting cycle from 15 to 5 days",
+          "description": "Implemented unified KPI framework and automated reporting dashboards across business units"
+        }
       ]
     },
     {
@@ -185,9 +307,14 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Built reputation as most reliable executive at Waystar through 15 years of consistent delivery", "description": "Demonstrated unwavering commitment to institutional interests, earning trust from leadership and board" }
+        {
+          "outcome": "Built reputation as most reliable executive at Waystar through 15 years of consistent delivery",
+          "description": "Demonstrated unwavering commitment to institutional interests, earning trust from leadership and board"
+        }
       ]
     },
     {
@@ -195,68 +322,122 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Survived multiple rounds of executive purges and restructuring to emerge as CEO", "description": "Applied strategic patience, alliance building, and threat neutralization to navigate corporate political landscape" }
+        {
+          "outcome": "Survived multiple rounds of executive purges and restructuring to emerge as CEO",
+          "description": "Applied strategic patience, alliance building, and threat neutralization to navigate corporate political landscape"
+        }
       ]
     },
     {
       "name": "Composure Under Pressure",
       "level": "Expert",
       "category": "work style",
-      "roles": ["ceo", "compliance"],
+      "roles": [
+        "ceo",
+        "compliance"
+      ],
       "evidence": [
-        { "outcome": "Maintained executive composure during congressional testimony and media scrutiny", "description": "Delivered measured, controlled performance in high-stakes public settings with significant personal exposure" }
+        {
+          "outcome": "Maintained executive composure during congressional testimony and media scrutiny",
+          "description": "Delivered measured, controlled performance in high-stakes public settings with significant personal exposure"
+        }
       ]
     },
     {
       "name": "Attention to Detail",
       "level": "Expert",
       "category": "work style",
-      "roles": ["operations", "compliance"],
+      "roles": [
+        "operations",
+        "compliance"
+      ],
       "evidence": [
-        { "outcome": "Identified compliance gaps in operational processes that external auditors missed", "description": "Applied meticulous operational review to catch procedural issues before they became regulatory problems" }
+        {
+          "outcome": "Identified compliance gaps in operational processes that external auditors missed",
+          "description": "Applied meticulous operational review to catch procedural issues before they became regulatory problems"
+        }
       ]
     },
     {
       "name": "Adaptability",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Transitioned from operations role to CEO requiring complete shift in leadership scope and style", "description": "Adapted from functional management to enterprise leadership rapidly when opportunity materialized" }
+        {
+          "outcome": "Transitioned from operations role to CEO requiring complete shift in leadership scope and style",
+          "description": "Adapted from functional management to enterprise leadership rapidly when opportunity materialized"
+        }
       ]
     },
     {
       "name": "Patience",
       "level": "Expert",
       "category": "work style",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Waited 15 years for CEO opportunity while building institutional credibility and relationships", "description": "Demonstrated extraordinary strategic patience, building value and positioning over extended timeframe" }
+        {
+          "outcome": "Waited 15 years for CEO opportunity while building institutional credibility and relationships",
+          "description": "Demonstrated extraordinary strategic patience, building value and positioning over extended timeframe"
+        }
       ]
     },
     {
       "name": "Technology Strategy",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": []
     },
     {
       "name": "Financial Analysis",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": []
     }
   ],
   "values": [
-    { "name": "Achievement", "level": "core" },
-    { "name": "Loyalty", "level": "core" },
-    { "name": "Power", "level": "core" },
-    { "name": "Security", "level": "important" },
-    { "name": "Status", "level": "important" }
+    {
+      "name": "Accountability",
+      "selected": true
+    },
+    {
+      "name": "Continuous Improvement",
+      "selected": true
+    },
+    {
+      "name": "Trust",
+      "selected": true
+    },
+    {
+      "name": "Resilience",
+      "selected": true
+    },
+    {
+      "name": "Excellence",
+      "selected": true
+    },
+    {
+      "name": "Survival Instinct",
+      "selected": true
+    },
+    {
+      "name": "The Long Game",
+      "selected": true
+    }
   ],
   "workHistory": [
     {
@@ -276,7 +457,7 @@
     },
     {
       "title": "VP, Operations",
-      "company": "Waystar Royco — Parks & Cruises Division",
+      "company": "Waystar Royco \u2014 Parks & Cruises Division",
       "startYear": 2012,
       "endYear": 2016,
       "description": "Managed operational efficiency across parks and cruises business units. Identified compliance risks that later became central to corporate crisis."

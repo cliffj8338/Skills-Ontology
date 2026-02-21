@@ -9,11 +9,26 @@
     "executiveSummary": "Second-generation media executive who served as COO and head of acquisitions at Waystar Royco, a $95B global media and entertainment company. Led the company's digital transformation strategy, negotiated the landmark GoJo merger, and managed Waystar's $50B+ acquisition pipeline. Combines Ivy League finance training with hands-on operational experience across broadcast, digital, and entertainment divisions."
   },
   "roles": [
-    { "name": "Mergers & Acquisitions", "id": "ma" },
-    { "name": "Capital Markets & Finance", "id": "finance" },
-    { "name": "Digital & Technology Strategy", "id": "digital" },
-    { "name": "Corporate Leadership", "id": "leadership" },
-    { "name": "Investor Relations", "id": "ir" }
+    {
+      "name": "Mergers & Acquisitions",
+      "id": "ma"
+    },
+    {
+      "name": "Capital Markets & Finance",
+      "id": "finance"
+    },
+    {
+      "name": "Digital & Technology Strategy",
+      "id": "digital"
+    },
+    {
+      "name": "Corporate Leadership",
+      "id": "leadership"
+    },
+    {
+      "name": "Investor Relations",
+      "id": "ir"
+    }
   ],
   "skills": [
     {
@@ -21,10 +36,18 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["ma"],
+      "roles": [
+        "ma"
+      ],
       "evidence": [
-        { "outcome": "Led negotiation of $192B GoJo-Waystar merger — largest media deal in history", "description": "Directed due diligence, term negotiation, and regulatory strategy for transformative cross-border transaction" },
-        { "outcome": "Managed $50B+ acquisition pipeline evaluating 20+ targets annually", "description": "Built and directed M&A team analyzing potential acquisitions across media, technology, and entertainment sectors" }
+        {
+          "outcome": "Led negotiation of $192B GoJo-Waystar merger \u2014 largest media deal in history",
+          "description": "Directed due diligence, term negotiation, and regulatory strategy for transformative cross-border transaction"
+        },
+        {
+          "outcome": "Managed $50B+ acquisition pipeline evaluating 20+ targets annually",
+          "description": "Built and directed M&A team analyzing potential acquisitions across media, technology, and entertainment sectors"
+        }
       ]
     },
     {
@@ -32,10 +55,18 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["finance"],
+      "roles": [
+        "finance"
+      ],
       "evidence": [
-        { "outcome": "Structured $5B debt offering to fund acquisition strategy at favorable terms", "description": "Worked with investment banks to design and execute capital markets transactions supporting M&A program" },
-        { "outcome": "Managed investor roadshows presenting company strategy to top 50 institutional shareholders", "description": "Delivered compelling strategic narrative to institutional investors during periods of market uncertainty" }
+        {
+          "outcome": "Structured $5B debt offering to fund acquisition strategy at favorable terms",
+          "description": "Worked with investment banks to design and execute capital markets transactions supporting M&A program"
+        },
+        {
+          "outcome": "Managed investor roadshows presenting company strategy to top 50 institutional shareholders",
+          "description": "Delivered compelling strategic narrative to institutional investors during periods of market uncertainty"
+        }
       ]
     },
     {
@@ -43,19 +74,33 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["digital"],
+      "roles": [
+        "digital"
+      ],
       "evidence": [
-        { "outcome": "Developed Waystar digital strategy projecting $3B streaming revenue within 5 years", "description": "Created comprehensive digital transformation roadmap addressing cord-cutting disruption and platform competition" },
-        { "outcome": "Launched Vaulter acquisition to accelerate digital media capabilities", "description": "Identified and acquired digital media company to build Waystar's online content and distribution capabilities" }
+        {
+          "outcome": "Developed Waystar digital strategy projecting $3B streaming revenue within 5 years",
+          "description": "Created comprehensive digital transformation roadmap addressing cord-cutting disruption and platform competition"
+        },
+        {
+          "outcome": "Launched Vaulter acquisition to accelerate digital media capabilities",
+          "description": "Identified and acquired digital media company to build Waystar's online content and distribution capabilities"
+        }
       ]
     },
     {
       "name": "Financial Modeling",
       "level": "Expert",
       "category": "skill",
-      "roles": ["finance", "ma"],
+      "roles": [
+        "finance",
+        "ma"
+      ],
       "evidence": [
-        { "outcome": "Built valuation models for $192B GoJo transaction accepted by board and advisors", "description": "Developed complex DCF, comparable company, and synergy models supporting merger negotiations" }
+        {
+          "outcome": "Built valuation models for $192B GoJo transaction accepted by board and advisors",
+          "description": "Developed complex DCF, comparable company, and synergy models supporting merger negotiations"
+        }
       ]
     },
     {
@@ -63,27 +108,42 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Authored 5-year strategic plan repositioning Waystar from legacy media to digital-first platform", "description": "Developed comprehensive strategy addressing streaming disruption, cord-cutting, and platform competition" }
+        {
+          "outcome": "Authored 5-year strategic plan repositioning Waystar from legacy media to digital-first platform",
+          "description": "Developed comprehensive strategy addressing streaming disruption, cord-cutting, and platform competition"
+        }
       ]
     },
     {
       "name": "Investor Relations",
       "level": "Expert",
       "category": "skill",
-      "roles": ["ir"],
+      "roles": [
+        "ir"
+      ],
       "evidence": [
-        { "outcome": "Managed investor communications during crisis maintaining institutional investor confidence", "description": "Conducted personal outreach to top 20 shareholders during cruises scandal and succession uncertainty" }
+        {
+          "outcome": "Managed investor communications during crisis maintaining institutional investor confidence",
+          "description": "Conducted personal outreach to top 20 shareholders during cruises scandal and succession uncertainty"
+        }
       ]
     },
     {
       "name": "Corporate Governance",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Navigated board dynamics during contested CEO succession involving family and independent directors", "description": "Managed complex stakeholder relationships across family shareholders, institutional investors, and independent board members" }
+        {
+          "outcome": "Navigated board dynamics during contested CEO succession involving family and independent directors",
+          "description": "Managed complex stakeholder relationships across family shareholders, institutional investors, and independent board members"
+        }
       ]
     },
     {
@@ -91,91 +151,148 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["leadership", "ir"],
+      "roles": [
+        "leadership",
+        "ir"
+      ],
       "evidence": [
-        { "outcome": "Delivered keynote speeches at media industry conferences reaching 5,000+ attendees", "description": "Presented Waystar's digital vision at industry events including Allen & Company Sun Valley Conference" },
-        { "outcome": "Conducted live press conference announcing management changes during corporate crisis", "description": "Managed high-pressure public communication with global media scrutiny and real-time market reaction" }
+        {
+          "outcome": "Delivered keynote speeches at media industry conferences reaching 5,000+ attendees",
+          "description": "Presented Waystar's digital vision at industry events including Allen & Company Sun Valley Conference"
+        },
+        {
+          "outcome": "Conducted live press conference announcing management changes during corporate crisis",
+          "description": "Managed high-pressure public communication with global media scrutiny and real-time market reaction"
+        }
       ]
     },
     {
       "name": "Due Diligence Management",
       "level": "Expert",
       "category": "skill",
-      "roles": ["ma"],
+      "roles": [
+        "ma"
+      ],
       "evidence": [
-        { "outcome": "Directed due diligence teams of 30+ analysts and advisors across major transactions", "description": "Coordinated financial, legal, operational, and technology diligence streams for complex acquisitions" }
+        {
+          "outcome": "Directed due diligence teams of 30+ analysts and advisors across major transactions",
+          "description": "Coordinated financial, legal, operational, and technology diligence streams for complex acquisitions"
+        }
       ]
     },
     {
       "name": "Competitive Analysis",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["leadership", "digital"],
+      "roles": [
+        "leadership",
+        "digital"
+      ],
       "evidence": [
-        { "outcome": "Developed competitive intelligence framework tracking 8 major media competitors", "description": "Built systematic analysis of Disney, Comcast, Netflix, and tech platform competitive positioning" }
+        {
+          "outcome": "Developed competitive intelligence framework tracking 8 major media competitors",
+          "description": "Built systematic analysis of Disney, Comcast, Netflix, and tech platform competitive positioning"
+        }
       ]
     },
     {
       "name": "Team Building",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Assembled and led M&A team of 15 professionals across strategy, finance, and legal", "description": "Recruited and developed high-performing team capable of managing multiple concurrent transactions" }
+        {
+          "outcome": "Assembled and led M&A team of 15 professionals across strategy, finance, and legal",
+          "description": "Recruited and developed high-performing team capable of managing multiple concurrent transactions"
+        }
       ]
     },
     {
       "name": "Media Strategy",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["digital", "leadership"],
+      "roles": [
+        "digital",
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Identified streaming market opportunity 3 years before Waystar formally entered the space", "description": "Analyzed cord-cutting trends, consumer behavior shifts, and competitive landscape to advocate for streaming investment" }
+        {
+          "outcome": "Identified streaming market opportunity 3 years before Waystar formally entered the space",
+          "description": "Analyzed cord-cutting trends, consumer behavior shifts, and competitive landscape to advocate for streaming investment"
+        }
       ]
     },
     {
       "name": "Regulatory Strategy",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["ma"],
+      "roles": [
+        "ma"
+      ],
       "evidence": [
-        { "outcome": "Developed FCC and antitrust compliance strategy for GoJo merger approval", "description": "Worked with legal teams to structure transaction minimizing regulatory review timeline and risk" }
+        {
+          "outcome": "Developed FCC and antitrust compliance strategy for GoJo merger approval",
+          "description": "Worked with legal teams to structure transaction minimizing regulatory review timeline and risk"
+        }
       ]
     },
     {
       "name": "Deal Negotiation",
       "level": "Expert",
       "category": "skill",
-      "roles": ["ma"],
+      "roles": [
+        "ma"
+      ],
       "evidence": [
-        { "outcome": "Negotiated Vaulter acquisition at 15% below initial asking price", "description": "Applied competitive pressure and alternative analysis to achieve favorable purchase terms" }
+        {
+          "outcome": "Negotiated Vaulter acquisition at 15% below initial asking price",
+          "description": "Applied competitive pressure and alternative analysis to achieve favorable purchase terms"
+        }
       ]
     },
     {
       "name": "Crisis Communications",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["leadership", "ir"],
+      "roles": [
+        "leadership",
+        "ir"
+      ],
       "evidence": [
-        { "outcome": "Managed external communications during cruises scandal reducing share price impact", "description": "Coordinated messaging across PR, investor relations, and media to contain reputational damage" }
+        {
+          "outcome": "Managed external communications during cruises scandal reducing share price impact",
+          "description": "Coordinated messaging across PR, investor relations, and media to contain reputational damage"
+        }
       ]
     },
     {
       "name": "Content Strategy",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["digital"],
+      "roles": [
+        "digital"
+      ],
       "evidence": [
-        { "outcome": "Evaluated content acquisition and original programming investment for streaming launch", "description": "Analyzed content economics including licensing costs, original production ROI, and viewer acquisition metrics" }
+        {
+          "outcome": "Evaluated content acquisition and original programming investment for streaming launch",
+          "description": "Analyzed content economics including licensing costs, original production ROI, and viewer acquisition metrics"
+        }
       ]
     },
     {
       "name": "Product Development",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["digital"],
+      "roles": [
+        "digital"
+      ],
       "evidence": [
-        { "outcome": "Oversaw development of Waystar streaming platform MVP", "description": "Managed product development process from concept through beta launch" }
+        {
+          "outcome": "Oversaw development of Waystar streaming platform MVP",
+          "description": "Managed product development process from concept through beta launch"
+        }
       ]
     },
     {
@@ -183,45 +300,72 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Identified GoJo as transformative acquisition target 18 months before formal discussions began", "description": "Recognized strategic fit between Waystar content assets and GoJo technology platform before market consensus" }
+        {
+          "outcome": "Identified GoJo as transformative acquisition target 18 months before formal discussions began",
+          "description": "Recognized strategic fit between Waystar content assets and GoJo technology platform before market consensus"
+        }
       ]
     },
     {
       "name": "Analytical Rigor",
       "level": "Expert",
       "category": "work style",
-      "roles": ["finance", "ma"],
+      "roles": [
+        "finance",
+        "ma"
+      ],
       "evidence": [
-        { "outcome": "Identified $4B valuation discrepancy in acquisition target financial projections", "description": "Applied detailed analytical review to challenge assumptions in advisor-prepared models" }
+        {
+          "outcome": "Identified $4B valuation discrepancy in acquisition target financial projections",
+          "description": "Applied detailed analytical review to challenge assumptions in advisor-prepared models"
+        }
       ]
     },
     {
       "name": "Resilience",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Continued executive performance through multiple personal and professional crises", "description": "Maintained strategic focus and operational delivery despite family conflict, personal struggles, and public scrutiny" }
+        {
+          "outcome": "Continued executive performance through multiple personal and professional crises",
+          "description": "Maintained strategic focus and operational delivery despite family conflict, personal struggles, and public scrutiny"
+        }
       ]
     },
     {
       "name": "Ambition",
       "level": "Expert",
       "category": "work style",
-      "roles": ["leadership"],
+      "roles": [
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Pursued CEO succession across multiple attempts demonstrating sustained strategic ambition", "description": "Maintained long-term vision for company leadership despite setbacks and competitive family dynamics" }
+        {
+          "outcome": "Pursued CEO succession across multiple attempts demonstrating sustained strategic ambition",
+          "description": "Maintained long-term vision for company leadership despite setbacks and competitive family dynamics"
+        }
       ]
     },
     {
       "name": "Presentation Skills",
       "level": "Expert",
       "category": "work style",
-      "roles": ["ir", "leadership"],
+      "roles": [
+        "ir",
+        "leadership"
+      ],
       "evidence": [
-        { "outcome": "Delivered compelling board presentations that shifted director votes on key strategic decisions", "description": "Combined data-driven analysis with narrative storytelling to influence governance outcomes" }
+        {
+          "outcome": "Delivered compelling board presentations that shifted director votes on key strategic decisions",
+          "description": "Combined data-driven analysis with narrative storytelling to influence governance outcomes"
+        }
       ]
     },
     {
@@ -230,16 +374,42 @@
       "category": "skill",
       "roles": [],
       "evidence": [
-        { "outcome": "Delivered spontaneous rap performance at company event", "description": "Demonstrated cultural awareness and willingness to engage authentically with contemporary culture" }
+        {
+          "outcome": "Delivered spontaneous rap performance at company event",
+          "description": "Demonstrated cultural awareness and willingness to engage authentically with contemporary culture"
+        }
       ]
     }
   ],
   "values": [
-    { "name": "Achievement", "level": "core" },
-    { "name": "Recognition", "level": "core" },
-    { "name": "Power", "level": "core" },
-    { "name": "Innovation", "level": "important" },
-    { "name": "Legacy", "level": "important" }
+    {
+      "name": "Strategic Thinking",
+      "selected": true
+    },
+    {
+      "name": "Bias Toward Action",
+      "selected": true
+    },
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Continuous Improvement",
+      "selected": true
+    },
+    {
+      "name": "Collaboration",
+      "selected": true
+    },
+    {
+      "name": "Proving Them Wrong",
+      "selected": true
+    },
+    {
+      "name": "L to the OG",
+      "selected": true
+    }
   ],
   "workHistory": [
     {
@@ -259,7 +429,7 @@
     },
     {
       "title": "Associate",
-      "company": "Goldman Sachs — Media & Entertainment Group",
+      "company": "Goldman Sachs \u2014 Media & Entertainment Group",
       "startYear": 2007,
       "endYear": 2010,
       "description": "Advised media companies on M&A and capital markets transactions. Built financial models and supported deal execution."
@@ -278,5 +448,5 @@
     }
   ],
   "certifications": [],
-  "purpose": "I see the future this company needs. I will drag it there — even if I have to drag my family with it."
+  "purpose": "I see the future this company needs. I will drag it there \u2014 even if I have to drag my family with it."
 }

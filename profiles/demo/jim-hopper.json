@@ -9,11 +9,26 @@
     "executiveSummary": "Veteran law enforcement leader who transitioned from big-city homicide investigation to small-town police administration, only to face threats that dwarfed anything encountered in his prior career. Led crisis response operations requiring coordination with federal agencies, military assets, and civilian volunteers while keeping public panic contained. Known for unconventional leadership, fierce protection of community, and willingness to personally lead from the front in dangerous operations."
   },
   "roles": [
-    { "name": "Police Administration", "id": "admin" },
-    { "name": "Crisis Leadership", "id": "crisis" },
-    { "name": "Investigation", "id": "investigation" },
-    { "name": "Community Relations", "id": "community" },
-    { "name": "Inter-Agency Coordination", "id": "interagency" }
+    {
+      "name": "Police Administration",
+      "id": "admin"
+    },
+    {
+      "name": "Crisis Leadership",
+      "id": "crisis"
+    },
+    {
+      "name": "Investigation",
+      "id": "investigation"
+    },
+    {
+      "name": "Community Relations",
+      "id": "community"
+    },
+    {
+      "name": "Inter-Agency Coordination",
+      "id": "interagency"
+    }
   ],
   "skills": [
     {
@@ -21,10 +36,18 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Led emergency response to 4 existential-level threats to Hawkins over 3 years with zero civilian casualties", "description": "Coordinated multi-agency response including military, federal, and civilian assets against unprecedented threats" },
-        { "outcome": "Managed crisis communications preventing mass panic during 3 containment events", "description": "Developed cover narratives and coordinated with federal agencies to maintain public calm during extraordinary circumstances" }
+        {
+          "outcome": "Led emergency response to 4 existential-level threats to Hawkins over 3 years with zero civilian casualties",
+          "description": "Coordinated multi-agency response including military, federal, and civilian assets against unprecedented threats"
+        },
+        {
+          "outcome": "Managed crisis communications preventing mass panic during 3 containment events",
+          "description": "Developed cover narratives and coordinated with federal agencies to maintain public calm during extraordinary circumstances"
+        }
       ]
     },
     {
@@ -32,10 +55,18 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Solved Will Byers disappearance case when state and federal agencies classified it as presumed drowning", "description": "Pursued investigation against official findings, uncovering Hawkins Lab involvement and locating missing child" },
-        { "outcome": "Closed 45+ homicide cases during NYPD tenure with 82% clearance rate", "description": "Applied thorough investigative methodology and witness development skills in complex urban homicide cases" }
+        {
+          "outcome": "Solved Will Byers disappearance case when state and federal agencies classified it as presumed drowning",
+          "description": "Pursued investigation against official findings, uncovering Hawkins Lab involvement and locating missing child"
+        },
+        {
+          "outcome": "Closed 45+ homicide cases during NYPD tenure with 82% clearance rate",
+          "description": "Applied thorough investigative methodology and witness development skills in complex urban homicide cases"
+        }
       ]
     },
     {
@@ -43,10 +74,19 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["community", "admin"],
+      "roles": [
+        "community",
+        "admin"
+      ],
       "evidence": [
-        { "outcome": "Maintained community trust during 3 crisis events requiring information suppression", "description": "Balanced need for public safety communication with classified containment requirements, preserving civilian confidence" },
-        { "outcome": "Rebuilt department credibility after predecessor's corruption scandals", "description": "Implemented transparency initiatives and personal community engagement restoring public trust in HPD" }
+        {
+          "outcome": "Maintained community trust during 3 crisis events requiring information suppression",
+          "description": "Balanced need for public safety communication with classified containment requirements, preserving civilian confidence"
+        },
+        {
+          "outcome": "Rebuilt department credibility after predecessor's corruption scandals",
+          "description": "Implemented transparency initiatives and personal community engagement restoring public trust in HPD"
+        }
       ]
     },
     {
@@ -54,9 +94,14 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["admin"],
+      "roles": [
+        "admin"
+      ],
       "evidence": [
-        { "outcome": "Managed 8-officer department covering 25,000 residents on limited municipal budget", "description": "Optimized shift scheduling, resource allocation, and equipment procurement to maximize coverage and response time" }
+        {
+          "outcome": "Managed 8-officer department covering 25,000 residents on limited municipal budget",
+          "description": "Optimized shift scheduling, resource allocation, and equipment procurement to maximize coverage and response time"
+        }
       ]
     },
     {
@@ -64,10 +109,19 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["interagency", "crisis"],
+      "roles": [
+        "interagency",
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Coordinated operations with DOE, military special operations, and state police during containment events", "description": "Navigated complex jurisdiction and classification issues while maintaining operational effectiveness" },
-        { "outcome": "Built working relationship with Dr. Owens and DOE providing intelligence access and operational support", "description": "Established trust with federal officials enabling information sharing critical to threat response" }
+        {
+          "outcome": "Coordinated operations with DOE, military special operations, and state police during containment events",
+          "description": "Navigated complex jurisdiction and classification issues while maintaining operational effectiveness"
+        },
+        {
+          "outcome": "Built working relationship with Dr. Owens and DOE providing intelligence access and operational support",
+          "description": "Established trust with federal officials enabling information sharing critical to threat response"
+        }
       ]
     },
     {
@@ -75,100 +129,161 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["crisis", "investigation"],
+      "roles": [
+        "crisis",
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Led armed entry into Hawkins National Laboratory facility to rescue civilian", "description": "Planned and executed tactical operation inside secure federal facility against armed opposition" },
-        { "outcome": "Survived and escaped from Soviet military detention facility in Kamchatka", "description": "Applied tactical training and improvisation to survive captivity and lead escape from hostile foreign military installation" }
+        {
+          "outcome": "Led armed entry into Hawkins National Laboratory facility to rescue civilian",
+          "description": "Planned and executed tactical operation inside secure federal facility against armed opposition"
+        },
+        {
+          "outcome": "Survived and escaped from Soviet military detention facility in Kamchatka",
+          "description": "Applied tactical training and improvisation to survive captivity and lead escape from hostile foreign military installation"
+        }
       ]
     },
     {
       "name": "Emergency Management",
       "level": "Expert",
       "category": "skill",
-      "roles": ["crisis", "admin"],
+      "roles": [
+        "crisis",
+        "admin"
+      ],
       "evidence": [
-        { "outcome": "Managed town-wide evacuation during Starcourt Mall incident without mass casualties", "description": "Coordinated emergency services, civilian evacuation, and threat containment simultaneously" }
+        {
+          "outcome": "Managed town-wide evacuation during Starcourt Mall incident without mass casualties",
+          "description": "Coordinated emergency services, civilian evacuation, and threat containment simultaneously"
+        }
       ]
     },
     {
       "name": "Personnel Management",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["admin"],
+      "roles": [
+        "admin"
+      ],
       "evidence": [
-        { "outcome": "Developed Officer Powell and Officer Callahan from rookies to competent officers", "description": "Provided on-the-job training and mentorship to small department staff with limited formal training resources" }
+        {
+          "outcome": "Developed Officer Powell and Officer Callahan from rookies to competent officers",
+          "description": "Provided on-the-job training and mentorship to small department staff with limited formal training resources"
+        }
       ]
     },
     {
       "name": "Evidence Collection",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Collected and preserved evidence from non-standard crime scenes including government facilities", "description": "Adapted evidence collection protocols for unusual circumstances while maintaining evidentiary value" }
+        {
+          "outcome": "Collected and preserved evidence from non-standard crime scenes including government facilities",
+          "description": "Adapted evidence collection protocols for unusual circumstances while maintaining evidentiary value"
+        }
       ]
     },
     {
       "name": "Witness Interview",
       "level": "Expert",
       "category": "skill",
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Obtained critical testimony from traumatized witnesses including children", "description": "Applied empathetic interview techniques to build trust with witnesses experiencing extreme psychological distress" }
+        {
+          "outcome": "Obtained critical testimony from traumatized witnesses including children",
+          "description": "Applied empathetic interview techniques to build trust with witnesses experiencing extreme psychological distress"
+        }
       ]
     },
     {
       "name": "Surveillance",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["investigation"],
+      "roles": [
+        "investigation"
+      ],
       "evidence": [
-        { "outcome": "Conducted covert surveillance of Hawkins National Laboratory revealing classified operations", "description": "Used physical surveillance and document analysis to uncover government facility's secret programs" }
+        {
+          "outcome": "Conducted covert surveillance of Hawkins National Laboratory revealing classified operations",
+          "description": "Used physical surveillance and document analysis to uncover government facility's secret programs"
+        }
       ]
     },
     {
       "name": "Firearms Proficiency",
       "level": "Expert",
       "category": "skill",
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Maintained expert firearms qualification across handgun, shotgun, and rifle platforms", "description": "Annual qualification scores consistently in top tier, applied effectively in multiple armed confrontations" }
+        {
+          "outcome": "Maintained expert firearms qualification across handgun, shotgun, and rifle platforms",
+          "description": "Annual qualification scores consistently in top tier, applied effectively in multiple armed confrontations"
+        }
       ]
     },
     {
       "name": "Budget Management",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["admin"],
+      "roles": [
+        "admin"
+      ],
       "evidence": [
-        { "outcome": "Managed HPD budget of $400K covering salaries, equipment, and operations", "description": "Stretched limited municipal budget to maintain department operations and equipment readiness" }
+        {
+          "outcome": "Managed HPD budget of $400K covering salaries, equipment, and operations",
+          "description": "Stretched limited municipal budget to maintain department operations and equipment readiness"
+        }
       ]
     },
     {
       "name": "Report Writing",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["investigation", "admin"],
+      "roles": [
+        "investigation",
+        "admin"
+      ],
       "evidence": [
-        { "outcome": "Authored investigation reports and incident documentation for 4 major crisis events", "description": "Produced official reports balancing accuracy with classified information restrictions" }
+        {
+          "outcome": "Authored investigation reports and incident documentation for 4 major crisis events",
+          "description": "Produced official reports balancing accuracy with classified information restrictions"
+        }
       ]
     },
     {
       "name": "First Aid & Emergency Medical",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Provided field medical assistance to wounded civilians during multiple crisis events", "description": "Applied first responder medical training in austere conditions when EMS was unavailable or delayed" }
+        {
+          "outcome": "Provided field medical assistance to wounded civilians during multiple crisis events",
+          "description": "Applied first responder medical training in austere conditions when EMS was unavailable or delayed"
+        }
       ]
     },
     {
       "name": "Survival Skills",
       "level": "Expert",
       "category": "skill",
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Survived 8+ months in Soviet forced labor camp maintaining physical and mental resilience", "description": "Applied survival training and mental toughness to endure captivity, malnutrition, and forced labor in extreme conditions" }
+        {
+          "outcome": "Survived 8+ months in Soviet forced labor camp maintaining physical and mental resilience",
+          "description": "Applied survival training and mental toughness to endure captivity, malnutrition, and forced labor in extreme conditions"
+        }
       ]
     },
     {
@@ -176,9 +291,14 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Personally led front-line operations against threats that terrified trained military personnel", "description": "Consistently chose to lead from the front in situations where personal survival was uncertain" }
+        {
+          "outcome": "Personally led front-line operations against threats that terrified trained military personnel",
+          "description": "Consistently chose to lead from the front in situations where personal survival was uncertain"
+        }
       ]
     },
     {
@@ -186,18 +306,29 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["community", "crisis"],
+      "roles": [
+        "community",
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Adopted and protected Eleven at personal legal and physical risk", "description": "Took in vulnerable individual, providing safety, stability, and parental care despite danger to his own position and safety" }
+        {
+          "outcome": "Adopted and protected Eleven at personal legal and physical risk",
+          "description": "Took in vulnerable individual, providing safety, stability, and parental care despite danger to his own position and safety"
+        }
       ]
     },
     {
       "name": "Adaptability",
       "level": "Expert",
       "category": "work style",
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Adapted from conventional policing to unconventional threat response without training or precedent", "description": "Rapidly adjusted investigative and tactical approaches when confronting threats outside any law enforcement protocol" }
+        {
+          "outcome": "Adapted from conventional policing to unconventional threat response without training or precedent",
+          "description": "Rapidly adjusted investigative and tactical approaches when confronting threats outside any law enforcement protocol"
+        }
       ]
     },
     {
@@ -205,63 +336,118 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Recovered from loss of daughter, addiction, Soviet captivity, and multiple near-death experiences", "description": "Demonstrated extraordinary capacity to endure personal tragedy and extreme adversity while maintaining duty and purpose" }
+        {
+          "outcome": "Recovered from loss of daughter, addiction, Soviet captivity, and multiple near-death experiences",
+          "description": "Demonstrated extraordinary capacity to endure personal tragedy and extreme adversity while maintaining duty and purpose"
+        }
       ]
     },
     {
       "name": "Leadership Under Stress",
       "level": "Expert",
       "category": "work style",
-      "roles": ["crisis", "admin"],
+      "roles": [
+        "crisis",
+        "admin"
+      ],
       "evidence": [
-        { "outcome": "Maintained command presence and decision-making clarity during 4 existential crisis events", "description": "Led teams of mixed military, civilian, and law enforcement personnel through unprecedented threats" }
+        {
+          "outcome": "Maintained command presence and decision-making clarity during 4 existential crisis events",
+          "description": "Led teams of mixed military, civilian, and law enforcement personnel through unprecedented threats"
+        }
       ]
     },
     {
       "name": "Empathy",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["community"],
+      "roles": [
+        "community"
+      ],
       "evidence": [
-        { "outcome": "Built trust with traumatized children and families affected by crisis events", "description": "Provided emotional support and protection to affected civilians, particularly children, during and after crisis" }
+        {
+          "outcome": "Built trust with traumatized children and families affected by crisis events",
+          "description": "Provided emotional support and protection to affected civilians, particularly children, during and after crisis"
+        }
       ]
     },
     {
       "name": "Physical Conditioning",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["crisis"],
+      "roles": [
+        "crisis"
+      ],
       "evidence": [
-        { "outcome": "Maintained operational physical fitness through 20+ year career including post-injury recovery", "description": "Sustained physical capability for field operations despite injuries, age, and environmental challenges" }
+        {
+          "outcome": "Maintained operational physical fitness through 20+ year career including post-injury recovery",
+          "description": "Sustained physical capability for field operations despite injuries, age, and environmental challenges"
+        }
       ]
     },
     {
       "name": "Conflict De-Escalation",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["community", "admin"],
+      "roles": [
+        "community",
+        "admin"
+      ],
       "evidence": [
-        { "outcome": "Resolved domestic disputes and community conflicts through de-escalation versus force", "description": "Applied communication skills and patience to resolve volatile situations without escalation" }
+        {
+          "outcome": "Resolved domestic disputes and community conflicts through de-escalation versus force",
+          "description": "Applied communication skills and patience to resolve volatile situations without escalation"
+        }
       ]
     },
     {
       "name": "Information Security",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["interagency"],
+      "roles": [
+        "interagency"
+      ],
       "evidence": [
-        { "outcome": "Maintained classified information security across 4 containment events", "description": "Protected sensitive information from public disclosure while coordinating with multiple agencies and civilian participants" }
+        {
+          "outcome": "Maintained classified information security across 4 containment events",
+          "description": "Protected sensitive information from public disclosure while coordinating with multiple agencies and civilian participants"
+        }
       ]
     }
   ],
   "values": [
-    { "name": "Protection", "level": "core" },
-    { "name": "Justice", "level": "core" },
-    { "name": "Courage", "level": "core" },
-    { "name": "Family", "level": "important" },
-    { "name": "Community", "level": "important" }
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Accountability",
+      "selected": true
+    },
+    {
+      "name": "Integrity",
+      "selected": true
+    },
+    {
+      "name": "Resilience",
+      "selected": true
+    },
+    {
+      "name": "Trust",
+      "selected": true
+    },
+    {
+      "name": "Servant Leadership",
+      "selected": true
+    },
+    {
+      "name": "Empathy",
+      "selected": true
+    }
   ],
   "workHistory": [
     {
@@ -293,9 +479,18 @@
     }
   ],
   "certifications": [
-    { "name": "Indiana Law Enforcement Academy", "issuer": "State of Indiana" },
-    { "name": "Crisis Management Certification", "issuer": "FEMA" },
-    { "name": "Advanced Tactical Operations", "issuer": "NYPD" }
+    {
+      "name": "Indiana Law Enforcement Academy",
+      "issuer": "State of Indiana"
+    },
+    {
+      "name": "Crisis Management Certification",
+      "issuer": "FEMA"
+    },
+    {
+      "name": "Advanced Tactical Operations",
+      "issuer": "NYPD"
+    }
   ],
   "purpose": "I don't care what the protocols say. I care about the people. And I'll go through whatever door I have to."
 }

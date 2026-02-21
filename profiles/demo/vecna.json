@@ -1,0 +1,270 @@
+{
+  "templateId": "vecna",
+  "profile": {
+    "name": "Vecna (Henry Creel / One)",
+    "currentTitle": "Architect of the Upside Down / Interdimensional Sovereign",
+    "location": "The Upside Down (formerly Hawkins, IN)",
+    "roleLevel": "C-Suite",
+    "headline": "Visionary architect who single-handedly restructured an entire dimension, built and commanded a networked hive-mind organism spanning infinite territory, and executed a multi-decade strategic campaign against the only rival capable of challenging his dominion.",
+    "executiveSummary": "The first and most powerful psychokinetic operative ever produced by the Hawkins Laboratory program. Redesigned the chaotic ecology of the Upside Down into an organized, command-and-control hierarchy with himself at the apex. Demonstrated unmatched capabilities in psychic warfare, dimensional engineering, and long-term strategic planning — executing campaigns that spanned decades from a parallel dimension. Currently engaged in a hostile expansion initiative targeting the surface world."
+  },
+  "roles": [
+    { "name": "Dimensional Architecture", "id": "architecture" },
+    { "name": "Psychic Warfare", "id": "warfare" },
+    { "name": "Hive-Mind Command", "id": "hivemind" },
+    { "name": "Strategic Operations", "id": "strategy" },
+    { "name": "Talent Destruction", "id": "destruction" }
+  ],
+  "skills": [
+    {
+      "name": "Psychokinesis",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": ["warfare"],
+      "evidence": [
+        { "outcome": "Eliminated entire cohort of 15+ telekinetic operatives in a single engagement at Hawkins Lab", "description": "Demonstrated overwhelming psychic superiority, dispatching every other test subject before being banished by Eleven" },
+        { "outcome": "Killed multiple targets across dimensional barrier using psychic projection alone", "description": "Developed technique to reach through dimensions and terminate targets in the real world without physical presence" }
+      ]
+    },
+    {
+      "name": "Dimensional Engineering",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": ["architecture"],
+      "evidence": [
+        { "outcome": "Restructured the ecology of an entire parallel dimension to serve as command infrastructure", "description": "Transformed the chaotic Upside Down into a controlled environment with biological architecture, communication networks, and defensive systems" },
+        { "outcome": "Created stable interdimensional gates enabling persistent access between worlds", "description": "Engineered breach points that maintained structural integrity and expanded under controlled conditions" }
+      ]
+    },
+    {
+      "name": "Hive-Mind Network Architecture",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": ["hivemind"],
+      "evidence": [
+        { "outcome": "Built and maintained real-time command network controlling thousands of biological entities simultaneously", "description": "Designed psychic network connecting Demogorgons, Demodogs, bats, and the Mind Flayer avatar into a coordinated fighting force" },
+        { "outcome": "Operated networked entities across dimensional boundaries with zero communication latency", "description": "Maintained command and control of hive-mind across the barrier between dimensions in real time" }
+      ]
+    },
+    {
+      "name": "Strategic Planning",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": ["strategy"],
+      "evidence": [
+        { "outcome": "Executed multi-year campaign from alternate dimension culminating in four-gate breach of Hawkins", "description": "Planned and sequenced targeted killings to open dimensional gates at precise geographic locations forming strategic pattern" },
+        { "outcome": "Manipulated events across 20+ years from initial banishment to final assault", "description": "Maintained strategic patience and adapted plans across decades despite being trapped in hostile environment" }
+      ]
+    },
+    {
+      "name": "Psychological Warfare",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": ["warfare", "destruction"],
+      "evidence": [
+        { "outcome": "Developed 'Vecna's Curse' — psychic attack technique exploiting victim's trauma and guilt", "description": "Designed targeted psychological attack methodology that identifies deepest emotional vulnerabilities and weaponizes them" },
+        { "outcome": "Psychologically manipulated Eleven during childhood to serve as unwitting accomplice", "description": "Groomed young Eleven through years of emotional manipulation to eventually open the first dimensional gate" }
+      ]
+    },
+    {
+      "name": "Biomechanical Design",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["architecture", "hivemind"],
+      "evidence": [
+        { "outcome": "Designed and deployed multiple biological weapon systems including Demogorgons and Mind Flayer", "description": "Created or reshaped biological organisms into specialized combat, surveillance, and infiltration units" }
+      ]
+    },
+    {
+      "name": "Remote Viewing & Psychic Surveillance",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": ["warfare", "strategy"],
+      "evidence": [
+        { "outcome": "Monitored targets across dimensional barrier identifying vulnerabilities in real time", "description": "Used psychic projection to observe, assess, and select targets based on psychological state and isolation" }
+      ]
+    },
+    {
+      "name": "Organizational Destruction",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["destruction", "strategy"],
+      "evidence": [
+        { "outcome": "Systematically destroyed Hawkins Lab from within before physical banishment", "description": "Eliminated staff and test subjects through coordinated psychic assault while maintaining cover as obedient subject" }
+      ]
+    },
+    {
+      "name": "Survival Under Extreme Conditions",
+      "level": "Mastery",
+      "category": "skill",
+      "roles": ["strategy"],
+      "evidence": [
+        { "outcome": "Survived banishment to hostile alien dimension and established dominion over it", "description": "Rather than dying in the Upside Down, adapted to the environment and began reshaping it to serve his purposes" }
+      ]
+    },
+    {
+      "name": "Deception & Manipulation",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["warfare", "destruction"],
+      "evidence": [
+        { "outcome": "Maintained cover as docile test subject 'One' for years inside Hawkins Lab", "description": "Concealed true abilities and intentions from Dr. Brenner and laboratory staff while building relationship with Eleven" },
+        { "outcome": "Manipulated Eleven into removing power-limiting implant, enabling massacre", "description": "Used emotional manipulation and false friendship to convince child subject to restore his powers" }
+      ]
+    },
+    {
+      "name": "Territorial Expansion",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["strategy", "architecture"],
+      "evidence": [
+        { "outcome": "Expanded Upside Down's reach through 4 coordinated breach points in Hawkins", "description": "Designed geographic pattern of dimensional gates to maximize territorial coverage and structural instability of barrier" }
+      ]
+    },
+    {
+      "name": "Pain Tolerance & Physical Endurance",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["warfare"],
+      "evidence": [
+        { "outcome": "Survived dimensional banishment, physical transformation, and psychic combat with Eleven", "description": "Endured catastrophic physical trauma and continued operating at full strategic capacity" }
+      ]
+    },
+    {
+      "name": "Target Selection & Prioritization",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["strategy", "warfare"],
+      "evidence": [
+        { "outcome": "Selected targets with surgical precision to maximize strategic impact and dimensional breach formation", "description": "Identified individuals whose psychic deaths would create gates at optimal geographic locations for final assault" }
+      ]
+    },
+    {
+      "name": "Counter-Intelligence",
+      "level": "Advanced",
+      "category": "skill",
+      "roles": ["strategy"],
+      "evidence": [
+        { "outcome": "Operated undetected within Hawkins Lab despite being the most powerful subject in the program", "description": "Concealed true capability level from Dr. Brenner who believed Henry Creel's abilities had been successfully suppressed" }
+      ]
+    },
+    {
+      "name": "Environmental Terraforming",
+      "level": "Expert",
+      "category": "skill",
+      "roles": ["architecture"],
+      "evidence": [
+        { "outcome": "Transformed Upside Down from chaotic wasteland into structured command environment", "description": "Reshaped biological and geological features of entire dimension to support military-grade infrastructure" }
+      ]
+    },
+    {
+      "name": "Systems Thinking",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["architecture", "hivemind"],
+      "evidence": [
+        { "outcome": "Designed interconnected system linking biological entities, dimensional gates, and psychic command network", "description": "Built holistic system where each component reinforces the others — hive mind controls creatures, creatures guard gates, gates expand territory" }
+      ]
+    },
+    {
+      "name": "Strategic Patience",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["strategy"],
+      "evidence": [
+        { "outcome": "Waited 20+ years in hostile dimension before executing final campaign", "description": "Maintained strategic clarity and adapted plans across decades, never acting prematurely despite isolation and adversity" }
+      ]
+    },
+    {
+      "name": "Ruthlessness",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["warfare", "destruction"],
+      "evidence": [
+        { "outcome": "Eliminated family members, laboratory colleagues, and children without hesitation when strategically necessary", "description": "Demonstrated complete absence of sentimental attachment that might compromise operational objectives" }
+      ]
+    },
+    {
+      "name": "Vision",
+      "level": "Expert",
+      "category": "work style",
+      "key": true,
+      "roles": ["architecture"],
+      "evidence": [
+        { "outcome": "Conceived and began executing plan to merge dimensions and reshape reality", "description": "Articulated comprehensive vision for a unified world order under his psychic control" }
+      ]
+    },
+    {
+      "name": "Adaptability",
+      "level": "Expert",
+      "category": "work style",
+      "roles": ["strategy"],
+      "evidence": [
+        { "outcome": "Adapted from laboratory captive to dimensional architect after catastrophic banishment", "description": "Transformed complete destruction of previous existence into opportunity to build something far more powerful" }
+      ]
+    },
+    {
+      "name": "Intimidation",
+      "level": "Mastery",
+      "category": "work style",
+      "key": true,
+      "roles": ["warfare"],
+      "evidence": [
+        { "outcome": "Projected terror across dimensional barrier causing psychological paralysis in targets", "description": "Used reputation, appearance, and psychic projection to break targets' will before combat engagement" }
+      ]
+    }
+  ],
+  "values": [
+    {"name": "Systems Thinking", "selected": true},
+    {"name": "Strategic Thinking", "selected": true},
+    {"name": "Resilience", "selected": true},
+    {"name": "Dominion Over All", "selected": true},
+    {"name": "Suffering Builds Order", "selected": true},
+    {"name": "One Mind, One Purpose", "selected": true},
+    {"name": "The First Shadow", "selected": true}
+  ],
+  "workHistory": [
+    {
+      "title": "Architect & Sovereign",
+      "company": "The Upside Down",
+      "startYear": 1979,
+      "endYear": null,
+      "current": true,
+      "description": "Restructured entire dimension into command-and-control infrastructure. Built hive-mind network. Executed multi-decade campaign to breach dimensional barrier and expand territory into the surface world."
+    },
+    {
+      "title": "Test Subject One (Henry Creel)",
+      "company": "Hawkins National Laboratory (DOE)",
+      "startYear": 1959,
+      "endYear": 1979,
+      "description": "Classified as Test Subject 001 under Dr. Martin Brenner. Concealed true power level while mentoring Subject 011. Eliminated all other test subjects before being banished to the Upside Down."
+    },
+    {
+      "title": "Son",
+      "company": "Creel Family — Hawkins, IN",
+      "startYear": 1947,
+      "endYear": 1959,
+      "description": "Discovered psychokinetic abilities as a child. Eliminated family members. Committed to Hawkins Lab by Dr. Brenner."
+    }
+  ],
+  "education": [
+    {
+      "institution": "Hawkins National Laboratory",
+      "degree": "Psychokinetic Training Program (involuntary)",
+      "year": null
+    }
+  ],
+  "certifications": [],
+  "purpose": "I am the predator. All the others are the prey. It is time for a new beginning. I will reshape this broken world into something beautiful."
+}

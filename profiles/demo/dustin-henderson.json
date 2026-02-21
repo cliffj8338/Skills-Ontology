@@ -9,10 +9,22 @@
     "executiveSummary": "A natural engineer and communicator who combines deep STEM curiosity with unusual social intelligence for someone his age. Known for building functional technology solutions from available components, decoding complex patterns, and maintaining team morale during crisis situations. Winner of regional science fair for work on electromagnetism. Currently the youngest licensed amateur radio operator in Hawkins County."
   },
   "roles": [
-    { "name": "STEM & Engineering", "id": "stem" },
-    { "name": "Communications & Radio", "id": "communications" },
-    { "name": "Problem Solving & Analysis", "id": "analysis" },
-    { "name": "Team Coordination", "id": "team" }
+    {
+      "name": "STEM & Engineering",
+      "id": "stem"
+    },
+    {
+      "name": "Communications & Radio",
+      "id": "communications"
+    },
+    {
+      "name": "Problem Solving & Analysis",
+      "id": "analysis"
+    },
+    {
+      "name": "Team Coordination",
+      "id": "team"
+    }
   ],
   "skills": [
     {
@@ -20,10 +32,18 @@
       "level": "Advanced",
       "category": "skill",
       "key": true,
-      "roles": ["stem"],
+      "roles": [
+        "stem"
+      ],
       "evidence": [
-        { "outcome": "Built long-range radio transmitter 'Cerebro' capable of intercontinental communication", "description": "Designed and constructed radio system powerful enough to reach girlfriend in Utah from Indiana using salvaged and purchased components" },
-        { "outcome": "Won Hawkins Middle School Science Fair with electromagnetic research project", "description": "Demonstrated understanding of electromagnetism through original research and practical demonstration" }
+        {
+          "outcome": "Built long-range radio transmitter 'Cerebro' capable of intercontinental communication",
+          "description": "Designed and constructed radio system powerful enough to reach girlfriend in Utah from Indiana using salvaged and purchased components"
+        },
+        {
+          "outcome": "Won Hawkins Middle School Science Fair with electromagnetic research project",
+          "description": "Demonstrated understanding of electromagnetism through original research and practical demonstration"
+        }
       ]
     },
     {
@@ -31,10 +51,18 @@
       "level": "Advanced",
       "category": "skill",
       "key": true,
-      "roles": ["communications"],
+      "roles": [
+        "communications"
+      ],
       "evidence": [
-        { "outcome": "Established and maintained reliable radio communication network for crisis response team", "description": "Provided critical communication infrastructure when conventional systems were unavailable or compromised" },
-        { "outcome": "Intercepted and decoded Russian military radio transmissions revealing secret operation", "description": "Identified anomalous radio signals, recorded transmissions, and coordinated translation effort" }
+        {
+          "outcome": "Established and maintained reliable radio communication network for crisis response team",
+          "description": "Provided critical communication infrastructure when conventional systems were unavailable or compromised"
+        },
+        {
+          "outcome": "Intercepted and decoded Russian military radio transmissions revealing secret operation",
+          "description": "Identified anomalous radio signals, recorded transmissions, and coordinated translation effort"
+        }
       ]
     },
     {
@@ -42,10 +70,18 @@
       "level": "Advanced",
       "category": "skill",
       "key": true,
-      "roles": ["analysis"],
+      "roles": [
+        "analysis"
+      ],
       "evidence": [
-        { "outcome": "Identified repeating pattern in intercepted Russian transmissions enabling translation", "description": "Applied analytical skills to recognize encoded communication pattern that adults had missed" },
-        { "outcome": "Decoded compass anomaly revealing electromagnetic interference from alternate dimension", "description": "Connected apparently random compass behavior to underlying electromagnetic phenomenon" }
+        {
+          "outcome": "Identified repeating pattern in intercepted Russian transmissions enabling translation",
+          "description": "Applied analytical skills to recognize encoded communication pattern that adults had missed"
+        },
+        {
+          "outcome": "Decoded compass anomaly revealing electromagnetic interference from alternate dimension",
+          "description": "Connected apparently random compass behavior to underlying electromagnetic phenomenon"
+        }
       ]
     },
     {
@@ -53,9 +89,14 @@
       "level": "Advanced",
       "category": "skill",
       "key": true,
-      "roles": ["stem"],
+      "roles": [
+        "stem"
+      ],
       "evidence": [
-        { "outcome": "Applied systematic hypothesis testing to understand interdimensional phenomena", "description": "Used scientific methodology to develop and test theories about events that defied conventional explanation" }
+        {
+          "outcome": "Applied systematic hypothesis testing to understand interdimensional phenomena",
+          "description": "Used scientific methodology to develop and test theories about events that defied conventional explanation"
+        }
       ]
     },
     {
@@ -63,52 +104,79 @@
       "level": "Advanced",
       "category": "skill",
       "key": true,
-      "roles": ["team"],
+      "roles": [
+        "team"
+      ],
       "evidence": [
-        { "outcome": "Coordinated multi-team operations across 3 simultaneous mission groups", "description": "Served as communications hub and tactical coordinator for dispersed teams during crisis events" }
+        {
+          "outcome": "Coordinated multi-team operations across 3 simultaneous mission groups",
+          "description": "Served as communications hub and tactical coordinator for dispersed teams during crisis events"
+        }
       ]
     },
     {
       "name": "Technology Troubleshooting",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["stem"],
+      "roles": [
+        "stem"
+      ],
       "evidence": [
-        { "outcome": "Diagnosed and repaired electronic equipment under field conditions", "description": "Applied technical knowledge to troubleshoot and fix communication and electronic equipment during operations" }
+        {
+          "outcome": "Diagnosed and repaired electronic equipment under field conditions",
+          "description": "Applied technical knowledge to troubleshoot and fix communication and electronic equipment during operations"
+        }
       ]
     },
     {
       "name": "Biology & Zoology",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["stem"],
+      "roles": [
+        "stem"
+      ],
       "evidence": [
-        { "outcome": "Identified and cared for unknown species (D'Artagnan) conducting behavioral observation", "description": "Applied scientific curiosity and care to study unknown organism, documenting behavioral patterns" }
+        {
+          "outcome": "Identified and cared for unknown species (D'Artagnan) conducting behavioral observation",
+          "description": "Applied scientific curiosity and care to study unknown organism, documenting behavioral patterns"
+        }
       ]
     },
     {
       "name": "Map Reading & Navigation",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["analysis"],
+      "roles": [
+        "analysis"
+      ],
       "evidence": [
-        { "outcome": "Navigated underground tunnel system using compass and topographic mapping", "description": "Applied orienteering skills to navigate dangerous unknown terrain" }
+        {
+          "outcome": "Navigated underground tunnel system using compass and topographic mapping",
+          "description": "Applied orienteering skills to navigate dangerous unknown terrain"
+        }
       ]
     },
     {
       "name": "Presentation & Teaching",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["team"],
+      "roles": [
+        "team"
+      ],
       "evidence": [
-        { "outcome": "Explained complex scientific concepts to non-technical team members enabling collective problem-solving", "description": "Translated electromagnetism, radio theory, and dimensional physics into understandable terms" }
+        {
+          "outcome": "Explained complex scientific concepts to non-technical team members enabling collective problem-solving",
+          "description": "Translated electromagnetism, radio theory, and dimensional physics into understandable terms"
+        }
       ]
     },
     {
       "name": "First Aid",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["team"],
+      "roles": [
+        "team"
+      ],
       "evidence": []
     },
     {
@@ -116,9 +184,14 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["stem"],
+      "roles": [
+        "stem"
+      ],
       "evidence": [
-        { "outcome": "Self-taught radio engineering, cryptanalysis, and advanced electromagnetism before high school", "description": "Pursued deep learning in technical subjects driven by genuine curiosity rather than external requirements" }
+        {
+          "outcome": "Self-taught radio engineering, cryptanalysis, and advanced electromagnetism before high school",
+          "description": "Pursued deep learning in technical subjects driven by genuine curiosity rather than external requirements"
+        }
       ]
     },
     {
@@ -126,9 +199,14 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["analysis"],
+      "roles": [
+        "analysis"
+      ],
       "evidence": [
-        { "outcome": "Provided critical breakthrough insight in 4 out of 4 crisis events", "description": "Consistently identified the key connection or solution that moved the team from stuck to actionable" }
+        {
+          "outcome": "Provided critical breakthrough insight in 4 out of 4 crisis events",
+          "description": "Consistently identified the key connection or solution that moved the team from stuck to actionable"
+        }
       ]
     },
     {
@@ -136,45 +214,89 @@
       "level": "Advanced",
       "category": "work style",
       "key": true,
-      "roles": ["team"],
+      "roles": [
+        "team"
+      ],
       "evidence": [
-        { "outcome": "Maintained team morale and humor during life-threatening situations", "description": "Provided emotional resilience and levity that kept team functioning when stress was highest" }
+        {
+          "outcome": "Maintained team morale and humor during life-threatening situations",
+          "description": "Provided emotional resilience and levity that kept team functioning when stress was highest"
+        }
       ]
     },
     {
       "name": "Loyalty",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["team"],
+      "roles": [
+        "team"
+      ],
       "evidence": [
-        { "outcome": "Maintained unwavering loyalty to friends across 4 crisis events spanning 3 years", "description": "Never abandoned teammates regardless of personal risk or pressure" }
+        {
+          "outcome": "Maintained unwavering loyalty to friends across 4 crisis events spanning 3 years",
+          "description": "Never abandoned teammates regardless of personal risk or pressure"
+        }
       ]
     },
     {
       "name": "Communication Skills",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["team", "communications"],
+      "roles": [
+        "team",
+        "communications"
+      ],
       "evidence": [
-        { "outcome": "Served as primary communicator and diplomat for the group across all crisis events", "description": "Applied natural verbal skills to negotiate, persuade, and coordinate across different personality types" }
+        {
+          "outcome": "Served as primary communicator and diplomat for the group across all crisis events",
+          "description": "Applied natural verbal skills to negotiate, persuade, and coordinate across different personality types"
+        }
       ]
     },
     {
       "name": "Persistence",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["stem"],
+      "roles": [
+        "stem"
+      ],
       "evidence": [
-        { "outcome": "Spent 3 months building Cerebro radio through trial, error, and iterative improvement", "description": "Demonstrated sustained effort on complex technical project despite multiple failures and setbacks" }
+        {
+          "outcome": "Spent 3 months building Cerebro radio through trial, error, and iterative improvement",
+          "description": "Demonstrated sustained effort on complex technical project despite multiple failures and setbacks"
+        }
       ]
     }
   ],
   "values": [
-    { "name": "Curiosity", "level": "core" },
-    { "name": "Friendship", "level": "core" },
-    { "name": "Innovation", "level": "core" },
-    { "name": "Loyalty", "level": "important" },
-    { "name": "Fun", "level": "important" }
+    {
+      "name": "Curiosity",
+      "selected": true
+    },
+    {
+      "name": "Resourcefulness",
+      "selected": true
+    },
+    {
+      "name": "Collaboration",
+      "selected": true
+    },
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Continuous Improvement",
+      "selected": true
+    },
+    {
+      "name": "Systems Thinking",
+      "selected": true
+    },
+    {
+      "name": "Empathy",
+      "selected": true
+    }
   ],
   "workHistory": [
     {
@@ -194,8 +316,14 @@
     }
   ],
   "certifications": [
-    { "name": "Amateur Radio License (General Class)", "issuer": "FCC" },
-    { "name": "Hawkins Science Fair — 1st Place, Electromagnetism", "issuer": "Hawkins Middle School" }
+    {
+      "name": "Amateur Radio License (General Class)",
+      "issuer": "FCC"
+    },
+    {
+      "name": "Hawkins Science Fair \u2014 1st Place, Electromagnetism",
+      "issuer": "Hawkins Middle School"
+    }
   ],
   "purpose": "Science isn't just about knowing stuff. It's about figuring stuff out when nobody else can. That's what I do."
 }

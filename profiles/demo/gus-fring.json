@@ -9,12 +9,30 @@
     "executiveSummary": "Visionary operator who built Los Pollos Hermanos from a single location into a multi-state fast food operation while simultaneously constructing a vertically integrated distribution network spanning three countries. Known for exceptional quality control, process optimization, and an ability to manage complex multi-stakeholder relationships across legitimate and non-traditional business channels."
   },
   "roles": [
-    { "name": "Chief Executive Officer", "id": "ceo" },
-    { "name": "Operations & Supply Chain", "id": "operations" },
-    { "name": "Financial Management", "id": "finance" },
-    { "name": "Quality & Compliance", "id": "quality" },
-    { "name": "International Distribution", "id": "distribution" },
-    { "name": "Human Resources & Talent", "id": "hr" }
+    {
+      "name": "Chief Executive Officer",
+      "id": "ceo"
+    },
+    {
+      "name": "Operations & Supply Chain",
+      "id": "operations"
+    },
+    {
+      "name": "Financial Management",
+      "id": "finance"
+    },
+    {
+      "name": "Quality & Compliance",
+      "id": "quality"
+    },
+    {
+      "name": "International Distribution",
+      "id": "distribution"
+    },
+    {
+      "name": "Human Resources & Talent",
+      "id": "hr"
+    }
   ],
   "skills": [
     {
@@ -22,10 +40,19 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["ceo", "operations"],
+      "roles": [
+        "ceo",
+        "operations"
+      ],
       "evidence": [
-        { "outcome": "Built parallel operational infrastructure supporting $80M+ annual revenue across two distinct business lines", "description": "Designed and operated dual systems: legitimate fast food chain and covert distribution network, both achieving industry-leading efficiency" },
-        { "outcome": "Maintained zero operational crossover between legitimate and covert business lines for 20+ years", "description": "Implemented strict operational separation protocols ensuring neither operation could compromise the other" }
+        {
+          "outcome": "Built parallel operational infrastructure supporting $80M+ annual revenue across two distinct business lines",
+          "description": "Designed and operated dual systems: legitimate fast food chain and covert distribution network, both achieving industry-leading efficiency"
+        },
+        {
+          "outcome": "Maintained zero operational crossover between legitimate and covert business lines for 20+ years",
+          "description": "Implemented strict operational separation protocols ensuring neither operation could compromise the other"
+        }
       ]
     },
     {
@@ -33,10 +60,19 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["operations", "distribution"],
+      "roles": [
+        "operations",
+        "distribution"
+      ],
       "evidence": [
-        { "outcome": "Built international supply chain spanning 3 countries with 99.1% product quality consistency", "description": "Engineered end-to-end logistics from raw material sourcing through production and distribution across Mexico, US Southwest, and European markets" },
-        { "outcome": "Maintained uninterrupted supply despite loss of primary supplier, transitioning to new production in 72 hours", "description": "Had contingency suppliers and production capability pre-positioned, enabling rapid pivot when primary source was disrupted" }
+        {
+          "outcome": "Built international supply chain spanning 3 countries with 99.1% product quality consistency",
+          "description": "Engineered end-to-end logistics from raw material sourcing through production and distribution across Mexico, US Southwest, and European markets"
+        },
+        {
+          "outcome": "Maintained uninterrupted supply despite loss of primary supplier, transitioning to new production in 72 hours",
+          "description": "Had contingency suppliers and production capability pre-positioned, enabling rapid pivot when primary source was disrupted"
+        }
       ]
     },
     {
@@ -44,10 +80,18 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Operated high-risk enterprise for 20+ years without a single enforcement action against legitimate operations", "description": "Implemented multi-layered risk mitigation including corporate separation, personnel compartmentalization, and financial structuring" },
-        { "outcome": "Identified and neutralized competitive threats before they materialized", "description": "Maintained intelligence network providing early warning of regulatory attention, competitor moves, and internal security risks" }
+        {
+          "outcome": "Operated high-risk enterprise for 20+ years without a single enforcement action against legitimate operations",
+          "description": "Implemented multi-layered risk mitigation including corporate separation, personnel compartmentalization, and financial structuring"
+        },
+        {
+          "outcome": "Identified and neutralized competitive threats before they materialized",
+          "description": "Maintained intelligence network providing early warning of regulatory attention, competitor moves, and internal security risks"
+        }
       ]
     },
     {
@@ -55,10 +99,19 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["ceo", "operations"],
+      "roles": [
+        "ceo",
+        "operations"
+      ],
       "evidence": [
-        { "outcome": "Scaled Los Pollos Hermanos from 1 location to 14+ franchise units across the Southwest", "description": "Standardized operations, training, and quality protocols enabling consistent customer experience across all locations" },
-        { "outcome": "Achieved highest health inspection ratings across all locations for 12 consecutive years", "description": "Implemented quality assurance protocols exceeding industry standards, using restaurant as model of operational excellence" }
+        {
+          "outcome": "Scaled Los Pollos Hermanos from 1 location to 14+ franchise units across the Southwest",
+          "description": "Standardized operations, training, and quality protocols enabling consistent customer experience across all locations"
+        },
+        {
+          "outcome": "Achieved highest health inspection ratings across all locations for 12 consecutive years",
+          "description": "Implemented quality assurance protocols exceeding industry standards, using restaurant as model of operational excellence"
+        }
       ]
     },
     {
@@ -66,10 +119,19 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["finance", "ceo"],
+      "roles": [
+        "finance",
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Managed $80M+ combined revenue with clean financials passing annual external audits", "description": "Designed financial structures that integrated multiple revenue streams while maintaining audit-ready books" },
-        { "outcome": "Structured international capital flows across 3 jurisdictions without triggering compliance flags", "description": "Worked with financial advisors to create legitimate holding structures supporting cross-border operations" }
+        {
+          "outcome": "Managed $80M+ combined revenue with clean financials passing annual external audits",
+          "description": "Designed financial structures that integrated multiple revenue streams while maintaining audit-ready books"
+        },
+        {
+          "outcome": "Structured international capital flows across 3 jurisdictions without triggering compliance flags",
+          "description": "Worked with financial advisors to create legitimate holding structures supporting cross-border operations"
+        }
       ]
     },
     {
@@ -77,10 +139,19 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["quality", "operations"],
+      "roles": [
+        "quality",
+        "operations"
+      ],
       "evidence": [
-        { "outcome": "Achieved 99.1% product purity standard — highest in the industry", "description": "Recruited top scientific talent and invested in state-of-the-art production facility to ensure consistent product quality" },
-        { "outcome": "Maintained food safety compliance record with zero violations across 14+ restaurant locations", "description": "Implemented rigorous quality control protocols, regular staff training, and surprise inspections across all units" }
+        {
+          "outcome": "Achieved 99.1% product purity standard \u2014 highest in the industry",
+          "description": "Recruited top scientific talent and invested in state-of-the-art production facility to ensure consistent product quality"
+        },
+        {
+          "outcome": "Maintained food safety compliance record with zero violations across 14+ restaurant locations",
+          "description": "Implemented rigorous quality control protocols, regular staff training, and surprise inspections across all units"
+        }
       ]
     },
     {
@@ -88,10 +159,19 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["hr", "ceo"],
+      "roles": [
+        "hr",
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Recruited industry-leading chemist achieving 99.1% product purity, up from 70% industry average", "description": "Identified Walter White's unique capabilities and structured compensation package to secure exclusive commitment" },
-        { "outcome": "Built and retained management team of 25+ across legitimate and covert operations", "description": "Developed talent pipeline, offered competitive compensation, and maintained loyalty through organizational culture" }
+        {
+          "outcome": "Recruited industry-leading chemist achieving 99.1% product purity, up from 70% industry average",
+          "description": "Identified Walter White's unique capabilities and structured compensation package to secure exclusive commitment"
+        },
+        {
+          "outcome": "Built and retained management team of 25+ across legitimate and covert operations",
+          "description": "Developed talent pipeline, offered competitive compensation, and maintained loyalty through organizational culture"
+        }
       ]
     },
     {
@@ -99,27 +179,44 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Eliminated primary competitor and captured 100% market share across Southwest distribution territory", "description": "Executed multi-year competitive strategy combining supply disruption, talent acquisition, and market positioning" }
+        {
+          "outcome": "Eliminated primary competitor and captured 100% market share across Southwest distribution territory",
+          "description": "Executed multi-year competitive strategy combining supply disruption, talent acquisition, and market positioning"
+        }
       ]
     },
     {
       "name": "Organizational Design",
       "level": "Expert",
       "category": "skill",
-      "roles": ["ceo", "hr"],
+      "roles": [
+        "ceo",
+        "hr"
+      ],
       "evidence": [
-        { "outcome": "Designed compartmentalized organization where no single employee had visibility into full operations", "description": "Created cell-based organizational structure minimizing systemic risk from any individual point of failure" }
+        {
+          "outcome": "Designed compartmentalized organization where no single employee had visibility into full operations",
+          "description": "Created cell-based organizational structure minimizing systemic risk from any individual point of failure"
+        }
       ]
     },
     {
       "name": "Regulatory Compliance",
       "level": "Expert",
       "category": "skill",
-      "roles": ["quality", "ceo"],
+      "roles": [
+        "quality",
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Passed 100% of health department inspections and tax audits across all legitimate business entities", "description": "Maintained meticulous compliance records and proactively engaged with regulators to build institutional trust" }
+        {
+          "outcome": "Passed 100% of health department inspections and tax audits across all legitimate business entities",
+          "description": "Maintained meticulous compliance records and proactively engaged with regulators to build institutional trust"
+        }
       ]
     },
     {
@@ -127,100 +224,161 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["distribution", "operations"],
+      "roles": [
+        "distribution",
+        "operations"
+      ],
       "evidence": [
-        { "outcome": "Built cross-border distribution network with 98% on-time delivery across 3 countries", "description": "Designed logistics infrastructure using legitimate commercial channels to transport product reliably and covertly" }
+        {
+          "outcome": "Built cross-border distribution network with 98% on-time delivery across 3 countries",
+          "description": "Designed logistics infrastructure using legitimate commercial channels to transport product reliably and covertly"
+        }
       ]
     },
     {
       "name": "Crisis Management",
       "level": "Expert",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Contained multiple operational crises without business interruption or exposure", "description": "Responded to supplier disruptions, security breaches, and personnel issues with pre-planned contingency protocols" },
-        { "outcome": "Managed DEA investigation proximity without triggering search of business operations", "description": "Maintained composure and consistent narrative while federal investigation operated adjacent to core operations" }
+        {
+          "outcome": "Contained multiple operational crises without business interruption or exposure",
+          "description": "Responded to supplier disruptions, security breaches, and personnel issues with pre-planned contingency protocols"
+        },
+        {
+          "outcome": "Managed DEA investigation proximity without triggering search of business operations",
+          "description": "Maintained composure and consistent narrative while federal investigation operated adjacent to core operations"
+        }
       ]
     },
     {
       "name": "Vendor Management",
       "level": "Expert",
       "category": "skill",
-      "roles": ["operations"],
+      "roles": [
+        "operations"
+      ],
       "evidence": [
-        { "outcome": "Managed 50+ vendor relationships across restaurant and distribution operations", "description": "Negotiated contracts, maintained quality standards, and built redundancy into critical supply relationships" }
+        {
+          "outcome": "Managed 50+ vendor relationships across restaurant and distribution operations",
+          "description": "Negotiated contracts, maintained quality standards, and built redundancy into critical supply relationships"
+        }
       ]
     },
     {
       "name": "Process Engineering",
       "level": "Expert",
       "category": "skill",
-      "roles": ["operations", "quality"],
+      "roles": [
+        "operations",
+        "quality"
+      ],
       "evidence": [
-        { "outcome": "Designed state-of-the-art production facility beneath existing commercial building", "description": "Oversaw engineering and construction of industrial lab with ventilation, power, and environmental controls, disguised as legitimate construction project" }
+        {
+          "outcome": "Designed state-of-the-art production facility beneath existing commercial building",
+          "description": "Oversaw engineering and construction of industrial lab with ventilation, power, and environmental controls, disguised as legitimate construction project"
+        }
       ]
     },
     {
       "name": "Food Safety Compliance",
       "level": "Expert",
       "category": "skill",
-      "roles": ["quality"],
+      "roles": [
+        "quality"
+      ],
       "evidence": [
-        { "outcome": "Achieved highest food safety certification across all Los Pollos Hermanos locations", "description": "Implemented HACCP-compliant food handling protocols and regular training programs exceeding regulatory requirements" }
+        {
+          "outcome": "Achieved highest food safety certification across all Los Pollos Hermanos locations",
+          "description": "Implemented HACCP-compliant food handling protocols and regular training programs exceeding regulatory requirements"
+        }
       ]
     },
     {
       "name": "Employee Training & Development",
       "level": "Expert",
       "category": "skill",
-      "roles": ["hr"],
+      "roles": [
+        "hr"
+      ],
       "evidence": [
-        { "outcome": "Developed comprehensive training program achieving 85% employee retention rate", "description": "Created standardized onboarding, skills development, and advancement pathways for restaurant and operations staff" }
+        {
+          "outcome": "Developed comprehensive training program achieving 85% employee retention rate",
+          "description": "Created standardized onboarding, skills development, and advancement pathways for restaurant and operations staff"
+        }
       ]
     },
     {
       "name": "Security Operations",
       "level": "Expert",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Maintained operational security across all business lines with zero unauthorized disclosures over 20 years", "description": "Implemented physical, digital, and human intelligence security protocols across organization" }
+        {
+          "outcome": "Maintained operational security across all business lines with zero unauthorized disclosures over 20 years",
+          "description": "Implemented physical, digital, and human intelligence security protocols across organization"
+        }
       ]
     },
     {
       "name": "Franchising",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["ceo", "operations"],
+      "roles": [
+        "ceo",
+        "operations"
+      ],
       "evidence": [
-        { "outcome": "Developed franchise model generating consistent per-unit economics across 14+ locations", "description": "Created operational playbook, site selection criteria, and quality standards enabling scalable franchise expansion" }
+        {
+          "outcome": "Developed franchise model generating consistent per-unit economics across 14+ locations",
+          "description": "Created operational playbook, site selection criteria, and quality standards enabling scalable franchise expansion"
+        }
       ]
     },
     {
       "name": "Marketing & Brand Management",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Built Los Pollos Hermanos into recognized regional brand with high customer loyalty", "description": "Invested in community marketing, sponsorships, and consistent brand experience driving repeat business" }
+        {
+          "outcome": "Built Los Pollos Hermanos into recognized regional brand with high customer loyalty",
+          "description": "Invested in community marketing, sponsorships, and consistent brand experience driving repeat business"
+        }
       ]
     },
     {
       "name": "Real Estate Site Selection",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["operations"],
+      "roles": [
+        "operations"
+      ],
       "evidence": [
-        { "outcome": "Selected 14+ restaurant locations with average site performance exceeding industry benchmarks by 22%", "description": "Analyzed traffic patterns, demographics, and competitive density to optimize location strategy" }
+        {
+          "outcome": "Selected 14+ restaurant locations with average site performance exceeding industry benchmarks by 22%",
+          "description": "Analyzed traffic patterns, demographics, and competitive density to optimize location strategy"
+        }
       ]
     },
     {
       "name": "Community Relations",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Established reputation as model corporate citizen through charitable giving and community engagement", "description": "Sponsored DEA charity events, local youth programs, and business association initiatives building institutional credibility" }
+        {
+          "outcome": "Established reputation as model corporate citizen through charitable giving and community engagement",
+          "description": "Sponsored DEA charity events, local youth programs, and business association initiatives building institutional credibility"
+        }
       ]
     },
     {
@@ -228,72 +386,114 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["ceo", "distribution"],
+      "roles": [
+        "ceo",
+        "distribution"
+      ],
       "evidence": [
-        { "outcome": "Negotiated exclusive distribution rights across Southwest territory against established competitors", "description": "Secured territory through combination of relationship leverage, operational capability demonstration, and strategic patience" }
+        {
+          "outcome": "Negotiated exclusive distribution rights across Southwest territory against established competitors",
+          "description": "Secured territory through combination of relationship leverage, operational capability demonstration, and strategic patience"
+        }
       ]
     },
     {
       "name": "Foreign Language Fluency",
       "level": "Expert",
       "category": "skill",
-      "roles": ["distribution"],
+      "roles": [
+        "distribution"
+      ],
       "evidence": [
-        { "outcome": "Conducted business negotiations fluently in English, Spanish, and German across 3 countries", "description": "Managed relationships with partners and suppliers in their native languages, building trust and reducing misunderstandings" }
+        {
+          "outcome": "Conducted business negotiations fluently in English, Spanish, and German across 3 countries",
+          "description": "Managed relationships with partners and suppliers in their native languages, building trust and reducing misunderstandings"
+        }
       ]
     },
     {
       "name": "Corporate Philanthropy",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Donated $500K+ annually to local law enforcement and community organizations", "description": "Strategically directed charitable giving to build relationships with law enforcement and community leaders" }
+        {
+          "outcome": "Donated $500K+ annually to local law enforcement and community organizations",
+          "description": "Strategically directed charitable giving to build relationships with law enforcement and community leaders"
+        }
       ]
     },
     {
       "name": "Inventory Management",
       "level": "Expert",
       "category": "skill",
-      "roles": ["operations"],
+      "roles": [
+        "operations"
+      ],
       "evidence": [
-        { "outcome": "Maintained 99.5% inventory accuracy across restaurant and distribution operations", "description": "Implemented perpetual inventory systems with automated reorder points and regular cycle counts" }
+        {
+          "outcome": "Maintained 99.5% inventory accuracy across restaurant and distribution operations",
+          "description": "Implemented perpetual inventory systems with automated reorder points and regular cycle counts"
+        }
       ]
     },
     {
       "name": "Tax Strategy",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["finance"],
+      "roles": [
+        "finance"
+      ],
       "evidence": [
-        { "outcome": "Structured multi-entity corporate structure optimizing tax position across 3 jurisdictions", "description": "Worked with professional advisors to create holding company and subsidiary structures supporting operations" }
+        {
+          "outcome": "Structured multi-entity corporate structure optimizing tax position across 3 jurisdictions",
+          "description": "Worked with professional advisors to create holding company and subsidiary structures supporting operations"
+        }
       ]
     },
     {
       "name": "Budgeting & Forecasting",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["finance"],
+      "roles": [
+        "finance"
+      ],
       "evidence": [
-        { "outcome": "Maintained budget variance under 3% across all business units for 10 consecutive years", "description": "Implemented rolling forecast methodology with monthly variance analysis and reforecasting" }
+        {
+          "outcome": "Maintained budget variance under 3% across all business units for 10 consecutive years",
+          "description": "Implemented rolling forecast methodology with monthly variance analysis and reforecasting"
+        }
       ]
     },
     {
       "name": "Construction Project Management",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["operations"],
+      "roles": [
+        "operations"
+      ],
       "evidence": [
-        { "outcome": "Oversaw construction of $8M production facility delivered on time and on budget", "description": "Managed contractors, permits, and construction timeline for complex industrial build-out beneath commercial structure" }
+        {
+          "outcome": "Oversaw construction of $8M production facility delivered on time and on budget",
+          "description": "Managed contractors, permits, and construction timeline for complex industrial build-out beneath commercial structure"
+        }
       ]
     },
     {
       "name": "Conflict Resolution",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["ceo", "hr"],
+      "roles": [
+        "ceo",
+        "hr"
+      ],
       "evidence": [
-        { "outcome": "Resolved multi-party disputes between suppliers, distributors, and production teams", "description": "Applied measured approach to de-escalate conflicts while maintaining operational relationships" }
+        {
+          "outcome": "Resolved multi-party disputes between suppliers, distributors, and production teams",
+          "description": "Applied measured approach to de-escalate conflicts while maintaining operational relationships"
+        }
       ]
     },
     {
@@ -301,9 +501,14 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Executed 20-year competitive strategy requiring sustained discipline and delayed gratification", "description": "Waited decades to achieve strategic objectives, maintaining operational excellence and composure throughout" }
+        {
+          "outcome": "Executed 20-year competitive strategy requiring sustained discipline and delayed gratification",
+          "description": "Waited decades to achieve strategic objectives, maintaining operational excellence and composure throughout"
+        }
       ]
     },
     {
@@ -311,9 +516,15 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["quality", "ceo"],
+      "roles": [
+        "quality",
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Personally inspected restaurant operations maintaining standards others delegated", "description": "Known for walking kitchen lines, checking fryer oil temperature, and adjusting employee uniforms personally" }
+        {
+          "outcome": "Personally inspected restaurant operations maintaining standards others delegated",
+          "description": "Known for walking kitchen lines, checking fryer oil temperature, and adjusting employee uniforms personally"
+        }
       ]
     },
     {
@@ -321,27 +532,44 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Maintained consistent demeanor during federal investigation and multiple life-threatening situations", "description": "Demonstrated unshakeable calm during DEA interactions, competitive confrontations, and operational crises" }
+        {
+          "outcome": "Maintained consistent demeanor during federal investigation and multiple life-threatening situations",
+          "description": "Demonstrated unshakeable calm during DEA interactions, competitive confrontations, and operational crises"
+        }
       ]
     },
     {
       "name": "Analytical Thinking",
       "level": "Expert",
       "category": "work style",
-      "roles": ["ceo", "finance"],
+      "roles": [
+        "ceo",
+        "finance"
+      ],
       "evidence": [
-        { "outcome": "Identified and exploited competitive vulnerabilities through systematic analysis of rival operations", "description": "Applied data-driven analysis to map competitor supply chains, financials, and personnel to find strategic openings" }
+        {
+          "outcome": "Identified and exploited competitive vulnerabilities through systematic analysis of rival operations",
+          "description": "Applied data-driven analysis to map competitor supply chains, financials, and personnel to find strategic openings"
+        }
       ]
     },
     {
       "name": "Interpersonal Intelligence",
       "level": "Expert",
       "category": "work style",
-      "roles": ["ceo", "hr"],
+      "roles": [
+        "ceo",
+        "hr"
+      ],
       "evidence": [
-        { "outcome": "Read and manipulated interpersonal dynamics across criminal and legitimate organizations", "description": "Assessed personality types, motivations, and vulnerabilities to manage relationships strategically" }
+        {
+          "outcome": "Read and manipulated interpersonal dynamics across criminal and legitimate organizations",
+          "description": "Assessed personality types, motivations, and vulnerabilities to manage relationships strategically"
+        }
       ]
     },
     {
@@ -349,84 +577,144 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Maintained dual-identity lifestyle for 20+ years without a single break in character", "description": "Adhered to strict personal protocols governing behavior, schedule, and social interactions to preserve operational security" }
+        {
+          "outcome": "Maintained dual-identity lifestyle for 20+ years without a single break in character",
+          "description": "Adhered to strict personal protocols governing behavior, schedule, and social interactions to preserve operational security"
+        }
       ]
     },
     {
       "name": "Delegation",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Built management layer enabling hands-off operation of 14+ restaurant locations", "description": "Trained and empowered district and unit managers to operate independently within defined parameters" }
+        {
+          "outcome": "Built management layer enabling hands-off operation of 14+ restaurant locations",
+          "description": "Trained and empowered district and unit managers to operate independently within defined parameters"
+        }
       ]
     },
     {
       "name": "Cross-Cultural Communication",
       "level": "Expert",
       "category": "work style",
-      "roles": ["distribution", "ceo"],
+      "roles": [
+        "distribution",
+        "ceo"
+      ],
       "evidence": [
-        { "outcome": "Managed business relationships across Chilean, Mexican, German, and American cultural contexts", "description": "Adapted communication style and business approach to each cultural context while maintaining consistent strategic objectives" }
+        {
+          "outcome": "Managed business relationships across Chilean, Mexican, German, and American cultural contexts",
+          "description": "Adapted communication style and business approach to each cultural context while maintaining consistent strategic objectives"
+        }
       ]
     },
     {
       "name": "Menu Engineering",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["operations"],
+      "roles": [
+        "operations"
+      ],
       "evidence": [
-        { "outcome": "Optimized menu pricing achieving 68% gross margin across all locations", "description": "Applied menu engineering principles to balance food costs, pricing psychology, and operational simplicity" }
+        {
+          "outcome": "Optimized menu pricing achieving 68% gross margin across all locations",
+          "description": "Applied menu engineering principles to balance food costs, pricing psychology, and operational simplicity"
+        }
       ]
     },
     {
       "name": "Environmental Health & Safety",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["quality"],
+      "roles": [
+        "quality"
+      ],
       "evidence": [
-        { "outcome": "Maintained OSHA-compliant workplace across all facilities with zero lost-time incidents", "description": "Implemented safety protocols for restaurant and industrial operations exceeding regulatory requirements" }
+        {
+          "outcome": "Maintained OSHA-compliant workplace across all facilities with zero lost-time incidents",
+          "description": "Implemented safety protocols for restaurant and industrial operations exceeding regulatory requirements"
+        }
       ]
     },
     {
       "name": "Cash Flow Management",
       "level": "Expert",
       "category": "skill",
-      "roles": ["finance"],
+      "roles": [
+        "finance"
+      ],
       "evidence": [
-        { "outcome": "Managed complex cash flows across multiple entities maintaining liquidity and compliance", "description": "Structured cash management systems handling high-volume transactions across legitimate and non-traditional channels" }
+        {
+          "outcome": "Managed complex cash flows across multiple entities maintaining liquidity and compliance",
+          "description": "Structured cash management systems handling high-volume transactions across legitimate and non-traditional channels"
+        }
       ]
     },
     {
       "name": "Insurance & Liability Management",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["finance"],
+      "roles": [
+        "finance"
+      ],
       "evidence": []
     },
     {
       "name": "Digital Marketing",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": []
     },
     {
       "name": "Social Media",
       "level": "Novice",
       "category": "skill",
-      "roles": ["ceo"],
+      "roles": [
+        "ceo"
+      ],
       "evidence": []
     }
   ],
   "values": [
-    { "name": "Excellence", "level": "core" },
-    { "name": "Control", "level": "core" },
-    { "name": "Loyalty", "level": "core" },
-    { "name": "Discipline", "level": "important" },
-    { "name": "Legacy", "level": "important" }
+    {
+      "name": "Excellence",
+      "selected": true
+    },
+    {
+      "name": "Strategic Thinking",
+      "selected": true
+    },
+    {
+      "name": "Systems Thinking",
+      "selected": true
+    },
+    {
+      "name": "Accountability",
+      "selected": true
+    },
+    {
+      "name": "Continuous Improvement",
+      "selected": true
+    },
+    {
+      "name": "Calculated Ruthlessness",
+      "selected": true
+    },
+    {
+      "name": "Operational Paranoia",
+      "selected": true
+    }
   ],
   "workHistory": [
     {
@@ -453,8 +741,14 @@
     }
   ],
   "certifications": [
-    { "name": "ServSafe Food Protection Manager", "issuer": "National Restaurant Association" },
-    { "name": "Better Business Bureau A+ Rating", "issuer": "BBB" }
+    {
+      "name": "ServSafe Food Protection Manager",
+      "issuer": "National Restaurant Association"
+    },
+    {
+      "name": "Better Business Bureau A+ Rating",
+      "issuer": "BBB"
+    }
   ],
-  "purpose": "I believe in order. In precision. In building something that lasts — something no one can take from me."
+  "purpose": "I believe in order. In precision. In building something that lasts \u2014 something no one can take from me."
 }
