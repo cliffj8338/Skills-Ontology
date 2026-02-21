@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.18 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
+    <!-- v4.25.1.19 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4465,8 +4465,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.18 - BUILD 20260220-s14
-        var BP_VERSION = 'v4.25.1.18';
+        // BLUEPRINT v4.25.1.19 - BUILD 20260220-s14
+        var BP_VERSION = 'v4.25.1.19';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -17896,7 +17896,12 @@ body {
         // ===== MATCH CALCULATION =====
         
         function matchJobToProfile(parsed) {
-            var jobSkills = parsed.skills || [];
+            var rawSkills = parsed.skills || [];
+            // Normalize: support both string arrays and object arrays
+            var jobSkills = rawSkills.map(function(s) {
+                if (typeof s === 'string') return { name: s, requirement: 'Required' };
+                return s;
+            }).filter(function(s) { return s && s.name; });
             var userSkills = skillsData.skills || [];
             
             // Build lookup of user's skills (lowercase → skill object)
