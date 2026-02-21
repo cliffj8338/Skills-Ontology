@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.26.0.3 | 20260221 | Network: name offset 0.28, smart tooltip positioning, tooltip z-index 10000 -->
+    <!-- v4.26.0.4 | 20260221 | Network: click-to-open skill modal, enriched tooltips, drag-vs-click fix, hide mutation buttons in read-only -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -898,8 +898,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.26.0.3 - BUILD 20260221-s19
-        var BP_VERSION = 'v4.26.0.3';
+        // BLUEPRINT v4.26.0.4 - BUILD 20260221-s19
+        var BP_VERSION = 'v4.26.0.4';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -8252,13 +8252,24 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (d.type === 'center') {
                 html = `<div class="tooltip-title" style="font-size:0.85em; opacity:0.7;">Click to reset layout</div>`;
             } else if (d.type === 'role') {
+                var roleSkillCount = (skillsData.skills || []).filter(s => (s.roles || []).indexOf(d.id) !== -1).length;
                 html = `<div class="tooltip-title">${d.name}</div>`;
+                html += `<div style="font-size:0.82em; color:#9ca3af; margin-top:2px;">${roleSkillCount} skills · Click to filter</div>`;
             } else {
                 html = `<div class="tooltip-title">${d.name}</div>`;
                 var levelText = d.level || '';
-                var keyText = d.key ? ' • Core Differentiator' : '';
-                if (levelText || keyText) {
-                    html += `<div class="tooltip-level">${levelText}${keyText}</div>`;
+                var keyText = d.key ? ' · Core Differentiator' : '';
+                // Look up full skill for years of experience
+                var fullSkill = (skillsData.skills || []).find(s => s.name === d.name);
+                var details = (skillsData.skillDetails || {})[d.name] || {};
+                var years = (details.years || (fullSkill && fullSkill.yearsExperience) || '');
+                var yearsText = years ? years + ' yrs' : '';
+                
+                if (levelText || yearsText || keyText) {
+                    var parts = [];
+                    if (levelText) parts.push(levelText);
+                    if (yearsText) parts.push(yearsText);
+                    html += `<div class="tooltip-level">${parts.join(' · ')}${keyText}</div>`;
                 }
                 var skillRoles = d.roles || [];
                 if (skillRoles.length > 0) {
@@ -8269,6 +8280,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     });
                     html += `</div>`;
                 }
+                html += `<div style="font-size:0.72em; color:#6b7280; margin-top:6px; border-top:1px solid rgba(255,255,255,0.08); padding-top:5px;">Click for full detail</div>`;
             }
 
             tooltip
@@ -8299,7 +8311,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             d3.select('#tooltip').style('opacity', 0);
         }
 
+        var _dragMoved = false;
         function dragstarted(event, d) {
+            _dragMoved = false;
             if (!event.active) simulation.alphaTarget(0.3).restart();
             d.fx = d.x;
             d.fy = d.y;
@@ -8307,6 +8321,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
 
         function dragged(event, d) {
+            _dragMoved = true;
             d.fx = event.x;
             d.fy = event.y;
         }
@@ -8314,8 +8329,15 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         function dragended(event, d) {
             if (!event.active) simulation.alphaTarget(0);
             d3.select(event.sourceEvent.target).style("cursor", d.type === "center" ? "pointer" : "grab");
-            // Hard pin: node stays where the user dropped it (fx/fy remain set)
-            // Add subtle stroke ring to indicate pinned state
+            if (!_dragMoved) {
+                // Pure click — release pin so node flows back
+                if (d.type !== 'center') {
+                    d.fx = null;
+                    d.fy = null;
+                }
+                return; // let click event handle it
+            }
+            // Real drag — hard pin with indicator ring
             if (d.type !== 'center') {
                 var circle = d3.select(event.sourceEvent.target);
                 circle.attr("stroke", "rgba(255,255,255,0.4)").attr("stroke-width", 2);
@@ -8588,10 +8610,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             bodyHTML += '<div class="modal-section">';
             bodyHTML += '<div class="modal-section-title" style="display:flex; justify-content:space-between; align-items:center;">';
             bodyHTML += '<div><span class="modal-section-icon">' + bpIcon('check',16) + '</span> Evidence & Outcomes</div>';
-            bodyHTML += '<button onclick="addOutcomeToSkill(\'' + escapedSkillName + '\')" '
-                + 'style="padding:5px 14px; background:var(--c-green-bg-5a); '
-                + 'color:#10b981; border:1px solid var(--c-green-border-2); border-radius:6px; cursor:pointer; font-size:0.82em; font-weight:600;">'
-                + '+ Add Outcome</button>';
+            if (!isReadOnlyProfile) {
+                bodyHTML += '<button onclick="addOutcomeToSkill(\'' + escapedSkillName + '\')" '
+                    + 'style="padding:5px 14px; background:var(--c-green-bg-5a); '
+                    + 'color:#10b981; border:1px solid var(--c-green-border-2); border-radius:6px; cursor:pointer; font-size:0.82em; font-weight:600;">'
+                    + '+ Add Outcome</button>';
+            }
             bodyHTML += '</div>';
             
             bodyHTML += '<div id="skillEvidenceList">';
@@ -8607,11 +8631,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     // Score badge + controls
                     bodyHTML += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">'
                         + '<span style="font-size:0.72em; padding:1px 8px; border-radius:8px; background:var(--c-surface-4b); color:' + ptColor + '; font-weight:600;">'
-                        + pts + ' pt' + (pts !== 1 ? 's' : '') + '</span>'
-                        + '<div style="display:flex; gap:6px;">'
-                        + '<button onclick="editSkillOutcome(\'' + escapedSkillName + '\',' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.8em; color:var(--c-accent);">\u270E</button>'
-                        + '<button onclick="removeOutcome(\'' + escapedSkillName + '\',' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:var(--c-danger);">\u00D7</button>'
-                        + '</div></div>';
+                        + pts + ' pt' + (pts !== 1 ? 's' : '') + '</span>';
+                    if (!isReadOnlyProfile) {
+                        bodyHTML += '<div style="display:flex; gap:6px;">'
+                            + '<button onclick="editSkillOutcome(\'' + escapedSkillName + '\',' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.8em; color:var(--c-accent);">\u270E</button>'
+                            + '<button onclick="removeOutcome(\'' + escapedSkillName + '\',' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:var(--c-danger);">\u00D7</button>'
+                            + '</div>';
+                    }
+                    bodyHTML += '</div>';
                     
                     if (ev.outcome) {
                         bodyHTML += '<div style="font-size:0.88em; font-weight:600; color:var(--c-text-alt); line-height:1.45;">' + ev.outcome + '</div>';
@@ -8650,7 +8677,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                             ${skillImpact.rationale || 'This skill contributes to your overall market value based on proficiency level and market demand.'}
                         </div>
                         
-                        ${skillData.category === 'unique' && skillImpact.needsAssessment ? `
+                        ${skillData.category === 'unique' && skillImpact.needsAssessment && !isReadOnlyProfile ? `
                             <div style="background: rgba(251, 191, 36, 0.1); padding: 15px; border-radius: 6px; margin-bottom: 15px; border-left: 3px solid #fbbf24;">
                                 <div style="color: #fbbf24; font-weight: 600; margin-bottom: 8px;">${bpIcon("warning",14)} Estimated Rating</div>
                                 <div style="color: #d1d5db; font-size: 0.9em; line-height: 1.5; margin-bottom: 12px;">
@@ -8668,10 +8695,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                                 <div style="color: #10b981; font-weight: 600; margin-bottom: 5px;">✓ User Assessed</div>
                                 <div style="color: #d1d5db; font-size: 0.85em;">
                                     Based on your assessment of this skill's experience, impact, and market scarcity.
-                                    <button onclick="closeSkillModal(); openAssessSkillModal('${skillData.name.replace(/'/g, "\\'")}');" 
+                                    ${!isReadOnlyProfile ? `<button onclick="closeSkillModal(); openAssessSkillModal('${skillData.name.replace(/'/g, "\\'")}');" 
                                             style="margin-left: 10px; padding: 4px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; cursor: pointer; font-size: 0.85em;">
                                         Edit Assessment
-                                    </button>
+                                    </button>` : ''}
                                 </div>
                             </div>
                         ` : ''}
