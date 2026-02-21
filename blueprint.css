@@ -545,7 +545,6 @@
             text-shadow: 0 0 6px #e8f0fe, 0 0 6px #e8f0fe;
         }
         [data-theme="light"] .node.skill text { fill: #334155; }
-        [data-theme="light"] .node.hub text { text-shadow: none; }
         [data-theme="light"] .link { stroke: #94a3b8; }
 
         /* Settings view panels */
@@ -2471,20 +2470,14 @@
         }
         .vap-header:active { cursor: grabbing; }
         .vap-header-left {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-            min-width: 0;
             flex: 1;
+            min-width: 0;
         }
         .vap-job-title {
             font-weight: 700;
             font-size: 0.88em;
             color: var(--text-primary);
             line-height: 1.3;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
         .vap-job-company {
             font-size: 0.78em;
@@ -2539,26 +2532,41 @@
             opacity: 0;
             overflow: hidden;
         }
-        /* Hub label text — clean styling, no heavy glow */
+        /* Hub labels — clean, no heavy text-shadow glow */
         .node.hub text {
             text-shadow: none;
             font-weight: 700;
+        }
+        /* Job detail CTA buttons area */
+        .jd-cta-box {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(30,64,175,0.12), rgba(96,165,250,0.06));
+            border: 1px solid rgba(96,165,250,0.25);
+        }
+        .jd-cta-buttons {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .jd-cta-desc {
+            font-size: 0.82em;
+            color: var(--text-muted);
+            line-height: 1.4;
         }
         [data-theme="light"] .values-alignment-panel {
             background: rgba(255, 255, 255, 0.95);
             border-color: rgba(0,0,0,0.08);
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
-        [data-theme="light"] .vap-header {
-            border-bottom-color: rgba(0,0,0,0.06);
-        }
-        [data-theme="light"] .vap-ctrl-btn {
-            border-color: rgba(0,0,0,0.1);
-            background: rgba(0,0,0,0.03);
-        }
-        [data-theme="light"] .vap-ctrl-btn:hover {
-            background: rgba(0,0,0,0.08);
-        }
+        [data-theme="light"] .vap-header { border-bottom-color: rgba(0,0,0,0.06); }
+        [data-theme="light"] .vap-ctrl-btn { border-color: rgba(0,0,0,0.1); background: rgba(0,0,0,0.03); }
+        [data-theme="light"] .vap-ctrl-btn:hover { background: rgba(0,0,0,0.08); }
+        [data-theme="light"] .node.hub text { text-shadow: none; }
         .val-story {
             padding: 8px 16px;
             border-top: 1px solid rgba(255,255,255,0.04);
@@ -3265,11 +3273,30 @@
                 font-size: 0.75em;
             }
             .values-alignment-panel {
-                bottom: 70px;
-                left: 8px;
-                right: 8px;
-                width: auto;
-                font-size: 0.75em;
+                position: relative !important;
+                bottom: auto !important;
+                left: auto !important;
+                right: auto !important;
+                top: auto !important;
+                width: 100%;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+                font-size: 0.85em;
+                box-shadow: none;
+                border-top: 1px solid rgba(255,255,255,0.08);
+            }
+            .vap-header { cursor: default; }
+            .jd-cta-box {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .jd-cta-buttons {
+                flex-wrap: wrap;
+            }
+            .jd-cta-desc {
+                font-size: 0.78em;
             }
             
             .blueprint-section {

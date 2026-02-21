@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.27.1.2 | 20260221 | Values panel: merged job tile, fixed positioning, draggable, collapse/close -->
+    <!-- v4.27.1.3 | 20260221 | Values panel: mobile stacking, draggable, merged job tile, CTA fix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -899,8 +899,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.27.1.2 - BUILD 20260221-values-panel
-        var BP_VERSION = 'v4.27.1.2';
+        // BLUEPRINT v4.27.1.3 - BUILD 20260221-mobile-stack
+        var BP_VERSION = 'v4.27.1.3';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -916,7 +916,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260221-values-panel                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260221-mobile-stack                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -7715,9 +7715,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
             });
             
-            // Add panels — values panel includes job info, so skip separate tile
+            // Add values panel (includes job info) — skip separate job tile
             addValuesAlignmentPanel(alignment, job, cv);
-            // Remove job info tile if present (values panel has it)
             var existingJIT = document.getElementById('jobInfoTile');
             if (existingJIT) existingJIT.remove();
             setTimeout(applyLabelToggles, 100);
@@ -7729,6 +7728,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             var score = alignment.score;
             var scoreColor = score >= 65 ? '#10b981' : score >= 40 ? '#f59e0b' : '#ef4444';
+            var isMobile = window.innerWidth <= 768;
             
             var panel = document.createElement('div');
             panel.id = 'valuesAlignmentPanel';
@@ -7736,17 +7736,15 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             var html = '';
             
-            // Draggable header with job info + controls
+            // Header: job info + collapse/close
             html += '<div class="vap-header" id="vapDragHandle">'
                 + '<div class="vap-header-left">'
-                + '<div class="vap-job-info">'
                 + '<div class="vap-job-title">' + (job.title || 'Untitled Position') + '</div>'
                 + '<div class="vap-job-company">' + (job.company || '') + '</div>'
                 + '</div>'
-                + '</div>'
                 + '<div class="vap-header-controls">'
-                + '<button class="vap-ctrl-btn" onclick="toggleValuesPanel()" title="Collapse" id="vapCollapseBtn">−</button>'
-                + '<button class="vap-ctrl-btn" onclick="closeValuesPanel()" title="Close">✕</button>'
+                + '<button class="vap-ctrl-btn" onclick="toggleValuesPanel()" title="Collapse" id="vapCollapseBtn">\u2212</button>'
+                + '<button class="vap-ctrl-btn" onclick="closeValuesPanel()" title="Close">\u2715</button>'
                 + '</div>'
                 + '</div>';
             
@@ -7772,7 +7770,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     : '')
                 + '</div>';
             
-            // Company story (if curated)
+            // Company story
             if (cv.story) {
                 html += '<div class="val-story">'
                     + '<div class="val-story-label">' + bpIcon('info', 12) + ' Culture Signal</div>'
@@ -7793,7 +7791,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 html += '</div>';
             }
             
-            // Legend dots
+            // Legend
             html += '<div class="ml-legend-row">'
                 + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#10b981;"></div>Aligned</div>'
                 + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#f59e0b;"></div>Your priority</div>'
@@ -7814,11 +7812,17 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             panel.innerHTML = html;
             
-            // Append to body for fixed positioning
-            document.body.appendChild(panel);
-            
-            // Make draggable by header
-            initPanelDrag(panel, document.getElementById('vapDragHandle'));
+            if (isMobile) {
+                // Mobile: inline flow after the SVG, scrollable
+                var svgEl = document.getElementById('networkView');
+                if (svgEl && svgEl.parentElement) {
+                    svgEl.parentElement.insertBefore(panel, svgEl.nextSibling);
+                }
+            } else {
+                // Desktop: fixed to viewport, draggable
+                document.body.appendChild(panel);
+                initPanelDrag(panel, document.getElementById('vapDragHandle'));
+            }
         }
         
         function toggleValuesPanel() {
@@ -7826,7 +7830,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var btn = document.getElementById('vapCollapseBtn');
             if (!body) return;
             var isCollapsed = body.classList.toggle('vap-collapsed');
-            btn.textContent = isCollapsed ? '+' : '−';
+            btn.textContent = isCollapsed ? '+' : '\u2212';
             btn.title = isCollapsed ? 'Expand' : 'Collapse';
         }
         window.toggleValuesPanel = toggleValuesPanel;
@@ -7840,11 +7844,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         function initPanelDrag(panel, handle) {
             var isDragging = false;
             var startX, startY, panelStartX, panelStartY;
-            
             handle.style.cursor = 'grab';
             
             handle.addEventListener('mousedown', function(e) {
-                if (e.target.closest('.vap-ctrl-btn')) return; // don't drag from buttons
+                if (e.target.closest('.vap-ctrl-btn')) return;
                 isDragging = true;
                 handle.style.cursor = 'grabbing';
                 var rect = panel.getBoundingClientRect();
@@ -7854,24 +7857,16 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 panelStartY = rect.top;
                 e.preventDefault();
             });
-            
             document.addEventListener('mousemove', function(e) {
                 if (!isDragging) return;
                 var dx = e.clientX - startX;
                 var dy = e.clientY - startY;
-                var newX = Math.max(0, Math.min(window.innerWidth - 100, panelStartX + dx));
-                var newY = Math.max(0, Math.min(window.innerHeight - 50, panelStartY + dy));
-                panel.style.left = newX + 'px';
-                panel.style.top = newY + 'px';
+                panel.style.left = Math.max(0, Math.min(window.innerWidth - 100, panelStartX + dx)) + 'px';
+                panel.style.top = Math.max(0, Math.min(window.innerHeight - 50, panelStartY + dy)) + 'px';
                 panel.style.bottom = 'auto';
-                panel.style.right = 'auto';
             });
-            
             document.addEventListener('mouseup', function() {
-                if (isDragging) {
-                    isDragging = false;
-                    handle.style.cursor = 'grab';
-                }
+                if (isDragging) { isDragging = false; handle.style.cursor = 'grab'; }
             });
             
             // Touch support
@@ -7880,25 +7875,16 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 isDragging = true;
                 var touch = e.touches[0];
                 var rect = panel.getBoundingClientRect();
-                startX = touch.clientX;
-                startY = touch.clientY;
-                panelStartX = rect.left;
-                panelStartY = rect.top;
+                startX = touch.clientX; startY = touch.clientY;
+                panelStartX = rect.left; panelStartY = rect.top;
             }, { passive: true });
-            
             document.addEventListener('touchmove', function(e) {
                 if (!isDragging) return;
                 var touch = e.touches[0];
-                var dx = touch.clientX - startX;
-                var dy = touch.clientY - startY;
-                var newX = Math.max(0, Math.min(window.innerWidth - 100, panelStartX + dx));
-                var newY = Math.max(0, Math.min(window.innerHeight - 50, panelStartY + dy));
-                panel.style.left = newX + 'px';
-                panel.style.top = newY + 'px';
+                panel.style.left = Math.max(0, panelStartX + touch.clientX - startX) + 'px';
+                panel.style.top = Math.max(0, panelStartY + touch.clientY - startY) + 'px';
                 panel.style.bottom = 'auto';
-                panel.style.right = 'auto';
             }, { passive: true });
-            
             document.addEventListener('touchend', function() { isDragging = false; });
         }
         
@@ -15565,9 +15551,8 @@ body {
                 + '</div></div>';
             
             // Network Overlay CTA (prominent, above the fold)
-            html += '<div style="display:flex; align-items:center; gap:16px; padding:16px 20px; margin-bottom:20px; '
-                + 'border-radius:10px; background:linear-gradient(135deg, rgba(30,64,175,0.12), rgba(96,165,250,0.06)); '
-                + 'border:1px solid rgba(96,165,250,0.25);">'
+            html += '<div class="jd-cta-box">'
+                + '<div class="jd-cta-buttons">'
                 + '<button onclick="activateJobOverlay(' + idx + ')" style="'
                 + 'background:var(--accent); color:#fff; border:none; padding:10px 20px; border-radius:8px; '
                 + 'cursor:pointer; font-weight:600; font-size:0.9em; display:flex; align-items:center; gap:8px; white-space:nowrap;">'
@@ -15576,8 +15561,8 @@ body {
                 + 'background:transparent; color:#f59e0b; border:1px solid rgba(245,158,11,0.4); padding:10px 20px; border-radius:8px; '
                 + 'cursor:pointer; font-weight:600; font-size:0.9em; display:flex; align-items:center; gap:8px; white-space:nowrap;">'
                 + bpIcon('values',16) + ' Values Fit</button>'
-                + '<div style="font-size:0.82em; color:var(--text-muted); line-height:1.4;">'
-                + 'Compare your skills and values against this role and company culture.</div>'
+                + '</div>'
+                + '<div class="jd-cta-desc">Compare your skills and values against this role and company culture.</div>'
                 + '</div>';
             
             // Summary stats
