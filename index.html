@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.27.2.7 | 20260221 | Character-specific demo jobs for all 18 profiles -->
+    <!-- v4.27.2.9 | 20260221 | Fixed high-tier secondary overflow, non-user filler values for realism -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -890,8 +890,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.27.2.7 - BUILD 20260221-character-jobs
-        var BP_VERSION = 'v4.27.2.7';
+        // BLUEPRINT v4.27.2.9 - BUILD 20260221-values-fix
+        var BP_VERSION = 'v4.27.2.9';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -907,7 +907,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260221-character-jobs                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260221-values-fix                        ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -5432,10 +5432,40 @@
             });
             
             // Score each job against the profile and match to BLS
+            // For demo character jobs, generate company values that produce realistic match spread:
+            //   7 user values → maxScore = 140
+            //   sample-high  → 5 primary matches = 100/140 = 71%  (≥70% ✓)
+            //   sample-mid   → 4 primary matches =  80/140 = 57%  (>50% ✓)
+            //   sample-low   → 2 primary matches =  40/140 = 29%  (<50% ✓)
+            var catalogNames = new Set();
+            VALUES_CATALOG.forEach(function(g) { g.values.forEach(function(v) { catalogNames.add(v.name); }); });
+            var templateVals = (template.values || []).map(function(v) { return typeof v === 'string' ? v : v.name; });
+            var userCatVals = templateVals.filter(function(v) { return catalogNames.has(v); });
+            
+            // Non-matching catalog values for filler
+            var allCatNames = [];
+            VALUES_CATALOG.forEach(function(g) { g.values.forEach(function(v) { allCatNames.push(v.name); }); });
+            var nonUserCatVals = allCatNames.filter(function(v) { return userCatVals.indexOf(v) === -1; });
+            
             jobs.forEach(function(job) {
                 job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles });
                 job.blsSalary = matchJobToBLS(job.title, job.rawText);
-                job.companyValues = getCompanyValues(job.company, job.rawText || job.description || "");
+                
+                if (characterJobs[templateId] && userCatVals.length >= 3) {
+                    // Curated company values for character demo jobs
+                    if (job.id === 'sample-high') {
+                        // 5 user values as primary → 71% match
+                        job.companyValues = { primary: userCatVals.slice(0, 5), secondary: nonUserCatVals.slice(0, 2), tensions: [], story: '', inferred: false };
+                    } else if (job.id === 'sample-mid') {
+                        // 4 user values as primary → 57% match
+                        job.companyValues = { primary: userCatVals.slice(0, 4), secondary: nonUserCatVals.slice(0, 3), tensions: [], story: '', inferred: false };
+                    } else {
+                        // 2 user values as primary → 29% match
+                        job.companyValues = { primary: userCatVals.slice(0, 2), secondary: nonUserCatVals.slice(0, 4), tensions: [], story: '', inferred: false };
+                    }
+                } else {
+                    job.companyValues = getCompanyValues(job.company, job.rawText || job.description || "");
+                }
             });
             
             // Sort: high match first
