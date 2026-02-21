@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.9 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
+    <!-- v4.25.1.10 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4465,7 +4465,7 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.9 - BUILD 20260220-s14
+        // BLUEPRINT v4.25.1.10 - BUILD 20260220-s14
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -4480,7 +4480,7 @@
         // Samples default to Network view + scroll-to-top on all view switches
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   BLUEPRINT v4.25.1.9                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   BLUEPRINT v4.25.1.10                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Build: 20260220-find-jobs                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
@@ -5054,7 +5054,29 @@
             
             return fbDb.collection('users').doc(uid).get()
                 .then(function(doc) {
-                    if (!doc.exists) return false;
+                    if (!doc.exists) {
+                        // Doc doesn't exist — clear scaffold data so signed-in user gets clean slate
+                        if (fbUser) {
+                            var authName = fbUser.displayName || fbUser.email.split('@')[0];
+                            userData.profile = { name: authName, email: fbUser.email };
+                            userData.skills = [];
+                            userData.values = [];
+                            userData.purpose = '';
+                            userData.roles = [];
+                            userData.savedJobs = [];
+                            userData.workHistory = [];
+                            userData.education = [];
+                            userData.certifications = [];
+                            userData.templateId = 'firestore-' + uid;
+                            userData.initialized = true;
+                            if (typeof skillsData !== 'undefined') {
+                                skillsData.skills = [];
+                                skillsData.roles = [];
+                            }
+                            console.log('ℹ️ No Firestore doc — cleared scaffold, clean profile for', authName);
+                        }
+                        return false;
+                    }
                     var data = doc.data();
                     
                     console.log('☁ Loading profile from Firestore...');
@@ -10377,8 +10399,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // If user has profile, set up UI
             if (userData.initialized) {
-                // Update profile chip with loaded user's name
-                if (userData.profile.name) {
+                // Update profile chip — signed-in users always show their auth name
+                if (fbUser) {
+                    var authName = fbUser.displayName || fbUser.email.split('@')[0];
+                    updateProfileChip(authName);
+                } else if (userData.profile.name) {
                     updateProfileChip(userData.profile.name);
                 }
                 
@@ -23124,7 +23149,7 @@ body {
                 <div class="modal-header">
                     <div class="modal-header-left">
                         <h2 class="modal-title">Blueprint</h2>
-                        <p style="color: #9ca3af; margin-top: 5px;">v4.25.1.9 · Your career, fully represented</p>
+                        <p style="color: #9ca3af; margin-top: 5px;">v4.25.1.10 · Your career, fully represented</p>
                     </div>
                     <button class="modal-close" onclick="closeExportModal()">×</button>
                 </div>
