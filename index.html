@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.22 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
+    <!-- v4.25.1.23 | 20260220 | Fix mobile skill labels toggle: CSS-class approach replaces fragile D3 data filtering, larger touch targets -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -2413,6 +2413,14 @@
             display: none;
         }
         
+        /* Robust CSS-class approach for label toggling (mobile-safe) */
+        #networkView.hide-skill-labels .node.skill text {
+            display: none !important;
+        }
+        #networkView.hide-role-labels .node.role text {
+            display: none !important;
+        }
+        
         .node.role text {
             font-size: 12px;
             font-weight: 700;
@@ -2909,6 +2917,21 @@
             
             .label-toggle {
                 font-size: 0.75em;
+            }
+            
+            /* Larger touch targets for toggle switches on mobile */
+            .toggle-switch {
+                width: 48px;
+                height: 28px;
+            }
+            .toggle-slider:before {
+                height: 20px;
+                width: 20px;
+                left: 4px;
+                bottom: 4px;
+            }
+            input:checked + .toggle-slider:before {
+                transform: translateX(20px);
             }
         }
         
@@ -3734,14 +3757,14 @@
             <div class="label-toggle">
                 <span class="toggle-label">Role Labels</span>
                 <label class="toggle-switch">
-                    <input type="checkbox" checked onchange="toggleLabels('role')">
+                    <input type="checkbox" checked onchange="toggleLabels('role')" onclick="setTimeout(function(){toggleLabels('role')},10)">
                     <span class="toggle-slider"></span>
                 </label>
             </div>
             <div class="label-toggle">
                 <span class="toggle-label">Skill Labels</span>
                 <label class="toggle-switch">
-                    <input type="checkbox" checked onchange="toggleLabels('skill')">
+                    <input type="checkbox" checked onchange="toggleLabels('skill')" onclick="setTimeout(function(){toggleLabels('skill')},10)">
                     <span class="toggle-slider"></span>
                 </label>
             </div>
@@ -4465,8 +4488,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.22 - BUILD 20260220-s14
-        var BP_VERSION = 'v4.25.1.22';
+        // BLUEPRINT v4.25.1.23 - BUILD 20260220-s15
+        var BP_VERSION = 'v4.25.1.23';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -10321,7 +10344,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // On mobile: hide skill labels by default (too cluttered), show role labels
             if (isMobile) {
-                node.selectAll('text').filter(d => d.type === 'skill').classed('hidden', true);
+                // Use CSS class on SVG for robust mobile label hiding
+                document.getElementById('networkView').classList.add('hide-skill-labels');
                 // Uncheck the skill labels checkbox
                 var skillLabelCb = document.querySelector('#networkControls input[onchange*="skill"]');
                 if (skillLabelCb) skillLabelCb.checked = false;
@@ -10543,7 +10567,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .attr("text-anchor", "middle")
                 .style("font-size", function(d) { return d.type === 'center' ? '14px' : d.type === 'role' ? '11px' : '9px'; });
             
-            if (isMobile) node.selectAll('text').filter(function(d) { return d.type === 'skill'; }).classed('hidden', true);
+            if (isMobile) document.getElementById('networkView').classList.add('hide-skill-labels');
             
             // Bring center and role nodes to front
             node.filter(function(d) { return d.type === 'role'; }).raise();
@@ -10765,7 +10789,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .style("opacity", function(d) { return d.matchState === 'surplus' ? 0.4 : 1; });
             
             // On mobile hide skill labels
-            if (isMobile) node.selectAll('text').filter(function(d) { return d.type === 'skill'; }).classed('hidden', true);
+            if (isMobile) document.getElementById('networkView').classList.add('hide-skill-labels');
             
             // Bring center and role nodes to front
             node.filter(function(d) { return d.type === 'role'; }).raise();
@@ -11518,9 +11542,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
         
         function toggleLabels(type) {
-            // v4.20.1: Read actual checkbox state and apply to ANY active network SVG
-            var svg = d3.select("#networkView");
-            if (svg.empty()) return;
+            // v4.25.1: Use CSS class on SVG container (robust for mobile)
+            var svgEl = document.getElementById('networkView');
+            if (!svgEl) return;
             
             // Find the checkbox for this type
             var checkboxes = document.querySelectorAll('#networkControls input[type="checkbox"]');
@@ -11531,27 +11555,28 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 if (type === 'skill' && cb === checkboxes[1]) isChecked = cb.checked;
             });
             
-            svg.selectAll('text')
-                .filter(function(d) { return d && d.type === type; })
-                .classed('hidden', !isChecked);
+            var className = 'hide-' + type + '-labels';
+            if (isChecked) {
+                svgEl.classList.remove(className);
+            } else {
+                svgEl.classList.add(className);
+            }
         }
         
         // Apply current toggle states to network after any re-render
         function applyLabelToggles() {
             var checkboxes = document.querySelectorAll('#networkControls input[type="checkbox"]');
-            if (checkboxes.length >= 2) {
-                var roleChecked = checkboxes[0].checked;
-                var skillChecked = checkboxes[1].checked;
-                var svg = d3.select("#networkView");
-                if (!svg.empty()) {
-                    svg.selectAll('text')
-                        .filter(function(d) { return d && d.type === 'role'; })
-                        .classed('hidden', !roleChecked);
-                    svg.selectAll('text')
-                        .filter(function(d) { return d && d.type === 'skill'; })
-                        .classed('hidden', !skillChecked);
-                }
-            }
+            var svgEl = document.getElementById('networkView');
+            if (!svgEl || checkboxes.length < 2) return;
+            
+            var roleChecked = checkboxes[0].checked;
+            var skillChecked = checkboxes[1].checked;
+            
+            if (roleChecked) { svgEl.classList.remove('hide-role-labels'); }
+            else { svgEl.classList.add('hide-role-labels'); }
+            
+            if (skillChecked) { svgEl.classList.remove('hide-skill-labels'); }
+            else { svgEl.classList.add('hide-skill-labels'); }
         }
         window.applyLabelToggles = applyLabelToggles;
 
