@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.27.1.6 | 20260221 | Tooltip reposition mobile, Firestore sanitizer, pill toggles ready -->
+    <!-- v4.27.1.7 | 20260221 | Admin profile guard: skip Firestore save for demo profiles, fix name override -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -890,8 +890,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.27.1.6 - BUILD 20260221-tooltip-mobile
-        var BP_VERSION = 'v4.27.1.6';
+        // BLUEPRINT v4.27.1.7 - BUILD 20260221-admin-profile
+        var BP_VERSION = 'v4.27.1.7';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -907,7 +907,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260221-tooltip-mobile                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260221-admin-profile                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -1466,6 +1466,13 @@
         
         function saveToFirestore() {
             if (!fbDb || !fbUser) return Promise.resolve(false);
+            
+            // GUARD: Never save demo/sample profile data to the user's Firestore doc
+            var tid = userData.templateId || '';
+            if (tid && tid.indexOf('firestore-') !== 0) {
+                // Viewing a sample profile — skip save silently
+                return Promise.resolve(false);
+            }
             
             // GUARD: Ensure profile name comes from Firebase auth, never scaffold
             if (fbUser.displayName && userData.profile) {
@@ -4723,8 +4730,8 @@
                 skillsData.roles = userData.roles;
             }
             
-            // Update profile chip (only for non-signed-in sample browsing)
-            if (!fbUser && userData.profile && userData.profile.name) {
+            // Update profile chip — show template name when browsing samples
+            if (userData.profile && userData.profile.name) {
                 updateProfileChip(userData.profile.name);
             }
             
