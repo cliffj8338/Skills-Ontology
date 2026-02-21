@@ -213,14 +213,6 @@
       "evidence": []
     },
     {
-      "name": "Equipment Maintenance",
-      "level": "Advanced",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Science",
       "level": "Mastery",
       "category": "skill",
@@ -301,14 +293,6 @@
       "evidence": []
     },
     {
-      "name": "Integrity",
-      "level": "Competent",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Production and Processing",
       "level": "Expert",
       "category": "knowledge",
@@ -334,14 +318,6 @@
     },
     {
       "name": "Physics",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Administration and Management",
       "level": "Advanced",
       "category": "knowledge",
       "key": false,
@@ -394,11 +370,6 @@
       "name": "New Mexico Teaching License - Secondary Science",
       "issuer": "NM PED",
       "year": 1991
-    },
-    {
-      "name": "DEA Laboratory Certification",
-      "issuer": "DEA",
-      "year": 1984
     }
   ],
   "savedJobs": [
@@ -408,7 +379,7 @@
       "company": "University of New Mexico",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "The University of New Mexico seeks a tenured Professor of Chemistry to lead undergraduate and graduate instruction in organic chemistry and crystallography. The ideal candidate holds a Ph.D. in Chemistry with 10+ years of teaching experience, a strong publication record, and demonstrated excellence in laboratory-based pedagogy. Responsibilities include curriculum development, graduate student mentorship, grant writing, and maintaining active research in chemical synthesis or materials science. Experience with AP-level preparation and public science outreach preferred.",
+      "rawText": "The University of New Mexico seeks a tenured Professor of Chemistry to lead undergraduate and graduate instruction in organic chemistry and crystallography. The ideal candidate holds a Ph.D. in Chemistry with 10+ years of teaching experience, a strong publication record, and demonstrated excellence in laboratory-based pedagogy. Responsibilities include curriculum development, graduate student mentorship, grant writing, and maintaining active research. Experience with accreditation processes and DEI initiatives in STEM required.",
       "parsedSkills": [
         "Chemistry",
         "Organic Chemistry",
@@ -421,7 +392,12 @@
         "Written Comprehension",
         "Active Learning",
         "Mathematics",
-        "Physics"
+        "Physics",
+        "Grant Writing",
+        "Academic Publishing",
+        "Diversity and Inclusion",
+        "Accreditation Management",
+        "Graduate Student Mentorship"
       ],
       "parsedRoles": [
         "Chemistry Professor",
@@ -438,7 +414,7 @@
       "company": "Pfizer Inc.",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Pfizer seeks a Director of Pharmaceutical Research & Development to oversee chemical synthesis programs and lead a team of 25 research scientists. Requires Ph.D. in Chemistry or Chemical Engineering with expertise in process chemistry, quality control, and GMP compliance. Must demonstrate mastery of organic synthesis, analytical methods, and scale-up from bench to production. 15+ years in pharmaceutical or chemical research required. Strong publication record and patent portfolio preferred.",
+      "rawText": "Pfizer seeks a Director of Pharmaceutical Research & Development to oversee chemical synthesis programs and lead a team of 25 research scientists. Requires Ph.D. in Chemistry or Chemical Engineering with expertise in process chemistry, quality control, and GMP compliance. Must demonstrate mastery of organic synthesis and scale-up from bench to production. 15+ years in pharmaceutical research required. FDA regulatory experience mandatory. Six Sigma Black Belt preferred. Budget management of $50M+ required.",
       "parsedSkills": [
         "Chemistry",
         "Chemical Process Engineering",
@@ -450,7 +426,16 @@
         "Complex Problem Solving",
         "Leadership",
         "Attention to Detail",
-        "Analytical Thinking"
+        "Analytical Thinking",
+        "GMP Compliance",
+        "FDA Regulatory Affairs",
+        "Pharmaceutical Development",
+        "Clinical Trial Oversight",
+        "Budget Management",
+        "Six Sigma",
+        "Team Management",
+        "Vendor Management",
+        "IP Portfolio Management"
       ],
       "parsedRoles": [
         "Research Scientist",
@@ -467,7 +452,7 @@
       "company": "McKinsey & Company",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "McKinsey seeks a Chemical Process Consultant to advise pharmaceutical and specialty chemical clients on production optimization, yield improvement, and quality systems. Requires advanced degree in Chemistry or Chemical Engineering with hands-on production experience. Must combine deep technical expertise with client-facing communication skills. Travel 60-80%. Experience in process scale-up, Six Sigma, and regulatory compliance preferred.",
+      "rawText": "McKinsey seeks a Chemical Process Consultant to advise pharmaceutical and specialty chemical clients on production optimization, yield improvement, and quality systems. Requires advanced degree in Chemistry or Chemical Engineering with hands-on production experience. Must combine deep technical expertise with client-facing communication and executive presentation skills. Travel 60-80%. MBA or consulting experience required. Fluency in data analytics, Tableau, and financial modeling expected. Experience in change management and stakeholder alignment essential.",
       "parsedSkills": [
         "Chemistry",
         "Chemical Process Engineering",
@@ -476,8 +461,18 @@
         "Complex Problem Solving",
         "Critical Thinking",
         "Oral Expression",
-        "Administration and Management",
-        "Production and Processing"
+        "Production and Processing",
+        "Management Consulting",
+        "Client Relationship Management",
+        "Executive Presentation",
+        "Financial Modeling",
+        "Data Analytics",
+        "Tableau",
+        "Change Management",
+        "Stakeholder Alignment",
+        "Business Development",
+        "MBA Required",
+        "Travel 60-80%"
       ],
       "parsedRoles": [
         "Laboratory Director"

@@ -21,37 +21,27 @@
   ],
   "values": [
     {
-      "text": "Single-handedly uncovered government cover-up of missing child case when all authorities dismissed evidence",
+      "text": "Single-handedly uncovered government cover-up when all authorities dismissed evidence",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Maintained household and raised two sons on single retail income while managing multiple crisis situations",
+      "text": "Maintained household and raised two sons on single retail income while managing multiple crises",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Built trust-based relationships with customers over 10+ years resulting in highest repeat customer rate in store",
+      "text": "Built trust-based customer relationships resulting in highest repeat rate in store",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Coordinated civilian investigation team that outperformed professional law enforcement in 3 separate cases",
+      "text": "Coordinated civilian investigation team that outperformed professional law enforcement",
       "selected": true,
       "shared": true
     }
   ],
   "skills": [
-    {
-      "name": "Investigation & Research",
-      "level": "Expert",
-      "category": "unique",
-      "key": true,
-      "roles": [
-        "Investigator"
-      ],
-      "evidence": []
-    },
     {
       "name": "Customer Service",
       "level": "Expert",
@@ -143,14 +133,6 @@
       "evidence": []
     },
     {
-      "name": "Persuasion",
-      "level": "Advanced",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Coordination",
       "level": "Advanced",
       "category": "skill",
@@ -191,22 +173,6 @@
       "evidence": []
     },
     {
-      "name": "Self-Control",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Achievement/Effort",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Customer and Personal Service",
       "level": "Expert",
       "category": "knowledge",
@@ -230,7 +196,7 @@
       "startYear": 1975,
       "endYear": 1986,
       "current": true,
-      "description": "Full-time retail position serving Hawkins community. Inventory management, customer relationships, and store operations. Known as the most helpful and persistent employee in store history."
+      "description": "Full-time retail. Inventory management, customer relationships, and store operations."
     }
   ],
   "education": [
@@ -249,17 +215,24 @@
       "company": "National Center for Missing & Exploited Children",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "NCMEC seeks a Victim Advocacy Director to lead family support services for missing children cases. Must demonstrate extraordinary empathy, investigative instinct, and ability to work with families under extreme distress. Experience in advocacy, social services, or investigation required. We value lived experience and determination above credentials.",
+      "rawText": "NCMEC seeks a Victim Advocacy Director to lead family support services for missing children cases. Must demonstrate extraordinary empathy and investigative instinct. Bachelor's degree in social work or counseling required. Victim advocacy certification (NOVA) mandatory. Must manage team of 15 advocates, coordinate with FBI and local law enforcement, and maintain NCIC database access. Grant management for $3M federal funding required. Trauma-informed care training expected.",
       "parsedSkills": [
         "Concern for Others",
-        "Investigation & Research",
         "Active Listening",
         "Social Perceptiveness",
         "Persistence",
         "Stress Tolerance",
         "Speaking",
         "Coordination",
-        "Integrity"
+        "Integrity",
+        "Critical Thinking",
+        "Bachelor's Degree Required",
+        "Victim Advocacy Certification",
+        "FBI Coordination",
+        "NCIC Database",
+        "Grant Management",
+        "Trauma-Informed Care",
+        "Team Management"
       ],
       "parsedRoles": [
         "Victim Advocacy Director",
@@ -276,7 +249,7 @@
       "company": "Ace Hardware",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Ace Hardware seeks a Store Manager for our Hawkins location. Requires 5+ years retail experience with strong customer relationships. Must manage inventory, staff scheduling, and community engagement. We value reliability, problem-solving, and the kind of customer service where everyone knows your name.",
+      "rawText": "Ace Hardware seeks a Store Manager for our Hawkins location. Requires 5+ years retail experience with strong customer relationships. Must manage inventory, staff scheduling, and community engagement. POS system proficiency required. Must manage $1.2M inventory and 12 employees. Experience with seasonal merchandising and vendor co-op advertising programs expected.",
       "parsedSkills": [
         "Customer Service",
         "Sales",
@@ -285,7 +258,13 @@
         "Initiative",
         "Social Perceptiveness",
         "Coordination",
-        "Adaptability/Flexibility"
+        "Adaptability/Flexibility",
+        "Integrity",
+        "POS System Proficiency",
+        "Inventory Management Systems",
+        "Vendor Co-op Advertising",
+        "Seasonal Merchandising",
+        "Staff Scheduling Software"
       ],
       "parsedRoles": [
         "Retail Manager"
@@ -301,15 +280,22 @@
       "company": "Byers Investigation Services",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Independent private investigation firm seeks investigators for missing persons, insurance fraud, and background check cases. Must demonstrate tenacity, observational skills, and ability to work independently. Law enforcement background not required \u2014 we value instinct, determination, and unconventional thinking over formal credentials.",
+      "rawText": "Investigation firm seeks PIs for missing persons, insurance fraud, and background checks. Must demonstrate tenacity and observational skills. Indiana PI license required. Must have experience with background check databases (TLO, IRB), GPS tracking systems, and digital forensics tools. Photography and video surveillance equipment proficiency expected. Must be able to testify as expert witness in court proceedings.",
       "parsedSkills": [
-        "Investigation & Research",
         "Pattern Recognition",
         "Critical Thinking",
         "Persistence",
         "Complex Problem Solving",
         "Initiative",
-        "Judgment and Decision Making"
+        "Judgment and Decision Making",
+        "Adaptability/Flexibility",
+        "Indiana PI License",
+        "Background Check Databases",
+        "GPS Tracking Systems",
+        "Digital Forensics",
+        "Surveillance Photography",
+        "Expert Witness Testimony",
+        "Report Writing"
       ],
       "parsedRoles": [
         "Investigator"

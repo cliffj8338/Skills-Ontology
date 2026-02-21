@@ -7,7 +7,7 @@
     "roleLevel": "Senior",
     "email": "s.roy@waystar.com"
   },
-  "purpose": "To wield strategic influence at the intersection of politics, media, and corporate power \u2014 on my own terms, not my family's.",
+  "purpose": "To wield strategic influence at the intersection of politics, media, and corporate power \u2014 on my own terms.",
   "roles": [
     {
       "name": "Chief Strategy Officer"
@@ -21,22 +21,22 @@
   ],
   "values": [
     {
-      "text": "Served as senior advisor on presidential primary campaign, managing debate prep and policy communications",
+      "text": "Senior advisor on presidential primary campaign, managing debate prep and policy communications",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Negotiated regulatory settlements saving Waystar Royco $2B in potential fines through political relationships",
+      "text": "Negotiated regulatory settlements saving Waystar Royco $2B in potential fines",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Built bipartisan stakeholder coalition that defeated hostile legislation threatening media industry",
+      "text": "Built bipartisan coalition that defeated hostile legislation threatening media industry",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Designed internal restructuring plan cutting $500M in corporate overhead while preserving editorial independence",
+      "text": "Designed restructuring plan cutting $500M in overhead while preserving editorial independence",
       "selected": true,
       "shared": true
     }
@@ -155,14 +155,6 @@
       "evidence": []
     },
     {
-      "name": "Active Listening",
-      "level": "Advanced",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Coordination",
       "level": "Advanced",
       "category": "skill",
@@ -181,22 +173,6 @@
     {
       "name": "Initiative",
       "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Stress Tolerance",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Self-Control",
-      "level": "Advanced",
       "category": "workstyle",
       "key": false,
       "roles": [],
@@ -241,14 +217,6 @@
       "key": false,
       "roles": [],
       "evidence": []
-    },
-    {
-      "name": "Psychology",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
     }
   ],
   "workHistory": [
@@ -258,7 +226,7 @@
       "startYear": 2021,
       "endYear": 2023,
       "current": false,
-      "description": "Advised C-suite on regulatory strategy, political risk, and corporate communications. Led government affairs during congressional investigations."
+      "description": "Advised C-suite on regulatory strategy and political risk."
     },
     {
       "company": "Gil Eavis Presidential Campaign",
@@ -266,7 +234,7 @@
       "startYear": 2019,
       "endYear": 2020,
       "current": false,
-      "description": "Managed debate preparation, policy communications, and stakeholder relations for Democratic primary candidate. Coordinated with Super PAC and media strategy teams."
+      "description": "Managed debate preparation and policy communications."
     },
     {
       "company": "Senator Joyce Miller (D-NY)",
@@ -274,7 +242,7 @@
       "startYear": 2015,
       "endYear": 2019,
       "current": false,
-      "description": "Managed 45-person office, legislative strategy, and constituent services. Led policy development on media regulation and tech antitrust."
+      "description": "Managed 45-person office and legislative strategy."
     }
   ],
   "education": [
@@ -299,17 +267,22 @@
       "company": "The Walt Disney Company",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Disney seeks a CSO to drive corporate strategy across entertainment, parks, streaming, and consumer products. Must navigate regulatory environments, political relationships, and complex stakeholder dynamics. Requires policy expertise, M&A evaluation capability, and boardroom-level communication. 12+ years in corporate strategy, consulting, or political affairs at senior levels.",
+      "rawText": "Disney seeks a CSO across entertainment, parks, streaming, and consumer products. Must navigate regulatory environments and stakeholder dynamics. Requires P&L ownership of $1B+ business unit, technology platform strategy, and product roadmap development. Must present to board quarterly. 15+ years in corporate strategy or consulting at partner level.",
       "parsedSkills": [
         "Corporate Strategy",
         "Stakeholder Management",
-        "Political Strategy",
         "Negotiation",
         "Communications Strategy",
         "Administration and Management",
         "Law and Government",
         "Persuasion",
-        "Critical Thinking"
+        "Critical Thinking",
+        "Complex Problem Solving",
+        "P&L Ownership $1B+",
+        "Technology Platform Strategy",
+        "Product Roadmap Development",
+        "Board Quarterly Presentations",
+        "Partner-Level Consulting"
       ],
       "parsedRoles": [
         "Chief Strategy Officer"
@@ -325,7 +298,7 @@
       "company": "McKinsey & Company",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "McKinsey seeks a Partner for its Government & Public Sector practice. Requires deep political expertise, C-suite advisory experience, and ability to navigate regulatory complexity for Fortune 100 clients. Must generate $15M+ in annual billings. Experience on political campaigns or in senior government roles highly valued.",
+      "rawText": "McKinsey seeks a Partner for Government & Public Sector practice. Requires deep political expertise and C-suite advisory. Must generate $15M+ in annual billings and manage team of 30 consultants. Experience with RFP development, engagement staffing models, and knowledge management systems required. Must have published thought leadership and managed client portfolio of 15+ accounts.",
       "parsedSkills": [
         "Political Strategy",
         "Corporate Strategy",
@@ -335,7 +308,12 @@
         "Public Speaking",
         "Writing",
         "Analytical Thinking",
-        "Psychology"
+        "Annual Billings $15M+",
+        "Consulting Team Management",
+        "RFP Development",
+        "Engagement Staffing Models",
+        "Published Thought Leadership",
+        "Client Portfolio Management"
       ],
       "parsedRoles": [
         "Management Consultant"
@@ -351,7 +329,7 @@
       "company": "Meta Platforms",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Meta seeks a VP of Government Affairs to lead US regulatory strategy and political engagement across Congress, FTC, FCC, and state legislatures. Must build bipartisan relationships, manage crisis communications, and develop proactive policy positions. Requires 10+ years in government relations, political campaigns, or regulatory affairs.",
+      "rawText": "Meta seeks a VP of Government Affairs for US regulatory strategy across Congress, FTC, FCC, and state legislatures. Must build bipartisan relationships and manage crisis communications. Requires 10+ years in government relations. Must manage team of 25 lobbyists, oversee PAC administration, and coordinate with international government affairs teams. Registered lobbyist status required.",
       "parsedSkills": [
         "Political Strategy",
         "Stakeholder Management",
@@ -361,7 +339,12 @@
         "Law and Government",
         "Coordination",
         "Adaptability/Flexibility",
-        "Stress Tolerance"
+        "Social Perceptiveness",
+        "Registered Lobbyist",
+        "PAC Administration",
+        "Lobbyist Team Management",
+        "International Government Affairs",
+        "State Legislature Strategy"
       ],
       "parsedRoles": [
         "Political Campaign Director",

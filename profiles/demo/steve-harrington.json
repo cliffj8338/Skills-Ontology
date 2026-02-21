@@ -2,12 +2,12 @@
   "templateName": "Steve Harrington - Customer Service & Youth Mentor",
   "profile": {
     "name": "Steve Harrington",
-    "currentTitle": "Senior Associate, Scoops Ahoy / Family Video",
+    "currentTitle": "Senior Associate, Family Video",
     "location": "Hawkins, IN",
     "roleLevel": "Entry-Mid",
     "email": "steve.harrington@familyvideo.com"
   },
-  "purpose": "To protect and mentor the people around me while figuring out what I actually want to be \u2014 turns out leadership finds you when you stop looking for it.",
+  "purpose": "To protect and mentor the people around me while figuring out what I actually want to be \u2014 leadership finds you when you stop looking for it.",
   "roles": [
     {
       "name": "Youth Program Director"
@@ -68,14 +68,6 @@
       "evidence": []
     },
     {
-      "name": "Crisis Response",
-      "level": "Advanced",
-      "category": "skill",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Active Listening",
       "level": "Expert",
       "category": "skill",
@@ -109,14 +101,6 @@
     },
     {
       "name": "Coordination",
-      "level": "Advanced",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Persuasion",
       "level": "Advanced",
       "category": "skill",
       "key": false,
@@ -164,14 +148,6 @@
       "evidence": []
     },
     {
-      "name": "Self-Control",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Initiative",
       "level": "Advanced",
       "category": "workstyle",
@@ -202,14 +178,6 @@
       "key": false,
       "roles": [],
       "evidence": []
-    },
-    {
-      "name": "Psychology",
-      "level": "Competent",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
     }
   ],
   "workHistory": [
@@ -219,7 +187,7 @@
       "startYear": 1985,
       "endYear": 1986,
       "current": true,
-      "description": "Customer-facing retail role. Consistently top performer in customer satisfaction. Unofficial team leader and mentor to younger staff."
+      "description": "Customer-facing retail. Top performer in customer satisfaction. Unofficial team leader."
     },
     {
       "company": "Scoops Ahoy (Starcourt Mall)",
@@ -227,15 +195,7 @@
       "startYear": 1985,
       "endYear": 1985,
       "current": false,
-      "description": "Ice cream counter service at Starcourt Mall. Developed customer engagement skills and worked closely with team partner Robin Buckley."
-    },
-    {
-      "company": "Hawkins High School",
-      "title": "Student / Team Captain",
-      "startYear": 1982,
-      "endYear": 1985,
-      "current": false,
-      "description": "Captain of swim team. Student council. Known for social leadership and peer mentoring."
+      "description": "Ice cream counter service. Developed customer engagement skills."
     }
   ],
   "education": [
@@ -254,7 +214,7 @@
       "company": "YMCA of Greater Indianapolis",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "YMCA seeks a Youth Program Director to design and lead after-school and summer programs for teens ages 12-18. Must demonstrate natural mentoring ability, team coordination, and genuine care for young people. Experience working with diverse youth populations preferred. CPR certification required. Must pass background check.",
+      "rawText": "YMCA seeks a Youth Program Director for after-school and summer programs for teens 12-18. Must demonstrate natural mentoring ability and genuine care for young people. Bachelor's degree in education, social work, or recreation management preferred. CPR/First Aid certification required. Grant writing for program funding expected. Must develop curriculum, manage $200K budget, and report program outcomes with data analytics.",
       "parsedSkills": [
         "Youth Mentoring",
         "Team Leadership",
@@ -264,7 +224,13 @@
         "Service Orientation",
         "Speaking",
         "Social Perceptiveness",
-        "Customer and Personal Service"
+        "Customer and Personal Service",
+        "Bachelor's Degree Preferred",
+        "CPR/First Aid",
+        "Grant Writing",
+        "Budget Management",
+        "Program Outcome Analytics",
+        "Curriculum Development"
       ],
       "parsedRoles": [
         "Youth Program Director"
@@ -280,7 +246,7 @@
       "company": "Target",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Target seeks a District Manager to oversee 8 retail locations with 400+ team members. Must demonstrate customer service excellence, team development skills, and ability to build positive store cultures. We value leaders who lead by example, mentor their teams, and maintain high standards while keeping things human. 3+ years retail leadership experience preferred.",
+      "rawText": "Target seeks a District Manager to oversee 8 retail locations with 400+ team members. Must demonstrate customer service excellence and team development. 5+ years multi-unit retail management required. Must manage aggregate P&L of $120M, interpret workforce analytics dashboards, and implement inventory optimization using RFID. Experience with Workday HCM, planogram execution, and labor scheduling optimization required.",
       "parsedSkills": [
         "Customer Service",
         "Team Leadership",
@@ -289,8 +255,15 @@
         "Dependability",
         "Initiative",
         "Customer and Personal Service",
-        "Persuasion",
-        "Adaptability/Flexibility"
+        "Adaptability/Flexibility",
+        "Multi-Unit Management Experience",
+        "P&L Management",
+        "Workforce Analytics",
+        "RFID Inventory Systems",
+        "Workday HCM",
+        "Planogram Execution",
+        "Labor Scheduling Optimization",
+        "Vendor Relationship Management"
       ],
       "parsedRoles": [
         "Retail Manager",
@@ -307,16 +280,22 @@
       "company": "Camp Tippecanoe",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Camp Tippecanoe seeks a Summer Camp Director to manage all camp operations, supervise 30 counselors, and ensure the safety and development of 200 campers ages 10-16. Requires natural leadership, crisis management ability, and genuine connection with young people. First aid certified. Must be comfortable with outdoor activities and unpredictable situations.",
+      "rawText": "Camp Tippecanoe seeks a Summer Camp Director to manage operations, supervise 30 counselors, and ensure safety of 200 campers ages 10-16. Requires natural leadership and genuine connection with young people. Wilderness First Responder certification required. Must have waterfront safety certification, ropes course facilitation training, and experience with ACA accreditation standards. Must manage seasonal budget of $400K.",
       "parsedSkills": [
         "Youth Mentoring",
         "Team Leadership",
-        "Crisis Response",
         "Concern for Others",
         "Stress Tolerance",
         "Adaptability/Flexibility",
         "Active Listening",
-        "Integrity"
+        "Integrity",
+        "Cooperation",
+        "Social Perceptiveness",
+        "Wilderness First Responder",
+        "Waterfront Safety Certification",
+        "Ropes Course Facilitation",
+        "ACA Accreditation",
+        "Seasonal Budget Management"
       ],
       "parsedRoles": [
         "Youth Program Director",

@@ -86,14 +86,6 @@
       "evidence": []
     },
     {
-      "name": "Entrepreneurship",
-      "level": "Advanced",
-      "category": "unique",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Active Listening",
       "level": "Expert",
       "category": "skill",
@@ -150,14 +142,6 @@
       "evidence": []
     },
     {
-      "name": "Finger Dexterity",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Adaptability/Flexibility",
       "level": "Expert",
       "category": "workstyle",
@@ -206,14 +190,6 @@
       "evidence": []
     },
     {
-      "name": "Empathy",
-      "level": "Expert",
-      "category": "unique",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Building and Construction",
       "level": "Advanced",
       "category": "knowledge",
@@ -245,7 +221,7 @@
       "startYear": 2015,
       "endYear": 2026,
       "current": true,
-      "description": "Custom furniture studio specializing in handcrafted wooden boxes, tables, and decorative pieces. Direct-to-consumer sales through local markets and online."
+      "description": "Custom furniture studio specializing in handcrafted wooden boxes, tables, and decorative pieces."
     },
     {
       "company": "Various",
@@ -253,7 +229,7 @@
       "startYear": 2004,
       "endYear": 2010,
       "current": false,
-      "description": "Built and managed independent sales territory. Customer acquisition, territory management, and rapid problem-solving under pressure."
+      "description": "Built and managed independent sales territory with rapid problem-solving under pressure."
     }
   ],
   "education": [
@@ -278,7 +254,7 @@
       "company": "West Elm Workshop",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "West Elm seeks a Custom Furniture Maker to design and produce artisan furniture pieces for our maker program. Must demonstrate expertise in woodworking, joinery, and finishing techniques. Portfolio of original designs required. 3+ years professional furniture-making experience. Knowledge of sustainable materials and ability to meet production deadlines while maintaining craftsmanship standards.",
+      "rawText": "West Elm seeks a Custom Furniture Maker for our artisan program. Must demonstrate woodworking, joinery, and finishing expertise. Portfolio of original designs required. 3+ years professional experience. Knowledge of sustainable materials and CNC routing required. CAD proficiency (SketchUp or SolidWorks) expected. Must meet production deadlines, manage material sourcing, and coordinate with marketing for product photography.",
       "parsedSkills": [
         "Woodworking",
         "Product Design",
@@ -286,8 +262,13 @@
         "Creativity",
         "Design",
         "Production and Processing",
-        "Attention to Detail",
-        "Building and Construction"
+        "Building and Construction",
+        "Visualization",
+        "CNC Routing",
+        "CAD Software",
+        "Sustainable Materials Sourcing",
+        "Production Photography",
+        "Inventory Management"
       ],
       "parsedRoles": [
         "Artisan Craftsman"
@@ -303,7 +284,7 @@
       "company": "Snap-on Tools",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Snap-on seeks a Territory Sales Representative to manage a mobile sales route serving 200+ automotive and construction accounts. Requires strong interpersonal skills, self-motivation, and ability to build lasting customer relationships. Must be comfortable with independent work, territory management, and consultative selling. No degree required; sales experience and mechanical aptitude preferred.",
+      "rawText": "Snap-on seeks a Territory Sales Representative to manage a mobile sales route serving 200+ accounts. Requires strong interpersonal skills, self-motivation, and customer relationship building. Must be comfortable with independent work and consultative selling. CRM proficiency (Salesforce) required. Must meet $500K quarterly quota targets. Financial planning for route profitability expected. Valid CDL-B license required.",
       "parsedSkills": [
         "Sales",
         "Negotiation",
@@ -312,7 +293,13 @@
         "Speaking",
         "Social Perceptiveness",
         "Initiative",
-        "Adaptability/Flexibility"
+        "Adaptability/Flexibility",
+        "Persistence",
+        "Salesforce CRM",
+        "Quarterly Quota Management",
+        "Financial Planning",
+        "CDL-B License",
+        "Route Profitability Analysis"
       ],
       "parsedRoles": [
         "Sales Representative"
@@ -328,16 +315,22 @@
       "company": "Boys & Girls Clubs of America",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Boys & Girls Clubs seeks a Youth Program Coordinator to design and lead hands-on workshop programs for at-risk teens ages 14-18. Requires empathy, mentoring ability, and practical trade skills (woodworking, mechanics, or similar). Must connect with underserved youth and create structured learning experiences. Background in trades, personal resilience, and authentic communication valued over formal credentials.",
+      "rawText": "Boys & Girls Clubs seeks a Youth Program Coordinator to design and lead hands-on workshop programs for at-risk teens ages 14-18. Requires empathy, mentoring ability, and practical trade skills. Must connect with underserved youth. Background check required. Bachelor's degree in social work, education, or related field preferred. Grant writing experience needed. Case management software proficiency expected. CPR/First Aid certification required.",
       "parsedSkills": [
         "Active Listening",
         "Social Perceptiveness",
-        "Empathy",
         "Cooperation",
         "Speaking",
         "Creativity",
         "Adaptability/Flexibility",
-        "Woodworking"
+        "Woodworking",
+        "Persistence",
+        "Grant Writing",
+        "Case Management Software",
+        "Bachelor's Degree",
+        "CPR Certification",
+        "Trauma-Informed Care",
+        "Program Evaluation"
       ],
       "parsedRoles": [
         "Youth Mentor"

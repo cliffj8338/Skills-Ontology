@@ -21,27 +21,22 @@
   ],
   "values": [
     {
-      "text": "Built Waystar Royco from a single newspaper into a $60B global media and entertainment conglomerate",
+      "text": "Built Waystar Royco from a single newspaper into a $60B global media conglomerate",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Completed 40+ acquisitions totaling $85B in transaction value over five decades of dealmaking",
+      "text": "Completed 40+ acquisitions totaling $85B in transaction value over five decades",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Navigated 3 hostile takeover attempts, maintaining majority control through strategic maneuvering",
+      "text": "Navigated 3 hostile takeover attempts, maintaining majority control",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Influenced national political landscapes across two continents through media platform positioning",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Generated 18% average annual shareholder return over 25-year period, outperforming S&P 500 by 6 points",
+      "text": "Generated 18% average annual shareholder return over 25-year period",
       "selected": true,
       "shared": true
     }
@@ -105,14 +100,6 @@
       "roles": [
         "CEO"
       ],
-      "evidence": []
-    },
-    {
-      "name": "Political Strategy",
-      "level": "Expert",
-      "category": "unique",
-      "key": true,
-      "roles": [],
       "evidence": []
     },
     {
@@ -204,22 +191,6 @@
       "evidence": []
     },
     {
-      "name": "Initiative",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Self-Control",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Economics and Accounting",
       "level": "Expert",
       "category": "knowledge",
@@ -230,14 +201,6 @@
     {
       "name": "Administration and Management",
       "level": "Mastery",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Law and Government",
-      "level": "Advanced",
       "category": "knowledge",
       "key": false,
       "roles": [],
@@ -259,15 +222,7 @@
       "startYear": 1969,
       "endYear": 2023,
       "current": false,
-      "description": "Built global media conglomerate spanning news, entertainment, theme parks, and digital media. Managed 120,000 employees across 45 countries. Orchestrated $85B in acquisitions. Defended against multiple hostile takeover attempts."
-    },
-    {
-      "company": "Roy Family Holdings",
-      "title": "Founder",
-      "startYear": 1965,
-      "endYear": 1969,
-      "current": false,
-      "description": "Acquired first newspaper in Dundee, Scotland. Built initial media portfolio through aggressive acquisition strategy across UK and North America."
+      "description": "Built global media conglomerate. 120,000 employees across 45 countries. Orchestrated $85B in acquisitions."
     }
   ],
   "education": [
@@ -286,7 +241,7 @@
       "company": "Warner Bros. Discovery",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Warner Bros. Discovery board seeks a CEO to lead the $40B media conglomerate through digital transformation, content strategy realignment, and global expansion. Must demonstrate decades of media industry leadership, M&A expertise, and ability to manage complex stakeholder relationships including regulators, talent, and institutional investors. Board-level governance experience required.",
+      "rawText": "Warner Bros. Discovery board seeks a CEO for digital transformation, content strategy, and global expansion. Must demonstrate decades of media leadership and M&A expertise. Board governance experience required. Must navigate streaming platform strategy, AI content personalization, and ESG compliance frameworks. Experience with direct-to-consumer business models and creator economy partnerships expected.",
       "parsedSkills": [
         "Strategic Leadership",
         "Mergers & Acquisitions",
@@ -297,7 +252,12 @@
         "Administration and Management",
         "Communications and Media",
         "Leadership",
-        "Judgment and Decision Making"
+        "Judgment and Decision Making",
+        "Streaming Platform Strategy",
+        "AI Content Personalization",
+        "ESG Compliance",
+        "Direct-to-Consumer Models",
+        "Creator Economy Partnerships"
       ],
       "parsedRoles": [
         "CEO",
@@ -314,7 +274,7 @@
       "company": "Apollo Global Management",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Apollo seeks a Senior Operating Partner for its media and telecommunications portfolio. Requires track record of building and transforming media businesses at scale. Must evaluate acquisition targets, install operational improvements, and drive value creation across $20B+ portfolio. Extensive board experience and CEO-level relationships required.",
+      "rawText": "Apollo seeks a Senior Operating Partner for media and telecom portfolio. Requires track record of building media businesses at scale. Must evaluate targets and drive value creation. Extensive board experience required. Must demonstrate LP reporting, fund economics, and carried interest structures. Experience with EBITDA optimization, bolt-on acquisition strategy, and post-merger integration playbooks required.",
       "parsedSkills": [
         "Mergers & Acquisitions",
         "Strategic Leadership",
@@ -323,8 +283,14 @@
         "Corporate Governance",
         "Economics and Accounting",
         "Complex Problem Solving",
-        "Political Strategy",
-        "Achievement/Effort"
+        "Achievement/Effort",
+        "Persuasion",
+        "LP Reporting",
+        "Fund Economics",
+        "Carried Interest Structures",
+        "EBITDA Optimization",
+        "Post-Merger Integration",
+        "Bolt-on Acquisition Strategy"
       ],
       "parsedRoles": [
         "Private Equity Chairman",
@@ -341,15 +307,20 @@
       "company": "News Corp",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "News Corp seeks independent board directors with deep media industry expertise, corporate governance experience, and understanding of regulatory environments across multiple jurisdictions. Must bring strategic perspective on digital transformation, M&A evaluation, and succession planning. Compensation: $500K retainer + equity.",
+      "rawText": "News Corp seeks independent board directors with deep media expertise and corporate governance experience. Must bring perspective on digital transformation, M&A evaluation, and succession planning. Must meet SEC independence requirements, serve on audit committee, and demonstrate cybersecurity oversight experience. ESG reporting familiarity required.",
       "parsedSkills": [
         "Corporate Governance",
         "Strategic Leadership",
         "Media Industry Knowledge",
         "Mergers & Acquisitions",
-        "Law and Government",
         "Judgment and Decision Making",
-        "Critical Thinking"
+        "Critical Thinking",
+        "Economics and Accounting",
+        "SEC Independence Requirements",
+        "Audit Committee Experience",
+        "Cybersecurity Oversight",
+        "ESG Reporting",
+        "Succession Planning"
       ],
       "parsedRoles": [
         "Board Chairman"

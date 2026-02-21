@@ -31,27 +31,17 @@
       "shared": true
     },
     {
-      "text": "Built compliance framework that survived DOJ scrutiny across 3 separate federal investigations",
+      "text": "Built compliance framework that survived DOJ scrutiny across 3 separate investigations",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Navigated corporate succession crisis to emerge as CEO \u2014 the ultimate organizational achievement",
+      "text": "Navigated corporate succession crisis to emerge as CEO",
       "selected": true,
       "shared": true
     }
   ],
   "skills": [
-    {
-      "name": "Corporate Politics",
-      "level": "Mastery",
-      "category": "unique",
-      "key": true,
-      "roles": [
-        "CEO"
-      ],
-      "evidence": []
-    },
     {
       "name": "Operations Management",
       "level": "Expert",
@@ -149,14 +139,6 @@
       "evidence": []
     },
     {
-      "name": "Persuasion",
-      "level": "Advanced",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Coordination",
       "level": "Advanced",
       "category": "skill",
@@ -221,14 +203,6 @@
       "evidence": []
     },
     {
-      "name": "Initiative",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Administration and Management",
       "level": "Expert",
       "category": "knowledge",
@@ -251,48 +225,40 @@
       "key": false,
       "roles": [],
       "evidence": []
-    },
-    {
-      "name": "Personnel and Human Resources",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
     }
   ],
   "workHistory": [
     {
       "company": "Waystar Royco",
-      "title": "CEO (Appointed by Board)",
+      "title": "CEO (Appointed)",
       "startYear": 2023,
       "endYear": 2026,
       "current": true,
-      "description": "Appointed CEO following Logan Roy's passing. Managed transition of power, stabilized stock price, and maintained board confidence during period of maximum corporate uncertainty."
+      "description": "Managed transition of power. Stabilized stock price and maintained board confidence."
     },
     {
       "company": "Waystar Royco - ATN News",
-      "title": "President, ATN News Division",
+      "title": "President, ATN News",
       "startYear": 2020,
       "endYear": 2023,
       "current": false,
-      "description": "Led cable news network to #1 ratings. Managed 2,500 employees, $1.2B operating budget. Navigated multiple editorial controversies and FCC regulatory challenges."
+      "description": "Led cable news to #1 ratings. Managed 2,500 employees and $1.2B budget."
     },
     {
       "company": "Waystar Royco",
-      "title": "SVP, Parks & Cruises Division",
+      "title": "SVP Parks & Cruises",
       "startYear": 2016,
       "endYear": 2020,
       "current": false,
-      "description": "Managed operations for theme parks and cruise line division generating $4B annual revenue. Led compliance overhaul after congressional investigation into company practices."
+      "description": "Managed $4B division. Led compliance overhaul after investigation."
     },
     {
       "company": "Accenture",
-      "title": "Senior Manager, Media & Entertainment",
+      "title": "Senior Manager, M&E",
       "startYear": 2010,
       "endYear": 2016,
       "current": false,
-      "description": "Consulting engagements for major media companies on operational transformation, compliance frameworks, and organizational restructuring."
+      "description": "Consulting on operational transformation and compliance for media companies."
     }
   ],
   "education": [
@@ -305,7 +271,7 @@
     {
       "institution": "Georgetown University",
       "degree": "J.D.",
-      "field": "Law (Evening Program)",
+      "field": "Law",
       "year": 2014
     }
   ],
@@ -323,9 +289,8 @@
       "company": "iHeartMedia",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "iHeartMedia board seeks a CEO to lead the nation's largest radio and podcast company through digital transformation. Must demonstrate corporate governance experience, media operations expertise, and ability to manage complex stakeholder relationships including talent, advertisers, and regulators. Requires executive leadership in media with experience navigating corporate politics at the highest levels.",
+      "rawText": "iHeartMedia board seeks a CEO for digital transformation of radio and podcast company. Must demonstrate media operations expertise and complex stakeholder management. Requires podcast monetization strategy, programmatic audio advertising expertise, and experience with iHeart's specific syndication model. Must manage relationships with 800+ radio affiliates and rebuild advertiser confidence. AI content strategy experience required.",
       "parsedSkills": [
-        "Corporate Politics",
         "Operations Management",
         "Media Operations",
         "Stakeholder Management",
@@ -333,7 +298,13 @@
         "Communications and Media",
         "Administration and Management",
         "Negotiation",
-        "Judgment and Decision Making"
+        "Judgment and Decision Making",
+        "Crisis Management",
+        "Podcast Monetization Strategy",
+        "Programmatic Audio Advertising",
+        "Radio Syndication Models",
+        "Advertiser Relationship Management",
+        "AI Content Strategy"
       ],
       "parsedRoles": [
         "CEO",
@@ -350,7 +321,7 @@
       "company": "Fox Corporation",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Fox Corporation seeks a CCO to build and lead enterprise-wide compliance program across news, entertainment, and sports divisions. Must have JD with regulatory expertise, media industry knowledge, and ability to manage relationships with DOJ, FCC, and SEC. Crisis management experience during federal investigations strongly preferred.",
+      "rawText": "Fox seeks a CCO for enterprise-wide compliance across news, entertainment, and sports. Must have JD with regulatory expertise and media knowledge. Experience managing DOJ and SEC investigations required. Must implement whistleblower program, SOX compliance, and data privacy framework. Must manage team of 40 compliance professionals and $25M budget.",
       "parsedSkills": [
         "Regulatory Compliance",
         "Crisis Management",
@@ -360,7 +331,13 @@
         "Monitoring",
         "Self-Control",
         "Active Listening",
-        "Dependability"
+        "Dependability",
+        "Communications and Media",
+        "Whistleblower Program Management",
+        "SOX Compliance",
+        "Data Privacy Framework",
+        "DOJ/SEC Investigation Management",
+        "Compliance Team Management"
       ],
       "parsedRoles": [
         "Chief Compliance Officer"
@@ -376,7 +353,7 @@
       "company": "CNN",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "CNN seeks a General Manager to oversee daily operations of the cable news network. Requires media operations experience, editorial judgment, and ability to manage large teams under 24/7 news cycle pressure. Must balance ratings performance with journalistic standards. Experience in corporate communications and regulatory affairs valued.",
+      "rawText": "CNN seeks GM to oversee daily cable news operations. Requires editorial judgment and ability to manage under 24/7 news cycle pressure. Must have news programming experience, talent contract negotiation skills, and digital-first content strategy. Experience with Nielsen audience analytics, social media newsroom integration, and live event production at scale required. Must manage $800M operating budget.",
       "parsedSkills": [
         "Media Operations",
         "Operations Management",
@@ -385,7 +362,14 @@
         "Coordination",
         "Stress Tolerance",
         "Persistence",
-        "Speaking"
+        "Speaking",
+        "News Programming Experience",
+        "Talent Contract Negotiation",
+        "Digital-First Content Strategy",
+        "Nielsen Audience Analytics",
+        "Social Media Newsroom Integration",
+        "Live Event Production",
+        "Operating Budget $800M"
       ],
       "parsedRoles": [
         "SVP Network Operations"

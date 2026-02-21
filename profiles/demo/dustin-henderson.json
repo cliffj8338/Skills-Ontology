@@ -21,17 +21,17 @@
   ],
   "values": [
     {
-      "text": "Built long-range ham radio (Cerebro) capable of intercepting classified Soviet communications from 40+ miles",
+      "text": "Built long-range ham radio capable of intercepting classified communications from 40+ miles",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Decoded complex cryptographic ciphers under time pressure using pattern analysis and linguistic logic",
+      "text": "Decoded complex cryptographic ciphers under time pressure using pattern analysis",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Led Hawkins Middle AV Club to state science fair finals and regional robotics competition podium",
+      "text": "Led Hawkins Middle AV Club to state science fair finals",
       "selected": true,
       "shared": true
     }
@@ -130,14 +130,6 @@
       "evidence": []
     },
     {
-      "name": "Persuasion",
-      "level": "Advanced",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Fluency of Ideas",
       "level": "Expert",
       "category": "ability",
@@ -170,14 +162,6 @@
       "evidence": []
     },
     {
-      "name": "Curiosity",
-      "level": "Mastery",
-      "category": "unique",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Initiative",
       "level": "Expert",
       "category": "workstyle",
@@ -188,14 +172,6 @@
     {
       "name": "Adaptability/Flexibility",
       "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Achievement/Effort",
-      "level": "Expert",
       "category": "workstyle",
       "key": false,
       "roles": [],
@@ -241,7 +217,7 @@
       "startYear": 1983,
       "endYear": 1985,
       "current": false,
-      "description": "Led 8-member audiovisual and electronics club. Built custom radio equipment, organized science demonstrations, and coordinated school technology support."
+      "description": "Led 8-member electronics club. Built custom radio equipment and organized science demonstrations."
     },
     {
       "company": "Independent Projects",
@@ -249,7 +225,7 @@
       "startYear": 1982,
       "endYear": 1986,
       "current": true,
-      "description": "Designed and constructed long-range radio transceiver (Cerebro). Decoded encrypted communications. Built and maintained ham radio network connecting team across Hawkins."
+      "description": "Designed long-range radio transceiver. Decoded encrypted communications."
     }
   ],
   "education": [
@@ -274,7 +250,7 @@
       "company": "MIT Lincoln Laboratory",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "MIT Lincoln Labs seeks a Junior Software Engineer for signal processing and communications research. Must demonstrate aptitude in electronics, radio systems, and computational problem-solving. Candidates with hands-on hardware experience and self-directed projects valued. Strong communication skills essential for collaborative research environment. Degree in progress or equivalent project portfolio accepted.",
+      "rawText": "MIT Lincoln Labs seeks a Junior Software Engineer for signal processing and communications research. Must demonstrate aptitude in electronics and computational problem-solving. Bachelor's degree in EE, CS, or Physics required. Proficiency in Python, C++, and MATLAB mandatory. Experience with FPGA programming and DSP frameworks expected. Must obtain Secret clearance. Must work in collaborative Agile/Scrum environment.",
       "parsedSkills": [
         "Electronics & Radio Systems",
         "Complex Problem Solving",
@@ -284,7 +260,15 @@
         "Mathematics",
         "Critical Thinking",
         "Cooperation",
-        "Active Learning"
+        "Active Learning",
+        "Bachelor's Degree Required",
+        "Python Programming",
+        "C++ Programming",
+        "MATLAB",
+        "FPGA Programming",
+        "DSP Frameworks",
+        "Secret Clearance",
+        "Agile/Scrum"
       ],
       "parsedRoles": [
         "Software Engineer",
@@ -301,7 +285,7 @@
       "company": "National Security Agency",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "NSA seeks entry-level Cryptanalysts with demonstrated aptitude in pattern recognition, code-breaking, and mathematical reasoning. Must show history of independent cryptographic work and creative problem-solving under pressure. Strong communication skills required. Non-traditional educational backgrounds considered for exceptional candidates.",
+      "rawText": "NSA seeks entry-level Cryptanalysts with pattern recognition and mathematical reasoning aptitude. Must show history of cryptographic work. Bachelor's degree in Mathematics, CS, or related field required. Must pass TS/SCI investigation. Experience with Python, R, and TensorFlow required. Knowledge of number theory and abstract algebra mandatory. Must complete NSA Cryptanalysis Training Program.",
       "parsedSkills": [
         "Cryptography",
         "Pattern Recognition",
@@ -310,7 +294,15 @@
         "Mathematics",
         "Information Ordering",
         "Persistence",
-        "Complex Problem Solving"
+        "Complex Problem Solving",
+        "Bachelor's Degree Required",
+        "Python",
+        "R Programming",
+        "TensorFlow",
+        "Number Theory",
+        "Abstract Algebra",
+        "TS/SCI Clearance",
+        "NSA Training Program"
       ],
       "parsedRoles": [
         "Research Scientist"
@@ -326,7 +318,7 @@
       "company": "Smithsonian Institution",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "The Smithsonian seeks a STEM Education Program Director to design hands-on science and technology experiences for K-12 students. Must combine deep STEM knowledge with exceptional communication and enthusiasm. Ability to make complex concepts accessible and exciting for young audiences essential. Portfolio of educational projects required.",
+      "rawText": "The Smithsonian seeks a STEM Education Program Director for K-12 hands-on science experiences. Must combine STEM knowledge with exceptional communication. Bachelor's degree in STEM education or related field required. Experience with Next Generation Science Standards and exhibit design expected. Must manage team of 8 educators and $500K annual program budget. Evaluation methodology experience preferred.",
       "parsedSkills": [
         "Scientific Reasoning",
         "Speaking",
@@ -336,7 +328,14 @@
         "Cooperation",
         "Initiative",
         "Computers and Electronics",
-        "Physics"
+        "Physics",
+        "Persistence",
+        "Bachelor's Degree Required",
+        "NGSS Standards",
+        "Exhibit Design",
+        "Team Management",
+        "Budget Management",
+        "Program Evaluation Methodology"
       ],
       "parsedRoles": [
         "STEM Education Director"

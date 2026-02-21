@@ -91,14 +91,6 @@
       "evidence": []
     },
     {
-      "name": "Combat Operations",
-      "level": "Advanced",
-      "category": "unique",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Complex Problem Solving",
       "level": "Expert",
       "category": "ability",
@@ -139,24 +131,8 @@
       "evidence": []
     },
     {
-      "name": "Persuasion",
-      "level": "Advanced",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Coordination",
       "level": "Expert",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Monitoring",
-      "level": "Advanced",
       "category": "skill",
       "key": false,
       "roles": [],
@@ -181,14 +157,6 @@
     {
       "name": "Integrity",
       "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Self-Control",
-      "level": "Advanced",
       "category": "workstyle",
       "key": false,
       "roles": [],
@@ -258,7 +226,7 @@
       "startYear": 1979,
       "endYear": 1986,
       "current": false,
-      "description": "Led 12-officer department serving population of 30,000. Managed crisis response to multiple classified incidents. Rebuilt community trust through direct engagement."
+      "description": "Led 12-officer department serving population of 30,000. Crisis response to multiple classified incidents."
     },
     {
       "company": "New York Police Department",
@@ -266,7 +234,7 @@
       "startYear": 1973,
       "endYear": 1979,
       "current": false,
-      "description": "Investigated violent crimes in Manhattan South precinct. Cleared 40+ cases. Worked undercover narcotics operations."
+      "description": "Investigated violent crimes in Manhattan South. Cleared 40+ cases."
     },
     {
       "company": "U.S. Army",
@@ -274,7 +242,7 @@
       "startYear": 1968,
       "endYear": 1971,
       "current": false,
-      "description": "Served two tours in Vietnam. Earned Bronze Star for valor and Purple Heart. Led 12-man infantry squad through combat operations."
+      "description": "Served two tours in Vietnam. Earned Bronze Star and Purple Heart."
     }
   ],
   "education": [
@@ -283,12 +251,6 @@
       "degree": "Certificate",
       "field": "Law Enforcement",
       "year": 1973
-    },
-    {
-      "institution": "Indiana State University",
-      "degree": "Some College",
-      "field": "Criminal Justice",
-      "year": 1972
     }
   ],
   "certifications": [
@@ -305,7 +267,7 @@
       "company": "FEMA Region V",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "FEMA seeks a Director of Emergency Management to lead disaster preparedness and response operations across 6 Midwestern states. Requires 15+ years in emergency services or military leadership. Must demonstrate crisis coordination, inter-agency collaboration, and community resilience building. Experience with classified operations and government agencies preferred. Ability to remain calm under extreme pressure essential.",
+      "rawText": "FEMA seeks a Director of Emergency Management for 6 Midwestern states. Requires 15+ years in emergency services or military leadership. Must demonstrate crisis coordination and inter-agency collaboration. FEMA Professional Development Series certification required. Experience with WebEOC, GIS mapping, and federal grant administration mandatory. Must brief congressional committees quarterly. Budget authority: $200M.",
       "parsedSkills": [
         "Crisis Management",
         "Emergency Response",
@@ -315,7 +277,14 @@
         "Judgment and Decision Making",
         "Stress Tolerance",
         "Public Safety and Security",
-        "Administration and Management"
+        "Administration and Management",
+        "FEMA PDS Certification",
+        "WebEOC",
+        "GIS Emergency Mapping",
+        "Federal Grant Administration",
+        "Congressional Briefings",
+        "Continuity of Operations Planning",
+        "Mass Casualty Incident Management"
       ],
       "parsedRoles": [
         "Emergency Management Director",
@@ -332,17 +301,24 @@
       "company": "Tesla",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Tesla seeks a VP of Global Security to protect personnel, facilities, and intellectual property across 8 manufacturing sites worldwide. Requires military or law enforcement leadership background with crisis management expertise. Must build and lead a 200+ person security organization. Secret clearance required.",
+      "rawText": "Tesla seeks a VP of Global Security across 8 manufacturing sites worldwide. Requires military or law enforcement leadership with crisis management expertise. Must build 200+ person security organization. Experience with cybersecurity programs, executive protection, and international security operations required. ASIS CPP certification mandatory. Must manage SOC operations and implement AI-powered surveillance systems.",
       "parsedSkills": [
         "Team Leadership",
         "Crisis Management",
         "Law Enforcement Leadership",
         "Public Safety and Security",
         "Administration and Management",
-        "Monitoring",
         "Judgment and Decision Making",
         "Leadership",
-        "Persistence"
+        "Persistence",
+        "Cybersecurity Programs",
+        "Executive Protection",
+        "International Security Operations",
+        "ASIS CPP Certification",
+        "SOC Operations",
+        "AI Surveillance Systems",
+        "Travel Security Programs",
+        "Insider Threat Programs"
       ],
       "parsedRoles": [
         "Security Director",
@@ -359,17 +335,23 @@
       "company": "Marion County, IN",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Marion County seeks an experienced Sheriff to lead 1,200 sworn officers and 400 civilian staff. Requires law enforcement command experience, budget management, and community engagement skills. Must work with elected officials, courts, and federal agencies. Military service and crisis leadership experience strongly preferred.",
+      "rawText": "Marion County seeks Sheriff to lead 1,200 sworn officers and 400 civilian staff. Requires law enforcement command experience, budget management, and community engagement. Must work with elected officials, courts, and federal agencies. Experience with body-worn cameras, CompStat analytics, and community policing programs required. DEI training program development expected. Must manage $180M annual budget.",
       "parsedSkills": [
         "Law Enforcement Leadership",
         "Criminal Investigation",
         "Team Leadership",
         "Crisis Management",
         "Speaking",
-        "Persuasion",
         "Integrity",
         "Administration and Management",
-        "Law and Government"
+        "Law and Government",
+        "Social Perceptiveness",
+        "Body-Worn Camera Programs",
+        "CompStat Analytics",
+        "Community Policing",
+        "DEI Program Development",
+        "Media Relations",
+        "Union Negotiations"
       ],
       "parsedRoles": [
         "Police Chief"

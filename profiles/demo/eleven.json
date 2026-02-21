@@ -53,32 +53,12 @@
       "evidence": []
     },
     {
-      "name": "Sensory Perception",
-      "level": "Mastery",
-      "category": "unique",
-      "key": true,
-      "roles": [
-        "Research Scientist"
-      ],
-      "evidence": []
-    },
-    {
       "name": "Crisis Response",
       "level": "Expert",
       "category": "skill",
       "key": true,
       "roles": [
         "Crisis Intervention Specialist"
-      ],
-      "evidence": []
-    },
-    {
-      "name": "Threat Assessment",
-      "level": "Expert",
-      "category": "unique",
-      "key": true,
-      "roles": [
-        "Intelligence Analyst"
       ],
       "evidence": []
     },
@@ -171,14 +151,6 @@
       "evidence": []
     },
     {
-      "name": "Courage",
-      "level": "Mastery",
-      "category": "unique",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Resilience",
       "level": "Mastery",
       "category": "unique",
@@ -201,14 +173,6 @@
       "key": false,
       "roles": [],
       "evidence": []
-    },
-    {
-      "name": "Psychology",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
     }
   ],
   "workHistory": [
@@ -218,7 +182,7 @@
       "startYear": 1971,
       "endYear": 1983,
       "current": false,
-      "description": "Participated in Department of Energy classified sensory research program from birth. Demonstrated unprecedented capabilities in remote viewing, threat detection, and anomalous perception."
+      "description": "Participated in DOE classified sensory research program. Demonstrated unprecedented remote viewing and threat detection capabilities."
     },
     {
       "company": "Hawkins, IN",
@@ -226,7 +190,7 @@
       "startYear": 1983,
       "endYear": 1986,
       "current": false,
-      "description": "Independently led threat response operations during four major crisis events. Coordinated with civilian teams under extreme conditions with no formal training."
+      "description": "Led threat response during four major crisis events. Coordinated with civilian teams under extreme conditions."
     }
   ],
   "education": [
@@ -245,16 +209,22 @@
       "company": "Johns Hopkins University",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Johns Hopkins seeks a Research Associate for the Department of Neuroscience to study human sensory perception, remote sensing phenomena, and anomalous cognition. Background in experimental participation or cognitive science research valued. Must demonstrate extraordinary perception capabilities, analytical thinking, and willingness to work in laboratory environments. Non-traditional educational backgrounds considered.",
+      "rawText": "Johns Hopkins seeks a Research Associate for the Department of Neuroscience studying human sensory perception and anomalous cognition. Must demonstrate analytical thinking and willingness to work in laboratory environments. Bachelor's degree in neuroscience, psychology, or related field required. Experience with EEG/fMRI equipment, SPSS statistical analysis, and IRB protocol management mandatory. Must maintain detailed lab notebooks and contribute to publication pipeline.",
       "parsedSkills": [
-        "Sensory Perception",
         "Pattern Recognition",
         "Selective Attention",
-        "Psychology",
         "Active Learning",
         "Complex Problem Solving",
         "Persistence",
-        "Spatial Orientation"
+        "Spatial Orientation",
+        "Bachelor's Degree Required",
+        "EEG/fMRI Equipment",
+        "SPSS Statistical Analysis",
+        "IRB Protocol Management",
+        "Lab Notebook Documentation",
+        "Scientific Writing",
+        "Research Ethics Certification",
+        "Python Data Analysis"
       ],
       "parsedRoles": [
         "Research Scientist"
@@ -270,7 +240,7 @@
       "company": "SAMHSA",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "SAMHSA seeks Crisis Intervention Specialists for the 988 Suicide and Crisis Lifeline program. Requires extraordinary empathy, active listening, nonverbal communication awareness, and the ability to remain calm under extreme emotional pressure. Training provided for qualified candidates. Lived experience with trauma and resilience is valued. Must demonstrate genuine concern for others.",
+      "rawText": "SAMHSA seeks Crisis Intervention Specialists for the 988 Lifeline. Requires extraordinary empathy, active listening, and ability to remain calm under extreme emotional pressure. Training provided for qualified candidates. Lived experience with trauma valued. Must complete 200-hour certification program. Bilingual English/Spanish preferred. Must pass background check and maintain confidentiality standards.",
       "parsedSkills": [
         "Crisis Response",
         "Nonverbal Communication",
@@ -279,7 +249,12 @@
         "Stress Tolerance",
         "Active Learning",
         "Self-Control",
-        "Adaptability/Flexibility"
+        "Adaptability/Flexibility",
+        "Persistence",
+        "200-Hour Certification Program",
+        "Bilingual English/Spanish",
+        "Confidentiality Standards",
+        "De-escalation Techniques"
       ],
       "parsedRoles": [
         "Crisis Intervention Specialist"
@@ -295,16 +270,23 @@
       "company": "National Security Agency",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "NSA seeks Intelligence Analysts specializing in threat detection and pattern analysis. Must demonstrate exceptional pattern recognition, selective attention, and spatial reasoning capabilities. Requires ability to work under high-pressure classified environments. Non-traditional backgrounds considered for candidates demonstrating exceptional aptitude. TS/SCI clearance will be processed.",
+      "rawText": "NSA seeks Intelligence Analysts in threat detection and pattern analysis. Must demonstrate exceptional pattern recognition and selective attention. Requires ability to work in high-pressure classified environments. Bachelor's degree required. Must pass TS/SCI background investigation. Experience with Hadoop, Python, and machine learning frameworks required. Formal intelligence analysis training (Sherman Kent School or equivalent) mandatory. Must produce written intelligence products.",
       "parsedSkills": [
         "Pattern Recognition",
-        "Threat Assessment",
         "Selective Attention",
         "Spatial Orientation",
         "Problem Sensitivity",
         "Persistence",
         "Stress Tolerance",
-        "Self-Control"
+        "Self-Control",
+        "Bachelor's Degree Required",
+        "TS/SCI Clearance",
+        "Hadoop",
+        "Python",
+        "Machine Learning",
+        "Sherman Kent School Training",
+        "Intelligence Writing",
+        "Link Analysis Software"
       ],
       "parsedRoles": [
         "Intelligence Analyst"

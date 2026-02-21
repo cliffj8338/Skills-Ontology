@@ -7,7 +7,7 @@
     "roleLevel": "Senior",
     "email": "r.roy@waystar.com"
   },
-  "purpose": "To close deals, read rooms, and build the entertainment side of the empire that everyone else thinks is a joke \u2014 until the numbers come in.",
+  "purpose": "To close deals, read rooms, and build the entertainment side of the empire that everyone thinks is a joke \u2014 until the numbers come in.",
   "roles": [
     {
       "name": "VP Business Development"
@@ -21,22 +21,22 @@
   ],
   "values": [
     {
-      "text": "Closed $3B entertainment content deal with Indian media conglomerate after competitors failed",
+      "text": "Closed $3B entertainment deal with Indian media conglomerate after competitors failed",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Identified and developed emerging market opportunities generating $800M in new revenue streams",
+      "text": "Identified emerging market opportunities generating $800M in new revenue",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Managed operational turnaround of Waystar Parks division from -2% to +11% operating margin",
+      "text": "Managed operational turnaround of Waystar Parks from -2% to +11% operating margin",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Built relationships with 30+ international media executives enabling cross-border content licensing",
+      "text": "Built relationships with 30+ international media executives enabling cross-border licensing",
       "selected": true,
       "shared": true
     }
@@ -81,14 +81,6 @@
       "roles": [
         "COO"
       ],
-      "evidence": []
-    },
-    {
-      "name": "Relationship Building",
-      "level": "Expert",
-      "category": "unique",
-      "key": true,
-      "roles": [],
       "evidence": []
     },
     {
@@ -140,14 +132,6 @@
       "evidence": []
     },
     {
-      "name": "Judgment and Decision Making",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Oral Expression",
       "level": "Expert",
       "category": "ability",
@@ -166,30 +150,6 @@
     {
       "name": "Initiative",
       "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Achievement/Effort",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Stress Tolerance",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Self-Control",
-      "level": "Competent",
       "category": "workstyle",
       "key": false,
       "roles": [],
@@ -226,40 +186,32 @@
       "key": false,
       "roles": [],
       "evidence": []
-    },
-    {
-      "name": "Sales and Marketing",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
     }
   ],
   "workHistory": [
     {
       "company": "Waystar Royco",
-      "title": "Chief Operating Officer",
+      "title": "COO",
       "startYear": 2022,
       "endYear": 2023,
       "current": false,
-      "description": "Oversaw daily operations of $60B media conglomerate. Managed parks, entertainment, and international content divisions. Led operational turnaround of underperforming theme park assets."
+      "description": "Oversaw daily operations of $60B conglomerate. Led parks turnaround."
     },
     {
       "company": "Waystar Royco",
-      "title": "SVP Entertainment & Business Development",
+      "title": "SVP Entertainment & BizDev",
       "startYear": 2016,
       "endYear": 2022,
       "current": false,
-      "description": "Led international business development and entertainment content deals. Closed $3B Indian media partnership. Built relationships with emerging market media companies across Asia and Middle East."
+      "description": "International business development. Closed $3B Indian media partnership."
     },
     {
       "company": "Waystar Royco",
-      "title": "Management Trainee / Various Roles",
+      "title": "Management Trainee",
       "startYear": 2012,
       "endYear": 2016,
       "current": false,
-      "description": "Rotational program across parks, digital, and entertainment divisions. Developed operational knowledge across all Waystar business units."
+      "description": "Rotational program across parks, digital, and entertainment."
     }
   ],
   "education": [
@@ -278,17 +230,22 @@
       "company": "Netflix",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Netflix seeks a VP of Business Development to lead international content partnerships and licensing deals across emerging markets. Must combine entertainment industry expertise with deal-closing instincts and cross-cultural relationship skills. Requires track record of $500M+ deal value and comfort navigating ambiguous international business environments. Sense of humor and creative energy valued.",
+      "rawText": "Netflix seeks a VP of Business Development for international content partnerships. Must combine entertainment expertise with deal-closing instincts. Requires $500M+ deal experience. Must demonstrate content valuation methodology, data-driven deal analysis (SQL/Tableau), and understanding of AVOD/SVOD economics. International tax treaty knowledge preferred. Must manage team of 12 BD professionals.",
       "parsedSkills": [
         "Business Development",
         "Deal Negotiation",
         "Entertainment Industry",
-        "Relationship Building",
         "Persuasion",
         "Social Perceptiveness",
         "Communications and Media",
         "Adaptability/Flexibility",
-        "Speaking"
+        "Speaking",
+        "Negotiation",
+        "Content Valuation Methodology",
+        "SQL/Tableau",
+        "AVOD/SVOD Economics",
+        "International Tax Treaties",
+        "BD Team Management"
       ],
       "parsedRoles": [
         "VP Business Development",
@@ -305,15 +262,22 @@
       "company": "Universal Parks & Resorts",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Universal seeks a COO to manage daily operations of 4 theme park resorts generating $8B in annual revenue. Requires operational turnaround experience, entertainment industry knowledge, and ability to manage 50,000+ employees. Must balance creative vision with financial discipline. International operations experience preferred.",
+      "rawText": "Universal seeks a COO for 4 theme park resorts generating $8B annual revenue. Requires operational turnaround experience and entertainment knowledge. Must manage 50,000+ employees across 4 countries. Experience with ride engineering oversight, guest experience analytics, and labor union negotiations required. Must implement dynamic pricing systems and sustainability programs. Engineering or operations degree preferred.",
       "parsedSkills": [
         "Operations Management",
         "Entertainment Industry",
         "Business Development",
         "Administration and Management",
-        "Judgment and Decision Making",
         "Complex Problem Solving",
-        "Economics and Accounting"
+        "Economics and Accounting",
+        "Creativity",
+        "Ride Engineering Oversight",
+        "Guest Experience Analytics",
+        "Labor Union Negotiations",
+        "Dynamic Pricing Systems",
+        "Sustainability Programs",
+        "Operations Degree",
+        "Multi-Country Operations"
       ],
       "parsedRoles": [
         "COO",
@@ -330,16 +294,21 @@
       "company": "Spotify",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Spotify seeks a Head of Content Acquisitions to negotiate podcast and music licensing deals globally. Must be charismatic, creative, and relentless in dealmaking. Requires $100M+ deal experience and ability to build relationships with talent and media companies. Entertainment industry background and international business experience essential.",
+      "rawText": "Spotify seeks Head of Content Acquisitions for podcast and music licensing globally. Must be charismatic and relentless in dealmaking. Requires $100M+ deal experience. Must understand music royalty structures, podcast advertising models, and creator compensation frameworks. Experience with SAG-AFTRA and ASCAP/BMI licensing required. Must build relationships with talent agencies (CAA, WME, UTA).",
       "parsedSkills": [
         "Deal Negotiation",
-        "Relationship Building",
-        "Entertainment Industry",
         "Persuasion",
+        "Entertainment Industry",
         "Oral Expression",
         "Fluency of Ideas",
         "Creativity",
-        "Sales and Marketing"
+        "Social Perceptiveness",
+        "Music Royalty Structures",
+        "Podcast Advertising Models",
+        "Creator Compensation Frameworks",
+        "SAG-AFTRA/ASCAP/BMI Licensing",
+        "Talent Agency Relationships",
+        "Audio Content Strategy"
       ],
       "parsedRoles": [
         "VP Business Development"

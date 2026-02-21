@@ -61,9 +61,9 @@
     {
       "id": "steve-harrington",
       "name": "Steve Harrington",
-      "title": "Senior Associate, Scoops Ahoy / Family Video",
+      "title": "Senior Associate, Family Video",
       "path": "profiles/demo/steve-harrington.json",
-      "description": "To protect and mentor the people around me while figuring out what I actually want to be \u2014 turns out leadership finds yo...",
+      "description": "To protect and mentor the people around me while figuring out what I actually want to be \u2014 leadership finds you when you...",
       "enabled": true
     },
     {
@@ -103,7 +103,7 @@
       "name": "Siobhan \"Shiv\" Roy",
       "title": "Senior Political Advisor & Corporate Strategist",
       "path": "profiles/demo/shiv-roy.json",
-      "description": "To wield strategic influence at the intersection of politics, media, and corporate power \u2014 on my own terms, not my famil...",
+      "description": "To wield strategic influence at the intersection of politics, media, and corporate power \u2014 on my own terms.",
       "enabled": true
     },
     {
@@ -111,7 +111,7 @@
       "name": "Roman Roy",
       "title": "COO, Waystar Royco",
       "path": "profiles/demo/roman-roy.json",
-      "description": "To close deals, read rooms, and build the entertainment side of the empire that everyone else thinks is a joke \u2014 until t...",
+      "description": "To close deals, read rooms, and build the entertainment side of the empire that everyone thinks is a joke \u2014 until the nu...",
       "enabled": true
     },
     {

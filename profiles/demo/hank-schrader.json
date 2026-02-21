@@ -26,7 +26,7 @@
       "shared": true
     },
     {
-      "text": "Promoted to Assistant Special Agent in Charge (ASAC) after 16 years of distinguished service",
+      "text": "Promoted to Assistant Special Agent in Charge after 16 years of distinguished service",
       "selected": true,
       "shared": true
     },
@@ -181,14 +181,6 @@
       "evidence": []
     },
     {
-      "name": "Persuasion",
-      "level": "Advanced",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Persistence",
       "level": "Mastery",
       "category": "workstyle",
@@ -213,14 +205,6 @@
       "evidence": []
     },
     {
-      "name": "Self-Control",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Attention to Detail",
       "level": "Expert",
       "category": "workstyle",
@@ -230,14 +214,6 @@
     },
     {
       "name": "Initiative",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Achievement/Effort",
       "level": "Expert",
       "category": "workstyle",
       "key": false,
@@ -269,14 +245,6 @@
       "evidence": []
     },
     {
-      "name": "Psychology",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Administration and Management",
       "level": "Advanced",
       "category": "knowledge",
@@ -288,11 +256,11 @@
   "workHistory": [
     {
       "company": "Drug Enforcement Administration",
-      "title": "Assistant Special Agent in Charge (ASAC)",
+      "title": "ASAC",
       "startYear": 2006,
       "endYear": 2010,
       "current": false,
-      "description": "Directed field operations for DEA Albuquerque division. Led multi-agency task forces targeting cartel supply chains. Managed 30+ agents and $5M operational budget."
+      "description": "Directed field operations for DEA Albuquerque division. Led multi-agency task forces. Managed 30+ agents and $5M operational budget."
     },
     {
       "company": "Drug Enforcement Administration",
@@ -300,7 +268,7 @@
       "startYear": 1993,
       "endYear": 2006,
       "current": false,
-      "description": "Conducted undercover operations, managed confidential informants, and built complex cases resulting in 200+ arrests. Specialized in methamphetamine distribution networks."
+      "description": "Conducted undercover operations, managed informants, built complex cases resulting in 200+ arrests."
     }
   ],
   "education": [
@@ -309,12 +277,6 @@
       "degree": "B.S.",
       "field": "Criminal Justice",
       "year": 1992
-    },
-    {
-      "institution": "DEA Training Academy",
-      "degree": "Certificate",
-      "field": "Federal Law Enforcement",
-      "year": 1993
     }
   ],
   "certifications": [
@@ -322,11 +284,6 @@
       "name": "Federal Law Enforcement Officer Certification",
       "issuer": "FLETC",
       "year": 1993
-    },
-    {
-      "name": "Advanced Narcotics Investigation",
-      "issuer": "DEA Academy",
-      "year": 1999
     }
   ],
   "savedJobs": [
@@ -336,7 +293,7 @@
       "company": "Amazon",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Amazon seeks a Director of Corporate Investigations to lead a global team investigating fraud, theft, and security threats across fulfillment and logistics operations. Requires 15+ years in federal law enforcement or corporate investigations. Must demonstrate expertise in evidence analysis, team leadership, cross-functional coordination, and data-driven investigative techniques. Active TS/SCI clearance preferred.",
+      "rawText": "Amazon seeks a Director of Corporate Investigations to lead a global team investigating fraud, theft, and security threats across fulfillment and logistics. Requires 15+ years in federal law enforcement or corporate investigations. Must demonstrate evidence analysis, team leadership, and data-driven investigative techniques. Experience with e-discovery platforms, SQL data analysis, and corporate fraud schemes required. CFCE or CFE certification preferred. Must manage $15M department budget.",
       "parsedSkills": [
         "Criminal Investigation",
         "Evidence Analysis",
@@ -346,7 +303,13 @@
         "Coordination",
         "Administration and Management",
         "Attention to Detail",
-        "Judgment and Decision Making"
+        "Judgment and Decision Making",
+        "e-Discovery Platforms",
+        "SQL Data Analysis",
+        "Corporate Fraud Investigation",
+        "CFE Certification",
+        "Digital Forensics",
+        "Budget Management"
       ],
       "parsedRoles": [
         "Law Enforcement Director",
@@ -363,7 +326,7 @@
       "company": "Department of Homeland Security",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "DHS seeks an Intelligence Program Director to design and manage intelligence collection programs supporting counter-narcotics and border security operations. Requires 10+ years in intelligence analysis or federal law enforcement with supervisory experience. Must have expertise in surveillance, pattern analysis, inter-agency coordination, and classified information handling.",
+      "rawText": "DHS seeks an Intelligence Program Director to design intelligence collection programs supporting counter-narcotics and border security. Requires 10+ years in intelligence analysis or federal law enforcement with supervisory experience. Must have expertise in SIGINT analysis, cyber threat intelligence, and geospatial mapping tools. Active TS/SCI with polygraph required. Experience with Palantir, ArcGIS, and i2 Analyst Notebook mandatory.",
       "parsedSkills": [
         "Criminal Investigation",
         "Surveillance Operations",
@@ -373,7 +336,15 @@
         "Deductive Reasoning",
         "Law and Government",
         "Public Safety and Security",
-        "Coordination"
+        "Coordination",
+        "SIGINT Analysis",
+        "Cyber Threat Intelligence",
+        "Palantir",
+        "ArcGIS",
+        "i2 Analyst Notebook",
+        "Geospatial Analysis",
+        "TS/SCI Clearance",
+        "Congressional Briefings"
       ],
       "parsedRoles": [
         "Intelligence Analyst",
@@ -390,7 +361,7 @@
       "company": "Walmart",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Walmart seeks a VP of Security & Loss Prevention to protect $600B in annual revenue across 4,700+ US stores. Requires law enforcement or military leadership background with expertise in investigations, surveillance technology, and team management. Must build relationships with local and federal law enforcement agencies. Budget responsibility: $150M.",
+      "rawText": "Walmart seeks a VP of Security & Loss Prevention to protect $600B in annual revenue across 4,700+ US stores. Requires law enforcement or military background with investigation expertise. Must build 200+ person security organization. Experience with RFID inventory systems, AI video analytics, and retail shrink modeling required. Must manage $150M budget with full P&L responsibility. Board-level reporting and investor communication expected. Retail industry experience strongly preferred.",
       "parsedSkills": [
         "Team Leadership",
         "Surveillance Operations",
@@ -399,7 +370,15 @@
         "Public Safety and Security",
         "Social Perceptiveness",
         "Speaking",
-        "Persuasion"
+        "RFID Systems",
+        "AI Video Analytics",
+        "Retail Shrink Modeling",
+        "P&L Management",
+        "Board Reporting",
+        "Investor Communication",
+        "Retail Industry Experience",
+        "Vendor Security Programs",
+        "Global Security Operations"
       ],
       "parsedRoles": [
         "Corporate Security VP",

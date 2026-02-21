@@ -113,14 +113,6 @@
       "evidence": []
     },
     {
-      "name": "Creative Problem Solving",
-      "level": "Mastery",
-      "category": "unique",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Writing",
       "level": "Expert",
       "category": "skill",
@@ -225,22 +217,6 @@
       "evidence": []
     },
     {
-      "name": "Achievement/Effort",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Self-Control",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Law and Government",
       "level": "Expert",
       "category": "knowledge",
@@ -271,14 +247,6 @@
       "key": false,
       "roles": [],
       "evidence": []
-    },
-    {
-      "name": "Psychology",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
     }
   ],
   "workHistory": [
@@ -288,7 +256,7 @@
       "startYear": 2004,
       "endYear": 2009,
       "current": false,
-      "description": "Founded and operated high-volume legal practice specializing in personal injury and criminal defense. Pioneered direct-response TV advertising in Albuquerque market. Managed 3 associate attorneys and 5 support staff."
+      "description": "Founded and operated high-volume legal practice specializing in personal injury and criminal defense. Pioneered direct-response TV advertising."
     },
     {
       "company": "Hamlin, Hamlin & McGill",
@@ -296,7 +264,7 @@
       "startYear": 2001,
       "endYear": 2003,
       "current": false,
-      "description": "Contract legal work for prestigious firm. Handled document review, client intake, and case preparation for complex litigation."
+      "description": "Contract legal work for prestigious firm. Document review, client intake, and case preparation."
     },
     {
       "company": "Cicero Public Defender Office",
@@ -304,7 +272,7 @@
       "startYear": 1998,
       "endYear": 2001,
       "current": false,
-      "description": "Represented indigent clients in criminal proceedings. Handled 300+ cases including felony defense. Developed rapid case assessment and courtroom improvisation skills."
+      "description": "Represented indigent clients. Handled 300+ cases including felony defense."
     }
   ],
   "education": [
@@ -335,7 +303,7 @@
       "company": "Morgan & Morgan",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Morgan & Morgan seeks a VP of Legal Marketing to lead national brand strategy and client acquisition for America's largest personal injury firm. Must combine legal industry knowledge with innovative marketing strategy. Responsible for $50M marketing budget across TV, digital, and social channels. Requires JD or equivalent legal background plus 10+ years marketing leadership. Track record of building direct-response campaigns with measurable ROI required.",
+      "rawText": "Morgan & Morgan seeks a VP of Legal Marketing to lead national brand strategy and client acquisition. Must combine legal industry knowledge with innovative marketing. Responsible for $50M budget across TV, digital, and social. Requires JD plus 10+ years marketing leadership. Programmatic advertising and SEO/SEM expertise required. Must manage 3 agency relationships and demonstrate attribution modeling proficiency. Google Analytics 4 and Tableau required.",
       "parsedSkills": [
         "Marketing Strategy",
         "Client Acquisition",
@@ -345,8 +313,14 @@
         "Sales and Marketing",
         "Public Speaking",
         "Writing",
-        "Creative Problem Solving",
-        "Fluency of Ideas"
+        "Fluency of Ideas",
+        "Programmatic Advertising",
+        "SEO/SEM",
+        "Agency Management",
+        "Attribution Modeling",
+        "Google Analytics",
+        "Tableau",
+        "Social Media Strategy"
       ],
       "parsedRoles": [
         "Marketing Director",
@@ -363,7 +337,7 @@
       "company": "Edelman",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Edelman seeks a Crisis Communications Director to lead rapid-response teams for Fortune 500 clients facing legal, regulatory, and reputational challenges. Requires expertise in legal communications, media relations, and stakeholder management. Must thrive under extreme pressure with tight deadlines. JD preferred. 8+ years in crisis communications, public affairs, or litigation support.",
+      "rawText": "Edelman seeks a Crisis Communications Director to lead rapid-response teams for Fortune 500 clients facing legal, regulatory, and reputational challenges. Requires expertise in legal communications, media relations, and stakeholder management. JD preferred. 8+ years in crisis communications. Must have media training certification, social media monitoring tools expertise (Meltwater, Brandwatch), and ESG reporting experience. International crisis experience required.",
       "parsedSkills": [
         "Crisis Management",
         "Negotiation",
@@ -374,7 +348,14 @@
         "Stress Tolerance",
         "Adaptability/Flexibility",
         "Critical Thinking",
-        "Law and Government"
+        "Law and Government",
+        "Media Training Certification",
+        "Meltwater",
+        "Brandwatch",
+        "ESG Reporting",
+        "International Crisis Management",
+        "Bilingual Communications",
+        "Earned Media Strategy"
       ],
       "parsedRoles": [
         "Crisis Communications VP"
@@ -390,7 +371,7 @@
       "company": "Dollar Shave Club",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Dollar Shave Club seeks General Counsel to manage all legal affairs including consumer protection compliance, advertising review, IP, and vendor contracts. Requires creative approach to legal problem-solving and comfort with fast-paced DTC environment. JD with 7+ years experience in consumer law, advertising regulations, and contract negotiations.",
+      "rawText": "Dollar Shave Club seeks General Counsel to manage all legal affairs including consumer protection, advertising review, IP, and vendor contracts. Requires creative legal problem-solving in fast-paced DTC environment. JD with 7+ years in consumer law. Must have experience with FTC advertising compliance, patent prosecution, e-commerce regulations, data privacy (CCPA/GDPR), and subscription billing law. Corporate securities experience preferred.",
       "parsedSkills": [
         "Legal Knowledge",
         "Negotiation",
@@ -399,7 +380,14 @@
         "Critical Thinking",
         "Complex Problem Solving",
         "Customer and Personal Service",
-        "Initiative"
+        "Initiative",
+        "FTC Compliance",
+        "Patent Prosecution",
+        "E-Commerce Law",
+        "Data Privacy CCPA/GDPR",
+        "Subscription Billing Law",
+        "Corporate Securities",
+        "Vendor Contract Management"
       ],
       "parsedRoles": [
         "Attorney"

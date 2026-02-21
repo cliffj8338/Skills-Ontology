@@ -248,14 +248,6 @@
       "evidence": []
     },
     {
-      "name": "Integrity",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Administration and Management",
       "level": "Expert",
       "category": "knowledge",
@@ -294,14 +286,6 @@
       "key": false,
       "roles": [],
       "evidence": []
-    },
-    {
-      "name": "Public Safety and Security",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
     }
   ],
   "workHistory": [
@@ -311,7 +295,7 @@
       "startYear": 1989,
       "endYear": 2009,
       "current": false,
-      "description": "Founded and scaled fast-casual restaurant chain to 14 locations across New Mexico. Managed 200+ employees, vendor relationships, and real estate portfolio. Established charitable foundation for local hospitals."
+      "description": "Founded and scaled fast-casual restaurant chain to 14 locations across New Mexico. Managed 200+ employees, vendor relationships, and real estate portfolio."
     },
     {
       "company": "Madrigal Electromotive GmbH",
@@ -335,11 +319,6 @@
       "name": "ServSafe Food Protection Manager",
       "issuer": "National Restaurant Association",
       "year": 1990
-    },
-    {
-      "name": "Certified Franchise Executive",
-      "issuer": "IFA",
-      "year": 2001
     }
   ],
   "savedJobs": [
@@ -349,7 +328,7 @@
       "company": "Yum! Brands",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Yum! Brands seeks a VP of Operations to oversee 400+ quick-service restaurant locations across the Southwest region. Responsible for P&L management, supply chain optimization, multi-unit operational standards, food safety compliance, and regional expansion strategy. Requires 15+ years in restaurant operations with multi-unit leadership experience. Must demonstrate excellence in franchise operations, vendor negotiations, and team development. Bilingual English/Spanish strongly preferred.",
+      "rawText": "Yum! Brands seeks a VP of Operations to oversee 400+ quick-service restaurant locations across the Southwest region. Responsible for P&L management, supply chain optimization, multi-unit operational standards, food safety compliance, and regional expansion strategy. Requires 15+ years in restaurant operations with multi-unit leadership. Must demonstrate franchise operations expertise, vendor negotiations, and team development. Public company experience required. Digital ordering platform management and investor relations communication expected.",
       "parsedSkills": [
         "Operations Management",
         "Multi-Unit Management",
@@ -360,7 +339,12 @@
         "Quality Control Analysis",
         "Management of Personnel Resources",
         "Negotiation",
-        "Leadership"
+        "Leadership",
+        "Public Company Operations",
+        "Digital Platform Management",
+        "Investor Relations",
+        "Franchise Law",
+        "Real Estate Development"
       ],
       "parsedRoles": [
         "Restaurant Executive",
@@ -377,7 +361,7 @@
       "company": "Sysco Corporation",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Sysco seeks a SVP of Supply Chain & Logistics to lead distribution operations across 6 regional warehouses serving 12,000+ foodservice customers. Requires expertise in cold chain management, vendor negotiations, fleet logistics, and inventory optimization. Must have 12+ years supply chain leadership with food industry experience. Cross-border logistics experience and bilingual capabilities are a plus.",
+      "rawText": "Sysco seeks a SVP of Supply Chain & Logistics to lead distribution operations across 6 regional warehouses serving 12,000+ foodservice customers. Requires expertise in cold chain management, vendor negotiations, fleet logistics, and inventory optimization. Must have 12+ years supply chain leadership. SAP/Oracle ERP mastery required. AWS IoT fleet tracking experience preferred. APICS CSCP certification required. Must manage $200M budget and 2,000+ warehouse staff.",
       "parsedSkills": [
         "Supply Chain Management",
         "Operations Management",
@@ -388,7 +372,15 @@
         "Monitoring",
         "Transportation",
         "Financial Management",
-        "Judgment and Decision Making"
+        "Judgment and Decision Making",
+        "SAP ERP",
+        "Oracle Supply Chain Cloud",
+        "Cold Chain Certification",
+        "APICS CSCP",
+        "IoT Fleet Management",
+        "Warehouse Management Systems",
+        "Labor Union Relations",
+        "Sustainability Compliance"
       ],
       "parsedRoles": [
         "Supply Chain Director",
@@ -405,7 +397,7 @@
       "company": "Chipotle Mexican Grill",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Chipotle seeks a Franchise Development Director to identify and evaluate new market opportunities, negotiate real estate deals, and oversee new restaurant openings. Requires 8+ years in restaurant development or franchise operations with strong financial modeling skills. Must combine operational knowledge with community engagement and market analysis capabilities.",
+      "rawText": "Chipotle seeks a Franchise Development Director to identify new market opportunities, negotiate real estate deals, and oversee new restaurant openings. Requires 8+ years in restaurant development or franchise operations. Must have real estate negotiation expertise, construction project management, and zoning/permitting experience. Financial modeling with DCF and IRR analysis required. Legal contract review experience expected. Must present to board quarterly.",
       "parsedSkills": [
         "Strategic Planning",
         "Financial Management",
@@ -414,7 +406,14 @@
         "Customer and Personal Service",
         "Economics and Accounting",
         "Social Perceptiveness",
-        "Oral Expression"
+        "Oral Expression",
+        "Commercial Real Estate",
+        "Construction Project Management",
+        "Zoning and Permitting",
+        "DCF Financial Modeling",
+        "Legal Contract Review",
+        "Board Presentation",
+        "Market Research Analytics"
       ],
       "parsedRoles": [
         "Restaurant Executive"

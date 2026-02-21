@@ -21,22 +21,22 @@
   ],
   "values": [
     {
-      "text": "Led $5B acquisition of digital media startup Vaulter, positioning Waystar for digital transformation",
+      "text": "Led $5B acquisition of digital media startup Vaulter",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Developed streaming platform strategy projected to reach 50M subscribers within 3 years",
+      "text": "Developed streaming platform strategy projected to reach 50M subscribers",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Launched corporate venture arm investing $200M in emerging media technology companies",
+      "text": "Launched corporate venture arm investing $200M in emerging media tech",
       "selected": true,
       "shared": true
     },
     {
-      "text": "Orchestrated attempted management buyout valued at $60B, demonstrating deal structuring at scale",
+      "text": "Orchestrated attempted management buyout valued at $60B",
       "selected": true,
       "shared": true
     }
@@ -84,14 +84,6 @@
       "evidence": []
     },
     {
-      "name": "Venture Capital",
-      "level": "Advanced",
-      "category": "unique",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Public Speaking",
       "level": "Advanced",
       "category": "skill",
@@ -125,14 +117,6 @@
     },
     {
       "name": "Critical Thinking",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Judgment and Decision Making",
       "level": "Advanced",
       "category": "ability",
       "key": false,
@@ -188,22 +172,6 @@
       "evidence": []
     },
     {
-      "name": "Persistence",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Stress Tolerance",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
       "name": "Adaptability/Flexibility",
       "level": "Advanced",
       "category": "workstyle",
@@ -234,24 +202,16 @@
       "key": false,
       "roles": [],
       "evidence": []
-    },
-    {
-      "name": "Computers and Electronics",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
     }
   ],
   "workHistory": [
     {
       "company": "Waystar Royco",
-      "title": "Head of Corporate Strategy & Acquisitions",
+      "title": "Head of Corporate Strategy",
       "startYear": 2015,
       "endYear": 2023,
       "current": false,
-      "description": "Led all strategic initiatives including digital transformation, M&A pipeline, and corporate venture investments. Reported directly to CEO. Managed $200M venture fund and $5B acquisition portfolio."
+      "description": "Led strategic initiatives, M&A pipeline, and $200M venture fund."
     },
     {
       "company": "Waystar Royco",
@@ -259,7 +219,7 @@
       "startYear": 2010,
       "endYear": 2015,
       "current": false,
-      "description": "Built digital media division from scratch. Launched streaming platform. Identified and evaluated acquisition targets in digital media and technology sectors."
+      "description": "Built digital media division. Launched streaming platform."
     },
     {
       "company": "J.P. Morgan",
@@ -267,7 +227,7 @@
       "startYear": 2008,
       "endYear": 2010,
       "current": false,
-      "description": "Financial modeling, due diligence, and deal execution for media and telecom transactions. Worked on 8 completed transactions totaling $12B."
+      "description": "Financial modeling and deal execution for media transactions."
     }
   ],
   "education": [
@@ -292,7 +252,7 @@
       "company": "Paramount Global",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Paramount seeks a CSO to drive strategic transformation of the legacy media business for the streaming era. Must have deep M&A experience, digital platform strategy, and ability to evaluate build-vs-buy decisions for technology assets. Requires 10+ years in media strategy, investment banking, or corporate development. MBA preferred.",
+      "rawText": "Paramount seeks a CSO for strategic transformation in the streaming era. Must have deep M&A experience and digital platform strategy. Requires 10+ years in media strategy. Must demonstrate operational P&L ownership of $500M+ business, product management experience, and ability to lead cross-functional teams of 50+. International market expansion experience required.",
       "parsedSkills": [
         "Corporate Strategy",
         "Mergers & Acquisitions",
@@ -302,7 +262,12 @@
         "Communications and Media",
         "Economics and Accounting",
         "Complex Problem Solving",
-        "Negotiation"
+        "Negotiation",
+        "Operational P&L Ownership",
+        "Product Management",
+        "Cross-Functional Team Leadership",
+        "International Market Expansion",
+        "Board Presentation"
       ],
       "parsedRoles": [
         "Chief Strategy Officer"
@@ -318,7 +283,7 @@
       "company": "Goldman Sachs",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "Goldman Sachs seeks a Managing Director for its Technology, Media & Telecom investment banking practice. Requires deep sector relationships, $1B+ transaction experience, and ability to originate and execute complex M&A advisory mandates. 12+ years in investment banking, corporate development, or private equity required.",
+      "rawText": "Goldman Sachs seeks an MD for TMT investment banking. Requires deep sector relationships and $1B+ transaction experience. 12+ years in investment banking required. Must demonstrate personal deal origination of $500M+ annually, existing client relationships with Fortune 100 TMT companies, and ability to manage 20+ person team. Series 7, 63, and 79 licenses required.",
       "parsedSkills": [
         "Mergers & Acquisitions",
         "Financial Modeling",
@@ -328,7 +293,13 @@
         "Persuasion",
         "Speaking",
         "Writing",
-        "Achievement/Effort"
+        "Achievement/Effort",
+        "Personal Deal Origination Track Record",
+        "Fortune 100 Client Relationships",
+        "Series 7/63/79 Licenses",
+        "Team Management 20+",
+        "Pitch Book Development",
+        "LBO Modeling"
       ],
       "parsedRoles": [
         "Investment Banking MD"
@@ -344,17 +315,23 @@
       "company": "Andreessen Horowitz Portfolio",
       "sourceUrl": "",
       "sourceNote": "Sample job for demo",
-      "rawText": "a16z seeks an operating CEO for a Series B digital media startup with $50M in funding. Must combine media industry knowledge with technology vision and operational execution. Fundraising experience, product strategy, and team-building skills essential. Proven ability to navigate high-pressure environments and stakeholder management.",
+      "rawText": "a16z seeks an operating CEO for Series B digital media startup with $50M funding. Must combine media knowledge with technology execution. Must have shipped consumer-facing products, managed engineering teams, and led Series C+ fundraising. Experience with product analytics (Mixpanel/Amplitude), growth hacking, and CAC/LTV optimization required. Must build team from 30 to 150.",
       "parsedSkills": [
         "Digital Transformation",
-        "Venture Capital",
         "Strategic Planning",
         "Public Speaking",
         "Initiative",
-        "Computers and Electronics",
         "Communications and Media",
         "Fluency of Ideas",
-        "Adaptability/Flexibility"
+        "Adaptability/Flexibility",
+        "Consumer Product Shipping",
+        "Engineering Team Management",
+        "Series C Fundraising",
+        "Product Analytics",
+        "Growth Hacking",
+        "CAC/LTV Optimization",
+        "Scaling Team 30 to 150",
+        "Technical Recruiting"
       ],
       "parsedRoles": [
         "Tech Startup CEO"
