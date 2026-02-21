@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.27.2.9 | 20260221 | Fixed high-tier secondary overflow, non-user filler values for realism -->
+    <!-- v4.27.3.0 | 20260221 | Fixed values persistence bug: clear stale localStorage on profile switch -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -890,8 +890,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.27.2.9 - BUILD 20260221-values-fix
-        var BP_VERSION = 'v4.27.2.9';
+        // BLUEPRINT v4.27.3.0 - BUILD 20260221-values-persistence-fix
+        var BP_VERSION = 'v4.27.3.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -907,7 +907,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260221-values-fix                        ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260221-values-persistence-fix             ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -5524,11 +5524,19 @@
             // Inject sample jobs for manifest-loaded sample profiles (always refresh on load)
             // Skip if profile has curated jobs already
             var hasCuratedJobs = template.savedJobs && template.savedJobs.length > 0 && template.savedJobs[0].curated;
+            var isManifestProfile = false;
+            if (window.profilesManifest && window.profilesManifest.profiles) {
+                isManifestProfile = window.profilesManifest.profiles.some(function(p) { return p.id === templateId; });
+            }
+            
+            // CRITICAL: Clear stale localStorage values/purpose when switching demo profiles
+            // Otherwise inferValues() loads the PREVIOUS profile's cached values
+            if (isManifestProfile || templateId.indexOf('demo') !== -1 || templateId.indexOf('sample') !== -1) {
+                safeRemove('wbValues');
+                safeRemove('wbPurpose');
+            }
+            
             if (!hasCuratedJobs) {
-                var isManifestProfile = false;
-                if (window.profilesManifest && window.profilesManifest.profiles) {
-                    isManifestProfile = window.profilesManifest.profiles.some(function(p) { return p.id === templateId; });
-                }
                 if (isManifestProfile || templateId.indexOf('demo') !== -1 || templateId.indexOf('sample') !== -1) {
                     userData.savedJobs = getSampleJobsForProfile(templateId, template);
                 }
