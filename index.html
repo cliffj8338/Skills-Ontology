@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.19 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
+    <!-- v4.25.1.20 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4465,8 +4465,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.19 - BUILD 20260220-s14
-        var BP_VERSION = 'v4.25.1.19';
+        // BLUEPRINT v4.25.1.20 - BUILD 20260220-s14
+        var BP_VERSION = 'v4.25.1.20';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -8249,6 +8249,7 @@
             
             // Re-initialize views with new data
             if (typeof skillsData !== 'undefined') {
+                normalizeUserRoles();
                 skillsData.skills = userData.skills;
                 skillsData.roles = userData.roles;
             }
@@ -8701,7 +8702,7 @@
                 skillDetails: {},
                 values: template.values ? [...template.values] : [],
                 purpose: template.purpose || "",
-                roles: [...template.roles],
+                roles: [...template.roles].map(function(r) { if (!r.id) r.id = r.name; return r; }),
                 workHistory: template.workHistory ? JSON.parse(JSON.stringify(template.workHistory)) : [],
                 education: template.education ? JSON.parse(JSON.stringify(template.education)) : [],
                 certifications: template.certifications ? JSON.parse(JSON.stringify(template.certifications)) : [],
@@ -9940,6 +9941,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             closeWizard();
             // Re-initialize the app with new data
+            normalizeUserRoles();
             skillsData.skills = userData.skills || [];
             skillsData.roles = userData.roles || [];
             skillsData.skillDetails = {};
@@ -9959,8 +9961,26 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             switchView('network');
         }
         
+        // Normalize roles: ensure every role has id, color, and skills list
+        function normalizeUserRoles() {
+            var roleColors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#a855f7', '#ec4899', '#06b6d4', '#84cc16'];
+            (userData.roles || []).forEach(function(role, i) {
+                if (!role.id) role.id = role.name;
+                if (!role.color) role.color = roleColors[i % roleColors.length];
+                if (!role.skills) {
+                    role.skills = [];
+                    (userData.skills || []).forEach(function(s) {
+                        if (s.roles && (s.roles.indexOf(role.id) !== -1 || s.roles.indexOf(role.name) !== -1)) {
+                            if (role.skills.indexOf(s.name) === -1) role.skills.push(s.name);
+                        }
+                    });
+                }
+            });
+        }
+        
         // Initialize main app with user data
         function initializeMainApp() {
+            normalizeUserRoles();
             // Replace skillsData with userData
             skillsData.skills = userData.skills || [];
             skillsData.roles = userData.roles || skillsData.roles;
@@ -10057,8 +10077,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             skillsData.roles.forEach((role, i) => {
                 const angle = (i / skillsData.roles.length) * 2 * Math.PI;
                 const radius = (isMobile ? 120 : 200) * scaleFactor;
+                var roleId = role.id || role.name;
                 nodes.push({
-                    id: role.id,
+                    id: roleId,
                     name: role.name,
                     type: "role",
                     color: role.color,
@@ -10111,14 +10132,27 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Center to roles
             skillsData.roles.forEach(role => {
-                links.push({ source: "center", target: role.id, type: "role" });
+                links.push({ source: "center", target: role.id || role.name, type: "role" });
             });
+
+            // Build set of valid role node IDs for link validation
+            var validRoleIds = new Set();
+            skillsData.roles.forEach(role => { validRoleIds.add(role.id || role.name); });
 
             // Roles to skills
             skillsToShow.forEach((skill, i) => {
-                skill.roles.forEach(roleId => {
+                if (!skill.roles) return;
+                skill.roles.forEach(roleRef => {
+                    // roleRef could be an id or a name — check both
+                    var targetRole = roleRef;
+                    if (!validRoleIds.has(targetRole)) {
+                        // Try matching by name
+                        var match = skillsData.roles.find(r => r.name === roleRef || r.id === roleRef);
+                        if (match) targetRole = match.id || match.name;
+                        else return; // skip invalid role reference
+                    }
                     links.push({ 
-                        source: roleId, 
+                        source: targetRole, 
                         target: `skill-${i}`,
                         type: "skill"
                     });
@@ -10555,8 +10589,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             skillsData.roles.forEach(function(role, i) {
                 var angle = (i / skillsData.roles.length) * 2 * Math.PI;
                 var radius = (isMobile ? 110 : 180) * scaleFactor;
+                var roleId = role.id || role.name;
                 nodes.push({
-                    id: role.id, name: role.name, type: 'role', color: role.color, matchState: 'role',
+                    id: roleId, name: role.name, type: 'role', color: role.color, matchState: 'role',
                     x: width/2 + Math.cos(angle) * radius, y: centerY + Math.sin(angle) * radius
                 });
             });
@@ -10574,7 +10609,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var nodeIdx = 0;
             
             // Center → user roles
-            skillsData.roles.forEach(function(role) { links.push({ source: 'center', target: role.id, type: 'role' }); });
+            skillsData.roles.forEach(function(role) { links.push({ source: 'center', target: role.id || role.name, type: 'role' }); });
             // Center → job req role
             links.push({ source: 'center', target: 'role-job-req', type: 'role' });
             
@@ -19152,10 +19187,10 @@ body {
             // Prepare data
             const centerNode = { id: "center", name: userData.profile.name || "You", type: "center" };
             const roleNodes = skillsData.roles.map(role => ({
-                id: role.id,
+                id: role.id || role.name,
                 name: role.name,
                 type: "role",
-                skills: role.skills
+                skills: role.skills || []
             }));
             
             const skillNodes = skillsData.skills.map(skill => ({
