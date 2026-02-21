@@ -1,0 +1,413 @@
+{
+  "templateName": "Saul Goodman - Attorney & Marketing Strategist",
+  "profile": {
+    "name": "Saul Goodman",
+    "currentTitle": "Managing Attorney & Brand Strategist",
+    "location": "Albuquerque, NM",
+    "roleLevel": "Senior",
+    "email": "saul@bettercallsaul.com"
+  },
+  "purpose": "To provide creative legal solutions and brand-building expertise for clients who need unconventional approaches to complex problems.",
+  "roles": [
+    {
+      "name": "Attorney"
+    },
+    {
+      "name": "Marketing Director"
+    },
+    {
+      "name": "Crisis Communications VP"
+    }
+  ],
+  "values": [
+    {
+      "text": "Built solo law practice from zero to $1.2M annual billings through innovative direct-response marketing",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Achieved 78% case win rate in personal injury and criminal defense across 400+ cases",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Created advertising campaigns generating 10,000+ inbound leads per year on a $200K budget",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Negotiated plea deals saving clients a combined 200+ years of potential incarceration",
+      "selected": true,
+      "shared": true
+    }
+  ],
+  "skills": [
+    {
+      "name": "Legal Knowledge",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": true,
+      "roles": [
+        "Attorney"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Negotiation",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Attorney",
+        "Crisis Communications VP"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Persuasion",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Attorney",
+        "Marketing Director"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Marketing Strategy",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Marketing Director"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Crisis Management",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Crisis Communications VP"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Client Acquisition",
+      "level": "Mastery",
+      "category": "unique",
+      "key": true,
+      "roles": [
+        "Marketing Director"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Public Speaking",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Creative Problem Solving",
+      "level": "Mastery",
+      "category": "unique",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Writing",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Active Listening",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Speaking",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Social Perceptiveness",
+      "level": "Mastery",
+      "category": "ability",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Oral Expression",
+      "level": "Mastery",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Fluency of Ideas",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Complex Problem Solving",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Critical Thinking",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Judgment and Decision Making",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Adaptability/Flexibility",
+      "level": "Mastery",
+      "category": "workstyle",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Initiative",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persistence",
+      "level": "Mastery",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Stress Tolerance",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Achievement/Effort",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Self-Control",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Law and Government",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Communications and Media",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Customer and Personal Service",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Sales and Marketing",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Psychology",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    }
+  ],
+  "workHistory": [
+    {
+      "company": "Law Offices of Saul Goodman",
+      "title": "Managing Attorney",
+      "startYear": 2004,
+      "endYear": 2009,
+      "current": false,
+      "description": "Founded and operated high-volume legal practice specializing in personal injury and criminal defense. Pioneered direct-response TV advertising in Albuquerque market. Managed 3 associate attorneys and 5 support staff."
+    },
+    {
+      "company": "Hamlin, Hamlin & McGill",
+      "title": "Associate Attorney (contract)",
+      "startYear": 2001,
+      "endYear": 2003,
+      "current": false,
+      "description": "Contract legal work for prestigious firm. Handled document review, client intake, and case preparation for complex litigation."
+    },
+    {
+      "company": "Cicero Public Defender Office",
+      "title": "Assistant Public Defender",
+      "startYear": 1998,
+      "endYear": 2001,
+      "current": false,
+      "description": "Represented indigent clients in criminal proceedings. Handled 300+ cases including felony defense. Developed rapid case assessment and courtroom improvisation skills."
+    }
+  ],
+  "education": [
+    {
+      "institution": "University of American Samoa",
+      "degree": "J.D.",
+      "field": "Law",
+      "year": 1997
+    },
+    {
+      "institution": "University of Illinois at Chicago",
+      "degree": "B.A.",
+      "field": "Communications",
+      "year": 1992
+    }
+  ],
+  "certifications": [
+    {
+      "name": "New Mexico State Bar Membership",
+      "issuer": "NM Bar",
+      "year": 1998
+    }
+  ],
+  "savedJobs": [
+    {
+      "id": "sg-1",
+      "title": "VP of Legal Marketing",
+      "company": "Morgan & Morgan",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Morgan & Morgan seeks a VP of Legal Marketing to lead national brand strategy and client acquisition for America's largest personal injury firm. Must combine legal industry knowledge with innovative marketing strategy. Responsible for $50M marketing budget across TV, digital, and social channels. Requires JD or equivalent legal background plus 10+ years marketing leadership. Track record of building direct-response campaigns with measurable ROI required.",
+      "parsedSkills": [
+        "Marketing Strategy",
+        "Client Acquisition",
+        "Persuasion",
+        "Legal Knowledge",
+        "Communications and Media",
+        "Sales and Marketing",
+        "Public Speaking",
+        "Writing",
+        "Creative Problem Solving",
+        "Fluency of Ideas"
+      ],
+      "parsedRoles": [
+        "Marketing Director",
+        "Attorney"
+      ],
+      "seniority": "Senior",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "sg-2",
+      "title": "Crisis Communications Director",
+      "company": "Edelman",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Edelman seeks a Crisis Communications Director to lead rapid-response teams for Fortune 500 clients facing legal, regulatory, and reputational challenges. Requires expertise in legal communications, media relations, and stakeholder management. Must thrive under extreme pressure with tight deadlines. JD preferred. 8+ years in crisis communications, public affairs, or litigation support.",
+      "parsedSkills": [
+        "Crisis Management",
+        "Negotiation",
+        "Persuasion",
+        "Writing",
+        "Speaking",
+        "Social Perceptiveness",
+        "Stress Tolerance",
+        "Adaptability/Flexibility",
+        "Critical Thinking",
+        "Law and Government"
+      ],
+      "parsedRoles": [
+        "Crisis Communications VP"
+      ],
+      "seniority": "Senior",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "sg-3",
+      "title": "General Counsel - Consumer Brands",
+      "company": "Dollar Shave Club",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Dollar Shave Club seeks General Counsel to manage all legal affairs including consumer protection compliance, advertising review, IP, and vendor contracts. Requires creative approach to legal problem-solving and comfort with fast-paced DTC environment. JD with 7+ years experience in consumer law, advertising regulations, and contract negotiations.",
+      "parsedSkills": [
+        "Legal Knowledge",
+        "Negotiation",
+        "Law and Government",
+        "Writing",
+        "Critical Thinking",
+        "Complex Problem Solving",
+        "Customer and Personal Service",
+        "Initiative"
+      ],
+      "parsedRoles": [
+        "Attorney"
+      ],
+      "seniority": "Senior",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    }
+  ]
+}

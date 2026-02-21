@@ -1,0 +1,399 @@
+{
+  "templateName": "Tom Wambsgans - Media Operations & Compliance",
+  "profile": {
+    "name": "Tom Wambsgans",
+    "currentTitle": "CEO, Waystar Royco (Appointed)",
+    "location": "New York, NY",
+    "roleLevel": "Executive",
+    "email": "t.wambsgans@waystar.com"
+  },
+  "purpose": "To rise to the very top through relentless loyalty, operational competence, and the strategic patience to know when your moment has arrived.",
+  "roles": [
+    {
+      "name": "CEO"
+    },
+    {
+      "name": "SVP Network Operations"
+    },
+    {
+      "name": "Chief Compliance Officer"
+    }
+  ],
+  "values": [
+    {
+      "text": "Managed ATN news network to #1 cable news ratings for 8 consecutive quarters",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Led company through congressional investigation with zero criminal charges against executives",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Built compliance framework that survived DOJ scrutiny across 3 separate federal investigations",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Navigated corporate succession crisis to emerge as CEO \u2014 the ultimate organizational achievement",
+      "selected": true,
+      "shared": true
+    }
+  ],
+  "skills": [
+    {
+      "name": "Corporate Politics",
+      "level": "Mastery",
+      "category": "unique",
+      "key": true,
+      "roles": [
+        "CEO"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Operations Management",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "SVP Network Operations"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Regulatory Compliance",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Chief Compliance Officer"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Media Operations",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": true,
+      "roles": [
+        "SVP Network Operations"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Stakeholder Management",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "CEO"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Crisis Management",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Management of Personnel Resources",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Negotiation",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Social Perceptiveness",
+      "level": "Expert",
+      "category": "ability",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Judgment and Decision Making",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Speaking",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Active Listening",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persuasion",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Coordination",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Monitoring",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Dependability",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Achievement/Effort",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persistence",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Self-Control",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Stress Tolerance",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Adaptability/Flexibility",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Initiative",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Administration and Management",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Law and Government",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Communications and Media",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Personnel and Human Resources",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    }
+  ],
+  "workHistory": [
+    {
+      "company": "Waystar Royco",
+      "title": "CEO (Appointed by Board)",
+      "startYear": 2023,
+      "endYear": 2026,
+      "current": true,
+      "description": "Appointed CEO following Logan Roy's passing. Managed transition of power, stabilized stock price, and maintained board confidence during period of maximum corporate uncertainty."
+    },
+    {
+      "company": "Waystar Royco - ATN News",
+      "title": "President, ATN News Division",
+      "startYear": 2020,
+      "endYear": 2023,
+      "current": false,
+      "description": "Led cable news network to #1 ratings. Managed 2,500 employees, $1.2B operating budget. Navigated multiple editorial controversies and FCC regulatory challenges."
+    },
+    {
+      "company": "Waystar Royco",
+      "title": "SVP, Parks & Cruises Division",
+      "startYear": 2016,
+      "endYear": 2020,
+      "current": false,
+      "description": "Managed operations for theme parks and cruise line division generating $4B annual revenue. Led compliance overhaul after congressional investigation into company practices."
+    },
+    {
+      "company": "Accenture",
+      "title": "Senior Manager, Media & Entertainment",
+      "startYear": 2010,
+      "endYear": 2016,
+      "current": false,
+      "description": "Consulting engagements for major media companies on operational transformation, compliance frameworks, and organizational restructuring."
+    }
+  ],
+  "education": [
+    {
+      "institution": "University of Minnesota",
+      "degree": "B.S.",
+      "field": "Business Administration",
+      "year": 2008
+    },
+    {
+      "institution": "Georgetown University",
+      "degree": "J.D.",
+      "field": "Law (Evening Program)",
+      "year": 2014
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Certified Compliance & Ethics Professional",
+      "issuer": "SCCE",
+      "year": 2017
+    }
+  ],
+  "savedJobs": [
+    {
+      "id": "tw-1",
+      "title": "CEO - Media Company",
+      "company": "iHeartMedia",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "iHeartMedia board seeks a CEO to lead the nation's largest radio and podcast company through digital transformation. Must demonstrate corporate governance experience, media operations expertise, and ability to manage complex stakeholder relationships including talent, advertisers, and regulators. Requires executive leadership in media with experience navigating corporate politics at the highest levels.",
+      "parsedSkills": [
+        "Corporate Politics",
+        "Operations Management",
+        "Media Operations",
+        "Stakeholder Management",
+        "Management of Personnel Resources",
+        "Communications and Media",
+        "Administration and Management",
+        "Negotiation",
+        "Judgment and Decision Making"
+      ],
+      "parsedRoles": [
+        "CEO",
+        "SVP Network Operations"
+      ],
+      "seniority": "Executive",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "tw-2",
+      "title": "Chief Compliance Officer",
+      "company": "Fox Corporation",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Fox Corporation seeks a CCO to build and lead enterprise-wide compliance program across news, entertainment, and sports divisions. Must have JD with regulatory expertise, media industry knowledge, and ability to manage relationships with DOJ, FCC, and SEC. Crisis management experience during federal investigations strongly preferred.",
+      "parsedSkills": [
+        "Regulatory Compliance",
+        "Crisis Management",
+        "Law and Government",
+        "Stakeholder Management",
+        "Administration and Management",
+        "Monitoring",
+        "Self-Control",
+        "Active Listening",
+        "Dependability"
+      ],
+      "parsedRoles": [
+        "Chief Compliance Officer"
+      ],
+      "seniority": "Executive",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "tw-3",
+      "title": "General Manager - Cable Network",
+      "company": "CNN",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "CNN seeks a General Manager to oversee daily operations of the cable news network. Requires media operations experience, editorial judgment, and ability to manage large teams under 24/7 news cycle pressure. Must balance ratings performance with journalistic standards. Experience in corporate communications and regulatory affairs valued.",
+      "parsedSkills": [
+        "Media Operations",
+        "Operations Management",
+        "Management of Personnel Resources",
+        "Communications and Media",
+        "Coordination",
+        "Stress Tolerance",
+        "Persistence",
+        "Speaking"
+      ],
+      "parsedRoles": [
+        "SVP Network Operations"
+      ],
+      "seniority": "Senior",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    }
+  ]
+}

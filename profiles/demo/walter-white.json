@@ -1,0 +1,491 @@
+{
+  "templateName": "Walter White - Chemistry Educator & Researcher",
+  "profile": {
+    "name": "Walter White",
+    "currentTitle": "Chemistry Educator & Researcher",
+    "location": "Albuquerque, NM",
+    "roleLevel": "Senior",
+    "email": "wwhite@jpwynne.edu"
+  },
+  "purpose": "To leverage deep chemistry expertise and decades of education experience to advance scientific understanding and mentor the next generation of researchers.",
+  "roles": [
+    {
+      "name": "Chemistry Professor"
+    },
+    {
+      "name": "Research Scientist"
+    },
+    {
+      "name": "Laboratory Director"
+    }
+  ],
+  "values": [
+    {
+      "text": "Co-founded Gray Matter Technologies, contributing to foundational research valued at $2.16 billion",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Maintained 99.1% purity standards in chemical synthesis processes across 20+ years",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Achieved highest AP Chemistry pass rate in New Mexico public schools for 8 consecutive years",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Published 14 peer-reviewed papers in crystallography and organic chemistry",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Built and managed multi-million dollar production operations with zero quality defects",
+      "selected": true,
+      "shared": true
+    }
+  ],
+  "skills": [
+    {
+      "name": "Chemistry",
+      "level": "Mastery",
+      "category": "knowledge",
+      "key": true,
+      "roles": [
+        "Chemistry Professor",
+        "Research Scientist"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Organic Chemistry",
+      "level": "Mastery",
+      "category": "knowledge",
+      "key": true,
+      "roles": [
+        "Research Scientist"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Crystallography",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": true,
+      "roles": [
+        "Research Scientist"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Laboratory Safety",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [
+        "Laboratory Director"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Chemical Process Engineering",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Laboratory Director"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Science Education",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Chemistry Professor"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Instructing",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [
+        "Chemistry Professor"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Curriculum Development",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [
+        "Chemistry Professor"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Research Methodology",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Research Scientist"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Quality Control Analysis",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Laboratory Director"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Complex Problem Solving",
+      "level": "Mastery",
+      "category": "ability",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Critical Thinking",
+      "level": "Expert",
+      "category": "ability",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Deductive Reasoning",
+      "level": "Mastery",
+      "category": "ability",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Inductive Reasoning",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Mathematical Reasoning",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Written Comprehension",
+      "level": "Advanced",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Oral Expression",
+      "level": "Advanced",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Operations Analysis",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Equipment Maintenance",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Science",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Active Learning",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Attention to Detail",
+      "level": "Mastery",
+      "category": "workstyle",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Analytical Thinking",
+      "level": "Mastery",
+      "category": "workstyle",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Achievement/Effort",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persistence",
+      "level": "Mastery",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Stress Tolerance",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Initiative",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Leadership",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Adaptability/Flexibility",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Integrity",
+      "level": "Competent",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Production and Processing",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Mathematics",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Education and Training",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Physics",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Administration and Management",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    }
+  ],
+  "workHistory": [
+    {
+      "company": "J.P. Wynne High School",
+      "title": "Chemistry Teacher",
+      "startYear": 1991,
+      "endYear": 2008,
+      "current": false,
+      "description": "Taught AP and honors chemistry to 150+ students annually. Developed hands-on laboratory curriculum. Mentored science fair participants to state-level competition."
+    },
+    {
+      "company": "Gray Matter Technologies",
+      "title": "Co-Founder & Research Lead",
+      "startYear": 1985,
+      "endYear": 1987,
+      "current": false,
+      "description": "Co-founded biotech startup. Led crystallography research that formed the intellectual foundation for a multi-billion dollar company."
+    },
+    {
+      "company": "Sandia National Laboratories",
+      "title": "Research Chemist",
+      "startYear": 1983,
+      "endYear": 1985,
+      "current": false,
+      "description": "Conducted classified chemical research. Published peer-reviewed papers on X-ray crystallography and molecular bonding."
+    }
+  ],
+  "education": [
+    {
+      "institution": "California Institute of Technology",
+      "degree": "Ph.D.",
+      "field": "Chemistry",
+      "year": 1983
+    },
+    {
+      "institution": "California Institute of Technology",
+      "degree": "B.S.",
+      "field": "Chemistry",
+      "year": 1978
+    }
+  ],
+  "certifications": [
+    {
+      "name": "New Mexico Teaching License - Secondary Science",
+      "issuer": "NM PED",
+      "year": 1991
+    },
+    {
+      "name": "DEA Laboratory Certification",
+      "issuer": "DEA",
+      "year": 1984
+    }
+  ],
+  "savedJobs": [
+    {
+      "id": "ww-1",
+      "title": "Professor of Chemistry",
+      "company": "University of New Mexico",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "The University of New Mexico seeks a tenured Professor of Chemistry to lead undergraduate and graduate instruction in organic chemistry and crystallography. The ideal candidate holds a Ph.D. in Chemistry with 10+ years of teaching experience, a strong publication record, and demonstrated excellence in laboratory-based pedagogy. Responsibilities include curriculum development, graduate student mentorship, grant writing, and maintaining active research in chemical synthesis or materials science. Experience with AP-level preparation and public science outreach preferred.",
+      "parsedSkills": [
+        "Chemistry",
+        "Organic Chemistry",
+        "Crystallography",
+        "Science Education",
+        "Instructing",
+        "Research Methodology",
+        "Curriculum Development",
+        "Critical Thinking",
+        "Written Comprehension",
+        "Active Learning",
+        "Mathematics",
+        "Physics"
+      ],
+      "parsedRoles": [
+        "Chemistry Professor",
+        "Research Scientist"
+      ],
+      "seniority": "Senior",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "ww-2",
+      "title": "Director of Pharmaceutical R&D",
+      "company": "Pfizer Inc.",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Pfizer seeks a Director of Pharmaceutical Research & Development to oversee chemical synthesis programs and lead a team of 25 research scientists. Requires Ph.D. in Chemistry or Chemical Engineering with expertise in process chemistry, quality control, and GMP compliance. Must demonstrate mastery of organic synthesis, analytical methods, and scale-up from bench to production. 15+ years in pharmaceutical or chemical research required. Strong publication record and patent portfolio preferred.",
+      "parsedSkills": [
+        "Chemistry",
+        "Chemical Process Engineering",
+        "Quality Control Analysis",
+        "Research Methodology",
+        "Operations Analysis",
+        "Laboratory Safety",
+        "Production and Processing",
+        "Complex Problem Solving",
+        "Leadership",
+        "Attention to Detail",
+        "Analytical Thinking"
+      ],
+      "parsedRoles": [
+        "Research Scientist",
+        "Laboratory Director"
+      ],
+      "seniority": "Senior",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "ww-3",
+      "title": "Chemical Process Consultant",
+      "company": "McKinsey & Company",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "McKinsey seeks a Chemical Process Consultant to advise pharmaceutical and specialty chemical clients on production optimization, yield improvement, and quality systems. Requires advanced degree in Chemistry or Chemical Engineering with hands-on production experience. Must combine deep technical expertise with client-facing communication skills. Travel 60-80%. Experience in process scale-up, Six Sigma, and regulatory compliance preferred.",
+      "parsedSkills": [
+        "Chemistry",
+        "Chemical Process Engineering",
+        "Quality Control Analysis",
+        "Operations Analysis",
+        "Complex Problem Solving",
+        "Critical Thinking",
+        "Oral Expression",
+        "Administration and Management",
+        "Production and Processing"
+      ],
+      "parsedRoles": [
+        "Laboratory Director"
+      ],
+      "seniority": "Mid-Senior",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    }
+  ]
+}

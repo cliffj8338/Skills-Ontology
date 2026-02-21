@@ -1,0 +1,376 @@
+{
+  "templateName": "Siobhan \"Shiv\" Roy - Political Strategist & Consultant",
+  "profile": {
+    "name": "Siobhan \"Shiv\" Roy",
+    "currentTitle": "Senior Political Advisor & Corporate Strategist",
+    "location": "Washington, DC / New York, NY",
+    "roleLevel": "Senior",
+    "email": "s.roy@waystar.com"
+  },
+  "purpose": "To wield strategic influence at the intersection of politics, media, and corporate power \u2014 on my own terms, not my family's.",
+  "roles": [
+    {
+      "name": "Chief Strategy Officer"
+    },
+    {
+      "name": "Political Campaign Director"
+    },
+    {
+      "name": "Management Consultant"
+    }
+  ],
+  "values": [
+    {
+      "text": "Served as senior advisor on presidential primary campaign, managing debate prep and policy communications",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Negotiated regulatory settlements saving Waystar Royco $2B in potential fines through political relationships",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Built bipartisan stakeholder coalition that defeated hostile legislation threatening media industry",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Designed internal restructuring plan cutting $500M in corporate overhead while preserving editorial independence",
+      "selected": true,
+      "shared": true
+    }
+  ],
+  "skills": [
+    {
+      "name": "Political Strategy",
+      "level": "Expert",
+      "category": "unique",
+      "key": true,
+      "roles": [
+        "Political Campaign Director"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Corporate Strategy",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Chief Strategy Officer"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Stakeholder Management",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Chief Strategy Officer"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Communications Strategy",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Political Campaign Director"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Negotiation",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Public Speaking",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Writing",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persuasion",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Critical Thinking",
+      "level": "Expert",
+      "category": "ability",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Social Perceptiveness",
+      "level": "Mastery",
+      "category": "ability",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Complex Problem Solving",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Judgment and Decision Making",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Speaking",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Active Listening",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Coordination",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Achievement/Effort",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Initiative",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Stress Tolerance",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Self-Control",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Adaptability/Flexibility",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Analytical Thinking",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Law and Government",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Administration and Management",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Communications and Media",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Psychology",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    }
+  ],
+  "workHistory": [
+    {
+      "company": "Waystar Royco",
+      "title": "Senior Strategic Advisor",
+      "startYear": 2021,
+      "endYear": 2023,
+      "current": false,
+      "description": "Advised C-suite on regulatory strategy, political risk, and corporate communications. Led government affairs during congressional investigations."
+    },
+    {
+      "company": "Gil Eavis Presidential Campaign",
+      "title": "Senior Campaign Advisor",
+      "startYear": 2019,
+      "endYear": 2020,
+      "current": false,
+      "description": "Managed debate preparation, policy communications, and stakeholder relations for Democratic primary candidate. Coordinated with Super PAC and media strategy teams."
+    },
+    {
+      "company": "Senator Joyce Miller (D-NY)",
+      "title": "Chief of Staff",
+      "startYear": 2015,
+      "endYear": 2019,
+      "current": false,
+      "description": "Managed 45-person office, legislative strategy, and constituent services. Led policy development on media regulation and tech antitrust."
+    }
+  ],
+  "education": [
+    {
+      "institution": "Yale University",
+      "degree": "B.A.",
+      "field": "Political Science",
+      "year": 2012
+    },
+    {
+      "institution": "London School of Economics",
+      "degree": "M.Sc.",
+      "field": "Political Communications",
+      "year": 2014
+    }
+  ],
+  "certifications": [],
+  "savedJobs": [
+    {
+      "id": "sr-1",
+      "title": "Chief Strategy Officer",
+      "company": "The Walt Disney Company",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Disney seeks a CSO to drive corporate strategy across entertainment, parks, streaming, and consumer products. Must navigate regulatory environments, political relationships, and complex stakeholder dynamics. Requires policy expertise, M&A evaluation capability, and boardroom-level communication. 12+ years in corporate strategy, consulting, or political affairs at senior levels.",
+      "parsedSkills": [
+        "Corporate Strategy",
+        "Stakeholder Management",
+        "Political Strategy",
+        "Negotiation",
+        "Communications Strategy",
+        "Administration and Management",
+        "Law and Government",
+        "Persuasion",
+        "Critical Thinking"
+      ],
+      "parsedRoles": [
+        "Chief Strategy Officer"
+      ],
+      "seniority": "Executive",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "sr-2",
+      "title": "Partner - Government & Public Sector",
+      "company": "McKinsey & Company",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "McKinsey seeks a Partner for its Government & Public Sector practice. Requires deep political expertise, C-suite advisory experience, and ability to navigate regulatory complexity for Fortune 100 clients. Must generate $15M+ in annual billings. Experience on political campaigns or in senior government roles highly valued.",
+      "parsedSkills": [
+        "Political Strategy",
+        "Corporate Strategy",
+        "Communications Strategy",
+        "Negotiation",
+        "Social Perceptiveness",
+        "Public Speaking",
+        "Writing",
+        "Analytical Thinking",
+        "Psychology"
+      ],
+      "parsedRoles": [
+        "Management Consultant"
+      ],
+      "seniority": "Senior",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "sr-3",
+      "title": "VP of Government Affairs",
+      "company": "Meta Platforms",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Meta seeks a VP of Government Affairs to lead US regulatory strategy and political engagement across Congress, FTC, FCC, and state legislatures. Must build bipartisan relationships, manage crisis communications, and develop proactive policy positions. Requires 10+ years in government relations, political campaigns, or regulatory affairs.",
+      "parsedSkills": [
+        "Political Strategy",
+        "Stakeholder Management",
+        "Communications Strategy",
+        "Public Speaking",
+        "Persuasion",
+        "Law and Government",
+        "Coordination",
+        "Adaptability/Flexibility",
+        "Stress Tolerance"
+      ],
+      "parsedRoles": [
+        "Political Campaign Director",
+        "Chief Strategy Officer"
+      ],
+      "seniority": "Senior",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    }
+  ]
+}

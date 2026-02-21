@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.17 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
+    <!-- v4.25.1.18 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4465,8 +4465,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.17 - BUILD 20260220-s14
-        var BP_VERSION = 'v4.25.1.17';
+        // BLUEPRINT v4.25.1.18 - BUILD 20260220-s14
+        var BP_VERSION = 'v4.25.1.18';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -8727,12 +8727,16 @@
             };
             
             // Inject sample jobs for manifest-loaded sample profiles (always refresh on load)
-            var isManifestProfile = false;
-            if (window.profilesManifest && window.profilesManifest.profiles) {
-                isManifestProfile = window.profilesManifest.profiles.some(function(p) { return p.id === templateId; });
-            }
-            if (isManifestProfile || templateId.indexOf('demo') !== -1 || templateId.indexOf('sample') !== -1) {
-                userData.savedJobs = getSampleJobsForProfile(templateId, template);
+            // Skip if profile has curated jobs already
+            var hasCuratedJobs = template.savedJobs && template.savedJobs.length > 0 && template.savedJobs[0].curated;
+            if (!hasCuratedJobs) {
+                var isManifestProfile = false;
+                if (window.profilesManifest && window.profilesManifest.profiles) {
+                    isManifestProfile = window.profilesManifest.profiles.some(function(p) { return p.id === templateId; });
+                }
+                if (isManifestProfile || templateId.indexOf('demo') !== -1 || templateId.indexOf('sample') !== -1) {
+                    userData.savedJobs = getSampleJobsForProfile(templateId, template);
+                }
             }
             
             console.log('  → userData.skills[0] has evidence:', userData.skills[0].evidence ? `YES (${userData.skills[0].evidence.length} items)` : 'NO');

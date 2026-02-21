@@ -1,0 +1,350 @@
+{
+  "templateName": "Dustin Henderson - STEM Prodigy & Communicator",
+  "profile": {
+    "name": "Dustin Henderson",
+    "currentTitle": "Electronics Enthusiast & Science Club President",
+    "location": "Hawkins, IN",
+    "roleLevel": "Entry",
+    "email": "dustin.henderson@hawkins.edu"
+  },
+  "purpose": "To solve impossible problems through science, technology, and the power of friendship \u2014 preferably with a ham radio nearby.",
+  "roles": [
+    {
+      "name": "Software Engineer"
+    },
+    {
+      "name": "Research Scientist"
+    },
+    {
+      "name": "STEM Education Director"
+    }
+  ],
+  "values": [
+    {
+      "text": "Built long-range ham radio (Cerebro) capable of intercepting classified Soviet communications from 40+ miles",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Decoded complex cryptographic ciphers under time pressure using pattern analysis and linguistic logic",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Led Hawkins Middle AV Club to state science fair finals and regional robotics competition podium",
+      "selected": true,
+      "shared": true
+    }
+  ],
+  "skills": [
+    {
+      "name": "Electronics & Radio Systems",
+      "level": "Advanced",
+      "category": "unique",
+      "key": true,
+      "roles": [
+        "Software Engineer"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Cryptography",
+      "level": "Advanced",
+      "category": "unique",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Scientific Reasoning",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Research Scientist"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Complex Problem Solving",
+      "level": "Expert",
+      "category": "ability",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Pattern Recognition",
+      "level": "Expert",
+      "category": "ability",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Active Learning",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Critical Thinking",
+      "level": "Advanced",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Deductive Reasoning",
+      "level": "Advanced",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Inductive Reasoning",
+      "level": "Advanced",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Speaking",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Oral Expression",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persuasion",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Fluency of Ideas",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Information Ordering",
+      "level": "Advanced",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Cooperation",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persistence",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Curiosity",
+      "level": "Mastery",
+      "category": "unique",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Initiative",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Adaptability/Flexibility",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Achievement/Effort",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Telecommunications",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Computers and Electronics",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Mathematics",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Physics",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    }
+  ],
+  "workHistory": [
+    {
+      "company": "Hawkins Middle School AV Club",
+      "title": "President",
+      "startYear": 1983,
+      "endYear": 1985,
+      "current": false,
+      "description": "Led 8-member audiovisual and electronics club. Built custom radio equipment, organized science demonstrations, and coordinated school technology support."
+    },
+    {
+      "company": "Independent Projects",
+      "title": "Electronics Builder",
+      "startYear": 1982,
+      "endYear": 1986,
+      "current": true,
+      "description": "Designed and constructed long-range radio transceiver (Cerebro). Decoded encrypted communications. Built and maintained ham radio network connecting team across Hawkins."
+    }
+  ],
+  "education": [
+    {
+      "institution": "Hawkins High School",
+      "degree": "In Progress",
+      "field": "Science & Technology Track",
+      "year": 1986
+    }
+  ],
+  "certifications": [
+    {
+      "name": "FCC Amateur Radio License (General)",
+      "issuer": "FCC",
+      "year": 1984
+    }
+  ],
+  "savedJobs": [
+    {
+      "id": "dh-1",
+      "title": "Junior Software Engineer",
+      "company": "MIT Lincoln Laboratory",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "MIT Lincoln Labs seeks a Junior Software Engineer for signal processing and communications research. Must demonstrate aptitude in electronics, radio systems, and computational problem-solving. Candidates with hands-on hardware experience and self-directed projects valued. Strong communication skills essential for collaborative research environment. Degree in progress or equivalent project portfolio accepted.",
+      "parsedSkills": [
+        "Electronics & Radio Systems",
+        "Complex Problem Solving",
+        "Scientific Reasoning",
+        "Computers and Electronics",
+        "Telecommunications",
+        "Mathematics",
+        "Critical Thinking",
+        "Cooperation",
+        "Active Learning"
+      ],
+      "parsedRoles": [
+        "Software Engineer",
+        "Research Scientist"
+      ],
+      "seniority": "Entry",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "dh-2",
+      "title": "Cryptanalyst",
+      "company": "National Security Agency",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "NSA seeks entry-level Cryptanalysts with demonstrated aptitude in pattern recognition, code-breaking, and mathematical reasoning. Must show history of independent cryptographic work and creative problem-solving under pressure. Strong communication skills required. Non-traditional educational backgrounds considered for exceptional candidates.",
+      "parsedSkills": [
+        "Cryptography",
+        "Pattern Recognition",
+        "Deductive Reasoning",
+        "Inductive Reasoning",
+        "Mathematics",
+        "Information Ordering",
+        "Persistence",
+        "Complex Problem Solving"
+      ],
+      "parsedRoles": [
+        "Research Scientist"
+      ],
+      "seniority": "Entry",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "dh-3",
+      "title": "STEM Education Program Director",
+      "company": "Smithsonian Institution",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "The Smithsonian seeks a STEM Education Program Director to design hands-on science and technology experiences for K-12 students. Must combine deep STEM knowledge with exceptional communication and enthusiasm. Ability to make complex concepts accessible and exciting for young audiences essential. Portfolio of educational projects required.",
+      "parsedSkills": [
+        "Scientific Reasoning",
+        "Speaking",
+        "Active Learning",
+        "Oral Expression",
+        "Fluency of Ideas",
+        "Cooperation",
+        "Initiative",
+        "Computers and Electronics",
+        "Physics"
+      ],
+      "parsedRoles": [
+        "STEM Education Director"
+      ],
+      "seniority": "Entry-Mid",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    }
+  ]
+}

@@ -1,0 +1,368 @@
+{
+  "templateName": "Kendall Roy - Corporate Strategy & Acquisitions",
+  "profile": {
+    "name": "Kendall Roy",
+    "currentTitle": "Head of Corporate Strategy, Waystar Royco",
+    "location": "New York, NY",
+    "roleLevel": "Senior",
+    "email": "k.roy@waystar.com"
+  },
+  "purpose": "To prove I can build something real \u2014 not just inherit it \u2014 by bringing digital transformation vision to legacy media.",
+  "roles": [
+    {
+      "name": "Chief Strategy Officer"
+    },
+    {
+      "name": "Tech Startup CEO"
+    },
+    {
+      "name": "Investment Banking MD"
+    }
+  ],
+  "values": [
+    {
+      "text": "Led $5B acquisition of digital media startup Vaulter, positioning Waystar for digital transformation",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Developed streaming platform strategy projected to reach 50M subscribers within 3 years",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Launched corporate venture arm investing $200M in emerging media technology companies",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Orchestrated attempted management buyout valued at $60B, demonstrating deal structuring at scale",
+      "selected": true,
+      "shared": true
+    }
+  ],
+  "skills": [
+    {
+      "name": "Corporate Strategy",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Chief Strategy Officer"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Mergers & Acquisitions",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Chief Strategy Officer",
+        "Investment Banking MD"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Digital Transformation",
+      "level": "Advanced",
+      "category": "unique",
+      "key": true,
+      "roles": [
+        "Tech Startup CEO"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Financial Modeling",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Investment Banking MD"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Venture Capital",
+      "level": "Advanced",
+      "category": "unique",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Public Speaking",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Negotiation",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Strategic Planning",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Complex Problem Solving",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Critical Thinking",
+      "level": "Advanced",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Judgment and Decision Making",
+      "level": "Advanced",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Fluency of Ideas",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Speaking",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Writing",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persuasion",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Achievement/Effort",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Initiative",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persistence",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Stress Tolerance",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Adaptability/Flexibility",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Economics and Accounting",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Administration and Management",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Communications and Media",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Computers and Electronics",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    }
+  ],
+  "workHistory": [
+    {
+      "company": "Waystar Royco",
+      "title": "Head of Corporate Strategy & Acquisitions",
+      "startYear": 2015,
+      "endYear": 2023,
+      "current": false,
+      "description": "Led all strategic initiatives including digital transformation, M&A pipeline, and corporate venture investments. Reported directly to CEO. Managed $200M venture fund and $5B acquisition portfolio."
+    },
+    {
+      "company": "Waystar Royco",
+      "title": "VP of New Media",
+      "startYear": 2010,
+      "endYear": 2015,
+      "current": false,
+      "description": "Built digital media division from scratch. Launched streaming platform. Identified and evaluated acquisition targets in digital media and technology sectors."
+    },
+    {
+      "company": "J.P. Morgan",
+      "title": "Analyst, Media & Telecom M&A",
+      "startYear": 2008,
+      "endYear": 2010,
+      "current": false,
+      "description": "Financial modeling, due diligence, and deal execution for media and telecom transactions. Worked on 8 completed transactions totaling $12B."
+    }
+  ],
+  "education": [
+    {
+      "institution": "Harvard Business School",
+      "degree": "MBA",
+      "field": "Business Administration",
+      "year": 2008
+    },
+    {
+      "institution": "Columbia University",
+      "degree": "B.A.",
+      "field": "Economics",
+      "year": 2006
+    }
+  ],
+  "certifications": [],
+  "savedJobs": [
+    {
+      "id": "kr-1",
+      "title": "Chief Strategy Officer",
+      "company": "Paramount Global",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Paramount seeks a CSO to drive strategic transformation of the legacy media business for the streaming era. Must have deep M&A experience, digital platform strategy, and ability to evaluate build-vs-buy decisions for technology assets. Requires 10+ years in media strategy, investment banking, or corporate development. MBA preferred.",
+      "parsedSkills": [
+        "Corporate Strategy",
+        "Mergers & Acquisitions",
+        "Digital Transformation",
+        "Strategic Planning",
+        "Financial Modeling",
+        "Communications and Media",
+        "Economics and Accounting",
+        "Complex Problem Solving",
+        "Negotiation"
+      ],
+      "parsedRoles": [
+        "Chief Strategy Officer"
+      ],
+      "seniority": "Senior",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "kr-2",
+      "title": "Managing Director - TMT",
+      "company": "Goldman Sachs",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Goldman Sachs seeks a Managing Director for its Technology, Media & Telecom investment banking practice. Requires deep sector relationships, $1B+ transaction experience, and ability to originate and execute complex M&A advisory mandates. 12+ years in investment banking, corporate development, or private equity required.",
+      "parsedSkills": [
+        "Mergers & Acquisitions",
+        "Financial Modeling",
+        "Negotiation",
+        "Corporate Strategy",
+        "Economics and Accounting",
+        "Persuasion",
+        "Speaking",
+        "Writing",
+        "Achievement/Effort"
+      ],
+      "parsedRoles": [
+        "Investment Banking MD"
+      ],
+      "seniority": "Senior",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "kr-3",
+      "title": "CEO - Digital Media Startup",
+      "company": "Andreessen Horowitz Portfolio",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "a16z seeks an operating CEO for a Series B digital media startup with $50M in funding. Must combine media industry knowledge with technology vision and operational execution. Fundraising experience, product strategy, and team-building skills essential. Proven ability to navigate high-pressure environments and stakeholder management.",
+      "parsedSkills": [
+        "Digital Transformation",
+        "Venture Capital",
+        "Strategic Planning",
+        "Public Speaking",
+        "Initiative",
+        "Computers and Electronics",
+        "Communications and Media",
+        "Fluency of Ideas",
+        "Adaptability/Flexibility"
+      ],
+      "parsedRoles": [
+        "Tech Startup CEO"
+      ],
+      "seniority": "Senior",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    }
+  ]
+}

@@ -1,0 +1,331 @@
+{
+  "templateName": "Steve Harrington - Customer Service & Youth Mentor",
+  "profile": {
+    "name": "Steve Harrington",
+    "currentTitle": "Senior Associate, Scoops Ahoy / Family Video",
+    "location": "Hawkins, IN",
+    "roleLevel": "Entry-Mid",
+    "email": "steve.harrington@familyvideo.com"
+  },
+  "purpose": "To protect and mentor the people around me while figuring out what I actually want to be \u2014 turns out leadership finds you when you stop looking for it.",
+  "roles": [
+    {
+      "name": "Youth Program Director"
+    },
+    {
+      "name": "Retail Manager"
+    },
+    {
+      "name": "Team Leader"
+    }
+  ],
+  "values": [
+    {
+      "text": "Organically emerged as crisis team leader for group of 6 teens during 4 life-threatening situations",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Maintained top customer satisfaction scores at Family Video despite being overqualified for the role",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Mentored 6 younger peers through personal development, building confidence and resilience in each",
+      "selected": true,
+      "shared": true
+    }
+  ],
+  "skills": [
+    {
+      "name": "Customer Service",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Retail Manager"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Youth Mentoring",
+      "level": "Expert",
+      "category": "unique",
+      "key": true,
+      "roles": [
+        "Youth Program Director"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Team Leadership",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Team Leader"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Crisis Response",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Active Listening",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Speaking",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Service Orientation",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Social Perceptiveness",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Coordination",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persuasion",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Complex Problem Solving",
+      "level": "Advanced",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Cooperation",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Concern for Others",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Stress Tolerance",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Adaptability/Flexibility",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Self-Control",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Initiative",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Dependability",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Integrity",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Customer and Personal Service",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Psychology",
+      "level": "Competent",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    }
+  ],
+  "workHistory": [
+    {
+      "company": "Family Video",
+      "title": "Senior Associate",
+      "startYear": 1985,
+      "endYear": 1986,
+      "current": true,
+      "description": "Customer-facing retail role. Consistently top performer in customer satisfaction. Unofficial team leader and mentor to younger staff."
+    },
+    {
+      "company": "Scoops Ahoy (Starcourt Mall)",
+      "title": "Associate",
+      "startYear": 1985,
+      "endYear": 1985,
+      "current": false,
+      "description": "Ice cream counter service at Starcourt Mall. Developed customer engagement skills and worked closely with team partner Robin Buckley."
+    },
+    {
+      "company": "Hawkins High School",
+      "title": "Student / Team Captain",
+      "startYear": 1982,
+      "endYear": 1985,
+      "current": false,
+      "description": "Captain of swim team. Student council. Known for social leadership and peer mentoring."
+    }
+  ],
+  "education": [
+    {
+      "institution": "Hawkins High School",
+      "degree": "High School Diploma",
+      "field": "General Studies",
+      "year": 1985
+    }
+  ],
+  "certifications": [],
+  "savedJobs": [
+    {
+      "id": "sh-1",
+      "title": "Youth Program Director",
+      "company": "YMCA of Greater Indianapolis",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "YMCA seeks a Youth Program Director to design and lead after-school and summer programs for teens ages 12-18. Must demonstrate natural mentoring ability, team coordination, and genuine care for young people. Experience working with diverse youth populations preferred. CPR certification required. Must pass background check.",
+      "parsedSkills": [
+        "Youth Mentoring",
+        "Team Leadership",
+        "Active Listening",
+        "Cooperation",
+        "Concern for Others",
+        "Service Orientation",
+        "Speaking",
+        "Social Perceptiveness",
+        "Customer and Personal Service"
+      ],
+      "parsedRoles": [
+        "Youth Program Director"
+      ],
+      "seniority": "Entry-Mid",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "sh-2",
+      "title": "Retail District Manager",
+      "company": "Target",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Target seeks a District Manager to oversee 8 retail locations with 400+ team members. Must demonstrate customer service excellence, team development skills, and ability to build positive store cultures. We value leaders who lead by example, mentor their teams, and maintain high standards while keeping things human. 3+ years retail leadership experience preferred.",
+      "parsedSkills": [
+        "Customer Service",
+        "Team Leadership",
+        "Service Orientation",
+        "Coordination",
+        "Dependability",
+        "Initiative",
+        "Customer and Personal Service",
+        "Persuasion",
+        "Adaptability/Flexibility"
+      ],
+      "parsedRoles": [
+        "Retail Manager",
+        "Team Leader"
+      ],
+      "seniority": "Mid-Career",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "sh-3",
+      "title": "Summer Camp Director",
+      "company": "Camp Tippecanoe",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Camp Tippecanoe seeks a Summer Camp Director to manage all camp operations, supervise 30 counselors, and ensure the safety and development of 200 campers ages 10-16. Requires natural leadership, crisis management ability, and genuine connection with young people. First aid certified. Must be comfortable with outdoor activities and unpredictable situations.",
+      "parsedSkills": [
+        "Youth Mentoring",
+        "Team Leadership",
+        "Crisis Response",
+        "Concern for Others",
+        "Stress Tolerance",
+        "Adaptability/Flexibility",
+        "Active Listening",
+        "Integrity"
+      ],
+      "parsedRoles": [
+        "Youth Program Director",
+        "Team Leader"
+      ],
+      "seniority": "Entry-Mid",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    }
+  ]
+}

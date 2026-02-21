@@ -1,0 +1,351 @@
+{
+  "templateName": "Jesse Pinkman - Artisan & Entrepreneur",
+  "profile": {
+    "name": "Jesse Pinkman",
+    "currentTitle": "Artisan Woodworker & Entrepreneur",
+    "location": "Albuquerque, NM",
+    "roleLevel": "Mid-Career",
+    "email": "jesse@pinkmandesigns.com"
+  },
+  "purpose": "To channel creative talent and hands-on craftsmanship into building beautiful things and helping others find their path forward.",
+  "roles": [
+    {
+      "name": "Artisan Craftsman"
+    },
+    {
+      "name": "Sales Representative"
+    },
+    {
+      "name": "Youth Mentor"
+    }
+  ],
+  "values": [
+    {
+      "text": "Designed and built custom furniture pieces generating $85K in first-year sales",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Developed street-level distribution network covering 50+ accounts with 30% month-over-month growth",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Mentored 12 at-risk youth through community woodworking program with 90% completion rate",
+      "selected": true,
+      "shared": true
+    }
+  ],
+  "skills": [
+    {
+      "name": "Woodworking",
+      "level": "Expert",
+      "category": "trade",
+      "key": true,
+      "roles": [
+        "Artisan Craftsman"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Product Design",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Artisan Craftsman"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Sales",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Sales Representative"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Negotiation",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Sales Representative"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Customer Service",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Entrepreneurship",
+      "level": "Advanced",
+      "category": "unique",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Active Listening",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Speaking",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persuasion",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Social Perceptiveness",
+      "level": "Expert",
+      "category": "ability",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Manual Dexterity",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Visualization",
+      "level": "Advanced",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Complex Problem Solving",
+      "level": "Advanced",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Finger Dexterity",
+      "level": "Advanced",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Adaptability/Flexibility",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Creativity",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Initiative",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persistence",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Stress Tolerance",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Cooperation",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Empathy",
+      "level": "Expert",
+      "category": "unique",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Building and Construction",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Design",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Production and Processing",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    }
+  ],
+  "workHistory": [
+    {
+      "company": "Pinkman Designs",
+      "title": "Founder & Artisan",
+      "startYear": 2015,
+      "endYear": 2026,
+      "current": true,
+      "description": "Custom furniture studio specializing in handcrafted wooden boxes, tables, and decorative pieces. Direct-to-consumer sales through local markets and online."
+    },
+    {
+      "company": "Various",
+      "title": "Independent Sales & Distribution",
+      "startYear": 2004,
+      "endYear": 2010,
+      "current": false,
+      "description": "Built and managed independent sales territory. Customer acquisition, territory management, and rapid problem-solving under pressure."
+    }
+  ],
+  "education": [
+    {
+      "institution": "J.P. Wynne High School",
+      "degree": "High School Diploma",
+      "field": "General Studies",
+      "year": 2004
+    },
+    {
+      "institution": "Albuquerque Community Workshop",
+      "degree": "Certificate",
+      "field": "Fine Woodworking",
+      "year": 2014
+    }
+  ],
+  "certifications": [],
+  "savedJobs": [
+    {
+      "id": "jp-1",
+      "title": "Custom Furniture Maker",
+      "company": "West Elm Workshop",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "West Elm seeks a Custom Furniture Maker to design and produce artisan furniture pieces for our maker program. Must demonstrate expertise in woodworking, joinery, and finishing techniques. Portfolio of original designs required. 3+ years professional furniture-making experience. Knowledge of sustainable materials and ability to meet production deadlines while maintaining craftsmanship standards.",
+      "parsedSkills": [
+        "Woodworking",
+        "Product Design",
+        "Manual Dexterity",
+        "Creativity",
+        "Design",
+        "Production and Processing",
+        "Attention to Detail",
+        "Building and Construction"
+      ],
+      "parsedRoles": [
+        "Artisan Craftsman"
+      ],
+      "seniority": "Mid-Career",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "jp-2",
+      "title": "Territory Sales Representative",
+      "company": "Snap-on Tools",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Snap-on seeks a Territory Sales Representative to manage a mobile sales route serving 200+ automotive and construction accounts. Requires strong interpersonal skills, self-motivation, and ability to build lasting customer relationships. Must be comfortable with independent work, territory management, and consultative selling. No degree required; sales experience and mechanical aptitude preferred.",
+      "parsedSkills": [
+        "Sales",
+        "Negotiation",
+        "Customer Service",
+        "Persuasion",
+        "Speaking",
+        "Social Perceptiveness",
+        "Initiative",
+        "Adaptability/Flexibility"
+      ],
+      "parsedRoles": [
+        "Sales Representative"
+      ],
+      "seniority": "Mid-Career",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "jp-3",
+      "title": "Youth Program Coordinator",
+      "company": "Boys & Girls Clubs of America",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Boys & Girls Clubs seeks a Youth Program Coordinator to design and lead hands-on workshop programs for at-risk teens ages 14-18. Requires empathy, mentoring ability, and practical trade skills (woodworking, mechanics, or similar). Must connect with underserved youth and create structured learning experiences. Background in trades, personal resilience, and authentic communication valued over formal credentials.",
+      "parsedSkills": [
+        "Active Listening",
+        "Social Perceptiveness",
+        "Empathy",
+        "Cooperation",
+        "Speaking",
+        "Creativity",
+        "Adaptability/Flexibility",
+        "Woodworking"
+      ],
+      "parsedRoles": [
+        "Youth Mentor"
+      ],
+      "seniority": "Entry-Mid",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    }
+  ]
+}

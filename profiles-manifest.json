@@ -1,116 +1,126 @@
 {
-  "version": "1.0.0",
-  "description": "Work Blueprint Profiles Manifest - Central registry of all available profiles",
-  "lastUpdated": "2026-02-18",
+  "version": "2.0",
+  "description": "Blueprint sample profiles - TV character collections",
   "profiles": [
     {
-      "id": "cliff-jones-demo",
-      "name": "Cliff Jones",
-      "title": "VP Strategy",
-      "icon": "🎯",
-      "path": "profiles/demo/cliff-jones.json",
-      "category": "executive",
-      "industry": "Technology",
-      "marketValue": 280000,
-      "yearsExperience": 40,
-      "skillCount": 89,
-      "enabled": true,
-      "featured": true,
-      "description": "VP Global Strategy with 40 years of experience, deep AI/ML expertise, and organizational transformation leadership. Predominantly Mastery and Expert level skills reflecting decades of proven excellence."
+      "id": "walter-white",
+      "name": "Walter White",
+      "title": "Chemistry Educator & Researcher",
+      "path": "profiles/demo/walter-white.json",
+      "description": "To leverage deep chemistry expertise and decades of education experience to advance scientific understanding and mentor ...",
+      "enabled": true
     },
     {
-      "id": "sarah-chen-demo",
-      "name": "Sarah Chen",
-      "title": "Tech Recruiter",
-      "icon": "🎯",
-      "path": "profiles/demo/sarah-chen.json",
-      "category": "professional",
-      "industry": "Human Resources",
-      "marketValue": 110000,
-      "yearsExperience": 8,
-      "skillCount": 32,
-      "enabled": true,
-      "featured": true,
-      "description": "Senior technical recruiter specializing in engineering talent acquisition"
+      "id": "gus-fring",
+      "name": "Gus Fring",
+      "title": "Owner & President, Los Pollos Hermanos",
+      "path": "profiles/demo/gus-fring.json",
+      "description": "To build and operate world-class restaurant and distribution businesses through operational excellence, community engage...",
+      "enabled": true
     },
     {
-      "id": "mike-rodriguez-demo",
-      "name": "Mike Rodriguez",
-      "title": "Eng Lead",
-      "icon": "⚙️",
-      "path": "profiles/demo/mike-rodriguez.json",
-      "category": "professional",
-      "industry": "Technology",
-      "marketValue": 165000,
-      "yearsExperience": 12,
-      "skillCount": 35,
-      "enabled": true,
-      "featured": true,
-      "description": "Engineering lead with expertise in distributed systems and team building"
+      "id": "hank-schrader",
+      "name": "Hank Schrader",
+      "title": "ASAC, DEA Albuquerque Field Division",
+      "path": "profiles/demo/hank-schrader.json",
+      "description": "To apply investigative expertise and analytical rigor to protect communities and dismantle complex criminal enterprises ...",
+      "enabled": true
     },
     {
-      "id": "jamie-martinez-stylist",
-      "name": "Jamie Martinez",
-      "title": "Hair Stylist",
-      "icon": "✂️",
-      "path": "profiles/demo/jamie-martinez.json",
-      "category": "service",
-      "industry": "Beauty & Personal Care",
-      "marketValue": 55000,
-      "yearsExperience": 4,
-      "skillCount": 30,
-      "enabled": true,
-      "featured": false,
-      "description": "Licensed hair stylist specializing in color services and modern cuts"
+      "id": "jesse-pinkman",
+      "name": "Jesse Pinkman",
+      "title": "Artisan Woodworker & Entrepreneur",
+      "path": "profiles/demo/jesse-pinkman.json",
+      "description": "To channel creative talent and hands-on craftsmanship into building beautiful things and helping others find their path ...",
+      "enabled": true
     },
     {
-      "id": "alex-thompson-retail",
-      "name": "Alex Thompson",
-      "title": "Retail Cashier",
-      "icon": "💳",
-      "path": "profiles/demo/alex-thompson.json",
-      "category": "entry",
-      "industry": "Retail",
-      "marketValue": 38000,
-      "yearsExperience": 3,
-      "skillCount": 20,
-      "enabled": true,
-      "featured": false,
-      "description": "Reliable retail cashier with perfect accuracy record and customer service focus"
+      "id": "saul-goodman",
+      "name": "Saul Goodman",
+      "title": "Managing Attorney & Brand Strategist",
+      "path": "profiles/demo/saul-goodman.json",
+      "description": "To provide creative legal solutions and brand-building expertise for clients who need unconventional approaches to compl...",
+      "enabled": true
+    },
+    {
+      "id": "jim-hopper",
+      "name": "Jim Hopper",
+      "title": "Chief of Police, Hawkins PD",
+      "path": "profiles/demo/jim-hopper.json",
+      "description": "To protect communities through decisive leadership, unwavering commitment, and the willingness to face threats others ca...",
+      "enabled": true
+    },
+    {
+      "id": "eleven",
+      "name": "Eleven (Jane Hopper)",
+      "title": "Research Subject & Crisis Operative",
+      "path": "profiles/demo/eleven.json",
+      "description": "To use unique abilities in perception, pattern recognition, and crisis response to protect the people who matter most.",
+      "enabled": true
+    },
+    {
+      "id": "steve-harrington",
+      "name": "Steve Harrington",
+      "title": "Senior Associate, Scoops Ahoy / Family Video",
+      "path": "profiles/demo/steve-harrington.json",
+      "description": "To protect and mentor the people around me while figuring out what I actually want to be \u2014 turns out leadership finds yo...",
+      "enabled": true
+    },
+    {
+      "id": "dustin-henderson",
+      "name": "Dustin Henderson",
+      "title": "Electronics Enthusiast & Science Club President",
+      "path": "profiles/demo/dustin-henderson.json",
+      "description": "To solve impossible problems through science, technology, and the power of friendship \u2014 preferably with a ham radio near...",
+      "enabled": true
+    },
+    {
+      "id": "joyce-byers",
+      "name": "Joyce Byers",
+      "title": "Sales Associate, Melvald's General Store",
+      "path": "profiles/demo/joyce-byers.json",
+      "description": "To protect the people I love through sheer determination, even when no one else believes what I know to be true.",
+      "enabled": true
+    },
+    {
+      "id": "logan-roy",
+      "name": "Logan Roy",
+      "title": "Chairman & CEO, Waystar Royco",
+      "path": "profiles/demo/logan-roy.json",
+      "description": "To build, control, and defend the media empire that defines the global conversation \u2014 because power only respects power.",
+      "enabled": true
+    },
+    {
+      "id": "kendall-roy",
+      "name": "Kendall Roy",
+      "title": "Head of Corporate Strategy, Waystar Royco",
+      "path": "profiles/demo/kendall-roy.json",
+      "description": "To prove I can build something real \u2014 not just inherit it \u2014 by bringing digital transformation vision to legacy media.",
+      "enabled": true
+    },
+    {
+      "id": "shiv-roy",
+      "name": "Siobhan \"Shiv\" Roy",
+      "title": "Senior Political Advisor & Corporate Strategist",
+      "path": "profiles/demo/shiv-roy.json",
+      "description": "To wield strategic influence at the intersection of politics, media, and corporate power \u2014 on my own terms, not my famil...",
+      "enabled": true
+    },
+    {
+      "id": "roman-roy",
+      "name": "Roman Roy",
+      "title": "COO, Waystar Royco",
+      "path": "profiles/demo/roman-roy.json",
+      "description": "To close deals, read rooms, and build the entertainment side of the empire that everyone else thinks is a joke \u2014 until t...",
+      "enabled": true
+    },
+    {
+      "id": "tom-wambsgans",
+      "name": "Tom Wambsgans",
+      "title": "CEO, Waystar Royco (Appointed)",
+      "path": "profiles/demo/tom-wambsgans.json",
+      "description": "To rise to the very top through relentless loyalty, operational competence, and the strategic patience to know when your...",
+      "enabled": true
     }
-  ],
-  "categories": {
-    "executive": {
-      "label": "Executive / C-Suite",
-      "color": "#dc2626",
-      "icon": "🎯"
-    },
-    "professional": {
-      "label": "Professional / Management",
-      "color": "#2563eb",
-      "icon": "💼"
-    },
-    "service": {
-      "label": "Service Industry",
-      "color": "#059669",
-      "icon": "🤝"
-    },
-    "entry": {
-      "label": "Entry / Mid-Level",
-      "color": "#7c3aed",
-      "icon": "🌱"
-    }
-  },
-  "industries": [
-    "Technology",
-    "Human Resources",
-    "Beauty & Personal Care",
-    "Retail",
-    "Healthcare",
-    "Education",
-    "Finance",
-    "Manufacturing",
-    "Hospitality",
-    "Construction"
   ]
 }

@@ -1,0 +1,363 @@
+{
+  "templateName": "Logan Roy - Media Conglomerate CEO",
+  "profile": {
+    "name": "Logan Roy",
+    "currentTitle": "Chairman & CEO, Waystar Royco",
+    "location": "New York, NY",
+    "roleLevel": "Executive",
+    "email": "l.roy@waystar.com"
+  },
+  "purpose": "To build, control, and defend the media empire that defines the global conversation \u2014 because power only respects power.",
+  "roles": [
+    {
+      "name": "CEO"
+    },
+    {
+      "name": "Board Chairman"
+    },
+    {
+      "name": "Private Equity Chairman"
+    }
+  ],
+  "values": [
+    {
+      "text": "Built Waystar Royco from a single newspaper into a $60B global media and entertainment conglomerate",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Completed 40+ acquisitions totaling $85B in transaction value over five decades of dealmaking",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Navigated 3 hostile takeover attempts, maintaining majority control through strategic maneuvering",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Influenced national political landscapes across two continents through media platform positioning",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Generated 18% average annual shareholder return over 25-year period, outperforming S&P 500 by 6 points",
+      "selected": true,
+      "shared": true
+    }
+  ],
+  "skills": [
+    {
+      "name": "Strategic Leadership",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "CEO",
+        "Board Chairman"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Mergers & Acquisitions",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "CEO",
+        "Private Equity Chairman"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Negotiation",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Corporate Governance",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Board Chairman"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Financial Management",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "CEO"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Media Industry Knowledge",
+      "level": "Mastery",
+      "category": "knowledge",
+      "key": true,
+      "roles": [
+        "CEO"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Political Strategy",
+      "level": "Expert",
+      "category": "unique",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Management of Personnel Resources",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Judgment and Decision Making",
+      "level": "Mastery",
+      "category": "ability",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Complex Problem Solving",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persuasion",
+      "level": "Mastery",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Social Perceptiveness",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Speaking",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Critical Thinking",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Achievement/Effort",
+      "level": "Mastery",
+      "category": "workstyle",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persistence",
+      "level": "Mastery",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Leadership",
+      "level": "Mastery",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Stress Tolerance",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Initiative",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Self-Control",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Economics and Accounting",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Administration and Management",
+      "level": "Mastery",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Law and Government",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Communications and Media",
+      "level": "Mastery",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    }
+  ],
+  "workHistory": [
+    {
+      "company": "Waystar Royco",
+      "title": "Chairman & CEO",
+      "startYear": 1969,
+      "endYear": 2023,
+      "current": false,
+      "description": "Built global media conglomerate spanning news, entertainment, theme parks, and digital media. Managed 120,000 employees across 45 countries. Orchestrated $85B in acquisitions. Defended against multiple hostile takeover attempts."
+    },
+    {
+      "company": "Roy Family Holdings",
+      "title": "Founder",
+      "startYear": 1965,
+      "endYear": 1969,
+      "current": false,
+      "description": "Acquired first newspaper in Dundee, Scotland. Built initial media portfolio through aggressive acquisition strategy across UK and North America."
+    }
+  ],
+  "education": [
+    {
+      "institution": "University of Edinburgh",
+      "degree": "Honorary Doctorate",
+      "field": "Business",
+      "year": 1998
+    }
+  ],
+  "certifications": [],
+  "savedJobs": [
+    {
+      "id": "lr-1",
+      "title": "CEO - Media & Entertainment",
+      "company": "Warner Bros. Discovery",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Warner Bros. Discovery board seeks a CEO to lead the $40B media conglomerate through digital transformation, content strategy realignment, and global expansion. Must demonstrate decades of media industry leadership, M&A expertise, and ability to manage complex stakeholder relationships including regulators, talent, and institutional investors. Board-level governance experience required.",
+      "parsedSkills": [
+        "Strategic Leadership",
+        "Mergers & Acquisitions",
+        "Media Industry Knowledge",
+        "Corporate Governance",
+        "Financial Management",
+        "Negotiation",
+        "Administration and Management",
+        "Communications and Media",
+        "Leadership",
+        "Judgment and Decision Making"
+      ],
+      "parsedRoles": [
+        "CEO",
+        "Board Chairman"
+      ],
+      "seniority": "Executive",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "lr-2",
+      "title": "Senior Operating Partner",
+      "company": "Apollo Global Management",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Apollo seeks a Senior Operating Partner for its media and telecommunications portfolio. Requires track record of building and transforming media businesses at scale. Must evaluate acquisition targets, install operational improvements, and drive value creation across $20B+ portfolio. Extensive board experience and CEO-level relationships required.",
+      "parsedSkills": [
+        "Mergers & Acquisitions",
+        "Strategic Leadership",
+        "Financial Management",
+        "Negotiation",
+        "Corporate Governance",
+        "Economics and Accounting",
+        "Complex Problem Solving",
+        "Political Strategy",
+        "Achievement/Effort"
+      ],
+      "parsedRoles": [
+        "Private Equity Chairman",
+        "CEO"
+      ],
+      "seniority": "Executive",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "lr-3",
+      "title": "Non-Executive Board Director",
+      "company": "News Corp",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "News Corp seeks independent board directors with deep media industry expertise, corporate governance experience, and understanding of regulatory environments across multiple jurisdictions. Must bring strategic perspective on digital transformation, M&A evaluation, and succession planning. Compensation: $500K retainer + equity.",
+      "parsedSkills": [
+        "Corporate Governance",
+        "Strategic Leadership",
+        "Media Industry Knowledge",
+        "Mergers & Acquisitions",
+        "Law and Government",
+        "Judgment and Decision Making",
+        "Critical Thinking"
+      ],
+      "parsedRoles": [
+        "Board Chairman"
+      ],
+      "seniority": "Executive",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    }
+  ]
+}

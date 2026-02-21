@@ -1,0 +1,383 @@
+{
+  "templateName": "Jim Hopper - Police Chief & Crisis Leader",
+  "profile": {
+    "name": "Jim Hopper",
+    "currentTitle": "Chief of Police, Hawkins PD",
+    "location": "Hawkins, IN",
+    "roleLevel": "Senior",
+    "email": "hopper@hawkins.gov"
+  },
+  "purpose": "To protect communities through decisive leadership, unwavering commitment, and the willingness to face threats others cannot comprehend.",
+  "roles": [
+    {
+      "name": "Police Chief"
+    },
+    {
+      "name": "Emergency Management Director"
+    },
+    {
+      "name": "Security Director"
+    }
+  ],
+  "values": [
+    {
+      "text": "Led Hawkins PD through multiple unprecedented crisis events with zero civilian casualties under direct command",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Rebuilt department morale and community trust after years of institutional neglect",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Coordinated classified joint operations with Department of Energy involving national security threats",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Earned Bronze Star and Purple Heart during U.S. Army service in Vietnam",
+      "selected": true,
+      "shared": true
+    }
+  ],
+  "skills": [
+    {
+      "name": "Law Enforcement Leadership",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Police Chief"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Crisis Management",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Emergency Management Director"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Criminal Investigation",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Police Chief"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Emergency Response",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Emergency Management Director"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Team Leadership",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Combat Operations",
+      "level": "Advanced",
+      "category": "unique",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Complex Problem Solving",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Judgment and Decision Making",
+      "level": "Expert",
+      "category": "ability",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Social Perceptiveness",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Speaking",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Active Listening",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persuasion",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Coordination",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Monitoring",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Stress Tolerance",
+      "level": "Mastery",
+      "category": "workstyle",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persistence",
+      "level": "Mastery",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Integrity",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Self-Control",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Initiative",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Leadership",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Adaptability/Flexibility",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Concern for Others",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Public Safety and Security",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Law and Government",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Administration and Management",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    }
+  ],
+  "workHistory": [
+    {
+      "company": "Hawkins Police Department",
+      "title": "Chief of Police",
+      "startYear": 1979,
+      "endYear": 1986,
+      "current": false,
+      "description": "Led 12-officer department serving population of 30,000. Managed crisis response to multiple classified incidents. Rebuilt community trust through direct engagement."
+    },
+    {
+      "company": "New York Police Department",
+      "title": "Homicide Detective",
+      "startYear": 1973,
+      "endYear": 1979,
+      "current": false,
+      "description": "Investigated violent crimes in Manhattan South precinct. Cleared 40+ cases. Worked undercover narcotics operations."
+    },
+    {
+      "company": "U.S. Army",
+      "title": "Sergeant, Infantry",
+      "startYear": 1968,
+      "endYear": 1971,
+      "current": false,
+      "description": "Served two tours in Vietnam. Earned Bronze Star for valor and Purple Heart. Led 12-man infantry squad through combat operations."
+    }
+  ],
+  "education": [
+    {
+      "institution": "NYPD Police Academy",
+      "degree": "Certificate",
+      "field": "Law Enforcement",
+      "year": 1973
+    },
+    {
+      "institution": "Indiana State University",
+      "degree": "Some College",
+      "field": "Criminal Justice",
+      "year": 1972
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Indiana Law Enforcement Academy",
+      "issuer": "ILEA",
+      "year": 1979
+    }
+  ],
+  "savedJobs": [
+    {
+      "id": "jh-1",
+      "title": "Director of Emergency Management",
+      "company": "FEMA Region V",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "FEMA seeks a Director of Emergency Management to lead disaster preparedness and response operations across 6 Midwestern states. Requires 15+ years in emergency services or military leadership. Must demonstrate crisis coordination, inter-agency collaboration, and community resilience building. Experience with classified operations and government agencies preferred. Ability to remain calm under extreme pressure essential.",
+      "parsedSkills": [
+        "Crisis Management",
+        "Emergency Response",
+        "Team Leadership",
+        "Coordination",
+        "Law Enforcement Leadership",
+        "Judgment and Decision Making",
+        "Stress Tolerance",
+        "Public Safety and Security",
+        "Administration and Management"
+      ],
+      "parsedRoles": [
+        "Emergency Management Director",
+        "Police Chief"
+      ],
+      "seniority": "Senior",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "jh-2",
+      "title": "VP of Global Security",
+      "company": "Tesla",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Tesla seeks a VP of Global Security to protect personnel, facilities, and intellectual property across 8 manufacturing sites worldwide. Requires military or law enforcement leadership background with crisis management expertise. Must build and lead a 200+ person security organization. Secret clearance required.",
+      "parsedSkills": [
+        "Team Leadership",
+        "Crisis Management",
+        "Law Enforcement Leadership",
+        "Public Safety and Security",
+        "Administration and Management",
+        "Monitoring",
+        "Judgment and Decision Making",
+        "Leadership",
+        "Persistence"
+      ],
+      "parsedRoles": [
+        "Security Director",
+        "Police Chief"
+      ],
+      "seniority": "Executive",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "jh-3",
+      "title": "County Sheriff",
+      "company": "Marion County, IN",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Marion County seeks an experienced Sheriff to lead 1,200 sworn officers and 400 civilian staff. Requires law enforcement command experience, budget management, and community engagement skills. Must work with elected officials, courts, and federal agencies. Military service and crisis leadership experience strongly preferred.",
+      "parsedSkills": [
+        "Law Enforcement Leadership",
+        "Criminal Investigation",
+        "Team Leadership",
+        "Crisis Management",
+        "Speaking",
+        "Persuasion",
+        "Integrity",
+        "Administration and Management",
+        "Law and Government"
+      ],
+      "parsedRoles": [
+        "Police Chief"
+      ],
+      "seniority": "Senior",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    }
+  ]
+}

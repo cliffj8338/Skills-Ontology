@@ -1,0 +1,414 @@
+{
+  "templateName": "Hank Schrader - DEA Senior Agent",
+  "profile": {
+    "name": "Hank Schrader",
+    "currentTitle": "ASAC, DEA Albuquerque Field Division",
+    "location": "Albuquerque, NM",
+    "roleLevel": "Senior",
+    "email": "hschrader@dea.gov"
+  },
+  "purpose": "To apply investigative expertise and analytical rigor to protect communities and dismantle complex criminal enterprises through evidence-driven operations.",
+  "roles": [
+    {
+      "name": "Law Enforcement Director"
+    },
+    {
+      "name": "Intelligence Analyst"
+    },
+    {
+      "name": "Corporate Security VP"
+    }
+  ],
+  "values": [
+    {
+      "text": "Led investigation that dismantled the largest methamphetamine distribution network in the American Southwest",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Promoted to Assistant Special Agent in Charge (ASAC) after 16 years of distinguished service",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Coordinated multi-agency task force operations across US-Mexico border involving 50+ agents",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Achieved 94% conviction rate on cases personally led over 10-year period",
+      "selected": true,
+      "shared": true
+    }
+  ],
+  "skills": [
+    {
+      "name": "Criminal Investigation",
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Law Enforcement Director"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Evidence Analysis",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Intelligence Analyst"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Pattern Recognition",
+      "level": "Mastery",
+      "category": "ability",
+      "key": true,
+      "roles": [
+        "Intelligence Analyst"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Surveillance Operations",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Law Enforcement Director"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Interrogation & Interviewing",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Team Leadership",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Law Enforcement Director"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Critical Thinking",
+      "level": "Expert",
+      "category": "ability",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Deductive Reasoning",
+      "level": "Mastery",
+      "category": "ability",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Inductive Reasoning",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Complex Problem Solving",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Active Listening",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Speaking",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Writing",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Social Perceptiveness",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Judgment and Decision Making",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Coordination",
+      "level": "Expert",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persuasion",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persistence",
+      "level": "Mastery",
+      "category": "workstyle",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Stress Tolerance",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Integrity",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Self-Control",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Attention to Detail",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Initiative",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Achievement/Effort",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Analytical Thinking",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Law and Government",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Public Safety and Security",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Psychology",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Administration and Management",
+      "level": "Advanced",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    }
+  ],
+  "workHistory": [
+    {
+      "company": "Drug Enforcement Administration",
+      "title": "Assistant Special Agent in Charge (ASAC)",
+      "startYear": 2006,
+      "endYear": 2010,
+      "current": false,
+      "description": "Directed field operations for DEA Albuquerque division. Led multi-agency task forces targeting cartel supply chains. Managed 30+ agents and $5M operational budget."
+    },
+    {
+      "company": "Drug Enforcement Administration",
+      "title": "Special Agent",
+      "startYear": 1993,
+      "endYear": 2006,
+      "current": false,
+      "description": "Conducted undercover operations, managed confidential informants, and built complex cases resulting in 200+ arrests. Specialized in methamphetamine distribution networks."
+    }
+  ],
+  "education": [
+    {
+      "institution": "University of New Mexico",
+      "degree": "B.S.",
+      "field": "Criminal Justice",
+      "year": 1992
+    },
+    {
+      "institution": "DEA Training Academy",
+      "degree": "Certificate",
+      "field": "Federal Law Enforcement",
+      "year": 1993
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Federal Law Enforcement Officer Certification",
+      "issuer": "FLETC",
+      "year": 1993
+    },
+    {
+      "name": "Advanced Narcotics Investigation",
+      "issuer": "DEA Academy",
+      "year": 1999
+    }
+  ],
+  "savedJobs": [
+    {
+      "id": "hs-1",
+      "title": "Director of Corporate Investigations",
+      "company": "Amazon",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Amazon seeks a Director of Corporate Investigations to lead a global team investigating fraud, theft, and security threats across fulfillment and logistics operations. Requires 15+ years in federal law enforcement or corporate investigations. Must demonstrate expertise in evidence analysis, team leadership, cross-functional coordination, and data-driven investigative techniques. Active TS/SCI clearance preferred.",
+      "parsedSkills": [
+        "Criminal Investigation",
+        "Evidence Analysis",
+        "Team Leadership",
+        "Pattern Recognition",
+        "Critical Thinking",
+        "Coordination",
+        "Administration and Management",
+        "Attention to Detail",
+        "Judgment and Decision Making"
+      ],
+      "parsedRoles": [
+        "Law Enforcement Director",
+        "Corporate Security VP"
+      ],
+      "seniority": "Senior",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "hs-2",
+      "title": "Intelligence Program Director",
+      "company": "Department of Homeland Security",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "DHS seeks an Intelligence Program Director to design and manage intelligence collection programs supporting counter-narcotics and border security operations. Requires 10+ years in intelligence analysis or federal law enforcement with supervisory experience. Must have expertise in surveillance, pattern analysis, inter-agency coordination, and classified information handling.",
+      "parsedSkills": [
+        "Criminal Investigation",
+        "Surveillance Operations",
+        "Pattern Recognition",
+        "Evidence Analysis",
+        "Team Leadership",
+        "Deductive Reasoning",
+        "Law and Government",
+        "Public Safety and Security",
+        "Coordination"
+      ],
+      "parsedRoles": [
+        "Intelligence Analyst",
+        "Law Enforcement Director"
+      ],
+      "seniority": "Senior",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "hs-3",
+      "title": "VP of Security & Loss Prevention",
+      "company": "Walmart",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Walmart seeks a VP of Security & Loss Prevention to protect $600B in annual revenue across 4,700+ US stores. Requires law enforcement or military leadership background with expertise in investigations, surveillance technology, and team management. Must build relationships with local and federal law enforcement agencies. Budget responsibility: $150M.",
+      "parsedSkills": [
+        "Team Leadership",
+        "Surveillance Operations",
+        "Criminal Investigation",
+        "Administration and Management",
+        "Public Safety and Security",
+        "Social Perceptiveness",
+        "Speaking",
+        "Persuasion"
+      ],
+      "parsedRoles": [
+        "Corporate Security VP",
+        "Law Enforcement Director"
+      ],
+      "seniority": "Executive",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    }
+  ]
+}

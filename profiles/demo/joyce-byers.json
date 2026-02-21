@@ -1,0 +1,323 @@
+{
+  "templateName": "Joyce Byers - Retail Worker & Investigator",
+  "profile": {
+    "name": "Joyce Byers",
+    "currentTitle": "Sales Associate, Melvald's General Store",
+    "location": "Hawkins, IN",
+    "roleLevel": "Mid-Career",
+    "email": ""
+  },
+  "purpose": "To protect the people I love through sheer determination, even when no one else believes what I know to be true.",
+  "roles": [
+    {
+      "name": "Retail Manager"
+    },
+    {
+      "name": "Victim Advocacy Director"
+    },
+    {
+      "name": "Investigator"
+    }
+  ],
+  "values": [
+    {
+      "text": "Single-handedly uncovered government cover-up of missing child case when all authorities dismissed evidence",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Maintained household and raised two sons on single retail income while managing multiple crisis situations",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Built trust-based relationships with customers over 10+ years resulting in highest repeat customer rate in store",
+      "selected": true,
+      "shared": true
+    },
+    {
+      "text": "Coordinated civilian investigation team that outperformed professional law enforcement in 3 separate cases",
+      "selected": true,
+      "shared": true
+    }
+  ],
+  "skills": [
+    {
+      "name": "Investigation & Research",
+      "level": "Expert",
+      "category": "unique",
+      "key": true,
+      "roles": [
+        "Investigator"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Customer Service",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "Retail Manager"
+      ],
+      "evidence": []
+    },
+    {
+      "name": "Persistence",
+      "level": "Mastery",
+      "category": "workstyle",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Pattern Recognition",
+      "level": "Advanced",
+      "category": "ability",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Active Listening",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Social Perceptiveness",
+      "level": "Expert",
+      "category": "ability",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Stress Tolerance",
+      "level": "Mastery",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Concern for Others",
+      "level": "Mastery",
+      "category": "workstyle",
+      "key": true,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Complex Problem Solving",
+      "level": "Advanced",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Critical Thinking",
+      "level": "Advanced",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Judgment and Decision Making",
+      "level": "Advanced",
+      "category": "ability",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Speaking",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Persuasion",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Coordination",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Adaptability/Flexibility",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Initiative",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Integrity",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Dependability",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Self-Control",
+      "level": "Advanced",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Achievement/Effort",
+      "level": "Expert",
+      "category": "workstyle",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Customer and Personal Service",
+      "level": "Expert",
+      "category": "knowledge",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    },
+    {
+      "name": "Sales",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": [],
+      "evidence": []
+    }
+  ],
+  "workHistory": [
+    {
+      "company": "Melvald's General Store",
+      "title": "Sales Associate",
+      "startYear": 1975,
+      "endYear": 1986,
+      "current": true,
+      "description": "Full-time retail position serving Hawkins community. Inventory management, customer relationships, and store operations. Known as the most helpful and persistent employee in store history."
+    }
+  ],
+  "education": [
+    {
+      "institution": "Hawkins High School",
+      "degree": "High School Diploma",
+      "field": "General Studies",
+      "year": 1967
+    }
+  ],
+  "certifications": [],
+  "savedJobs": [
+    {
+      "id": "jb-1",
+      "title": "Victim Advocacy Director",
+      "company": "National Center for Missing & Exploited Children",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "NCMEC seeks a Victim Advocacy Director to lead family support services for missing children cases. Must demonstrate extraordinary empathy, investigative instinct, and ability to work with families under extreme distress. Experience in advocacy, social services, or investigation required. We value lived experience and determination above credentials.",
+      "parsedSkills": [
+        "Concern for Others",
+        "Investigation & Research",
+        "Active Listening",
+        "Social Perceptiveness",
+        "Persistence",
+        "Stress Tolerance",
+        "Speaking",
+        "Coordination",
+        "Integrity"
+      ],
+      "parsedRoles": [
+        "Victim Advocacy Director",
+        "Investigator"
+      ],
+      "seniority": "Mid-Career",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "jb-2",
+      "title": "Store Manager",
+      "company": "Ace Hardware",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Ace Hardware seeks a Store Manager for our Hawkins location. Requires 5+ years retail experience with strong customer relationships. Must manage inventory, staff scheduling, and community engagement. We value reliability, problem-solving, and the kind of customer service where everyone knows your name.",
+      "parsedSkills": [
+        "Customer Service",
+        "Sales",
+        "Dependability",
+        "Customer and Personal Service",
+        "Initiative",
+        "Social Perceptiveness",
+        "Coordination",
+        "Adaptability/Flexibility"
+      ],
+      "parsedRoles": [
+        "Retail Manager"
+      ],
+      "seniority": "Mid-Career",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    },
+    {
+      "id": "jb-3",
+      "title": "Private Investigator",
+      "company": "Byers Investigation Services",
+      "sourceUrl": "",
+      "sourceNote": "Sample job for demo",
+      "rawText": "Independent private investigation firm seeks investigators for missing persons, insurance fraud, and background check cases. Must demonstrate tenacity, observational skills, and ability to work independently. Law enforcement background not required \u2014 we value instinct, determination, and unconventional thinking over formal credentials.",
+      "parsedSkills": [
+        "Investigation & Research",
+        "Pattern Recognition",
+        "Critical Thinking",
+        "Persistence",
+        "Complex Problem Solving",
+        "Initiative",
+        "Judgment and Decision Making"
+      ],
+      "parsedRoles": [
+        "Investigator"
+      ],
+      "seniority": "Mid-Career",
+      "addedAt": "2026-02-20T00:00:00.000Z",
+      "curated": true,
+      "sample": true
+    }
+  ]
+}
