@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.14 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
+    <!-- v4.25.1.15 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -3686,7 +3686,6 @@
                 <button onclick="closeOverflowMenu(); switchView('welcome');" style="color: var(--accent); font-weight: 600;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="home"></span> Home</button>
                 <button onclick="closeOverflowMenu(); showOnboardingWizard();" style="color: var(--accent); font-weight: 600;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="wand"></span> Build My Blueprint</button>
                 <div style="height:1px; background:var(--border); margin:4px 0;"></div>
-                <button onclick="closeOverflowMenu(); switchView('blueprint'); setTimeout(function(){ switchBlueprintTab('export'); }, 100);" class="overflow-icon-btn"><span class="overflow-icon" data-icon="export"></span> Export Blueprint</button>
                 <button onclick="showHelp(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="help"></span> Help</button>
                 <button onclick="showAbout(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="about"></span> About</button>
                 <div style="height:1px; background:var(--border); margin:4px 0;"></div>
@@ -4466,8 +4465,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.14 - BUILD 20260220-s14
-        var BP_VERSION = 'v4.25.1.14';
+        // BLUEPRINT v4.25.1.15 - BUILD 20260220-s14
+        var BP_VERSION = 'v4.25.1.15';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -5334,24 +5333,6 @@
             var manifest = window.profilesManifest;
             var sampleCount = manifest && manifest.profiles ? manifest.profiles.filter(function(p) { return p.enabled; }).length : 0;
             
-            // Count O*NET skills (nested categories structure)
-            var skillLibCount = 0;
-            if (window.onetSkillsLibrary && window.onetSkillsLibrary.categories) {
-                Object.values(window.onetSkillsLibrary.categories).forEach(function(cat) {
-                    if (cat.subcategories) {
-                        Object.values(cat.subcategories).forEach(function(sub) {
-                            skillLibCount += (sub.skills || []).length;
-                        });
-                    }
-                });
-            }
-            var abilitiesCount = window.onetAbilitiesLibrary ? (window.onetAbilitiesLibrary.abilities || []).length : 0;
-            var wsCount = window.onetWorkStylesLibrary ? (window.onetWorkStylesLibrary.workStyles || []).length : 0;
-            var knowledgeCount = window.onetKnowledgeLibrary ? (window.onetKnowledgeLibrary.knowledge || []).length : 0;
-            var activitiesCount = window.onetWorkActivitiesLibrary ? (window.onetWorkActivitiesLibrary.activities || []).length : 0;
-            var tradesCount = window.tradesCreativeLibrary ? (window.tradesCreativeLibrary.count || 0) : 0;
-            var valuesCount = (typeof valuesLibrary !== 'undefined') ? valuesLibrary.length : 0;
-            
             var html = '';
             
             // ===== SYSTEM STATUS =====
@@ -5369,52 +5350,60 @@
             });
             html += '</div>';
             
-            // ===== DATA LIBRARIES (grouped) =====
-            html += '<div style="padding:20px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:10px; margin-bottom:20px;">'
-                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 16px; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">Data Libraries</h3>';
+            // ===== DATA LIBRARIES (tiles) =====
+            // Count O*NET skills (nested categories structure)
+            var skillLibCount = 0;
+            if (window.onetSkillsLibrary && window.onetSkillsLibrary.categories) {
+                Object.values(window.onetSkillsLibrary.categories).forEach(function(cat) {
+                    if (cat.subcategories) {
+                        Object.values(cat.subcategories).forEach(function(sub) {
+                            skillLibCount += (sub.skills || []).length;
+                        });
+                    }
+                });
+            }
+            var abilitiesCount = window.onetAbilitiesLibrary ? (window.onetAbilitiesLibrary.abilities || []).length : 0;
+            var wsCount = window.onetWorkStylesLibrary ? (window.onetWorkStylesLibrary.workStyles || []).length : 0;
+            var knowledgeCount = window.onetKnowledgeLibrary ? (window.onetKnowledgeLibrary.knowledge || []).length : 0;
+            var activitiesCount = window.onetWorkActivitiesLibrary ? (window.onetWorkActivitiesLibrary.activities || []).length : 0;
+            var tradesCount = window.tradesCreativeLibrary ? (window.tradesCreativeLibrary.count || 0) : 0;
+            var valuesCount = (typeof valuesLibrary !== 'undefined') ? valuesLibrary.length : 0;
+            var escoCount = (typeof skillLibraryIndex !== 'undefined' && skillLibraryIndex) ? (skillLibraryIndex.totalSkills || (skillLibraryIndex.index ? skillLibraryIndex.index.length : 0)) : 0;
+            var blsWageCount = window.blsWages ? window.blsWages.count : 0;
             
-            // Group libraries by source
-            var libGroups = [
-                { source: 'O*NET (US Dept of Labor)', color: '#60a5fa', libs: [
-                    { name: 'Skills', count: skillLibCount, loaded: skillLibCount > 0 },
-                    { name: 'Abilities', count: abilitiesCount, loaded: abilitiesCount > 0 },
-                    { name: 'Work Styles', count: wsCount, loaded: wsCount > 0 },
-                    { name: 'Knowledge', count: knowledgeCount, loaded: knowledgeCount > 0 },
-                    { name: 'Work Activities', count: activitiesCount, loaded: activitiesCount > 0 }
-                ]},
-                { source: 'ESCO (European Commission)', color: '#a78bfa', libs: [
-                    { name: 'ESCO Skills', count: 0, loaded: false, note: 'Planned' }
-                ]},
-                { source: 'Custom & Specialized', color: '#fbbf24', libs: [
-                    { name: 'Trades & Creative', count: tradesCount, loaded: tradesCount > 0 },
-                    { name: 'User Custom Skills', count: '\u221E', loaded: true, note: 'User-defined' }
-                ]},
-                { source: 'Reference Data', color: '#10b981', libs: [
-                    { name: 'Values Library', count: valuesCount, loaded: valuesCount > 0 },
-                    { name: 'BLS Wages', count: window.blsWages ? (window.blsWages.count + ' occ.') : 'N/A', loaded: !!window.blsWages }
-                ]}
+            html += '<div style="padding:20px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:10px; margin-bottom:20px;">'
+                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 16px; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">Data Libraries</h3>'
+                + '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:10px;">';
+            
+            var tiles = [
+                { name: 'ESCO Skills', count: escoCount, source: 'European Commission', color: '#a78bfa', loaded: escoCount > 0 },
+                { name: 'O*NET Skills', count: skillLibCount, source: 'US Dept of Labor', color: '#60a5fa', loaded: skillLibCount > 0 },
+                { name: 'Abilities', count: abilitiesCount, source: 'O*NET', color: '#60a5fa', loaded: abilitiesCount > 0 },
+                { name: 'Work Styles', count: wsCount, source: 'O*NET', color: '#60a5fa', loaded: wsCount > 0 },
+                { name: 'Knowledge', count: knowledgeCount, source: 'O*NET', color: '#60a5fa', loaded: knowledgeCount > 0 },
+                { name: 'Work Activities', count: activitiesCount, source: 'O*NET', color: '#60a5fa', loaded: activitiesCount > 0 },
+                { name: 'Trades & Creative', count: tradesCount, source: 'Custom', color: '#f59e0b', loaded: tradesCount > 0 },
+                { name: 'Values', count: valuesCount, source: 'Blueprint', color: '#10b981', loaded: valuesCount > 0 },
+                { name: 'BLS Wages', count: blsWageCount ? blsWageCount.toLocaleString() : 0, source: 'Bureau of Labor Statistics', color: '#f97316', loaded: blsWageCount > 0 },
+                { name: 'Custom Skills', count: '\u221E', source: 'User-defined', color: '#fbbf24', loaded: true }
             ];
             
-            libGroups.forEach(function(group) {
-                var totalLoaded = group.libs.filter(function(l) { return l.loaded; }).length;
-                var totalLibs = group.libs.length;
-                html += '<div style="margin-bottom:16px;">'
-                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
-                    + '<div style="font-weight:600; color:' + group.color + '; font-size:0.88em;">' + group.source + '</div>'
-                    + '<div style="font-size:0.75em; color:var(--text-muted);">' + totalLoaded + '/' + totalLibs + ' loaded</div>'
+            var totalLoaded = tiles.filter(function(t) { return t.loaded; }).length;
+            
+            tiles.forEach(function(t) {
+                html += '<div style="padding:14px; background:' + tv('rgba(255,255,255,0.06)','rgba(0,0,0,0.04)') + '; '
+                    + 'border:1px solid ' + (t.loaded ? tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.06)') : 'rgba(239,68,68,0.3)') + '; '
+                    + 'border-radius:10px; text-align:center; position:relative;">'
+                    + '<div style="position:absolute; top:8px; right:10px; font-size:0.65em; color:' + (t.loaded ? '#10b981' : '#ef4444') + ';">' + (t.loaded ? '\u25CF' : '\u25CB') + '</div>'
+                    + '<div style="font-size:1.5em; font-weight:700; color:' + t.color + '; margin-bottom:2px;">' + (typeof t.count === 'number' ? t.count.toLocaleString() : t.count) + '</div>'
+                    + '<div style="font-size:0.82em; font-weight:600; color:var(--text-primary); margin-bottom:2px;">' + t.name + '</div>'
+                    + '<div style="font-size:0.68em; color:var(--text-muted);">' + t.source + '</div>'
                     + '</div>';
-                group.libs.forEach(function(lib) {
-                    html += '<div style="display:flex; align-items:center; gap:8px; font-size:0.85em; padding:4px 0 4px 12px;">'
-                        + '<span style="color:' + (lib.loaded ? '#10b981' : (lib.note === 'Planned' ? '#6b7280' : '#ef4444')) + '; font-size:0.9em;">' 
-                        + (lib.loaded ? '\u2713' : (lib.note === 'Planned' ? '\u25CB' : '\u2717')) + '</span>'
-                        + '<span style="color:var(--text-secondary);">' + lib.name + '</span>'
-                        + (lib.note ? '<span style="font-size:0.72em; color:var(--text-muted); font-style:italic;">' + lib.note + '</span>' : '')
-                        + '<span style="color:var(--text-muted); margin-left:auto; font-weight:600;">' + lib.count + '</span>'
-                        + '</div>';
-                });
-                html += '</div>';
             });
-            html += '</div>';
+            
+            html += '</div>'
+                + '<div style="margin-top:10px; font-size:0.78em; color:var(--text-muted);">' + totalLoaded + '/' + tiles.length + ' libraries loaded</div>'
+                + '</div>';
             
             // ===== PLATFORM ANALYTICS (loaded from Firestore) =====
             html += '<div id="adminAnalytics" style="padding:20px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; border:1px solid ' + tv('rgba(255,255,255,0.08)','rgba(0,0,0,0.06)') + '; border-radius:10px; margin-bottom:20px;">'
@@ -8594,82 +8583,28 @@
                 console.error('Error loading profiles:', e);
             }
             
-            // Load O*NET skills library
-            try {
-                const onetLib = await fetch('onet-skills-library.json').then(r => r.json());
-                window.onetSkillsLibrary = onetLib;
-                console.log('✓ O*NET Skills Library loaded');
-            } catch (e) {
-                console.error('Error loading O*NET skills library:', e);
-            }
+            // Load all data libraries in PARALLEL (not sequential)
+            var libResults = await Promise.allSettled([
+                fetch('onet-skills-library.json').then(r => r.json()),
+                fetch('onet-abilities-library.json').then(r => r.json()),
+                fetch('onet-workstyles-library.json').then(r => r.json()),
+                fetch('onet-knowledge-library.json').then(r => r.json()),
+                fetch('onet-work-activities-library.json').then(r => r.json()),
+                fetch('trades-creative-library.json').then(r => r.json()),
+                fetch('values-library.json').then(r => r.json()),
+                fetch('bls-wages.json').then(r => r.json())
+            ]);
             
-            // Load O*NET abilities library  
-            try {
-                const abilitiesLib = await fetch('onet-abilities-library.json').then(r => r.json());
-                window.onetAbilitiesLibrary = abilitiesLib;
-                console.log('✓ O*NET Abilities Library loaded');
-            } catch (e) {
-                console.error('Error loading O*NET abilities library:', e);
-            }
-            
-            // Load O*NET work styles library
-            try {
-                const workStylesLib = await fetch('onet-workstyles-library.json').then(r => r.json());
-                window.onetWorkStylesLibrary = workStylesLib;
-                const wsCount = workStylesLib.workStyles?.length || workStylesLib.count || '?';
-                console.log(`✓ O*NET Work Styles Library loaded (${wsCount} work styles)`);
-            } catch (e) {
-                console.error('Error loading O*NET work styles library:', e);
-            }
-            
-            // Load O*NET knowledge library
-            try {
-                const knowledgeLib = await fetch('onet-knowledge-library.json').then(r => r.json());
-                window.onetKnowledgeLibrary = knowledgeLib;
-                const kCount = knowledgeLib.knowledge?.length || knowledgeLib.count || '?';
-                console.log(`✓ O*NET Knowledge Library loaded (${kCount} knowledge domains)`);
-            } catch (e) {
-                console.warn('O*NET Knowledge Library not yet deployed (onet-knowledge-library.json)');
-            }
-            
-            // Load O*NET work activities library
-            try {
-                const activitiesLib = await fetch('onet-work-activities-library.json').then(r => r.json());
-                window.onetWorkActivitiesLibrary = activitiesLib;
-                const aCount = activitiesLib.activities?.length || activitiesLib.count || '?';
-                console.log(`✓ O*NET Work Activities Library loaded (${aCount} work activities)`);
-            } catch (e) {
-                console.warn('O*NET Work Activities Library not yet deployed (onet-work-activities-library.json)');
-            }
-            
-            // Load Trades & Creative skills library
-            try {
-                const tradesLib = await fetch('trades-creative-library.json').then(r => r.json());
-                window.tradesCreativeLibrary = tradesLib;
-                const tCount = tradesLib.count || 0;
-                console.log(`✓ Trades & Creative Library loaded (${tCount} skills)`);
-            } catch (e) {
-                console.warn('Trades & Creative Library not yet deployed (trades-creative-library.json)');
-            }
-            
-            // Load values library
-            try {
-                const lib = await fetch('values-library.json').then(r => r.json());
-                valuesLibrary = lib.values || [];
-                console.log('✓ Values library loaded:', valuesLibrary.length, 'values');
-            } catch (e) {
-                console.error('Error loading values library:', e);
-            }
-            
-            // Load BLS OEWS wage data
-            try {
-                const blsData = await fetch('bls-wages.json').then(r => r.json());
-                window.blsWages = blsData;
-                console.log(`✅ BLS wage data loaded: ${blsData.count} occupations (${blsData.period})`);
-            } catch (e) {
-                console.warn('BLS wage data not found (bls-wages.json). Salary engine will use built-in tables only.');
-                window.blsWages = null;
-            }
+            // Assign results — fulfilled or silently skip
+            if (libResults[0].status === 'fulfilled') { window.onetSkillsLibrary = libResults[0].value; console.log('✓ O*NET Skills Library loaded'); }
+            if (libResults[1].status === 'fulfilled') { window.onetAbilitiesLibrary = libResults[1].value; console.log('✓ O*NET Abilities Library loaded (' + (libResults[1].value.abilities?.length || '?') + ')'); }
+            if (libResults[2].status === 'fulfilled') { window.onetWorkStylesLibrary = libResults[2].value; console.log('✓ O*NET Work Styles Library loaded (' + (libResults[2].value.workStyles?.length || '?') + ')'); }
+            if (libResults[3].status === 'fulfilled') { window.onetKnowledgeLibrary = libResults[3].value; console.log('✓ O*NET Knowledge Library loaded (' + (libResults[3].value.knowledge?.length || '?') + ')'); }
+            if (libResults[4].status === 'fulfilled') { window.onetWorkActivitiesLibrary = libResults[4].value; console.log('✓ O*NET Work Activities Library loaded (' + (libResults[4].value.activities?.length || '?') + ')'); }
+            if (libResults[5].status === 'fulfilled') { window.tradesCreativeLibrary = libResults[5].value; console.log('✓ Trades & Creative Library loaded (' + (libResults[5].value.count || '?') + ')'); }
+            if (libResults[6].status === 'fulfilled') { valuesLibrary = libResults[6].value.values || []; console.log('✓ Values library loaded: ' + valuesLibrary.length); }
+            if (libResults[7].status === 'fulfilled') { window.blsWages = libResults[7].value; console.log('✅ BLS wage data loaded: ' + libResults[7].value.count + ' occupations'); }
+            else { window.blsWages = null; }
             
             // ===== PROFILE DECISION FLOW =====
             const currentProfile = safeGet('currentProfile');
