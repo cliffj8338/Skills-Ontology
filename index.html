@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.24 | 20260220 | Format ISO work history dates to human-readable (Mar 1994) -->
+    <!-- v4.25.1.25 | 20260220 | Fix mobile: network skill filter fallback, role-link assignment, layout height -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -2813,6 +2813,15 @@
             .main-content, .main-content.with-filters {
                 height: calc(100vh - 52px - 60px);
             }
+            .main-content.with-controls {
+                height: calc(100vh - 52px - 60px - 48px);
+            }
+            .main-content.with-controls.with-banner {
+                height: calc(100vh - 52px - 60px - 48px - 44px);
+            }
+            .main-content.with-banner {
+                height: calc(100vh - 52px - 60px - 44px);
+            }
 
             .controls {
                 flex-direction: column;
@@ -4465,8 +4474,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.24 - BUILD 20260220-s17
-        var BP_VERSION = 'v4.25.1.24';
+        // BLUEPRINT v4.25.1.25 - BUILD 20260220-s17
+        var BP_VERSION = 'v4.25.1.25';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -10081,8 +10090,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Safety: ensure roles are normalized before building D3 graph
             if (typeof normalizeUserRoles === 'function') normalizeUserRoles();
             const width = window.innerWidth;
-            const height = window.innerHeight - 160;
             const isMobile = width <= 768;
+            // Height: subtract header, controls, banner (if visible), and bottom nav on mobile
+            var heightOffset = 160; // desktop default
+            if (isMobile) {
+                heightOffset = 52 + 48 + 60; // header + controls + bottom nav
+                if (document.getElementById('readonlyBanner')?.style.display !== 'none') heightOffset += 44;
+            }
+            const height = Math.max(300, window.innerHeight - heightOffset);
             
             // Scale factor — makes network fill viewport proportionally
             var scaleFactor = Math.min(width, height) / 900;
@@ -10118,8 +10133,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Add skill nodes — on mobile, only key/top skills to reduce clutter
             var skillsToShow = skillsData.skills;
             if (isMobile) {
+                var levelPri = { 'mastery': 5, 'expert': 4, 'advanced': 3, 'proficient': 2, 'novice': 1 };
                 var keySkills = skillsData.skills.filter(function(s) { return s.key; });
-                var topLevelSkills = skillsData.skills.filter(function(s) { return s.level === 'Mastery' || s.level === 'Expert'; });
+                var topLevelSkills = skillsData.skills.filter(function(s) {
+                    var lvl = (s.level || '').toLowerCase();
+                    return lvl === 'mastery' || lvl === 'expert';
+                });
                 // Merge key + top-level, deduplicate, cap at 25
                 var seen = new Set();
                 skillsToShow = [];
@@ -10131,15 +10150,22 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 });
                 // If still under 25, backfill with Advanced
                 if (skillsToShow.length < 25) {
-                    skillsData.skills.filter(function(s) { return s.level === 'Advanced' && !seen.has(s.name); })
+                    skillsData.skills.filter(function(s) { return (s.level || '').toLowerCase() === 'advanced' && !seen.has(s.name); })
                         .slice(0, 25 - skillsToShow.length)
                         .forEach(function(s) { skillsToShow.push(s); seen.add(s.name); });
                 }
                 // If still under 25, backfill with Proficient
                 if (skillsToShow.length < 25) {
-                    skillsData.skills.filter(function(s) { return s.level === 'Proficient' && !seen.has(s.name); })
+                    skillsData.skills.filter(function(s) { return (s.level || '').toLowerCase() === 'proficient' && !seen.has(s.name); })
                         .slice(0, 25 - skillsToShow.length)
                         .forEach(function(s) { skillsToShow.push(s); seen.add(s.name); });
+                }
+                // FALLBACK: if level-based filters found nothing, take any skills sorted by level priority
+                if (skillsToShow.length === 0 && skillsData.skills.length > 0) {
+                    var sorted = skillsData.skills.slice().sort(function(a, b) {
+                        return (levelPri[(b.level || '').toLowerCase()] || 0) - (levelPri[(a.level || '').toLowerCase()] || 0);
+                    });
+                    sorted.slice(0, 25).forEach(function(s) { skillsToShow.push(s); });
                 }
             }
 
@@ -10166,24 +10192,34 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var validRoleIds = new Set();
             skillsData.roles.forEach(role => { validRoleIds.add(role.id || role.name); });
 
-            // Roles to skills
+            // Roles to skills — with fallback for profiles where skills lack role assignments
+            var roleIds = Array.from(validRoleIds);
+            var unlinkedCount = 0;
             skillsToShow.forEach((skill, i) => {
-                if (!skill.roles) return;
-                skill.roles.forEach(roleRef => {
-                    // roleRef could be an id or a name — check both
-                    var targetRole = roleRef;
-                    if (!validRoleIds.has(targetRole)) {
-                        // Try matching by name
-                        var match = skillsData.roles.find(r => r.name === roleRef || r.id === roleRef);
-                        if (match) targetRole = match.id || match.name;
-                        else return; // skip invalid role reference
-                    }
-                    links.push({ 
-                        source: targetRole, 
+                if (skill.roles && skill.roles.length > 0) {
+                    skill.roles.forEach(roleRef => {
+                        var targetRole = roleRef;
+                        if (!validRoleIds.has(targetRole)) {
+                            var match = skillsData.roles.find(r => r.name === roleRef || r.id === roleRef);
+                            if (match) targetRole = match.id || match.name;
+                            else return;
+                        }
+                        links.push({ 
+                            source: targetRole, 
+                            target: `skill-${i}`,
+                            type: "skill"
+                        });
+                    });
+                } else if (roleIds.length > 0) {
+                    // Skill has no role assignment — distribute round-robin across roles
+                    var assignedRole = roleIds[unlinkedCount % roleIds.length];
+                    links.push({
+                        source: assignedRole,
                         target: `skill-${i}`,
                         type: "skill"
                     });
-                });
+                    unlinkedCount++;
+                }
             });
 
             // Create simulation with viewport-scaled forces
@@ -10933,6 +10969,18 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
         function initCardView() {
             const cardView = document.getElementById('cardView');
+            
+            // Safety: if no skills data, show empty state
+            if (!skillsData || !skillsData.skills || skillsData.skills.length === 0) {
+                cardView.innerHTML = '<div style="text-align:center; padding:60px 20px; color:var(--text-muted);">'
+                    + '<div style="font-size:2em; margin-bottom:12px;">🎯</div>'
+                    + '<div style="font-size:1.05em; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">No skills to display</div>'
+                    + '<div style="font-size:0.88em; line-height:1.6;">Switch to the Network view or select a sample profile to explore skills.</div>'
+                    + '</div>';
+                return;
+            }
+            
+            try {
 
             // ── Dynamic domain grouping — works for ANY profile ──────────────
             // Strategy: group by role first (uses the profile's own role names),
@@ -11162,6 +11210,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             }
             
             cardView.innerHTML = html;
+            } catch (err) {
+                console.error('initCardView error:', err);
+                cardView.innerHTML = '<div style="text-align:center; padding:60px 20px; color:var(--text-muted);">'
+                    + '<div style="font-size:2em; margin-bottom:12px;">⚠️</div>'
+                    + '<div style="font-size:1.05em; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">Card view error</div>'
+                    + '<div style="font-size:0.88em; line-height:1.6;">' + err.message + '</div>'
+                    + '</div>';
+            }
         }
 
         var opportunitiesData = [];
@@ -11287,6 +11343,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Hide controls bar — shown only for Skills tab
             document.getElementById('controlsBar').style.display = 'none';
             document.querySelector('.main-content')?.classList.remove('with-filters');
+            document.querySelector('.main-content')?.classList.remove('with-controls');
+            // Track banner state for mobile height calc
+            var hasBanner = document.getElementById('readonlyBanner')?.style.display !== 'none' && document.getElementById('readonlyBanner') !== null;
+            var mc = document.querySelector('.main-content');
+            if (mc) {
+                if (hasBanner) mc.classList.add('with-banner');
+                else mc.classList.remove('with-banner');
+            }
             
             // Hide match overlay UI when leaving network view
             if (view !== 'network') {
@@ -11346,6 +11410,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             } else if (view === 'network') {
                 // Skills Ontology view
                 controls.style.display = 'flex';
+                document.querySelector('.main-content')?.classList.add('with-controls');
                 // Sync toggle pills with current sub-view
                 document.querySelectorAll('#skillsViewToggle .view-pill').forEach(function(chip) {
                     chip.classList.toggle('active', chip.dataset.view === currentSkillsView);
