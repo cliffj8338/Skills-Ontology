@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.26.0.4 | 20260221 | Network: click-to-open skill modal, enriched tooltips, drag-vs-click fix, hide mutation buttons in read-only -->
+    <!-- v4.26.0.5 | 20260221 | Fix: null guards in openSkillModal for level, roles -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -898,8 +898,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.26.0.4 - BUILD 20260221-s19
-        var BP_VERSION = 'v4.26.0.4';
+        // BLUEPRINT v4.26.0.5 - BUILD 20260221-s19
+        var BP_VERSION = 'v4.26.0.5';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -8496,7 +8496,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             title.textContent = skillName;
             
             // Set subtitle (level, years, core badge, category badge)
-            const levelClass = skillData.level.toLowerCase();
+            const levelClass = (skillData.level || 'proficient').toLowerCase();
             const coreBadge = skillData.key ? '<span class="modal-core-badge">' + bpIcon('star',12) + ' CORE DIFFERENTIATOR</span>' : '';
             const details = skillsData.skillDetails[skillName] || {};
             
@@ -8525,7 +8525,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             }
             
             subtitle.innerHTML = `
-                <span class="modal-level-badge ${levelClass}">${skillData.level}</span>
+                <span class="modal-level-badge ${levelClass}">${skillData.level || 'Proficient'}</span>
                 <span class="modal-years">${years} years experience</span>
                 ${categoryBadge}
                 ${coreBadge}
@@ -8595,7 +8595,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     </div>
                     <div class="roles-tags">
             `;
-            skillData.roles.forEach(roleId => {
+            (skillData.roles || []).forEach(roleId => {
                 const role = skillsData.roles.find(r => r.id === roleId);
                 if (role) {
                     bodyHTML += `<div class="role-tag">${getRoleIconSvg(role.name, 14)} ${role.name}</div>`;
