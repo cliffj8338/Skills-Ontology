@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.28 | 20260220 | Comprehensive read-only lockdown: 65 guards, CSS blocklist, hide JSON export -->
+    <!-- v4.25.1.29 | 20260220 | Hide edit/delete/add buttons in Skills Management tab for sample profiles -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4508,8 +4508,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.28 - BUILD 20260220-s17
-        var BP_VERSION = 'v4.25.1.28';
+        // BLUEPRINT v4.25.1.29 - BUILD 20260220-s17
+        var BP_VERSION = 'v4.25.1.29';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -13695,10 +13695,12 @@ body {
             
             // Action bar
             html += '<div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;">';
+            if (!isReadOnlyProfile) {
             html += '<button onclick="showAddSkillsEmpty()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:linear-gradient(135deg, rgba(96,165,250,0.15), rgba(96,165,250,0.08)); border:1px solid ' + tv('rgba(96,165,250,0.3)','rgba(37,99,235,0.2)') + '; border-radius:8px; color:#60a5fa; cursor:pointer; font-weight:600; font-size:0.88em;">'
                 + bpIcon('plus',14) + ' Add Skill</button>';
             html += '<button onclick="openBulkImport()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.08)') + '; border-radius:8px; color:' + tv('#d1d5db','#475569') + '; cursor:pointer; font-weight:600; font-size:0.88em;">'
                 + bpIcon('upload',14) + ' Bulk Import</button>';
+            }
             html += '<button onclick="switchView(\'skills\')" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:' + tv('rgba(255,255,255,0.04)','rgba(0,0,0,0.03)') + '; border:1px solid ' + tv('rgba(255,255,255,0.1)','rgba(0,0,0,0.08)') + '; border-radius:8px; color:' + tv('#d1d5db','#475569') + '; cursor:pointer; font-weight:600; font-size:0.88em; margin-left:auto;">'
                 + bpIcon('skills',14) + ' Network View</button>';
             html += '</div>';
@@ -13779,8 +13781,8 @@ body {
                         html += '<span style="font-size:0.65em; padding:2px 6px; border-radius:8px; background:' + tv('rgba(245,158,11,0.15)','rgba(245,158,11,0.1)') + '; color:#f59e0b; font-weight:600;">CORE</span>';
                     }
                     
-                    html += '<button onclick="openSkillModalFromCard(\'' + escapedName + '\')" title="Edit" style="background:none; border:none; cursor:pointer; color:#60a5fa; padding:4px;">' + bpIcon('edit',14) + '</button>'
-                        + '<button onclick="if(confirm(\'Remove skill: ' + escapedName + '?\')) { removeSkillFromProfile(\'' + escapedName + '\', \'' + (s.category || 'skill') + '\'); switchBlueprintTab(\'skills\'); }" title="Remove" style="background:none; border:none; cursor:pointer; color:' + tv('#6b7280','#9ca3af') + '; padding:4px;">' + bpIcon('trash',14) + '</button>'
+                    html += '<button onclick="openSkillModalFromCard(\'' + escapedName + '\')" title="Edit" style="background:none; border:none; cursor:pointer; color:#60a5fa; padding:4px;' + (isReadOnlyProfile ? ' display:none;' : '') + '">' + bpIcon('edit',14) + '</button>'
+                        + '<button onclick="if(confirm(\'Remove skill: ' + escapedName + '?\')) { removeSkillFromProfile(\'' + escapedName + '\', \'' + (s.category || 'skill') + '\'); switchBlueprintTab(\'skills\'); }" title="Remove" style="background:none; border:none; cursor:pointer; color:' + tv('#6b7280','#9ca3af') + '; padding:4px;' + (isReadOnlyProfile ? ' display:none;' : '') + '">' + bpIcon('trash',14) + '</button>'
                         + '</div>';
                 });
                 
@@ -23587,6 +23589,7 @@ body {
         }
 
         function showAddSkillsEmpty() {
+            if (readOnlyGuard()) return;
             const container = document.getElementById('addSkillsResults');
             container.innerHTML = `
                 <div style="text-align: center; padding: 60px 20px; color: #9ca3af;">
