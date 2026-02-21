@@ -1,300 +1,298 @@
 {
-  "templateName": "Eleven - Research Subject & Field Operative",
   "profile": {
     "name": "Eleven (Jane Hopper)",
-    "currentTitle": "Research Subject & Crisis Operative",
+    "currentTitle": "Research Subject / Crisis Response Specialist",
     "location": "Hawkins, IN",
-    "roleLevel": "Entry-Mid",
-    "email": ""
+    "roleLevel": "Early Career",
+    "summary": "Extraordinary individual with unique sensory and perceptual abilities developed through intensive government research programs. Demonstrated crisis leadership and threat assessment capabilities far beyond chronological experience. Currently transitioning from classified research background to civilian applications."
   },
-  "purpose": "To use unique abilities in perception, pattern recognition, and crisis response to protect the people who matter most.",
   "roles": [
     {
-      "name": "Research Scientist"
+      "name": "Research Subject"
     },
     {
-      "name": "Crisis Intervention Specialist"
+      "name": "Crisis Specialist"
     },
     {
-      "name": "Intelligence Analyst"
-    }
-  ],
-  "values": [
-    {
-      "text": "Successfully neutralized 4 interdimensional threat events, protecting a population of 30,000+",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Demonstrated remote sensing capabilities validated by Department of Energy classified research programs",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Self-taught literacy and social communication in under 18 months with no formal instruction",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Led team coordination under extreme duress with zero training, achieving objectives every time",
-      "selected": true,
-      "shared": true
+      "name": "Threat Analyst"
     }
   ],
   "skills": [
     {
-      "name": "Pattern Recognition",
-      "level": "Mastery",
+      "name": "Sensory Perception",
       "category": "ability",
-      "key": true,
+      "proficiency": "Mastery",
       "roles": [
-        "Intelligence Analyst"
+        "Research Subject",
+        "Threat Analyst"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Demonstrated remote sensory perception capabilities validated by government researchers",
+          "description": "Abilities verified through controlled laboratory testing by Hawkins National Laboratory"
+        }
+      ]
+    },
+    {
+      "name": "Threat Assessment",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Threat Analyst"
+      ],
+      "evidence": [
+        {
+          "outcome": "Identified and neutralized 4 critical threats to civilian population",
+          "description": "Threat detection capabilities instrumental in preventing mass casualty events"
+        }
+      ]
     },
     {
       "name": "Crisis Response",
-      "level": "Expert",
       "category": "skill",
-      "key": true,
+      "proficiency": "Mastery",
       "roles": [
-        "Crisis Intervention Specialist"
+        "Crisis Specialist"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Led crisis response saving 30+ civilian lives across 3 separate incidents",
+          "description": "Demonstrated calm under extreme pressure in life-threatening scenarios"
+        }
+      ]
+    },
+    {
+      "name": "Pattern Recognition",
+      "category": "ability",
+      "proficiency": "Mastery",
+      "roles": [
+        "Research Subject",
+        "Threat Analyst"
+      ]
     },
     {
       "name": "Nonverbal Communication",
-      "level": "Expert",
       "category": "skill",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Crisis Specialist"
+      ]
     },
     {
-      "name": "Selective Attention",
-      "level": "Mastery",
-      "category": "ability",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Spatial Orientation",
-      "level": "Expert",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Problem Sensitivity",
-      "level": "Expert",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Complex Problem Solving",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Stress Tolerance",
-      "level": "Mastery",
+      "name": "Emotional Intelligence",
       "category": "workstyle",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Persistence",
-      "level": "Mastery",
-      "category": "workstyle",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Self-Control",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Concern for Others",
-      "level": "Mastery",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Adaptability/Flexibility",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Initiative",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Crisis Specialist"
+      ]
     },
     {
       "name": "Resilience",
-      "level": "Mastery",
-      "category": "unique",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "Crisis Specialist"
+      ],
+      "evidence": [
+        {
+          "outcome": "Recovered and regained full capabilities after complete ability loss",
+          "description": "Demonstrated extraordinary psychological resilience following traumatic events"
+        }
+      ]
     },
     {
-      "name": "Active Learning",
-      "level": "Expert",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Social Perceptiveness",
-      "level": "Advanced",
+      "name": "Focus & Concentration",
       "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Mastery",
+      "roles": [
+        "Research Subject"
+      ]
+    },
+    {
+      "name": "Adaptability",
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "Crisis Specialist"
+      ]
+    },
+    {
+      "name": "Courage",
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "Crisis Specialist"
+      ]
+    },
+    {
+      "name": "Observation",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Threat Analyst"
+      ]
+    },
+    {
+      "name": "Trauma-Informed Practice",
+      "category": "knowledge",
+      "proficiency": "Advanced",
+      "roles": [
+        "Crisis Specialist"
+      ],
+      "evidence": [
+        {
+          "outcome": "Personal experience with institutional trauma informs deep understanding of PTSD",
+          "description": "Unique perspective on recovery and resilience from lived experience"
+        }
+      ]
+    },
+    {
+      "name": "Teamwork",
+      "category": "workstyle",
+      "proficiency": "Advanced",
+      "roles": [
+        "Crisis Specialist"
+      ]
+    },
+    {
+      "name": "Problem Solving",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Threat Analyst"
+      ]
+    },
+    {
+      "name": "Self-Directed Learning",
+      "category": "workstyle",
+      "proficiency": "Advanced",
+      "roles": [
+        "Research Subject"
+      ]
+    },
+    {
+      "name": "Loyalty",
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "Crisis Specialist"
+      ]
     }
   ],
   "workHistory": [
     {
-      "company": "Hawkins National Laboratory",
-      "title": "Research Subject / Project MKUltra",
-      "startYear": 1971,
-      "endYear": 1983,
-      "current": false,
-      "description": "Participated in DOE classified sensory research program. Demonstrated unprecedented remote viewing and threat detection capabilities."
+      "title": "Crisis Response Operative",
+      "company": "Classified \u2014 Hawkins, IN",
+      "location": "Hawkins, IN",
+      "startDate": "1983-11",
+      "endDate": "",
+      "current": true,
+      "description": "Led frontline response to multiple community-threatening events. Coordinated with civilian volunteers and law enforcement. Instrumental in neutralizing existential threats to the town of Hawkins.",
+      "achievements": [
+        "Saved 30+ civilian lives across 3 crisis events",
+        "Closed dimensional breach threatening entire community",
+        "Rebuilt personal capabilities after traumatic setback"
+      ]
     },
     {
-      "company": "Hawkins, IN",
-      "title": "Community Crisis Response",
-      "startYear": 1983,
-      "endYear": 1986,
+      "title": "Research Subject",
+      "company": "Hawkins National Laboratory (DOE)",
+      "location": "Hawkins, IN",
+      "startDate": "1971-01",
+      "endDate": "1983-11",
       "current": false,
-      "description": "Led threat response during four major crisis events. Coordinated with civilian teams under extreme conditions."
+      "description": "Participant in classified government research program studying enhanced human perception. Developed and demonstrated extraordinary sensory capabilities under controlled laboratory conditions.",
+      "achievements": [
+        "Demonstrated validated remote perception capabilities",
+        "Subject of multiple classified research publications"
+      ]
     }
   ],
   "education": [
     {
-      "institution": "Hawkins Middle School",
+      "school": "Hawkins National Laboratory \u2014 Education Program",
+      "degree": "Equivalent",
+      "field": "General Studies & Laboratory Science",
+      "year": "1983",
+      "id": "ed-el-1"
+    },
+    {
+      "school": "Hawkins Middle School (enrolled)",
       "degree": "In Progress",
-      "field": "General Education",
-      "year": 1985
+      "field": "General Studies",
+      "year": "1984",
+      "id": "ed-el-2"
     }
   ],
   "certifications": [],
   "savedJobs": [
     {
-      "id": "el-1",
       "title": "Neuroscience Research Associate",
       "company": "Johns Hopkins University",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Johns Hopkins seeks a Research Associate for the Department of Neuroscience studying human sensory perception and anomalous cognition. Must demonstrate analytical thinking and willingness to work in laboratory environments. Bachelor's degree in neuroscience, psychology, or related field required. Experience with EEG/fMRI equipment, SPSS statistical analysis, and IRB protocol management mandatory. Must maintain detailed lab notebooks and contribute to publication pipeline.",
+      "location": "Baltimore, MD",
+      "description": "Support research on sensory perception and brain plasticity in the Department of Neuroscience. Assist with experimental design, data collection, and publication.",
       "parsedSkills": [
+        "Sensory Perception",
         "Pattern Recognition",
-        "Selective Attention",
-        "Active Learning",
-        "Complex Problem Solving",
-        "Persistence",
-        "Spatial Orientation",
+        "Focus & Concentration",
+        "Observation",
+        "Problem Solving",
+        "Self-Directed Learning",
+        "Research Methodology",
+        "Statistical Analysis",
+        "SPSS Software",
+        "Published Research",
+        "IRB Compliance",
         "Bachelor's Degree Required",
-        "EEG/fMRI Equipment",
-        "SPSS Statistical Analysis",
-        "IRB Protocol Management",
-        "Lab Notebook Documentation",
-        "Scientific Writing",
-        "Research Ethics Certification",
-        "Python Data Analysis"
+        "Matlab",
+        "Hadoop"
       ],
-      "parsedRoles": [
-        "Research Scientist"
-      ],
-      "seniority": "Entry-Mid",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     },
     {
-      "id": "el-2",
       "title": "Crisis Intervention Specialist",
       "company": "SAMHSA",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "SAMHSA seeks Crisis Intervention Specialists for the 988 Lifeline. Requires extraordinary empathy, active listening, and ability to remain calm under extreme emotional pressure. Training provided for qualified candidates. Lived experience with trauma valued. Must complete 200-hour certification program. Bilingual English/Spanish preferred. Must pass background check and maintain confidentiality standards.",
+      "location": "Washington, DC",
+      "description": "Provide direct crisis intervention services and support to communities affected by disasters and traumatic events. Deploy as part of federal crisis response teams.",
       "parsedSkills": [
         "Crisis Response",
+        "Trauma-Informed Practice",
+        "Emotional Intelligence",
+        "Resilience",
+        "Adaptability",
         "Nonverbal Communication",
-        "Social Perceptiveness",
-        "Concern for Others",
-        "Stress Tolerance",
-        "Active Learning",
-        "Self-Control",
-        "Adaptability/Flexibility",
-        "Persistence",
-        "200-Hour Certification Program",
-        "Bilingual English/Spanish",
-        "Confidentiality Standards",
-        "De-escalation Techniques"
+        "Teamwork",
+        "Observation",
+        "Empathy",
+        "Cultural Competency",
+        "Peer Support Certification",
+        "Motivational Interviewing",
+        "De-escalation"
       ],
-      "parsedRoles": [
-        "Crisis Intervention Specialist"
-      ],
-      "seniority": "Entry-Mid",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     },
     {
-      "id": "el-3",
-      "title": "Intelligence Analyst - Threat Detection",
+      "title": "Intelligence Analyst",
       "company": "National Security Agency",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "NSA seeks Intelligence Analysts in threat detection and pattern analysis. Must demonstrate exceptional pattern recognition and selective attention. Requires ability to work in high-pressure classified environments. Bachelor's degree required. Must pass TS/SCI background investigation. Experience with Hadoop, Python, and machine learning frameworks required. Formal intelligence analysis training (Sherman Kent School or equivalent) mandatory. Must produce written intelligence products.",
+      "location": "Fort Meade, MD",
+      "description": "Analyze intelligence data to identify threats to national security. Produce analytical reports and brief senior leadership on findings.",
       "parsedSkills": [
+        "Threat Assessment",
         "Pattern Recognition",
-        "Selective Attention",
-        "Spatial Orientation",
-        "Problem Sensitivity",
-        "Persistence",
-        "Stress Tolerance",
-        "Self-Control",
-        "Bachelor's Degree Required",
-        "TS/SCI Clearance",
-        "Hadoop",
-        "Python",
-        "Machine Learning",
-        "Sherman Kent School Training",
-        "Intelligence Writing",
-        "Link Analysis Software"
+        "Observation",
+        "Focus & Concentration",
+        "Problem Solving",
+        "Report Writing",
+        "Security Clearance Required",
+        "Signals Intelligence",
+        "Geospatial Analysis",
+        "Cryptanalysis",
+        "Python Programming",
+        "Database Management"
       ],
-      "parsedRoles": [
-        "Intelligence Analyst"
-      ],
-      "seniority": "Entry-Mid",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     }
-  ]
+  ],
+  "values": [],
+  "purpose": ""
 }

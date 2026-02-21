@@ -1,365 +1,365 @@
 {
-  "templateName": "Jim Hopper - Police Chief & Crisis Leader",
   "profile": {
     "name": "Jim Hopper",
     "currentTitle": "Chief of Police, Hawkins PD",
     "location": "Hawkins, IN",
     "roleLevel": "Senior",
-    "email": "hopper@hawkins.gov"
+    "summary": "Veteran law enforcement leader with a decorated military background and experience spanning NYC homicide investigation to small-town policing. Combines big-city investigative expertise with community-oriented leadership. Proven ability to manage complex, multi-stakeholder crises under extreme pressure."
   },
-  "purpose": "To protect communities through decisive leadership, unwavering commitment, and the willingness to face threats others cannot comprehend.",
   "roles": [
     {
       "name": "Police Chief"
     },
     {
-      "name": "Emergency Management Director"
+      "name": "Homicide Detective"
     },
     {
-      "name": "Security Director"
-    }
-  ],
-  "values": [
-    {
-      "text": "Led Hawkins PD through multiple unprecedented crisis events with zero civilian casualties under direct command",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Rebuilt department morale and community trust after years of institutional neglect",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Coordinated classified joint operations with Department of Energy involving national security threats",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Earned Bronze Star and Purple Heart during U.S. Army service in Vietnam",
-      "selected": true,
-      "shared": true
+      "name": "Military Veteran"
     }
   ],
   "skills": [
     {
       "name": "Law Enforcement Leadership",
-      "level": "Expert",
       "category": "skill",
-      "key": true,
+      "proficiency": "Advanced",
       "roles": [
         "Police Chief"
       ],
-      "evidence": []
-    },
-    {
-      "name": "Crisis Management",
-      "level": "Mastery",
-      "category": "skill",
-      "key": true,
-      "roles": [
-        "Emergency Management Director"
-      ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Managed department of 12 officers serving 30,000-person community",
+          "description": "Rebuilt department morale and community trust after period of institutional neglect"
+        }
+      ]
     },
     {
       "name": "Criminal Investigation",
-      "level": "Expert",
       "category": "skill",
-      "key": true,
+      "proficiency": "Mastery",
+      "roles": [
+        "Police Chief",
+        "Homicide Detective"
+      ],
+      "evidence": [
+        {
+          "outcome": "Solved 85% of assigned homicide cases over 6-year NYPD career",
+          "description": "Clearance rate significantly above department average of 65%"
+        }
+      ]
+    },
+    {
+      "name": "Crisis Management",
+      "category": "skill",
+      "proficiency": "Mastery",
       "roles": [
         "Police Chief"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Led emergency response to 3 consecutive community-wide crisis events",
+          "description": "Coordinated civilian evacuation, federal liaison, and media management simultaneously"
+        }
+      ]
     },
     {
-      "name": "Emergency Response",
-      "level": "Expert",
+      "name": "Missing Persons Investigation",
       "category": "skill",
-      "key": true,
+      "proficiency": "Advanced",
       "roles": [
-        "Emergency Management Director"
+        "Police Chief",
+        "Homicide Detective"
+      ]
+    },
+    {
+      "name": "Community Policing",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Police Chief"
+      ]
+    },
+    {
+      "name": "Government Liaison",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Police Chief"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Negotiated classified cooperation agreement with Department of Energy facility",
+          "description": "Secured community safety guarantees while maintaining operational security"
+        }
+      ]
+    },
+    {
+      "name": "Interrogation Techniques",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Homicide Detective"
+      ]
+    },
+    {
+      "name": "Evidence Analysis",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Homicide Detective"
+      ]
+    },
+    {
+      "name": "Combat Training",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Military Veteran"
+      ]
+    },
+    {
+      "name": "Survival Skills",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Military Veteran"
+      ]
     },
     {
       "name": "Team Leadership",
-      "level": "Expert",
-      "category": "skill",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "category": "workstyle",
+      "proficiency": "Advanced",
+      "roles": [
+        "Police Chief",
+        "Military Veteran"
+      ]
     },
     {
-      "name": "Complex Problem Solving",
-      "level": "Expert",
+      "name": "Physical Fitness",
       "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Police Chief",
+        "Military Veteran"
+      ]
     },
     {
-      "name": "Judgment and Decision Making",
-      "level": "Expert",
-      "category": "ability",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Social Perceptiveness",
-      "level": "Expert",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Speaking",
-      "level": "Advanced",
+      "name": "Firearms Proficiency",
       "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Police Chief",
+        "Military Veteran"
+      ]
     },
     {
-      "name": "Active Listening",
-      "level": "Advanced",
+      "name": "Decision Making Under Pressure",
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "Police Chief",
+        "Military Veteran"
+      ]
+    },
+    {
+      "name": "Report Writing",
       "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Police Chief",
+        "Homicide Detective"
+      ]
     },
     {
-      "name": "Coordination",
-      "level": "Expert",
+      "name": "Emergency Response Planning",
       "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Police Chief"
+      ]
     },
     {
-      "name": "Stress Tolerance",
-      "level": "Mastery",
+      "name": "Protective Services",
+      "category": "skill",
+      "proficiency": "Mastery",
+      "roles": [
+        "Police Chief"
+      ]
+    },
+    {
+      "name": "Resilience",
       "category": "workstyle",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Mastery",
+      "roles": [
+        "Police Chief",
+        "Military Veteran"
+      ]
     },
     {
-      "name": "Persistence",
-      "level": "Mastery",
+      "name": "Empathy",
       "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Police Chief"
+      ]
     },
     {
-      "name": "Integrity",
-      "level": "Expert",
+      "name": "Resourcefulness",
       "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Mastery",
+      "roles": [
+        "Police Chief",
+        "Military Veteran"
+      ]
     },
     {
-      "name": "Initiative",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Leadership",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Adaptability/Flexibility",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Concern for Others",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Public Safety and Security",
-      "level": "Expert",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Law and Government",
-      "level": "Expert",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Administration and Management",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Conflict De-escalation",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Police Chief"
+      ]
     }
   ],
   "workHistory": [
     {
-      "company": "Hawkins Police Department",
       "title": "Chief of Police",
-      "startYear": 1979,
-      "endYear": 1986,
-      "current": false,
-      "description": "Led 12-officer department serving population of 30,000. Crisis response to multiple classified incidents."
+      "company": "Hawkins Police Department",
+      "location": "Hawkins, IN",
+      "startDate": "1980-01",
+      "endDate": "",
+      "current": true,
+      "description": "Lead all law enforcement operations for the town of Hawkins. Manage officer team, coordinate with state police and federal agencies, handle community relations and public safety planning.",
+      "achievements": [
+        "Led 3 major community crisis responses",
+        "Negotiated DOE cooperation agreement",
+        "Rebuilt department morale and community trust"
+      ]
     },
     {
-      "company": "New York Police Department",
       "title": "Homicide Detective",
-      "startYear": 1973,
-      "endYear": 1979,
+      "company": "New York City Police Department",
+      "location": "New York, NY",
+      "startDate": "1972-09",
+      "endDate": "1979-12",
       "current": false,
-      "description": "Investigated violent crimes in Manhattan South. Cleared 40+ cases."
+      "description": "Investigated homicide cases in one of the nation's busiest precincts. Worked closely with forensics, DA's office, and witness protection. Specialized in complex cases involving organized crime.",
+      "achievements": [
+        "85% case clearance rate vs. 65% department average",
+        "Worked 150+ homicide investigations",
+        "Commendation for undercover work"
+      ]
     },
     {
-      "company": "U.S. Army",
-      "title": "Sergeant, Infantry",
-      "startYear": 1968,
-      "endYear": 1971,
+      "title": "Chemical Corps Specialist",
+      "company": "United States Army",
+      "location": "Vietnam",
+      "startDate": "1959-06",
+      "endDate": "1963-08",
       "current": false,
-      "description": "Served two tours in Vietnam. Earned Bronze Star and Purple Heart."
+      "description": "Served in the Chemical Corps during the Vietnam War. Worked with defoliant operations. Received honorable discharge with decorations.",
+      "achievements": [
+        "Honorable discharge with commendations",
+        "Chemical Corps specialist training"
+      ]
     }
   ],
   "education": [
     {
-      "institution": "NYPD Police Academy",
+      "school": "Hawkins High School",
+      "degree": "High School Diploma",
+      "field": "General Studies",
+      "year": "1959",
+      "id": "ed-jh-1"
+    },
+    {
+      "school": "NYPD Police Academy",
       "degree": "Certificate",
       "field": "Law Enforcement",
-      "year": 1973
+      "year": "1972",
+      "id": "ed-jh-2"
     }
   ],
   "certifications": [
     {
       "name": "Indiana Law Enforcement Academy",
-      "issuer": "ILEA",
-      "year": 1979
+      "abbr": "ILEA",
+      "issuer": "State of Indiana",
+      "year": "1980",
+      "type": "Certification",
+      "linkedSkills": [
+        "Law Enforcement Leadership"
+      ],
+      "tier": 2,
+      "libraryMatch": null,
+      "id": "cert-jh-1"
     }
   ],
   "savedJobs": [
     {
-      "id": "jh-1",
       "title": "Director of Emergency Management",
       "company": "FEMA Region V",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "FEMA seeks a Director of Emergency Management for 6 Midwestern states. Requires 15+ years in emergency services or military leadership. Must demonstrate crisis coordination and inter-agency collaboration. FEMA Professional Development Series certification required. Experience with WebEOC, GIS mapping, and federal grant administration mandatory. Must brief congressional committees quarterly. Budget authority: $200M.",
+      "location": "Chicago, IL",
+      "description": "Lead regional disaster preparedness and emergency response coordination. Manage multi-agency operations during natural disasters and public safety emergencies.",
       "parsedSkills": [
         "Crisis Management",
-        "Emergency Response",
+        "Emergency Response Planning",
         "Team Leadership",
-        "Coordination",
-        "Law Enforcement Leadership",
-        "Judgment and Decision Making",
-        "Stress Tolerance",
-        "Public Safety and Security",
-        "Administration and Management",
-        "FEMA PDS Certification",
-        "WebEOC",
-        "GIS Emergency Mapping",
-        "Federal Grant Administration",
-        "Congressional Briefings",
-        "Continuity of Operations Planning",
-        "Mass Casualty Incident Management"
+        "Government Liaison",
+        "Decision Making Under Pressure",
+        "Community Policing",
+        "Report Writing",
+        "Resource Allocation",
+        "Incident Command System",
+        "Federal Budget Management",
+        "Congressional Reporting",
+        "GIS Mapping",
+        "Hazmat Certification"
       ],
-      "parsedRoles": [
-        "Emergency Management Director",
-        "Police Chief"
-      ],
-      "seniority": "Senior",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     },
     {
-      "id": "jh-2",
-      "title": "VP of Global Security",
-      "company": "Tesla",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Tesla seeks a VP of Global Security across 8 manufacturing sites worldwide. Requires military or law enforcement leadership with crisis management expertise. Must build 200+ person security organization. Experience with cybersecurity programs, executive protection, and international security operations required. ASIS CPP certification mandatory. Must manage SOC operations and implement AI-powered surveillance systems.",
+      "title": "VP of Security Operations",
+      "company": "Tesla Inc.",
+      "location": "Austin, TX",
+      "description": "Lead physical security, executive protection, and facility security for manufacturing operations across multiple continents.",
       "parsedSkills": [
+        "Law Enforcement Leadership",
         "Team Leadership",
         "Crisis Management",
-        "Law Enforcement Leadership",
-        "Public Safety and Security",
-        "Administration and Management",
-        "Judgment and Decision Making",
-        "Leadership",
-        "Persistence",
-        "Cybersecurity Programs",
-        "Executive Protection",
-        "International Security Operations",
-        "ASIS CPP Certification",
-        "SOC Operations",
-        "AI Surveillance Systems",
-        "Travel Security Programs",
-        "Insider Threat Programs"
+        "Physical Fitness",
+        "Protective Services",
+        "Risk Assessment",
+        "Emergency Response Planning",
+        "Access Control Systems",
+        "CCTV Analytics",
+        "Threat Intelligence",
+        "Executive Travel Security",
+        "Workplace Violence Prevention"
       ],
-      "parsedRoles": [
-        "Security Director",
-        "Police Chief"
-      ],
-      "seniority": "Executive",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     },
     {
-      "id": "jh-3",
       "title": "County Sheriff",
-      "company": "Marion County, IN",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Marion County seeks Sheriff to lead 1,200 sworn officers and 400 civilian staff. Requires law enforcement command experience, budget management, and community engagement. Must work with elected officials, courts, and federal agencies. Experience with body-worn cameras, CompStat analytics, and community policing programs required. DEI training program development expected. Must manage $180M annual budget.",
+      "company": "Monroe County, IN",
+      "location": "Bloomington, IN",
+      "description": "Elected law enforcement leader overseeing county-wide policing, jail operations, court security, and community programs.",
       "parsedSkills": [
         "Law Enforcement Leadership",
         "Criminal Investigation",
-        "Team Leadership",
-        "Crisis Management",
-        "Speaking",
-        "Integrity",
-        "Administration and Management",
-        "Law and Government",
-        "Social Perceptiveness",
-        "Body-Worn Camera Programs",
-        "CompStat Analytics",
         "Community Policing",
-        "DEI Program Development",
-        "Media Relations",
-        "Union Negotiations"
+        "Crisis Management",
+        "Team Leadership",
+        "Emergency Response Planning",
+        "Report Writing",
+        "Conflict De-escalation",
+        "Budget Management",
+        "Public Relations",
+        "Jail Administration",
+        "Court Liaison"
       ],
-      "parsedRoles": [
-        "Police Chief"
-      ],
-      "seniority": "Senior",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     }
-  ]
+  ],
+  "values": [],
+  "purpose": ""
 }

@@ -1,344 +1,336 @@
 {
-  "templateName": "Jesse Pinkman - Artisan & Entrepreneur",
   "profile": {
     "name": "Jesse Pinkman",
-    "currentTitle": "Artisan Woodworker & Entrepreneur",
+    "currentTitle": "Artisan Woodworker & Craftsman",
     "location": "Albuquerque, NM",
-    "roleLevel": "Mid-Career",
-    "email": "jesse@pinkmandesigns.com"
+    "roleLevel": "Early Career",
+    "summary": "Self-taught craftsman with natural artistic talent and hands-on technical skills. Background in custom furniture making and retail sales. Strong interpersonal skills and an authentic connection with diverse communities. Passionate about creative work and mentoring at-risk youth."
   },
-  "purpose": "To channel creative talent and hands-on craftsmanship into building beautiful things and helping others find their path forward.",
   "roles": [
     {
       "name": "Artisan Craftsman"
     },
     {
-      "name": "Sales Representative"
+      "name": "Sales Associate"
     },
     {
       "name": "Youth Mentor"
     }
   ],
-  "values": [
-    {
-      "text": "Designed and built custom furniture pieces generating $85K in first-year sales",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Developed street-level distribution network covering 50+ accounts with 30% month-over-month growth",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Mentored 12 at-risk youth through community woodworking program with 90% completion rate",
-      "selected": true,
-      "shared": true
-    }
-  ],
   "skills": [
     {
       "name": "Woodworking",
-      "level": "Expert",
       "category": "trade",
-      "key": true,
+      "proficiency": "Advanced",
       "roles": [
         "Artisan Craftsman"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Built custom jewelry box selected for display at ABQ Makers Market",
+          "description": "Hand-carved from reclaimed walnut with dovetail joints and felt lining"
+        }
+      ]
     },
     {
-      "name": "Product Design",
-      "level": "Advanced",
-      "category": "skill",
-      "key": true,
+      "name": "Furniture Making",
+      "category": "trade",
+      "proficiency": "Advanced",
       "roles": [
         "Artisan Craftsman"
-      ],
-      "evidence": []
+      ]
+    },
+    {
+      "name": "Hand Tool Proficiency",
+      "category": "trade",
+      "proficiency": "Advanced",
+      "roles": [
+        "Artisan Craftsman"
+      ]
+    },
+    {
+      "name": "Design Thinking",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Artisan Craftsman"
+      ]
+    },
+    {
+      "name": "Creative Problem Solving",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Artisan Craftsman"
+      ]
+    },
+    {
+      "name": "Custom Fabrication",
+      "category": "trade",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Artisan Craftsman"
+      ]
+    },
+    {
+      "name": "Finishing Techniques",
+      "category": "trade",
+      "proficiency": "Advanced",
+      "roles": [
+        "Artisan Craftsman"
+      ]
     },
     {
       "name": "Sales",
-      "level": "Advanced",
       "category": "skill",
-      "key": true,
+      "proficiency": "Advanced",
       "roles": [
-        "Sales Representative"
+        "Sales Associate"
       ],
-      "evidence": []
-    },
-    {
-      "name": "Negotiation",
-      "level": "Advanced",
-      "category": "skill",
-      "key": true,
-      "roles": [
-        "Sales Representative"
-      ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Consistently exceeded monthly sales targets by 20%",
+          "description": "Built loyal customer base through authentic relationship-building"
+        }
+      ]
     },
     {
       "name": "Customer Service",
-      "level": "Advanced",
       "category": "skill",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Sales Associate"
+      ]
     },
     {
-      "name": "Active Listening",
-      "level": "Expert",
+      "name": "Relationship Building",
+      "category": "workstyle",
+      "proficiency": "Advanced",
+      "roles": [
+        "Sales Associate",
+        "Youth Mentor"
+      ]
+    },
+    {
+      "name": "Negotiation",
       "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Intermediate",
+      "roles": [
+        "Sales Associate"
+      ]
     },
     {
-      "name": "Speaking",
-      "level": "Advanced",
+      "name": "Adaptability",
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "Artisan Craftsman",
+        "Sales Associate"
+      ]
+    },
+    {
+      "name": "Resilience",
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "Youth Mentor"
+      ],
+      "evidence": [
+        {
+          "outcome": "Achieved and maintained sobriety, becoming a peer recovery advocate",
+          "description": "Personal experience with addiction recovery informs authentic mentorship"
+        }
+      ]
+    },
+    {
+      "name": "Youth Mentoring",
       "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Youth Mentor"
+      ],
+      "evidence": [
+        {
+          "outcome": "Mentored 8 at-risk teens through community art program",
+          "description": "Taught woodworking and life skills at Albuquerque Youth Center"
+        }
+      ]
     },
     {
-      "name": "Persuasion",
-      "level": "Advanced",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Social Perceptiveness",
-      "level": "Expert",
-      "category": "ability",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Manual Dexterity",
-      "level": "Expert",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Visualization",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Complex Problem Solving",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Adaptability/Flexibility",
-      "level": "Expert",
+      "name": "Empathy",
       "category": "workstyle",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Mastery",
+      "roles": [
+        "Youth Mentor"
+      ]
     },
     {
-      "name": "Creativity",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Initiative",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Persistence",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Stress Tolerance",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Cooperation",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Building and Construction",
-      "level": "Advanced",
+      "name": "Chemistry",
       "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Intermediate",
+      "roles": [
+        "Artisan Craftsman"
+      ]
     },
     {
-      "name": "Design",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Street Smarts",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Sales Associate"
+      ]
     },
     {
-      "name": "Production and Processing",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Inventory Management",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Sales Associate"
+      ]
+    },
+    {
+      "name": "Vehicle Maintenance",
+      "category": "trade",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Artisan Craftsman"
+      ]
+    },
+    {
+      "name": "Graphic Arts",
+      "category": "creative",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Artisan Craftsman"
+      ]
+    },
+    {
+      "name": "Teamwork",
+      "category": "workstyle",
+      "proficiency": "Advanced",
+      "roles": [
+        "Sales Associate",
+        "Youth Mentor"
+      ]
     }
   ],
   "workHistory": [
     {
-      "company": "Pinkman Designs",
-      "title": "Founder & Artisan",
-      "startYear": 2015,
-      "endYear": 2026,
-      "current": true,
-      "description": "Custom furniture studio specializing in handcrafted wooden boxes, tables, and decorative pieces."
+      "title": "Artisan Woodworker",
+      "company": "Self-Employed",
+      "location": "Albuquerque, NM",
+      "startDate": "2006-03",
+      "endDate": "2008-08",
+      "current": false,
+      "description": "Designed and built custom furniture and decorative items. Sold pieces at local markets and through word-of-mouth commissions. Sourced reclaimed materials from local salvage yards.",
+      "achievements": [
+        "Jewelry box selected for ABQ Makers Market display",
+        "Completed 15+ custom furniture commissions",
+        "Built client base through word-of-mouth referrals"
+      ]
     },
     {
-      "company": "Various",
-      "title": "Independent Sales & Distribution",
-      "startYear": 2004,
-      "endYear": 2010,
+      "title": "Sales Associate",
+      "company": "Various Retail",
+      "location": "Albuquerque, NM",
+      "startDate": "2003-06",
+      "endDate": "2006-02",
       "current": false,
-      "description": "Built and managed independent sales territory with rapid problem-solving under pressure."
+      "description": "Worked various retail positions. Developed strong customer service skills and an ability to read people quickly.",
+      "achievements": [
+        "Consistently exceeded monthly sales targets by 20%"
+      ]
+    },
+    {
+      "title": "Youth Arts Volunteer",
+      "company": "Albuquerque Youth Center",
+      "location": "Albuquerque, NM",
+      "startDate": "2007-01",
+      "endDate": "2008-06",
+      "current": false,
+      "description": "Taught basic woodworking and art skills to at-risk teens. Provided informal mentoring and life skills guidance.",
+      "achievements": [
+        "Mentored 8 at-risk teens",
+        "Designed hands-on curriculum for beginner woodworkers"
+      ]
     }
   ],
   "education": [
     {
-      "institution": "J.P. Wynne High School",
+      "school": "J.P. Wynne High School",
       "degree": "High School Diploma",
       "field": "General Studies",
-      "year": 2004
-    },
-    {
-      "institution": "Albuquerque Community Workshop",
-      "degree": "Certificate",
-      "field": "Fine Woodworking",
-      "year": 2014
+      "year": "2002",
+      "id": "ed-jp-1"
     }
   ],
   "certifications": [],
   "savedJobs": [
     {
-      "id": "jp-1",
-      "title": "Custom Furniture Maker",
-      "company": "West Elm Workshop",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "West Elm seeks a Custom Furniture Maker for our artisan program. Must demonstrate woodworking, joinery, and finishing expertise. Portfolio of original designs required. 3+ years professional experience. Knowledge of sustainable materials and CNC routing required. CAD proficiency (SketchUp or SolidWorks) expected. Must meet production deadlines, manage material sourcing, and coordinate with marketing for product photography.",
+      "title": "Artisan Furniture Maker",
+      "company": "West Elm (Williams-Sonoma)",
+      "location": "Brooklyn, NY",
+      "description": "Design and produce handcrafted furniture pieces for the West Elm LOCAL program, featuring artisan-made goods from regional makers.",
       "parsedSkills": [
         "Woodworking",
-        "Product Design",
-        "Manual Dexterity",
-        "Creativity",
-        "Design",
-        "Production and Processing",
-        "Building and Construction",
-        "Visualization",
-        "CNC Routing",
+        "Furniture Making",
+        "Hand Tool Proficiency",
+        "Design Thinking",
+        "Custom Fabrication",
+        "Finishing Techniques",
+        "Creative Problem Solving",
+        "Customer Service",
+        "CNC Operation",
         "CAD Software",
-        "Sustainable Materials Sourcing",
-        "Production Photography",
-        "Inventory Management"
+        "Production Scheduling",
+        "Upholstery",
+        "Metal Fabrication"
       ],
-      "parsedRoles": [
-        "Artisan Craftsman"
-      ],
-      "seniority": "Mid-Career",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     },
     {
-      "id": "jp-2",
-      "title": "Territory Sales Representative",
+      "title": "Field Sales Representative",
       "company": "Snap-on Tools",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Snap-on seeks a Territory Sales Representative to manage a mobile sales route serving 200+ accounts. Requires strong interpersonal skills, self-motivation, and customer relationship building. Must be comfortable with independent work and consultative selling. CRM proficiency (Salesforce) required. Must meet $500K quarterly quota targets. Financial planning for route profitability expected. Valid CDL-B license required.",
+      "location": "Albuquerque, NM",
+      "description": "Operate mobile tool store serving professional mechanics and technicians. Build relationships, manage inventory, and grow territory sales.",
       "parsedSkills": [
         "Sales",
-        "Negotiation",
         "Customer Service",
-        "Persuasion",
-        "Speaking",
-        "Social Perceptiveness",
-        "Initiative",
-        "Adaptability/Flexibility",
-        "Persistence",
-        "Salesforce CRM",
-        "Quarterly Quota Management",
-        "Financial Planning",
-        "CDL-B License",
-        "Route Profitability Analysis"
+        "Relationship Building",
+        "Negotiation",
+        "Inventory Management",
+        "Vehicle Maintenance",
+        "Hand Tool Proficiency",
+        "Territory Management",
+        "CRM Software",
+        "Financial Reporting",
+        "CDL License",
+        "Route Optimization"
       ],
-      "parsedRoles": [
-        "Sales Representative"
-      ],
-      "seniority": "Mid-Career",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     },
     {
-      "id": "jp-3",
       "title": "Youth Program Coordinator",
       "company": "Boys & Girls Clubs of America",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Boys & Girls Clubs seeks a Youth Program Coordinator to design and lead hands-on workshop programs for at-risk teens ages 14-18. Requires empathy, mentoring ability, and practical trade skills. Must connect with underserved youth. Background check required. Bachelor's degree in social work, education, or related field preferred. Grant writing experience needed. Case management software proficiency expected. CPR/First Aid certification required.",
+      "location": "Albuquerque, NM",
+      "description": "Coordinate after-school and summer programs for youth ages 12-18. Develop curriculum, recruit volunteers, and build community partnerships.",
       "parsedSkills": [
-        "Active Listening",
-        "Social Perceptiveness",
-        "Cooperation",
-        "Speaking",
-        "Creativity",
-        "Adaptability/Flexibility",
-        "Woodworking",
-        "Persistence",
+        "Youth Mentoring",
+        "Relationship Building",
+        "Empathy",
+        "Teamwork",
+        "Creative Problem Solving",
+        "Customer Service",
+        "Adaptability",
+        "Program Design",
         "Grant Writing",
-        "Case Management Software",
-        "Bachelor's Degree",
+        "Volunteer Management",
         "CPR Certification",
-        "Trauma-Informed Care",
-        "Program Evaluation"
+        "Background Check Required"
       ],
-      "parsedRoles": [
-        "Youth Mentor"
-      ],
-      "seniority": "Entry-Mid",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     }
-  ]
+  ],
+  "values": [],
+  "purpose": ""
 }

@@ -1,13 +1,12 @@
 {
-  "templateName": "Walter White - Chemistry Educator & Researcher",
   "profile": {
     "name": "Walter White",
-    "currentTitle": "Chemistry Educator & Researcher",
+    "currentTitle": "High School Chemistry Teacher",
     "location": "Albuquerque, NM",
-    "roleLevel": "Senior",
-    "email": "wwhite@jpwynne.edu"
+    "roleLevel": "Mid-Career",
+    "email": "wwhite@jpwynne.edu",
+    "summary": "PhD chemist with 20+ years in secondary education and a research background in crystallography and proton radiography. Co-founded a technology company before pivoting to education. Known for meticulous laboratory methodology and an ability to translate complex scientific concepts for diverse audiences."
   },
-  "purpose": "To leverage deep chemistry expertise and decades of education experience to advance scientific understanding and mentor the next generation of researchers.",
   "roles": [
     {
       "name": "Chemistry Professor"
@@ -16,471 +15,518 @@
       "name": "Research Scientist"
     },
     {
-      "name": "Laboratory Director"
-    }
-  ],
-  "values": [
-    {
-      "text": "Co-founded Gray Matter Technologies, contributing to foundational research valued at $2.16 billion",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Maintained 99.1% purity standards in chemical synthesis processes across 20+ years",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Achieved highest AP Chemistry pass rate in New Mexico public schools for 8 consecutive years",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Published 14 peer-reviewed papers in crystallography and organic chemistry",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Built and managed multi-million dollar production operations with zero quality defects",
-      "selected": true,
-      "shared": true
+      "name": "Operations Manager"
     }
   ],
   "skills": [
     {
       "name": "Chemistry",
-      "level": "Mastery",
       "category": "knowledge",
-      "key": true,
+      "proficiency": "Mastery",
       "roles": [
         "Chemistry Professor",
         "Research Scientist"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Published 4 peer-reviewed papers on proton radiography with 200+ citations",
+          "description": "Research conducted during graduate work at Caltech and post-doctoral collaboration with Sandia National Laboratories"
+        },
+        {
+          "outcome": "Achieved 99.1% chemical purity in crystalline compound synthesis",
+          "description": "Developed novel recrystallization technique that exceeded industry benchmarks by 15%"
+        }
+      ]
     },
     {
       "name": "Organic Chemistry",
-      "level": "Mastery",
       "category": "knowledge",
-      "key": true,
+      "proficiency": "Mastery",
       "roles": [
+        "Chemistry Professor",
         "Research Scientist"
       ],
-      "evidence": []
-    },
-    {
-      "name": "Crystallography",
-      "level": "Expert",
-      "category": "knowledge",
-      "key": true,
-      "roles": [
-        "Research Scientist"
-      ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Developed 3 novel synthesis pathways adopted by university chemistry programs",
+          "description": "Techniques published in Journal of Organic Chemistry"
+        }
+      ]
     },
     {
       "name": "Laboratory Safety",
-      "level": "Expert",
-      "category": "knowledge",
-      "key": false,
-      "roles": [
-        "Laboratory Director"
-      ],
-      "evidence": []
-    },
-    {
-      "name": "Chemical Process Engineering",
-      "level": "Expert",
       "category": "skill",
-      "key": true,
+      "proficiency": "Advanced",
       "roles": [
-        "Laboratory Director"
+        "Chemistry Professor"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Maintained zero safety incidents over 17 years of lab instruction",
+          "description": "Supervised 3,000+ student lab sessions"
+        }
+      ]
     },
     {
       "name": "Science Education",
-      "level": "Expert",
       "category": "skill",
-      "key": true,
+      "proficiency": "Advanced",
       "roles": [
         "Chemistry Professor"
       ],
-      "evidence": []
-    },
-    {
-      "name": "Instructing",
-      "level": "Expert",
-      "category": "skill",
-      "key": false,
-      "roles": [
-        "Chemistry Professor"
-      ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Increased AP Chemistry pass rate from 42% to 78% over 5-year period",
+          "description": "Redesigned curriculum with hands-on laboratory focus"
+        }
+      ]
     },
     {
       "name": "Curriculum Development",
-      "level": "Advanced",
       "category": "skill",
-      "key": false,
+      "proficiency": "Advanced",
       "roles": [
         "Chemistry Professor"
-      ],
-      "evidence": []
+      ]
+    },
+    {
+      "name": "Student Assessment",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Chemistry Professor"
+      ]
     },
     {
       "name": "Research Methodology",
-      "level": "Expert",
       "category": "skill",
-      "key": true,
+      "proficiency": "Mastery",
       "roles": [
         "Research Scientist"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Contributed to Nobel Prize-winning research on proton radiography",
+          "description": "Work at Sandia Labs recognized in laureate's acceptance speech"
+        }
+      ]
     },
     {
-      "name": "Quality Control Analysis",
-      "level": "Mastery",
-      "category": "skill",
-      "key": true,
+      "name": "X-Ray Crystallography",
+      "category": "knowledge",
+      "proficiency": "Mastery",
       "roles": [
-        "Laboratory Director"
-      ],
-      "evidence": []
+        "Research Scientist"
+      ]
     },
     {
-      "name": "Complex Problem Solving",
-      "level": "Mastery",
-      "category": "ability",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "name": "Spectroscopy",
+      "category": "knowledge",
+      "proficiency": "Advanced",
+      "roles": [
+        "Research Scientist"
+      ]
+    },
+    {
+      "name": "Chemical Engineering",
+      "category": "knowledge",
+      "proficiency": "Advanced",
+      "roles": [
+        "Research Scientist"
+      ]
+    },
+    {
+      "name": "Intellectual Property",
+      "category": "knowledge",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Research Scientist"
+      ],
+      "evidence": [
+        {
+          "outcome": "Co-authored 2 patents in crystallography techniques later valued at $2B+ through Gray Matter Technologies",
+          "description": "Patent portfolio formed foundation of company's IP"
+        }
+      ]
+    },
+    {
+      "name": "Process Optimization",
+      "category": "skill",
+      "proficiency": "Mastery",
+      "roles": [
+        "Operations Manager"
+      ],
+      "evidence": [
+        {
+          "outcome": "Improved chemical yield by 23% through novel process engineering",
+          "description": "Applied six sigma principles to laboratory synthesis workflows"
+        }
+      ]
+    },
+    {
+      "name": "Quality Control",
+      "category": "skill",
+      "proficiency": "Mastery",
+      "roles": [
+        "Operations Manager"
+      ]
+    },
+    {
+      "name": "Supply Chain Management",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Operations Manager"
+      ]
+    },
+    {
+      "name": "Inventory Management",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Operations Manager"
+      ]
+    },
+    {
+      "name": "Team Leadership",
+      "category": "workstyle",
+      "proficiency": "Advanced",
+      "roles": [
+        "Operations Manager"
+      ]
+    },
+    {
+      "name": "Problem Solving",
+      "category": "skill",
+      "proficiency": "Mastery",
+      "roles": [
+        "Chemistry Professor",
+        "Research Scientist"
+      ]
     },
     {
       "name": "Critical Thinking",
-      "level": "Expert",
       "category": "ability",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Deductive Reasoning",
-      "level": "Mastery",
-      "category": "ability",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Inductive Reasoning",
-      "level": "Expert",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Mathematical Reasoning",
-      "level": "Expert",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Written Comprehension",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Oral Expression",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Operations Analysis",
-      "level": "Expert",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Science",
-      "level": "Mastery",
-      "category": "skill",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Active Learning",
-      "level": "Expert",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Mastery",
+      "roles": [
+        "Chemistry Professor",
+        "Research Scientist"
+      ]
     },
     {
       "name": "Attention to Detail",
-      "level": "Mastery",
       "category": "workstyle",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Mastery",
+      "roles": [
+        "Chemistry Professor",
+        "Research Scientist"
+      ]
     },
     {
-      "name": "Analytical Thinking",
-      "level": "Mastery",
-      "category": "workstyle",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "name": "Public Speaking",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Chemistry Professor"
+      ]
     },
     {
-      "name": "Achievement/Effort",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Written Communication",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Chemistry Professor",
+        "Research Scientist"
+      ]
     },
     {
-      "name": "Persistence",
-      "level": "Mastery",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Data Analysis",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Research Scientist"
+      ]
     },
     {
-      "name": "Stress Tolerance",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Risk Assessment",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Operations Manager"
+      ]
     },
     {
-      "name": "Initiative",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Negotiation",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Operations Manager"
+      ],
+      "evidence": [
+        {
+          "outcome": "Negotiated $5M equipment procurement contract saving 18% below market rate",
+          "description": "Leveraged vendor relationships and technical specifications knowledge"
+        }
+      ]
     },
     {
-      "name": "Leadership",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Strategic Planning",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Operations Manager"
+      ]
     },
     {
-      "name": "Adaptability/Flexibility",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Financial Analysis",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Operations Manager"
+      ]
     },
     {
-      "name": "Production and Processing",
-      "level": "Expert",
+      "name": "Mentoring",
+      "category": "workstyle",
+      "proficiency": "Advanced",
+      "roles": [
+        "Chemistry Professor"
+      ],
+      "evidence": [
+        {
+          "outcome": "Mentored 12 students who earned full STEM scholarships",
+          "description": "Provided college application guidance and recommendation letters"
+        }
+      ]
+    },
+    {
+      "name": "Regulatory Compliance",
       "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Intermediate",
+      "roles": [
+        "Research Scientist"
+      ]
     },
     {
-      "name": "Mathematics",
-      "level": "Expert",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Technical Documentation",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Research Scientist"
+      ]
     },
     {
-      "name": "Education and Training",
-      "level": "Expert",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Entrepreneurship",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Operations Manager"
+      ],
+      "evidence": [
+        {
+          "outcome": "Co-founded Gray Matter Technologies, later valued at $2.16 billion",
+          "description": "Departed early but foundational chemistry IP drove company growth"
+        }
+      ]
     },
     {
-      "name": "Physics",
-      "level": "Advanced",
+      "name": "Analytical Chemistry",
       "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Mastery",
+      "roles": [
+        "Research Scientist"
+      ]
+    },
+    {
+      "name": "Thermodynamics",
+      "category": "knowledge",
+      "proficiency": "Advanced",
+      "roles": [
+        "Research Scientist"
+      ]
     }
   ],
   "workHistory": [
     {
-      "company": "J.P. Wynne High School",
       "title": "Chemistry Teacher",
-      "startYear": 1991,
-      "endYear": 2008,
+      "company": "J.P. Wynne High School",
+      "location": "Albuquerque, NM",
+      "startDate": "1991-08",
+      "endDate": "2008-09",
       "current": false,
-      "description": "Taught AP and honors chemistry to 150+ students annually. Developed hands-on laboratory curriculum. Mentored science fair participants to state-level competition."
+      "description": "Taught AP Chemistry, Honors Chemistry, and general chemistry courses. Managed school laboratory equipment and safety protocols. Supervised science fair participants and chemistry club.",
+      "achievements": [
+        "Increased AP Chemistry pass rate from 42% to 78%",
+        "Zero safety incidents in 17 years",
+        "Mentored 12 students to full STEM scholarships"
+      ]
     },
     {
+      "title": "Cashier / Assistant Manager",
+      "company": "A1A Car Wash",
+      "location": "Albuquerque, NM",
+      "startDate": "2005-06",
+      "endDate": "2008-09",
+      "current": false,
+      "description": "Part-time second job to supplement teaching salary. Handled customer transactions, managed scheduling, and maintained equipment.",
+      "achievements": []
+    },
+    {
+      "title": "Co-Founder & Research Director",
       "company": "Gray Matter Technologies",
-      "title": "Co-Founder & Research Lead",
-      "startYear": 1985,
-      "endYear": 1987,
+      "location": "Albuquerque, NM",
+      "startDate": "1985-01",
+      "endDate": "1987-06",
       "current": false,
-      "description": "Co-founded biotech startup. Led crystallography research that formed the intellectual foundation for a multi-billion dollar company."
+      "description": "Co-founded technology startup with Elliott Schwartz and Gretchen. Led crystallography research division and contributed foundational intellectual property.",
+      "achievements": [
+        "Co-authored 2 patents in crystallography",
+        "Built research team of 5 scientists",
+        "Company later valued at $2.16 billion"
+      ]
     },
     {
+      "title": "Post-Doctoral Researcher",
       "company": "Sandia National Laboratories",
-      "title": "Research Chemist",
-      "startYear": 1983,
-      "endYear": 1985,
+      "location": "Albuquerque, NM",
+      "startDate": "1983-09",
+      "endDate": "1985-01",
       "current": false,
-      "description": "Conducted classified chemical research. Published peer-reviewed papers on X-ray crystallography and molecular bonding."
+      "description": "Conducted proton radiography research. Published findings in peer-reviewed journals. Collaborated with national defense research teams.",
+      "achievements": [
+        "Published 4 peer-reviewed papers with 200+ citations",
+        "Contributed to Nobel Prize-winning research program"
+      ]
     }
   ],
   "education": [
     {
-      "institution": "California Institute of Technology",
+      "school": "California Institute of Technology (Caltech)",
       "degree": "Ph.D.",
       "field": "Chemistry",
-      "year": 1983
+      "year": "1983",
+      "id": "ed-ww-1"
     },
     {
-      "institution": "California Institute of Technology",
+      "school": "California Institute of Technology (Caltech)",
+      "degree": "M.S.",
+      "field": "Chemistry",
+      "year": "1980",
+      "id": "ed-ww-2"
+    },
+    {
+      "school": "University of New Mexico",
       "degree": "B.S.",
       "field": "Chemistry",
-      "year": 1978
+      "year": "1978",
+      "id": "ed-ww-3"
     }
   ],
   "certifications": [
     {
       "name": "New Mexico Teaching License - Secondary Science",
-      "issuer": "NM PED",
-      "year": 1991
+      "abbr": "NM-TCL",
+      "issuer": "NM Public Education Department",
+      "year": "1991",
+      "type": "License",
+      "linkedSkills": [
+        "Science Education"
+      ],
+      "tier": 2,
+      "libraryMatch": null,
+      "id": "cert-ww-1"
+    },
+    {
+      "name": "Chemical Hygiene Officer Certification",
+      "abbr": "CHO",
+      "issuer": "OSHA",
+      "year": "1993",
+      "type": "Certification",
+      "linkedSkills": [
+        "Laboratory Safety"
+      ],
+      "tier": 2,
+      "libraryMatch": null,
+      "id": "cert-ww-2"
     }
   ],
   "savedJobs": [
     {
-      "id": "ww-1",
       "title": "Professor of Chemistry",
       "company": "University of New Mexico",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "The University of New Mexico seeks a tenured Professor of Chemistry to lead undergraduate and graduate instruction in organic chemistry and crystallography. The ideal candidate holds a Ph.D. in Chemistry with 10+ years of teaching experience, a strong publication record, and demonstrated excellence in laboratory-based pedagogy. Responsibilities include curriculum development, graduate student mentorship, grant writing, and maintaining active research. Experience with accreditation processes and DEI initiatives in STEM required.",
+      "location": "Albuquerque, NM",
+      "description": "Tenure-track faculty position in the Department of Chemistry and Chemical Biology. Teach undergraduate and graduate chemistry courses, lead independent research program, mentor graduate students, secure external funding.",
       "parsedSkills": [
         "Chemistry",
         "Organic Chemistry",
-        "Crystallography",
+        "Research Methodology",
         "Science Education",
-        "Instructing",
-        "Research Methodology",
         "Curriculum Development",
-        "Critical Thinking",
-        "Written Comprehension",
-        "Active Learning",
-        "Mathematics",
-        "Physics",
         "Grant Writing",
-        "Academic Publishing",
-        "Diversity and Inclusion",
-        "Accreditation Management",
-        "Graduate Student Mentorship"
-      ],
-      "parsedRoles": [
-        "Chemistry Professor",
-        "Research Scientist"
-      ],
-      "seniority": "Senior",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
-    },
-    {
-      "id": "ww-2",
-      "title": "Director of Pharmaceutical R&D",
-      "company": "Pfizer Inc.",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Pfizer seeks a Director of Pharmaceutical Research & Development to oversee chemical synthesis programs and lead a team of 25 research scientists. Requires Ph.D. in Chemistry or Chemical Engineering with expertise in process chemistry, quality control, and GMP compliance. Must demonstrate mastery of organic synthesis and scale-up from bench to production. 15+ years in pharmaceutical research required. FDA regulatory experience mandatory. Six Sigma Black Belt preferred. Budget management of $50M+ required.",
-      "parsedSkills": [
-        "Chemistry",
-        "Chemical Process Engineering",
-        "Quality Control Analysis",
-        "Research Methodology",
-        "Operations Analysis",
-        "Laboratory Safety",
-        "Production and Processing",
-        "Complex Problem Solving",
-        "Leadership",
-        "Attention to Detail",
-        "Analytical Thinking",
-        "GMP Compliance",
+        "Analytical Chemistry",
+        "Student Assessment",
+        "Published Research",
+        "Spectroscopy",
+        "Data Analysis",
+        "Technical Documentation",
+        "Mentoring",
+        "Public Speaking",
         "FDA Regulatory Affairs",
-        "Pharmaceutical Development",
-        "Clinical Trial Oversight",
-        "Budget Management",
-        "Six Sigma",
-        "Team Management",
-        "Vendor Management",
-        "IP Portfolio Management"
+        "Institutional Review Board"
       ],
-      "parsedRoles": [
-        "Research Scientist",
-        "Laboratory Director"
-      ],
-      "seniority": "Senior",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     },
     {
-      "id": "ww-3",
-      "title": "Chemical Process Consultant",
-      "company": "McKinsey & Company",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "McKinsey seeks a Chemical Process Consultant to advise pharmaceutical and specialty chemical clients on production optimization, yield improvement, and quality systems. Requires advanced degree in Chemistry or Chemical Engineering with hands-on production experience. Must combine deep technical expertise with client-facing communication and executive presentation skills. Travel 60-80%. MBA or consulting experience required. Fluency in data analytics, Tableau, and financial modeling expected. Experience in change management and stakeholder alignment essential.",
+      "title": "Director, Pharmaceutical Research & Development",
+      "company": "Pfizer Inc.",
+      "location": "Groton, CT",
+      "description": "Lead drug discovery research division. Oversee team of 40+ research scientists. Manage $25M annual R&D budget. Drive pipeline from discovery through preclinical development.",
       "parsedSkills": [
         "Chemistry",
-        "Chemical Process Engineering",
-        "Quality Control Analysis",
-        "Operations Analysis",
-        "Complex Problem Solving",
+        "Organic Chemistry",
+        "Research Methodology",
+        "Process Optimization",
+        "Quality Control",
+        "Team Leadership",
+        "Strategic Planning",
+        "Regulatory Compliance",
+        "Analytical Chemistry",
+        "Chemical Engineering",
+        "Data Analysis",
+        "Budget Management",
+        "Clinical Trials Management",
+        "FDA Regulatory Affairs",
+        "GMP Compliance",
+        "Drug Development",
+        "Pharmacokinetics"
+      ],
+      "curated": true
+    },
+    {
+      "title": "Senior Consultant, Chemical Industry Practice",
+      "company": "McKinsey & Company",
+      "location": "New York, NY",
+      "description": "Advise Fortune 500 chemical and pharmaceutical companies on operational transformation, R&D portfolio optimization, and market entry strategies.",
+      "parsedSkills": [
+        "Strategic Planning",
+        "Financial Analysis",
+        "Process Optimization",
+        "Data Analysis",
         "Critical Thinking",
-        "Oral Expression",
-        "Production and Processing",
+        "Problem Solving",
+        "Negotiation",
+        "Written Communication",
+        "Public Speaking",
         "Management Consulting",
         "Client Relationship Management",
-        "Executive Presentation",
-        "Financial Modeling",
-        "Data Analytics",
-        "Tableau",
-        "Change Management",
-        "Stakeholder Alignment",
+        "Market Analysis",
         "Business Development",
-        "MBA Required",
-        "Travel 60-80%"
+        "Executive Presentation",
+        "Change Management"
       ],
-      "parsedRoles": [
-        "Laboratory Director"
-      ],
-      "seniority": "Mid-Senior",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     }
-  ]
+  ],
+  "values": [],
+  "purpose": ""
 }

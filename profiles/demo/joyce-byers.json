@@ -1,309 +1,297 @@
 {
-  "templateName": "Joyce Byers - Retail Worker & Investigator",
   "profile": {
     "name": "Joyce Byers",
-    "currentTitle": "Sales Associate, Melvald's General Store",
+    "currentTitle": "Sales Clerk, Melvald's General Store",
     "location": "Hawkins, IN",
     "roleLevel": "Mid-Career",
-    "email": ""
+    "summary": "Resourceful and determined professional with 15+ years in retail operations and an extraordinary track record of investigation and advocacy when it matters most. Known for relentless persistence, deep intuition, and an unwavering commitment to protecting others \u2014 especially the most vulnerable."
   },
-  "purpose": "To protect the people I love through sheer determination, even when no one else believes what I know to be true.",
   "roles": [
     {
       "name": "Retail Manager"
     },
     {
-      "name": "Victim Advocacy Director"
-    },
-    {
       "name": "Investigator"
-    }
-  ],
-  "values": [
-    {
-      "text": "Single-handedly uncovered government cover-up when all authorities dismissed evidence",
-      "selected": true,
-      "shared": true
     },
     {
-      "text": "Maintained household and raised two sons on single retail income while managing multiple crises",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Built trust-based customer relationships resulting in highest repeat rate in store",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Coordinated civilian investigation team that outperformed professional law enforcement",
-      "selected": true,
-      "shared": true
+      "name": "Advocate"
     }
   ],
   "skills": [
     {
-      "name": "Customer Service",
-      "level": "Expert",
+      "name": "Retail Operations",
       "category": "skill",
-      "key": true,
+      "proficiency": "Advanced",
       "roles": [
         "Retail Manager"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Managed store operations solo during peak holiday seasons serving 200+ daily customers",
+          "description": "Handled inventory, customer service, cash management, and vendor relations single-handedly"
+        }
+      ]
+    },
+    {
+      "name": "Customer Service",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Retail Manager"
+      ]
+    },
+    {
+      "name": "Investigation",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Investigator"
+      ],
+      "evidence": [
+        {
+          "outcome": "Located missing child when professional law enforcement had exhausted all leads",
+          "description": "Pursued unconventional investigative methods that proved successful"
+        }
+      ]
+    },
+    {
+      "name": "Advocacy",
+      "category": "skill",
+      "proficiency": "Mastery",
+      "roles": [
+        "Advocate"
+      ],
+      "evidence": [
+        {
+          "outcome": "Successfully challenged government agency cover-up to protect community",
+          "description": "Persisted against institutional resistance and gaslighting to expose truth"
+        }
+      ]
     },
     {
       "name": "Persistence",
-      "level": "Mastery",
       "category": "workstyle",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Mastery",
+      "roles": [
+        "Investigator",
+        "Advocate"
+      ]
     },
     {
-      "name": "Pattern Recognition",
-      "level": "Advanced",
+      "name": "Intuition",
       "category": "ability",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Mastery",
+      "roles": [
+        "Investigator"
+      ]
     },
     {
-      "name": "Active Listening",
-      "level": "Expert",
+      "name": "Resourcefulness",
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "Investigator",
+        "Retail Manager"
+      ]
+    },
+    {
+      "name": "Crisis Response",
       "category": "skill",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Advocate"
+      ],
+      "evidence": [
+        {
+          "outcome": "Organized and executed 3 rescue operations under extreme conditions",
+          "description": "Coordinated with law enforcement and civilians to save lives"
+        }
+      ]
     },
     {
-      "name": "Social Perceptiveness",
-      "level": "Expert",
-      "category": "ability",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Stress Tolerance",
-      "level": "Mastery",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Concern for Others",
-      "level": "Mastery",
-      "category": "workstyle",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Complex Problem Solving",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Critical Thinking",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Judgment and Decision Making",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Speaking",
-      "level": "Advanced",
+      "name": "Cash Handling",
       "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Retail Manager"
+      ]
     },
     {
-      "name": "Coordination",
-      "level": "Advanced",
+      "name": "Inventory Management",
       "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Retail Manager"
+      ]
     },
     {
-      "name": "Adaptability/Flexibility",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Initiative",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Integrity",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Dependability",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Customer and Personal Service",
-      "level": "Expert",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Sales",
-      "level": "Advanced",
+      "name": "Vendor Relations",
       "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Intermediate",
+      "roles": [
+        "Retail Manager"
+      ]
+    },
+    {
+      "name": "Communication",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Advocate"
+      ]
+    },
+    {
+      "name": "Empathy",
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "Advocate"
+      ]
+    },
+    {
+      "name": "Decision Making Under Pressure",
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "Investigator"
+      ]
+    },
+    {
+      "name": "Negotiation",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Advocate"
+      ]
+    },
+    {
+      "name": "Physical Endurance",
+      "category": "ability",
+      "proficiency": "Advanced",
+      "roles": [
+        "Investigator"
+      ]
+    },
+    {
+      "name": "Emotional Resilience",
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "Advocate"
+      ]
+    },
+    {
+      "name": "Parenting",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Advocate"
+      ]
     }
   ],
   "workHistory": [
     {
+      "title": "Sales Clerk / Floor Manager",
       "company": "Melvald's General Store",
-      "title": "Sales Associate",
-      "startYear": 1975,
-      "endYear": 1986,
+      "location": "Hawkins, IN",
+      "startDate": "1975-03",
+      "endDate": "",
       "current": true,
-      "description": "Full-time retail. Inventory management, customer relationships, and store operations."
+      "description": "Managed day-to-day store operations including customer service, inventory management, cash handling, opening/closing procedures, and seasonal merchandising. Frequently served as sole employee during shifts.",
+      "achievements": [
+        "Managed store solo during peak seasons (200+ daily customers)",
+        "Maintained vendor relationships for 50+ product categories",
+        "Zero cash discrepancies in 8+ years"
+      ]
+    },
+    {
+      "title": "Waitress",
+      "company": "Big Buy Supermarket Deli",
+      "location": "Hawkins, IN",
+      "startDate": "1972-06",
+      "endDate": "1975-02",
+      "current": false,
+      "description": "Food service and customer-facing role in grocery deli department. Gained foundational customer service and food handling skills.",
+      "achievements": []
     }
   ],
   "education": [
     {
-      "institution": "Hawkins High School",
+      "school": "Hawkins High School",
       "degree": "High School Diploma",
       "field": "General Studies",
-      "year": 1967
+      "year": "1961",
+      "id": "ed-jb-1"
     }
   ],
   "certifications": [],
   "savedJobs": [
     {
-      "id": "jb-1",
-      "title": "Victim Advocacy Director",
-      "company": "National Center for Missing & Exploited Children",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "NCMEC seeks a Victim Advocacy Director to lead family support services for missing children cases. Must demonstrate extraordinary empathy and investigative instinct. Bachelor's degree in social work or counseling required. Victim advocacy certification (NOVA) mandatory. Must manage team of 15 advocates, coordinate with FBI and local law enforcement, and maintain NCIC database access. Grant management for $3M federal funding required. Trauma-informed care training expected.",
+      "title": "Director of Victim Advocacy",
+      "company": "National Center for Missing & Exploited Children (NCMEC)",
+      "location": "Alexandria, VA",
+      "description": "Lead victim advocacy programs supporting families of missing and exploited children. Coordinate with law enforcement, social services, and media for family support and case resolution.",
       "parsedSkills": [
-        "Concern for Others",
-        "Active Listening",
-        "Social Perceptiveness",
+        "Advocacy",
+        "Investigation",
+        "Communication",
+        "Empathy",
+        "Crisis Response",
         "Persistence",
-        "Stress Tolerance",
-        "Speaking",
-        "Coordination",
-        "Integrity",
-        "Critical Thinking",
-        "Bachelor's Degree Required",
-        "Victim Advocacy Certification",
-        "FBI Coordination",
-        "NCIC Database",
-        "Grant Management",
+        "Emotional Resilience",
+        "Negotiation",
+        "Case Management",
         "Trauma-Informed Care",
-        "Team Management"
+        "Media Relations",
+        "Federal Agency Liaison",
+        "Victim Rights Law"
       ],
-      "parsedRoles": [
-        "Victim Advocacy Director",
-        "Investigator"
-      ],
-      "seniority": "Mid-Career",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     },
     {
-      "id": "jb-2",
       "title": "Store Manager",
       "company": "Ace Hardware",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Ace Hardware seeks a Store Manager for our Hawkins location. Requires 5+ years retail experience with strong customer relationships. Must manage inventory, staff scheduling, and community engagement. POS system proficiency required. Must manage $1.2M inventory and 12 employees. Experience with seasonal merchandising and vendor co-op advertising programs expected.",
+      "location": "Bloomington, IN",
+      "description": "Manage all aspects of locally-owned hardware store including staff, inventory, vendor relations, community events, and customer experience.",
       "parsedSkills": [
+        "Retail Operations",
         "Customer Service",
-        "Sales",
-        "Dependability",
-        "Customer and Personal Service",
-        "Initiative",
-        "Social Perceptiveness",
-        "Coordination",
-        "Adaptability/Flexibility",
-        "Integrity",
-        "POS System Proficiency",
-        "Inventory Management Systems",
-        "Vendor Co-op Advertising",
-        "Seasonal Merchandising",
-        "Staff Scheduling Software"
+        "Cash Handling",
+        "Inventory Management",
+        "Vendor Relations",
+        "Resourcefulness",
+        "Communication",
+        "Persistence",
+        "Staff Scheduling",
+        "Merchandising",
+        "POS Systems",
+        "Local Marketing",
+        "Contractor Relations"
       ],
-      "parsedRoles": [
-        "Retail Manager"
-      ],
-      "seniority": "Mid-Career",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     },
     {
-      "id": "jb-3",
-      "title": "Private Investigator",
-      "company": "Byers Investigation Services",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Investigation firm seeks PIs for missing persons, insurance fraud, and background checks. Must demonstrate tenacity and observational skills. Indiana PI license required. Must have experience with background check databases (TLO, IRB), GPS tracking systems, and digital forensics tools. Photography and video surveillance equipment proficiency expected. Must be able to testify as expert witness in court proceedings.",
+      "title": "Licensed Private Investigator",
+      "company": "Self-Employed",
+      "location": "Indianapolis, IN",
+      "description": "Conduct investigations for attorneys, insurance companies, and private clients. Missing persons, background checks, surveillance, and asset searches.",
       "parsedSkills": [
-        "Pattern Recognition",
-        "Critical Thinking",
+        "Investigation",
         "Persistence",
-        "Complex Problem Solving",
-        "Initiative",
-        "Judgment and Decision Making",
-        "Adaptability/Flexibility",
-        "Indiana PI License",
-        "Background Check Databases",
-        "GPS Tracking Systems",
-        "Digital Forensics",
-        "Surveillance Photography",
-        "Expert Witness Testimony",
-        "Report Writing"
+        "Intuition",
+        "Resourcefulness",
+        "Communication",
+        "Decision Making Under Pressure",
+        "Report Writing",
+        "Photography",
+        "Surveillance Equipment",
+        "Database Research",
+        "PI License Required",
+        "Skip Tracing"
       ],
-      "parsedRoles": [
-        "Investigator"
-      ],
-      "seniority": "Mid-Career",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     }
-  ]
+  ],
+  "values": [],
+  "purpose": ""
 }

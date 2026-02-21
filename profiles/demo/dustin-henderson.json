@@ -1,349 +1,344 @@
 {
-  "templateName": "Dustin Henderson - STEM Prodigy & Communicator",
   "profile": {
     "name": "Dustin Henderson",
-    "currentTitle": "Electronics Enthusiast & Science Club President",
+    "currentTitle": "Student / STEM Enthusiast",
     "location": "Hawkins, IN",
-    "roleLevel": "Entry",
-    "email": "dustin.henderson@hawkins.edu"
+    "roleLevel": "Early Career",
+    "summary": "Precocious STEM talent with exceptional problem-solving abilities and communication skills. Ham radio operator, science fair winner, and natural bridge-builder between technical and non-technical stakeholders. Combines deep curiosity with the social skills to rally diverse teams around complex challenges."
   },
-  "purpose": "To solve impossible problems through science, technology, and the power of friendship \u2014 preferably with a ham radio nearby.",
   "roles": [
     {
-      "name": "Software Engineer"
+      "name": "STEM Engineer"
     },
     {
-      "name": "Research Scientist"
+      "name": "Communications Specialist"
     },
     {
-      "name": "STEM Education Director"
-    }
-  ],
-  "values": [
-    {
-      "text": "Built long-range ham radio capable of intercepting classified communications from 40+ miles",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Decoded complex cryptographic ciphers under time pressure using pattern analysis",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Led Hawkins Middle AV Club to state science fair finals",
-      "selected": true,
-      "shared": true
+      "name": "Problem Solver"
     }
   ],
   "skills": [
     {
-      "name": "Electronics & Radio Systems",
-      "level": "Advanced",
-      "category": "unique",
-      "key": true,
-      "roles": [
-        "Software Engineer"
-      ],
-      "evidence": []
-    },
-    {
-      "name": "Cryptography",
-      "level": "Advanced",
-      "category": "unique",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Scientific Reasoning",
-      "level": "Advanced",
-      "category": "skill",
-      "key": true,
-      "roles": [
-        "Research Scientist"
-      ],
-      "evidence": []
-    },
-    {
-      "name": "Complex Problem Solving",
-      "level": "Expert",
-      "category": "ability",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Pattern Recognition",
-      "level": "Expert",
-      "category": "ability",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Active Learning",
-      "level": "Expert",
-      "category": "skill",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Critical Thinking",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Deductive Reasoning",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Inductive Reasoning",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Speaking",
-      "level": "Expert",
-      "category": "skill",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Oral Expression",
-      "level": "Expert",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Fluency of Ideas",
-      "level": "Expert",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Information Ordering",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Cooperation",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Persistence",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Initiative",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Adaptability/Flexibility",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Telecommunications",
-      "level": "Advanced",
+      "name": "Electronics",
       "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "STEM Engineer"
+      ],
+      "evidence": [
+        {
+          "outcome": "Built long-range radio transmitter from salvaged components that achieved 1,000+ mile range",
+          "description": "Named 'Cerebro' \u2014 contacted amateur operator in Utah from Indiana"
+        }
+      ]
     },
     {
-      "name": "Computers and Electronics",
-      "level": "Advanced",
+      "name": "Radio Communications",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Communications Specialist"
+      ],
+      "evidence": [
+        {
+          "outcome": "Maintained critical communications during 3 emergency situations when standard infrastructure failed",
+          "description": "Ham radio skills proved essential when phone lines were compromised"
+        }
+      ]
+    },
+    {
+      "name": "Problem Solving",
+      "category": "skill",
+      "proficiency": "Mastery",
+      "roles": [
+        "Problem Solver"
+      ],
+      "evidence": [
+        {
+          "outcome": "Decoded Russian military transmission using first-principles cryptanalysis",
+          "description": "Identified language, found translator, and broke communication code in under 48 hours"
+        }
+      ]
+    },
+    {
+      "name": "Science & Research",
       "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "STEM Engineer"
+      ]
+    },
+    {
+      "name": "Computer Science",
+      "category": "knowledge",
+      "proficiency": "Intermediate",
+      "roles": [
+        "STEM Engineer"
+      ]
     },
     {
       "name": "Mathematics",
-      "level": "Advanced",
       "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "STEM Engineer"
+      ]
     },
     {
-      "name": "Physics",
-      "level": "Advanced",
+      "name": "Cryptography",
       "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Intermediate",
+      "roles": [
+        "Communications Specialist"
+      ]
+    },
+    {
+      "name": "Technical Communication",
+      "category": "skill",
+      "proficiency": "Mastery",
+      "roles": [
+        "Communications Specialist"
+      ],
+      "evidence": [
+        {
+          "outcome": "Translated complex scientific concepts for non-technical teammates enabling group problem-solving",
+          "description": "Consistently the bridge between technical understanding and practical action"
+        }
+      ]
+    },
+    {
+      "name": "Curiosity",
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "STEM Engineer",
+        "Problem Solver"
+      ]
+    },
+    {
+      "name": "Creative Problem Solving",
+      "category": "skill",
+      "proficiency": "Mastery",
+      "roles": [
+        "Problem Solver"
+      ]
+    },
+    {
+      "name": "Teamwork",
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "Problem Solver"
+      ]
+    },
+    {
+      "name": "Persuasion",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Communications Specialist"
+      ]
+    },
+    {
+      "name": "Resilience",
+      "category": "workstyle",
+      "proficiency": "Advanced",
+      "roles": [
+        "Problem Solver"
+      ]
+    },
+    {
+      "name": "Biology",
+      "category": "knowledge",
+      "proficiency": "Intermediate",
+      "roles": [
+        "STEM Engineer"
+      ],
+      "evidence": [
+        {
+          "outcome": "Successfully identified and documented previously unknown biological species",
+          "description": "Conducted independent study of organism behavior and life cycle"
+        }
+      ]
+    },
+    {
+      "name": "Mechanical Aptitude",
+      "category": "ability",
+      "proficiency": "Advanced",
+      "roles": [
+        "STEM Engineer"
+      ]
+    },
+    {
+      "name": "Compass Reading & Navigation",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Problem Solver"
+      ]
+    },
+    {
+      "name": "Public Speaking",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Communications Specialist"
+      ]
+    },
+    {
+      "name": "Leadership",
+      "category": "workstyle",
+      "proficiency": "Advanced",
+      "roles": [
+        "Problem Solver"
+      ]
+    },
+    {
+      "name": "Humor & Morale Building",
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "Communications Specialist"
+      ]
+    },
+    {
+      "name": "Loyalty",
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "Problem Solver"
+      ]
+    },
+    {
+      "name": "Strategic Thinking",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Problem Solver"
+      ]
     }
   ],
   "workHistory": [
     {
-      "company": "Hawkins Middle School AV Club",
-      "title": "President",
-      "startYear": 1983,
-      "endYear": 1985,
+      "title": "Science Fair Competitor & AV Club President",
+      "company": "Hawkins Middle School",
+      "location": "Hawkins, IN",
+      "startDate": "1982-09",
+      "endDate": "1986-06",
       "current": false,
-      "description": "Led 8-member electronics club. Built custom radio equipment and organized science demonstrations."
+      "description": "Led audio-visual club supporting school events. Competed in district and state science fairs. Built and maintained school's AV equipment including projectors, sound systems, and radio equipment.",
+      "achievements": [
+        "1st place, Hawkins Middle Science Fair",
+        "Built 'Cerebro' long-range radio transmitter",
+        "Maintained all school AV equipment"
+      ]
     },
     {
-      "company": "Independent Projects",
-      "title": "Electronics Builder",
-      "startYear": 1982,
-      "endYear": 1986,
+      "title": "Ham Radio Operator",
+      "company": "Self \u2014 Licensed Amateur Radio",
+      "location": "Hawkins, IN",
+      "startDate": "1983-01",
+      "endDate": "",
       "current": true,
-      "description": "Designed long-range radio transceiver. Decoded encrypted communications."
+      "description": "Licensed amateur radio operator. Built and operated custom radio equipment. Provided emergency communications support during multiple community crises.",
+      "achievements": [
+        "Achieved 1,000+ mile transmission range with custom-built equipment",
+        "Provided critical emergency communications during infrastructure failures"
+      ]
     }
   ],
   "education": [
     {
-      "institution": "Hawkins High School",
+      "school": "Hawkins Middle School",
       "degree": "In Progress",
-      "field": "Science & Technology Track",
-      "year": 1986
+      "field": "General Studies \u2014 Honors Science Track",
+      "year": "1986",
+      "id": "ed-dh-1"
     }
   ],
   "certifications": [
     {
-      "name": "FCC Amateur Radio License (General)",
-      "issuer": "FCC",
-      "year": 1984
+      "name": "FCC Amateur Radio License \u2014 General Class",
+      "abbr": "HAM",
+      "issuer": "Federal Communications Commission",
+      "year": "1983",
+      "type": "License",
+      "linkedSkills": [
+        "Radio Communications"
+      ],
+      "tier": 2,
+      "libraryMatch": null,
+      "id": "cert-dh-1"
     }
   ],
   "savedJobs": [
     {
-      "id": "dh-1",
-      "title": "Junior Software Engineer",
+      "title": "Research Engineer",
       "company": "MIT Lincoln Laboratory",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "MIT Lincoln Labs seeks a Junior Software Engineer for signal processing and communications research. Must demonstrate aptitude in electronics and computational problem-solving. Bachelor's degree in EE, CS, or Physics required. Proficiency in Python, C++, and MATLAB mandatory. Experience with FPGA programming and DSP frameworks expected. Must obtain Secret clearance. Must work in collaborative Agile/Scrum environment.",
+      "location": "Lexington, MA",
+      "description": "Design and develop advanced sensor and communication systems for national defense applications. Work in multidisciplinary teams on cutting-edge RF, signal processing, and embedded systems projects.",
       "parsedSkills": [
-        "Electronics & Radio Systems",
-        "Complex Problem Solving",
-        "Scientific Reasoning",
-        "Computers and Electronics",
-        "Telecommunications",
+        "Electronics",
+        "Radio Communications",
+        "Computer Science",
         "Mathematics",
-        "Critical Thinking",
-        "Cooperation",
-        "Active Learning",
-        "Bachelor's Degree Required",
-        "Python Programming",
-        "C++ Programming",
+        "Science & Research",
+        "Problem Solving",
+        "Mechanical Aptitude",
+        "Technical Communication",
+        "Signal Processing",
+        "RF Engineering",
         "MATLAB",
-        "FPGA Programming",
-        "DSP Frameworks",
-        "Secret Clearance",
-        "Agile/Scrum"
+        "Security Clearance Required",
+        "Embedded Systems"
       ],
-      "parsedRoles": [
-        "Software Engineer",
-        "Research Scientist"
-      ],
-      "seniority": "Entry",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     },
     {
-      "id": "dh-2",
       "title": "Cryptanalyst",
       "company": "National Security Agency",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "NSA seeks entry-level Cryptanalysts with pattern recognition and mathematical reasoning aptitude. Must show history of cryptographic work. Bachelor's degree in Mathematics, CS, or related field required. Must pass TS/SCI investigation. Experience with Python, R, and TensorFlow required. Knowledge of number theory and abstract algebra mandatory. Must complete NSA Cryptanalysis Training Program.",
+      "location": "Fort Meade, MD",
+      "description": "Analyze and break encrypted communications to support national security missions. Develop novel cryptanalytic techniques and tools.",
       "parsedSkills": [
         "Cryptography",
-        "Pattern Recognition",
-        "Deductive Reasoning",
-        "Inductive Reasoning",
         "Mathematics",
-        "Information Ordering",
-        "Persistence",
-        "Complex Problem Solving",
-        "Bachelor's Degree Required",
-        "Python",
-        "R Programming",
-        "TensorFlow",
+        "Problem Solving",
+        "Computer Science",
+        "Pattern Recognition",
+        "Creative Problem Solving",
+        "Strategic Thinking",
+        "Technical Communication",
+        "Python Programming",
+        "Machine Learning",
         "Number Theory",
-        "Abstract Algebra",
-        "TS/SCI Clearance",
-        "NSA Training Program"
+        "TS/SCI Clearance"
       ],
-      "parsedRoles": [
-        "Research Scientist"
-      ],
-      "seniority": "Entry",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     },
     {
-      "id": "dh-3",
-      "title": "STEM Education Program Director",
-      "company": "Smithsonian Institution",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "The Smithsonian seeks a STEM Education Program Director for K-12 hands-on science experiences. Must combine STEM knowledge with exceptional communication. Bachelor's degree in STEM education or related field required. Experience with Next Generation Science Standards and exhibit design expected. Must manage team of 8 educators and $500K annual program budget. Evaluation methodology experience preferred.",
+      "title": "STEM Education Director",
+      "company": "Smithsonian National Air and Space Museum",
+      "location": "Washington, DC",
+      "description": "Lead development and delivery of STEM education programs reaching 1M+ visitors annually. Design hands-on exhibits, curriculum, and outreach initiatives.",
       "parsedSkills": [
-        "Scientific Reasoning",
-        "Speaking",
-        "Active Learning",
-        "Oral Expression",
-        "Fluency of Ideas",
-        "Cooperation",
-        "Initiative",
-        "Computers and Electronics",
-        "Physics",
-        "Persistence",
-        "Bachelor's Degree Required",
-        "NGSS Standards",
+        "Science & Research",
+        "Technical Communication",
+        "Public Speaking",
+        "Creative Problem Solving",
+        "Curiosity",
+        "Leadership",
+        "Humor & Morale Building",
+        "Teamwork",
+        "Biology",
+        "Electronics",
         "Exhibit Design",
-        "Team Management",
-        "Budget Management",
-        "Program Evaluation Methodology"
+        "Curriculum Development",
+        "Grant Management",
+        "Volunteer Coordination"
       ],
-      "parsedRoles": [
-        "STEM Education Director"
-      ],
-      "seniority": "Entry-Mid",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     }
-  ]
+  ],
+  "values": [],
+  "purpose": ""
 }

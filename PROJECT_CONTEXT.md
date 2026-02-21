@@ -1,5 +1,5 @@
 # Blueprint — Project Context
-## Last Updated: 2026-02-20 (Session 14 Final) · v4.25.1.22
+## Last Updated: 2026-02-20 (Session 15) · v4.25.1.22
 
 ---
 
@@ -89,7 +89,7 @@ initNetwork()                  — Main D3 force network (calls normalizeUserRol
 
 ---
 
-## SAMPLE PROFILES SYSTEM (v4.25.1.17–22)
+## SAMPLE PROFILES SYSTEM (v4.25.1.17–22, data refresh Session 15)
 
 ### Architecture
 - `profiles-manifest.json` — registry of all 15 profiles with id, name, title, path, enabled
@@ -99,34 +99,41 @@ initNetwork()                  — Main D3 force network (calls normalizeUserRol
 
 ### TV Show Collections (15 profiles)
 
-**Breaking Bad** (green `#22c55e`):
-| ID | Character | Skills | Job 1 (~70-80%) | Job 2 (~55-65%) | Job 3 (~42-55%) |
-|----|-----------|--------|------------------|------------------|------------------|
-| `walter-white` | Walter White | 32 | UNM Chemistry Prof (71%) | Pfizer R&D Director (55%) | McKinsey Consultant (42%) |
-| `gus-fring` | Gus Fring | 29 | Yum! Brands VP Ops (67%) | Sysco SVP Supply Chain (56%) | Chipotle Dev Director (53%) |
-| `hank-schrader` | Hank Schrader | 25 | Amazon Investigations Dir (76%) | DHS Intel Director (58%) | Walmart VP Security (44%) |
-| `jesse-pinkman` | Jesse Pinkman | 21 | West Elm Furniture Maker (62%) | Snap-on Sales Rep (64%) | Boys & Girls Club (57%) |
-| `saul-goodman` | Saul Goodman | 24 | Morgan & Morgan VP Marketing (74%) | Edelman Crisis Dir (56%) | Dollar Shave Club GC (48%) |
+All profiles include lore-accurate work history with dates, education, certifications, and skill evidence that auto-generates outcomes via `extractOutcomesFromEvidence()`.
 
-**Stranger Things** (red `#ef4444`):
-| ID | Character | Skills | Job 1 | Job 2 | Job 3 |
-|----|-----------|--------|-------|-------|-------|
-| `jim-hopper` | Jim Hopper | 21 | FEMA Emergency Dir (72%) | Tesla VP Security (52%) | County Sheriff (68%) |
-| `eleven` | Eleven (Jane Hopper) | 16 | Johns Hopkins Research (43%) | SAMHSA Crisis Specialist (69%) | NSA Analyst (47%) |
-| `steve-harrington` | Steve Harrington | 17 | YMCA Youth Director (60%) | Target District Mgr (50%) | Camp Director (64%) |
-| `dustin-henderson` | Dustin Henderson | 21 | MIT Lincoln Labs Engineer (55%) | NSA Cryptanalyst (45%) | Smithsonian STEM Dir (68%) |
-| `joyce-byers` | Joyce Byers | 18 | NCMEC Victim Advocacy (62%) | Ace Hardware Manager (78%) | Private Investigator (50%) |
+**Breaking Bad** (green `#22c55e`) — set 2008–2010, Albuquerque NM:
+| ID | Character | Skills | Evidence | Work History | Education | Jobs |
+|----|-----------|--------|----------|-------------|-----------|------|
+| `walter-white` | Walter White | 32 | 11 | 4 (Caltech PhD → Sandia Labs → Gray Matter → JP Wynne HS) | 3 (Caltech PhD/MS, UNM BS) | 3 |
+| `gus-fring` | Gus Fring | 29 | 8 | 3 (Madrigal → Los Pollos Hermanos → Lavandería Brillante) | 2 (U Santiago, U Chile MBA) | 3 |
+| `hank-schrader` | Hank Schrader | 25 | 4 | 3 (DEA El Paso → DEA ABQ Agent → ASAC) | 2 (UNM, DEA Academy) | 3 |
+| `jesse-pinkman` | Jesse Pinkman | 21 | 4 | 3 (Retail → Woodworking → Youth Volunteer) | 1 (JP Wynne HS) | 3 |
+| `saul-goodman` | Saul Goodman | 24 | 4 | 4 (HHM Mailroom → Solo → Davis & Main → Saul Goodman & Assoc) | 2 (U American Samoa JD/BA) | 3 |
 
-**Succession** (gold `#c4a035`):
-| ID | Character | Skills | Job 1 | Job 2 | Job 3 |
-|----|-----------|--------|-------|-------|-------|
-| `logan-roy` | Logan Roy | 20 | WBD CEO (67%) | Apollo PE Partner (60%) | News Corp Board (58%) |
-| `kendall-roy` | Kendall Roy | 19 | Paramount CSO (64%) | Goldman Sachs TMT MD (60%) | a16z Portfolio CEO (47%) |
-| `shiv-roy` | Siobhan "Shiv" Roy | 21 | Disney CSO (68%) | McKinsey Partner (58%) | Meta VP Gov Affairs (72%) |
-| `roman-roy` | Roman Roy | 17 | Netflix VP BizDev (70%) | Universal COO (50%) | Spotify Content Head (62%) |
-| `tom-wambsgans` | Tom Wambsgans | 22 | iHeartMedia CEO (64%) | Fox CCO (67%) | CNN GM (53%) |
+**Stranger Things** (red `#ef4444`) — set 1983–1986, Hawkins IN:
+| ID | Character | Skills | Evidence | Work History | Education | Jobs |
+|----|-----------|--------|----------|-------------|-----------|------|
+| `jim-hopper` | Jim Hopper | 21 | 4 | 3 (US Army Vietnam → NYPD Homicide → Hawkins Chief) | 2 (Hawkins HS, NYPD Academy) | 3 |
+| `eleven` | Eleven (Jane Hopper) | 16 | 5 | 2 (Hawkins Lab Research Subject → Crisis Response) | 2 (Lab Education, Hawkins Middle) | 3 |
+| `steve-harrington` | Steve Harrington | 17 | 3 | 3 (Lifeguard → Scoops Ahoy → Youth Mentor) | 1 (Hawkins HS) | 3 |
+| `dustin-henderson` | Dustin Henderson | 21 | 5 | 2 (AV Club/Science Fair → Ham Radio Operator) | 1 (Hawkins Middle) | 3 |
+| `joyce-byers` | Joyce Byers | 18 | 4 | 2 (Big Buy Deli → Melvald's General Store) | 1 (Hawkins HS) | 3 |
+
+**Succession** (gold `#c4a035`) — set ~2018–2020, NYC:
+| ID | Character | Skills | Evidence | Work History | Education | Jobs |
+|----|-----------|--------|----------|-------------|-----------|------|
+| `logan-roy` | Logan Roy | 20 | 4 | 2 (Royco Holdings Canada → Waystar Royco CEO 1972–2020) | 1 (Self-educated) | 3 |
+| `kendall-roy` | Kendall Roy | 19 | 3 | 3 (Goldman Sachs → Waystar VP → Head of Corp Dev/Acting CEO) | 3 (Harvard MBA/BA, Buckley School) | 3 |
+| `shiv-roy` | Siobhan "Shiv" Roy | 21 | 3 | 4 (Senate Aide → Political Consultant → Eavis Campaign → Waystar President) | 2 (Yale MA, Georgetown BA) | 3 |
+| `roman-roy` | Roman Roy | 17 | 2 | 3 (Waystar Studios Associate → VP BizDev LA → COO) | 2 (Brown BA, Buckley School) | 3 |
+| `tom-wambsgans` | Tom Wambsgans | 22 | 4 | 5 (Bain → Waystar VP → SVP Parks/Cruises → ATN Chairman → CEO) | 2 (U Minnesota MBA/BA) | 3 |
+
+**Totals: 323 skills, 68 evidence items, 46 work history entries, 27 education records, 10 certifications, 45 curated jobs**
 
 *Match percentages are raw skill overlap. The match engine adds fuzzy/synonym matching so live scores run ~5-10% higher.*
+
+### Outcomes Auto-Generation
+Outcomes are NOT stored in profile JSONs — they're extracted at runtime by `extractOutcomesFromEvidence()` from skill evidence entries. Evidence items that contain metrics ($, %, x) or result verbs (achieved, reduced, launched, etc.) become blueprint outcomes. Each profile has 2-11 evidence entries designed to generate meaningful outcomes.
 
 ### Job Match Realism
 Each job has 13-20 `parsedSkills` — a mix of skills the character HAS (creating matches) and skills they DON'T have (creating realistic gaps). Gap skills are character-authentic:
@@ -260,6 +267,18 @@ analytics_events/{auto}/  — type, uid, displayName, meta, timestamp
 | v4.25.1.21 | D3 link guards in all 4 networks, safety normalize in initNetwork() |
 | v4.25.1.22 | Heading font fix, edit disabled for demos, center node z-order in all networks |
 
+## SESSION 15 CHANGES
+
+| Change | Details |
+|--------|---------|
+| Profile data refresh | All 15 profiles rebuilt with lore-accurate work history, education, certifications, and skill evidence |
+| Work history | 46 entries total with accurate dates from show timelines (BB: 2008-2010, ST: 1983-1986, Succession: 2018-2020) |
+| Education | 27 entries — Walter's Caltech PhD, Kendall's Harvard MBA, Saul's U American Samoa JD, Hopper's NYPD Academy, etc. |
+| Certifications | 10 entries — teaching licenses, ServSafe, DEA training, CPR, FCC amateur radio, bar licenses |
+| Skill evidence | 68 evidence items with metrics/outcomes that auto-generate blueprint outcomes via extractOutcomesFromEvidence() |
+| Profile summaries | Professional summaries added to all 15 profiles for export readiness |
+| Skills recount | 323 skills (down from 385 — removed filler, added evidence-bearing skills) |
+
 ---
 
 ## SUPPORTING FILES
@@ -292,7 +311,8 @@ analytics_events/{auto}/  — type, uid, displayName, meta, timestamp
 
 ## NEXT STEPS
 
-**Immediate:** Deploy v4.25.1.22 + 15 profile JSONs + manifest. Delete old profiles from repo.
-**Short-term:** ESCO library integration, email invite notifications, sample evidence population
+**Immediate:** Deploy updated 15 profile JSONs + manifest. Delete old profiles from repo.
+**Short-term:** ESCO library integration, email invite notifications, sample evidence population refinement
 **Medium-term:** Ambassador mechanic, LinkedIn sharing, analytics time-series, IAM Phenom prep
 **Content:** Articles on recruiting transformation, AI in TA, org restructuring
+**Profile refinement:** Adjust skill evidence wording for better outcome extraction, add values to profiles, test match percentages across all 45 jobs

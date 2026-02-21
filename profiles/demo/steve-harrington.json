@@ -1,310 +1,327 @@
 {
-  "templateName": "Steve Harrington - Customer Service & Youth Mentor",
   "profile": {
     "name": "Steve Harrington",
-    "currentTitle": "Senior Associate, Family Video",
+    "currentTitle": "Shift Manager, Scoops Ahoy",
     "location": "Hawkins, IN",
-    "roleLevel": "Entry-Mid",
-    "email": "steve.harrington@familyvideo.com"
+    "roleLevel": "Early Career",
+    "summary": "Natural leader with proven ability to inspire and protect teams under pressure. Strong customer service background and genuine connection with young people. Demonstrated growth from individual contributor to team-first leader. Known for reliability, courage, and stepping up when it matters most."
   },
-  "purpose": "To protect and mentor the people around me while figuring out what I actually want to be \u2014 leadership finds you when you stop looking for it.",
   "roles": [
-    {
-      "name": "Youth Program Director"
-    },
     {
       "name": "Retail Manager"
     },
     {
-      "name": "Team Leader"
-    }
-  ],
-  "values": [
-    {
-      "text": "Organically emerged as crisis team leader for group of 6 teens during 4 life-threatening situations",
-      "selected": true,
-      "shared": true
+      "name": "Youth Leader"
     },
     {
-      "text": "Maintained top customer satisfaction scores at Family Video despite being overqualified for the role",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Mentored 6 younger peers through personal development, building confidence and resilience in each",
-      "selected": true,
-      "shared": true
+      "name": "Team Protector"
     }
   ],
   "skills": [
     {
       "name": "Customer Service",
-      "level": "Expert",
       "category": "skill",
-      "key": true,
+      "proficiency": "Advanced",
       "roles": [
         "Retail Manager"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Achieved highest customer satisfaction scores in Starcourt Mall food court",
+          "description": "Built reputation for friendly, personalized service"
+        }
+      ]
     },
     {
       "name": "Youth Mentoring",
-      "level": "Expert",
-      "category": "unique",
-      "key": true,
+      "category": "skill",
+      "proficiency": "Advanced",
       "roles": [
-        "Youth Program Director"
+        "Youth Leader"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Mentored and protected group of 6 young people through multiple crisis situations",
+          "description": "Earned lasting trust and respect as reliable guardian figure"
+        }
+      ]
     },
     {
       "name": "Team Leadership",
-      "level": "Advanced",
-      "category": "skill",
-      "key": true,
+      "category": "workstyle",
+      "proficiency": "Advanced",
       "roles": [
-        "Team Leader"
+        "Team Protector"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Led civilian team of 4 through dangerous reconnaissance mission with zero casualties",
+          "description": "Made real-time tactical decisions under extreme pressure"
+        }
+      ]
     },
     {
-      "name": "Active Listening",
-      "level": "Expert",
+      "name": "Conflict Resolution",
       "category": "skill",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Youth Leader",
+        "Team Protector"
+      ]
     },
     {
-      "name": "Speaking",
-      "level": "Advanced",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Service Orientation",
-      "level": "Expert",
-      "category": "skill",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Social Perceptiveness",
-      "level": "Expert",
+      "name": "Physical Fitness",
       "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Team Protector"
+      ]
     },
     {
-      "name": "Coordination",
-      "level": "Advanced",
+      "name": "Adaptability",
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "Retail Manager",
+        "Team Protector"
+      ]
+    },
+    {
+      "name": "Courage",
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "Team Protector"
+      ]
+    },
+    {
+      "name": "Reliability",
+      "category": "workstyle",
+      "proficiency": "Advanced",
+      "roles": [
+        "Retail Manager",
+        "Youth Leader"
+      ]
+    },
+    {
+      "name": "Cash Handling",
       "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Retail Manager"
+      ]
     },
     {
-      "name": "Complex Problem Solving",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Inventory Management",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Retail Manager"
+      ]
     },
     {
-      "name": "Cooperation",
-      "level": "Expert",
+      "name": "Food Service",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Retail Manager"
+      ]
+    },
+    {
+      "name": "Driving",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Youth Leader"
+      ]
+    },
+    {
+      "name": "First Aid",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Team Protector"
+      ]
+    },
+    {
+      "name": "Communication",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Retail Manager",
+        "Youth Leader"
+      ]
+    },
+    {
+      "name": "Empathy",
       "category": "workstyle",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Youth Leader"
+      ]
     },
     {
-      "name": "Concern for Others",
-      "level": "Expert",
+      "name": "Personal Growth",
       "category": "workstyle",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Mastery",
+      "roles": [
+        "Youth Leader"
+      ]
     },
     {
-      "name": "Stress Tolerance",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Adaptability/Flexibility",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Initiative",
-      "level": "Advanced",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Dependability",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Integrity",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Customer and Personal Service",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Problem Solving",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Team Protector"
+      ]
     }
   ],
   "workHistory": [
     {
-      "company": "Family Video",
-      "title": "Senior Associate",
-      "startYear": 1985,
-      "endYear": 1986,
-      "current": true,
-      "description": "Customer-facing retail. Top performer in customer satisfaction. Unofficial team leader."
+      "title": "Shift Manager",
+      "company": "Scoops Ahoy \u2014 Starcourt Mall",
+      "location": "Hawkins, IN",
+      "startDate": "1985-05",
+      "endDate": "1985-07",
+      "current": false,
+      "description": "Managed ice cream shop operations including customer service, inventory, cash handling, and staff coordination. Mall location was destroyed in structural incident July 1985.",
+      "achievements": [
+        "Highest customer satisfaction scores in Starcourt food court",
+        "Trained 2 new employees"
+      ]
     },
     {
-      "company": "Scoops Ahoy (Starcourt Mall)",
-      "title": "Associate",
-      "startYear": 1985,
-      "endYear": 1985,
+      "title": "Lifeguard",
+      "company": "Hawkins Community Pool",
+      "location": "Hawkins, IN",
+      "startDate": "1984-06",
+      "endDate": "1984-08",
       "current": false,
-      "description": "Ice cream counter service. Developed customer engagement skills."
+      "description": "Ensured swimmer safety, enforced pool rules, performed water rescues, and maintained pool area cleanliness.",
+      "achievements": [
+        "Zero incidents during shifts",
+        "CPR certified"
+      ]
+    },
+    {
+      "title": "Volunteer Youth Mentor",
+      "company": "Hawkins Community Center",
+      "location": "Hawkins, IN",
+      "startDate": "1984-01",
+      "endDate": "",
+      "current": true,
+      "description": "Informal mentoring and supervision of middle school-aged youth group. Provided transportation, conflict mediation, and general guidance.",
+      "achievements": [
+        "Earned trust of 6 young people as their primary adult ally",
+        "Successfully de-escalated multiple youth conflicts"
+      ]
     }
   ],
   "education": [
     {
-      "institution": "Hawkins High School",
+      "school": "Hawkins High School",
       "degree": "High School Diploma",
       "field": "General Studies",
-      "year": 1985
+      "year": "1984",
+      "id": "ed-sh-1"
     }
   ],
-  "certifications": [],
+  "certifications": [
+    {
+      "name": "CPR & First Aid",
+      "abbr": "CPR",
+      "issuer": "American Red Cross",
+      "year": "1984",
+      "type": "Certification",
+      "linkedSkills": [
+        "First Aid"
+      ],
+      "tier": 1,
+      "libraryMatch": null,
+      "id": "cert-sh-1"
+    },
+    {
+      "name": "ServSafe Food Handler",
+      "abbr": "ServSafe",
+      "issuer": "National Restaurant Association",
+      "year": "1985",
+      "type": "Certification",
+      "linkedSkills": [
+        "Food Service"
+      ],
+      "tier": 1,
+      "libraryMatch": null,
+      "id": "cert-sh-1b"
+    }
+  ],
   "savedJobs": [
     {
-      "id": "sh-1",
       "title": "Youth Program Director",
       "company": "YMCA of Greater Indianapolis",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "YMCA seeks a Youth Program Director for after-school and summer programs for teens 12-18. Must demonstrate natural mentoring ability and genuine care for young people. Bachelor's degree in education, social work, or recreation management preferred. CPR/First Aid certification required. Grant writing for program funding expected. Must develop curriculum, manage $200K budget, and report program outcomes with data analytics.",
+      "location": "Indianapolis, IN",
+      "description": "Lead youth development programs for ages 10-18. Design curriculum, recruit and train volunteers, manage budget, and build community partnerships.",
       "parsedSkills": [
         "Youth Mentoring",
         "Team Leadership",
-        "Active Listening",
-        "Cooperation",
-        "Concern for Others",
-        "Service Orientation",
-        "Speaking",
-        "Social Perceptiveness",
-        "Customer and Personal Service",
-        "Bachelor's Degree Preferred",
-        "CPR/First Aid",
-        "Grant Writing",
+        "Communication",
+        "Empathy",
+        "Conflict Resolution",
+        "Adaptability",
+        "Reliability",
+        "Problem Solving",
+        "Program Design",
         "Budget Management",
-        "Program Outcome Analytics",
-        "Curriculum Development"
+        "Grant Writing",
+        "CPR Certification",
+        "Wilderness First Responder"
       ],
-      "parsedRoles": [
-        "Youth Program Director"
-      ],
-      "seniority": "Entry-Mid",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     },
     {
-      "id": "sh-2",
-      "title": "Retail District Manager",
-      "company": "Target",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Target seeks a District Manager to oversee 8 retail locations with 400+ team members. Must demonstrate customer service excellence and team development. 5+ years multi-unit retail management required. Must manage aggregate P&L of $120M, interpret workforce analytics dashboards, and implement inventory optimization using RFID. Experience with Workday HCM, planogram execution, and labor scheduling optimization required.",
+      "title": "District Manager",
+      "company": "Target Corporation",
+      "location": "Indianapolis, IN",
+      "description": "Oversee operations of 8-12 Target stores in district. Responsible for P&L, hiring, training, merchandising, and customer experience standards.",
       "parsedSkills": [
         "Customer Service",
         "Team Leadership",
-        "Service Orientation",
-        "Coordination",
-        "Dependability",
-        "Initiative",
-        "Customer and Personal Service",
-        "Adaptability/Flexibility",
-        "Multi-Unit Management Experience",
+        "Cash Handling",
+        "Inventory Management",
+        "Communication",
+        "Adaptability",
         "P&L Management",
-        "Workforce Analytics",
-        "RFID Inventory Systems",
-        "Workday HCM",
-        "Planogram Execution",
-        "Labor Scheduling Optimization",
-        "Vendor Relationship Management"
+        "Hiring & Onboarding",
+        "Visual Merchandising",
+        "Loss Prevention",
+        "RFID Systems",
+        "Supply Chain Logistics"
       ],
-      "parsedRoles": [
-        "Retail Manager",
-        "Team Leader"
-      ],
-      "seniority": "Mid-Career",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     },
     {
-      "id": "sh-3",
-      "title": "Summer Camp Director",
-      "company": "Camp Tippecanoe",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Camp Tippecanoe seeks a Summer Camp Director to manage operations, supervise 30 counselors, and ensure safety of 200 campers ages 10-16. Requires natural leadership and genuine connection with young people. Wilderness First Responder certification required. Must have waterfront safety certification, ropes course facilitation training, and experience with ACA accreditation standards. Must manage seasonal budget of $400K.",
+      "title": "Camp Director",
+      "company": "Camp Tecumseh YMCA",
+      "location": "Brookston, IN",
+      "description": "Direct all operations for 500-camper residential summer camp. Hire and supervise 120 seasonal staff. Ensure safety, programming quality, and camper experience.",
       "parsedSkills": [
         "Youth Mentoring",
         "Team Leadership",
-        "Concern for Others",
-        "Stress Tolerance",
-        "Adaptability/Flexibility",
-        "Active Listening",
-        "Integrity",
-        "Cooperation",
-        "Social Perceptiveness",
-        "Wilderness First Responder",
-        "Waterfront Safety Certification",
-        "Ropes Course Facilitation",
-        "ACA Accreditation",
-        "Seasonal Budget Management"
+        "Physical Fitness",
+        "First Aid",
+        "Courage",
+        "Reliability",
+        "Communication",
+        "Conflict Resolution",
+        "Driving",
+        "Risk Management",
+        "Outdoor Education",
+        "Aquatics Director Certification",
+        "Emergency Action Plans"
       ],
-      "parsedRoles": [
-        "Youth Program Director",
-        "Team Leader"
-      ],
-      "seniority": "Entry-Mid",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     }
-  ]
+  ],
+  "values": [],
+  "purpose": ""
 }

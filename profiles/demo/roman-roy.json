@@ -1,322 +1,300 @@
 {
-  "templateName": "Roman Roy - Entertainment & Business Development",
   "profile": {
     "name": "Roman Roy",
     "currentTitle": "COO, Waystar Royco",
     "location": "New York, NY",
-    "roleLevel": "Senior",
-    "email": "r.roy@waystar.com"
+    "roleLevel": "Executive",
+    "summary": "Sharp-witted entertainment executive with instinctive deal-making ability and deep industry relationships. Background in content acquisition, business development, and creative strategy. Combines unconventional thinking with genuine cultural intelligence, often seeing opportunities others miss."
   },
-  "purpose": "To close deals, read rooms, and build the entertainment side of the empire that everyone thinks is a joke \u2014 until the numbers come in.",
   "roles": [
-    {
-      "name": "VP Business Development"
-    },
     {
       "name": "Entertainment Executive"
     },
     {
-      "name": "COO"
-    }
-  ],
-  "values": [
-    {
-      "text": "Closed $3B entertainment deal with Indian media conglomerate after competitors failed",
-      "selected": true,
-      "shared": true
+      "name": "Business Development Lead"
     },
     {
-      "text": "Identified emerging market opportunities generating $800M in new revenue",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Managed operational turnaround of Waystar Parks from -2% to +11% operating margin",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Built relationships with 30+ international media executives enabling cross-border licensing",
-      "selected": true,
-      "shared": true
+      "name": "Content Strategist"
     }
   ],
   "skills": [
     {
       "name": "Business Development",
-      "level": "Expert",
       "category": "skill",
-      "key": true,
+      "proficiency": "Advanced",
       "roles": [
-        "VP Business Development"
+        "Business Development Lead"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Originated $500M satellite launch partnership with Japanese telecom",
+          "description": "Built relationship from cold outreach to signed deal in 6 months"
+        }
+      ]
     },
     {
-      "name": "Deal Negotiation",
-      "level": "Expert",
+      "name": "Deal Making",
       "category": "skill",
-      "key": true,
+      "proficiency": "Advanced",
       "roles": [
-        "VP Business Development",
-        "Entertainment Executive"
-      ],
-      "evidence": []
+        "Business Development Lead"
+      ]
     },
     {
-      "name": "Entertainment Industry",
-      "level": "Expert",
+      "name": "Entertainment Industry Knowledge",
       "category": "knowledge",
-      "key": true,
+      "proficiency": "Advanced",
       "roles": [
         "Entertainment Executive"
-      ],
-      "evidence": []
+      ]
     },
     {
-      "name": "Operations Management",
-      "level": "Advanced",
+      "name": "Content Strategy",
       "category": "skill",
-      "key": true,
+      "proficiency": "Advanced",
       "roles": [
-        "COO"
+        "Content Strategist"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Identified streaming content gap that became $200M investment thesis",
+          "description": "Correctly predicted premium unscripted content would outperform scripted on cost basis"
+        }
+      ]
     },
     {
-      "name": "Social Perceptiveness",
-      "level": "Mastery",
+      "name": "Creative Instinct",
       "category": "ability",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Content Strategist"
+      ]
     },
     {
-      "name": "Persuasion",
-      "level": "Expert",
+      "name": "Relationship Building",
       "category": "skill",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Business Development Lead"
+      ]
     },
     {
-      "name": "Speaking",
-      "level": "Expert",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Humor & Rapport",
+      "category": "workstyle",
+      "proficiency": "Mastery",
+      "roles": [
+        "Business Development Lead"
+      ]
     },
     {
       "name": "Negotiation",
-      "level": "Expert",
       "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Business Development Lead"
+      ]
     },
     {
-      "name": "Fluency of Ideas",
-      "level": "Expert",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Complex Problem Solving",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Oral Expression",
-      "level": "Expert",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Adaptability/Flexibility",
-      "level": "Expert",
+      "name": "Executive Presence",
       "category": "workstyle",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Intermediate",
+      "roles": [
+        "Entertainment Executive"
+      ]
     },
     {
-      "name": "Initiative",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Cultural Intelligence",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Content Strategist"
+      ]
     },
     {
-      "name": "Creativity",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Brand Development",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Content Strategist"
+      ]
     },
     {
-      "name": "Communications and Media",
-      "level": "Expert",
+      "name": "International Business",
       "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Intermediate",
+      "roles": [
+        "Business Development Lead"
+      ]
     },
     {
-      "name": "Economics and Accounting",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Crisis Management",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Entertainment Executive"
+      ]
     },
     {
-      "name": "Administration and Management",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Public Speaking",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Entertainment Executive"
+      ]
+    },
+    {
+      "name": "Talent Evaluation",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Content Strategist"
+      ]
+    },
+    {
+      "name": "Competitive Analysis",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Entertainment Executive"
+      ]
+    },
+    {
+      "name": "Pattern Recognition",
+      "category": "ability",
+      "proficiency": "Advanced",
+      "roles": [
+        "Content Strategist"
+      ]
     }
   ],
   "workHistory": [
     {
+      "title": "Chief Operating Officer",
       "company": "Waystar Royco",
-      "title": "COO",
-      "startYear": 2022,
-      "endYear": 2023,
+      "location": "New York, NY",
+      "startDate": "2019-01",
+      "endDate": "2020-05",
       "current": false,
-      "description": "Oversaw daily operations of $60B conglomerate. Led parks turnaround."
+      "description": "Oversaw day-to-day operations of global media conglomerate. Managed operational efficiency, talent decisions, and cross-divisional coordination.",
+      "achievements": [
+        "Managed operations across 50 countries",
+        "Led operational restructuring during crisis period"
+      ]
     },
     {
-      "company": "Waystar Royco",
-      "title": "SVP Entertainment & BizDev",
-      "startYear": 2016,
-      "endYear": 2022,
+      "title": "VP of Business Development",
+      "company": "Waystar Royco \u2014 Entertainment Division",
+      "location": "Los Angeles, CA",
+      "startDate": "2014-01",
+      "endDate": "2018-12",
       "current": false,
-      "description": "International business development. Closed $3B Indian media partnership."
+      "description": "Led business development, partnerships, and content acquisition for Waystar's entertainment portfolio including film studio, streaming, and international distribution.",
+      "achievements": [
+        "Originated $500M satellite partnership",
+        "Identified $200M streaming content investment opportunity",
+        "Built relationships with 50+ talent agencies and studios"
+      ]
     },
     {
-      "company": "Waystar Royco",
-      "title": "Management Trainee",
-      "startYear": 2012,
-      "endYear": 2016,
+      "title": "Associate, Creative Partnerships",
+      "company": "Waystar Studios",
+      "location": "Los Angeles, CA",
+      "startDate": "2010-09",
+      "endDate": "2013-12",
       "current": false,
-      "description": "Rotational program across parks, digital, and entertainment."
+      "description": "Sourced and evaluated creative partnerships, co-production deals, and distribution agreements for Waystar's film and television studio.",
+      "achievements": [
+        "Closed 15+ co-production agreements",
+        "Built creative partnership program from scratch"
+      ]
     }
   ],
   "education": [
     {
-      "institution": "Brown University",
+      "school": "Brown University",
       "degree": "B.A.",
-      "field": "Art History",
-      "year": 2012
+      "field": "Modern Culture & Media",
+      "year": "2006",
+      "id": "ed-rr-1"
+    },
+    {
+      "school": "The Buckley School",
+      "degree": "High School Diploma",
+      "field": "College Preparatory",
+      "year": "2002",
+      "id": "ed-rr-2"
     }
   ],
   "certifications": [],
   "savedJobs": [
     {
-      "id": "rr-1",
       "title": "VP of Business Development",
       "company": "Netflix",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Netflix seeks a VP of Business Development for international content partnerships. Must combine entertainment expertise with deal-closing instincts. Requires $500M+ deal experience. Must demonstrate content valuation methodology, data-driven deal analysis (SQL/Tableau), and understanding of AVOD/SVOD economics. International tax treaty knowledge preferred. Must manage team of 12 BD professionals.",
+      "location": "Los Angeles, CA",
+      "description": "Lead strategic partnerships and business development for world's largest streaming platform. Source deals with studios, talent, and technology partners.",
       "parsedSkills": [
         "Business Development",
-        "Deal Negotiation",
-        "Entertainment Industry",
-        "Persuasion",
-        "Social Perceptiveness",
-        "Communications and Media",
-        "Adaptability/Flexibility",
-        "Speaking",
+        "Deal Making",
+        "Entertainment Industry Knowledge",
+        "Content Strategy",
+        "Relationship Building",
         "Negotiation",
-        "Content Valuation Methodology",
-        "SQL/Tableau",
-        "AVOD/SVOD Economics",
-        "International Tax Treaties",
-        "BD Team Management"
+        "International Business",
+        "Competitive Analysis",
+        "Cultural Intelligence",
+        "Talent Evaluation",
+        "Streaming Economics",
+        "Licensing Agreements",
+        "International Rights",
+        "Data Analytics"
       ],
-      "parsedRoles": [
-        "VP Business Development",
-        "Entertainment Executive"
-      ],
-      "seniority": "Senior",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     },
     {
-      "id": "rr-2",
-      "title": "COO - Theme Parks & Experiences",
-      "company": "Universal Parks & Resorts",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Universal seeks a COO for 4 theme park resorts generating $8B annual revenue. Requires operational turnaround experience and entertainment knowledge. Must manage 50,000+ employees across 4 countries. Experience with ride engineering oversight, guest experience analytics, and labor union negotiations required. Must implement dynamic pricing systems and sustainability programs. Engineering or operations degree preferred.",
+      "title": "Chief Operating Officer",
+      "company": "Universal Pictures",
+      "location": "Universal City, CA",
+      "description": "Oversee studio operations including production, distribution, marketing, and home entertainment for major film studio.",
       "parsedSkills": [
-        "Operations Management",
-        "Entertainment Industry",
+        "Entertainment Industry Knowledge",
+        "Executive Presence",
         "Business Development",
-        "Administration and Management",
-        "Complex Problem Solving",
-        "Economics and Accounting",
-        "Creativity",
-        "Ride Engineering Oversight",
-        "Guest Experience Analytics",
-        "Labor Union Negotiations",
-        "Dynamic Pricing Systems",
-        "Sustainability Programs",
-        "Operations Degree",
-        "Multi-Country Operations"
+        "Negotiation",
+        "Competitive Analysis",
+        "Brand Development",
+        "Crisis Management",
+        "P&L Management",
+        "Production Pipeline",
+        "Theatrical Distribution",
+        "Marketing Strategy",
+        "Labor Relations",
+        "Union Negotiations"
       ],
-      "parsedRoles": [
-        "COO",
-        "Entertainment Executive"
-      ],
-      "seniority": "Executive",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     },
     {
-      "id": "rr-3",
-      "title": "Head of Content Acquisitions",
+      "title": "Head of Content Partnerships",
       "company": "Spotify",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Spotify seeks Head of Content Acquisitions for podcast and music licensing globally. Must be charismatic and relentless in dealmaking. Requires $100M+ deal experience. Must understand music royalty structures, podcast advertising models, and creator compensation frameworks. Experience with SAG-AFTRA and ASCAP/BMI licensing required. Must build relationships with talent agencies (CAA, WME, UTA).",
+      "location": "New York, NY",
+      "description": "Lead podcast and video content partnership strategy. Source and negotiate deals with creators, studios, and media companies for exclusive content.",
       "parsedSkills": [
-        "Deal Negotiation",
-        "Persuasion",
-        "Entertainment Industry",
-        "Oral Expression",
-        "Fluency of Ideas",
-        "Creativity",
-        "Social Perceptiveness",
-        "Music Royalty Structures",
-        "Podcast Advertising Models",
-        "Creator Compensation Frameworks",
-        "SAG-AFTRA/ASCAP/BMI Licensing",
-        "Talent Agency Relationships",
-        "Audio Content Strategy"
+        "Content Strategy",
+        "Deal Making",
+        "Relationship Building",
+        "Cultural Intelligence",
+        "Creative Instinct",
+        "Humor & Rapport",
+        "Talent Evaluation",
+        "Competitive Analysis",
+        "Brand Development",
+        "Podcast Economics",
+        "Creator Economy",
+        "Audio-First Strategy",
+        "Social Media Integration"
       ],
-      "parsedRoles": [
-        "VP Business Development"
-      ],
-      "seniority": "Senior",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     }
-  ]
+  ],
+  "values": [],
+  "purpose": ""
 }

@@ -1,13 +1,11 @@
 {
-  "templateName": "Gus Fring - Restaurant Chain Owner & Operator",
   "profile": {
     "name": "Gus Fring",
     "currentTitle": "Owner & President, Los Pollos Hermanos",
     "location": "Albuquerque, NM",
     "roleLevel": "Executive",
-    "email": "gfring@lph.com"
+    "summary": "Accomplished restaurant and hospitality executive with 20+ years building a beloved regional fast-food chain from a single location to 14 stores across the Southwest. Known for operational precision, supply chain mastery, community philanthropy, and an uncompromising commitment to quality standards."
   },
-  "purpose": "To build and operate world-class restaurant and distribution businesses through operational excellence, community engagement, and uncompromising standards.",
   "roles": [
     {
       "name": "Restaurant Executive"
@@ -16,412 +14,441 @@
       "name": "Supply Chain Director"
     },
     {
-      "name": "Operations VP"
-    }
-  ],
-  "values": [
-    {
-      "text": "Built Los Pollos Hermanos from single location to 14-store regional chain with $28M annual revenue",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Maintained 98.5% health inspection pass rate across all locations for 12 consecutive years",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Designed and managed a cross-border supply chain spanning 3 countries with 99.7% on-time delivery",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Named Albuquerque Business Leader of the Year and raised $2M+ for local hospital foundations",
-      "selected": true,
-      "shared": true
+      "name": "Community Leader"
     }
   ],
   "skills": [
     {
-      "name": "Operations Management",
-      "level": "Mastery",
-      "category": "skill",
-      "key": true,
+      "name": "Restaurant Operations",
+      "category": "knowledge",
+      "proficiency": "Mastery",
       "roles": [
-        "Operations VP",
         "Restaurant Executive"
       ],
-      "evidence": []
-    },
-    {
-      "name": "Supply Chain Management",
-      "level": "Mastery",
-      "category": "skill",
-      "key": true,
-      "roles": [
-        "Supply Chain Director"
-      ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Grew Los Pollos Hermanos from 1 location to 14 stores generating $12M annual revenue",
+          "description": "Expanded across New Mexico, Texas, and Colorado over 15-year period"
+        }
+      ]
     },
     {
       "name": "Multi-Unit Management",
-      "level": "Expert",
       "category": "skill",
-      "key": true,
+      "proficiency": "Mastery",
       "roles": [
         "Restaurant Executive"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Maintained 97% food safety compliance across all 14 locations",
+          "description": "Implemented rigorous quality control and inspection protocols"
+        }
+      ]
     },
     {
-      "name": "Food Service Management",
-      "level": "Expert",
-      "category": "knowledge",
-      "key": true,
-      "roles": [
-        "Restaurant Executive"
-      ],
-      "evidence": []
-    },
-    {
-      "name": "Quality Control Analysis",
-      "level": "Expert",
+      "name": "Supply Chain Management",
       "category": "skill",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Mastery",
+      "roles": [
+        "Supply Chain Director"
+      ],
+      "evidence": [
+        {
+          "outcome": "Reduced food cost by 14% through direct supplier partnerships",
+          "description": "Established vertical integration with regional produce farms and meat suppliers"
+        }
+      ]
+    },
+    {
+      "name": "Logistics",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Supply Chain Director"
+      ],
+      "evidence": [
+        {
+          "outcome": "Built proprietary distribution network serving 14 locations across 3 states",
+          "description": "Industrial laundry facility doubled as centralized distribution hub"
+        }
+      ]
     },
     {
       "name": "Financial Management",
-      "level": "Expert",
       "category": "skill",
-      "key": true,
+      "proficiency": "Advanced",
       "roles": [
         "Restaurant Executive"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Maintained 22% profit margins vs. industry average of 6-9%",
+          "description": "Achieved through operational efficiency and supply chain optimization"
+        }
+      ]
+    },
+    {
+      "name": "Quality Assurance",
+      "category": "skill",
+      "proficiency": "Mastery",
+      "roles": [
+        "Restaurant Executive"
+      ]
+    },
+    {
+      "name": "Food Safety Compliance",
+      "category": "knowledge",
+      "proficiency": "Advanced",
+      "roles": [
+        "Restaurant Executive"
+      ]
     },
     {
       "name": "Strategic Planning",
-      "level": "Expert",
       "category": "skill",
-      "key": true,
+      "proficiency": "Advanced",
       "roles": [
-        "Operations VP"
+        "Restaurant Executive"
+      ]
+    },
+    {
+      "name": "Business Development",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Restaurant Executive"
+      ]
+    },
+    {
+      "name": "Employee Training",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Restaurant Executive"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Developed training program that reduced employee turnover by 35%",
+          "description": "Created bilingual onboarding curriculum and management development track"
+        }
+      ]
     },
     {
-      "name": "Negotiation",
-      "level": "Mastery",
+      "name": "Public Relations",
       "category": "skill",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Community Leader"
+      ]
     },
     {
-      "name": "Management of Personnel Resources",
-      "level": "Expert",
+      "name": "Community Engagement",
       "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Community Leader"
+      ],
+      "evidence": [
+        {
+          "outcome": "Raised $200K annually for DEA charity fun run through corporate sponsorship",
+          "description": "Los Pollos Hermanos became the event's largest single donor"
+        }
+      ]
     },
     {
-      "name": "Management of Material Resources",
-      "level": "Expert",
+      "name": "Crisis Management",
       "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Mastery",
+      "roles": [
+        "Restaurant Executive"
+      ]
     },
     {
-      "name": "Coordination",
-      "level": "Expert",
+      "name": "Bilingual Communication",
       "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Mastery",
+      "roles": [
+        "Restaurant Executive",
+        "Community Leader"
+      ]
     },
     {
-      "name": "Monitoring",
-      "level": "Expert",
+      "name": "Vendor Negotiation",
       "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Supply Chain Director"
+      ]
     },
     {
-      "name": "Judgment and Decision Making",
-      "level": "Mastery",
-      "category": "ability",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Complex Problem Solving",
-      "level": "Expert",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Social Perceptiveness",
-      "level": "Mastery",
-      "category": "ability",
-      "key": true,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Oral Expression",
-      "level": "Expert",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Time Management",
-      "level": "Expert",
+      "name": "Inventory Management",
       "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Supply Chain Director"
+      ]
     },
     {
-      "name": "Self-Control",
-      "level": "Mastery",
+      "name": "Facility Management",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Supply Chain Director"
+      ]
+    },
+    {
+      "name": "Team Leadership",
       "category": "workstyle",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Mastery",
+      "roles": [
+        "Restaurant Executive"
+      ]
+    },
+    {
+      "name": "Risk Assessment",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Restaurant Executive"
+      ]
+    },
+    {
+      "name": "Franchise Development",
+      "category": "knowledge",
+      "proficiency": "Advanced",
+      "roles": [
+        "Restaurant Executive"
+      ]
+    },
+    {
+      "name": "Regulatory Compliance",
+      "category": "knowledge",
+      "proficiency": "Advanced",
+      "roles": [
+        "Restaurant Executive"
+      ]
+    },
+    {
+      "name": "Real Estate Acquisition",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Restaurant Executive"
+      ],
+      "evidence": [
+        {
+          "outcome": "Acquired 14 commercial properties valued at $8.5M total",
+          "description": "Owned rather than leased all restaurant locations"
+        }
+      ]
+    },
+    {
+      "name": "Marketing Strategy",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Community Leader"
+      ]
+    },
+    {
+      "name": "P&L Management",
+      "category": "skill",
+      "proficiency": "Mastery",
+      "roles": [
+        "Restaurant Executive"
+      ]
+    },
+    {
+      "name": "Competitive Analysis",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Restaurant Executive"
+      ]
+    },
+    {
+      "name": "Customer Experience",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Restaurant Executive"
+      ]
     },
     {
       "name": "Attention to Detail",
-      "level": "Mastery",
       "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Mastery",
+      "roles": [
+        "Restaurant Executive",
+        "Supply Chain Director"
+      ]
     },
     {
-      "name": "Leadership",
-      "level": "Expert",
+      "name": "Composure Under Pressure",
       "category": "workstyle",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Mastery",
+      "roles": [
+        "Restaurant Executive"
+      ]
     },
     {
-      "name": "Stress Tolerance",
-      "level": "Mastery",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Dependability",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Achievement/Effort",
-      "level": "Expert",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Persistence",
-      "level": "Mastery",
-      "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Administration and Management",
-      "level": "Expert",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Customer and Personal Service",
-      "level": "Expert",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Economics and Accounting",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Personnel and Human Resources",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Transportation",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "name": "Cultural Intelligence",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Community Leader"
+      ]
     }
   ],
   "workHistory": [
     {
-      "company": "Los Pollos Hermanos",
       "title": "Owner & President",
-      "startYear": 1989,
-      "endYear": 2009,
+      "company": "Los Pollos Hermanos",
+      "location": "Albuquerque, NM",
+      "startDate": "1994-03",
+      "endDate": "2009-10",
       "current": false,
-      "description": "Founded and scaled fast-casual restaurant chain to 14 locations across New Mexico. Managed 200+ employees, vendor relationships, and real estate portfolio."
+      "description": "Founded and operated fast-casual restaurant chain specializing in fried chicken. Managed all aspects of a 14-location operation including finance, HR, supply chain, marketing, and community relations.",
+      "achievements": [
+        "Grew from 1 to 14 locations across 3 states",
+        "12M annual revenue with 22% margins",
+        "Won 'Best Restaurant' in Albuquerque 4 consecutive years",
+        "Zero foodborne illness incidents in 15 years"
+      ]
     },
     {
-      "company": "Madrigal Electromotive GmbH",
-      "title": "Regional Distribution Partner",
-      "startYear": 1992,
-      "endYear": 2009,
+      "title": "Director of Industrial Operations",
+      "company": "Lavander\u00eda Brillante",
+      "location": "Albuquerque, NM",
+      "startDate": "2001-01",
+      "endDate": "2009-10",
       "current": false,
-      "description": "Managed exclusive distribution partnership for industrial equipment and food service supplies across the American Southwest."
+      "description": "Managed industrial laundry facility servicing hospitality and restaurant clients. Oversaw logistics, equipment maintenance, and distribution operations.",
+      "achievements": [
+        "Served 50+ commercial clients across the Southwest",
+        "Built integrated distribution hub for restaurant supply chain"
+      ]
+    },
+    {
+      "title": "Import/Export Manager",
+      "company": "Madrigal Electromotive GmbH",
+      "location": "Santiago, Chile / Houston, TX",
+      "startDate": "1989-01",
+      "endDate": "1994-02",
+      "current": false,
+      "description": "Managed North American import operations for German industrial conglomerate. Coordinated international shipping, customs compliance, and vendor relationships.",
+      "achievements": [
+        "Established US distribution network for 200+ product SKUs",
+        "Reduced import duty costs by 12% through free trade zone optimization"
+      ]
     }
   ],
   "education": [
     {
-      "institution": "Universidad de Santiago de Chile",
-      "degree": "B.S.",
+      "school": "Universidad de Santiago de Chile",
+      "degree": "Licenciatura",
+      "field": "Biochemistry",
+      "year": "1986",
+      "id": "ed-gf-1"
+    },
+    {
+      "school": "Universidad de Chile",
+      "degree": "MBA",
       "field": "Business Administration",
-      "year": 1980
+      "year": "1988",
+      "id": "ed-gf-2"
     }
   ],
   "certifications": [
     {
       "name": "ServSafe Food Protection Manager",
+      "abbr": "ServSafe",
       "issuer": "National Restaurant Association",
-      "year": 1990
+      "year": "1995",
+      "type": "Certification",
+      "linkedSkills": [
+        "Food Safety Compliance"
+      ],
+      "tier": 2,
+      "libraryMatch": null,
+      "id": "cert-gf-1"
     }
   ],
   "savedJobs": [
     {
-      "id": "gf-1",
-      "title": "VP of Operations - QSR Division",
+      "title": "VP of Operations",
       "company": "Yum! Brands",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Yum! Brands seeks a VP of Operations to oversee 400+ quick-service restaurant locations across the Southwest region. Responsible for P&L management, supply chain optimization, multi-unit operational standards, food safety compliance, and regional expansion strategy. Requires 15+ years in restaurant operations with multi-unit leadership. Must demonstrate franchise operations expertise, vendor negotiations, and team development. Public company experience required. Digital ordering platform management and investor relations communication expected.",
+      "location": "Louisville, KY",
+      "description": "Lead operational strategy for 2,000+ restaurant locations. Oversee food safety, supply chain, franchise standards, and P&L for regional division.",
       "parsedSkills": [
-        "Operations Management",
+        "Restaurant Operations",
         "Multi-Unit Management",
-        "Food Service Management",
         "Supply Chain Management",
-        "Financial Management",
+        "P&L Management",
+        "Quality Assurance",
+        "Employee Training",
         "Strategic Planning",
-        "Quality Control Analysis",
-        "Management of Personnel Resources",
-        "Negotiation",
-        "Leadership",
-        "Public Company Operations",
-        "Digital Platform Management",
-        "Investor Relations",
-        "Franchise Law",
-        "Real Estate Development"
+        "Financial Management",
+        "Franchise Development",
+        "Food Safety Compliance",
+        "Team Leadership",
+        "Vendor Negotiation",
+        "Customer Experience",
+        "Labor Relations",
+        "Sustainability Programs",
+        "Digital Ordering Systems"
       ],
-      "parsedRoles": [
-        "Restaurant Executive",
-        "Operations VP"
-      ],
-      "seniority": "Executive",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     },
     {
-      "id": "gf-2",
-      "title": "SVP Supply Chain & Logistics",
+      "title": "SVP, Supply Chain & Procurement",
       "company": "Sysco Corporation",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Sysco seeks a SVP of Supply Chain & Logistics to lead distribution operations across 6 regional warehouses serving 12,000+ foodservice customers. Requires expertise in cold chain management, vendor negotiations, fleet logistics, and inventory optimization. Must have 12+ years supply chain leadership. SAP/Oracle ERP mastery required. AWS IoT fleet tracking experience preferred. APICS CSCP certification required. Must manage $200M budget and 2,000+ warehouse staff.",
+      "location": "Houston, TX",
+      "description": "Direct global supply chain operations for the world's largest foodservice distributor. Manage 10,000+ supplier relationships and $40B procurement budget.",
       "parsedSkills": [
         "Supply Chain Management",
-        "Operations Management",
-        "Management of Material Resources",
-        "Negotiation",
-        "Strategic Planning",
-        "Coordination",
-        "Monitoring",
-        "Transportation",
+        "Logistics",
+        "Vendor Negotiation",
+        "Inventory Management",
         "Financial Management",
-        "Judgment and Decision Making",
-        "SAP ERP",
-        "Oracle Supply Chain Cloud",
-        "Cold Chain Certification",
-        "APICS CSCP",
-        "IoT Fleet Management",
-        "Warehouse Management Systems",
-        "Labor Union Relations",
-        "Sustainability Compliance"
+        "Strategic Planning",
+        "Quality Assurance",
+        "Risk Assessment",
+        "Regulatory Compliance",
+        "Team Leadership",
+        "Data Analytics",
+        "Demand Forecasting",
+        "Cold Chain Logistics",
+        "ERP Systems",
+        "Sustainability Reporting"
       ],
-      "parsedRoles": [
-        "Supply Chain Director",
-        "Operations VP"
-      ],
-      "seniority": "Executive",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     },
     {
-      "id": "gf-3",
-      "title": "Franchise Development Director",
+      "title": "Director of Development",
       "company": "Chipotle Mexican Grill",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Chipotle seeks a Franchise Development Director to identify new market opportunities, negotiate real estate deals, and oversee new restaurant openings. Requires 8+ years in restaurant development or franchise operations. Must have real estate negotiation expertise, construction project management, and zoning/permitting experience. Financial modeling with DCF and IRR analysis required. Legal contract review experience expected. Must present to board quarterly.",
+      "location": "Newport Beach, CA",
+      "description": "Lead new market entry strategy and restaurant development pipeline. Site selection, construction management, and market analysis for 200+ annual openings.",
       "parsedSkills": [
+        "Business Development",
+        "Real Estate Acquisition",
         "Strategic Planning",
         "Financial Management",
-        "Negotiation",
-        "Operations Management",
-        "Customer and Personal Service",
-        "Economics and Accounting",
-        "Social Perceptiveness",
-        "Oral Expression",
-        "Commercial Real Estate",
-        "Construction Project Management",
-        "Zoning and Permitting",
-        "DCF Financial Modeling",
-        "Legal Contract Review",
-        "Board Presentation",
-        "Market Research Analytics"
+        "Market Analysis",
+        "Competitive Analysis",
+        "Franchise Development",
+        "Regulatory Compliance",
+        "Restaurant Operations",
+        "Construction Management",
+        "Demographic Analysis",
+        "Lease Negotiation",
+        "Architecture Review",
+        "Municipal Permitting"
       ],
-      "parsedRoles": [
-        "Restaurant Executive"
-      ],
-      "seniority": "Senior",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
     }
-  ]
+  ],
+  "values": [],
+  "purpose": ""
 }

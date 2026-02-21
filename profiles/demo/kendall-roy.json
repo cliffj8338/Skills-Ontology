@@ -1,345 +1,329 @@
 {
-  "templateName": "Kendall Roy - Corporate Strategy & Acquisitions",
   "profile": {
     "name": "Kendall Roy",
-    "currentTitle": "Head of Corporate Strategy, Waystar Royco",
+    "currentTitle": "Head of Corporate Development, Waystar Royco",
     "location": "New York, NY",
-    "roleLevel": "Senior",
-    "email": "k.roy@waystar.com"
+    "roleLevel": "Executive",
+    "summary": "Ivy League-educated corporate strategist with deep expertise in M&A, digital media transformation, and capital markets. Track record of leading billion-dollar acquisitions and navigating complex stakeholder dynamics. Combines genuine strategic vision with a relentless drive to prove himself at the highest levels."
   },
-  "purpose": "To prove I can build something real \u2014 not just inherit it \u2014 by bringing digital transformation vision to legacy media.",
   "roles": [
     {
-      "name": "Chief Strategy Officer"
+      "name": "Corporate Strategist"
     },
     {
-      "name": "Tech Startup CEO"
+      "name": "M&A Executive"
     },
     {
-      "name": "Investment Banking MD"
-    }
-  ],
-  "values": [
-    {
-      "text": "Led $5B acquisition of digital media startup Vaulter",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Developed streaming platform strategy projected to reach 50M subscribers",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Launched corporate venture arm investing $200M in emerging media tech",
-      "selected": true,
-      "shared": true
-    },
-    {
-      "text": "Orchestrated attempted management buyout valued at $60B",
-      "selected": true,
-      "shared": true
+      "name": "Digital Transformation Lead"
     }
   ],
   "skills": [
     {
-      "name": "Corporate Strategy",
-      "level": "Expert",
-      "category": "skill",
-      "key": true,
-      "roles": [
-        "Chief Strategy Officer"
-      ],
-      "evidence": []
-    },
-    {
       "name": "Mergers & Acquisitions",
-      "level": "Expert",
       "category": "skill",
-      "key": true,
+      "proficiency": "Advanced",
       "roles": [
-        "Chief Strategy Officer",
-        "Investment Banking MD"
+        "M&A Executive"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Led acquisition of Vaulter digital media platform for $120M",
+          "description": "Managed full deal lifecycle from sourcing through integration"
+        }
+      ]
     },
     {
-      "name": "Digital Transformation",
-      "level": "Advanced",
-      "category": "unique",
-      "key": true,
+      "name": "Corporate Strategy",
+      "category": "skill",
+      "proficiency": "Advanced",
       "roles": [
-        "Tech Startup CEO"
+        "Corporate Strategist"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Developed digital transformation roadmap projecting $2B revenue opportunity",
+          "description": "Identified streaming and digital-first pivot strategy ahead of industry trend"
+        }
+      ]
     },
     {
-      "name": "Financial Modeling",
-      "level": "Expert",
-      "category": "skill",
-      "key": true,
+      "name": "Capital Markets",
+      "category": "knowledge",
+      "proficiency": "Advanced",
       "roles": [
-        "Investment Banking MD"
+        "M&A Executive"
+      ]
+    },
+    {
+      "name": "Digital Media",
+      "category": "knowledge",
+      "proficiency": "Advanced",
+      "roles": [
+        "Digital Transformation Lead"
+      ]
+    },
+    {
+      "name": "Investor Relations",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "M&A Executive"
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "outcome": "Managed shareholder communications during hostile takeover defense",
+          "description": "Maintained 65% shareholder support through proxy fight"
+        }
+      ]
     },
     {
       "name": "Public Speaking",
-      "level": "Advanced",
       "category": "skill",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Corporate Strategist"
+      ]
+    },
+    {
+      "name": "Financial Modeling",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "M&A Executive"
+      ]
+    },
+    {
+      "name": "Stakeholder Management",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Corporate Strategist"
+      ]
+    },
+    {
+      "name": "Executive Presence",
+      "category": "workstyle",
+      "proficiency": "Advanced",
+      "roles": [
+        "Corporate Strategist"
+      ]
+    },
+    {
+      "name": "Competitive Analysis",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Corporate Strategist"
+      ]
+    },
+    {
+      "name": "Board Presentations",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "M&A Executive"
+      ]
+    },
+    {
+      "name": "Crisis Management",
+      "category": "skill",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Corporate Strategist"
+      ]
+    },
+    {
+      "name": "Technology Assessment",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Digital Transformation Lead"
+      ]
+    },
+    {
+      "name": "Venture Capital",
+      "category": "knowledge",
+      "proficiency": "Intermediate",
+      "roles": [
+        "Digital Transformation Lead"
+      ]
     },
     {
       "name": "Negotiation",
-      "level": "Advanced",
       "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "M&A Executive"
+      ]
     },
     {
-      "name": "Strategic Planning",
-      "level": "Expert",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Complex Problem Solving",
-      "level": "Expert",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Critical Thinking",
-      "level": "Advanced",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Fluency of Ideas",
-      "level": "Expert",
-      "category": "ability",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Speaking",
-      "level": "Advanced",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Writing",
-      "level": "Advanced",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Persuasion",
-      "level": "Advanced",
-      "category": "skill",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Achievement/Effort",
-      "level": "Expert",
+      "name": "Team Leadership",
       "category": "workstyle",
-      "key": true,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Intermediate",
+      "roles": [
+        "Corporate Strategist"
+      ]
     },
     {
-      "name": "Initiative",
-      "level": "Expert",
+      "name": "Strategic Communications",
+      "category": "skill",
+      "proficiency": "Advanced",
+      "roles": [
+        "Corporate Strategist"
+      ]
+    },
+    {
+      "name": "Resilience",
       "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Advanced",
+      "roles": [
+        "Corporate Strategist"
+      ]
     },
     {
-      "name": "Adaptability/Flexibility",
-      "level": "Advanced",
+      "name": "Ambition",
       "category": "workstyle",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Economics and Accounting",
-      "level": "Expert",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Administration and Management",
-      "level": "Advanced",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
-    },
-    {
-      "name": "Communications and Media",
-      "level": "Expert",
-      "category": "knowledge",
-      "key": false,
-      "roles": [],
-      "evidence": []
+      "proficiency": "Mastery",
+      "roles": [
+        "Corporate Strategist"
+      ]
     }
   ],
   "workHistory": [
     {
+      "title": "Head of Corporate Development / Acting CEO",
       "company": "Waystar Royco",
-      "title": "Head of Corporate Strategy",
-      "startYear": 2015,
-      "endYear": 2023,
+      "location": "New York, NY",
+      "startDate": "2010-01",
+      "endDate": "2020-05",
       "current": false,
-      "description": "Led strategic initiatives, M&A pipeline, and $200M venture fund."
+      "description": "Led M&A strategy, digital transformation initiatives, and investor relations for $5B media conglomerate. Served as acting CEO during Logan Roy's medical leave. Managed board relationships and shareholder communications during proxy fights.",
+      "achievements": [
+        "Led $120M Vaulter acquisition",
+        "Developed $2B digital transformation roadmap",
+        "Maintained 65% shareholder support during proxy fight",
+        "Served as acting CEO during medical crisis"
+      ]
     },
     {
+      "title": "VP, Strategic Initiatives",
       "company": "Waystar Royco",
-      "title": "VP of New Media",
-      "startYear": 2010,
-      "endYear": 2015,
+      "location": "New York, NY",
+      "startDate": "2006-06",
+      "endDate": "2009-12",
       "current": false,
-      "description": "Built digital media division. Launched streaming platform."
+      "description": "Led cross-functional strategic projects including new market entry analysis, partnership evaluations, and restructuring initiatives.",
+      "achievements": [
+        "Identified and scoped 3 acquisition targets",
+        "Built strategic planning team of 8"
+      ]
     },
     {
-      "company": "J.P. Morgan",
-      "title": "Analyst, Media & Telecom M&A",
-      "startYear": 2008,
-      "endYear": 2010,
+      "title": "Analyst \u2192 Associate",
+      "company": "Goldman Sachs \u2014 TMT Group",
+      "location": "New York, NY",
+      "startDate": "2004-07",
+      "endDate": "2006-05",
       "current": false,
-      "description": "Financial modeling and deal execution for media transactions."
+      "description": "Investment banking analyst and later associate in the Technology, Media & Telecommunications group. Financial modeling, pitch book creation, and deal execution.",
+      "achievements": [
+        "Worked on $500M+ media sector deals",
+        "Top analyst ranking in class"
+      ]
     }
   ],
   "education": [
     {
-      "institution": "Harvard Business School",
+      "school": "Harvard University",
       "degree": "MBA",
       "field": "Business Administration",
-      "year": 2008
+      "year": "2004",
+      "id": "ed-kr-1"
     },
     {
-      "institution": "Columbia University",
+      "school": "Harvard University",
       "degree": "B.A.",
       "field": "Economics",
-      "year": 2006
+      "year": "2002",
+      "id": "ed-kr-2"
+    },
+    {
+      "school": "The Buckley School",
+      "degree": "High School Diploma",
+      "field": "College Preparatory",
+      "year": "1998",
+      "id": "ed-kr-3"
     }
   ],
   "certifications": [],
   "savedJobs": [
     {
-      "id": "kr-1",
       "title": "Chief Strategy Officer",
       "company": "Paramount Global",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Paramount seeks a CSO for strategic transformation in the streaming era. Must have deep M&A experience and digital platform strategy. Requires 10+ years in media strategy. Must demonstrate operational P&L ownership of $500M+ business, product management experience, and ability to lead cross-functional teams of 50+. International market expansion experience required.",
+      "location": "New York, NY",
+      "description": "Lead corporate strategy, M&A, and strategic partnerships for global media company navigating streaming transformation.",
       "parsedSkills": [
         "Corporate Strategy",
         "Mergers & Acquisitions",
-        "Digital Transformation",
-        "Strategic Planning",
+        "Digital Media",
+        "Capital Markets",
+        "Investor Relations",
         "Financial Modeling",
-        "Communications and Media",
-        "Economics and Accounting",
-        "Complex Problem Solving",
-        "Negotiation",
-        "Operational P&L Ownership",
-        "Product Management",
-        "Cross-Functional Team Leadership",
-        "International Market Expansion",
-        "Board Presentation"
-      ],
-      "parsedRoles": [
-        "Chief Strategy Officer"
-      ],
-      "seniority": "Senior",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
-    },
-    {
-      "id": "kr-2",
-      "title": "Managing Director - TMT",
-      "company": "Goldman Sachs",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "Goldman Sachs seeks an MD for TMT investment banking. Requires deep sector relationships and $1B+ transaction experience. 12+ years in investment banking required. Must demonstrate personal deal origination of $500M+ annually, existing client relationships with Fortune 100 TMT companies, and ability to manage 20+ person team. Series 7, 63, and 79 licenses required.",
-      "parsedSkills": [
-        "Mergers & Acquisitions",
-        "Financial Modeling",
-        "Negotiation",
-        "Corporate Strategy",
-        "Economics and Accounting",
-        "Persuasion",
-        "Speaking",
-        "Writing",
-        "Achievement/Effort",
-        "Personal Deal Origination Track Record",
-        "Fortune 100 Client Relationships",
-        "Series 7/63/79 Licenses",
-        "Team Management 20+",
-        "Pitch Book Development",
-        "LBO Modeling"
-      ],
-      "parsedRoles": [
-        "Investment Banking MD"
-      ],
-      "seniority": "Senior",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
-    },
-    {
-      "id": "kr-3",
-      "title": "CEO - Digital Media Startup",
-      "company": "Andreessen Horowitz Portfolio",
-      "sourceUrl": "",
-      "sourceNote": "Sample job for demo",
-      "rawText": "a16z seeks an operating CEO for Series B digital media startup with $50M funding. Must combine media knowledge with technology execution. Must have shipped consumer-facing products, managed engineering teams, and led Series C+ fundraising. Experience with product analytics (Mixpanel/Amplitude), growth hacking, and CAC/LTV optimization required. Must build team from 30 to 150.",
-      "parsedSkills": [
-        "Digital Transformation",
-        "Strategic Planning",
+        "Competitive Analysis",
         "Public Speaking",
-        "Initiative",
-        "Communications and Media",
-        "Fluency of Ideas",
-        "Adaptability/Flexibility",
-        "Consumer Product Shipping",
-        "Engineering Team Management",
-        "Series C Fundraising",
-        "Product Analytics",
-        "Growth Hacking",
-        "CAC/LTV Optimization",
-        "Scaling Team 30 to 150",
-        "Technical Recruiting"
+        "Board Presentations",
+        "Negotiation",
+        "Streaming Economics",
+        "Content Valuation",
+        "International Distribution",
+        "AI/ML Strategy"
       ],
-      "parsedRoles": [
-        "Tech Startup CEO"
+      "curated": true
+    },
+    {
+      "title": "Managing Director, TMT Investment Banking",
+      "company": "Goldman Sachs",
+      "location": "New York, NY",
+      "description": "Lead media and entertainment M&A advisory practice. Originate and execute $1B+ transactions for strategic and financial sponsor clients.",
+      "parsedSkills": [
+        "Mergers & Acquisitions",
+        "Capital Markets",
+        "Financial Modeling",
+        "Negotiation",
+        "Stakeholder Management",
+        "Board Presentations",
+        "Competitive Analysis",
+        "Investor Relations",
+        "Deal Structuring",
+        "Leveraged Finance",
+        "Cross-Border M&A",
+        "Pitch Book Development",
+        "Client Entertainment"
       ],
-      "seniority": "Senior",
-      "addedAt": "2026-02-20T00:00:00.000Z",
-      "curated": true,
-      "sample": true
+      "curated": true
+    },
+    {
+      "title": "CEO-in-Residence",
+      "company": "Andreessen Horowitz (a16z)",
+      "location": "Menlo Park, CA",
+      "description": "Work with portfolio companies on strategic planning, scaling, and M&A. Potential to deploy as CEO of high-growth media/tech startup.",
+      "parsedSkills": [
+        "Corporate Strategy",
+        "Digital Media",
+        "Technology Assessment",
+        "Venture Capital",
+        "Team Leadership",
+        "Executive Presence",
+        "Stakeholder Management",
+        "Strategic Communications",
+        "Growth Strategy",
+        "Product-Market Fit",
+        "Fundraising",
+        "Startup Operations"
+      ],
+      "curated": true
     }
-  ]
+  ],
+  "values": [],
+  "purpose": ""
 }
