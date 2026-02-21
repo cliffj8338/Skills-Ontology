@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.13 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
+    <!-- v4.25.1.14 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4466,8 +4466,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.13 - BUILD 20260220-s14
-        var BP_VERSION = 'v4.25.1.13';
+        // BLUEPRINT v4.25.1.14 - BUILD 20260220-s14
+        var BP_VERSION = 'v4.25.1.14';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -5007,6 +5007,12 @@
         // ===== FIRESTORE PERSISTENCE =====
         function saveToFirestore() {
             if (!fbDb || !fbUser) return Promise.resolve(false);
+            
+            // GUARD: Ensure profile name comes from Firebase auth, never scaffold
+            if (fbUser.displayName && userData.profile) {
+                userData.profile.name = fbUser.displayName;
+            }
+            
             var si = document.getElementById('saveIndicator');
             if (si) { si.innerHTML = bpIcon('upload',12) + ' Saving...'; si.style.opacity = '0.6'; si.style.color = 'var(--text-muted)'; }
             
@@ -5088,8 +5094,10 @@
                     userData.profile = data.profile || {};
                     
                     // If no profile name set, use Firebase display name
-                    if (!userData.profile.name && fbUser) {
+                    // ALWAYS prefer Firebase auth name for signed-in users (prevents scaffold contamination)
+                    if (fbUser) {
                         userData.profile.name = fbUser.displayName || fbUser.email.split('@')[0];
+                        if (fbUser.email && !userData.profile.email) userData.profile.email = fbUser.email;
                     }
                     
                     userData.skills = data.skills || [];
@@ -8666,24 +8674,29 @@
             // ===== PROFILE DECISION FLOW =====
             const currentProfile = safeGet('currentProfile');
             
-            // Always load a scaffold template so nav/rendering works
-            var scaffoldId = currentProfile || 'cliff-jones-demo';
-            if (!templates[scaffoldId]) scaffoldId = 'cliff-jones-demo';
-            if (templates[scaffoldId]) loadTemplate(scaffoldId);
-            initializeMainApp();
-            
-            // Determine which view to show
-            var targetView = 'welcome'; // Default: welcome page
-            
-            // CASE 1: Signed-in user — ALWAYS load their own Firestore data
+            // CASE 1: Signed-in user — DO NOT load scaffold, go straight to Firestore
             if (fbUser && fbDb) {
+                // Initialize minimal userData structure (no scaffold contamination)
+                userData = {
+                    initialized: false,
+                    profile: { name: fbUser.displayName || fbUser.email.split('@')[0], email: fbUser.email || '' },
+                    skills: [], skillDetails: {}, values: [], purpose: '',
+                    roles: [], workHistory: [], education: [], certifications: [],
+                    verifications: [], preferences: userData.preferences || {},
+                    applications: [], savedJobs: [], templateId: 'firestore-' + fbUser.uid
+                };
+                skillsData.skills = [];
+                skillsData.roles = [];
+                
+                initializeMainApp();
+                
+                var targetView = 'welcome';
                 try {
                     var loaded = await loadUserFromFirestore(fbUser.uid);
                     if (loaded) {
                         console.log('☁ Firestore profile applied for', fbUser.displayName || fbUser.email);
                         targetView = fbIsAdmin ? 'admin' : 'blueprint';
                     } else {
-                        // New user with no Firestore data yet
                         console.log('ℹ️ No Firestore data for signed-in user');
                         targetView = fbIsAdmin ? 'admin' : 'welcome';
                     }
@@ -8691,16 +8704,30 @@
                     console.warn('Firestore load failed:', e);
                     if (fbIsAdmin) targetView = 'admin';
                 }
+                // Reset view init flags so they render with correct data
+                window.blueprintInitialized = false;
+                window.settingsInitialized = false;
+                window.opportunitiesInitialized = false;
+                window.applicationsInitialized = false;
+                window.consentInitialized = false;
+                window.networkInitialized = false;
+                window.cardViewInitialized = false;
                 checkReadOnly();
+                return targetView;
             }
-            // CASE 2: Not signed in — use scaffold profile for demo browsing
-            else {
-                if (currentProfile && templates[currentProfile]) {
-                    // Has a saved profile from previous visit
-                    targetView = 'blueprint';
-                }
-                checkReadOnly();
+            
+            // CASE 2: Not signed in — load scaffold for demo browsing
+            var scaffoldId = currentProfile || 'cliff-jones-demo';
+            if (!templates[scaffoldId]) scaffoldId = 'cliff-jones-demo';
+            if (templates[scaffoldId]) loadTemplate(scaffoldId);
+            initializeMainApp();
+            
+            // Determine which view to show
+            var targetView = 'welcome';
+            if (currentProfile && templates[currentProfile]) {
+                targetView = 'blueprint';
             }
+            checkReadOnly();
             
             // Return target view so DOMContentLoaded can use it
             return targetView;
