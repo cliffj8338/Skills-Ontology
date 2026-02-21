@@ -1,331 +1,287 @@
-# Blueprint — Project Context
-## Last Updated: 2026-02-20 (Session 16 Final) · v4.25.1.23
+# BLUEPRINT — Project Context
+**Last Updated:** 2026-02-21
+**Current Version:** v4.27.1.3 (build 20260221-mobile-stack)
+**Working Output Files:** index.html (21,058 lines), blueprint.css (4,030 lines), companies.json (58 companies)
 
----
+## What Is Blueprint?
+A career intelligence platform that maps professional skills through interactive visualizations. Users build skill profiles, discover role matches, and analyze job fit through network graphs, card views, and overlay lenses. Built as a single-page app (index.html + blueprint.css) with external JSON data files.
 
-## WHAT IS BLUEPRINT
+## Architecture
 
-Blueprint is a career intelligence platform that maps professional skills through interactive visualizations and generates career deliverables. Built as a single-page application (~24,128 lines) in one `index.html` file. Domain: **myblueprint.work** (primary), **getblueprint.work** (redirect/marketing).
+### Core Files
+| File | Purpose | Lines/Size |
+|------|---------|------------|
+| `index.html` | All JS + HTML in single file | 21,058 |
+| `blueprint.css` | All styles | 4,030 |
+| `companies.json` | Company values/culture data | 58 companies |
+| `skills/index-v3.json` | Skill library (14,000+ skills) | 2.4 MB |
+| `skill_evidence.json` | Evidence patterns per skill | 52 KB |
+| `skill_valuations.json` | Market values per skill | 6 KB |
+| `values-library.json` | User values catalog (25 values, 5 groups) | 6 KB |
+| `certification_library.json` | Certifications database | — |
+| `bls-wages.json` | Bureau of Labor Statistics wage data | — |
+| `trades-creative-library.json` | Trades/creative skills | 27 KB |
+| `profiles-manifest.json` | Demo profile registry | 3 KB |
+| `profiles/demo/*.json` | Individual demo profiles | 8-52 KB each |
 
-**Core insight:** "You are not your resume." Most professionals can name 15–20 skills. Blueprint maps 150–300 using a 14,000+ skill ontology (O*NET + ESCO datasets).
+### Data Loading
+All JSON files load at startup via Promise.allSettled in the init function. The loader array index matters — if adding new data files, append to the array and update the index reference.
 
----
-
-## FILE & ARCHITECTURE
-
-**Single file:** `index.html` — ~24,128 lines, ~1.2MB
-**No build system.** Pure HTML/CSS/JS. CDN dependencies only.
-**Hosted:** GitHub Pages at `cliffj8338.github.io/Skills-Ontology/`
-
-### CDN Dependencies
-- Firebase 10.7.0 (Auth, Firestore)
-- jsPDF 2.5.1 (PDF generation)
-- D3.js 7 (network visualization)
-- Google Fonts (Outfit, JetBrains Mono)
-
-### Versioning
-4-part version: `v{major}.{minor}.{patch}.{build}` (e.g., v4.25.1.23)
-- `BP_VERSION` constant at top of script — single source of truth
-- Referenced in: console banner, About modal, admin overview
-- HTML comment + boot comment are hardcoded labels
-- **Always bump version on every delivery**
-
-### Global State Variables
 ```
-fbUser, fbIsAdmin, fbDb    — Firebase auth/admin/Firestore
-skillsData                  — { skills: [], roles: [] }
-userData                    — { profile: {}, savedJobs: [], applications: [], preferences: {},
-                               workHistory: [], education: [], certifications: [] }
-blueprintData               — { outcomes: [], values: [], purpose: '' }
-isReadOnlyProfile           — True when viewing sample as non-admin
-appMode                     — 'demo' | 'waitlisted' | 'invited' | 'active' (admin → always active)
-waitlistPosition            — Queue number (int or null)
-currentView                 — Current main nav view
-blueprintTab                — 'dashboard' | 'skills' | 'experience' | 'outcomes' | 'values' | 'export'
-valuationMode               — 'evidence' | 'potential' (drives dual cards + detail section)
-skillValuations             — Market value data (BLS-based)
-adminSubTab                 — 'overview' | 'users' | 'samples' | 'waitlist' | 'config'
-BP_VERSION                  — Version constant (e.g., 'v4.25.1.23')
+Loader array order:
+[0] onet-skills-library.json
+[1] onet-abilities-library.json
+[2] onet-workstyles-library.json
+[3] onet-knowledge-library.json
+[4] onet-work-activities-library.json
+[5] trades-creative-library.json
+[6] values-library.json
+[7] bls-wages.json
+[8] companies.json
 ```
 
-### Navigation Structure
+### Key Global Variables
+- `BP_VERSION` — Display version string (currently `'v4.27.1.3'`)
+- `companyDataLoaded` — Company values from companies.json (window global, object keyed by company name)
+- `userData` — Current user's profile data
+- `blueprintData` — Blueprint tab data including values
+- `networkMatchMode` — Current network view: `'you'` | `'job'` | `'match'` | `'values'`
+
+### Version String Locations (ALL FOUR must stay in sync)
+1. **Line 7** — HTML comment: `<!-- v4.27.1.3 | 20260221 | ... -->`
+2. **~Line 902** — JS comment: `// BLUEPRINT v4.27.1.3 - BUILD ...`
+3. **~Line 903** — `var BP_VERSION = 'v4.27.1.3';`
+4. **~Line 919** — `console.log` build string
+
+⚠ **CRITICAL**: Always `grep` all four locations and verify consistency before delivering files. Every distinct set of changes increments the patch number (4th digit).
+
+## Demo Profiles (TV Characters)
+
+### Active Profiles (15 + 2 utility)
+| Profile | File | Show | Role Level | Curated Job Companies |
+|---------|------|------|-----------|----------------------|
+| Alex Thompson | alex-thompson.json | Original | Entry-Mid | *(no savedJobs — uses generated)* |
+| Dustin Henderson | dustin-henderson.json | Stranger Things | Early Career | MIT Lincoln Lab, NSA, Smithsonian |
+| Eleven (Jane Hopper) | eleven.json | Stranger Things | Early Career | Johns Hopkins, SAMHSA, NSA |
+| Gus Fring | gus-fring.json | Breaking Bad | Executive | Yum! Brands, Sysco, Chipotle |
+| Hank Schrader | hank-schrader.json | Breaking Bad | Senior | Amazon Security, DHS, Walmart |
+| Jesse Pinkman | jesse-pinkman.json | Breaking Bad | Early Career | West Elm, Snap-on, Boys & Girls Clubs |
+| Jim Hopper | jim-hopper.json | Stranger Things | Senior | FEMA, Tesla, Monroe County |
+| Joyce Byers | joyce-byers.json | Stranger Things | Mid-Career | NCMEC, Ace Hardware, Self-Employed (PI) |
+| Kendall Roy | kendall-roy.json | Succession | Executive | Paramount Global, Goldman Sachs, a16z |
+| Logan Roy | logan-roy.json | Succession | C-Suite | Warner Bros Discovery, Apollo, News Corp |
+| Roman Roy | roman-roy.json | Succession | Executive | Netflix, Universal Pictures, Spotify |
+| Saul Goodman | saul-goodman.json | Better Call Saul | Mid-Career | Morgan & Morgan, Edelman, Dollar Shave Club |
+| Shiv Roy | shiv-roy.json | Succession | Executive | Disney, McKinsey, Meta |
+| Steve Harrington | steve-harrington.json | Stranger Things | Early Career | YMCA, Target, Camp Tecumseh |
+| Tom Wambsgans | tom-wambsgans.json | Succession | C-Suite | iHeartMedia, Fox Corp, CNN |
+| Walter White | walter-white.json | Breaking Bad | Mid-Career | UNM, Pfizer, McKinsey |
+| Jamie Martinez | jamie-martinez.json | Original | — | *(empty profile — needs curation or removal)* |
+
+### REMOVED Profiles (delete everywhere)
+- ~~cliff-jones.json~~ — DELETE from profiles/demo/ and profiles-manifest.json
+- ~~mike-rodriguez.json~~ — DELETE from profiles/demo/ and profiles-manifest.json
+- ~~sarah-chen.json~~ — DELETE from profiles/demo/ and profiles-manifest.json
+
+### Generated Job Companies (from getSampleJobsForProfile)
+When a profile has no curated `savedJobs`, the system generates 3 sample jobs based on detected role type:
+
+| Role Type | Companies |
+|-----------|-----------|
+| Recruiter | Datadog, Figma, McKinsey |
+| Product | Notion, Stripe, Scale AI |
+| Retail | Target, Starbucks, Nordstrom |
+| Trades | Great Clips, Aveda Salon, Ulta Beauty |
+| Strategy/Exec (default) | ServiceNow, Deloitte, Palantir |
+| Tech/Engineering | Cloudflare, Datadog, Anthropic |
+
+All of these companies are in `companies.json`.
+
+## Values Overlay System (Complete as of v4.27.1.3)
+
+### Architecture: Three Entities
 ```
-Primary Nav:  [Skills] [Jobs] [Blueprint] [Settings] [Samples]
-Skills:       Network graph / Card view (toggle)
-Jobs:         Pipeline (saved) / Tracker (applications) / Find Jobs (API)
-Blueprint:    Dashboard / Skills / Experience / Outcomes / Values / Export
-Settings:     Profile / Preferences / Privacy & Data
-Samples:      TV show collection browser (Breaking Bad / Stranger Things / Succession)
-Admin:        Overview / Users / Samples / Waitlist / Config (admin-only, full page)
+PROFILES (people)          COMPANIES (organizations)       JOBS (positions)
+├── skills                 ├── name                        ├── title
+├── values (25 catalog)    ├── industry                    ├── company → refs COMPANY
+├── roles                  ├── values                      ├── required skills
+├── work history           │   ├── primary[]               ├── companyValues (lazy-computed)
+└── purpose                │   ├── secondary[]             ├── match scores
+                           │   ├── tensions[]              └── seniority
+                           │   └── story (narrative)
+                           └── future: news, sentiment...
 ```
+
+### Company Values Data (companies.json)
+- **58 curated company profiles** covering all demo profile jobs + generated jobs
+- Each company: `industry`, `values.primary[]`, `values.secondary[]`, `values.tensions[]`, `values.story`
+- Values drawn from the VALUES_CATALOG (25 values across 5 groups)
+- Loaded at startup via index 8 in Promise.allSettled → `window.companyDataLoaded`
+- Lookup chain in `getCompanyValues()`: exact name → case-insensitive → partial match (e.g. "Amazon Security" → "Amazon") → JD inference fallback → generic defaults
+
+### VALUES_CATALOG (25 values)
+Excellence, Strategic Thinking, Collaboration, Accountability, Courage, Integrity, Empathy, Curiosity, Craftsmanship, Bias Toward Action, Continuous Improvement, Servant Leadership, Authenticity, Purpose Over Profit, Inclusion, Systems Thinking, Evidence-Based Decision Making, Resourcefulness, Transparency, Trust, Empowerment, Work-Life Boundaries, Intellectual Honesty, Candor, Resilience.
+
+### Values Alignment Scoring
+`computeValuesAlignment(userValues, companyValues)` returns:
+- `score` (0-100%) — weighted overlap
+- `aligned[]` — shared values (green)
+- `yourPriority[]` — user values company doesn't signal (amber)
+- `theirPriority[]` — company values user doesn't hold (indigo)
+- `tensionRisk[]` — user values that conflict with company tensions (red)
+
+Weights: primary aligned = 20pts, secondary aligned = 10pts, tension penalty = -15pts.
+
+### Network Visualization (Values Mode)
+`initValuesNetwork(job)` — dual-hub force-directed graph:
+- Left hub: "[First Name]'s Values" cluster (uses smart possessive: "Gus'" not "Gus's")
+- Right hub: "[Company]'s Culture" cluster (same grammar: "Yum! Brands'" not "Brands's")
+- Green bridge links for aligned values
+- Color coding: green (aligned), amber (your priority), indigo (their priority), red (tension)
+- ⚠ tension marker nodes between hubs
+- Hub labels: clean text, no text-shadow (`.node.hub text { text-shadow: none; }`)
+
+### Values Alignment Panel (v4.27.1.3)
+**Desktop** (>768px):
+- `position: fixed` — viewport-pinned, won't scroll away
+- Draggable by header (mouse + touch support via `initPanelDrag`)
+- Merged job info in header (title + company) — eliminates separate `jobInfoTile` in values mode
+- Collapse (−/+) toggles body visibility; Close (✕) removes panel from DOM
+- Width: 320px, glass morphism styling
+
+**Mobile** (≤768px):
+- `position: relative` — inline flow after SVG, scrollable
+- Full-width, no border-radius on sides, stacks below the graph
+- No drag (not needed — it's in document flow)
+- Same collapse/close controls
+- Job info tile suppressed in values mode
+
+### Job Detail CTA Area
+- "Compare Skills" + "Values Fit" buttons in `.jd-cta-box`
+- Desktop: horizontal flex with description text alongside
+- Mobile: stacks vertically (`.jd-cta-box { flex-direction: column; }`)
+- Values alignment badge with score, aligned/friction counts, company story
+
+### UI Integration Points
+- Match mode toggle: You / Job / Match / **Values** buttons
+- Job detail view: "Values Fit" button alongside "Compare Skills"
+- Values alignment score badge in job detail stats area
+- Values alignment panel (desktop: floating/draggable, mobile: inline stacked)
 
 ### Key Functions
-```
-renderBlueprint()              — Main Blueprint tab renderer (6 tabs)
-renderDashboardTab()           — Dashboard command center
-renderSkillsManagementTab()    — Skills management by domain
-renderExperienceTab()          — Wraps renderExperienceSettings()
-renderExportSection()          — Export tab with 4 grouped sections + exportCard() helper
-generatePDF(data, targetJob)   — PDF gen (optional job for scouting reports)
-generateScoutingReport(idx)    — Targeted PDF with match analysis
-matchJobToProfile(parsed)      — 4-tier fuzzy skill matching (normalizes string arrays)
-calculateTotalMarketValue()    — BLS-based salary model
-exportBlueprint(format)        — Export dispatcher (pdf/html/json/clipboard)
-switchView(view)               — Main nav router (incl. admin view)
-initAdminView()                — Full-page admin dashboard renderer
-renderAdminOverview(el)        — Admin overview with analytics
-loadPlatformAnalytics()        — Async Firestore analytics aggregation
-logAnalyticsEvent(type, meta)  — Event tracking to analytics_events collection
-rescoreAllJobs()               — Recompute all job match scores against current skills
-loadUserFromFirestore(uid)     — Load user data, clear scaffold for signed-in users
-updateAuthUI()                 — Profile chip, admin buttons, auth state
-updateProfileChip(name)        — Name + Google photo in nav
-detectAppMode()                — Sets appMode from auth + localStorage + Firestore
-normalizeUserRoles()           — Ensures roles have id, color, skills[] (called on every profile load)
-viewSampleProfile()            — TV show collection page (3 tabs, 15 characters)
-selectShowCollection(showId)   — Renders show-specific character grid
-initNetwork()                  — Main D3 force network (calls normalizeUserRoles first)
-```
+| Function | Purpose |
+|----------|---------|
+| `getCompanyValues(name, rawText)` | Lookup company → companies.json (3-tier match + JD inference fallback) |
+| `inferCompanyValuesFromJD(rawText)` | Keyword scan against VALUES_CATALOG, returns primary/secondary |
+| `computeValuesAlignment(userValues, companyValues)` | Scoring algorithm |
+| `initValuesNetwork(job)` | Dual-hub D3 force-directed visualization |
+| `addValuesAlignmentPanel(alignment, job, cv)` | Panel builder (desktop: fixed+drag, mobile: inline) |
+| `toggleValuesPanel()` | Collapse/expand panel body |
+| `closeValuesPanel()` | Remove panel from DOM |
+| `initPanelDrag(panel, handle)` | Desktop drag handler (mouse + touch) |
+| `activateValuesOverlay(idx)` | Direct activation from job detail view |
 
----
+### Known Fix: rawText vs description
+Curated jobs use `description` field, generated jobs use `rawText`. All value lookups use `job.rawText || job.description || ''` as fallback chain (7 call sites, all consistent).
 
-## SAMPLE PROFILES SYSTEM (v4.25.1.17–23)
+## Version History (This Session)
 
-### Architecture
-- `profiles-manifest.json` — registry of all 15 profiles with id, name, title, path, enabled
-- `profiles/demo/{id}.json` — individual profile data files
-- Profiles loaded at boot via manifest → fetch each JSON → stored in `templates[id]`
-- Profile switching via `switchProfile(templateId)` → `loadTemplate()` → `initializeMainApp()`
-- **Manifest normalization (v4.25.1.23):** Code handles both array `[...]` and object `{profiles: [...]}` — bare arrays get wrapped at load time
+### v4.27.0.0 — Values Overlay MVP
+- Company values catalog (17 inline companies in COMPANY_VALUES)
+- JD inference engine
+- Alignment scoring algorithm
+- Dual-hub network visualization
+- Values alignment panel
+- UI integration (buttons, badges, panel)
+- CSS additions (~64 lines)
 
-### TV Show Collections (15 profiles)
+### v4.27.0.1 — Fix: Missing Company Values
+- Lazy computation: companyValues computed on-demand if missing from job object
+- Case-insensitive company name lookup
+- Generic fallback for JDs with no keyword matches
+- Diagnostic console.warn logging
 
-**Breaking Bad** (green `#22c55e`):
-| ID | Character | Skills | Evidence | Work History | Education | Certs |
-|----|-----------|--------|----------|--------------|-----------|-------|
-| `walter-white` | Walter White | 32 | 6 | 5 | 3 | 1 |
-| `gus-fring` | Gus Fring | 29 | 5 | 4 | 2 | 1 |
-| `hank-schrader` | Hank Schrader | 25 | 5 | 4 | 2 | 2 |
-| `jesse-pinkman` | Jesse Pinkman | 21 | 4 | 3 | 1 | 0 |
-| `saul-goodman` | Saul Goodman | 24 | 5 | 4 | 3 | 1 |
+### v4.27.1.0 — Companies.json Architecture
+- **Externalized** all company values from inline COMPANY_VALUES to `companies.json`
+- 58 curated company profiles covering all demo profile jobs + generated jobs
+- Startup loader integration (index 8 in Promise.allSettled array)
+- Removed inline COMPANY_VALUES constant
+- `getCompanyValues()` reads from `window.companyDataLoaded` global
+- Added 3-tier name matching: exact → case-insensitive → partial match
+- All 7 `getCompanyValues()` call sites updated with `rawText || description || ''` fallback
 
-**Stranger Things** (red `#ef4444`):
-| ID | Character | Skills | Evidence | Work History | Education | Certs |
-|----|-----------|--------|----------|--------------|-----------|-------|
-| `jim-hopper` | Jim Hopper | 21 | 5 | 4 | 2 | 2 |
-| `eleven` | Eleven (Jane Hopper) | 16 | 3 | 2 | 1 | 0 |
-| `steve-harrington` | Steve Harrington | 17 | 4 | 3 | 1 | 1 |
-| `dustin-henderson` | Dustin Henderson | 21 | 5 | 3 | 2 | 0 |
-| `joyce-byers` | Joyce Byers | 18 | 4 | 4 | 1 | 0 |
+### v4.27.1.1 — Panel Collapse/Close + Hub Labels (rolled into v4.27.1.3)
+- Panel header with collapse (−) and close (✕) controls
+- Hub label text-shadow removed (clean typography)
+- Possessive grammar fix (smart apostrophe for names ending in 's')
 
-**Succession** (gold `#c4a035`):
-| ID | Character | Skills | Evidence | Work History | Education | Certs |
-|----|-----------|--------|----------|--------------|-----------|-------|
-| `logan-roy` | Logan Roy | 20 | 5 | 4 | 2 | 0 |
-| `kendall-roy` | Kendall Roy | 19 | 4 | 4 | 3 | 0 |
-| `shiv-roy` | Siobhan "Shiv" Roy | 21 | 5 | 4 | 3 | 0 |
-| `roman-roy` | Roman Roy | 17 | 3 | 3 | 2 | 0 |
-| `tom-wambsgans` | Tom Wambsgans | 22 | 5 | 4 | 2 | 1 |
+### v4.27.1.2 — Panel Merge + Drag (rolled into v4.27.1.3)
+- Job info tile merged into values panel header
+- Panel repositioned from `position: absolute` to `position: fixed`
+- Desktop drag support (mouse + touch)
 
-**Totals:** 323 skills, 68 evidence items, 46 work history entries, 27 education records, 10 certifications
+### v4.27.1.3 — Mobile Stacking + CTA Fix (current)
+- Mobile: values panel switches to `position: relative` inline flow below SVG
+- Mobile: full-width stacked layout, scrollable, no overlap
+- Mobile: job info tile suppressed in values mode
+- Job detail CTA area: flex-wrap on mobile, stacks vertically
+- Consolidated all v4.27.1.1 and v4.27.1.2 improvements
 
-### Profile Data Structure
-Each profile JSON contains:
+## Known Issues / TODO
+
+### Bugs
+1. **Jamie Martinez profile** — appears to be an empty/incomplete profile. Needs curation or removal.
+
+### Cleanup
+1. Delete cliff-jones.json, mike-rodriguez.json, sarah-chen.json from repo
+2. Update profiles-manifest.json to remove those three profiles
+
+### Testing Needed
+1. Verify values overlay works for ALL 15 active demo profiles after companies.json integration
+2. Test curated job `description` fallback (Kendall/Paramount, Gus/Yum! Brands)
+3. Mobile testing across all demo profiles for values panel stacking
+4. Light theme testing for values panel and hub labels
+
+### Future Enhancements
+- **Company enrichment**: Add news signals, Glassdoor sentiment, financial health to company profiles
+- **Real-time inference**: When real users paste JDs, extract company name and enrich from web
+- **Stated vs Lived values**: Gap analysis between what companies say and what employees report
+- **Values over time**: Track how user values evolve across career transitions
+- **Values in job recommendations**: Weight values alignment in overall job match score
+- **Match/Job panels**: Apply same floating/draggable/mobile-stacking pattern to match legend and job network overlays for consistency
+
+## Technical Notes
+
+### Adding a New Demo Profile
+1. Create `profiles/demo/{name}.json` with full profile structure
+2. Add entry to `profiles-manifest.json`
+3. For each company in `savedJobs`, ensure it exists in `companies.json`
+4. If profile type doesn't match existing generated job categories, add new category in `getSampleJobsForProfile`
+
+### Adding a New Company to companies.json
 ```json
-{
-  "profile": { "name", "title", "location", "summary", "roleLevel" },
-  "skills": [{ "name", "level", "category", "evidence": [{ "description", "outcome" }] }],
-  "roles": [{ "name" }],
-  "workHistory": [{ "title", "company", "startDate", "endDate", "description", "achievements" }],
-  "education": [{ "degree", "institution", "year", "field" }],
-  "certifications": [{ "name", "issuer", "year" }],
-  "values": [{ "name", "selected" }],
-  "savedJobs": [{ "title", "company", "parsedSkills", "curated": true }]
+"Company Name": {
+    "industry": "Industry / Sector",
+    "values": {
+        "primary": ["Value1", "Value2", "Value3"],
+        "secondary": ["Value4", "Value5"],
+        "tensions": ["Value6"],
+        "story": "2-3 sentence culture narrative..."
+    }
 }
 ```
+Values must come from the VALUES_CATALOG (25 values listed above).
 
-### Job Match Realism
-Each job has 13-20 `parsedSkills` — a mix of skills the character HAS (creating matches) and skills they DON'T have (creating realistic gaps). Jobs use `curated: true` flag to skip auto-generated sample jobs. `matchJobToProfile()` normalizes string arrays to objects.
+### Network Visualization Modes
+| Mode | Hub(s) | Nodes | Links | Panel |
+|------|--------|-------|-------|-------|
+| You | Person | Skills by role | Role→Skill | None |
+| Job | Job | Required skills | Role→Skill | Job info tile |
+| Match | Person + Job | Overlapping skills | Match bridges | Match legend |
+| Values | Your Values + Company Culture | Values | Alignment bridges | Values panel (merged job info) |
 
-### Samples Page UI
-- Header: "SAMPLE BLUEPRINTS" (uppercase, Outfit font, letter-spacing 0.08em)
-- Three color-coded tab selectors (Breaking Bad green, Stranger Things red, Succession gold)
-- Show banner with tagline + description
-- 5 character cards per show with initials avatar, emoji, title, description, skill count, "View →" button
-
-### Read-Only Protection
-- `isReadOnlyProfile` = true when viewing sample as non-admin
-- `readOnlyGuard()` blocks: add skill, delete skill, edit outcome, add outcome, edit skill modal
-- Skill detail modal hides Edit/Assess/Verify/Remove action bar for read-only
-- Card view hides Edit/Delete buttons for read-only
-- Admin retains full editing + JSON export via admin panel
-
----
-
-## D3 NETWORK VISUALIZATION
-
-### Four Network Views
-1. **Main Network** (`initNetwork()`) — user's skills grouped by roles
-2. **Match Overlay** — job match visualization with matched/surplus/gap states
-3. **Job Overlay** — job-specific network with category grouping
-4. **Highlight Network** (`initNetworkWithHighlight()`) — skills highlighted by job match
-
-### Node Z-Order
-All four views call `.raise()` on role and center nodes after initial draw, ensuring character/user name and role labels render on top of skill nodes.
-
-### Link Safety
-All network views validate links before passing to D3 via `validRoleIds` / `validMatchRoleIds` / `validNodeIds` sets. Missing role references are silently skipped.
-
-### Mobile Skills Labels (v4.25.1.23)
-- Label visibility controlled via `.hide-skill-labels` CSS class on SVG element
-- Touch targets enlarged to 48×28px for toggle controls
-- CSS-class-based approach replaced fragile D3 data-bound filtering on mobile
-
----
-
-## ROLE NORMALIZATION
-
-Profiles store bare roles as `{name: 'Chemistry Professor'}`. The app requires `{id, name, color, skills[]}` for D3 network rendering. `normalizeUserRoles()` handles this:
-
-- Assigns `role.id = role.name`
-- Assigns `role.color` from 8-color palette
-- Builds `role.skills[]` by scanning `userData.skills` for role references
-
-Called in: `switchProfile()`, wizard completion, `initializeMainApp()`, and as safety net inside `initNetwork()`.
-
----
-
-## FIREBASE STRUCTURE
-
-### Collections
-```
-users/{uid}/              — Full user profile + skills + jobs + applications
-waitlist/{docId}/         — Name, email, type, status, position, createdAt
-analytics_events/{auto}/  — type, uid, displayName, meta, timestamp
-```
-
-### Admin Detection
-- `role: 'admin'` field on user doc in Firestore
-- Admin always gets `appMode = 'active'`, lands on admin dashboard
-
----
-
-## AUTH & BOOT SEQUENCE
-
-### Signed-In User Boot
-1. Firebase `onAuthStateChanged` → set `fbUser`, check admin role
-2. `updateAuthUI()` — chip = Google name + photo
-3. `initializeApp()` → load manifest + templates → `initializeMainApp()`
-4. **Firestore load overwrites scaffold** (or clears if no doc)
-5. `rescoreAllJobs()` → admin → admin view, others → blueprint/welcome
-
-### Demo User Boot
-1. Auth resolves null → "Sign In" button
-2. Load scaffold from localStorage, browse samples via Samples nav
-
-### Critical Guards
-- Signed-in users never see scaffold names
-- Scaffold cleared when no Firestore doc exists
-- `switchProfile()` won't save to localStorage when `fbUser` exists
-- `saveToFirestore()` only fires when `fbUser` exists AND userData is real
-
----
-
-## DATA LIBRARIES (parallel load via Promise.allSettled)
-
-| Source | Library | Count |
-|--------|---------|-------|
-| Custom | Skills (index-v3.json) | 13,960 |
-| Custom | Certification library | 191 |
-| Custom | Skill evidence | 73 skills |
-| Custom | Skill valuations | ✓ |
-| Custom | Impact ratings | ✓ |
-| O*NET | Skills (nested) | ~120 |
-| O*NET | Abilities | 52 |
-| O*NET | Work Styles | 21 |
-| O*NET | Knowledge | 33 |
-| O*NET | Work Activities | 41 |
-| Custom | Trades & Creative | 64 |
-| Custom | Values | 30 |
-| BLS | Wages | 831 occupations |
-
----
-
-## MODELS
-
-**Valuation:** BLS base + impact premiums + rarity bonus × location. Offers at 75/85/95%.
-
-**Matching:** Exact (1.0) → Synonym (0.95) → Substring (0.85) → Word overlap (0.75×ratio). Weighted Required×3, Preferred×2, Nice×1. Normalizes string arrays for curated jobs.
-
----
-
-## VERSION HISTORY (Sessions 14–16)
-
-| Version | Changes |
-|---------|---------|
-| v4.25.0 | Blueprint 6-tab restructure, auth flow overhaul, profile chip cleanup |
-| v4.25.1.9 | Jobs auto-rescore, pipeline subtitle fix |
-| v4.25.1.10 | Admin profile chip fix (Google identity always wins) |
-| v4.25.1.11 | Full admin page (5 tabs), admin boot redirect |
-| v4.25.1.12 | O*NET skills nested count fix |
-| v4.25.1.13 | Analytics engine, event tracking (9 hooks), grouped data libraries |
-| v4.25.1.14 | Root cause fix: scaffold contamination (signed-in users never load templates) |
-| v4.25.1.15 | Parallel library loading (Promise.allSettled) |
-| v4.25.1.16 | Export removed from hamburger, footer hidden on admin, sample profile editing |
-| v4.25.1.17 | Samples page: 3 TV show collections, 15 character cards, tab navigation |
-| v4.25.1.18 | 15 profile JSONs (385 skills, 45 curated jobs), curated jobs flag |
-| v4.25.1.19 | matchJobToProfile fix — normalize string skill arrays to objects |
-| v4.25.1.20 | normalizeUserRoles() — roles get id, color, skills[] for D3 |
-| v4.25.1.21 | D3 link guards in all 4 networks, safety normalize in initNetwork() |
-| v4.25.1.22 | Heading font fix, edit disabled for demos, center node z-order in all networks |
-| v4.25.1.23 | Manifest array normalization, mobile label toggle CSS fix, null safety on saveSampleEdits |
-
-### Session 14: Profile Data Enrichment
-Generated 15 TV character profiles with timeline-accurate work history, education, certifications, and skill evidence. 323 skills, 68 evidence items, 46 work history entries, 27 education records, 10 certifications.
-
-### Session 15: Mobile Skills Label Toggle Fix
-Root cause: D3 data-bound filtering fragile on mobile. Solution: CSS-class-based approach using `.hide-skill-labels` class on SVG element. Touch targets enlarged to 48×28px.
-
-### Session 16: Manifest Loading Error Fix
-Root cause: Profile generation script wrote manifest as bare JSON array `[...]` but `initializeApp()` expected `{profiles: [...]}`. Fix: Added normalization after fetch — `if (Array.isArray(manifest)) { manifest = { profiles: manifest }; }`. Also added null safety to `saveSampleEdits()`.
-
----
-
-## SUPPORTING FILES
-
-| File | Description |
-|------|-------------|
-| `index.html` | Main app (~24,128 lines) |
-| `teaser.html` | Landing page with animated network |
-| `profiles-manifest.json` | 15-profile registry (bare array or `{profiles:[...]}`) |
-| `profiles/demo/*.json` | 15 character profile JSONs |
-| `skills/index-v3.json` | Master skill library (13,960 skills) |
-| `onet-*.json` | O*NET data libraries (5 files) |
-| `trades-creative-library.json` | Trades & creative skills |
-| `bls-wages.json` | BLS salary data |
-| `certification-library.json` | 191 certifications |
-| `skill_evidence.json` | Evidence for 73 skills |
-| `WHY_BLUEPRINT.md` | Positioning document |
-| `LAUNCH_PLAN.md` | Invite-only launch spec |
-| `PROJECT_CONTEXT.md` | This file |
-
----
-
-## TECH DEBT
-
-- Job APIs need network access (CORS proxied)
-- Consider code splitting at 25K+ lines
-- ESCO library not yet loaded (placeholder in admin)
-- `analytics_events` needs Firestore composite indexes
-- Old 5 sample profiles (cliff-jones, sarah-chen, etc.) should be deleted from repo
-- Mobile tab scroll testing needed
-- Manifest should be standardized to `{profiles: [...]}` format (currently normalized at runtime)
-
----
-
-## NEXT STEPS
-
-**Immediate:** Deploy v4.25.1.23 + 15 profile JSONs + manifest. Delete old profiles from repo.
-**Short-term:** ESCO library integration, email invite notifications, sample evidence population
-**Medium-term:** Ambassador mechanic, LinkedIn sharing, analytics time-series, IAM Phenom prep
-**Content:** Articles on recruiting transformation, AI in TA, org restructuring
+## File Output Locations
+After each build session, final files go to:
+- `/mnt/user-data/outputs/index.html`
+- `/mnt/user-data/outputs/blueprint.css`
+- `/mnt/user-data/outputs/companies.json`
