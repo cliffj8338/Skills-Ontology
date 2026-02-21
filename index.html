@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.27.2.1 | 20260221 | Skill years estimation, mobile values SVG compact (320px), tighter node layout -->
+    <!-- v4.27.2.2 | 20260221 | Comp banner card, collapse identical BLS cards, relabel for curated profiles -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -890,8 +890,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.27.2.1 - BUILD 20260221-skill-years-svgfit
-        var BP_VERSION = 'v4.27.2.1';
+        // BLUEPRINT v4.27.2.2 - BUILD 20260221-comp-cards
+        var BP_VERSION = 'v4.27.2.2';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -907,7 +907,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260221-skill-years-svgfit                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260221-comp-cards                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -10637,26 +10637,60 @@ body {
             
             var html = '';
             
+            // ── CURATED/REPORTED COMP BANNER (prominent, above stat cards) ──
+            if (hasCuratedComp) {
+                var dispFormatted = formatCompValue(totalValue.displayComp);
+                var algoFormatted = formatCompValue(totalValue.algorithmEstimate);
+                var delta = totalValue.displayComp - totalValue.algorithmEstimate;
+                var deltaPct = totalValue.algorithmEstimate > 0 ? Math.round((delta / totalValue.algorithmEstimate) * 100) : 0;
+                var deltaColor = delta >= 0 ? '#10b981' : '#f59e0b';
+                var deltaSign = delta >= 0 ? '+' : '';
+                
+                html += '<div style="background:linear-gradient(135deg, rgba(16,185,129,0.12), rgba(96,165,250,0.08)); border:2px solid rgba(16,185,129,0.3); border-radius:14px; padding:22px 24px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">'
+                    + '<div>'
+                    + '<div style="font-size:0.78em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">'
+                    + bpIcon('money',12) + ' ' + totalValue.compLabel + '</div>'
+                    + '<div style="font-size:2.4em; font-weight:800; color:#10b981; line-height:1;">' + dispFormatted + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-faint); margin-top:6px;">/year</div>'
+                    + '</div>'
+                    + '<div style="text-align:right;">';
+                if (totalValue.algorithmEstimate > 0 && totalValue.displayComp < 50000000) {
+                    html += '<div style="font-size:0.72em; color:var(--c-muted);">vs. BLS Benchmark</div>'
+                        + '<div style="font-size:1.4em; font-weight:700; color:' + deltaColor + ';">' + deltaSign + deltaPct + '%</div>'
+                        + '<div style="font-size:0.72em; color:var(--c-faint);">' + algoFormatted + '/yr</div>';
+                } else if (totalValue.algorithmEstimate > 0) {
+                    html += '<div style="font-size:0.72em; color:var(--c-muted);">BLS Benchmark</div>'
+                        + '<div style="font-size:1.1em; font-weight:600; color:var(--c-faint);">' + algoFormatted + '/yr</div>';
+                }
+                html += '</div></div>';
+            }
+            
             // ── STAT CARDS ROW ──
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:20px;">';
             
-            // Evidence-Based Value card
+            // Evidence-Based Value card (BLS algorithm)
             if (hasValuation && evidenceValue) {
                 var evActive = valuationMode === 'evidence';
+                var evLabel = hasCuratedComp ? 'BLS Evidence' : 'Evidence-Based';
+                // If evidence = potential, collapse to single "BLS Estimate" card
+                var showSingleBls = hasCuratedComp && potentialValue && evidenceValue.yourWorth === potentialValue.yourWorth;
+                if (showSingleBls) evLabel = 'BLS Estimate';
+                
                 html += '<div style="background:' + (evActive ? 'var(--c-green-bg-2a)' : 'var(--c-surface-2)') + '; border:' + (evActive ? '2px' : '1px') + ' solid ' + (evActive ? 'var(--c-green-border-3)' : 'var(--c-surface-5)') + '; border-radius:12px; padding:18px; cursor:pointer;" onclick="setValuationMode(\'evidence\'); switchBlueprintTab(\'dashboard\');">'
                     + '<div style="display:flex; align-items:center; gap:5px; font-size:0.78em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">'
-                    + bpIcon('lock',11) + ' Evidence-Based</div>'
+                    + bpIcon('lock',11) + ' ' + evLabel + '</div>'
                     + '<div style="font-size:1.8em; font-weight:800; color:#10b981;">$' + evidenceValue.yourWorth.toLocaleString() + '</div>'
                     + '<div style="font-size:0.75em; color:var(--c-faint); margin-top:4px;">' + evidenceValue.compaRatio + '% of median</div>'
                     + '</div>';
             }
             
-            // Potential Value card
-            if (hasValuation && potentialValue) {
+            // Potential Value card — skip if same as evidence AND curated comp exists
+            if (hasValuation && potentialValue && !(hasCuratedComp && evidenceValue && evidenceValue.yourWorth === potentialValue.yourWorth)) {
                 var potActive = valuationMode === 'potential';
+                var potLabel = hasCuratedComp ? 'BLS Potential' : 'Potential';
                 html += '<div style="background:' + (potActive ? 'var(--c-orange-bg-1)' : 'var(--c-surface-2)') + '; border:' + (potActive ? '2px' : '1px') + ' solid ' + (potActive ? 'var(--c-orange-border)' : 'var(--c-surface-5)') + '; border-radius:12px; padding:18px; cursor:pointer;" onclick="setValuationMode(\'potential\'); switchBlueprintTab(\'dashboard\');">'
                     + '<div style="display:flex; align-items:center; gap:5px; font-size:0.78em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">'
-                    + bpIcon('star',11) + ' Potential</div>'
+                    + bpIcon('star',11) + ' ' + potLabel + '</div>'
                     + '<div style="font-size:1.8em; font-weight:800; color:#f59e0b;">$' + potentialValue.yourWorth.toLocaleString() + '</div>'
                     + '<div style="font-size:0.75em; color:var(--c-faint); margin-top:4px;">' + potentialValue.compaRatio + '% of median</div>'
                     + '</div>';
