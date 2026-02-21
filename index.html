@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.26 | 20260220 | Fix card view null safety for skill.level and skill.roles -->
+    <!-- v4.25.1.27 | 20260220 | Block all import functions in demo/read-only mode -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -3436,7 +3436,14 @@
         .readonly-mode [onclick*="editValue"],
         .readonly-mode [onclick*="removeSelected"],
         .readonly-mode [onclick*="addCustomValue"],
-        .readonly-mode [onclick*="saveAll"] { opacity: 0.35; pointer-events: none; }
+        .readonly-mode [onclick*="saveAll"],
+        .readonly-mode [onclick*="importFullProfile"],
+        .readonly-mode [onclick*="importProfile"],
+        .readonly-mode [onclick*="importFileInput"],
+        .readonly-mode [onclick*="openBulkImport"],
+        .readonly-mode [onclick*="wizardChooseImport"],
+        .readonly-mode [onchange*="importFullProfile"],
+        .readonly-mode [onchange*="wizardImportProfile"] { opacity: 0.35; pointer-events: none; }
         
         /* Demo mode lock icons on nav */
         .nav-lock-icon { font-size: 0.65em; margin-left: 3px; opacity: 0.6; vertical-align: super; }
@@ -4474,8 +4481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.26 - BUILD 20260220-s17
-        var BP_VERSION = 'v4.25.1.26';
+        // BLUEPRINT v4.25.1.27 - BUILD 20260220-s17
+        var BP_VERSION = 'v4.25.1.27';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -8962,6 +8969,7 @@
         
         // Import profile from JSON file
         window.importProfile = function(event) {
+            if (readOnlyGuard()) return;
             const file = event.target.files[0];
             if (!file) return;
             
@@ -9239,10 +9247,12 @@
         }
 
         function wizardChooseImport() {
+            if (readOnlyGuard()) return;
             document.getElementById('wizardImportFile').click();
         }
 
         function wizardImportProfile(event) {
+            if (readOnlyGuard()) return;
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
@@ -20502,7 +20512,7 @@ body {
                             </button>
                         </div>
                         
-                        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 20px;">
+                        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 20px; ${isReadOnlyProfile ? 'display:none;' : ''}">
                             <h3 style="color: #10b981; margin-bottom: 10px;">${bpIcon("download",14)} Import Profile</h3>
                             <p style="color: #9ca3af; font-size: 0.9em; margin-bottom: 15px;">
                                 Restore from a previous backup or transfer from another device
@@ -20515,7 +20525,7 @@ body {
                         </div>
                     </div>
                     
-                    <div style="margin-top: 20px; padding: 15px; background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444; border-radius: 4px;">
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444; border-radius: 4px; ${isReadOnlyProfile ? 'display:none;' : ''}">
                         <strong style="color: #ef4444;">${bpIcon("warning",14)} Warning:</strong>
                         <span style="color: #d1d5db; font-size: 0.9em;">
                             Importing will replace all current data. Make sure to export first if you want to keep your current profile!
@@ -20813,6 +20823,7 @@ body {
         }
         
         function importFullProfile(fileInput) {
+            if (readOnlyGuard()) return;
             const file = fileInput.files[0];
             if (!file) return;
             
