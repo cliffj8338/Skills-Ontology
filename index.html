@@ -143,6 +143,7 @@
                 <button class="match-mode-btn active" data-mode="you" onclick="setNetworkMatchMode('you')">You</button>
                 <button class="match-mode-btn" data-mode="job" onclick="setNetworkMatchMode('job')">Job</button>
                 <button class="match-mode-btn" data-mode="match" onclick="setNetworkMatchMode('match')">Match</button>
+                <button class="match-mode-btn" data-mode="values" onclick="setNetworkMatchMode('values')">Values</button>
             </div>
             
             <!-- Active job badge (hidden until a job is activated) -->
@@ -899,7 +900,7 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.26.0.6 - BUILD 20260221-s20
-        var BP_VERSION = 'v4.26.0.6';
+        var BP_VERSION = 'v4.27.0.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -915,7 +916,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260220-find-jobs                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260221-values-overlay                ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -5130,6 +5131,7 @@
             jobs.forEach(function(job) {
                 job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles });
                 job.blsSalary = matchJobToBLS(job.title, job.rawText);
+                job.companyValues = getCompanyValues(job.company, job.rawText);
             });
             
             // Sort: high match first
@@ -6867,6 +6869,21 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
         window.activateJobOverlay = activateJobOverlay;
         
+        function activateValuesOverlay(idx) {
+            var job = (userData.savedJobs || [])[idx];
+            if (!job) { showToast('Job not found.', 'error'); return; }
+            
+            activeJobForNetwork = job;
+            networkMatchMode = 'values';
+            
+            currentSkillsView = 'network';
+            switchView('network');
+            
+            updateMatchOverlayUI();
+            setNetworkMatchMode('values');
+        }
+        window.activateValuesOverlay = activateValuesOverlay;
+        
         function clearJobOverlay() {
             activeJobForNetwork = null;
             networkMatchMode = 'you';
@@ -6880,6 +6897,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Remove legend and job info tile
             var legend = document.getElementById('matchLegend');
             if (legend) legend.remove();
+            var valuesLegend = document.getElementById('valuesAlignmentPanel');
+            if (valuesLegend) valuesLegend.remove();
             var jobTile = document.getElementById('jobInfoTile');
             if (jobTile) jobTile.remove();
             
@@ -6920,6 +6939,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Remove any existing overlays
             var legend = document.getElementById('matchLegend');
             if (legend) legend.remove();
+            var valuesLegend = document.getElementById('valuesAlignmentPanel');
+            if (valuesLegend) valuesLegend.remove();
             var jobTile = document.getElementById('jobInfoTile');
             if (jobTile) jobTile.remove();
             
@@ -6932,6 +6953,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 initJobNetwork(activeJobForNetwork);
             } else if (mode === 'match') {
                 initMatchNetwork(activeJobForNetwork);
+            } else if (mode === 'values') {
+                initValuesNetwork(activeJobForNetwork);
             }
         }
         window.setNetworkMatchMode = setNetworkMatchMode;
@@ -7399,6 +7422,367 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (container) { container.style.position = 'relative'; container.appendChild(legend); }
         }
         
+        // ===== VALUES ALIGNMENT NETWORK =====
+        
+        function initValuesNetwork(job) {
+            if (!job) return;
+            
+            var cv = job.companyValues || getCompanyValues(job.company, job.rawText);
+            if (!cv) { showToast('No company values data available.', 'warning'); return; }
+            
+            // Compute alignment
+            var userVals = (blueprintData && blueprintData.values) || [];
+            if (userVals.length === 0) { inferValues(); userVals = blueprintData.values || []; }
+            var alignment = computeValuesAlignment(userVals, cv);
+            if (!alignment) { showToast('Select values in your Blueprint first.', 'warning'); return; }
+            
+            var width = window.innerWidth;
+            var height = window.innerHeight - 160;
+            var isMobile = width <= 768;
+            var scaleFactor = Math.min(width, height) / 900;
+            scaleFactor = Math.max(0.8, Math.min(scaleFactor, 1.6));
+            
+            var svg = d3.select("#networkView")
+                .attr("width", width)
+                .attr("height", height);
+            svg.selectAll("*").remove();
+            if (simulation) simulation.stop();
+            
+            // Layout: user values on left, company values on right
+            var centerY = height * 0.42;
+            var leftX = isMobile ? width * 0.3 : width * 0.32;
+            var rightX = isMobile ? width * 0.7 : width * 0.68;
+            var topY = Math.max(60, height * 0.15);
+            
+            // Build lookup sets
+            var alignedSet = new Set(alignment.aligned.map(function(a) { return a.name; }));
+            var tensionSet = new Set(alignment.tensionRisk.map(function(t) { return t.name; }));
+            var theirPrioritySet = new Set(alignment.theirPriority.map(function(t) { return t.name; }));
+            var yourPrioritySet = new Set(alignment.yourPriority.map(function(y) { return y.name; }));
+            
+            var nodes = [];
+            var links = [];
+            
+            // Hub nodes
+            var userName = (userData && userData.profile && userData.profile.name) || 'You';
+            nodes.push({
+                id: 'hub-you', name: userName + "'s Values", type: 'hub', side: 'user',
+                x: leftX, y: topY, fx: leftX, fy: topY
+            });
+            nodes.push({
+                id: 'hub-company', name: (job.company || 'Company') + "'s Culture", type: 'hub', side: 'company',
+                x: rightX, y: topY, fx: rightX, fy: topY
+            });
+            
+            // User value nodes
+            var userSelected = userVals.filter(function(v) { return v && v.selected; });
+            userSelected.forEach(function(val, i) {
+                var state = 'yours';
+                if (alignedSet.has(val.name)) state = 'aligned';
+                else if (tensionSet.has(val.name)) state = 'tension';
+                // else stays 'yours' = your priority, their silence
+                
+                var angle = ((i / userSelected.length) * Math.PI * 0.8) + Math.PI * 0.6;
+                var radius = (isMobile ? 100 : 160) * scaleFactor;
+                nodes.push({
+                    id: 'uv-' + i, name: val.name, type: 'value', side: 'user',
+                    valState: state,
+                    x: leftX + Math.cos(angle) * radius,
+                    y: centerY + Math.sin(angle) * radius * 0.7
+                });
+                links.push({ source: 'hub-you', target: 'uv-' + i, type: 'spoke' });
+            });
+            
+            // Company value nodes (primary + secondary)
+            var companyAllVals = [];
+            (cv.primary || []).forEach(function(name) { companyAllVals.push({ name: name, tier: 'primary' }); });
+            (cv.secondary || []).forEach(function(name) { companyAllVals.push({ name: name, tier: 'secondary' }); });
+            
+            companyAllVals.forEach(function(cval, i) {
+                var state = 'theirs';
+                if (alignedSet.has(cval.name)) state = 'aligned';
+                // else stays 'theirs' = their priority, you don't hold it
+                
+                var angle = ((i / companyAllVals.length) * Math.PI * 0.8) + Math.PI * 1.6;
+                var radius = (isMobile ? 100 : 160) * scaleFactor;
+                nodes.push({
+                    id: 'cv-' + i, name: cval.name, type: 'value', side: 'company',
+                    valState: state, tier: cval.tier,
+                    x: rightX + Math.cos(angle) * radius,
+                    y: centerY + Math.sin(angle) * radius * 0.7
+                });
+                links.push({ source: 'hub-company', target: 'cv-' + i, type: 'spoke' });
+            });
+            
+            // Alignment bridges — connect matching values across the two sides
+            userSelected.forEach(function(val, ui) {
+                if (alignedSet.has(val.name)) {
+                    var ci = companyAllVals.findIndex(function(c) { return c.name === val.name; });
+                    if (ci !== -1) {
+                        links.push({ source: 'uv-' + ui, target: 'cv-' + ci, type: 'bridge' });
+                    }
+                }
+            });
+            
+            // Tension nodes (company's tension values that the user holds)
+            var tensionVals = cv.tensions || [];
+            tensionVals.forEach(function(tName, i) {
+                if (tensionSet.has(tName)) {
+                    // Find the user value node
+                    var ui = userSelected.findIndex(function(v) { return v.name === tName; });
+                    if (ui !== -1) {
+                        // Add a small "friction" indicator node between them
+                        nodes.push({
+                            id: 'tension-' + i, name: '\u26A0', type: 'tension-marker',
+                            x: (leftX + rightX) / 2,
+                            y: centerY + (i * 40) - 20
+                        });
+                        links.push({ source: 'uv-' + ui, target: 'tension-' + i, type: 'tension-link' });
+                    }
+                }
+            });
+            
+            // Value state colors
+            var valColors = {
+                aligned: '#10b981',
+                yours: '#f59e0b',
+                theirs: '#6366f1',
+                tension: '#ef4444'
+            };
+            
+            // Simulation
+            simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) {
+                    if (d.type === 'bridge') return (isMobile ? 140 : 220) * scaleFactor;
+                    if (d.type === 'tension-link') return (isMobile ? 80 : 120) * scaleFactor;
+                    return (isMobile ? 80 : 130) * scaleFactor;
+                }).strength(function(d) {
+                    if (d.type === 'bridge') return 0.15;
+                    return 0.6;
+                }))
+                .force("charge", d3.forceManyBody().strength(function(d) {
+                    if (d.type === 'hub') return 0;
+                    if (d.type === 'tension-marker') return -30;
+                    return (isMobile ? -120 : -200) * scaleFactor;
+                }))
+                .force("collision", d3.forceCollide().radius(function(d) {
+                    if (d.type === 'hub') return (isMobile ? 40 : 55) * scaleFactor;
+                    if (d.type === 'tension-marker') return 15;
+                    return (isMobile ? 30 : 42) * scaleFactor;
+                }))
+                .force("x", d3.forceX(function(d) {
+                    if (d.side === 'user') return leftX;
+                    if (d.side === 'company') return rightX;
+                    return width / 2;
+                }).strength(0.12))
+                .force("y", d3.forceY(centerY).strength(0.06));
+            
+            // Draw links
+            var link = svg.append("g").selectAll("line").data(links).join("line")
+                .attr("class", "link")
+                .style("stroke", function(d) {
+                    if (d.type === 'bridge') return valColors.aligned;
+                    if (d.type === 'tension-link') return valColors.tension;
+                    return undefined;
+                })
+                .style("stroke-opacity", function(d) {
+                    if (d.type === 'bridge') return 0.6;
+                    if (d.type === 'tension-link') return 0.5;
+                    return 0.15;
+                })
+                .style("stroke-width", function(d) {
+                    if (d.type === 'bridge') return 2.5;
+                    if (d.type === 'tension-link') return 1.5;
+                    return 1.5;
+                })
+                .style("stroke-dasharray", function(d) {
+                    if (d.type === 'bridge') return '6,4';
+                    if (d.type === 'tension-link') return '3,3';
+                    return 'none';
+                });
+            
+            // Draw nodes
+            var node = svg.append("g").selectAll("g").data(nodes).join("g")
+                .attr("class", function(d) { return 'node ' + d.type; })
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+            
+            node.append("circle")
+                .attr("r", function(d) {
+                    if (d.type === 'hub') return isMobile ? 26 : Math.round(34 * scaleFactor);
+                    if (d.type === 'tension-marker') return isMobile ? 8 : 10;
+                    // Value nodes: aligned are bigger
+                    if (d.valState === 'aligned') return isMobile ? 16 : Math.round(20 * scaleFactor);
+                    return isMobile ? 12 : Math.round(15 * scaleFactor);
+                })
+                .attr("fill", function(d) {
+                    if (d.type === 'hub') return d.side === 'user' ? '#60a5fa' : '#f59e0b';
+                    if (d.type === 'tension-marker') return valColors.tension;
+                    return valColors[d.valState] || '#6b7280';
+                })
+                .attr("stroke", function(d) {
+                    if (d.type === 'hub') return 'rgba(255,255,255,0.3)';
+                    if (d.valState === 'aligned') return '#fff';
+                    if (d.valState === 'tension') return '#fca5a5';
+                    return 'none';
+                })
+                .attr("stroke-width", function(d) {
+                    if (d.type === 'hub') return 2;
+                    if (d.valState === 'aligned' || d.valState === 'tension') return 2;
+                    return 0;
+                })
+                .attr("opacity", function(d) {
+                    if (d.valState === 'theirs') return 0.6;
+                    return 1;
+                })
+                .on("mouseover", function(event, d) { showTooltip(event, d); })
+                .on("mouseout", hideTooltip);
+            
+            // Labels
+            node.append("text")
+                .text(function(d) {
+                    if (d.type === 'tension-marker') return '\u26A0';
+                    return d.name;
+                })
+                .attr("x", 0)
+                .attr("y", function(d) {
+                    if (d.type === 'hub') return -(isMobile ? 32 : Math.round(40 * scaleFactor));
+                    if (d.type === 'tension-marker') return 4;
+                    return -(isMobile ? 18 : Math.round(22 * scaleFactor));
+                })
+                .attr("text-anchor", "middle")
+                .style("font-size", function(d) {
+                    if (d.type === 'hub') return isMobile ? '12px' : '14px';
+                    if (d.type === 'tension-marker') return '12px';
+                    return isMobile ? '9px' : '10.5px';
+                })
+                .style("fill", function(d) {
+                    if (d.type === 'hub') return d.side === 'user' ? '#93c5fd' : '#fbbf24';
+                    if (d.type === 'tension-marker') return valColors.tension;
+                    return valColors[d.valState] || '#94a3b8';
+                })
+                .style("font-weight", function(d) {
+                    if (d.type === 'hub') return '700';
+                    if (d.valState === 'aligned') return '600';
+                    return '400';
+                });
+            
+            // Bring hubs to front
+            node.filter(function(d) { return d.type === 'hub'; }).raise();
+            
+            // Hide skill labels on mobile
+            if (isMobile) {
+                node.selectAll('text').filter(function(d) { return d.type === 'value' && d.valState !== 'aligned'; }).classed('hidden', true);
+            }
+            
+            // Tick
+            simulation.on("tick", function() {
+                var padding = isMobile ? 40 : 70;
+                nodes.forEach(function(d) {
+                    if (d.type !== 'hub') {
+                        d.x = Math.max(padding, Math.min(width - padding, d.x));
+                        d.y = Math.max(padding, Math.min(height - padding, d.y));
+                    }
+                });
+                link
+                    .attr("x1", function(d) { return d.source.x; })
+                    .attr("y1", function(d) { return d.source.y; })
+                    .attr("x2", function(d) { return d.target.x; })
+                    .attr("y2", function(d) { return d.target.y; });
+                node.attr("transform", function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+            });
+            
+            // Add panels
+            addValuesAlignmentPanel(alignment, job, cv);
+            addJobInfoTile(job);
+            setTimeout(applyLabelToggles, 100);
+        }
+        
+        function addValuesAlignmentPanel(alignment, job, cv) {
+            var existing = document.getElementById('valuesAlignmentPanel');
+            if (existing) existing.remove();
+            
+            var score = alignment.score;
+            var scoreColor = score >= 65 ? '#10b981' : score >= 40 ? '#f59e0b' : '#ef4444';
+            
+            var panel = document.createElement('div');
+            panel.id = 'valuesAlignmentPanel';
+            panel.className = 'values-alignment-panel';
+            
+            var html = '';
+            
+            // Score row
+            html += '<div class="ml-score-row">'
+                + '<div class="ml-score-num" style="color:' + scoreColor + ';">' + score + '%</div>'
+                + '<div style="flex:1;">'
+                + '<div style="font-size:0.78em; color:var(--text-muted); margin-bottom:4px;">Values Alignment</div>'
+                + '<div class="ml-score-bar"><div class="ml-score-fill" style="width:' + score + '%; background:' + scoreColor + ';"></div></div>'
+                + '</div>'
+                + '</div>';
+            
+            // Stats grid
+            html += '<div class="ml-stats">'
+                + '<div class="ml-stat"><div class="ml-stat-num" style="color:#10b981;">' + alignment.aligned.length + '</div><div class="ml-stat-label">Aligned</div></div>'
+                + '<div class="ml-stat"><div class="ml-stat-num" style="color:#f59e0b;">' + alignment.yourPriority.length + '</div><div class="ml-stat-label">Your Priority</div></div>'
+                + '<div class="ml-stat"><div class="ml-stat-num" style="color:#6366f1;">' + alignment.theirPriority.length + '</div><div class="ml-stat-label">Their Priority</div></div>'
+                + (alignment.tensionRisk.length > 0
+                    ? '<div class="ml-stat"><div class="ml-stat-num" style="color:#ef4444;">' + alignment.tensionRisk.length + '</div><div class="ml-stat-label">Friction</div></div>'
+                    : '')
+                + '</div>';
+            
+            // Company story (if curated)
+            if (cv.story) {
+                html += '<div class="val-story">'
+                    + '<div class="val-story-label">' + bpIcon('info', 12) + ' Culture Signal</div>'
+                    + '<div class="val-story-text">' + cv.story + '</div>'
+                    + '</div>';
+            }
+            
+            // Tension warnings
+            if (alignment.tensionRisk.length > 0) {
+                html += '<div class="val-tension-warn">'
+                    + '<div style="font-weight:600; margin-bottom:4px;">\u26A0 Friction Risk</div>';
+                alignment.tensionRisk.forEach(function(t) {
+                    html += '<div class="val-tension-item">'
+                        + '<span style="color:#ef4444;">' + t.name + '</span>'
+                        + ' \u2014 <span style="color:var(--text-muted); font-size:0.85em;">you value this, but this culture may not support it</span>'
+                        + '</div>';
+                });
+                html += '</div>';
+            }
+            
+            // Legend dots
+            html += '<div class="ml-legend-row">'
+                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#10b981;"></div>Aligned</div>'
+                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#f59e0b;"></div>Your priority</div>'
+                + '<div class="match-legend-item"><div class="match-legend-dot" style="background:#6366f1;"></div>Their priority</div>'
+                + (alignment.tensionRisk.length > 0
+                    ? '<div class="match-legend-item"><div class="match-legend-dot" style="background:#ef4444;"></div>Friction</div>'
+                    : '')
+                + '</div>';
+            
+            // Inferred note
+            if (cv.inferred) {
+                html += '<div style="padding:6px 16px; font-size:0.72em; color:var(--text-muted); font-style:italic;">'
+                    + 'Values inferred from job description language. Curated company profiles provide deeper insight.'
+                    + '</div>';
+            }
+            
+            // Action buttons
+            html += '<div class="ml-actions">'
+                + '<button class="ml-action-btn" onclick="clearJobOverlay()">\u2715 Close</button>'
+                + '<button class="ml-action-btn" style="color:var(--accent); border-color:rgba(96,165,250,0.3);" '
+                + 'onclick="setNetworkMatchMode(\'match\')">Skills Match</button>'
+                + '</div>';
+            
+            panel.innerHTML = html;
+            
+            var container = document.getElementById('networkView').parentElement;
+            if (container) { container.style.position = 'relative'; container.appendChild(panel); }
+        }
+        
         function findJobIdx() {
             var job = activeJobForNetwork;
             if (!job) return 0;
@@ -7802,11 +8186,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 var ml = document.getElementById('matchLegend');
                 var jt = document.getElementById('jobInfoTile');
                 var ric = document.getElementById('roleInfoCard');
+                var vap = document.getElementById('valuesAlignmentPanel');
                 if (mt) mt.style.display = 'none';
                 if (mb) mb.style.display = 'none';
                 if (ml) ml.remove();
                 if (jt) jt.remove();
                 if (ric) ric.style.display = 'none';
+                if (vap) vap.remove();
             }
 
             // Update mobile nav
@@ -8251,6 +8637,21 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             if (d.type === 'center') {
                 html = `<div class="tooltip-title" style="font-size:0.85em; opacity:0.7;">Click to reset layout</div>`;
+            } else if (d.type === 'hub') {
+                html = `<div class="tooltip-title">${d.name}</div>`;
+            } else if (d.type === 'tension-marker') {
+                html = `<div class="tooltip-title" style="color:#ef4444;">\u26A0 Friction Risk</div>`;
+                html += `<div style="font-size:0.82em; color:#9ca3af; margin-top:2px;">This value may conflict with the company culture</div>`;
+            } else if (d.type === 'value') {
+                html = `<div class="tooltip-title">${d.name}</div>`;
+                var desc = getCatalogDescription(d.name);
+                if (desc) html += `<div style="font-size:0.82em; color:#9ca3af; margin-top:3px; line-height:1.4;">${desc}</div>`;
+                var stateLabels = { aligned: '\u2705 Shared value', yours: '\uD83D\uDFE1 Your priority', theirs: '\uD83D\uDFE3 Their priority', tension: '\u26A0 Friction risk' };
+                var stateColors = { aligned: '#10b981', yours: '#f59e0b', theirs: '#6366f1', tension: '#ef4444' };
+                if (d.valState) {
+                    html += `<div style="font-size:0.78em; color:${stateColors[d.valState] || '#9ca3af'}; margin-top:5px; font-weight:600;">${stateLabels[d.valState] || ''}</div>`;
+                }
+                if (d.tier) html += `<div style="font-size:0.72em; color:#6b7280; margin-top:2px;">${d.tier === 'primary' ? 'Core company value' : 'Secondary value'}</div>`;
             } else if (d.type === 'role') {
                 var roleSkillCount = (skillsData.skills || []).filter(s => (s.roles || []).indexOf(d.id) !== -1).length;
                 html = `<div class="tooltip-title">${d.name}</div>`;
@@ -9559,6 +9960,211 @@ body {
                 { name: 'Purpose Over Profit', keywords: ['purpose', 'mission', 'impact', 'meaning', 'community', 'service', 'cause', 'foundation'], description: 'Choosing work that matters to people, not just to a balance sheet.' }
             ]}
         ];
+
+        // ===== COMPANY VALUES CATALOG =====
+        // Curated cultural profiles for demo companies.
+        // primary = strong cultural signals, secondary = present but not dominant,
+        // tensions = values the culture may undermine (friction risk)
+        var COMPANY_VALUES = {
+            'ServiceNow': {
+                primary: ['Excellence', 'Bias Toward Action', 'Strategic Thinking'],
+                secondary: ['Collaboration', 'Continuous Improvement'],
+                tensions: ['Work-Life Boundaries', 'Authenticity'],
+                story: 'Engineering-led enterprise culture that rewards speed-to-market and operational rigor. High performance expectations with a "win together" ethos that can blur into always-on intensity.'
+            },
+            'Deloitte': {
+                primary: ['Excellence', 'Collaboration', 'Strategic Thinking'],
+                secondary: ['Accountability', 'Integrity', 'Empowerment'],
+                tensions: ['Bias Toward Action', 'Authenticity'],
+                story: 'Prestige-driven consulting culture built on intellectual rigor and client service. Strong mentorship infrastructure, but consensus-heavy processes can frustrate those who prefer to ship fast.'
+            },
+            'Palantir': {
+                primary: ['Strategic Thinking', 'Craftsmanship', 'Courage'],
+                secondary: ['Excellence', 'Intellectual Honesty', 'Resourcefulness'],
+                tensions: ['Transparency', 'Work-Life Boundaries', 'Inclusion'],
+                story: 'Mission-driven and intensely technical. Values conviction over consensus \u2014 you are expected to defend your position with data. Not for those who need work-life separation.'
+            },
+            'Datadog': {
+                primary: ['Bias Toward Action', 'Excellence', 'Craftsmanship'],
+                secondary: ['Collaboration', 'Curiosity', 'Continuous Improvement'],
+                tensions: ['Work-Life Boundaries', 'Servant Leadership'],
+                story: 'High-velocity engineering culture that ships relentlessly. Technically excellent with strong ownership expectations. Moves fast enough that process can feel secondary to output.'
+            },
+            'Figma': {
+                primary: ['Collaboration', 'Craftsmanship', 'Empathy'],
+                secondary: ['Curiosity', 'Inclusion', 'Continuous Improvement'],
+                tensions: ['Courage', 'Bias Toward Action'],
+                story: 'Design-forward culture that genuinely practices the collaboration it preaches. Inclusive and empathetic, but consensus-seeking can slow bold moves.'
+            },
+            'McKinsey': {
+                primary: ['Excellence', 'Intellectual Honesty', 'Strategic Thinking'],
+                secondary: ['Accountability', 'Evidence-Based Decision Making', 'Courage'],
+                tensions: ['Empathy', 'Work-Life Boundaries', 'Authenticity'],
+                story: 'Elite meritocracy that selects for analytical brilliance and structured problem-solving. Prestige and rigor define the culture \u2014 warmth and vulnerability are not the currency here.'
+            },
+            'Notion': {
+                primary: ['Craftsmanship', 'Curiosity', 'Empowerment'],
+                secondary: ['Collaboration', 'Continuous Improvement', 'Empathy'],
+                tensions: ['Bias Toward Action', 'Courage'],
+                story: 'Thoughtful product culture that values elegant solutions over fast ones. Deep craft orientation with genuine intellectual curiosity. Can be deliberate to the point of slow.'
+            },
+            'Stripe': {
+                primary: ['Excellence', 'Intellectual Honesty', 'Craftsmanship'],
+                secondary: ['Strategic Thinking', 'Curiosity', 'Accountability'],
+                tensions: ['Empathy', 'Servant Leadership'],
+                story: 'Writing-culture company that rewards clear thinking and technical depth. Meritocratic and intellectually demanding. Expects you to be right and to prove it in writing.'
+            },
+            'Scale AI': {
+                primary: ['Bias Toward Action', 'Resourcefulness', 'Strategic Thinking'],
+                secondary: ['Excellence', 'Courage', 'Systems Thinking'],
+                tensions: ['Work-Life Boundaries', 'Collaboration', 'Empathy'],
+                story: 'Aggressive growth-stage AI company that prioritizes speed and market position. Rewards those who operate in ambiguity and outpace competitors. Not a culture that waits for consensus.'
+            },
+            'Cloudflare': {
+                primary: ['Curiosity', 'Craftsmanship', 'Systems Thinking'],
+                secondary: ['Excellence', 'Transparency', 'Bias Toward Action'],
+                tensions: ['Servant Leadership', 'Work-Life Boundaries'],
+                story: 'Infrastructure-obsessed culture where technical depth is the primary currency. Open and transparent internally, with genuine intellectual curiosity about hard problems at scale.'
+            },
+            'Anthropic': {
+                primary: ['Intellectual Honesty', 'Integrity', 'Purpose Over Profit'],
+                secondary: ['Curiosity', 'Collaboration', 'Evidence-Based Decision Making'],
+                tensions: ['Bias Toward Action', 'Resourcefulness'],
+                story: 'Safety-first AI research lab that genuinely prioritizes getting it right over getting it first. Deep intellectual culture with mission-driven hiring. Deliberate pace frustrates those who want to ship now.'
+            },
+            'Target': {
+                primary: ['Collaboration', 'Inclusion', 'Empathy'],
+                secondary: ['Accountability', 'Continuous Improvement', 'Trust'],
+                tensions: ['Strategic Thinking', 'Craftsmanship'],
+                story: 'Team-oriented retail culture that emphasizes guest experience and inclusivity. Strong community values with clear expectations, but strategic autonomy is limited at associate level.'
+            },
+            'Starbucks': {
+                primary: ['Empathy', 'Inclusion', 'Servant Leadership'],
+                secondary: ['Collaboration', 'Trust', 'Continuous Improvement'],
+                tensions: ['Bias Toward Action', 'Courage', 'Excellence'],
+                story: 'Partner-centered culture built on empathy and community connection. Genuinely values servant leadership, though operational speed and corporate mandates can conflict with that ethos.'
+            },
+            'Nordstrom': {
+                primary: ['Excellence', 'Empathy', 'Trust'],
+                secondary: ['Accountability', 'Empowerment', 'Continuous Improvement'],
+                tensions: ['Resourcefulness', 'Bias Toward Action'],
+                story: 'Legendary customer service culture where empowerment is real \u2014 associates have genuine autonomy to serve. High standards balanced with trust.'
+            },
+            'Great Clips': {
+                primary: ['Collaboration', 'Accountability', 'Continuous Improvement'],
+                secondary: ['Empathy', 'Trust', 'Bias Toward Action'],
+                tensions: ['Craftsmanship', 'Strategic Thinking', 'Excellence'],
+                story: 'Volume-focused salon chain that values consistency and teamwork. Reliable and supportive, but creative expression and artisanal craft take a backseat to throughput.'
+            },
+            'Aveda Salon': {
+                primary: ['Craftsmanship', 'Purpose Over Profit', 'Continuous Improvement'],
+                secondary: ['Empathy', 'Authenticity', 'Excellence'],
+                tensions: ['Bias Toward Action', 'Resourcefulness'],
+                story: 'Mission-driven beauty brand rooted in sustainability and artistry. Values craft development and environmental consciousness. Deliberate culture where rushing is antithetical to the brand.'
+            },
+            'Ulta Beauty': {
+                primary: ['Empowerment', 'Accountability', 'Bias Toward Action'],
+                secondary: ['Collaboration', 'Continuous Improvement', 'Excellence'],
+                tensions: ['Craftsmanship', 'Work-Life Boundaries'],
+                story: 'Results-oriented beauty retailer that rewards initiative and ownership. Fast-paced with real growth opportunities, but pressure to hit targets can compromise craft and personal boundaries.'
+            }
+        };
+
+        // ===== COMPANY VALUES INFERENCE ENGINE =====
+        // Scans JD text against VALUES_CATALOG keywords for non-demo jobs
+        function inferCompanyValuesFromJD(rawText) {
+            if (!rawText || rawText.length < 20) return null;
+            var text = rawText.toLowerCase();
+            var scored = [];
+            
+            VALUES_CATALOG.forEach(function(group) {
+                group.values.forEach(function(val) {
+                    var hits = 0;
+                    val.keywords.forEach(function(kw) {
+                        var idx = 0;
+                        while ((idx = text.indexOf(kw, idx)) !== -1) {
+                            hits++;
+                            idx += kw.length;
+                        }
+                    });
+                    if (hits > 0) {
+                        scored.push({ name: val.name, score: hits, group: group.group });
+                    }
+                });
+            });
+            
+            scored.sort(function(a, b) { return b.score - a.score; });
+            if (scored.length === 0) return null;
+            
+            return {
+                primary: scored.slice(0, 3).map(function(s) { return s.name; }),
+                secondary: scored.slice(3, 5).map(function(s) { return s.name; }),
+                tensions: [],
+                story: '',
+                inferred: true
+            };
+        }
+
+        // Get company values \u2014 curated first, JD inference fallback
+        function getCompanyValues(companyName, rawText) {
+            if (companyName && COMPANY_VALUES[companyName]) {
+                var cv = COMPANY_VALUES[companyName];
+                return { primary: cv.primary, secondary: cv.secondary, tensions: cv.tensions, story: cv.story, inferred: false };
+            }
+            return inferCompanyValuesFromJD(rawText);
+        }
+
+        // ===== VALUES ALIGNMENT SCORING =====
+        function computeValuesAlignment(userValues, companyValues) {
+            if (!companyValues || !userValues || userValues.length === 0) return null;
+            
+            var userSelected = userValues.filter(function(v) { return v && v.selected; }).map(function(v) { return v.name; });
+            if (userSelected.length === 0) return null;
+            var companyAll = (companyValues.primary || []).concat(companyValues.secondary || []);
+            var companyPrimary = new Set(companyValues.primary || []);
+            var companySecondary = new Set(companyValues.secondary || []);
+            var companyTensions = new Set(companyValues.tensions || []);
+            var userSet = new Set(userSelected);
+            var companySet = new Set(companyAll);
+            
+            var aligned = [];
+            var yourPriority = [];
+            var theirPriority = [];
+            var tensionRisk = [];
+            
+            userSelected.forEach(function(val) {
+                if (companySet.has(val)) {
+                    aligned.push({ name: val, strength: companyPrimary.has(val) ? 'primary' : 'secondary' });
+                } else if (companyTensions.has(val)) {
+                    tensionRisk.push({ name: val });
+                } else {
+                    yourPriority.push({ name: val });
+                }
+            });
+            
+            companyAll.forEach(function(val) {
+                if (!userSet.has(val)) {
+                    theirPriority.push({ name: val, strength: companyPrimary.has(val) ? 'primary' : 'secondary' });
+                }
+            });
+            
+            // Score: aligned primary=20, secondary=10, tension=-15
+            var maxScore = userSelected.length * 20;
+            var rawScore = 0;
+            aligned.forEach(function(a) { rawScore += a.strength === 'primary' ? 20 : 10; });
+            tensionRisk.forEach(function() { rawScore -= 15; });
+            var score = maxScore > 0 ? Math.max(0, Math.min(100, Math.round((rawScore / maxScore) * 100))) : 0;
+            
+            return {
+                score: score,
+                aligned: aligned,
+                yourPriority: yourPriority,
+                theirPriority: theirPriority,
+                tensionRisk: tensionRisk,
+                companyStory: companyValues.story || '',
+                isInferred: companyValues.inferred || false
+            };
+        }
 
         function saveValues() {
             if (readOnlyGuard()) return;
@@ -14725,6 +15331,7 @@ body {
                 if (!job.parsedSkills || job.parsedSkills.length === 0) return;
                 var oldScore = job.matchData ? job.matchData.score : 0;
                 job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles || [] });
+                if (!job.companyValues) job.companyValues = getCompanyValues(job.company, job.rawText);
                 if (job.matchData.score !== oldScore) updated++;
             });
             
@@ -14744,6 +15351,7 @@ body {
             }
             var oldScore = job.matchData ? job.matchData.score : 0;
             job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles || [] });
+            if (!job.companyValues) job.companyValues = getCompanyValues(job.company, job.rawText);
             saveUserData();
             if (fbUser) saveToFirestore();
             showJobDetail(idx);
@@ -14916,8 +15524,12 @@ body {
                 + 'background:var(--accent); color:#fff; border:none; padding:10px 20px; border-radius:8px; '
                 + 'cursor:pointer; font-weight:600; font-size:0.9em; display:flex; align-items:center; gap:8px; white-space:nowrap;">'
                 + bpIcon('network',16) + ' Compare Skills</button>'
+                + '<button onclick="activateValuesOverlay(' + idx + ')" style="'
+                + 'background:transparent; color:#f59e0b; border:1px solid rgba(245,158,11,0.4); padding:10px 20px; border-radius:8px; '
+                + 'cursor:pointer; font-weight:600; font-size:0.9em; display:flex; align-items:center; gap:8px; white-space:nowrap;">'
+                + bpIcon('values',16) + ' Values Fit</button>'
                 + '<div style="font-size:0.82em; color:var(--text-muted); line-height:1.4;">'
-                + 'See your skills as connected nodes alongside job requirements. Toggle between your network, job view, and match overlay.</div>'
+                + 'Compare your skills and values against this role and company culture.</div>'
                 + '</div>';
             
             // Summary stats
@@ -14936,6 +15548,31 @@ body {
                 + '<div style="font-size:1.6em; font-weight:700; color:#6b7280;">' + surplus.length + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Your Surplus</div></div>'
                 + '</div>';
+            
+            // Values alignment badge
+            var jobCV = job.companyValues || getCompanyValues(job.company, job.rawText);
+            var userVals = (blueprintData && blueprintData.values) || [];
+            var valAlign = jobCV ? computeValuesAlignment(userVals, jobCV) : null;
+            if (valAlign) {
+                var vaColor = valAlign.score >= 65 ? '#10b981' : valAlign.score >= 40 ? '#f59e0b' : '#ef4444';
+                var vaBg = valAlign.score >= 65 ? 'rgba(16,185,129,0.06)' : valAlign.score >= 40 ? 'rgba(245,158,11,0.06)' : 'rgba(239,68,68,0.06)';
+                var vaBorder = valAlign.score >= 65 ? 'rgba(16,185,129,0.2)' : valAlign.score >= 40 ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.2)';
+                html += '<div style="display:flex; align-items:center; gap:16px; padding:14px 20px; margin-bottom:20px; '
+                    + 'border-radius:10px; background:' + vaBg + '; border:1px solid ' + vaBorder + ';">'
+                    + '<div style="text-align:center; min-width:60px;">'
+                    + '<div style="font-size:1.6em; font-weight:700; color:' + vaColor + ';">' + valAlign.score + '%</div>'
+                    + '<div style="font-size:0.72em; color:var(--text-muted);">Values Fit</div></div>'
+                    + '<div style="flex:1;">'
+                    + '<div style="display:flex; gap:12px; font-size:0.82em; margin-bottom:6px;">'
+                    + '<span style="color:#10b981;">' + valAlign.aligned.length + ' aligned</span>'
+                    + (valAlign.tensionRisk.length > 0 ? '<span style="color:#ef4444;">' + valAlign.tensionRisk.length + ' friction</span>' : '')
+                    + '<span style="color:var(--text-muted);">' + valAlign.yourPriority.length + ' unmatched</span>'
+                    + '</div>';
+                if (jobCV.story) {
+                    html += '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">' + jobCV.story + '</div>';
+                }
+                html += '</div></div>';
+            }
             
             // BLS Salary Range (if available)
             if (job.blsSalary && job.blsSalary.median) {

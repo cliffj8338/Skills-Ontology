@@ -2444,6 +2444,63 @@
         .ml-action-btn:hover { background: rgba(255,255,255,0.06); }
         [data-theme="light"] .ml-action-btn { border-color: rgba(0,0,0,0.1); }
         [data-theme="light"] .ml-action-btn:hover { background: rgba(0,0,0,0.04); }
+        
+        /* ---- VALUES ALIGNMENT PANEL ---- */
+        .values-alignment-panel {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            width: 320px;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            overflow: hidden;
+            z-index: 100;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        [data-theme="light"] .values-alignment-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(0,0,0,0.08);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .val-story {
+            padding: 8px 16px;
+            border-top: 1px solid rgba(255,255,255,0.04);
+        }
+        [data-theme="light"] .val-story { border-top-color: rgba(0,0,0,0.04); }
+        .val-story-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.72em;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 4px;
+        }
+        .val-story-text {
+            font-size: 0.82em;
+            line-height: 1.55;
+            color: var(--text-secondary);
+        }
+        .val-tension-warn {
+            padding: 8px 16px;
+            background: rgba(239, 68, 68, 0.06);
+            border-top: 1px solid rgba(239, 68, 68, 0.1);
+            font-size: 0.82em;
+            color: #fca5a5;
+        }
+        [data-theme="light"] .val-tension-warn {
+            background: rgba(239, 68, 68, 0.04);
+            color: #dc2626;
+        }
+        .val-tension-item {
+            margin-top: 3px;
+            line-height: 1.45;
+        }
+        
         .match-active-badge {
             display: inline-flex;
             align-items: center;
@@ -3110,6 +3167,13 @@
                 right: 8px;
                 min-width: unset;
                 max-width: unset;
+                font-size: 0.75em;
+            }
+            .values-alignment-panel {
+                bottom: 70px;
+                left: 8px;
+                right: 8px;
+                width: auto;
                 font-size: 0.75em;
             }
             
