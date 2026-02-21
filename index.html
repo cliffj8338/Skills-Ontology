@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.23 | 20260220 | Fix mobile skill labels toggle: CSS-class approach replaces fragile D3 data filtering, larger touch targets -->
+    <!-- v4.25.1.23 | 20260220 | Fix manifest loading - normalize array format to {profiles:[...]} object -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -2413,14 +2413,6 @@
             display: none;
         }
         
-        /* Robust CSS-class approach for label toggling (mobile-safe) */
-        #networkView.hide-skill-labels .node.skill text {
-            display: none !important;
-        }
-        #networkView.hide-role-labels .node.role text {
-            display: none !important;
-        }
-        
         .node.role text {
             font-size: 12px;
             font-weight: 700;
@@ -2917,21 +2909,6 @@
             
             .label-toggle {
                 font-size: 0.75em;
-            }
-            
-            /* Larger touch targets for toggle switches on mobile */
-            .toggle-switch {
-                width: 48px;
-                height: 28px;
-            }
-            .toggle-slider:before {
-                height: 20px;
-                width: 20px;
-                left: 4px;
-                bottom: 4px;
-            }
-            input:checked + .toggle-slider:before {
-                transform: translateX(20px);
             }
         }
         
@@ -3757,14 +3734,14 @@
             <div class="label-toggle">
                 <span class="toggle-label">Role Labels</span>
                 <label class="toggle-switch">
-                    <input type="checkbox" checked onchange="toggleLabels('role')" onclick="setTimeout(function(){toggleLabels('role')},10)">
+                    <input type="checkbox" checked onchange="toggleLabels('role')">
                     <span class="toggle-slider"></span>
                 </label>
             </div>
             <div class="label-toggle">
                 <span class="toggle-label">Skill Labels</span>
                 <label class="toggle-switch">
-                    <input type="checkbox" checked onchange="toggleLabels('skill')" onclick="setTimeout(function(){toggleLabels('skill')},10)">
+                    <input type="checkbox" checked onchange="toggleLabels('skill')">
                     <span class="toggle-slider"></span>
                 </label>
             </div>
@@ -4488,7 +4465,7 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.23 - BUILD 20260220-s15
+        // BLUEPRINT v4.25.1.23 - BUILD 20260220-s16
         var BP_VERSION = 'v4.25.1.23';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
@@ -5794,7 +5771,7 @@
         function saveSampleEdits(profileId) {
             var template = templates[profileId];
             var manifest = window.profilesManifest;
-            var meta = manifest ? manifest.profiles.find(function(p) { return p.id === profileId; }) : null;
+            var meta = manifest && manifest.profiles ? manifest.profiles.find(function(p) { return p.id === profileId; }) : null;
             if (!template) return;
             
             var newName = document.getElementById('editSampleName').value.trim();
@@ -8804,7 +8781,11 @@
                 console.log('📋 Loading profiles manifest...');
                 var sp = document.getElementById('splashProgress');
                 if (sp) sp.style.width = '20%';
-                const manifest = await fetch(`profiles-manifest.json${cacheBust}`).then(r => r.json());
+                let manifest = await fetch(`profiles-manifest.json${cacheBust}`).then(r => r.json());
+                // Normalize: if manifest is array, wrap in {profiles: [...]}
+                if (Array.isArray(manifest)) {
+                    manifest = { profiles: manifest };
+                }
                 window.profilesManifest = manifest; // Store for profile selector
                 
                 // STEP 2: Load all enabled profiles from manifest
@@ -10344,8 +10325,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // On mobile: hide skill labels by default (too cluttered), show role labels
             if (isMobile) {
-                // Use CSS class on SVG for robust mobile label hiding
-                document.getElementById('networkView').classList.add('hide-skill-labels');
+                node.selectAll('text').filter(d => d.type === 'skill').classed('hidden', true);
                 // Uncheck the skill labels checkbox
                 var skillLabelCb = document.querySelector('#networkControls input[onchange*="skill"]');
                 if (skillLabelCb) skillLabelCb.checked = false;
@@ -10567,7 +10547,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .attr("text-anchor", "middle")
                 .style("font-size", function(d) { return d.type === 'center' ? '14px' : d.type === 'role' ? '11px' : '9px'; });
             
-            if (isMobile) document.getElementById('networkView').classList.add('hide-skill-labels');
+            if (isMobile) node.selectAll('text').filter(function(d) { return d.type === 'skill'; }).classed('hidden', true);
             
             // Bring center and role nodes to front
             node.filter(function(d) { return d.type === 'role'; }).raise();
@@ -10789,7 +10769,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .style("opacity", function(d) { return d.matchState === 'surplus' ? 0.4 : 1; });
             
             // On mobile hide skill labels
-            if (isMobile) document.getElementById('networkView').classList.add('hide-skill-labels');
+            if (isMobile) node.selectAll('text').filter(function(d) { return d.type === 'skill'; }).classed('hidden', true);
             
             // Bring center and role nodes to front
             node.filter(function(d) { return d.type === 'role'; }).raise();
@@ -11542,9 +11522,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
         
         function toggleLabels(type) {
-            // v4.25.1: Use CSS class on SVG container (robust for mobile)
-            var svgEl = document.getElementById('networkView');
-            if (!svgEl) return;
+            // v4.20.1: Read actual checkbox state and apply to ANY active network SVG
+            var svg = d3.select("#networkView");
+            if (svg.empty()) return;
             
             // Find the checkbox for this type
             var checkboxes = document.querySelectorAll('#networkControls input[type="checkbox"]');
@@ -11555,28 +11535,27 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 if (type === 'skill' && cb === checkboxes[1]) isChecked = cb.checked;
             });
             
-            var className = 'hide-' + type + '-labels';
-            if (isChecked) {
-                svgEl.classList.remove(className);
-            } else {
-                svgEl.classList.add(className);
-            }
+            svg.selectAll('text')
+                .filter(function(d) { return d && d.type === type; })
+                .classed('hidden', !isChecked);
         }
         
         // Apply current toggle states to network after any re-render
         function applyLabelToggles() {
             var checkboxes = document.querySelectorAll('#networkControls input[type="checkbox"]');
-            var svgEl = document.getElementById('networkView');
-            if (!svgEl || checkboxes.length < 2) return;
-            
-            var roleChecked = checkboxes[0].checked;
-            var skillChecked = checkboxes[1].checked;
-            
-            if (roleChecked) { svgEl.classList.remove('hide-role-labels'); }
-            else { svgEl.classList.add('hide-role-labels'); }
-            
-            if (skillChecked) { svgEl.classList.remove('hide-skill-labels'); }
-            else { svgEl.classList.add('hide-skill-labels'); }
+            if (checkboxes.length >= 2) {
+                var roleChecked = checkboxes[0].checked;
+                var skillChecked = checkboxes[1].checked;
+                var svg = d3.select("#networkView");
+                if (!svg.empty()) {
+                    svg.selectAll('text')
+                        .filter(function(d) { return d && d.type === 'role'; })
+                        .classed('hidden', !roleChecked);
+                    svg.selectAll('text')
+                        .filter(function(d) { return d && d.type === 'skill'; })
+                        .classed('hidden', !skillChecked);
+                }
+            }
         }
         window.applyLabelToggles = applyLabelToggles;
 
