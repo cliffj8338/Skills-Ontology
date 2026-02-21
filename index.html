@@ -7482,12 +7482,16 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Hub nodes
             var userName = (userData && userData.profile && userData.profile.name) || 'You';
+            var userFirst = userName.split(' ')[0];
+            var userPossessive = userFirst.endsWith('s') ? userFirst + "'" : userFirst + "'s";
             nodes.push({
-                id: 'hub-you', name: userName + "'s Values", type: 'hub', side: 'user',
+                id: 'hub-you', name: userPossessive + ' Values', type: 'hub', side: 'user',
                 x: leftX, y: topY, fx: leftX, fy: topY
             });
+            var companyName = job.company || 'Company';
+            var companyPossessive = companyName.endsWith('s') ? companyName + "'" : companyName + "'s";
             nodes.push({
-                id: 'hub-company', name: (job.company || 'Company') + "'s Culture", type: 'hub', side: 'company',
+                id: 'hub-company', name: companyPossessive + ' Culture', type: 'hub', side: 'company',
                 x: rightX, y: topY, fx: rightX, fy: topY
             });
             
@@ -7730,13 +7734,24 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             var html = '';
             
-            // Score row
-            html += '<div class="ml-score-row">'
-                + '<div class="ml-score-num" style="color:' + scoreColor + ';">' + score + '%</div>'
-                + '<div style="flex:1;">'
-                + '<div style="font-size:0.78em; color:var(--text-muted); margin-bottom:4px;">Values Alignment</div>'
-                + '<div class="ml-score-bar"><div class="ml-score-fill" style="width:' + score + '%; background:' + scoreColor + ';"></div></div>'
+            // Header with collapse + close controls
+            html += '<div class="vap-header">'
+                + '<div class="vap-header-left">'
+                + '<span class="vap-score" style="color:' + scoreColor + ';">' + score + '%</span>'
+                + '<span class="vap-title">Values Alignment</span>'
                 + '</div>'
+                + '<div class="vap-header-controls">'
+                + '<button class="vap-ctrl-btn" onclick="toggleValuesPanel()" title="Collapse" id="vapCollapseBtn">−</button>'
+                + '<button class="vap-ctrl-btn" onclick="closeValuesPanel()" title="Close">✕</button>'
+                + '</div>'
+                + '</div>';
+            
+            // Collapsible body
+            html += '<div class="vap-body" id="vapBody">';
+            
+            // Score bar
+            html += '<div style="padding:0 16px 10px;">'
+                + '<div class="ml-score-bar"><div class="ml-score-fill" style="width:' + score + '%; background:' + scoreColor + ';"></div></div>'
                 + '</div>';
             
             // Stats grid
@@ -7787,18 +7802,29 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     + '</div>';
             }
             
-            // Action buttons
-            html += '<div class="ml-actions">'
-                + '<button class="ml-action-btn" onclick="clearJobOverlay()">\u2715 Close</button>'
-                + '<button class="ml-action-btn" style="color:var(--accent); border-color:rgba(96,165,250,0.3);" '
-                + 'onclick="setNetworkMatchMode(\'match\')">Skills Match</button>'
-                + '</div>';
+            html += '</div>'; // close .vap-body
             
             panel.innerHTML = html;
             
             var container = document.getElementById('networkView').parentElement;
             if (container) { container.style.position = 'relative'; container.appendChild(panel); }
         }
+        
+        function toggleValuesPanel() {
+            var body = document.getElementById('vapBody');
+            var btn = document.getElementById('vapCollapseBtn');
+            if (!body) return;
+            var isCollapsed = body.classList.toggle('vap-collapsed');
+            btn.textContent = isCollapsed ? '+' : '−';
+            btn.title = isCollapsed ? 'Expand' : 'Collapse';
+        }
+        window.toggleValuesPanel = toggleValuesPanel;
+        
+        function closeValuesPanel() {
+            var panel = document.getElementById('valuesAlignmentPanel');
+            if (panel) panel.remove();
+        }
+        window.closeValuesPanel = closeValuesPanel;
         
         function findJobIdx() {
             var job = activeJobForNetwork;

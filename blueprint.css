@@ -545,6 +545,7 @@
             text-shadow: 0 0 6px #e8f0fe, 0 0 6px #e8f0fe;
         }
         [data-theme="light"] .node.skill text { fill: #334155; }
+        [data-theme="light"] .node.hub text { text-shadow: none; }
         [data-theme="light"] .link { stroke: #94a3b8; }
 
         /* Settings view panels */
@@ -2458,11 +2459,86 @@
             overflow: hidden;
             z-index: 100;
             box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            transition: width 0.2s ease;
+        }
+        .vap-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px 10px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            cursor: default;
+            user-select: none;
+        }
+        .vap-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+        .vap-score {
+            font-size: 1.5em;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .vap-title {
+            font-size: 0.78em;
+            color: var(--text-muted);
+        }
+        .vap-header-controls {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .vap-ctrl-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.04);
+            color: var(--text-muted);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            line-height: 1;
+            padding: 0;
+        }
+        .vap-ctrl-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+        }
+        .vap-body {
+            max-height: 600px;
+            overflow-y: auto;
+            transition: max-height 0.25s ease, opacity 0.2s ease;
+        }
+        .vap-body.vap-collapsed {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        /* Hub label text — clean styling, no heavy glow */
+        .node.hub text {
+            text-shadow: none;
+            font-weight: 700;
         }
         [data-theme="light"] .values-alignment-panel {
             background: rgba(255, 255, 255, 0.95);
             border-color: rgba(0,0,0,0.08);
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        [data-theme="light"] .vap-header {
+            border-bottom-color: rgba(0,0,0,0.06);
+        }
+        [data-theme="light"] .vap-ctrl-btn {
+            border-color: rgba(0,0,0,0.1);
+            background: rgba(0,0,0,0.03);
+        }
+        [data-theme="light"] .vap-ctrl-btn:hover {
+            background: rgba(0,0,0,0.08);
         }
         .val-story {
             padding: 8px 16px;
