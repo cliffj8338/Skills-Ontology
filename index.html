@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.27.2.6 | 20260221 | Added Vecna, Tuco, Connor to samples + manifest -->
+    <!-- v4.27.2.7 | 20260221 | Character-specific demo jobs for all 18 profiles -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -890,8 +890,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.27.2.6 - BUILD 20260221-samples-manifest
-        var BP_VERSION = 'v4.27.2.6';
+        // BLUEPRINT v4.27.2.7 - BUILD 20260221-character-jobs
+        var BP_VERSION = 'v4.27.2.7';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -907,7 +907,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260221-samples-manifest                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260221-character-jobs                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -4981,7 +4981,213 @@
             var isTrades = /hair|stylist|cosmetolog|barber|electrician|plumb|hvac|carpenter|mechanic|weld/.test(roleSignals + ' ' + allSkillNames);
             
             var jobMeta;
-            if (isRecruiter) {
+            
+            // ===== CHARACTER-SPECIFIC DEMO JOBS =====
+            var characterJobs = {
+                'walter-white': [
+                    { id: 'sample-high', title: 'Senior Research Chemist', company: 'Pfizer',
+                      rawText: 'Pfizer seeks a Senior Research Chemist to lead organic synthesis programs in our drug discovery division. You will design synthesis routes, manage laboratory operations, mentor junior scientists, analyze spectroscopic data, and publish research findings. Requires PhD in chemistry, 10+ years research experience, and expertise in crystallography and analytical chemistry.',
+                      parsedRoles: ['Chemistry', 'Research'], seniority: 'Senior', tier: 'high' },
+                    { id: 'sample-mid', title: 'Director of Chemistry Education', company: 'Khan Academy',
+                      rawText: 'Khan Academy is hiring a Director of Chemistry Education to build our AP and college-level chemistry curriculum. You will design instructional content, develop laboratory simulations, train content creators, and assess learning outcomes. Requires teaching experience, deep chemistry knowledge, and ability to make complex science accessible to diverse learners.',
+                      parsedRoles: ['Education', 'Chemistry'], seniority: 'Senior', tier: 'mid' },
+                    { id: 'sample-low', title: 'VP of Manufacturing Operations', company: 'BASF',
+                      rawText: 'BASF seeks a VP of Manufacturing Operations to oversee chemical production at our North American facilities. You will manage $500M production budget, lead 200+ person manufacturing teams, ensure EPA and OSHA regulatory compliance, optimize production yield and efficiency, and implement quality control systems. Requires expertise in chemical engineering, GMP processes, supply chain management, and Six Sigma certification.',
+                      parsedRoles: ['Manufacturing', 'Operations'], seniority: 'Executive', tier: 'low' }
+                ],
+                'gus-fring': [
+                    { id: 'sample-high', title: 'VP of Multi-Unit Operations', company: 'Chick-fil-A',
+                      rawText: 'Chick-fil-A seeks a VP of Multi-Unit Operations to oversee franchise performance across 50+ locations. You will drive operational excellence, quality assurance, supply chain optimization, and community relations. Requires 15+ years in QSR operations, multi-unit P&L management, and exceptional standards enforcement. Must embody our commitment to service excellence.',
+                      parsedRoles: ['Operations', 'Restaurant Management'], seniority: 'Executive', tier: 'high' },
+                    { id: 'sample-mid', title: 'Chief Operating Officer', company: 'Sysco',
+                      rawText: 'Sysco is seeking a COO to lead our distribution and supply chain operations across North America. You will manage 60,000+ employees, optimize logistics networks, implement quality control systems, drive operational efficiency, and build strategic supplier relationships. Requires expertise in supply chain management, food safety compliance, and international distribution.',
+                      parsedRoles: ['Operations', 'Supply Chain'], seniority: 'C-Suite', tier: 'mid' },
+                    { id: 'sample-low', title: 'Director of Risk & Compliance', company: 'Yum! Brands',
+                      rawText: 'Yum! Brands seeks a Director of Risk & Compliance to build enterprise risk management across our global restaurant portfolio. You will design compliance frameworks, manage regulatory audits, oversee food safety standards, investigate operational incidents, and coordinate with legal teams across 150 countries. Requires expertise in regulatory compliance, crisis management, and corporate governance.',
+                      parsedRoles: ['Compliance', 'Risk Management'], seniority: 'Senior', tier: 'low' }
+                ],
+                'hank-schrader': [
+                    { id: 'sample-high', title: 'Director of Investigations', company: 'FBI',
+                      rawText: 'The FBI is seeking a Director of Investigations to lead complex criminal investigation programs. You will oversee multi-agency task forces, manage forensic analysis teams, direct surveillance operations, coordinate with federal prosecutors, and mentor field agents. Requires 15+ years federal law enforcement experience, expertise in evidence management, and inter-agency coordination skills.',
+                      parsedRoles: ['Investigation', 'Law Enforcement'], seniority: 'Senior', tier: 'high' },
+                    { id: 'sample-mid', title: 'VP of Corporate Security', company: 'JPMorgan Chase',
+                      rawText: 'JPMorgan Chase seeks a VP of Corporate Security to lead our global security and investigations team. You will manage threat assessment programs, coordinate with law enforcement, oversee forensic investigations, build intelligence analysis capabilities, and protect company assets. Requires federal law enforcement background, team leadership, and financial crimes investigation experience.',
+                      parsedRoles: ['Security', 'Investigation'], seniority: 'Executive', tier: 'mid' },
+                    { id: 'sample-low', title: 'Chief Analytics Officer', company: 'Palantir',
+                      rawText: 'Palantir seeks a Chief Analytics Officer to lead intelligence analysis platforms for law enforcement clients. You will design data integration architectures, build predictive analytics models, manage technical teams, and present to government stakeholders. Requires expertise in data science, machine learning, Python programming, and experience translating analytical insights into operational outcomes.',
+                      parsedRoles: ['Analytics', 'Technology'], seniority: 'Executive', tier: 'low' }
+                ],
+                'jesse-pinkman': [
+                    { id: 'sample-high', title: 'Custom Furniture Maker', company: 'Etsy Studio',
+                      rawText: 'Seeking a skilled Custom Furniture Maker to join our artisan collective. You will design and build custom wood furniture, operate woodworking equipment, manage client consultations, and maintain workshop safety standards. Requires woodworking experience, precision craftsmanship, and customer service skills. Portfolio of completed work preferred.',
+                      parsedRoles: ['Craftsmanship', 'Woodworking'], seniority: 'Entry', tier: 'high' },
+                    { id: 'sample-mid', title: 'Production Technician', company: 'Tesla',
+                      rawText: 'Tesla is hiring a Production Technician for our Gigafactory. You will operate manufacturing equipment, maintain quality standards, troubleshoot production issues, follow safety protocols, and track inventory. Requires hands-on technical aptitude, attention to detail, ability to work in fast-paced environment, and commitment to quality control.',
+                      parsedRoles: ['Production', 'Manufacturing'], seniority: 'Entry', tier: 'mid' },
+                    { id: 'sample-low', title: 'Territory Sales Manager', company: 'Snap-on Tools',
+                      rawText: 'Snap-on Tools seeks a Territory Sales Manager to build and manage a route-based sales territory. You will develop customer relationships, demonstrate products, manage inventory, negotiate deals, and maintain sales records. Requires sales aptitude, territory management skills, mechanical knowledge, and ability to build trust with skilled trades professionals.',
+                      parsedRoles: ['Sales', 'Territory Management'], seniority: 'Mid', tier: 'low' }
+                ],
+                'saul-goodman': [
+                    { id: 'sample-high', title: 'Criminal Defense Attorney', company: 'Public Defender\'s Office',
+                      rawText: 'Seeking an experienced Criminal Defense Attorney to handle a high-volume caseload. You will represent clients in felony and misdemeanor cases, negotiate plea agreements, conduct jury trials, manage evidence review, and mentor junior attorneys. Requires active bar license, courtroom litigation experience, and strong client relationship skills.',
+                      parsedRoles: ['Legal', 'Criminal Defense'], seniority: 'Senior', tier: 'high' },
+                    { id: 'sample-mid', title: 'Director of Marketing', company: 'LegalZoom',
+                      rawText: 'LegalZoom seeks a Director of Marketing to lead our brand strategy and client acquisition programs. You will develop advertising campaigns, manage digital marketing spend, create compelling content, build brand recognition, and drive measurable lead generation. Requires marketing strategy expertise, creative campaign development, and experience in professional services marketing.',
+                      parsedRoles: ['Marketing', 'Business Development'], seniority: 'Senior', tier: 'mid' },
+                    { id: 'sample-low', title: 'General Counsel', company: 'Better Business Bureau',
+                      rawText: 'The BBB seeks a General Counsel to oversee all legal operations, manage regulatory compliance, advise the board on governance matters, handle commercial contracts, and coordinate litigation strategy. Requires JD, 15+ years legal experience, corporate governance expertise, and experience in consumer protection law and regulatory frameworks.',
+                      parsedRoles: ['Legal', 'Compliance'], seniority: 'Executive', tier: 'low' }
+                ],
+                'tuco-salamanca': [
+                    { id: 'sample-high', title: 'Regional Distribution Manager', company: 'Red Bull',
+                      rawText: 'Red Bull seeks a Regional Distribution Manager to own territory growth across the Southwest. You will manage distributor relationships, enforce brand standards, drive product placement, negotiate retail partnerships, and lead a team of 15 field reps. Requires high energy, territory management experience, and ability to maintain quality standards across distribution channels.',
+                      parsedRoles: ['Distribution', 'Sales'], seniority: 'Mid', tier: 'high' },
+                    { id: 'sample-mid', title: 'Operations Manager, Logistics', company: 'FedEx',
+                      rawText: 'FedEx is hiring an Operations Manager to lead logistics operations at our Albuquerque hub. You will manage package sorting teams, enforce safety protocols, optimize delivery routes, handle personnel issues, and maintain throughput targets. Requires strong leadership presence, ability to make rapid decisions under pressure, and experience managing hourly workforce.',
+                      parsedRoles: ['Operations', 'Logistics'], seniority: 'Mid', tier: 'mid' },
+                    { id: 'sample-low', title: 'Director of Supply Chain', company: 'Sysco',
+                      rawText: 'Sysco seeks a Director of Supply Chain to build our regional procurement and distribution network. You will manage supplier relationships, negotiate contracts, optimize inventory systems, lead cross-border logistics, and implement quality assurance programs. Requires supply chain management expertise, vendor negotiation skills, and experience in food distribution.',
+                      parsedRoles: ['Supply Chain', 'Procurement'], seniority: 'Senior', tier: 'low' }
+                ],
+                'jim-hopper': [
+                    { id: 'sample-high', title: 'Director of Public Safety', company: 'City of Indianapolis',
+                      rawText: 'The City of Indianapolis seeks a Director of Public Safety to oversee police, fire, and emergency management operations. You will coordinate inter-agency response, manage crisis situations, build community trust programs, lead a department of 3,000+ personnel, and interface with federal agencies. Requires 15+ years law enforcement leadership, crisis management certification, and community policing experience.',
+                      parsedRoles: ['Law Enforcement', 'Emergency Management'], seniority: 'Executive', tier: 'high' },
+                    { id: 'sample-mid', title: 'VP of Global Security', company: 'Amazon',
+                      rawText: 'Amazon seeks a VP of Global Security to lead physical security operations across our fulfillment network. You will build security teams, manage crisis response protocols, coordinate with law enforcement agencies, protect employee safety, and oversee investigation units. Requires federal or military law enforcement background, team leadership at scale, and experience managing security in distributed operations.',
+                      parsedRoles: ['Security', 'Operations'], seniority: 'Executive', tier: 'mid' },
+                    { id: 'sample-low', title: 'FEMA Regional Administrator', company: 'FEMA',
+                      rawText: 'FEMA seeks a Regional Administrator to lead disaster preparedness, response, and recovery for Region V. You will coordinate federal, state, and local emergency response, manage disaster declarations, allocate federal resources, and build community resilience programs. Requires emergency management expertise, inter-agency coordination, political stakeholder management, and experience leading operations under extreme pressure.',
+                      parsedRoles: ['Emergency Management', 'Government'], seniority: 'Executive', tier: 'low' }
+                ],
+                'eleven': [
+                    { id: 'sample-high', title: 'Field Research Specialist', company: 'DARPA',
+                      rawText: 'DARPA seeks a Field Research Specialist for classified programs involving advanced human performance. You will participate in controlled research studies, demonstrate unique capabilities under observation, collaborate with scientific teams, and provide field intelligence in austere environments. Requires exceptional focus under pressure, adaptability, and willingness to operate in high-risk conditions. Clearance required.',
+                      parsedRoles: ['Research', 'Field Operations'], seniority: 'Entry', tier: 'high' },
+                    { id: 'sample-mid', title: 'Crisis Response Team Leader', company: 'American Red Cross',
+                      rawText: 'The Red Cross seeks a Crisis Response Team Leader to deploy to disaster zones and lead on-the-ground relief operations. You will assess threats, coordinate volunteer teams, manage resource distribution, communicate with emergency services, and provide emotional support to affected populations. Requires courage under pressure, adaptability, empathy, and experience leading teams in dangerous conditions.',
+                      parsedRoles: ['Crisis Response', 'Leadership'], seniority: 'Mid', tier: 'mid' },
+                    { id: 'sample-low', title: 'Intelligence Analyst', company: 'National Security Agency',
+                      rawText: 'The NSA seeks an Intelligence Analyst to support national security threat assessment programs. You will analyze signals intelligence, produce threat briefings, identify patterns in surveillance data, coordinate with field operatives, and brief senior officials. Requires advanced analytical skills, pattern recognition, emotional regulation under stress, and ability to maintain classified information security.',
+                      parsedRoles: ['Intelligence', 'Analysis'], seniority: 'Mid', tier: 'low' }
+                ],
+                'steve-harrington': [
+                    { id: 'sample-high', title: 'Team Lead, Customer Experience', company: 'Apple Retail',
+                      rawText: 'Apple seeks a Team Lead for our retail customer experience team. You will mentor associates, resolve customer escalations, manage daily store operations during your shift, and create a welcoming environment. Requires strong communication skills, leadership by example, product knowledge, and genuine enthusiasm for helping people.',
+                      parsedRoles: ['Retail', 'Customer Service'], seniority: 'Entry', tier: 'high' },
+                    { id: 'sample-mid', title: 'Youth Program Coordinator', company: 'Boys & Girls Club',
+                      rawText: 'The Boys & Girls Club seeks a Youth Program Coordinator to lead after-school programs for teens. You will mentor youth, plan activities, manage volunteers, ensure participant safety, and build trusting relationships with young people. Requires patience, protectiveness, ability to connect with teenagers, first aid certification, and a clean background check.',
+                      parsedRoles: ['Youth Services', 'Program Management'], seniority: 'Entry', tier: 'mid' },
+                    { id: 'sample-low', title: 'Assistant Store Manager', company: 'REI',
+                      rawText: 'REI seeks an Assistant Store Manager to lead daily operations, manage a team of 20+ associates, drive sales performance, handle inventory management, and develop staff through coaching and mentoring. Requires 2+ years retail supervisory experience, team building skills, physical fitness, and passion for customer service.',
+                      parsedRoles: ['Retail Management', 'Operations'], seniority: 'Mid', tier: 'low' }
+                ],
+                'dustin-henderson': [
+                    { id: 'sample-high', title: 'Junior Electronics Technician', company: 'SpaceX',
+                      rawText: 'SpaceX is hiring a Junior Electronics Technician to support our communications systems team. You will build and test radio frequency equipment, troubleshoot electronic systems, maintain documentation, and assist senior engineers. Requires strong aptitude for electronics, hands-on building experience, problem-solving skills, and enthusiasm for technical challenges.',
+                      parsedRoles: ['Electronics', 'Engineering'], seniority: 'Entry', tier: 'high' },
+                    { id: 'sample-mid', title: 'STEM Education Facilitator', company: 'Museum of Science & Industry',
+                      rawText: 'The Museum of Science & Industry seeks a STEM Education Facilitator to design and lead hands-on science programs for students. You will teach electronics, physics, and engineering concepts through interactive demonstrations, build educational prototypes, and inspire curiosity in young learners. Requires science knowledge, communication skills, and infectious enthusiasm.',
+                      parsedRoles: ['Education', 'STEM'], seniority: 'Entry', tier: 'mid' },
+                    { id: 'sample-low', title: 'Communications Systems Engineer', company: 'Motorola Solutions',
+                      rawText: 'Motorola Solutions seeks a Communications Systems Engineer to design and deploy public safety radio networks. You will engineer RF systems, conduct site surveys, troubleshoot complex radio installations, and support mission-critical communications. Requires RF engineering knowledge, radio licensing, systems troubleshooting, and project management skills.',
+                      parsedRoles: ['Communications', 'Engineering'], seniority: 'Mid', tier: 'low' }
+                ],
+                'joyce-byers': [
+                    { id: 'sample-high', title: 'Store Manager', company: 'Ace Hardware',
+                      rawText: 'Ace Hardware seeks a Store Manager to run daily operations at our Hawkins location. You will manage inventory, provide customer service, handle scheduling for 8 associates, maintain store appearance, and drive local marketing. Requires retail experience, reliability, budget management skills, and the ability to handle anything that comes through the door.',
+                      parsedRoles: ['Retail', 'Management'], seniority: 'Mid', tier: 'high' },
+                    { id: 'sample-mid', title: 'Community Outreach Coordinator', company: 'United Way',
+                      rawText: 'United Way seeks a Community Outreach Coordinator to build relationships with local families and service organizations. You will identify community needs, coordinate volunteer programs, manage crisis resources, connect families with support services, and advocate for underserved populations. Requires empathy, resourcefulness, persistence, and ability to navigate bureaucratic systems.',
+                      parsedRoles: ['Community Services', 'Outreach'], seniority: 'Mid', tier: 'mid' },
+                    { id: 'sample-low', title: 'Missing Persons Investigator', company: 'National Center for Missing & Exploited Children',
+                      rawText: 'NCMEC seeks a Missing Persons Investigator to support active cases and family services. You will conduct research, interview families, coordinate with law enforcement, analyze leads, and manage case documentation. Requires investigative tenacity, pattern recognition, empathy with families in crisis, and ability to persist when conventional methods fail.',
+                      parsedRoles: ['Investigation', 'Victim Services'], seniority: 'Mid', tier: 'low' }
+                ],
+                'vecna': [
+                    { id: 'sample-high', title: 'Chief Architect, Cloud Infrastructure', company: 'Amazon Web Services',
+                      rawText: 'AWS seeks a Chief Architect to design planet-scale distributed systems infrastructure. You will architect multi-region networks, design fault-tolerant systems, manage massive compute clusters, and build monitoring frameworks spanning millions of nodes. Requires mastery of systems architecture, network design, distributed computing, and ability to think in terms of entire ecosystems.',
+                      parsedRoles: ['Architecture', 'Infrastructure'], seniority: 'Executive', tier: 'high' },
+                    { id: 'sample-mid', title: 'Director of Psychological Operations', company: 'Department of Defense',
+                      rawText: 'The DoD seeks a Director of Psychological Operations to lead influence campaign development and execution. You will design strategic communication programs, analyze target audience vulnerabilities, develop persuasion frameworks, and coordinate multi-channel operations. Requires expertise in psychological warfare, strategic patience, and ability to operate across unconventional domains.',
+                      parsedRoles: ['Psychological Operations', 'Strategy'], seniority: 'Senior', tier: 'mid' },
+                    { id: 'sample-low', title: 'Chief Executive Officer', company: 'Neuralink',
+                      rawText: 'Neuralink seeks a CEO to lead our brain-computer interface company into commercial deployment. You will set corporate vision, manage neural engineering teams, navigate FDA regulatory approval, build strategic partnerships, and communicate a bold vision for the future of human-machine integration. Requires visionary leadership, comfort with biological systems, and willingness to fundamentally reshape human experience.',
+                      parsedRoles: ['Executive', 'Neurotechnology'], seniority: 'C-Suite', tier: 'low' }
+                ],
+                'logan-roy': [
+                    { id: 'sample-high', title: 'Chairman & CEO', company: 'News Corp',
+                      rawText: 'News Corp seeks a Chairman & CEO to lead our global media empire spanning broadcast, publishing, and digital platforms. You will set corporate strategy, manage board relations, oversee $15B revenue portfolio, drive M&A activity, and maintain editorial direction across properties. Requires 20+ years media industry leadership, board governance expertise, and ability to command loyalty in high-stakes environments.',
+                      parsedRoles: ['CEO', 'Media'], seniority: 'C-Suite', tier: 'high' },
+                    { id: 'sample-mid', title: 'CEO', company: 'Warner Bros. Discovery',
+                      rawText: 'Warner Bros. Discovery seeks a CEO to lead our combined media and entertainment company through digital transformation. You will manage $40B revenue portfolio, direct content strategy, oversee streaming platform development, navigate regulatory landscape, and rebuild investor confidence. Requires media empire leadership, M&A experience, political relationships, and ability to make decisions others cannot.',
+                      parsedRoles: ['CEO', 'Entertainment'], seniority: 'C-Suite', tier: 'mid' },
+                    { id: 'sample-low', title: 'U.S. Ambassador to the United Kingdom', company: 'U.S. State Department',
+                      rawText: 'The State Department seeks a U.S. Ambassador to the United Kingdom. You will represent American interests, manage diplomatic relationships, host high-level delegations, navigate complex political stakeholder dynamics, and influence bilateral trade policy. Requires political connections, negotiation skills at the highest level, media savvy, and ability to command respect in rooms full of heads of state.',
+                      parsedRoles: ['Diplomacy', 'Government'], seniority: 'C-Suite', tier: 'low' }
+                ],
+                'kendall-roy': [
+                    { id: 'sample-high', title: 'Managing Director, TMT M&A', company: 'Goldman Sachs',
+                      rawText: 'Goldman Sachs seeks a Managing Director to lead our Technology, Media & Telecom M&A advisory practice. You will originate and execute $10B+ transactions, manage client relationships with Fortune 100 CEOs, lead deal teams of 30+ professionals, and develop junior talent. Requires 15+ years investment banking experience, deep media industry expertise, and proven track record of closing transformative transactions.',
+                      parsedRoles: ['Investment Banking', 'M&A'], seniority: 'Executive', tier: 'high' },
+                    { id: 'sample-mid', title: 'Chief Strategy Officer', company: 'Spotify',
+                      rawText: 'Spotify seeks a Chief Strategy Officer to drive corporate strategy and M&A activity. You will evaluate acquisition targets, develop competitive positioning, lead digital transformation initiatives, manage investor relations, and present to the board. Requires expertise in digital media strategy, financial modeling, capital markets, and experience navigating rapid industry disruption.',
+                      parsedRoles: ['Strategy', 'M&A'], seniority: 'Executive', tier: 'mid' },
+                    { id: 'sample-low', title: 'CEO', company: 'Vice Media',
+                      rawText: 'Vice Media seeks a CEO to lead our turnaround and digital transformation. You will restructure operations, raise capital, rebuild advertiser relationships, develop streaming strategy, and restore brand credibility. Requires media industry experience, turnaround leadership, fundraising capability, and ability to inspire a demoralized organization while making tough decisions.',
+                      parsedRoles: ['CEO', 'Media'], seniority: 'C-Suite', tier: 'low' }
+                ],
+                'shiv-roy': [
+                    { id: 'sample-high', title: 'Chief Communications Officer', company: 'Meta',
+                      rawText: 'Meta seeks a Chief Communications Officer to lead global corporate communications, government affairs, and crisis management. You will manage media relations, develop political strategy, oversee internal communications for 80,000 employees, and navigate regulatory scrutiny. Requires political strategy background, crisis communications expertise, stakeholder management, and ability to operate in hostile media environments.',
+                      parsedRoles: ['Communications', 'Government Affairs'], seniority: 'Executive', tier: 'high' },
+                    { id: 'sample-mid', title: 'Senior Partner, Political Strategy', company: 'McKinsey',
+                      rawText: 'McKinsey seeks a Senior Partner to lead our Political & Social Strategy practice. You will advise governments and corporations on organizational transformation, political risk, stakeholder engagement, and crisis navigation. Requires campaign management experience, policy expertise, change management skills, and ability to influence senior leaders on sensitive organizational dynamics.',
+                      parsedRoles: ['Strategy', 'Political Consulting'], seniority: 'Executive', tier: 'mid' },
+                    { id: 'sample-low', title: 'Chief People Officer', company: 'Salesforce',
+                      rawText: 'Salesforce seeks a Chief People Officer to lead our global HR transformation. You will redesign organizational structure, build diversity and inclusion programs, manage executive talent assessment, lead change management across 70,000 employees, and advise the CEO on culture strategy. Requires organizational behavior expertise, executive coaching background, and data-driven HR strategy skills.',
+                      parsedRoles: ['HR', 'Organizational Development'], seniority: 'C-Suite', tier: 'low' }
+                ],
+                'roman-roy': [
+                    { id: 'sample-high', title: 'VP of Content Strategy', company: 'Netflix',
+                      rawText: 'Netflix seeks a VP of Content Strategy to lead programming decisions across our entertainment portfolio. You will evaluate content investments, identify audience trends, manage creative talent relationships, and develop original programming strategy. Requires instinctive understanding of audience psychology, entertainment industry relationships, digital media expertise, and willingness to take creative risks.',
+                      parsedRoles: ['Content', 'Entertainment'], seniority: 'Executive', tier: 'high' },
+                    { id: 'sample-mid', title: 'Chief Brand Officer', company: 'TikTok',
+                      rawText: 'TikTok seeks a Chief Brand Officer to lead global brand strategy and marketing. You will direct social media campaigns, manage influencer partnerships, develop brand architecture, and drive audience growth among younger demographics. Requires native understanding of digital culture, creative instincts, international business development, and ability to move fast in dynamic markets.',
+                      parsedRoles: ['Brand', 'Digital Media'], seniority: 'Executive', tier: 'mid' },
+                    { id: 'sample-low', title: 'CEO, Theme Parks & Experiences', company: 'Walt Disney Company',
+                      rawText: 'Disney seeks a CEO for our Parks & Experiences division to lead a $30B business unit. You will oversee global theme park operations, develop new attractions, manage entertainment talent, drive hospitality innovation, and build international expansion strategy. Requires entertainment operations experience, brand management, P&L ownership, and vision for immersive guest experiences.',
+                      parsedRoles: ['Entertainment', 'Operations'], seniority: 'C-Suite', tier: 'low' }
+                ],
+                'tom-wambsgans': [
+                    { id: 'sample-high', title: 'SVP of Operations & Compliance', company: 'Fox Corporation',
+                      rawText: 'Fox Corporation seeks an SVP of Operations & Compliance to oversee broadcast operations and regulatory compliance across our media properties. You will manage operational efficiency, lead crisis response, coordinate with legal teams, oversee talent contracts, and ensure FCC compliance. Requires media operations experience, regulatory knowledge, crisis navigation skills, and ability to thrive in complex organizational politics.',
+                      parsedRoles: ['Operations', 'Compliance'], seniority: 'Executive', tier: 'high' },
+                    { id: 'sample-mid', title: 'Chief Operating Officer', company: 'Paramount Global',
+                      rawText: 'Paramount Global seeks a COO to lead operational integration across our media portfolio. You will standardize processes across divisions, manage $2B operational budget, oversee vendor relationships, and drive post-merger integration planning. Requires enterprise operations experience, budget management, institutional knowledge-building, and strategic patience to navigate complex corporate environments.',
+                      parsedRoles: ['Operations', 'Media'], seniority: 'C-Suite', tier: 'mid' },
+                    { id: 'sample-low', title: 'CEO', company: 'iHeartMedia',
+                      rawText: 'iHeartMedia seeks a CEO to lead our radio and podcast media company through industry transformation. You will set corporate vision, manage investor relations, oversee 850+ radio stations, build podcast strategy, and navigate complex regulatory landscape. Requires media industry leadership, operational discipline, political navigation skills, and ability to build trust with skeptical stakeholders.',
+                      parsedRoles: ['CEO', 'Media'], seniority: 'C-Suite', tier: 'low' }
+                ],
+                'connor-roy': [
+                    { id: 'sample-high', title: 'Director of Cultural Affairs', company: 'City of Santa Fe',
+                      rawText: 'The City of Santa Fe seeks a Director of Cultural Affairs to lead arts programming, heritage preservation, and cultural event management. You will manage relationships with artists and galleries, coordinate festivals, oversee public art installations, and promote Santa Fe as a cultural destination. Requires arts patronage experience, event management, community engagement, and genuine passion for cultural preservation.',
+                      parsedRoles: ['Arts', 'Cultural Affairs'], seniority: 'Senior', tier: 'high' },
+                    { id: 'sample-mid', title: 'Ranch Operations Manager', company: 'Turner Ranches',
+                      rawText: 'Turner Ranches seeks an Operations Manager to oversee a 50,000-acre working cattle ranch. You will manage livestock operations, coordinate seasonal activities, supervise ranch hands, maintain equipment, implement conservation practices, and host VIP guests. Requires ranching experience, land management knowledge, hospitality skills, and ability to balance production with environmental stewardship.',
+                      parsedRoles: ['Ranch Operations', 'Hospitality'], seniority: 'Mid', tier: 'mid' },
+                    { id: 'sample-low', title: 'Deputy Chief of Mission', company: 'U.S. Embassy Ljubljana',
+                      rawText: 'The State Department seeks a Deputy Chief of Mission for the U.S. Embassy in Ljubljana, Slovenia. You will manage embassy operations, coordinate diplomatic programs, represent U.S. interests at government events, and build bilateral relationships. Requires diplomatic experience, cultural sensitivity, stakeholder relationship management, and willingness to represent your country with optimism and persistence.',
+                      parsedRoles: ['Diplomacy', 'Government'], seniority: 'Executive', tier: 'low' }
+                ]
+            };
+            
+            // Use character-specific jobs if available
+            if (characterJobs[templateId]) {
+                jobMeta = characterJobs[templateId];
+            } else if (isRecruiter) {
                 jobMeta = [
                     { id: 'sample-high', title: 'Senior Technical Recruiter', company: 'Datadog',
                       rawText: 'Datadog is hiring a Senior Technical Recruiter to drive full-lifecycle hiring across our engineering organization. You will own sourcing strategy, candidate experience, and stakeholder partnerships for technical hiring across multiple product teams. This is a high-impact role for someone who thrives in fast-paced SaaS environments and can balance volume hiring with quality bar management.',
