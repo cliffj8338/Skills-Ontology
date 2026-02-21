@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.29 | 20260220 | Hide edit/delete/add buttons in Skills Management tab for sample profiles -->
+    <!-- v4.25.1.30 | 20260221 | Fix: demo users land on Welcome, not Blueprint (scaffold no longer triggers blueprint view) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4508,8 +4508,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.29 - BUILD 20260220-s17
-        var BP_VERSION = 'v4.25.1.29';
+        // BLUEPRINT v4.25.1.30 - BUILD 20260221-s17
+        var BP_VERSION = 'v4.25.1.30';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -8959,10 +8959,9 @@
             initializeMainApp();
             
             // Determine which view to show
+            // Demo/non-signed-in users always start on Welcome (the front door)
+            // They can navigate to profiles from there
             var targetView = 'welcome';
-            if (currentProfile && templates[currentProfile]) {
-                targetView = 'blueprint';
-            }
             checkReadOnly();
             
             // Return target view so DOMContentLoaded can use it
