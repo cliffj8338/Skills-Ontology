@@ -900,7 +900,7 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.26.0.6 - BUILD 20260221-s20
-        var BP_VERSION = 'v4.27.0.0';
+        var BP_VERSION = 'v4.27.0.1';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -6854,6 +6854,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var job = (userData.savedJobs || [])[idx];
             if (!job) { showToast('Job not found.', 'error'); return; }
             
+            // Ensure companyValues is computed (jobs from older versions may lack it)
+            if (!job.companyValues) job.companyValues = getCompanyValues(job.company, job.rawText);
+            
             activeJobForNetwork = job;
             networkMatchMode = 'match'; // Start on the overlay view
             
@@ -6872,6 +6875,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         function activateValuesOverlay(idx) {
             var job = (userData.savedJobs || [])[idx];
             if (!job) { showToast('Job not found.', 'error'); return; }
+            
+            // Ensure companyValues is computed
+            if (!job.companyValues) job.companyValues = getCompanyValues(job.company, job.rawText);
             
             activeJobForNetwork = job;
             networkMatchMode = 'values';
@@ -7425,10 +7431,18 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         // ===== VALUES ALIGNMENT NETWORK =====
         
         function initValuesNetwork(job) {
-            if (!job) return;
+            if (!job) { showToast('Select a job first to compare values.', 'info'); return; }
             
-            var cv = job.companyValues || getCompanyValues(job.company, job.rawText);
-            if (!cv) { showToast('No company values data available.', 'warning'); return; }
+            // Lazy-compute companyValues if missing (jobs loaded before v4.27)
+            if (!job.companyValues) {
+                job.companyValues = getCompanyValues(job.company, job.rawText);
+            }
+            var cv = job.companyValues;
+            if (!cv) {
+                console.warn('Values overlay: no company values for', job.company, '| rawText length:', (job.rawText || '').length);
+                showToast('No company values data for ' + (job.company || 'this job') + '.', 'warning');
+                return;
+            }
             
             // Compute alignment
             var userVals = (blueprintData && blueprintData.values) || [];
@@ -10094,7 +10108,20 @@ body {
             });
             
             scored.sort(function(a, b) { return b.score - a.score; });
-            if (scored.length === 0) return null;
+            
+            // Fallback: if keyword matching found nothing but JD has substance, return generic values
+            if (scored.length === 0) {
+                if (rawText.length >= 100) {
+                    return {
+                        primary: ['Excellence', 'Collaboration', 'Accountability'],
+                        secondary: ['Continuous Improvement'],
+                        tensions: [],
+                        story: '',
+                        inferred: true
+                    };
+                }
+                return null;
+            }
             
             return {
                 primary: scored.slice(0, 3).map(function(s) { return s.name; }),
@@ -10107,9 +10134,21 @@ body {
 
         // Get company values \u2014 curated first, JD inference fallback
         function getCompanyValues(companyName, rawText) {
-            if (companyName && COMPANY_VALUES[companyName]) {
-                var cv = COMPANY_VALUES[companyName];
-                return { primary: cv.primary, secondary: cv.secondary, tensions: cv.tensions, story: cv.story, inferred: false };
+            if (companyName) {
+                // Exact match first
+                if (COMPANY_VALUES[companyName]) {
+                    var cv = COMPANY_VALUES[companyName];
+                    return { primary: cv.primary, secondary: cv.secondary, tensions: cv.tensions, story: cv.story, inferred: false };
+                }
+                // Case-insensitive / trimmed fallback
+                var searchName = companyName.trim().toLowerCase();
+                var keys = Object.keys(COMPANY_VALUES);
+                for (var k = 0; k < keys.length; k++) {
+                    if (keys[k].toLowerCase() === searchName) {
+                        var cv2 = COMPANY_VALUES[keys[k]];
+                        return { primary: cv2.primary, secondary: cv2.secondary, tensions: cv2.tensions, story: cv2.story, inferred: false };
+                    }
+                }
             }
             return inferCompanyValuesFromJD(rawText);
         }
