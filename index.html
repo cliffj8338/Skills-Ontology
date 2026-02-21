@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.27.1.5 | 20260221 | Firestore: sanitize undefined values, null-guard skill fields, mobile SVG height -->
+    <!-- v4.27.1.6 | 20260221 | Tooltip reposition mobile, Firestore sanitizer, pill toggles ready -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -165,19 +165,10 @@
         </div>
 
         <div class="controls-right" id="networkControls">
-            <div class="label-toggle">
-                <span class="toggle-label">Role Labels</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" checked onchange="toggleLabels('role')">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-            <div class="label-toggle">
-                <span class="toggle-label">Skill Labels</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" checked onchange="toggleLabels('skill')">
-                    <span class="toggle-slider"></span>
-                </label>
+            <div class="label-pills">
+                <button class="label-pill active" id="labelPillRole" onclick="toggleLabelPill('role')" title="Toggle role labels">Roles</button>
+                <button class="label-pill" id="labelPillSkill" onclick="toggleLabelPill('skill')" title="Toggle skill labels">Skills</button>
+                <button class="label-pill" id="labelPillValue" onclick="toggleLabelPill('value')" title="Toggle value labels" style="display:none;">Values</button>
             </div>
         </div>
 
@@ -899,8 +890,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.27.1.5 - BUILD 20260221-firestore-fix
-        var BP_VERSION = 'v4.27.1.5';
+        // BLUEPRINT v4.27.1.6 - BUILD 20260221-tooltip-mobile
+        var BP_VERSION = 'v4.27.1.6';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -916,7 +907,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260221-firestore-fix                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260221-tooltip-mobile                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -6850,9 +6841,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // On mobile: hide skill labels by default (too cluttered), show role labels
             if (isMobile) {
                 node.selectAll('text').filter(d => d.type === 'skill').classed('hidden', true);
-                // Uncheck the skill labels checkbox
-                var skillLabelCb = document.querySelector('#networkControls input[onchange*="skill"]');
-                if (skillLabelCb) skillLabelCb.checked = false;
+                // Deactivate the skill labels pill
+                var skillPill = document.getElementById('labelPillSkill');
+                if (skillPill) skillPill.classList.remove('active');
                 
                 // Add info badge showing filtered count
                 if (skillsToShow.length < skillsData.skills.length) {
@@ -6963,6 +6954,17 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Ensure label toggles are visible for all network modes
             var nc = document.getElementById('networkControls');
             if (nc) nc.style.display = '';
+            
+            // Show/hide Values pill based on mode
+            var valPill = document.getElementById('labelPillValue');
+            if (valPill) valPill.style.display = (mode === 'values') ? '' : 'none';
+            // Show/hide Role+Skill pills (not relevant in values mode)
+            var rolePill = document.getElementById('labelPillRole');
+            var skillPill = document.getElementById('labelPillSkill');
+            if (rolePill) rolePill.style.display = (mode === 'values') ? 'none' : '';
+            if (skillPill) skillPill.style.display = (mode === 'values') ? 'none' : '';
+            // Default Values pill to active when entering values mode
+            if (mode === 'values' && valPill) valPill.classList.add('active');
             
             // Remove any existing overlays
             var legend = document.getElementById('matchLegend');
@@ -8560,41 +8562,35 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             }
         }
         
-        function toggleLabels(type) {
-            // v4.20.1: Read actual checkbox state and apply to ANY active network SVG
+        function toggleLabelPill(type) {
+            var pill = document.getElementById('labelPill' + type.charAt(0).toUpperCase() + type.slice(1));
+            if (!pill) return;
+            pill.classList.toggle('active');
+            var isActive = pill.classList.contains('active');
+            
+            var svg = d3.select("#networkView");
+            if (svg.empty()) return;
+            svg.selectAll('text')
+                .filter(function(d) { return d && d.type === type; })
+                .classed('hidden', !isActive);
+        }
+        window.toggleLabelPill = toggleLabelPill;
+        
+        // Apply current pill states to network after any re-render
+        function applyLabelToggles() {
             var svg = d3.select("#networkView");
             if (svg.empty()) return;
             
-            // Find the checkbox for this type
-            var checkboxes = document.querySelectorAll('#networkControls input[type="checkbox"]');
-            var isChecked = true;
-            checkboxes.forEach(function(cb) {
-                // Role checkbox is first, Skill checkbox is second
-                if (type === 'role' && cb === checkboxes[0]) isChecked = cb.checked;
-                if (type === 'skill' && cb === checkboxes[1]) isChecked = cb.checked;
-            });
-            
-            svg.selectAll('text')
-                .filter(function(d) { return d && d.type === type; })
-                .classed('hidden', !isChecked);
-        }
-        
-        // Apply current toggle states to network after any re-render
-        function applyLabelToggles() {
-            var checkboxes = document.querySelectorAll('#networkControls input[type="checkbox"]');
-            if (checkboxes.length >= 2) {
-                var roleChecked = checkboxes[0].checked;
-                var skillChecked = checkboxes[1].checked;
-                var svg = d3.select("#networkView");
-                if (!svg.empty()) {
+            var types = ['role', 'skill', 'value'];
+            types.forEach(function(type) {
+                var pill = document.getElementById('labelPill' + type.charAt(0).toUpperCase() + type.slice(1));
+                if (pill) {
+                    var isActive = pill.classList.contains('active');
                     svg.selectAll('text')
-                        .filter(function(d) { return d && d.type === 'role'; })
-                        .classed('hidden', !roleChecked);
-                    svg.selectAll('text')
-                        .filter(function(d) { return d && d.type === 'skill'; })
-                        .classed('hidden', !skillChecked);
+                        .filter(function(d) { return d && d.type === type; })
+                        .classed('hidden', !isActive);
                 }
-            }
+            });
         }
         window.applyLabelToggles = applyLabelToggles;
 
@@ -8820,15 +8816,41 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var vh = window.innerHeight;
             var px = event.pageX;
             var py = event.pageY;
-            // Default: right and above cursor
-            var left = px + 12;
-            var top = py - 12;
-            // Flip left if overflowing right edge
-            if (left + ttW > vw - 10) left = px - ttW - 12;
-            // Flip down if overflowing top
-            if (top < 10) top = py + 16;
-            // Clamp bottom
-            if (top + ttH > vh - 10) top = vh - ttH - 10;
+            
+            var isMobileTooltip = vw <= 768;
+            var left, top;
+            
+            if (isMobileTooltip) {
+                // Mobile: center horizontally
+                left = Math.max(8, Math.min((vw - ttW) / 2, vw - ttW - 8));
+                var svgEl = document.getElementById('networkView');
+                var svgRect = svgEl ? svgEl.getBoundingClientRect() : { top: 0, bottom: vh * 0.6 };
+                var svgTop = svgRect.top + window.scrollY;
+                var svgBottom = svgRect.bottom + window.scrollY;
+                
+                // Position above the tapped node
+                top = py - ttH - 20;
+                // If above would clip above SVG, flip below the node
+                if (top < svgTop + 8) {
+                    top = py + 20;
+                }
+                // If below would go past SVG bottom, clamp to SVG bottom edge
+                if (top + ttH > svgBottom - 4) {
+                    top = svgBottom - ttH - 4;
+                }
+                // Final clamp: never above the SVG top
+                if (top < svgTop + 4) top = svgTop + 4;
+            } else {
+                // Desktop: right and above cursor
+                left = px + 12;
+                top = py - 12;
+                // Flip left if overflowing right edge
+                if (left + ttW > vw - 10) left = px - ttW - 12;
+                // Flip down if overflowing top
+                if (top < 10) top = py + 16;
+                // Clamp bottom
+                if (top + ttH > vh - 10) top = vh - ttH - 10;
+            }
             tooltip.style('left', left + 'px').style('top', top + 'px');
         }
 

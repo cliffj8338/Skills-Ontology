@@ -1339,12 +1339,34 @@
             color: #fff;
         }
         
-        .label-toggle {
+        .label-pills {
             display: flex;
-            gap: 8px;
+            gap: 4px;
             align-items: center;
         }
+        .label-pill {
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.78em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .label-pill:hover {
+            border-color: var(--accent);
+            color: var(--text-secondary);
+        }
+        .label-pill.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
         
+        /* Keep toggle-switch for share/settings toggles */
         .toggle-switch {
             position: relative;
             display: inline-block;
@@ -3297,6 +3319,11 @@
             }
             .jd-cta-desc {
                 font-size: 0.78em;
+            }
+            .tooltip {
+                max-width: calc(100vw - 32px);
+                padding: 10px 12px;
+                font-size: 12px;
             }
             
             .blueprint-section {
