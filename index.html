@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.25.1.20 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
+    <!-- v4.25.1.21 | 20260220 | Blueprint 6-tab restructure, Skills/Experience tabs, auth flow overhaul, profile chip cleanup, Samples nav, market position always-open, save indicator SVG fix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4465,8 +4465,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.25.1.20 - BUILD 20260220-s14
-        var BP_VERSION = 'v4.25.1.20';
+        // BLUEPRINT v4.25.1.21 - BUILD 20260220-s14
+        var BP_VERSION = 'v4.25.1.21';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -10053,6 +10053,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         let activeJobForNetwork = null; // saved job object when overlay is active
 
         function initNetwork() {
+            // Safety: ensure roles are normalized before building D3 graph
+            if (typeof normalizeUserRoles === 'function') normalizeUserRoles();
             const width = window.innerWidth;
             const height = window.innerHeight - 160;
             const isMobile = width <= 768;
@@ -10609,7 +10611,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var nodeIdx = 0;
             
             // Center → user roles
-            skillsData.roles.forEach(function(role) { links.push({ source: 'center', target: role.id || role.name, type: 'role' }); });
+            var validMatchRoleIds = new Set();
+            skillsData.roles.forEach(function(role) { var rid = role.id || role.name; validMatchRoleIds.add(rid); links.push({ source: 'center', target: rid, type: 'role' }); });
+            validMatchRoleIds.add('role-job-req');
             // Center → job req role
             links.push({ source: 'center', target: 'role-job-req', type: 'role' });
             
@@ -10626,9 +10630,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     id: id, name: skill.name, type: 'skill', level: skill.level, key: skill.key,
                     matchState: state, roles: skill.roles, source: 'user'
                 });
-                // Link to user roles
+                // Link to user roles (only if role node exists)
                 (skill.roles || []).forEach(function(roleId) {
-                    links.push({ source: roleId, target: id, type: 'skill' });
+                    if (validMatchRoleIds.has(roleId)) {
+                        links.push({ source: roleId, target: id, type: 'skill' });
+                    }
                 });
                 // Matched skills also link to job req
                 if (isMatched) {
@@ -19207,10 +19213,13 @@ body {
             
             // Create links
             const links = [];
+            var validNodeIds = new Set(nodes.map(function(n) { return n.id; }));
             roleNodes.forEach(role => {
                 links.push({ source: "center", target: role.id, type: "role" });
-                role.skills.forEach(skillName => {
-                    links.push({ source: role.id, target: skillName, type: "skill" });
+                (role.skills || []).forEach(skillName => {
+                    if (validNodeIds.has(skillName)) {
+                        links.push({ source: role.id, target: skillName, type: "skill" });
+                    }
                 });
             });
             
