@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.27.3.3 | 20260221 | Removed labels toggle, search, filter from network toolbar -->
+    <!-- v4.28.0.0 | 20260221 | Labels always-on, illicit comp adjustments, profile ID banner state matrix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -167,7 +167,7 @@
         <div class="controls-right" id="networkControls" style="display:none !important;">
             <div class="label-pills">
                 <button class="label-pill active" id="labelPillRole" onclick="toggleLabelPill('role')" title="Toggle role labels">Roles</button>
-                <button class="label-pill" id="labelPillSkill" onclick="toggleLabelPill('skill')" title="Toggle skill labels">Skills</button>
+                <button class="label-pill active" id="labelPillSkill" onclick="toggleLabelPill('skill')" title="Toggle skill labels">Skills</button>
                 <button class="label-pill" id="labelPillValue" onclick="toggleLabelPill('value')" title="Toggle value labels" style="display:none;">Values</button>
             </div>
         </div>
@@ -890,8 +890,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.27.3.3 - BUILD 20260221-toolbar-cleanup
-        var BP_VERSION = 'v4.27.3.3';
+        // BLUEPRINT v4.28.0.0 - BUILD 20260221-quick-fixes
+        var BP_VERSION = 'v4.28.0.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -2605,24 +2605,44 @@
             // Toggle body class for CSS-based enforcement
             document.body.classList.toggle('readonly-mode', isReadOnlyProfile);
             
-            // Show/hide readonly banner
+            // === PROFILE IDENTIFICATION BANNER ===
+            // Shows for ANYONE viewing a sample profile (including admin)
+            // Header badge = WHO you are. Banner = WHAT you're viewing.
             var banner = document.getElementById('readonlyBanner');
-            if (isReadOnlyProfile) {
+            var profileName = (userData.profile && userData.profile.name) || 'Sample Profile';
+            
+            if (isSample) {
                 if (!banner) {
                     banner = document.createElement('div');
                     banner.id = 'readonlyBanner';
                     banner.className = 'readonly-banner';
-                    var bannerCTA = appMode === 'waitlisted'
-                        ? '\uD83D\uDD12 You\u2019re #<span id="bannerPosition">' + (waitlistPosition || '...') + '</span> on the waitlist. Explore sample profiles while you wait.'
-                        : '\uD83D\uDD12 You\u2019re viewing a sample profile. '
-                          + '<a href="#" onclick="event.preventDefault(); showWaitlist();" style="color:inherit; text-decoration:underline; font-weight:700;">Join the waitlist</a> for early access '
-                          + 'or <a href="#" onclick="event.preventDefault(); showAuthModal(\'signup\');" style="color:inherit; text-decoration:underline;">sign in</a>.';
-                    banner.innerHTML = bannerCTA;
                     var header = document.querySelector('.header');
                     if (header) header.parentNode.insertBefore(banner, header.nextSibling);
                 }
+                
+                // Build banner content based on auth state matrix
+                var bannerHTML = '';
+                if (fbIsAdmin) {
+                    // Admin viewing sample
+                    bannerHTML = '\uD83D\uDD12 <strong>Viewing: ' + profileName + '</strong> \u00B7 Admin mode';
+                } else if (appMode === 'waitlisted') {
+                    // Waitlisted user viewing sample
+                    bannerHTML = '\uD83D\uDD12 <strong>Viewing: ' + profileName + '</strong> \u00B7 Sample profile. You\u2019re #<span id="bannerPosition">' + (waitlistPosition || '...') + '</span> on the waitlist.';
+                } else if (fbUser) {
+                    // Signed-in user (active/invited) browsing a sample
+                    bannerHTML = '\uD83D\uDD12 <strong>Viewing: ' + profileName + '</strong> \u00B7 Sample profile. '
+                        + '<a href="#" onclick="event.preventDefault(); loadUserFromFirestore(fbUser.uid);" style="color:inherit; text-decoration:underline; font-weight:700;">\u2190 Back to my profile</a>';
+                } else {
+                    // Demo visitor (not signed in)
+                    bannerHTML = '\uD83D\uDD12 <strong>Viewing: ' + profileName + '</strong> \u00B7 Sample profile. '
+                        + '<a href="#" onclick="event.preventDefault(); showWaitlist();" style="color:inherit; text-decoration:underline; font-weight:700;">Join the waitlist</a> for early access '
+                        + 'or <a href="#" onclick="event.preventDefault(); showAuthModal(\'signup\');" style="color:inherit; text-decoration:underline;">sign in</a>.';
+                }
+                
+                banner.innerHTML = bannerHTML;
                 banner.style.display = '';
             } else {
+                // Viewing own profile — no banner
                 if (banner) banner.style.display = 'none';
             }
         }
@@ -2817,10 +2837,11 @@
             btn.disabled = false;
             btn.textContent = 'Join the Waitlist';
             
-            // Update readonly banner
+            // Update readonly banner with profile name
             var banner = document.getElementById('readonlyBanner');
             if (banner) {
-                banner.innerHTML = '\uD83D\uDD12 You\u2019re #' + position + ' on the waitlist. Explore sample profiles while you wait.';
+                var pName = (userData.profile && userData.profile.name) || 'Sample Profile';
+                banner.innerHTML = '\uD83D\uDD12 <strong>Viewing: ' + pName + '</strong> \u00B7 Sample profile. You\u2019re #' + position + ' on the waitlist.';
             }
             
             showToast('Welcome, ' + name + '! You\u2019re #' + position + ' on the waitlist.', 'success');
@@ -3871,12 +3892,12 @@
         // Curated compensation for demo profiles (total comp, not just base)
         var DEMO_COMP = {
             'steve-harrington': 45000,
-            'jesse-pinkman': 38000,
+            'jesse-pinkman': 450000,
             'dustin-henderson': 75000,
             'eleven': 65000,
             'joyce-byers': 52000,
-            'saul-goodman': 280000,
-            'walter-white': 185000,
+            'saul-goodman': 1800000,
+            'walter-white': 3200000,
             'hank-schrader': 165000,
             'jim-hopper': 135000,
             'gus-fring': 4500000,
@@ -3886,7 +3907,7 @@
             'tom-wambsgans': 3800000,
             'logan-roy': 95000000,
             'vecna': 12000000,
-            'tuco-salamanca': 425000,
+            'tuco-salamanca': 2100000,
             'connor-roy': 1200000
         };
         
@@ -7183,12 +7204,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             window.networkData = { nodes, links, svg, link, node };
             setTimeout(applyLabelToggles, 100);
             
-            // On mobile: hide skill labels by default (too cluttered), show role labels
+            // Labels always on (toggle removed in v4.27.3.3)
             if (isMobile) {
-                node.selectAll('text').filter(d => d.type === 'skill').classed('hidden', true);
-                // Deactivate the skill labels pill
-                var skillPill = document.getElementById('labelPillSkill');
-                if (skillPill) skillPill.classList.remove('active');
                 
                 // Add info badge showing filtered count
                 if (skillsToShow.length < skillsData.skills.length) {
