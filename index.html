@@ -8450,18 +8450,25 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             // Assign each skill to its primary role domain, or uncategorized
             skillsData.skills.forEach(skill => {
-                const skillRoles = skill.roles || [];
-                if (skillRoles.length > 0 && domains[skillRoles[0]]) {
-                    domains[skillRoles[0]].skills.push(skill);
-                } else if (skillRoles.length > 1) {
-                    // Try second role
-                    const secondRole = skillRoles.find(r => domains[r]);
-                    if (secondRole) {
-                        domains[secondRole].skills.push(skill);
+                const skillRoles = skill.roles || (skill.role ? [skill.role] : []);
+                // Try to find a matching domain by ID or name
+                var assigned = false;
+                for (var ri = 0; ri < skillRoles.length && !assigned; ri++) {
+                    var ref = skillRoles[ri];
+                    // Match by direct ID
+                    if (domains[ref]) {
+                        domains[ref].skills.push(skill);
+                        assigned = true;
                     } else {
-                        uncategorized.skills.push(skill);
+                        // Match by role name
+                        var matchKey = Object.keys(domains).find(function(k) { return domains[k].label === ref; });
+                        if (matchKey) {
+                            domains[matchKey].skills.push(skill);
+                            assigned = true;
+                        }
                     }
-                } else {
+                }
+                if (!assigned) {
                     uncategorized.skills.push(skill);
                 }
             });
@@ -11444,14 +11451,27 @@ body {
             var skillsByRole = {};
             var unassigned = [];
             skills.forEach(function(s) {
+                // Normalize: support both s.roles (array) and s.role (singular string)
+                var skillRoles = s.roles || (s.role ? [s.role] : []);
                 var assigned = false;
-                (s.roles || []).forEach(function(roleIdx) {
-                    var role = roles[roleIdx];
-                    var roleName = role ? role.name : 'Unknown';
-                    if (!skillsByRole[roleName]) skillsByRole[roleName] = [];
-                    skillsByRole[roleName].push(s);
-                    assigned = true;
-                });
+                // Assign to FIRST matching role only (prevents duplicates across groups)
+                for (var ri = 0; ri < skillRoles.length; ri++) {
+                    var roleRef = skillRoles[ri];
+                    var role = null;
+                    // Match by index (number), id, or name
+                    if (typeof roleRef === 'number' && roles[roleRef]) {
+                        role = roles[roleRef];
+                    } else {
+                        role = roles.find(function(r) { return r.id === roleRef || r.name === roleRef; });
+                    }
+                    if (role) {
+                        var roleName = role.name;
+                        if (!skillsByRole[roleName]) skillsByRole[roleName] = [];
+                        skillsByRole[roleName].push(s);
+                        assigned = true;
+                        break; // First match only — no duplicates
+                    }
+                }
                 if (!assigned) unassigned.push(s);
             });
             
