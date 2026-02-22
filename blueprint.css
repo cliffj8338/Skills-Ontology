@@ -534,18 +534,19 @@
         /* Network node labels readable on light background */
         [data-theme="light"] .node text {
             fill: #1e293b;
-            text-shadow: 0 0 5px #e8f0fe, 0 0 5px #e8f0fe, 0 0 5px #e8f0fe;
+            text-shadow: 0 0 4px #fff, 0 0 4px #fff, 0 0 4px #fff;
         }
         [data-theme="light"] .node.role text {
             fill: #1e293b;
-            text-shadow: 0 0 5px #e8f0fe, 0 0 5px #e8f0fe;
+            font-weight: 700;
+            text-shadow: 0 0 5px #fff, 0 0 5px #fff;
         }
         [data-theme="light"] .node.center text {
-            fill: #2563eb;
-            text-shadow: 0 0 6px #e8f0fe, 0 0 6px #e8f0fe;
+            fill: #1e293b;
+            text-shadow: 0 0 6px #fff, 0 0 6px #fff;
         }
-        [data-theme="light"] .node.skill text { fill: #334155; }
-        [data-theme="light"] .link { stroke: #94a3b8; }
+        [data-theme="light"] .node.skill text { fill: #1e293b; font-weight: 500; }
+        [data-theme="light"] .link { stroke: rgba(100,116,139,0.25); }
 
         /* Settings view panels */
         [data-theme="light"] .settings-tabs,

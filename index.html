@@ -7542,11 +7542,17 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .force("x", d3.forceX(width/2).strength(0.1))
                 .force("y", d3.forceY(gravityCenter).strength(0.1));
             
-            // Draw
-            var link = svg.append("g").selectAll("line").data(links).join("line")
-                .attr("class", "link").style("stroke-opacity", 0.2);
+            // Draw - links layer BELOW nodes layer
+            var isLtC = document.documentElement.getAttribute('data-theme') === 'light';
+            var linkLayer = svg.append("g").attr("class", "link-layer");
+            var nodeLayer = svg.append("g").attr("class", "node-layer");
+            var link = linkLayer.selectAll("line").data(links).join("line")
+                .attr("class", "link")
+                .style("stroke", isLtC ? 'rgba(100,116,139,0.25)' : undefined)
+                .style("stroke-opacity", isLtC ? 1 : 0.2)
+                .style("stroke-width", 1.5);
             
-            var node = svg.append("g").selectAll("g").data(nodes).join("g")
+            var node = nodeLayer.selectAll("g").data(nodes).join("g")
                 .attr("class", function(d) { return 'node ' + d.type; })
                 .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
             
@@ -7720,16 +7726,19 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .force("x", d3.forceX(width/2).strength(0.08))
                 .force("y", d3.forceY(gravityCenter).strength(0.08));
             
-            // Draw links
-            var link = svg.append("g").selectAll("line").data(links).join("line")
+            // Draw links - BELOW nodes
+            var isLt = document.documentElement.getAttribute('data-theme') === 'light';
+            var linkLayerM = svg.append("g").attr("class", "link-layer");
+            var nodeLayerM = svg.append("g").attr("class", "node-layer");
+            var link = linkLayerM.selectAll("line").data(links).join("line")
                 .attr("class", "link")
-                .style("stroke", function(d) { return d.type === 'match' ? matchColors.matched : undefined; })
-                .style("stroke-opacity", function(d) { return d.type === 'match' ? 0.5 : 0.2; })
-                .style("stroke-width", function(d) { return d.type === 'match' ? 2 : 1.5; })
+                .style("stroke", function(d) { return d.type === 'match' ? matchColors.matched : (isLt ? 'rgba(100,116,139,0.25)' : undefined); })
+                .style("stroke-opacity", function(d) { return d.type === 'match' ? 0.5 : (isLt ? 1 : 0.2); })
+                .style("stroke-width", function(d) { return d.type === 'match' ? 2.5 : 1.5; })
                 .style("stroke-dasharray", function(d) { return d.type === 'match' ? '4,3' : 'none'; });
             
             // Draw nodes
-            var node = svg.append("g").selectAll("g").data(nodes).join("g")
+            var node = nodeLayerM.selectAll("g").data(nodes).join("g")
                 .attr("class", function(d) { return 'node ' + d.type; })
                 .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
             
@@ -7742,10 +7751,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     return isMobile ? 7 : Math.round(8 * scaleFactor); // surplus
                 })
                 .attr("fill", function(d) {
-                    if (d.type === 'center') return '#60a5fa';
+                    if (d.type === 'center') return isLt ? '#2563eb' : '#60a5fa';
                     if (d.type === 'role') {
-                        // Job needs role = subtle red outline feel; user roles = neutral slate
-                        return d.id === 'role-job-req' ? 'rgba(239,68,68,0.25)' : 'rgba(148,163,184,0.25)';
+                        if (d.id === 'role-job-req') return isLt ? '#fecaca' : '#3b1111';
+                        return isLt ? '#e2e8f0' : '#1e293b';
                     }
                     return matchColors[d.matchState] || '#6b7280';
                 })
@@ -7755,15 +7764,15 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 })
                 .attr("stroke", function(d) {
                     if (d.type === 'role') {
-                        return d.id === 'role-job-req' ? '#ef4444' : '#64748b';
+                        return d.id === 'role-job-req' ? '#ef4444' : (isLt ? '#94a3b8' : '#475569');
                     }
-                    if (d.matchState === 'matched') return '#fff';
+                    if (d.matchState === 'matched') return isLt ? '#d1d5db' : '#fff';
                     if (d.matchState === 'gap') return '#fca5a5';
                     return 'none';
                 })
                 .attr("stroke-width", function(d) {
-                    if (d.type === 'role') return 2;
-                    if (d.matchState === 'matched' || d.matchState === 'gap') return 2;
+                    if (d.type === 'role') return 2.5;
+                    if (d.matchState === 'matched' || d.matchState === 'gap') return 2.5;
                     return 0;
                 })
                 .on("click", function(event, d) {
@@ -7785,11 +7794,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .style("fill", function(d) {
                     if (d.matchState === 'matched') return matchColors.matched;
                     if (d.matchState === 'gap') return matchColors.gap;
-                    if (d.matchState === 'surplus') return '#64748b';
+                    if (d.matchState === 'surplus') return isLt ? '#64748b' : '#64748b';
                     if (d.type === 'role' && d.id === 'role-job-req') return '#ef4444';
-                    if (d.type === 'role') return '#94a3b8';
-                    return undefined;
+                    if (d.type === 'role') return isLt ? '#1e293b' : '#94a3b8';
+                    return isLt ? '#1e293b' : undefined;
                 })
+                .style("font-weight", function(d) { return (d.type === 'center' || d.type === 'role') ? '700' : '500'; })
                 .style("opacity", function(d) { return d.matchState === 'surplus' ? 0.4 : 1; });
             
             // On mobile hide skill labels
@@ -8108,18 +8118,21 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 }).strength(0.08))
                 .force("y", d3.forceY(centerY).strength(0.04));
             
-            // Draw links
-            var link = svg.append("g").selectAll("line").data(links).join("line")
+            // Draw links - BELOW nodes
+            var isLtV = document.documentElement.getAttribute('data-theme') === 'light';
+            var linkLayerV = svg.append("g").attr("class", "link-layer");
+            var nodeLayerV = svg.append("g").attr("class", "node-layer");
+            var link = linkLayerV.selectAll("line").data(links).join("line")
                 .attr("class", "link")
                 .style("stroke", function(d) {
                     if (d.type === 'bridge') return valColors.aligned;
                     if (d.type === 'tension-link') return valColors.tension;
-                    return undefined;
+                    return isLtV ? 'rgba(100,116,139,0.2)' : undefined;
                 })
                 .style("stroke-opacity", function(d) {
                     if (d.type === 'bridge') return 0.6;
                     if (d.type === 'tension-link') return 0.5;
-                    return 0.15;
+                    return isLtV ? 1 : 0.15;
                 })
                 .style("stroke-width", function(d) {
                     if (d.type === 'bridge') return 2.5;
@@ -8133,7 +8146,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 });
             
             // Draw nodes
-            var node = svg.append("g").selectAll("g").data(nodes).join("g")
+            var node = nodeLayerV.selectAll("g").data(nodes).join("g")
                 .attr("class", function(d) { return 'node ' + d.type; })
                 .call(d3.drag()
                     .on("start", dragstarted)
@@ -8149,19 +8162,19 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     return isMobile ? 12 : Math.round(15 * scaleFactor);
                 })
                 .attr("fill", function(d) {
-                    if (d.type === 'hub') return d.side === 'user' ? '#60a5fa' : '#f59e0b';
+                    if (d.type === 'hub') return d.side === 'user' ? (isLtV ? '#2563eb' : '#60a5fa') : '#f59e0b';
                     if (d.type === 'tension-marker') return valColors.tension;
                     return valColors[d.valState] || '#6b7280';
                 })
                 .attr("stroke", function(d) {
-                    if (d.type === 'hub') return 'rgba(255,255,255,0.3)';
-                    if (d.valState === 'aligned') return '#fff';
+                    if (d.type === 'hub') return isLtV ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.3)';
+                    if (d.valState === 'aligned') return isLtV ? '#d1fae5' : '#fff';
                     if (d.valState === 'tension') return '#fca5a5';
                     return 'none';
                 })
                 .attr("stroke-width", function(d) {
-                    if (d.type === 'hub') return 2;
-                    if (d.valState === 'aligned' || d.valState === 'tension') return 2;
+                    if (d.type === 'hub') return 2.5;
+                    if (d.valState === 'aligned' || d.valState === 'tension') return 2.5;
                     return 0;
                 })
                 .attr("opacity", function(d) {
@@ -8190,14 +8203,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     return isMobile ? '9px' : '10.5px';
                 })
                 .style("fill", function(d) {
-                    if (d.type === 'hub') return d.side === 'user' ? '#93c5fd' : '#fbbf24';
+                    if (d.type === 'hub') return d.side === 'user' ? (isLtV ? '#1d4ed8' : '#93c5fd') : (isLtV ? '#b45309' : '#fbbf24');
                     if (d.type === 'tension-marker') return valColors.tension;
-                    return valColors[d.valState] || '#94a3b8';
+                    return valColors[d.valState] || (isLtV ? '#334155' : '#94a3b8');
                 })
                 .style("font-weight", function(d) {
                     if (d.type === 'hub') return '700';
                     if (d.valState === 'aligned') return '600';
-                    return '400';
+                    return '500';
                 });
             
             // Bring hubs to front
