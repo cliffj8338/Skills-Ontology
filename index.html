@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.28.2.0 | 20260221 | Expanded tour, hero copy rewrite, mobile samples nav, tour icons -->
+    <!-- v4.29.0.0 | 20260221 | Game of Thrones profiles + expanded tour + hero copy + mobile nav -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -892,8 +892,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.28.2.0 - BUILD 20260221-tour-expanded
-        var BP_VERSION = 'v4.28.2.0';
+        // BLUEPRINT v4.29.0.0 - BUILD 20260221-got-profiles
+        var BP_VERSION = 'v4.29.0.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -2905,10 +2905,9 @@
                 // Headline + subtitle + CTAs
                 + '<div style="text-align:center; margin-bottom:32px;">'
                 + '<h2 style="font-size:2.6em; font-weight:700; color:var(--accent); margin-bottom:14px; line-height:1.12;">'
-                + 'Your Career Has<br>a Hidden Architecture.</h2>'
+                + 'The Resume is Dead.<br>Here is Your Blueprint.\u2122</h2>'
                 + '<p style="font-size:1.08em; color:var(--text-secondary); line-height:1.7; max-width:620px; margin:0 auto 28px;">'
-                + 'Most professionals can name 15\u201320 skills. You have 150\u2013300. Blueprint uses AI and the world\u2019s largest skill taxonomies to map every one of them '
-                + '\u2014 then scores your fit against real jobs, calculates your market value, and gives you the intelligence to own every career conversation.</p>'
+                + 'Stop guessing your value. Map your professional architecture and lead every career conversation with radical confidence.</p>'
                 + '<div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:40px;">'
                 + '<button onclick="viewSampleProfile()" style="'
                 + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; '
@@ -3324,6 +3323,27 @@
                         { id: 'connor-roy', name: 'Connor Roy', title: 'Rancher, Producer & Ambassador', emoji: '\uD83E\uDD20',
                           desc: 'The eldest Roy son. Gentleman rancher, Broadway producer, presidential candidate, and the only family member everyone can still talk to.' }
                     ]
+                },
+                {
+                    id: 'game-of-thrones',
+                    show: 'Game of Thrones',
+                    color: '#B8860B',
+                    tagline: 'When you play the game of thrones, you win or you die',
+                    description: 'Six architects of power from the Seven Kingdoms. From self-made financial empires to dragon-backed conquest, these characters demonstrate that leadership takes many forms \u2014 and the most dangerous weapon is always the mind.',
+                    characters: [
+                        { id: 'tyrion-lannister', name: 'Tyrion Lannister', title: 'Hand of the King & Strategic Advisor', emoji: '\uD83C\uDF77',
+                          desc: 'Two-time Hand of the King. Survived assassination, exile, and trial by combat through intellectual superiority and strategic alliances. The smartest person in every room.' },
+                        { id: 'cersei-lannister', name: 'Cersei Lannister', title: 'Queen of the Seven Kingdoms', emoji: '\uD83D\uDC51',
+                          desc: 'Seized the Iron Throne through strategic elimination of rivals and absolute refusal to accept limitations. Twenty-five years at the highest levels of power.' },
+                        { id: 'daenerys-targaryen', name: 'Daenerys Targaryen', title: 'Queen & Empire Builder', emoji: '\uD83D\uDD25',
+                          desc: 'From stateless refugee to sovereign of the largest military force in the known world. Built an empire from zero assets. The ultimate founder story.' },
+                        { id: 'jon-snow', name: 'Jon Snow', title: 'King in the North & Lord Commander', emoji: '\u2744\uFE0F',
+                          desc: 'Rose from bastard to king through merit alone. United ancient enemies against an existential threat. Chose duty over ambition at every turn.' },
+                        { id: 'petyr-baelish', name: 'Petyr "Littlefinger" Baelish', title: 'Master of Coin & Lord Protector', emoji: '\uD83D\uDD73\uFE0F',
+                          desc: 'The most successful self-made operator in Westeros. Built a financial empire from nothing, then leveraged wealth into political power that toppled kingdoms.' },
+                        { id: 'tywin-lannister', name: 'Tywin Lannister', title: 'Hand of the King & Warden of the West', emoji: '\uD83E\uDD81',
+                          desc: 'The most powerful man in Westeros for four decades. Rebuilt a dynasty, served as Hand for 20 years, and proved that gold wins more wars than swords.' }
+                    ]
                 }
             ];
             
@@ -3336,7 +3356,7 @@
             html += '<div style="text-align:center; margin-bottom:36px;">'
                 + '<h2 style="font-size:2.2em; font-weight:800; color:var(--text-primary); margin-bottom:8px; font-family:Outfit,sans-serif; text-transform:uppercase; letter-spacing:0.08em;">Sample Blueprints</h2>'
                 + '<p style="color:var(--text-secondary); font-size:1.05em; line-height:1.6; max-width:700px; margin:0 auto;">'
-                + 'Famous fictional characters \u2192 real-world career Blueprints. <br>Explore their skills, outcomes, and job matches to see how Blueprint works.'
+                + 'Famous fictional characters \u2192 real-world career Blueprints. <br>24 characters from four iconic TV shows \u2014 explore their skills, job matches, and market values to see Blueprint in action.'
                 + '</p></div>';
             
             // Show selector tabs
@@ -3910,7 +3930,13 @@
             'logan-roy': 95000000,
             'vecna': 12000000,
             'tuco-salamanca': 2100000,
-            'connor-roy': 1200000
+            'connor-roy': 1200000,
+            'tyrion-lannister': 4200000,
+            'cersei-lannister': 28000000,
+            'daenerys-targaryen': 45000000,
+            'jon-snow': 850000,
+            'petyr-baelish': 18000000,
+            'tywin-lannister': 125000000
         };
         
         // Get the effective compensation to display
@@ -5215,6 +5241,72 @@
                     { id: 'sample-low', title: 'Deputy Chief of Mission', company: 'U.S. Embassy Ljubljana',
                       rawText: 'The State Department seeks a Deputy Chief of Mission for the U.S. Embassy in Ljubljana, Slovenia. You will manage embassy operations, coordinate diplomatic programs, represent U.S. interests at government events, and build bilateral relationships. Requires diplomatic experience, cultural sensitivity, stakeholder relationship management, and willingness to represent your country with optimism and persistence.',
                       parsedRoles: ['Diplomacy', 'Government'], seniority: 'Executive', tier: 'low' }
+                ],
+                'tyrion-lannister': [
+                    { id: 'sample-high', title: 'Chief of Staff', company: 'United Nations',
+                      rawText: 'The United Nations seeks a Chief of Staff to the Secretary-General. You will coordinate policy across 193 member states, manage geopolitical crises, advise on strategic decisions, mediate between hostile factions, and ensure institutional continuity during leadership transitions. Requires 15+ years in international diplomacy, multilateral negotiation expertise, crisis management, and the ability to navigate complex organizational politics while maintaining institutional integrity.',
+                      parsedRoles: ['Diplomacy', 'Strategy'], seniority: 'Executive', tier: 'high' },
+                    { id: 'sample-mid', title: 'VP of Government Affairs', company: 'Palantir',
+                      rawText: 'Palantir seeks a VP of Government Affairs to lead political strategy and regulatory engagement across US and international markets. You will build relationships with elected officials, navigate complex regulatory environments, manage crisis communications, and advise leadership on geopolitical risk. Requires exceptional political instincts, stakeholder management, and ability to operate effectively in ambiguous environments.',
+                      parsedRoles: ['Government Affairs', 'Strategy'], seniority: 'Executive', tier: 'mid' },
+                    { id: 'sample-low', title: 'Director of Strategic Advisory', company: 'McKinsey & Company',
+                      rawText: 'McKinsey seeks a Director to lead our Government & Public Sector strategic advisory practice. You will advise heads of state and cabinet ministers on governance reform, institutional design, crisis management, and coalition-building. Requires extensive experience in political strategy, public administration, organizational transformation, and the ability to deliver difficult truths to powerful clients.',
+                      parsedRoles: ['Consulting', 'Public Sector'], seniority: 'Executive', tier: 'low' }
+                ],
+                'cersei-lannister': [
+                    { id: 'sample-high', title: 'CEO', company: 'Lockheed Martin',
+                      rawText: 'Lockheed Martin seeks a CEO to lead our $67B defense and aerospace enterprise. You will set corporate strategy, manage government relationships, oversee global operations spanning 100,000 employees, navigate regulatory compliance, and drive shareholder value. Requires executive leadership in defense/government sectors, board management experience, crisis decision-making, and the ability to maintain institutional authority under extreme pressure.',
+                      parsedRoles: ['CEO', 'Defense'], seniority: 'C-Suite', tier: 'high' },
+                    { id: 'sample-mid', title: 'Managing Director, Hostile M&A', company: 'Goldman Sachs',
+                      rawText: 'Goldman Sachs seeks a Managing Director to lead our hostile M&A advisory practice. You will advise corporations on hostile takeover strategy, proxy fights, poison pill defenses, and activist investor campaigns. Requires deep expertise in corporate governance, competitive intelligence, regulatory navigation, and the strategic ruthlessness to execute high-stakes transactions.',
+                      parsedRoles: ['Investment Banking', 'M&A'], seniority: 'Executive', tier: 'mid' },
+                    { id: 'sample-low', title: 'Chief Political Strategist', company: 'National Political Campaign',
+                      rawText: 'Seeking a Chief Political Strategist for a national presidential campaign. You will develop campaign strategy, manage opposition research, coordinate media operations, build coalition alliances, and make real-time tactical decisions under extreme pressure. Requires political instincts, media manipulation expertise, competitive intelligence, and willingness to do whatever it takes to win.',
+                      parsedRoles: ['Political Strategy', 'Campaign'], seniority: 'Executive', tier: 'low' }
+                ],
+                'daenerys-targaryen': [
+                    { id: 'sample-high', title: 'CEO & Founder', company: 'Global Liberation NGO',
+                      rawText: 'Seeking a visionary founder-CEO to build and scale an international human rights and liberation organization from the ground up. You will recruit and lead a multinational team, build coalition partnerships with governments and NGOs, raise $500M+ in funding, design operations across conflict zones, and serve as the public face of a global movement. Requires transformational leadership, multilingual capability, resilience under extreme conditions, and the ability to inspire millions.',
+                      parsedRoles: ['CEO', 'Nonprofit'], seniority: 'C-Suite', tier: 'high' },
+                    { id: 'sample-mid', title: 'Deputy Secretary-General', company: 'United Nations',
+                      rawText: 'The United Nations seeks a Deputy Secretary-General to lead peacekeeping, humanitarian, and development operations across 50+ countries. You will manage 100,000+ personnel, coordinate with member state militaries, oversee $15B annual budget, and build consensus among competing geopolitical interests. Requires military coalition leadership, crisis management, cross-cultural communication, and the ability to scale operations from startup to continental.',
+                      parsedRoles: ['International Affairs', 'Leadership'], seniority: 'C-Suite', tier: 'mid' },
+                    { id: 'sample-low', title: 'Chief Impact Officer', company: 'Open Society Foundations',
+                      rawText: 'Open Society Foundations seeks a Chief Impact Officer to lead global programs promoting democracy, human rights, and social justice. You will oversee $1.5B in annual grants, build partnerships with liberation movements worldwide, measure social impact, and inspire a network of change-makers. Requires vision for systemic change, coalition-building, brand leadership, and lived experience overcoming institutional oppression.',
+                      parsedRoles: ['Social Impact', 'Foundation'], seniority: 'C-Suite', tier: 'low' }
+                ],
+                'jon-snow': [
+                    { id: 'sample-high', title: 'Director of Emergency Operations', company: 'FEMA',
+                      rawText: 'FEMA seeks a Director of Emergency Operations to lead national disaster response. You will command multi-agency task forces during catastrophic events, coordinate military and civilian response teams, make life-or-death decisions under extreme time pressure, and build resilience programs. Requires military command experience, crisis leadership, coalition-building across hostile factions, and unwavering ethical leadership.',
+                      parsedRoles: ['Emergency Management', 'Leadership'], seniority: 'Executive', tier: 'high' },
+                    { id: 'sample-mid', title: 'VP of Security Operations', company: 'International Committee of the Red Cross',
+                      rawText: 'The ICRC seeks a VP of Security Operations to lead humanitarian protection in conflict zones worldwide. You will manage field security teams, negotiate with armed groups, coordinate with military forces, and ensure the safety of aid workers operating in hostile environments. Requires military leadership background, cross-cultural negotiation, survival operations, and the moral courage to enter places others flee.',
+                      parsedRoles: ['Security', 'Humanitarian'], seniority: 'Executive', tier: 'mid' },
+                    { id: 'sample-low', title: 'Park Superintendent', company: 'National Park Service — Denali',
+                      rawText: 'The National Park Service seeks a Superintendent for Denali National Park. You will manage 6 million acres of wilderness, lead search-and-rescue operations, coordinate wildlife conservation, supervise 200+ rangers, and protect both visitors and natural resources in extreme conditions. Requires wilderness leadership, team command, environmental stewardship, and comfort operating in extreme cold and remote terrain.',
+                      parsedRoles: ['Conservation', 'Operations'], seniority: 'Senior', tier: 'low' }
+                ],
+                'petyr-baelish': [
+                    { id: 'sample-high', title: 'Managing Partner', company: 'Bridgewater Associates',
+                      rawText: 'Bridgewater Associates seeks a Managing Partner to lead our macro investment strategy. You will manage $150B in assets, develop geopolitical risk models, build client relationships with sovereign wealth funds, and make high-conviction bets on global macro trends. Requires exceptional financial engineering, political intelligence networks, risk management, and the ability to see opportunities where others see chaos.',
+                      parsedRoles: ['Finance', 'Investment'], seniority: 'C-Suite', tier: 'high' },
+                    { id: 'sample-mid', title: 'Chief Strategy Officer', company: 'The Blackstone Group',
+                      rawText: 'Blackstone seeks a Chief Strategy Officer to identify and execute transformative deals across private equity, real estate, and credit. You will build relationships with target companies, structure complex transactions, navigate regulatory environments, and advise senior leadership on market positioning. Requires deal-making instincts, network building, financial engineering, and the ability to find value where others cannot.',
+                      parsedRoles: ['Private Equity', 'Strategy'], seniority: 'C-Suite', tier: 'mid' },
+                    { id: 'sample-low', title: 'Director of Political Intelligence', company: 'Eurasia Group',
+                      rawText: 'Eurasia Group seeks a Director of Political Intelligence to lead analysis of geopolitical risk for institutional clients. You will assess political instability, forecast regime changes, advise hedge funds and corporations on geopolitical exposure, and build intelligence networks across emerging markets. Requires political science expertise, intelligence analysis, client relationship management, and the ability to monetize information.',
+                      parsedRoles: ['Intelligence', 'Consulting'], seniority: 'Executive', tier: 'low' }
+                ],
+                'tywin-lannister': [
+                    { id: 'sample-high', title: 'Chairman & CEO', company: 'Berkshire Hathaway',
+                      rawText: 'Berkshire Hathaway seeks a Chairman & CEO to lead our $900B conglomerate. You will oversee a portfolio of 60+ operating companies, make strategic acquisition decisions, manage relationships with institutional investors, build organizational culture, and ensure multi-generational continuity of the enterprise. Requires 30+ years of executive leadership, proven empire-building track record, financial management at scale, and the ability to command respect through demonstrated competence.',
+                      parsedRoles: ['CEO', 'Conglomerate'], seniority: 'C-Suite', tier: 'high' },
+                    { id: 'sample-mid', title: 'Secretary of Defense', company: 'United States Government',
+                      rawText: 'The President seeks a Secretary of Defense to lead the Department of Defense — the world\'s largest employer with 3.4M personnel and a $850B annual budget. You will advise on military strategy, manage inter-service coordination, oversee defense procurement, maintain alliance relationships, and make decisions affecting global security. Requires military or defense leadership, strategic planning, organizational management at massive scale, and absolute decisiveness under pressure.',
+                      parsedRoles: ['Defense', 'Government'], seniority: 'C-Suite', tier: 'mid' },
+                    { id: 'sample-low', title: 'Executive Chairman', company: 'JPMorgan Chase',
+                      rawText: 'JPMorgan Chase seeks an Executive Chairman to provide strategic oversight of the world\'s largest bank by market capitalization. You will guide long-term corporate strategy, manage board governance, oversee succession planning, maintain regulatory relationships, and protect institutional reputation. Requires decades of financial sector leadership, crisis management expertise, political navigation, and a track record of building lasting institutional power.',
+                      parsedRoles: ['Banking', 'Governance'], seniority: 'C-Suite', tier: 'low' }
                 ]
             };
             
@@ -22099,7 +22191,7 @@ body {
                     // 13. Samples — the viral hook
                     {
                         title: 'See It In Action: Famous Characters, Real Blueprints',
-                        desc: 'We mapped <strong>18 iconic TV characters</strong> from Breaking Bad, Stranger Things, and Succession \u2014 complete with skills, job matches, and market values. Walter White\u2019s 37 skills? $3.2M market value. Gus Fring\u2019s operational empire? $4.5M. Explore them all.',
+                        desc: 'We mapped <strong>24 iconic TV characters</strong> from Breaking Bad, Stranger Things, Succession, and Game of Thrones \u2014 complete with skills, job matches, and market values. Tyrion\u2019s strategic genius? $4.2M. Tywin\u2019s empire? $125M. Explore them all.',
                         badge: 'Samples',
                         target: '#nav-samples',
                         spotlightPad: 4,
@@ -22217,13 +22309,13 @@ body {
                 return [
                     {
                         title: 'Famous Characters. Real Blueprints.',
-                        desc: '<strong>18 iconic TV characters</strong> from Breaking Bad, Stranger Things, and Succession \u2014 each with a complete career Blueprint. Skills, values, job matches, market values. Walter White: $3.2M. Logan Roy: $95M.',
+                        desc: '<strong>24 iconic TV characters</strong> from Breaking Bad, Stranger Things, Succession, and Game of Thrones \u2014 each with a complete career Blueprint. Skills, values, job matches, market values. Tyrion Lannister: $4.2M. Tywin Lannister: $125M.',
                         badge: 'Samples', target: null,
                         beforeShow: function() { viewSampleProfile(); }, delay: 600
                     },
                     {
-                        title: 'Three Shows. Six Characters Each.',
-                        desc: 'Tap the show tabs to browse collections. <strong style="color:#22c55e;">Breaking Bad</strong> \u2014 chemists to cartel bosses. <strong style="color:#ef4444;">Stranger Things</strong> \u2014 small-town heroes. <strong style="color:#c4a035;">Succession</strong> \u2014 corporate royalty.',
+                        title: 'Four Shows. Six Characters Each.',
+                        desc: 'Tap the show tabs to browse collections. <strong style="color:#22c55e;">Breaking Bad</strong> \u2014 chemists to cartel bosses. <strong style="color:#ef4444;">Stranger Things</strong> \u2014 small-town heroes. <strong style="color:#c4a035;">Succession</strong> \u2014 corporate royalty. <strong style="color:#B8860B;">Game of Thrones</strong> \u2014 architects of power.',
                         badge: 'Samples', target: null
                     },
                     {
