@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.32.0.4 | 20260222 | Collapsible overlays, filter removed, match-to-network loading fix -->
+    <!-- v4.32.0.5 | 20260222 | Scouting report CTAs everywhere, help sample viewer, blind tip -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -892,8 +892,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.32.0.4 - BUILD 20260222-collapsible-filter-loading
-        var BP_VERSION = 'v4.32.0.4';
+        // BLUEPRINT v4.32.0.5 - BUILD 20260222-scout-ctas-help-blind
+        var BP_VERSION = 'v4.32.0.5';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -7932,6 +7932,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + '<button class="ml-action-btn" style="color:var(--accent); border-color:rgba(96,165,250,0.3);" '
                 + 'onclick="var idx=findJobIdx(); clearJobOverlay(); switchView(\'opportunities\'); setTimeout(function(){showJobDetail(idx);},200);">View Details</button>'
                 + '</div>'
+                + '<button class="ml-scout-btn" onclick="launchScoutingReport()">'
+                + bpIcon('file-text',14) + ' Create Scouting Report'
+                + '</button>'
                 + '</div>'; // close ml-body
             
             var container = document.getElementById('networkView').parentElement;
@@ -12586,6 +12589,48 @@ body {
         }
         window.showScoutingReportPicker = showScoutingReportPicker;
         
+        // Shortcut used by match legend, job cards, and job detail CTAs
+        function launchScoutingReport() {
+            showScoutingReportPicker();
+        }
+        window.launchScoutingReport = launchScoutingReport;
+        
+        // Open sample scouting report in an iframe overlay
+        function openSampleScoutingReport() {
+            var existing = document.getElementById('scoutReportOverlay');
+            if (existing) existing.remove();
+            
+            var overlay = document.createElement('div');
+            overlay.id = 'scoutReportOverlay';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px;';
+            
+            var container = document.createElement('div');
+            container.style.cssText = 'width:100%;max-width:1200px;height:90vh;background:var(--bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.5);display:flex;flex-direction:column;';
+            
+            var header = document.createElement('div');
+            header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--elev-1);flex-shrink:0;';
+            header.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="color:var(--accent);">' + bpIcon('target',18) + '</span><span style="font-weight:600;font-size:0.92em;">Sample Scouting Report</span><span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(245,158,11,0.1);color:#f59e0b;font-weight:600;">DEMO</span></div>'
+                + '<button onclick="document.getElementById(\'scoutReportOverlay\').remove()" style="background:none;border:none;color:var(--text-muted);font-size:1.3em;cursor:pointer;padding:4px 8px;border-radius:6px;transition:all 0.2s;" onmouseover="this.style.color=\'var(--accent)\'" onmouseout="this.style.color=\'var(--text-muted)\'">✕</button>';
+            
+            var iframe = document.createElement('iframe');
+            iframe.src = 'scouting-report.html';
+            iframe.style.cssText = 'flex:1;width:100%;border:none;background:var(--bg);';
+            
+            container.appendChild(header);
+            container.appendChild(iframe);
+            overlay.appendChild(container);
+            document.body.appendChild(overlay);
+            
+            // Close on background click
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) overlay.remove();
+            });
+            // Close on Escape
+            var escHandler = function(e) { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); }};
+            document.addEventListener('keydown', escHandler);
+        }
+        window.openSampleScoutingReport = openSampleScoutingReport;
+        
         function generateScoutingReport(jobIdx) {
             var job = (userData.savedJobs || [])[jobIdx];
             if (!job) { showToast('Job not found.', 'error'); return; }
@@ -14941,6 +14986,17 @@ body {
                         + '</div>';
                 }
                 
+                // Scouting Report CTA
+                html += '<div onclick="event.stopPropagation(); launchScoutingReport()" style="'
+                    + 'margin-top:10px; padding:8px 14px; border-radius:8px; '
+                    + 'background:linear-gradient(135deg, rgba(96,165,250,0.08), rgba(99,102,241,0.05)); '
+                    + 'border:1px solid rgba(96,165,250,0.15); cursor:pointer; display:flex; align-items:center; '
+                    + 'gap:8px; font-size:0.8em; font-weight:600; color:var(--accent); transition:all 0.2s;" '
+                    + 'onmouseover="this.style.borderColor=\'rgba(96,165,250,0.4)\';this.style.background=\'rgba(96,165,250,0.12)\'" '
+                    + 'onmouseout="this.style.borderColor=\'rgba(96,165,250,0.15)\';this.style.background=\'linear-gradient(135deg, rgba(96,165,250,0.08), rgba(99,102,241,0.05))\'">'
+                    + bpIcon('file-text',14) + ' Create Scouting Report'
+                    + '</div>';
+                
                 html += '</div>';
             });
             
@@ -16237,6 +16293,10 @@ body {
                 + 'background:transparent; color:#f59e0b; border:1px solid rgba(245,158,11,0.4); padding:10px 20px; border-radius:8px; '
                 + 'cursor:pointer; font-weight:600; font-size:0.9em; display:flex; align-items:center; gap:8px; white-space:nowrap;">'
                 + bpIcon('values',16) + ' Values Fit</button>'
+                + '<button onclick="launchScoutingReport()" style="'
+                + 'background:linear-gradient(135deg, rgba(96,165,250,0.15), rgba(99,102,241,0.1)); color:var(--accent); border:1px solid rgba(96,165,250,0.3); padding:10px 20px; border-radius:8px; '
+                + 'cursor:pointer; font-weight:600; font-size:0.9em; display:flex; align-items:center; gap:8px; white-space:nowrap;">'
+                + bpIcon('file-text',16) + ' Scouting Report</button>'
                 + '</div>'
                 + '<div class="jd-cta-desc">Compare your skills and values against this role and company culture.</div>'
                 + '</div>';
@@ -21558,6 +21618,25 @@ body {
                             <div>
                                 <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Blueprint Tab</div>
                                 <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">Your source of truth. See your market valuation, manage outcomes, choose values, and write your purpose statement. Export as a resume or personalized page to share with recruiters.</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 15px; align-items: start;">
+                            <div style="min-width: 40px;">${bpIcon("target",28)}</div>
+                            <div>
+                                <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Scouting Reports</div>
+                                <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">Your premium career intelligence artifact. Each scouting report is a standalone, shareable document built for a specific job — including interactive skill/value networks, match analysis, gap bridging, verified credentials, and blind mode for bias-free evaluation.</div>
+                                <div style="margin-top:10px; padding:12px 14px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:8px;">
+                                    <div style="font-size:0.82em; color:#60a5fa; font-weight:700; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">How to Create</div>
+                                    <div style="display:grid; gap:6px; font-size:0.88em; color:#d1d5db;">
+                                        <div><strong style="color:#f59e0b;">From any job card</strong> in your Pipeline — tap "Create Scouting Report"</div>
+                                        <div><strong style="color:#f59e0b;">From Job Detail</strong> — the Scouting Report button sits alongside Compare Skills and Values Fit</div>
+                                        <div><strong style="color:#f59e0b;">From Match Overlay</strong> — after comparing skills, create the report right from the match legend</div>
+                                        <div><strong style="color:#f59e0b;">From Blueprint Tab</strong> — Export → Scouting Report card</div>
+                                    </div>
+                                </div>
+                                <button onclick="closeExportModal(); openSampleScoutingReport()" style="margin-top:12px; padding:10px 20px; border-radius:8px; border:1px solid rgba(96,165,250,0.3); background:linear-gradient(135deg, rgba(96,165,250,0.1), rgba(99,102,241,0.06)); color:#60a5fa; font-weight:600; font-size:0.88em; cursor:pointer; display:flex; align-items:center; gap:8px;">
+                                    ${bpIcon("file-text",16)} View Sample Scouting Report
+                                </button>
                             </div>
                         </div>
                         <div style="display: flex; gap: 15px; align-items: start;">

@@ -2463,6 +2463,29 @@
         .ml-action-btn:hover { background: rgba(255,255,255,0.06); }
         [data-theme="light"] .ml-action-btn { border-color: rgba(0,0,0,0.1); }
         [data-theme="light"] .ml-action-btn:hover { background: rgba(0,0,0,0.04); }
+
+        .ml-scout-btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(96,165,250,0.2);
+            background: linear-gradient(135deg, rgba(96,165,250,0.08), rgba(99,102,241,0.05));
+            color: var(--accent);
+            font-family: var(--font-main);
+            font-size: 0.82em;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .ml-scout-btn:hover {
+            border-color: rgba(96,165,250,0.4);
+            background: rgba(96,165,250,0.12);
+        }
         
         /* ---- VALUES ALIGNMENT PANEL ---- */
         .values-alignment-panel {
