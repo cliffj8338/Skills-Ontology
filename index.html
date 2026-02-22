@@ -7329,14 +7329,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (safeGet('networkHintDismissed') === 'true') return;
             if (document.getElementById('networkHintOverlay')) return;
 
-            var container = document.getElementById('networkView');
-            if (!container) return;
-            container.parentElement.style.position = 'relative';
-
             var hint = document.createElement('div');
             hint.id = 'networkHintOverlay';
-            hint.style.cssText = 'position:absolute; bottom:20px; left:50%; transform:translateX(-50%); '
-                + 'max-width:420px; width:calc(100% - 32px); z-index:20; '
+            hint.style.cssText = 'position:fixed; bottom:20px; left:50%; transform:translateX(-50%); '
+                + 'max-width:420px; width:calc(100% - 32px); z-index:200; '
                 + 'background:rgba(15,23,42,0.92); backdrop-filter:blur(12px); '
                 + 'border:1px solid rgba(96,165,250,0.3); border-radius:12px; '
                 + 'padding:16px 18px; box-shadow:0 8px 32px rgba(0,0,0,0.4);';
@@ -7355,7 +7351,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + '<button onclick="dismissNetworkHint()" style="background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.3); color:#60a5fa; padding:5px 14px; border-radius:6px; cursor:pointer; font-size:0.78em; font-weight:600;">Got it</button>'
                 + '</div>';
 
-            container.parentElement.appendChild(hint);
+            document.body.appendChild(hint);
         }
 
         function dismissNetworkHint() {
@@ -8760,30 +8756,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     setTimeout(function() { splash.remove(); }, 400);
                 }, 300);
             }
-            // Demo mode: floating "aha moment" nudge after 2 minutes
-            if (appMode === 'demo' || appMode === 'waitlisted') {
-                setTimeout(function() {
-                    if (appMode === 'active' || appMode === 'invited') return; // User signed up meanwhile
-                    var nudge = document.createElement('div');
-                    nudge.id = 'ahaNudge';
-                    nudge.style.cssText = 'position:fixed; bottom:24px; right:24px; z-index:9000; '
-                        + 'background:var(--c-bg-solid); border:1px solid var(--accent); border-radius:14px; '
-                        + 'padding:18px 22px; max-width:320px; box-shadow:0 12px 40px rgba(0,0,0,0.4); '
-                        + 'animation: nudgeIn 0.4s ease; font-size:0.88em;';
-                    nudge.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:8px;">'
-                        + '<div style="font-weight:700; color:var(--accent);">\u25C8 Imagine your skills here</div>'
-                        + '<button onclick="this.closest(\'#ahaNudge\').remove();" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.1em; padding:0 0 0 10px;">\u00D7</button>'
-                        + '</div>'
-                        + '<div style="color:var(--text-secondary); line-height:1.5; margin-bottom:12px;">'
-                        + 'You\u2019re exploring a sample Blueprint. Your portfolio could have <strong>150\u2013300 skills</strong> you don\u2019t even know about yet.</div>'
-                        + '<button onclick="this.closest(\'#ahaNudge\').remove(); showWaitlist();" '
-                        + 'style="padding:8px 20px; border-radius:8px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; font-size:0.9em;">'
-                        + 'Map Your Blueprint</button>';
-                    document.body.appendChild(nudge);
-                    // Auto-dismiss after 20 seconds
-                    setTimeout(function() { var n = document.getElementById('ahaNudge'); if (n) n.remove(); }, 20000);
-                }, 120000); // 2 minutes
-            }
         }); // Close DOMContentLoaded
         
         var _skipHistoryPush = false;
@@ -8864,6 +8836,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (adminV) adminV.style.display = 'none';
             networkControls.style.display = 'none';
             controls.style.display = 'none';
+            // Remove floating network hint if leaving Skills view
+            var netHint = document.getElementById('networkHintOverlay');
+            if (netHint && view !== 'network') netHint.remove();
             
             // Toggle readonly banner: hide on non-profile views, show on profile views when viewing a sample
             var roBanner = document.getElementById('readonlyBanner');
@@ -8914,6 +8889,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         initNetwork();
                         window.networkInitialized = true;
                     }
+                    // Show interaction hint on first visit
+                    showNetworkHint();
                     // Restore match overlay UI if a job is active
                     if (activeJobForNetwork) {
                         updateMatchOverlayUI();
