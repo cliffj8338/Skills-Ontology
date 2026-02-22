@@ -1137,15 +1137,19 @@
                 showToast('Authentication service unavailable. Try refreshing.', 'error');
                 return;
             }
+            
+            // Redirect all signup attempts to waitlist
+            if (mode === 'signup') {
+                showWaitlist();
+                return;
+            }
+            
             var overlay = document.getElementById('authOverlay');
             var content = document.getElementById('authModalContent');
             if (!overlay || !content) return;
             
-            mode = mode || 'signin';
-            var isSignUp = mode === 'signup';
-            
-            content.innerHTML = '<h2>' + (isSignUp ? 'Create Account' : 'Sign In') + '</h2>'
-                + '<div class="auth-subtitle">' + (isSignUp ? 'Build and save your Blueprint' : 'Welcome back') + '</div>'
+            content.innerHTML = '<h2>Sign In</h2>'
+                + '<div class="auth-subtitle">Welcome back</div>'
                 
                 // Google Sign-In
                 + '<button class="auth-btn auth-btn-google" onclick="authWithGoogle()" style="margin-bottom:10px;">'
@@ -1158,23 +1162,20 @@
                 + '<div class="auth-error" id="authError"></div>'
                 + '<div class="auth-success" id="authSuccess"></div>'
                 
-                // Email form
-                + (isSignUp ? '<input class="auth-input" id="authName" type="text" placeholder="Full name" />' : '')
+                // Email form (sign-in only)
                 + '<input class="auth-input" id="authEmail" type="email" placeholder="Email address" />'
                 + '<input class="auth-input" id="authPassword" type="password" placeholder="Password" '
-                + 'onkeydown="if(event.key===\'Enter\'){' + (isSignUp ? 'authEmailSignUp()' : 'authEmailSignIn()') + '}" />'
+                + 'onkeydown="if(event.key===\'Enter\'){authEmailSignIn()}" />'
                 
-                + '<button class="auth-btn auth-btn-primary" onclick="' + (isSignUp ? 'authEmailSignUp()' : 'authEmailSignIn()') + '" style="margin-bottom:10px;">'
-                + (isSignUp ? 'Create Account' : 'Sign In') + '</button>'
+                + '<button class="auth-btn auth-btn-primary" onclick="authEmailSignIn()" style="margin-bottom:10px;">'
+                + 'Sign In</button>'
                 
                 // Magic link
                 + '<button class="auth-btn auth-btn-magic" onclick="authSendMagicLink()">Send me a sign-in link instead</button>'
                 
-                // Toggle
+                // Redirect to waitlist instead of signup
                 + '<div class="auth-toggle">'
-                + (isSignUp
-                    ? 'Already have an account? <a onclick="showAuthModal(\'signin\')">Sign in</a>'
-                    : 'Don\'t have an account? <a onclick="showAuthModal(\'signup\')">Create one</a>')
+                + 'Don\'t have an account? <a onclick="closeAuthModal(); showWaitlist();">Join the waitlist</a>'
                 + '</div>';
             
             overlay.classList.add('active');
@@ -2639,7 +2640,7 @@
                     // Demo visitor (not signed in)
                     bannerHTML = '\uD83D\uDD12 <strong>Viewing: ' + profileName + '</strong> \u00B7 Sample profile. '
                         + '<a href="#" onclick="event.preventDefault(); showWaitlist();" style="color:inherit; text-decoration:underline; font-weight:700;">Join the waitlist</a> for early access '
-                        + 'or <a href="#" onclick="event.preventDefault(); showAuthModal(\'signup\');" style="color:inherit; text-decoration:underline;">sign in</a>.';
+                        + 'or <a href="#" onclick="event.preventDefault(); showAuthModal(\'signin\');" style="color:inherit; text-decoration:underline;">sign in</a>.';
                 }
                 
                 banner.innerHTML = bannerHTML;
