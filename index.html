@@ -13227,10 +13227,10 @@ body {
                 },
                 workHistory: (userData.workHistory || []).slice(0, 5).map(function(w) {
                     var dates = w.dates || w.years || '';
-                    if (!dates && (w.startDate || w.endDate)) {
-                        var start = w.startDate ? w.startDate.split('-')[0] : '';
-                        var end = w.endDate === 'Present' ? 'Present' : (w.endDate ? w.endDate.split('-')[0] : '');
-                        dates = [start, end].filter(Boolean).join('-');
+                    if (!dates) {
+                        var start = w.startYear || (w.startDate ? w.startDate.split('-')[0] : '');
+                        var end = w.current ? 'Present' : (w.endYear || (w.endDate === 'Present' ? 'Present' : (w.endDate ? w.endDate.split('-')[0] : '')));
+                        if (start || end) dates = [start, end].filter(Boolean).join('-');
                     }
                     return { title: w.title || w.role || '', company: w.company || w.organization || '', dates: dates, description: w.description || '' };
                 }),
