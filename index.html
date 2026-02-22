@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.29.0.0 | 20260221 | Game of Thrones profiles + expanded tour + hero copy + mobile nav -->
+    <!-- v4.30.0.0 | 20260222 | About + Help modals, GoT values + job calibration, skill dedup fix, Succession color -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -892,8 +892,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.29.0.0 - BUILD 20260221-got-profiles
-        var BP_VERSION = 'v4.29.0.0';
+        // BLUEPRINT v4.30.0.0 - BUILD 20260222-about-help-values
+        var BP_VERSION = 'v4.30.0.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -21491,8 +21491,18 @@ body {
                         <div style="display: flex; gap: 15px; align-items: start;">
                             <div style="min-width: 40px;">${bpIcon("compass",28)}</div>
                             <div>
-                                <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Skills Tab</div>
-                                <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">View your full skill network as an interactive graph or card view. Click any skill to see your evidence and outcomes. Use the role and level filters to explore different facets of your profile.</div>
+                                <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Skills Network</div>
+                                <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">Your interactive skill constellation. Every node is a skill; every cluster is a professional domain.</div>
+                                <div style="margin-top:10px; padding:12px 14px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:8px;">
+                                    <div style="font-size:0.82em; color:#60a5fa; font-weight:700; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">Network Controls</div>
+                                    <div style="display:grid; gap:6px; font-size:0.88em; color:#d1d5db;">
+                                        <div><strong style="color:#f59e0b;">Drag</strong> any node to rearrange the layout — the network remembers where you put things</div>
+                                        <div><strong style="color:#f59e0b;">Hover</strong> over a skill to highlight its connections and see which domains it bridges</div>
+                                        <div><strong style="color:#f59e0b;">Click a skill</strong> to open its detail card with evidence, proficiency level, and role assignments</div>
+                                        <div><strong style="color:#f59e0b;">Click a domain</strong> (large node) to filter the network to just that role cluster</div>
+                                        <div><strong style="color:#f59e0b;">Match Overlay</strong> — select a job from the Pipeline, then return to Skills. Four overlay modes light up: <em>You · Job · Match · Values</em></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div style="display: flex; gap: 15px; align-items: start;">
@@ -21503,17 +21513,10 @@ body {
                             </div>
                         </div>
                         <div style="display: flex; gap: 15px; align-items: start;">
-                            <div style="font-size: 2em; min-width: 40px;">${bpIcon("clipboard",14)}</div>
-                            <div>
-                                <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Applications Tab</div>
-                                <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">Track every role you've applied to. Log status, salary targets, contacts and notes. Keep your job search organized in one place.</div>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 15px; align-items: start;">
-                            <div style="font-size: 2em; min-width: 40px;">${bpIcon("bar-chart",14)}</div>
+                            <div style="min-width: 40px;">${bpIcon("bar-chart",28)}</div>
                             <div>
                                 <div style="color: #60a5fa; font-weight: 600; margin-bottom: 5px;">Blueprint Tab</div>
-                                <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">See your market valuation, manage your outcomes, choose your values, and write your purpose statement. This is your source of truth. Export as a resume or personalized page to share with recruiters.</div>
+                                <div style="color: #d1d5db; font-size: 0.95em; line-height: 1.6;">Your source of truth. See your market valuation, manage outcomes, choose values, and write your purpose statement. Export as a resume or personalized page to share with recruiters.</div>
                             </div>
                         </div>
                         <div style="display: flex; gap: 15px; align-items: start;">
@@ -21535,41 +21538,43 @@ body {
             modalContent.innerHTML = `
                 <div class="modal-header">
                     <div class="modal-header-left">
-                        <h2 class="modal-title">Blueprint</h2>
-                        <p style="color: #9ca3af; margin-top: 5px;">${BP_VERSION} · Your career, fully represented</p>
+                        <h2 class="modal-title">The Resume is Dead. Here is Your Blueprint.\u2122</h2>
+                        <p style="color: #9ca3af; margin-top: 5px;">${BP_VERSION} \u00B7 Your career, fully represented.</p>
                     </div>
-                    <button class="modal-close" onclick="closeExportModal()">×</button>
+                    <button class="modal-close" onclick="closeExportModal()">\u00D7</button>
                 </div>
                 <div class="modal-body" style="padding: 30px;">
                     <p style="color: #d1d5db; line-height: 1.8; margin-bottom: 20px;">
-                        Most people underrepresent themselves when applying for work — not because they lack ability, 
-                        but because they lack the tools to articulate it. Blueprint changes that.
+                        Most professionals are forced to collapse their life\u2019s work into a flat, one-dimensional document 
+                        that barely scratches the surface of their true capability. You don\u2019t underrepresent yourself because 
+                        you lack ability\u2014you do it because the enterprise owns the systems of evaluation.
                     </p>
-                    <p style="color: #d1d5db; line-height: 1.8; margin-bottom: 20px;">
-                        This tool guides you through fully discovering and documenting your skills, evidence, outcomes, 
-                        values and purpose — then shows you what that profile is worth in the market. Export it as a 
-                        traditional resume for ATS systems, or as a personalized interactive page for the humans 
-                        making the actual hiring decision.
+                    <p style="color: #d1d5db; line-height: 1.8; margin-bottom: 28px;">
+                        Blueprint changes that. This is your counter-intelligence suite. By mapping the hidden architecture 
+                        of your skills, proficiency levels, and values against the world\u2019s largest skill ontologies, Blueprint 
+                        gives you the same high-fidelity data that employers use. It moves you from a passive applicant to an 
+                        informed operator, giving you the radical clarity and evidence you need to own every career conversation 
+                        and negotiate your true market value.
                     </p>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
                         <div style="background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.3); border-radius: 8px; padding: 15px;">
-                            <div style="color: #60a5fa; font-weight: 600; margin-bottom: 8px;">${bpIcon("compass",14)} Skills Ontology</div>
-                            <div style="color: #9ca3af; font-size: 0.9em;">Map your full skill landscape — O*NET standard skills, abilities, work styles, and unique differentiators.</div>
+                            <div style="color: #60a5fa; font-weight: 700; margin-bottom: 4px;">${bpIcon("compass",14)} Decode Your Expertise</div>
+                            <div style="color: #9ca3af; font-size: 0.9em; line-height:1.6;">Surface the latent skills and differentiators that standard resumes ignore.</div>
                         </div>
                         <div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 15px;">
-                            <div style="color: #10b981; font-weight: 600; margin-bottom: 8px;">${bpIcon("dollar",14)} Market Valuation</div>
-                            <div style="color: #9ca3af; font-size: 0.9em;">See what your specific skill portfolio is worth — with negotiation ranges, not just a single number.</div>
+                            <div style="color: #10b981; font-weight: 700; margin-bottom: 4px;">${bpIcon("dollar",14)} Negotiate with Intelligence</div>
+                            <div style="color: #9ca3af; font-size: 0.9em; line-height:1.6;">Access real-world market ranges to know your worth before you walk into the room.</div>
                         </div>
                         <div style="background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); border-radius: 8px; padding: 15px;">
-                            <div style="color: #fbbf24; font-weight: 600; margin-bottom: 8px;">${bpIcon("bar-chart",14)} Blueprint</div>
-                            <div style="color: #9ca3af; font-size: 0.9em;">Build your complete professional narrative — outcomes, values, purpose — with full control over what you share.</div>
+                            <div style="color: #fbbf24; font-weight: 700; margin-bottom: 4px;">${bpIcon("bar-chart",14)} Own Your Narrative</div>
+                            <div style="color: #9ca3af; font-size: 0.9em; line-height:1.6;">A complete system for documenting outcomes, values, and purpose\u2014on your terms.</div>
                         </div>
                         <div style="background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); border-radius: 8px; padding: 15px;">
-                            <div style="color: #a78bfa; font-weight: 600; margin-bottom: 8px;">${bpIcon("external",14)} Personalized Outreach</div>
-                            <div style="color: #9ca3af; font-size: 0.9em;">Generate a company-specific page and recruiter email — one link that tells your story their way.</div>
+                            <div style="color: #a78bfa; font-weight: 700; margin-bottom: 4px;">${bpIcon("external",14)} Bridge the Gap</div>
+                            <div style="color: #9ca3af; font-size: 0.9em; line-height:1.6;">Connect your architecture directly to the role with interactive, human-centric storytelling.</div>
                         </div>
                     </div>
-                    <p style="color: #6b7280; font-size: 0.85em; text-align: center;">Free to explore · Sign in to save your profile · Your data stays yours</p>
+                    <p style="color: #6b7280; font-size: 0.85em; text-align: center; line-height:1.6;">Free for the individual. No corporate fluff. Your data stays yours.</p>
                 </div>
             `;
             history.pushState({ modal: true }, ''); modal.classList.add('active');
