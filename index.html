@@ -13226,7 +13226,13 @@ body {
                     blindTitle: (profile.currentTitle || 'Professional').replace(/[\w]+\s+(Inc|Corp|LLC|Ltd|Co)\.?/gi, '')
                 },
                 workHistory: (userData.workHistory || []).slice(0, 5).map(function(w) {
-                    return { title: w.title || w.role || '', company: w.company || w.organization || '', dates: w.dates || w.years || '', description: w.description || '' };
+                    var dates = w.dates || w.years || '';
+                    if (!dates && (w.startDate || w.endDate)) {
+                        var start = w.startDate ? w.startDate.split('-')[0] : '';
+                        var end = w.endDate === 'Present' ? 'Present' : (w.endDate ? w.endDate.split('-')[0] : '');
+                        dates = [start, end].filter(Boolean).join('-');
+                    }
+                    return { title: w.title || w.role || '', company: w.company || w.organization || '', dates: dates, description: w.description || '' };
                 }),
                 job: { title: job.title || 'Untitled Position', company: job.company || 'Undisclosed', date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) },
                 match: { percentage: matchData.score || 0, narrative: narrative },
