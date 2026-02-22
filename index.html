@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.35.1.0 | 20260222 | Scouting Report PDF redesign + values network alignment fix -->
+    <!-- v4.35.2.0 | 20260222 | PDF scouting report: exact HTML replica layout -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -960,8 +960,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.35.1.0 - BUILD 20260222-scouting-pdf-values-fix
-        var BP_VERSION = 'v4.35.1.0';
+        // BLUEPRINT v4.35.2.0 - BUILD 20260222-pdf-html-replica
+        var BP_VERSION = 'v4.35.2.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -13388,518 +13388,853 @@ body {
         function generateScoutingReportPDF(R) {
             var jsPDF = window.jspdf.jsPDF;
             var doc = new jsPDF({ unit: 'mm', format: 'a4' });
-            
-            var W = doc.internal.pageSize.getWidth();
-            var H = doc.internal.pageSize.getHeight();
-            var M = 16;
-            var MW = W - M * 2;
-            var y = 0;
-            var pg = 0;
+            var W = 210, H = 297, M = 14, MW = W - M * 2, y = 0, pg = 0;
             var name = R.candidate.name || 'Candidate';
             var firstName = name.split(' ')[0];
             var dateLine = R.job.date || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
             var allSkills = R.skills || [];
             var matchPct = R.match.percentage || 0;
+            var gaps = R.gaps || [];
+            var roles = R.roles || [];
+            var matched = allSkills.filter(function(s) { return s.k; });
+            var surplus = allSkills.length - matched.length - gaps.length;
             
+            // ── Colors — match HTML CSS variables exactly ──
             var C = {
-                brand: [30, 64, 175], accent: [96, 165, 250], dark: [10, 10, 26], panelBg: [15, 18, 35],
-                text: [226, 232, 240], textMuted: [148, 163, 184], textDim: [100, 116, 139],
-                green: [16, 185, 129], amber: [245, 158, 11], red: [239, 68, 68], orange: [249, 115, 22],
-                purple: [168, 85, 247], cyan: [6, 182, 212], rose: [244, 114, 182], white: [255, 255, 255],
-                border: [30, 41, 59], cardBg: [20, 24, 45]
+                bg:    [10, 14, 26],         // --bg: #0a0e1a
+                card:  [17, 24, 39],         // --card: #111827
+                elev:  [26, 32, 53],         // --elev: #1a2035
+                border:[255, 255, 255, 0.06],// --border (will draw as rgb)
+                borderRGB: [35, 42, 60],     // approx rendered border on dark
+                a:     [59, 130, 246],       // --a: #3b82f6
+                g:     [16, 185, 129],       // --g: #10b981
+                am:    [245, 158, 11],       // --am: #f59e0b
+                r:     [239, 68, 68],        // --r: #ef4444
+                p:     [99, 102, 241],       // --p: #6366f1
+                t1:    [241, 245, 249],      // --t1: #f1f5f9
+                t2:    [148, 163, 184],      // --t2: #94a3b8
+                tm:    [100, 116, 139],      // --tm: #64748b
+                white: [255, 255, 255],
+                orange:[249, 115, 22],
+                purple:[168, 85, 247]
             };
-            var lvlColor = { 'Mastery': C.red, 'Expert': C.orange, 'Advanced': C.amber, 'Proficient': C.green, 'Novice': C.textDim };
+            var lvlColor = { 'Mastery': C.am, 'Expert': C.purple, 'Advanced': C.a, 'Proficient': C.g, 'Novice': [107, 114, 128] };
             var lvlVal = { 'Mastery': 5, 'Expert': 4, 'Advanced': 3, 'Proficient': 2, 'Novice': 1 };
             
+            // ── Drawing helpers ──
             function sc(c) { doc.setTextColor(c[0], c[1], c[2]); }
             function sf(c) { doc.setFillColor(c[0], c[1], c[2]); }
             function sd(c) { doc.setDrawColor(c[0], c[1], c[2]); }
-            function scoreColor(pct) { return pct >= 70 ? C.green : pct >= 50 ? C.amber : C.red; }
+            function scoreColor(p) { return p >= 70 ? C.g : p >= 50 ? C.am : C.r; }
+            
+            function darkPage() { sf(C.bg); doc.rect(0, 0, W, H, 'F'); }
+            function card(x, cy, w, h, borderColor) {
+                sf(C.card); sd(borderColor || C.borderRGB); doc.setLineWidth(0.3);
+                doc.roundedRect(x, cy, w, h, 2.5, 2.5, 'FD');
+            }
             
             function newPage() {
                 if (pg > 0) addFooter();
                 if (pg > 0) doc.addPage();
-                pg++;
-                sf(C.dark); doc.rect(0, 0, W, H, 'F');
-                y = M;
+                pg++; darkPage(); y = M;
                 if (pg > 1) {
-                    doc.setFontSize(6); sc(C.textDim);
-                    doc.text('BLUEPRINT\u2122 SCOUTING REPORT', M, 9);
-                    doc.text(name + '  \u2192  ' + R.job.title, W - M, 9, { align: 'right' });
-                    sd(C.border); doc.setLineWidth(0.2); doc.line(M, 11, W - M, 11);
-                    y = 16;
+                    // Running header
+                    doc.setFontSize(5.5); sc(C.tm);
+                    doc.text('BLUEPRINT\u2122 SCOUTING REPORT', M, 8);
+                    doc.text(name + '  \u2192  ' + R.job.title + '  \u2022  ' + R.job.company, W - M, 8, { align: 'right' });
+                    sd(C.borderRGB); doc.setLineWidth(0.15); doc.line(M, 10, W - M, 10);
+                    y = 14;
                 }
             }
-            function check(need) { if (y + need > H - 18) newPage(); }
+            function check(need) { if (y + need > H - 16) newPage(); }
             function addFooter() {
-                sd(C.border); doc.setLineWidth(0.15); doc.line(M, H - 13, W - M, H - 13);
-                doc.setFontSize(6); sc(C.textDim);
-                doc.text('CONFIDENTIAL  \u2022  ' + dateLine + '  \u2022  myblueprint.work', M, H - 9);
-                doc.text('Page ' + pg, W - M, H - 9, { align: 'right' });
-                doc.setFontSize(5);
-                doc.text('\u00A9 ' + new Date().getFullYear() + ' Cliff Jurkiewicz. All rights reserved. Blueprint\u2122 is proprietary.', M, H - 6);
+                doc.setFontSize(5); sc(C.tm);
+                doc.text('CONFIDENTIAL  \u2022  ' + dateLine + '  \u2022  myblueprint.work', M, H - 6);
+                doc.text('Page ' + pg, W - M, H - 6, { align: 'right' });
+                doc.setFontSize(4.5);
+                doc.text('\u00A9 ' + new Date().getFullYear() + ' Cliff Jurkiewicz. All rights reserved.', M, H - 3.5);
             }
-            function sectionTitle(icon, title, subtitle) {
-                check(20); y += 4;
-                sf(C.accent); doc.circle(M + 4, y + 1, 3.5, 'F');
-                doc.setFontSize(12); doc.setFont(undefined, 'bold'); sc(C.white);
-                doc.text(title, M + 12, y + 3);
-                if (subtitle) { doc.setFontSize(7.5); doc.setFont(undefined, 'normal'); sc(C.textMuted); doc.text(subtitle, M + 12, y + 8); y += 13; }
-                else { y += 8; }
-                sf(C.accent); doc.rect(M, y, 40, 0.6, 'F'); y += 5;
+            
+            // Section header — matches .sec-h in HTML
+            function secHead(title, subtitle) {
+                check(16); y += 3;
+                sd(C.borderRGB); doc.setLineWidth(0.15); doc.line(M, y, W - M, y);
+                y += 8;
+                // Icon square
+                sf(C.elev); doc.roundedRect(M, y - 4, 7, 7, 1.5, 1.5, 'F');
+                sf(C.a); doc.circle(M + 3.5, y - 0.5, 1.5, 'F');
+                // Title
+                doc.setFontSize(11); doc.setFont(undefined, 'bold'); sc(C.t1);
+                doc.text(title, M + 10, y + 1.5);
                 doc.setFont(undefined, 'normal');
+                if (subtitle) {
+                    doc.setFontSize(7); sc(C.tm);
+                    doc.text(subtitle, M + 10, y + 6);
+                    y += 12;
+                } else { y += 7; }
             }
+            
             function pill(x, py, text, bgColor, txtColor) {
-                doc.setFontSize(5.5); doc.setFont(undefined, 'bold');
-                var tw = doc.getTextWidth(text) + 6;
-                sf(bgColor); doc.roundedRect(x, py - 2.5, tw, 5, 2, 2, 'F');
-                sc(txtColor || C.white); doc.text(text, x + 3, py + 0.5);
-                doc.setFont(undefined, 'normal'); return tw + 2;
-            }
-            function panel(px, py, pw, ph) {
-                sf(C.cardBg); sd(C.border); doc.setLineWidth(0.2);
-                doc.roundedRect(px, py, pw, ph, 3, 3, 'FD');
+                doc.setFontSize(5); doc.setFont(undefined, 'bold');
+                var tw = doc.getTextWidth(text) + 5;
+                sf(bgColor); doc.roundedRect(x, py - 2, tw, 4.5, 2, 2, 'F');
+                sc(txtColor || C.white); doc.text(text, x + 2.5, py + 0.5);
+                doc.setFont(undefined, 'normal'); return tw + 1;
             }
             
-            // ════════════════════════════════════════════════════
-            // PAGE 1: COVER / HERO
-            // ════════════════════════════════════════════════════
-            pg = 1;
-            sf(C.dark); doc.rect(0, 0, W, H, 'F');
-            sf(C.accent); doc.rect(0, 0, W, 2.5, 'F');
+            // ════════════════════════════════════════════════════════
+            // 1. CONFIDENTIAL STRIP + HERO
+            // ════════════════════════════════════════════════════════
+            pg = 1; darkPage();
             
-            y = 18;
-            doc.setFontSize(7); doc.setFont(undefined, 'bold'); sc(C.accent);
-            doc.text('BLUEPRINT\u2122 SCOUTING REPORT', M, y);
-            doc.setFont(undefined, 'normal'); sc(C.textDim);
-            doc.text('CONFIDENTIAL', W - M, y, { align: 'right' });
-            y += 4; sd(C.border); doc.setLineWidth(0.2); doc.line(M, y, W - M, y);
+            // Confidential strip — matches .strip
+            sf([12, 17, 32]); doc.rect(0, 0, W, 8, 'F');
+            sd(C.borderRGB); doc.setLineWidth(0.15); doc.line(0, 8, W, 8);
+            doc.setFontSize(5.5); sc(C.tm);
+            doc.text('\uD83D\uDD12 Confidential \u2014 Prepared for the hiring team at ', M, 5);
+            doc.setFont(undefined, 'bold'); sc(C.t2);
+            doc.text(R.job.company, M + doc.getTextWidth('\uD83D\uDD12 Confidential \u2014 Prepared for the hiring team at ') + 1, 5);
+            doc.setFont(undefined, 'normal'); sc(C.tm);
+            doc.text(dateLine, W - M, 5, { align: 'right' });
             
-            // Photo circle
-            y += 12;
-            var photoCx = M + 16, photoCy = y + 12;
-            sf(C.accent); doc.circle(photoCx, photoCy, 12, 'F');
-            doc.setFontSize(18); doc.setFont(undefined, 'bold'); sc(C.white);
+            // Hero grid: [Photo] [Name block] [Match ring]
+            y = 16;
+            
+            // Photo circle — matches .photo
+            var photoCx = M + 10, photoCy = y + 10;
+            sf(C.a); doc.circle(photoCx, photoCy, 10, 'F');
+            doc.setFontSize(16); doc.setFont(undefined, 'bold'); sc(C.white);
             doc.text(R.candidate.photo || 'A', photoCx, photoCy + 3, { align: 'center' });
             
-            var heroX = M + 34;
-            doc.setFontSize(22); doc.setFont(undefined, 'bold'); sc(C.white);
-            doc.text(name, heroX, y + 6);
-            doc.setFontSize(10); doc.setFont(undefined, 'normal'); sc(C.accent);
-            doc.text(R.candidate.title || '', heroX, y + 13);
-            doc.setFontSize(7.5); sc(C.textMuted);
-            var metaParts = [];
-            if (R.candidate.location) metaParts.push('\uD83D\uDCCD ' + R.candidate.location);
-            if (R.candidate.contact) metaParts.push('\u2709 ' + R.candidate.contact);
-            metaParts.push('\uD83D\uDCC5 ' + dateLine);
-            doc.text(metaParts.join('   \u2022   '), heroX, y + 19);
-            y += 34;
+            // Name block
+            var nx = M + 24;
+            doc.setFontSize(17); doc.setFont(undefined, 'bold'); sc(C.t1);
+            doc.text(name, nx, y + 5);
+            doc.setFontSize(9); doc.setFont(undefined, 'normal'); sc(C.t2);
+            doc.text(R.candidate.title || '', nx, y + 11);
+            doc.setFontSize(6.5); sc(C.tm);
+            var meta = [];
+            if (R.candidate.location) meta.push('\uD83D\uDCCD ' + R.candidate.location);
+            if (R.candidate.contact) meta.push('\u260E ' + R.candidate.contact);
+            doc.text(meta.join('    '), nx, y + 16);
             
-            // Match Score Band
+            // Match ring — right side
+            var ringCx = W - M - 12, ringCy = y + 10, ringR = 10;
+            sd([35, 42, 60]); doc.setLineWidth(2); doc.circle(ringCx, ringCy, ringR, 'S');
             var sc1 = scoreColor(matchPct);
-            panel(M, y, MW, 34);
-            // Score ring
-            var ringCx = M + 28, ringCy = y + 17, ringR = 12;
-            sd(C.border); doc.setLineWidth(2.5); doc.circle(ringCx, ringCy, ringR, 'S');
-            sd(sc1); doc.setLineWidth(3);
-            var arcEnd = (matchPct / 100) * 360;
-            for (var ai = 0; ai < arcEnd; ai += 2) {
+            sd(sc1); doc.setLineWidth(2.5);
+            for (var ai = 0; ai < (matchPct / 100) * 360; ai += 2) {
                 var a1 = ((ai - 90) * Math.PI) / 180, a2 = ((ai + 2 - 90) * Math.PI) / 180;
                 doc.line(ringCx + Math.cos(a1) * ringR, ringCy + Math.sin(a1) * ringR,
                          ringCx + Math.cos(a2) * ringR, ringCy + Math.sin(a2) * ringR);
             }
-            doc.setFontSize(16); doc.setFont(undefined, 'bold');
+            doc.setFontSize(13); doc.setFont(undefined, 'bold');
             doc.setTextColor(sc1[0], sc1[1], sc1[2]);
-            doc.text(matchPct + '%', ringCx, ringCy + 2.5, { align: 'center' });
-            doc.setFontSize(5.5); doc.setFont(undefined, 'normal'); sc(C.textMuted);
-            doc.text('MATCH', ringCx, ringCy + 7, { align: 'center' });
+            doc.text(matchPct + '%', ringCx, ringCy + 2, { align: 'center' });
+            doc.setFontSize(4.5); doc.setFont(undefined, 'normal'); sc(C.tm);
+            doc.text('MATCH', ringCx, ringCy + 6, { align: 'center' });
             
-            var matched = allSkills.filter(function(s) { return s.k; });
-            var gapCount = (R.gaps || []).length;
-            var statsX = M + 55;
-            doc.setFontSize(7); doc.setFont(undefined, 'bold'); sc(C.white);
-            doc.text('PREPARED FOR', statsX, y + 7);
-            doc.setFontSize(10); sc(C.accent);
-            doc.text(R.job.title, statsX, y + 14);
-            doc.setFontSize(8); doc.setFont(undefined, 'normal'); sc(C.textMuted);
-            doc.text(R.job.company, statsX, y + 20);
+            y += 26;
             
-            var rSX = W - M - 8;
-            doc.setFontSize(14); doc.setFont(undefined, 'bold'); sc(C.green);
-            doc.text(String(matched.length), rSX, y + 9, { align: 'right' });
-            doc.setFontSize(5.5); doc.setFont(undefined, 'normal'); sc(C.textMuted);
-            doc.text('ALIGNED', rSX, y + 13, { align: 'right' });
-            doc.setFontSize(14); doc.setFont(undefined, 'bold'); sc(C.red);
-            doc.text(String(gapCount), rSX - 26, y + 9, { align: 'right' });
-            doc.setFontSize(5.5); doc.setFont(undefined, 'normal'); sc(C.textMuted);
-            doc.text('GAPS', rSX - 26, y + 13, { align: 'right' });
-            doc.setFontSize(14); doc.setFont(undefined, 'bold'); sc(C.purple);
-            doc.text(String(allSkills.length), rSX - 50, y + 9, { align: 'right' });
-            doc.setFontSize(5.5); doc.setFont(undefined, 'normal'); sc(C.textMuted);
-            doc.text('TOTAL', rSX - 50, y + 13, { align: 'right' });
+            // Target Role Card — matches .target
+            card(M, y, MW, 18);
+            doc.setFontSize(5.5); doc.setFont(undefined, 'bold'); sc(C.a);
+            doc.text('TARGET ROLE', M + 6, y + 5);
+            doc.setFontSize(10); doc.setFont(undefined, 'bold'); sc(C.t1);
+            doc.text(R.job.title, M + 6, y + 11);
+            doc.setFontSize(8); doc.setFont(undefined, 'normal'); sc(C.t2);
+            doc.text(R.job.company, M + 6, y + 15.5);
             
-            // Narrative
+            // Stats on right of target card
+            var tsX = W - M - 6;
+            var tStats = [
+                { n: String(allSkills.length), l: 'Skills', c: C.a },
+                { n: String(matched.length), l: 'Matched', c: C.g },
+                { n: String(gaps.length), l: 'Gaps', c: C.r },
+                { n: String(Math.max(0, surplus)), l: 'Surplus', c: C.tm }
+            ];
+            tStats.reverse().forEach(function(ts) {
+                doc.setFontSize(11); doc.setFont(undefined, 'bold');
+                doc.setTextColor(ts.c[0], ts.c[1], ts.c[2]);
+                doc.text(ts.n, tsX, y + 8, { align: 'center' });
+                doc.setFontSize(4.5); doc.setFont(undefined, 'normal'); sc(C.tm);
+                doc.text(ts.l.toUpperCase(), tsX, y + 12, { align: 'center' });
+                tsX -= 18;
+            });
+            y += 22;
+            
+            // Narrative — matches .narr
+            sf([14, 20, 38]); sd([40, 55, 85]); doc.setLineWidth(0.3);
             var narrativeClean = (R.match.narrative || '').replace(/<[^>]+>/g, '');
-            doc.setFontSize(7.5); sc(C.textMuted);
-            var narLines = doc.splitTextToSize(narrativeClean, MW - 52);
-            doc.text(narLines.slice(0, 2), statsX, y + 26);
-            y += 42;
+            var narLines = doc.splitTextToSize(narrativeClean, MW - 16);
+            var narH = Math.min(narLines.length, 6) * 3.8 + 12;
+            doc.roundedRect(M, y, MW, narH, 2.5, 2.5, 'FD');
+            doc.setFontSize(5); doc.setFont(undefined, 'bold'); sc(C.a);
+            doc.text('\u2B50 WHY THIS CANDIDATE FITS', M + 8, y + 5);
+            doc.setFontSize(7.5); doc.setFont(undefined, 'normal'); sc(C.t2);
+            doc.text(narLines.slice(0, 6), M + 8, y + 10);
+            y += narH + 4;
             
-            // Purpose
+            // Purpose — matches .purpose
             if (R.candidate.purpose && R.candidate.purpose.trim()) {
-                check(18);
-                sf(C.accent); doc.rect(M, y, 1.5, 14, 'F');
-                doc.setFontSize(9); doc.setFont(undefined, 'italic'); sc(C.text);
-                var pLines = doc.splitTextToSize('\u201C' + R.candidate.purpose.trim() + '\u201D', MW - 10);
-                doc.text(pLines.slice(0, 3), M + 6, y + 5);
-                y += Math.min(pLines.length, 3) * 4.5 + 6;
+                check(10);
+                sd(C.borderRGB); doc.setLineWidth(0.15); doc.line(M + 20, y, W - M - 20, y);
+                y += 5;
+                doc.setFontSize(7.5); doc.setFont(undefined, 'italic'); sc(C.tm);
+                var pText = '\u201C' + R.candidate.purpose.trim() + '\u201D';
+                var pLines = doc.splitTextToSize(pText, MW - 30);
+                doc.text(pLines.slice(0, 2), W / 2, y, { align: 'center' });
+                y += Math.min(pLines.length, 2) * 4 + 4;
                 doc.setFont(undefined, 'normal');
             }
             
-            // Proficiency bar
-            check(14);
-            var prof = R.proficiency || {};
-            var profOrder = ['Mastery', 'Expert', 'Advanced', 'Proficient', 'Novice'];
-            var totalSk = allSkills.length || 1;
-            var barSX = M;
-            y += 2;
-            doc.setFontSize(6); doc.setFont(undefined, 'bold'); sc(C.textDim);
-            doc.text('PROFICIENCY DISTRIBUTION', M, y); y += 4;
-            profOrder.forEach(function(lv) {
-                var count = prof[lv] || 0; if (count === 0) return;
-                var bw = (count / totalSk) * MW;
-                sf(lvlColor[lv] || C.textDim); doc.rect(barSX, y, bw, 4, 'F');
-                if (bw > 12) { doc.setFontSize(5); sc(C.white); doc.text(lv.charAt(0) + ' ' + count, barSX + 2, y + 3); }
-                barSX += bw;
-            });
-            y += 7;
-            var legX = M;
-            profOrder.forEach(function(lv) {
-                var count = prof[lv] || 0; if (count === 0) return;
-                sf(lvlColor[lv]); doc.circle(legX + 1.5, y, 1.2, 'F');
-                doc.setFontSize(5.5); sc(C.textMuted);
-                doc.text(lv + ' (' + count + ')', legX + 4, y + 1);
-                legX += doc.getTextWidth(lv + ' (' + count + ')') + 10;
-            });
-            y += 5;
             addFooter();
             
-            // ════════════════════════════════════════════════════
-            // PAGE 2: SKILL ALIGNMENT DETAIL
-            // ════════════════════════════════════════════════════
+            // ════════════════════════════════════════════════════════
+            // 2. CAPABILITY ARCHITECTURE — Job Match Network
+            // ════════════════════════════════════════════════════════
             newPage();
-            sectionTitle('\u25C8', 'Skill Alignment Detail', 'Matched competencies with proficiency levels');
+            secHead('Capability Architecture', 'Skills network — node size = proficiency, color = match status');
+            
+            // Toggle label
+            doc.setFontSize(6); doc.setFont(undefined, 'bold');
+            sf(C.elev); sd(C.borderRGB); doc.setLineWidth(0.2);
+            doc.roundedRect(M, y, 30, 5.5, 2, 2, 'FD');
+            sc(C.a); doc.text('JOB MATCH', M + 4.5, y + 3.5);
+            y += 9;
+            
+            // Network container — matches .net-w
+            var netY = y, netH = 145;
+            card(M, netY, MW, netH);
+            
+            // Draw Job Match network (center = job, role hubs orbiting, skills around roles)
+            (function drawJobNet() {
+                var gCx = M + MW / 2, gCy = netY + netH / 2, gR = 52;
+                
+                // Center node (job)
+                sf(C.a); doc.circle(gCx, gCy, 6, 'F');
+                doc.setFontSize(5.5); doc.setFont(undefined, 'bold'); sc(C.white);
+                var jtShort = R.job.title.length > 18 ? R.job.title.slice(0, 16) + '\u2026' : R.job.title;
+                doc.text(jtShort, gCx, gCy + 1, { align: 'center' });
+                doc.setFont(undefined, 'normal');
+                
+                // Role hubs around center
+                var roleNodes = [];
+                roles.forEach(function(role, i) {
+                    var angle = (i / roles.length) * Math.PI * 2 - Math.PI / 2;
+                    var dist = gR * 0.5;
+                    var rx = gCx + Math.cos(angle) * dist;
+                    var ry = gCy + Math.sin(angle) * dist;
+                    var rc = role.color || '#3b82f6';
+                    var rgb = [parseInt(rc.slice(1,3),16)||59, parseInt(rc.slice(3,5),16)||130, parseInt(rc.slice(5,7),16)||246];
+                    
+                    // Link to center
+                    sd([40, 55, 85]); doc.setLineWidth(0.1); doc.line(gCx, gCy, rx, ry);
+                    
+                    // Role hub
+                    sf(rgb); doc.circle(rx, ry, 3.5, 'F');
+                    doc.setFontSize(5); doc.setFont(undefined, 'bold');
+                    doc.setTextColor(rgb[0], rgb[1], rgb[2]);
+                    var rlbl = role.name.length > 16 ? role.name.slice(0, 14) + '\u2026' : role.name;
+                    doc.text(rlbl, rx, ry - 5.5, { align: 'center' });
+                    doc.setFont(undefined, 'normal');
+                    
+                    roleNodes.push({ x: rx, y: ry, color: rgb, id: role.id });
+                });
+                
+                // Skill nodes
+                function hsh(s) { var h=0; for(var i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0;} return h; }
+                function hfl(s,a,b) { return a+(Math.abs(hsh(s))%10000/10000)*(b-a); }
+                var lvlSz = { 'Mastery': 2.2, 'Expert': 1.8, 'Advanced': 1.5, 'Proficient': 1.2, 'Novice': 0.8 };
+                
+                var rSkills = {}; roles.forEach(function(r) { rSkills[r.id] = []; });
+                allSkills.forEach(function(sk) {
+                    var rid = (sk.r && sk.r[0]) || '';
+                    if (rSkills[rid]) rSkills[rid].push(sk);
+                    else if (roles.length > 0) (rSkills[roles[0].id] = rSkills[roles[0].id] || []).push(sk);
+                });
+                
+                roleNodes.forEach(function(rn, ri) {
+                    var sks = rSkills[rn.id] || [];
+                    var pAngle = (ri / roleNodes.length) * Math.PI * 2 - Math.PI / 2;
+                    sks.forEach(function(sk, si) {
+                        var spread = pAngle + ((si / Math.max(sks.length, 1)) - 0.5) * 1.4;
+                        var dist = gR * (0.7 + hfl(sk.n + ri, 0, 0.28));
+                        var jit = hfl(sk.n + 'j', -2, 2);
+                        var sx = gCx + Math.cos(spread) * dist + jit;
+                        var sy = gCy + Math.sin(spread) * dist + jit * 0.5;
+                        // Clamp to card
+                        sx = Math.max(M + 6, Math.min(M + MW - 6, sx));
+                        sy = Math.max(netY + 6, Math.min(netY + netH - 6, sy));
+                        
+                        // Link to role hub
+                        sd([40, 55, 85]); doc.setLineWidth(0.05); doc.line(rn.x, rn.y, sx, sy);
+                        
+                        // Node color: green=matched, red=gap, grey=surplus
+                        var nodeColor = sk.k ? C.g : C.tm;
+                        sf(nodeColor); doc.circle(sx, sy, lvlSz[sk.l] || 1, 'F');
+                    });
+                });
+                
+                // Gap nodes (not in skills array — draw as red)
+                gaps.forEach(function(gap, gi) {
+                    var angle = Math.PI * 0.3 + (gi / Math.max(gaps.length, 1)) * Math.PI * 0.5;
+                    var dist = gR * 0.85;
+                    var gx = gCx + Math.cos(angle) * dist;
+                    var gy = gCy + Math.sin(angle) * dist;
+                    gx = Math.max(M + 6, Math.min(M + MW - 6, gx));
+                    gy = Math.max(netY + 6, Math.min(netY + netH - 6, gy));
+                    sf(C.r); doc.circle(gx, gy, 1.8, 'F');
+                });
+                
+                // Legend — matches .net-leg
+                var legY = netY + netH - 8;
+                sf([20, 24, 42]); sd(C.borderRGB); doc.setLineWidth(0.2);
+                doc.roundedRect(M + 3, legY, 72, 5.5, 2, 2, 'FD');
+                var lx = M + 6;
+                [{ l: 'Matched', c: C.g }, { l: 'Gap', c: C.r }, { l: 'Surplus', c: C.tm }].forEach(function(li) {
+                    sf(li.c); doc.circle(lx + 1, legY + 2.8, 1.2, 'F');
+                    doc.setFontSize(5); sc(C.tm); doc.text(li.l, lx + 3.5, legY + 3.5);
+                    lx += doc.getTextWidth(li.l) + 8;
+                });
+            })();
+            
+            y = netY + netH + 4;
+            
+            // ════════════════════════════════════════════════════════
+            // 3. CANDIDATE SKILLS Network (separate graphic)
+            // ════════════════════════════════════════════════════════
+            check(90);
+            if (y > 120) newPage();
+            
+            // Toggle label
+            doc.setFontSize(6); doc.setFont(undefined, 'bold');
+            sf(C.elev); sd(C.borderRGB); doc.setLineWidth(0.2);
+            doc.roundedRect(M, y, 38, 5.5, 2, 2, 'FD');
+            sc(C.a); doc.text('CANDIDATE SKILLS', M + 4.5, y + 3.5);
+            y += 9;
+            
+            var net2Y = y, net2H = H - y - 20;
+            if (net2H > 145) net2H = 145;
+            card(M, net2Y, MW, net2H);
+            
+            // Candidate-centric network: roles as hubs, skills orbiting
+            (function drawCandNet() {
+                var gCx = M + MW / 2, gCy = net2Y + net2H / 2, gR = 50;
+                function hsh(s) { var h=0; for(var i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0;} return h; }
+                function hfl(s,a,b) { return a+(Math.abs(hsh(s))%10000/10000)*(b-a); }
+                var lvlSz = { 'Mastery': 2.2, 'Expert': 1.8, 'Advanced': 1.5, 'Proficient': 1.2, 'Novice': 0.8 };
+                
+                var roleNodes = [];
+                roles.forEach(function(role, i) {
+                    var angle = (i / roles.length) * Math.PI * 2 - Math.PI / 2;
+                    var dist = gR * 0.42;
+                    var rx = gCx + Math.cos(angle) * dist;
+                    var ry = gCy + Math.sin(angle) * dist;
+                    var rc = role.color || '#3b82f6';
+                    var rgb = [parseInt(rc.slice(1,3),16)||59, parseInt(rc.slice(3,5),16)||130, parseInt(rc.slice(5,7),16)||246];
+                    roleNodes.push({ x: rx, y: ry, color: rgb, id: role.id });
+                });
+                
+                // Background ring
+                sd(C.borderRGB); doc.setLineWidth(0.1); doc.circle(gCx, gCy, gR + 4, 'S');
+                
+                var rSkills = {}; roles.forEach(function(r) { rSkills[r.id] = []; });
+                allSkills.forEach(function(sk) {
+                    var rid = (sk.r && sk.r[0]) || '';
+                    if (rSkills[rid]) rSkills[rid].push(sk);
+                    else if (roles.length > 0) (rSkills[roles[0].id] = rSkills[roles[0].id] || []).push(sk);
+                });
+                
+                // Links + skill nodes
+                roleNodes.forEach(function(rn, ri) {
+                    var sks = rSkills[rn.id] || [];
+                    var pAngle = (ri / roleNodes.length) * Math.PI * 2 - Math.PI / 2;
+                    sks.forEach(function(sk, si) {
+                        var spread = pAngle + ((si / Math.max(sks.length, 1)) - 0.5) * 1.6;
+                        var dist = gR * (0.6 + hfl(sk.n + ri, 0, 0.35));
+                        var jit = hfl(sk.n + 'j', -2, 2);
+                        var sx = gCx + Math.cos(spread) * dist + jit;
+                        var sy = gCy + Math.sin(spread) * dist + jit * 0.5;
+                        sx = Math.max(M + 6, Math.min(M + MW - 6, sx));
+                        sy = Math.max(net2Y + 6, Math.min(net2Y + net2H - 6, sy));
+                        sd([40, 55, 85]); doc.setLineWidth(0.05); doc.line(rn.x, rn.y, sx, sy);
+                        var lc = lvlColor[sk.l] || C.tm;
+                        sf(lc); doc.circle(sx, sy, lvlSz[sk.l] || 1, 'F');
+                    });
+                });
+                
+                // Role hubs on top
+                roleNodes.forEach(function(rn) {
+                    sd(rn.color); doc.setLineWidth(0.2); doc.circle(rn.x, rn.y, 5, 'S');
+                    sf(rn.color); doc.circle(rn.x, rn.y, 3.5, 'F');
+                    var ro = roles.find(function(r) { return r.id === rn.id; });
+                    var rl = ro ? ro.name : '';
+                    if (rl.length > 16) rl = rl.slice(0, 14) + '\u2026';
+                    doc.setFontSize(5); doc.setFont(undefined, 'bold');
+                    doc.setTextColor(rn.color[0], rn.color[1], rn.color[2]);
+                    doc.text(rl, rn.x, rn.y - 6, { align: 'center' });
+                    doc.setFont(undefined, 'normal');
+                });
+                
+                // Legend
+                var legY = net2Y + net2H - 8;
+                sf([20, 24, 42]); sd(C.borderRGB); doc.setLineWidth(0.2);
+                doc.roundedRect(M + 3, legY, 90, 5.5, 2, 2, 'FD');
+                var lx = M + 6;
+                [{ l: 'Mastery', c: C.am }, { l: 'Expert', c: C.purple }, { l: 'Advanced', c: C.a }, { l: 'Proficient', c: C.g }, { l: 'Novice', c: [107,114,128] }].forEach(function(li) {
+                    sf(li.c); doc.circle(lx + 1, legY + 2.8, 1.2, 'F');
+                    doc.setFontSize(5); sc(C.tm); doc.text(li.l, lx + 3.5, legY + 3.5);
+                    lx += doc.getTextWidth(li.l) + 7;
+                });
+            })();
+            
+            y = net2Y + net2H + 4;
+            
+            // ════════════════════════════════════════════════════════
+            // 4. EDUCATION & CERTIFICATIONS
+            // ════════════════════════════════════════════════════════
+            var hasEdu = R.education && R.education.length > 0;
+            var hasCerts = R.certifications && R.certifications.length > 0;
+            if (hasEdu || hasCerts) {
+                newPage();
+                secHead('Education & Certifications', 'Credentials backing verified skills');
+                
+                // Two-column layout
+                var colW = (MW - 6) / 2;
+                var leftX = M, rightX = M + colW + 6;
+                
+                if (hasEdu) {
+                    doc.setFontSize(5.5); doc.setFont(undefined, 'bold'); sc(C.tm);
+                    doc.text('\uD83C\uDF93 EDUCATION', leftX, y); y += 4;
+                    doc.setFont(undefined, 'normal');
+                    
+                    R.education.forEach(function(edu) {
+                        check(16);
+                        card(leftX, y, colW, 16);
+                        doc.setFontSize(7.5); doc.setFont(undefined, 'bold'); sc(C.t1);
+                        doc.text(edu.name || '', leftX + 4, y + 5);
+                        pill(leftX + 4 + doc.getTextWidth(edu.name || '') + 2, y + 5, '\u2713 Verified', [168, 85, 247], C.white);
+                        doc.setFontSize(6); doc.setFont(undefined, 'normal'); sc(C.t2);
+                        doc.text(edu.desc || '', leftX + 4, y + 10);
+                        doc.setFontSize(5.5); sc(C.tm);
+                        var eMeta = [edu.location, edu.dates].filter(Boolean).join('  \u2022  ');
+                        doc.text(eMeta, leftX + 4, y + 14);
+                        y += 19;
+                    });
+                }
+                
+                if (hasCerts) {
+                    var certY = hasEdu ? (y > 50 ? y : 50) : y;
+                    if (hasEdu) { y = certY; }
+                    doc.setFontSize(5.5); doc.setFont(undefined, 'bold'); sc(C.tm);
+                    doc.text('\uD83C\uDFC5 CERTIFICATIONS', hasEdu ? rightX : leftX, certY - 4 > M ? certY - 4 : y);
+                    doc.setFont(undefined, 'normal');
+                    
+                    R.certifications.forEach(function(cert) {
+                        check(16);
+                        var cx = hasEdu ? rightX : leftX;
+                        card(cx, y, colW, 14);
+                        doc.setFontSize(7.5); doc.setFont(undefined, 'bold'); sc(C.t1);
+                        doc.text(cert.name || '', cx + 4, y + 5);
+                        pill(cx + 4 + doc.getTextWidth(cert.name || '') + 2, y + 5, '\u2713 Cert', C.a, C.white);
+                        doc.setFontSize(6); doc.setFont(undefined, 'normal'); sc(C.t2);
+                        doc.text([cert.desc, cert.dates].filter(Boolean).join('  \u2022  '), cx + 4, y + 10);
+                        y += 17;
+                    });
+                }
+            }
+            
+            // ════════════════════════════════════════════════════════
+            // 5. VALUES & CULTURAL ALIGNMENT
+            // ════════════════════════════════════════════════════════
+            if (R.values && (R.values.candidate.length > 0 || R.values.company.length > 0)) {
+                check(60); if (y > 100) newPage();
+                secHead('Values & Cultural Alignment', 'Shared values linked — cultural fit signal');
+                
+                // Score — matches .val-sc
+                var valScore = R.values.score || 0;
+                var vsc = scoreColor(valScore);
+                doc.setFontSize(18); doc.setFont(undefined, 'bold');
+                doc.setTextColor(vsc[0], vsc[1], vsc[2]);
+                doc.text(valScore + '%', W / 2, y + 4, { align: 'center' });
+                doc.setFontSize(6.5); doc.setFont(undefined, 'normal'); sc(C.tm);
+                doc.text('Values Alignment', W / 2, y + 9, { align: 'center' });
+                y += 14;
+                
+                // Values network (static)
+                var vnY = y, vnH = 90;
+                card(M, vnY, MW, vnH);
+                
+                var uVals = R.values.candidate || [];
+                var cVals = R.values.company || [];
+                var aSet = {};
+                uVals.forEach(function(v) { if (v.s === 'aligned') aSet[v.n] = true; });
+                
+                var lX = M + MW * 0.26, rX = M + MW * 0.74, ctrY = vnY + vnH * 0.52;
+                var hubY = vnY + vnH * 0.28;
+                
+                // Candidate hub
+                sf(C.a); doc.circle(lX, hubY, 5, 'F');
+                doc.setFontSize(5.5); doc.setFont(undefined, 'bold'); sc([147, 197, 253]);
+                doc.text(firstName + "'s Values", lX, hubY - 7, { align: 'center' });
+                
+                // Company hub
+                sf(C.am); doc.circle(rX, hubY, 5, 'F');
+                sc([251, 191, 36]);
+                doc.text(R.job.company + "'s Culture", rX, hubY - 7, { align: 'center' });
+                doc.setFont(undefined, 'normal');
+                
+                // Candidate values
+                uVals.forEach(function(v, i) {
+                    var angle = (i / uVals.length) * Math.PI * 0.8 + Math.PI * 0.6;
+                    var rd = 32;
+                    var vx = lX + Math.cos(angle) * rd;
+                    var vy = ctrY + Math.sin(angle) * rd * 0.65;
+                    vx = Math.max(M + 8, Math.min(M + MW - 8, vx));
+                    vy = Math.max(vnY + 8, Math.min(vnY + vnH - 8, vy));
+                    
+                    // Spoke
+                    sd([50, 65, 95]); doc.setLineWidth(0.08); doc.line(lX, hubY, vx, vy);
+                    
+                    var isA = aSet[v.n];
+                    var nc = isA ? C.g : C.am;
+                    var nr = isA ? 3 : 2.2;
+                    sf(nc); doc.circle(vx, vy, nr, 'F');
+                    if (isA) { sd(C.white); doc.setLineWidth(0.3); doc.circle(vx, vy, nr, 'S'); }
+                    
+                    doc.setFontSize(4.5); sc(isA ? C.g : C.am);
+                    doc.text(v.n, vx, vy - nr - 1.5, { align: 'center' });
+                    
+                    // Bridge to company if aligned
+                    if (isA) {
+                        var ci = cVals.findIndex(function(cv) { return cv.n === v.n; });
+                        if (ci !== -1) {
+                            var cAngle = (ci / cVals.length) * Math.PI * 0.8 + Math.PI * 1.6;
+                            var cvx = rX + Math.cos(cAngle) * rd;
+                            var cvy = ctrY + Math.sin(cAngle) * rd * 0.65;
+                            cvx = Math.max(M + 8, Math.min(M + MW - 8, cvx));
+                            cvy = Math.max(vnY + 8, Math.min(vnY + vnH - 8, cvy));
+                            sd(C.g); doc.setLineWidth(0.3);
+                            // Dashed bridge
+                            var dx = cvx - vx, dy = cvy - vy;
+                            var len = Math.sqrt(dx * dx + dy * dy);
+                            var dashLen = 2, gapLen = 1.5;
+                            var nx = dx / len, ny = dy / len;
+                            var pos = 0;
+                            while (pos < len) {
+                                var end = Math.min(pos + dashLen, len);
+                                doc.line(vx + nx * pos, vy + ny * pos, vx + nx * end, vy + ny * end);
+                                pos = end + gapLen;
+                            }
+                        }
+                    }
+                });
+                
+                // Company values
+                cVals.forEach(function(v, i) {
+                    var angle = (i / cVals.length) * Math.PI * 0.8 + Math.PI * 1.6;
+                    var rd = 32;
+                    var vx = rX + Math.cos(angle) * rd;
+                    var vy = ctrY + Math.sin(angle) * rd * 0.65;
+                    vx = Math.max(M + 8, Math.min(M + MW - 8, vx));
+                    vy = Math.max(vnY + 8, Math.min(vnY + vnH - 8, vy));
+                    
+                    sd([50, 65, 95]); doc.setLineWidth(0.08); doc.line(rX, hubY, vx, vy);
+                    
+                    var isA = aSet[v.n];
+                    var nc = isA ? C.g : C.p;
+                    var nr = isA ? 3 : 2.2;
+                    sf(nc); doc.circle(vx, vy, nr, 'F');
+                    if (isA) { sd(C.white); doc.setLineWidth(0.3); doc.circle(vx, vy, nr, 'S'); }
+                    
+                    doc.setFontSize(4.5); sc(isA ? C.g : C.p);
+                    doc.text(v.n, vx, vy - nr - 1.5, { align: 'center' });
+                });
+                
+                // Legend
+                var vLegY = vnY + vnH - 7;
+                sf([20, 24, 42]); sd(C.borderRGB); doc.setLineWidth(0.2);
+                doc.roundedRect(M + 3, vLegY, 60, 5, 2, 2, 'FD');
+                var vlx = M + 6;
+                [{ l: 'Aligned', c: C.g }, { l: 'Candidate', c: C.am }, { l: 'Organization', c: C.p }].forEach(function(li) {
+                    sf(li.c); doc.circle(vlx + 1, vLegY + 2.5, 1, 'F');
+                    doc.setFontSize(5); sc(C.tm); doc.text(li.l, vlx + 3, vLegY + 3.2);
+                    vlx += doc.getTextWidth(li.l) + 7;
+                });
+                
+                y = vnY + vnH + 4;
+                
+                // Narrative
+                if (R.values.narrative) {
+                    check(12);
+                    var vnText = (R.values.narrative || '').replace(/<[^>]+>/g, '');
+                    sf([14, 20, 38]); sd([40, 55, 85]); doc.setLineWidth(0.3);
+                    var vnLines = doc.splitTextToSize(vnText, MW - 16);
+                    var vnlH = Math.min(vnLines.length, 4) * 3.5 + 8;
+                    doc.roundedRect(M, y, MW, vnlH, 2.5, 2.5, 'FD');
+                    doc.setFontSize(5); doc.setFont(undefined, 'bold'); sc(C.a);
+                    doc.text('CULTURAL FIT SIGNAL', M + 8, y + 4.5);
+                    doc.setFontSize(7); doc.setFont(undefined, 'normal'); sc(C.t2);
+                    doc.text(vnLines.slice(0, 4), M + 8, y + 8.5);
+                    y += vnlH + 4;
+                }
+            }
+            
+            // ════════════════════════════════════════════════════════
+            // 6. SKILL ALIGNMENT DETAIL
+            // ════════════════════════════════════════════════════════
+            newPage();
+            secHead('Skill Alignment Detail', 'Click any row for evidence');
             
             var sortedSkills = allSkills.slice().sort(function(a, b) {
                 if (a.k && !b.k) return -1; if (!a.k && b.k) return 1;
                 return (lvlVal[b.l] || 0) - (lvlVal[a.l] || 0);
             });
             
-            sf([25, 30, 55]); doc.roundedRect(M, y, MW, 6.5, 1.5, 1.5, 'F');
-            doc.setFontSize(6); doc.setFont(undefined, 'bold'); sc(C.textMuted);
-            doc.text('SKILL', M + 4, y + 4.2);
-            doc.text('LEVEL', M + 95, y + 4.2);
-            doc.text('ROLE', M + 120, y + 4.2);
-            doc.text('STATUS', W - M - 4, y + 4.2, { align: 'right' });
-            y += 8.5;
-            
-            var displaySkills = sortedSkills.slice(0, 50);
-            displaySkills.forEach(function(sk, idx) {
-                check(6.5);
-                if (idx % 2 === 0) { sf([18, 22, 42]); doc.rect(M, y - 2.5, MW, 6, 'F'); }
-                doc.setFontSize(7.5); doc.setFont(undefined, 'normal'); sc(C.text);
-                var sName = sk.n.length > 42 ? sk.n.slice(0, 40) + '\u2026' : sk.n;
-                doc.text(sName, M + 4, y + 0.5);
+            sortedSkills.slice(0, 60).forEach(function(sk) {
+                check(8);
+                // Skill row card — matches .sk-r
+                card(M, y, MW, 7);
+                
+                // Proficiency dot
+                var lc = lvlColor[sk.l] || C.tm;
+                sf(lc); doc.circle(M + 5, y + 3.5, 1.2, 'F');
+                
+                // Skill name
+                doc.setFontSize(7); doc.setFont(undefined, 'bold'); sc(C.t1);
+                var sName = sk.n.length > 38 ? sk.n.slice(0, 36) + '\u2026' : sk.n;
+                doc.text(sName, M + 9, y + 4.5);
+                doc.setFont(undefined, 'normal');
+                
+                // Verified badge
                 if (sk.vf) {
-                    var bx = M + 4 + doc.getTextWidth(sName) + 2;
-                    if (bx < M + 88) {
-                        var bc = sk.vf === 'cert' ? C.purple : sk.vf === 'edu' ? C.cyan : C.green;
-                        var bt = sk.vf === 'cert' ? '\u2713C' : sk.vf === 'edu' ? '\u2713E' : '\u2713';
-                        pill(bx, y + 0.5, bt, [bc[0], bc[1], bc[2]], C.white);
+                    var bx = M + 9 + doc.getTextWidth(sName) + 2;
+                    if (bx < M + MW - 50) {
+                        var bc = sk.vf === 'cert' ? C.a : sk.vf === 'edu' ? C.purple : C.g;
+                        var bt = sk.vf === 'cert' ? '\u2713 ' + (sk.vfLabel || 'Cert') : sk.vf === 'edu' ? '\u2713 Verified' : '\u2713';
+                        if (bt.length > 14) bt = bt.slice(0, 12) + '\u2026';
+                        pill(bx, y + 4.5, bt, bc, C.white);
                     }
                 }
-                var lc = lvlColor[sk.l] || C.textDim;
-                doc.setFontSize(6.5); doc.setTextColor(lc[0], lc[1], lc[2]);
-                doc.text(sk.l || 'Proficient', M + 95, y + 0.5);
-                doc.setFontSize(6); sc(C.textDim);
-                var rn = '';
-                if (sk.r && sk.r[0]) { var ro = (R.roles || []).find(function(rl) { return rl.id === sk.r[0]; }); rn = ro ? ro.name : ''; }
-                if (rn.length > 16) rn = rn.slice(0, 14) + '\u2026';
-                doc.text(rn, M + 120, y + 0.5);
-                if (sk.k) { doc.setFontSize(7); doc.setFont(undefined, 'bold'); sc(C.green); doc.text('\u2713', W - M - 4, y + 0.8, { align: 'right' }); doc.setFont(undefined, 'normal'); }
-                y += 5.8;
+                
+                // Required label
+                if (sk.k) {
+                    doc.setFontSize(5); sc(C.tm);
+                    var reqX = M + MW - 40;
+                    sf([20, 24, 42]); doc.roundedRect(reqX, y + 2, 14, 3.8, 1.5, 1.5, 'F');
+                    doc.text('REQUIRED', reqX + 1.5, y + 4.6);
+                }
+                
+                // Proficiency bar — matches .sk-bars
+                var barX = M + MW - 22, barW = 18, barH = 1.5;
+                sf([25, 30, 50]); doc.roundedRect(barX, y + 3, barW, barH, 0.5, 0.5, 'F');
+                var fillW = ((lvlVal[sk.l] || 2) / 5) * barW;
+                sf(lc); doc.roundedRect(barX, y + 3, fillW, barH, 0.5, 0.5, 'F');
+                
+                y += 8.5;
             });
-            if (allSkills.length > 50) {
-                y += 3; doc.setFontSize(7); sc(C.textDim);
-                doc.text('+ ' + (allSkills.length - 50) + ' additional skills. See interactive HTML report for full list.', M + 4, y); y += 4;
+            
+            if (allSkills.length > 60) {
+                y += 2; doc.setFontSize(6); sc(C.tm);
+                doc.text('+ ' + (allSkills.length - 60) + ' additional skills in the interactive report.', M + 4, y);
+                y += 4;
             }
             
-            // ════════════════════════════════════════════════════
-            // GAP ANALYSIS & BRIDGE POTENTIAL
-            // ════════════════════════════════════════════════════
-            if (R.gaps && R.gaps.length > 0) {
-                check(30); if (y > 180) newPage();
-                sectionTitle('!', 'Gap Analysis & Bridge Potential', 'Missing skills with adjacent competencies');
-                R.gaps.forEach(function(gap) {
-                    check(22);
-                    panel(M, y, MW, 18);
-                    doc.setFontSize(9); doc.setFont(undefined, 'bold'); sc(C.white);
-                    doc.text(gap.n, M + 6, y + 6);
-                    var priC = gap.rq === 'Required' ? [60, 20, 25] : [50, 40, 15];
-                    var priT = gap.rq === 'Required' ? C.red : C.amber;
-                    pill(M + 6 + doc.getTextWidth(gap.n) + 4, y + 6, gap.rq || 'Required', priC, priT);
-                    doc.setFontSize(7); doc.setFont(undefined, 'normal'); sc(C.textMuted);
-                    var brL = doc.splitTextToSize(gap.br || '', MW - 14);
-                    doc.text(brL.slice(0, 2), M + 6, y + 11.5);
+            // ════════════════════════════════════════════════════════
+            // 7. GAP ANALYSIS & BRIDGE POTENTIAL
+            // ════════════════════════════════════════════════════════
+            if (gaps.length > 0) {
+                check(25); if (y > 180) newPage();
+                secHead('Gap Analysis & Bridge Potential', 'Missing skills with adjacent competencies');
+                
+                gaps.forEach(function(gap) {
+                    check(20);
+                    // Gap card — matches .gap-c (red border)
+                    sf(C.card); sd([60, 30, 30]); doc.setLineWidth(0.3);
+                    doc.roundedRect(M, y, MW, 17, 2.5, 2.5, 'FD');
+                    
+                    // Gap name + priority
+                    doc.setFontSize(7.5); doc.setFont(undefined, 'bold'); sc(C.r);
+                    doc.text(gap.n, M + 6, y + 5.5);
+                    var priLabel = gap.rq === 'Required' ? 'REQUIRED' : 'PREFERRED';
+                    pill(M + 6 + doc.getTextWidth(gap.n) + 3, y + 5.5, priLabel, gap.rq === 'Required' ? [60, 20, 25] : [50, 40, 15], gap.rq === 'Required' ? C.r : C.am);
+                    
+                    // Bridge narrative
+                    doc.setFontSize(6.5); doc.setFont(undefined, 'normal'); sc(C.t2);
+                    var brLines = doc.splitTextToSize(gap.br || '', MW - 14);
+                    doc.text(brLines.slice(0, 2), M + 6, y + 10);
+                    
+                    // Adjacent skill tags
                     if (gap.adj && gap.adj.length > 0) {
-                        doc.setFontSize(6); sc(C.textDim);
-                        doc.text('Adjacent: ' + gap.adj.join(', '), W - M - 6, y + 6, { align: 'right' });
+                        var tagX = M + 6;
+                        var tagY = y + 14.5;
+                        gap.adj.forEach(function(adj) {
+                            var tw = doc.getTextWidth(adj) + 6;
+                            if (tagX + tw > M + MW - 6) return;
+                            sf([16, 30, 28]); sd([20, 60, 50]); doc.setLineWidth(0.15);
+                            doc.roundedRect(tagX, tagY - 2, tw, 3.8, 1.5, 1.5, 'FD');
+                            doc.setFontSize(5); sc(C.g); doc.text(adj, tagX + 3, tagY + 0.5);
+                            tagX += tw + 2;
+                        });
                     }
-                    y += 21;
+                    
+                    y += 20;
                 });
             }
             
-            // ════════════════════════════════════════════════════
-            // VALUES ALIGNMENT
-            // ════════════════════════════════════════════════════
-            if (R.values && (R.values.candidate.length > 0 || R.values.company.length > 0)) {
-                check(40); if (y > 160) newPage();
-                sectionTitle('\u2665', 'Values Alignment', 'Cultural fit signal');
-                var valScore = R.values.score || 0;
-                var vsc = scoreColor(valScore);
-                panel(M, y, MW, 14);
-                doc.setFontSize(10); doc.setFont(undefined, 'bold');
-                doc.setTextColor(vsc[0], vsc[1], vsc[2]);
-                doc.text(valScore + '%', M + 8, y + 8);
-                doc.setFontSize(7); sc(C.textMuted); doc.setFont(undefined, 'normal');
-                var alignedCount = R.values.candidate.filter(function(v) { return v.s === 'aligned'; }).length;
-                doc.text(alignedCount + ' shared values  \u2022  ' + R.values.candidate.length + ' candidate  \u2022  ' + R.values.company.length + ' company', M + 28, y + 8);
+            // ════════════════════════════════════════════════════════
+            // 8. OUTCOMES & ACHIEVEMENTS
+            // ════════════════════════════════════════════════════════
+            if (R.outcomes && R.outcomes.length > 0) {
+                check(25); if (y > 180) newPage();
+                secHead('Outcomes & Achievements', 'Verified results from prior roles');
+                
+                R.outcomes.forEach(function(o) {
+                    check(12);
+                    // Outcome card — matches .outc
+                    var ct = (o.text || '').replace(/<[^>]+>/g, '');
+                    var oLines = doc.splitTextToSize(ct, MW - 16);
+                    var ocH = Math.min(oLines.length, 3) * 3.5 + 6;
+                    card(M, y, MW, ocH);
+                    doc.setFontSize(7.5); doc.setFont(undefined, 'normal'); sc(C.t2);
+                    doc.text(oLines.slice(0, 3), M + 6, y + 5);
+                    y += ocH + 3;
+                });
+            }
+            
+            // ════════════════════════════════════════════════════════
+            // 9. COMPETENCY DOMAINS
+            // ════════════════════════════════════════════════════════
+            if (R.domains && R.domains.length > 0) {
+                check(50); if (y > 140) newPage();
+                secHead('Competency Domains', 'Distribution across professional clusters');
+                
+                // Proficiency grid — matches .pgrid (5 cards in a row)
+                var prof = R.proficiency || {};
+                var profOrder = ['Mastery', 'Expert', 'Advanced', 'Proficient', 'Novice'];
+                var profColors = [C.am, C.purple, C.a, C.g, [107, 114, 128]];
+                var pgW = (MW - 8) / 5;
+                
+                profOrder.forEach(function(lv, i) {
+                    var px = M + i * (pgW + 2);
+                    card(px, y, pgW, 13);
+                    doc.setFontSize(12); doc.setFont(undefined, 'bold');
+                    doc.setTextColor(profColors[i][0], profColors[i][1], profColors[i][2]);
+                    doc.text(String(prof[lv] || 0), px + pgW / 2, y + 6, { align: 'center' });
+                    doc.setFontSize(4.5); doc.setFont(undefined, 'normal'); sc(C.tm);
+                    doc.text(lv.toUpperCase(), px + pgW / 2, y + 10.5, { align: 'center' });
+                });
                 y += 18;
                 
-                var colW = (MW - 6) / 2;
-                var colY = y;
-                doc.setFontSize(7); doc.setFont(undefined, 'bold');
-                sc(C.accent); doc.text(firstName + '\u2019s Values', M, colY);
-                doc.text(R.job.company + '\u2019s Culture', M + colW + 6, colY);
-                colY += 5; doc.setFont(undefined, 'normal');
-                var cvY = colY, coY = colY;
-                R.values.candidate.forEach(function(v) {
-                    var ia = v.s === 'aligned';
-                    doc.setFontSize(7.5); sc(ia ? C.green : C.text);
-                    doc.text((ia ? '\u2713 ' : '\u25CB ') + v.n, M + 2, cvY); cvY += 5;
-                });
-                R.values.company.forEach(function(v) {
-                    var ia = v.s === 'aligned';
-                    doc.setFontSize(7.5); sc(ia ? C.green : C.text);
-                    doc.text((ia ? '\u2713 ' : '\u25CB ') + v.n, M + colW + 8, coY);
-                    if (v.t === 'primary') pill(M + colW + 8 + doc.getTextWidth((ia ? '\u2713 ' : '\u25CB ') + v.n) + 2, coY, 'PRIMARY', [25, 35, 55], C.accent);
-                    coY += 5;
-                });
-                y = Math.max(cvY, coY) + 4;
-            }
-            
-            // ════════════════════════════════════════════════════
-            // EDUCATION & CERTIFICATIONS
-            // ════════════════════════════════════════════════════
-            var hasEdu = R.education && R.education.length > 0;
-            var hasCerts = R.certifications && R.certifications.length > 0;
-            if (hasEdu || hasCerts) {
-                check(30); if (y > 180) newPage();
-                sectionTitle('\u25C8', 'Education & Certifications', 'Verified credentials');
-                if (hasEdu) R.education.forEach(function(edu) {
-                    check(14); panel(M, y, MW, 12);
-                    doc.setFontSize(8.5); doc.setFont(undefined, 'bold'); sc(C.white);
-                    doc.text(edu.name || '', M + 6, y + 5.5);
-                    pill(M + 6 + doc.getTextWidth(edu.name || '') + 3, y + 5.5, '\u2713 EDU', [15, 40, 50], C.cyan);
-                    doc.setFontSize(7); doc.setFont(undefined, 'normal'); sc(C.textMuted);
-                    doc.text([edu.desc, edu.location, edu.dates].filter(Boolean).join('  \u2022  '), M + 6, y + 10);
-                    y += 15;
-                });
-                if (hasCerts) R.certifications.forEach(function(cert) {
-                    check(14); panel(M, y, MW, 12);
-                    doc.setFontSize(8.5); doc.setFont(undefined, 'bold'); sc(C.white);
-                    doc.text(cert.name || '', M + 6, y + 5.5);
-                    pill(M + 6 + doc.getTextWidth(cert.name || '') + 3, y + 5.5, '\u2713 CERT', [35, 20, 50], C.purple);
-                    doc.setFontSize(7); doc.setFont(undefined, 'normal'); sc(C.textMuted);
-                    doc.text([cert.desc, cert.dates, cert.status].filter(Boolean).join('  \u2022  '), M + 6, y + 10);
-                    y += 15;
-                });
-            }
-            
-            // ════════════════════════════════════════════════════
-            // OUTCOMES & ACHIEVEMENTS
-            // ════════════════════════════════════════════════════
-            if (R.outcomes && R.outcomes.length > 0) {
-                check(30); if (y > 180) newPage();
-                sectionTitle('\u2713', 'Outcomes & Achievements', 'Verified results from prior roles');
-                R.outcomes.forEach(function(o) {
-                    check(14);
-                    sf(C.amber); doc.rect(M, y, 1.5, 8, 'F');
-                    doc.setFontSize(8); doc.setFont(undefined, 'normal'); sc(C.text);
-                    var ct = (o.text || '').replace(/<[^>]+>/g, '');
-                    var oL = doc.splitTextToSize(ct, MW - 10);
-                    doc.text(oL.slice(0, 3), M + 5, y + 3.5);
-                    y += Math.min(oL.length, 3) * 3.8 + 4;
-                });
-            }
-            
-            // ════════════════════════════════════════════════════
-            // COMPETENCY DOMAINS
-            // ════════════════════════════════════════════════════
-            if (R.domains && R.domains.length > 0) {
-                check(30); if (y > 160) newPage();
-                sectionTitle('\u25A0', 'Competency Domains', 'Distribution across professional clusters');
+                // Domain bars — matches .dom-r
                 var maxDC = Math.max.apply(null, R.domains.map(function(d) { return d.c; })) || 1;
-                var barMW = MW - 55;
                 R.domains.forEach(function(dom) {
-                    check(10);
-                    var rc = dom.cl || '#60a5fa';
-                    var rgb = [parseInt(rc.slice(1,3),16)||96, parseInt(rc.slice(3,5),16)||165, parseInt(rc.slice(5,7),16)||250];
-                    var bw = (dom.c / maxDC) * barMW;
-                    var pct = Math.round((dom.c / (dom.m || 1)) * 100);
-                    sf(rgb); doc.circle(M + 2, y + 1.5, 1.5, 'F');
-                    doc.setFontSize(7.5); sc(C.text);
-                    var dl = dom.n.length > 20 ? dom.n.slice(0, 18) + '\u2026' : dom.n;
-                    doc.text(dl, M + 6, y + 2.5);
-                    sf([25, 30, 50]); doc.roundedRect(M + 42, y, barMW, 5, 1, 1, 'F');
-                    if (bw > 2) { sf(rgb); doc.roundedRect(M + 42, y, bw, 5, 1, 1, 'F'); }
-                    doc.setFontSize(6.5); doc.setFont(undefined, 'bold'); sc(C.text);
-                    doc.text(dom.c + ' (' + pct + '%)', M + 44 + barMW, y + 3.5);
+                    check(8);
+                    sd(C.borderRGB); doc.setLineWidth(0.1); doc.line(M, y + 5.5, W - M, y + 5.5);
+                    
+                    var rc = dom.cl || '#3b82f6';
+                    var rgb = [parseInt(rc.slice(1,3),16)||59, parseInt(rc.slice(3,5),16)||130, parseInt(rc.slice(5,7),16)||246];
+                    
+                    // Domain name
+                    doc.setFontSize(7); doc.setFont(undefined, 'bold'); sc(C.t1);
+                    var dl = dom.n.length > 22 ? dom.n.slice(0, 20) + '\u2026' : dom.n;
+                    doc.text(dl, M + 2, y + 4);
                     doc.setFont(undefined, 'normal');
-                    y += 8;
+                    
+                    // Bar
+                    var barX = M + 46, barW2 = MW - 72;
+                    sf([20, 24, 42]); doc.roundedRect(barX, y + 1.5, barW2, 3, 1, 1, 'F');
+                    var fillW = (dom.c / maxDC) * barW2;
+                    if (fillW > 1) { sf(rgb); doc.roundedRect(barX, y + 1.5, fillW, 3, 1, 1, 'F'); }
+                    
+                    // Count
+                    doc.setFontSize(6.5); sc(C.tm);
+                    var pct = Math.round((dom.c / (dom.m || 1)) * 100);
+                    doc.text(dom.c + ' (' + pct + '%)', W - M - 2, y + 4, { align: 'right' });
+                    
+                    y += 7;
                 });
             }
             
-            // ════════════════════════════════════════════════════
-            // SKILLS NETWORK VISUALIZATION
-            // ════════════════════════════════════════════════════
-            (function drawNetwork() {
-                newPage();
-                sectionTitle('\u25C8', 'Skill Network', 'Professional capability architecture');
-                doc.setFontSize(7.5); sc(C.textMuted);
-                doc.text(allSkills.length + ' skills across ' + (R.roles || []).length + ' domains. Node size = proficiency. Green = job-matched.', M, y);
-                y += 6;
-                var gCx = W / 2, gCy = y + 65, gR = 55;
-                var gN = [], gL = [], roles = R.roles || [];
-                roles.forEach(function(role, i) {
-                    var ang = (i / roles.length) * Math.PI * 2 - Math.PI / 2;
-                    var d = gR * 0.38;
-                    var rc = role.color || '#60a5fa';
-                    var rgb = [parseInt(rc.slice(1,3),16)||96, parseInt(rc.slice(3,5),16)||165, parseInt(rc.slice(5,7),16)||250];
-                    gN.push({ x: gCx + Math.cos(ang) * d, y: gCy + Math.sin(ang) * d, r: 4, color: rgb, type: 'role', label: role.name, ri: i });
-                });
-                var lvS = { 'Mastery': 2.6, 'Expert': 2.2, 'Advanced': 1.8, 'Proficient': 1.4, 'Novice': 0.9 };
-                function hsh(s) { var h=0; for(var i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0;} return h; }
-                function hfl(s,a,b) { return a+(Math.abs(hsh(s))%10000/10000)*(b-a); }
-                var skS = gN.length;
-                var rSk = {}; roles.forEach(function(r) { rSk[r.id] = []; });
-                allSkills.forEach(function(sk) { var rid = (sk.r && sk.r[0]) || ''; if (rSk[rid]) rSk[rid].push(sk); else if (roles.length > 0) (rSk[roles[0].id] = rSk[roles[0].id] || []).push(sk); });
-                roles.forEach(function(role, ri) {
-                    var sks = rSk[role.id] || [];
-                    var pA = (ri / roles.length) * Math.PI * 2 - Math.PI / 2;
-                    sks.forEach(function(sk, si) {
-                        var sp = pA + ((si / Math.max(sks.length, 1)) - 0.5) * 1.8;
-                        var dist = gR * (0.55 + hfl(sk.n + ri, 0, 0.4));
-                        var jit = hfl(sk.n + 'j', -3, 3);
-                        var lc = lvlColor[sk.l] || C.textDim;
-                        gN.push({ x: gCx + Math.cos(sp) * dist + jit, y: gCy + Math.sin(sp) * dist + jit * 0.6, r: lvS[sk.l] || 1.2, color: sk.k ? C.green : lc, type: 'skill', ri: ri });
-                        gL.push({ from: ri, to: gN.length - 1 });
-                    });
-                });
-                for (var si = skS; si < gN.length; si++) for (var sj = si + 1; sj < Math.min(si + 6, gN.length); sj++) {
-                    var dx = gN[si].x - gN[sj].x, dy = gN[si].y - gN[sj].y;
-                    if (Math.sqrt(dx*dx+dy*dy) < 16 && ((si*7+sj*13)%10 < 3)) gL.push({ from: si, to: sj });
-                }
-                sd(C.border); doc.setLineWidth(0.15); doc.circle(gCx, gCy, gR + 5, 'S');
-                gL.forEach(function(lk) { var a = gN[lk.from], b = gN[lk.to]; doc.setLineWidth(a.type === 'role' || b.type === 'role' ? 0.12 : 0.06); sd([40, 55, 90]); doc.line(a.x, a.y, b.x, b.y); });
-                gN.forEach(function(n) { if (n.type === 'skill') { sf(n.color); doc.circle(n.x, n.y, n.r, 'F'); } });
-                gN.forEach(function(n) { if (n.type === 'role') { sd(n.color); doc.setLineWidth(0.25); doc.circle(n.x, n.y, n.r + 1.5, 'S'); sf(n.color); doc.circle(n.x, n.y, n.r, 'F'); doc.setFontSize(6); doc.setFont(undefined, 'bold'); doc.setTextColor(n.color[0], n.color[1], n.color[2]); doc.text(n.label, n.x, n.y - n.r - 3, { align: 'center' }); doc.setFont(undefined, 'normal'); } });
-                y = gCy + gR + 12;
-                check(10); var lx = M;
-                doc.setFontSize(6); sc(C.textDim); doc.text('PROFICIENCY:', lx, y); lx += 22;
-                ['Mastery','Expert','Advanced','Proficient','Novice'].forEach(function(lv) {
-                    sf(lvlColor[lv]); doc.circle(lx, y - 1, lvS[lv] || 1, 'F');
-                    doc.setFontSize(5.5); sc(C.textMuted); doc.text(lv, lx + 3, y); lx += doc.getTextWidth(lv) + 9;
-                });
-                y += 3; lx = M;
-                doc.setFontSize(6); sc(C.textDim); doc.text('KEY SKILLS:', lx, y); lx += 20;
-                sf(C.green); doc.circle(lx, y - 1, 1.8, 'F'); sc(C.textMuted); doc.text('= Job-matched (green)', lx + 3, y);
-            })();
-            
-            // ════════════════════════════════════════════════════
-            // COMPENSATION INTELLIGENCE
-            // ════════════════════════════════════════════════════
+            // ════════════════════════════════════════════════════════
+            // 10. COMPENSATION INTELLIGENCE
+            // ════════════════════════════════════════════════════════
             (function drawComp() {
                 var comp = getEffectiveComp();
-                if (!comp || !comp.marketRate) return;
-                check(50); if (y > 140) newPage();
-                sectionTitle('$', 'Compensation Intelligence', 'Market positioning & benchmarks');
+                if (!comp || !comp.marketRate) {
+                    // Teaser — matches .teaser
+                    check(30); if (y > 200) newPage();
+                    secHead('Compensation Intelligence', 'Market positioning & benchmarks');
+                    card(M, y, MW, 24);
+                    doc.setFontSize(14); sc(C.tm);
+                    doc.text('\uD83D\uDCCA', W / 2, y + 7, { align: 'center' });
+                    doc.setFontSize(8); doc.setFont(undefined, 'bold'); sc(C.t2);
+                    doc.text('Compensation Data Available', W / 2, y + 13, { align: 'center' });
+                    doc.setFont(undefined, 'normal'); doc.setFontSize(6.5); sc(C.tm);
+                    doc.text('Market rate analysis and BLS benchmarks have been prepared.', W / 2, y + 17.5, { align: 'center' });
+                    doc.setFontSize(5.5);
+                    doc.text('\uD83D\uDD12 Candidate-controlled release', W / 2, y + 21, { align: 'center' });
+                    y += 28;
+                    return;
+                }
+                check(45); if (y > 160) newPage();
+                secHead('Compensation Intelligence', 'Market positioning & benchmarks');
+                
                 var rows;
                 if (comp.compSource === 'curated' || comp.compSource === 'reported') {
                     rows = [
-                        [comp.compLabel || 'Reported Comp', formatCompValue(comp.displayComp), 'Self-reported or curated'],
-                        ['BLS Benchmark', formatCompValue(comp.algorithmEstimate), 'Bureau of Labor Statistics median'],
-                        ['Function', ((comp.detectedFunction || 'general').charAt(0).toUpperCase() + (comp.detectedFunction || 'general').slice(1)), 'Detected professional function']
+                        [comp.compLabel || 'Reported', formatCompValue(comp.displayComp), 'Self-reported'],
+                        ['BLS Benchmark', formatCompValue(comp.algorithmEstimate), 'Bureau of Labor Statistics'],
+                        ['Function', ((comp.detectedFunction || 'general').charAt(0).toUpperCase() + (comp.detectedFunction || 'general').slice(1)), 'Detected function']
                     ];
                 } else {
                     rows = [
-                        ['Base Market Rate', '$' + Math.round(comp.marketRate).toLocaleString(), 'BLS median for function/seniority'],
-                        ['Conservative', '$' + Math.round(comp.conservativeOffer || comp.marketRate * 1.1).toLocaleString(), 'With evidence premium'],
+                        ['Base Market Rate', '$' + Math.round(comp.marketRate).toLocaleString(), 'BLS median'],
+                        ['Conservative', '$' + Math.round(comp.conservativeOffer || comp.marketRate * 1.1).toLocaleString(), 'Evidence premium'],
                         ['Standard', '$' + Math.round(comp.standardOffer || comp.marketRate * 1.2).toLocaleString(), 'Market-competitive'],
-                        ['Competitive', '$' + Math.round(comp.competitiveOffer || comp.marketRate * 1.3).toLocaleString(), 'Full portfolio value']
+                        ['Competitive', '$' + Math.round(comp.competitiveOffer || comp.marketRate * 1.3).toLocaleString(), 'Full portfolio']
                     ];
                 }
-                sf([25, 30, 55]); doc.roundedRect(M, y, MW, 6.5, 1.5, 1.5, 'F');
-                doc.setFontSize(6); doc.setFont(undefined, 'bold'); sc(C.textMuted);
-                doc.text('METRIC', M + 4, y + 4.2); doc.text('VALUE', M + 68, y + 4.2); doc.text('BASIS', M + 105, y + 4.2);
-                y += 8.5;
+                
                 rows.forEach(function(row, idx) {
                     check(7);
-                    if (idx % 2 === 0) { sf([18, 22, 42]); doc.rect(M, y - 2.5, MW, 6, 'F'); }
-                    doc.setFontSize(8); doc.setFont(undefined, 'normal'); sc(C.text); doc.text(row[0], M + 4, y + 0.5);
-                    doc.setFont(undefined, 'bold'); sc(C.accent); doc.text(row[1], M + 68, y + 0.5);
-                    doc.setFont(undefined, 'normal'); doc.setFontSize(6.5); sc(C.textDim); doc.text(row[2], M + 105, y + 0.5);
-                    y += 6.5;
+                    if (idx % 2 === 0) { sf([14, 18, 36]); doc.rect(M, y - 2, MW, 6.5, 'F'); }
+                    doc.setFontSize(7.5); doc.setFont(undefined, 'normal'); sc(C.t1);
+                    doc.text(row[0], M + 4, y + 1.5);
+                    doc.setFont(undefined, 'bold'); sc(C.a);
+                    doc.text(row[1], M + 65, y + 1.5);
+                    doc.setFont(undefined, 'normal'); doc.setFontSize(6); sc(C.tm);
+                    doc.text(row[2], M + 105, y + 1.5);
+                    y += 7;
                 });
-                if (comp.criticalSkills && comp.criticalSkills.length > 0) {
-                    y += 6; doc.setFontSize(7); doc.setFont(undefined, 'bold'); sc(C.text);
-                    doc.text('High Market Demand Skills', M, y); y += 4;
-                    doc.setFont(undefined, 'normal');
-                    var px = M;
-                    comp.criticalSkills.slice(0, 10).forEach(function(s) {
-                        var tw = doc.getTextWidth(s) + 8;
-                        if (px + tw > W - M) { px = M; y += 6; check(6); }
-                        pill(px, y, s, [25, 40, 55], C.accent); px += tw + 2;
-                    });
-                    y += 6;
-                }
             })();
             
-            // ════════════════════════════════════════════════════
+            // ════════════════════════════════════════════════════════
             // BACK COVER
-            // ════════════════════════════════════════════════════
+            // ════════════════════════════════════════════════════════
             newPage();
-            var fy = H / 2 - 24;
-            sf(C.accent); doc.circle(W/2, fy, 3, 'F');
-            sd(C.accent); doc.setLineWidth(0.2); doc.circle(W/2, fy, 10, 'S');
+            var fy = H / 2 - 20;
+            sf(C.a); doc.circle(W/2, fy, 3, 'F');
+            sd(C.a); doc.setLineWidth(0.2); doc.circle(W/2, fy, 10, 'S');
             doc.line(W/2, fy, W/2-7, fy-6); doc.line(W/2, fy, W/2+8, fy-5);
             doc.line(W/2, fy, W/2+7, fy+7); doc.line(W/2, fy, W/2-6, fy+7);
             sf([147, 187, 252]); doc.circle(W/2-7, fy-6, 1.3, 'F'); doc.circle(W/2+7, fy+7, 1.3, 'F');
-            sf(C.purple); doc.circle(W/2+8, fy-5, 1.1, 'F'); doc.circle(W/2-6, fy+7, 1.1, 'F');
-            fy += 18;
-            doc.setFontSize(11); doc.setFont(undefined, 'bold'); sc(C.accent);
+            sf([168, 85, 247]); doc.circle(W/2+8, fy-5, 1.1, 'F'); doc.circle(W/2-6, fy+7, 1.1, 'F');
+            fy += 16;
+            doc.setFontSize(10); doc.setFont(undefined, 'bold'); sc(C.a);
             doc.text('BLUEPRINT\u2122', W/2, fy, { align: 'center' });
-            fy += 5; doc.setFontSize(8); doc.setFont(undefined, 'normal'); sc(C.textMuted);
+            fy += 5; doc.setFontSize(7); doc.setFont(undefined, 'normal'); sc(C.tm);
             doc.text('Career Intelligence Platform', W/2, fy, { align: 'center' });
-            fy += 10; doc.setFontSize(8.5); sc(C.textDim);
-            doc.text('This scouting report was generated from ' + name + '\u2019s Blueprint profile.', W/2, fy, { align: 'center' });
+            fy += 10; doc.setFontSize(7.5); sc(C.t2);
+            doc.text('Scouting report generated from ' + name + '\u2019s Blueprint profile.', W/2, fy, { align: 'center' });
             fy += 5; doc.text('Targeted analysis for: ' + R.job.title + ' at ' + R.job.company, W/2, fy, { align: 'center' });
-            fy += 5; doc.text('It represents a living capability analysis, not a static document.', W/2, fy, { align: 'center' });
-            fy += 10; doc.setFontSize(10); doc.setFont(undefined, 'bold'); sc(C.accent);
+            fy += 5; doc.text('A living capability analysis, not a static document.', W/2, fy, { align: 'center' });
+            fy += 10; doc.setFontSize(9); doc.setFont(undefined, 'bold'); sc(C.a);
             doc.text('myblueprint.work', W/2, fy, { align: 'center' });
-            fy += 12; doc.setFontSize(6.5); doc.setFont(undefined, 'normal'); sc(C.textDim);
+            fy += 10; doc.setFontSize(5.5); doc.setFont(undefined, 'normal'); sc(C.tm);
             doc.text('\u00A9 ' + new Date().getFullYear() + ' Cliff Jurkiewicz. All rights reserved.', W/2, fy, { align: 'center' });
-            fy += 4; doc.text('Blueprint\u2122 and its associated methodologies are the intellectual property of Cliff Jurkiewicz.', W/2, fy, { align: 'center' });
+            fy += 3.5; doc.text('Blueprint\u2122 and its associated methodologies are the intellectual property of Cliff Jurkiewicz.', W/2, fy, { align: 'center' });
             addFooter();
             
             // Save
@@ -13909,6 +14244,7 @@ body {
             doc.save(fileName);
             showToast('Scouting Report PDF downloaded.', 'success');
         }
+
         
         function exportBlueprint(format) {
             // Demo lockdown: no exports on sample profiles (scouting report PDF uses its own path)
