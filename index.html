@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.36.0.0 | 20260222 | Security hardening: XSS, role escalation, Firestore rules, AI headers -->
+    <!-- v4.36.1.0 | 20260222 | Scouting report PDF: contact info, work history, recommendation, full text -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -960,8 +960,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.36.0.0 - BUILD 20260222-security-hardening
-        var BP_VERSION = 'v4.36.0.0';
+        // BLUEPRINT v4.36.1.0 - BUILD 20260222-pdf-recruiter-ready
+        var BP_VERSION = 'v4.36.1.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -992,7 +992,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260222-security-hardening                   ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260222-pdf-recruiter-ready                   ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -13220,16 +13220,21 @@ body {
                     title: profile.currentTitle || profile.title || '',
                     location: profile.location || 'Location undisclosed',
                     contact: profile.email || 'Available upon request',
+                    phone: profile.phone || '',
+                    linkedin: profile.linkedin || profile.linkedinUrl || '',
                     purpose: userPurpose,
                     blindTitle: (profile.currentTitle || 'Professional').replace(/[\w]+\s+(Inc|Corp|LLC|Ltd|Co)\.?/gi, '')
                 },
+                workHistory: (userData.workHistory || []).slice(0, 5).map(function(w) {
+                    return { title: w.title || w.role || '', company: w.company || w.organization || '', dates: w.dates || w.years || '', description: w.description || '' };
+                }),
                 job: { title: job.title || 'Untitled Position', company: job.company || 'Undisclosed', date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) },
                 match: { percentage: matchData.score || 0, narrative: narrative },
                 roles: roles,
                 skills: reportSkills,
                 jobRequired: jobRequiredNames,
                 gaps: reportGaps,
-                values: { score: valAlign ? valAlign.score : 0, narrative: '<div class="narr-lbl">Cultural Fit Signal</div>' + ((valAlign ? (valAlign.aligned || []).length : 0) + ' shared values identified.'), candidate: candidateValues, company: companyValuesList },
+                values: { score: valAlign ? valAlign.score : 0, narrative: 'Cultural Fit Signal — ' + ((valAlign ? (valAlign.aligned || []).length : 0) + ' shared values identified.'), candidate: candidateValues, company: companyValuesList },
                 outcomes: reportOutcomes,
                 education: userEdu.map(function(e) { return { name: e.institution || e.name || '', desc: (e.degree || '') + (e.field ? ' — ' + e.field : ''), location: e.location || '', dates: e.dates || e.year || '', vf: 'edu', skills: e.skills || [] }; }),
                 certifications: userCerts.map(function(c) { return { name: c.name || '', vf: 'cert', vfLabel: c.issuer || c.name || '', desc: c.description || c.issuer || '', dates: c.dates || c.year || '', status: c.status || '', skills: c.skills || [] }; }),
@@ -13570,8 +13575,19 @@ body {
             doc.setFontSize(6.5); sc(C.tm);
             var meta = [];
             if (R.candidate.location) meta.push('\uD83D\uDCCD ' + R.candidate.location);
-            if (R.candidate.contact) meta.push('\u260E ' + R.candidate.contact);
             doc.text(meta.join('    '), nx, y + 16);
+            // Contact line
+            var contactParts = [];
+            if (R.candidate.contact && R.candidate.contact !== 'Available upon request') contactParts.push('\u2709 ' + R.candidate.contact);
+            if (R.candidate.phone) contactParts.push('\u260E ' + R.candidate.phone);
+            if (R.candidate.linkedin) contactParts.push('\uD83D\uDD17 ' + R.candidate.linkedin);
+            if (contactParts.length > 0) {
+                doc.setFontSize(5.8); sc(C.t2);
+                doc.text(contactParts.join('   \u2022   '), nx, y + 20.5);
+            } else {
+                doc.setFontSize(5.8); sc(C.tm);
+                doc.text('\u260E Available upon request', nx, y + 20.5);
+            }
             
             // Match ring — right side
             var ringCx = W - M - 12, ringCy = y + 10, ringR = 10;
@@ -13589,7 +13605,7 @@ body {
             doc.setFontSize(4.5); doc.setFont(undefined, 'normal'); sc(C.tm);
             doc.text('MATCH', ringCx, ringCy + 6, { align: 'center' });
             
-            y += 26;
+            y += 30;
             
             // Target Role Card — matches .target
             card(M, y, MW, 18);
@@ -13622,12 +13638,12 @@ body {
             sf([14, 20, 38]); sd([40, 55, 85]); doc.setLineWidth(0.3);
             var narrativeClean = (R.match.narrative || '').replace(/<[^>]+>/g, '');
             var narLines = doc.splitTextToSize(narrativeClean, MW - 16);
-            var narH = Math.min(narLines.length, 6) * 3.8 + 12;
+            var narH = narLines.length * 3.8 + 11;
             doc.roundedRect(M, y, MW, narH, 2.5, 2.5, 'FD');
             doc.setFontSize(5); doc.setFont(undefined, 'bold'); sc(C.a);
             doc.text('\u2B50 WHY THIS CANDIDATE FITS', M + 8, y + 5);
             doc.setFontSize(7.5); doc.setFont(undefined, 'normal'); sc(C.t2);
-            doc.text(narLines.slice(0, 6), M + 8, y + 10);
+            doc.text(narLines, M + 8, y + 10);
             y += narH + 4;
             
             // Purpose — matches .purpose
@@ -13855,49 +13871,69 @@ body {
                 newPage();
                 secHead('Education & Certifications', 'Credentials backing verified skills');
                 
-                // Two-column layout
-                var colW = (MW - 6) / 2;
-                var leftX = M, rightX = M + colW + 6;
-                
                 if (hasEdu) {
-                    doc.setFontSize(5.5); doc.setFont(undefined, 'bold'); sc(C.tm);
-                    doc.text('\uD83C\uDF93 EDUCATION', leftX, y); y += 4;
+                    doc.setFontSize(6); doc.setFont(undefined, 'bold'); sc(C.tm);
+                    doc.text('\uD83C\uDF93 EDUCATION', M + 2, y + 1); y += 5;
                     doc.setFont(undefined, 'normal');
                     
                     R.education.forEach(function(edu) {
-                        check(16);
-                        card(leftX, y, colW, 16);
-                        doc.setFontSize(7.5); doc.setFont(undefined, 'bold'); sc(C.t1);
-                        doc.text(edu.name || '', leftX + 4, y + 5);
-                        pill(leftX + 4 + doc.getTextWidth(edu.name || '') + 2, y + 5, '\u2713 Verified', [168, 85, 247], C.white);
-                        doc.setFontSize(6); doc.setFont(undefined, 'normal'); sc(C.t2);
-                        doc.text(edu.desc || '', leftX + 4, y + 10);
+                        check(18);
+                        card(M, y, MW, 16);
+                        doc.setFontSize(8); doc.setFont(undefined, 'bold'); sc(C.t1);
+                        var eduName = (edu.name || '').length > 40 ? edu.name.slice(0, 38) + '\u2026' : edu.name || '';
+                        doc.text(eduName, M + 6, y + 5.5);
+                        if (edu.vf) pill(M + 6 + doc.getTextWidth(eduName) + 2, y + 5.5, '\u2713 Verified', C.purple, C.white);
+                        doc.setFontSize(6.5); doc.setFont(undefined, 'normal'); sc(C.t2);
+                        doc.text(edu.desc || '', M + 6, y + 10.5);
                         doc.setFontSize(5.5); sc(C.tm);
-                        var eMeta = [edu.location, edu.dates].filter(Boolean).join('  \u2022  ');
-                        doc.text(eMeta, leftX + 4, y + 14);
+                        doc.text([edu.location, edu.dates].filter(Boolean).join('  \u2022  '), M + 6, y + 14);
                         y += 19;
                     });
                 }
                 
                 if (hasCerts) {
-                    var certY = hasEdu ? (y > 50 ? y : 50) : y;
-                    if (hasEdu) { y = certY; }
-                    doc.setFontSize(5.5); doc.setFont(undefined, 'bold'); sc(C.tm);
-                    doc.text('\uD83C\uDFC5 CERTIFICATIONS', hasEdu ? rightX : leftX, certY - 4 > M ? certY - 4 : y);
+                    y += 2;
+                    doc.setFontSize(6); doc.setFont(undefined, 'bold'); sc(C.tm);
+                    doc.text('\uD83C\uDFC5 CERTIFICATIONS', M + 2, y + 1); y += 5;
                     doc.setFont(undefined, 'normal');
                     
                     R.certifications.forEach(function(cert) {
                         check(16);
-                        var cx = hasEdu ? rightX : leftX;
-                        card(cx, y, colW, 14);
-                        doc.setFontSize(7.5); doc.setFont(undefined, 'bold'); sc(C.t1);
-                        doc.text(cert.name || '', cx + 4, y + 5);
-                        pill(cx + 4 + doc.getTextWidth(cert.name || '') + 2, y + 5, '\u2713 Cert', C.a, C.white);
-                        doc.setFontSize(6); doc.setFont(undefined, 'normal'); sc(C.t2);
-                        doc.text([cert.desc, cert.dates].filter(Boolean).join('  \u2022  '), cx + 4, y + 10);
+                        card(M, y, MW, 14);
+                        doc.setFontSize(8); doc.setFont(undefined, 'bold'); sc(C.t1);
+                        var certName = (cert.name || '').length > 40 ? cert.name.slice(0, 38) + '\u2026' : cert.name || '';
+                        doc.text(certName, M + 6, y + 5);
+                        pill(M + 6 + doc.getTextWidth(certName) + 2, y + 5, '\u2713 Cert', C.a, C.white);
+                        doc.setFontSize(6.5); doc.setFont(undefined, 'normal'); sc(C.t2);
+                        doc.text([cert.desc, cert.dates].filter(Boolean).join('  \u2022  '), M + 6, y + 10);
                         y += 17;
                     });
                 }
+            }
+            
+            // ════════════════════════════════════════════════════════
+            // 4b. PROFESSIONAL EXPERIENCE
+            // ════════════════════════════════════════════════════════
+            var hasWorkHistory = R.workHistory && R.workHistory.length > 0;
+            if (hasWorkHistory) {
+                check(30); if (y > 180) newPage();
+                secHead('Professional Experience', 'Recent roles and career trajectory');
+                
+                R.workHistory.slice(0, 5).forEach(function(w) {
+                    check(16);
+                    card(M, y, MW, 14);
+                    
+                    // Title
+                    doc.setFontSize(8); doc.setFont(undefined, 'bold'); sc(C.t1);
+                    doc.text(w.title || 'Role', M + 6, y + 5);
+                    
+                    // Company + dates on same line
+                    doc.setFontSize(6.5); doc.setFont(undefined, 'normal'); sc(C.t2);
+                    var expMeta = [w.company, w.dates].filter(Boolean).join('  \u2022  ');
+                    doc.text(expMeta, M + 6, y + 10);
+                    
+                    y += 17;
+                });
             }
             
             // ════════════════════════════════════════════════════════
@@ -14040,7 +14076,7 @@ body {
             // 6. SKILL ALIGNMENT DETAIL
             // ════════════════════════════════════════════════════════
             newPage();
-            secHead('Skill Alignment Detail', 'Click any row for evidence');
+            secHead('Skill Alignment Detail', 'Proficiency levels and match status');
             
             var sortedSkills = allSkills.slice().sort(function(a, b) {
                 if (a.k && !b.k) return -1; if (!a.k && b.k) return 1;
@@ -14058,14 +14094,14 @@ body {
                 
                 // Skill name
                 doc.setFontSize(7); doc.setFont(undefined, 'bold'); sc(C.t1);
-                var sName = sk.n.length > 38 ? sk.n.slice(0, 36) + '\u2026' : sk.n;
+                var sName = sk.n.length > 32 ? sk.n.slice(0, 30) + '\u2026' : sk.n;
                 doc.text(sName, M + 9, y + 4.5);
                 doc.setFont(undefined, 'normal');
                 
                 // Verified badge
                 if (sk.vf) {
                     var bx = M + 9 + doc.getTextWidth(sName) + 2;
-                    if (bx < M + MW - 50) {
+                    if (bx < M + MW - 65) {
                         var bc = sk.vf === 'cert' ? C.a : sk.vf === 'edu' ? C.purple : C.g;
                         var bt = sk.vf === 'cert' ? '\u2713 ' + (sk.vfLabel || 'Cert') : sk.vf === 'edu' ? '\u2713 Verified' : '\u2713';
                         if (bt.length > 14) bt = bt.slice(0, 12) + '\u2026';
@@ -14076,10 +14112,14 @@ body {
                 // Required label
                 if (sk.k) {
                     doc.setFontSize(5); sc(C.tm);
-                    var reqX = M + MW - 40;
+                    var reqX = M + MW - 55;
                     sf([20, 24, 42]); doc.roundedRect(reqX, y + 2, 14, 3.8, 1.5, 1.5, 'F');
                     doc.text('REQUIRED', reqX + 1.5, y + 4.6);
                 }
+                
+                // Proficiency label
+                doc.setFontSize(5); doc.setTextColor(lc[0], lc[1], lc[2]);
+                doc.text(sk.l || 'Proficient', M + MW - 37, y + 4.5, { align: 'right' });
                 
                 // Proficiency bar — matches .sk-bars
                 var barX = M + MW - 22, barW = 18, barH = 1.5;
@@ -14146,14 +14186,16 @@ body {
                 secHead('Outcomes & Achievements', 'Verified results from prior roles');
                 
                 R.outcomes.forEach(function(o) {
-                    check(12);
+                    check(14);
                     // Outcome card — matches .outc
                     var ct = (o.text || '').replace(/<[^>]+>/g, '');
                     var oLines = doc.splitTextToSize(ct, MW - 16);
-                    var ocH = Math.min(oLines.length, 3) * 3.5 + 6;
+                    var ocH = Math.min(oLines.length, 5) * 3.5 + 6;
                     card(M, y, MW, ocH);
-                    doc.setFontSize(7.5); doc.setFont(undefined, 'normal'); sc(C.t2);
-                    doc.text(oLines.slice(0, 3), M + 6, y + 5);
+                    // Bullet marker
+                    sf(C.g); doc.circle(M + 5, y + 5, 1, 'F');
+                    doc.setFontSize(7); doc.setFont(undefined, 'normal'); sc(C.t2);
+                    doc.text(oLines.slice(0, 5), M + 9, y + 5);
                     y += ocH + 3;
                 });
             }
@@ -14264,6 +14306,47 @@ body {
                     y += 7;
                 });
             })();
+            
+            // ════════════════════════════════════════════════════════
+            // 11. RECRUITER RECOMMENDATION
+            // ════════════════════════════════════════════════════════
+            check(45); if (y > 180) newPage();
+            secHead('Recommendation', 'Summary assessment for hiring team');
+            
+            // Verdict card
+            var verdict = matchPct >= 80 ? 'Strong Fit' : matchPct >= 60 ? 'Promising Candidate' : matchPct >= 40 ? 'Conditional Fit' : 'Development Needed';
+            var verdictColor = matchPct >= 80 ? C.g : matchPct >= 60 ? C.a : matchPct >= 40 ? C.am : C.r;
+            var verdictAdvice = matchPct >= 80 ? 'Recommend proceeding to phone screen. This candidate matches the majority of required competencies and demonstrates strong alignment.'
+                : matchPct >= 60 ? 'Worth further evaluation. Core competencies are present with some gaps that may be bridgeable through adjacent skills.'
+                : matchPct >= 40 ? 'Targeted evaluation recommended. Key gaps exist but candidate brings transferable strengths worth discussing.'
+                : 'Significant skill gaps identified. Consider only if other differentiators (culture fit, growth potential) outweigh technical requirements.';
+            
+            card(M, y, MW, 36);
+            
+            // Large verdict text
+            doc.setFontSize(14); doc.setFont(undefined, 'bold');
+            doc.setTextColor(verdictColor[0], verdictColor[1], verdictColor[2]);
+            doc.text(verdict, M + 8, y + 9);
+            
+            // Match score + gaps summary
+            doc.setFontSize(7.5); doc.setFont(undefined, 'normal'); sc(C.t2);
+            doc.text(matchPct + '% skill match  \u2022  ' + matched.length + ' matched  \u2022  ' + gaps.length + ' gap' + (gaps.length !== 1 ? 's' : '') + '  \u2022  ' + Math.max(0, surplus) + ' surplus', M + 8, y + 15);
+            
+            // Advice text
+            doc.setFontSize(7); sc(C.tm);
+            var advLines = doc.splitTextToSize(verdictAdvice, MW - 16);
+            doc.text(advLines, M + 8, y + 21);
+            
+            // Key strengths and concerns
+            var keyStrengths = matched.filter(function(m) { return m.requirement === 'Required'; }).slice(0, 3).map(function(m) { return m.userSkill; });
+            if (keyStrengths.length > 0) {
+                doc.setFontSize(5.5); doc.setFont(undefined, 'bold'); sc(C.g);
+                doc.text('KEY STRENGTHS: ', M + 8, y + 32);
+                doc.setFont(undefined, 'normal'); sc(C.t2);
+                doc.text(keyStrengths.join(', '), M + 8 + doc.getTextWidth('KEY STRENGTHS: ') + 1, y + 32);
+            }
+            
+            y += 40;
             
             // ════════════════════════════════════════════════════════
             // BACK COVER
