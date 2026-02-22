@@ -3284,7 +3284,19 @@
                 bottom: 70px;
                 min-width: unset;
                 max-width: unset;
-                font-size: 0.75em;
+                font-size: 0.72em;
+            }
+            .match-legend .ml-score-row {
+                padding: 8px 12px 6px;
+            }
+            .match-legend .ml-score-num {
+                font-size: 1.8em;
+            }
+            .match-legend .ml-stats {
+                padding: 4px 12px 6px;
+            }
+            .match-legend .ml-actions {
+                padding: 6px 12px 8px;
             }
             .job-info-tile {
                 top: 8px;
@@ -3292,7 +3304,19 @@
                 right: 8px;
                 min-width: unset;
                 max-width: unset;
-                font-size: 0.75em;
+                font-size: 0.72em;
+                padding: 10px 14px;
+            }
+            .job-info-tile .jit-salary {
+                margin-top: 6px;
+                padding: 5px 8px;
+            }
+            .job-info-tile .jit-salary-range {
+                font-size: 0.95em;
+            }
+            .job-info-tile .jit-meta {
+                margin-top: 3px;
+                gap: 6px;
             }
             .values-alignment-panel {
                 position: absolute !important;

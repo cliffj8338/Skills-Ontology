@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.32.0.2 | 20260222 | Mobile UI: tagline break, values network spacing, overlay collision fix -->
+    <!-- v4.32.0.3 | 20260222 | Badge logic fix, job overlay mobile compact, pipeline header spacing -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -892,8 +892,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.32.0.2 - BUILD 20260222-mobile-ui-polish
-        var BP_VERSION = 'v4.32.0.2';
+        // BLUEPRINT v4.32.0.3 - BUILD 20260222-badge-overlay-pipeline
+        var BP_VERSION = 'v4.32.0.3';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -7064,25 +7064,25 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     var lvl = (s.level || '').toLowerCase();
                     return lvl === 'mastery' || lvl === 'expert';
                 });
-                // Merge key + top-level, deduplicate, cap at 25
+                // Merge key + top-level, deduplicate, cap at 30
                 var seen = new Set();
                 skillsToShow = [];
                 keySkills.concat(topLevelSkills).forEach(function(s) {
-                    if (!seen.has(s.name) && skillsToShow.length < 25) {
+                    if (!seen.has(s.name) && skillsToShow.length < 30) {
                         seen.add(s.name);
                         skillsToShow.push(s);
                     }
                 });
-                // If still under 25, backfill with Advanced
-                if (skillsToShow.length < 25) {
+                // If still under 30, backfill with Advanced
+                if (skillsToShow.length < 30) {
                     skillsData.skills.filter(function(s) { return (s.level || '').toLowerCase() === 'advanced' && !seen.has(s.name); })
-                        .slice(0, 25 - skillsToShow.length)
+                        .slice(0, 30 - skillsToShow.length)
                         .forEach(function(s) { skillsToShow.push(s); seen.add(s.name); });
                 }
-                // If still under 25, backfill with Proficient
-                if (skillsToShow.length < 25) {
+                // If still under 30, backfill with Proficient
+                if (skillsToShow.length < 30) {
                     skillsData.skills.filter(function(s) { return (s.level || '').toLowerCase() === 'proficient' && !seen.has(s.name); })
-                        .slice(0, 25 - skillsToShow.length)
+                        .slice(0, 30 - skillsToShow.length)
                         .forEach(function(s) { skillsToShow.push(s); seen.add(s.name); });
                 }
                 // FALLBACK: if level-based filters found nothing, take any skills sorted by level priority
@@ -7090,7 +7090,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     var sorted = skillsData.skills.slice().sort(function(a, b) {
                         return (levelPri[(b.level || '').toLowerCase()] || 0) - (levelPri[(a.level || '').toLowerCase()] || 0);
                     });
-                    sorted.slice(0, 25).forEach(function(s) { skillsToShow.push(s); });
+                    sorted.slice(0, 30).forEach(function(s) { skillsToShow.push(s); });
                 }
             }
 
@@ -7309,10 +7309,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Labels always on (toggle removed in v4.27.3.3)
             if (isMobile) {
                 
-                // Add info badge showing filtered count
-                if (skillsToShow.length < skillsData.skills.length) {
-                    var existing = document.getElementById('mobileNetworkBadge');
-                    if (existing) existing.remove();
+                // Add info badge only when skills are actually capped (more than 30 total)
+                var existingBadge = document.getElementById('mobileNetworkBadge');
+                if (existingBadge) existingBadge.remove();
+                if (skillsToShow.length < skillsData.skills.length && skillsData.skills.length > 30) {
                     var badge = document.createElement('div');
                     badge.id = 'mobileNetworkBadge';
                     badge.style.cssText = 'position:absolute; bottom:12px; left:50%; transform:translateX(-50%); '
@@ -7441,6 +7441,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var ric = document.getElementById('roleInfoCard');
             if (ric) ric.style.display = 'none';
             hideTooltip();
+            // Remove skills count badge — only relevant in 'you' mode
+            var mnb = document.getElementById('mobileNetworkBadge');
+            if (mnb) mnb.remove();
             
             if (mode === 'you') {
                 // Standard network
@@ -8778,6 +8781,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 if (jt) jt.remove();
                 if (ric) ric.style.display = 'none';
                 if (vap) vap.remove();
+                var mnb = document.getElementById('mobileNetworkBadge');
+                if (mnb) mnb.remove();
             }
 
             // Update mobile nav
@@ -14802,12 +14807,12 @@ body {
             var html = '';
             
             // Add Job button
-            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">'
-                + '<div>'
+            html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; gap:16px; flex-wrap:wrap;">'
+                + '<div style="min-width:0;">'
                 + '<h2 style="font-family:Outfit,sans-serif; font-size:1.3em; font-weight:700; color:var(--text-primary); margin:0; letter-spacing:0.08em; text-transform:uppercase;">Job Pipeline</h2>'
                 + '<p style="font-size:0.85em; color:var(--text-muted); margin-top:4px;">Your saved jobs and skill match analysis</p>'
                 + '</div>'
-                + '<div style="display:flex; gap:8px;">'
+                + '<div style="display:flex; gap:8px; flex-shrink:0;">'
                 + '<button onclick="rescoreAllJobs(); renderJobsSubTab();" style="'
                 + 'background:none; border:1px solid var(--border); color:var(--text-muted); padding:10px 16px; border-radius:8px; '
                 + 'cursor:pointer; font-size:0.85em;" title="Re-calculate match scores based on current skills">\u21BB Refresh Matches</button>'
