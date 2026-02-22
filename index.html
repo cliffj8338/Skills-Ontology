@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.36.1.0 | 20260222 | Scouting report PDF: contact info, work history, recommendation, full text -->
+    <!-- v4.36.2.0 | 20260222 | PDF fix: narrative/outcome truncation, Tyrion role mapping, Competent level -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -960,8 +960,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.36.1.0 - BUILD 20260222-pdf-recruiter-ready
-        var BP_VERSION = 'v4.36.1.0';
+        // BLUEPRINT v4.36.2.0 - BUILD 20260222-pdf-truncation-fix
+        var BP_VERSION = 'v4.36.2.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -992,7 +992,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260222-pdf-recruiter-ready                   ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260222-pdf-truncation-fix                   ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -13130,7 +13130,13 @@ body {
             // Roles
             var roleColors = ['#60a5fa', '#a855f7', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#ef4444', '#f97316', '#84cc16'];
             var activeRoleIds = new Set();
-            allSkills.forEach(function(s) { (s.roles || []).forEach(function(r) { activeRoleIds.add(r); }); });
+            // Normalize: handle both s.roles (array) and s.role (string) formats
+            var roleNameToId = {};
+            allRoles.forEach(function(r) { roleNameToId[r.name] = r.id; });
+            allSkills.forEach(function(s) {
+                if (!s.roles && s.role) { s.roles = [roleNameToId[s.role] || s.role]; }
+                (s.roles || []).forEach(function(r) { activeRoleIds.add(r); });
+            });
             var roles = allRoles.filter(function(r) { return activeRoleIds.has(r.id); }).map(function(r, i) {
                 return { id: r.id, name: r.name, color: r.color || roleColors[i % roleColors.length] };
             });
@@ -13149,6 +13155,7 @@ body {
                 });
                 if (isRequired) sk.k = 1;
                 var ev = (s.evidence || []).map(function(e) {
+                    if (typeof e === 'string') return e;
                     return ((e.outcome || '') + ' ' + (e.description || '')).trim();
                 }).filter(Boolean).join(' ');
                 if (ev) sk.ev = ev.substring(0, 300);
@@ -13484,8 +13491,8 @@ body {
                 orange:[249, 115, 22],
                 purple:[168, 85, 247]
             };
-            var lvlColor = { 'Mastery': C.am, 'Expert': C.purple, 'Advanced': C.a, 'Proficient': C.g, 'Novice': [107, 114, 128] };
-            var lvlVal = { 'Mastery': 5, 'Expert': 4, 'Advanced': 3, 'Proficient': 2, 'Novice': 1 };
+            var lvlColor = { 'Mastery': C.am, 'Expert': C.purple, 'Advanced': C.a, 'Proficient': C.g, 'Competent': C.g, 'Novice': [107, 114, 128] };
+            var lvlVal = { 'Mastery': 5, 'Expert': 4, 'Advanced': 3, 'Proficient': 2, 'Competent': 2, 'Novice': 1 };
             
             // ── Drawing helpers ──
             function sc(c) { doc.setTextColor(c[0], c[1], c[2]); }
@@ -13643,13 +13650,17 @@ body {
             // Narrative — matches .narr
             sf([14, 20, 38]); sd([40, 55, 85]); doc.setLineWidth(0.3);
             var narrativeClean = (R.match.narrative || '').replace(/<[^>]+>/g, '');
+            doc.setFontSize(7); doc.setFont(undefined, 'normal');
             var narLines = doc.splitTextToSize(narrativeClean, MW - 16);
-            var narH = narLines.length * 3.8 + 11;
+            var lineH = 3.4;
+            var narH = narLines.length * lineH + 12;
             doc.roundedRect(M, y, MW, narH, 2.5, 2.5, 'FD');
             doc.setFontSize(5); doc.setFont(undefined, 'bold'); sc(C.a);
             doc.text('\u2B50 WHY THIS CANDIDATE FITS', M + 8, y + 5);
-            doc.setFontSize(7.5); doc.setFont(undefined, 'normal'); sc(C.t2);
-            doc.text(narLines, M + 8, y + 10);
+            doc.setFontSize(7); doc.setFont(undefined, 'normal'); sc(C.t2);
+            for (var ni = 0; ni < narLines.length; ni++) {
+                doc.text(narLines[ni], M + 8, y + 10 + ni * lineH);
+            }
             y += narH + 4;
             
             // Purpose — matches .purpose
@@ -14192,16 +14203,19 @@ body {
                 secHead('Outcomes & Achievements', 'Verified results from prior roles');
                 
                 R.outcomes.forEach(function(o) {
-                    check(14);
                     // Outcome card — matches .outc
                     var ct = (o.text || '').replace(/<[^>]+>/g, '');
-                    var oLines = doc.splitTextToSize(ct, MW - 16);
-                    var ocH = Math.min(oLines.length, 5) * 3.5 + 6;
+                    doc.setFontSize(6.5);
+                    var oLines = doc.splitTextToSize(ct, MW - 18);
+                    var ocH = oLines.length * 3.2 + 6;
+                    check(ocH + 3);
                     card(M, y, MW, ocH);
                     // Bullet marker
                     sf(C.g); doc.circle(M + 5, y + 5, 1, 'F');
-                    doc.setFontSize(7); doc.setFont(undefined, 'normal'); sc(C.t2);
-                    doc.text(oLines.slice(0, 5), M + 9, y + 5);
+                    doc.setFontSize(6.5); doc.setFont(undefined, 'normal'); sc(C.t2);
+                    for (var oi = 0; oi < oLines.length; oi++) {
+                        doc.text(oLines[oi], M + 9, y + 5 + oi * 3.2);
+                    }
                     y += ocH + 3;
                 });
             }
