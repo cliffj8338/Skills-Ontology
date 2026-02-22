@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.32.0.1 | 20260222 | Auth lockdown, nav gating, settings gate, title fix, banner fix -->
+    <!-- v4.32.0.2 | 20260222 | Mobile UI: tagline break, values network spacing, overlay collision fix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -892,8 +892,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.32.0.1 - BUILD 20260222-title-nav-fix
-        var BP_VERSION = 'v4.32.0.1';
+        // BLUEPRINT v4.32.0.2 - BUILD 20260222-mobile-ui-polish
+        var BP_VERSION = 'v4.32.0.2';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -2906,8 +2906,8 @@
                 
                 // Headline + subtitle + CTAs
                 + '<div style="text-align:center; margin-bottom:32px;">'
-                + '<h2 style="font-size:2.6em; font-weight:700; color:var(--accent); margin-bottom:14px; line-height:1.12;">'
-                + 'The Resume is Dead.<br>Here is Your Blueprint.\u2122</h2>'
+                + '<h2 style="font-size:clamp(1.8em, 7vw, 2.6em); font-weight:700; color:var(--accent); margin-bottom:14px; line-height:1.12;">'
+                + 'The Resume <span style="white-space:nowrap;">is Dead.</span><br>Here is Your Blueprint.\u2122</h2>'
                 + '<p style="font-size:1.08em; color:var(--text-secondary); line-height:1.7; max-width:620px; margin:0 auto 28px;">'
                 + 'Stop guessing your value. Map your professional architecture and lead every career conversation with radical confidence.</p>'
                 + '<div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:40px;">'
@@ -7437,6 +7437,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (valuesLegend) valuesLegend.remove();
             var jobTile = document.getElementById('jobInfoTile');
             if (jobTile) jobTile.remove();
+            // Hide role info card and tooltip when switching modes
+            var ric = document.getElementById('roleInfoCard');
+            if (ric) ric.style.display = 'none';
+            hideTooltip();
             
             if (mode === 'you') {
                 // Standard network
@@ -7951,10 +7955,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (simulation) simulation.stop();
             
             // Layout: user values on left, company values on right
-            var centerY = height * 0.42;
-            var leftX = isMobile ? width * 0.3 : width * 0.32;
-            var rightX = isMobile ? width * 0.7 : width * 0.68;
-            var topY = isMobile ? Math.max(45, height * 0.12) : Math.max(60, height * 0.15);
+            var centerY = height * 0.45;
+            var leftX = isMobile ? width * 0.24 : width * 0.28;
+            var rightX = isMobile ? width * 0.76 : width * 0.72;
+            var topY = isMobile ? Math.max(45, height * 0.10) : Math.max(60, height * 0.13);
             
             // Build lookup sets
             var alignedSet = new Set(alignment.aligned.map(function(a) { return a.name; }));
@@ -7989,7 +7993,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 // else stays 'yours' = your priority, their silence
                 
                 var angle = ((i / userSelected.length) * Math.PI * 0.8) + Math.PI * 0.6;
-                var radius = (isMobile ? 100 : 160) * scaleFactor;
+                var radius = (isMobile ? 130 : 180) * scaleFactor;
                 nodes.push({
                     id: 'uv-' + i, name: val.name, type: 'value', side: 'user',
                     valState: state,
@@ -8010,7 +8014,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 // else stays 'theirs' = their priority, you don't hold it
                 
                 var angle = ((i / companyAllVals.length) * Math.PI * 0.8) + Math.PI * 1.6;
-                var radius = (isMobile ? 100 : 160) * scaleFactor;
+                var radius = (isMobile ? 130 : 180) * scaleFactor;
                 nodes.push({
                     id: 'cv-' + i, name: cval.name, type: 'value', side: 'company',
                     valState: state, tier: cval.tier,
@@ -8059,29 +8063,29 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Simulation
             simulation = d3.forceSimulation(nodes)
                 .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) {
-                    if (d.type === 'bridge') return (isMobile ? 140 : 220) * scaleFactor;
-                    if (d.type === 'tension-link') return (isMobile ? 80 : 120) * scaleFactor;
-                    return (isMobile ? 80 : 130) * scaleFactor;
+                    if (d.type === 'bridge') return (isMobile ? 180 : 260) * scaleFactor;
+                    if (d.type === 'tension-link') return (isMobile ? 100 : 140) * scaleFactor;
+                    return (isMobile ? 100 : 150) * scaleFactor;
                 }).strength(function(d) {
-                    if (d.type === 'bridge') return 0.15;
-                    return 0.6;
+                    if (d.type === 'bridge') return 0.12;
+                    return 0.5;
                 }))
                 .force("charge", d3.forceManyBody().strength(function(d) {
                     if (d.type === 'hub') return 0;
-                    if (d.type === 'tension-marker') return -30;
-                    return (isMobile ? -120 : -200) * scaleFactor;
+                    if (d.type === 'tension-marker') return -40;
+                    return (isMobile ? -200 : -300) * scaleFactor;
                 }))
                 .force("collision", d3.forceCollide().radius(function(d) {
-                    if (d.type === 'hub') return (isMobile ? 40 : 55) * scaleFactor;
-                    if (d.type === 'tension-marker') return 15;
-                    return (isMobile ? 30 : 42) * scaleFactor;
+                    if (d.type === 'hub') return (isMobile ? 48 : 60) * scaleFactor;
+                    if (d.type === 'tension-marker') return 18;
+                    return (isMobile ? 38 : 48) * scaleFactor;
                 }))
                 .force("x", d3.forceX(function(d) {
                     if (d.side === 'user') return leftX;
                     if (d.side === 'company') return rightX;
                     return width / 2;
-                }).strength(0.12))
-                .force("y", d3.forceY(centerY).strength(0.06));
+                }).strength(0.08))
+                .force("y", d3.forceY(centerY).strength(0.04));
             
             // Draw links
             var link = svg.append("g").selectAll("line").data(links).join("line")
@@ -8154,9 +8158,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 })
                 .attr("x", 0)
                 .attr("y", function(d) {
-                    if (d.type === 'hub') return -(isMobile ? 32 : Math.round(40 * scaleFactor));
+                    if (d.type === 'hub') return -(isMobile ? 34 : Math.round(44 * scaleFactor));
                     if (d.type === 'tension-marker') return 4;
-                    return -(isMobile ? 18 : Math.round(22 * scaleFactor));
+                    return -(isMobile ? 22 : Math.round(26 * scaleFactor));
                 })
                 .attr("text-anchor", "middle")
                 .style("font-size", function(d) {
@@ -8185,7 +8189,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Tick
             simulation.on("tick", function() {
-                var padding = isMobile ? 40 : 70;
+                var padding = isMobile ? 28 : 55;
                 nodes.forEach(function(d) {
                     if (d.type !== 'hub') {
                         d.x = Math.max(padding, Math.min(width - padding, d.x));
@@ -9095,6 +9099,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Update Role Info Card
             var ric = document.getElementById('roleInfoCard');
             if (ric && currentSkillsView === 'network') {
+                // Dismiss tooltip to prevent overlap
+                hideTooltip();
                 if (roleId === 'all') {
                     ric.style.display = 'none';
                 } else {
