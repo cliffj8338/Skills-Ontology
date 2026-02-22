@@ -1,0 +1,56 @@
+{
+  "profile": {
+    "name": "Cersei Lannister",
+    "currentTitle": "Queen of the Seven Kingdoms",
+    "location": "King's Landing, Westeros",
+    "roleLevel": "C-Suite",
+    "email": "",
+    "summary": "Self-made sovereign who seized the Iron Throne through strategic elimination of rivals, institutional manipulation, and absolute refusal to accept the limitations imposed by a patriarchal power structure. Twenty-five years navigating the highest levels of Westerosi politics — from Queen Consort to Queen Regent to sole ruler. Demonstrated that power is not given; it is taken."
+  },
+  "roles": [
+    { "id": "executive-power", "name": "Executive Power & Governance", "color": "#B8860B" },
+    { "id": "political-warfare", "name": "Political Warfare", "color": "#8B0000" },
+    { "id": "alliance-management", "name": "Alliance & Asset Management", "color": "#4169E1" },
+    { "id": "crisis-ops", "name": "Crisis Operations", "color": "#2F4F4F" }
+  ],
+  "skills": [
+    { "name": "Power Acquisition", "level": "Expert", "role": "Executive Power & Governance", "evidence": ["Orchestrated the elimination of the High Sparrow and all political rivals in a single decisive action at the Great Sept", "Seized the Iron Throne without hereditary claim — purely through strategic positioning and elimination of alternatives", "Maintained control of King's Landing through military alliance with the Iron Fleet and Golden Company mercenaries"] },
+    { "name": "Organizational Politics", "level": "Expert", "role": "Political Warfare", "evidence": ["Navigated 17 years of court politics as Queen Consort while building independent power base", "Manipulated Small Council appointments to ensure loyalty over competence across multiple administrations", "Identified and neutralized threats from Ned Stark, Margaery Tyrell, and the High Sparrow through distinct tactical approaches"] },
+    { "name": "Strategic Intimidation", "level": "Expert", "role": "Political Warfare", "evidence": ["Used the Mountain as enforcement mechanism to maintain compliance among reluctant allies", "Deployed wildfire destruction of the Sept as demonstration of willingness to use extreme measures", "Maintained psychological dominance over subordinates through calculated displays of ruthlessness"] },
+    { "name": "Alliance Negotiation", "level": "Proficient", "role": "Alliance & Asset Management", "evidence": ["Secured Euron Greyjoy's Iron Fleet through marriage alliance — providing critical naval power", "Contracted the Golden Company — 20,000 mercenaries — through Iron Bank financing", "Maintained Lannister-Tyrell alliance through Joffrey and Tommen's marriages despite underlying hostility"] },
+    { "name": "Financial Leverage", "level": "Proficient", "role": "Alliance & Asset Management", "evidence": ["Restructured Crown debt with the Iron Bank of Braavos using Tyrell gold seized after their elimination", "Used Lannister wealth as political tool to buy loyalty from sellswords, lords, and institutions", "Understood that military power follows financial power and prioritized treasury control"] },
+    { "name": "Crisis Decision-Making", "level": "Expert", "role": "Crisis Operations", "evidence": ["Made the decision to destroy the Great Sept — accepting massive civilian casualties to eliminate existential political threats", "Managed the fallout of Joffrey's assassination while maintaining governance continuity", "Prepared King's Landing defenses against Daenerys's invasion including civilian shield strategy"] },
+    { "name": "Succession Planning", "level": "Proficient", "role": "Executive Power & Governance", "evidence": ["Managed transition of power from Robert to Joffrey through manipulation of succession protocols", "Positioned Tommen as controllable successor after Joffrey's death", "After losing all heirs, seized power directly rather than allowing succession vacuum"] },
+    { "name": "Competitive Intelligence", "level": "Expert", "role": "Political Warfare", "evidence": ["Maintained spy networks through Qyburn that rivaled Varys's intelligence apparatus", "Identified threats from the Tyrells' growing influence over Tommen before others recognized the pattern", "Tracked rival movements and alliances through informant networks across the Seven Kingdoms"] },
+    { "name": "Institutional Manipulation", "level": "Expert", "role": "Political Warfare", "evidence": ["Weaponized the Faith Militant against the Tyrells before it turned on her — demonstrating understanding of institutional dynamics", "Manipulated trial procedures and judicial processes to her advantage across multiple proceedings", "Used royal authority to rewrite institutional rules when existing structures opposed her objectives"] },
+    { "name": "Talent Recruitment", "level": "Proficient", "role": "Alliance & Asset Management", "evidence": ["Recruited Qyburn — dismissed by the Citadel — and empowered him to become the most effective intelligence operative in Westeros", "Identified Euron Greyjoy's ambition as exploitable asset and structured alliance accordingly", "Built personal guard and enforcement apparatus outside traditional Kingsguard structures"] },
+    { "name": "Brand Management", "level": "Proficient", "role": "Executive Power & Governance", "evidence": ["Maintained the Lannister brand as the dominant political force in Westeros for over two decades", "Projected power and authority through deliberate use of imagery, ceremony, and public appearances", "Controlled the narrative around the Crown's legitimacy despite multiple succession crises"] },
+    { "name": "Risk Tolerance", "level": "Expert", "role": "Crisis Operations", "evidence": ["Accepted catastrophic risk in the Sept destruction — gambling that political gains would outweigh public backlash", "Refused to commit forces against the Night King — betting that her rivals would weaken themselves fighting the dead", "Made the calculated decision to fight Daenerys rather than surrender — preferring destruction to submission"] },
+    { "name": "Defensive Strategy", "level": "Proficient", "role": "Crisis Operations", "evidence": ["Prepared King's Landing's scorpion defenses against dragon attack", "Positioned civilian populations as strategic deterrent against Targaryen forces", "Fortified Red Keep as last-stand position with provisions and escape routes"] },
+    { "name": "Regulatory Manipulation", "level": "Expert", "role": "Political Warfare", "evidence": ["Restored the Faith Militant — a banned institution — as political weapon against rivals", "Used royal pardons, attainders, and decrees to reward allies and punish enemies outside judicial process", "Manipulated inheritance law, succession rules, and noble titles to consolidate Lannister power"] },
+    { "name": "Executive Presence", "level": "Expert", "role": "Executive Power & Governance", "evidence": ["Commanded respect and fear from lords, generals, and foreign diplomats through sheer force of personality", "Maintained composure and authority during Walk of Atonement — using the experience to fuel rather than diminish her power", "Projected certainty and control even when her strategic position was deteriorating"] },
+    { "name": "Vendor Management", "level": "Competent", "role": "Alliance & Asset Management", "evidence": ["Managed relationship with Iron Bank of Braavos including debt restructuring and new credit facilities", "Contracted and deployed the Golden Company mercenary force from Essos", "Negotiated terms with Euron Greyjoy's naval forces including compensation and political commitments"] },
+    { "name": "Psychological Warfare", "level": "Expert", "role": "Political Warfare", "evidence": ["Used shame, humiliation, and public spectacle as tools of political control", "Exploited personal vulnerabilities of opponents including family loyalty, honor, and romantic attachment", "Maintained psychological pressure on Tyrion, Sansa, and other rivals through targeted emotional manipulation"] },
+    { "name": "Operational Security", "level": "Proficient", "role": "Crisis Operations", "evidence": ["Maintained information compartmentalization around the Sept plot — preventing leaks until execution", "Used Qyburn's intelligence network to monitor threats from internal and external sources", "Protected sensitive information about her children's parentage for 17 years despite multiple near-exposures"] },
+    { "name": "Wine Appreciation", "level": "Expert", "role": "Executive Power & Governance", "evidence": ["Maintained extensive knowledge of Westerosi and Essosi vintages — used wine service as diplomatic and social tool", "Demonstrated that even personal consumption habits can project power, control, and aristocratic authority", "Used wine sharing as trust-building mechanism and, occasionally, as delivery system for political messaging"] }
+  ],
+  "values": [
+    { "name": "Courage", "selected": true },
+    { "name": "Resilience", "selected": true },
+    { "name": "Excellence", "selected": true },
+    { "name": "Bias Toward Action", "selected": true },
+    { "name": "Accountability", "selected": true }
+  ],
+  "purpose": "To prove that a woman can hold power on her own terms — not as consort, not as regent, but as sovereign — in a world built to prevent exactly that.",
+  "workHistory": [
+    { "title": "Queen of the Seven Kingdoms", "company": "The Iron Throne — Lannister Dynasty", "startDate": "2016-06", "endDate": "2019-05", "description": "Sole ruler following elimination of all rival claimants. Rebuilt military alliances, secured Iron Bank financing, and prepared King's Landing for siege against Targaryen invasion." },
+    { "title": "Queen Regent", "company": "The Crown — King Tommen I", "startDate": "2014-05", "endDate": "2016-06", "description": "Governed as regent during Tommen's minority and marriage to Margaery Tyrell. Navigated Faith Militant crisis, Tyrell political encroachment, and multiple assassination plots." },
+    { "title": "Queen Regent", "company": "The Crown — King Joffrey I", "startDate": "2011-09", "endDate": "2014-04", "description": "Governed as power behind the throne during Joffrey's reign. Managed wartime politics, Lannister-Tyrell alliance, and internal court rivalries." },
+    { "title": "Queen Consort", "company": "The Crown — King Robert I", "startDate": "1994-01", "endDate": "2011-08", "description": "Seventeen years as Queen Consort. Built independent political intelligence network, managed Lannister family interests at court, and positioned children for succession." },
+    { "title": "Lady of House Lannister", "company": "House Lannister — Casterly Rock", "startDate": "1990-01", "endDate": "1994-01", "description": "Raised as heir-apparent to Tywin Lannister's political legacy. Education in governance, alliance-building, and dynastic strategy." }
+  ],
+  "education": [
+    { "degree": "Noble Education", "institution": "Casterly Rock — House Lannister", "year": "1990", "field": "Governance, History, Languages, Court Protocol" }
+  ],
+  "certifications": []
+}

@@ -14,9 +14,15 @@
     { "id": "vecna", "name": "Vecna", "title": "Interdimensional Architect", "path": "profiles/demo/vecna.json", "enabled": true },
     { "id": "logan-roy", "name": "Logan Roy", "title": "Media Conglomerate CEO", "path": "profiles/demo/logan-roy.json", "enabled": true },
     { "id": "kendall-roy", "name": "Kendall Roy", "title": "Corporate Strategy & Acquisitions", "path": "profiles/demo/kendall-roy.json", "enabled": true },
-    { "id": "shiv-roy", "name": "Siobhan 'Shiv' Roy", "title": "Political Strategist & Consultant", "path": "profiles/demo/shiv-roy.json", "enabled": true },
+    { "id": "shiv-roy", "name": "Shiv Roy", "title": "Political Strategist & Consultant", "path": "profiles/demo/shiv-roy.json", "enabled": true },
     { "id": "roman-roy", "name": "Roman Roy", "title": "Entertainment & Business Development", "path": "profiles/demo/roman-roy.json", "enabled": true },
     { "id": "tom-wambsgans", "name": "Tom Wambsgans", "title": "Media Operations & Compliance", "path": "profiles/demo/tom-wambsgans.json", "enabled": true },
-    { "id": "connor-roy", "name": "Connor Roy", "title": "Rancher, Producer & Ambassador", "path": "profiles/demo/connor-roy.json", "enabled": true }
+    { "id": "connor-roy", "name": "Connor Roy", "title": "Rancher, Producer & Ambassador", "path": "profiles/demo/connor-roy.json", "enabled": true },
+    { "id": "tyrion-lannister", "name": "Tyrion Lannister", "title": "Hand of the King & Chief Strategic Advisor", "path": "profiles/demo/tyrion-lannister.json", "enabled": true },
+    { "id": "cersei-lannister", "name": "Cersei Lannister", "title": "Queen of the Seven Kingdoms", "path": "profiles/demo/cersei-lannister.json", "enabled": true },
+    { "id": "daenerys-targaryen", "name": "Daenerys Targaryen", "title": "Queen & Empire Builder", "path": "profiles/demo/daenerys-targaryen.json", "enabled": true },
+    { "id": "jon-snow", "name": "Jon Snow", "title": "King in the North & Lord Commander", "path": "profiles/demo/jon-snow.json", "enabled": true },
+    { "id": "petyr-baelish", "name": "Petyr Baelish", "title": "Master of Coin & Lord Protector", "path": "profiles/demo/petyr-baelish.json", "enabled": true },
+    { "id": "tywin-lannister", "name": "Tywin Lannister", "title": "Hand of the King & Warden of the West", "path": "profiles/demo/tywin-lannister.json", "enabled": true }
   ]
 }
