@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.33.3.0 | 20260222 | Self-hydrating template, dynamic hero/values hub names -->
+    <!-- v4.34.0.0 | 20260222 | Firestore share links, public viewer, view tracking, self-hydrating template -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -960,8 +960,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.33.3.0 - BUILD 20260222-self-hydrating-template
-        var BP_VERSION = 'v4.33.3.0';
+        // BLUEPRINT v4.34.0.0 - BUILD 20260222-firestore-share-public-viewer
+        var BP_VERSION = 'v4.34.0.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -12995,9 +12995,22 @@ body {
             if (!job) { showToast('Job not found.', 'error'); return; }
             logAnalyticsEvent('scouting_report_html', { company: job.company || '', title: job.title || '' });
             closeExportModal();
-            showToast('Generating HTML scouting report…', 'info', 3000);
+            showToast('Generating scouting report…', 'info', 2000);
             
-            // ── 1. Collect source data ──────────────────────────
+            // Build REPORT_DATA from live app state
+            var reportData = buildReportData(jobIdx);
+            if (!reportData) return;
+            
+            // Render in iframe overlay with Share button
+            showReportOverlay(reportData, jobIdx);
+        }
+        window.generateHTMLScoutingReport = generateHTMLScoutingReport;
+        
+        // ── Build REPORT_DATA from live state ────────────────────
+        function buildReportData(jobIdx) {
+            var job = (userData.savedJobs || [])[jobIdx];
+            if (!job) return null;
+            
             var profile = userData.profile || {};
             var allSkills = skillsData.skills || [];
             var allRoles = skillsData.roles || [];
@@ -13010,11 +13023,10 @@ body {
             var userEdu = userData.education || [];
             var userCerts = userData.certifications || [];
             
-            // Ensure companyValues exist
             if (!job.companyValues) job.companyValues = getCompanyValues(job.company, job.rawText || job.description || '');
             var valAlign = computeValuesAlignment(userValues, job.companyValues);
             
-            // ── 2. Build role map (only roles that have matched skills) ──
+            // Roles
             var roleColors = ['#60a5fa', '#a855f7', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#ef4444', '#f97316', '#84cc16'];
             var activeRoleIds = new Set();
             allSkills.forEach(function(s) { (s.roles || []).forEach(function(r) { activeRoleIds.add(r); }); });
@@ -13022,8 +13034,7 @@ body {
                 return { id: r.id, name: r.name, color: r.color || roleColors[i % roleColors.length] };
             });
             
-            // ── 3. Map skills → REPORT_DATA format ──────────────
-            var matchedSkillNames = new Set(matched.map(function(m) { return m.userSkill.toLowerCase(); }));
+            // Skills
             var jobRequiredNames = (job.parsedSkills || []).filter(function(s) {
                 var req = (typeof s === 'string') ? 'Required' : (s.requirement || 'Required');
                 return req === 'Required';
@@ -13031,51 +13042,35 @@ body {
             var jobRequiredSet = new Set(jobRequiredNames.map(function(n) { return n.toLowerCase(); }));
             
             var reportSkills = allSkills.map(function(s) {
-                var sk = {
-                    n: s.name,
-                    l: s.level || 'Proficient',
-                    r: s.roles || []
-                };
-                // Mark as job-required if matched to a required skill
+                var sk = { n: s.name, l: s.level || 'Proficient', r: s.roles || [] };
                 var isRequired = jobRequiredSet.has(s.name.toLowerCase()) || matched.some(function(m) {
                     return m.userSkill.toLowerCase() === s.name.toLowerCase() && m.requirement === 'Required';
                 });
                 if (isRequired) sk.k = 1;
-                // Evidence from skill
                 var ev = (s.evidence || []).map(function(e) {
                     return ((e.outcome || '') + ' ' + (e.description || '')).trim();
                 }).filter(Boolean).join(' ');
                 if (ev) sk.ev = ev.substring(0, 300);
-                // Verification from certs/edu
-                var certMatch = userCerts.find(function(c) {
-                    return (c.skills || []).some(function(cs) { return cs.toLowerCase() === s.name.toLowerCase(); });
-                });
-                var eduMatch = userEdu.find(function(e) {
-                    return (e.skills || []).some(function(es) { return es.toLowerCase() === s.name.toLowerCase(); });
-                });
+                var certMatch = userCerts.find(function(c) { return (c.skills || []).some(function(cs) { return cs.toLowerCase() === s.name.toLowerCase(); }); });
+                var eduMatch = userEdu.find(function(e) { return (e.skills || []).some(function(es) { return es.toLowerCase() === s.name.toLowerCase(); }); });
                 if (certMatch) { sk.vf = 'cert'; sk.vfLabel = certMatch.name; }
                 else if (eduMatch) { sk.vf = 'edu'; sk.vfLabel = eduMatch.name; }
                 else if (isRequired && ev) { sk.vf = 'verified'; }
                 return sk;
             });
             
-            // ── 4. Build gaps with bridge analysis ──────────────
+            // Gaps
             var reportGaps = gaps.map(function(g) {
                 var adjacentSkills = allSkills.filter(function(s) {
                     var words = g.name.toLowerCase().split(/[\s\-\/&]+/).filter(function(w) { return w.length > 3; });
                     return words.some(function(w) { return s.name.toLowerCase().indexOf(w) !== -1; });
                 }).slice(0, 3).map(function(s) { return s.name; });
-                return {
-                    n: g.name,
-                    rq: g.requirement || 'Required',
-                    br: adjacentSkills.length > 0
-                        ? 'Adjacent skills (' + adjacentSkills.join(', ') + ') suggest a bridgeable gap with targeted development.'
-                        : 'No directly adjacent skills identified. Targeted upskilling recommended.',
-                    adj: adjacentSkills
-                };
+                return { n: g.name, rq: g.requirement || 'Required', br: adjacentSkills.length > 0
+                    ? 'Adjacent skills (' + adjacentSkills.join(', ') + ') suggest a bridgeable gap with targeted development.'
+                    : 'No directly adjacent skills identified. Targeted upskilling recommended.', adj: adjacentSkills };
             });
             
-            // ── 5. Build values alignment ───────────────────────
+            // Values
             var candidateValues = userValues.filter(function(v) { return v.selected; }).map(function(v) {
                 var isAligned = valAlign && valAlign.aligned && valAlign.aligned.some(function(a) { return a.name === v.name; });
                 return { n: v.name, s: isAligned ? 'aligned' : 'yours' };
@@ -13091,80 +13086,33 @@ body {
                     companyValuesList.push({ n: v, t: 'secondary', s: isAligned ? 'aligned' : 'theirs' });
                 });
             }
-            var valScore = valAlign ? valAlign.score : 0;
-            var valNarrative = '<div class="narr-lbl">Cultural Fit Signal</div>';
-            if (valAlign) {
-                var alignedCount = (valAlign.aligned || []).length;
-                var tensionCount = (valAlign.tensionRisk || []).length;
-                valNarrative += alignedCount + ' shared value' + (alignedCount !== 1 ? 's' : '') + ' identified.';
-                if (tensionCount > 0) valNarrative += ' ' + tensionCount + ' potential tension area' + (tensionCount !== 1 ? 's' : '') + ' flagged.';
-            }
             
-            // ── 6. Build outcomes ────────────────────────────────
+            // Outcomes
             var reportOutcomes = userOutcomes.filter(function(o) { return o.shared !== false; }).slice(0, 6).map(function(o) {
-                var text = o.text || o.outcome || '';
-                // Wrap metrics in highlight span
-                text = text.replace(/(\$[\d,]+[MBK]?|\d+%|\d+x)/g, '<span class="outc-m">$1</span>');
+                var text = (o.text || o.outcome || '').replace(/(\$[\d,]+[MBK]?|\d+%|\d+x)/g, '<span class="outc-m">$1</span>');
                 return { text: text, blind: text.replace(/[\w]+\s+(Inc|Corp|LLC|Ltd|Co)\.?/gi, '[Company]') };
             });
             
-            // ── 7. Build education ───────────────────────────────
-            var reportEdu = userEdu.map(function(e) {
-                return {
-                    name: e.institution || e.name || '',
-                    desc: (e.degree || '') + (e.field ? ' — ' + e.field : ''),
-                    location: e.location || '',
-                    dates: e.dates || e.year || '',
-                    vf: 'edu',
-                    skills: e.skills || []
-                };
-            });
-            
-            // ── 8. Build certifications ──────────────────────────
-            var reportCerts = userCerts.map(function(c) {
-                return {
-                    name: c.name || '',
-                    vf: 'cert',
-                    vfLabel: c.issuer || c.name || '',
-                    desc: c.description || c.issuer || '',
-                    dates: c.dates || c.year || '',
-                    status: c.status || '',
-                    skills: c.skills || []
-                };
-            });
-            
-            // ── 9. Build domains ─────────────────────────────────
-            var reportDomains = roles.map(function(role) {
-                var roleSkills = allSkills.filter(function(s) { return (s.roles || []).indexOf(role.id) !== -1; });
-                return {
-                    n: role.name,
-                    c: roleSkills.length,
-                    m: allSkills.length,
-                    cl: role.color
-                };
-            }).filter(function(d) { return d.c > 0; });
-            
-            // ── 10. Build proficiency counts ─────────────────────
-            var proficiency = { Mastery: 0, Expert: 0, Advanced: 0, Proficient: 0, Novice: 0 };
-            allSkills.forEach(function(s) {
-                var lv = s.level || 'Proficient';
-                if (proficiency.hasOwnProperty(lv)) proficiency[lv]++;
-            });
-            
-            // ── 11. Build match narrative ────────────────────────
+            // Narrative
             var topMatched = matched.filter(function(m) { return m.requirement === 'Required'; }).slice(0, 3);
             var topSkillNames = topMatched.map(function(m) { return '<strong>' + m.userSkill + '</strong>'; }).join(', ');
             var narrative = '<strong>' + (profile.name || 'This candidate') + '</strong> brings ';
             if (topSkillNames) narrative += 'demonstrated expertise in ' + topSkillNames + ' — ';
             narrative += matched.length + ' of ' + (matched.length + gaps.length) + ' required competencies are matched';
-            if (gaps.length > 0) {
-                narrative += ' with ' + gaps.length + ' gap' + (gaps.length !== 1 ? 's' : '') + ' identified in areas where adjacent skills suggest a bridgeable trajectory.';
-            } else {
-                narrative += ' with no significant gaps identified.';
-            }
+            if (gaps.length > 0) narrative += ' with ' + gaps.length + ' gap' + (gaps.length !== 1 ? 's' : '') + ' identified in areas where adjacent skills suggest a bridgeable trajectory.';
+            else narrative += ' with no significant gaps identified.';
             
-            // ── 12. Assemble REPORT_DATA ─────────────────────────
-            var reportData = {
+            // Domains
+            var reportDomains = roles.map(function(role) {
+                var c = allSkills.filter(function(s) { return (s.roles || []).indexOf(role.id) !== -1; }).length;
+                return { n: role.name, c: c, m: allSkills.length, cl: role.color };
+            }).filter(function(d) { return d.c > 0; });
+            
+            // Proficiency
+            var proficiency = { Mastery: 0, Expert: 0, Advanced: 0, Proficient: 0, Novice: 0 };
+            allSkills.forEach(function(s) { var lv = s.level || 'Proficient'; if (proficiency.hasOwnProperty(lv)) proficiency[lv]++; });
+            
+            return {
                 candidate: {
                     name: profile.name || 'Anonymous Candidate',
                     photo: (profile.name || 'A').charAt(0).toUpperCase(),
@@ -13172,67 +13120,52 @@ body {
                     location: profile.location || 'Location undisclosed',
                     contact: profile.email || 'Available upon request',
                     purpose: userPurpose,
-                    blindTitle: profile.currentTitle ? profile.currentTitle.replace(/[\w]+\s+(Inc|Corp|LLC|Ltd|Co)\.?/gi, '') : 'Professional'
+                    blindTitle: (profile.currentTitle || 'Professional').replace(/[\w]+\s+(Inc|Corp|LLC|Ltd|Co)\.?/gi, '')
                 },
-                job: {
-                    title: job.title || 'Untitled Position',
-                    company: job.company || 'Undisclosed',
-                    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                },
-                match: {
-                    percentage: matchData.score || 0,
-                    narrative: narrative
-                },
+                job: { title: job.title || 'Untitled Position', company: job.company || 'Undisclosed', date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) },
+                match: { percentage: matchData.score || 0, narrative: narrative },
                 roles: roles,
                 skills: reportSkills,
                 jobRequired: jobRequiredNames,
                 gaps: reportGaps,
-                values: {
-                    score: valScore,
-                    narrative: valNarrative,
-                    candidate: candidateValues,
-                    company: companyValuesList
-                },
+                values: { score: valAlign ? valAlign.score : 0, narrative: '<div class="narr-lbl">Cultural Fit Signal</div>' + ((valAlign ? (valAlign.aligned || []).length : 0) + ' shared values identified.'), candidate: candidateValues, company: companyValuesList },
                 outcomes: reportOutcomes,
-                education: reportEdu,
-                certifications: reportCerts,
+                education: userEdu.map(function(e) { return { name: e.institution || e.name || '', desc: (e.degree || '') + (e.field ? ' — ' + e.field : ''), location: e.location || '', dates: e.dates || e.year || '', vf: 'edu', skills: e.skills || [] }; }),
+                certifications: userCerts.map(function(c) { return { name: c.name || '', vf: 'cert', vfLabel: c.issuer || c.name || '', desc: c.description || c.issuer || '', dates: c.dates || c.year || '', status: c.status || '', skills: c.skills || [] }; }),
                 domains: reportDomains,
                 proficiency: proficiency
             };
+        }
+        window.buildReportData = buildReportData;
+        
+        // ── Show report in overlay with Share button ──────────────
+        function showReportOverlay(reportData, jobIdx) {
+            var existing = document.getElementById('scoutReportOverlay');
+            if (existing) existing.remove();
             
-            // ── 13. Fetch template and inject ────────────────────
+            // Fetch template, inject data, render in blob iframe
             fetch('reports/templates/base.html')
                 .then(function(res) {
-                    if (!res.ok) throw new Error('Template not found (HTTP ' + res.status + ')');
+                    if (!res.ok) throw new Error('Template not found');
                     return res.text();
                 })
                 .then(function(template) {
-                    // Replace REPORT_DATA block
                     var dataStr = JSON.stringify(reportData, null, 2);
-                    var injected = template.replace(
-                        /const REPORT_DATA = \{[\s\S]*?\n\};/,
-                        'const REPORT_DATA = ' + dataStr + ';'
-                    );
-                    
-                    // Replace hero HTML with candidate info
-                    var candidateName = reportData.candidate.name;
-                    var initial = candidateName.charAt(0).toUpperCase();
-                    
-                    // Open in new tab as blob
+                    var injected = template.replace(/const REPORT_DATA = \{[\s\S]*?\n\};/, 'const REPORT_DATA = ' + dataStr + ';');
                     var blob = new Blob([injected], { type: 'text/html; charset=utf-8' });
-                    var url = URL.createObjectURL(blob);
-                    
-                    // Also offer as iframe overlay like demos
-                    var existing = document.getElementById('scoutReportOverlay');
-                    if (existing) existing.remove();
+                    var blobUrl = URL.createObjectURL(blob);
                     
                     var overlay = document.createElement('div');
                     overlay.id = 'scoutReportOverlay';
                     overlay.style.cssText = 'position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px;';
+                    // Store data on overlay for share function
+                    overlay._reportData = reportData;
+                    overlay._jobIdx = jobIdx;
                     
                     var container = document.createElement('div');
                     container.style.cssText = 'width:100%;max-width:1200px;height:90vh;background:var(--bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.5);display:flex;flex-direction:column;';
                     
+                    var candidateName = reportData.candidate.name;
                     var header = document.createElement('div');
                     header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--elev-1);flex-shrink:0;';
                     header.innerHTML = '<div style="display:flex;align-items:center;gap:10px;">'
@@ -13241,13 +13174,13 @@ body {
                         + '<span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(16,185,129,0.1);color:#10b981;font-weight:600;">' + reportData.match.percentage + '% MATCH</span>'
                         + '</div>'
                         + '<div style="display:flex;align-items:center;gap:8px;">'
-                        + '<a href="' + url + '" download="scouting-report-' + candidateName.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.html" style="font-size:0.82em;padding:6px 14px;border-radius:8px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600;">' + bpIcon('download',14) + ' Save HTML</a>'
-                        + '<button onclick="window.open(\'' + url + '\', \'_blank\')" style="font-size:0.82em;padding:6px 14px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;">' + bpIcon('external',14) + ' New Tab</button>'
+                        + '<button id="shareReportBtn" onclick="shareScoutingReport()" style="font-size:0.82em;padding:6px 16px;border-radius:8px;background:var(--accent);color:#fff;border:none;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">' + bpIcon('external',14) + ' Share Report</button>'
+                        + '<a href="' + blobUrl + '" download="scouting-report-' + candidateName.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.html" style="font-size:0.82em;padding:6px 14px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;display:flex;align-items:center;gap:6px;">' + bpIcon('download',14) + ' Save</a>'
                         + '<button onclick="document.getElementById(\'scoutReportOverlay\').remove()" style="background:none;border:none;color:var(--text-muted);font-size:1.3em;cursor:pointer;padding:4px 8px;">✕</button>'
                         + '</div>';
                     
                     var iframe = document.createElement('iframe');
-                    iframe.src = url;
+                    iframe.src = blobUrl;
                     iframe.style.cssText = 'flex:1;width:100%;border:none;background:#0a0a1a;';
                     
                     container.appendChild(header);
@@ -13258,16 +13191,94 @@ body {
                     overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
                     var escHandler = function(e) { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); }};
                     document.addEventListener('keydown', escHandler);
-                    
-                    showToast('Scouting report generated. Save or share the HTML file.', 'success', 5000);
                 })
                 .catch(function(err) {
-                    console.error('HTML report generation error:', err);
-                    showToast('HTML generation failed: ' + err.message + '. Falling back to PDF.', 'error');
-                    generateScoutingReport(jobIdx);
+                    console.error('Report render error:', err);
+                    showToast('Failed to render report: ' + err.message, 'error');
                 });
         }
-        window.generateHTMLScoutingReport = generateHTMLScoutingReport;
+        window.showReportOverlay = showReportOverlay;
+        
+        // ── Share to Firestore → get link ─────────────────────────
+        function shareScoutingReport() {
+            var overlay = document.getElementById('scoutReportOverlay');
+            if (!overlay || !overlay._reportData) { showToast('No report to share.', 'error'); return; }
+            
+            var btn = document.getElementById('shareReportBtn');
+            if (btn) { btn.disabled = true; btn.innerHTML = bpIcon('clock',14) + ' Sharing…'; }
+            
+            var reportData = overlay._reportData;
+            
+            // Generate short ID: timestamp + random hex
+            var reportId = Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
+            
+            // Firestore document
+            var docData = {
+                reportData: JSON.stringify(reportData),
+                candidateName: reportData.candidate.name,
+                jobTitle: reportData.job.title,
+                company: reportData.job.company,
+                matchScore: reportData.match.percentage,
+                createdBy: fbUser ? fbUser.uid : 'anonymous',
+                createdByName: (userData.profile || {}).name || '',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                viewCount: 0,
+                shortlisted: 0,
+                notes: [],
+                status: 'active'
+            };
+            
+            if (!fbDb) {
+                showToast('Firebase not available. Save the HTML file instead.', 'warning');
+                if (btn) { btn.disabled = false; btn.innerHTML = bpIcon('external',14) + ' Share Report'; }
+                return;
+            }
+            
+            fbDb.collection('reports').doc(reportId).set(docData)
+                .then(function() {
+                    var shareUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/reports/view.html?id=' + reportId);
+                    
+                    // Copy to clipboard
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(shareUrl).then(function() {
+                            showToast('Share link copied! ' + shareUrl, 'success', 6000);
+                        });
+                    } else {
+                        // Fallback
+                        var ta = document.createElement('textarea');
+                        ta.value = shareUrl;
+                        document.body.appendChild(ta);
+                        ta.select();
+                        document.execCommand('copy');
+                        ta.remove();
+                        showToast('Share link copied! ' + shareUrl, 'success', 6000);
+                    }
+                    
+                    // Update button to show link
+                    if (btn) {
+                        btn.innerHTML = bpIcon('check',14) + ' Link Copied';
+                        btn.style.background = '#10b981';
+                        setTimeout(function() {
+                            btn.disabled = false;
+                            btn.innerHTML = bpIcon('external',14) + ' Copy Link Again';
+                            btn.style.background = 'var(--accent)';
+                            btn.onclick = function() {
+                                navigator.clipboard.writeText(shareUrl);
+                                showToast('Link copied again!', 'success', 3000);
+                            };
+                        }, 3000);
+                    }
+                    
+                    // Refresh reports dashboard if initialized
+                    window.reportsInitialized = false;
+                })
+                .catch(function(err) {
+                    console.error('Share error:', err);
+                    showToast('Share failed: ' + err.message, 'error');
+                    if (btn) { btn.disabled = false; btn.innerHTML = bpIcon('external',14) + ' Share Report'; }
+                });
+        }
+        window.shareScoutingReport = shareScoutingReport;
         
         // Open sample scouting report in an iframe overlay
         function openSampleScoutingReport() {
