@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.36.3.0 | 20260222 | PDF: network graph rewrite, emoji removal, labeled nodes -->
+    <!-- v4.36.4.0 | 20260222 | Waitlist write-only fix, emoji removal, network graph rewrite -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -960,8 +960,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.36.3.0 - BUILD 20260222-pdf-network-rewrite
-        var BP_VERSION = 'v4.36.3.0';
+        // BLUEPRINT v4.36.4.0 - BUILD 20260222-waitlist-fix
+        var BP_VERSION = 'v4.36.4.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -992,7 +992,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260222-pdf-network-rewrite                   ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260222-waitlist-fix                           ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -2884,32 +2884,27 @@
             btn.disabled = true;
             btn.textContent = 'Joining...';
             
-            // Try Firestore first, fallback to localStorage
+            // Use timestamp-based position (admin sees real order via createdAt)
+            var position = Date.now() % 1000;
+            if (position < 10) position += 10;
+            
+            // Write-only — no read needed (rules allow unauthenticated create)
             if (fbDb) {
-                // Get current count for position
-                fbDb.collection('waitlist').get().then(function(snapshot) {
-                    var position = snapshot.size + 1;
-                    
-                    return fbDb.collection('waitlist').doc(email.toLowerCase().replace(/[^a-z0-9]/g, '_')).set({
-                        name: name,
-                        email: email.toLowerCase(),
-                        type: type || 'individual',
-                        status: 'waiting',
-                        position: position,
-                        source: 'app',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    }).then(function() {
-                        return position;
-                    });
-                }).then(function(position) {
+                fbDb.collection('waitlist').doc(email.toLowerCase().replace(/[^a-z0-9]/g, '_')).set({
+                    name: name,
+                    email: email.toLowerCase(),
+                    type: type || 'individual',
+                    status: 'waiting',
+                    position: position,
+                    source: 'app',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(function() {
                     onWaitlistSuccess(name, email, position);
                 }).catch(function(err) {
                     console.warn('Firestore waitlist error, using localStorage:', err);
-                    onWaitlistSuccess(name, email, Math.floor(Math.random() * 50) + 10);
+                    onWaitlistSuccess(name, email, position);
                 });
             } else {
-                // Offline fallback
-                var position = Math.floor(Math.random() * 50) + 10;
                 onWaitlistSuccess(name, email, position);
             }
         }
@@ -2950,8 +2945,13 @@
         }
         
         // Check if waitlisted user has been invited (on app load)
+        // Note: requires admin read access — only works when user is signed in as admin
+        // For regular waitlisted users, invite status is checked via localStorage update
         function checkWaitlistInviteStatus() {
             if (appMode !== 'waitlisted' || !waitlistEmail || !fbDb) return;
+            
+            // Only attempt if user is authenticated (signed in)
+            if (!firebase.auth().currentUser) return;
             
             var docId = waitlistEmail.toLowerCase().replace(/[^a-z0-9]/g, '_');
             fbDb.collection('waitlist').doc(docId).get().then(function(doc) {
@@ -2966,30 +2966,18 @@
                             position: data.position
                         }));
                         
-                        // Show welcome modal
-                        showToast('\uD83C\uDF89 You\u2019ve been invited! Full access is now unlocked.', 'success');
+                        showToast('You\u2019ve been invited! Full access is now unlocked.', 'success');
                         var banner = document.getElementById('readonlyBanner');
                         if (banner) banner.style.display = 'none';
                     }
                 }
-            }).catch(function(e) { console.warn('Waitlist status check failed:', e); });
+            }).catch(function(e) { /* Expected for non-admin users */ });
         }
         
         // FOMO counter — show today's signups
         function updateWaitlistCounter() {
-            if (!fbDb) return;
-            var today = new Date();
-            today.setHours(0,0,0,0);
-            
-            fbDb.collection('waitlist')
-                .where('createdAt', '>=', today)
-                .get().then(function(snapshot) {
-                    var count = snapshot.size;
-                    if (count > 0) {
-                        var hint = document.getElementById('wlSkillHint');
-                        if (hint) hint.innerHTML = '\uD83D\uDD25 <strong>' + count + ' professional' + (count > 1 ? 's' : '') + '</strong> joined today. How many skills do you think you have?';
-                    }
-                }).catch(function() {});
+            // Waitlist reads require admin — skip for public users
+            // Admin dashboard shows real counts
         }
 
         // ===== WELCOME / LANDING PAGE =====
