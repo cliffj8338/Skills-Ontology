@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blueprint™ Scouting Report — Tyrion Lannister | United Nations</title>
+<title id="pageTitle">Blueprint™ Scouting Report</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <style>
@@ -270,7 +270,7 @@ body{min-height:100vh;-webkit-font-smoothing:antialiased;padding-bottom:72px}
 <a class="nav-a" onclick="go('comp')">Comp</a>
 </div><button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode"><svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
 </nav>
-<div class="strip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Confidential — Prepared for the hiring team at <strong style="color:var(--t2);margin:0 3px">United Nations</strong><span style="margin-left:auto;opacity:.6">Feb 22, 2026</span></div>
+<div class="strip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Confidential — Prepared for the hiring team at <strong id="stripCompany" style="color:var(--t2);margin:0 3px">United Nations</strong><span id="stripDate" style="margin-left:auto;opacity:.6">Feb 22, 2026</span></div>
 
 <div class="tt" id="tip"></div>
 
@@ -279,18 +279,18 @@ body{min-height:100vh;-webkit-font-smoothing:antialiased;padding-bottom:72px}
 <!-- HERO -->
 <section class="hero" id="hero">
 <div class="hero-grid">
-<div class="photo">🍷</div>
+<div class="photo" id="heroPhoto">🍷</div>
 <div>
-<h1>Tyrion Lannister</h1>
-<div class="hero-sub">Hand of the King & Strategic Advisor</div>
-<div class="hero-meta"><span>📍 King's Landing, Westeros</span><span>📞 Available upon request</span></div>
+<h1 id="heroName">Tyrion Lannister</h1>
+<div class="hero-sub" id="heroTitle">Hand of the King & Strategic Advisor</div>
+<div class="hero-meta" id="heroMeta"><span>📍 King's Landing, Westeros</span><span>📞 Available upon request</span></div>
 </div>
-<div class="ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="6"/><circle cx="50" cy="50" r="42" fill="none" stroke="#10b981" stroke-width="6" stroke-dasharray="226.2" stroke-dashoffset="56.5" stroke-linecap="round"/></svg><div class="ring-label"><div class="ring-pct">75%</div><div class="ring-word">Match</div></div></div>
+<div class="ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="6"/><circle cx="50" cy="50" r="42" fill="none" stroke="#10b981" stroke-width="6" stroke-dasharray="226.2" stroke-dashoffset="56.5" stroke-linecap="round" id="ringArc"/></svg><div class="ring-label"><div class="ring-pct" id="ringPct">75%</div><div class="ring-word">Match</div></div></div>
 </div>
-<div class="target"><div><div class="target-lbl">Target Role</div><div class="target-role">Chief of Staff to the Secretary-General</div><div class="target-co">United Nations</div></div>
+<div class="target" id="targetCard"><div><div class="target-lbl">Target Role</div><div class="target-role">Chief of Staff to the Secretary-General</div><div class="target-co">United Nations</div></div>
 <div class="target-stats"><div class="tstat"><div class="tstat-n" style="color:var(--a)">26</div><div class="tstat-l">Skills</div></div><div class="tstat"><div class="tstat-n" style="color:var(--g)">6</div><div class="tstat-l">Matched</div></div><div class="tstat"><div class="tstat-n" style="color:var(--r)">2</div><div class="tstat-l">Gaps</div></div><div class="tstat"><div class="tstat-n" style="color:var(--tm)">20</div><div class="tstat-l">Surplus</div></div></div></div>
-<div class="narr"><div class="narr-lbl">⭐ Why This Candidate Fits</div><strong>Tyrion Lannister</strong> brings mastery-level expertise in <strong>strategic planning</strong>, <strong>political analysis</strong>, and <strong>alliance building</strong> — the three competencies rated most critical for the Chief of Staff position. His two tenures as Hand of the King demonstrate executive-level crisis management across hostile stakeholder environments, directly mirroring the UN's mandate of navigating 193 competing member-state agendas. The 2 identified gaps are in operational areas where adjacent skills suggest a rapid ramp trajectory.</div>
-<div class="purpose">I drink, and I know things. The knowing part is the career differentiator.</div>
+<div class="narr" id="narrativeBox"><div class="narr-lbl">⭐ Why This Candidate Fits</div><strong>Tyrion Lannister</strong> brings mastery-level expertise in <strong>strategic planning</strong>, <strong>political analysis</strong>, and <strong>alliance building</strong> — the three competencies rated most critical for the Chief of Staff position. His two tenures as Hand of the King demonstrate executive-level crisis management across hostile stakeholder environments, directly mirroring the UN's mandate of navigating 193 competing member-state agendas. The 2 identified gaps are in operational areas where adjacent skills suggest a rapid ramp trajectory.</div>
+<div class="purpose" id="purposeBox">I drink, and I know things. The knowing part is the career differentiator.</div>
 </section>
 
 <!-- SKILLS NETWORK -->
@@ -309,7 +309,7 @@ body{min-height:100vh;-webkit-font-smoothing:antialiased;padding-bottom:72px}
 <!-- EDUCATION & CERTIFICATIONS -->
 <section class="sec" id="creds">
 <div class="sec-h"><div class="sec-ico" style="background:rgba(168,85,247,.1);color:#a855f7"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.1 2.7 2 6 2s6-.9 6-2v-5"/></svg></div><div><div class="sec-t">Education & Certifications</div><div class="sec-st">Credentials backing verified skills</div></div></div>
-<div class="cred-grid">
+<div class="cred-grid" id="credGrid">
 <div>
 <div class="cred-col-h"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.1 2.7 2 6 2s6-.9 6-2v-5"/></svg> Education</div>
 <div class="cred-item" id="credEdu1">
@@ -352,10 +352,10 @@ body{min-height:100vh;-webkit-font-smoothing:antialiased;padding-bottom:72px}
 <!-- VALUES NETWORK -->
 <section class="sec" id="vnet">
 <div class="sec-h"><div class="sec-ico" style="background:rgba(99,102,241,.1);color:var(--p)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div><div class="sec-t">Values & Cultural Alignment</div><div class="sec-st">Shared values linked — hover for meaning</div></div></div>
-<div class="val-sc"><div class="val-sc-n">71%</div><div class="val-sc-l">Values Alignment</div></div>
+<div class="val-sc"><div class="val-sc-n" id="valScoreN">71%</div><div class="val-sc-l">Values Alignment</div></div>
 <div class="net-w" id="vnW"><svg id="vnS"></svg>
 <div class="net-leg"><div class="net-leg-i"><div class="net-leg-d" style="background:#10b981"></div>Aligned</div><div class="net-leg-i"><div class="net-leg-d" style="background:#f59e0b"></div>Candidate</div><div class="net-leg-i"><div class="net-leg-d" style="background:#6366f1"></div>Organization</div></div></div>
-<div class="narr" style="margin-top:16px"><div class="narr-lbl">Cultural Fit Signal</div>Strong foundational alignment across 5 shared values. Tyrion's unmatched values ("Wit as Armor," "The Mind is the Best Weapon") signal intellectual confidence complementing the UN's deliberative culture. Their emphasis on Diplomatic Neutrality may require adaptation from his more direct style.</div>
+<div class="narr" id="valNarrative" style="margin-top:16px"><div class="narr-lbl">Cultural Fit Signal</div>Strong foundational alignment across 5 shared values. Tyrion's unmatched values ("Wit as Armor," "The Mind is the Best Weapon") signal intellectual confidence complementing the UN's deliberative culture. Their emphasis on Diplomatic Neutrality may require adaptation from his more direct style.</div>
 <div class="viz-hint">Drag nodes · Green bridges show shared values</div>
 </section>
 
@@ -367,15 +367,15 @@ body{min-height:100vh;-webkit-font-smoothing:antialiased;padding-bottom:72px}
 
 <!-- OUTCOMES -->
 <section class="sec" id="outcomes"><div class="sec-h"><div class="sec-ico" style="background:rgba(245,158,11,.1);color:var(--am)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="sec-t">Outcomes & Achievements</div><div class="sec-st">Verified results from prior roles</div></div></div>
-<div class="outc"><div class="outc-t">Defended King's Landing during Blackwater Bay, coordinating a <span class="outc-m">multi-front defensive strategy</span> neutralizing a naval force 5x the garrison. <span class="vb"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Verified</span></div></div>
+<div id="outcomesList"><div class="outc"><div class="outc-t">Defended King's Landing during Blackwater Bay, coordinating a <span class="outc-m">multi-front defensive strategy</span> neutralizing a naval force 5x the garrison. <span class="vb"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Verified</span></div></div>
 <div class="outc"><div class="outc-t">Negotiated alliance between <span class="outc-m">historically hostile factions</span> under existential threat, achieving consensus where a decade of diplomacy failed. <span class="vb"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Verified</span></div></div>
 <div class="outc"><div class="outc-t">Managed the <span class="outc-m">Crown Treasury</span> as Master of Coin, restructuring debt with the Iron Bank and reducing fiscal exposure ~40%. <span class="vb cert"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Royal Treasurer License</span></div></div>
 <div class="outc"><div class="outc-t">Advised two sovereigns through <span class="outc-m">regime transitions</span> — institutional continuity across fundamentally different governance philosophies.</div></div>
-</section>
+</div></section>
 
 <!-- DOMAINS -->
 <section class="sec" id="domains"><div class="sec-h"><div class="sec-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div><div><div class="sec-t">Competency Domains</div><div class="sec-st">Distribution across professional clusters</div></div></div>
-<div class="pgrid"><div class="pcard"><div class="pcard-n" style="color:#f59e0b">3</div><div class="pcard-l">Mastery</div></div><div class="pcard"><div class="pcard-n" style="color:#a855f7">7</div><div class="pcard-l">Expert</div></div><div class="pcard"><div class="pcard-n" style="color:#3b82f6">9</div><div class="pcard-l">Advanced</div></div><div class="pcard"><div class="pcard-n" style="color:#10b981">5</div><div class="pcard-l">Proficient</div></div><div class="pcard"><div class="pcard-n" style="color:#6b7280">2</div><div class="pcard-l">Novice</div></div></div>
+<div class="pgrid" id="profGrid"><div class="pcard"><div class="pcard-n" style="color:#f59e0b">3</div><div class="pcard-l">Mastery</div></div><div class="pcard"><div class="pcard-n" style="color:#a855f7">7</div><div class="pcard-l">Expert</div></div><div class="pcard"><div class="pcard-n" style="color:#3b82f6">9</div><div class="pcard-l">Advanced</div></div><div class="pcard"><div class="pcard-n" style="color:#10b981">5</div><div class="pcard-l">Proficient</div></div><div class="pcard"><div class="pcard-n" style="color:#6b7280">2</div><div class="pcard-l">Novice</div></div></div>
 <div id="domL"></div></section>
 
 <!-- COMP TEASER -->
@@ -416,46 +416,127 @@ In production, candidates set blind mode defaults from their Blueprint dashboard
 <button class="nbtn" onclick="document.getElementById('nm').classList.add('open')">✉️ Send a Note</button>
 <button class="sbtn" onclick="navigator.clipboard?.writeText(location.href);this.textContent='✓ Copied';setTimeout(()=>this.innerHTML='↗ Share',2e3)">↗ Share</button>
 </div>
-<div class="nmod" id="nm"><div class="nbox"><h3>Send a Note to Tyrion</h3><textarea class="nta" placeholder="I'd like to discuss this role further..."></textarea><div class="nacts"><button style="padding:8px 18px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--tm);font-family:'Outfit';cursor:pointer" onclick="document.getElementById('nm').classList.remove('open')">Cancel</button><button style="padding:8px 22px;border-radius:8px;border:none;background:var(--a);color:#fff;font-family:'Outfit';font-weight:600;cursor:pointer" onclick="document.getElementById('nm').classList.remove('open')">Send</button></div></div></div>
+<div class="nmod" id="nm"><div class="nbox"><h3 id="noteTitle">Send a Note to Tyrion</h3><textarea class="nta" placeholder="I'd like to discuss this role further..."></textarea><div class="nacts"><button style="padding:8px 18px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--tm);font-family:'Outfit';cursor:pointer" onclick="document.getElementById('nm').classList.remove('open')">Cancel</button><button style="padding:8px 22px;border-radius:8px;border:none;background:var(--a);color:#fff;font-family:'Outfit';font-weight:600;cursor:pointer" onclick="document.getElementById('nm').classList.remove('open')">Send</button></div></div></div>
 
 <script>
-const CN='Tyrion Lannister', JT='Chief of Staff to the Secretary-General';
-const roles=[{id:'dipl',name:'Diplomacy & Statecraft',color:'#60a5fa'},{id:'strat',name:'Strategic Leadership',color:'#a855f7'},{id:'fin',name:'Financial & Economic',color:'#10b981'},{id:'intel',name:'Intelligence & Analysis',color:'#f59e0b'},{id:'comm',name:'Communication & Rhetoric',color:'#ec4899'}];
-const US=[
-{n:'Strategic Planning',l:'Mastery',r:['strat'],k:1,ev:'Designed defense of King\'s Landing during Blackwater. Coordinated multi-faction alliance strategy as Hand.',vf:'verified'},
-{n:'Political Analysis',l:'Mastery',r:['intel'],k:1,ev:'Predicted fall of three major regimes before conventional intelligence identified instability.',vf:'verified'},
-{n:'Alliance Building',l:'Mastery',r:['dipl'],k:1,ev:'Brokered unprecedented Stark-Targaryen alliance. Negotiated cessation between Lannister and Tyrell.',vf:'verified'},
-{n:'Stakeholder Management',l:'Expert',r:['dipl','strat'],ev:'Managed competing interests of Small Council, noble houses, military commanders simultaneously.'},
-{n:'Crisis Management',l:'Expert',r:['strat'],ev:'Led city defense during siege with no formal military rank. Managed food crisis and sabotage concurrently.',vf:'verified'},
-{n:'High-Stakes Negotiation',l:'Expert',r:['dipl'],ev:'Negotiated with Iron Bank to restructure Crown debt. Brokered hostage exchanges between factions.'},
-{n:'Persuasive Communication',l:'Expert',r:['comm'],ev:'Delivered pivotal addresses to hostile audiences — trial defense and siege morale speeches.'},
-{n:'Financial Management',l:'Expert',r:['fin'],ev:'Master of Coin managing Crown Treasury. Restructured sovereign debt obligations.',vf:'cert',vfLabel:'Royal Treasurer License'},
-{n:'Intelligence Gathering',l:'Advanced',r:['intel'],ev:'Maintained independent network through Varys partnership.'},
-{n:'Pattern Recognition',l:'Expert',r:['intel'],ev:'Identified Cersei\'s wildfire plot. Recognized strategic implications of Daenerys\'s eastern campaign.'},
-{n:'Conflict Resolution',l:'Advanced',r:['dipl'],ev:'Mediated disputes between Daenerys and northern allies. Resolved Small Council power struggles.'},
-{n:'Cross-Cultural Communication',l:'Advanced',r:['comm','dipl'],ev:'Operated across Westerosi, Essosi, Dothraki, and Free Cities cultures.'},
-{n:'Risk Assessment',l:'Advanced',r:['intel','strat'],ev:'Conducted strategic risk analysis informing key military and political decisions.'},
-{n:'Leadership Under Pressure',l:'Expert',r:['strat'],ev:'Assumed battlefield command during Blackwater when senior leadership was incapacitated.'},
-{n:'Historical Analysis',l:'Advanced',r:['intel'],ev:'Studied histories of kingdoms, wars, and political systems. Applied precedent to strategy.',vf:'edu',vfLabel:'Maester Studies'},
-{n:'Resilience',l:'Expert',r:['strat'],ev:'Survived assassination, imprisonment, exile, enslavement — rebuilt influence each time.'},
-{n:'Adaptive Leadership',l:'Advanced',r:['strat'],ev:'Transitioned between radically different contexts — Lannister court to Targaryen governance.'},
-{n:'Talent Assessment',l:'Advanced',r:['strat'],ev:'Elevated key personnel (Bronn, Podrick) based on capability not credentials.'},
-{n:'Rhetoric',l:'Expert',r:['comm'],ev:'Master of persuasive speech. Trial defense considered most powerful oration in recent history.'},
-{n:'Economic Analysis',l:'Advanced',r:['fin'],ev:'Analyzed trade economics, resource scarcity impacts on campaigns.'},
-{n:'Emotional Intelligence',l:'Advanced',r:['dipl','comm'],ev:'Read emotional states of adversaries and allies for negotiation advantage.'},
-{n:'Organizational Design',l:'Proficient',r:['strat'],ev:'Restructured Small Council under two different sovereigns.'},
-{n:'Budget Management',l:'Proficient',r:['fin'],ev:'Oversaw Crown expenditures and debt servicing as Master of Coin.'},
-{n:'Public Speaking',l:'Advanced',r:['comm'],ev:'Speeches to courts, armies, and hostile tribunals with equal effectiveness.'},
-{n:'Diplomatic Protocol',l:'Proficient',r:['dipl'],ev:'Navigated formal court protocols across multiple kingdoms.'},
-{n:'Wine Evaluation',l:'Mastery',r:['strat'],ev:'Unmatched palate. Career differentiator.'}
-];
-const JM=new Set(['strategic planning','political analysis','alliance building','stakeholder management','crisis management','high-stakes negotiation']);
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║                    REPORT DATA CONTRACT                         ║
+// ║  All profile data lives here. Change this object to generate    ║
+// ║  a scouting report for any candidate × job combination.         ║
+// ╚══════════════════════════════════════════════════════════════════╝
+
+const REPORT_DATA = {
+    candidate: {
+        name: 'Tyrion Lannister',
+        photo: '🍷',
+        title: 'Hand of the King & Strategic Advisor',
+        location: 'King\'s Landing, Westeros',
+        contact: 'Available upon request',
+        purpose: 'I drink, and I know things. The knowing part is the career differentiator.',
+        blindTitle: 'Senior Strategic Advisor'
+    },
+    job: {
+        title: 'Chief of Staff to the Secretary-General',
+        company: 'United Nations',
+        date: 'Feb 22, 2026'
+    },
+    match: {
+        percentage: 75,
+        narrative: '<strong>Tyrion Lannister</strong> brings mastery-level expertise in <strong>strategic planning</strong>, <strong>political analysis</strong>, and <strong>alliance building</strong> — the three competencies rated most critical for the Chief of Staff position. His two tenures as Hand of the King demonstrate executive-level crisis management across hostile stakeholder environments, directly mirroring the UN\'s mandate of navigating 193 competing member-state agendas. The 2 identified gaps are in operational areas where adjacent skills suggest a rapid ramp trajectory.'
+    },
+    roles: [
+        { id: 'dipl', name: 'Diplomacy & Statecraft', color: '#60a5fa' },
+        { id: 'strat', name: 'Strategic Leadership', color: '#a855f7' },
+        { id: 'fin', name: 'Financial & Economic', color: '#10b981' },
+        { id: 'intel', name: 'Intelligence & Analysis', color: '#f59e0b' },
+        { id: 'comm', name: 'Communication & Rhetoric', color: '#ec4899' }
+    ],
+    skills: [
+        { n: 'Strategic Planning', l: 'Mastery', r: ['strat'], k: 1, ev: 'Designed defense of King\'s Landing during Blackwater. Coordinated multi-faction alliance strategy as Hand.', vf: 'verified' },
+        { n: 'Political Analysis', l: 'Mastery', r: ['intel'], k: 1, ev: 'Predicted fall of three major regimes before conventional intelligence identified instability.', vf: 'verified' },
+        { n: 'Alliance Building', l: 'Mastery', r: ['dipl'], k: 1, ev: 'Brokered unprecedented Stark-Targaryen alliance. Negotiated cessation between Lannister and Tyrell.', vf: 'verified' },
+        { n: 'Stakeholder Management', l: 'Expert', r: ['dipl','strat'], ev: 'Managed competing interests of Small Council, noble houses, military commanders simultaneously.' },
+        { n: 'Crisis Management', l: 'Expert', r: ['strat'], ev: 'Led city defense during siege with no formal military rank. Managed food crisis and sabotage concurrently.', vf: 'verified' },
+        { n: 'High-Stakes Negotiation', l: 'Expert', r: ['dipl'], ev: 'Negotiated with Iron Bank to restructure Crown debt. Brokered hostage exchanges between factions.' },
+        { n: 'Persuasive Communication', l: 'Expert', r: ['comm'], ev: 'Delivered pivotal addresses to hostile audiences — trial defense and siege morale speeches.' },
+        { n: 'Financial Management', l: 'Expert', r: ['fin'], ev: 'Master of Coin managing Crown Treasury. Restructured sovereign debt obligations.', vf: 'cert', vfLabel: 'Royal Treasurer License' },
+        { n: 'Intelligence Gathering', l: 'Advanced', r: ['intel'], ev: 'Maintained independent network through Varys partnership.' },
+        { n: 'Pattern Recognition', l: 'Expert', r: ['intel'], ev: 'Identified Cersei\'s wildfire plot. Recognized strategic implications of Daenerys\'s eastern campaign.' },
+        { n: 'Conflict Resolution', l: 'Advanced', r: ['dipl'], ev: 'Mediated disputes between Daenerys and northern allies. Resolved Small Council power struggles.' },
+        { n: 'Cross-Cultural Communication', l: 'Advanced', r: ['comm','dipl'], ev: 'Operated across Westerosi, Essosi, Dothraki, and Free Cities cultures.' },
+        { n: 'Risk Assessment', l: 'Advanced', r: ['intel','strat'], ev: 'Conducted strategic risk analysis informing key military and political decisions.' },
+        { n: 'Leadership Under Pressure', l: 'Expert', r: ['strat'], ev: 'Assumed battlefield command during Blackwater when senior leadership was incapacitated.' },
+        { n: 'Historical Analysis', l: 'Advanced', r: ['intel'], ev: 'Studied histories of kingdoms, wars, and political systems. Applied precedent to strategy.', vf: 'edu', vfLabel: 'Maester Studies' },
+        { n: 'Resilience', l: 'Expert', r: ['strat'], ev: 'Survived assassination, imprisonment, exile, enslavement — rebuilt influence each time.' },
+        { n: 'Adaptive Leadership', l: 'Advanced', r: ['strat'], ev: 'Transitioned between radically different contexts — Lannister court to Targaryen governance.' },
+        { n: 'Talent Assessment', l: 'Advanced', r: ['strat'], ev: 'Elevated key personnel (Bronn, Podrick) based on capability not credentials.' },
+        { n: 'Rhetoric', l: 'Expert', r: ['comm'], ev: 'Master of persuasive speech. Trial defense considered most powerful oration in recent history.' },
+        { n: 'Economic Analysis', l: 'Advanced', r: ['fin'], ev: 'Analyzed trade economics, resource scarcity impacts on campaigns.' },
+        { n: 'Emotional Intelligence', l: 'Advanced', r: ['dipl','comm'], ev: 'Read emotional states of adversaries and allies for negotiation advantage.' },
+        { n: 'Organizational Design', l: 'Proficient', r: ['strat'], ev: 'Restructured Small Council under two different sovereigns.' },
+        { n: 'Budget Management', l: 'Proficient', r: ['fin'], ev: 'Oversaw Crown expenditures and debt servicing as Master of Coin.' },
+        { n: 'Public Speaking', l: 'Advanced', r: ['comm'], ev: 'Speeches to courts, armies, and hostile tribunals with equal effectiveness.' },
+        { n: 'Diplomatic Protocol', l: 'Proficient', r: ['dipl'], ev: 'Navigated formal court protocols across multiple kingdoms.' },
+        { n: 'Wine Evaluation', l: 'Mastery', r: ['strat'], ev: 'Unmatched palate. Career differentiator.' }
+    ],
+    jobRequired: ['Strategic Planning', 'Political Analysis', 'Alliance Building', 'Stakeholder Management', 'Crisis Management', 'High-Stakes Negotiation'],
+    gaps: [
+        { n: 'Public Administration at Scale', rq: 'Required', br: 'Governance of King\'s Landing (~500K) demonstrates foundational public admin. Scale gap significant but bridgeable.', adj: ['Stakeholder Management', 'Organizational Design', 'Adaptive Leadership'] },
+        { n: 'Multilateral Treaty Law', rq: 'Required', br: 'Extensive negotiation across competing jurisdictions mirrors practical treaty challenges. Historical analysis accelerates comprehension.', adj: ['High-Stakes Negotiation', 'Historical Analysis', 'Cross-Cultural Communication'] }
+    ],
+    values: {
+        score: 71,
+        narrative: '<div class="narr-lbl">Cultural Fit Signal</div>Strong foundational alignment across 5 shared values. Tyrion\'s unmatched values ("Wit as Armor," "The Mind is the Best Weapon") signal intellectual confidence complementing the UN\'s deliberative culture. Their emphasis on Diplomatic Neutrality may require adaptation from his more direct style.',
+        candidate: [
+            { n: 'Intellectual Honesty', s: 'aligned' }, { n: 'Resilience', s: 'aligned' },
+            { n: 'Strategic Thinking', s: 'aligned' }, { n: 'Courage', s: 'aligned' },
+            { n: 'Accountability', s: 'aligned' }, { n: 'Wit as Armor', s: 'yours' },
+            { n: 'The Mind is the Best Weapon', s: 'yours' }
+        ],
+        company: [
+            { n: 'Intellectual Honesty', t: 'primary', s: 'aligned' }, { n: 'Resilience', t: 'primary', s: 'aligned' },
+            { n: 'Strategic Thinking', t: 'primary', s: 'aligned' }, { n: 'Courage', t: 'secondary', s: 'aligned' },
+            { n: 'Accountability', t: 'secondary', s: 'aligned' }, { n: 'Diplomatic Neutrality', t: 'primary', s: 'theirs' },
+            { n: 'Multilateral Consensus', t: 'secondary', s: 'theirs' }
+        ]
+    },
+    outcomes: [
+        { text: 'Defended King\'s Landing during Blackwater Bay, coordinating a <span class="outc-m">multi-front defensive strategy</span> neutralizing a naval force 5x the garrison.', vf: 'verified', blind: 'Coordinated a <span class="outc-m">multi-front defensive strategy</span> for a major metropolitan center, neutralizing a force 5x the garrison.' },
+        { text: 'Negotiated alliance between <span class="outc-m">historically hostile factions</span> under existential threat, achieving consensus where a decade of diplomacy failed.', vf: 'verified', blind: 'Brokered alliance between <span class="outc-m">historically hostile factions</span> under existential threat, achieving consensus where a decade of diplomacy failed.' },
+        { text: 'Managed the <span class="outc-m">Crown Treasury</span> as Master of Coin, restructuring debt with the Iron Bank and reducing fiscal exposure ~40%.', vf: 'cert', vfLabel: 'Royal Treasurer License', blind: 'Managed a <span class="outc-m">sovereign treasury</span>, restructuring debt with international creditors and reducing fiscal exposure ~40%.' },
+        { text: 'Advised two sovereigns through <span class="outc-m">regime transitions</span> — institutional continuity across fundamentally different governance philosophies.', blind: 'Advised two heads of state through <span class="outc-m">regime transitions</span> — institutional continuity across fundamentally different governance philosophies.' }
+    ],
+    education: [
+        { name: 'The Citadel', desc: 'Maester Studies — Incomplete (Political circumstances)', location: 'Oldtown, The Reach', dates: '283–285 AC', vf: 'edu', skills: ['Historical Analysis', 'Political Analysis', 'Economic Analysis', 'Pattern Recognition'] },
+        { name: 'House Lannister Private Tutors', desc: 'Classical Education — Languages, History, Strategy, Finance', location: 'Casterly Rock', dates: '278–283 AC', skills: ['Rhetoric', 'Financial Management', 'Persuasive Communication'] }
+    ],
+    certifications: [
+        { name: 'Hand of the King', vf: 'cert', vfLabel: 'Royal Appointment', desc: 'Crown of the Seven Kingdoms — Two tenures under different sovereigns', dates: '299 AC, 305 AC', status: '🔄 Active (second tenure)', skills: ['Strategic Planning', 'Crisis Management', 'Stakeholder Management', 'Alliance Building'] },
+        { name: 'Master of Coin', vf: 'cert', vfLabel: 'Royal Treasurer License', desc: 'Crown Treasury — Full fiscal authority over sovereign finances', dates: '299–300 AC', status: '⏹ Completed', skills: ['Financial Management', 'Budget Management', 'Economic Analysis', 'High-Stakes Negotiation'] },
+        { name: 'Acting Commander, City Watch', desc: 'Battle of Blackwater Bay — Emergency military authority', dates: '299 AC', status: '⏹ Wartime commission', skills: ['Leadership Under Pressure', 'Crisis Management', 'Risk Assessment'] }
+    ],
+    domains: [
+        { n: 'Diplomacy & Statecraft', c: 8, m: 26, cl: '#60a5fa' },
+        { n: 'Strategic Leadership', c: 6, m: 26, cl: '#a855f7' },
+        { n: 'Financial & Economic', c: 4, m: 26, cl: '#10b981' },
+        { n: 'Intelligence & Analysis', c: 4, m: 26, cl: '#f59e0b' },
+        { n: 'Communication & Rhetoric', c: 4, m: 26, cl: '#ec4899' }
+    ],
+    proficiency: { Mastery: 3, Expert: 7, Advanced: 9, Proficient: 5, Novice: 2 }
+};
+
+// ── Derived globals ────────────────────────────────────────────────
+const R = REPORT_DATA;
+const CN=R.candidate.name, JT=R.job.title;
+const roles=R.roles;
+const US=R.skills;
+const JM=new Set(R.jobRequired.map(s=>s.toLowerCase()));
 const MS=new Set();US.forEach(s=>{if(JM.has(s.n.toLowerCase()))MS.add(s.n)});
-const GN=['Public Administration at Scale','Multilateral Treaty Law'];
-const uVals=[{n:'Intellectual Honesty',s:'aligned'},{n:'Resilience',s:'aligned'},{n:'Strategic Thinking',s:'aligned'},{n:'Courage',s:'aligned'},{n:'Accountability',s:'aligned'},{n:'Wit as Armor',s:'yours'},{n:'The Mind is the Best Weapon',s:'yours'}];
-const cVals=[{n:'Intellectual Honesty',t:'primary',s:'aligned'},{n:'Resilience',t:'primary',s:'aligned'},{n:'Strategic Thinking',t:'primary',s:'aligned'},{n:'Courage',t:'secondary',s:'aligned'},{n:'Accountability',t:'secondary',s:'aligned'},{n:'Diplomatic Neutrality',t:'primary',s:'theirs'},{n:'Multilateral Consensus',t:'secondary',s:'theirs'}];
-const gapData=[{n:'Public Administration at Scale',rq:'Required',br:'Governance of King\'s Landing (~500K) demonstrates foundational public admin. Scale gap significant but bridgeable.',adj:['Stakeholder Management','Organizational Design','Adaptive Leadership']},{n:'Multilateral Treaty Law',rq:'Required',br:'Extensive negotiation across competing jurisdictions mirrors practical treaty challenges. Historical analysis accelerates comprehension.',adj:['High-Stakes Negotiation','Historical Analysis','Cross-Cultural Communication']}];
-const doms=[{n:'Diplomacy & Statecraft',c:8,m:26,cl:'#60a5fa'},{n:'Strategic Leadership',c:6,m:26,cl:'#a855f7'},{n:'Financial & Economic',c:4,m:26,cl:'#10b981'},{n:'Intelligence & Analysis',c:4,m:26,cl:'#f59e0b'},{n:'Communication & Rhetoric',c:4,m:26,cl:'#ec4899'}];
+const GN=R.gaps.map(g=>g.n);
+const uVals=R.values.candidate;
+const cVals=R.values.company;
+const gapData=R.gaps;
+const doms=R.domains;
 
 // Tooltip
 const tip=d3.select('#tip');
@@ -604,13 +685,14 @@ function toggleTheme() {
 // ===== BLIND MODE =====
 let blindActive = false;
 const blindState = { identity:false, location:false, employer:false, institution:false, outcomes:false };
-const originals = { name:'Tyrion Lannister', photo:'🍷', heroTitle:'Hand of the King & Strategic Advisor', location:'King\'s Landing, Westeros', outcomes:[] };
-const blindOutcomes = [
-    'Coordinated a <span class="outc-m">multi-front defensive strategy</span> for a major metropolitan center, neutralizing a force 5x the garrison. <span class="vb"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Verified</span>',
-    'Brokered alliance between <span class="outc-m">historically hostile factions</span> under existential threat, achieving consensus where a decade of diplomacy failed. <span class="vb"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Verified</span>',
-    'Managed a <span class="outc-m">sovereign treasury</span>, restructuring debt with international creditors and reducing fiscal exposure ~40%. <span class="vb cert"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Licensed Credential</span>',
-    'Advised two heads of state through <span class="outc-m">regime transitions</span> — institutional continuity across fundamentally different governance philosophies.'
-];
+const originals = { name:R.candidate.name, photo:R.candidate.photo, heroTitle:R.candidate.title, location:R.candidate.location, outcomes:[] };
+const blindOutcomes = R.outcomes.map(o => {
+    const vbSvg='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+    let badge = '';
+    if(o.vf==='verified') badge=' <span class="vb">'+vbSvg+'Verified</span>';
+    else if(o.vf==='cert') badge=' <span class="vb cert">'+vbSvg+'Licensed Credential</span>';
+    return (o.blind||o.text) + badge;
+});
 
 function toggleBlindPanel() { document.getElementById('blindPanel').classList.toggle('open'); }
 
@@ -646,7 +728,7 @@ function applyBlind() {
         if (photo) { photo.textContent = originals.photo; photo.classList.remove('blinded-photo'); }
         document.querySelectorAll('.narr strong').forEach((el,i) => { if (i === 0) el.textContent = originals.name; });
         const noteH3 = document.querySelector('.nbox h3');
-        if (noteH3) noteH3.textContent = 'Send a Note to Tyrion';
+        if (noteH3) noteH3.textContent = 'Send a Note to ' + originals.name.split(' ')[0];
     }
 
     // Location
@@ -664,7 +746,7 @@ function applyBlind() {
         el.style.userSelect = blindState.employer ? 'none' : '';
     });
     const heroSub = document.querySelector('.hero-sub');
-    if (heroSub) heroSub.textContent = blindState.employer ? 'Senior Strategic Advisor' : originals.heroTitle;
+    if (heroSub) heroSub.textContent = blindState.employer ? (R.candidate.blindTitle || 'Senior Professional') : originals.heroTitle;
 
     // Institution names
     document.querySelectorAll('.cred-name-text').forEach(el => {
@@ -690,6 +772,72 @@ document.addEventListener('click', e => {
 
 function openPop(d){const p=document.getElementById('pop');document.getElementById('popN').textContent=d.name;let b='<div><strong style="color:var(--a)">'+(d.level||'')+'</strong>';if(d.ms==='matched')b+=' · <span style="color:var(--g)">✓ Matched to role</span>';if(d.vf)b+=' <span class="vb'+(d.vf==='cert'?' cert':d.vf==='edu'?' edu':'')+'"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'+(d.vfLabel||'Verified')+'</span>';b+='</div>';if(d.ev)b+='<div class="pop-ev"><div class="pop-ev-l">Evidence</div>'+d.ev+'</div>';document.getElementById('popB').innerHTML=b;p.classList.add('open');p.scrollIntoView({behavior:'smooth',block:'nearest'})}
 
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║               CONFIG-DRIVEN RENDERING                            ║
+// ╚══════════════════════════════════════════════════════════════════╝
+const levelColor={Mastery:'#f59e0b',Expert:'#a855f7',Advanced:'#3b82f6',Proficient:'#10b981',Novice:'#6b7280'};
+const levelColorLight={Mastery:'#92400e',Expert:'#6b21a8',Advanced:'#1e40af',Proficient:'#065f46',Novice:'#374151'};
+const matchedCount=US.filter(s=>MS.has(s.n)).length;
+const gapCount=GN.length;
+const surplusCount=US.length-matchedCount;
+
+function initReport(){
+    document.getElementById('pageTitle').textContent='Blueprint™ Scouting Report — '+CN+' | '+R.job.company;
+    document.getElementById('stripCompany').textContent=R.job.company;
+    document.getElementById('stripDate').textContent=R.job.date;
+    // Match ring
+    const pct=R.match.percentage, circ=2*Math.PI*42, offset=circ*(1-pct/100);
+    document.getElementById('ringArc').setAttribute('stroke-dasharray',circ.toFixed(1));
+    document.getElementById('ringArc').setAttribute('stroke-dashoffset',offset.toFixed(1));
+    document.getElementById('ringPct').textContent=pct+'%';
+    // Target card
+    document.getElementById('targetCard').innerHTML='<div><div class="target-lbl">Target Role</div><div class="target-role">'+JT+'</div><div class="target-co">'+R.job.company+'</div></div><div class="target-stats"><div class="tstat"><div class="tstat-n" style="color:var(--a)">'+US.length+'</div><div class="tstat-l">Skills</div></div><div class="tstat"><div class="tstat-n" style="color:var(--g)">'+matchedCount+'</div><div class="tstat-l">Matched</div></div><div class="tstat"><div class="tstat-n" style="color:var(--r)">'+gapCount+'</div><div class="tstat-l">Gaps</div></div><div class="tstat"><div class="tstat-n" style="color:var(--tm)">'+surplusCount+'</div><div class="tstat-l">Surplus</div></div></div>';
+    // Narrative
+    document.getElementById('narrativeBox').innerHTML='<div class="narr-lbl">⭐ Why This Candidate Fits</div>'+R.match.narrative;
+    // Values
+    document.getElementById('valScoreN').textContent=R.values.score+'%';
+    document.getElementById('valNarrative').innerHTML=R.values.narrative;
+    // Credentials
+    renderCredentials();
+    // Outcomes
+    renderOutcomesHTML();
+    // Proficiency grid
+    renderProfGrid();
+}
+
+function renderCredentials(){
+    const vb='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+    let eduH='<div><div class="cred-col-h"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.1 2.7 2 6 2s6-.9 6-2v-5"/></svg> Education</div>';
+    R.education.forEach((e,i)=>{
+        const badge=e.vf?' <span class="vb '+e.vf+'">'+vb+(e.vfLabel||'Verified')+'</span>':'';
+        eduH+='<div class="cred-item" id="credEdu'+(i+1)+'"><div class="cred-name"><span class="cred-name-text">'+e.name+'</span>'+badge+'</div><div class="cred-org cred-org-text">'+e.desc+'</div><div class="cred-meta">'+(e.location?'<span>📍 <span class="cred-loc-text">'+e.location+'</span></span>':'')+'<span>📅 '+e.dates+'</span></div><div class="cred-skills">'+e.skills.map(s=>'<span class="cred-skill-tag">'+s+'</span>').join('')+'</div></div>';
+    });
+    eduH+='</div>';
+    let certH='<div><div class="cred-col-h"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg> Certifications & Appointments</div>';
+    R.certifications.forEach((c,i)=>{
+        const badge=c.vf?' <span class="vb '+c.vf+'">'+vb+(c.vfLabel||'Verified')+'</span>':'';
+        certH+='<div class="cred-item" id="credCert'+(i+1)+'"><div class="cred-name"><span class="cred-name-text">'+c.name+'</span>'+badge+'</div><div class="cred-org cred-org-text">'+c.desc+'</div><div class="cred-meta"><span>📅 '+c.dates+'</span>'+(c.status?'<span>'+c.status+'</span>':'')+'</div><div class="cred-skills">'+c.skills.map(s=>'<span class="cred-skill-tag">'+s+'</span>').join('')+'</div></div>';
+    });
+    certH+='</div>';
+    document.getElementById('credGrid').innerHTML=eduH+certH;
+}
+
+function renderOutcomesHTML(){
+    const vb='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+    document.getElementById('outcomesList').innerHTML=R.outcomes.map(o=>{
+        let badge='';
+        if(o.vf==='verified')badge=' <span class="vb">'+vb+'Verified</span>';
+        else if(o.vf==='cert')badge=' <span class="vb cert">'+vb+(o.vfLabel||'Licensed Credential')+'</span>';
+        else if(o.vf==='edu')badge=' <span class="vb edu">'+vb+(o.vfLabel||'Verified')+'</span>';
+        return '<div class="outc"><div class="outc-t">'+o.text+badge+'</div></div>';
+    }).join('');
+}
+
+function renderProfGrid(){
+    const cols={Mastery:'#f59e0b',Expert:'#a855f7',Advanced:'#3b82f6',Proficient:'#10b981',Novice:'#6b7280'};
+    document.getElementById('profGrid').innerHTML=Object.entries(R.proficiency).map(([l,c])=>'<div class="pcard"><div class="pcard-n" style="color:'+cols[l]+'">'+c+'</div><div class="pcard-l">'+l+'</div></div>').join('');
+}
+
 function renderSk(){
 const el=document.getElementById('skL');
 const matched=US.filter(s=>MS.has(s.n));
@@ -708,7 +856,7 @@ function go(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',b
 const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)document.querySelectorAll('.nav-a').forEach(l=>l.classList.toggle('on',l.getAttribute('onclick')?.includes(e.target.id)))})},{threshold:.2});
 document.querySelectorAll('section[id],.hero').forEach(s=>obs.observe(s));
 
-renderSk();renderGaps();renderDom();initSN();initVN();
+initReport();renderSk();renderGaps();renderDom();initSN();initVN();
 window.addEventListener('resize',()=>{if(curNetMode==='match')initSN();else initYouNet();initVN()});
 
 // Show blind mode tooltip on first visit
