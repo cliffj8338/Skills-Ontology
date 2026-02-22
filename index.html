@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.32.0.3 | 20260222 | Badge logic fix, job overlay mobile compact, pipeline header spacing -->
+    <!-- v4.32.0.4 | 20260222 | Collapsible overlays, filter removed, match-to-network loading fix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -892,8 +892,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.32.0.3 - BUILD 20260222-badge-overlay-pipeline
-        var BP_VERSION = 'v4.32.0.3';
+        // BLUEPRINT v4.32.0.4 - BUILD 20260222-collapsible-filter-loading
+        var BP_VERSION = 'v4.32.0.4';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -7822,10 +7822,18 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             tile.id = 'jobInfoTile';
             tile.className = 'job-info-tile';
             
-            var html = '<div class="jit-title">' + (job.title || 'Untitled Position') + '</div>';
+            var html = '<div class="jit-header" onclick="this.parentElement.classList.toggle(\'jit-expanded\')" style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;">'
+                + '<div style="flex:1; min-width:0;">'
+                + '<div class="jit-title">' + (job.title || 'Untitled Position') + '</div>';
             if (job.company) {
                 html += '<div class="jit-company">' + job.company + '</div>';
             }
+            html += '</div>'
+                + '<div class="jit-chevron" style="color:var(--text-muted); font-size:0.8em; margin-left:8px; transition:transform 0.2s;">▾</div>'
+                + '</div>';
+            
+            // Collapsible body — hidden by default on mobile
+            html += '<div class="jit-body">';
             
             // Meta row: seniority, date added
             var metaItems = [];
@@ -7857,6 +7865,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 html += '<div class="jit-source"><a href="' + job.sourceUrl + '" target="_blank">View posting \u2192</a></div>';
             }
             
+            html += '</div>'; // close jit-body
+            
             tile.innerHTML = html;
             
             var container = document.getElementById('networkView').parentElement;
@@ -7886,14 +7896,18 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             legend.className = 'match-legend';
             
             legend.innerHTML = ''
-                // Score row (no header — job info is in the tile)
-                + '<div class="ml-score-row">'
+                // Score row — always visible, clickable to expand on mobile
+                + '<div class="ml-score-row" onclick="this.parentElement.classList.toggle(\'ml-expanded\')" style="cursor:pointer;">'
                 + '<div class="ml-score-num" style="color:' + scoreColor + ';">' + score + '%</div>'
                 + '<div style="flex:1;">'
                 + '<div style="font-size:0.78em; color:var(--text-muted); margin-bottom:4px;">Overall Match</div>'
                 + '<div class="ml-score-bar"><div class="ml-score-fill" style="width:' + score + '%; background:' + scoreColor + ';"></div></div>'
                 + '</div>'
+                + '<div class="ml-chevron" style="color:var(--text-muted); font-size:0.8em; margin-left:8px; transition:transform 0.2s;">▾</div>'
                 + '</div>'
+                
+                // Collapsible body
+                + '<div class="ml-body">'
                 
                 // Stats grid
                 + '<div class="ml-stats">'
@@ -7917,7 +7931,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + '<button class="ml-action-btn" onclick="clearJobOverlay()">✕ Close</button>'
                 + '<button class="ml-action-btn" style="color:var(--accent); border-color:rgba(96,165,250,0.3);" '
                 + 'onclick="var idx=findJobIdx(); clearJobOverlay(); switchView(\'opportunities\'); setTimeout(function(){showJobDetail(idx);},200);">View Details</button>'
-                + '</div>';
+                + '</div>'
+                + '</div>'; // close ml-body
             
             var container = document.getElementById('networkView').parentElement;
             if (container) { container.style.position = 'relative'; container.appendChild(legend); }
@@ -8865,9 +8880,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 } else {
                     document.getElementById('cardView').style.display = 'block';
                     networkControls.style.display = 'none';
-                    // Show filter button in card view
+                    // Hide filter button in card view (removed for cleaner UX)
                     var fBtn2 = document.getElementById('filterToggleBtn');
-                    if (fBtn2) fBtn2.style.display = '';
+                    if (fBtn2) fBtn2.style.display = 'none';
+                    var fPnl3 = document.getElementById('filterPanel');
+                    if (fPnl3) { fPnl3.classList.remove('open'); fPnl3.style.display = 'none'; }
                     // Hide network filter pill
                     var nfp2 = document.getElementById('networkFilterPill');
                     if (nfp2) nfp2.style.display = 'none';
@@ -8954,7 +8971,23 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 // Show match UI if a job is active
                 if (activeJobForNetwork) {
                     if (matchToggle) matchToggle.style.display = 'inline-flex';
+                    // Update badge title (was stuck on "Loading..." default)
+                    var badgeTitle = document.getElementById('matchActiveTitle');
+                    if (badgeTitle) badgeTitle.textContent = activeJobForNetwork.title || 'Job Match';
                     if (matchBadge) matchBadge.style.display = 'inline-flex';
+                    // Re-render the appropriate overlay network
+                    if (networkMatchMode === 'match') {
+                        initMatchNetwork(activeJobForNetwork);
+                    } else if (networkMatchMode === 'values') {
+                        initValuesNetwork(activeJobForNetwork);
+                    } else if (networkMatchMode === 'job') {
+                        initJobNetwork(activeJobForNetwork);
+                    } else {
+                        // 'you' mode — standard network
+                        window.networkInitialized = false;
+                        initNetwork();
+                        window.networkInitialized = true;
+                    }
                 }
             } else {
                 document.getElementById('networkView').style.display = 'none';
@@ -8965,9 +8998,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     initCardView();
                     window.cardViewInitialized = true;
                 }
-                // Show filter button in card view
+                // Hide filter button/panel in card view (removed for cleaner UX)
                 var filterBtn2 = document.getElementById('filterToggleBtn');
-                if (filterBtn2) filterBtn2.style.display = '';
+                if (filterBtn2) filterBtn2.style.display = 'none';
+                var filterPnl2 = document.getElementById('filterPanel');
+                if (filterPnl2) { filterPnl2.classList.remove('open'); filterPnl2.style.display = 'none'; }
                 // Hide network filter pill in card view
                 var nfPill2 = document.getElementById('networkFilterPill');
                 if (nfPill2) nfPill2.style.display = 'none';

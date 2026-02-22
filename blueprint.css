@@ -1164,18 +1164,10 @@
         }
 
         .filter-toggle-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 5px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: var(--chip-bg);
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 0.8em;
-            font-weight: 500;
-            transition: all 0.18s;
+            display: none !important;  /* Filter removed from UI — revisit later */
+        }
+        .filter-panel {
+            display: none !important;  /* Filter removed from UI — revisit later */
         }
 
         .filter-toggle-btn:hover, .filter-toggle-btn.active {
@@ -2352,6 +2344,11 @@
             text-decoration: none;
         }
         .jit-source a:hover { text-decoration: underline; }
+        /* Desktop: overlay bodies always visible, chevrons hidden */
+        .jit-body { display: block; margin-top: 6px; }
+        .jit-chevron { display: none; }
+        .ml-body { display: block; }
+        .ml-chevron { display: none; }
         [data-theme="light"] .match-legend {
             background: rgba(255,255,255,0.95);
             border-color: rgba(0,0,0,0.12);
@@ -3317,6 +3314,29 @@
             .job-info-tile .jit-meta {
                 margin-top: 3px;
                 gap: 6px;
+            }
+            /* Collapsible overlays on mobile — start collapsed */
+            .jit-chevron, .ml-chevron {
+                display: block;
+            }
+            .job-info-tile .jit-body {
+                display: none;
+                margin-top: 6px;
+            }
+            .job-info-tile.jit-expanded .jit-body {
+                display: block;
+            }
+            .job-info-tile.jit-expanded .jit-chevron {
+                transform: rotate(180deg);
+            }
+            .match-legend .ml-body {
+                display: none;
+            }
+            .match-legend.ml-expanded .ml-body {
+                display: block;
+            }
+            .match-legend.ml-expanded .ml-chevron {
+                transform: rotate(180deg);
             }
             .values-alignment-panel {
                 position: absolute !important;

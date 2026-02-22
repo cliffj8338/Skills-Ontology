@@ -3,1523 +3,371 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blueprint™ Scouting Report — Tyrion Lannister for Chief of Staff, United Nations</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<title>Blueprint™ Scouting Report — Tyrion Lannister | United Nations</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <style>
-:root {
-    --bg-deep: #0a0e1a;
-    --bg-card: #111827;
-    --bg-elevated: #1a2035;
-    --bg-hover: #1e2842;
-    --border: rgba(255,255,255,0.06);
-    --border-accent: rgba(96,165,250,0.25);
-    --accent: #60a5fa;
-    --accent-glow: rgba(96,165,250,0.15);
-    --green: #10b981;
-    --amber: #f59e0b;
-    --red: #ef4444;
-    --purple: #6366f1;
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --radius: 14px;
-    --radius-sm: 8px;
+:root{--bg:#0a0e1a;--card:#111827;--elev:#1a2035;--border:rgba(255,255,255,0.06);--ba:rgba(96,165,250,0.25);--a:#60a5fa;--ag:rgba(96,165,250,0.15);--g:#10b981;--am:#f59e0b;--r:#ef4444;--p:#6366f1;--t1:#f1f5f9;--t2:#94a3b8;--tm:#64748b;--rad:14px;--rs:8px}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--bg);color:var(--t1);font-family:'Outfit',sans-serif}
+body{min-height:100vh;-webkit-font-smoothing:antialiased;padding-bottom:72px}
+
+.nav{position:sticky;top:0;z-index:100;background:rgba(10,14,26,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px}
+.nav-brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:.85em;color:var(--t2);letter-spacing:.08em;text-transform:uppercase}
+.nav-links{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}.nav-links::-webkit-scrollbar{display:none}
+.nav-a{padding:6px 14px;border-radius:20px;font-size:.72em;font-weight:500;color:var(--tm);cursor:pointer;white-space:nowrap;transition:all .2s}
+.nav-a:hover,.nav-a.on{color:var(--a);background:var(--ag)}
+
+.strip{background:rgba(96,165,250,0.06);border-bottom:1px solid var(--border);padding:6px 24px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:.7em;color:var(--tm);flex-wrap:wrap}
+.wrap{max-width:960px;margin:0 auto;padding:0 24px}
+
+/* Hero */
+.hero{padding:48px 0 40px}.hero-grid{display:grid;grid-template-columns:auto 1fr auto;gap:28px;align-items:center;margin-bottom:32px}
+.photo{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--p));display:flex;align-items:center;justify-content:center;font-size:40px;box-shadow:0 0 0 3px var(--bg),0 0 0 5px rgba(96,165,250,0.2)}
+.hero h1{font-size:1.8em;font-weight:800;line-height:1.15;margin-bottom:4px}
+.hero-sub{font-size:.95em;color:var(--t2);margin-bottom:6px}
+.hero-meta{display:flex;gap:16px;font-size:.78em;color:var(--tm);flex-wrap:wrap}
+.hero-meta span{display:flex;align-items:center;gap:4px}
+.ring{width:100px;height:100px;position:relative;flex-shrink:0}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-pct{font-size:1.8em;font-weight:900;color:var(--g);line-height:1}
+.ring-word{font-size:.6em;color:var(--tm);text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+
+.target{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.target-lbl{font-size:.7em;color:var(--a);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:4px}
+.target-role{font-size:1.15em;font-weight:700}
+.target-co{font-size:.88em;color:var(--t2);margin-top:2px}
+.target-stats{display:flex;gap:20px;flex-shrink:0}
+.tstat{text-align:center}
+.tstat-n{font-size:1.5em;font-weight:800;line-height:1.1}
+.tstat-l{font-size:.65em;color:var(--tm);text-transform:uppercase;letter-spacing:.06em}
+
+.narr{background:linear-gradient(135deg,rgba(96,165,250,0.06),rgba(99,102,241,0.04));border:1px solid var(--ba);border-radius:var(--rad);padding:24px 28px;margin-bottom:24px;line-height:1.7;font-size:.95em;color:var(--t2)}
+.narr strong{color:var(--t1);font-weight:600}
+.narr-lbl{font-size:.68em;color:var(--a);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.purpose{padding:16px 0 0;font-size:.88em;color:var(--tm);font-style:italic;text-align:center;border-top:1px solid var(--border)}
+.purpose::before{content:'\201C';font-size:1.6em;color:var(--a);vertical-align:-4px;margin-right:4px}
+
+/* Sections */
+.sec{padding:40px 0;border-top:1px solid var(--border)}
+.sec-h{display:flex;align-items:center;gap:10px;margin-bottom:24px}
+.sec-ico{width:32px;height:32px;border-radius:8px;background:var(--ag);display:flex;align-items:center;justify-content:center;color:var(--a);flex-shrink:0}
+.sec-t{font-size:1.2em;font-weight:700}
+.sec-st{font-size:.78em;color:var(--tm)}
+
+/* Network */
+.net-w{position:relative;width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--rad);overflow:hidden;margin-bottom:16px}
+.net-w svg{display:block;width:100%}
+.net-w svg text{font-family:'Outfit',sans-serif;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.net-w svg .link{stroke:rgba(255,255,255,.1)}
+.net-w svg .hidden{display:none}
+.net-leg{position:absolute;bottom:12px;left:12px;background:rgba(15,15,30,.88);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:.72em;display:flex;gap:12px;flex-wrap:wrap}
+.net-leg-i{display:flex;align-items:center;gap:5px;color:var(--tm)}
+.net-leg-d{width:8px;height:8px;border-radius:50%}
+.viz-hint{text-align:center;font-size:.72em;color:var(--tm);padding:8px 0 0}
+
+/* Tooltip */
+.tt{position:absolute;background:rgba(26,26,46,.98);border:1px solid #60a5fa;border-radius:8px;padding:12px 14px;pointer-events:none;opacity:0;transition:opacity .15s;max-width:300px;font-size:12px;z-index:500;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.tt-t{font-weight:700;color:#60a5fa;margin-bottom:4px;font-size:13px}
+.tt-s{color:#94a3b8;font-size:11px;line-height:1.5}
+
+/* Popover */
+.pop{display:none;background:var(--elev);border:1px solid var(--ba);border-radius:var(--rad);padding:20px 24px;margin-bottom:16px}
+.pop.open{display:block}
+.pop-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.pop-n{font-size:1em;font-weight:700}
+.pop-x{background:none;border:none;color:var(--tm);cursor:pointer;font-size:1.2em}
+.pop-b{font-size:.88em;color:var(--t2);line-height:1.65}
+.pop-ev{margin-top:10px;padding:10px 14px;background:rgba(255,255,255,.02);border-radius:var(--rs);border-left:2px solid var(--a)}
+.pop-ev-l{font-size:.7em;color:var(--a);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+
+/* Skill rows */
+.sk-list{display:flex;flex-direction:column;gap:6px}
+.sk-r{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:14px 18px;cursor:pointer;transition:all .2s}
+.sk-r:hover{border-color:var(--ba);background:var(--elev)}
+.sk-r.ex{border-color:var(--ba);background:var(--elev)}
+.sk-top{display:flex;align-items:center;gap:12px}
+.sk-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sk-nm{font-weight:600;font-size:.9em;flex:1;min-width:0}
+.sk-rq{font-size:.68em;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.04);color:var(--tm);white-space:nowrap}
+.sk-bars{flex-shrink:0;width:100px}
+.sk-bar-r{display:flex;align-items:center;gap:6px;font-size:.65em;color:var(--tm)}
+.sk-bar-t{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.sk-bar-f{height:100%;border-radius:2px}
+.sk-chev{color:var(--tm);font-size:.8em;transition:transform .2s;flex-shrink:0;margin-left:8px}
+.sk-r.ex .sk-chev{transform:rotate(180deg)}
+.sk-det{display:none;padding:14px 0 4px 20px;margin-top:12px;border-top:1px solid var(--border);font-size:.85em;color:var(--t2);line-height:1.65}
+.sk-r.ex .sk-det{display:block}
+.sk-ev{margin-top:8px;padding:10px 14px;background:rgba(255,255,255,.02);border-radius:var(--rs);border-left:2px solid var(--a)}
+.sk-ev-l{font-size:.72em;color:var(--a);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+
+/* Gaps */
+.gap-c{background:var(--card);border:1px solid rgba(239,68,68,.15);border-radius:var(--rad);padding:18px 20px;margin-bottom:8px}
+.gap-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.gap-n{font-weight:600;font-size:.9em;color:var(--r)}
+.gap-br{font-size:.82em;color:var(--t2);line-height:1.6}
+.gap-adj{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.gap-tag{font-size:.72em;padding:3px 10px;border-radius:12px;background:rgba(16,185,129,.1);color:var(--g);border:1px solid rgba(16,185,129,.15)}
+
+/* Values score */
+.val-sc{text-align:center;margin-bottom:20px}
+.val-sc-n{font-size:2.4em;font-weight:900;color:var(--g)}
+.val-sc-l{font-size:.78em;color:var(--tm)}
+
+/* Outcomes */
+.outc{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:18px 22px;margin-bottom:8px}
+.outc-t{font-size:.9em;line-height:1.6;color:var(--t2)}
+.outc-m{display:inline;font-weight:700;color:var(--a)}
+
+/* Teaser */
+.teaser{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:32px 28px;text-align:center;position:relative;overflow:hidden}
+.teaser::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(255,255,255,.008) 10px,rgba(255,255,255,.008) 20px);pointer-events:none}
+
+/* Prof grid */
+.pgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:24px}
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:14px;text-align:center}
+.pcard-n{font-size:1.5em;font-weight:800;line-height:1.1}
+.pcard-l{font-size:.65em;color:var(--tm);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+
+/* Domain */
+.dom-r{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--border)}
+.dom-n{font-size:.85em;font-weight:600;min-width:160px}
+.dom-bt{flex:1;height:6px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden}
+.dom-bf{height:100%;border-radius:3px}
+.dom-c{font-size:.78em;color:var(--tm);min-width:60px;text-align:right}
+
+/* Comm bar */
+.cbar{position:fixed;bottom:0;left:0;right:0;background:rgba(10,14,26,.92);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:12px 24px;z-index:100;display:flex;align-items:center;justify-content:center;gap:12px}
+.rbtn{padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--t2);font-family:'Outfit',sans-serif;font-size:.78em;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.rbtn:hover{border-color:var(--a);color:var(--a);background:var(--ag)}
+.rbtn.sel{border-color:var(--g);color:var(--g);background:rgba(16,185,129,.1)}
+.nbtn{padding:8px 20px;border-radius:20px;border:1px solid var(--a);background:var(--a);color:#fff;font-family:'Outfit',sans-serif;font-size:.78em;font-weight:600;cursor:pointer}
+.sbtn{padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--tm);font-family:'Outfit',sans-serif;font-size:.78em;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px}
+.nmod{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px}
+.nmod.open{display:flex}
+.nbox{background:var(--elev);border:1px solid var(--border);border-radius:var(--rad);padding:28px;width:100%;max-width:480px}
+.nbox h3{font-size:1.1em;font-weight:700;margin-bottom:16px}
+.nta{width:100%;min-height:100px;background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:14px;color:var(--t1);font-family:'Outfit',sans-serif;font-size:.9em;resize:vertical;outline:none}
+.nta:focus{border-color:var(--a)}
+.nacts{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
+
+@media(max-width:768px){
+.hero-grid{grid-template-columns:auto 1fr;gap:16px}
+.ring{grid-column:1/-1;justify-self:center;order:-1}
+.target{flex-direction:column;gap:16px;text-align:center}
+.target-stats{justify-content:center}
+.nav-links{display:none}
+.sk-bars{width:70px}
+.pgrid{grid-template-columns:repeat(3,1fr)}
+.cbar{flex-wrap:wrap;padding:10px 16px;gap:8px}
+.hero h1{font-size:1.4em}
+.dom-n{min-width:100px}
 }
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-html {
-    scroll-behavior: smooth;
-    background: var(--bg-deep);
-    color: var(--text-primary);
-    font-family: 'Outfit', sans-serif;
-}
-
-body {
-    min-height: 100vh;
-    background: var(--bg-deep);
-    -webkit-font-smoothing: antialiased;
-}
-
-/* ===== STICKY NAV ===== */
-.sr-nav {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(10, 14, 26, 0.85);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    padding: 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 52px;
-}
-
-.sr-nav-brand {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 700;
-    font-size: 0.85em;
-    color: var(--text-secondary);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-.sr-nav-brand svg {
-    width: 18px;
-    height: 18px;
-    opacity: 0.6;
-}
-
-.sr-nav-sections {
-    display: flex;
-    gap: 4px;
-    overflow-x: auto;
-    scrollbar-width: none;
-}
-.sr-nav-sections::-webkit-scrollbar { display: none; }
-
-.sr-nav-link {
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.75em;
-    font-weight: 500;
-    color: var(--text-muted);
-    text-decoration: none;
-    white-space: nowrap;
-    transition: all 0.2s;
-    cursor: pointer;
-}
-.sr-nav-link:hover, .sr-nav-link.active {
-    color: var(--accent);
-    background: var(--accent-glow);
-}
-
-.sr-nav-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-/* ===== CONFIDENTIALITY STRIP ===== */
-.sr-conf-strip {
-    background: rgba(96,165,250,0.06);
-    border-bottom: 1px solid var(--border);
-    padding: 6px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-size: 0.7em;
-    color: var(--text-muted);
-    letter-spacing: 0.04em;
-}
-
-/* ===== CONTENT CONTAINER ===== */
-.sr-container {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 0 24px;
-}
-
-/* ===== TIER 1: THE HOOK ===== */
-.sr-hero {
-    padding: 48px 0 40px;
-    position: relative;
-}
-
-.sr-hero-grid {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 28px;
-    align-items: center;
-    margin-bottom: 32px;
-}
-
-.sr-hero-photo {
-    width: 88px;
-    height: 88px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--purple));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 40px;
-    flex-shrink: 0;
-    box-shadow: 0 0 0 3px var(--bg-deep), 0 0 0 5px rgba(96,165,250,0.2);
-}
-
-.sr-hero-info h1 {
-    font-size: 1.8em;
-    font-weight: 800;
-    line-height: 1.15;
-    margin-bottom: 4px;
-}
-
-.sr-hero-title {
-    font-size: 0.95em;
-    color: var(--text-secondary);
-    font-weight: 400;
-    margin-bottom: 6px;
-}
-
-.sr-hero-meta {
-    display: flex;
-    gap: 16px;
-    font-size: 0.78em;
-    color: var(--text-muted);
-}
-
-.sr-hero-meta span {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.sr-match-ring {
-    width: 100px;
-    height: 100px;
-    position: relative;
-    flex-shrink: 0;
-}
-
-.sr-match-ring svg {
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-}
-
-.sr-match-ring-label {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.sr-match-pct {
-    font-size: 1.8em;
-    font-weight: 900;
-    color: var(--green);
-    line-height: 1;
-}
-
-.sr-match-word {
-    font-size: 0.6em;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-weight: 600;
-}
-
-/* Target role card */
-.sr-target {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px 24px;
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-}
-
-.sr-target-label {
-    font-size: 0.7em;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-weight: 600;
-    margin-bottom: 4px;
-}
-
-.sr-target-role {
-    font-size: 1.15em;
-    font-weight: 700;
-}
-
-.sr-target-company {
-    font-size: 0.88em;
-    color: var(--text-secondary);
-    margin-top: 2px;
-}
-
-.sr-target-stats {
-    display: flex;
-    gap: 20px;
-    flex-shrink: 0;
-}
-
-.sr-target-stat {
-    text-align: center;
-}
-
-.sr-target-stat-num {
-    font-size: 1.5em;
-    font-weight: 800;
-    line-height: 1.1;
-}
-
-.sr-target-stat-label {
-    font-size: 0.65em;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-}
-
-/* Narrative card */
-.sr-narrative {
-    background: linear-gradient(135deg, rgba(96,165,250,0.06), rgba(99,102,241,0.04));
-    border: 1px solid var(--border-accent);
-    border-radius: var(--radius);
-    padding: 24px 28px;
-    margin-bottom: 24px;
-    line-height: 1.7;
-    font-size: 0.95em;
-    color: var(--text-secondary);
-}
-
-.sr-narrative strong {
-    color: var(--text-primary);
-    font-weight: 600;
-}
-
-.sr-narrative-label {
-    font-size: 0.68em;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-weight: 600;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-/* Purpose */
-.sr-purpose {
-    padding: 16px 0 0;
-    font-size: 0.88em;
-    color: var(--text-muted);
-    font-style: italic;
-    text-align: center;
-    border-top: 1px solid var(--border);
-}
-
-.sr-purpose::before {
-    content: '\201C';
-    font-size: 1.6em;
-    color: var(--accent);
-    vertical-align: -4px;
-    margin-right: 4px;
-}
-
-/* ===== SECTION HEADERS ===== */
-.sr-section {
-    padding: 40px 0;
-    border-top: 1px solid var(--border);
-}
-
-.sr-section-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 24px;
-}
-
-.sr-section-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: var(--accent-glow);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--accent);
-    flex-shrink: 0;
-}
-
-.sr-section-title {
-    font-size: 1.2em;
-    font-weight: 700;
-}
-
-.sr-section-subtitle {
-    font-size: 0.78em;
-    color: var(--text-muted);
-}
-
-/* ===== SKILL ALIGNMENT TABLE ===== */
-.sr-skill-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.sr-skill-row {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 14px 18px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.sr-skill-row:hover {
-    border-color: var(--border-accent);
-    background: var(--bg-elevated);
-}
-
-.sr-skill-row.expanded {
-    border-color: var(--border-accent);
-    background: var(--bg-elevated);
-}
-
-.sr-skill-top {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.sr-skill-status {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.sr-skill-name {
-    font-weight: 600;
-    font-size: 0.9em;
-    flex: 1;
-    min-width: 0;
-}
-
-.sr-skill-req {
-    font-size: 0.68em;
-    padding: 2px 8px;
-    border-radius: 10px;
-    background: rgba(255,255,255,0.04);
-    color: var(--text-muted);
-    white-space: nowrap;
-}
-
-.sr-skill-bars {
-    flex-shrink: 0;
-    width: 120px;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-}
-
-.sr-skill-bar-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.65em;
-    color: var(--text-muted);
-}
-
-.sr-skill-bar-label {
-    width: 52px;
-    text-align: right;
-}
-
-.sr-skill-bar-track {
-    flex: 1;
-    height: 4px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-.sr-skill-bar-fill {
-    height: 100%;
-    border-radius: 2px;
-    transition: width 0.6s ease;
-}
-
-.sr-skill-chevron {
-    color: var(--text-muted);
-    font-size: 0.8em;
-    transition: transform 0.2s;
-    flex-shrink: 0;
-    margin-left: 8px;
-}
-
-.sr-skill-row.expanded .sr-skill-chevron {
-    transform: rotate(180deg);
-}
-
-.sr-skill-detail {
-    display: none;
-    padding: 14px 0 4px 20px;
-    margin-top: 12px;
-    border-top: 1px solid var(--border);
-    font-size: 0.85em;
-    color: var(--text-secondary);
-    line-height: 1.65;
-}
-
-.sr-skill-row.expanded .sr-skill-detail {
-    display: block;
-}
-
-.sr-skill-evidence {
-    margin-top: 8px;
-    padding: 10px 14px;
-    background: rgba(255,255,255,0.02);
-    border-radius: var(--radius-sm);
-    border-left: 2px solid var(--accent);
-}
-
-.sr-skill-evidence-label {
-    font-size: 0.72em;
-    color: var(--accent);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 4px;
-}
-
-/* ===== GAP ANALYSIS ===== */
-.sr-gap-card {
-    background: var(--bg-card);
-    border: 1px solid rgba(239,68,68,0.15);
-    border-radius: var(--radius);
-    padding: 18px 20px;
-    margin-bottom: 8px;
-}
-
-.sr-gap-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
-
-.sr-gap-name {
-    font-weight: 600;
-    font-size: 0.9em;
-    color: var(--red);
-}
-
-.sr-gap-bridge {
-    font-size: 0.82em;
-    color: var(--text-secondary);
-    line-height: 1.6;
-}
-
-.sr-gap-adjacent {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 10px;
-}
-
-.sr-gap-adjacent-tag {
-    font-size: 0.72em;
-    padding: 3px 10px;
-    border-radius: 12px;
-    background: rgba(16,185,129,0.1);
-    color: var(--green);
-    border: 1px solid rgba(16,185,129,0.15);
-}
-
-/* ===== VALUES ALIGNMENT ===== */
-.sr-values-grid {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 20px;
-    align-items: start;
-}
-
-.sr-values-col-header {
-    font-size: 0.72em;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: 600;
-    margin-bottom: 12px;
-    text-align: center;
-}
-
-.sr-value-chip {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 14px;
-    border-radius: var(--radius-sm);
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    font-size: 0.85em;
-    margin-bottom: 6px;
-    transition: all 0.2s;
-}
-
-.sr-value-chip.aligned {
-    border-color: rgba(16,185,129,0.25);
-    background: rgba(16,185,129,0.06);
-}
-
-.sr-value-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.sr-values-bridge {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 200px;
-    gap: 6px;
-    padding-top: 30px;
-}
-
-.sr-values-bridge-line {
-    width: 1px;
-    height: 20px;
-    background: var(--border);
-}
-
-.sr-values-bridge-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--green);
-}
-
-.sr-values-score {
-    text-align: center;
-    margin-bottom: 24px;
-}
-
-.sr-values-score-num {
-    font-size: 2.4em;
-    font-weight: 900;
-    color: var(--green);
-}
-
-.sr-values-score-label {
-    font-size: 0.78em;
-    color: var(--text-muted);
-}
-
-/* ===== OUTCOMES ===== */
-.sr-outcome {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px 22px;
-    margin-bottom: 8px;
-}
-
-.sr-outcome-text {
-    font-size: 0.9em;
-    line-height: 1.6;
-    color: var(--text-secondary);
-}
-
-.sr-outcome-metric {
-    display: inline-block;
-    font-weight: 700;
-    color: var(--accent);
-}
-
-/* ===== TEASER / LOCKED CARD ===== */
-.sr-card-teaser {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 32px 28px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.sr-card-teaser::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 10px,
-        rgba(255,255,255,0.008) 10px,
-        rgba(255,255,255,0.008) 20px
-    );
-    pointer-events: none;
-}
-
-.sr-teaser-icon {
-    font-size: 2em;
-    margin-bottom: 12px;
-    opacity: 0.4;
-}
-
-.sr-teaser-title {
-    font-weight: 700;
-    font-size: 1em;
-    margin-bottom: 6px;
-    color: var(--text-secondary);
-}
-
-.sr-teaser-desc {
-    font-size: 0.82em;
-    color: var(--text-muted);
-    max-width: 400px;
-    margin: 0 auto;
-    line-height: 1.6;
-}
-
-/* ===== COMMUNICATION BAR ===== */
-.sr-comm-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(10, 14, 26, 0.92);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid var(--border);
-    padding: 12px 24px;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-}
-
-.sr-comm-reactions {
-    display: flex;
-    gap: 6px;
-}
-
-.sr-reaction-btn {
-    padding: 8px 16px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    color: var(--text-secondary);
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.78em;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.sr-reaction-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: var(--accent-glow);
-}
-
-.sr-reaction-btn.selected {
-    border-color: var(--green);
-    color: var(--green);
-    background: rgba(16,185,129,0.1);
-}
-
-.sr-comm-note-btn {
-    padding: 8px 20px;
-    border-radius: 20px;
-    border: 1px solid var(--accent);
-    background: var(--accent);
-    color: #fff;
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.78em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.sr-comm-note-btn:hover {
-    background: #4f96e8;
-}
-
-.sr-comm-share-btn {
-    padding: 8px 16px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-muted);
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.78em;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.sr-comm-share-btn:hover {
-    border-color: var(--text-secondary);
-    color: var(--text-secondary);
-}
-
-/* Note modal */
-.sr-note-modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 200;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(8px);
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-}
-
-.sr-note-modal.open {
-    display: flex;
-}
-
-.sr-note-box {
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 28px;
-    width: 100%;
-    max-width: 480px;
-}
-
-.sr-note-box h3 {
-    font-size: 1.1em;
-    font-weight: 700;
-    margin-bottom: 16px;
-}
-
-.sr-note-textarea {
-    width: 100%;
-    min-height: 100px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 14px;
-    color: var(--text-primary);
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.9em;
-    resize: vertical;
-    outline: none;
-}
-
-.sr-note-textarea:focus {
-    border-color: var(--accent);
-}
-
-.sr-note-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 14px;
-}
-
-.sr-note-cancel {
-    padding: 8px 18px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-muted);
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.85em;
-    cursor: pointer;
-}
-
-.sr-note-send {
-    padding: 8px 22px;
-    border-radius: 8px;
-    border: none;
-    background: var(--accent);
-    color: #fff;
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.85em;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-/* ===== PROFICIENCY BREAKDOWN ===== */
-.sr-prof-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-    margin-bottom: 24px;
-}
-
-.sr-prof-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 14px;
-    text-align: center;
-}
-
-.sr-prof-num {
-    font-size: 1.5em;
-    font-weight: 800;
-    line-height: 1.1;
-}
-
-.sr-prof-label {
-    font-size: 0.65em;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-top: 2px;
-}
-
-/* ===== DOMAIN COVERAGE ===== */
-.sr-domain-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-}
-
-.sr-domain-name {
-    font-size: 0.85em;
-    font-weight: 600;
-    min-width: 160px;
-}
-
-.sr-domain-bar-track {
-    flex: 1;
-    height: 6px;
-    background: rgba(255,255,255,0.04);
-    border-radius: 3px;
-    overflow: hidden;
-}
-
-.sr-domain-bar-fill {
-    height: 100%;
-    border-radius: 3px;
-}
-
-.sr-domain-count {
-    font-size: 0.78em;
-    color: var(--text-muted);
-    min-width: 60px;
-    text-align: right;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-    .sr-hero-grid {
-        grid-template-columns: auto 1fr;
-        gap: 16px;
-    }
-    .sr-match-ring {
-        grid-column: 1 / -1;
-        justify-self: center;
-        order: -1;
-    }
-    .sr-target {
-        flex-direction: column;
-        gap: 16px;
-        text-align: center;
-    }
-    .sr-target-stats {
-        justify-content: center;
-    }
-    .sr-nav-sections {
-        display: none;
-    }
-    .sr-skill-bars {
-        width: 80px;
-    }
-    .sr-values-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-    .sr-values-bridge {
-        flex-direction: row;
-        min-height: auto;
-        padding: 0;
-    }
-    .sr-values-bridge-line {
-        width: 20px;
-        height: 1px;
-    }
-    .sr-prof-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    .sr-comm-bar {
-        flex-wrap: wrap;
-        padding: 10px 16px;
-        gap: 8px;
-    }
-    .sr-hero-info h1 {
-        font-size: 1.4em;
-    }
-    .sr-domain-name {
-        min-width: 100px;
-    }
-}
-
-/* ===== ANIMATIONS ===== */
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.sr-section {
-    animation: fadeUp 0.4s ease both;
-}
-
-.sr-section:nth-child(2) { animation-delay: 0.1s; }
-.sr-section:nth-child(3) { animation-delay: 0.15s; }
-.sr-section:nth-child(4) { animation-delay: 0.2s; }
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
-
-/* Space for fixed comm bar */
-body { padding-bottom: 72px; }
 </style>
 </head>
 <body>
 
-<!-- ===== STICKY NAV ===== -->
-<nav class="sr-nav">
-    <div class="sr-nav-brand">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-        Blueprint™
-    </div>
-    <div class="sr-nav-sections">
-        <a class="sr-nav-link active" onclick="scrollToSection('hero')">Overview</a>
-        <a class="sr-nav-link" onclick="scrollToSection('skills')">Skills</a>
-        <a class="sr-nav-link" onclick="scrollToSection('gaps')">Gaps</a>
-        <a class="sr-nav-link" onclick="scrollToSection('values')">Values</a>
-        <a class="sr-nav-link" onclick="scrollToSection('outcomes')">Outcomes</a>
-        <a class="sr-nav-link" onclick="scrollToSection('domains')">Domains</a>
-        <a class="sr-nav-link" onclick="scrollToSection('comp')">Comp</a>
-    </div>
-    <div class="sr-nav-actions">
-        <!-- placeholder for share icon -->
-    </div>
+<nav class="nav">
+<div class="nav-brand"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity=".6"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Blueprint™</div>
+<div class="nav-links">
+<a class="nav-a on" onclick="go('hero')">Overview</a>
+<a class="nav-a" onclick="go('snet')">Skills Map</a>
+<a class="nav-a" onclick="go('skills')">Alignment</a>
+<a class="nav-a" onclick="go('gaps')">Gaps</a>
+<a class="nav-a" onclick="go('vnet')">Values Map</a>
+<a class="nav-a" onclick="go('outcomes')">Outcomes</a>
+<a class="nav-a" onclick="go('domains')">Domains</a>
+<a class="nav-a" onclick="go('comp')">Comp</a>
+</div><div></div>
 </nav>
+<div class="strip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Confidential — Prepared for the hiring team at <strong style="color:var(--t2);margin:0 3px">United Nations</strong><span style="margin-left:auto;opacity:.6">Feb 22, 2026</span></div>
 
-<!-- ===== CONFIDENTIALITY STRIP ===== -->
-<div class="sr-conf-strip">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-    Confidential — Prepared exclusively for the hiring team at <strong style="color:var(--text-secondary); margin-left:3px;">United Nations</strong>
-    <span style="margin-left:auto; opacity:0.6;">Feb 22, 2026</span>
+<div class="tt" id="tip"></div>
+
+<div class="wrap">
+
+<!-- HERO -->
+<section class="hero" id="hero">
+<div class="hero-grid">
+<div class="photo">🍷</div>
+<div>
+<h1>Tyrion Lannister</h1>
+<div class="hero-sub">Hand of the King & Strategic Advisor</div>
+<div class="hero-meta"><span>📍 King's Landing, Westeros</span><span>📞 Available upon request</span></div>
 </div>
+<div class="ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="6"/><circle cx="50" cy="50" r="42" fill="none" stroke="#10b981" stroke-width="6" stroke-dasharray="226.2" stroke-dashoffset="56.5" stroke-linecap="round"/></svg><div class="ring-label"><div class="ring-pct">75%</div><div class="ring-word">Match</div></div></div>
+</div>
+<div class="target"><div><div class="target-lbl">Target Role</div><div class="target-role">Chief of Staff to the Secretary-General</div><div class="target-co">United Nations</div></div>
+<div class="target-stats"><div class="tstat"><div class="tstat-n" style="color:var(--a)">26</div><div class="tstat-l">Skills</div></div><div class="tstat"><div class="tstat-n" style="color:var(--g)">6</div><div class="tstat-l">Matched</div></div><div class="tstat"><div class="tstat-n" style="color:var(--r)">2</div><div class="tstat-l">Gaps</div></div><div class="tstat"><div class="tstat-n" style="color:var(--tm)">20</div><div class="tstat-l">Surplus</div></div></div></div>
+<div class="narr"><div class="narr-lbl">⭐ Why This Candidate Fits</div><strong>Tyrion Lannister</strong> brings mastery-level expertise in <strong>strategic planning</strong>, <strong>political analysis</strong>, and <strong>alliance building</strong> — the three competencies rated most critical for the Chief of Staff position. His two tenures as Hand of the King demonstrate executive-level crisis management across hostile stakeholder environments, directly mirroring the UN's mandate of navigating 193 competing member-state agendas. The 2 identified gaps are in operational areas where adjacent skills suggest a rapid ramp trajectory.</div>
+<div class="purpose">I drink, and I know things. The knowing part is the career differentiator.</div>
+</section>
 
-<!-- ===== MAIN CONTENT ===== -->
-<div class="sr-container">
+<!-- SKILLS NETWORK -->
+<section class="sec" id="snet">
+<div class="sec-h"><div class="sec-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2"/></svg></div><div><div class="sec-t">Capability Architecture</div><div class="sec-st">Interactive skills network — drag to explore, hover for detail, click for evidence</div></div></div>
+<div class="net-w" id="snW"><svg id="snS"></svg>
+<div class="net-leg"><div class="net-leg-i"><div class="net-leg-d" style="background:#10b981"></div>Matched</div><div class="net-leg-i"><div class="net-leg-d" style="background:#ef4444"></div>Gap</div><div class="net-leg-i"><div class="net-leg-d" style="background:#475569;opacity:.4"></div>Surplus</div><div class="net-leg-i"><div class="net-leg-d" style="background:#60a5fa"></div>Candidate</div></div></div>
+<div class="pop" id="pop"><div class="pop-h"><div class="pop-n" id="popN"></div><button class="pop-x" onclick="document.getElementById('pop').classList.remove('open')">✕</button></div><div class="pop-b" id="popB"></div></div>
+<div class="viz-hint">Drag nodes to explore · Hover for proficiency · Click skills for evidence</div>
+</section>
 
-    <!-- ===== TIER 1: THE HOOK ===== -->
-    <section class="sr-hero" id="hero">
-        <div class="sr-hero-grid">
-            <div class="sr-hero-photo">🍷</div>
-            <div class="sr-hero-info">
-                <h1>Tyrion Lannister</h1>
-                <div class="sr-hero-title">Hand of the King & Strategic Advisor</div>
-                <div class="sr-hero-meta">
-                    <span>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                        King's Landing, Westeros
-                    </span>
-                    <span>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-                        Available upon request
-                    </span>
-                </div>
-            </div>
-            <div class="sr-match-ring">
-                <svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
-                    <circle cx="50" cy="50" r="42" fill="none" stroke="#10b981" stroke-width="6"
-                        stroke-dasharray="226.2" stroke-dashoffset="33.9" stroke-linecap="round"/>
-                </svg>
-                <div class="sr-match-ring-label">
-                    <div class="sr-match-pct">85%</div>
-                    <div class="sr-match-word">Match</div>
-                </div>
-            </div>
-        </div>
+<!-- VALUES NETWORK -->
+<section class="sec" id="vnet">
+<div class="sec-h"><div class="sec-ico" style="background:rgba(99,102,241,.1);color:var(--p)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div><div class="sec-t">Values & Cultural Alignment</div><div class="sec-st">Shared values linked — hover for meaning</div></div></div>
+<div class="val-sc"><div class="val-sc-n">71%</div><div class="val-sc-l">Values Alignment</div></div>
+<div class="net-w" id="vnW"><svg id="vnS"></svg>
+<div class="net-leg"><div class="net-leg-i"><div class="net-leg-d" style="background:#10b981"></div>Aligned</div><div class="net-leg-i"><div class="net-leg-d" style="background:#f59e0b"></div>Candidate</div><div class="net-leg-i"><div class="net-leg-d" style="background:#6366f1"></div>Organization</div></div></div>
+<div class="narr" style="margin-top:16px"><div class="narr-lbl">Cultural Fit Signal</div>Strong foundational alignment across 5 shared values. Tyrion's unmatched values ("Wit as Armor," "The Mind is the Best Weapon") signal intellectual confidence complementing the UN's deliberative culture. Their emphasis on Diplomatic Neutrality may require adaptation from his more direct style.</div>
+<div class="viz-hint">Drag nodes · Green bridges show shared values</div>
+</section>
 
-        <!-- Target Role -->
-        <div class="sr-target">
-            <div>
-                <div class="sr-target-label">Target Role</div>
-                <div class="sr-target-role">Chief of Staff to the Secretary-General</div>
-                <div class="sr-target-company">United Nations</div>
-            </div>
-            <div class="sr-target-stats">
-                <div class="sr-target-stat">
-                    <div class="sr-target-stat-num" style="color:var(--accent);">26</div>
-                    <div class="sr-target-stat-label">Total Skills</div>
-                </div>
-                <div class="sr-target-stat">
-                    <div class="sr-target-stat-num" style="color:var(--green);">22</div>
-                    <div class="sr-target-stat-label">Aligned</div>
-                </div>
-                <div class="sr-target-stat">
-                    <div class="sr-target-stat-num" style="color:var(--red);">4</div>
-                    <div class="sr-target-stat-label">Gaps</div>
-                </div>
-            </div>
-        </div>
+<!-- SKILL LIST -->
+<section class="sec" id="skills"><div class="sec-h"><div class="sec-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><div class="sec-t">Skill Alignment Detail</div><div class="sec-st">Click any row for evidence</div></div></div><div class="sk-list" id="skL"></div></section>
 
-        <!-- Executive Narrative -->
-        <div class="sr-narrative">
-            <div class="sr-narrative-label">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                Why This Candidate Fits
-            </div>
-            <strong>Tyrion Lannister</strong> brings 22 of 26 required capabilities to this role, with mastery-level expertise in <strong>strategic planning</strong>, <strong>political analysis</strong>, and <strong>alliance building</strong> — the three competencies rated most critical for the Chief of Staff position. His two tenures as Hand of the King demonstrate executive-level crisis management across hostile stakeholder environments, directly mirroring the UN's mandate of navigating 193 competing member-state agendas. The 4 identified gaps are in operational areas where his adjacent skills suggest a rapid ramp trajectory.
-        </div>
+<!-- GAPS -->
+<section class="sec" id="gaps"><div class="sec-h"><div class="sec-ico" style="background:rgba(239,68,68,.1);color:var(--r)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="sec-t">Gap Analysis & Bridge Potential</div><div class="sec-st">Missing skills with adjacent competencies</div></div></div><div id="gapL"></div></section>
 
-        <!-- Purpose -->
-        <div class="sr-purpose">
-            I drink, and I know things. The knowing part is the career differentiator.
-        </div>
-    </section>
+<!-- OUTCOMES -->
+<section class="sec" id="outcomes"><div class="sec-h"><div class="sec-ico" style="background:rgba(245,158,11,.1);color:var(--am)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="sec-t">Outcomes & Achievements</div><div class="sec-st">Verified results from prior roles</div></div></div>
+<div class="outc"><div class="outc-t">Defended King's Landing during Blackwater Bay, coordinating a <span class="outc-m">multi-front defensive strategy</span> neutralizing a naval force 5x the garrison.</div></div>
+<div class="outc"><div class="outc-t">Negotiated alliance between <span class="outc-m">historically hostile factions</span> under existential threat, achieving consensus where a decade of diplomacy failed.</div></div>
+<div class="outc"><div class="outc-t">Managed the <span class="outc-m">Crown Treasury</span> as Master of Coin, restructuring debt with the Iron Bank and reducing fiscal exposure ~40%.</div></div>
+<div class="outc"><div class="outc-t">Advised two sovereigns through <span class="outc-m">regime transitions</span> — institutional continuity across fundamentally different governance philosophies.</div></div>
+</section>
 
-    <!-- ===== TIER 2: SKILL ALIGNMENT ===== -->
-    <section class="sr-section" id="skills">
-        <div class="sr-section-header">
-            <div class="sr-section-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            </div>
-            <div>
-                <div class="sr-section-title">Skill Alignment</div>
-                <div class="sr-section-subtitle">Candidate proficiency vs. role requirements — click to expand evidence</div>
-            </div>
-        </div>
+<!-- DOMAINS -->
+<section class="sec" id="domains"><div class="sec-h"><div class="sec-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div><div><div class="sec-t">Competency Domains</div><div class="sec-st">Distribution across professional clusters</div></div></div>
+<div class="pgrid"><div class="pcard"><div class="pcard-n" style="color:#f59e0b">3</div><div class="pcard-l">Mastery</div></div><div class="pcard"><div class="pcard-n" style="color:#a855f7">7</div><div class="pcard-l">Expert</div></div><div class="pcard"><div class="pcard-n" style="color:#3b82f6">9</div><div class="pcard-l">Advanced</div></div><div class="pcard"><div class="pcard-n" style="color:#10b981">5</div><div class="pcard-l">Proficient</div></div><div class="pcard"><div class="pcard-n" style="color:#6b7280">2</div><div class="pcard-l">Novice</div></div></div>
+<div id="domL"></div></section>
 
-        <div class="sr-skill-list" id="skillList">
-            <!-- Populated by JS -->
-        </div>
-    </section>
-
-    <!-- ===== GAP ANALYSIS ===== -->
-    <section class="sr-section" id="gaps">
-        <div class="sr-section-header">
-            <div class="sr-section-icon" style="background:rgba(239,68,68,0.1); color:var(--red);">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            </div>
-            <div>
-                <div class="sr-section-title">Gap Analysis & Bridge Potential</div>
-                <div class="sr-section-subtitle">Missing skills with adjacent competencies that suggest learnability</div>
-            </div>
-        </div>
-
-        <div id="gapList">
-            <!-- Populated by JS -->
-        </div>
-    </section>
-
-    <!-- ===== VALUES ALIGNMENT ===== -->
-    <section class="sr-section" id="values">
-        <div class="sr-section-header">
-            <div class="sr-section-icon" style="background:rgba(99,102,241,0.1); color:var(--purple);">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            </div>
-            <div>
-                <div class="sr-section-title">Values & Cultural Alignment</div>
-                <div class="sr-section-subtitle">Candidate principles mapped against organizational culture</div>
-            </div>
-        </div>
-
-        <div class="sr-values-score">
-            <div class="sr-values-score-num">71%</div>
-            <div class="sr-values-score-label">Values Alignment</div>
-        </div>
-
-        <div class="sr-values-grid">
-            <div>
-                <div class="sr-values-col-header">Tyrion's Values</div>
-                <div class="sr-value-chip aligned"><div class="sr-value-dot" style="background:var(--green);"></div> Intellectual Honesty</div>
-                <div class="sr-value-chip aligned"><div class="sr-value-dot" style="background:var(--green);"></div> Resilience</div>
-                <div class="sr-value-chip aligned"><div class="sr-value-dot" style="background:var(--green);"></div> Strategic Thinking</div>
-                <div class="sr-value-chip aligned"><div class="sr-value-dot" style="background:var(--green);"></div> Courage</div>
-                <div class="sr-value-chip aligned"><div class="sr-value-dot" style="background:var(--green);"></div> Accountability</div>
-                <div class="sr-value-chip"><div class="sr-value-dot" style="background:var(--amber);"></div> Wit as Armor</div>
-                <div class="sr-value-chip"><div class="sr-value-dot" style="background:var(--amber);"></div> The Mind is the Best Weapon</div>
-            </div>
-            <div class="sr-values-bridge">
-                <div class="sr-values-bridge-dot"></div>
-                <div class="sr-values-bridge-line"></div>
-                <div class="sr-values-bridge-dot"></div>
-                <div class="sr-values-bridge-line"></div>
-                <div class="sr-values-bridge-dot"></div>
-                <div class="sr-values-bridge-line"></div>
-                <div class="sr-values-bridge-dot"></div>
-                <div class="sr-values-bridge-line"></div>
-                <div class="sr-values-bridge-dot"></div>
-            </div>
-            <div>
-                <div class="sr-values-col-header">UN Culture</div>
-                <div class="sr-value-chip aligned"><div class="sr-value-dot" style="background:var(--green);"></div> Intellectual Honesty</div>
-                <div class="sr-value-chip aligned"><div class="sr-value-dot" style="background:var(--green);"></div> Resilience</div>
-                <div class="sr-value-chip aligned"><div class="sr-value-dot" style="background:var(--green);"></div> Strategic Thinking</div>
-                <div class="sr-value-chip aligned"><div class="sr-value-dot" style="background:var(--green);"></div> Courage</div>
-                <div class="sr-value-chip aligned"><div class="sr-value-dot" style="background:var(--green);"></div> Accountability</div>
-                <div class="sr-value-chip"><div class="sr-value-dot" style="background:var(--purple);"></div> Diplomatic Neutrality</div>
-                <div class="sr-value-chip"><div class="sr-value-dot" style="background:var(--purple);"></div> Multilateral Consensus</div>
-            </div>
-        </div>
-
-        <div class="sr-narrative" style="margin-top:24px;">
-            <div class="sr-narrative-label">Cultural Fit Signal</div>
-            Strong foundational alignment across 5 shared values — integrity, resilience, strategic thinking, courage, and accountability form a solid cultural bridge. Tyrion's unmatched values ("Wit as Armor," "The Mind is the Best Weapon") signal intellectual confidence that complements the UN's deliberative culture. The UN's emphasis on Diplomatic Neutrality and Multilateral Consensus may require adaptation from his more direct operating style.
-        </div>
-    </section>
-
-    <!-- ===== OUTCOMES & ACHIEVEMENTS ===== -->
-    <section class="sr-section" id="outcomes">
-        <div class="sr-section-header">
-            <div class="sr-section-icon" style="background:rgba(245,158,11,0.1); color:var(--amber);">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-            </div>
-            <div>
-                <div class="sr-section-title">Outcomes & Achievements</div>
-                <div class="sr-section-subtitle">Verified results from prior roles</div>
-            </div>
-        </div>
-
-        <div class="sr-outcome">
-            <div class="sr-outcome-text">Successfully defended King's Landing during the Battle of Blackwater Bay, coordinating a <span class="sr-outcome-metric">multi-front defensive strategy</span> that neutralized a naval force 5x the city's garrison — while serving as acting Hand with no formal military authority.</div>
-        </div>
-        <div class="sr-outcome">
-            <div class="sr-outcome-text">Negotiated alliance between <span class="sr-outcome-metric">historically hostile factions</span> (Stark, Targaryen, Lannister remnants) under existential threat, achieving coalition consensus where a decade of diplomacy had failed.</div>
-        </div>
-        <div class="sr-outcome">
-            <div class="sr-outcome-text">Managed the <span class="sr-outcome-metric">$3.2B Crown Treasury</span> as Master of Coin, restructuring debt obligations with the Iron Bank of Braavos and reducing fiscal exposure by an estimated 40%.</div>
-        </div>
-        <div class="sr-outcome">
-            <div class="sr-outcome-text">Advised two sovereigns through <span class="sr-outcome-metric">regime transitions</span> — demonstrating institutional continuity and adaptive leadership across fundamentally different governance philosophies.</div>
-        </div>
-    </section>
-
-    <!-- ===== DOMAIN COVERAGE ===== -->
-    <section class="sr-section" id="domains">
-        <div class="sr-section-header">
-            <div class="sr-section-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-            </div>
-            <div>
-                <div class="sr-section-title">Competency Domains</div>
-                <div class="sr-section-subtitle">Skill distribution across professional role clusters</div>
-            </div>
-        </div>
-
-        <!-- Proficiency Breakdown -->
-        <div class="sr-prof-grid">
-            <div class="sr-prof-card">
-                <div class="sr-prof-num" style="color:#f59e0b;">3</div>
-                <div class="sr-prof-label">Mastery</div>
-            </div>
-            <div class="sr-prof-card">
-                <div class="sr-prof-num" style="color:#a855f7;">7</div>
-                <div class="sr-prof-label">Expert</div>
-            </div>
-            <div class="sr-prof-card">
-                <div class="sr-prof-num" style="color:#3b82f6;">9</div>
-                <div class="sr-prof-label">Advanced</div>
-            </div>
-            <div class="sr-prof-card">
-                <div class="sr-prof-num" style="color:#10b981;">5</div>
-                <div class="sr-prof-label">Proficient</div>
-            </div>
-            <div class="sr-prof-card">
-                <div class="sr-prof-num" style="color:#6b7280;">2</div>
-                <div class="sr-prof-label">Novice</div>
-            </div>
-        </div>
-
-        <div id="domainList">
-            <!-- Populated by JS -->
-        </div>
-    </section>
-
-    <!-- ===== COMPENSATION — TEASER STATE ===== -->
-    <section class="sr-section" id="comp">
-        <div class="sr-section-header">
-            <div class="sr-section-icon" style="background:rgba(16,185,129,0.1); color:var(--green);">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-            </div>
-            <div>
-                <div class="sr-section-title">Compensation Intelligence</div>
-                <div class="sr-section-subtitle">Market positioning & benchmark data</div>
-            </div>
-        </div>
-
-        <div class="sr-card-teaser">
-            <div class="sr-teaser-icon">📊</div>
-            <div class="sr-teaser-title">Compensation Data Available</div>
-            <div class="sr-teaser-desc">
-                Market rate analysis, BLS benchmarks, and positioning data for this role have been prepared. This data becomes available as the conversation progresses.
-            </div>
-            <div style="margin-top:16px; font-size:0.72em; color:var(--text-muted);">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                Candidate-controlled release
-            </div>
-        </div>
-    </section>
+<!-- COMP TEASER -->
+<section class="sec" id="comp"><div class="sec-h"><div class="sec-ico" style="background:rgba(16,185,129,.1);color:var(--g)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div><div class="sec-t">Compensation Intelligence</div><div class="sec-st">Market positioning & benchmarks</div></div></div>
+<div class="teaser"><div style="font-size:2em;margin-bottom:12px;opacity:.4">📊</div><div style="font-weight:700;margin-bottom:6px;color:var(--t2)">Compensation Data Available</div><div style="font-size:.82em;color:var(--tm);max-width:400px;margin:0 auto;line-height:1.6">Market rate analysis, BLS benchmarks, and positioning data have been prepared. This data becomes available as the conversation progresses.</div><div style="margin-top:16px;font-size:.72em;color:var(--tm)">🔒 Candidate-controlled release</div></div></section>
 
 </div>
 
-<!-- ===== COMMUNICATION BAR ===== -->
-<div class="sr-comm-bar">
-    <div class="sr-comm-reactions">
-        <button class="sr-reaction-btn" onclick="selectReaction(this, '👍')">👍 Strong Fit</button>
-        <button class="sr-reaction-btn" onclick="selectReaction(this, '🤔')">🤔 Interesting</button>
-        <button class="sr-reaction-btn" onclick="selectReaction(this, '↔️')">↔️ Not Aligned</button>
-    </div>
-    <button class="sr-comm-note-btn" onclick="openNoteModal()">✉️ Send a Note</button>
-    <button class="sr-comm-share-btn" onclick="shareReport()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-        Share
-    </button>
+<!-- COMM BAR -->
+<div class="cbar">
+<div style="display:flex;gap:6px"><button class="rbtn" onclick="rx(this)">👍 Strong Fit</button><button class="rbtn" onclick="rx(this)">🤔 Interesting</button><button class="rbtn" onclick="rx(this)">↔️ Not Aligned</button></div>
+<button class="nbtn" onclick="document.getElementById('nm').classList.add('open')">✉️ Send a Note</button>
+<button class="sbtn" onclick="navigator.clipboard?.writeText(location.href);this.textContent='✓ Copied';setTimeout(()=>this.innerHTML='↗ Share',2e3)">↗ Share</button>
 </div>
-
-<!-- ===== NOTE MODAL ===== -->
-<div class="sr-note-modal" id="noteModal">
-    <div class="sr-note-box">
-        <h3>Send a Note to Tyrion</h3>
-        <textarea class="sr-note-textarea" placeholder="I'd like to discuss this role further..."></textarea>
-        <div class="sr-note-actions">
-            <button class="sr-note-cancel" onclick="closeNoteModal()">Cancel</button>
-            <button class="sr-note-send" onclick="sendNote()">Send Note</button>
-        </div>
-    </div>
-</div>
+<div class="nmod" id="nm"><div class="nbox"><h3>Send a Note to Tyrion</h3><textarea class="nta" placeholder="I'd like to discuss this role further..."></textarea><div class="nacts"><button style="padding:8px 18px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--tm);font-family:'Outfit';cursor:pointer" onclick="document.getElementById('nm').classList.remove('open')">Cancel</button><button style="padding:8px 22px;border-radius:8px;border:none;background:var(--a);color:#fff;font-family:'Outfit';font-weight:600;cursor:pointer" onclick="document.getElementById('nm').classList.remove('open')">Send</button></div></div></div>
 
 <script>
-// ===== SKILL DATA =====
-const skills = [
-    { name: 'Strategic Planning', level: 'Mastery', match: 0.98, req: 'Required', status: 'match',
-      evidence: 'Designed and executed the defense of King\'s Landing during Blackwater, coordinated multi-faction alliance strategy as Hand of the King, and advised on long-term geopolitical positioning across two distinct administrations.' },
-    { name: 'Political Analysis', level: 'Mastery', match: 0.96, req: 'Required', status: 'match',
-      evidence: 'Accurately predicted the fall of three major political regimes before conventional intelligence identified instability signals. Maintained a network of informants across hostile territories providing real-time political intelligence.' },
-    { name: 'Alliance Building', level: 'Mastery', match: 0.95, req: 'Required', status: 'match',
-      evidence: 'Brokered the unprecedented Stark-Targaryen alliance, negotiated cessation of hostilities between Lannister and Tyrell factions, and maintained backchannel communications with adversarial powers throughout multiple conflicts.' },
-    { name: 'Stakeholder Management', level: 'Expert', match: 0.92, req: 'Required', status: 'match',
-      evidence: 'Managed competing interests of the Small Council, noble houses, military commanders, and civilian population simultaneously. Maintained functional governance during leadership transitions.' },
-    { name: 'Crisis Management', level: 'Expert', match: 0.90, req: 'Required', status: 'match',
-      evidence: 'Led city defense during siege with no formal military rank. Managed food crisis, civilian panic, and internal political sabotage concurrently during the Battle of Blackwater.' },
-    { name: 'High-Stakes Negotiation', level: 'Expert', match: 0.88, req: 'Required', status: 'match',
-      evidence: 'Negotiated with the Iron Bank of Braavos to restructure Crown debt, brokered hostage exchanges between warring factions, and secured resource-sharing agreements under existential threat conditions.' },
-    { name: 'Persuasive Communication', level: 'Expert', match: 0.87, req: 'Required', status: 'match',
-      evidence: 'Delivered pivotal addresses to hostile audiences including trial defense before the full court, morale speeches during active siege, and coalition-building presentations to skeptical allies.' },
-    { name: 'Financial Management', level: 'Expert', match: 0.85, req: 'Required', status: 'match',
-      evidence: 'Served as Master of Coin managing the Crown Treasury. Restructured sovereign debt obligations and implemented fiscal reforms reducing waste across royal expenditures.' },
-    { name: 'Intelligence Gathering', level: 'Advanced', match: 0.82, req: 'Preferred', status: 'match',
-      evidence: 'Maintained independent intelligence network through Varys partnership. Developed source relationships across social classes providing multi-dimensional situational awareness.' },
-    { name: 'Pattern Recognition', level: 'Expert', match: 0.80, req: 'Preferred', status: 'match',
-      evidence: 'Identified Cersei\'s wildfire plot before execution, recognized the strategic implications of Daenerys\'s eastern campaign for Westerosi politics, predicted multiple betrayals through behavioral analysis.' },
-    { name: 'Conflict Resolution', level: 'Advanced', match: 0.78, req: 'Required', status: 'match',
-      evidence: 'Mediated disputes between Daenerys and her northern allies, resolved internal power struggles within the Small Council, and facilitated dialogue between historically hostile noble houses.' },
-    { name: 'Cross-Cultural Communication', level: 'Advanced', match: 0.75, req: 'Required', status: 'match',
-      evidence: 'Operated effectively across Westerosi, Essosi, Dothraki, and Free Cities cultures. Adapted communication style and negotiation approach to each cultural context.' },
-    { name: 'Risk Assessment', level: 'Advanced', match: 0.74, req: 'Preferred', status: 'match',
-      evidence: 'Conducted strategic risk analysis informing key military and political decisions. Demonstrated ability to weigh low-probability high-impact scenarios alongside conventional threat models.' },
-    { name: 'Leadership Under Pressure', level: 'Expert', match: 0.88, req: 'Required', status: 'match',
-      evidence: 'Assumed battlefield command during Blackwater when senior military leadership was incapacitated. Maintained decision-making clarity during personal existential threats including trial by combat and exile.' },
-    { name: 'Historical Analysis', level: 'Advanced', match: 0.72, req: 'Preferred', status: 'match',
-      evidence: 'Extensively studied histories of past kingdoms, wars, and political systems. Applied historical precedent to contemporary strategic challenges.' },
-    { name: 'Resilience', level: 'Expert', match: 0.90, req: 'Preferred', status: 'match',
-      evidence: 'Survived assassination attempt, unjust imprisonment, trial by combat, exile, enslavement, and complete loss of political standing — rebuilt influence and authority each time.' },
-    { name: 'Adaptive Leadership', level: 'Advanced', match: 0.76, req: 'Required', status: 'match',
-      evidence: 'Successfully transitioned between radically different leadership contexts — from Lannister court politics to Targaryen revolutionary governance — adapting style while maintaining strategic effectiveness.' },
-    { name: 'Talent Assessment', level: 'Advanced', match: 0.70, req: 'Preferred', status: 'match',
-      evidence: 'Identified and elevated key personnel including Bronn, Podrick Payne, and others based on capability assessment rather than conventional credentials.' },
-    { name: 'Rhetoric', level: 'Expert', match: 0.85, req: 'Preferred', status: 'match',
-      evidence: 'Master of persuasive speech — trial defense speech considered one of the most powerful oratorical performances in recent history. Consistently leveraged verbal skill to compensate for physical and political disadvantages.' },
-    { name: 'Economic Analysis', level: 'Advanced', match: 0.68, req: 'Nice-to-have', status: 'match',
-      evidence: 'Analyzed trade route economics, assessed resource scarcity impacts on military campaigns, and evaluated fiscal sustainability of governance programs.' },
-    { name: 'Emotional Intelligence', level: 'Advanced', match: 0.72, req: 'Preferred', status: 'match',
-      evidence: 'Demonstrated exceptional ability to read emotional states of adversaries and allies, leveraging emotional insight for negotiation advantage and relationship management.' },
-    { name: 'Organizational Design', level: 'Proficient', match: 0.60, req: 'Nice-to-have', status: 'partial',
-      evidence: 'Contributed to restructuring of the Small Council and advisory frameworks under two different sovereigns.' },
-    // Gaps
-    { name: 'Public Administration at Scale', level: null, match: 0, req: 'Required', status: 'gap' },
-    { name: 'Multilateral Treaty Law', level: null, match: 0, req: 'Required', status: 'gap' },
-    { name: 'Budget Management ($3.2B+)', level: null, match: 0, req: 'Preferred', status: 'gap' },
-    { name: 'Modern Data Analytics', level: null, match: 0, req: 'Nice-to-have', status: 'gap' }
+const CN='Tyrion Lannister', JT='Chief of Staff to the Secretary-General';
+const roles=[{id:'dipl',name:'Diplomacy & Statecraft',color:'#60a5fa'},{id:'strat',name:'Strategic Leadership',color:'#a855f7'},{id:'fin',name:'Financial & Economic',color:'#10b981'},{id:'intel',name:'Intelligence & Analysis',color:'#f59e0b'},{id:'comm',name:'Communication & Rhetoric',color:'#ec4899'}];
+const US=[
+{n:'Strategic Planning',l:'Mastery',r:['strat'],k:1,ev:'Designed defense of King\'s Landing during Blackwater. Coordinated multi-faction alliance strategy as Hand.'},
+{n:'Political Analysis',l:'Mastery',r:['intel'],k:1,ev:'Predicted fall of three major regimes before conventional intelligence identified instability.'},
+{n:'Alliance Building',l:'Mastery',r:['dipl'],k:1,ev:'Brokered unprecedented Stark-Targaryen alliance. Negotiated cessation between Lannister and Tyrell.'},
+{n:'Stakeholder Management',l:'Expert',r:['dipl','strat'],ev:'Managed competing interests of Small Council, noble houses, military commanders simultaneously.'},
+{n:'Crisis Management',l:'Expert',r:['strat'],ev:'Led city defense during siege with no formal military rank. Managed food crisis and sabotage concurrently.'},
+{n:'High-Stakes Negotiation',l:'Expert',r:['dipl'],ev:'Negotiated with Iron Bank to restructure Crown debt. Brokered hostage exchanges between factions.'},
+{n:'Persuasive Communication',l:'Expert',r:['comm'],ev:'Delivered pivotal addresses to hostile audiences — trial defense and siege morale speeches.'},
+{n:'Financial Management',l:'Expert',r:['fin'],ev:'Master of Coin managing Crown Treasury. Restructured sovereign debt obligations.'},
+{n:'Intelligence Gathering',l:'Advanced',r:['intel'],ev:'Maintained independent network through Varys partnership.'},
+{n:'Pattern Recognition',l:'Expert',r:['intel'],ev:'Identified Cersei\'s wildfire plot. Recognized strategic implications of Daenerys\'s eastern campaign.'},
+{n:'Conflict Resolution',l:'Advanced',r:['dipl'],ev:'Mediated disputes between Daenerys and northern allies. Resolved Small Council power struggles.'},
+{n:'Cross-Cultural Communication',l:'Advanced',r:['comm','dipl'],ev:'Operated across Westerosi, Essosi, Dothraki, and Free Cities cultures.'},
+{n:'Risk Assessment',l:'Advanced',r:['intel','strat'],ev:'Conducted strategic risk analysis informing key military and political decisions.'},
+{n:'Leadership Under Pressure',l:'Expert',r:['strat'],ev:'Assumed battlefield command during Blackwater when senior leadership was incapacitated.'},
+{n:'Historical Analysis',l:'Advanced',r:['intel'],ev:'Studied histories of kingdoms, wars, and political systems. Applied precedent to strategy.'},
+{n:'Resilience',l:'Expert',r:['strat'],ev:'Survived assassination, imprisonment, exile, enslavement — rebuilt influence each time.'},
+{n:'Adaptive Leadership',l:'Advanced',r:['strat'],ev:'Transitioned between radically different contexts — Lannister court to Targaryen governance.'},
+{n:'Talent Assessment',l:'Advanced',r:['strat'],ev:'Elevated key personnel (Bronn, Podrick) based on capability not credentials.'},
+{n:'Rhetoric',l:'Expert',r:['comm'],ev:'Master of persuasive speech. Trial defense considered most powerful oration in recent history.'},
+{n:'Economic Analysis',l:'Advanced',r:['fin'],ev:'Analyzed trade economics, resource scarcity impacts on campaigns.'},
+{n:'Emotional Intelligence',l:'Advanced',r:['dipl','comm'],ev:'Read emotional states of adversaries and allies for negotiation advantage.'},
+{n:'Organizational Design',l:'Proficient',r:['strat'],ev:'Restructured Small Council under two different sovereigns.'},
+{n:'Budget Management',l:'Proficient',r:['fin'],ev:'Oversaw Crown expenditures and debt servicing as Master of Coin.'},
+{n:'Public Speaking',l:'Advanced',r:['comm'],ev:'Speeches to courts, armies, and hostile tribunals with equal effectiveness.'},
+{n:'Diplomatic Protocol',l:'Proficient',r:['dipl'],ev:'Navigated formal court protocols across multiple kingdoms.'},
+{n:'Wine Evaluation',l:'Mastery',r:['strat'],ev:'Unmatched palate. Career differentiator.'}
 ];
+const JM=new Set(['strategic planning','political analysis','alliance building','stakeholder management','crisis management','high-stakes negotiation']);
+const MS=new Set();US.forEach(s=>{if(JM.has(s.n.toLowerCase()))MS.add(s.n)});
+const GN=['Public Administration at Scale','Multilateral Treaty Law'];
+const uVals=[{n:'Intellectual Honesty',s:'aligned'},{n:'Resilience',s:'aligned'},{n:'Strategic Thinking',s:'aligned'},{n:'Courage',s:'aligned'},{n:'Accountability',s:'aligned'},{n:'Wit as Armor',s:'yours'},{n:'The Mind is the Best Weapon',s:'yours'}];
+const cVals=[{n:'Intellectual Honesty',t:'primary',s:'aligned'},{n:'Resilience',t:'primary',s:'aligned'},{n:'Strategic Thinking',t:'primary',s:'aligned'},{n:'Courage',t:'secondary',s:'aligned'},{n:'Accountability',t:'secondary',s:'aligned'},{n:'Diplomatic Neutrality',t:'primary',s:'theirs'},{n:'Multilateral Consensus',t:'secondary',s:'theirs'}];
+const gapData=[{n:'Public Administration at Scale',rq:'Required',br:'Governance of King\'s Landing (~500K) demonstrates foundational public admin. Scale gap significant but bridgeable.',adj:['Stakeholder Management','Organizational Design','Adaptive Leadership']},{n:'Multilateral Treaty Law',rq:'Required',br:'Extensive negotiation across competing jurisdictions mirrors practical treaty challenges. Historical analysis accelerates comprehension.',adj:['High-Stakes Negotiation','Historical Analysis','Cross-Cultural Communication']}];
+const doms=[{n:'Diplomacy & Statecraft',c:8,m:26,cl:'#60a5fa'},{n:'Strategic Leadership',c:6,m:26,cl:'#a855f7'},{n:'Financial & Economic',c:4,m:26,cl:'#10b981'},{n:'Intelligence & Analysis',c:4,m:26,cl:'#f59e0b'},{n:'Communication & Rhetoric',c:4,m:26,cl:'#ec4899'}];
 
-const gaps = [
-    { name: 'Public Administration at Scale', req: 'Required',
-      bridge: 'Tyrion\'s governance of King\'s Landing (population ~500K) and management of the Crown\'s administrative apparatus demonstrate foundational public administration skills. The scale gap from city-state to 193-nation organization is significant but bridgeable given his demonstrated ability to rapidly learn new institutional structures.',
-      adjacent: ['Stakeholder Management', 'Organizational Design', 'Adaptive Leadership'] },
-    { name: 'Multilateral Treaty Law', req: 'Required',
-      bridge: 'While lacking formal legal training, Tyrion\'s extensive negotiation experience across competing jurisdictions with different legal traditions mirrors the practical challenges of multilateral treaty work. His historical analysis capability accelerates legal framework comprehension.',
-      adjacent: ['High-Stakes Negotiation', 'Historical Analysis', 'Cross-Cultural Communication'] },
-    { name: 'Budget Management ($3.2B+)', req: 'Preferred',
-      bridge: 'Former Master of Coin overseeing Crown Treasury demonstrates financial management at sovereign scale. The specific discipline of UN-style program budgeting is a process gap, not a capability gap — adjacent financial skills strongly suggest rapid acquisition.',
-      adjacent: ['Financial Management', 'Economic Analysis', 'Risk Assessment'] },
-    { name: 'Modern Data Analytics', req: 'Nice-to-have',
-      bridge: 'Pattern recognition and intelligence gathering represent the analytical mindset that transfers to data-driven decision making. This is a tooling gap rather than a cognitive gap.',
-      adjacent: ['Pattern Recognition', 'Intelligence Gathering', 'Economic Analysis'] }
-];
+// Tooltip
+const tip=d3.select('#tip');
+function showT(e,h){tip.html(h).style('opacity',1);const tw=tip.node().offsetWidth||200,th=tip.node().offsetHeight||60,vw=window.innerWidth;let l=e.pageX+14,t=e.pageY-14;if(l+tw>vw-10)l=e.pageX-tw-14;if(t<10)t=e.pageY+18;tip.style('left',l+'px').style('top',t+'px')}
+function hideT(){tip.style('opacity',0)}
 
-const domains = [
-    { name: 'Diplomacy & Statecraft', count: 8, max: 26, color: '#60a5fa' },
-    { name: 'Strategic Leadership', count: 6, max: 26, color: '#a855f7' },
-    { name: 'Financial & Economic', count: 4, max: 26, color: '#10b981' },
-    { name: 'Intelligence & Analysis', count: 4, max: 26, color: '#f59e0b' },
-    { name: 'Communication & Rhetoric', count: 4, max: 26, color: '#ec4899' }
-];
+// Drag
+let sSim,vSim;
+function mkD(sim){return d3.drag().on('start',(e,d)=>{if(!e.active)sim.alphaTarget(.3).restart();d.fx=d.x;d.fy=d.y}).on('drag',(e,d)=>{d.fx=e.x;d.fy=e.y}).on('end',(e,d)=>{if(!e.active)sim.alphaTarget(0);if(d.type==='center'||d.type==='hub')return;d.fx=null;d.fy=null})}
 
-// ===== RENDER FUNCTIONS =====
-
-function renderSkills() {
-    const list = document.getElementById('skillList');
-    const matched = skills.filter(s => s.status !== 'gap');
-    list.innerHTML = matched.map(s => {
-        const levelPct = { 'Mastery': 100, 'Expert': 80, 'Advanced': 60, 'Proficient': 40, 'Novice': 20 }[s.level] || 0;
-        const reqPct = s.match * 100;
-        const statusColor = s.match >= 0.8 ? 'var(--green)' : s.match >= 0.6 ? 'var(--amber)' : 'var(--red)';
-        const reqColor = s.req === 'Required' ? 'var(--text-secondary)' : s.req === 'Preferred' ? 'var(--text-muted)' : 'rgba(255,255,255,0.25)';
-        
-        return `<div class="sr-skill-row" onclick="this.classList.toggle('expanded')">
-            <div class="sr-skill-top">
-                <div class="sr-skill-status" style="background:${statusColor};"></div>
-                <div class="sr-skill-name">${s.name}</div>
-                <div class="sr-skill-req" style="color:${reqColor};">${s.req}</div>
-                <div class="sr-skill-bars">
-                    <div class="sr-skill-bar-row">
-                        <div class="sr-skill-bar-label">Cand.</div>
-                        <div class="sr-skill-bar-track"><div class="sr-skill-bar-fill" style="width:${levelPct}%; background:var(--accent);"></div></div>
-                    </div>
-                    <div class="sr-skill-bar-row">
-                        <div class="sr-skill-bar-label">Req.</div>
-                        <div class="sr-skill-bar-track"><div class="sr-skill-bar-fill" style="width:${reqPct}%; background:${statusColor};"></div></div>
-                    </div>
-                </div>
-                <div class="sr-skill-chevron">▾</div>
-            </div>
-            <div class="sr-skill-detail">
-                <div style="margin-bottom:6px;"><strong style="color:var(--accent);">${s.level}</strong> · ${Math.round(s.match * 100)}% alignment</div>
-                ${s.evidence ? `<div class="sr-skill-evidence">
-                    <div class="sr-skill-evidence-label">Evidence</div>
-                    ${s.evidence}
-                </div>` : ''}
-            </div>
-        </div>`;
-    }).join('');
+// ===== SKILLS NETWORK =====
+function initSN(){
+const w=document.getElementById('snW'),W=w.clientWidth,H=Math.max(450,Math.min(600,innerHeight*.55)),mob=W<=768,sf=Math.max(.8,Math.min(W/900,1.4));
+const svg=d3.select('#snS').attr('width',W).attr('height',H);svg.selectAll('*').remove();
+const cY=H*.25,N=[{id:'center',name:CN,type:'center',ms:'center',x:W/2,y:cY,fx:W/2,fy:cY}],L=[];let ix=0;
+roles.forEach((r,i)=>{const a=(i/roles.length)*2*Math.PI,rd=(mob?100:170)*sf;N.push({id:r.id,name:r.name,type:'role',color:r.color,ms:'role',x:W/2+Math.cos(a)*rd,y:cY+Math.sin(a)*rd});L.push({source:'center',target:r.id,type:'role'})});
+N.push({id:'rj',name:JT+' Needs',type:'role',color:'#ef4444',ms:'role',x:W/2,y:H*.75});L.push({source:'center',target:'rj',type:'role'});
+US.forEach(s=>{const im=MS.has(s.n),st=im?'matched':'surplus',id='u-'+ix++;N.push({id,name:s.n,type:'skill',level:s.l,ms:st,ev:s.ev,src:'user',roles:s.r});(s.r||[]).forEach(rid=>L.push({source:rid,target:id,type:'skill'}));if(im)L.push({source:'rj',target:id,type:'match'})});
+GN.forEach(g=>{const id='g-'+ix++;N.push({id,name:g,type:'skill',level:'Required',ms:'gap',src:'job'});L.push({source:'rj',target:id,type:'skill'})});
+const mc={matched:'#10b981',gap:'#ef4444',surplus:'#475569'},gv=H*.45;
+sSim=d3.forceSimulation(N).force('link',d3.forceLink(L).id(d=>d.id).distance(d=>d.type==='role'?(mob?85:140)*sf:d.type==='match'?(mob?55:95)*sf:(mob?70:120)*sf)).force('charge',d3.forceManyBody().strength(d=>d.type==='center'?0:d.type==='role'?(mob?-160:-240)*sf:d.ms==='gap'?(mob?-70:-110)*sf:(mob?-90:-140)*sf)).force('center',d3.forceCenter(W/2,gv)).force('collision',d3.forceCollide().radius(d=>d.type==='center'?(mob?36:50)*sf:d.type==='role'?(mob?30:44)*sf:(mob?18:26)*sf)).force('x',d3.forceX(W/2).strength(.06)).force('y',d3.forceY(gv).strength(.06));
+const lk=svg.append('g').selectAll('line').data(L).join('line').attr('class','link').style('stroke',d=>d.type==='match'?mc.matched:null).style('stroke-opacity',d=>d.type==='match'?.5:.15).style('stroke-width',d=>d.type==='match'?2:1.2).style('stroke-dasharray',d=>d.type==='match'?'4,3':'none');
+const nd=svg.append('g').selectAll('g').data(N).join('g').attr('class',d=>'node '+d.type).call(mkD(sSim));
+nd.append('circle').attr('r',d=>{if(d.type==='center')return mob?26:Math.round(36*sf);if(d.type==='role')return mob?20:Math.round(26*sf);if(d.ms==='matched')return mob?11:Math.round(13*sf);if(d.ms==='gap')return mob?9:Math.round(11*sf);return mob?6:Math.round(7*sf)}).attr('fill',d=>{if(d.type==='center')return'#60a5fa';if(d.type==='role')return d.id==='rj'?'rgba(239,68,68,.25)':'rgba(148,163,184,.2)';return mc[d.ms]||'#6b7280'}).attr('opacity',d=>d.ms==='surplus'?.3:1).attr('stroke',d=>{if(d.type==='role')return d.id==='rj'?'#ef4444':'#64748b';if(d.ms==='matched')return'#fff';if(d.ms==='gap')return'#fca5a5';return'none'}).attr('stroke-width',d=>(d.type==='role'||d.ms==='matched'||d.ms==='gap')?2:0).style('cursor',d=>d.type==='skill'&&d.src==='user'?'pointer':'grab')
+.on('click',(e,d)=>{if(d.type==='skill'&&d.src==='user')openPop(d)})
+.on('mouseover',(e,d)=>{let h='<div class="tt-t">'+d.name+'</div>';if(d.level)h+='<div class="tt-s">'+d.level+(d.ms==='matched'?' · ✓ Matched':d.ms==='gap'?' · ✗ Gap':'')+'</div>';if(d.type==='skill'&&d.src==='user')h+='<div class="tt-s" style="margin-top:4px;border-top:1px solid rgba(255,255,255,.08);padding-top:4px">Click for evidence</div>';showT(e,h)}).on('mouseout',hideT);
+nd.append('text').text(d=>d.name).attr('x',0).attr('y',d=>d.type==='center'?-(mob?32:42):d.type==='role'?-(mob?26:34):-(mob?14:18)).attr('text-anchor','middle').style('font-size',d=>d.type==='center'?(mob?'11px':'14px'):d.type==='role'?(mob?'9px':'11px'):(mob?'7px':'9px')).style('fill',d=>{if(d.ms==='matched')return mc.matched;if(d.ms==='gap')return mc.gap;if(d.ms==='surplus')return'#64748b';if(d.type==='role'&&d.id==='rj')return'#ef4444';if(d.type==='role')return'#94a3b8';return'#cbd5e1'}).style('opacity',d=>d.ms==='surplus'?.35:1).style('font-weight',d=>(d.type==='center'||d.type==='role')?'700':'400');
+if(mob)nd.selectAll('text').filter(d=>d.type==='skill'&&d.ms==='surplus').classed('hidden',true);
+nd.filter(d=>d.type==='role').raise();nd.filter(d=>d.type==='center').raise();
+sSim.on('tick',()=>{const p=mob?40:65;N.forEach(d=>{if(d.type!=='center'){d.x=Math.max(p,Math.min(W-p,d.x));d.y=Math.max(p,Math.min(H-p,d.y))}});lk.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);nd.attr('transform',d=>`translate(${d.x},${d.y})`)})
 }
 
-function renderGaps() {
-    const list = document.getElementById('gapList');
-    list.innerHTML = gaps.map(g => {
-        const reqColor = g.req === 'Required' ? 'var(--red)' : g.req === 'Preferred' ? 'var(--amber)' : 'var(--text-muted)';
-        return `<div class="sr-gap-card">
-            <div class="sr-gap-header">
-                <div class="sr-gap-name">${g.name}</div>
-                <div class="sr-skill-req" style="color:${reqColor}; border:1px solid ${reqColor}; background:transparent;">${g.req}</div>
-            </div>
-            <div class="sr-gap-bridge">${g.bridge}</div>
-            <div class="sr-gap-adjacent">
-                <span style="font-size:0.72em; color:var(--text-muted); margin-right:4px;">Bridge skills:</span>
-                ${g.adjacent.map(a => `<span class="sr-gap-adjacent-tag">${a}</span>`).join('')}
-            </div>
-        </div>`;
-    }).join('');
+// ===== VALUES NETWORK =====
+function initVN(){
+const w=document.getElementById('vnW'),W=w.clientWidth,H=Math.max(350,Math.min(480,innerHeight*.45)),mob=W<=768,sf=Math.max(.8,Math.min(W/900,1.4));
+const svg=d3.select('#vnS').attr('width',W).attr('height',H);svg.selectAll('*').remove();
+const cY=H*.48,lX=mob?W*.22:W*.28,rX=mob?W*.78:W*.72,tY=mob?H*.10:H*.13;
+const N=[],L=[],aSet=new Set(uVals.filter(v=>v.s==='aligned').map(v=>v.n)),vc={aligned:'#10b981',yours:'#f59e0b',theirs:'#6366f1'};
+N.push({id:'hu',name:"Tyrion's Values",type:'hub',side:'user',x:lX,y:tY,fx:lX,fy:tY});
+N.push({id:'hc',name:"UN's Culture",type:'hub',side:'company',x:rX,y:tY,fx:rX,fy:tY});
+uVals.forEach((v,i)=>{const a=(i/uVals.length)*Math.PI*.8+Math.PI*.6,rd=(mob?120:170)*sf;N.push({id:'uv-'+i,name:v.n,type:'value',side:'user',vs:v.s,x:lX+Math.cos(a)*rd,y:cY+Math.sin(a)*rd*.7});L.push({source:'hu',target:'uv-'+i,type:'spoke'})});
+cVals.forEach((v,i)=>{const a=(i/cVals.length)*Math.PI*.8+Math.PI*1.6,rd=(mob?120:170)*sf;N.push({id:'cv-'+i,name:v.n,type:'value',side:'company',vs:v.s,tier:v.t,x:rX+Math.cos(a)*rd,y:cY+Math.sin(a)*rd*.7});L.push({source:'hc',target:'cv-'+i,type:'spoke'})});
+uVals.forEach((v,ui)=>{if(aSet.has(v.n)){const ci=cVals.findIndex(c=>c.n===v.n);if(ci!==-1)L.push({source:'uv-'+ui,target:'cv-'+ci,type:'bridge'})}});
+vSim=d3.forceSimulation(N).force('link',d3.forceLink(L).id(d=>d.id).distance(d=>d.type==='bridge'?(mob?170:250)*sf:(mob?95:145)*sf).strength(d=>d.type==='bridge'?.1:.5)).force('charge',d3.forceManyBody().strength(d=>d.type==='hub'?0:(mob?-180:-280)*sf)).force('collision',d3.forceCollide().radius(d=>d.type==='hub'?(mob?42:56)*sf:(mob?34:44)*sf)).force('x',d3.forceX(d=>d.side==='user'?lX:d.side==='company'?rX:W/2).strength(.08)).force('y',d3.forceY(cY).strength(.04));
+const lk=svg.append('g').selectAll('line').data(L).join('line').attr('class','link').style('stroke',d=>d.type==='bridge'?vc.aligned:null).style('stroke-opacity',d=>d.type==='bridge'?.55:.12).style('stroke-width',d=>d.type==='bridge'?2.5:1.2).style('stroke-dasharray',d=>d.type==='bridge'?'6,4':'none');
+const nd=svg.append('g').selectAll('g').data(N).join('g').attr('class',d=>'node '+d.type).call(mkD(vSim));
+nd.append('circle').attr('r',d=>{if(d.type==='hub')return mob?24:Math.round(32*sf);if(d.vs==='aligned')return mob?14:Math.round(18*sf);return mob?10:Math.round(13*sf)}).attr('fill',d=>{if(d.type==='hub')return d.side==='user'?'#60a5fa':'#f59e0b';return vc[d.vs]||'#6b7280'}).attr('stroke',d=>{if(d.type==='hub')return'rgba(255,255,255,.3)';if(d.vs==='aligned')return'#fff';return'none'}).attr('stroke-width',d=>(d.type==='hub'||d.vs==='aligned')?2:0).attr('opacity',d=>d.vs==='theirs'?.6:1)
+.on('mouseover',(e,d)=>{const lb={aligned:'✅ Shared value',yours:'🟡 Candidate priority',theirs:'🟣 Organization priority'};let h='<div class="tt-t">'+d.name+'</div>';if(d.vs)h+='<div class="tt-s" style="color:'+(vc[d.vs]||'#9ca3af')+'">'+lb[d.vs]+'</div>';if(d.tier)h+='<div class="tt-s">'+(d.tier==='primary'?'Core value':'Secondary value')+'</div>';showT(e,h)}).on('mouseout',hideT);
+nd.append('text').text(d=>d.name).attr('x',0).attr('y',d=>d.type==='hub'?-(mob?30:Math.round(40*sf)):-(mob?18:Math.round(24*sf))).attr('text-anchor','middle').style('font-size',d=>d.type==='hub'?(mob?'11px':'13px'):(mob?'8px':'10px')).style('fill',d=>{if(d.type==='hub')return d.side==='user'?'#93c5fd':'#fbbf24';return vc[d.vs]||'#94a3b8'}).style('font-weight',d=>d.type==='hub'?'700':d.vs==='aligned'?'600':'400');
+nd.filter(d=>d.type==='hub').raise();
+if(mob)nd.selectAll('text').filter(d=>d.type==='value'&&d.vs!=='aligned').classed('hidden',true);
+vSim.on('tick',()=>{const p=mob?24:48;N.forEach(d=>{if(d.type!=='hub'){d.x=Math.max(p,Math.min(W-p,d.x));d.y=Math.max(p,Math.min(H-p,d.y))}});lk.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);nd.attr('transform',d=>`translate(${d.x},${d.y})`)})
 }
 
-function renderDomains() {
-    const list = document.getElementById('domainList');
-    list.innerHTML = domains.map(d => {
-        const pct = (d.count / d.max) * 100;
-        return `<div class="sr-domain-row">
-            <div class="sr-domain-name" style="color:${d.color};">${d.name}</div>
-            <div class="sr-domain-bar-track">
-                <div class="sr-domain-bar-fill" style="width:${pct}%; background:${d.color};"></div>
-            </div>
-            <div class="sr-domain-count">${d.count} skills</div>
-        </div>`;
-    }).join('');
-}
+function openPop(d){const p=document.getElementById('pop');document.getElementById('popN').textContent=d.name;let b='<div><strong style="color:var(--a)">'+(d.level||'')+'</strong>';if(d.ms==='matched')b+=' · <span style="color:var(--g)">✓ Matched to role</span>';b+='</div>';if(d.ev)b+='<div class="pop-ev"><div class="pop-ev-l">Evidence</div>'+d.ev+'</div>';document.getElementById('popB').innerHTML=b;p.classList.add('open');p.scrollIntoView({behavior:'smooth',block:'nearest'})}
 
-// ===== INTERACTIONS =====
+function renderSk(){
+const el=document.getElementById('skL');
+const matched=US.filter(s=>MS.has(s.n));
+const rest=US.filter(s=>!MS.has(s.n)).slice(0,10);
+el.innerHTML=[...matched,...rest].map(s=>{const im=MS.has(s.n),lp={Mastery:100,Expert:80,Advanced:60,Proficient:40,Novice:20}[s.l]||0,sc=im?'var(--g)':'var(--tm)';
+return`<div class="sk-r" onclick="this.classList.toggle('ex')"><div class="sk-top"><div class="sk-dot" style="background:${sc}"></div><div class="sk-nm">${s.n}</div><div class="sk-rq">${im?'Matched':'Surplus'}</div><div class="sk-bars"><div class="sk-bar-r"><div style="width:36px;text-align:right">Level</div><div class="sk-bar-t"><div class="sk-bar-f" style="width:${lp}%;background:var(--a)"></div></div></div></div><div class="sk-chev">▾</div></div><div class="sk-det"><div style="margin-bottom:6px"><strong style="color:var(--a)">${s.l}</strong></div>${s.ev?`<div class="sk-ev"><div class="sk-ev-l">Evidence</div>${s.ev}</div>`:''}</div></div>`}).join('')}
 
-function selectReaction(btn, reaction) {
-    document.querySelectorAll('.sr-reaction-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    // In production: POST to Firestore analytics
-    console.log('Reaction:', reaction);
-}
+function renderGaps(){document.getElementById('gapL').innerHTML=gapData.map(g=>`<div class="gap-c"><div class="gap-h"><div class="gap-n">${g.n}</div><div class="sk-rq" style="color:var(--r);border:1px solid var(--r);background:transparent">${g.rq}</div></div><div class="gap-br">${g.br}</div><div class="gap-adj"><span style="font-size:.72em;color:var(--tm);margin-right:4px">Bridge skills:</span>${g.adj.map(a=>`<span class="gap-tag">${a}</span>`).join('')}</div></div>`).join('')}
 
-function openNoteModal() {
-    document.getElementById('noteModal').classList.add('open');
-}
+function renderDom(){document.getElementById('domL').innerHTML=doms.map(d=>`<div class="dom-r"><div class="dom-n" style="color:${d.cl}">${d.n}</div><div class="dom-bt"><div class="dom-bf" style="width:${(d.c/d.m)*100}%;background:${d.cl}"></div></div><div class="dom-c">${d.c} skills</div></div>`).join('')}
 
-function closeNoteModal() {
-    document.getElementById('noteModal').classList.remove('open');
-}
+function rx(b){document.querySelectorAll('.rbtn').forEach(x=>x.classList.remove('sel'));b.classList.add('sel')}
+function go(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'})}
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)document.querySelectorAll('.nav-a').forEach(l=>l.classList.toggle('on',l.getAttribute('onclick')?.includes(e.target.id)))})},{threshold:.2});
+document.querySelectorAll('section[id],.hero').forEach(s=>obs.observe(s));
 
-function sendNote() {
-    const text = document.querySelector('.sr-note-textarea').value;
-    if (text.trim()) {
-        // In production: POST to Firestore
-        console.log('Note sent:', text);
-        closeNoteModal();
-        // Show confirmation
-        const btn = document.querySelector('.sr-comm-note-btn');
-        btn.textContent = '✓ Note Sent';
-        btn.style.background = 'var(--green)';
-        setTimeout(() => {
-            btn.textContent = '✉️ Send a Note';
-            btn.style.background = '';
-        }, 3000);
-    }
-}
-
-function shareReport() {
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(window.location.href);
-        const btn = document.querySelector('.sr-comm-share-btn');
-        btn.innerHTML = '✓ Link Copied';
-        setTimeout(() => {
-            btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share`;
-        }, 2000);
-    }
-}
-
-function scrollToSection(id) {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    document.querySelectorAll('.sr-nav-link').forEach(l => l.classList.remove('active'));
-    event.target.classList.add('active');
-}
-
-// Scroll spy for nav
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const id = entry.target.id;
-            document.querySelectorAll('.sr-nav-link').forEach(l => {
-                l.classList.toggle('active', l.getAttribute('onclick')?.includes(id));
-            });
-        }
-    });
-}, { threshold: 0.3 });
-
-document.querySelectorAll('section[id]').forEach(s => observer.observe(s));
-
-// ===== INIT =====
-renderSkills();
-renderGaps();
-renderDomains();
+renderSk();renderGaps();renderDom();initSN();initVN();
+window.addEventListener('resize',()=>{initSN();initVN()});
 </script>
 </body>
 </html>
