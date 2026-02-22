@@ -649,8 +649,8 @@ const w=document.getElementById('vnW'),W=w.clientWidth,H=Math.max(380,Math.min(5
 const svg=d3.select('#vnS').attr('width',W).attr('height',H);svg.selectAll('*').remove();
 const cY=H*.48,lX=mob?W*.22:W*.28,rX=mob?W*.78:W*.72,tY=mob?H*.15:H*.15;
 const N=[],L=[],aSet=new Set(uVals.filter(v=>v.s==='aligned').map(v=>v.n)),vc={aligned:'#10b981',yours:'#f59e0b',theirs:'#6366f1'};
-N.push({id:'hu',name:"Tyrion's Values",type:'hub',side:'user',x:lX,y:tY,fx:lX,fy:tY});
-N.push({id:'hc',name:"UN's Culture",type:'hub',side:'company',x:rX,y:tY,fx:rX,fy:tY});
+N.push({id:'hu',name:(R.candidate.name.split(' ')[0])+"'s Values",type:'hub',side:'user',x:lX,y:tY,fx:lX,fy:tY});
+N.push({id:'hc',name:R.job.company+"'s Culture",type:'hub',side:'company',x:rX,y:tY,fx:rX,fy:tY});
 uVals.forEach((v,i)=>{const a=(i/uVals.length)*Math.PI*.8+Math.PI*.6,rd=(mob?120:170)*sf;N.push({id:'uv-'+i,name:v.n,type:'value',side:'user',vs:v.s,x:lX+Math.cos(a)*rd,y:cY+Math.sin(a)*rd*.7});L.push({source:'hu',target:'uv-'+i,type:'spoke'})});
 cVals.forEach((v,i)=>{const a=(i/cVals.length)*Math.PI*.8+Math.PI*1.6,rd=(mob?120:170)*sf;N.push({id:'cv-'+i,name:v.n,type:'value',side:'company',vs:v.s,tier:v.t,x:rX+Math.cos(a)*rd,y:cY+Math.sin(a)*rd*.7});L.push({source:'hc',target:'cv-'+i,type:'spoke'})});
 uVals.forEach((v,ui)=>{if(aSet.has(v.n)){const ci=cVals.findIndex(c=>c.n===v.n);if(ci!==-1)L.push({source:'uv-'+ui,target:'cv-'+ci,type:'bridge'})}});
@@ -781,6 +781,17 @@ const matchedCount=US.filter(s=>MS.has(s.n)).length;
 const gapCount=GN.length;
 const surplusCount=US.length-matchedCount;
 
+// ── Hydrate all hardcoded HTML from REPORT_DATA ─────────────────
+function hydrateFromData(){
+    const C=R.candidate;
+    document.getElementById('heroPhoto').textContent=C.photo||C.name.charAt(0);
+    document.getElementById('heroName').textContent=C.name;
+    document.getElementById('heroTitle').textContent=C.title;
+    document.getElementById('heroMeta').innerHTML='<span>📍 '+C.location+'</span><span>📞 '+(C.contact||'Available upon request')+'</span>';
+    var noteEl=document.getElementById('noteTitle');
+    if(noteEl) noteEl.textContent='Send a Note to '+(C.name.split(' ')[0]);
+}
+
 function initReport(){
     document.getElementById('pageTitle').textContent='Blueprint™ Scouting Report — '+CN+' | '+R.job.company;
     document.getElementById('stripCompany').textContent=R.job.company;
@@ -856,7 +867,7 @@ function go(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',b
 const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)document.querySelectorAll('.nav-a').forEach(l=>l.classList.toggle('on',l.getAttribute('onclick')?.includes(e.target.id)))})},{threshold:.2});
 document.querySelectorAll('section[id],.hero').forEach(s=>obs.observe(s));
 
-initReport();renderSk();renderGaps();renderDom();initSN();initVN();
+hydrateFromData();initReport();renderSk();renderGaps();renderDom();initSN();initVN();
 window.addEventListener('resize',()=>{if(curNetMode==='match')initSN();else initYouNet();initVN()});
 
 // Show blind mode tooltip on first visit
