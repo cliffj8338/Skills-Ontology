@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.27.3.0 | 20260221 | Fixed values persistence bug: clear stale localStorage on profile switch -->
+    <!-- v4.27.3.1 | 20260221 | Fixed values crossover: clear+reinfer blueprintData on profile switch -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -890,8 +890,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.27.3.0 - BUILD 20260221-values-persistence-fix
-        var BP_VERSION = 'v4.27.3.0';
+        // BLUEPRINT v4.27.3.1 - BUILD 20260221-values-crossover-fix
+        var BP_VERSION = 'v4.27.3.1';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -907,7 +907,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260221-values-persistence-fix             ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260221-values-crossover-fix              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -4824,6 +4824,14 @@
             window.settingsInitialized = false;
             window.networkInitialized = false;
             window.cardViewInitialized = false;
+            
+            // CRITICAL: Clear stale blueprintData so values/outcomes refresh from the new profile
+            blueprintData.values = [];
+            blueprintData.outcomes = [];
+            blueprintData.purpose = "";
+            // Force immediate re-inference from the new profile's userData
+            inferValues();
+            extractOutcomesFromEvidence();
             
             // Rescore jobs against the new profile's skills
             if (typeof rescoreAllJobs === 'function') rescoreAllJobs();
