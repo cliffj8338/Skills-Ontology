@@ -2642,7 +2642,7 @@
                 }
                 
                 banner.innerHTML = bannerHTML;
-                banner.style.display = '';
+                banner.style.display = 'block';
             } else {
                 // Viewing own profile — no banner
                 if (banner) banner.style.display = 'none';
@@ -5824,9 +5824,9 @@
             if (templates[scaffoldId]) loadTemplate(scaffoldId);
             initializeMainApp();
             
-            // Track whether user has explicitly chosen a profile (vs auto-scaffold)
-            // Only set true if they previously selected one (persisted in localStorage)
-            window._profileExplicitlySelected = !!currentProfile;
+            // Track whether user has explicitly chosen a profile in THIS session
+            // Always false on fresh page load — must click Samples or start Tour to unlock
+            window._profileExplicitlySelected = false;
             
             // Determine which view to show
             // Demo/non-signed-in users always start on Welcome (the front door)
@@ -8846,7 +8846,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 if (view === 'welcome' || view === 'consent' || view === 'admin') {
                     roBanner.style.display = 'none';
                 } else if (isReadOnlyProfile) {
-                    roBanner.style.display = 'flex';
+                    roBanner.style.display = 'block';
                 }
             }
             
