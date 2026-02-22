@@ -4849,6 +4849,7 @@
             
             // Load template inline (no page reload)
             loadTemplate(templateId);
+            window._profileExplicitlySelected = true;
             // Only save profile preference for non-signed-in users
             // Signed-in users always load their own Firestore data on boot
             if (!fbUser) {
@@ -5788,6 +5789,7 @@
                 skillsData.roles = [];
                 
                 initializeMainApp();
+                window._profileExplicitlySelected = true; // signed-in users always have a profile
                 
                 var targetView = 'welcome';
                 try {
@@ -5821,6 +5823,10 @@
             if (!templates[scaffoldId]) scaffoldId = firstTemplateId;
             if (templates[scaffoldId]) loadTemplate(scaffoldId);
             initializeMainApp();
+            
+            // Track whether user has explicitly chosen a profile (vs auto-scaffold)
+            // Only set true if they previously selected one (persisted in localStorage)
+            window._profileExplicitlySelected = !!currentProfile;
             
             // Determine which view to show
             // Demo/non-signed-in users always start on Welcome (the front door)
@@ -8787,11 +8793,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (view === 'jobs') view = 'opportunities';
             if (view === 'applications') { view = 'opportunities'; jobsSubTab = 'tracker'; }
             
-            // Gate: block main views if no profile is loaded (no skills data)
+            // Gate: block main views until user explicitly selects a profile or signs in
             var profileViews = ['network', 'opportunities', 'blueprint'];
-            var hasProfileData = userData && userData.skills && userData.skills.length > 0;
-            if (!hasProfileData && profileViews.indexOf(view) !== -1) {
-                showToast('Select a sample profile or sign in to explore Blueprint.', 'info');
+            if (!window._profileExplicitlySelected && profileViews.indexOf(view) !== -1) {
+                showToast('Choose a sample profile or sign in to explore Blueprint.', 'info');
                 view = 'welcome';
             }
             
@@ -21880,6 +21885,8 @@ body {
                 tourSteps = steps;
                 tourCurrentStep = 0;
                 tourActive = true;
+                // Tour explores a profile — unlock nav gates
+                window._profileExplicitlySelected = true;
                 closeHelpMenu();
                 createOverlayElements();
                 showStep(0);
