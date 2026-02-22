@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.34.0.0 | 20260222 | Firestore share links, public viewer, view tracking, self-hydrating template -->
+    <!-- v4.34.0.1 | 20260222 | Reports header styling fix: match Blueprint tab scale -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -960,8 +960,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.34.0.0 - BUILD 20260222-firestore-share-public-viewer
-        var BP_VERSION = 'v4.34.0.0';
+        // BLUEPRINT v4.34.0.1 - BUILD 20260222-reports-header-fix
+        var BP_VERSION = 'v4.34.0.1';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -8871,12 +8871,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             html += '<div class="blueprint-container">';
             
             // Header
-            html += '<div class="blueprint-header">'
+            html += '<div style="padding:20px 0 16px;">'
                 + '<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">'
                 + '<div>'
-                + '<h2 class="blueprint-title" style="display:flex; align-items:center; gap:10px;">'
-                + bpIcon('reports', 24) + ' Scouting Reports</h2>'
-                + '<p class="blueprint-subtitle">Your career intelligence control plane — manage reports, set blind mode defaults, and track engagement.</p>'
+                + '<h2 style="font-size:1.15em; font-weight:700; display:flex; align-items:center; gap:10px; margin:0 0 4px; color:var(--c-text, var(--text-primary));">'
+                + bpIcon('reports', 20) + ' Scouting Reports</h2>'
+                + '<p style="font-size:0.82em; color:var(--c-muted, var(--text-secondary)); margin:0; line-height:1.5;">Your career intelligence control plane — manage reports, set blind mode defaults, and track engagement.</p>'
                 + '</div>'
                 + '<button onclick="showScoutingReportPicker()" style="padding:10px 20px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; font-size:0.9em; white-space:nowrap;">'
                 + bpIcon('plus', 16) + ' New Report</button>'
