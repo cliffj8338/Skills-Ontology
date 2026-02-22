@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.27.3.1 | 20260221 | Fixed values crossover: clear+reinfer blueprintData on profile switch -->
+    <!-- v4.27.3.2 | 20260221 | Added 3 new chars to DEMO_COMP, removed Search Skills from network -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -153,9 +153,9 @@
                 <button onclick="clearJobOverlay()" title="Clear comparison">×</button>
             </div>
 
-            <!-- Search -->
+            <!-- Search (hidden — not needed on network view) -->
             <input type="text" id="skillSearch" class="filter-search" placeholder="Search skills..."
-                   onkeyup="filterSkillsView(this.value)">
+                   onkeyup="filterSkillsView(this.value)" style="display:none;">
 
             <!-- Filter toggle -->
             <button class="filter-toggle-btn" id="filterToggleBtn" onclick="toggleFilterPanel()">
@@ -890,8 +890,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.27.3.1 - BUILD 20260221-values-crossover-fix
-        var BP_VERSION = 'v4.27.3.1';
+        // BLUEPRINT v4.27.3.2 - BUILD 20260221-comp-search-fix
+        var BP_VERSION = 'v4.27.3.2';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -907,7 +907,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260221-values-crossover-fix              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260221-comp-search-fix                   ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -3884,7 +3884,10 @@
             'shiv-roy': 5200000,
             'roman-roy': 6800000,
             'tom-wambsgans': 3800000,
-            'logan-roy': 95000000
+            'logan-roy': 95000000,
+            'vecna': 12000000,
+            'tuco-salamanca': 425000,
+            'connor-roy': 1200000
         };
         
         // Get the effective compensation to display
