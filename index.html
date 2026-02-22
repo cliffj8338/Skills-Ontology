@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.32.0.0 | 20260222 | Auth lockdown, nav gating, banner fix, hint cleanup, About rebuild -->
+    <!-- v4.32.0.1 | 20260222 | Auth lockdown, nav gating, settings gate, title fix, banner fix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -892,8 +892,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.32.0.0 - BUILD 20260222-auth-lockdown
-        var BP_VERSION = 'v4.32.0.0';
+        // BLUEPRINT v4.32.0.1 - BUILD 20260222-title-nav-fix
+        var BP_VERSION = 'v4.32.0.1';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -8725,7 +8725,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (view === 'applications') { view = 'opportunities'; jobsSubTab = 'tracker'; }
             
             // Gate: block main views until user explicitly selects a profile or signs in
-            var profileViews = ['network', 'opportunities', 'blueprint'];
+            var profileViews = ['network', 'opportunities', 'blueprint', 'settings', 'consent'];
             if (!window._profileExplicitlySelected && profileViews.indexOf(view) !== -1) {
                 showToast('Choose a sample profile or sign in to explore Blueprint.', 'info');
                 view = 'welcome';
@@ -21423,7 +21423,7 @@ body {
                 }
             }
             if (chipName) chipName.textContent = name;
-            document.title = name + ' \u2014 Blueprint\u2122';
+            document.title = 'Blueprint\u2122';
         }
 
         // ===== FILTER PANEL TOGGLE =====
