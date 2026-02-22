@@ -1,216 +1,184 @@
-# Blueprint Project Context — v4.32.0.1
-## Prepared: February 22, 2026
+# Blueprint™ Scouting Report — Project Context
+**Last Updated:** Feb 22, 2026 · v4.32.0.5
+**Owner:** Cliff · VP Global Strategy & GM Customer Advisory, Phenom
 
 ---
 
-## What Blueprint Is
+## WHAT THIS IS
 
-Blueprint is a career intelligence platform that maps professional skills through interactive visualizations, matching them against the world's largest skill ontologies (O*NET, ESCO). It's a single-page app (one `index.html` file, ~22,400 lines) with an external `blueprint.css` and JSON profile/skill library files.
+Blueprint is a career intelligence platform with interactive D3.js skill visualizations, job matching, and market valuations. The **Scouting Report** is a standalone, shareable HTML artifact — a candidate intelligence briefing sent to recruiters with interactive networks, verified credentials, blind mode, and match analytics.
 
-**Creator:** Cliff Jurkiewicz — VP Global Strategy & GM Customer Advisory at Phenom  
-**Domain:** myblueprint.work (pending migration)  
-**Tagline:** "The Resume is Dead. Here is Your Blueprint.™"
+The main app is a single-page application (~22,500 lines in `index.html` + `blueprint.css`). The scouting report is a self-contained HTML file (`scouting-report.html`, ~866 lines) that renders entirely from a `REPORT_DATA` config object.
 
 ---
 
-## Architecture
+## FILES
 
-### Single File App
-- `index.html` — all JS/HTML inline (~22,400 lines)
-- `blueprint.css` — external stylesheet
-- `profiles/demo/*.json` — sample character profiles (Breaking Bad, Stranger Things, Succession, Game of Thrones)
-- `profiles-manifest.json` — profile registry
-- `skills/*.json` — skill library index files (O*NET + ESCO, 14,000+ skills)
-- `companies.json` — company values data for match scoring
+| File | Lines | Description |
+|------|-------|-------------|
+| `index.html` | ~22,581 | Main Blueprint app (Skills, Jobs, Pipeline, Blueprint Export, Settings tabs) |
+| `blueprint.css` | ~4,123 | Main app stylesheet |
+| `scouting-report.html` | ~866 | **Templated** scouting report — self-contained, config-driven |
 
-### Key Data Structures
+All three files deploy to the same directory (GitHub Pages, migrating to Vercel).
+
+---
+
+## CURRENT STATE — WHAT'S BUILT
+
+### Scouting Report (scouting-report.html)
+- ✅ **Data Contract** — Single `REPORT_DATA` JS config object at top of file drives everything
+- ✅ **Template Engine** — `initReport()` populates all HTML from config; `renderCredentials()`, `renderOutcomesHTML()`, `renderProfGrid()` handle dynamic sections
+- ✅ **D3 Skills Network** — Force-directed graph with candidate skills, role clusters, drag/hover/click/evidence popups
+- ✅ **D3 Match Network** — Job overlay showing matched (green), gap (red), surplus (gray) skills with dashed bridge links
+- ✅ **D3 Values Network** — Dual-hub (candidate ↔ company) with aligned/yours/theirs nodes and bridge links
+- ✅ **Network Mode Toggle** — "Job Match" vs "Candidate Skills" view switcher
+- ✅ **Light/Dark Theme** — Full CSS variable system, D3 re-renders with theme-aware node/link/text colors
+- ✅ **SVG Layer Ordering** — Links render BELOW nodes (explicit `layer-links` / `layer-nodes` groups)
+- ✅ **Opaque Role Fills** — Role cluster nodes use solid fills (#e2e8f0 light / #1e293b dark) instead of transparent
+- ✅ **Light Mode Contrast** — All text upgraded to #1e293b, white text-shadows, 20+ light-mode CSS overrides
+- ✅ **Blind Mode** — 5 toggles (identity, location, employer, institution, outcomes), candidate-controlled architecture
+- ✅ **Blind Outcomes** — Each outcome has a `blind` field in config with anonymized text
+- ✅ **Verified Badge System** — Green (verified), Blue (cert), Purple (edu) with inline SVG checkmarks
+- ✅ **Education & Certifications** — Two-column grid rendered from config arrays with linked skill tags
+- ✅ **Gap Analysis** — Bridge narratives with adjacent skill tags
+- ✅ **Competency Domains** — Bar chart showing skill distribution across clusters
+- ✅ **Compensation Teaser** — Locked section with candidate-controlled release messaging
+- ✅ **Comm Bar** — Shortlist buttons, Send a Note modal, Share link copy
+- ✅ **Mobile Responsive** — Collapsible overlays, hidden skill labels on mobile
+- ✅ **Section Nav** — Sticky nav with scroll-spy (IntersectionObserver)
+- ✅ **Match Ring** — SVG donut chart computed from config percentage
+- ✅ **Blind Tip Tooltip** — One-time explanatory tooltip for demo viewers
+
+### Main App (index.html) Scouting Report Integration
+- ✅ **4 CTA Entry Points** — Match Legend, Job Detail, Pipeline Cards, Blueprint Export tab
+- ✅ **`showScoutingReportPicker()`** — Ranked job list by match score
+- ✅ **`launchScoutingReport()`** — Shortcut alias
+- ✅ **Help Overlay** — "Scouting Reports" section with 4 entry points listed, "View Sample" button
+- ✅ **`openSampleScoutingReport()`** — Full-screen iframe overlay with DEMO badge, close on ✕/Escape/bg click
+- ✅ **Network Layer Fixes** — All 3 main app networks use explicit link-layer/node-layer groups
+- ✅ **Theme-Aware Networks** — Match + Values networks check `data-theme` for light mode fills/text
+
+### Data Contract Schema (REPORT_DATA)
 ```javascript
-userData = {
-    profile: { name, email, currentTitle, location, photo },
-    skills: [{ name, level, category, key, roles, role, evidence: [] }],
-    skillDetails: {},
-    values: [{ name, selected, custom? }],
-    purpose: '',
+REPORT_DATA = {
+    candidate: { name, photo, title, location, contact, purpose, blindTitle },
+    job: { title, company, date },
+    match: { percentage, narrative },
     roles: [{ id, name, color }],
-    workHistory: [],
-    savedJobs: [{ id, title, company, rawText, parsedRoles, seniority, tier, matchData, companyValues }],
-    applications: [],
-    templateId: ''
-}
-
-skillsData = {
-    skills: [], // mirrors userData.skills
-    roles: []   // role clusters
-}
-```
-
-### Job Match Data (`job.matchData`)
-Computed by `scoreJobMatch()`:
-```javascript
-matchData = {
-    score: 75,           // overall match %
-    matched: [{          // skills that matched
-        userSkill: 'Crisis Leadership',
-        jobSkill: 'crisis management',
-        profMatch: 0.95, // proficiency alignment 0-1
-        requirement: 'Required' | 'Preferred' | 'Nice-to-have'
-    }],
-    gaps: [{             // required skills user lacks
-        name: 'Python',
-        requirement: 'Required'
-    }],
-    surplus: [{          // user skills not in job
-        name: 'Alliance Building',
-        level: 'Expert'
-    }]
+    skills: [{ n, l, r, k, ev, vf, vfLabel }],
+    jobRequired: [string],
+    gaps: [{ n, rq, br, adj }],
+    values: { score, narrative, candidate: [{n,s}], company: [{n,t,s}] },
+    outcomes: [{ text, vf, vfLabel, blind }],
+    education: [{ name, desc, location, dates, vf, skills }],
+    certifications: [{ name, vf, vfLabel, desc, dates, status, skills }],
+    domains: [{ n, c, m, cl }],
+    proficiency: { Mastery, Expert, Advanced, Proficient, Novice }
 }
 ```
 
-### Company Values Data (`job.companyValues`)
-Computed by `getCompanyValues()` or tier-controlled for demo profiles:
-```javascript
-companyValues = {
-    primary: ['Courage', 'Resilience', ...],     // 2-5 values
-    secondary: ['Innovation', ...],               // 2-4 values
-    tensions: [],
-    story: '',
-    inferred: true | false
-}
-```
+---
 
-### Values System
-- `VALUES_CATALOG` — 25 canonical values across categories
-- User selects 5-7 values (can include custom non-catalog values)
-- Values alignment % = overlap between user values and company values
-- Custom values display but don't affect alignment math
+## REMAINING TO-DOs — NEXT SESSION
 
-### Compensation Data
-- `DEMO_COMP` — curated compensation for demo profiles
-- `getEffectiveComp()` — returns market rate, conservative, competitive ranges
-- BLS benchmark data for salary ranges by occupation
+### 1. Sample Profile Data (Breaking Bad, Stranger Things, Succession)
+Create `REPORT_DATA` configs for TV character profiles. Each needs:
+- Candidate bio + photo emoji + purpose quote
+- Target job that maps to the character's arc
+- 15-25 skills with levels, evidence, role cluster assignments, verification badges
+- 5-8 job-required skills with match logic
+- 2-3 gap skills with bridge narratives
+- 5-7 candidate values + 5-7 company values with alignment mapping
+- 3-5 outcomes with blind-mode abstractions
+- 2-3 education entries + 2-4 certifications
+- Competency domain distribution
+- Proficiency level counts
+
+**Suggested Character × Job Pairings:**
+- **Breaking Bad:** Walter White → Chief Science Officer, pharmaceutical company (or similar)
+- **Stranger Things:** Jim Hopper → Director of National Security / Crisis Response
+- **Succession:** Kendall Roy → CEO, media conglomerate
+
+Each profile = a separate copy of `scouting-report.html` with different `REPORT_DATA`, OR a profile switcher in a single file. Decide approach.
+
+### 2. Candidate Analytics Dashboard (New Tab in Main App)
+Build as a new view inside Blueprint (alongside Skills, Jobs, Blueprint, Settings tabs).
+
+**Core Sections:**
+- **My Reports** — List of generated scouting reports with job title, company, match score, date, view count, status (draft/shared/expired)
+- **Blind Mode Defaults** — Global 5-toggle panel, overridable per report
+- **Sharing Controls** — Generate shareable link, set expiration, require email capture, toggle "Request Full Profile"
+- **Analytics Dashboard** — All four metrics the user selected:
+  - View count + unique viewers (line chart over time)
+  - Shortlist / note actions taken by recruiters (count badges)
+  - Time-on-page + section heatmap (bar chart showing which sections get attention)
+  - Share link management (create, expire, revoke with status table)
+- **Credential Vault** — Manage education & certifications, upload verification docs
+- **Profile Completeness** — % indicator for outcomes, values, purpose, credentials
+
+**Implementation Notes:**
+- Add "Reports" or "Scouting" tab to main nav in index.html
+- Dashboard content goes in a new `<div id="reportsView">` section
+- Mock data for analytics (no real backend yet)
+- Consistent with existing UI patterns (cards, grids, CSS variables)
+- Theme-aware (respects data-theme light/dark)
+
+### 3. Generator Bridge (Future — connects main app to scouting report)
+- `generateScoutingReport(jobIdx)` in index.html already computes match data
+- Needs to serialize into REPORT_DATA format and either:
+  - Open scouting-report.html with config injected via URL params/postMessage
+  - Generate a standalone HTML file with embedded config
+  - Store in localStorage and load on the report page
+- This is the bridge between "click Create Scouting Report" and "see the finished artifact"
+- **Not blocking the profile data or dashboard work**
 
 ---
 
-## Current Sample Profiles (4 Shows, 22 Characters)
+## ARCHITECTURE DECISIONS (LOCKED)
 
-### Breaking Bad (6): Walter White, Gus Fring, Hank Schrader, Jesse Pinkman, Saul Goodman, Tuco Salamanca
-### Stranger Things (6): Jim Hopper, Eleven, Steve Harrington, Dustin Henderson, Joyce Byers, Nancy Wheeler
-### Succession (4): Logan Roy, Kendall Roy, Siobhan Roy, Roman Roy
-### Game of Thrones (6): Tyrion Lannister, Cersei Lannister, Daenerys Targaryen, Jon Snow, Petyr Baelish, Tywin Lannister
-
-Each profile has:
-- Skills (17-37 per character) with proficiency levels and role assignments
-- Work history entries
-- 6-7 values (5 catalog + 1-2 fun custom like "Chaos is a Ladder")
-- 3 curated jobs per character targeting ~85% / ~65% / ~40% skill match
-- Curated compensation (DEMO_COMP)
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Blind mode access | Candidate controls from dashboard, recruiter sees output only | Candidate sovereignty / DEI positioning |
+| Scouting report hosting | Self-contained HTML, no backend | Portable, shareable, works offline |
+| Dashboard location | New tab inside Blueprint | Unified UX, no context-switching |
+| Theme system | CSS variables + `html.light` class (SR) / `data-theme="light"` (main app) | Different files, same visual result |
+| SVG rendering | Explicit layer groups (links below nodes) | Prevents line-through-circle bleed |
+| Network fills | Opaque (#e2e8f0 / #1e293b) not transparent | Clean layering in both themes |
 
 ---
 
-## Current Scouting Report (PDF via jsPDF)
+## PRODUCT POSITIONING
 
-### What Exists
-The scouting report is generated as a **PDF** via `generateScoutingReport(jobIdx)` → `generatePDF(sharedData, job)`. When a target job is provided, the PDF enters "scouting report mode" (`isScoutingReport = true`) which adds job-specific pages:
+The scouting report is Blueprint's **premium artifact** — the thing candidates share with recruiters instead of a resume. It's positioned as:
+- **Career intelligence briefing** (not an application)
+- **Candidate-controlled** (blind mode, compensation gate, sharing controls)
+- **Interactive** (D3 networks, not static PDFs)
+- **Verifiable** (badge system linked to credentials)
+- **Bias-reducing** (blind mode as DEI tool)
 
-**Cover Page (scouting mode):**
-- "PREPARED FOR: [Job Title]" + company
-- Match Score %, Total Skills, Skills Aligned, Gaps (4 stat boxes)
-- Purpose statement, market positioning
-
-**Match Analysis Page:**
-- Score summary narrative (strong matches, partial matches, required gaps)
-- Skill Alignment Table — sorted by proficiency match, color-coded ✓/~/↑
-- Gap Analysis table with requirement levels
-- Surplus Skills (top 20, multi-column layout)
-
-**Strategic Assessment Section:**
-- Key Strengths (top 3 strong matches)
-- Development Areas (gap narrative)
-- Recommendation (advance to interview with focus areas)
-
-**Standard Pages (always included):**
-- Skills by Domain (grouped by role cluster)
-- Skills Evidence (evidence items per skill)
-- Outcomes
-- Values & Purpose
-- Compensation Framework
-
-### What's Missing / Needs Work
-- No HTML interactive version (only static PDF)
-- No personalization for recruiter vs. hiring manager audience
-- No values alignment visualization
-- No work history / career timeline integration
-- No "bridge the gap" narrative connecting user skills to job requirements
-- Limited storytelling — mostly data tables
+The dashboard is the **control plane** — where candidates manage their reports, set defaults, and see who's engaging with their profile.
 
 ---
 
-## Auth & Access Model
+## QUICK REFERENCE
 
-- **Demo visitors** — see Welcome page, can explore Samples, nav-gated from Skills/Jobs/Blueprint until they select a profile
-- **Waitlisted users** — can browse samples, see waitlist position
-- **Signed-in users** — full access, Firestore persistence
-- **Admin** — Cliff's account, full access + admin panel
-- **Account creation disabled** — `showAuthModal('signup')` redirects to waitlist
-- **Sign In** — Google auth, email/password, magic link (existing accounts only)
+**To create a new profile:** Duplicate `scouting-report.html`, replace the `REPORT_DATA` object. Everything else renders automatically.
 
----
+**Key functions in scouting-report.html:**
+- `initReport()` — Populates all static HTML from config
+- `initYouNet()` — Renders candidate skills network
+- `initSN()` — Renders job match network
+- `initVN()` — Renders values alignment network
+- `renderCredentials()` — Builds education + cert HTML
+- `renderOutcomesHTML()` — Builds outcomes with badges
+- `renderSk()` — Builds skill alignment detail list
+- `renderGaps()` — Builds gap analysis cards
+- `renderDom()` — Builds competency domain bars
+- `applyBlind()` — Applies/removes blind mode across all sections
+- `toggleTheme()` — Switches light/dark and re-renders networks
 
-## Recent Changes (This Session — v4.27.3.3 → v4.32.0.1)
-
-1. **Game of Thrones profiles** — 6 characters with skills, work history, values, curated jobs
-2. **Duplicate skills bug fix** — `renderSkillsManagementTab()` and `initCardView()` normalized `s.roles || s.role` handling
-3. **Succession brand color** — changed from gold to lime green `#b5cc4b`
-4. **Welcome hero copy** — "The Resume is Dead. Here is Your Blueprint.™"
-5. **About modal rewrite** — counter-intelligence suite framing, agency-focused feature cards
-6. **Help modal** — network controls (drag/hover/click/domain/match overlay) added
-7. **Nav gating** — Skills/Jobs/Blueprint blocked until user selects a profile or signs in
-8. **Banner persistence** — readonly banner now shows/hides correctly across all views
-9. **Banner spacing fix** — forced `display:block` to prevent flex whitespace collapse
-10. **Auth lockdown** — signup redirects to waitlist, sign-in modal simplified
-11. **"Imagine your skills" nudge** — removed
-12. **Network hint overlay** — removed (consolidated into Help modal)
-13. **Job match calibration** — 18 GoT jobs keyword-calibrated for ~85%/~65%/~40% targets
-14. **Values expansion** — all 6 GoT characters now have 6-7 values with custom flavor values
-
----
-
-## File Locations
-
-```
-/mnt/user-data/outputs/
-├── index.html                          # Main app (v4.32.0.1)
-├── profiles/
-│   ├── demo/
-│   │   ├── walter-white.json
-│   │   ├── gus-fring.json
-│   │   ├── hank-schrader.json
-│   │   ├── jesse-pinkman.json
-│   │   ├── saul-goodman.json
-│   │   ├── tuco-salamanca.json
-│   │   ├── jim-hopper.json
-│   │   ├── eleven.json
-│   │   ├── steve-harrington.json
-│   │   ├── dustin-henderson.json
-│   │   ├── joyce-byers.json
-│   │   ├── nancy-wheeler.json
-│   │   ├── logan-roy.json
-│   │   ├── kendall-roy.json
-│   │   ├── siobhan-roy.json
-│   │   ├── roman-roy.json
-│   │   ├── tyrion-lannister.json
-│   │   ├── cersei-lannister.json
-│   │   ├── daenerys-targaryen.json
-│   │   ├── jon-snow.json
-│   │   ├── petyr-baelish.json
-│   │   └── tywin-lannister.json
-│   └── profiles-manifest.json
-```
-
----
-
-## Version Convention
-- Format: `v4.XX.Y.Z` (major.feature.patch.hotfix)
-- **Three references must stay in sync:** HTML comment (line 7), build string (~line 895), `BP_VERSION` variable (~line 896)
-- Always grep all references before delivery: `grep -n "BP_VERSION\|v4\.\|BUILD " index.html`
-- Build string format: `YYYYMMDD-brief-description`
+**Key functions in index.html (scouting report related):**
+- `showScoutingReportPicker()` — Job selection modal for report generation
+- `launchScoutingReport()` — Alias shortcut
+- `openSampleScoutingReport()` — Iframe overlay for sample report preview
