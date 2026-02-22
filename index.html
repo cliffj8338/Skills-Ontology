@@ -8868,14 +8868,15 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // ── Build dashboard HTML ────────────────────────────
             var html = '';
+            html += '<div class="blueprint-container">';
             
             // Header
-            html += '<div style="padding:28px 0 20px;">'
+            html += '<div class="blueprint-header">'
                 + '<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">'
                 + '<div>'
-                + '<h2 style="font-size:1.5em; font-weight:800; margin-bottom:4px; display:flex; align-items:center; gap:10px;">'
+                + '<h2 class="blueprint-title" style="display:flex; align-items:center; gap:10px;">'
                 + bpIcon('reports', 24) + ' Scouting Reports</h2>'
-                + '<p style="font-size:0.88em; color:var(--text-secondary); line-height:1.5;">Your career intelligence control plane — manage reports, set blind mode defaults, and track engagement.</p>'
+                + '<p class="blueprint-subtitle">Your career intelligence control plane — manage reports, set blind mode defaults, and track engagement.</p>'
                 + '</div>'
                 + '<button onclick="showScoutingReportPicker()" style="padding:10px 20px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; font-size:0.9em; white-space:nowrap;">'
                 + bpIcon('plus', 16) + ' New Report</button>'
@@ -9038,6 +9039,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     + '<div style="font-size:0.72em; color:' + col + '; min-width:28px; text-align:right;">' + (s.pct === 100 ? '✓' : '—') + '</div></div>';
             });
             html += '</div></div></div>';
+            
+            html += '</div>'; // close blueprint-container
             
             el.innerHTML = html;
         }
