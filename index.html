@@ -2618,6 +2618,7 @@
                     banner = document.createElement('div');
                     banner.id = 'readonlyBanner';
                     banner.className = 'readonly-banner';
+                    banner.style.cssText = 'display:block !important; text-align:center; padding:10px 16px; font-size:0.88em; word-spacing:normal; white-space:normal;';
                     var header = document.querySelector('.header');
                     if (header) header.parentNode.insertBefore(banner, header.nextSibling);
                 }
@@ -2642,7 +2643,7 @@
                 }
                 
                 banner.innerHTML = bannerHTML;
-                banner.style.display = 'block';
+                banner.style.cssText = 'display:block !important; text-align:center; padding:10px 16px; font-size:0.88em; word-spacing:normal; white-space:normal;';
             } else {
                 // Viewing own profile — no banner
                 if (banner) banner.style.display = 'none';
@@ -7323,49 +7324,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             }
         }
 
-        // ===== NETWORK INTERACTION HINT =====
-        function showNetworkHint() {
-            // Don't show if already dismissed or if overlay already exists
-            if (safeGet('networkHintDismissed') === 'true') return;
-            if (document.getElementById('networkHintOverlay')) return;
-
-            var hint = document.createElement('div');
-            hint.id = 'networkHintOverlay';
-            hint.style.cssText = 'position:fixed; bottom:20px; left:50%; transform:translateX(-50%); '
-                + 'max-width:420px; width:calc(100% - 32px); z-index:200; '
-                + 'background:rgba(15,23,42,0.92); backdrop-filter:blur(12px); '
-                + 'border:1px solid rgba(96,165,250,0.3); border-radius:12px; '
-                + 'padding:16px 18px; box-shadow:0 8px 32px rgba(0,0,0,0.4);';
-
-            hint.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
-                + '<div style="color:#60a5fa; font-weight:700; font-size:0.82em; text-transform:uppercase; letter-spacing:0.05em;">' + bpIcon('compass',14) + ' Your Skill Network</div>'
-                + '<button onclick="dismissNetworkHint()" style="background:none; border:none; color:#6b7280; cursor:pointer; font-size:1.2em; padding:0 2px;" title="Dismiss">&times;</button>'
-                + '</div>'
-                + '<div style="display:grid; gap:5px; font-size:0.82em; color:#cbd5e1; line-height:1.5;">'
-                + '<div><strong style="color:#f59e0b;">Drag</strong> any node to rearrange your ontology layout</div>'
-                + '<div><strong style="color:#f59e0b;">Hover</strong> a skill to highlight its domain connections</div>'
-                + '<div><strong style="color:#f59e0b;">Click a skill</strong> to open its detail card with evidence</div>'
-                + '<div><strong style="color:#f59e0b;">Click a domain</strong> (large node) to filter by role cluster</div>'
-                + '</div>'
-                + '<div style="margin-top:10px; text-align:right;">'
-                + '<button onclick="dismissNetworkHint()" style="background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.3); color:#60a5fa; padding:5px 14px; border-radius:6px; cursor:pointer; font-size:0.78em; font-weight:600;">Got it</button>'
-                + '</div>';
-
-            document.body.appendChild(hint);
-        }
-
-        function dismissNetworkHint() {
-            var hint = document.getElementById('networkHintOverlay');
-            if (hint) {
-                hint.style.transition = 'opacity 0.3s, transform 0.3s';
-                hint.style.opacity = '0';
-                hint.style.transform = 'translateX(-50%) translateY(10px)';
-                setTimeout(function() { hint.remove(); }, 300);
-            }
-            safeSet('networkHintDismissed', 'true');
-        }
-        window.dismissNetworkHint = dismissNetworkHint;
-
         // ===== NETWORK OVERLAY ENGINE (Phase 2) =====
         
         function activateJobOverlay(idx) {
@@ -8836,9 +8794,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (adminV) adminV.style.display = 'none';
             networkControls.style.display = 'none';
             controls.style.display = 'none';
-            // Remove floating network hint if leaving Skills view
-            var netHint = document.getElementById('networkHintOverlay');
-            if (netHint && view !== 'network') netHint.remove();
             
             // Toggle readonly banner: hide on non-profile views, show on profile views when viewing a sample
             var roBanner = document.getElementById('readonlyBanner');
@@ -8846,7 +8801,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 if (view === 'welcome' || view === 'consent' || view === 'admin') {
                     roBanner.style.display = 'none';
                 } else if (isReadOnlyProfile) {
-                    roBanner.style.display = 'block';
+                    roBanner.style.cssText = 'display:block !important; text-align:center; padding:10px 16px; font-size:0.88em; word-spacing:normal; white-space:normal;';
                 }
             }
             
@@ -8889,8 +8844,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         initNetwork();
                         window.networkInitialized = true;
                     }
-                    // Show interaction hint on first visit
-                    showNetworkHint();
                     // Restore match overlay UI if a job is active
                     if (activeJobForNetwork) {
                         updateMatchOverlayUI();
@@ -8980,8 +8933,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     initNetwork();
                     window.networkInitialized = true;
                 }
-                // Show interaction hint on first visit
-                showNetworkHint();
                 // Hide filter button/panel in network view (filtering via node clicks)
                 var filterBtn = document.getElementById('filterToggleBtn');
                 var filterPnl = document.getElementById('filterPanel');
