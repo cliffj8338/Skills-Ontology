@@ -21582,17 +21582,18 @@ body {
             // --- CSS Injection ---
             var tourStyle = document.createElement('style');
             tourStyle.textContent = ''
-                // Overlay with hole
+                // Overlay backdrop — always dark
                 + '.tour-overlay {'
                 + '  position: fixed; inset: 0; z-index: 99998;'
+                + '  background: rgba(0,0,0,0.6);'
                 + '  pointer-events: auto; transition: opacity 0.25s;'
                 + '}'
                 + '.tour-overlay.fade-in { opacity: 1; }'
                 + '.tour-overlay.fade-out { opacity: 0; }'
-                // Spotlight cutout (uses box-shadow to create dark surround)
+                // Spotlight cutout — positioned over the target, punches a hole via overlay clip-path
                 + '.tour-spotlight {'
                 + '  position: fixed; z-index: 99998; border-radius: 10px;'
-                + '  box-shadow: 0 0 0 9999px rgba(0,0,0,0.55);'
+                + '  box-shadow: 0 0 0 4px rgba(245,158,11,0.35);'
                 + '  pointer-events: none; transition: all 0.35s cubic-bezier(0.4,0,0.2,1);'
                 + '}'
                 // Tooltip
@@ -21707,7 +21708,7 @@ body {
 
             function endTour(skipFlag) {
                 tourActive = false;
-                if (tourOverlay) { tourOverlay.remove(); tourOverlay = null; }
+                if (tourOverlay) { tourOverlay.style.clipPath = ''; tourOverlay.remove(); tourOverlay = null; }
                 if (tourTooltip) { tourTooltip.remove(); tourTooltip = null; }
                 var spotlight = document.querySelector('.tour-spotlight');
                 if (spotlight) spotlight.remove();
@@ -21743,8 +21744,10 @@ body {
                 var step = tourSteps[idx];
 
                 // beforeShow callback (e.g., navigate to a different tab)
-                if (step.beforeShow) {
-                    step.beforeShow();
+                try {
+                    if (step.beforeShow) step.beforeShow();
+                } catch(err) {
+                    console.warn('Tour beforeShow error at step ' + idx + ':', err);
                 }
 
                 // Delay to allow DOM to settle after navigation
@@ -21755,55 +21758,104 @@ body {
             function renderStep(step, idx) {
                 if (!tourActive) return;
 
-                var target = step.target ? document.querySelector(step.target) : null;
-                
-                // If target specified but not found, try once more after a short delay
-                if (step.target && !target) {
-                    setTimeout(function() {
-                        target = document.querySelector(step.target);
-                        positionStep(step, idx, target);
-                    }, 300);
-                    return;
+                try {
+                    var target = step.target ? document.querySelector(step.target) : null;
+                    
+                    // If target specified but not found, try once more after a short delay
+                    if (step.target && !target) {
+                        setTimeout(function() {
+                            if (!tourActive) return;
+                            target = document.querySelector(step.target);
+                            positionStep(step, idx, target);
+                        }, 500);
+                        return;
+                    }
+                    
+                    positionStep(step, idx, target);
+                } catch(err) {
+                    console.warn('Tour renderStep error at step ' + idx + ':', err);
+                    positionStep(step, idx, null); // fallback to centered
                 }
-                
-                positionStep(step, idx, target);
             }
 
             function positionStep(step, idx, target) {
                 if (!tourActive || !tourTooltip) return;
                 
-                // --- Spotlight ---
-                var existingSpot = document.querySelector('.tour-spotlight');
-                if (existingSpot) existingSpot.remove();
+                try {
+                    // --- Clean up previous spotlight ---
+                    var existingSpot = document.querySelector('.tour-spotlight');
+                    if (existingSpot) existingSpot.remove();
 
-                if (target) {
-                    var rect = target.getBoundingClientRect();
-                    var pad = step.spotlightPad || 8;
-                    var spot = document.createElement('div');
-                    spot.className = 'tour-spotlight';
-                    spot.style.top = (rect.top - pad) + 'px';
-                    spot.style.left = (rect.left - pad) + 'px';
-                    spot.style.width = (rect.width + pad * 2) + 'px';
-                    spot.style.height = (rect.height + pad * 2) + 'px';
-                    if (step.spotlightRadius) spot.style.borderRadius = step.spotlightRadius;
-                    document.body.appendChild(spot);
+                    if (target) {
+                        var rect = target.getBoundingClientRect();
+                        var pad = step.spotlightPad || 8;
+                        var br = step.spotlightRadius || '10px';
+                        
+                        // Clamp spotlight to reasonable size (max 80% of viewport)
+                        // For huge elements (SVG, full-page containers), skip the cutout
+                        var maxW = window.innerWidth * 0.8;
+                        var maxH = window.innerHeight * 0.7;
+                        var tooBig = (rect.width > maxW && rect.height > maxH);
+                        
+                        if (!tooBig && rect.width > 0 && rect.height > 0) {
+                            // Create spotlight ring around target
+                            var spot = document.createElement('div');
+                            spot.className = 'tour-spotlight';
+                            spot.style.top = (rect.top - pad) + 'px';
+                            spot.style.left = (rect.left - pad) + 'px';
+                            spot.style.width = (rect.width + pad * 2) + 'px';
+                            spot.style.height = (rect.height + pad * 2) + 'px';
+                            spot.style.borderRadius = br;
+                            document.body.appendChild(spot);
+                            
+                            // Punch a hole in the overlay via clip-path (polygon with inner cutout)
+                            var sx = rect.left - pad;
+                            var sy = rect.top - pad;
+                            var sw = rect.width + pad * 2;
+                            var sh = rect.height + pad * 2;
+                            var clipPath = 'polygon('
+                                + '0% 0%, 0% 100%, '
+                                + sx + 'px 100%, ' + sx + 'px ' + sy + 'px, '
+                                + (sx + sw) + 'px ' + sy + 'px, ' + (sx + sw) + 'px ' + (sy + sh) + 'px, '
+                                + sx + 'px ' + (sy + sh) + 'px, ' + sx + 'px 100%, '
+                                + '100% 100%, 100% 0%)';
+                            tourOverlay.style.clipPath = clipPath;
+                            tourOverlay.style.webkitClipPath = clipPath;
+                        } else {
+                            // Target is too big or zero-sized — just show dark overlay, no cutout
+                            tourOverlay.style.clipPath = '';
+                            tourOverlay.style.webkitClipPath = '';
+                        }
 
-                    // Scroll target into view if needed
-                    if (rect.top < 0 || rect.bottom > window.innerHeight) {
-                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        // Re-position after scroll
-                        setTimeout(function() {
-                            var r2 = target.getBoundingClientRect();
-                            spot.style.top = (r2.top - pad) + 'px';
-                            spot.style.left = (r2.left - pad) + 'px';
-                            positionTooltip(step, idx, r2);
-                        }, 350);
-                        return;
+                        // Scroll target into view if needed (only for reasonably-sized elements)
+                        if (!tooBig && (rect.top < 0 || rect.bottom > window.innerHeight)) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            setTimeout(function() {
+                                if (!tourActive) return;
+                                // Re-run positioning after scroll
+                                positionStep(step, idx, target);
+                            }, 400);
+                            return;
+                        }
+
+                        // Position tooltip relative to target
+                        // For large targets, position tooltip at top-center of viewport instead
+                        if (tooBig) {
+                            positionTooltip(step, idx, null);
+                        } else {
+                            positionTooltip(step, idx, rect);
+                        }
+                    } else {
+                        // No target — full dark overlay, centered tooltip
+                        tourOverlay.style.clipPath = '';
+                        tourOverlay.style.webkitClipPath = '';
+                        positionTooltip(step, idx, null);
                     }
-
-                    positionTooltip(step, idx, rect);
-                } else {
-                    // No target — center the tooltip (modal style)
+                } catch(err) {
+                    console.warn('Tour positioning error:', err);
+                    // Fallback: show tooltip centered
+                    tourOverlay.style.clipPath = '';
+                    tourOverlay.style.webkitClipPath = '';
                     positionTooltip(step, idx, null);
                 }
             }
@@ -21837,7 +21889,13 @@ body {
                         : '<button class="tour-btn tour-btn-primary" onclick="window._bpTour.next()">Next \u2192</button>')
                     + '</div>';
 
-                // Position tooltip relative to target
+                // Reset all positioning
+                tourTooltip.style.top = '';
+                tourTooltip.style.bottom = '';
+                tourTooltip.style.left = '';
+                tourTooltip.style.right = '';
+                tourTooltip.style.transform = '';
+                tourTooltip.style.width = '';
                 tourTooltip.className = 'tour-tooltip fade-in';
                 
                 if (!targetRect) {
@@ -21849,11 +21907,8 @@ body {
                     return;
                 }
 
-                // Reset transform
-                tourTooltip.style.transform = '';
-
                 // Decide placement: prefer below, use above if not enough space
-                var ttHeight = 220; // estimated
+                var ttHeight = 220;
                 var spaceBelow = window.innerHeight - targetRect.bottom;
                 var spaceAbove = targetRect.top;
                 var placement = (spaceBelow >= ttHeight + 20 || spaceBelow > spaceAbove) ? 'below' : 'above';
@@ -21868,11 +21923,9 @@ body {
 
                 if (placement === 'below') {
                     tourTooltip.style.top = (targetRect.bottom + 16) + 'px';
-                    tourTooltip.style.bottom = '';
                     tourTooltip.classList.add('arrow-top');
                 } else {
-                    tourTooltip.style.top = '';
-                    tourTooltip.style.bottom = (window.innerHeight - targetRect.top + 16) + 'px';
+                    tourTooltip.style.top = Math.max(12, targetRect.top - ttHeight - 16) + 'px';
                     tourTooltip.classList.add('arrow-bottom');
                 }
             }
@@ -21949,24 +22002,22 @@ body {
                         badge: 'Getting Started',
                         target: null
                     },
-                    // 2. Network visualization
+                    // 2. Network visualization — spotlight the toolbar, network visible behind overlay
                     {
                         title: 'Your Skill Network',
-                        desc: 'Each node is a professional skill. <strong>Size</strong> = proficiency level. <strong>Color</strong> = role assignment. Skills cluster around the roles they belong to.',
+                        desc: 'This is your skill map. Each node is a skill \u2014 <strong>size</strong> = proficiency level, <strong>color</strong> = role assignment. Skills cluster around the roles they belong to.',
                         badge: 'Skills',
-                        target: '#networkView',
-                        spotlightPad: 2,
-                        spotlightRadius: '8px',
-                        beforeShow: function() { switchView('skills'); }
+                        target: '#controlsBar',
+                        spotlightPad: 6,
+                        beforeShow: function() { switchView('skills'); },
+                        delay: 600
                     },
-                    // 3. Node interaction
+                    // 3. Node interaction — no spotlight, centered tip over network
                     {
                         title: 'Tap Any Skill',
-                        desc: 'Tap or click a node to see its details \u2014 proficiency level, evidence, and which role it belongs to. Drag nodes to rearrange your map.',
+                        desc: 'Tap or click any node to see its details \u2014 proficiency level, evidence, and role assignment. Drag nodes to rearrange the layout.',
                         badge: 'Skills',
-                        target: '#networkView',
-                        spotlightPad: 2,
-                        spotlightRadius: '8px'
+                        target: null
                     },
                     // 4. View toggle (Network / Card)
                     {
@@ -21985,13 +22036,12 @@ body {
                         spotlightPad: 4,
                         beforeShow: function() { switchView('jobs'); }
                     },
-                    // 6. Pipeline explanation
+                    // 6. Pipeline explanation — centered over view
                     {
                         title: 'Your Job Pipeline',
-                        desc: 'Each job shows a <strong>match percentage</strong> based on skill overlap, plus salary estimates from BLS data. Tap any job to see the full breakdown \u2014 matched skills, gaps, and what you\u2019d need to close them.',
+                        desc: 'Each job shows a <strong>match percentage</strong> based on skill overlap, plus salary estimates from BLS data. Tap any job to see matched skills, gaps, and what you\u2019d need to close them.',
                         badge: 'Jobs',
-                        target: '#opportunitiesView',
-                        spotlightPad: 4,
+                        target: null,
                         delay: 500
                     },
                     // 7. Navigate to Blueprint
@@ -22003,16 +22053,15 @@ body {
                         spotlightPad: 4,
                         beforeShow: function() { switchView('blueprint'); }
                     },
-                    // 8. Blueprint dashboard
+                    // 8. Blueprint dashboard — centered, content visible behind
                     {
                         title: 'The Dashboard',
                         desc: 'At a glance: your market value, skill distribution, readiness score, and purpose statement. This is the executive summary of your career.',
                         badge: 'Blueprint',
-                        target: '#blueprintTabContent',
-                        spotlightPad: 4,
+                        target: null,
                         delay: 500
                     },
-                    // 9. Blueprint sub-tabs
+                    // 9. Blueprint sub-tabs — spotlight the nav
                     {
                         title: 'Deep Dive Tabs',
                         desc: '<strong>Skills</strong> for detailed management \u00B7 <strong>Experience</strong> for work history \u00B7 <strong>Outcomes</strong> for auto-extracted achievements \u00B7 <strong>Values</strong> for alignment \u00B7 <strong>Export</strong> for PDF, HTML, and more.',
@@ -22030,13 +22079,12 @@ body {
                         beforeShow: function() { viewSampleProfile(); },
                         delay: 600
                     },
-                    // 11. Character cards
+                    // 11. Character cards — centered
                     {
                         title: 'Pick a Character',
                         desc: 'Each card shows the character\u2019s title, skill count, and description. Tap <strong>View</strong> to load their full Blueprint \u2014 skills, jobs, values, and all.',
                         badge: 'Samples',
-                        target: '#showCollectionContent',
-                        spotlightPad: 4
+                        target: null
                     },
                     // 12. Overlay modes (power feature)
                     {
@@ -22066,13 +22114,13 @@ body {
                     {
                         title: 'Your Skill Network',
                         desc: 'Each node is a skill. <strong>Size</strong> = proficiency. <strong>Color</strong> = role. Skills cluster around their assigned roles.',
-                        badge: 'Skills', target: '#networkView', spotlightPad: 2, spotlightRadius: '8px',
-                        beforeShow: function() { switchView('skills'); }
+                        badge: 'Skills', target: '#controlsBar', spotlightPad: 6,
+                        beforeShow: function() { switchView('skills'); }, delay: 600
                     },
                     {
                         title: 'Interact With Skills',
                         desc: 'Tap a node for details \u2014 proficiency, evidence, role assignment. Drag nodes to rearrange. The layout is physics-based and remembers your changes.',
-                        badge: 'Skills', target: '#networkView', spotlightPad: 2, spotlightRadius: '8px'
+                        badge: 'Skills', target: null
                     },
                     {
                         title: 'Network vs. Card View',
@@ -22092,18 +22140,18 @@ body {
                     {
                         title: 'Job Pipeline',
                         desc: 'All your saved jobs with match scores, salary estimates, and skill gap analysis. Tap any job to expand the full breakdown.',
-                        badge: 'Jobs', target: '#opportunitiesView', spotlightPad: 4,
+                        badge: 'Jobs', target: null,
                         beforeShow: function() { switchView('jobs'); }, delay: 500
                     },
                     {
                         title: 'Match Scores',
                         desc: 'Each job\u2019s match percentage reflects how many of its required skills overlap with yours. Green = strong match, gaps show what to develop.',
-                        badge: 'Jobs', target: '#opportunitiesView', spotlightPad: 4
+                        badge: 'Jobs', target: null
                     },
                     {
                         title: 'Job Tabs',
                         desc: '<strong>Pipeline</strong> for saved jobs \u00B7 <strong>Tracker</strong> for application status \u00B7 <strong>Find Jobs</strong> to add new opportunities.',
-                        badge: 'Jobs', target: '#opportunitiesView', spotlightPad: 4
+                        badge: 'Jobs', target: null
                     }
                 ];
             }
@@ -22135,18 +22183,18 @@ body {
                     {
                         title: 'Sample Profiles',
                         desc: '18 characters across Breaking Bad, Stranger Things, and Succession \u2014 each with skills, values, work history, and job matches.',
-                        badge: 'Samples', target: '#showCollectionContent', spotlightPad: 4,
+                        badge: 'Samples', target: null,
                         beforeShow: function() { viewSampleProfile(); }, delay: 600
                     },
                     {
                         title: 'Switch Shows',
                         desc: 'Tap the show tabs to browse different collections. Each show has its own accent color and six characters.',
-                        badge: 'Samples', target: '#welcomeView', spotlightPad: 4
+                        badge: 'Samples', target: null
                     },
                     {
                         title: 'Load a Profile',
                         desc: 'Tap <strong>View</strong> on any character card to load their complete Blueprint. Their skills, jobs, values, and compensation all populate instantly.',
-                        badge: 'Samples', target: '#showCollectionContent', spotlightPad: 4
+                        badge: 'Samples', target: null
                     }
                 ];
             }
