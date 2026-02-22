@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.28.0.0 | 20260221 | Labels always-on, illicit comp adjustments, profile ID banner state matrix -->
+    <!-- v4.28.1.0 | 20260221 | Guided tour system + quick fixes (labels, comp, banner) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -120,6 +120,7 @@
                 <button onclick="closeOverflowMenu(); showOnboardingWizard();" style="color: var(--accent); font-weight: 600;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="wand"></span> Build My Blueprint</button>
                 <div style="height:1px; background:var(--border); margin:4px 0;"></div>
                 <button onclick="showHelp(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="help"></span> Help</button>
+                <button onclick="if(window._bpTour) window._bpTour.startWelcome(); closeOverflowMenu();" class="overflow-icon-btn"><span style="margin-right:2px;">🎓</span> Take a Tour</button>
                 <button onclick="showAbout(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="about"></span> About</button>
                 <div style="height:1px; background:var(--border); margin:4px 0;"></div>
                 <button id="overflowSignIn" onclick="showAuthModal('signin'); closeOverflowMenu();" style="color: var(--accent);" class="overflow-icon-btn"><span class="overflow-icon" data-icon="sign-in"></span> Sign In</button>
@@ -890,8 +891,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.28.0.0 - BUILD 20260221-quick-fixes
-        var BP_VERSION = 'v4.28.0.0';
+        // BLUEPRINT v4.28.1.0 - BUILD 20260221-guided-tour
+        var BP_VERSION = 'v4.28.1.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -21561,6 +21562,651 @@ body {
             switchView(view);
             _skipHistoryPush = false;
         });
+        // ===== GUIDED TOUR SYSTEM =====
+        // Lightweight custom tour engine — spotlight + tooltip + step sequencer
+        // Supports beforeShow callbacks for navigating to different views before highlighting
+
+        (function() {
+            'use strict';
+
+            // --- Tour State ---
+            var tourActive = false;
+            var tourSteps = [];
+            var tourCurrentStep = 0;
+            var tourOverlay = null;
+            var tourTooltip = null;
+            var tourName = '';
+            var TOUR_SEEN_KEY = 'bp_tour_seen';
+            var TOUR_SEEN_WELCOME = 'bp_tour_welcome_seen';
+
+            // --- CSS Injection ---
+            var tourStyle = document.createElement('style');
+            tourStyle.textContent = ''
+                // Overlay with hole
+                + '.tour-overlay {'
+                + '  position: fixed; inset: 0; z-index: 99998;'
+                + '  pointer-events: auto; transition: opacity 0.25s;'
+                + '}'
+                + '.tour-overlay.fade-in { opacity: 1; }'
+                + '.tour-overlay.fade-out { opacity: 0; }'
+                // Spotlight cutout (uses box-shadow to create dark surround)
+                + '.tour-spotlight {'
+                + '  position: fixed; z-index: 99998; border-radius: 10px;'
+                + '  box-shadow: 0 0 0 9999px rgba(0,0,0,0.55);'
+                + '  pointer-events: none; transition: all 0.35s cubic-bezier(0.4,0,0.2,1);'
+                + '}'
+                // Tooltip
+                + '.tour-tooltip {'
+                + '  position: fixed; z-index: 99999; max-width: 380px; width: calc(100vw - 32px);'
+                + '  background: var(--bg-card, #1e1e2e); border: 1px solid var(--border, #333);'
+                + '  border-radius: 14px; padding: 20px 22px 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.4);'
+                + '  font-family: Outfit, system-ui, sans-serif; transition: all 0.3s cubic-bezier(0.4,0,0.2,1);'
+                + '}'
+                + '.tour-tooltip.fade-in { opacity: 1; transform: translateY(0); }'
+                + '.tour-tooltip.fade-out { opacity: 0; transform: translateY(8px); }'
+                // Tooltip arrow
+                + '.tour-tooltip::before {'
+                + '  content: ""; position: absolute; width: 14px; height: 14px;'
+                + '  background: var(--bg-card, #1e1e2e); border: 1px solid var(--border, #333);'
+                + '  transform: rotate(45deg); z-index: -1;'
+                + '}'
+                + '.tour-tooltip.arrow-top::before { top: -8px; left: 50%; margin-left: -7px; border-right: none; border-bottom: none; }'
+                + '.tour-tooltip.arrow-bottom::before { bottom: -8px; left: 50%; margin-left: -7px; border-left: none; border-top: none; }'
+                + '.tour-tooltip.arrow-none::before { display: none; }'
+                // Tooltip internals
+                + '.tour-step-badge {'
+                + '  display: inline-block; font-size: 0.7em; color: var(--accent, #f59e0b); font-weight: 700;'
+                + '  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px;'
+                + '}'
+                + '.tour-title {'
+                + '  font-size: 1.12em; font-weight: 700; color: var(--text-primary, #f0f0f0);'
+                + '  margin-bottom: 6px; line-height: 1.3;'
+                + '}'
+                + '.tour-desc {'
+                + '  font-size: 0.88em; color: var(--text-secondary, #a0a0b0); line-height: 1.55; margin-bottom: 16px;'
+                + '}'
+                + '.tour-actions {'
+                + '  display: flex; justify-content: space-between; align-items: center; gap: 8px;'
+                + '}'
+                + '.tour-btn {'
+                + '  padding: 8px 18px; border-radius: 8px; font-size: 0.85em; font-weight: 600;'
+                + '  cursor: pointer; border: none; transition: all 0.15s;'
+                + '}'
+                + '.tour-btn-primary {'
+                + '  background: var(--accent, #f59e0b); color: #000;'
+                + '}'
+                + '.tour-btn-primary:hover { filter: brightness(1.1); }'
+                + '.tour-btn-secondary {'
+                + '  background: transparent; color: var(--text-secondary, #a0a0b0); border: 1px solid var(--border, #333);'
+                + '}'
+                + '.tour-btn-secondary:hover { background: rgba(255,255,255,0.05); }'
+                + '.tour-btn-skip {'
+                + '  background: transparent; color: var(--text-muted, #666); font-size: 0.8em;'
+                + '  padding: 8px 12px;'
+                + '}'
+                + '.tour-btn-skip:hover { color: var(--text-secondary, #a0a0b0); }'
+                // Progress dots
+                + '.tour-dots {'
+                + '  display: flex; gap: 5px; align-items: center;'
+                + '}'
+                + '.tour-dot {'
+                + '  width: 6px; height: 6px; border-radius: 50%; background: var(--border, #333); transition: all 0.2s;'
+                + '}'
+                + '.tour-dot.active { background: var(--accent, #f59e0b); width: 18px; border-radius: 3px; }'
+                + '.tour-dot.done { background: var(--accent, #f59e0b); opacity: 0.4; }'
+                // Floating help button
+                + '#tourHelpBtn {'
+                + '  position: fixed; bottom: 24px; right: 24px; z-index: 9990;'
+                + '  width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--border, #333);'
+                + '  background: var(--bg-card, #1e1e2e); color: var(--accent, #f59e0b);'
+                + '  font-size: 1.2em; font-weight: 800; cursor: pointer;'
+                + '  box-shadow: 0 4px 20px rgba(0,0,0,0.3); transition: all 0.2s;'
+                + '  display: flex; align-items: center; justify-content: center;'
+                + '  font-family: Outfit, system-ui, sans-serif;'
+                + '}'
+                + '#tourHelpBtn:hover { transform: scale(1.1); border-color: var(--accent, #f59e0b); }'
+                // Help menu popover
+                + '#tourHelpMenu {'
+                + '  position: fixed; bottom: 78px; right: 24px; z-index: 9991;'
+                + '  background: var(--bg-card, #1e1e2e); border: 1px solid var(--border, #333);'
+                + '  border-radius: 12px; padding: 8px; min-width: 200px;'
+                + '  box-shadow: 0 12px 40px rgba(0,0,0,0.4); display: none;'
+                + '  font-family: Outfit, system-ui, sans-serif;'
+                + '}'
+                + '#tourHelpMenu button {'
+                + '  display: block; width: 100%; text-align: left; padding: 10px 14px;'
+                + '  background: transparent; border: none; color: var(--text-primary, #f0f0f0);'
+                + '  font-size: 0.88em; cursor: pointer; border-radius: 8px; transition: background 0.15s;'
+                + '}'
+                + '#tourHelpMenu button:hover { background: rgba(255,255,255,0.06); }'
+                + '#tourHelpMenu .tour-menu-label {'
+                + '  padding: 6px 14px 4px; font-size: 0.72em; color: var(--text-muted, #666);'
+                + '  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;'
+                + '}'
+                + '#tourHelpMenu .tour-menu-divider { height: 1px; background: var(--border, #333); margin: 4px 0; }'
+                // Mobile adjustments
+                + '@media (max-width: 768px) {'
+                + '  #tourHelpBtn { bottom: 80px; right: 16px; width: 40px; height: 40px; font-size: 1.05em; }'
+                + '  #tourHelpMenu { bottom: 130px; right: 16px; }'
+                + '  .tour-tooltip { max-width: calc(100vw - 24px); padding: 16px 18px 14px; }'
+                + '}';
+            document.head.appendChild(tourStyle);
+
+            // --- Core Engine ---
+
+            function startTour(name, steps) {
+                if (tourActive) endTour();
+                tourName = name;
+                tourSteps = steps;
+                tourCurrentStep = 0;
+                tourActive = true;
+                closeHelpMenu();
+                createOverlayElements();
+                showStep(0);
+            }
+
+            function endTour(skipFlag) {
+                tourActive = false;
+                if (tourOverlay) { tourOverlay.remove(); tourOverlay = null; }
+                if (tourTooltip) { tourTooltip.remove(); tourTooltip = null; }
+                var spotlight = document.querySelector('.tour-spotlight');
+                if (spotlight) spotlight.remove();
+                // Mark tour as seen
+                if (skipFlag !== false) {
+                    try { localStorage.setItem(TOUR_SEEN_KEY, 'true'); } catch(e) {}
+                    if (tourName === 'welcome') {
+                        try { localStorage.setItem(TOUR_SEEN_WELCOME, 'true'); } catch(e) {}
+                    }
+                }
+                tourSteps = [];
+                tourCurrentStep = 0;
+            }
+
+            function createOverlayElements() {
+                // Backdrop overlay (click to dismiss)
+                tourOverlay = document.createElement('div');
+                tourOverlay.className = 'tour-overlay fade-in';
+                tourOverlay.onclick = function(e) {
+                    if (e.target === tourOverlay) endTour();
+                };
+                document.body.appendChild(tourOverlay);
+
+                // Tooltip (positioned per step)
+                tourTooltip = document.createElement('div');
+                tourTooltip.className = 'tour-tooltip arrow-none fade-in';
+                document.body.appendChild(tourTooltip);
+            }
+
+            function showStep(idx) {
+                if (idx < 0 || idx >= tourSteps.length) { endTour(); return; }
+                tourCurrentStep = idx;
+                var step = tourSteps[idx];
+
+                // beforeShow callback (e.g., navigate to a different tab)
+                if (step.beforeShow) {
+                    step.beforeShow();
+                }
+
+                // Delay to allow DOM to settle after navigation
+                var delay = step.delay || (step.beforeShow ? 450 : 50);
+                setTimeout(function() { renderStep(step, idx); }, delay);
+            }
+
+            function renderStep(step, idx) {
+                if (!tourActive) return;
+
+                var target = step.target ? document.querySelector(step.target) : null;
+                
+                // If target specified but not found, try once more after a short delay
+                if (step.target && !target) {
+                    setTimeout(function() {
+                        target = document.querySelector(step.target);
+                        positionStep(step, idx, target);
+                    }, 300);
+                    return;
+                }
+                
+                positionStep(step, idx, target);
+            }
+
+            function positionStep(step, idx, target) {
+                if (!tourActive || !tourTooltip) return;
+                
+                // --- Spotlight ---
+                var existingSpot = document.querySelector('.tour-spotlight');
+                if (existingSpot) existingSpot.remove();
+
+                if (target) {
+                    var rect = target.getBoundingClientRect();
+                    var pad = step.spotlightPad || 8;
+                    var spot = document.createElement('div');
+                    spot.className = 'tour-spotlight';
+                    spot.style.top = (rect.top - pad) + 'px';
+                    spot.style.left = (rect.left - pad) + 'px';
+                    spot.style.width = (rect.width + pad * 2) + 'px';
+                    spot.style.height = (rect.height + pad * 2) + 'px';
+                    if (step.spotlightRadius) spot.style.borderRadius = step.spotlightRadius;
+                    document.body.appendChild(spot);
+
+                    // Scroll target into view if needed
+                    if (rect.top < 0 || rect.bottom > window.innerHeight) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Re-position after scroll
+                        setTimeout(function() {
+                            var r2 = target.getBoundingClientRect();
+                            spot.style.top = (r2.top - pad) + 'px';
+                            spot.style.left = (r2.left - pad) + 'px';
+                            positionTooltip(step, idx, r2);
+                        }, 350);
+                        return;
+                    }
+
+                    positionTooltip(step, idx, rect);
+                } else {
+                    // No target — center the tooltip (modal style)
+                    positionTooltip(step, idx, null);
+                }
+            }
+
+            function positionTooltip(step, idx, targetRect) {
+                if (!tourTooltip) return;
+                
+                // Build tooltip content
+                var totalSteps = tourSteps.length;
+                var isFirst = idx === 0;
+                var isLast = idx === totalSteps - 1;
+
+                var dotsHtml = '<div class="tour-dots">';
+                for (var d = 0; d < totalSteps; d++) {
+                    var cls = d < idx ? 'done' : (d === idx ? 'active' : '');
+                    dotsHtml += '<div class="tour-dot ' + cls + '"></div>';
+                }
+                dotsHtml += '</div>';
+
+                tourTooltip.innerHTML = ''
+                    + '<div class="tour-step-badge">' + (step.badge || (tourName === 'welcome' ? 'Tour' : tourName)) + ' \u00B7 ' + (idx + 1) + ' of ' + totalSteps + '</div>'
+                    + '<div class="tour-title">' + (step.title || '') + '</div>'
+                    + '<div class="tour-desc">' + (step.desc || '') + '</div>'
+                    + '<div class="tour-actions">'
+                    + (isFirst
+                        ? '<button class="tour-btn tour-btn-skip" onclick="window._bpTour.end()">Skip tour</button>'
+                        : '<button class="tour-btn tour-btn-secondary" onclick="window._bpTour.prev()">\u2190 Back</button>')
+                    + dotsHtml
+                    + (isLast
+                        ? '<button class="tour-btn tour-btn-primary" onclick="window._bpTour.end()">Got it! \u2713</button>'
+                        : '<button class="tour-btn tour-btn-primary" onclick="window._bpTour.next()">Next \u2192</button>')
+                    + '</div>';
+
+                // Position tooltip relative to target
+                tourTooltip.className = 'tour-tooltip fade-in';
+                
+                if (!targetRect) {
+                    // Center on screen (modal-style for intro/outro steps)
+                    tourTooltip.classList.add('arrow-none');
+                    tourTooltip.style.top = '50%';
+                    tourTooltip.style.left = '50%';
+                    tourTooltip.style.transform = 'translate(-50%, -50%)';
+                    return;
+                }
+
+                // Reset transform
+                tourTooltip.style.transform = '';
+
+                // Decide placement: prefer below, use above if not enough space
+                var ttHeight = 220; // estimated
+                var spaceBelow = window.innerHeight - targetRect.bottom;
+                var spaceAbove = targetRect.top;
+                var placement = (spaceBelow >= ttHeight + 20 || spaceBelow > spaceAbove) ? 'below' : 'above';
+
+                // Horizontal: center on target, clamp to viewport
+                var ttWidth = Math.min(380, window.innerWidth - 32);
+                var leftPos = targetRect.left + (targetRect.width / 2) - (ttWidth / 2);
+                leftPos = Math.max(12, Math.min(window.innerWidth - ttWidth - 12, leftPos));
+
+                tourTooltip.style.width = ttWidth + 'px';
+                tourTooltip.style.left = leftPos + 'px';
+
+                if (placement === 'below') {
+                    tourTooltip.style.top = (targetRect.bottom + 16) + 'px';
+                    tourTooltip.style.bottom = '';
+                    tourTooltip.classList.add('arrow-top');
+                } else {
+                    tourTooltip.style.top = '';
+                    tourTooltip.style.bottom = (window.innerHeight - targetRect.top + 16) + 'px';
+                    tourTooltip.classList.add('arrow-bottom');
+                }
+            }
+
+            // --- Navigation Helpers ---
+            function goNext() { if (tourActive) showStep(tourCurrentStep + 1); }
+            function goPrev() { if (tourActive) showStep(tourCurrentStep - 1); }
+
+            // Keyboard support
+            document.addEventListener('keydown', function(e) {
+                if (!tourActive) return;
+                if (e.key === 'Escape') { endTour(); }
+                else if (e.key === 'ArrowRight' || e.key === 'Enter') { goNext(); }
+                else if (e.key === 'ArrowLeft') { goPrev(); }
+            });
+
+            // --- Help Button & Menu ---
+
+            function createHelpButton() {
+                // Floating "?" FAB
+                var btn = document.createElement('button');
+                btn.id = 'tourHelpBtn';
+                btn.innerHTML = '?';
+                btn.title = 'Take a tour';
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    toggleHelpMenu();
+                };
+                document.body.appendChild(btn);
+
+                // Help menu popover
+                var menu = document.createElement('div');
+                menu.id = 'tourHelpMenu';
+                menu.innerHTML = ''
+                    + '<div class="tour-menu-label">Guided Tours</div>'
+                    + '<button onclick="window._bpTour.startWelcome()">\uD83C\uDF1F Full Tour</button>'
+                    + '<div class="tour-menu-divider"></div>'
+                    + '<div class="tour-menu-label">Section Tours</div>'
+                    + '<button onclick="window._bpTour.startMini(\'skills\')">\uD83D\uDD78\uFE0F Skills Network</button>'
+                    + '<button onclick="window._bpTour.startMini(\'jobs\')">\uD83C\uDFAF Job Matching</button>'
+                    + '<button onclick="window._bpTour.startMini(\'blueprint\')">\uD83D\uDCCA Blueprint Dashboard</button>'
+                    + '<button onclick="window._bpTour.startMini(\'samples\')">\uD83C\uDFAC Sample Profiles</button>';
+                document.body.appendChild(menu);
+
+                // Close menu when clicking elsewhere
+                document.addEventListener('click', function(e) {
+                    var m = document.getElementById('tourHelpMenu');
+                    if (m && m.style.display !== 'none' && !m.contains(e.target) && e.target.id !== 'tourHelpBtn') {
+                        m.style.display = 'none';
+                    }
+                });
+            }
+
+            function toggleHelpMenu() {
+                var menu = document.getElementById('tourHelpMenu');
+                if (!menu) return;
+                menu.style.display = menu.style.display === 'none' || !menu.style.display ? 'block' : 'none';
+            }
+
+            function closeHelpMenu() {
+                var menu = document.getElementById('tourHelpMenu');
+                if (menu) menu.style.display = 'none';
+            }
+
+            // --- Step Definitions ---
+
+            function getWelcomeSteps() {
+                var profileName = (userData.profile && userData.profile.name) || 'this profile';
+                return [
+                    // 1. Welcome (centered, no spotlight)
+                    {
+                        title: 'Welcome to Blueprint\u2122',
+                        desc: 'Blueprint maps your professional skills into an interactive career intelligence platform. Let\u2019s take a quick look around. <em style="opacity:0.6">(~60 seconds)</em>',
+                        badge: 'Getting Started',
+                        target: null
+                    },
+                    // 2. Network visualization
+                    {
+                        title: 'Your Skill Network',
+                        desc: 'Each node is a professional skill. <strong>Size</strong> = proficiency level. <strong>Color</strong> = role assignment. Skills cluster around the roles they belong to.',
+                        badge: 'Skills',
+                        target: '#networkView',
+                        spotlightPad: 2,
+                        spotlightRadius: '8px',
+                        beforeShow: function() { switchView('skills'); }
+                    },
+                    // 3. Node interaction
+                    {
+                        title: 'Tap Any Skill',
+                        desc: 'Tap or click a node to see its details \u2014 proficiency level, evidence, and which role it belongs to. Drag nodes to rearrange your map.',
+                        badge: 'Skills',
+                        target: '#networkView',
+                        spotlightPad: 2,
+                        spotlightRadius: '8px'
+                    },
+                    // 4. View toggle (Network / Card)
+                    {
+                        title: 'Two Ways to View',
+                        desc: '<strong>Network</strong> shows the force-directed graph. <strong>Card</strong> gives you a traditional list with proficiency badges. Switch anytime.',
+                        badge: 'Skills',
+                        target: '#skillsViewToggle',
+                        spotlightPad: 4
+                    },
+                    // 5. Navigate to Jobs
+                    {
+                        title: 'Job Matching',
+                        desc: 'The Jobs tab is your command center for career opportunities. Blueprint scores each job against your skills and values.',
+                        badge: 'Jobs',
+                        target: '#nav-jobs',
+                        spotlightPad: 4,
+                        beforeShow: function() { switchView('jobs'); }
+                    },
+                    // 6. Pipeline explanation
+                    {
+                        title: 'Your Job Pipeline',
+                        desc: 'Each job shows a <strong>match percentage</strong> based on skill overlap, plus salary estimates from BLS data. Tap any job to see the full breakdown \u2014 matched skills, gaps, and what you\u2019d need to close them.',
+                        badge: 'Jobs',
+                        target: '#opportunitiesView',
+                        spotlightPad: 4,
+                        delay: 500
+                    },
+                    // 7. Navigate to Blueprint
+                    {
+                        title: 'Career Intelligence',
+                        desc: 'Your Blueprint is the full dashboard \u2014 compensation analysis, skill distribution, outcomes, values, and exportable documents.',
+                        badge: 'Blueprint',
+                        target: '#nav-blueprint',
+                        spotlightPad: 4,
+                        beforeShow: function() { switchView('blueprint'); }
+                    },
+                    // 8. Blueprint dashboard
+                    {
+                        title: 'The Dashboard',
+                        desc: 'At a glance: your market value, skill distribution, readiness score, and purpose statement. This is the executive summary of your career.',
+                        badge: 'Blueprint',
+                        target: '#blueprintTabContent',
+                        spotlightPad: 4,
+                        delay: 500
+                    },
+                    // 9. Blueprint sub-tabs
+                    {
+                        title: 'Deep Dive Tabs',
+                        desc: '<strong>Skills</strong> for detailed management \u00B7 <strong>Experience</strong> for work history \u00B7 <strong>Outcomes</strong> for auto-extracted achievements \u00B7 <strong>Values</strong> for alignment \u00B7 <strong>Export</strong> for PDF, HTML, and more.',
+                        badge: 'Blueprint',
+                        target: '#blueprintSubnav',
+                        spotlightPad: 4
+                    },
+                    // 10. Navigate to Samples
+                    {
+                        title: 'Sample Profiles',
+                        desc: '18 fictional characters across three shows \u2014 each with a complete Blueprint. Explore their skills, job matches, and values to see the platform in action.',
+                        badge: 'Samples',
+                        target: '#nav-samples',
+                        spotlightPad: 4,
+                        beforeShow: function() { viewSampleProfile(); },
+                        delay: 600
+                    },
+                    // 11. Character cards
+                    {
+                        title: 'Pick a Character',
+                        desc: 'Each card shows the character\u2019s title, skill count, and description. Tap <strong>View</strong> to load their full Blueprint \u2014 skills, jobs, values, and all.',
+                        badge: 'Samples',
+                        target: '#showCollectionContent',
+                        spotlightPad: 4
+                    },
+                    // 12. Overlay modes (power feature)
+                    {
+                        title: 'Power Feature: Skill Overlays',
+                        desc: 'Select a job from the Pipeline, then return to the Skills network. Four overlay modes appear: <strong>You</strong> (your skills) \u00B7 <strong>Job</strong> (required skills) \u00B7 <strong>Match</strong> (overlap analysis) \u00B7 <strong>Values</strong> (alignment visualization).',
+                        badge: 'Pro Tip',
+                        target: '#matchModeToggle',
+                        spotlightPad: 6,
+                        beforeShow: function() { switchView('skills'); }
+                    },
+                    // 13. Help button and finish
+                    {
+                        title: 'You\u2019re All Set!',
+                        desc: 'Hit the <strong>?</strong> button anytime to replay this tour or dive into section-specific guides. Now go explore ' + profileName + '\u2019s Blueprint!',
+                        badge: 'Tour Complete',
+                        target: '#tourHelpBtn',
+                        spotlightPad: 6,
+                        spotlightRadius: '50%'
+                    }
+                ];
+            }
+
+            // --- Mini Tour Definitions ---
+
+            function getSkillsTour() {
+                return [
+                    {
+                        title: 'Your Skill Network',
+                        desc: 'Each node is a skill. <strong>Size</strong> = proficiency. <strong>Color</strong> = role. Skills cluster around their assigned roles.',
+                        badge: 'Skills', target: '#networkView', spotlightPad: 2, spotlightRadius: '8px',
+                        beforeShow: function() { switchView('skills'); }
+                    },
+                    {
+                        title: 'Interact With Skills',
+                        desc: 'Tap a node for details \u2014 proficiency, evidence, role assignment. Drag nodes to rearrange. The layout is physics-based and remembers your changes.',
+                        badge: 'Skills', target: '#networkView', spotlightPad: 2, spotlightRadius: '8px'
+                    },
+                    {
+                        title: 'Network vs. Card View',
+                        desc: 'Toggle between the visual network graph and a traditional card list. Both show the same skills, different perspectives.',
+                        badge: 'Skills', target: '#skillsViewToggle', spotlightPad: 4
+                    },
+                    {
+                        title: 'Job Overlay Modes',
+                        desc: 'When a job is selected from the Pipeline, four overlay modes appear: <strong>You</strong>, <strong>Job</strong>, <strong>Match</strong>, and <strong>Values</strong>. This is where the magic happens.',
+                        badge: 'Skills', target: '#matchModeToggle', spotlightPad: 6
+                    }
+                ];
+            }
+
+            function getJobsTour() {
+                return [
+                    {
+                        title: 'Job Pipeline',
+                        desc: 'All your saved jobs with match scores, salary estimates, and skill gap analysis. Tap any job to expand the full breakdown.',
+                        badge: 'Jobs', target: '#opportunitiesView', spotlightPad: 4,
+                        beforeShow: function() { switchView('jobs'); }, delay: 500
+                    },
+                    {
+                        title: 'Match Scores',
+                        desc: 'Each job\u2019s match percentage reflects how many of its required skills overlap with yours. Green = strong match, gaps show what to develop.',
+                        badge: 'Jobs', target: '#opportunitiesView', spotlightPad: 4
+                    },
+                    {
+                        title: 'Job Tabs',
+                        desc: '<strong>Pipeline</strong> for saved jobs \u00B7 <strong>Tracker</strong> for application status \u00B7 <strong>Find Jobs</strong> to add new opportunities.',
+                        badge: 'Jobs', target: '#opportunitiesView', spotlightPad: 4
+                    }
+                ];
+            }
+
+            function getBlueprintTour() {
+                return [
+                    {
+                        title: 'Career Dashboard',
+                        desc: 'Your executive summary: market value, skill distribution, readiness score, and purpose statement \u2014 all in one view.',
+                        badge: 'Blueprint', target: '#blueprintTabContent', spotlightPad: 4,
+                        beforeShow: function() { switchView('blueprint'); switchBlueprintTab('dashboard'); }, delay: 500
+                    },
+                    {
+                        title: 'Navigation Tabs',
+                        desc: '<strong>Dashboard</strong> \u00B7 <strong>Skills</strong> \u00B7 <strong>Experience</strong> \u00B7 <strong>Outcomes</strong> \u00B7 <strong>Values</strong> \u00B7 <strong>Export</strong> \u2014 six lenses on your career data.',
+                        badge: 'Blueprint', target: '#blueprintSubnav', spotlightPad: 4
+                    },
+                    {
+                        title: 'Export Your Blueprint',
+                        desc: 'The Export tab generates PDF summaries, Executive Blueprints (HTML), Scouting Reports for specific jobs, and Negotiation Guides with salary strategy.',
+                        badge: 'Blueprint', target: '#blueprintSubnav', spotlightPad: 4,
+                        beforeShow: function() { switchBlueprintTab('export'); }, delay: 400
+                    }
+                ];
+            }
+
+            function getSamplesTour() {
+                return [
+                    {
+                        title: 'Sample Profiles',
+                        desc: '18 characters across Breaking Bad, Stranger Things, and Succession \u2014 each with skills, values, work history, and job matches.',
+                        badge: 'Samples', target: '#showCollectionContent', spotlightPad: 4,
+                        beforeShow: function() { viewSampleProfile(); }, delay: 600
+                    },
+                    {
+                        title: 'Switch Shows',
+                        desc: 'Tap the show tabs to browse different collections. Each show has its own accent color and six characters.',
+                        badge: 'Samples', target: '#welcomeView', spotlightPad: 4
+                    },
+                    {
+                        title: 'Load a Profile',
+                        desc: 'Tap <strong>View</strong> on any character card to load their complete Blueprint. Their skills, jobs, values, and compensation all populate instantly.',
+                        badge: 'Samples', target: '#showCollectionContent', spotlightPad: 4
+                    }
+                ];
+            }
+
+            // --- Public API ---
+
+            window._bpTour = {
+                startWelcome: function() { startTour('welcome', getWelcomeSteps()); },
+                startMini: function(section) {
+                    var tours = {
+                        skills: getSkillsTour,
+                        jobs: getJobsTour,
+                        blueprint: getBlueprintTour,
+                        samples: getSamplesTour
+                    };
+                    var fn = tours[section];
+                    if (fn) startTour(section, fn());
+                },
+                next: goNext,
+                prev: goPrev,
+                end: endTour,
+                isActive: function() { return tourActive; }
+            };
+
+            // --- Auto-Trigger Logic ---
+            // Fire welcome tour for first-time visitors after profile loads
+
+            function maybeAutoTour() {
+                // Don't auto-fire if already seen, or if onboarding wizard is active
+                try {
+                    if (localStorage.getItem(TOUR_SEEN_WELCOME) === 'true') return;
+                } catch(e) {}
+                if (document.querySelector('.onboarding-wizard.active')) return;
+                if (document.querySelector('.onboarding-overlay')) return;
+
+                // Wait for network to render, then launch
+                setTimeout(function() {
+                    if (!tourActive) {
+                        window._bpTour.startWelcome();
+                    }
+                }, 1800);
+            }
+
+            // Initialize help button and check for auto-tour after app loads
+            function initTourSystem() {
+                createHelpButton();
+                // Delay auto-tour check to let app fully initialize
+                setTimeout(maybeAutoTour, 2500);
+            }
+
+            // Hook into app initialization
+            if (document.readyState === 'complete') {
+                setTimeout(initTourSystem, 1000);
+            } else {
+                window.addEventListener('load', function() {
+                    setTimeout(initTourSystem, 1000);
+                });
+            }
+
+        })(); // end tour IIFE
     </script>
 
     <!-- Waitlist Registration Modal -->
