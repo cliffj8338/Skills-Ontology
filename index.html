@@ -8787,6 +8787,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (view === 'jobs') view = 'opportunities';
             if (view === 'applications') { view = 'opportunities'; jobsSubTab = 'tracker'; }
             
+            // Gate: block main views if no profile is loaded (no skills data)
+            var profileViews = ['network', 'opportunities', 'blueprint'];
+            var hasProfileData = userData && userData.skills && userData.skills.length > 0;
+            if (!hasProfileData && profileViews.indexOf(view) !== -1) {
+                showToast('Select a sample profile or sign in to explore Blueprint.', 'info');
+                view = 'welcome';
+            }
+            
             currentView = view;
             window.scrollTo(0, 0);
             
@@ -8852,10 +8860,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             networkControls.style.display = 'none';
             controls.style.display = 'none';
             
-            // Hide readonly banner on non-profile views
+            // Toggle readonly banner: hide on non-profile views, show on profile views when viewing a sample
             var roBanner = document.getElementById('readonlyBanner');
-            if (roBanner && (view === 'welcome' || view === 'consent' || view === 'settings' || view === 'admin')) {
-                roBanner.style.display = 'none';
+            if (roBanner) {
+                if (view === 'welcome' || view === 'consent' || view === 'admin') {
+                    roBanner.style.display = 'none';
+                } else if (isReadOnlyProfile) {
+                    roBanner.style.display = 'flex';
+                }
             }
             
             // Hide app footer on welcome view (welcome has its own disclaimer)
