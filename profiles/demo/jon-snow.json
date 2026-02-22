@@ -5,50 +5,274 @@
     "location": "The True North, Beyond the Wall",
     "roleLevel": "Executive",
     "email": "",
-    "summary": "Rose from bastard of Winterfell to King in the North through merit, not birthright. Youngest Lord Commander in Night's Watch history. United wildlings and Northerners against an existential threat when centuries of hatred said it was impossible. Led the defense of humanity at the Battle of Winterfell. Chose duty over ambition at every turn — the rarest leadership quality in Westeros."
+    "summary": "Rose from bastard of Winterfell to King in the North through merit, not birthright. Youngest Lord Commander in Night's Watch history. United wildlings and Northerners against an existential threat when centuries of hatred said it was impossible. Led the defense of humanity at the Battle of Winterfell. Chose duty over ambition at every turn \u2014 the rarest leadership quality in Westeros."
   },
   "roles": [
-    { "id": "military-command", "name": "Military Command", "color": "#2F4F4F" },
-    { "id": "crisis-leadership", "name": "Crisis Leadership", "color": "#8B0000" },
-    { "id": "coalition-building", "name": "Coalition Building", "color": "#4169E1" },
-    { "id": "field-operations", "name": "Field Operations & Survival", "color": "#228B22" }
+    {
+      "id": "military-command",
+      "name": "Military Command",
+      "color": "#2F4F4F"
+    },
+    {
+      "id": "crisis-leadership",
+      "name": "Crisis Leadership",
+      "color": "#8B0000"
+    },
+    {
+      "id": "coalition-building",
+      "name": "Coalition Building",
+      "color": "#4169E1"
+    },
+    {
+      "id": "field-operations",
+      "name": "Field Operations & Survival",
+      "color": "#228B22"
+    }
   ],
   "skills": [
-    { "name": "Crisis Leadership", "level": "Expert", "role": "Crisis Leadership", "evidence": ["Commanded the defense of Castle Black against a 100,000-strong wildling assault with fewer than 100 defenders", "Led the coalition defense at the Battle of Winterfell against the Army of the Dead", "Made the decision to execute Daenerys Targaryen to prevent further mass casualties — accepting personal consequences"] },
-    { "name": "Coalition Building", "level": "Expert", "role": "Coalition Building", "evidence": ["United the Night's Watch and Free Folk — ending thousands of years of hostility — to face the White Walker threat", "Convinced Northern lords to rally behind Stark banners after the Bolton occupation of Winterfell", "Built alliance between the North and Daenerys Targaryen's forces despite deep cultural mistrust"] },
-    { "name": "Military Tactics", "level": "Expert", "role": "Military Command", "evidence": ["Led tactical defense of Castle Black's southern gate against Thenn and wildling raiders", "Commanded the Battle of the Bastards — adapted from near-defeat to victory through battlefield improvisation", "Planned and executed the expedition beyond the Wall to capture a wight as proof of the existential threat"] },
-    { "name": "Sword Combat", "level": "Expert", "role": "Field Operations & Survival", "evidence": ["Defeated the White Walker at Hardhome in single combat using Valyrian steel", "Survived the Battle of the Bastards through exceptional personal combat against overwhelming odds", "Trained from childhood by Ser Rodrik Cassel and the master-at-arms of Winterfell"] },
-    { "name": "Survival Skills", "level": "Expert", "role": "Field Operations & Survival", "evidence": ["Survived extended operations beyond the Wall in extreme cold, hostile territory, and limited supplies", "Infiltrated wildling society for intelligence gathering — maintaining cover for months", "Survived literal death and resurrection — ultimate proof of resilience under pressure"] },
-    { "name": "Strategic Decision-Making", "level": "Proficient", "role": "Crisis Leadership", "evidence": ["Made the unpopular decision to allow wildlings through the Wall — prioritizing long-term survival over short-term politics", "Chose to bend the knee to Daenerys to secure dragon support against the Night King — sacrificing title for mission", "Decided to prioritize the existential threat of the White Walkers over the political game of thrones"] },
-    { "name": "Inspirational Leadership", "level": "Expert", "role": "Coalition Building", "evidence": ["Inspired loyalty from the Night's Watch, wildlings, and Northern lords through personal courage and integrity", "Led from the front in every battle — earning respect through shared risk rather than command from safety", "Elected Lord Commander and later proclaimed King in the North by popular acclaim — not hereditary right"] },
-    { "name": "Intelligence Operations", "level": "Proficient", "role": "Field Operations & Survival", "evidence": ["Conducted deep-cover intelligence operation within Mance Rayder's wildling army", "Gathered critical intelligence on wildling military strength, tactics, and planned attack routes", "Operated as double agent while maintaining ethical boundaries — refused to kill innocent civilians to maintain cover"] },
-    { "name": "Negotiation", "level": "Proficient", "role": "Coalition Building", "evidence": ["Negotiated alliance with Tormund Giantsbane and the Free Folk at Hardhome", "Persuaded Daenerys Targaryen to commit her forces north against the White Walkers", "Negotiated with Cersei Lannister at the Dragonpit — presenting evidence of the undead threat to hostile audience"] },
-    { "name": "Personnel Development", "level": "Proficient", "role": "Military Command", "evidence": ["Mentored Olly, Satin, and other young Night's Watch recruits", "Developed leadership capabilities in Tormund, Edd Tollett, and other field commanders", "Recognized talent in Samwell Tarly — sending him to the Citadel to train as maester despite resistance"] },
-    { "name": "Ethical Leadership", "level": "Expert", "role": "Crisis Leadership", "evidence": ["Consistently chose the harder right over the easier wrong — including executing a child who betrayed him", "Refused to claim the Iron Throne despite having the strongest hereditary claim as Aegon Targaryen", "Accepted exile rather than pursue personal power after killing Daenerys"] },
-    { "name": "Extreme Weather Operations", "level": "Expert", "role": "Field Operations & Survival", "evidence": ["Conducted military operations in extreme arctic conditions beyond the Wall for extended periods", "Led the expedition to capture a wight in blizzard conditions with a small team against undead forces", "Survived exposure, combat injuries, and hypothermia during the frozen lake engagement north of the Wall"] },
-    { "name": "Adaptive Strategy", "level": "Proficient", "role": "Military Command", "evidence": ["Adapted Battle of the Bastards strategy in real-time when Rickon's death collapsed the original plan", "Adjusted defensive positions at Winterfell as the Night King's forces broke through initial lines", "Pivoted from conventional military thinking to unconventional coalition-building when facing supernatural threat"] },
-    { "name": "Inter-Cultural Communication", "level": "Proficient", "role": "Coalition Building", "evidence": ["Earned respect within wildling culture by understanding their values and meeting them as equals", "Bridged the cultural divide between the disciplined Night's Watch and the freedom-loving Free Folk", "Navigated the cultural expectations of Northern lords, Dothraki warriors, and Unsullied soldiers simultaneously"] },
-    { "name": "Garrison Command", "level": "Proficient", "role": "Military Command", "evidence": ["Commanded Castle Black as Lord Commander — managing personnel, supplies, and defenses", "Organized the Night's Watch during a period of catastrophic losses and declining recruitment", "Managed the integration of wildling refugees into Castle Black's operations and supply systems"] },
-    { "name": "Reconnaissance", "level": "Expert", "role": "Field Operations & Survival", "evidence": ["Conducted long-range reconnaissance missions beyond the Wall including the Fist of the First Men", "Led the ranging to Hardhome that provided critical intelligence on White Walker capabilities", "Scouted enemy positions and terrain during the Battle of the Bastards and the Battle of Winterfell"] },
-    { "name": "Moral Courage", "level": "Expert", "role": "Crisis Leadership", "evidence": ["Stood alone against majority opinion to save the wildlings — and was murdered for it", "Told Daenerys Targaryen the truth about his parentage despite knowing the political consequences", "Killed the woman he loved to save millions — bearing the weight alone rather than seeking justification"] }
+    {
+      "name": "Crisis Leadership",
+      "level": "Expert",
+      "role": "Crisis Leadership",
+      "evidence": [
+        "Commanded the defense of Castle Black against a 100,000-strong wildling assault with fewer than 100 defenders",
+        "Led the coalition defense at the Battle of Winterfell against the Army of the Dead",
+        "Made the decision to execute Daenerys Targaryen to prevent further mass casualties \u2014 accepting personal consequences"
+      ]
+    },
+    {
+      "name": "Coalition Building",
+      "level": "Expert",
+      "role": "Coalition Building",
+      "evidence": [
+        "United the Night's Watch and Free Folk \u2014 ending thousands of years of hostility \u2014 to face the White Walker threat",
+        "Convinced Northern lords to rally behind Stark banners after the Bolton occupation of Winterfell",
+        "Built alliance between the North and Daenerys Targaryen's forces despite deep cultural mistrust"
+      ]
+    },
+    {
+      "name": "Military Tactics",
+      "level": "Expert",
+      "role": "Military Command",
+      "evidence": [
+        "Led tactical defense of Castle Black's southern gate against Thenn and wildling raiders",
+        "Commanded the Battle of the Bastards \u2014 adapted from near-defeat to victory through battlefield improvisation",
+        "Planned and executed the expedition beyond the Wall to capture a wight as proof of the existential threat"
+      ]
+    },
+    {
+      "name": "Sword Combat",
+      "level": "Expert",
+      "role": "Field Operations & Survival",
+      "evidence": [
+        "Defeated the White Walker at Hardhome in single combat using Valyrian steel",
+        "Survived the Battle of the Bastards through exceptional personal combat against overwhelming odds",
+        "Trained from childhood by Ser Rodrik Cassel and the master-at-arms of Winterfell"
+      ]
+    },
+    {
+      "name": "Survival Skills",
+      "level": "Expert",
+      "role": "Field Operations & Survival",
+      "evidence": [
+        "Survived extended operations beyond the Wall in extreme cold, hostile territory, and limited supplies",
+        "Infiltrated wildling society for intelligence gathering \u2014 maintaining cover for months",
+        "Survived literal death and resurrection \u2014 ultimate proof of resilience under pressure"
+      ]
+    },
+    {
+      "name": "Strategic Decision-Making",
+      "level": "Proficient",
+      "role": "Crisis Leadership",
+      "evidence": [
+        "Made the unpopular decision to allow wildlings through the Wall \u2014 prioritizing long-term survival over short-term politics",
+        "Chose to bend the knee to Daenerys to secure dragon support against the Night King \u2014 sacrificing title for mission",
+        "Decided to prioritize the existential threat of the White Walkers over the political game of thrones"
+      ]
+    },
+    {
+      "name": "Inspirational Leadership",
+      "level": "Expert",
+      "role": "Coalition Building",
+      "evidence": [
+        "Inspired loyalty from the Night's Watch, wildlings, and Northern lords through personal courage and integrity",
+        "Led from the front in every battle \u2014 earning respect through shared risk rather than command from safety",
+        "Elected Lord Commander and later proclaimed King in the North by popular acclaim \u2014 not hereditary right"
+      ]
+    },
+    {
+      "name": "Intelligence Operations",
+      "level": "Proficient",
+      "role": "Field Operations & Survival",
+      "evidence": [
+        "Conducted deep-cover intelligence operation within Mance Rayder's wildling army",
+        "Gathered critical intelligence on wildling military strength, tactics, and planned attack routes",
+        "Operated as double agent while maintaining ethical boundaries \u2014 refused to kill innocent civilians to maintain cover"
+      ]
+    },
+    {
+      "name": "Negotiation",
+      "level": "Proficient",
+      "role": "Coalition Building",
+      "evidence": [
+        "Negotiated alliance with Tormund Giantsbane and the Free Folk at Hardhome",
+        "Persuaded Daenerys Targaryen to commit her forces north against the White Walkers",
+        "Negotiated with Cersei Lannister at the Dragonpit \u2014 presenting evidence of the undead threat to hostile audience"
+      ]
+    },
+    {
+      "name": "Personnel Development",
+      "level": "Proficient",
+      "role": "Military Command",
+      "evidence": [
+        "Mentored Olly, Satin, and other young Night's Watch recruits",
+        "Developed leadership capabilities in Tormund, Edd Tollett, and other field commanders",
+        "Recognized talent in Samwell Tarly \u2014 sending him to the Citadel to train as maester despite resistance"
+      ]
+    },
+    {
+      "name": "Ethical Leadership",
+      "level": "Expert",
+      "role": "Crisis Leadership",
+      "evidence": [
+        "Consistently chose the harder right over the easier wrong \u2014 including executing a child who betrayed him",
+        "Refused to claim the Iron Throne despite having the strongest hereditary claim as Aegon Targaryen",
+        "Accepted exile rather than pursue personal power after killing Daenerys"
+      ]
+    },
+    {
+      "name": "Extreme Weather Operations",
+      "level": "Expert",
+      "role": "Field Operations & Survival",
+      "evidence": [
+        "Conducted military operations in extreme arctic conditions beyond the Wall for extended periods",
+        "Led the expedition to capture a wight in blizzard conditions with a small team against undead forces",
+        "Survived exposure, combat injuries, and hypothermia during the frozen lake engagement north of the Wall"
+      ]
+    },
+    {
+      "name": "Adaptive Strategy",
+      "level": "Proficient",
+      "role": "Military Command",
+      "evidence": [
+        "Adapted Battle of the Bastards strategy in real-time when Rickon's death collapsed the original plan",
+        "Adjusted defensive positions at Winterfell as the Night King's forces broke through initial lines",
+        "Pivoted from conventional military thinking to unconventional coalition-building when facing supernatural threat"
+      ]
+    },
+    {
+      "name": "Inter-Cultural Communication",
+      "level": "Proficient",
+      "role": "Coalition Building",
+      "evidence": [
+        "Earned respect within wildling culture by understanding their values and meeting them as equals",
+        "Bridged the cultural divide between the disciplined Night's Watch and the freedom-loving Free Folk",
+        "Navigated the cultural expectations of Northern lords, Dothraki warriors, and Unsullied soldiers simultaneously"
+      ]
+    },
+    {
+      "name": "Garrison Command",
+      "level": "Proficient",
+      "role": "Military Command",
+      "evidence": [
+        "Commanded Castle Black as Lord Commander \u2014 managing personnel, supplies, and defenses",
+        "Organized the Night's Watch during a period of catastrophic losses and declining recruitment",
+        "Managed the integration of wildling refugees into Castle Black's operations and supply systems"
+      ]
+    },
+    {
+      "name": "Reconnaissance",
+      "level": "Expert",
+      "role": "Field Operations & Survival",
+      "evidence": [
+        "Conducted long-range reconnaissance missions beyond the Wall including the Fist of the First Men",
+        "Led the ranging to Hardhome that provided critical intelligence on White Walker capabilities",
+        "Scouted enemy positions and terrain during the Battle of the Bastards and the Battle of Winterfell"
+      ]
+    },
+    {
+      "name": "Moral Courage",
+      "level": "Expert",
+      "role": "Crisis Leadership",
+      "evidence": [
+        "Stood alone against majority opinion to save the wildlings \u2014 and was murdered for it",
+        "Told Daenerys Targaryen the truth about his parentage despite knowing the political consequences",
+        "Killed the woman he loved to save millions \u2014 bearing the weight alone rather than seeking justification"
+      ]
+    }
   ],
   "values": [
-    { "name": "Integrity", "selected": true },
-    { "name": "Courage", "selected": true },
-    { "name": "Servant Leadership", "selected": true },
-    { "name": "Accountability", "selected": true },
-    { "name": "Purpose Over Profit", "selected": true }
+    {
+      "name": "Integrity",
+      "selected": true
+    },
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Servant Leadership",
+      "selected": true
+    },
+    {
+      "name": "Accountability",
+      "selected": true
+    },
+    {
+      "name": "Purpose Over Profit",
+      "selected": true
+    },
+    {
+      "name": "Duty Before Desire",
+      "selected": true,
+      "custom": true
+    }
   ],
-  "purpose": "To protect those who cannot protect themselves — regardless of what it costs, regardless of what others think, and regardless of what he stands to gain.",
+  "purpose": "To protect those who cannot protect themselves \u2014 regardless of what it costs, regardless of what others think, and regardless of what he stands to gain.",
   "workHistory": [
-    { "title": "Leader of the Free Folk", "company": "The True North — Beyond the Wall", "startDate": "2019-06", "endDate": "Present", "description": "Voluntarily exiled to the True North. Leads wildling communities in rebuilding beyond the Wall. Chose service over sovereignty." },
-    { "title": "King in the North", "company": "The North — House Stark", "startDate": "2017-01", "endDate": "2019-05", "description": "Proclaimed King by the Northern lords after liberating Winterfell. Built the Northern alliance that fought the Army of the Dead. Bent the knee to Daenerys to secure dragon support for the existential fight." },
-    { "title": "Lord Commander of the Night's Watch", "company": "The Night's Watch — Castle Black", "startDate": "2014-06", "endDate": "2016-12", "description": "Youngest Lord Commander in Night's Watch history. Made the controversial decision to allow wildlings through the Wall. Assassinated by his own men, resurrected, and continued command." },
-    { "title": "Ranger & Intelligence Operative", "company": "The Night's Watch — Castle Black", "startDate": "2011-06", "endDate": "2014-06", "description": "Night's Watch ranger conducting operations beyond the Wall. Infiltrated Mance Rayder's wildling army as deep-cover intelligence operative. Gathered critical military intelligence." },
-    { "title": "Recruit & Steward", "company": "The Night's Watch — Castle Black", "startDate": "2011-01", "endDate": "2011-06", "description": "Volunteered for the Night's Watch. Top recruit in combat training. Assigned as steward to Lord Commander Mormont — receiving mentorship in command and strategy." }
+    {
+      "title": "Leader of the Free Folk",
+      "company": "The True North \u2014 Beyond the Wall",
+      "startDate": "2019-06",
+      "endDate": "Present",
+      "description": "Voluntarily exiled to the True North. Leads wildling communities in rebuilding beyond the Wall. Chose service over sovereignty."
+    },
+    {
+      "title": "King in the North",
+      "company": "The North \u2014 House Stark",
+      "startDate": "2017-01",
+      "endDate": "2019-05",
+      "description": "Proclaimed King by the Northern lords after liberating Winterfell. Built the Northern alliance that fought the Army of the Dead. Bent the knee to Daenerys to secure dragon support for the existential fight."
+    },
+    {
+      "title": "Lord Commander of the Night's Watch",
+      "company": "The Night's Watch \u2014 Castle Black",
+      "startDate": "2014-06",
+      "endDate": "2016-12",
+      "description": "Youngest Lord Commander in Night's Watch history. Made the controversial decision to allow wildlings through the Wall. Assassinated by his own men, resurrected, and continued command."
+    },
+    {
+      "title": "Ranger & Intelligence Operative",
+      "company": "The Night's Watch \u2014 Castle Black",
+      "startDate": "2011-06",
+      "endDate": "2014-06",
+      "description": "Night's Watch ranger conducting operations beyond the Wall. Infiltrated Mance Rayder's wildling army as deep-cover intelligence operative. Gathered critical military intelligence."
+    },
+    {
+      "title": "Recruit & Steward",
+      "company": "The Night's Watch \u2014 Castle Black",
+      "startDate": "2011-01",
+      "endDate": "2011-06",
+      "description": "Volunteered for the Night's Watch. Top recruit in combat training. Assigned as steward to Lord Commander Mormont \u2014 receiving mentorship in command and strategy."
+    }
   ],
   "education": [
-    { "degree": "Noble Military Education", "institution": "Winterfell — House Stark", "year": "2011", "field": "Swordsmanship, Tactics, Northern History, Leadership" }
+    {
+      "degree": "Noble Military Education",
+      "institution": "Winterfell \u2014 House Stark",
+      "year": "2011",
+      "field": "Swordsmanship, Tactics, Northern History, Leadership"
+    }
   ],
   "certifications": []
 }

@@ -5,49 +5,267 @@
     "location": "The Eyrie, The Vale of Arryn",
     "roleLevel": "Executive",
     "email": "",
-    "summary": "The most successful self-made operator in Westerosi history. Born to a minor lordship with zero political capital, built a financial empire through brothels, trade networks, and strategic lending — then leveraged that wealth into political power that toppled kingdoms. Master of Coin, Lord of Harrenhal, Lord Protector of the Vale. Orchestrated the War of the Five Kings from the shadows. Proved that in a world of swords, the man who holds the purse strings holds the real power."
+    "summary": "The most successful self-made operator in Westerosi history. Born to a minor lordship with zero political capital, built a financial empire through brothels, trade networks, and strategic lending \u2014 then leveraged that wealth into political power that toppled kingdoms. Master of Coin, Lord of Harrenhal, Lord Protector of the Vale. Orchestrated the War of the Five Kings from the shadows. Proved that in a world of swords, the man who holds the purse strings holds the real power."
   },
   "roles": [
-    { "id": "financial-strategy", "name": "Financial Strategy & Capital", "color": "#228B22" },
-    { "id": "political-manipulation", "name": "Political Manipulation", "color": "#6A0DAD" },
-    { "id": "intelligence-ops", "name": "Intelligence & Information", "color": "#2F4F4F" },
-    { "id": "asset-management", "name": "Asset Acquisition & Management", "color": "#B8860B" }
+    {
+      "id": "financial-strategy",
+      "name": "Financial Strategy & Capital",
+      "color": "#228B22"
+    },
+    {
+      "id": "political-manipulation",
+      "name": "Political Manipulation",
+      "color": "#6A0DAD"
+    },
+    {
+      "id": "intelligence-ops",
+      "name": "Intelligence & Information",
+      "color": "#2F4F4F"
+    },
+    {
+      "id": "asset-management",
+      "name": "Asset Acquisition & Management",
+      "color": "#B8860B"
+    }
   ],
   "skills": [
-    { "name": "Financial Engineering", "level": "Expert", "role": "Financial Strategy & Capital", "evidence": ["Grew Crown revenues tenfold as Master of Coin through innovative taxation, trade policies, and lending arrangements", "Built personal fortune from minor lordship through brothel networks, shipping investments, and strategic lending", "Structured Iron Bank debt instruments that funded the Crown while creating leverage for himself"] },
-    { "name": "Political Manipulation", "level": "Expert", "role": "Political Manipulation", "evidence": ["Orchestrated the murder of Jon Arryn — the event that triggered the entire War of the Five Kings", "Manipulated Ned Stark into confronting Cersei and then betrayed him — removing the most dangerous threat to his plans", "Convinced Lysa Arryn to poison her husband, frame the Lannisters, and draw Ned Stark to King's Landing — a single scheme that reshaped the continent"] },
-    { "name": "Strategic Deception", "level": "Expert", "role": "Intelligence & Information", "evidence": ["Maintained the appearance of a loyal servant to every faction simultaneously — Crown, Stark, Lannister, Tyrell, Arryn", "Created chaos between major houses while positioning himself as indispensable mediator to all sides", "His true allegiances were unknown to every major player in Westeros until it was too late"] },
-    { "name": "Information Warfare", "level": "Expert", "role": "Intelligence & Information", "evidence": ["Built the most comprehensive intelligence network in King's Landing through his brothel operations", "Gathered compromising information on lords, ladies, and merchants — using it for leverage rather than exposure", "Controlled the flow of information between factions — deciding who knew what and when"] },
-    { "name": "Revenue Generation", "level": "Expert", "role": "Financial Strategy & Capital", "evidence": ["Created multiple revenue streams including brothels, customs collection, trade facilitation, and money lending", "Designed taxation schemes that maximized Crown revenue while building personal wealth simultaneously", "Monetized information itself — selling intelligence, introductions, and favors as tradeable commodities"] },
-    { "name": "Asset Acquisition", "level": "Expert", "role": "Asset Acquisition & Management", "evidence": ["Acquired the title Lord of Harrenhal — the largest castle in Westeros — through pure political maneuvering", "Gained control of the Vale of Arryn through marriage to Lysa and subsequent guardianship of Robin Arryn", "Built a portfolio of political, financial, and real estate assets from essentially nothing"] },
-    { "name": "Network Building", "level": "Expert", "role": "Political Manipulation", "evidence": ["Cultivated relationships across every social stratum — from smallfolk informants to the King himself", "Built a network of allies, debtors, and dependents that spanned the Seven Kingdoms", "Used personal relationships as investment vehicles — each friendship was a strategic position"] },
-    { "name": "Long-Range Planning", "level": "Expert", "role": "Political Manipulation", "evidence": ["Executed a multi-decade strategy to rise from minor lord to potential ruler of the Seven Kingdoms", "Positioned chess pieces over years — the Stark-Lannister conflict, the Tyrell alliance, the Vale control — before making any visible move", "Planned the assassination of Joffrey in collaboration with the Tyrells — eliminating an unstable king while framing Tyrion"] },
-    { "name": "Risk Management", "level": "Expert", "role": "Financial Strategy & Capital", "evidence": ["Maintained plausible deniability for every major action — never directly connected to his schemes", "Diversified his power base across multiple regions and factions to survive any single alliance collapse", "Used intermediaries and cutouts for sensitive operations — keeping his hands clean while others took the risks"] },
-    { "name": "Persuasion", "level": "Expert", "role": "Political Manipulation", "evidence": ["Convinced Sansa Stark to trust him despite his betrayal of her father", "Persuaded the Lords of the Vale to march North — positioning himself as savior of the Battle of the Bastards", "Sold every faction on a different version of his loyalty — each believing they had his true allegiance"] },
-    { "name": "Market Analysis", "level": "Expert", "role": "Financial Strategy & Capital", "evidence": ["Identified opportunities in Westerosi markets that others overlooked — particularly the intersection of vice and intelligence", "Understood that political instability creates financial opportunity — chaos is a ladder", "Analyzed the weaknesses of every major house's financial position and exploited them through lending and trade manipulation"] },
-    { "name": "Institutional Knowledge", "level": "Expert", "role": "Intelligence & Information", "evidence": ["Possessed encyclopedic knowledge of Crown finances, noble debts, and trade relationships accumulated over 12 years as Master of Coin", "Understood the bureaucratic machinery of the Iron Throne better than anyone except perhaps Varys", "Used institutional knowledge as leverage — knowing where the financial bodies were buried"] },
-    { "name": "Talent Exploitation", "level": "Expert", "role": "Asset Acquisition & Management", "evidence": ["Identified and exploited the specific psychological vulnerabilities of every target — Ned's honor, Cersei's paranoia, Lysa's obsession", "Recruited operatives based on their weaknesses rather than their strengths — ensuring loyalty through dependency", "Used Ros, Dontos, and other agents as disposable assets in larger strategic operations"] },
-    { "name": "Crisis Exploitation", "level": "Expert", "role": "Political Manipulation", "evidence": ["Turned every crisis into a personal advancement opportunity — the War of the Five Kings was essentially his creation and his harvest", "Used the aftermath of Joffrey's assassination to remove Sansa from King's Landing — acquiring his most valuable long-term asset", "Exploited the Bolton occupation of Winterfell to position himself as liberator of the North"] },
-    { "name": "Due Diligence", "level": "Expert", "role": "Asset Acquisition & Management", "evidence": ["Conducted thorough assessment of every political and financial opportunity before committing", "Researched the backgrounds, debts, and secrets of every significant figure in King's Landing", "Maintained detailed mental accounting of favors owed, debts outstanding, and leverage available"] },
-    { "name": "Operational Security", "level": "Expert", "role": "Intelligence & Information", "evidence": ["Maintained information compartmentalization across his entire network — no single agent knew the full picture", "Used secure communication channels and trusted intermediaries for sensitive operations", "Destroyed evidence and eliminated witnesses when necessary to protect operational integrity"] },
-    { "name": "Social Climbing", "level": "Expert", "role": "Asset Acquisition & Management", "evidence": ["Rose from Lord of the smallest finger of land in the Vale to Lord Protector controlling one of the Seven Kingdoms", "Navigated aristocratic society despite being openly mocked for his lowborn origins", "Used each new title as a platform for the next acquisition — customs officer to Master of Coin to Lord of Harrenhal to Lord Protector"] }
+    {
+      "name": "Financial Engineering",
+      "level": "Expert",
+      "role": "Financial Strategy & Capital",
+      "evidence": [
+        "Grew Crown revenues tenfold as Master of Coin through innovative taxation, trade policies, and lending arrangements",
+        "Built personal fortune from minor lordship through brothel networks, shipping investments, and strategic lending",
+        "Structured Iron Bank debt instruments that funded the Crown while creating leverage for himself"
+      ]
+    },
+    {
+      "name": "Political Manipulation",
+      "level": "Expert",
+      "role": "Political Manipulation",
+      "evidence": [
+        "Orchestrated the murder of Jon Arryn \u2014 the event that triggered the entire War of the Five Kings",
+        "Manipulated Ned Stark into confronting Cersei and then betrayed him \u2014 removing the most dangerous threat to his plans",
+        "Convinced Lysa Arryn to poison her husband, frame the Lannisters, and draw Ned Stark to King's Landing \u2014 a single scheme that reshaped the continent"
+      ]
+    },
+    {
+      "name": "Strategic Deception",
+      "level": "Expert",
+      "role": "Intelligence & Information",
+      "evidence": [
+        "Maintained the appearance of a loyal servant to every faction simultaneously \u2014 Crown, Stark, Lannister, Tyrell, Arryn",
+        "Created chaos between major houses while positioning himself as indispensable mediator to all sides",
+        "His true allegiances were unknown to every major player in Westeros until it was too late"
+      ]
+    },
+    {
+      "name": "Information Warfare",
+      "level": "Expert",
+      "role": "Intelligence & Information",
+      "evidence": [
+        "Built the most comprehensive intelligence network in King's Landing through his brothel operations",
+        "Gathered compromising information on lords, ladies, and merchants \u2014 using it for leverage rather than exposure",
+        "Controlled the flow of information between factions \u2014 deciding who knew what and when"
+      ]
+    },
+    {
+      "name": "Revenue Generation",
+      "level": "Expert",
+      "role": "Financial Strategy & Capital",
+      "evidence": [
+        "Created multiple revenue streams including brothels, customs collection, trade facilitation, and money lending",
+        "Designed taxation schemes that maximized Crown revenue while building personal wealth simultaneously",
+        "Monetized information itself \u2014 selling intelligence, introductions, and favors as tradeable commodities"
+      ]
+    },
+    {
+      "name": "Asset Acquisition",
+      "level": "Expert",
+      "role": "Asset Acquisition & Management",
+      "evidence": [
+        "Acquired the title Lord of Harrenhal \u2014 the largest castle in Westeros \u2014 through pure political maneuvering",
+        "Gained control of the Vale of Arryn through marriage to Lysa and subsequent guardianship of Robin Arryn",
+        "Built a portfolio of political, financial, and real estate assets from essentially nothing"
+      ]
+    },
+    {
+      "name": "Network Building",
+      "level": "Expert",
+      "role": "Political Manipulation",
+      "evidence": [
+        "Cultivated relationships across every social stratum \u2014 from smallfolk informants to the King himself",
+        "Built a network of allies, debtors, and dependents that spanned the Seven Kingdoms",
+        "Used personal relationships as investment vehicles \u2014 each friendship was a strategic position"
+      ]
+    },
+    {
+      "name": "Long-Range Planning",
+      "level": "Expert",
+      "role": "Political Manipulation",
+      "evidence": [
+        "Executed a multi-decade strategy to rise from minor lord to potential ruler of the Seven Kingdoms",
+        "Positioned chess pieces over years \u2014 the Stark-Lannister conflict, the Tyrell alliance, the Vale control \u2014 before making any visible move",
+        "Planned the assassination of Joffrey in collaboration with the Tyrells \u2014 eliminating an unstable king while framing Tyrion"
+      ]
+    },
+    {
+      "name": "Risk Management",
+      "level": "Expert",
+      "role": "Financial Strategy & Capital",
+      "evidence": [
+        "Maintained plausible deniability for every major action \u2014 never directly connected to his schemes",
+        "Diversified his power base across multiple regions and factions to survive any single alliance collapse",
+        "Used intermediaries and cutouts for sensitive operations \u2014 keeping his hands clean while others took the risks"
+      ]
+    },
+    {
+      "name": "Persuasion",
+      "level": "Expert",
+      "role": "Political Manipulation",
+      "evidence": [
+        "Convinced Sansa Stark to trust him despite his betrayal of her father",
+        "Persuaded the Lords of the Vale to march North \u2014 positioning himself as savior of the Battle of the Bastards",
+        "Sold every faction on a different version of his loyalty \u2014 each believing they had his true allegiance"
+      ]
+    },
+    {
+      "name": "Market Analysis",
+      "level": "Expert",
+      "role": "Financial Strategy & Capital",
+      "evidence": [
+        "Identified opportunities in Westerosi markets that others overlooked \u2014 particularly the intersection of vice and intelligence",
+        "Understood that political instability creates financial opportunity \u2014 chaos is a ladder",
+        "Analyzed the weaknesses of every major house's financial position and exploited them through lending and trade manipulation"
+      ]
+    },
+    {
+      "name": "Institutional Knowledge",
+      "level": "Expert",
+      "role": "Intelligence & Information",
+      "evidence": [
+        "Possessed encyclopedic knowledge of Crown finances, noble debts, and trade relationships accumulated over 12 years as Master of Coin",
+        "Understood the bureaucratic machinery of the Iron Throne better than anyone except perhaps Varys",
+        "Used institutional knowledge as leverage \u2014 knowing where the financial bodies were buried"
+      ]
+    },
+    {
+      "name": "Talent Exploitation",
+      "level": "Expert",
+      "role": "Asset Acquisition & Management",
+      "evidence": [
+        "Identified and exploited the specific psychological vulnerabilities of every target \u2014 Ned's honor, Cersei's paranoia, Lysa's obsession",
+        "Recruited operatives based on their weaknesses rather than their strengths \u2014 ensuring loyalty through dependency",
+        "Used Ros, Dontos, and other agents as disposable assets in larger strategic operations"
+      ]
+    },
+    {
+      "name": "Crisis Exploitation",
+      "level": "Expert",
+      "role": "Political Manipulation",
+      "evidence": [
+        "Turned every crisis into a personal advancement opportunity \u2014 the War of the Five Kings was essentially his creation and his harvest",
+        "Used the aftermath of Joffrey's assassination to remove Sansa from King's Landing \u2014 acquiring his most valuable long-term asset",
+        "Exploited the Bolton occupation of Winterfell to position himself as liberator of the North"
+      ]
+    },
+    {
+      "name": "Due Diligence",
+      "level": "Expert",
+      "role": "Asset Acquisition & Management",
+      "evidence": [
+        "Conducted thorough assessment of every political and financial opportunity before committing",
+        "Researched the backgrounds, debts, and secrets of every significant figure in King's Landing",
+        "Maintained detailed mental accounting of favors owed, debts outstanding, and leverage available"
+      ]
+    },
+    {
+      "name": "Operational Security",
+      "level": "Expert",
+      "role": "Intelligence & Information",
+      "evidence": [
+        "Maintained information compartmentalization across his entire network \u2014 no single agent knew the full picture",
+        "Used secure communication channels and trusted intermediaries for sensitive operations",
+        "Destroyed evidence and eliminated witnesses when necessary to protect operational integrity"
+      ]
+    },
+    {
+      "name": "Social Climbing",
+      "level": "Expert",
+      "role": "Asset Acquisition & Management",
+      "evidence": [
+        "Rose from Lord of the smallest finger of land in the Vale to Lord Protector controlling one of the Seven Kingdoms",
+        "Navigated aristocratic society despite being openly mocked for his lowborn origins",
+        "Used each new title as a platform for the next acquisition \u2014 customs officer to Master of Coin to Lord of Harrenhal to Lord Protector"
+      ]
+    }
   ],
   "values": [
-    { "name": "Strategic Thinking", "selected": true },
-    { "name": "Resourcefulness", "selected": true },
-    { "name": "Bias Toward Action", "selected": true },
-    { "name": "Continuous Improvement", "selected": true },
-    { "name": "Resilience", "selected": true }
+    {
+      "name": "Strategic Thinking",
+      "selected": true
+    },
+    {
+      "name": "Resourcefulness",
+      "selected": true
+    },
+    {
+      "name": "Continuous Improvement",
+      "selected": true
+    },
+    {
+      "name": "Bias Toward Action",
+      "selected": true
+    },
+    {
+      "name": "Resilience",
+      "selected": true
+    },
+    {
+      "name": "Chaos is a Ladder",
+      "selected": true,
+      "custom": true
+    }
   ],
-  "purpose": "Chaos isn't a pit. Chaos is a ladder. The climb is all there is — and every rung is someone else's ceiling.",
+  "purpose": "Chaos isn't a pit. Chaos is a ladder. The climb is all there is \u2014 and every rung is someone else's ceiling.",
   "workHistory": [
-    { "title": "Lord Protector of the Vale", "company": "The Vale of Arryn — The Eyrie", "startDate": "2014-06", "endDate": "2017-08", "description": "Ruled the Vale as guardian of Robin Arryn. Commanded the Knights of the Vale — the largest untouched army in Westeros. Leveraged military power to influence the Northern succession." },
-    { "title": "Master of Coin", "company": "The Crown — Small Council", "startDate": "2002-01", "endDate": "2014-06", "description": "Chief financial officer of the Seven Kingdoms for 12 years. Grew Crown revenues tenfold. Built personal fortune and intelligence network simultaneously. Served under two kings." },
-    { "title": "Revenue Commissioner", "company": "The Crown — Gulltown & King's Landing", "startDate": "1998-01", "endDate": "2002-01", "description": "Managed customs and revenue collection. Demonstrated exceptional financial acumen that caught the attention of Jon Arryn, leading to appointment to the Small Council." },
-    { "title": "Customs Officer", "company": "Port of Gulltown — The Vale", "startDate": "1993-01", "endDate": "1998-01", "description": "Entry-level government position. Began building financial expertise and political connections in the Vale's primary trade port. First step on the ladder." }
+    {
+      "title": "Lord Protector of the Vale",
+      "company": "The Vale of Arryn \u2014 The Eyrie",
+      "startDate": "2014-06",
+      "endDate": "2017-08",
+      "description": "Ruled the Vale as guardian of Robin Arryn. Commanded the Knights of the Vale \u2014 the largest untouched army in Westeros. Leveraged military power to influence the Northern succession."
+    },
+    {
+      "title": "Master of Coin",
+      "company": "The Crown \u2014 Small Council",
+      "startDate": "2002-01",
+      "endDate": "2014-06",
+      "description": "Chief financial officer of the Seven Kingdoms for 12 years. Grew Crown revenues tenfold. Built personal fortune and intelligence network simultaneously. Served under two kings."
+    },
+    {
+      "title": "Revenue Commissioner",
+      "company": "The Crown \u2014 Gulltown & King's Landing",
+      "startDate": "1998-01",
+      "endDate": "2002-01",
+      "description": "Managed customs and revenue collection. Demonstrated exceptional financial acumen that caught the attention of Jon Arryn, leading to appointment to the Small Council."
+    },
+    {
+      "title": "Customs Officer",
+      "company": "Port of Gulltown \u2014 The Vale",
+      "startDate": "1993-01",
+      "endDate": "1998-01",
+      "description": "Entry-level government position. Began building financial expertise and political connections in the Vale's primary trade port. First step on the ladder."
+    }
   ],
   "education": [
-    { "degree": "Ward Education", "institution": "Riverrun — House Tully", "year": "1990", "field": "History, Finance, Swordsmanship, Court Protocol" }
+    {
+      "degree": "Ward Education",
+      "institution": "Riverrun \u2014 House Tully",
+      "year": "1990",
+      "field": "History, Finance, Swordsmanship, Court Protocol"
+    }
   ],
   "certifications": []
 }

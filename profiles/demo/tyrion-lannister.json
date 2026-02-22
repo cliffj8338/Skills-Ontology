@@ -5,61 +5,376 @@
     "location": "King's Landing, Westeros",
     "roleLevel": "Executive",
     "email": "",
-    "summary": "Two-time Hand of the King, Master of Coin, and the most effective political strategist in the Seven Kingdoms. Overcame systemic prejudice and family hostility through intellectual superiority, strategic alliances, and a refusal to be defined by others' limitations. Survived assassination, trial by combat, exile, and siege warfare — emerging as the chief advisor to three monarchs."
+    "summary": "Two-time Hand of the King, Master of Coin, and the most effective political strategist in the Seven Kingdoms. Overcame systemic prejudice and family hostility through intellectual superiority, strategic alliances, and a refusal to be defined by others' limitations. Survived assassination, trial by combat, exile, and siege warfare \u2014 emerging as the chief advisor to three monarchs."
   },
   "roles": [
-    { "id": "political-strategy", "name": "Political Strategy", "color": "#B8860B" },
-    { "id": "governance", "name": "Governance & Administration", "color": "#8B0000" },
-    { "id": "diplomacy", "name": "Diplomacy & Negotiation", "color": "#4169E1" },
-    { "id": "military-advisory", "name": "Military Advisory", "color": "#2F4F4F" },
-    { "id": "intelligence", "name": "Intelligence & Analysis", "color": "#6A0DAD" }
+    {
+      "id": "political-strategy",
+      "name": "Political Strategy",
+      "color": "#B8860B"
+    },
+    {
+      "id": "governance",
+      "name": "Governance & Administration",
+      "color": "#8B0000"
+    },
+    {
+      "id": "diplomacy",
+      "name": "Diplomacy & Negotiation",
+      "color": "#4169E1"
+    },
+    {
+      "id": "military-advisory",
+      "name": "Military Advisory",
+      "color": "#2F4F4F"
+    },
+    {
+      "id": "intelligence",
+      "name": "Intelligence & Analysis",
+      "color": "#6A0DAD"
+    }
   ],
   "skills": [
-    { "name": "Strategic Planning", "level": "Expert", "role": "Political Strategy", "evidence": ["Designed the defense of King's Landing against Stannis Baratheon's naval assault using wildfire at the Battle of Blackwater", "Orchestrated alliance-building strategy uniting Northern forces, Unsullied, and Dothraki under a single command structure", "Developed succession framework that transitioned Westeros from hereditary monarchy to elective council"] },
-    { "name": "Political Analysis", "level": "Expert", "role": "Political Strategy", "evidence": ["Correctly identified Joffrey's instability as existential threat to Lannister power and implemented containment strategies", "Mapped the political motivations of every major house during the War of the Five Kings", "Predicted Cersei's self-destructive governance patterns years before their full manifestation"] },
-    { "name": "Stakeholder Management", "level": "Expert", "role": "Political Strategy", "evidence": ["Managed competing interests of Lannister family, Small Council members, and King's Landing nobility simultaneously", "Built working relationships with hostile factions including formerly enslaved peoples, Dothraki leadership, and Northern lords", "Navigated family politics between Tywin, Cersei, and Jaime while maintaining operational effectiveness"] },
-    { "name": "Alliance Building", "level": "Expert", "role": "Diplomacy & Negotiation", "evidence": ["Brokered alliance between Daenerys Targaryen and Jon Snow that united the largest military force in Westerosi history", "Negotiated mountain clan support during the War of the Five Kings through promises of political recognition", "Built cross-factional coalition that elected Bran Stark as king through persuasion rather than force"] },
-    { "name": "Negotiation", "level": "Expert", "role": "Diplomacy & Negotiation", "evidence": ["Negotiated his own survival with Meereenese slave masters, Dothraki captors, and multiple hostile courts", "Secured temporary peace in Meereen through compromise with the Masters of Slaver's Bay", "Talked his way out of execution by both Stark and Targaryen forces through pure rhetorical skill"] },
-    { "name": "Crisis Management", "level": "Expert", "role": "Governance & Administration", "evidence": ["Took command of King's Landing defense when all other leaders fled during Battle of Blackwater", "Managed Meereen's governance during Daenerys's absence including economic crisis and insurgent threat", "Stabilized post-war King's Landing governance amid destroyed infrastructure and decimated population"] },
-    { "name": "Public Administration", "level": "Proficient", "role": "Governance & Administration", "evidence": ["Served as acting Hand managing city infrastructure, food supply, and public order during wartime", "Administered Casterly Rock's drainage and cistern systems — improving sanitation infrastructure for thousands", "Reorganized King's Landing's Small Council with functional governance portfolios after Bran's coronation"] },
-    { "name": "Financial Management", "level": "Proficient", "role": "Governance & Administration", "evidence": ["Served as Master of Coin managing Crown revenues, taxation, and Iron Bank debt obligations", "Understood that Lannister wealth was depleted — intelligence others failed to detect until crisis point", "Managed war financing and supply logistics during multiple military campaigns"] },
-    { "name": "Persuasive Communication", "level": "Expert", "role": "Diplomacy & Negotiation", "evidence": ["Delivered trial speech that swayed public opinion and exposed the corruption of King's Landing's justice system", "Convinced Daenerys Targaryen to accept him as advisor despite being a Lannister — her family's sworn enemy", "Persuaded the lords of the Great Council to accept an unprecedented new form of governance"] },
-    { "name": "Intelligence Gathering", "level": "Proficient", "role": "Intelligence & Analysis", "evidence": ["Maintained network of informants including Varys, Bronn, and Shae across multiple political contexts", "Used Podrick Payne and other trusted agents for discreet intelligence operations", "Identified threats from within the Small Council through careful observation and information cross-referencing"] },
-    { "name": "Pattern Recognition", "level": "Expert", "role": "Intelligence & Analysis", "evidence": ["Recognized Littlefinger's manipulation strategy before most other court figures", "Identified that the Night King threat required unprecedented alliance-building — not conventional military response", "Detected shifts in Daenerys's judgment and psychological state through behavioral pattern analysis"] },
-    { "name": "Military Strategy", "level": "Proficient", "role": "Military Advisory", "evidence": ["Designed the wildfire chain and ship-trap at the Battle of Blackwater Bay", "Advised on siege tactics and defensive positioning during the Battle of Winterfell", "Understood logistics requirements for moving armies across continents including supply chain and naval transport"] },
-    { "name": "Siege Warfare", "level": "Competent", "role": "Military Advisory", "evidence": ["Led the defense of King's Landing against a numerically superior naval force", "Understood fortification weaknesses and defensive positioning from extensive historical study", "Advised on Meereen's defense against the Masters' siege including naval and ground tactics"] },
-    { "name": "Conflict Resolution", "level": "Expert", "role": "Diplomacy & Negotiation", "evidence": ["Mediated disputes between Daenerys and her advisors including Jorah Mormont, Daario Naharis, and Grey Worm", "De-escalated confrontation between Jon Snow and Daenerys over Northern independence", "Resolved resource allocation disputes in post-war King's Landing through equitable distribution frameworks"] },
-    { "name": "Cross-Cultural Communication", "level": "Proficient", "role": "Diplomacy & Negotiation", "evidence": ["Successfully communicated with and earned respect of Dothraki, Unsullied, and Free Cities cultures", "Adapted communication style from Westerosi court formality to Essosi merchant directness as context demanded", "Built trust with formerly enslaved populations despite representing the Westerosi ruling class"] },
-    { "name": "Risk Assessment", "level": "Expert", "role": "Intelligence & Analysis", "evidence": ["Accurately assessed the risk of Cersei's betrayal when she pledged military support against the Night King", "Evaluated political risk of every major alliance and correctly identified which would hold and which would fracture", "Assessed personal survival risk in dozens of life-threatening situations and chose optimal responses"] },
-    { "name": "Leadership Under Pressure", "level": "Expert", "role": "Military Advisory", "evidence": ["Led troops at the Battle of Blackwater when the King and Kingsguard abandoned the defense", "Maintained command authority and morale during the siege of Meereen", "Kept governance functioning during the aftermath of Daenerys's destruction of King's Landing"] },
-    { "name": "Historical Analysis", "level": "Expert", "role": "Intelligence & Analysis", "evidence": ["Encyclopedic knowledge of Westerosi political history used to predict contemporary alliance patterns", "Studied every siege, treaty, and succession crisis in the Seven Kingdoms' history", "Applied historical precedent to design the elective monarchy that ended centuries of hereditary succession wars"] },
-    { "name": "Resilience", "level": "Expert", "role": "Political Strategy", "evidence": ["Survived attempted murder by his sister, trial for regicide, and exile across the Narrow Sea", "Rebuilt career and influence after being stripped of all titles, wealth, and family connections", "Maintained intellectual clarity and strategic effectiveness despite sustained trauma and personal loss"] },
-    { "name": "Adaptive Leadership", "level": "Expert", "role": "Governance & Administration", "evidence": ["Transitioned from Lannister family operative to independent advisor to Targaryen queen to Stark administration", "Adapted governance style from wartime crisis management to peacetime institution-building", "Led effectively across radically different organizational cultures — feudal, military, revolutionary, and democratic"] },
-    { "name": "Talent Assessment", "level": "Proficient", "role": "Governance & Administration", "evidence": ["Identified Bronn's tactical value and recruited him from sellsword to castle lord through strategic investment", "Recognized Podrick Payne's loyalty and competence when others dismissed him", "Selected effective administrators for post-war Small Council based on capability rather than lineage"] },
-    { "name": "Rhetoric", "level": "Expert", "role": "Diplomacy & Negotiation", "evidence": ["Trial speech at King's Landing is considered one of the most effective pieces of oratory in Westerosi history", "Used wit and verbal dexterity to survive situations where physical force was not an option", "Convinced hostile audiences through logic, humor, and emotional intelligence in equal measure"] },
-    { "name": "Economic Analysis", "level": "Proficient", "role": "Intelligence & Analysis", "evidence": ["Identified the Crown's unsustainable debt to the Iron Bank of Braavos", "Understood trade dynamics between Westeros and the Free Cities including tariff implications", "Analyzed Meereen's economic collapse after the abolition of slavery and developed transition frameworks"] },
-    { "name": "Emotional Intelligence", "level": "Expert", "role": "Diplomacy & Negotiation", "evidence": ["Read the emotional states of monarchs, warriors, and politicians with exceptional accuracy", "Used empathy and humor to build trust in adversarial environments", "Understood that Daenerys's increasing isolation was a governance risk — attempted intervention through counsel"] },
-    { "name": "Organizational Design", "level": "Proficient", "role": "Governance & Administration", "evidence": ["Restructured the Small Council with clear functional portfolios after decades of patronage-based appointments", "Designed governance framework for Meereen's transition from slave economy to free labor market", "Proposed the elective monarchy structure that fundamentally redesigned Westerosi succession"] },
-    { "name": "Budget Management", "level": "Competent", "role": "Governance & Administration", "evidence": ["Managed Crown finances as Master of Coin during wartime austerity", "Allocated limited resources across military, infrastructure, and social needs in post-war King's Landing", "Identified financial fraud and waste in royal expenditures through forensic analysis of treasury records"] }
+    {
+      "name": "Strategic Planning",
+      "level": "Expert",
+      "role": "Political Strategy",
+      "evidence": [
+        "Designed the defense of King's Landing against Stannis Baratheon's naval assault using wildfire at the Battle of Blackwater",
+        "Orchestrated alliance-building strategy uniting Northern forces, Unsullied, and Dothraki under a single command structure",
+        "Developed succession framework that transitioned Westeros from hereditary monarchy to elective council"
+      ]
+    },
+    {
+      "name": "Political Analysis",
+      "level": "Expert",
+      "role": "Political Strategy",
+      "evidence": [
+        "Correctly identified Joffrey's instability as existential threat to Lannister power and implemented containment strategies",
+        "Mapped the political motivations of every major house during the War of the Five Kings",
+        "Predicted Cersei's self-destructive governance patterns years before their full manifestation"
+      ]
+    },
+    {
+      "name": "Stakeholder Management",
+      "level": "Expert",
+      "role": "Political Strategy",
+      "evidence": [
+        "Managed competing interests of Lannister family, Small Council members, and King's Landing nobility simultaneously",
+        "Built working relationships with hostile factions including formerly enslaved peoples, Dothraki leadership, and Northern lords",
+        "Navigated family politics between Tywin, Cersei, and Jaime while maintaining operational effectiveness"
+      ]
+    },
+    {
+      "name": "Alliance Building",
+      "level": "Expert",
+      "role": "Diplomacy & Negotiation",
+      "evidence": [
+        "Brokered alliance between Daenerys Targaryen and Jon Snow that united the largest military force in Westerosi history",
+        "Negotiated mountain clan support during the War of the Five Kings through promises of political recognition",
+        "Built cross-factional coalition that elected Bran Stark as king through persuasion rather than force"
+      ]
+    },
+    {
+      "name": "Negotiation",
+      "level": "Expert",
+      "role": "Diplomacy & Negotiation",
+      "evidence": [
+        "Negotiated his own survival with Meereenese slave masters, Dothraki captors, and multiple hostile courts",
+        "Secured temporary peace in Meereen through compromise with the Masters of Slaver's Bay",
+        "Talked his way out of execution by both Stark and Targaryen forces through pure rhetorical skill"
+      ]
+    },
+    {
+      "name": "Crisis Management",
+      "level": "Expert",
+      "role": "Governance & Administration",
+      "evidence": [
+        "Took command of King's Landing defense when all other leaders fled during Battle of Blackwater",
+        "Managed Meereen's governance during Daenerys's absence including economic crisis and insurgent threat",
+        "Stabilized post-war King's Landing governance amid destroyed infrastructure and decimated population"
+      ]
+    },
+    {
+      "name": "Public Administration",
+      "level": "Proficient",
+      "role": "Governance & Administration",
+      "evidence": [
+        "Served as acting Hand managing city infrastructure, food supply, and public order during wartime",
+        "Administered Casterly Rock's drainage and cistern systems \u2014 improving sanitation infrastructure for thousands",
+        "Reorganized King's Landing's Small Council with functional governance portfolios after Bran's coronation"
+      ]
+    },
+    {
+      "name": "Financial Management",
+      "level": "Proficient",
+      "role": "Governance & Administration",
+      "evidence": [
+        "Served as Master of Coin managing Crown revenues, taxation, and Iron Bank debt obligations",
+        "Understood that Lannister wealth was depleted \u2014 intelligence others failed to detect until crisis point",
+        "Managed war financing and supply logistics during multiple military campaigns"
+      ]
+    },
+    {
+      "name": "Persuasive Communication",
+      "level": "Expert",
+      "role": "Diplomacy & Negotiation",
+      "evidence": [
+        "Delivered trial speech that swayed public opinion and exposed the corruption of King's Landing's justice system",
+        "Convinced Daenerys Targaryen to accept him as advisor despite being a Lannister \u2014 her family's sworn enemy",
+        "Persuaded the lords of the Great Council to accept an unprecedented new form of governance"
+      ]
+    },
+    {
+      "name": "Intelligence Gathering",
+      "level": "Proficient",
+      "role": "Intelligence & Analysis",
+      "evidence": [
+        "Maintained network of informants including Varys, Bronn, and Shae across multiple political contexts",
+        "Used Podrick Payne and other trusted agents for discreet intelligence operations",
+        "Identified threats from within the Small Council through careful observation and information cross-referencing"
+      ]
+    },
+    {
+      "name": "Pattern Recognition",
+      "level": "Expert",
+      "role": "Intelligence & Analysis",
+      "evidence": [
+        "Recognized Littlefinger's manipulation strategy before most other court figures",
+        "Identified that the Night King threat required unprecedented alliance-building \u2014 not conventional military response",
+        "Detected shifts in Daenerys's judgment and psychological state through behavioral pattern analysis"
+      ]
+    },
+    {
+      "name": "Military Strategy",
+      "level": "Proficient",
+      "role": "Military Advisory",
+      "evidence": [
+        "Designed the wildfire chain and ship-trap at the Battle of Blackwater Bay",
+        "Advised on siege tactics and defensive positioning during the Battle of Winterfell",
+        "Understood logistics requirements for moving armies across continents including supply chain and naval transport"
+      ]
+    },
+    {
+      "name": "Siege Warfare",
+      "level": "Competent",
+      "role": "Military Advisory",
+      "evidence": [
+        "Led the defense of King's Landing against a numerically superior naval force",
+        "Understood fortification weaknesses and defensive positioning from extensive historical study",
+        "Advised on Meereen's defense against the Masters' siege including naval and ground tactics"
+      ]
+    },
+    {
+      "name": "Conflict Resolution",
+      "level": "Expert",
+      "role": "Diplomacy & Negotiation",
+      "evidence": [
+        "Mediated disputes between Daenerys and her advisors including Jorah Mormont, Daario Naharis, and Grey Worm",
+        "De-escalated confrontation between Jon Snow and Daenerys over Northern independence",
+        "Resolved resource allocation disputes in post-war King's Landing through equitable distribution frameworks"
+      ]
+    },
+    {
+      "name": "Cross-Cultural Communication",
+      "level": "Proficient",
+      "role": "Diplomacy & Negotiation",
+      "evidence": [
+        "Successfully communicated with and earned respect of Dothraki, Unsullied, and Free Cities cultures",
+        "Adapted communication style from Westerosi court formality to Essosi merchant directness as context demanded",
+        "Built trust with formerly enslaved populations despite representing the Westerosi ruling class"
+      ]
+    },
+    {
+      "name": "Risk Assessment",
+      "level": "Expert",
+      "role": "Intelligence & Analysis",
+      "evidence": [
+        "Accurately assessed the risk of Cersei's betrayal when she pledged military support against the Night King",
+        "Evaluated political risk of every major alliance and correctly identified which would hold and which would fracture",
+        "Assessed personal survival risk in dozens of life-threatening situations and chose optimal responses"
+      ]
+    },
+    {
+      "name": "Leadership Under Pressure",
+      "level": "Expert",
+      "role": "Military Advisory",
+      "evidence": [
+        "Led troops at the Battle of Blackwater when the King and Kingsguard abandoned the defense",
+        "Maintained command authority and morale during the siege of Meereen",
+        "Kept governance functioning during the aftermath of Daenerys's destruction of King's Landing"
+      ]
+    },
+    {
+      "name": "Historical Analysis",
+      "level": "Expert",
+      "role": "Intelligence & Analysis",
+      "evidence": [
+        "Encyclopedic knowledge of Westerosi political history used to predict contemporary alliance patterns",
+        "Studied every siege, treaty, and succession crisis in the Seven Kingdoms' history",
+        "Applied historical precedent to design the elective monarchy that ended centuries of hereditary succession wars"
+      ]
+    },
+    {
+      "name": "Resilience",
+      "level": "Expert",
+      "role": "Political Strategy",
+      "evidence": [
+        "Survived attempted murder by his sister, trial for regicide, and exile across the Narrow Sea",
+        "Rebuilt career and influence after being stripped of all titles, wealth, and family connections",
+        "Maintained intellectual clarity and strategic effectiveness despite sustained trauma and personal loss"
+      ]
+    },
+    {
+      "name": "Adaptive Leadership",
+      "level": "Expert",
+      "role": "Governance & Administration",
+      "evidence": [
+        "Transitioned from Lannister family operative to independent advisor to Targaryen queen to Stark administration",
+        "Adapted governance style from wartime crisis management to peacetime institution-building",
+        "Led effectively across radically different organizational cultures \u2014 feudal, military, revolutionary, and democratic"
+      ]
+    },
+    {
+      "name": "Talent Assessment",
+      "level": "Proficient",
+      "role": "Governance & Administration",
+      "evidence": [
+        "Identified Bronn's tactical value and recruited him from sellsword to castle lord through strategic investment",
+        "Recognized Podrick Payne's loyalty and competence when others dismissed him",
+        "Selected effective administrators for post-war Small Council based on capability rather than lineage"
+      ]
+    },
+    {
+      "name": "Rhetoric",
+      "level": "Expert",
+      "role": "Diplomacy & Negotiation",
+      "evidence": [
+        "Trial speech at King's Landing is considered one of the most effective pieces of oratory in Westerosi history",
+        "Used wit and verbal dexterity to survive situations where physical force was not an option",
+        "Convinced hostile audiences through logic, humor, and emotional intelligence in equal measure"
+      ]
+    },
+    {
+      "name": "Economic Analysis",
+      "level": "Proficient",
+      "role": "Intelligence & Analysis",
+      "evidence": [
+        "Identified the Crown's unsustainable debt to the Iron Bank of Braavos",
+        "Understood trade dynamics between Westeros and the Free Cities including tariff implications",
+        "Analyzed Meereen's economic collapse after the abolition of slavery and developed transition frameworks"
+      ]
+    },
+    {
+      "name": "Emotional Intelligence",
+      "level": "Expert",
+      "role": "Diplomacy & Negotiation",
+      "evidence": [
+        "Read the emotional states of monarchs, warriors, and politicians with exceptional accuracy",
+        "Used empathy and humor to build trust in adversarial environments",
+        "Understood that Daenerys's increasing isolation was a governance risk \u2014 attempted intervention through counsel"
+      ]
+    },
+    {
+      "name": "Organizational Design",
+      "level": "Proficient",
+      "role": "Governance & Administration",
+      "evidence": [
+        "Restructured the Small Council with clear functional portfolios after decades of patronage-based appointments",
+        "Designed governance framework for Meereen's transition from slave economy to free labor market",
+        "Proposed the elective monarchy structure that fundamentally redesigned Westerosi succession"
+      ]
+    },
+    {
+      "name": "Budget Management",
+      "level": "Competent",
+      "role": "Governance & Administration",
+      "evidence": [
+        "Managed Crown finances as Master of Coin during wartime austerity",
+        "Allocated limited resources across military, infrastructure, and social needs in post-war King's Landing",
+        "Identified financial fraud and waste in royal expenditures through forensic analysis of treasury records"
+      ]
+    }
   ],
   "values": [
-    { "name": "Intellectual Honesty", "selected": true },
-    { "name": "Strategic Thinking", "selected": true },
-    { "name": "Courage", "selected": true },
-    { "name": "Resilience", "selected": true },
-    { "name": "Empathy", "selected": true }
+    {
+      "name": "Intellectual Honesty",
+      "selected": true
+    },
+    {
+      "name": "Strategic Thinking",
+      "selected": true
+    },
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Empathy",
+      "selected": true
+    },
+    {
+      "name": "Resilience",
+      "selected": true
+    },
+    {
+      "name": "Wit as Weapon",
+      "selected": true,
+      "custom": true
+    }
   ],
-  "purpose": "To prove that the mind is the truest weapon — that wisdom, wit, and moral courage can reshape the world more durably than any army or bloodline.",
+  "purpose": "To prove that the mind is the truest weapon \u2014 that wisdom, wit, and moral courage can reshape the world more durably than any army or bloodline.",
   "workHistory": [
-    { "title": "Hand of the King", "company": "The Crown — King Bran I", "startDate": "2019-06", "endDate": "Present", "description": "Chief advisor and head of government. Rebuilding institutions, infrastructure, and governance frameworks after catastrophic war. Leading the first elective monarchy in Westerosi history." },
-    { "title": "Hand of the Queen", "company": "Daenerys Targaryen — Targaryen Restoration", "startDate": "2015-03", "endDate": "2019-05", "description": "Chief strategic advisor during campaign to reclaim the Iron Throne. Managed alliance-building, military strategy, and governance of Meereen. Brokered the Stark-Targaryen alliance against the Night King." },
-    { "title": "Master of Coin", "company": "The Crown — King Joffrey I", "startDate": "2013-01", "endDate": "2014-04", "description": "Managed Crown finances including Iron Bank debt obligations, wartime taxation, and royal wedding expenditures. Identified systemic fiscal insolvency." },
-    { "title": "Acting Hand of the King", "company": "The Crown — King Joffrey I", "startDate": "2012-01", "endDate": "2013-01", "description": "Served as acting Hand during Tywin Lannister's military campaign. Led defense of King's Landing at the Battle of Blackwater. Managed city governance, food supply, and public order during siege." },
-    { "title": "Independent Advisor & Scholar", "company": "Free Cities — Various", "startDate": "2003-06", "endDate": "2011-12", "description": "Traveled extensively through Essos studying governance systems, trade networks, and political structures. Built knowledge base spanning multiple cultures and economic models." },
-    { "title": "Infrastructure Administrator", "company": "House Lannister — Casterly Rock", "startDate": "2000-01", "endDate": "2003-05", "description": "Managed drainage systems, cisterns, and sanitation infrastructure for Casterly Rock. First leadership role — assigned as deliberate slight but executed with competence." }
+    {
+      "title": "Hand of the King",
+      "company": "The Crown \u2014 King Bran I",
+      "startDate": "2019-06",
+      "endDate": "Present",
+      "description": "Chief advisor and head of government. Rebuilding institutions, infrastructure, and governance frameworks after catastrophic war. Leading the first elective monarchy in Westerosi history."
+    },
+    {
+      "title": "Hand of the Queen",
+      "company": "Daenerys Targaryen \u2014 Targaryen Restoration",
+      "startDate": "2015-03",
+      "endDate": "2019-05",
+      "description": "Chief strategic advisor during campaign to reclaim the Iron Throne. Managed alliance-building, military strategy, and governance of Meereen. Brokered the Stark-Targaryen alliance against the Night King."
+    },
+    {
+      "title": "Master of Coin",
+      "company": "The Crown \u2014 King Joffrey I",
+      "startDate": "2013-01",
+      "endDate": "2014-04",
+      "description": "Managed Crown finances including Iron Bank debt obligations, wartime taxation, and royal wedding expenditures. Identified systemic fiscal insolvency."
+    },
+    {
+      "title": "Acting Hand of the King",
+      "company": "The Crown \u2014 King Joffrey I",
+      "startDate": "2012-01",
+      "endDate": "2013-01",
+      "description": "Served as acting Hand during Tywin Lannister's military campaign. Led defense of King's Landing at the Battle of Blackwater. Managed city governance, food supply, and public order during siege."
+    },
+    {
+      "title": "Independent Advisor & Scholar",
+      "company": "Free Cities \u2014 Various",
+      "startDate": "2003-06",
+      "endDate": "2011-12",
+      "description": "Traveled extensively through Essos studying governance systems, trade networks, and political structures. Built knowledge base spanning multiple cultures and economic models."
+    },
+    {
+      "title": "Infrastructure Administrator",
+      "company": "House Lannister \u2014 Casterly Rock",
+      "startDate": "2000-01",
+      "endDate": "2003-05",
+      "description": "Managed drainage systems, cisterns, and sanitation infrastructure for Casterly Rock. First leadership role \u2014 assigned as deliberate slight but executed with competence."
+    }
   ],
   "education": [
-    { "degree": "Extensive Self-Directed Study", "institution": "Library of Casterly Rock & The Citadel Archives", "year": "2000", "field": "History, Political Philosophy, Military Strategy, Economics" }
+    {
+      "degree": "Extensive Self-Directed Study",
+      "institution": "Library of Casterly Rock & The Citadel Archives",
+      "year": "2000",
+      "field": "History, Political Philosophy, Military Strategy, Economics"
+    }
   ],
   "certifications": []
 }
