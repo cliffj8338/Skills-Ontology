@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.36.2.0 | 20260222 | PDF fix: narrative/outcome truncation, Tyrion role mapping, Competent level -->
+    <!-- v4.36.3.0 | 20260222 | PDF: network graph rewrite, emoji removal, labeled nodes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -960,8 +960,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.36.2.0 - BUILD 20260222-pdf-truncation-fix
-        var BP_VERSION = 'v4.36.2.0';
+        // BLUEPRINT v4.36.3.0 - BUILD 20260222-pdf-network-rewrite
+        var BP_VERSION = 'v4.36.3.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -992,7 +992,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260222-pdf-truncation-fix                   ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260222-pdf-network-rewrite                   ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -13564,9 +13564,9 @@ body {
             sf([12, 17, 32]); doc.rect(0, 0, W, 8, 'F');
             sd(C.borderRGB); doc.setLineWidth(0.15); doc.line(0, 8, W, 8);
             doc.setFontSize(5.5); sc(C.tm);
-            doc.text('\uD83D\uDD12 Confidential \u2014 Prepared for the hiring team at ', M, 5);
+            doc.text('CONFIDENTIAL \u2014 Prepared for the hiring team at ', M, 5);
             doc.setFont(undefined, 'bold'); sc(C.t2);
-            doc.text(R.job.company, M + doc.getTextWidth('\uD83D\uDD12 Confidential \u2014 Prepared for the hiring team at ') + 1, 5);
+            doc.text(R.job.company, M + doc.getTextWidth('CONFIDENTIAL \u2014 Prepared for the hiring team at ') + 1, 5);
             doc.setFont(undefined, 'normal'); sc(C.tm);
             doc.text(dateLine, W - M, 5, { align: 'right' });
             
@@ -13587,19 +13587,19 @@ body {
             doc.text(R.candidate.title || '', nx, y + 11);
             doc.setFontSize(6.5); sc(C.tm);
             var meta = [];
-            if (R.candidate.location) meta.push('\uD83D\uDCCD ' + R.candidate.location);
+            if (R.candidate.location) meta.push(R.candidate.location);
             doc.text(meta.join('    '), nx, y + 16);
             // Contact line
             var contactParts = [];
-            if (R.candidate.contact && R.candidate.contact !== 'Available upon request') contactParts.push('\u2709 ' + R.candidate.contact);
-            if (R.candidate.phone) contactParts.push('\u260E ' + R.candidate.phone);
-            if (R.candidate.linkedin) contactParts.push('\uD83D\uDD17 ' + R.candidate.linkedin);
+            if (R.candidate.contact && R.candidate.contact !== 'Available upon request') contactParts.push(R.candidate.contact);
+            if (R.candidate.phone) contactParts.push(R.candidate.phone);
+            if (R.candidate.linkedin) contactParts.push(R.candidate.linkedin);
             if (contactParts.length > 0) {
                 doc.setFontSize(5.8); sc(C.t2);
-                doc.text(contactParts.join('   \u2022   '), nx, y + 20.5);
+                doc.text(contactParts.join('   |   '), nx, y + 20.5);
             } else {
                 doc.setFontSize(5.8); sc(C.tm);
-                doc.text('\u260E Available upon request', nx, y + 20.5);
+                doc.text('Contact available upon request', nx, y + 20.5);
             }
             
             // Match ring — right side
@@ -13656,7 +13656,7 @@ body {
             var narH = narLines.length * lineH + 12;
             doc.roundedRect(M, y, MW, narH, 2.5, 2.5, 'FD');
             doc.setFontSize(5); doc.setFont(undefined, 'bold'); sc(C.a);
-            doc.text('\u2B50 WHY THIS CANDIDATE FITS', M + 8, y + 5);
+            doc.text('WHY THIS CANDIDATE FITS', M + 8, y + 5);
             doc.setFontSize(7); doc.setFont(undefined, 'normal'); sc(C.t2);
             for (var ni = 0; ni < narLines.length; ni++) {
                 doc.text(narLines[ni], M + 8, y + 10 + ni * lineH);
@@ -13692,95 +13692,140 @@ body {
             y += 9;
             
             // Network container — matches .net-w
-            var netY = y, netH = 145;
+            var netY = y, netH = 160;
             card(M, netY, MW, netH);
             
             // Draw Job Match network (center = job, role hubs orbiting, skills around roles)
             (function drawJobNet() {
-                var gCx = M + MW / 2, gCy = netY + netH / 2, gR = 52;
+                var padL = M + 8, padR = M + MW - 8, padT = netY + 8, padB = netY + netH - 12;
+                var aW = padR - padL, aH = padB - padT;
+                var gCx = padL + aW / 2, gCy = padT + aH / 2;
                 
-                // Center node (job)
-                sf(C.a); doc.circle(gCx, gCy, 6, 'F');
-                doc.setFontSize(5.5); doc.setFont(undefined, 'bold'); sc(C.white);
-                var jtShort = R.job.title.length > 18 ? R.job.title.slice(0, 16) + '\u2026' : R.job.title;
-                doc.text(jtShort, gCx, gCy + 1, { align: 'center' });
-                doc.setFont(undefined, 'normal');
-                
-                // Role hubs around center
-                var roleNodes = [];
-                roles.forEach(function(role, i) {
-                    var angle = (i / roles.length) * Math.PI * 2 - Math.PI / 2;
-                    var dist = gR * 0.5;
-                    var rx = gCx + Math.cos(angle) * dist;
-                    var ry = gCy + Math.sin(angle) * dist;
-                    var rc = role.color || '#3b82f6';
-                    var rgb = [parseInt(rc.slice(1,3),16)||59, parseInt(rc.slice(3,5),16)||130, parseInt(rc.slice(5,7),16)||246];
-                    
-                    // Link to center
-                    sd([40, 55, 85]); doc.setLineWidth(0.1); doc.line(gCx, gCy, rx, ry);
-                    
-                    // Role hub
-                    sf(rgb); doc.circle(rx, ry, 3.5, 'F');
-                    doc.setFontSize(5); doc.setFont(undefined, 'bold');
-                    doc.setTextColor(rgb[0], rgb[1], rgb[2]);
-                    var rlbl = role.name.length > 16 ? role.name.slice(0, 14) + '\u2026' : role.name;
-                    doc.text(rlbl, rx, ry - 5.5, { align: 'center' });
-                    doc.setFont(undefined, 'normal');
-                    
-                    roleNodes.push({ x: rx, y: ry, color: rgb, id: role.id });
-                });
-                
-                // Skill nodes
+                // Helpers
+                function hex2rgb(c) { return [parseInt(c.slice(1,3),16)||59, parseInt(c.slice(3,5),16)||130, parseInt(c.slice(5,7),16)||246]; }
                 function hsh(s) { var h=0; for(var i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0;} return h; }
                 function hfl(s,a,b) { return a+(Math.abs(hsh(s))%10000/10000)*(b-a); }
-                var lvlSz = { 'Mastery': 2.2, 'Expert': 1.8, 'Advanced': 1.5, 'Proficient': 1.2, 'Novice': 0.8 };
+                var lvlSz = { 'Mastery': 2.8, 'Expert': 2.2, 'Advanced': 1.8, 'Proficient': 1.4, 'Competent': 1.4, 'Novice': 1.0 };
                 
+                // Group skills by role
                 var rSkills = {}; roles.forEach(function(r) { rSkills[r.id] = []; });
                 allSkills.forEach(function(sk) {
                     var rid = (sk.r && sk.r[0]) || '';
                     if (rSkills[rid]) rSkills[rid].push(sk);
-                    else if (roles.length > 0) (rSkills[roles[0].id] = rSkills[roles[0].id] || []).push(sk);
+                    else if (roles.length > 0) rSkills[roles[0].id].push(sk);
                 });
                 
+                // Layout: role hubs in a wider orbit
+                var hubR = Math.min(aW, aH) * 0.28;
+                var roleNodes = [];
+                roles.forEach(function(role, i) {
+                    var angle = (i / roles.length) * Math.PI * 2 - Math.PI / 2;
+                    var rx = gCx + Math.cos(angle) * hubR;
+                    var ry = gCy + Math.sin(angle) * hubR * 0.85;
+                    var rgb = hex2rgb(role.color || '#3b82f6');
+                    roleNodes.push({ x: rx, y: ry, color: rgb, id: role.id, name: role.name });
+                });
+                
+                // Compute all skill positions first (for overlap avoidance)
+                var skillNodes = [];
+                var gapNodes = [];
                 roleNodes.forEach(function(rn, ri) {
                     var sks = rSkills[rn.id] || [];
                     var pAngle = (ri / roleNodes.length) * Math.PI * 2 - Math.PI / 2;
                     sks.forEach(function(sk, si) {
-                        var spread = pAngle + ((si / Math.max(sks.length, 1)) - 0.5) * 1.4;
-                        var dist = gR * (0.7 + hfl(sk.n + ri, 0, 0.28));
-                        var jit = hfl(sk.n + 'j', -2, 2);
+                        var spread = pAngle + ((si / Math.max(sks.length, 1)) - 0.5) * (sks.length > 6 ? 1.8 : 1.3);
+                        var dist = hubR * (1.4 + hfl(sk.n + ri, 0, 0.5));
+                        var jit = hfl(sk.n + 'jt', -3, 3);
                         var sx = gCx + Math.cos(spread) * dist + jit;
-                        var sy = gCy + Math.sin(spread) * dist + jit * 0.5;
-                        // Clamp to card
-                        sx = Math.max(M + 6, Math.min(M + MW - 6, sx));
-                        sy = Math.max(netY + 6, Math.min(netY + netH - 6, sy));
-                        
-                        // Link to role hub
-                        sd([40, 55, 85]); doc.setLineWidth(0.05); doc.line(rn.x, rn.y, sx, sy);
-                        
-                        // Node color: green=matched, red=gap, grey=surplus
-                        var nodeColor = sk.k ? C.g : C.tm;
-                        sf(nodeColor); doc.circle(sx, sy, lvlSz[sk.l] || 1, 'F');
+                        var sy = gCy + Math.sin(spread) * dist * 0.85 + jit * 0.4;
+                        sx = Math.max(padL + 3, Math.min(padR - 3, sx));
+                        sy = Math.max(padT + 3, Math.min(padB - 3, sy));
+                        var isGap = false;
+                        var nodeColor = sk.k ? C.g : [80, 90, 110];
+                        skillNodes.push({ x: sx, y: sy, color: nodeColor, name: sk.n, level: sk.l, hub: rn, isRequired: sk.k });
                     });
                 });
                 
-                // Gap nodes (not in skills array — draw as red)
+                // Gap nodes
                 gaps.forEach(function(gap, gi) {
-                    var angle = Math.PI * 0.3 + (gi / Math.max(gaps.length, 1)) * Math.PI * 0.5;
-                    var dist = gR * 0.85;
+                    var angle = Math.PI * 0.2 + (gi / Math.max(gaps.length, 1)) * Math.PI * 0.6;
+                    var dist = hubR * 1.6;
                     var gx = gCx + Math.cos(angle) * dist;
-                    var gy = gCy + Math.sin(angle) * dist;
-                    gx = Math.max(M + 6, Math.min(M + MW - 6, gx));
-                    gy = Math.max(netY + 6, Math.min(netY + netH - 6, gy));
-                    sf(C.r); doc.circle(gx, gy, 1.8, 'F');
+                    var gy = gCy + Math.sin(angle) * dist * 0.85;
+                    gx = Math.max(padL + 3, Math.min(padR - 3, gx));
+                    gy = Math.max(padT + 3, Math.min(padB - 3, gy));
+                    gapNodes.push({ x: gx, y: gy, name: gap.n });
                 });
                 
-                // Legend — matches .net-leg
+                // Draw links first (behind everything)
+                skillNodes.forEach(function(sn) {
+                    sd([35, 45, 65]); doc.setLineWidth(0.08);
+                    doc.line(sn.hub.x, sn.hub.y, sn.x, sn.y);
+                });
+                
+                // Draw role hub links to center
+                roleNodes.forEach(function(rn) {
+                    sd([50, 60, 85]); doc.setLineWidth(0.15);
+                    doc.line(gCx, gCy, rn.x, rn.y);
+                });
+                
+                // Draw gap links (dashed feel - just lighter)
+                gapNodes.forEach(function(gn) {
+                    sd([60, 30, 30]); doc.setLineWidth(0.08);
+                    doc.line(gCx, gCy, gn.x, gn.y);
+                });
+                
+                // Draw skill nodes + labels
+                skillNodes.forEach(function(sn) {
+                    var r = lvlSz[sn.level] || 1.4;
+                    sf(sn.color); doc.circle(sn.x, sn.y, r, 'F');
+                    // White outline for required
+                    if (sn.isRequired) {
+                        sd(C.white); doc.setLineWidth(0.25); doc.circle(sn.x, sn.y, r + 0.3, 'S');
+                    }
+                    // Label
+                    doc.setFontSize(3.8); doc.setFont(undefined, 'normal'); sc(C.t2);
+                    var lbl = sn.name.length > 22 ? sn.name.slice(0, 20) + '..' : sn.name;
+                    doc.text(lbl, sn.x + r + 1.5, sn.y + 1);
+                });
+                
+                // Draw gap nodes + labels
+                gapNodes.forEach(function(gn) {
+                    sf(C.r); doc.circle(gn.x, gn.y, 2, 'F');
+                    doc.setFontSize(3.8); doc.setFont(undefined, 'normal'); sc(C.r);
+                    var lbl = gn.name.length > 22 ? gn.name.slice(0, 20) + '..' : gn.name;
+                    doc.text(lbl, gn.x + 3.5, gn.y + 1);
+                });
+                
+                // Draw center node (job) on top
+                sf([40, 30, 20]); doc.circle(gCx, gCy, 8, 'F');
+                sd(C.white); doc.setLineWidth(0.4); doc.circle(gCx, gCy, 8.2, 'S');
+                doc.setFontSize(4.5); doc.setFont(undefined, 'bold'); sc(C.white);
+                var jtLines = doc.splitTextToSize(R.job.title, 28);
+                jtLines.forEach(function(line, li) {
+                    doc.text(line, gCx, gCy - 1 + li * 3.5, { align: 'center' });
+                });
+                
+                // Draw role hubs on top
+                roleNodes.forEach(function(rn) {
+                    // White outline ring
+                    sd(C.white); doc.setLineWidth(0.4); doc.circle(rn.x, rn.y, 6.2, 'S');
+                    // Filled hub
+                    sf(rn.color); doc.circle(rn.x, rn.y, 6, 'F');
+                    // Label above
+                    doc.setFontSize(4.5); doc.setFont(undefined, 'bold');
+                    doc.setTextColor(rn.color[0], rn.color[1], rn.color[2]);
+                    var rlbl = rn.name.toUpperCase();
+                    if (rlbl.length > 20) rlbl = rlbl.slice(0, 18) + '..';
+                    doc.text(rlbl, rn.x, rn.y - 8, { align: 'center' });
+                });
+                
+                // Legend
                 var legY = netY + netH - 8;
                 sf([20, 24, 42]); sd(C.borderRGB); doc.setLineWidth(0.2);
                 doc.roundedRect(M + 3, legY, 72, 5.5, 2, 2, 'FD');
                 var lx = M + 6;
-                [{ l: 'Matched', c: C.g }, { l: 'Gap', c: C.r }, { l: 'Surplus', c: C.tm }].forEach(function(li) {
+                [{ l: 'Matched', c: C.g }, { l: 'Gap', c: C.r }, { l: 'Surplus', c: [80, 90, 110] }].forEach(function(li) {
                     sf(li.c); doc.circle(lx + 1, legY + 2.8, 1.2, 'F');
                     doc.setFontSize(5); sc(C.tm); doc.text(li.l, lx + 3.5, legY + 3.5);
                     lx += doc.getTextWidth(li.l) + 8;
@@ -13792,8 +13837,8 @@ body {
             // ════════════════════════════════════════════════════════
             // 3. CANDIDATE SKILLS Network (separate graphic)
             // ════════════════════════════════════════════════════════
-            check(90);
-            if (y > 120) newPage();
+            check(170);
+            if (y > 40) newPage();
             
             // Toggle label
             doc.setFontSize(6); doc.setFont(undefined, 'bold');
@@ -13802,68 +13847,89 @@ body {
             sc(C.a); doc.text('CANDIDATE SKILLS', M + 4.5, y + 3.5);
             y += 9;
             
-            var net2Y = y, net2H = H - y - 20;
-            if (net2H > 145) net2H = 145;
+            var net2Y = y, net2H = 160;
             card(M, net2Y, MW, net2H);
             
-            // Candidate-centric network: roles as hubs, skills orbiting
+            // Candidate-centric network: roles as hubs, skills colored by proficiency
             (function drawCandNet() {
-                var gCx = M + MW / 2, gCy = net2Y + net2H / 2, gR = 50;
+                var padL = M + 8, padR = M + MW - 8, padT = net2Y + 8, padB = net2Y + net2H - 12;
+                var aW = padR - padL, aH = padB - padT;
+                var gCx = padL + aW / 2, gCy = padT + aH / 2;
+                
+                function hex2rgb(c) { return [parseInt(c.slice(1,3),16)||59, parseInt(c.slice(3,5),16)||130, parseInt(c.slice(5,7),16)||246]; }
                 function hsh(s) { var h=0; for(var i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0;} return h; }
                 function hfl(s,a,b) { return a+(Math.abs(hsh(s))%10000/10000)*(b-a); }
-                var lvlSz = { 'Mastery': 2.2, 'Expert': 1.8, 'Advanced': 1.5, 'Proficient': 1.2, 'Novice': 0.8 };
+                var lvlSz = { 'Mastery': 2.8, 'Expert': 2.2, 'Advanced': 1.8, 'Proficient': 1.4, 'Competent': 1.4, 'Novice': 1.0 };
                 
-                var roleNodes = [];
-                roles.forEach(function(role, i) {
-                    var angle = (i / roles.length) * Math.PI * 2 - Math.PI / 2;
-                    var dist = gR * 0.42;
-                    var rx = gCx + Math.cos(angle) * dist;
-                    var ry = gCy + Math.sin(angle) * dist;
-                    var rc = role.color || '#3b82f6';
-                    var rgb = [parseInt(rc.slice(1,3),16)||59, parseInt(rc.slice(3,5),16)||130, parseInt(rc.slice(5,7),16)||246];
-                    roleNodes.push({ x: rx, y: ry, color: rgb, id: role.id });
-                });
-                
-                // Background ring
-                sd(C.borderRGB); doc.setLineWidth(0.1); doc.circle(gCx, gCy, gR + 4, 'S');
-                
+                // Group skills by role
                 var rSkills = {}; roles.forEach(function(r) { rSkills[r.id] = []; });
                 allSkills.forEach(function(sk) {
                     var rid = (sk.r && sk.r[0]) || '';
                     if (rSkills[rid]) rSkills[rid].push(sk);
-                    else if (roles.length > 0) (rSkills[roles[0].id] = rSkills[roles[0].id] || []).push(sk);
+                    else if (roles.length > 0) rSkills[roles[0].id].push(sk);
                 });
                 
-                // Links + skill nodes
+                // Layout role hubs
+                var hubR = Math.min(aW, aH) * 0.28;
+                var roleNodes = [];
+                roles.forEach(function(role, i) {
+                    var angle = (i / roles.length) * Math.PI * 2 - Math.PI / 2;
+                    var rx = gCx + Math.cos(angle) * hubR;
+                    var ry = gCy + Math.sin(angle) * hubR * 0.85;
+                    var rgb = hex2rgb(role.color || '#3b82f6');
+                    roleNodes.push({ x: rx, y: ry, color: rgb, id: role.id, name: role.name });
+                });
+                
+                // Compute skill positions
+                var skillNodes = [];
                 roleNodes.forEach(function(rn, ri) {
                     var sks = rSkills[rn.id] || [];
                     var pAngle = (ri / roleNodes.length) * Math.PI * 2 - Math.PI / 2;
                     sks.forEach(function(sk, si) {
-                        var spread = pAngle + ((si / Math.max(sks.length, 1)) - 0.5) * 1.6;
-                        var dist = gR * (0.6 + hfl(sk.n + ri, 0, 0.35));
-                        var jit = hfl(sk.n + 'j', -2, 2);
+                        var spread = pAngle + ((si / Math.max(sks.length, 1)) - 0.5) * (sks.length > 6 ? 1.8 : 1.3);
+                        var dist = hubR * (1.4 + hfl(sk.n + ri, 0, 0.5));
+                        var jit = hfl(sk.n + 'jt', -3, 3);
                         var sx = gCx + Math.cos(spread) * dist + jit;
-                        var sy = gCy + Math.sin(spread) * dist + jit * 0.5;
-                        sx = Math.max(M + 6, Math.min(M + MW - 6, sx));
-                        sy = Math.max(net2Y + 6, Math.min(net2Y + net2H - 6, sy));
-                        sd([40, 55, 85]); doc.setLineWidth(0.05); doc.line(rn.x, rn.y, sx, sy);
+                        var sy = gCy + Math.sin(spread) * dist * 0.85 + jit * 0.4;
+                        sx = Math.max(padL + 3, Math.min(padR - 3, sx));
+                        sy = Math.max(padT + 3, Math.min(padB - 3, sy));
                         var lc = lvlColor[sk.l] || C.tm;
-                        sf(lc); doc.circle(sx, sy, lvlSz[sk.l] || 1, 'F');
+                        skillNodes.push({ x: sx, y: sy, color: lc, name: sk.n, level: sk.l, hub: rn });
                     });
                 });
                 
-                // Role hubs on top
-                roleNodes.forEach(function(rn) {
-                    sd(rn.color); doc.setLineWidth(0.2); doc.circle(rn.x, rn.y, 5, 'S');
-                    sf(rn.color); doc.circle(rn.x, rn.y, 3.5, 'F');
-                    var ro = roles.find(function(r) { return r.id === rn.id; });
-                    var rl = ro ? ro.name : '';
-                    if (rl.length > 16) rl = rl.slice(0, 14) + '\u2026';
-                    doc.setFontSize(5); doc.setFont(undefined, 'bold');
-                    doc.setTextColor(rn.color[0], rn.color[1], rn.color[2]);
-                    doc.text(rl, rn.x, rn.y - 6, { align: 'center' });
-                    doc.setFont(undefined, 'normal');
+                // Draw links
+                skillNodes.forEach(function(sn) {
+                    sd([35, 45, 65]); doc.setLineWidth(0.08);
+                    doc.line(sn.hub.x, sn.hub.y, sn.x, sn.y);
                 });
+                
+                // Draw skill nodes + labels
+                skillNodes.forEach(function(sn) {
+                    var r = lvlSz[sn.level] || 1.4;
+                    sf(sn.color); doc.circle(sn.x, sn.y, r, 'F');
+                    // White outline ring
+                    sd(C.white); doc.setLineWidth(0.15); doc.circle(sn.x, sn.y, r + 0.2, 'S');
+                    // Label
+                    doc.setFontSize(3.8); doc.setFont(undefined, 'normal'); sc(C.t2);
+                    var lbl = sn.name.length > 22 ? sn.name.slice(0, 20) + '..' : sn.name;
+                    doc.text(lbl, sn.x + r + 1.5, sn.y + 1);
+                });
+                
+                // Draw role hubs on top
+                roleNodes.forEach(function(rn) {
+                    sd(C.white); doc.setLineWidth(0.4); doc.circle(rn.x, rn.y, 6.2, 'S');
+                    sf(rn.color); doc.circle(rn.x, rn.y, 6, 'F');
+                    doc.setFontSize(4.5); doc.setFont(undefined, 'bold');
+                    doc.setTextColor(rn.color[0], rn.color[1], rn.color[2]);
+                    var rlbl = rn.name.toUpperCase();
+                    if (rlbl.length > 20) rlbl = rlbl.slice(0, 18) + '..';
+                    doc.text(rlbl, rn.x, rn.y - 8, { align: 'center' });
+                });
+                
+                // Candidate name in center
+                doc.setFontSize(7); doc.setFont(undefined, 'bold'); sc(C.a);
+                doc.text(R.candidate.name, gCx, gCy + 2, { align: 'center' });
                 
                 // Legend
                 var legY = net2Y + net2H - 8;
@@ -13890,7 +13956,7 @@ body {
                 
                 if (hasEdu) {
                     doc.setFontSize(6); doc.setFont(undefined, 'bold'); sc(C.tm);
-                    doc.text('\uD83C\uDF93 EDUCATION', M + 2, y + 1); y += 5;
+                    doc.text('EDUCATION', M + 2, y + 1); y += 5;
                     doc.setFont(undefined, 'normal');
                     
                     R.education.forEach(function(edu) {
@@ -13911,7 +13977,7 @@ body {
                 if (hasCerts) {
                     y += 2;
                     doc.setFontSize(6); doc.setFont(undefined, 'bold'); sc(C.tm);
-                    doc.text('\uD83C\uDFC5 CERTIFICATIONS', M + 2, y + 1); y += 5;
+                    doc.text('CERTIFICATIONS', M + 2, y + 1); y += 5;
                     doc.setFont(undefined, 'normal');
                     
                     R.certifications.forEach(function(cert) {
@@ -14285,13 +14351,13 @@ body {
                     secHead('Compensation Intelligence', 'Market positioning & benchmarks');
                     card(M, y, MW, 24);
                     doc.setFontSize(14); sc(C.tm);
-                    doc.text('\uD83D\uDCCA', W / 2, y + 7, { align: 'center' });
+                    doc.text('$', W / 2, y + 7, { align: 'center' });
                     doc.setFontSize(8); doc.setFont(undefined, 'bold'); sc(C.t2);
                     doc.text('Compensation Data Available', W / 2, y + 13, { align: 'center' });
                     doc.setFont(undefined, 'normal'); doc.setFontSize(6.5); sc(C.tm);
                     doc.text('Market rate analysis and BLS benchmarks have been prepared.', W / 2, y + 17.5, { align: 'center' });
                     doc.setFontSize(5.5);
-                    doc.text('\uD83D\uDD12 Candidate-controlled release', W / 2, y + 21, { align: 'center' });
+                    doc.text('Candidate-controlled release', W / 2, y + 21, { align: 'center' });
                     y += 28;
                     return;
                 }
