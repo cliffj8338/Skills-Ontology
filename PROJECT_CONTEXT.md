@@ -1,228 +1,411 @@
-# BLUEPRINT — Project Context
-**Last Updated:** 2026-02-21
-**Current Version:** v4.27.2.3 (build 20260221-values-overlay)
-**Working Files:** index.html (21,319 lines), blueprint.css (4,055 lines), companies.json (58 companies)
+# BLUEPRINT™ — Project Context
+**Version:** v4.27.3.3 | **Date:** February 21, 2026 | **Next Focus:** Guided Tour / Onboarding
 
-## What Is Blueprint?
-A career intelligence platform that maps professional skills through interactive visualizations. Users build skill profiles, discover role matches, and analyze job fit through network graphs, card views, and overlay lenses. Built as a single-page app (index.html + blueprint.css) with external JSON data files.
+---
+
+## What Blueprint Is
+
+Blueprint is a career intelligence platform that maps professional skills through interactive visualizations. Users build a "career blueprint" — a structured profile of skills (with evidence), values, work history, and outcomes — then match it against real job descriptions to see fit scores, gaps, and compensation estimates.
+
+The app is a single-page application: one `index.html` file (~21,500 lines), one external `blueprint.css` (~4,055 lines), with demo profiles loaded from JSON files via a `profiles-manifest.json`.
+
+**Live URL:** https://cliffj8338.github.io  
+**Hosting:** GitHub Pages (static files only, no backend)  
+**Auth:** Firebase (Firestore for user data, Firebase Auth for sign-in)  
+**Data sources:** ESCO classification (EU), O*NET occupational data, BLS salary benchmarks
+
+---
 
 ## Architecture
 
-### Core Files
-| File | Purpose | Lines/Size |
-|------|---------|------------|
-| `index.html` | All JS + HTML in single file | 21,319 |
-| `blueprint.css` | All styles | 4,055 |
-| `companies.json` | Company values/culture data | 58 companies |
-| `skills/index-v3.json` | Skill library (14,000+ skills) | 2.4 MB |
-| `skill_evidence.json` | Evidence patterns per skill | 52 KB |
-| `skill_valuations.json` | Market values per skill | 6 KB |
-| `values-library.json` | User values catalog (25 values, 5 groups) | 6 KB |
-| `bls-wages.json` | Bureau of Labor Statistics wage data | — |
-| `profiles-manifest.json` | Demo profile registry | 3 KB |
-| `profiles/demo/*.json` | Individual demo profiles | 8-52 KB each |
-
-### Version String Locations (ALL FOUR must stay in sync)
-1. **Line 7** — HTML comment
-2. **~Line 893** — JS comment
-3. **~Line 894** — `var BP_VERSION`
-4. **~Line 910** — `console.log` build string
-
-⚠ Always `grep` all four and verify before delivery. Each change set increments the patch number.
-
-## Compensation System (v4.27.2.0+)
-
-### Three-Tier Architecture
-| Priority | Source | When Used | Display |
-|----------|--------|-----------|---------|
-| 1 | `userData.profile.reportedComp` | User entered their own comp | "Your Compensation" |
-| 2 | `DEMO_COMP[templateId]` | Demo profile with curated value | "Market Value" |
-| 3 | `calculateTotalMarketValue()` | No other source available | "Market Estimate" |
-
-### Key Functions
-- **`formatCompValue(value)`** — Under $1M: `$185,000`. $1M+: `$4.5M`. $1B+: `$1.2B`
-- **`getEffectiveComp()`** — Returns full calc object + `displayComp`, `compSource`, `compLabel`, `algorithmEstimate`
-- **`calculateTotalMarketValue(mode)`** — BLS-based algorithm, mode = `'evidence'` or `'potential'`
-
-### Curated Demo Compensation (DEMO_COMP)
-```javascript
-'steve-harrington': 45000,    'jesse-pinkman': 38000,
-'dustin-henderson': 75000,    'eleven': 65000,
-'joyce-byers': 52000,         'saul-goodman': 280000,
-'walter-white': 185000,       'hank-schrader': 165000,
-'jim-hopper': 135000,         'gus-fring': 4500000,
-'kendall-roy': 8500000,       'shiv-roy': 5200000,
-'roman-roy': 6800000,         'tom-wambsgans': 3800000,
-'logan-roy': 95000000
+### File Structure
+```
+/
+├── index.html              # Main app (~21,500 lines — HTML + all JS inline)
+├── blueprint.css           # All styles (~4,055 lines, includes mobile responsive)
+├── profiles-manifest.json  # Registry of all 18 demo profiles
+├── profiles/
+│   ├── demo/               # 18 character JSON profiles
+│   │   ├── walter-white.json
+│   │   ├── gus-fring.json
+│   │   ├── logan-roy.json
+│   │   ├── vecna.json
+│   │   ├── tuco-salamanca.json
+│   │   ├── connor-roy.json
+│   │   └── ... (18 total)
+│   └── templates/
+│       └── blank.json      # Empty template for new users
+├── skills/
+│   └── index-v3.json       # 14,000+ skill library with ESCO/O*NET mappings
+├── companies.json           # Company values profiles for values alignment
+└── skill_evidence.json      # Evidence templates (optional)
 ```
 
-### Blueprint Dashboard Display
-- **Curated/reported profiles**: Prominent green gradient banner above stat cards showing curated value + BLS benchmark delta. When BLS Evidence = BLS Potential (common for demos), collapses to single "BLS Estimate" card.
-- **Algorithm-only profiles**: Dual Evidence-Based / Potential cards (no banner).
+### Key Global Objects
+- **`userData`** — Current profile data (skills, values, work history, roles, etc.)
+- **`blueprintData`** — Derived data (outcomes extracted from evidence, values, purpose)
+- **`skillsData`** — Reference to userData.skills + roles (used by network visualization)
+- **`templates`** — All loaded profile templates keyed by templateId
+- **`window.profilesManifest`** — The manifest of available demo profiles
+- **`window.companyDataLoaded`** — Company values database from companies.json
 
-### Self-Reported Comp Input Points
-1. **Wizard step 4** — "Total Compensation (optional)" field
-2. **Settings > Profile** — "$" prefixed input with comma formatting
-3. Stored as `userData.profile.reportedComp` (integer, persists to Firestore)
-
-### Why BLS Evidence = Potential for Demo Profiles
-Demo profiles have all skills at Proficient or below with no evidence items. The premium factors that differentiate modes (work styles at Advanced+, critical depth at Expert+) both produce $0. Both modes converge on the same BLS base salary. **This is a data issue in the demo profiles, not a code bug.**
-
-## Proficiency Levels
-
-| Level | Color | Years Estimate | Points (valuation weight) |
-|-------|-------|---------------|--------------------------|
-| Mastery | #ef4444 (red) | 10+ years | 4 pts |
-| Expert | #f97316 (orange) | 7–10 years | 3 pts |
-| Advanced | #f59e0b (amber) | 4–7 years | 2 pts |
-| Proficient | #10b981 (green) | 2–4 years | 1 pt |
-| Novice | #6b7280 (gray) | 0–2 years | 0 pts |
-
-**Guide from wizard prompt (line 5982):**
-- Mastery = career-defining expertise (15+ yrs)
-- Expert = deep proficiency (8-15 yrs)
-- Advanced = strong competency (4-8 yrs)
-- Proficient = solid (1-4 yrs)
-- Novice = learning
-
-### Impact on Valuation
-- **Seniority boost**: totalPoints ≥ 80 → Director, ≥ 40 → Senior, ≥ 20 → Mid
-- **Premium factors**: Work styles at Advanced+ (max 8%), Critical depth at Expert+ (max 5%)
-- **Current demo profiles**: ALL skills at Proficient or below → totalPoints low → no seniority boost → no premium differentiation → Evidence = Potential
-
-## Demo Profiles — Current State & Issues
-
-### Active Profiles (15 + 1 incomplete)
-| Profile | Show | Level | Skills | Curated Comp | Issues |
-|---------|------|-------|--------|-------------|--------|
-| Steve Harrington | Stranger Things | Early | ~24 | $45K | All Proficient, needs variety |
-| Jesse Pinkman | Breaking Bad | Early | ~20 | $38K | All Proficient |
-| Dustin Henderson | Stranger Things | Early | ~24 | $75K | All Proficient |
-| Eleven | Stranger Things | Early | ~24 | $65K | All Proficient |
-| Joyce Byers | Stranger Things | Mid | ~24 | $52K | All Proficient |
-| Saul Goodman | Better Call Saul | Mid | ~29 | $280K | All Proficient, needs Expert in legal/negotiation |
-| Walter White | Breaking Bad | Mid | ~20 | $185K | **Way too few skills**, all Proficient. 20yr professor needs 35+ skills, Mastery in chemistry |
-| Hank Schrader | Breaking Bad | Senior | ~20 | $165K | All Proficient, needs Expert in investigation |
-| Jim Hopper | Stranger Things | Senior | ~24 | $135K | All Proficient |
-| Gus Fring | Breaking Bad | Exec | ~29 | $4.5M | **Way too few skills**, all Proficient. Empire builder needs 40+ skills, Mastery in operations/strategy |
-| Kendall Roy | Succession | Exec | ~20 | $8.5M | All Proficient, needs Expert/Mastery in M&A/finance |
-| Logan Roy | Succession | C-Suite | ~20 | $95M | **Critical**: 60yr media mogul has ~20 Proficient skills. Needs 50+ skills, Mastery in 10+, Expert in 15+ |
-| Roman Roy | Succession | Exec | ~20 | $6.8M | All Proficient |
-| Shiv Roy | Succession | Exec | ~20 | $5.2M | All Proficient |
-| Tom Wambsgans | Succession | C-Suite | ~20 | $3.8M | All Proficient |
-| Jamie Martinez | Original | — | — | — | Incomplete, needs curation or removal |
-
-### DELETE from repo
-- cliff-jones.json, mike-rodriguez.json, sarah-chen.json
-- Update profiles-manifest.json to remove them
+### Data Flow for Demo Profiles
+1. `initializeApp()` → fetches `profiles-manifest.json`
+2. Loads each enabled profile JSON into `templates{}`
+3. `loadTemplate(templateId)` → populates `userData` from template
+4. Clears localStorage (`wbValues`, `wbPurpose`) to prevent crossover
+5. `getSampleJobsForProfile()` → generates 3 tailored demo jobs per character
+6. `inferValues()` → reads `userData.values` into `blueprintData.values`
+7. Views render from `userData` and `blueprintData`
 
 ---
 
-## 🚨 NEXT SESSION: DEMO PROFILE OVERHAUL
+## Navigation Structure
 
-### The Problem
-Every demo profile has ALL skills set to "Proficient" level. This causes:
-1. **Evidence = Potential** on dashboard (no premium differentiation)
-2. **Seniority boost doesn't fire** (totalPoints too low)
-3. **Credibility gap** — Logan Roy with 20 Proficient skills is absurd for a 60-year C-suite mogul
-4. **Skill counts too low** — executives should have 35-50+ skills
-
-### What Each Profile Needs
-
-**Early Career (Steve, Jesse, Dustin, Eleven):**
-- 15-25 skills is fine
-- Mix: mostly Proficient, a few Advanced in their specialty
-- Jesse: Advanced in hands-on/trades skills, Novice in business
-- Dustin: Advanced in STEM, Proficient in social
-- Eleven: Expert in a couple unique abilities, Novice in conventional skills
-
-**Mid Career (Walter, Joyce, Saul):**
-- 25-35 skills
-- Walter: **Mastery** in Organic Chemistry, Chemical Engineering, Lab Management. Expert in Teaching, Research Methodology, Grant Writing. Advanced in Analytical Thinking, Problem Solving. Add more academic/research skills.
-- Saul: Expert in Negotiation, Persuasion, Contract Law, Marketing. Advanced in Client Relations, Crisis Management.
-- Joyce: Advanced in Resourcefulness, Customer Service. Proficient in most.
-
-**Senior (Hank, Hopper):**
-- 30-40 skills
-- Hank: Expert in Criminal Investigation, Forensic Analysis, Team Leadership. Advanced in Surveillance, Case Management.
-- Hopper: Expert in Crisis Leadership, Investigation, Community Relations.
-
-**Executive (Gus, Kendall, Shiv, Roman):**
-- 35-50 skills
-- Gus: **Mastery** in Strategic Operations, Supply Chain, Risk Management. Expert in Multi-Unit Management, Financial Planning, Talent Recruitment, Organizational Design. Advanced in Food Service Operations, Regulatory Compliance.
-- Kendall: Expert in M&A, Capital Markets, Media Strategy. Advanced in Corporate Governance, Public Speaking.
-- Shiv: Expert in Political Strategy, Organizational Behavior, Stakeholder Management.
-- Roman: Expert in Content Strategy, Brand Development. Advanced in Digital Media.
-
-**C-Suite (Logan, Tom):**
-- Logan: **50+ skills**. Mastery in: Media Industry, Corporate Strategy, M&A, Negotiation, Board Governance, Competitive Intelligence, Crisis Management, Market Positioning, Executive Leadership, Talent Assessment. Expert in: Financial Modeling, Regulatory Navigation, Public Relations, International Business, Capital Allocation, Succession Planning, Risk Management, Government Relations, Brand Architecture, Content Strategy. Advanced in many more.
-- Tom: 35-40 skills. Expert in Operations, Corporate Communications, Regulatory Compliance. Advanced in Media Production, Strategic Planning.
-
-### How to Edit Demo Profiles
-Each profile is a JSON file in `profiles/demo/`. Key structure:
-```json
-{
-  "templateId": "logan-roy",
-  "profile": { "name": "Logan Roy", "currentTitle": "CEO & Founder", ... },
-  "skills": [
-    { "name": "Corporate Strategy", "level": "Mastery", "category": "skill", "key": true, "roles": ["ceo"], "evidence": [] },
-    ...
-  ]
-}
+### Desktop Top Nav
 ```
+SKILLS | JOBS | BLUEPRINT | SETTINGS | SAMPLES
+```
+Plus: Sign In button, dark/light theme toggle, overflow menu (···)
 
-### Validation After Editing
-After updating profiles, verify:
-1. `calculateTotalMarketValue('evidence')` ≠ `calculateTotalMarketValue('potential')` — different levels should produce different totals
-2. Seniority detection fires correctly (totalPoints ≥ 80 for C-suite profiles)
-3. Dashboard shows differentiated Evidence vs Potential cards
-4. "0 expert+" in stat cards changes to actual count
+### Mobile Bottom Nav
+```
+SKILLS | JOBS | BLUEPRINT | SETTINGS | MORE
+```
+SAMPLES is accessed via the overflow menu (···) on mobile.
 
 ---
 
-## Firestore Persistence
+## Main Views — What's In Each
 
-### Save Guard (v4.27.1.7+)
-`saveToFirestore()` checks `userData.templateId`:
-- `'firestore-*'` → own profile → save proceeds
-- Any other value → demo profile → **save skipped silently**
+### 1. SKILLS (default landing view)
+The interactive skill network visualization.
 
-### Sanitizer (v4.27.1.5+)
-`sanitizeForFirestore(obj)` strips `undefined` values recursively before `.set()`.
+**Sub-views (toggle buttons):**
+- **Network** — Force-directed graph showing skills as colored nodes clustered by role. Node size = proficiency level. Colors = role assignments. Lines = relationships.
+- **Card** — Traditional card/list view of all skills with proficiency badges.
 
-## Mobile UI Patterns
+**Overlay modes (appear when a job is selected from Jobs tab):**
+- **You** — Default; shows your skills only
+- **Job** — Shows job's required skills
+- **Match** — Shows overlap (green=matched, red=gap, gray=surplus)
+- **Values** — Force graph showing your values vs. company values alignment
 
-### Values Mode (v4.27.2.3)
-- **SVG**: Full viewport height `max(innerHeight - 200, 400)` — same as other modes
-- **Panel**: `position: absolute; bottom: 70px` — overlays on SVG (same pattern as Match)
-- **Panel max-height**: 55vh with overflow-y scroll
-- **Panel placed inside**: `networkView.parentElement` with `position: relative`
+**What users can do here:**
+- Tap/click any node to see skill details, evidence, proficiency
+- Drag nodes to reposition (they stick)
+- Select a job from the Jobs tab to activate overlay modes
+- View values alignment visualization per job
 
-### Match Mode (reference pattern)
-- match-legend: `position: absolute; bottom: 70px` on mobile
-- Appended to SVG parent container
-- Full-height SVG, panel overlays
+**Recent change (v4.27.3.3):** Removed the labels toggle (Roles/Skills/Values pills), search input, and filter button from the toolbar. Nodes are interactive — tap for details.
 
-### Skill Modal
-- Years estimate from proficiency level via `estimateSkillYears()`:
-  Mastery→"10+", Expert→"7–10", Advanced→"4–7", Proficient→"2–4", Novice→"0–2"
+### 2. JOBS
+Job pipeline and matching system.
 
-## Values Overlay System
-- **companies.json**: 58 companies, curated primary/secondary/tensions/story
-- **Scoring**: primary aligned=20pts, secondary=10pts, tension=-15pts
-- **Labels**: Contextual pill toggles (Roles/Skills in normal mode, Values in values mode)
+**Sub-tabs:**
+- **Pipeline** — Saved jobs with match scores, skill gap analysis, BLS salary estimates
+- **Tracker** — Application tracking (status, dates, notes)
+- **Find Jobs** — Job search/paste interface
 
-## Version History (This Session: 2026-02-21)
-| Version | Key Changes |
-|---------|------------|
-| v4.27.1.3–1.8 | Mobile stacking, SVG fit, Firestore sanitizer, tooltip fix, admin guard |
-| v4.27.2.0 | **Comp system**: formatCompValue, DEMO_COMP, getEffectiveComp, self-reported input |
-| v4.27.2.1 | Skill years estimation, mobile SVG/node adjustments |
-| v4.27.2.2 | Curated comp banner above stat cards, collapse identical BLS cards |
-| v4.27.2.3 | **Values panel overlay on mobile** (like Match), full-height SVG restored |
+**Per-job features:**
+- Match percentage (skill overlap score)
+- Matched skills / Gaps / Surplus counts
+- BLS salary range estimate
+- "Demo job" badge for sample profiles
+- Click to expand → full skill breakdown, gap analysis
+- Scouting Report generation (targeted job analysis)
 
-## File Output Locations
-After each build session, final files go to:
-- `/mnt/user-data/outputs/index.html`
-- `/mnt/user-data/outputs/blueprint.css`
-- `/mnt/user-data/outputs/companies.json`
+**Demo jobs:** Each of the 18 characters gets 3 tailored jobs:
+- **High match** (~80-90% skill match, 71% values alignment)
+- **Mid match** (~50-65% skill match, 57% values alignment)
+- **Low/stretch** (<50% skill match, 29% values alignment)
+
+### 3. BLUEPRINT
+The career intelligence dashboard.
+
+**Sub-tabs:**
+- **Dashboard** — Hero compensation card, skill distribution bar, purpose statement, quick actions
+- **Skills** — Detailed skill list with proficiency levels, evidence, role assignments
+- **Experience** — Work history, education, certifications timeline
+- **Outcomes** — Extracted from skill evidence (auto-generated)
+- **Values** — 7 selected values with descriptions, evidence linking
+- **Export** — PDF Summary, Executive Blueprint (HTML), Scouting Report, Negotiation Guide
+
+**Compensation display (Dashboard):**
+- Demo profiles with curated comp → shows "MARKET VALUE" hero card (e.g., Logan Roy $95M)
+- Demo profiles without curated comp → shows "EVIDENCE-BASED" and "POTENTIAL" cards
+- Real users with reported comp → shows "YOUR COMPENSATION" card
+- All show BLS Benchmark comparison
+
+**Quick Actions row:**
+- Manage Skills → Skills tab
+- Scouting Report → generates targeted PDF
+- PDF Summary → full career summary PDF
+- Executive Blueprint → HTML email-ready format
+- Negotiation Guide → salary strategy document
+
+### 4. SETTINGS
+User configuration.
+
+**Sub-tabs:**
+- **Profile** — Name, title, location, seniority level, reported compensation
+- **Preferences** — Target roles, industries, salary minimums, location preferences
+- **Privacy** — Data controls, export/delete, terms of service
+
+### 5. SAMPLES (accessed via nav or overflow menu)
+The demo profile browser.
+
+**Structure:** Three show collections displayed as tabbed sections:
+- **Breaking Bad** (6 characters) — green accent
+- **Stranger Things** (6 characters) — red accent
+- **Succession** (6 characters) — gold accent
+
+Each character card shows: name, emoji, title, skill count, description, "View →" button.
+Clicking "View" loads the profile via `switchProfile()`.
+
+---
+
+## The 18 Demo Profiles
+
+### Breaking Bad
+| Character | Skills | Level | Curated Comp | Fun Values |
+|---|---|---|---|---|
+| Walter White | 37 | Mid-Career | $185K | Empire Building, Say My Name |
+| Gus Fring | 43 | Executive | $4.5M | Calculated Ruthlessness, Operational Paranoia |
+| Hank Schrader | 30 | Senior | $165K | Relentless Pursuit, The Badge Means Something |
+| Jesse Pinkman | 19 | Early Career | $38K | Loyalty Over Logic, No More Half Measures |
+| Saul Goodman | 29 | Mid-Career | $280K | Creative Ethics, Hustle Over Pedigree |
+| Tuco Salamanca | 17 | Mid-Career | $425K | Tight Tight Tight!, Fear Is Respect |
+
+### Stranger Things
+| Character | Skills | Level | Curated Comp | Fun Values |
+|---|---|---|---|---|
+| Jim Hopper | 25 | Senior | $135K | (all 7 catalog — wholesome) |
+| Eleven | 15 | Early Career | $65K | (all 7 catalog — wholesome) |
+| Steve Harrington | 16 | Early Career | $45K | (all 7 catalog — wholesome) |
+| Dustin Henderson | 16 | Early Career | $75K | (all 7 catalog — wholesome) |
+| Joyce Byers | 17 | Mid-Career | $52K | (all 7 catalog — wholesome) |
+| Vecna | 21 | C-Suite | $12M | Dominion Over All, Suffering Builds Order, One Mind One Purpose, The First Shadow |
+
+### Succession
+| Character | Skills | Level | Curated Comp | Fun Values |
+|---|---|---|---|---|
+| Logan Roy | 61 | C-Suite | $95M | Absolute Control, Legacy Through Dominance |
+| Kendall Roy | 23 | Executive | $8.5M | Proving Them Wrong, L to the OG |
+| Shiv Roy | 25 | Executive | $5.2M | Power Over Permission, Redesign the Table |
+| Roman Roy | 24 | Executive | $6.8M | Chaos as Strategy, Comedy Is Tragedy Plus Time |
+| Tom Wambsgans | 25 | C-Suite | $3.8M | Survival Instinct, The Long Game |
+| Connor Roy | 20 | Executive | $1.2M | The Eldest Son, Austerlitz State of Mind |
+
+---
+
+## Values System
+
+### VALUES_CATALOG (25 canonical values in 5 groups)
+```
+How I Think:    Intellectual Honesty, Strategic Thinking, Curiosity, Evidence-Based Decision Making, Systems Thinking
+How I Lead:     Accountability, Servant Leadership, Empowerment, Transparency, Courage
+How I Work:     Excellence, Resourcefulness, Bias Toward Action, Continuous Improvement, Craftsmanship
+How I Connect:  Empathy, Collaboration, Trust, Candor, Inclusion
+What I Protect: Integrity, Resilience, Authenticity, Work-Life Boundaries, Purpose Over Profit
+```
+
+### Values Scoring Math
+- Each user has 7 values (5 from catalog + 2 custom/fun for BB/Succession; 7 catalog for Stranger Things)
+- `maxScore = 7 × 20 = 140`
+- Company primary match = +20 pts, secondary = +10 pts, tension = -15 pts
+- Score = `Math.round((rawScore / maxScore) * 100)`, clamped 0-100
+
+### Demo Job Values Bands
+- **High tier:** 5 user catalog values as company primary → **71%**
+- **Mid tier:** 4 user catalog values as company primary → **57%**
+- **Low tier:** 2 user catalog values as company primary → **29%**
+
+Non-user catalog values used as filler so company profiles look realistic.
+
+---
+
+## Key Technical Details
+
+### Profile Switch Flow (critical — recent bug fixes)
+When `switchProfile(templateId)` fires:
+1. `loadTemplate()` populates `userData` from JSON template
+2. `safeRemove('wbValues')` + `safeRemove('wbPurpose')` clears localStorage
+3. `blueprintData.values = []` + `inferValues()` forces fresh values from new profile
+4. `extractOutcomesFromEvidence()` refreshes outcomes
+5. All `*Initialized` flags reset to false → views re-render on next visit
+6. `rescoreAllJobs()` re-matches jobs against new skill set
+
+### Compensation System (DEMO_COMP)
+Curated comp values in `DEMO_COMP{}` object (line ~3872). When `getEffectiveComp()` finds a match:
+- Shows "MARKET VALUE" hero card instead of algorithm-based cards
+- `compSource = 'curated'`
+- BLS algorithm estimate shown as benchmark comparison
+
+### Sample Jobs Generation
+`getSampleJobsForProfile(templateId, template)` at line ~4965:
+1. Checks `characterJobs[templateId]` map first (18 character-specific job sets)
+2. Falls back to role-type detection (recruiter/product/strategy/tech/retail/trades)
+3. Generates `parsedSkills` arrays with calibrated overlap for high/mid/low tiers
+4. Attaches curated `companyValues` for deterministic values scoring
+
+---
+
+## Recent Session Changes (Feb 21, 2026)
+
+### v4.27.2.4 → v4.27.3.3 (this session)
+1. **Values system overhaul** — All 18 profiles updated to 7 values each (5 catalog + 2 fun for BB/Succession)
+2. **3 new profiles** — Vecna, Tuco Salamanca, Connor Roy (full profiles with skills, evidence, values, work history)
+3. **Profiles-manifest.json** — Created with all 18 profiles registered
+4. **Samples page updated** — All 3 shows now have 6 characters each
+5. **Character-specific demo jobs** — 18 unique job sets (54 total jobs) replacing generic fallback
+6. **Values scoring bands** — Deterministic 71%/57%/29% bands for high/mid/low jobs
+7. **Values crossover bug fixed** — `blueprintData.values` now cleared + re-inferred on profile switch
+8. **localStorage persistence bug fixed** — `wbValues`/`wbPurpose` cleared on demo profile load
+9. **DEMO_COMP updated** — Added Vecna ($12M), Tuco ($425K), Connor ($1.2M)
+10. **Toolbar cleanup** — Removed labels toggle, search input, filter button from network view
+
+---
+
+## Next Session: Guided Tour
+
+### Goal
+Build an interactive guided tour that walks new users through Blueprint's features and shows them where things are and how to use them. This is especially important because:
+- The app has a lot of depth that isn't immediately obvious
+- Demo profile visitors need to understand what they're looking at
+- The network visualization is powerful but non-obvious
+- Job matching, values overlay, and scouting reports need discovery
+
+### Key Screens/Features to Cover in the Tour
+
+**1. Skills Network (landing page)**
+- What the nodes represent (skills, sized by proficiency, colored by role)
+- How to interact: tap a node to see details, drag to reposition
+- Role clusters and what they mean
+
+**2. Job Matching**
+- How to view saved jobs in the Pipeline
+- What match percentage means
+- How to activate a job overlay (You/Job/Match/Values modes)
+- The Values alignment visualization
+
+**3. Blueprint Dashboard**
+- Compensation cards (what evidence-based vs. potential means)
+- Skill distribution bar
+- Purpose statement
+- Quick actions (Scouting Report, PDF, etc.)
+
+**4. Blueprint Sub-tabs**
+- Skills tab (detailed view with evidence)
+- Experience tab (work history timeline)
+- Outcomes tab (auto-extracted achievements)
+- Values tab (selected values + evidence linking)
+- Export tab (all output formats)
+
+**5. Samples Browser**
+- How to browse character profiles
+- Switching between shows
+- What "View" does
+
+**6. Hidden/Power Features**
+- Values overlay on the network (select a job → click Values)
+- Scouting Report generation (per-job targeted analysis)
+- Negotiation Guide (salary strategy)
+- Profile switching via the dropdown
+
+### Implementation Considerations
+- Should work on both desktop and mobile
+- Demo profile visitors are read-only — tour should not prompt them to edit
+- Tour should be dismissable and not block usage
+- Consider a "?" help button that re-launches the tour
+- Tooltip/spotlight approach (highlight an element, explain it, advance)
+- Could use a library like Shepherd.js, Intro.js, or custom implementation
+- **No external network access** — any library must be self-contained or CDN-linked if available
+
+### Tour Trigger Points
+- First visit (no profile loaded yet)
+- After loading a demo profile for the first time
+- Manual trigger from a help button
+- Potentially different tours for different contexts (Skills tour, Jobs tour, Blueprint tour)
+
+---
+
+## Version Convention
+Every deployment bumps the version in ALL THREE locations:
+1. HTML comment (line 7): `<!-- v4.27.3.3 | date | description -->`
+2. JS comment (line ~893): `// BLUEPRINT v4.27.3.3 - BUILD date-tag`
+3. `BP_VERSION` variable (line ~894): `var BP_VERSION = 'v4.27.3.3';`
+
+Build string in console log should also be updated.
+
+**Always grep all version references before delivering files to verify consistency.**
+
+---
+
+## Known Issues / Technical Debt
+- The `inferValues()` function has a 3-step priority chain (localStorage → profile → auto-inference) that was the source of the values crossover bug. The fix works but the architecture could be simplified.
+- `index.html` is 21,500+ lines — everything inline. CSS is separate but JS is not.
+- The `getSampleJobsForProfile()` function is now very large with 18 character-specific job sets.
+- Some CSS for the toolbar elements was overriding `display:none` on mobile — fixed with `!important` but not ideal.
+- The onboarding wizard (8-step flow for new users) exists but may conflict with a guided tour — needs coordination.
+
+---
+
+## Pending Changes (Ready to Implement Next Session)
+
+### 1. Network Labels — Always ON
+The labels toggle was removed (v4.27.3.3) but the default label visibility needs to be set to `true` for both roles and skills so they always render. Currently labels may default to off since the toggle that controlled them is gone.
+
+### 2. Market Value Adjustments — Illicit Economy Characters
+Several Breaking Bad characters have curated comp values that don't reflect their actual show-canon earnings. The whole point of these characters is they operate outside legal comp bands.
+
+| Character | Current | Proposed | Rationale |
+|---|---|---|---|
+| Walter White | $185K | $3.2M | At peak clearing ~$80M/yr; "market value" of a chemistry genius with his operation |
+| Saul Goodman | $280K | $1.8M | Sandpiper settlement alone was $2.16M, plus cash practice revenue |
+| Tuco Salamanca | $425K | $2.1M | Moving $5M+/month through his distribution network |
+| Jesse Pinkman | $38K | $450K | Started low but eventually a skilled cook earning serious money |
+| Hank Schrader | $165K | $165K | *(stays — legitimate federal employee)* |
+| Gus Fring | $4.5M | $4.5M | *(already reflects the empire — correct)* |
+
+### 3. Profile Identification Banner — State Matrix
+
+**Problem:** When viewing demo profiles, there's no indication of WHOSE profile you're looking at on the Blueprint, Jobs, or Settings pages. You'd have to remember what you clicked.
+
+**Solution:** Enrich the existing gold sample banner (already on every page for demo viewers) to include the profile name. The banner content changes based on auth state and context.
+
+#### Banner State Logic
+
+```
+if (viewing own profile)         → NO BANNER (it's their app)
+if (not signed in + sample)      → "🔒 Viewing: {name} · Sample profile. Join waitlist or sign in."
+if (signed in + waitlisted)      → "🔒 Viewing: {name} · Sample profile. You're #{position} on the waitlist."
+if (signed in + active + sample) → "🔒 Viewing: {name} · Sample profile. ← Back to my profile"
+if (admin + sample)              → "🔒 Viewing: {name} · Admin mode"
+```
+
+#### Full State Matrix
+
+| State | Signed In? | Viewing | Header (top-right) | Banner |
+|---|---|---|---|---|
+| **Demo visitor** | No | Sample profile | Sign In button | 🔒 **Viewing: Walter White** · Sample profile. Join the waitlist or sign in. |
+| **Waitlisted user** | Yes | Sample (no own profile yet) | **Jane Smith** badge | 🔒 **Viewing: Walter White** · Sample profile. You're #142 on the waitlist. |
+| **Active user** | Yes | Own profile | **Jane Smith** badge | *(no banner)* |
+| **Active user browsing** | Yes | Sample profile | **Jane Smith** badge | 🔒 **Viewing: Walter White** · Sample profile. ← Back to my profile |
+| **Admin** | Yes | Sample profile | **Cliff** badge (admin) | 🔒 **Viewing: Walter White** · Admin mode |
+
+#### Header Badge Behavior
+- **Not signed in:** "Sign In" button (current behavior)
+- **Signed in (user):** User's name badge replaces Sign In button (same position, same spot)
+- **Signed in (admin):** Admin badge with name (already implemented)
+- Badge is persistent across all pages — it identifies WHO is using the app
+- Banner identifies WHAT they're viewing (only shows when viewing something other than their own profile)
+
+#### Key Design Principle
+The **header badge** = WHO you are. The **banner** = WHAT you're viewing. These never conflict because:
+- Your own profile → badge shows your name, no banner needed
+- Someone else's profile → badge still shows YOUR name, banner shows WHOSE profile
+- Not signed in → no badge (Sign In button), banner shows profile name + CTA
+
+This extends cleanly to future features like team views, shared profiles, or recruiter browsing candidate blueprints.
+
