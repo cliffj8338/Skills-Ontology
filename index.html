@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.34.0.1 | 20260222 | Reports header styling fix: match Blueprint tab scale -->
+    <!-- v4.34.1.0 | 20260222 | Demo lockdown: all exports blocked except Scouting Report PDF -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -960,8 +960,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.34.0.1 - BUILD 20260222-reports-header-fix
-        var BP_VERSION = 'v4.34.0.1';
+        // BLUEPRINT v4.34.1.0 - BUILD 20260222-demo-lockdown
+        var BP_VERSION = 'v4.34.1.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -9787,6 +9787,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         // ===== WORK BLUEPRINT GENERATOR =====
         
         function generateWorkBlueprint() {
+            if (isReadOnlyProfile) { demoGate('generate an Executive Blueprint'); return; }
             console.log('Generating Blueprint...');
             
             try {
@@ -10210,6 +10211,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         // Pulls real data: executiveSummary, skill evidence outcomes, values, purpose, market value.
 
         function generateResume() {
+            if (isReadOnlyProfile) { demoGate('generate a resume'); return; }
             logAnalyticsEvent('export_resume_html', {});
             try {
                 const data = gatherResumeData();
@@ -11614,6 +11616,7 @@ body {
                 + '</button>';
             
             // PDF Summary
+            if (!isReadOnlyProfile) {
             html += '<button onclick="exportBlueprint(\'pdf\')" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
                 + '<span style="color:var(--c-label);">' + bpIcon('pdf',18) + '</span>'
                 + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.9em;">PDF Summary</div>'
@@ -11626,9 +11629,10 @@ body {
                 + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.9em;">Executive Blueprint</div>'
                 + '<div style="font-size:0.75em; color:var(--c-muted);">HTML for email</div></div>'
                 + '</button>';
+            }
             
             // Negotiation Guide
-            if (hasValuation) {
+            if (hasValuation && !isReadOnlyProfile) {
                 html += '<button onclick="showNegotiationGuide()" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--c-amber-bg-2a); border:1px solid var(--c-amber-border-1); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
                     + '<span style="color:#fbbf24;">' + bpIcon('dollar',18) + '</span>'
                     + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.9em;">Negotiation Guide</div>'
@@ -12270,8 +12274,38 @@ body {
                 + '<span class="section-icon">' + bpIcon('export',20) + '</span>'
                 + '<span>Export Your Blueprint</span>'
                 + '</div>'
-                + '</div>'
-                + '<div class="coaching-tip">'
+                + '</div>';
+            
+            // ── DEMO LOCKDOWN: Only Scouting Report PDF on sample profiles ──
+            if (isReadOnlyProfile) {
+                html += '<div class="coaching-tip">'
+                    + '<div class="coaching-tip-title">' + bpIcon('lock',14) + ' SAMPLE PROFILE</div>'
+                    + '<div class="coaching-tip-content">'
+                    + 'Export options are limited on sample profiles. Generate a Scouting Report PDF to see Blueprint in action. '
+                    + '<a href="#" onclick="event.preventDefault(); showWaitlist();" style="color:var(--accent); text-decoration:underline;">Sign up</a> to unlock all export formats.'
+                    + '</div></div>';
+                
+                html += sectionHead('compass', 'Career Intelligence');
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px;">';
+                html += exportCard({
+                    icon: 'target', iconColor: '#60a5fa', title: '\u25C8 Scouting Report',
+                    titleColor: 'var(--c-text-alt)',
+                    badge: { text: 'PDF', bg: 'rgba(96,165,250,0.2)', color: '#60a5fa' },
+                    bg: 'var(--c-accent-bg-2c)',
+                    border: 'var(--c-accent-border-3c)',
+                    desc: 'Career intelligence report targeted to a specific job. Match analysis, gaps, talking points, and market positioning.',
+                    action: 'showScoutingReportPicker()',
+                    tags: [
+                        { text: 'PDF', bg: 'var(--c-accent-bg-6c)', color: '#60a5fa' },
+                        { text: 'Match Analysis', bg: 'var(--c-green-bg-5b)', color: '#10b981' }
+                    ]
+                });
+                html += '</div>';
+                html += '</div>';
+                return html;
+            }
+            
+            html += '<div class="coaching-tip">'
                 + '<div class="coaching-tip-title">' + bpIcon('lightbulb',14) + ' SHARING SUMMARY</div>'
                 + '<div class="coaching-tip-content">'
                 + 'Currently sharing <strong>' + sharedOutcomes + ' outcomes</strong>, '
@@ -12923,10 +12957,10 @@ body {
                 + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:16px; line-height:1.5;">'
                 + 'Select a job to generate a targeted career intelligence report. This is your scouting report \u2014 built to send to recruiters and hiring managers.</div>'
                 + '<div style="display:grid; gap:10px;">' + jobCardsHTML + '</div>'
-                + '<div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--c-surface-5);">'
+                + (isReadOnlyProfile ? '' : '<div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--c-surface-5);">'
                 + '<button onclick="closeExportModal(); exportBlueprint(\'pdf\')" style="width:100%; padding:10px; border:1px solid var(--c-border-mid); background:transparent; color:var(--text-secondary); border-radius:8px; cursor:pointer; font-size:0.88em;">'
                 + 'Or generate a general Blueprint PDF (no job targeting)</button>'
-                + '</div>'
+                + '</div>')
                 + '</div>';
             
             history.pushState({ modal: true }, '');
@@ -12944,6 +12978,12 @@ body {
         function showReportFormatPicker(jobIdx) {
             var job = (userData.savedJobs || [])[jobIdx];
             if (!job) { showToast('Job not found.', 'error'); return; }
+            
+            // Demo lockdown: skip format picker, go straight to PDF
+            if (isReadOnlyProfile) {
+                generateScoutingReport(jobIdx);
+                return;
+            }
             
             var modal = document.getElementById('exportModal');
             var modalContent = modal.querySelector('.modal-content');
@@ -12991,6 +13031,12 @@ body {
         
         // HTML scouting report generator (placeholder — generator bridge coming)
         function generateHTMLScoutingReport(jobIdx) {
+            // Demo lockdown: no HTML reports on sample profiles
+            if (isReadOnlyProfile) {
+                showToast('HTML reports are not available on sample profiles. Generating PDF instead.', 'info');
+                generateScoutingReport(jobIdx);
+                return;
+            }
             var job = (userData.savedJobs || [])[jobIdx];
             if (!job) { showToast('Job not found.', 'error'); return; }
             logAnalyticsEvent('scouting_report_html', { company: job.company || '', title: job.title || '' });
@@ -13201,6 +13247,12 @@ body {
         
         // ── Share to Firestore → get link ─────────────────────────
         function shareScoutingReport() {
+            // Demo lockdown: no sharing on sample profiles
+            if (isReadOnlyProfile) {
+                showToast('Sharing is not available on sample profiles. Sign up to share your own reports.', 'info');
+                return;
+            }
+            
             var overlay = document.getElementById('scoutReportOverlay');
             if (!overlay || !overlay._reportData) { showToast('No report to share.', 'error'); return; }
             
@@ -13341,9 +13393,9 @@ body {
         window.generateScoutingReport = generateScoutingReport;
         
         function exportBlueprint(format) {
-            // Allow PDF exports on sample profiles (marketing showcase), block raw data exports
-            if (format === 'json' && isReadOnlyProfile) {
-                showToast('Data export is not available on sample profiles. Sign up to export your own Blueprint.', 'info');
+            // Demo lockdown: no exports on sample profiles (scouting report PDF uses its own path)
+            if (isReadOnlyProfile) {
+                demoGate('export your Blueprint');
                 return;
             }
             logAnalyticsEvent('export_' + format, { format: format });
@@ -14844,6 +14896,7 @@ body {
         }
         
         function copyBlueprintText() {
+            if (isReadOnlyProfile) { demoGate('copy profile text'); return; }
             var name = (userData.profile && userData.profile.name) || 'Professional';
             var title = (userData.profile && userData.profile.currentTitle) || '';
             var location = (userData.profile && userData.profile.location) || '';
@@ -14935,6 +14988,7 @@ body {
         // ===== COVER LETTER GENERATOR =====
 
         function generateCoverLetter() {
+            if (isReadOnlyProfile) { demoGate('generate a cover letter'); return; }
             var jobs = userData.savedJobs || [];
             if (jobs.length === 0) {
                 showToast('Add a job in the Jobs tab first, then generate a cover letter.', 'info');
@@ -15124,6 +15178,7 @@ body {
         // ===== INTERVIEW PREP GENERATOR =====
 
         function generateInterviewPrep() {
+            if (isReadOnlyProfile) { demoGate('generate interview prep'); return; }
             var jobs = userData.savedJobs || [];
             if (jobs.length === 0) {
                 showToast('Add a job in the Jobs tab first, then generate interview prep.', 'info');
@@ -15348,6 +15403,7 @@ body {
         // ===== LINKEDIN PROFILE GENERATOR =====
 
         function generateLinkedInProfile() {
+            if (isReadOnlyProfile) { demoGate('generate a LinkedIn profile'); return; }
             logAnalyticsEvent('linkedin_profile', {});
             var name = (userData.profile && userData.profile.name) || 'Professional';
             var title = (userData.profile && userData.profile.currentTitle) || '';
@@ -20058,6 +20114,7 @@ body {
         }
         
         function showNegotiationGuide() {
+            if (isReadOnlyProfile) { demoGate('use the negotiation guide'); return; }
             logAnalyticsEvent('negotiation_guide', {});
             const totalValue = getEffectiveComp();
             const negotiationGap = totalValue.yourWorth - totalValue.standardOffer;
