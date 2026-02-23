@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.16.0 | 20260223 | AI cost tracking dashboard + usage telemetry on all API calls -->
+    <!-- v4.37.16.1 | 20260223 | Fix skill.level type coercion (non-string levels crashed card view) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1203,8 +1203,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.16.0 - BUILD 20260223-cost-tracking
-        var BP_VERSION = 'v4.37.16.0';
+        // BLUEPRINT v4.37.16.1 - BUILD 20260223-level-typefix
+        var BP_VERSION = 'v4.37.16.1';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -8200,7 +8200,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 var levelPri = { 'mastery': 5, 'expert': 4, 'advanced': 3, 'proficient': 2, 'novice': 1 };
                 var keySkills = skillsData.skills.filter(function(s) { return s.key; });
                 var topLevelSkills = skillsData.skills.filter(function(s) {
-                    var lvl = (s.level || '').toLowerCase();
+                    var lvl = String(s.level || '').toLowerCase();
                     return lvl === 'mastery' || lvl === 'expert';
                 });
                 // Merge key + top-level, deduplicate, cap at 30
@@ -8214,20 +8214,20 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 });
                 // If still under 30, backfill with Advanced
                 if (skillsToShow.length < 30) {
-                    skillsData.skills.filter(function(s) { return (s.level || '').toLowerCase() === 'advanced' && !seen.has(s.name); })
+                    skillsData.skills.filter(function(s) { return String(s.level || '').toLowerCase() === 'advanced' && !seen.has(s.name); })
                         .slice(0, 30 - skillsToShow.length)
                         .forEach(function(s) { skillsToShow.push(s); seen.add(s.name); });
                 }
                 // If still under 30, backfill with Proficient
                 if (skillsToShow.length < 30) {
-                    skillsData.skills.filter(function(s) { return (s.level || '').toLowerCase() === 'proficient' && !seen.has(s.name); })
+                    skillsData.skills.filter(function(s) { return String(s.level || '').toLowerCase() === 'proficient' && !seen.has(s.name); })
                         .slice(0, 30 - skillsToShow.length)
                         .forEach(function(s) { skillsToShow.push(s); seen.add(s.name); });
                 }
                 // FALLBACK: if level-based filters found nothing, take any skills sorted by level priority
                 if (skillsToShow.length === 0 && skillsData.skills.length > 0) {
                     var sorted = skillsData.skills.slice().sort(function(a, b) {
-                        return (levelPri[(b.level || '').toLowerCase()] || 0) - (levelPri[(a.level || '').toLowerCase()] || 0);
+                        return (levelPri[String(b.level || '').toLowerCase()] || 0) - (levelPri[String(a.level || '').toLowerCase()] || 0);
                     });
                     sorted.slice(0, 30).forEach(function(s) { skillsToShow.push(s); });
                 }
@@ -9721,7 +9721,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 `;
                 
                 data.skills.forEach(skill => {
-                    const levelClass = (skill.level || 'proficient').toLowerCase();
+                    const levelClass = String(skill.level || 'proficient').toLowerCase();
                     const keyBadge = skill.key ? '<span class="skill-badge">CORE</span>' : '';
                     const rolesList = (skill.roles || []).map(roleId => {
                         const role = skillsData.roles.find(r => r.id === roleId);
@@ -10753,7 +10753,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             node.classed('dimmed', d => {
                 if (d.type !== 'skill') return false;
-                return (d.level || '').toLowerCase() !== activeLevel;
+                return String(d.level || '').toLowerCase() !== activeLevel;
             });
         }
 
@@ -11064,7 +11064,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             title.textContent = skillName;
             
             // Set subtitle (level, years, core badge, category badge)
-            const levelClass = (skillData.level || 'proficient').toLowerCase();
+            const levelClass = String(skillData.level || 'proficient').toLowerCase();
             const coreBadge = skillData.key ? '<span class="modal-core-badge">' + bpIcon('star',12) + ' CORE DIFFERENTIATOR</span>' : '';
             const details = skillsData.skillDetails[skillName] || {};
             
