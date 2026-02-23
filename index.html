@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.5.0 | 20260223 | Remove explicit 14,000 skill count from user-facing copy; keep ESCO/ONET callouts -->
+    <!-- v4.37.6.0 | 20260223 | Fix skill count claims: 150-300→30-60, reframe waitlist copy around agency -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1186,8 +1186,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.5.0 - BUILD 20260223-remove-skill-count
-        var BP_VERSION = 'v4.37.5.0';
+        // BLUEPRINT v4.37.6.0 - BUILD 20260223-waitlist-copy
+        var BP_VERSION = 'v4.37.6.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -25185,7 +25185,7 @@ body {
             <button class="wl-close" onclick="closeWaitlist()">&times;</button>
             <div id="waitlistFormView">
                 <h3>&#9672; Get Early Access</h3>
-                <p class="wl-subtitle">Most professionals can name 15&ndash;20 skills. Blueprint maps 150&ndash;300. Join the waitlist to see your full professional architecture.</p>
+                <p class="wl-subtitle">Most resumes list 10&ndash;12 skills. You actually have 30&ndash;60. Blueprint gives you the tools to tell your whole story and the agency to fully represent yourself.</p>
                 <label>Name</label>
                 <input type="text" id="wlName" placeholder="Your name" autocomplete="name">
                 <label>Email</label>
