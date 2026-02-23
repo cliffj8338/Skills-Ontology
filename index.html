@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.6.0 | 20260223 | Fix skill count claims: 150-300→30-60, reframe waitlist copy around agency -->
+    <!-- v4.37.7.0 | 20260223 | Fix stale jobs on profile switch: sync skillsData before sample job injection -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1186,8 +1186,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.6.0 - BUILD 20260223-waitlist-copy
-        var BP_VERSION = 'v4.37.6.0';
+        // BLUEPRINT v4.37.7.0 - BUILD 20260223-fix-stale-jobs
+        var BP_VERSION = 'v4.37.7.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -6179,6 +6179,12 @@
                 safeRemove('wbValues');
                 safeRemove('wbPurpose');
             }
+            
+            // CRITICAL: Sync skillsData BEFORE sample job injection.
+            // getSampleJobsForProfile → matchJobToProfile reads skillsData.skills,
+            // which still points to the PREVIOUS profile if we don't update it here.
+            skillsData.skills = userData.skills;
+            skillsData.roles = userData.roles;
             
             if (!hasCuratedJobs) {
                 if (isManifestProfile || templateId.indexOf('demo') !== -1 || templateId.indexOf('sample') !== -1) {
