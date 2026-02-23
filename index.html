@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.11.0 | 20260223 | Fix hasValuation gate blocking stat tiles -->
+    <!-- v4.37.12.0 | 20260223 | Mobile: values spread, footer clearance, margins, width -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -76,6 +76,22 @@
         }
 
         /* ── Demo Mode Toggle ──────────────────────────────────── */
+        /* ── Mobile Layout Fixes ──────────────────────────────── */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 0 12px 100px 12px !important;
+                max-width: 100vw;
+                overflow-x: hidden;
+            }
+            .blueprint-container {
+                padding-left: 4px !important;
+                padding-right: 4px !important;
+            }
+            #appFooter {
+                padding-bottom: 80px !important;
+            }
+        }
+        /* ── Demo Mode Toggle (cont) ─────────────────────────── */
         .demo-toggle-btn {
             display: none;
             align-items: center;
@@ -1187,8 +1203,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.11.0 - BUILD 20260223-fix-valuation-gate
-        var BP_VERSION = 'v4.37.11.0';
+        // BLUEPRINT v4.37.12.0 - BUILD 20260223-mobile-layout-fixes
+        var BP_VERSION = 'v4.37.12.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -8572,7 +8588,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 // else stays 'yours' = your priority, their silence
                 
                 var angle = ((i / userSelected.length) * Math.PI * 0.8) + Math.PI * 0.6;
-                var radius = (isMobile ? 130 : 180) * scaleFactor;
+                var radius = (isMobile ? 155 : 180) * scaleFactor;
                 nodes.push({
                     id: 'uv-' + i, name: val.name, type: 'value', side: 'user',
                     valState: state,
@@ -8593,7 +8609,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 // else stays 'theirs' = their priority, you don't hold it
                 
                 var angle = ((i / companyAllVals.length) * Math.PI * 0.8) + Math.PI * 1.6;
-                var radius = (isMobile ? 130 : 180) * scaleFactor;
+                var radius = (isMobile ? 155 : 180) * scaleFactor;
                 nodes.push({
                     id: 'cv-' + i, name: cval.name, type: 'value', side: 'company',
                     valState: state, tier: cval.tier,
@@ -8652,7 +8668,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .force("charge", d3.forceManyBody().strength(function(d) {
                     if (d.type === 'hub') return 0;
                     if (d.type === 'tension-marker') return -40;
-                    return (isMobile ? -200 : -300) * scaleFactor;
+                    return (isMobile ? -280 : -300) * scaleFactor;
                 }))
                 .force("collision", d3.forceCollide().radius(function(d) {
                     if (d.type === 'hub') return (isMobile ? 48 : 60) * scaleFactor;
