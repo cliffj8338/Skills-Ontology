@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.38.0.0 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
+    <!-- v4.38.1.0 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1203,8 +1203,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.38.0.0 - BUILD 20260223-firestore-cache
-        var BP_VERSION = 'v4.38.0.0';
+        // BLUEPRINT v4.38.1.0 - BUILD 20260223-badge-fix
+        var BP_VERSION = 'v4.38.1.0';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1495,7 +1495,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260223-firestore-cache                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260223-badge-fix                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -2474,7 +2474,7 @@
                 { name: 'Values', count: valuesCount, source: 'Blueprint', color: '#10b981', loaded: valuesCount > 0 },
                 { name: 'BLS Wages', count: blsWageCount ? blsWageCount.toLocaleString() : 0, source: 'Bureau of Labor Statistics', color: '#f97316', loaded: blsWageCount > 0 },
                 { name: 'Custom Skills', count: '\u221E', source: 'User-defined', color: '#fbbf24', loaded: true },
-                { name: 'Jobs Database', count: jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : (jobsDbCount > 0 ? jobsDbCount : 0), source: 'Firestore cache \u00B7 5 APIs synced every 6h', color: '#ec4899', loaded: jobsCacheLoaded || jobsDbCount > 0 }
+                { name: 'Jobs Database', count: jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : jobsCacheData.length, source: 'Firestore cache \u00B7 5 APIs synced every 6h', color: '#ec4899', loaded: jobsCacheLoaded || (jobsSyncMeta && jobsSyncMeta.totalJobs > 0) }
             ];
             
             var totalLoaded = tiles.filter(function(t) { return t.loaded; }).length;
@@ -18991,13 +18991,7 @@ body {
                 + bpIcon('search',20) + ' Find Jobs</h2>'
                 + '<p style="color:var(--text-muted); font-size:0.88em; margin:0;">Search across JSearch, Remotive, USAJobs, Himalayas, and Jobicy. Results scored against your skills.</p>'
                 + '</div>'
-                + (function() {
-                    var count = jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : (jobsCacheData.length || jobsDbCount);
-                    if (count < 1) return '';
-                    return '<div title="' + escapeHtml(getJobsSourceBreakdown() || 'From Firestore cache') + '" style="text-align:right; padding:10px 18px; background:linear-gradient(135deg, var(--accent), #8b5cf6); border-radius:10px; min-width:120px; cursor:help;">'
-                        + '<div style="font-size:1.6em; font-weight:800; color:#fff; line-height:1;">' + count.toLocaleString() + '</div>'
-                        + '<div style="font-size:0.68em; color:rgba(255,255,255,0.8); text-transform:uppercase; letter-spacing:0.08em;">jobs in database</div></div>';
-                })()
+                + '<div id="jobsDbBadge"></div>'
                 + '</div>'
                 + '</div>'
                 
@@ -20831,7 +20825,7 @@ body {
             // Load cached jobs
             fbDb.collection('jobs')
                 .orderBy('syncedAt', 'desc')
-                .limit(500)
+                .limit(2000)
                 .get()
                 .then(function(snapshot) {
                     jobsCacheData = [];
@@ -20843,6 +20837,7 @@ body {
                     jobsCacheLoaded = true;
                     
                     console.log('Jobs cache loaded: ' + jobsCacheData.length + ' jobs from Firestore');
+                    updateJobsBadge();
                     
                     if (jobsCacheData.length > 0) {
                         scoreAndDisplayCachedJobs();
@@ -20938,6 +20933,18 @@ body {
                 + '<span style="font-size:0.75em; color:var(--accent); font-weight:600;">' + total + ' jobs in database</span>'
                 + (srcParts.length > 0 ? '<span style="font-size:0.68em; color:var(--text-muted);">' + srcParts.join(' \u00B7 ') + '</span>' : '')
                 + '</div>';
+            
+            updateJobsBadge();
+        }
+        
+        function updateJobsBadge() {
+            var el = document.getElementById('jobsDbBadge');
+            if (!el) return;
+            var count = jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : jobsCacheData.length;
+            if (count < 1) { el.innerHTML = ''; return; }
+            el.innerHTML = '<div title="' + escapeHtml(getJobsSourceBreakdown() || 'From Firestore cache') + '" style="text-align:right; padding:10px 18px; background:linear-gradient(135deg, var(--accent), #8b5cf6); border-radius:10px; min-width:120px; cursor:help;">'
+                + '<div style="font-size:1.6em; font-weight:800; color:#fff; line-height:1;">' + count.toLocaleString() + '</div>'
+                + '<div style="font-size:0.68em; color:rgba(255,255,255,0.8); text-transform:uppercase; letter-spacing:0.08em;">jobs in database</div></div>';
         }
         
         function searchOpportunities() {

@@ -15,7 +15,7 @@ if (!admin.apps.length) {
 }
 const db = admin.firestore();
 
-// Search queries covering major job families
+// Search queries covering major job families — broad terms for maximum coverage
 const SYNC_QUERIES = [
   'software engineer',
   'product manager',
@@ -31,7 +31,17 @@ const SYNC_QUERIES = [
   'business analyst',
   'talent acquisition',
   'strategy consultant',
-  'customer success'
+  'customer success',
+  'engineering director',
+  'chief technology officer',
+  'account executive',
+  'financial analyst',
+  'program manager',
+  'devops engineer',
+  'content marketing',
+  'business development',
+  'machine learning engineer',
+  'solutions architect'
 ];
 
 // === SOURCE FETCHERS ===
@@ -43,7 +53,7 @@ async function fetchJSearch(query) {
     const params = new URLSearchParams({
       query: query,
       page: '1',
-      num_pages: '2',
+      num_pages: '3',
       date_posted: 'month'
     });
     const res = await fetch('https://jsearch.p.rapidapi.com/search?' + params, {
