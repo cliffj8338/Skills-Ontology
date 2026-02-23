@@ -2457,7 +2457,8 @@
                 { name: 'Trades & Creative', count: tradesCount, source: 'Custom', color: '#f59e0b', loaded: tradesCount > 0 },
                 { name: 'Values', count: valuesCount, source: 'Blueprint', color: '#10b981', loaded: valuesCount > 0 },
                 { name: 'BLS Wages', count: blsWageCount ? blsWageCount.toLocaleString() : 0, source: 'Bureau of Labor Statistics', color: '#f97316', loaded: blsWageCount > 0 },
-                { name: 'Custom Skills', count: '\u221E', source: 'User-defined', color: '#fbbf24', loaded: true }
+                { name: 'Custom Skills', count: '\u221E', source: 'User-defined', color: '#fbbf24', loaded: true },
+                { name: 'Jobs Database', count: jobsDbCount > 0 ? jobsDbCount : 0, source: '5 APIs (JSearch, Remotive, USAJobs, Himalayas, Jobicy)', color: '#ec4899', loaded: jobsDbCount > 0 }
             ];
             
             var totalLoaded = tiles.filter(function(t) { return t.loaded; }).length;
@@ -18736,7 +18737,7 @@ body {
                 + bpIcon('search',20) + ' Find Jobs</h2>'
                 + '<p style="color:var(--text-muted); font-size:0.88em; margin:0;">Search across JSearch, Remotive, USAJobs, Himalayas, and Jobicy. Results scored against your skills.</p>'
                 + '</div>'
-                + (jobsDbCount > 0 ? '<div style="text-align:right; padding:10px 18px; background:linear-gradient(135deg, var(--accent), #8b5cf6); border-radius:10px; min-width:120px;">'
+                + (jobsDbCount > 0 ? '<div title="' + escapeHtml(getJobsSourceBreakdown() || 'Search to populate counts') + '" style="text-align:right; padding:10px 18px; background:linear-gradient(135deg, var(--accent), #8b5cf6); border-radius:10px; min-width:120px; cursor:help;">'
                 + '<div style="font-size:1.6em; font-weight:800; color:#fff; line-height:1;">' + formatJobsCount(jobsDbCount) + '</div>'
                 + '<div style="font-size:0.68em; color:rgba(255,255,255,0.8); text-transform:uppercase; letter-spacing:0.08em;">jobs indexed</div></div>' : '')
                 + '</div>'
@@ -20400,11 +20401,12 @@ body {
             }
             
             // Summary bar
+            var sourceBreak = getJobsSourceBreakdown();
             var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:8px 0; flex-wrap:wrap; gap:8px;">'
                 + '<span style="font-size:0.88em; color:var(--text-secondary);">'
                 + '<strong>' + filtered.length + '</strong> jobs' + (filtered.length < opportunitiesData.length ? ' (of ' + opportunitiesData.length + ' returned)' : '')
                 + ' above ' + currentMatchThreshold + '% match'
-                + (jobsDbCount > 0 ? ' <span style="color:var(--text-muted); font-size:0.85em;">\u00B7 ' + formatJobsCount(jobsDbCount) + ' in database</span>' : '')
+                + (jobsDbCount > JOBS_DB_BASELINE ? ' <span style="color:var(--text-muted); font-size:0.85em;">\u00B7 ' + formatJobsCount(jobsDbCount) + ' in database</span>' : '')
                 + '</span>'
                 + (window._findJobsSources ? '<span style="font-size:0.72em; color:var(--text-muted);">' + window._findJobsSources + '</span>' : '')
                 + '</div>';
@@ -20486,9 +20488,9 @@ body {
         var JOBS_PROXY_URL = '/api/jobs';
         var JOBS_PROXY_AVAILABLE = null;
         var jobsDbCount = parseInt(safeGet('bpJobsDbCount') || '0');
+        var jobsSourceCounts = safeParse(safeGet('bpJobsSourceCounts'), {});
         
-        // Known minimums from our sources (conservative estimates)
-        // JSearch/Google for Jobs: millions, Remotive: ~5k active, USAJobs: ~20k, Himalayas: ~3k, Jobicy: ~2k
+        // Known minimums from our sources (conservative floor estimates)
         var JOBS_DB_BASELINE = 30000;
         if (jobsDbCount < JOBS_DB_BASELINE) jobsDbCount = JOBS_DB_BASELINE;
         
@@ -20499,19 +20501,41 @@ body {
         }
         
         function updateJobsDbCount(data) {
-            // Pull the highest total from JSearch (Google for Jobs total_count)
-            if (data && data.sources) {
-                var jsTotal = data.sources.jsearch && data.sources.jsearch.total;
-                if (jsTotal && jsTotal > jobsDbCount) {
-                    jobsDbCount = jsTotal;
-                    safeSet('bpJobsDbCount', String(jobsDbCount));
+            if (!data || !data.sources) return;
+            var newTotal = 0;
+            var updated = false;
+            
+            Object.keys(data.sources).forEach(function(src) {
+                var s = data.sources[src];
+                // JSearch returns total_count (full Google for Jobs index)
+                if (s.total && s.total > 0) {
+                    jobsSourceCounts[src] = Math.max(jobsSourceCounts[src] || 0, s.total);
+                    updated = true;
+                } else if (s.count && s.count > 0 && !s.error) {
+                    // For free APIs, track returned count as minimum
+                    jobsSourceCounts[src] = Math.max(jobsSourceCounts[src] || 0, s.count);
+                    updated = true;
                 }
+            });
+            
+            // Sum all known source totals
+            Object.values(jobsSourceCounts).forEach(function(c) { newTotal += c; });
+            
+            if (newTotal > jobsDbCount) {
+                jobsDbCount = newTotal;
             }
-            // Also count total returned across all sources as a floor
-            if (data && data.total && data.total > 100 && jobsDbCount === 0) {
-                jobsDbCount = data.total;
+            
+            if (updated) {
                 safeSet('bpJobsDbCount', String(jobsDbCount));
+                safeSet('bpJobsSourceCounts', JSON.stringify(jobsSourceCounts));
             }
+        }
+        
+        function getJobsSourceBreakdown() {
+            var labels = { jsearch: 'JSearch', remotive: 'Remotive', usajobs: 'USAJobs', himalayas: 'Himalayas', jobicy: 'Jobicy' };
+            return Object.keys(jobsSourceCounts).map(function(src) {
+                return (labels[src] || src) + ': ' + (jobsSourceCounts[src] || 0).toLocaleString();
+            }).join(' \u00B7 ');
         }
         
         function searchOpportunities() {
