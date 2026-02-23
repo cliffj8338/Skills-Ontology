@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.38.3.0 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
+    <!-- v4.38.3.1 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1203,8 +1203,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.38.3.0 - BUILD 20260223-demo-mode-fix
-        var BP_VERSION = 'v4.38.3.0';
+        // BLUEPRINT v4.38.3.1 - BUILD 20260223-demo-mode-fix
+        var BP_VERSION = 'v4.38.3.1';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -8951,11 +8951,23 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Only show when network view is visible
             var networkSvg = document.getElementById('networkView');
-            if (!networkSvg || networkSvg.style.display === 'none') return;
+            if (!networkSvg) {
+                console.log('Job selector: networkView element not found');
+                return;
+            }
+            if (networkSvg.style.display === 'none') {
+                console.log('Job selector: networkView hidden');
+                return;
+            }
             
             var container = networkSvg.parentElement;
-            if (!container) return;
+            if (!container) {
+                console.log('Job selector: no parent container');
+                return;
+            }
             container.style.position = 'relative';
+            
+            console.log('Job selector: rendering widget for ' + jobs.length + ' jobs');
             
             var widget = document.createElement('div');
             widget.id = 'networkJobSelector';
