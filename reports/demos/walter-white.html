@@ -606,9 +606,9 @@ sSim.on('tick',()=>{const p=mob?40:65;N.forEach(d=>{if(d.type!=='center'){d.x=Ma
 
 // ===== VALUES NETWORK =====
 function initVN(){
-const w=document.getElementById('vnW'),W=w.clientWidth,H=Math.max(380,Math.min(500,innerHeight*.48)),mob=W<=768,sf=Math.max(.8,Math.min(W/900,1.4));
+const w=document.getElementById('vnW'),W=w.clientWidth,H=Math.max(460,Math.min(600,innerHeight*.55)),mob=W<=768,sf=Math.max(.8,Math.min(W/900,1.3));
 const svg=d3.select('#vnS').attr('width',W).attr('height',H);svg.selectAll('*').remove();
-const cY=H*.48,lX=mob?W*.22:W*.28,rX=mob?W*.78:W*.72,tY=mob?H*.15:H*.15;
+const cY=H*.5,lX=mob?W*.22:W*.28,rX=mob?W*.78:W*.72,tY=H*.36;
 const N=[],L=[],aSet=new Set(uVals.filter(v=>v.s==='aligned').map(v=>v.n)),vc={aligned:'#10b981',yours:'#f59e0b',theirs:'#6366f1'};
 N.push({id:'hu',name:"Walter's Values",type:'hub',side:'user',x:lX,y:tY,fx:lX,fy:tY});
 N.push({id:'hc',name:"Gray Matter's Culture",type:'hub',side:'company',x:rX,y:tY,fx:rX,fy:tY});
