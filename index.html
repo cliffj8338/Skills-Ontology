@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.38.4.1 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
+    <!-- v4.38.5.0 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1206,8 +1206,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.38.4.1 - BUILD 20260223-inline-job-selector
-        var BP_VERSION = 'v4.38.4.1';
+        // BLUEPRINT v4.38.5.0 - BUILD 20260223-inline-job-selector
+        var BP_VERSION = 'v4.38.5.0';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -3417,7 +3417,7 @@
                     color: '#3b82f6',
                     icon: 'blueprint',
                     items: [
-                        { id: 'p1-1', name: 'Anthropic API proxy (serverless)', status: 'in-progress', category: 'infrastructure', priority: 'critical', notes: 'Client-side helper complete (callAnthropicAPI). Serverless function at /api/ai.js ready. Deploy: add ANTHROPIC_API_KEY to Vercel env vars, deploy /api/ai.js.' },
+                        { id: 'p1-1', name: 'Anthropic API proxy (serverless)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'Client-side helper callAnthropicAPI(). Serverless function at /api/ai.js. Firebase token validation, rate limiting, cost tracking. Deployed.' },
                         { id: 'p1-2', name: 'Report access control (share tokens)', status: 'planned', category: 'security', priority: 'high', notes: 'Add shareToken field to report doc. Validate in Firestore rules. URL becomes /report/{id}?token={random}.' },
                         { id: 'p1-3', name: 'CORS proxy via serverless', status: 'planned', category: 'infrastructure', priority: 'medium', notes: 'Vercel serverless at /api/fetch. Allowlist: remotive.com, himalayas.app, jobicy.com.' },
                         { id: 'p1-4', name: 'Admin roadmap tracker', status: 'done', category: 'feature', priority: 'medium', notes: 'Roadmap tab in admin panel. Tracks all strategy items, features, and tasks.' },
@@ -3427,7 +3427,12 @@
                         { id: 'p1-9', name: 'Multi-source job search API', status: 'done', category: 'feature', priority: 'critical', notes: 'Serverless proxy at /api/jobs aggregating JSearch (RapidAPI), Remotive, USAJobs, Himalayas, Jobicy. Location search, remote filter, source badges, skill matching, API cost tracking. Fallback to direct fetch if proxy unavailable.' },
                         { id: 'p1-10', name: 'Infrastructure costs dashboard', status: 'done', category: 'admin', priority: 'high', notes: 'Full infrastructure registry (Claude, JSearch, Vercel, Cloudflare, Firebase, GitHub, all job APIs). Categorized by type with manage links. Monthly Cost Snapshot with gradient total, breakdown bars, fixed/AI/API split tiles, annual projection.' },
                         { id: 'p2-1', name: 'Jobs database + caching layer', status: 'done', category: 'architecture', priority: 'high', notes: 'Firestore-backed job cache. Cron syncs 5 sources every 6h via /api/jobs-sync (15 queries × 5 sources). Cache-first client search (instant filtering). Live search fallback. Admin sync dashboard with source counts, duration, errors. vercel.json cron config, firebase-admin package.' },
-                        { id: 'p1-5', name: 'Demo profile polish', status: 'in-progress', category: 'feature', priority: 'medium', notes: '24 TV character profiles with 99 evidence outcomes added. Ongoing refinement.' }
+                        { id: 'p1-5', name: 'Demo profile polish', status: 'in-progress', category: 'feature', priority: 'medium', notes: '24 TV character profiles with 99 evidence outcomes added. Ongoing refinement.' },
+                        { id: 'p2-2a', name: 'Demo mode isolation', status: 'done', category: 'architecture', priority: 'high', notes: 'Signed-in users enter proper demo mode with data snapshot/restore when viewing samples. Banner shows Demo Mode with exit link. Admin no longer defaults to admin panel on refresh. URL hash routing preserved.' },
+                        { id: 'p2-2b', name: 'Empty state UX', status: 'done', category: 'ux', priority: 'high', notes: 'Signed-in users with no profile see Build Your Blueprint empty state on Skills (network) and Blueprint dashboard. Demo data auto-detected and cleared from Firestore on load.' },
+                        { id: 'p2-2c', name: 'Inline job selector', status: 'done', category: 'feature', priority: 'medium', notes: 'Job selector pill in controls bar next to Network/Card toggle. Fixed-position dropdown with addEventListener (no inline onclick). Job overlay activation with You/Job/Match/Values toggle. Works in demo and live modes.' },
+                        { id: 'p2-3a', name: 'LinkedIn profile import', status: 'planned', category: 'feature', priority: 'critical', notes: 'OAuth or manual import to pull profile data (skills, experience, education) for quick profile build. Research LinkedIn API access, Sign In with LinkedIn OpenID Connect.' },
+                        { id: 'p2-3b', name: 'Quick profile builder (1-3 min)', status: 'planned', category: 'feature', priority: 'critical', notes: 'Streamlined sign-up → profile build flow. Resume upload OR LinkedIn import OR manual entry. Wizard-style with progress. Target: usable profile in under 3 minutes.' }
                     ]
                 },
                 {
