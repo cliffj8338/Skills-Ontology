@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.14.2 | 20260223 | CSP frame-src fix for Firebase Auth -->
+    <!-- v4.37.15.0 | 20260223 | AI proxy helper + all API calls routed through callAnthropicAPI -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1203,8 +1203,46 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.14.2 - BUILD 20260223-csp-frame-fix
-        var BP_VERSION = 'v4.37.14.2';
+        // BLUEPRINT v4.37.15.0 - BUILD 20260223-api-proxy
+        var BP_VERSION = 'v4.37.15.0';
+        
+        // ===== AI PROXY HELPER =====
+        var AI_PROXY_URL = '/api/ai';
+        var AI_PROXY_AVAILABLE = null;
+        
+        async function callAnthropicAPI(requestBody, userApiKey) {
+            var idToken = null;
+            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+                try { idToken = await firebase.auth().currentUser.getIdToken(); } catch (e) {}
+            }
+            if (idToken && AI_PROXY_AVAILABLE !== false) {
+                try {
+                    var proxyRes = await fetch(AI_PROXY_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
+                        body: JSON.stringify(requestBody)
+                    });
+                    if (proxyRes.ok) { AI_PROXY_AVAILABLE = true; return await proxyRes.json(); }
+                    if (proxyRes.status === 429) { AI_PROXY_AVAILABLE = true; throw new Error('Rate limit exceeded. Please wait a moment.'); }
+                    if (proxyRes.status === 500) AI_PROXY_AVAILABLE = false;
+                } catch (e) {
+                    if (e.message.includes('Rate limit')) throw e;
+                    if (AI_PROXY_AVAILABLE === null) AI_PROXY_AVAILABLE = false;
+                }
+            }
+            if (!userApiKey) throw new Error('AI features require sign-in or an API key in Settings.');
+            var directRes = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-api-key': userApiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+                body: JSON.stringify(requestBody)
+            });
+            if (!directRes.ok) {
+                var errData = {}; try { errData = await directRes.json(); } catch(e) {}
+                if (directRes.status === 401) throw new Error('Invalid API key. Check your key at console.anthropic.com.');
+                throw new Error((errData.error && errData.error.message) || 'AI request failed (status ' + directRes.status + ')');
+            }
+            return await directRes.json();
+        }
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -2834,7 +2872,7 @@
                     color: '#3b82f6',
                     icon: 'blueprint',
                     items: [
-                        { id: 'p1-1', name: 'Anthropic API proxy (serverless)', status: 'planned', category: 'infrastructure', priority: 'critical', notes: 'Vercel serverless at /api/ai. Removes API key from browser entirely. Validates Firebase ID token server-side.' },
+                        { id: 'p1-1', name: 'Anthropic API proxy (serverless)', status: 'in-progress', category: 'infrastructure', priority: 'critical', notes: 'Client-side helper complete (callAnthropicAPI). Serverless function at /api/ai.js ready. Deploy: add ANTHROPIC_API_KEY to Vercel env vars, deploy /api/ai.js.' },
                         { id: 'p1-2', name: 'Report access control (share tokens)', status: 'planned', category: 'security', priority: 'high', notes: 'Add shareToken field to report doc. Validate in Firestore rules. URL becomes /report/{id}?token={random}.' },
                         { id: 'p1-3', name: 'CORS proxy via serverless', status: 'planned', category: 'infrastructure', priority: 'medium', notes: 'Vercel serverless at /api/fetch. Allowlist: remotive.com, himalayas.app, jobicy.com.' },
                         { id: 'p1-4', name: 'Admin roadmap tracker', status: 'done', category: 'feature', priority: 'medium', notes: 'Roadmap tab in admin panel. Tracks all strategy items, features, and tasks.' },
@@ -7184,11 +7222,11 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                 setStatus('Sending to Claude...', 15);
 
                 var wizardApiKey = safeGet('wbAnthropicKey');
-                if (!wizardApiKey) {
+                if (!wizardApiKey && !(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)) {
                     setStatus('', 0);
                     var icon = document.getElementById('wizardParsingIcon');
                     if (icon) icon.style.animation = 'none';
-                    showToast('API key required. Add your Anthropic key in Settings → AI Features.', 'warning', 6000);
+                    showToast('Sign in or add an Anthropic API key in Settings to use AI parsing.', 'warning', 6000);
                     return;
                 }
 
@@ -7234,28 +7272,15 @@ Rules:
 - Write the purpose statement to be compelling and authentic to this person's actual experience.
 - category="unique" for skills not in standard O*NET taxonomy (industry-specific, rare combinations).`;
 
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': wizardApiKey,
-                        'anthropic-version': '2023-06-01',
-                        'anthropic-dangerous-direct-browser-access': 'true'
-                    },
-                    body: JSON.stringify({
+                var data = await callAnthropicAPI({
                         model: 'claude-sonnet-4-20250514',
                         max_tokens: 4000,
                         system: systemPrompt,
                         messages: [{ role: 'user', content: `Parse this resume:
 
 ${wizardState.resumeText}` }]
-                    })
-                });
-
+                    }, wizardApiKey);
                 setStatus('Structuring your profile data...', 55);
-
-                if (!response.ok) throw new Error(`API error: ${response.status}`);
-                const data = await response.json();
                 const rawText = data.content[0]?.text || '';
 
                 setStatus('Extracting skills and evidence...', 75);
@@ -7596,22 +7621,14 @@ ${wizardState.resumeText}` }]
             if (btn) { btn.textContent = '⟳ Regenerating...'; btn.disabled = true; }
 
             var purposeApiKey = safeGet('wbAnthropicKey');
-            if (!purposeApiKey) {
-                showToast('API key required. Add your Anthropic key in Settings → AI Features.', 'warning');
+            if (!purposeApiKey && !(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)) {
+                showToast('Sign in or add an Anthropic API key in Settings to use AI features.', 'warning');
                 if (btn) { btn.textContent = '⟳ Regenerate'; btn.disabled = false; }
                 return;
             }
 
             try {
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': purposeApiKey,
-                        'anthropic-version': '2023-06-01',
-                        'anthropic-dangerous-direct-browser-access': 'true'
-                    },
-                    body: JSON.stringify({
+                var data = await callAnthropicAPI({
                         model: 'claude-sonnet-4-20250514',
                         max_tokens: 300,
                         messages: [{
@@ -7624,9 +7641,7 @@ Top skills: ${wizardState.skills.slice(0,8).map(s=>s.name).join(', ')}
 Values: ${wizardState.values.filter(v=>v.selected).map(v=>v.name).join(', ')}
 Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).map(e=>e.outcome).filter(Boolean).join(' | ')}`
                         }]
-                    })
-                });
-                const data = await response.json();
+                    }, purposeApiKey);
                 const newPurpose = data.content[0]?.text?.trim() || '';
                 if (newPurpose) {
                     wizardState.purpose = newPurpose;
@@ -17242,21 +17257,11 @@ body {
                     + 'Tone: confident but not arrogant, specific not generic. No cliches. '
                     + 'Do NOT include placeholder brackets like [Company] or [Name]. Use the actual names provided.';
 
-                fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': apiKey,
-                        'anthropic-version': '2023-06-01',
-                        'anthropic-dangerous-direct-browser-access': 'true'
-                    },
-                    body: JSON.stringify({
+                callAnthropicAPI({
                         model: 'claude-sonnet-4-20250514',
                         max_tokens: 1500,
                         messages: [{ role: 'user', content: prompt }]
-                    })
-                })
-                .then(function(r) { return r.json(); })
+                    }, apiKey)
                 .then(function(data) {
                     var text = (data.content || []).map(function(c) { return c.text || ''; }).join('\n');
                     if (!text) throw new Error('Empty response');
@@ -17443,21 +17448,11 @@ body {
                     + '4. Write 3 smart questions to ask the interviewer that demonstrate strategic thinking.\n'
                     + 'Format with clear section headers. Be specific, not generic.';
 
-                fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': apiKey,
-                        'anthropic-version': '2023-06-01',
-                        'anthropic-dangerous-direct-browser-access': 'true'
-                    },
-                    body: JSON.stringify({
+                callAnthropicAPI({
                         model: 'claude-sonnet-4-20250514',
                         max_tokens: 2500,
                         messages: [{ role: 'user', content: prompt }]
-                    })
-                })
-                .then(function(r) { return r.json(); })
+                    }, apiKey)
                 .then(function(data) {
                     var text = (data.content || []).map(function(c) { return c.text || ''; }).join('\n');
                     if (!text) throw new Error('Empty response');
@@ -17611,21 +17606,11 @@ body {
                     + '3. SKILLS LIST: The top 15 skills ordered by impact, one per line.\n'
                     + 'Separate each section with a clear header.';
 
-                fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': apiKey,
-                        'anthropic-version': '2023-06-01',
-                        'anthropic-dangerous-direct-browser-access': 'true'
-                    },
-                    body: JSON.stringify({
+                callAnthropicAPI({
                         model: 'claude-sonnet-4-20250514',
                         max_tokens: 1500,
                         messages: [{ role: 'user', content: prompt }]
-                    })
-                })
-                .then(function(r) { return r.json(); })
+                    }, apiKey)
                 .then(function(data) {
                     var text = (data.content || []).map(function(c) { return c.text || ''; }).join('\n');
                     if (!text) throw new Error('Empty response');
@@ -18049,7 +18034,7 @@ body {
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.88em; font-family:monospace;" />'
                 + '<div style="font-size:0.75em; color:var(--text-muted); margin-top:6px; line-height:1.5;">'
                 + 'Stored locally, never sent to our servers. Get a key at <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">console.anthropic.com</a>. '
-                + 'Without a key, analysis uses local skill matching (still good, but less nuanced).'
+                + 'Signed-in users get AI features automatically. Without sign-in or a key, analysis uses local skill matching (still good, but less nuanced).'
                 + '</div></div></details>'
                 
                 + '<div id="jdParsingStatus" style="display:none; margin-top:16px; padding:16px; border-radius:8px; text-align:center;"></div>'
@@ -18272,30 +18257,13 @@ body {
                 + '  For Mid roles, default to Proficient. For Entry, default to Competent or Novice.\n'
                 + '- For common role-implied skills that are obvious but unstated (e.g., ATS for recruiters, Excel for analysts, Git for developers), include them as Preferred';
             
-            var response = await fetch('https://api.anthropic.com/v1/messages', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': apiKey,
-                    'anthropic-version': '2023-06-01',
-                    'anthropic-dangerous-direct-browser-access': 'true'
-                },
-                body: JSON.stringify({
+            var data = await callAnthropicAPI({
                     model: 'claude-sonnet-4-20250514',
                     max_tokens: 2000,
                     system: systemPrompt,
                     messages: [{ role: 'user', content: userPrompt }]
-                })
-            });
+                }, apiKey);
             
-            if (!response.ok) {
-                var errBody = await response.text().catch(function() { return ''; });
-                if (response.status === 401) throw new Error('Invalid API key. Check your key at console.anthropic.com.');
-                if (response.status === 429) throw new Error('Rate limited. Wait a moment and try again.');
-                throw new Error('API error (' + response.status + '): ' + (errBody.substring(0, 100) || 'Unknown'));
-            }
-            
-            var data = await response.json();
             var text = data.content.map(function(c) { return c.text || ''; }).join('');
             
             // Parse JSON, strip any fences
