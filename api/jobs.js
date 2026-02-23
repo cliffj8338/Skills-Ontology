@@ -304,3 +304,6 @@ module.exports = async function handler(req, res) {
     timestamp: new Date().toISOString()
   }));
 };
+
+// Vercel serverless config — extend timeout to 30s (Pro plan supports up to 60s)
+module.exports.config = { maxDuration: 30 };

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.21.0 | 20260223 | Infrastructure costs dashboard, monthly snapshot, manage links -->
+    <!-- v4.37.21.1 | 20260223 | Infrastructure costs dashboard, monthly snapshot, manage links -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1203,8 +1203,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.21.0 - BUILD 20260223-infra-costs
-        var BP_VERSION = 'v4.37.21.0';
+        // BLUEPRINT v4.37.21.1 - BUILD 20260223-proxy-timeout
+        var BP_VERSION = 'v4.37.21.1';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1495,7 +1495,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260223-infra-costs                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260223-proxy-timeout                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -20771,7 +20771,7 @@ body {
                 if (category) params.set('category', category);
                 if (remoteOnly) params.set('remote', 'true');
                 
-                var res = await fetch(JOBS_PROXY_URL + '?' + params.toString(), { signal: AbortSignal.timeout(15000) });
+                var res = await fetch(JOBS_PROXY_URL + '?' + params.toString(), { signal: AbortSignal.timeout(25000) });
                 if (!res.ok) throw new Error('Proxy returned ' + res.status);
                 
                 var data = await res.json();
