@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.12.0 | 20260223 | Mobile: values spread, footer clearance, margins, width -->
+    <!-- v4.37.13.0 | 20260223 | Fix expert+ counter, mobile layout -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1203,8 +1203,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.12.0 - BUILD 20260223-mobile-layout-fixes
-        var BP_VERSION = 'v4.37.12.0';
+        // BLUEPRINT v4.37.13.0 - BUILD 20260223-expert-counter-fix
+        var BP_VERSION = 'v4.37.13.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -11966,6 +11966,7 @@ body {
             
             var masteryCount = skills.filter(function(s) { return s.level === 'Mastery'; }).length;
             var advancedCount = skills.filter(function(s) { return s.level === 'Advanced'; }).length;
+            var expertLevelCount = skills.filter(function(s) { return s.level === 'Expert'; }).length;
             var savedJobs = (userData.savedJobs || []).filter(function(j) { return j && j.title; });
             var topMatch = savedJobs.length > 0 ? savedJobs.reduce(function(best, j) { return (j.matchData && j.matchData.score || 0) > (best.matchData && best.matchData.score || 0) ? j : best; }, savedJobs[0]) : null;
             var topMatchScore = topMatch && topMatch.matchData ? topMatch.matchData.score : 0;
@@ -12050,7 +12051,7 @@ body {
             html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px; cursor:pointer;" onclick="switchView(\'skills\')">'
                 + '<div style="font-size:0.78em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Skills</div>'
                 + '<div style="font-size:1.8em; font-weight:800; color:#60a5fa;">' + skills.length + '</div>'
-                + '<div style="font-size:0.75em; color:var(--c-faint); margin-top:4px;">' + roles.length + ' domains \u00B7 ' + (masteryCount + advancedCount) + ' expert+</div>'
+                + '<div style="font-size:0.75em; color:var(--c-faint); margin-top:4px;">' + roles.length + ' domains \u00B7 ' + (masteryCount + advancedCount + expertLevelCount) + ' expert+</div>'
                 + '</div>';
             
             // Outcomes card
@@ -15511,6 +15512,7 @@ body {
             var comp = getEffectiveComp();
             var masteryCount = skills.filter(function(s) { return s.level === 'Mastery'; }).length;
             var advancedCount = skills.filter(function(s) { return s.level === 'Advanced'; }).length;
+            var pdfExpertCount = skills.filter(function(s) { return s.level === 'Expert'; }).length;
             var evidenceCount = 0;
             skills.forEach(function(s) { evidenceCount += (s.evidence || []).length; });
             var outcomeCount = (data.outcomes || []).length;
@@ -15528,7 +15530,7 @@ body {
                 stats = [
                     { value: String(skills.length), label: 'Total Skills' },
                     { value: String(roles.length), label: 'Roles' },
-                    { value: String(masteryCount + advancedCount), label: 'Expert+' },
+                    { value: String(masteryCount + advancedCount + pdfExpertCount), label: 'Expert+' },
                     { value: String(evidenceCount), label: 'Evidence Items' }
                 ];
             }
@@ -15945,7 +15947,7 @@ body {
                 if (comp && comp.marketRate) {
                     talkingPoints.push({
                         title: 'Market Position',
-                        text: 'Skill portfolio supports a competitive compensation range of $' + Math.round(comp.conservativeOffer || comp.marketRate * 1.1).toLocaleString() + '\u2013$' + Math.round(comp.competitiveOffer || comp.marketRate * 1.3).toLocaleString() + ' based on ' + skills.length + ' documented skills, ' + (masteryCount + advancedCount) + ' at expert level or above.'
+                        text: 'Skill portfolio supports a competitive compensation range of $' + Math.round(comp.conservativeOffer || comp.marketRate * 1.1).toLocaleString() + '\u2013$' + Math.round(comp.competitiveOffer || comp.marketRate * 1.3).toLocaleString() + ' based on ' + skills.length + ' documented skills, ' + (masteryCount + advancedCount + pdfExpertCount) + ' at expert level or above.'
                     });
                 }
                 
@@ -15992,7 +15994,7 @@ body {
             doc.setFontSize(9);
             setColor(C.textLight);
             doc.text(skills.length + ' documented skills across ' + roles.length + ' professional domains. '
-                + masteryCount + ' at mastery level, ' + advancedCount + ' advanced.', margin, yPos);
+                + (masteryCount + advancedCount + pdfExpertCount) + ' at expert level or above.', margin, yPos);
             yPos += 8;
             
             // Group skills by primary role
