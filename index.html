@@ -1222,11 +1222,11 @@
         
         // External API cost tracking (non-AI)
         var API_FEATURES = {
-            'jsearch':   { name: 'JSearch (RapidAPI)', costPer: 0.005, desc: 'Google Jobs aggregator', unit: 'request' },
-            'remotive':  { name: 'Remotive',           costPer: 0,     desc: 'Free remote jobs API', unit: 'request' },
-            'usajobs':   { name: 'USAJobs',            costPer: 0,     desc: 'Free govt jobs API', unit: 'request' },
-            'himalayas': { name: 'Himalayas',          costPer: 0,     desc: 'Free remote jobs API', unit: 'request' },
-            'jobicy':    { name: 'Jobicy',             costPer: 0,     desc: 'Free remote jobs API', unit: 'request' }
+            'jsearch':   { name: 'JSearch (RapidAPI)', costPer: 0.0025, desc: 'Google Jobs aggregator', unit: 'request', monthlyLimit: 10000, monthlyCost: 25.00, plan: 'Pro' },
+            'remotive':  { name: 'Remotive',           costPer: 0,      desc: 'Free remote jobs API', unit: 'request', monthlyLimit: null, monthlyCost: 0, plan: 'Free' },
+            'usajobs':   { name: 'USAJobs',            costPer: 0,      desc: 'Free govt jobs API', unit: 'request', monthlyLimit: null, monthlyCost: 0, plan: 'Free' },
+            'himalayas': { name: 'Himalayas',          costPer: 0,      desc: 'Free remote jobs API', unit: 'request', monthlyLimit: null, monthlyCost: 0, plan: 'Free' },
+            'jobicy':    { name: 'Jobicy',             costPer: 0,      desc: 'Free remote jobs API', unit: 'request', monthlyLimit: null, monthlyCost: 0, plan: 'Free' }
         };
         
         function getAPIUsageLog() {
@@ -1242,6 +1242,22 @@
             if (!log[today]) log[today] = {};
             log[today][featureTag] = (log[today][featureTag] || 0) + 1;
             saveAPIUsageLog(log);
+        }
+        
+        // Get current billing cycle usage (calendar month)
+        function getMonthlyAPIUsage(tag) {
+            var log = getAPIUsageLog();
+            var now = new Date();
+            var year = now.getFullYear();
+            var month = String(now.getMonth() + 1).padStart(2, '0');
+            var prefix = year + '-' + month;
+            var total = 0;
+            Object.keys(log).forEach(function(date) {
+                if (date.startsWith(prefix) && log[date][tag]) {
+                    total += log[date][tag];
+                }
+            });
+            return total;
         }
         
         // Sonnet 4 pricing ($ per million tokens)
@@ -3792,11 +3808,12 @@
             
             html += '</div>';
             
-            // ===== EXTERNAL API COSTS =====
+            // ===== API SUBSCRIPTIONS & USAGE =====
             var apiLog = getAPIUsageLog();
             var apiTotals = {};
             Object.keys(API_FEATURES).forEach(function(tag) { apiTotals[tag] = 0; });
             var apiTotalCost = 0;
+            var monthlyFixedCost = 0;
             
             rangeDates.forEach(function(date) {
                 var dayData = apiLog[date] || {};
@@ -3805,8 +3822,53 @@
                 });
             });
             
+            // Subscriptions summary
             html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:10px; margin-bottom:20px;">'
-                + '<div style="font-size:0.85em; font-weight:700; color:var(--text-primary); margin-bottom:14px;">External API Usage</div>';
+                + '<div style="font-size:0.85em; font-weight:700; color:var(--text-primary); margin-bottom:16px;">API Subscriptions & Usage</div>';
+            
+            // Subscription cards
+            html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-bottom:20px;">';
+            Object.keys(API_FEATURES).forEach(function(tag) {
+                var spec = API_FEATURES[tag];
+                var monthUsage = getMonthlyAPIUsage(tag);
+                var isPaid = spec.monthlyCost > 0;
+                var usagePct = spec.monthlyLimit ? Math.min(Math.round(monthUsage / spec.monthlyLimit * 100), 100) : 0;
+                var usageColor = usagePct > 90 ? '#ef4444' : usagePct > 70 ? '#f59e0b' : '#10b981';
+                monthlyFixedCost += spec.monthlyCost;
+                
+                html += '<div style="padding:12px; background:var(--c-surface-4b); border:1px solid ' + (isPaid ? 'rgba(96,165,250,0.3)' : 'var(--c-border-faint)') + '; border-radius:10px;">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">'
+                    + '<span style="font-weight:700; font-size:0.82em; color:var(--text-primary);">' + escapeHtml(spec.name) + '</span>'
+                    + '<span style="font-size:0.65em; padding:2px 8px; border-radius:10px; font-weight:600; '
+                    + 'background:' + (isPaid ? 'rgba(96,165,250,0.15)' : 'rgba(16,185,129,0.15)') + '; '
+                    + 'color:' + (isPaid ? '#60a5fa' : '#10b981') + ';">' + spec.plan + '</span></div>'
+                    + '<div style="font-size:0.72em; color:var(--text-muted); margin-bottom:8px;">' + spec.desc + '</div>';
+                
+                // Cost line
+                html += '<div style="display:flex; justify-content:space-between; font-size:0.78em; margin-bottom:4px;">'
+                    + '<span style="color:var(--text-secondary);">Monthly cost</span>'
+                    + '<span style="font-weight:700; color:' + (isPaid ? '#60a5fa' : '#10b981') + ';">' + (isPaid ? '$' + spec.monthlyCost.toFixed(2) : 'Free') + '</span></div>';
+                
+                // Usage this month
+                html += '<div style="display:flex; justify-content:space-between; font-size:0.78em; margin-bottom:4px;">'
+                    + '<span style="color:var(--text-secondary);">This month</span>'
+                    + '<span style="font-weight:600; color:var(--text-primary);">' + monthUsage.toLocaleString()
+                    + (spec.monthlyLimit ? ' / ' + spec.monthlyLimit.toLocaleString() : '') + '</span></div>';
+                
+                // Usage bar (only for APIs with limits)
+                if (spec.monthlyLimit) {
+                    html += '<div style="height:4px; background:var(--c-surface-3a); border-radius:2px; overflow:hidden; margin-top:4px;">'
+                        + '<div style="height:100%; width:' + usagePct + '%; background:' + usageColor + '; border-radius:2px;"></div></div>'
+                        + '<div style="font-size:0.65em; color:' + usageColor + '; text-align:right; margin-top:2px;">' + usagePct + '% used</div>';
+                }
+                
+                html += '</div>';
+            });
+            html += '</div>';
+            
+            // Period usage breakdown (bar chart)
+            html += '<div style="font-size:0.78em; font-weight:600; color:var(--text-secondary); margin-bottom:10px;">Usage (last ' + costsTimeRange + ' days)</div>';
+            var maxCalls = Math.max.apply(null, Object.values(apiTotals)) || 1;
             
             Object.keys(API_FEATURES).forEach(function(tag) {
                 var spec = API_FEATURES[tag];
@@ -3814,23 +3876,27 @@
                 var cost = calls * spec.costPer;
                 apiTotalCost += cost;
                 var barColor = calls === 0 ? '#334155' : spec.costPer === 0 ? '#10b981' : '#60a5fa';
-                var maxCalls = Math.max.apply(null, Object.values(apiTotals)) || 1;
                 var barWidth = Math.max((calls / maxCalls) * 100, 0.5);
                 
-                html += '<div style="margin-bottom:10px;">'
-                    + '<div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px;">'
-                    + '<div><span style="font-weight:600; font-size:0.85em; color:var(--text-primary);">' + escapeHtml(spec.name) + '</span>'
-                    + '<span style="font-size:0.7em; color:var(--text-muted); margin-left:8px;">' + (spec.costPer === 0 ? 'FREE' : '$' + spec.costPer + '/' + spec.unit) + '</span></div>'
-                    + '<div><span style="font-weight:700; font-size:0.85em; color:' + barColor + ';">' + (cost > 0 ? '$' + cost.toFixed(2) : 'Free') + '</span>'
-                    + '<span style="font-size:0.7em; color:var(--text-muted); margin-left:8px;">' + calls + ' calls</span></div></div>'
-                    + '<div style="height:5px; background:var(--c-surface-5); border-radius:3px; overflow:hidden;">'
-                    + '<div style="height:100%; width:' + barWidth + '%; background:' + barColor + '; border-radius:3px;"></div></div></div>';
+                html += '<div style="margin-bottom:8px;">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:2px;">'
+                    + '<span style="font-size:0.82em; color:var(--text-secondary);">' + escapeHtml(spec.name) + '</span>'
+                    + '<span style="font-size:0.78em;"><span style="font-weight:700; color:' + barColor + ';">' + calls + '</span>'
+                    + '<span style="color:var(--text-muted);"> calls</span>'
+                    + (cost > 0 ? '<span style="color:var(--text-muted);"> \u00B7 $' + cost.toFixed(3) + '</span>' : '') + '</span></div>'
+                    + '<div style="height:4px; background:var(--c-surface-5); border-radius:2px; overflow:hidden;">'
+                    + '<div style="height:100%; width:' + barWidth + '%; background:' + barColor + '; border-radius:2px;"></div></div></div>';
             });
             
-            html += '<div style="display:flex; justify-content:space-between; padding-top:10px; border-top:1px solid var(--border); font-size:0.85em;">'
-                + '<span style="color:var(--text-secondary);">Total API cost (last ' + costsTimeRange + ' days)</span>'
-                + '<span style="font-weight:700; color:' + (apiTotalCost > 0 ? '#60a5fa' : '#10b981') + ';">$' + apiTotalCost.toFixed(2) + '</span></div>'
-                + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:6px;">JSearch: ~$50/month plan on RapidAPI. All others are free. '
+            // Totals
+            html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; padding-top:14px; margin-top:14px; border-top:1px solid var(--border);">'
+                + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
+                + '<div style="font-size:1.3em; font-weight:800; color:#60a5fa;">$' + monthlyFixedCost.toFixed(2) + '</div>'
+                + '<div style="font-size:0.7em; color:var(--text-muted); text-transform:uppercase;">Monthly subscriptions</div></div>'
+                + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
+                + '<div style="font-size:1.3em; font-weight:800; color:' + (apiTotalCost > 0 ? '#f59e0b' : '#10b981') + ';">$' + apiTotalCost.toFixed(2) + '</div>'
+                + '<div style="font-size:0.7em; color:var(--text-muted); text-transform:uppercase;">Usage cost (last ' + costsTimeRange + 'd)</div></div></div>'
+                + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:10px;">'
                 + '<a href="#" onclick="if(confirm(\'Clear API usage log?\')){localStorage.removeItem(\'bpAPIUsageLog\');renderAdminCosts(document.getElementById(\'adminTabContent\'));showToast(\'API log cleared.\',\'info\');} return false;" style="color:var(--accent);">Clear API log</a></div></div>';
             
             // Pricing reference
