@@ -15,7 +15,7 @@
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
         { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" },
         { "key": "X-XSS-Protection", "value": "0" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com https://apis.google.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://api.anthropic.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://remotive.com https://himalayas.app https://jobicy.com wss://*.firebaseio.com; img-src 'self' data: blob: https://*.googleusercontent.com; frame-src 'self' blob:; object-src 'none'; base-uri 'self'" }
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com https://apis.google.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com https://*.firebaseio.com https://*.googleapis.com https://api.anthropic.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://remotive.com https://himalayas.app https://jobicy.com wss://*.firebaseio.com; img-src 'self' data: blob: https://*.googleusercontent.com; frame-src 'self' blob:; object-src 'none'; base-uri 'self'" }
       ]
     },
     {
