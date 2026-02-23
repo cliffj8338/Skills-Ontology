@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.39.1.3 | 20260223 | Jobs integration: raise Firestore read limit to 5k, show sync group -->
+    <!-- v4.39.1.4 | 20260223 | Add label margin to all D3 network graph views -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.39.1.3 - BUILD 20260223-jobs-optimization
-        var BP_VERSION = 'v4.39.1.3';
+        // BLUEPRINT v4.39.1.4 - BUILD 20260223-label-margin
+        var BP_VERSION = 'v4.39.1.4';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -9899,7 +9899,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                             text.append('tspan')
                                 .text(line)
                                 .attr('x', 0)
-                                .attr('dy', i === 0 ? -13 - (lines.length - 1) * 5 : 10)
+                                .attr('dy', i === 0 ? -19 - (lines.length - 1) * 5 : 10)
                                 .attr('text-anchor', 'middle');
                         });
                     } else {
@@ -9915,7 +9915,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                             .attr("y", d => {
                                 if (d.type === "center") return Math.round(-45 * scaleFactor);
                                 if (d.type === "role") return Math.round(-35 * scaleFactor);
-                                return -13;
+                                return -19;
                             })
                             .attr("text-anchor", "middle");
                     }
@@ -10219,7 +10219,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             node.append("text")
                 .text(function(d) { return d.name; })
                 .attr("x", 0)
-                .attr("y", function(d) { return d.type === 'center' ? -42 : d.type === 'role' ? -30 : -14; })
+                .attr("y", function(d) { return d.type === 'center' ? -42 : d.type === 'role' ? -30 : -20; })
                 .attr("text-anchor", "middle")
                 .style("font-size", function(d) { return d.type === 'center' ? '14px' : d.type === 'role' ? '11px' : '9px'; });
             
@@ -10434,7 +10434,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             node.append("text")
                 .text(function(d) { return d.name; })
                 .attr("x", 0)
-                .attr("y", function(d) { return d.type === 'center' ? -44 : d.type === 'role' ? -34 : -16; })
+                .attr("y", function(d) { return d.type === 'center' ? -44 : d.type === 'role' ? -34 : -22; })
                 .attr("text-anchor", "middle")
                 .style("font-size", function(d) { return d.type === 'center' ? '14px' : d.type === 'role' ? '11px' : '9px'; })
                 .style("fill", function(d) {
@@ -10838,9 +10838,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 })
                 .attr("x", 0)
                 .attr("y", function(d) {
-                    if (d.type === 'hub') return -(isMobile ? 34 : Math.round(44 * scaleFactor));
+                    if (d.type === 'hub') return -(isMobile ? 36 : Math.round(46 * scaleFactor));
                     if (d.type === 'tension-marker') return 4;
-                    return -(isMobile ? 22 : Math.round(26 * scaleFactor));
+                    return -(isMobile ? 26 : Math.round(30 * scaleFactor));
                 })
                 .attr("text-anchor", "middle")
                 .style("font-size", function(d) {
