@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.18.0 | 20260223 | Site traffic analytics dashboard + bpTracker engine -->
+    <!-- v4.37.19.0 | 20260223 | Multi-source job search API (JSearch, Remotive, USAJobs, Himalayas, Jobicy) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1203,8 +1203,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.18.0 - BUILD 20260223-traffic-dashboard
-        var BP_VERSION = 'v4.37.18.0';
+        // BLUEPRINT v4.37.19.0 - BUILD 20260223-multi-source-jobs
+        var BP_VERSION = 'v4.37.19.0';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1219,6 +1219,30 @@
             'linkedin-profile': { name: 'LinkedIn Profile',   inputTokens: 1200, outputTokens: 1200, desc: 'Occasional' },
             'purpose-regen':    { name: 'Purpose Statement',  inputTokens: 600,  outputTokens: 250,  desc: 'Regenerations' }
         };
+        
+        // External API cost tracking (non-AI)
+        var API_FEATURES = {
+            'jsearch':   { name: 'JSearch (RapidAPI)', costPer: 0.005, desc: 'Google Jobs aggregator', unit: 'request' },
+            'remotive':  { name: 'Remotive',           costPer: 0,     desc: 'Free remote jobs API', unit: 'request' },
+            'usajobs':   { name: 'USAJobs',            costPer: 0,     desc: 'Free govt jobs API', unit: 'request' },
+            'himalayas': { name: 'Himalayas',          costPer: 0,     desc: 'Free remote jobs API', unit: 'request' },
+            'jobicy':    { name: 'Jobicy',             costPer: 0,     desc: 'Free remote jobs API', unit: 'request' }
+        };
+        
+        function getAPIUsageLog() {
+            return safeParse(safeGet('bpAPIUsageLog'), {});
+        }
+        function saveAPIUsageLog(log) {
+            safeSet('bpAPIUsageLog', JSON.stringify(log));
+        }
+        function trackAPICall(featureTag) {
+            if (!featureTag) return;
+            var log = getAPIUsageLog();
+            var today = new Date().toISOString().slice(0, 10);
+            if (!log[today]) log[today] = {};
+            log[today][featureTag] = (log[today][featureTag] || 0) + 1;
+            saveAPIUsageLog(log);
+        }
         
         // Sonnet 4 pricing ($ per million tokens)
         var AI_INPUT_COST_PER_M = 3.0;
@@ -1455,7 +1479,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260222-pdf-force-relaxation                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260223-multi-source-jobs                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -3288,6 +3312,7 @@
                         { id: 'p1-6', name: 'AI cost tracking dashboard', status: 'done', category: 'feature', priority: 'medium', notes: 'Costs tab in admin. Tracks all API calls by feature tag, shows real usage, estimated costs, sparkline, and scale projection calculator. AI_FEATURES registry auto-picks up new features.' },
                         { id: 'p1-7', name: 'Network job selector widget', status: 'done', category: 'feature', priority: 'medium', notes: 'Floating widget on network view. Select saved jobs to overlay match/gap/values analysis directly on the skill graph.' },
                         { id: 'p1-8', name: 'Site traffic analytics dashboard', status: 'done', category: 'feature', priority: 'high', notes: 'Full traffic dashboard in admin overview. Sessions, page views, bounce rate, avg session time, views/time per section, feature usage, device split, dark/light mode, screen sizes, conversion funnel. Local + Firestore dual storage.' },
+                        { id: 'p1-9', name: 'Multi-source job search API', status: 'done', category: 'feature', priority: 'critical', notes: 'Serverless proxy at /api/jobs aggregating JSearch (RapidAPI), Remotive, USAJobs, Himalayas, Jobicy. Location search, remote filter, source badges, skill matching, API cost tracking. Fallback to direct fetch if proxy unavailable.' },
                         { id: 'p1-5', name: 'Demo profile polish', status: 'in-progress', category: 'feature', priority: 'medium', notes: '24 TV character profiles with 99 evidence outcomes added. Ongoing refinement.' }
                     ]
                 },
@@ -3765,6 +3790,47 @@
                 + '<div style="font-size:0.75em; color:var(--text-muted);">for ' + costsProjectionUsers.toLocaleString() + ' active users at Sonnet 4 pricing</div></div>';
             
             html += '</div>';
+            
+            // ===== EXTERNAL API COSTS =====
+            var apiLog = getAPIUsageLog();
+            var apiTotals = {};
+            Object.keys(API_FEATURES).forEach(function(tag) { apiTotals[tag] = 0; });
+            var apiTotalCost = 0;
+            
+            rangeDates.forEach(function(date) {
+                var dayData = apiLog[date] || {};
+                Object.keys(dayData).forEach(function(tag) {
+                    apiTotals[tag] = (apiTotals[tag] || 0) + (dayData[tag] || 0);
+                });
+            });
+            
+            html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:10px; margin-bottom:20px;">'
+                + '<div style="font-size:0.85em; font-weight:700; color:var(--text-primary); margin-bottom:14px;">External API Usage</div>';
+            
+            Object.keys(API_FEATURES).forEach(function(tag) {
+                var spec = API_FEATURES[tag];
+                var calls = apiTotals[tag] || 0;
+                var cost = calls * spec.costPer;
+                apiTotalCost += cost;
+                var barColor = calls === 0 ? '#334155' : spec.costPer === 0 ? '#10b981' : '#60a5fa';
+                var maxCalls = Math.max.apply(null, Object.values(apiTotals)) || 1;
+                var barWidth = Math.max((calls / maxCalls) * 100, 0.5);
+                
+                html += '<div style="margin-bottom:10px;">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px;">'
+                    + '<div><span style="font-weight:600; font-size:0.85em; color:var(--text-primary);">' + escapeHtml(spec.name) + '</span>'
+                    + '<span style="font-size:0.7em; color:var(--text-muted); margin-left:8px;">' + (spec.costPer === 0 ? 'FREE' : '$' + spec.costPer + '/' + spec.unit) + '</span></div>'
+                    + '<div><span style="font-weight:700; font-size:0.85em; color:' + barColor + ';">' + (cost > 0 ? '$' + cost.toFixed(2) : 'Free') + '</span>'
+                    + '<span style="font-size:0.7em; color:var(--text-muted); margin-left:8px;">' + calls + ' calls</span></div></div>'
+                    + '<div style="height:5px; background:var(--c-surface-5); border-radius:3px; overflow:hidden;">'
+                    + '<div style="height:100%; width:' + barWidth + '%; background:' + barColor + '; border-radius:3px;"></div></div></div>';
+            });
+            
+            html += '<div style="display:flex; justify-content:space-between; padding-top:10px; border-top:1px solid var(--border); font-size:0.85em;">'
+                + '<span style="color:var(--text-secondary);">Total API cost (last ' + costsTimeRange + ' days)</span>'
+                + '<span style="font-weight:700; color:' + (apiTotalCost > 0 ? '#60a5fa' : '#10b981') + ';">$' + apiTotalCost.toFixed(2) + '</span></div>'
+                + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:6px;">JSearch: ~$50/month plan on RapidAPI. All others are free. '
+                + '<a href="#" onclick="if(confirm(\'Clear API usage log?\')){localStorage.removeItem(\'bpAPIUsageLog\');renderAdminCosts(document.getElementById(\'adminTabContent\'));showToast(\'API log cleared.\',\'info\');} return false;" style="color:var(--accent);">Clear API log</a></div></div>';
             
             // Pricing reference
             html += '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:10px; font-size:0.78em; color:var(--text-muted); line-height:1.7;">'
@@ -18666,20 +18732,26 @@ body {
             return '<div style="margin-bottom:24px;">'
                 + '<h2 style="font-family:Outfit,sans-serif; font-size:1.3em; font-weight:700; color:var(--text-primary); margin:0 0 4px 0; letter-spacing:0.08em; text-transform:uppercase;">'
                 + bpIcon('search',20) + ' Find Jobs</h2>'
-                + '<p style="color:var(--text-muted); font-size:0.88em; margin:0;">Search remote jobs from Remotive, Himalayas, and Jobicy. Results are scored against your skills.</p>'
+                + '<p style="color:var(--text-muted); font-size:0.88em; margin:0;">Search across JSearch, Remotive, USAJobs, Himalayas, and Jobicy. Results scored against your skills.</p>'
                 + '</div>'
                 
-                // Search bar
-                + '<div style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;">'
-                + '<input id="findJobsKeyword" type="text" placeholder="Search by role, skill, or keyword..." '
-                + 'value="' + (window._lastJobSearch || '') + '" '
+                // Search bar row 1: keyword + location
+                + '<div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">'
+                + '<input id="findJobsKeyword" type="text" placeholder="Role, skill, or keyword..." '
+                + 'value="' + escapeHtml(window._lastJobSearch || '') + '" '
                 + 'onkeydown="if(event.key===\'Enter\') searchOpportunities();" '
-                + 'style="flex:1; min-width:200px; padding:10px 14px; background:var(--c-input-bg); '
+                + 'style="flex:2; min-width:180px; padding:10px 14px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.92em;" />'
                 
-                + '<button onclick="document.getElementById(\'findJobsKeyword\').value=\'\'; document.getElementById(\'findJobsCategory\').selectedIndex=0; window._lastJobSearch=\'\'; opportunitiesData=[]; var r=document.getElementById(\'opportunitiesResults\'); if(r) r.innerHTML=\'\';" '
-                + 'style="padding:10px 12px; background:none; border:1px solid var(--border); border-radius:8px; '
-                + 'color:var(--text-muted); cursor:pointer;" title="Clear search">' + bpIcon('x',14) + '</button>'
+                + '<input id="findJobsLocation" type="text" placeholder="City, state, or remote..." '
+                + 'value="' + escapeHtml(window._lastJobLocation || '') + '" '
+                + 'onkeydown="if(event.key===\'Enter\') searchOpportunities();" '
+                + 'style="flex:1; min-width:140px; padding:10px 14px; background:var(--c-input-bg); '
+                + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.92em;" />'
+                + '</div>'
+                
+                // Search bar row 2: category + remote toggle + clear + search
+                + '<div style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; align-items:center;">'
                 
                 + '<select id="findJobsCategory" style="padding:10px 14px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.88em; min-width:150px;">'
@@ -18698,6 +18770,13 @@ body {
                 + '<option value="devops">DevOps / SysAdmin</option>'
                 + '</select>'
                 
+                + '<label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:0.85em; color:var(--text-secondary);">'
+                + '<input type="checkbox" id="findJobsRemote" ' + (window._lastJobRemote ? 'checked' : '') + ' style="accent-color:var(--accent);"> Remote only</label>'
+                
+                + '<button onclick="clearJobSearch();" '
+                + 'style="padding:10px 12px; background:none; border:1px solid var(--border); border-radius:8px; '
+                + 'color:var(--text-muted); cursor:pointer;" title="Clear search">' + bpIcon('x',14) + '</button>'
+                
                 + '<button onclick="searchOpportunities()" style="padding:10px 20px; background:var(--accent); '
                 + 'color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em; '
                 + 'display:flex; align-items:center; gap:6px; white-space:nowrap;">'
@@ -18708,6 +18787,16 @@ body {
                 + (roleSuggestions ? '<div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">'
                 + '<span style="font-size:0.78em; color:var(--text-muted); padding:4px 0;">Your roles:</span>'
                 + roleSuggestions + '</div>' : '')
+                
+                // Source indicators
+                + '<div style="display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; align-items:center;">'
+                + '<span style="font-size:0.72em; color:var(--text-muted);">Sources:</span>'
+                + '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; font-weight:600; background:rgba(96,165,250,0.15); color:#60a5fa;">JSearch</span>'
+                + '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; font-weight:600; background:rgba(16,185,129,0.15); color:#10b981;">Remotive</span>'
+                + '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; font-weight:600; background:rgba(139,92,246,0.15); color:#8b5cf6;">USAJobs</span>'
+                + '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; font-weight:600; background:rgba(245,158,11,0.15); color:#f59e0b;">Himalayas</span>'
+                + '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; font-weight:600; background:rgba(236,72,153,0.15); color:#ec4899;">Jobicy</span>'
+                + '</div>'
                 
                 // Match threshold
                 + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; padding:10px 14px; '
@@ -18722,6 +18811,17 @@ body {
                 // Results container
                 + '<div id="opportunitiesResults"></div>';
         }
+        
+        function clearJobSearch() {
+            var kw = document.getElementById('findJobsKeyword'); if (kw) kw.value = '';
+            var loc = document.getElementById('findJobsLocation'); if (loc) loc.value = '';
+            var cat = document.getElementById('findJobsCategory'); if (cat) cat.selectedIndex = 0;
+            var rem = document.getElementById('findJobsRemote'); if (rem) rem.checked = false;
+            window._lastJobSearch = ''; window._lastJobLocation = ''; window._lastJobRemote = false;
+            opportunitiesData = [];
+            var r = document.getElementById('opportunitiesResults'); if (r) r.innerHTML = '';
+        }
+        window.clearJobSearch = clearJobSearch;
         
         // ===== ADD JOB MODAL =====
         
@@ -20334,7 +20434,7 @@ body {
                     + '<div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px; font-size:0.82em; color:var(--text-muted);">'
                     + (job.type ? '<span>' + bpIcon('briefcase',12) + ' ' + job.type + '</span>' : '')
                     + (salary ? '<span>' + bpIcon('dollar',12) + ' ' + salary + '</span>' : '')
-                    + '<span style="color:' + (job.source === 'Remotive' ? '#8b5cf6' : job.source === 'Himalayas' ? '#10b981' : '#3b82f6') + ';">'
+                    + '<span style="color:' + ({JSearch:'#60a5fa', Remotive:'#10b981', USAJobs:'#8b5cf6', Himalayas:'#f59e0b', Jobicy:'#ec4899'}[job.source] || '#3b82f6') + ';">'
                     + bpIcon('external',12) + ' ' + (job.source || 'Remote') + '</span>'
                     + '</div>'
                     
@@ -20374,32 +20474,68 @@ body {
             resultsDiv.innerHTML = html;
         }
         
+        var JOBS_PROXY_URL = '/api/jobs';
+        var JOBS_PROXY_AVAILABLE = null;
+        
         function searchOpportunities() {
             if (demoGate('Find Jobs')) return;
             var keyword = (document.getElementById('findJobsKeyword') || {}).value || '';
             keyword = keyword.trim();
             window._lastJobSearch = keyword;
             
+            var location = (document.getElementById('findJobsLocation') || {}).value || '';
+            location = location.trim();
+            window._lastJobLocation = location;
+            
             var category = (document.getElementById('findJobsCategory') || {}).value || '';
+            var remoteOnly = (document.getElementById('findJobsRemote') || {}).checked || false;
+            window._lastJobRemote = remoteOnly;
             
             var resultsDiv = document.getElementById('opportunitiesResults');
             if (!resultsDiv) return;
             
             resultsDiv.innerHTML = '<div style="text-align:center; padding:40px;">'
                 + '<div class="loading-spinner" style="width:32px; height:32px; border-width:3px; margin:0 auto 12px;"></div>'
-                + '<p style="font-size:1em; color:var(--text-secondary);">Searching 3 job boards...</p>'
-                + '<p style="font-size:0.82em; color:var(--text-muted); margin-top:6px;">Remotive, Himalayas, Jobicy</p>'
+                + '<p style="font-size:1em; color:var(--text-secondary);">Searching 5 job sources...</p>'
+                + '<p style="font-size:0.82em; color:var(--text-muted); margin-top:6px;">JSearch \u00B7 Remotive \u00B7 USAJobs \u00B7 Himalayas \u00B7 Jobicy</p>'
                 + '</div>';
             
-            var _apiFailCount = 0;
-            var _apiStatus = {};
-            
-            Promise.all([
-                fetchRemotiveJobs2(keyword, category).then(function(r) { _apiStatus.remotive = r.length; return r; }).catch(function(e) { _apiFailCount++; _apiStatus.remotive = 'failed'; console.warn('Remotive:', e.message); return []; }),
-                fetchHimalayasJobs(keyword).then(function(r) { _apiStatus.himalayas = r.length; return r; }).catch(function(e) { _apiFailCount++; _apiStatus.himalayas = 'failed'; console.warn('Himalayas:', e.message); return []; }),
-                fetchJobicyJobs(keyword, category).then(function(r) { _apiStatus.jobicy = r.length; return r; }).catch(function(e) { _apiFailCount++; _apiStatus.jobicy = 'failed'; console.warn('Jobicy:', e.message); return []; })
-            ]).then(function(results) {
-                var allJobs = results[0].concat(results[1]).concat(results[2]);
+            // Try proxy first, fall back to direct
+            if (JOBS_PROXY_AVAILABLE !== false) {
+                searchViaProxy(keyword, location, category, remoteOnly, resultsDiv);
+            } else {
+                searchDirect(keyword, category, resultsDiv);
+            }
+        }
+        
+        async function searchViaProxy(keyword, location, category, remoteOnly, resultsDiv) {
+            try {
+                var params = new URLSearchParams({ q: keyword });
+                if (location) params.set('location', location);
+                if (category) params.set('category', category);
+                if (remoteOnly) params.set('remote', 'true');
+                
+                var res = await fetch(JOBS_PROXY_URL + '?' + params.toString(), { signal: AbortSignal.timeout(15000) });
+                if (!res.ok) throw new Error('Proxy returned ' + res.status);
+                
+                var data = await res.json();
+                JOBS_PROXY_AVAILABLE = true;
+                
+                // Track API calls per source
+                if (data.sources) {
+                    Object.keys(data.sources).forEach(function(src) {
+                        if (!data.sources[src].error) trackAPICall(src);
+                    });
+                }
+                
+                // Score all jobs against user skills
+                var allJobs = (data.jobs || []).map(function(job) {
+                    var match = quickScoreJob(job.title, job.description, job.tags);
+                    job.matchScore = match.score;
+                    job.matchedSkills = match.matched;
+                    job.gapSkills = match.gaps;
+                    return job;
+                });
                 
                 // Deduplicate
                 var seen = {};
@@ -20412,19 +20548,68 @@ body {
                 
                 opportunitiesData.sort(function(a, b) { return b.matchScore - a.matchScore; });
                 
-                console.log('Find Jobs: ' + opportunitiesData.length + ' results after dedup. API status:', _apiStatus);
+                // Build source status line
+                var sources = [];
+                if (data.sources) {
+                    Object.keys(data.sources).forEach(function(src) {
+                        var s = data.sources[src];
+                        if (s.error) sources.push(src + ': \u2717');
+                        else sources.push(src + ': ' + (s.count || 0));
+                    });
+                }
+                window._findJobsSources = sources.join(' \u00B7 ');
+                
+                console.log('Find Jobs (proxy): ' + opportunitiesData.length + ' results. Sources:', data.sources);
+                
+                if (opportunitiesData.length === 0) {
+                    resultsDiv.innerHTML = '<div style="text-align:center; padding:40px 20px;">'
+                        + '<div style="margin-bottom:16px; opacity:0.35;">' + bpIcon('search',48) + '</div>'
+                        + '<p style="font-size:1.05em; color:var(--text-primary); margin-bottom:8px;">No matching jobs found</p>'
+                        + '<p style="color:var(--text-muted); font-size:0.88em;">Try different keywords, adjust location, or lower the match threshold.</p></div>';
+                    return;
+                }
+                
+                renderOpportunities();
+                
+            } catch(e) {
+                console.warn('Jobs proxy failed:', e.message);
+                JOBS_PROXY_AVAILABLE = false;
+                searchDirect(keyword, (document.getElementById('findJobsCategory') || {}).value || '', resultsDiv);
+            }
+        }
+        
+        // Fallback: direct browser calls (CORS may block some)
+        function searchDirect(keyword, category, resultsDiv) {
+            var _apiFailCount = 0;
+            var _apiStatus = {};
+            
+            Promise.all([
+                fetchRemotiveJobs2(keyword, category).then(function(r) { _apiStatus.remotive = r.length; return r; }).catch(function(e) { _apiFailCount++; _apiStatus.remotive = 'failed'; console.warn('Remotive:', e.message); return []; }),
+                fetchHimalayasJobs(keyword).then(function(r) { _apiStatus.himalayas = r.length; return r; }).catch(function(e) { _apiFailCount++; _apiStatus.himalayas = 'failed'; console.warn('Himalayas:', e.message); return []; }),
+                fetchJobicyJobs(keyword, category).then(function(r) { _apiStatus.jobicy = r.length; return r; }).catch(function(e) { _apiFailCount++; _apiStatus.jobicy = 'failed'; console.warn('Jobicy:', e.message); return []; })
+            ]).then(function(results) {
+                var allJobs = results[0].concat(results[1]).concat(results[2]);
+                
+                var seen = {};
+                opportunitiesData = allJobs.filter(function(job) {
+                    var key = (job.title + '-' + job.company).toLowerCase().replace(/[^a-z0-9]/g, '');
+                    if (seen[key]) return false;
+                    seen[key] = true;
+                    return true;
+                });
+                
+                opportunitiesData.sort(function(a, b) { return b.matchScore - a.matchScore; });
+                
+                console.log('Find Jobs (direct): ' + opportunitiesData.length + ' results. API status:', _apiStatus);
                 
                 if (opportunitiesData.length === 0) {
                     var isCors = _apiFailCount >= 2;
                     resultsDiv.innerHTML = '<div style="text-align:center; padding:40px 20px;">'
                         + '<div style="margin-bottom:16px; opacity:0.35;">' + bpIcon('search',48) + '</div>'
                         + (isCors
-                            ? '<p style="font-size:1.05em; color:var(--text-primary); margin-bottom:8px;">Job board APIs are blocked by CORS</p>'
+                            ? '<p style="font-size:1.05em; color:var(--text-primary); margin-bottom:8px;">Job APIs blocked by CORS</p>'
                               + '<p style="color:var(--text-muted); font-size:0.88em; line-height:1.6; max-width:480px; margin:0 auto 20px;">'
-                              + 'Some browsers block cross-origin API requests. You can still paste job descriptions in Pipeline > Add a Job for full skill matching.</p>'
-                              + '<div style="display:flex; gap:8px; justify-content:center;">'
-                              + '<button onclick="switchJobsSubTab(\'your-jobs\')" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.88em;">'
-                              + bpIcon('plus',12) + ' Add a Job Manually</button></div>'
+                              + 'Deploy the /api/jobs proxy to unlock all 5 sources including JSearch and USAJobs.</p>'
                             : '<p style="font-size:1.05em; color:var(--text-primary); margin-bottom:8px;">No matching jobs found</p>'
                               + '<p style="color:var(--text-muted); font-size:0.88em;">Try different keywords or lower the match threshold.</p>')
                         + '</div>';
@@ -20432,10 +20617,10 @@ body {
                 }
                 
                 var sources = [];
-                if (_apiStatus.remotive !== 'failed') sources.push('Remotive: ' + (_apiStatus.remotive || 0));
-                if (_apiStatus.himalayas !== 'failed') sources.push('Himalayas: ' + (_apiStatus.himalayas || 0));
-                if (_apiStatus.jobicy !== 'failed') sources.push('Jobicy: ' + (_apiStatus.jobicy || 0));
-                window._findJobsSources = sources.join(' \u00B7 ');
+                Object.keys(_apiStatus).forEach(function(k) {
+                    sources.push(k + ': ' + (_apiStatus[k] === 'failed' ? '\u2717' : _apiStatus[k]));
+                });
+                window._findJobsSources = sources.join(' \u00B7 ') + ' (direct mode, deploy proxy for JSearch + USAJobs)';
                 
                 renderOpportunities();
             });
