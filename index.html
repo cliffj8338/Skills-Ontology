@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.39.1.2 | 20260223 | Show demo banner on Reports page -->
+    <!-- v4.39.1.3 | 20260223 | Jobs integration: raise Firestore read limit to 5k, show sync group -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.39.1.2 - BUILD 20260223-reports-banner
-        var BP_VERSION = 'v4.39.1.2';
+        // BLUEPRINT v4.39.1.3 - BUILD 20260223-jobs-optimization
+        var BP_VERSION = 'v4.39.1.3';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2517,7 +2517,7 @@
                 { name: 'Values', count: valuesCount, source: 'Blueprint', color: '#10b981', loaded: valuesCount > 0 },
                 { name: 'BLS Wages', count: blsWageCount ? blsWageCount.toLocaleString() : 0, source: 'Bureau of Labor Statistics', color: '#f97316', loaded: blsWageCount > 0 },
                 { name: 'Custom Skills', count: '\u221E', source: 'User-defined', color: '#fbbf24', loaded: true },
-                { name: 'Jobs Database', count: jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : jobsCacheData.length, source: 'Firestore cache \u00B7 5 APIs synced every 6h', color: '#ec4899', loaded: jobsCacheLoaded || (jobsSyncMeta && jobsSyncMeta.totalJobs > 0) }
+                { name: 'Jobs Database', count: jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : jobsCacheData.length, source: 'Firestore cache \u00B7 5 sources, A/B sync every 6h', color: '#ec4899', loaded: jobsCacheLoaded || (jobsSyncMeta && jobsSyncMeta.totalJobs > 0) }
             ];
             
             var totalLoaded = tiles.filter(function(t) { return t.loaded; }).length;
@@ -3428,7 +3428,7 @@
                         { id: 'p1-8', name: 'Site traffic analytics dashboard', status: 'done', category: 'feature', priority: 'high', notes: 'Full traffic dashboard in admin overview. Sessions, page views, bounce rate, avg session time, views/time per section, feature usage, device split, dark/light mode, screen sizes, conversion funnel. Local + Firestore dual storage.' },
                         { id: 'p1-9', name: 'Multi-source job search API', status: 'done', category: 'feature', priority: 'critical', notes: 'Serverless proxy at /api/jobs aggregating JSearch (RapidAPI), Remotive, USAJobs, Himalayas, Jobicy. Location search, remote filter, source badges, skill matching, API cost tracking. Fallback to direct fetch if proxy unavailable.' },
                         { id: 'p1-10', name: 'Infrastructure costs dashboard', status: 'done', category: 'admin', priority: 'high', notes: 'Full infrastructure registry (Claude, JSearch, Vercel, Cloudflare, Firebase, GitHub, all job APIs). Categorized by type with manage links. Monthly Cost Snapshot with gradient total, breakdown bars, fixed/AI/API split tiles, annual projection.' },
-                        { id: 'p2-1', name: 'Jobs database + caching layer', status: 'done', category: 'architecture', priority: 'high', notes: 'Firestore-backed job cache. Cron syncs 5 sources every 6h via /api/jobs-sync (15 queries × 5 sources). Cache-first client search (instant filtering). Live search fallback. Admin sync dashboard with source counts, duration, errors. vercel.json cron config, firebase-admin package.' },
+                        { id: 'p2-1', name: 'Jobs database + caching layer', status: 'done', category: 'architecture', priority: 'high', notes: 'Firestore-backed job cache. Source-aware sync: JSearch A/B query groups (18 queries × 5 pages, alternating), free sources with broad queries, Himalayas single-fetch. Cache-first client (5k limit). Upsert accumulation, 30-day cleanup. Budget: ~5,400 JSearch calls/month of 10k Pro plan.' },
                         { id: 'p1-5', name: 'Demo profile polish', status: 'in-progress', category: 'feature', priority: 'medium', notes: '24 TV character profiles with 99 evidence outcomes added. Ongoing refinement.' },
                         { id: 'p2-2a', name: 'Demo mode isolation', status: 'done', category: 'architecture', priority: 'high', notes: 'Signed-in users enter proper demo mode with data snapshot/restore when viewing samples. Banner shows Demo Mode with exit link. Admin no longer defaults to admin panel on refresh. URL hash routing preserved.' },
                         { id: 'p2-2b', name: 'Empty state UX', status: 'done', category: 'ux', priority: 'high', notes: 'Signed-in users with no profile see Build Your Blueprint empty state on Skills (network) and Blueprint dashboard. Demo data auto-detected and cleared from Firestore on load.' },
@@ -21557,7 +21557,7 @@ body {
             // Load cached jobs
             fbDb.collection('jobs')
                 .orderBy('syncedAt', 'desc')
-                .limit(2000)
+                .limit(5000)
                 .get()
                 .then(function(snapshot) {
                     jobsCacheData = [];
@@ -21659,9 +21659,10 @@ body {
             var srcParts = Object.keys(src).filter(function(k) { return src[k] > 0; }).map(function(k) {
                 return k + ': ' + src[k];
             });
+            var groupLabel = jobsSyncMeta.syncGroup ? ' (group ' + jobsSyncMeta.syncGroup + ')' : '';
             
             el.innerHTML = '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">'
-                + '<span style="font-size:0.75em; color:var(--text-muted);">\uD83D\uDD04 Synced ' + ago + '</span>'
+                + '<span style="font-size:0.75em; color:var(--text-muted);">\uD83D\uDD04 Synced ' + ago + groupLabel + '</span>'
                 + '<span style="font-size:0.75em; color:var(--accent); font-weight:600;">' + total + ' jobs in database</span>'
                 + (srcParts.length > 0 ? '<span style="font-size:0.68em; color:var(--text-muted);">' + srcParts.join(' \u00B7 ') + '</span>' : '')
                 + '</div>';

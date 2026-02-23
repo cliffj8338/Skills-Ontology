@@ -23,7 +23,7 @@ async function fetchJSearch(query, location, page, remoteOnly) {
     const params = new URLSearchParams({
       query: query + (location ? ' in ' + location : ''),
       page: String(page || 1),
-      num_pages: '3',
+      num_pages: '5',
       date_posted: 'all'
     });
     if (remoteOnly) params.set('remote_jobs_only', 'true');
@@ -91,7 +91,7 @@ async function fetchRemotive(query, category) {
     const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
     if (!res.ok) return { jobs: [], source: 'remotive', error: 'HTTP ' + res.status };
     const data = await res.json();
-    const jobs = (data.jobs || []).slice(0, 40).map(j => ({
+    const jobs = (data.jobs || []).slice(0, 50).map(j => ({
       id: 'remotive-' + j.id,
       title: j.title || 'Untitled',
       company: j.company_name || '',
@@ -119,7 +119,7 @@ async function fetchUSAJobs(query, location) {
   if (!email || !apiKey) return { jobs: [], source: 'usajobs', error: 'USAJOBS credentials not configured' };
 
   try {
-    const params = new URLSearchParams({ Keyword: query, ResultsPerPage: '25' });
+    const params = new URLSearchParams({ Keyword: query, ResultsPerPage: '50' });
     if (location) params.set('LocationName', location);
 
     const res = await fetch('https://data.usajobs.gov/api/Search?' + params.toString(), {
@@ -133,7 +133,7 @@ async function fetchUSAJobs(query, location) {
     if (!res.ok) return { jobs: [], source: 'usajobs', error: 'HTTP ' + res.status };
     const data = await res.json();
     const results = data?.SearchResult?.SearchResultItems || [];
-    const jobs = results.slice(0, 25).map(item => {
+    const jobs = results.slice(0, 50).map(item => {
       const j = item.MatchedObjectDescriptor;
       const pos = (j.PositionLocation || [])[0] || {};
       const sal = j.PositionRemuneration?.[0] || {};
@@ -162,17 +162,19 @@ async function fetchUSAJobs(query, location) {
 // === HIMALAYAS (free, no auth) ===
 async function fetchHimalayas(query) {
   try {
-    const res = await fetch('https://himalayas.app/jobs/api?limit=50', { signal: AbortSignal.timeout(12000) });
+    const res = await fetch('https://himalayas.app/jobs/api?limit=100', { signal: AbortSignal.timeout(12000) });
     if (!res.ok) return { jobs: [], source: 'himalayas', error: 'HTTP ' + res.status };
     let data = await res.json();
-    if (!Array.isArray(data)) return { jobs: [], source: 'himalayas', error: 'Invalid response' };
+    if (!Array.isArray(data)) {
+      data = data.jobs || [];
+    }
 
     if (query) {
       const kw = query.toLowerCase();
       data = data.filter(j => ((j.title || '') + ' ' + (j.companyName || '') + ' ' + ((j.categories || []).join(' '))).toLowerCase().includes(kw));
     }
 
-    const jobs = data.slice(0, 40).map(j => {
+    const jobs = data.slice(0, 50).map(j => {
       const salary = j.minSalary && j.maxSalary ? '$' + (j.minSalary / 1000).toFixed(0) + 'k - $' + (j.maxSalary / 1000).toFixed(0) + 'k' : '';
       return {
         id: 'himalayas-' + (j.id || Date.now()),
@@ -181,7 +183,7 @@ async function fetchHimalayas(query) {
         companyLogo: j.companyLogo || '',
         location: (j.locationRestrictions || []).join(', ') || 'Worldwide',
         type: j.employmentType || 'Full Time',
-        url: j.applicationUrl || j.url || '',
+        url: j.applicationUrl || j.applicationLink || j.url || '',
         salary: salary,
         description: (j.description || '').substring(0, 3000),
         tags: j.categories || [],
@@ -199,7 +201,7 @@ async function fetchHimalayas(query) {
 // === JOBICY (free, no auth) ===
 async function fetchJobicy(query, category) {
   try {
-    let url = 'https://jobicy.com/api/v2/remote-jobs?count=30';
+    let url = 'https://jobicy.com/api/v2/remote-jobs?count=50';
     if (query) url += '&tag=' + encodeURIComponent(query);
     if (category) {
       const catMap = { 'software-dev': 'dev', 'marketing': 'marketing', 'business': 'business', 'data': 'data-science', 'design': 'design-multimedia', 'hr': 'hr', 'finance': 'accounting-finance', 'sales': 'seller', 'customer-support': 'supporting', 'writing': 'copywriting', 'devops': 'dev' };
@@ -208,7 +210,7 @@ async function fetchJobicy(query, category) {
     const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
     if (!res.ok) return { jobs: [], source: 'jobicy', error: 'HTTP ' + res.status };
     const data = await res.json();
-    const jobs = (data.jobs || []).slice(0, 30).map(j => {
+    const jobs = (data.jobs || []).slice(0, 50).map(j => {
       const salary = j.annualSalaryMin && j.annualSalaryMax ? '$' + (j.annualSalaryMin / 1000).toFixed(0) + 'k - $' + (j.annualSalaryMax / 1000).toFixed(0) + 'k' : '';
       return {
         id: 'jobicy-' + (j.id || Date.now()),
