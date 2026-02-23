@@ -145,7 +145,7 @@
       ],
       "evidence": [
         {
-          "outcome": "Achieved 99.1% product purity standard \u2014 highest in the industry",
+          "outcome": "Achieved 99.1% product purity standard — highest in the industry",
           "description": "Recruited top scientific talent and invested in state-of-the-art production facility to ensure consistent product quality"
         },
         {
@@ -678,7 +678,7 @@
     },
     {
       "name": "Social Media",
-      "level": "Novice",
+      "level": "Proficient",
       "category": "skill",
       "roles": [
         "ceo"
@@ -750,5 +750,5 @@
       "issuer": "BBB"
     }
   ],
-  "purpose": "I believe in order. In precision. In building something that lasts \u2014 something no one can take from me."
+  "purpose": "I believe in order. In precision. In building something that lasts — something no one can take from me."
 }
