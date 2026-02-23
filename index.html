@@ -20858,7 +20858,7 @@ body {
                     title: job.jobTitle || 'Untitled',
                     company: job.companyName || '',
                     location: job.jobGeo || 'Anywhere',
-                    type: (job.jobType || 'full-time').replace(/-/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); }),
+                    type: Array.isArray(job.jobType) ? job.jobType.join(', ') : String(job.jobType || 'Full Time'),
                     url: job.url || '',
                     salary: salary,
                     description: (job.jobDescription || '').substring(0, 2000),
