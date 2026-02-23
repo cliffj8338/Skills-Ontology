@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.36.5.0 | 20260222 | PDF: force-relaxed graphs, page 1 skills snapshot, waitlist fix -->
+    <!-- v4.36.6.0 | 20260222 | PDF: D3 canvas-rendered network graphs, match % badge -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -960,8 +960,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.36.5.0 - BUILD 20260222-pdf-force-relaxation
-        var BP_VERSION = 'v4.36.5.0';
+        // BLUEPRINT v4.36.6.0 - BUILD 20260222-d3-canvas-networks
+        var BP_VERSION = 'v4.36.6.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -13753,27 +13753,46 @@ body {
             newPage();
             secHead('Capability Architecture', 'Skills network — node size = proficiency, color = match status');
             
-            // Toggle label
+            // Toggle label + match %
             doc.setFontSize(6); doc.setFont(undefined, 'bold');
             sf(C.elev); sd(C.borderRGB); doc.setLineWidth(0.2);
             doc.roundedRect(M, y, 30, 5.5, 2, 2, 'FD');
             sc(C.a); doc.text('JOB MATCH', M + 4.5, y + 3.5);
+            // Match percentage badge
+            var mCol = scoreColor(matchPct);
+            sf(mCol); doc.roundedRect(M + 33, y, 22, 5.5, 2, 2, 'F');
+            doc.setFontSize(7); doc.setFont(undefined, 'bold'); sc(C.white);
+            doc.text(matchPct + '% Match', M + 34.5, y + 3.8);
             y += 9;
             
             // Network container — matches .net-w
             var netY = y, netH = 160;
             card(M, netY, MW, netH);
             
-            // Draw Job Match network with force-relaxed layout
-            (function drawJobNet() {
-                var padL = M + 8, padR = M + MW - 8, padT = netY + 8, padB = netY + netH - 12;
-                var aW = padR - padL, aH = padB - padT;
-                var gCx = padL + aW / 2, gCy = padT + aH / 2;
+            // Draw Job Match network via D3 canvas rendering
+            (function drawJobNetCanvas() {
+                var cW = 2400, cH = 2100;
+                var canvas = document.createElement('canvas');
+                canvas.width = cW; canvas.height = cH;
+                var ctx = canvas.getContext('2d');
+                var pxMM = cW / (MW - 2); // pixels per mm of drawable area
                 
-                function hex2rgb(c) { return [parseInt(c.slice(1,3),16)||59, parseInt(c.slice(3,5),16)||130, parseInt(c.slice(5,7),16)||246]; }
-                function hsh(s) { var h=0; for(var i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0;} return h; }
-                function hfl(s,a,b) { return a+(Math.abs(hsh(s))%10000/10000)*(b-a); }
-                var lvlSz = { 'Mastery': 3.0, 'Expert': 2.4, 'Advanced': 2.0, 'Proficient': 1.6, 'Competent': 1.6, 'Novice': 1.2 };
+                // Background — match card color
+                ctx.fillStyle = 'rgb(17,24,39)';
+                ctx.fillRect(0, 0, cW, cH);
+                
+                // Build node data
+                function hex2rgb(c) {
+                    return [parseInt(c.slice(1,3),16)||59, parseInt(c.slice(3,5),16)||130, parseInt(c.slice(5,7),16)||246];
+                }
+                function rgb(c) { return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')'; }
+                function rgba(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')'; }
+                
+                var simW = cW, simH = cH;
+                var centerX = simW / 2, centerY = simH / 2;
+                
+                // Level → node radius (in canvas px)
+                var lvlR = { 'Mastery': 28, 'Expert': 22, 'Advanced': 18, 'Proficient': 14, 'Competent': 14, 'Novice': 10 };
                 
                 // Group skills by role
                 var rSkills = {}; roles.forEach(function(r) { rSkills[r.id] = []; });
@@ -13783,133 +13802,209 @@ body {
                     else if (roles.length > 0) rSkills[roles[0].id].push(sk);
                 });
                 
-                // Layout: role hubs
-                var hubR = Math.min(aW, aH) * 0.22;
-                var roleNodes = [];
+                // Build D3 nodes
+                var d3nodes = [];
+                var d3links = [];
+                
+                // Center job node
+                d3nodes.push({
+                    id: 'job-center', type: 'job', label: R.job.title,
+                    color: [220, 220, 240], r: 65,
+                    fx: centerX, fy: centerY
+                });
+                
+                // Role hub nodes
                 roles.forEach(function(role, i) {
                     var angle = (i / roles.length) * Math.PI * 2 - Math.PI / 2;
-                    roleNodes.push({
-                        x: gCx + Math.cos(angle) * hubR,
-                        y: gCy + Math.sin(angle) * hubR * 0.8,
-                        color: hex2rgb(role.color || '#3b82f6'),
-                        id: role.id, name: role.name, fixed: true, r: 6
+                    var hubDist = Math.min(simW, simH) * 0.25;
+                    d3nodes.push({
+                        id: 'role-' + role.id, type: 'role', label: role.name,
+                        color: hex2rgb(role.color || '#3b82f6'), r: 50,
+                        x: centerX + Math.cos(angle) * hubDist,
+                        y: centerY + Math.sin(angle) * hubDist
                     });
+                    d3links.push({ source: 'job-center', target: 'role-' + role.id, type: 'hub' });
                 });
                 
-                // Initial skill positions (spread from role hubs)
-                var nodes = [];
-                // Center job node
-                nodes.push({ x: gCx, y: gCy, r: 8, fixed: true, type: 'job', label: R.job.title, color: [40,30,20] });
-                // Role hub nodes
-                roleNodes.forEach(function(rn) { nodes.push(Object.assign({}, rn, { type: 'role' })); });
-                
-                // Skill + gap nodes
-                var skillStartIdx = nodes.length;
-                roleNodes.forEach(function(rn, ri) {
-                    var sks = rSkills[rn.id] || [];
-                    var pAngle = (ri / roleNodes.length) * Math.PI * 2 - Math.PI / 2;
-                    sks.forEach(function(sk, si) {
-                        var spread = pAngle + ((si / Math.max(sks.length, 1)) - 0.5) * 1.5;
-                        var dist = hubR * (1.6 + hfl(sk.n + ri, 0, 0.6));
-                        nodes.push({
-                            x: gCx + Math.cos(spread) * dist + hfl(sk.n + 'x', -4, 4),
-                            y: gCy + Math.sin(spread) * dist * 0.8 + hfl(sk.n + 'y', -3, 3),
-                            r: lvlSz[sk.l] || 1.6, type: 'skill', label: sk.n,
-                            color: sk.k ? C.g : [70, 80, 100], hubIdx: ri + 1, isRequired: sk.k
+                // Skill nodes
+                var _nid = 0;
+                roles.forEach(function(role, ri) {
+                    var sks = rSkills[role.id] || [];
+                    sks.forEach(function(sk) {
+                        var nodeId = 'sk-' + (_nid++);
+                        var isKey = sk.k;
+                        d3nodes.push({
+                            id: nodeId, type: 'skill', label: sk.n,
+                            color: isKey ? C.g : [70, 80, 100],
+                            matchColor: isKey ? 'matched' : 'surplus',
+                            r: lvlR[sk.l] || 14, isKey: isKey, level: sk.l
                         });
+                        d3links.push({ source: 'role-' + role.id, target: nodeId, type: 'skill' });
                     });
                 });
+                
+                // Gap nodes
                 gaps.forEach(function(gap, gi) {
-                    var angle = Math.PI * 0.15 + (gi / Math.max(gaps.length, 1)) * Math.PI * 0.7;
-                    var dist = hubR * 2.0;
-                    nodes.push({
-                        x: gCx + Math.cos(angle) * dist,
-                        y: gCy + Math.sin(angle) * dist * 0.8,
-                        r: 2.2, type: 'gap', label: gap.n, color: C.r, hubIdx: 0
+                    var nodeId = 'gap-' + gi;
+                    d3nodes.push({
+                        id: nodeId, type: 'gap', label: gap.n,
+                        color: C.r, matchColor: 'gap', r: 18
                     });
+                    // Link gap to the closest role hub or center
+                    d3links.push({ source: 'job-center', target: nodeId, type: 'gap' });
                 });
                 
-                // Force relaxation — push overlapping nodes apart (40 iterations)
-                for (var iter = 0; iter < 40; iter++) {
-                    for (var i = skillStartIdx; i < nodes.length; i++) {
-                        if (nodes[i].fixed) continue;
-                        for (var j = 0; j < nodes.length; j++) {
-                            if (i === j) continue;
-                            var dx = nodes[i].x - nodes[j].x;
-                            var dy = nodes[i].y - nodes[j].y;
-                            var dist = Math.sqrt(dx * dx + dy * dy) || 0.1;
-                            var minDist = (nodes[i].r + nodes[j].r) + 6; // 6mm label clearance
-                            if (dist < minDist) {
-                                var force = (minDist - dist) / dist * 0.3;
-                                if (!nodes[j].fixed) { force *= 0.5; }
-                                nodes[i].x += dx * force;
-                                nodes[i].y += dy * force;
-                            }
-                        }
-                        // Pull toward parent hub
-                        if (nodes[i].hubIdx !== undefined && nodes[i].hubIdx > 0) {
-                            var hub = nodes[nodes[i].hubIdx];
-                            var hdx = hub.x - nodes[i].x;
-                            var hdy = hub.y - nodes[i].y;
-                            nodes[i].x += hdx * 0.02;
-                            nodes[i].y += hdy * 0.02;
-                        }
-                        // Clamp to bounds
-                        nodes[i].x = Math.max(padL + 4, Math.min(padR - 4, nodes[i].x));
-                        nodes[i].y = Math.max(padT + 4, Math.min(padB - 4, nodes[i].y));
-                    }
-                }
+                // Run D3 force simulation synchronously
+                var sim = d3.forceSimulation(d3nodes)
+                    .force('link', d3.forceLink(d3links).id(function(d) { return d.id; }).distance(function(d) {
+                        if (d.type === 'hub') return 280;
+                        if (d.type === 'gap') return 350;
+                        return 200;
+                    }))
+                    .force('charge', d3.forceManyBody().strength(function(d) {
+                        if (d.type === 'job') return 0;
+                        if (d.type === 'role') return -500;
+                        return -250;
+                    }))
+                    .force('center', d3.forceCenter(centerX, centerY))
+                    .force('collision', d3.forceCollide().radius(function(d) {
+                        if (d.type === 'job') return 90;
+                        if (d.type === 'role') return 75;
+                        return 45;
+                    }))
+                    .force('x', d3.forceX(centerX).strength(0.07))
+                    .force('y', d3.forceY(centerY).strength(0.07))
+                    .stop();
                 
-                // Draw links
-                for (var i = skillStartIdx; i < nodes.length; i++) {
-                    var n = nodes[i];
-                    if (n.hubIdx !== undefined && n.hubIdx > 0) {
-                        var hub = nodes[n.hubIdx];
-                        sd(n.type === 'gap' ? [60,30,30] : [35,45,65]);
-                        doc.setLineWidth(0.08); doc.line(hub.x, hub.y, n.x, n.y);
-                    }
-                }
-                // Hub-to-center links
-                for (var i = 1; i <= roleNodes.length; i++) {
-                    sd([50,60,85]); doc.setLineWidth(0.15);
-                    doc.line(gCx, gCy, nodes[i].x, nodes[i].y);
-                }
+                // Run 300 ticks
+                for (var t = 0; t < 300; t++) sim.tick();
                 
-                // Draw skill nodes + labels
-                for (var i = skillStartIdx; i < nodes.length; i++) {
-                    var n = nodes[i];
-                    sf(n.color); doc.circle(n.x, n.y, n.r, 'F');
-                    if (n.isRequired) {
-                        sd(C.white); doc.setLineWidth(0.25); doc.circle(n.x, n.y, n.r + 0.3, 'S');
+                // Clamp nodes to canvas bounds
+                var pad = 80;
+                d3nodes.forEach(function(n) {
+                    if (n.fx !== undefined) return;
+                    n.x = Math.max(pad + n.r, Math.min(simW - pad - n.r, n.x));
+                    n.y = Math.max(pad + n.r, Math.min(simH - pad - n.r, n.y));
+                });
+                
+                // ── DRAW TO CANVAS ──
+                
+                // Links
+                d3links.forEach(function(lk) {
+                    var s = (typeof lk.source === 'object') ? lk.source : d3nodes.find(function(n) { return n.id === lk.source; });
+                    var t = (typeof lk.target === 'object') ? lk.target : d3nodes.find(function(n) { return n.id === lk.target; });
+                    if (!s || !t) return;
+                    ctx.beginPath();
+                    ctx.moveTo(s.x, s.y);
+                    ctx.lineTo(t.x, t.y);
+                    if (lk.type === 'hub') {
+                        ctx.strokeStyle = 'rgba(80,100,150,0.5)';
+                        ctx.lineWidth = 2.5;
+                    } else if (lk.type === 'gap') {
+                        ctx.strokeStyle = 'rgba(239,68,68,0.3)';
+                        ctx.lineWidth = 1.5;
+                        ctx.setLineDash([6, 4]);
+                    } else {
+                        ctx.strokeStyle = 'rgba(50,65,100,0.35)';
+                        ctx.lineWidth = 1.2;
                     }
-                    doc.setFontSize(3.5); doc.setFont(undefined, 'normal');
-                    sc(n.type === 'gap' ? C.r : C.t2);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                });
+                
+                // Skill & gap nodes
+                d3nodes.forEach(function(n) {
+                    if (n.type === 'job' || n.type === 'role') return;
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+                    ctx.fillStyle = rgb(n.color);
+                    ctx.fill();
+                    if (n.isKey) {
+                        ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+                        ctx.lineWidth = 2.5;
+                        ctx.stroke();
+                    }
+                    if (n.type === 'gap') {
+                        ctx.strokeStyle = 'rgba(252,165,165,0.6)';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    }
+                    // Label
+                    ctx.font = (n.type === 'gap' ? 'bold ' : '') + '22px "Outfit", Helvetica, Arial, sans-serif';
+                    ctx.fillStyle = n.type === 'gap' ? rgb(C.r) : 'rgb(148,163,184)';
+                    ctx.textBaseline = 'middle';
                     var lbl = n.label.length > 24 ? n.label.slice(0, 22) + '..' : n.label;
-                    doc.text(lbl, n.x + n.r + 1.5, n.y + 1);
-                }
-                
-                // Draw center node on top
-                sf([40,30,20]); doc.circle(gCx, gCy, 8, 'F');
-                sd(C.white); doc.setLineWidth(0.4); doc.circle(gCx, gCy, 8.2, 'S');
-                doc.setFontSize(4); doc.setFont(undefined, 'bold'); sc(C.white);
-                var jtLines = doc.splitTextToSize(R.job.title, 26);
-                jtLines.slice(0, 3).forEach(function(line, li) {
-                    doc.text(line, gCx, gCy - 2 + li * 3.2, { align: 'center' });
+                    ctx.fillText(lbl, n.x + n.r + 8, n.y);
                 });
                 
-                // Draw role hubs on top
-                for (var i = 1; i <= roleNodes.length; i++) {
-                    var rn = nodes[i];
-                    sd(C.white); doc.setLineWidth(0.35); doc.circle(rn.x, rn.y, 6.2, 'S');
-                    sf(rn.color); doc.circle(rn.x, rn.y, 6, 'F');
-                    doc.setFontSize(4); doc.setFont(undefined, 'bold');
-                    doc.setTextColor(rn.color[0], rn.color[1], rn.color[2]);
-                    var rlbl = rn.name.toUpperCase();
+                // Role hub nodes (on top)
+                d3nodes.forEach(function(n) {
+                    if (n.type !== 'role') return;
+                    // Outer ring
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, n.r + 3, 0, Math.PI * 2);
+                    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    // Filled circle
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+                    ctx.fillStyle = rgb(n.color);
+                    ctx.fill();
+                    // Label above
+                    ctx.font = 'bold 26px "Outfit", Helvetica, Arial, sans-serif';
+                    ctx.fillStyle = rgb(n.color);
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    var rlbl = n.label.toUpperCase();
                     if (rlbl.length > 22) rlbl = rlbl.slice(0, 20) + '..';
-                    doc.text(rlbl, rn.x, rn.y - 8, { align: 'center' });
-                }
+                    ctx.fillText(rlbl, n.x, n.y - n.r - 10);
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'alphabetic';
+                });
                 
-                // Legend
+                // Center job node (on very top)
+                var jn = d3nodes[0];
+                ctx.beginPath();
+                ctx.arc(jn.x, jn.y, jn.r + 3, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(jn.x, jn.y, jn.r, 0, Math.PI * 2);
+                var grad = ctx.createRadialGradient(jn.x, jn.y, 0, jn.x, jn.y, jn.r);
+                grad.addColorStop(0, 'rgb(35,50,80)');
+                grad.addColorStop(1, 'rgb(20,30,55)');
+                ctx.fillStyle = grad;
+                ctx.fill();
+                // Job title text inside center node
+                ctx.font = 'bold 24px "Outfit", Helvetica, Arial, sans-serif';
+                ctx.fillStyle = 'rgb(255,255,255)';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                // Word-wrap job title
+                var jtWords = R.job.title.split(' ');
+                var jtLines = []; var jtLine = '';
+                jtWords.forEach(function(w) {
+                    var test = jtLine ? jtLine + ' ' + w : w;
+                    if (ctx.measureText(test).width > jn.r * 1.6) {
+                        if (jtLine) jtLines.push(jtLine);
+                        jtLine = w;
+                    } else { jtLine = test; }
+                });
+                if (jtLine) jtLines.push(jtLine);
+                jtLines.slice(0, 3).forEach(function(line, li) {
+                    ctx.fillText(line, jn.x, jn.y + (li - (jtLines.length - 1) / 2) * 28);
+                });
+                ctx.textAlign = 'left';
+                
+                // Embed canvas image into PDF
+                try {
+                    var dataUrl = canvas.toDataURL('image/png');
+                    doc.addImage(dataUrl, 'PNG', M + 0.5, netY + 0.5, MW - 1, netH - 1);
+                } catch(e) { console.warn('Job match canvas export failed:', e); }
+                
+                // Legend (drawn via jsPDF on top for vector crispness)
                 var legY = netY + netH - 8;
                 sf([20, 24, 42]); sd(C.borderRGB); doc.setLineWidth(0.2);
                 doc.roundedRect(M + 3, legY, 72, 5.5, 2, 2, 'FD');
@@ -13939,17 +14034,33 @@ body {
             var net2Y = y, net2H = 160;
             card(M, net2Y, MW, net2H);
             
-            // Candidate-centric network with force relaxation
-            (function drawCandNet() {
-                var padL = M + 8, padR = M + MW - 8, padT = net2Y + 8, padB = net2Y + net2H - 12;
-                var aW = padR - padL, aH = padB - padT;
-                var gCx = padL + aW / 2, gCy = padT + aH / 2;
+            // Candidate Skills network via D3 canvas rendering
+            (function drawCandNetCanvas() {
+                var cW = 2400, cH = 2100;
+                var canvas = document.createElement('canvas');
+                canvas.width = cW; canvas.height = cH;
+                var ctx = canvas.getContext('2d');
                 
-                function hex2rgb(c) { return [parseInt(c.slice(1,3),16)||59, parseInt(c.slice(3,5),16)||130, parseInt(c.slice(5,7),16)||246]; }
-                function hsh(s) { var h=0; for(var i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0;} return h; }
-                function hfl(s,a,b) { return a+(Math.abs(hsh(s))%10000/10000)*(b-a); }
-                var lvlSz = { 'Mastery': 3.0, 'Expert': 2.4, 'Advanced': 2.0, 'Proficient': 1.6, 'Competent': 1.6, 'Novice': 1.2 };
+                // Background — match card color
+                ctx.fillStyle = 'rgb(17,24,39)';
+                ctx.fillRect(0, 0, cW, cH);
                 
+                function hex2rgb(c) {
+                    return [parseInt(c.slice(1,3),16)||59, parseInt(c.slice(3,5),16)||130, parseInt(c.slice(5,7),16)||246];
+                }
+                function rgb(c) { return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')'; }
+                function rgba(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')'; }
+                
+                var simW = cW, simH = cH;
+                var centerX = simW / 2, centerY = simH / 2;
+                var lvlR = { 'Mastery': 28, 'Expert': 22, 'Advanced': 18, 'Proficient': 14, 'Competent': 14, 'Novice': 10 };
+                var lvlC = {
+                    'Mastery': [245, 158, 11], 'Expert': [168, 85, 247],
+                    'Advanced': [59, 130, 246], 'Proficient': [16, 185, 129],
+                    'Competent': [16, 185, 129], 'Novice': [107, 114, 128]
+                };
+                
+                // Group skills by role
                 var rSkills = {}; roles.forEach(function(r) { rSkills[r.id] = []; });
                 allSkills.forEach(function(sk) {
                     var rid = (sk.r && sk.r[0]) || '';
@@ -13957,95 +14068,157 @@ body {
                     else if (roles.length > 0) rSkills[roles[0].id].push(sk);
                 });
                 
-                var hubR = Math.min(aW, aH) * 0.22;
-                var nodes = [];
-                // Role hub nodes
+                var d3nodes = [];
+                var d3links = [];
+                
+                // Center = candidate name
+                d3nodes.push({
+                    id: 'cand-center', type: 'center', label: R.candidate.name,
+                    color: C.a, r: 55,
+                    fx: centerX, fy: centerY
+                });
+                
+                // Role hubs
                 roles.forEach(function(role, i) {
                     var angle = (i / roles.length) * Math.PI * 2 - Math.PI / 2;
-                    nodes.push({
-                        x: gCx + Math.cos(angle) * hubR,
-                        y: gCy + Math.sin(angle) * hubR * 0.8,
-                        color: hex2rgb(role.color || '#3b82f6'),
-                        id: role.id, name: role.name, fixed: true, r: 6, type: 'role'
+                    var hubDist = Math.min(simW, simH) * 0.25;
+                    d3nodes.push({
+                        id: 'role-' + role.id, type: 'role', label: role.name,
+                        color: hex2rgb(role.color || '#3b82f6'), r: 50,
+                        x: centerX + Math.cos(angle) * hubDist,
+                        y: centerY + Math.sin(angle) * hubDist
                     });
+                    d3links.push({ source: 'cand-center', target: 'role-' + role.id, type: 'hub' });
                 });
                 
-                var skillStartIdx = nodes.length;
-                nodes.forEach(function(rn, ri) {
-                    var sks = rSkills[rn.id] || [];
-                    var pAngle = (ri / nodes.length) * Math.PI * 2 - Math.PI / 2;
-                    sks.forEach(function(sk, si) {
-                        var spread = pAngle + ((si / Math.max(sks.length, 1)) - 0.5) * 1.5;
-                        var dist = hubR * (1.6 + hfl(sk.n + ri, 0, 0.6));
-                        nodes.push({
-                            x: gCx + Math.cos(spread) * dist + hfl(sk.n + 'x', -4, 4),
-                            y: gCy + Math.sin(spread) * dist * 0.8 + hfl(sk.n + 'y', -3, 3),
-                            r: lvlSz[sk.l] || 1.6, type: 'skill', label: sk.n,
-                            color: lvlColor[sk.l] || C.tm, hubIdx: ri
+                // Skill nodes colored by proficiency
+                var _nid = 0;
+                roles.forEach(function(role) {
+                    var sks = rSkills[role.id] || [];
+                    sks.forEach(function(sk) {
+                        var nodeId = 'sk-' + (_nid++);
+                        d3nodes.push({
+                            id: nodeId, type: 'skill', label: sk.n,
+                            color: lvlC[sk.l] || [107, 114, 128],
+                            r: lvlR[sk.l] || 14, level: sk.l
                         });
+                        d3links.push({ source: 'role-' + role.id, target: nodeId, type: 'skill' });
                     });
                 });
                 
-                // Force relaxation
-                for (var iter = 0; iter < 40; iter++) {
-                    for (var i = skillStartIdx; i < nodes.length; i++) {
-                        for (var j = 0; j < nodes.length; j++) {
-                            if (i === j) continue;
-                            var dx = nodes[i].x - nodes[j].x;
-                            var dy = nodes[i].y - nodes[j].y;
-                            var dist = Math.sqrt(dx * dx + dy * dy) || 0.1;
-                            var minDist = (nodes[i].r + nodes[j].r) + 6;
-                            if (dist < minDist) {
-                                var force = (minDist - dist) / dist * 0.3;
-                                if (!nodes[j].fixed) force *= 0.5;
-                                nodes[i].x += dx * force;
-                                nodes[i].y += dy * force;
-                            }
-                        }
-                        if (nodes[i].hubIdx !== undefined) {
-                            var hub = nodes[nodes[i].hubIdx];
-                            nodes[i].x += (hub.x - nodes[i].x) * 0.02;
-                            nodes[i].y += (hub.y - nodes[i].y) * 0.02;
-                        }
-                        nodes[i].x = Math.max(padL + 4, Math.min(padR - 4, nodes[i].x));
-                        nodes[i].y = Math.max(padT + 4, Math.min(padB - 4, nodes[i].y));
-                    }
-                }
+                // D3 simulation
+                var sim = d3.forceSimulation(d3nodes)
+                    .force('link', d3.forceLink(d3links).id(function(d) { return d.id; }).distance(function(d) {
+                        return d.type === 'hub' ? 280 : 200;
+                    }))
+                    .force('charge', d3.forceManyBody().strength(function(d) {
+                        if (d.type === 'center') return 0;
+                        if (d.type === 'role') return -500;
+                        return -250;
+                    }))
+                    .force('center', d3.forceCenter(centerX, centerY))
+                    .force('collision', d3.forceCollide().radius(function(d) {
+                        if (d.type === 'center') return 80;
+                        if (d.type === 'role') return 75;
+                        return 45;
+                    }))
+                    .force('x', d3.forceX(centerX).strength(0.07))
+                    .force('y', d3.forceY(centerY).strength(0.07))
+                    .stop();
                 
-                // Draw links
-                for (var i = skillStartIdx; i < nodes.length; i++) {
-                    if (nodes[i].hubIdx !== undefined) {
-                        var hub = nodes[nodes[i].hubIdx];
-                        sd([35,45,65]); doc.setLineWidth(0.08);
-                        doc.line(hub.x, hub.y, nodes[i].x, nodes[i].y);
-                    }
-                }
+                for (var t = 0; t < 300; t++) sim.tick();
                 
-                // Draw skill nodes + labels
-                for (var i = skillStartIdx; i < nodes.length; i++) {
-                    var n = nodes[i];
-                    sf(n.color); doc.circle(n.x, n.y, n.r, 'F');
-                    sd(C.white); doc.setLineWidth(0.15); doc.circle(n.x, n.y, n.r + 0.2, 'S');
-                    doc.setFontSize(3.5); doc.setFont(undefined, 'normal'); sc(C.t2);
+                // Clamp
+                var pad = 80;
+                d3nodes.forEach(function(n) {
+                    if (n.fx !== undefined) return;
+                    n.x = Math.max(pad + n.r, Math.min(simW - pad - n.r, n.x));
+                    n.y = Math.max(pad + n.r, Math.min(simH - pad - n.r, n.y));
+                });
+                
+                // ── DRAW ──
+                
+                // Links
+                d3links.forEach(function(lk) {
+                    var s = (typeof lk.source === 'object') ? lk.source : d3nodes.find(function(n) { return n.id === lk.source; });
+                    var t = (typeof lk.target === 'object') ? lk.target : d3nodes.find(function(n) { return n.id === lk.target; });
+                    if (!s || !t) return;
+                    ctx.beginPath();
+                    ctx.moveTo(s.x, s.y);
+                    ctx.lineTo(t.x, t.y);
+                    ctx.strokeStyle = lk.type === 'hub' ? 'rgba(80,100,150,0.5)' : 'rgba(50,65,100,0.35)';
+                    ctx.lineWidth = lk.type === 'hub' ? 2.5 : 1.2;
+                    ctx.stroke();
+                });
+                
+                // Skill nodes
+                d3nodes.forEach(function(n) {
+                    if (n.type === 'center' || n.type === 'role') return;
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+                    ctx.fillStyle = rgb(n.color);
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                    // Label
+                    ctx.font = '22px "Outfit", Helvetica, Arial, sans-serif';
+                    ctx.fillStyle = 'rgb(148,163,184)';
+                    ctx.textBaseline = 'middle';
                     var lbl = n.label.length > 24 ? n.label.slice(0, 22) + '..' : n.label;
-                    doc.text(lbl, n.x + n.r + 1.5, n.y + 1);
-                }
+                    ctx.fillText(lbl, n.x + n.r + 8, n.y);
+                });
                 
-                // Draw role hubs on top
-                for (var i = 0; i < skillStartIdx; i++) {
-                    var rn = nodes[i];
-                    sd(C.white); doc.setLineWidth(0.35); doc.circle(rn.x, rn.y, 6.2, 'S');
-                    sf(rn.color); doc.circle(rn.x, rn.y, 6, 'F');
-                    doc.setFontSize(4); doc.setFont(undefined, 'bold');
-                    doc.setTextColor(rn.color[0], rn.color[1], rn.color[2]);
-                    var rlbl = rn.name.toUpperCase();
+                // Role hubs
+                d3nodes.forEach(function(n) {
+                    if (n.type !== 'role') return;
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, n.r + 3, 0, Math.PI * 2);
+                    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+                    ctx.fillStyle = rgb(n.color);
+                    ctx.fill();
+                    ctx.font = 'bold 26px "Outfit", Helvetica, Arial, sans-serif';
+                    ctx.fillStyle = rgb(n.color);
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    var rlbl = n.label.toUpperCase();
                     if (rlbl.length > 22) rlbl = rlbl.slice(0, 20) + '..';
-                    doc.text(rlbl, rn.x, rn.y - 8, { align: 'center' });
-                }
+                    ctx.fillText(rlbl, n.x, n.y - n.r - 10);
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'alphabetic';
+                });
                 
-                // Candidate name in center
-                doc.setFontSize(6); doc.setFont(undefined, 'bold'); sc(C.a);
-                doc.text(R.candidate.name, gCx, gCy + 2, { align: 'center' });
+                // Center node
+                var cn = d3nodes[0];
+                ctx.beginPath();
+                ctx.arc(cn.x, cn.y, cn.r + 3, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(cn.x, cn.y, cn.r, 0, Math.PI * 2);
+                var grad = ctx.createRadialGradient(cn.x, cn.y, 0, cn.x, cn.y, cn.r);
+                grad.addColorStop(0, 'rgb(40,70,140)');
+                grad.addColorStop(1, 'rgb(25,45,100)');
+                ctx.fillStyle = grad;
+                ctx.fill();
+                ctx.font = 'bold 28px "Outfit", Helvetica, Arial, sans-serif';
+                ctx.fillStyle = 'rgb(255,255,255)';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(R.candidate.name, cn.x, cn.y);
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'alphabetic';
+                
+                // Embed in PDF
+                try {
+                    var dataUrl = canvas.toDataURL('image/png');
+                    doc.addImage(dataUrl, 'PNG', M + 0.5, net2Y + 0.5, MW - 1, net2H - 1);
+                } catch(e) { console.warn('Candidate canvas export failed:', e); }
                 
                 // Legend
                 var legY = net2Y + net2H - 8;
