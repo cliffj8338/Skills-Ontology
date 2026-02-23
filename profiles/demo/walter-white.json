@@ -5,7 +5,7 @@
     "currentTitle": "Chemistry Teacher / Independent Consultant",
     "location": "Albuquerque, NM",
     "roleLevel": "Mid-Career",
-    "headline": "Award-winning chemist with 20+ years in academia and research, co-founder of a technology startup (now valued at $2B+), and developer of a proprietary chemical process achieving 99.1% purity \u2014 the highest in any known application.",
+    "headline": "Award-winning chemist with 20+ years in academia and research, co-founder of a technology startup (now valued at $2B+), and developer of a proprietary chemical process achieving 99.1% purity — the highest in any known application.",
     "executiveSummary": "Decorated research chemist and educator who transitioned from prestigious academic career and tech startup co-founding into independent consulting. Published researcher in proton radiography and X-ray crystallography with work contributing to a Nobel Prize-winning team. Developed proprietary synthesis methodologies achieving industry-leading 99.1% product purity. Demonstrated ability to scale production operations from proof-of-concept to industrial output while mentoring next-generation talent.",
     "email": "w.white@jpwynne.edu",
     "phone": "(505) 555-0148",
@@ -44,7 +44,7 @@
       ],
       "evidence": [
         {
-          "outcome": "Developed proprietary synthesis achieving 99.1% product purity \u2014 highest recorded in the field",
+          "outcome": "Developed proprietary synthesis achieving 99.1% product purity — highest recorded in the field",
           "description": "Designed novel reductive amination process using unconventional precursors, achieving purity levels no other chemist could replicate"
         },
         {
@@ -105,6 +105,10 @@
         {
           "outcome": "Contributed research to project awarded Nobel Prize in Chemistry",
           "description": "Work on proton radiography and X-ray crystallography at Sandia National Laboratory contributed to prize-winning research"
+        },
+        {
+          "outcome": "Developed novel methylamine-based synthesis process achieving 99.1% purity, exceeding any known production standard",
+          "description": "Applied academic chemistry expertise to create a proprietary production method that became the benchmark for product quality in the Southwest"
         }
       ]
     },
@@ -121,6 +125,10 @@
         {
           "outcome": "Developed testing protocols capable of detecting impurities at 0.1% threshold",
           "description": "Designed quality assurance methodology using spectroscopy and chromatography for real-time production monitoring"
+        },
+        {
+          "outcome": "Used fulminated mercury as improvised explosive to establish credibility with Tuco Salamanca, demonstrating chemistry knowledge as operational weapon",
+          "description": "Synthesized unstable compound and deployed it in a negotiation, converting academic knowledge into physical leverage in a life-threatening situation"
         }
       ]
     },
@@ -188,8 +196,8 @@
       ],
       "evidence": [
         {
-          "outcome": "Maintained 99.1% purity standard across 500+ production batches",
-          "description": "Implemented real-time quality monitoring with batch rejection protocol for any output below 96% threshold"
+          "outcome": "Maintained 99.1% purity standard across hundreds of production batches through rigorous process discipline",
+          "description": "Enforced exact temperature control, timing protocols, and contamination prevention that distinguished his product from all competitors"
         }
       ]
     },
@@ -224,6 +232,10 @@
         {
           "outcome": "Co-founded Gray Matter Technologies, now valued at $2.16B",
           "description": "Contributed foundational research and co-developed intellectual property that became core to company's success. Departed early, selling share for $5,000"
+        },
+        {
+          "outcome": "Co-founded Gray Matter Technologies which grew into a multi-billion dollar company after his departure",
+          "description": "Contributed foundational chemistry research that became the core intellectual property of a major technology company, though departed before commercialization"
         }
       ]
     },
@@ -254,6 +266,10 @@
         {
           "outcome": "Secured $1.2M in research funding across NSF and DOE grants",
           "description": "Authored competitive grant proposals during tenure at Sandia National Laboratory and academic positions"
+        },
+        {
+          "outcome": "Contributed to research that earned recognition from the Nobel Prize committee during his tenure at Caltech",
+          "description": "Produced published research in crystallography that was cited in Nobel Prize-winning work by former colleagues"
         }
       ]
     },

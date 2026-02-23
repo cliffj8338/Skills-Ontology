@@ -102,6 +102,10 @@
         {
           "outcome": "Designed and executed surveillance operations leading to 25+ high-value arrests",
           "description": "Planned complex physical and electronic surveillance incorporating GPS tracking, wiretaps, and undercover operations"
+        },
+        {
+          "outcome": "Conducted unauthorized solo surveillance of Gus Fring's Los Pollos Hermanos, developing the evidence thread that eventually exposed the operation",
+          "description": "Pursued investigation despite being officially off the case, tracking Fring's movements and connecting him to the industrial laundry through persistent observation"
         }
       ]
     },
@@ -118,6 +122,10 @@
         {
           "outcome": "Managed complex multi-year investigation maintaining evidence chain across 500+ exhibits",
           "description": "Organized case files, witness statements, and physical evidence for successful prosecution referral"
+        },
+        {
+          "outcome": "Built parallel off-book investigation of Heisenberg using personal resources after being removed from the official case",
+          "description": "Continued casework using personal funds, recruited Jesse Pinkman as informant, and developed evidence chain leading directly to Walter White's operation"
         }
       ]
     },
@@ -169,6 +177,10 @@
         {
           "outcome": "Mapped Cartel supply chain from Mexico to Southwest distribution network",
           "description": "Synthesized signals intelligence, financial records, and human source reporting to build comprehensive network picture"
+        },
+        {
+          "outcome": "Connected 'W.W.' dedication in Gale Boetticher's notebook to Walter White, cracking the Heisenberg case",
+          "description": "Made the critical analytical leap during a casual encounter, connecting lab notes from a murdered chemist to his own brother-in-law through a handwriting and initials match"
         }
       ]
     },
@@ -198,6 +210,10 @@
         {
           "outcome": "Qualified expert marksman in annual DEA firearms certification for 15 consecutive years",
           "description": "Maintained highest-level firearms qualification including tactical shooting and active threat response"
+        },
+        {
+          "outcome": "Survived ambush by the Salamanca Cousins in a parking lot, killing one and critically wounding the other despite being shot multiple times",
+          "description": "Returned fire while severely wounded, demonstrating exceptional combat effectiveness under extreme duress with life-threatening injuries"
         }
       ]
     },
@@ -521,7 +537,7 @@
   "workHistory": [
     {
       "title": "ASAC (Assistant Special Agent in Charge)",
-      "company": "Drug Enforcement Administration \u2014 Albuquerque Division",
+      "company": "Drug Enforcement Administration — Albuquerque Division",
       "startYear": 2006,
       "endYear": null,
       "current": true,

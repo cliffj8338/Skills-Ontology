@@ -2,10 +2,10 @@
   "templateId": "eleven",
   "profile": {
     "name": "Eleven (Jane Hopper)",
-    "currentTitle": "Independent \u2014 Interdimensional Threat Response",
-    "location": "Hawkins, IN \u2192 Lenora Hills, CA",
+    "currentTitle": "Independent — Interdimensional Threat Response",
+    "location": "Hawkins, IN → Lenora Hills, CA",
     "roleLevel": "Early-Career",
-    "headline": "The world's only verified telekinetic operative with combat experience against interdimensional threats. Escaped government captivity, closed dimensional breaches, and saved an entire town \u2014 multiple times \u2014 before her 16th birthday.",
+    "headline": "The world's only verified telekinetic operative with combat experience against interdimensional threats. Escaped government captivity, closed dimensional breaches, and saved an entire town — multiple times — before her 16th birthday.",
     "executiveSummary": "Raised in a classified government laboratory and trained from birth in psychokinetic abilities, Eleven escaped captivity and became the primary defense against interdimensional incursions threatening Hawkins, Indiana. Despite severe social skill gaps from institutional upbringing, she has demonstrated extraordinary courage, emotional growth, and the ability to form deep bonds. Her unique capabilities have no equivalent in any known workforce."
   },
   "roles": [
@@ -39,6 +39,10 @@
         {
           "outcome": "Defeated Demogorgon, Mind Flayer avatar, and Vecna using psychokinetic abilities",
           "description": "Engaged and neutralized multiple existential threats through focused application of telekinetic power"
+        },
+        {
+          "outcome": "Flipped a Department of Energy surveillance van end-over-end to protect fleeing friends at the quarry",
+          "description": "Demonstrated massive kinetic force output under combat stress, moving a multi-ton vehicle through the air to neutralize an armed pursuit team"
         }
       ]
     },
@@ -73,6 +77,10 @@
         {
           "outcome": "Engaged and defeated 5+ hostile entities in direct combat across 4 crisis events",
           "description": "Applied telekinetic abilities in combat situations against threats that conventional weapons could not stop"
+        },
+        {
+          "outcome": "Crushed the Demogorgon in Hawkins Middle School by channeling psychokinetic force to disintegrate it, sacrificing herself in the process",
+          "description": "Engaged the creature in direct combat within the school, destroying it at the cost of being pulled into the Upside Down"
         }
       ]
     },
@@ -101,6 +109,10 @@
         {
           "outcome": "Developed improvised sensory deprivation environments in field conditions",
           "description": "Used bathtubs, pools, and improvised containers to achieve states required for remote viewing capabilities"
+        },
+        {
+          "outcome": "Used an improvised saltwater pool in a gymnasium to achieve remote viewing state that located the Russian facility holding Hopper",
+          "description": "Built functional sensory deprivation environment from available materials, extending remote viewing range across international distances"
         }
       ]
     },
@@ -116,6 +128,10 @@
         {
           "outcome": "Maintained focus and emotional control during life-threatening combat situations",
           "description": "Channeled emotions constructively rather than destructively when using abilities under extreme stress"
+        },
+        {
+          "outcome": "Channeled grief over Billy's death and memories of her mother to amplify telekinetic power during the Starcourt battle",
+          "description": "Converted intense emotional distress into focused psychic energy rather than losing control, redirecting personal pain into operational effectiveness"
         }
       ]
     },
@@ -154,6 +170,10 @@
         {
           "outcome": "Survived independently in wilderness and urban environments as a child",
           "description": "Applied resourcefulness and determination to survive alone after escaping laboratory, finding shelter and food independently"
+        },
+        {
+          "outcome": "Lived alone in the forest for weeks after escaping the Upside Down, finding food and shelter before Hopper discovered her",
+          "description": "Survived Indiana winter conditions as a 12-year-old with no resources, using stolen food and an abandoned hunting cabin"
         }
       ]
     },
@@ -274,7 +294,7 @@
   "workHistory": [
     {
       "title": "Primary Threat Response Operative",
-      "company": "Informal \u2014 Hawkins Crisis Response",
+      "company": "Informal — Hawkins Crisis Response",
       "startYear": 1983,
       "endYear": null,
       "current": true,

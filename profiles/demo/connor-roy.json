@@ -9,11 +9,26 @@
     "executiveSummary": "The eldest Roy sibling who chose to build his own path outside the Waystar Royco empire. Connor has pursued a remarkably diverse portfolio of ventures — from a working cattle ranch in New Mexico to a Broadway theater production to a presidential campaign. While results have been mixed, his persistence, genuine warmth, and refusal to become cynical despite a lifetime of being underestimated make him uniquely positioned for diplomatic and relationship-intensive roles."
   },
   "roles": [
-    { "name": "Ranch & Agriculture Operations", "id": "ranch" },
-    { "name": "Political Campaigns & Government", "id": "political" },
-    { "name": "Arts & Cultural Patronage", "id": "arts" },
-    { "name": "Stakeholder Relations", "id": "stakeholder" },
-    { "name": "Hospitality & Lifestyle", "id": "hospitality" }
+    {
+      "name": "Ranch & Agriculture Operations",
+      "id": "ranch"
+    },
+    {
+      "name": "Political Campaigns & Government",
+      "id": "political"
+    },
+    {
+      "name": "Arts & Cultural Patronage",
+      "id": "arts"
+    },
+    {
+      "name": "Stakeholder Relations",
+      "id": "stakeholder"
+    },
+    {
+      "name": "Hospitality & Lifestyle",
+      "id": "hospitality"
+    }
   ],
   "skills": [
     {
@@ -21,10 +36,18 @@
       "level": "Advanced",
       "category": "skill",
       "key": true,
-      "roles": ["ranch"],
+      "roles": [
+        "ranch"
+      ],
       "evidence": [
-        { "outcome": "Managed 5,000-acre working cattle ranch sustaining 200+ head of livestock", "description": "Oversaw daily operations including livestock management, land stewardship, equipment maintenance, and seasonal planning" },
-        { "outcome": "Invested in sustainable ranching practices including water conservation and rotational grazing", "description": "Implemented progressive agricultural practices balancing productivity with environmental stewardship" }
+        {
+          "outcome": "Managed 5,000-acre working cattle ranch sustaining 200+ head of livestock",
+          "description": "Oversaw daily operations including livestock management, land stewardship, equipment maintenance, and seasonal planning"
+        },
+        {
+          "outcome": "Invested in sustainable ranching practices including water conservation and rotational grazing",
+          "description": "Implemented progressive agricultural practices balancing productivity with environmental stewardship"
+        }
       ]
     },
     {
@@ -32,10 +55,18 @@
       "level": "Proficient",
       "category": "skill",
       "key": true,
-      "roles": ["political"],
+      "roles": [
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Launched and sustained presidential campaign through primary season on self-funded budget", "description": "Built campaign organization, developed policy platform, and maintained operation through hostile media environment" },
-        { "outcome": "Achieved 1% in national polling through grassroots effort and personal appearances", "description": "Generated measurable political support despite zero institutional backing and family opposition" }
+        {
+          "outcome": "Launched and sustained presidential campaign through primary season on self-funded budget",
+          "description": "Built campaign organization, developed policy platform, and maintained operation through hostile media environment"
+        },
+        {
+          "outcome": "Achieved 1% in national polling through grassroots effort and personal appearances",
+          "description": "Generated measurable political support despite zero institutional backing and family opposition"
+        }
       ]
     },
     {
@@ -43,10 +74,22 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["stakeholder"],
+      "roles": [
+        "stakeholder"
+      ],
       "evidence": [
-        { "outcome": "Maintained productive relationships across all Roy family factions during succession crisis", "description": "Served as the only family member who could speak to all siblings and Logan simultaneously during peak conflict" },
-        { "outcome": "Built genuine relationships with political figures, cultural leaders, and business contacts across decades", "description": "Leveraged warmth and genuine interest to build network spanning entertainment, politics, agriculture, and diplomacy" }
+        {
+          "outcome": "Maintained productive relationships across all Roy family factions during succession crisis",
+          "description": "Served as the only family member who could speak to all siblings and Logan simultaneously during peak conflict"
+        },
+        {
+          "outcome": "Built genuine relationships with political figures, cultural leaders, and business contacts across decades",
+          "description": "Leveraged warmth and genuine interest to build network spanning entertainment, politics, agriculture, and diplomacy"
+        },
+        {
+          "outcome": "Mediated between siblings during Logan's funeral logistics when grief and succession tensions made collaboration impossible",
+          "description": "Served as the only family member capable of functional communication across all factions during the most emotionally charged period of the family's history"
+        }
       ]
     },
     {
@@ -54,47 +97,87 @@
       "level": "Advanced",
       "category": "skill",
       "key": true,
-      "roles": ["arts"],
+      "roles": [
+        "arts"
+      ],
       "evidence": [
-        { "outcome": "Produced Broadway theatrical production investing $5M+ in original work", "description": "Funded, championed, and supported creative production from concept through opening night" },
-        { "outcome": "Built art collection and supported emerging artists through direct patronage", "description": "Applied genuine aesthetic appreciation and financial resources to support cultural production" }
+        {
+          "outcome": "Produced Broadway theatrical production investing $5M+ in original work",
+          "description": "Funded, championed, and supported creative production from concept through opening night"
+        },
+        {
+          "outcome": "Built art collection and supported emerging artists through direct patronage",
+          "description": "Applied genuine aesthetic appreciation and financial resources to support cultural production"
+        },
+        {
+          "outcome": "Backed Willa's off-Broadway play through development and opening despite universally negative reviews, maintaining commitment to the creative vision",
+          "description": "Sustained financial and emotional support for a creative project that became a public embarrassment, demonstrating loyalty to artistic endeavors over personal reputation"
+        }
       ]
     },
     {
       "name": "Public Speaking",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["political"],
+      "roles": [
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Delivered campaign speeches at 50+ events across multiple states", "description": "Developed public speaking capability through campaign trail experience, improving significantly from early events" }
+        {
+          "outcome": "Delivered campaign speeches at 50+ events across multiple states",
+          "description": "Developed public speaking capability through campaign trail experience, improving significantly from early events"
+        },
+        {
+          "outcome": "Delivered concession speech during presidential primary that earned more positive media coverage than the entire campaign",
+          "description": "Demonstrated unexpected grace and authenticity in defeat, generating goodwill that directly facilitated his ambassadorship nomination"
+        }
       ]
     },
     {
       "name": "Hospitality & Event Management",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["hospitality", "ranch"],
+      "roles": [
+        "hospitality",
+        "ranch"
+      ],
       "evidence": [
-        { "outcome": "Hosted high-profile gatherings at Austerlitz Ranch for business and political networking", "description": "Organized and managed sophisticated events blending Western hospitality with elite social networking" },
-        { "outcome": "Coordinated wedding and social events managing complex guest dynamics", "description": "Demonstrated event management skills in high-pressure social situations with difficult personalities" }
+        {
+          "outcome": "Hosted high-profile gatherings at Austerlitz Ranch for business and political networking",
+          "description": "Organized and managed sophisticated events blending Western hospitality with elite social networking"
+        },
+        {
+          "outcome": "Coordinated wedding and social events managing complex guest dynamics",
+          "description": "Demonstrated event management skills in high-pressure social situations with difficult personalities"
+        }
       ]
     },
     {
       "name": "Policy Development",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["political"],
+      "roles": [
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Developed policy platform covering 12 major issue areas for presidential campaign", "description": "Researched, developed, and articulated positions on domestic and foreign policy issues" }
+        {
+          "outcome": "Developed policy platform covering 12 major issue areas for presidential campaign",
+          "description": "Researched, developed, and articulated positions on domestic and foreign policy issues"
+        }
       ]
     },
     {
       "name": "Investment Management",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["stakeholder"],
+      "roles": [
+        "stakeholder"
+      ],
       "evidence": [
-        { "outcome": "Managed personal investment portfolio across real estate, agriculture, arts, and financial instruments", "description": "Applied diversified investment approach across unconventional asset classes" }
+        {
+          "outcome": "Managed personal investment portfolio across real estate, agriculture, arts, and financial instruments",
+          "description": "Applied diversified investment approach across unconventional asset classes"
+        }
       ]
     },
     {
@@ -102,45 +185,76 @@
       "level": "Proficient",
       "category": "skill",
       "key": true,
-      "roles": ["political", "stakeholder"],
+      "roles": [
+        "political",
+        "stakeholder"
+      ],
       "evidence": [
-        { "outcome": "Nominated as U.S. Ambassador to Slovenia following political negotiations", "description": "Secured diplomatic appointment through strategic positioning during contested political landscape" }
+        {
+          "outcome": "Nominated as U.S. Ambassador to Slovenia following political negotiations",
+          "description": "Secured diplomatic appointment through strategic positioning during contested political landscape"
+        },
+        {
+          "outcome": "Negotiated ambassadorship to Slovenia as exit price for dropping out of presidential race, converting 1% polling into a diplomatic appointment",
+          "description": "Leveraged his nuisance candidacy as political bargaining chip, extracting a tangible government position from a campaign everyone dismissed as vanity"
+        }
       ]
     },
     {
       "name": "Land Management & Conservation",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["ranch"],
+      "roles": [
+        "ranch"
+      ],
       "evidence": [
-        { "outcome": "Stewarded 5,000 acres of New Mexico rangeland maintaining ecological health", "description": "Balanced productive ranching with land conservation practices including wildlife habitat preservation" }
+        {
+          "outcome": "Stewarded 5,000 acres of New Mexico rangeland maintaining ecological health",
+          "description": "Balanced productive ranching with land conservation practices including wildlife habitat preservation"
+        }
       ]
     },
     {
       "name": "Wine & Culinary Knowledge",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["hospitality"],
+      "roles": [
+        "hospitality"
+      ],
       "evidence": [
-        { "outcome": "Developed expert-level wine knowledge and curated Austerlitz Ranch cellar", "description": "Built comprehensive knowledge of viticulture and wine pairing applied to hospitality and networking events" }
+        {
+          "outcome": "Developed expert-level wine knowledge and curated Austerlitz Ranch cellar",
+          "description": "Built comprehensive knowledge of viticulture and wine pairing applied to hospitality and networking events"
+        }
       ]
     },
     {
       "name": "Budget Management",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["political", "ranch"],
+      "roles": [
+        "political",
+        "ranch"
+      ],
       "evidence": [
-        { "outcome": "Managed $20M+ self-funded campaign budget across media, travel, and staff", "description": "Allocated resources across competing campaign priorities with limited professional guidance" }
+        {
+          "outcome": "Managed $20M+ self-funded campaign budget across media, travel, and staff",
+          "description": "Allocated resources across competing campaign priorities with limited professional guidance"
+        }
       ]
     },
     {
       "name": "Napoleonic History",
       "level": "Expert",
       "category": "skill",
-      "roles": ["arts"],
+      "roles": [
+        "arts"
+      ],
       "evidence": [
-        { "outcome": "Built world-class collection of Napoleonic memorabilia and historical documents", "description": "Developed deep expertise in Napoleonic era through decades of study, collection, and scholarly engagement" }
+        {
+          "outcome": "Built world-class collection of Napoleonic memorabilia and historical documents",
+          "description": "Developed deep expertise in Napoleonic era through decades of study, collection, and scholarly engagement"
+        }
       ]
     },
     {
@@ -148,9 +262,15 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["political", "stakeholder"],
+      "roles": [
+        "political",
+        "stakeholder"
+      ],
       "evidence": [
-        { "outcome": "Maintained positive outlook and forward momentum through decades of being underestimated by family", "description": "Continued pursuing ambitious goals despite consistent dismissal from father, siblings, and media" }
+        {
+          "outcome": "Maintained positive outlook and forward momentum through decades of being underestimated by family",
+          "description": "Continued pursuing ambitious goals despite consistent dismissal from father, siblings, and media"
+        }
       ]
     },
     {
@@ -158,9 +278,14 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["political"],
+      "roles": [
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Sustained presidential campaign through 1% polling, family mockery, and media ridicule", "description": "Continued campaigning with genuine conviction when any reasonable person would have withdrawn" }
+        {
+          "outcome": "Sustained presidential campaign through 1% polling, family mockery, and media ridicule",
+          "description": "Continued campaigning with genuine conviction when any reasonable person would have withdrawn"
+        }
       ]
     },
     {
@@ -168,9 +293,14 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["stakeholder"],
+      "roles": [
+        "stakeholder"
+      ],
       "evidence": [
-        { "outcome": "Served as emotional anchor for family members during succession crisis and Logan's death", "description": "Provided genuine emotional support to siblings despite being overlooked and undervalued throughout his life" }
+        {
+          "outcome": "Served as emotional anchor for family members during succession crisis and Logan's death",
+          "description": "Provided genuine emotional support to siblings despite being overlooked and undervalued throughout his life"
+        }
       ]
     },
     {
@@ -178,18 +308,30 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["arts", "hospitality"],
+      "roles": [
+        "arts",
+        "hospitality"
+      ],
       "evidence": [
-        { "outcome": "Invested personal wealth in arts, culture, and hospitality without expectation of financial return", "description": "Applied resources to support creative work, community building, and cultural preservation" }
+        {
+          "outcome": "Invested personal wealth in arts, culture, and hospitality without expectation of financial return",
+          "description": "Applied resources to support creative work, community building, and cultural preservation"
+        }
       ]
     },
     {
       "name": "Diplomacy",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["stakeholder", "political"],
+      "roles": [
+        "stakeholder",
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Navigated between warring family factions without permanently alienating any party", "description": "Applied diplomatic instincts to maintain relationships across the most dysfunctional family in media" }
+        {
+          "outcome": "Navigated between warring family factions without permanently alienating any party",
+          "description": "Applied diplomatic instincts to maintain relationships across the most dysfunctional family in media"
+        }
       ]
     },
     {
@@ -197,29 +339,60 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["political"],
+      "roles": [
+        "political"
+      ],
       "evidence": [
-        { "outcome": "Pursued meaningful career and identity for 40+ years despite family overshadowing", "description": "Never stopped seeking his own purpose and contribution despite living in his father's massive shadow" }
+        {
+          "outcome": "Pursued meaningful career and identity for 40+ years despite family overshadowing",
+          "description": "Never stopped seeking his own purpose and contribution despite living in his father's massive shadow"
+        }
       ]
     },
     {
       "name": "Authenticity",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["stakeholder"],
+      "roles": [
+        "stakeholder"
+      ],
       "evidence": [
-        { "outcome": "Remained genuinely himself when every sibling adapted personas for corporate survival", "description": "Maintained authentic personality and values while siblings became increasingly shaped by corporate power dynamics" }
+        {
+          "outcome": "Remained genuinely himself when every sibling adapted personas for corporate survival",
+          "description": "Maintained authentic personality and values while siblings became increasingly shaped by corporate power dynamics"
+        }
       ]
     }
   ],
   "values": [
-    {"name": "Authenticity", "selected": true},
-    {"name": "Purpose Over Profit", "selected": true},
-    {"name": "Empathy", "selected": true},
-    {"name": "Courage", "selected": true},
-    {"name": "Curiosity", "selected": true},
-    {"name": "The Eldest Son", "selected": true},
-    {"name": "Austerlitz State of Mind", "selected": true}
+    {
+      "name": "Authenticity",
+      "selected": true
+    },
+    {
+      "name": "Purpose Over Profit",
+      "selected": true
+    },
+    {
+      "name": "Empathy",
+      "selected": true
+    },
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Curiosity",
+      "selected": true
+    },
+    {
+      "name": "The Eldest Son",
+      "selected": true
+    },
+    {
+      "name": "Austerlitz State of Mind",
+      "selected": true
+    }
   ],
   "workHistory": [
     {
@@ -261,7 +434,10 @@
     }
   ],
   "certifications": [
-    { "name": "New Mexico Livestock Board Registration", "issuer": "State of New Mexico" }
+    {
+      "name": "New Mexico Livestock Board Registration",
+      "issuer": "State of New Mexico"
+    }
   ],
   "purpose": "I was interested in politics from a very young age. And I think I have something to offer. I really do."
 }

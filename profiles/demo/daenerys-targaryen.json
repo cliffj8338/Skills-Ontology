@@ -183,6 +183,10 @@
         {
           "outcome": "Built advisor corps spanning multiple cultures — Tyrion (Westerosi), Missandei (Naathi), Grey Worm (Astapori), Jorah (Northern)",
           "description": "Built advisor corps spanning multiple cultures — Tyrion (Westerosi), Missandei (Naathi), Grey Worm (Astapori), Jorah (Northern)"
+        },
+        {
+          "outcome": "Acquired 8,000 Unsullied soldiers through tactical deception at Astapor, freeing them and earning voluntary loyalty",
+          "description": "Traded a dragon as payment, then ordered the dragon to burn the slave masters, liberating the Unsullied who chose to follow her freely"
         }
       ],
       "roles": [
@@ -227,6 +231,10 @@
         {
           "outcome": "Made real-time tactical decisions during the Battle of King's Landing including deployment of Drogon against fortified defenses",
           "description": "Made real-time tactical decisions during the Battle of King's Landing including deployment of Drogon against fortified defenses"
+        },
+        {
+          "outcome": "Burned the Dothraki khals in the Temple of the Dosh Khaleen, uniting all khalasars under single command",
+          "description": "Trapped rival khals in the temple, set it ablaze, and emerged unburned, gaining the loyalty of every Dothraki warrior present"
         }
       ],
       "roles": [
@@ -447,6 +455,10 @@
         {
           "outcome": "Lost her husband, two of her dragons, her closest advisor, and her claim to the throne — continuing forward each time",
           "description": "Lost her husband, two of her dragons, her closest advisor, and her claim to the throne — continuing forward each time"
+        },
+        {
+          "outcome": "Walked into Khal Drogo's funeral pyre and emerged unburned with three hatched dragons",
+          "description": "Entered fire that killed Mirri Maz Duur, surviving through apparent magical immunity and hatching the first dragons seen in over a century"
         }
       ],
       "roles": [

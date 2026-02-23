@@ -90,6 +90,10 @@
         {
           "outcome": "His true allegiances were unknown to every major player in Westeros until it was too late",
           "description": "His true allegiances were unknown to every major player in Westeros until it was too late"
+        },
+        {
+          "outcome": "Co-engineered assassination of King Joffrey at the Purple Wedding without any evidence linking back to him",
+          "description": "Coordinated with Olenna Tyrell to poison Joffrey during his own wedding feast, using Sansa's hairnet as the delivery mechanism while maintaining complete deniability"
         }
       ],
       "roles": [
@@ -112,6 +116,10 @@
         {
           "outcome": "Controlled the flow of information between factions — deciding who knew what and when",
           "description": "Controlled the flow of information between factions — deciding who knew what and when"
+        },
+        {
+          "outcome": "Orchestrated the arrest of Ned Stark by feeding false assurances of City Watch loyalty while secretly securing their allegiance to the Lannisters",
+          "description": "Promised Ned the City Watch would support his claim as regent, then betrayed him at the critical moment, demonstrating control over institutional power through information manipulation"
         }
       ],
       "roles": [
@@ -156,6 +164,10 @@
         {
           "outcome": "Built a portfolio of political, financial, and real estate assets from essentially nothing",
           "description": "Built a portfolio of political, financial, and real estate assets from essentially nothing"
+        },
+        {
+          "outcome": "Eliminated Lysa Arryn to become sole regent of the Vale, controlling the largest uncommitted army in Westeros",
+          "description": "Pushed Lysa through the Moon Door after she threatened Sansa, then convinced witnesses it was suicide, securing control of the Eyrie and its military forces"
         }
       ],
       "roles": [
@@ -178,6 +190,10 @@
         {
           "outcome": "Used personal relationships as investment vehicles — each friendship was a strategic position",
           "description": "Used personal relationships as investment vehicles — each friendship was a strategic position"
+        },
+        {
+          "outcome": "Brokered the Tyrell-Lannister alliance that won the Battle of the Blackwater and saved King's Landing",
+          "description": "Connected the Tyrells' military strength with the Lannisters' political authority, engineering the partnership that decided the war while positioning himself as indispensable to both sides"
         }
       ],
       "roles": [

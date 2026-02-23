@@ -96,6 +96,10 @@
         {
           "outcome": "Applied systematic hypothesis testing to understand interdimensional phenomena",
           "description": "Used scientific methodology to develop and test theories about events that defied conventional explanation"
+        },
+        {
+          "outcome": "Hypothesized that the Mind Flayer operated through a hive-mind structure, leading the team to target the central node",
+          "description": "Applied systems thinking to propose that destroying the gate would sever the psychic connection controlling all entities on the surface"
         }
       ]
     },
@@ -111,6 +115,10 @@
         {
           "outcome": "Coordinated multi-team operations across 3 simultaneous mission groups",
           "description": "Served as communications hub and tactical coordinator for dispersed teams during crisis events"
+        },
+        {
+          "outcome": "Coordinated the Planck's constant relay with Suzie via Cerebro radio during the Starcourt crisis, delivering critical information under time pressure",
+          "description": "Maintained composure during life-or-death countdown to relay a scientific value needed to crack a Russian security code"
         }
       ]
     },
@@ -139,6 +147,10 @@
         {
           "outcome": "Identified and cared for unknown species (D'Artagnan) conducting behavioral observation",
           "description": "Applied scientific curiosity and care to study unknown organism, documenting behavioral patterns"
+        },
+        {
+          "outcome": "Raised and studied interdimensional organism D'Artagnan from larval stage, documenting growth and feeding patterns",
+          "description": "Kept and observed a creature from the Upside Down, gathering behavioral data before the organism's true nature became apparent"
         }
       ]
     },
@@ -153,6 +165,10 @@
         {
           "outcome": "Navigated underground tunnel system using compass and topographic mapping",
           "description": "Applied orienteering skills to navigate dangerous unknown terrain"
+        },
+        {
+          "outcome": "Used compass anomalies to map the geographic center of electromagnetic interference in Hawkins",
+          "description": "Tracked compass deviations across multiple locations to triangulate the source of dimensional disturbance"
         }
       ]
     },
@@ -167,6 +183,10 @@
         {
           "outcome": "Explained complex scientific concepts to non-technical team members enabling collective problem-solving",
           "description": "Translated electromagnetism, radio theory, and dimensional physics into understandable terms"
+        },
+        {
+          "outcome": "Explained the concept of an interdimensional gate to adults using the analogy of the flea and the acrobat on a tightrope",
+          "description": "Made a complex theoretical physics concept accessible to non-scientists, enabling the group to develop a shared mental model for planning"
         }
       ]
     },
@@ -321,7 +341,7 @@
       "issuer": "FCC"
     },
     {
-      "name": "Hawkins Science Fair \u2014 1st Place, Electromagnetism",
+      "name": "Hawkins Science Fair — 1st Place, Electromagnetism",
       "issuer": "Hawkins Middle School"
     }
   ],

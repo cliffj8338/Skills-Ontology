@@ -136,6 +136,10 @@
         {
           "outcome": "Maintained 94% client retention rate across diverse practice areas",
           "description": "Built lasting relationships through 24/7 availability, plain-language communication, and genuine advocacy for client interests"
+        },
+        {
+          "outcome": "Defended Badger in court, engineering a plea deal that protected the larger operation while keeping his client out of prison",
+          "description": "Navigated between client interests, prosecution pressure, and the needs of a concealed employer, achieving an outcome that satisfied all parties"
         }
       ]
     },
@@ -170,6 +174,10 @@
         {
           "outcome": "Led Sandpiper Crossing class action recovering $1.6M for 120+ elderly residents",
           "description": "Identified systematic overcharging, gathered evidence through forensic accounting, and built compelling class action case"
+        },
+        {
+          "outcome": "Built elder law practice at Sandpiper Crossing, identifying systematic overcharging of nursing home residents that became a class-action suit",
+          "description": "Discovered billing irregularities through client intake conversations, building a case that represented genuine consumer protection advocacy"
         }
       ]
     },
@@ -198,6 +206,10 @@
         {
           "outcome": "Identified exculpatory evidence overlooked by prosecution in 15+ cases",
           "description": "Applied thorough discovery review and independent investigation to uncover evidence favorable to client defense"
+        },
+        {
+          "outcome": "Orchestrated the destruction and fabrication of evidence across multiple client cases to secure favorable outcomes",
+          "description": "Managed chain-of-custody vulnerabilities and witness reliability to systematically undermine prosecution cases"
         }
       ]
     },
@@ -212,6 +224,10 @@
         {
           "outcome": "Grew solo practice from 0 to 300+ active clients within 3 years",
           "description": "Combined marketing innovation with referral network development and community presence to build rapid client base"
+        },
+        {
+          "outcome": "Built the 'Saul Goodman' brand from scratch through aggressive late-night TV advertising and community visibility",
+          "description": "Created a recognizable legal brand targeting underserved clients through memorable commercials, bus bench ads, and a cultivated public persona"
         }
       ]
     },
@@ -241,6 +257,10 @@
         {
           "outcome": "Self-produced 40+ TV commercials on shoestring budget generating measurable client acquisition",
           "description": "Wrote, directed, and often starred in low-budget but highly effective legal advertising spots"
+        },
+        {
+          "outcome": "Wrote, produced, and starred in television commercials that became iconic local advertising, driving consistent client acquisition",
+          "description": "Created low-budget but highly effective ads with memorable catchphrases that generated steady inbound client volume"
         }
       ]
     },
@@ -537,5 +557,5 @@
       "issuer": "State Bar of New Mexico"
     }
   ],
-  "purpose": "I fight for people the system forgot. Everyone deserves someone in their corner \u2014 especially when nobody else will show up."
+  "purpose": "I fight for people the system forgot. Everyone deserves someone in their corner — especially when nobody else will show up."
 }

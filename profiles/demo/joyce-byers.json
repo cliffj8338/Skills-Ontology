@@ -3,10 +3,10 @@
   "profile": {
     "name": "Joyce Byers",
     "currentTitle": "Retail Associate, Melvald's General Store",
-    "location": "Hawkins, IN \u2192 Lenora Hills, CA",
+    "location": "Hawkins, IN → Lenora Hills, CA",
     "roleLevel": "Mid-Career",
     "headline": "Single mother and retail professional who has demonstrated investigative tenacity, crisis leadership, and protective determination that would put most federal agents to shame. When institutions failed, she didn't.",
-    "executiveSummary": "A retail worker and single mother whose professional resume barely hints at her true capabilities. When her son disappeared and every authority said he was dead, Joyce refused to accept it and conducted her own investigation that proved correct. She has since navigated government conspiracies, traveled to Soviet Russia, and rescued people from interdimensional threats \u2014 all while working retail and raising two boys alone."
+    "executiveSummary": "A retail worker and single mother whose professional resume barely hints at her true capabilities. When her son disappeared and every authority said he was dead, Joyce refused to accept it and conducted her own investigation that proved correct. She has since navigated government conspiracies, traveled to Soviet Russia, and rescued people from interdimensional threats — all while working retail and raising two boys alone."
   },
   "roles": [
     {
@@ -96,6 +96,10 @@
         {
           "outcome": "Maintained reliable customer service at Melvald's through extraordinary personal circumstances",
           "description": "Continued to show up and perform retail duties while managing crises that would have incapacitated most people"
+        },
+        {
+          "outcome": "Maintained enough workplace reliability at Melvald's to keep her job despite repeated unexplained absences during crisis events",
+          "description": "Balanced catastrophic personal circumstances with sufficient retail performance to remain employed, leveraging Bob Newby's support and employer goodwill"
         }
       ]
     },
@@ -125,6 +129,10 @@
         {
           "outcome": "Connected electromagnetic anomalies to dimensional gate activity before scientists did",
           "description": "Noticed magnets falling off refrigerator and traced the pattern to its source, identifying threat when trained professionals missed it"
+        },
+        {
+          "outcome": "Noticed all magnets in Hawkins simultaneously losing magnetism and traced the anomaly to a new dimensional breach",
+          "description": "Connected a seemingly mundane household observation to a pattern of electromagnetic interference, identifying the Season 3 threat before anyone else"
         }
       ]
     },
@@ -169,6 +177,10 @@
         {
           "outcome": "Provided emergency medical care to children and adults during crisis events",
           "description": "Applied basic medical knowledge to treat injuries when professional medical help was unavailable"
+        },
+        {
+          "outcome": "Performed emergency heat treatment on Will to expel the Mind Flayer's influence from his body",
+          "description": "Applied extreme heat sources in a coordinated effort to drive out the interdimensional parasite possessing her son, making real-time medical judgments with no precedent"
         }
       ]
     },
@@ -197,6 +209,10 @@
         {
           "outcome": "Traveled to Soviet Union and navigated foreign country without language skills or preparation",
           "description": "Managed international travel logistics in hostile foreign environment to execute rescue mission"
+        },
+        {
+          "outcome": "Navigated Soviet Russia with Murray Bauman, infiltrating a military prison using forged documents and improvised cover stories",
+          "description": "Operated in hostile foreign territory with no training, adapting to checkpoints, language barriers, and military security to reach Hopper"
         }
       ]
     },
@@ -212,7 +228,7 @@
       "evidence": [
         {
           "outcome": "Fought interdimensional threats, government conspiracies, and Soviet military to protect her children",
-          "description": "No force \u2014 natural or supernatural \u2014 has ever stopped Joyce Byers from protecting the people she loves"
+          "description": "No force — natural or supernatural — has ever stopped Joyce Byers from protecting the people she loves"
         }
       ]
     },
@@ -226,7 +242,7 @@
       ],
       "evidence": [
         {
-          "outcome": "Trusted maternal instinct when every authority figure told her she was wrong \u2014 and was right every time",
+          "outcome": "Trusted maternal instinct when every authority figure told her she was wrong — and was right every time",
           "description": "Followed gut feeling that Will was alive, that magnets meant something, that Hopper was alive, proving correct each time"
         }
       ]
@@ -330,7 +346,7 @@
     },
     {
       "title": "Retail Associate",
-      "company": "Various \u2014 Lenora Hills, CA",
+      "company": "Various — Lenora Hills, CA",
       "startYear": 1986,
       "endYear": null,
       "current": true,

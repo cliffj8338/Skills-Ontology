@@ -139,6 +139,10 @@
         {
           "outcome": "Managed ATN News operations including talent contracts, programming schedule, and election coverage",
           "description": "Oversaw day-to-day operations of highest-rated cable news network during critical election cycles"
+        },
+        {
+          "outcome": "Directed ATN's election night coverage, making the call to project a contested presidential race for Waystar's preferred candidate",
+          "description": "Made consequential editorial decision under political and corporate pressure, demonstrating willingness to use media power for institutional advantage"
         }
       ]
     },
@@ -154,6 +158,10 @@
         {
           "outcome": "Rose from regional manager to CEO through masterful navigation of corporate power dynamics",
           "description": "Built alliances, managed threats, and positioned strategically through 15 years of complex institutional politics"
+        },
+        {
+          "outcome": "Secretly informed Logan Roy of the siblings' planned rebellion, betraying Shiv to secure his own position in the post-Logan power structure",
+          "description": "Made calculated decision to switch allegiance from wife to father-in-law when he assessed that Logan would prevail, trading marital loyalty for corporate survival"
         }
       ]
     },
@@ -169,6 +177,10 @@
         {
           "outcome": "Coordinated legal strategy across 5 outside law firms during multi-front litigation",
           "description": "Managed complex legal landscape including congressional investigation, DOJ inquiry, and shareholder litigation"
+        },
+        {
+          "outcome": "Volunteered to serve as the designated executive taking criminal liability for the cruises scandal to protect Logan and the family",
+          "description": "Offered himself as the 'lightning rod' for potential prosecution, calculating that loyalty demonstrated through personal sacrifice would be rewarded with future position"
         }
       ]
     },
@@ -183,6 +195,10 @@
         {
           "outcome": "Managed workforce decisions affecting 25,000+ employees during divisional restructuring",
           "description": "Oversaw headcount planning, reorganization, and talent retention during period of corporate uncertainty"
+        },
+        {
+          "outcome": "Managed Greg Hirsch as protégé and subordinate, leveraging personal loyalty and institutional knowledge as power base within Waystar",
+          "description": "Cultivated Greg's dependence and loyalty through mentorship and implied threats, building a reliable internal ally within corporate politics"
         }
       ]
     },
@@ -241,6 +257,10 @@
         {
           "outcome": "Delivered board presentations influencing governance decisions during succession period",
           "description": "Presented operational data and strategic analysis to support board decision-making"
+        },
+        {
+          "outcome": "Represented Waystar at congressional hearing on cruises division, surviving hostile questioning without creating additional legal exposure",
+          "description": "Delivered prepared testimony and handled adversarial questions from committee members while maintaining corporate legal position"
         }
       ]
     },
@@ -457,7 +477,7 @@
     },
     {
       "title": "VP, Operations",
-      "company": "Waystar Royco \u2014 Parks & Cruises Division",
+      "company": "Waystar Royco — Parks & Cruises Division",
       "startYear": 2012,
       "endYear": 2016,
       "description": "Managed operational efficiency across parks and cruises business units. Identified compliance risks that later became central to corporate crisis."

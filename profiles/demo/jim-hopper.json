@@ -159,6 +159,10 @@
         {
           "outcome": "Managed town-wide evacuation during Starcourt Mall incident without mass casualties",
           "description": "Coordinated emergency services, civilian evacuation, and threat containment simultaneously"
+        },
+        {
+          "outcome": "Coordinated town-wide emergency response during the Starcourt Mall incident, managing evacuation and cover story simultaneously",
+          "description": "Directed civilian evacuation while containing classified interdimensional threat, maintaining operational security under chaotic conditions"
         }
       ]
     },
@@ -173,6 +177,10 @@
         {
           "outcome": "Developed Officer Powell and Officer Callahan from rookies to competent officers",
           "description": "Provided on-the-job training and mentorship to small department staff with limited formal training resources"
+        },
+        {
+          "outcome": "Managed small-town police department while concealing classified threat information from his own officers",
+          "description": "Balanced normal departmental operations with secret crisis response duties, shielding staff from knowledge that would have created panic"
         }
       ]
     },
@@ -187,6 +195,10 @@
         {
           "outcome": "Collected and preserved evidence from non-standard crime scenes including government facilities",
           "description": "Adapted evidence collection protocols for unusual circumstances while maintaining evidentiary value"
+        },
+        {
+          "outcome": "Gathered physical evidence from Hawkins Lab including classified documents that proved government experimentation on children",
+          "description": "Penetrated secure facility and extracted documentation used to expose the laboratory program and protect Eleven from recapture"
         }
       ]
     },
@@ -213,8 +225,8 @@
       ],
       "evidence": [
         {
-          "outcome": "Conducted covert surveillance of Hawkins National Laboratory revealing classified operations",
-          "description": "Used physical surveillance and document analysis to uncover government facility's secret programs"
+          "outcome": "Conducted covert surveillance of Hawkins Lab perimeter identifying patrol patterns that enabled successful infiltration",
+          "description": "Applied law enforcement surveillance techniques to map government facility security, creating entry plan used to locate Will Byers"
         }
       ]
     },

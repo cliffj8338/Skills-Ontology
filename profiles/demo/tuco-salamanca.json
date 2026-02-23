@@ -9,10 +9,22 @@
     "executiveSummary": "Second-generation operator in the Salamanca family enterprise who brought explosive intensity and fearless ambition to regional distribution leadership. Known for rapid decision-making, zero tolerance for disrespect, and an ability to immediately recognize product quality that most operators lack. While his management style creates significant HR challenges, his capacity to move product, control territory, and inspire fear-based loyalty in subordinates is unmatched in the Southwest market."
   },
   "roles": [
-    { "name": "Distribution Operations", "id": "distribution" },
-    { "name": "Territory Management", "id": "territory" },
-    { "name": "Supplier Relations", "id": "supplier" },
-    { "name": "Enforcement & Security", "id": "enforcement" }
+    {
+      "name": "Distribution Operations",
+      "id": "distribution"
+    },
+    {
+      "name": "Territory Management",
+      "id": "territory"
+    },
+    {
+      "name": "Supplier Relations",
+      "id": "supplier"
+    },
+    {
+      "name": "Enforcement & Security",
+      "id": "enforcement"
+    }
   ],
   "skills": [
     {
@@ -20,10 +32,18 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["distribution"],
+      "roles": [
+        "distribution"
+      ],
       "evidence": [
-        { "outcome": "Controlled dominant distribution network across Albuquerque metro generating $5M+ monthly revenue", "description": "Managed network of street-level distributors, mid-level dealers, and retail operations across the metro area" },
-        { "outcome": "Scaled territory from single neighborhood to tri-county coverage within 2 years", "description": "Aggressively expanded distribution footprint through competitive elimination and market capture" }
+        {
+          "outcome": "Controlled dominant distribution network across Albuquerque metro generating $5M+ monthly revenue",
+          "description": "Managed network of street-level distributors, mid-level dealers, and retail operations across the metro area"
+        },
+        {
+          "outcome": "Scaled territory from single neighborhood to tri-county coverage within 2 years",
+          "description": "Aggressively expanded distribution footprint through competitive elimination and market capture"
+        }
       ]
     },
     {
@@ -31,10 +51,18 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["supplier"],
+      "roles": [
+        "supplier"
+      ],
       "evidence": [
-        { "outcome": "Immediately recognized Walter White's 99.1% product as superior to all competitors on first sample", "description": "Demonstrated instinctive quality assessment capability, famously declaring the product 'tight, tight, tight!'" },
-        { "outcome": "Rejected inferior product from 3 suppliers maintaining quality standards across territory", "description": "Enforced strict quality requirements from suppliers, refusing to distribute substandard product" }
+        {
+          "outcome": "Immediately recognized Walter White's 99.1% product as superior to all competitors on first sample",
+          "description": "Demonstrated instinctive quality assessment capability, famously declaring the product 'tight, tight, tight!'"
+        },
+        {
+          "outcome": "Rejected inferior product from 3 suppliers maintaining quality standards across territory",
+          "description": "Enforced strict quality requirements from suppliers, refusing to distribute substandard product"
+        }
       ]
     },
     {
@@ -42,10 +70,19 @@
       "level": "Mastery",
       "category": "skill",
       "key": true,
-      "roles": ["enforcement", "territory"],
+      "roles": [
+        "enforcement",
+        "territory"
+      ],
       "evidence": [
-        { "outcome": "Maintained territorial control through reputation alone — competitors avoided Salamanca territory", "description": "Built reputation for unpredictable violence that served as effective deterrent against territorial encroachment" },
-        { "outcome": "Enforced distribution agreements through physical presence and implied threat", "description": "Conducted supplier and distributor meetings where his reputation preceded any negotiation" }
+        {
+          "outcome": "Maintained territorial control through reputation alone — competitors avoided Salamanca territory",
+          "description": "Built reputation for unpredictable violence that served as effective deterrent against territorial encroachment"
+        },
+        {
+          "outcome": "Enforced distribution agreements through physical presence and implied threat",
+          "description": "Conducted supplier and distributor meetings where his reputation preceded any negotiation"
+        }
       ]
     },
     {
@@ -53,19 +90,36 @@
       "level": "Advanced",
       "category": "skill",
       "key": true,
-      "roles": ["supplier"],
+      "roles": [
+        "supplier"
+      ],
       "evidence": [
-        { "outcome": "Negotiated exclusive supply arrangement with Walter White securing best product in the market", "description": "Recognized strategic value of superior product and moved aggressively to lock down exclusive access" },
-        { "outcome": "Secured favorable pricing terms from suppliers through aggressive negotiation tactics", "description": "Applied combination of market leverage and personal intensity to extract terms other buyers couldn't achieve" }
+        {
+          "outcome": "Negotiated exclusive supply arrangement with Walter White securing best product in the market",
+          "description": "Recognized strategic value of superior product and moved aggressively to lock down exclusive access"
+        },
+        {
+          "outcome": "Secured favorable pricing terms from suppliers through aggressive negotiation tactics",
+          "description": "Applied combination of market leverage and personal intensity to extract terms other buyers couldn't achieve"
+        },
+        {
+          "outcome": "Tested Walter White's resolve when White used fulminated mercury to demand payment and respect",
+          "description": "Recognized White's willingness to die for his terms, ultimately respecting the demonstration of force and agreeing to a partnership on more equal footing"
+        }
       ]
     },
     {
       "name": "Revenue Collection",
       "level": "Expert",
       "category": "skill",
-      "roles": ["distribution"],
+      "roles": [
+        "distribution"
+      ],
       "evidence": [
-        { "outcome": "Maintained 95%+ collection rate across distribution network", "description": "Implemented enforcement-backed collection system ensuring reliable cash flow from all distribution points" }
+        {
+          "outcome": "Maintained 95%+ collection rate across distribution network",
+          "description": "Implemented enforcement-backed collection system ensuring reliable cash flow from all distribution points"
+        }
       ]
     },
     {
@@ -73,63 +127,108 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["territory", "distribution"],
+      "roles": [
+        "territory",
+        "distribution"
+      ],
       "evidence": [
-        { "outcome": "Made deal decisions within minutes that other operators deliberated on for weeks", "description": "Applied instinctive judgment to rapidly evaluate opportunities, threats, and personnel — often correctly" }
+        {
+          "outcome": "Made deal decisions within minutes that other operators deliberated on for weeks",
+          "description": "Applied instinctive judgment to rapidly evaluate opportunities, threats, and personnel — often correctly"
+        },
+        {
+          "outcome": "Kidnapped Walter White and Jesse Pinkman to relocate operations to Mexico after sensing imminent law enforcement pressure",
+          "description": "Made snap decision to extract his suppliers and relocate the entire operation across the border when he sensed the situation was deteriorating"
+        }
       ]
     },
     {
       "name": "Personnel Management",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["distribution", "enforcement"],
+      "roles": [
+        "distribution",
+        "enforcement"
+      ],
       "evidence": [
-        { "outcome": "Managed team of 20+ distributors and enforcers across metro territory", "description": "Maintained operational discipline through combination of loyalty, fear, and compensation. High turnover but high output." }
+        {
+          "outcome": "Managed team of 20+ distributors and enforcers across metro territory",
+          "description": "Maintained operational discipline through combination of loyalty, fear, and compensation. High turnover but high output."
+        },
+        {
+          "outcome": "Beat No-Doze to death in front of associates for speaking out of turn during a supplier meeting",
+          "description": "Enforced organizational hierarchy through extreme violence, sending unmistakable message about chain of command and when subordinates may speak"
+        }
       ]
     },
     {
       "name": "Cash Management",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["distribution"],
+      "roles": [
+        "distribution"
+      ],
       "evidence": [
-        { "outcome": "Managed high-volume cash operations processing $5M+ monthly", "description": "Handled large cash flows, distributor payments, and supplier transactions across the operation" }
+        {
+          "outcome": "Managed high-volume cash operations processing $5M+ monthly",
+          "description": "Handled large cash flows, distributor payments, and supplier transactions across the operation"
+        }
       ]
     },
     {
       "name": "Physical Combat",
       "level": "Expert",
       "category": "skill",
-      "roles": ["enforcement"],
+      "roles": [
+        "enforcement"
+      ],
       "evidence": [
-        { "outcome": "Personally resolved 15+ physical confrontations maintaining territorial authority", "description": "Applied raw physical intensity to resolve disputes, often single-handedly" }
+        {
+          "outcome": "Personally resolved 15+ physical confrontations maintaining territorial authority",
+          "description": "Applied raw physical intensity to resolve disputes, often single-handedly"
+        }
       ]
     },
     {
       "name": "Family Network Leveraging",
       "level": "Advanced",
       "category": "skill",
-      "roles": ["territory"],
+      "roles": [
+        "territory"
+      ],
       "evidence": [
-        { "outcome": "Leveraged Salamanca family name and cartel connections to secure operational protection", "description": "Used family reputation and connections to Don Eladio's cartel for territorial legitimacy and resource access" }
+        {
+          "outcome": "Leveraged Salamanca family name and cartel connections to secure operational protection",
+          "description": "Used family reputation and connections to Don Eladio's cartel for territorial legitimacy and resource access"
+        }
       ]
     },
     {
       "name": "Counter-Surveillance",
       "level": "Proficient",
       "category": "skill",
-      "roles": ["enforcement"],
+      "roles": [
+        "enforcement"
+      ],
       "evidence": [
-        { "outcome": "Identified DEA surveillance on 2 occasions relocating operations before raids", "description": "Applied street-level awareness to detect law enforcement attention and take evasive action" }
+        {
+          "outcome": "Identified DEA surveillance on 2 occasions relocating operations before raids",
+          "description": "Applied street-level awareness to detect law enforcement attention and take evasive action"
+        }
       ]
     },
     {
       "name": "Competitive Elimination",
       "level": "Expert",
       "category": "skill",
-      "roles": ["territory"],
+      "roles": [
+        "territory"
+      ],
       "evidence": [
-        { "outcome": "Eliminated 4 competing distribution operations establishing market dominance", "description": "Applied aggressive competitive tactics to remove rival operators from Albuquerque market" }
+        {
+          "outcome": "Eliminated 4 competing distribution operations establishing market dominance",
+          "description": "Applied aggressive competitive tactics to remove rival operators from Albuquerque market"
+        }
       ]
     },
     {
@@ -137,9 +236,15 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["enforcement", "territory"],
+      "roles": [
+        "enforcement",
+        "territory"
+      ],
       "evidence": [
-        { "outcome": "Leveraged unpredictable energy to dominate every room, negotiation, and confrontation", "description": "Applied sheer force of personality and physical intensity as a business tool — nobody ever knew what Tuco would do next" }
+        {
+          "outcome": "Leveraged unpredictable energy to dominate every room, negotiation, and confrontation",
+          "description": "Applied sheer force of personality and physical intensity as a business tool — nobody ever knew what Tuco would do next"
+        }
       ]
     },
     {
@@ -147,9 +252,14 @@
       "level": "Expert",
       "category": "work style",
       "key": true,
-      "roles": ["distribution"],
+      "roles": [
+        "distribution"
+      ],
       "evidence": [
-        { "outcome": "Made snap decisions on product, territory, and personnel that kept operations moving at speed", "description": "Rarely deliberated — acted on instinct and adjusted later, maintaining operational tempo others couldn't match" }
+        {
+          "outcome": "Made snap decisions on product, territory, and personnel that kept operations moving at speed",
+          "description": "Rarely deliberated — acted on instinct and adjusted later, maintaining operational tempo others couldn't match"
+        }
       ]
     },
     {
@@ -157,38 +267,74 @@
       "level": "Mastery",
       "category": "work style",
       "key": true,
-      "roles": ["territory"],
+      "roles": [
+        "territory"
+      ],
       "evidence": [
-        { "outcome": "Maintained absolute loyalty to Salamanca family despite personal risk and operational cost", "description": "Prioritized family obligations above business optimization, including caring for Tio Hector at personal expense" }
+        {
+          "outcome": "Maintained absolute loyalty to Salamanca family despite personal risk and operational cost",
+          "description": "Prioritized family obligations above business optimization, including caring for Tio Hector at personal expense"
+        }
       ]
     },
     {
       "name": "Fearlessness",
       "level": "Expert",
       "category": "work style",
-      "roles": ["enforcement"],
+      "roles": [
+        "enforcement"
+      ],
       "evidence": [
-        { "outcome": "Confronted armed opponents and law enforcement without hesitation", "description": "Demonstrated complete absence of fear in dangerous situations, treating physical confrontation as normal business operations" }
+        {
+          "outcome": "Confronted armed opponents and law enforcement without hesitation",
+          "description": "Demonstrated complete absence of fear in dangerous situations, treating physical confrontation as normal business operations"
+        }
       ]
     },
     {
       "name": "Product Instinct",
       "level": "Advanced",
       "category": "work style",
-      "roles": ["supplier"],
+      "roles": [
+        "supplier"
+      ],
       "evidence": [
-        { "outcome": "Recognized quality differentials that more analytical competitors missed", "description": "Applied instinctive product assessment that identified Walter White's superiority instantly" }
+        {
+          "outcome": "Recognized quality differentials that more analytical competitors missed",
+          "description": "Applied instinctive product assessment that identified Walter White's superiority instantly"
+        }
       ]
     }
   ],
   "values": [
-    {"name": "Courage", "selected": true},
-    {"name": "Bias Toward Action", "selected": true},
-    {"name": "Candor", "selected": true},
-    {"name": "Tight Tight Tight!", "selected": true},
-    {"name": "Fear Is Respect", "selected": true},
-    {"name": "Blood Is Business", "selected": true},
-    {"name": "Explosive Energy", "selected": true}
+    {
+      "name": "Courage",
+      "selected": true
+    },
+    {
+      "name": "Bias Toward Action",
+      "selected": true
+    },
+    {
+      "name": "Candor",
+      "selected": true
+    },
+    {
+      "name": "Tight Tight Tight!",
+      "selected": true
+    },
+    {
+      "name": "Fear Is Respect",
+      "selected": true
+    },
+    {
+      "name": "Blood Is Business",
+      "selected": true
+    },
+    {
+      "name": "Explosive Energy",
+      "selected": true
+    }
   ],
   "workHistory": [
     {

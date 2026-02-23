@@ -95,6 +95,10 @@
         {
           "outcome": "Executed decisive military action at the Battle of Blackwater — arriving with Tyrell forces to save King's Landing",
           "description": "Executed decisive military action at the Battle of Blackwater — arriving with Tyrell forces to save King's Landing"
+        },
+        {
+          "outcome": "Ordered the sack of King's Landing during Robert's Rebellion, delivering the capital to the new regime and ensuring Lannister relevance",
+          "description": "Waited until the outcome was certain, then marched on King's Landing under false pretenses of allegiance to the Mad King, seizing the city for Robert Baratheon"
         }
       ],
       "roles": [
@@ -161,6 +165,10 @@
         {
           "outcome": "Diversified Lannister economic interests beyond gold mining into trade, lending, and political rents",
           "description": "Diversified Lannister economic interests beyond gold mining into trade, lending, and political rents"
+        },
+        {
+          "outcome": "Rebuilt Casterly Rock's wealth after Tytos Lannister nearly bankrupted the house through weakness and poor lending",
+          "description": "Called in debts, crushed vassal rebellions, and restored the Lannister gold mines to full production, transforming the house from a joke into the wealthiest family in Westeros"
         }
       ],
       "roles": [
@@ -183,6 +191,10 @@
         {
           "outcome": "Built the Frey-Bolton alliance that executed the Red Wedding — reshaping the political map of Westeros in a single night",
           "description": "Built the Frey-Bolton alliance that executed the Red Wedding — reshaping the political map of Westeros in a single night"
+        },
+        {
+          "outcome": "Orchestrated the Red Wedding through alliance with Freys and Boltons, destroying the Stark-Tully rebellion without risking Lannister forces",
+          "description": "Engineered the massacre at the Twins by exploiting Walder Frey's grievance and Roose Bolton's ambition, ending the war in a single night at zero military cost to House Lannister"
         }
       ],
       "roles": [
@@ -249,6 +261,10 @@
         {
           "outcome": "Maintained loyalty from bannermen through a combination of reward, obligation, and fear",
           "description": "Maintained loyalty from bannermen through a combination of reward, obligation, and fear"
+        },
+        {
+          "outcome": "Appointed Tyrion as acting Hand of the King, recognizing his political talent despite deep personal contempt",
+          "description": "Set aside animosity to place the most capable family member in the role when the situation demanded competence over sentiment"
         }
       ],
       "roles": [

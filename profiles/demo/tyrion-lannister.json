@@ -97,6 +97,10 @@
         {
           "outcome": "Navigated family politics between Tywin, Cersei, and Jaime while maintaining operational effectiveness",
           "description": ""
+        },
+        {
+          "outcome": "Served as Hand of the Queen to Daenerys, counseling restraint that preserved civilian lives during the initial Westeros campaign",
+          "description": "Advocated against direct dragon assault on King's Landing, proposing siege strategy that minimized civilian casualties while maintaining military pressure"
         }
       ],
       "roles": [
@@ -141,6 +145,10 @@
         {
           "outcome": "Talked his way out of execution by both Stark and Targaryen forces through pure rhetorical skill",
           "description": ""
+        },
+        {
+          "outcome": "Negotiated temporary peace with the slave masters of Meereen, buying time for Daenerys's forces to regroup",
+          "description": "Proposed seven-year phaseout of slavery as compromise, managing volatile stakeholders in Daenerys's absence despite lacking military leverage"
         }
       ],
       "roles": [
@@ -229,6 +237,10 @@
         {
           "outcome": "Persuaded the lords of the Great Council to accept an unprecedented new form of governance",
           "description": ""
+        },
+        {
+          "outcome": "Delivered trial speech that exposed the hypocrisy of the court, demanding trial by combat after dismantling the prosecution's narrative",
+          "description": "Turned his own murder defense into a devastating indictment of King's Landing's power structure, swaying public opinion even as the verdict was predetermined"
         }
       ],
       "roles": [
@@ -295,6 +307,10 @@
         {
           "outcome": "Understood logistics requirements for moving armies across continents including supply chain and naval transport",
           "description": ""
+        },
+        {
+          "outcome": "Designed and executed the wildfire trap at the Battle of the Blackwater, destroying Stannis Baratheon's fleet",
+          "description": "Conceived plan to use a single wildfire-laden ship to ignite the bay, devastating the enemy navy before they could land their invasion force"
         }
       ],
       "roles": [

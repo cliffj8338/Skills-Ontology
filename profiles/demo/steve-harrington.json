@@ -58,6 +58,10 @@
         {
           "outcome": "Coordinated tactical response at Starcourt Mall under extreme duress",
           "description": "Directed team movement, resource allocation, and defensive positioning during sustained threat engagement"
+        },
+        {
+          "outcome": "Led the group through the underground Russian base beneath Starcourt Mall while evading armed military personnel",
+          "description": "Directed civilian teenagers through a hostile military facility, making tactical decisions about movement and concealment under active threat"
         }
       ]
     },
@@ -77,6 +81,10 @@
         {
           "outcome": "Served as protective role model for group of 6 younger team members",
           "description": "Stepped into de facto big brother role providing leadership, protection, and emotional stability"
+        },
+        {
+          "outcome": "Coached Dustin through personal confidence issues and social skills development across multiple years",
+          "description": "Provided ongoing mentorship on topics from dating advice to self-worth, filling a gap left by Dustin's absent father"
         }
       ]
     },
@@ -91,6 +99,10 @@
         {
           "outcome": "Engaged and survived hand-to-hand combat against both human and non-human threats",
           "description": "Applied athletic ability and improvised weapons effectively in multiple physical confrontations"
+        },
+        {
+          "outcome": "Fought the Demogorgon at the Byers house using a nail-studded baseball bat, buying time for Jonathan and Nancy to execute their trap",
+          "description": "Engaged an interdimensional predator in hand-to-hand combat using an improvised weapon, demonstrating instinctive combat effectiveness with zero training"
         }
       ]
     },
@@ -133,6 +145,10 @@
         {
           "outcome": "Operated ice cream service counter at Scoops Ahoy in Starcourt Mall",
           "description": "Prepared ice cream products, maintained food safety standards, and managed customer queue"
+        },
+        {
+          "outcome": "Maintained full Scoops Ahoy service operations while simultaneously investigating Russian code transmissions from the mall",
+          "description": "Balanced ice cream counter duties with covert intelligence work, using the shop as a base of operations for the Starcourt investigation"
         }
       ]
     },
@@ -147,6 +163,10 @@
         {
           "outcome": "Served as primary driver/logistics for crisis response team across 4 events",
           "description": "Provided reliable transportation under dangerous conditions including high-speed pursuit scenarios"
+        },
+        {
+          "outcome": "Drove the stolen Winnebago through the Starcourt parking lot under fire to extract the team during the Russian base escape",
+          "description": "Performed evasive driving maneuvers in an unfamiliar oversized vehicle while under pursuit, ensuring safe extraction of all team members"
         }
       ]
     },
@@ -309,7 +329,7 @@
     },
     {
       "title": "Associate",
-      "company": "Scoops Ahoy \u2014 Starcourt Mall",
+      "company": "Scoops Ahoy — Starcourt Mall",
       "startYear": 1985,
       "endYear": 1985,
       "description": "Ice cream counter service. Position ended when Starcourt Mall was destroyed in an incident officially attributed to a fire."

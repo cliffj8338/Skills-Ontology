@@ -68,6 +68,10 @@
         {
           "outcome": "Identified and neutralized threats from Ned Stark, Margaery Tyrell, and the High Sparrow through distinct tactical approaches",
           "description": "Identified and neutralized threats from Ned Stark, Margaery Tyrell, and the High Sparrow through distinct tactical approaches"
+        },
+        {
+          "outcome": "Maneuvered Tommen into dissolving trial by combat, forcing enemies into a proceeding she had already planned to circumvent with wildfire",
+          "description": "Manipulated the High Sparrow's influence over Tommen to create conditions that made her Sept destruction plan viable"
         }
       ],
       "roles": [
@@ -112,6 +116,10 @@
         {
           "outcome": "Maintained Lannister-Tyrell alliance through Joffrey and Tommen's marriages despite underlying hostility",
           "description": "Maintained Lannister-Tyrell alliance through Joffrey and Tommen's marriages despite underlying hostility"
+        },
+        {
+          "outcome": "Secured naval alliance with Euron Greyjoy providing Iron Fleet as military counterweight to Daenerys",
+          "description": "Negotiated marriage pact with Euron, gaining the largest fleet in Westeros to offset enemy naval superiority"
         }
       ],
       "roles": [
@@ -156,6 +164,10 @@
         {
           "outcome": "Prepared King's Landing defenses against Daenerys's invasion including civilian shield strategy",
           "description": "Prepared King's Landing defenses against Daenerys's invasion including civilian shield strategy"
+        },
+        {
+          "outcome": "Orchestrated destruction of the Great Sept of Baelor eliminating all political rivals in a single strike",
+          "description": "Used wildfire caches beneath the Sept to destroy the High Sparrow, Tyrells, and Faith Militant, consolidating power after months of humiliation"
         }
       ],
       "roles": [
@@ -288,6 +300,10 @@
         {
           "outcome": "Made the calculated decision to fight Daenerys rather than surrender — preferring destruction to submission",
           "description": "Made the calculated decision to fight Daenerys rather than surrender — preferring destruction to submission"
+        },
+        {
+          "outcome": "Endured public Walk of Atonement through King's Landing and converted humiliation into motivation for decisive retaliation",
+          "description": "Survived forced naked march through jeering crowds, then systematically destroyed every party responsible within months"
         }
       ],
       "roles": [

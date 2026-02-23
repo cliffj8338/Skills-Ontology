@@ -90,6 +90,10 @@
         {
           "outcome": "Planned and executed the expedition beyond the Wall to capture a wight as proof of the existential threat",
           "description": "Planned and executed the expedition beyond the Wall to capture a wight as proof of the existential threat"
+        },
+        {
+          "outcome": "Led outnumbered force to victory in the Battle of the Bastards reclaiming Winterfell from Bolton occupation",
+          "description": "Commanded mixed force of Wildlings, Northern loyalists, and Vale knights against entrenched Bolton army, adapting tactics when battle plan collapsed"
         }
       ],
       "roles": [
@@ -156,6 +160,10 @@
         {
           "outcome": "Decided to prioritize the existential threat of the White Walkers over the political game of thrones",
           "description": "Decided to prioritize the existential threat of the White Walkers over the political game of thrones"
+        },
+        {
+          "outcome": "Led ranging expedition beyond the Wall to capture a wight as proof of the undead threat",
+          "description": "Organized and commanded small strike team into enemy territory to obtain physical evidence needed to convince southern rulers of the existential threat"
         }
       ],
       "roles": [
@@ -222,6 +230,10 @@
         {
           "outcome": "Negotiated with Cersei Lannister at the Dragonpit — presenting evidence of the undead threat to hostile audience",
           "description": "Negotiated with Cersei Lannister at the Dragonpit — presenting evidence of the undead threat to hostile audience"
+        },
+        {
+          "outcome": "Negotiated alliance with Daenerys Targaryen at Dragonstone securing dragonglass and military support",
+          "description": "Convinced a rival monarch to provide critical resources and alliance despite refusing to bend the knee, building trust through demonstrated integrity"
         }
       ],
       "roles": [
@@ -332,6 +344,10 @@
         {
           "outcome": "Navigated the cultural expectations of Northern lords, Dothraki warriors, and Unsullied soldiers simultaneously",
           "description": "Navigated the cultural expectations of Northern lords, Dothraki warriors, and Unsullied soldiers simultaneously"
+        },
+        {
+          "outcome": "United Wildling and Night's Watch forces despite centuries of hostility, leading combined defense at the Battle of Castle Black",
+          "description": "Bridged two violently opposed cultures through personal credibility built on both sides of the Wall"
         }
       ],
       "roles": [
