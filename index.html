@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.0.0 | 20260223 | Demo: restore HTML/PDF picker, redirect to sample reports with overlay -->
+    <!-- v4.37.1.0 | 20260223 | Demo mode toggle: isolated data contexts, snapshot/restore, write guards -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -73,6 +73,80 @@
             .rpt-heatmap-label { min-width:100px; font-size:0.75em; }
             .rpt-table { font-size:0.78em; }
             .rpt-table th:nth-child(3), .rpt-table td:nth-child(3) { display:none; }
+        }
+
+        /* ── Demo Mode Toggle ──────────────────────────────────── */
+        .demo-toggle-btn {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--c-border-subtle, var(--border));
+            background: var(--c-surface-2a, var(--elev-1));
+            color: var(--text-muted, #64748b);
+            font-size: 0.72em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .demo-toggle-btn:hover {
+            border-color: rgba(96, 165, 250, 0.4);
+            color: var(--accent, #3b82f6);
+            background: var(--c-accent-bg-3c, rgba(59,130,246,0.08));
+        }
+        .demo-toggle-btn.demo-active {
+            border-color: rgba(245, 158, 11, 0.4);
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.08);
+        }
+        .demo-toggle-btn.demo-active:hover {
+            background: rgba(245, 158, 11, 0.15);
+        }
+        .demo-toggle-icon { font-size: 1.1em; }
+        
+        .demo-mode-indicator {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            font-size: 0.65em;
+            font-weight: 700;
+            color: #f59e0b;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .demo-indicator-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #f59e0b;
+            animation: demoPulse 2s ease-in-out infinite;
+        }
+        @keyframes demoPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .demo-exit-btn {
+            background: none;
+            border: none;
+            color: #f59e0b;
+            font-size: 1.3em;
+            cursor: pointer;
+            padding: 0 2px;
+            line-height: 1;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .demo-exit-btn:hover { opacity: 1; }
+        
+        @media (max-width: 768px) {
+            .demo-toggle-btn { padding: 4px 8px; font-size: 0.65em; }
+            .demo-mode-indicator { font-size: 0.6em; padding: 3px 6px; }
+            .demo-toggle-label { display: none; }
         }
 
 </style>
@@ -164,6 +238,17 @@
 
             <!-- Auth button (shown when not logged in) -->
             <button class="auth-nav-btn" id="authNavBtn" onclick="showAuthModal('signin')" style="display:none;">Sign In</button>
+
+            <!-- Demo mode toggle (shown when signed in) -->
+            <button class="demo-toggle-btn" id="demoModeToggle" onclick="toggleDemoMode()" title="Explore Demo Profiles" style="display:none;">
+                <span class="demo-toggle-icon" id="demoToggleIcon">&#x25C8;</span>
+                <span class="demo-toggle-label" id="demoToggleLabel">Demo</span>
+            </button>
+            <div class="demo-mode-indicator" id="demoModeIndicator" style="display:none;">
+                <span class="demo-indicator-dot"></span>
+                <span>DEMO MODE</span>
+                <button onclick="exitDemoMode()" class="demo-exit-btn">&times;</button>
+            </div>
 
             <!-- Profile badge (display only - shows current user when signed in) -->
             <div class="profile-chip" id="profileChip" style="cursor:default; display:none;">
@@ -960,8 +1045,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.0.0 - BUILD 20260223-demo-report-picker
-        var BP_VERSION = 'v4.37.0.0';
+        // BLUEPRINT v4.37.1.0 - BUILD 20260223-demo-mode-toggle
+        var BP_VERSION = 'v4.37.1.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -1526,6 +1611,7 @@
                         }
                     }
                 }
+                updateDemoToggleUI();
             } else {
                 // Not signed in — hide chip entirely
                 if (authBtn) authBtn.style.display = '';
@@ -1533,6 +1619,7 @@
                 if (overflowSignOut) overflowSignOut.style.display = 'none';
                 if (overflowAdmin) overflowAdmin.style.display = 'none';
                 if (profileChip) profileChip.style.display = 'none';
+                updateDemoToggleUI();
             }
         }
 
@@ -1563,6 +1650,9 @@
         
         function saveToFirestore() {
             if (!fbDb || !fbUser) return Promise.resolve(false);
+            
+            // GUARD: Never save while in demo mode
+            if (appContext.mode === 'demo') return Promise.resolve(false);
             
             // GUARD: Never save demo/sample profile data to the user's Firestore doc
             var tid = userData.templateId || '';
@@ -2694,6 +2784,18 @@
 
         // ===== READ-ONLY MODE =====
         var isReadOnlyProfile = false;  // True when viewing a sample profile as non-admin
+        
+        // ===== DEMO MODE ISOLATION =====
+        // Two-context architecture: user data is snapshotted when entering demo,
+        // restored cleanly on exit. Demo data never touches Firestore or user localStorage.
+        var appContext = {
+            mode: 'live',              // 'live' = normal operation, 'demo' = exploring sample profiles
+            userSnapshot: null,        // Deep clone of userData when entering demo
+            skillsSnapshot: null,      // Deep clone of skillsData
+            blueprintSnapshot: null,   // Deep clone of blueprintData
+            demoTemplateId: 'breaking-bad',  // Default demo profile
+            returnView: 'network'      // Which view to return to on exit
+        };
 
         function checkReadOnly() {
             var templateId = userData.templateId || '';
@@ -2823,6 +2925,177 @@
             return true;
         }
         window.demoGate = demoGate;
+        
+        // ===== DEMO MODE TOGGLE =====
+        // Allows signed-in users to explore sample profiles without risking their data.
+        // Snapshots user state on entry, restores it cleanly on exit.
+        
+        function enterDemoMode(templateId) {
+            if (appContext.mode === 'demo') return; // Already in demo
+            
+            var targetTemplate = templateId || appContext.demoTemplateId;
+            if (!templates[targetTemplate]) {
+                showToast('Demo profile not available.', 'error');
+                return;
+            }
+            
+            // Snapshot current user state (deep clone)
+            appContext.userSnapshot = JSON.parse(JSON.stringify(userData));
+            appContext.skillsSnapshot = {
+                roles: JSON.parse(JSON.stringify(skillsData.roles || [])),
+                skills: JSON.parse(JSON.stringify(skillsData.skills || []))
+            };
+            appContext.blueprintSnapshot = {
+                values: JSON.parse(JSON.stringify(blueprintData.values || [])),
+                outcomes: JSON.parse(JSON.stringify(blueprintData.outcomes || [])),
+                purpose: blueprintData.purpose || ''
+            };
+            
+            // Track current view for return
+            var activeNav = document.querySelector('.nav-btn.active');
+            appContext.returnView = (activeNav && activeNav.dataset.view) || 'network';
+            
+            // Enter demo mode
+            appContext.mode = 'demo';
+            appContext.demoTemplateId = targetTemplate;
+            
+            // Load demo profile using existing infrastructure
+            loadTemplate(targetTemplate);
+            
+            // Re-initialize data pipeline
+            normalizeUserRoles();
+            skillsData.skills = userData.skills;
+            skillsData.roles = userData.roles;
+            blueprintData.values = [];
+            blueprintData.outcomes = [];
+            blueprintData.purpose = '';
+            inferValues();
+            extractOutcomesFromEvidence();
+            if (typeof rescoreAllJobs === 'function') rescoreAllJobs();
+            
+            // Reset view state
+            window.blueprintInitialized = false;
+            window.opportunitiesInitialized = false;
+            window.applicationsInitialized = false;
+            window.networkInitialized = false;
+            window.cardViewInitialized = false;
+            
+            // Update readonly + UI
+            checkReadOnly();
+            updateDemoToggleUI();
+            updateProfileChip(userData.profile.name || 'Demo Profile');
+            
+            // Navigate to skills view
+            switchView('network');
+            setTimeout(function() { window.scrollTo(0, 0); }, 50);
+            
+            showToast('Exploring demo: ' + (userData.profile.name || targetTemplate) + '. Your data is safely preserved.', 'info', 3000);
+        }
+        window.enterDemoMode = enterDemoMode;
+        
+        function exitDemoMode() {
+            if (appContext.mode !== 'demo' || !appContext.userSnapshot) return;
+            
+            // Restore user state from snapshot
+            userData = appContext.userSnapshot;
+            skillsData.roles = appContext.skillsSnapshot.roles;
+            skillsData.skills = appContext.skillsSnapshot.skills;
+            blueprintData.values = appContext.blueprintSnapshot.values;
+            blueprintData.outcomes = appContext.blueprintSnapshot.outcomes;
+            blueprintData.purpose = appContext.blueprintSnapshot.purpose;
+            
+            // Clear snapshots
+            appContext.userSnapshot = null;
+            appContext.skillsSnapshot = null;
+            appContext.blueprintSnapshot = null;
+            appContext.mode = 'live';
+            
+            // Re-initialize data pipeline
+            normalizeUserRoles();
+            if (typeof rescoreAllJobs === 'function') rescoreAllJobs();
+            
+            // Reset view state
+            window.blueprintInitialized = false;
+            window.opportunitiesInitialized = false;
+            window.applicationsInitialized = false;
+            window.networkInitialized = false;
+            window.cardViewInitialized = false;
+            
+            // Update readonly + UI
+            checkReadOnly();
+            updateDemoToggleUI();
+            updateProfileChip(userData.profile.name || 'My Profile');
+            
+            // Return to where they were
+            switchView(appContext.returnView || 'network');
+            setTimeout(function() { window.scrollTo(0, 0); }, 50);
+            
+            showToast('Welcome back! Your Blueprint is restored.', 'info', 2000);
+        }
+        window.exitDemoMode = exitDemoMode;
+        
+        function toggleDemoMode() {
+            if (appContext.mode === 'demo') {
+                exitDemoMode();
+            } else {
+                enterDemoMode();
+            }
+        }
+        window.toggleDemoMode = toggleDemoMode;
+        
+        // Switch between demo profiles while in demo mode
+        function switchDemoProfile(templateId) {
+            if (appContext.mode !== 'demo') {
+                enterDemoMode(templateId);
+                return;
+            }
+            // Already in demo — just swap the template (snapshot stays from original entry)
+            if (!templates[templateId]) return;
+            appContext.demoTemplateId = templateId;
+            
+            loadTemplate(templateId);
+            normalizeUserRoles();
+            skillsData.skills = userData.skills;
+            skillsData.roles = userData.roles;
+            blueprintData.values = [];
+            blueprintData.outcomes = [];
+            blueprintData.purpose = '';
+            inferValues();
+            extractOutcomesFromEvidence();
+            if (typeof rescoreAllJobs === 'function') rescoreAllJobs();
+            
+            window.blueprintInitialized = false;
+            window.opportunitiesInitialized = false;
+            window.networkInitialized = false;
+            window.cardViewInitialized = false;
+            
+            checkReadOnly();
+            updateProfileChip(userData.profile.name || templateId);
+            switchView('network');
+        }
+        window.switchDemoProfile = switchDemoProfile;
+        
+        // Update the demo toggle button UI state
+        function updateDemoToggleUI() {
+            var toggle = document.getElementById('demoModeToggle');
+            var indicator = document.getElementById('demoModeIndicator');
+            if (!toggle) return;
+            
+            // Only show toggle for signed-in users
+            var isSignedIn = !!fbUser;
+            toggle.style.display = isSignedIn ? '' : 'none';
+            
+            if (appContext.mode === 'demo') {
+                toggle.classList.add('demo-active');
+                toggle.title = 'Return to My Blueprint';
+                if (indicator) indicator.style.display = '';
+            } else {
+                toggle.classList.remove('demo-active');
+                toggle.title = 'Explore Demo Profiles';
+                if (indicator) indicator.style.display = 'none';
+            }
+        }
+        window.updateDemoToggleUI = updateDemoToggleUI;
         
         // Gated feature helper — returns a gated-prompt HTML block for inline use
         function gatedPromptHTML(featureName, description) {
@@ -4926,6 +5199,19 @@
         function switchProfile(templateId) {
             console.log('🔄 Switching profile to:', templateId);
             
+            // Demo mode routing: if in demo mode, route sample switches through switchDemoProfile
+            if (appContext.mode === 'demo' && templateId.indexOf('firestore-') !== 0) {
+                closeProfileDropdown();
+                switchDemoProfile(templateId);
+                return;
+            }
+            // If in demo mode and switching to own profile, exit demo
+            if (appContext.mode === 'demo' && templateId.indexOf('firestore-') === 0) {
+                closeProfileDropdown();
+                exitDemoMode();
+                return;
+            }
+            
             // Close dropdown immediately before rebuilding DOM
             closeProfileDropdown();
             
@@ -5010,6 +5296,8 @@
         // Save user data preference (which profile they're viewing)
         function saveUserData() {
             try {
+                // Don't save demo profile as user preference
+                if (appContext.mode === 'demo') return true;
                 // Don't save userData to localStorage anymore
                 // Only save which profile is active
                 const currentProfileId = userData.templateId || Object.keys(templates)[0] || 'walter-white';

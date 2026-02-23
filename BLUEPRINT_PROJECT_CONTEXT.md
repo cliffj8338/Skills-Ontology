@@ -1,5 +1,5 @@
 # Blueprint™ Project Context
-**Version:** v4.37.0.0 | **Date:** February 23, 2026 | **Owner:** Cliff Jurkiewicz
+**Version:** v4.37.1.0 | **Date:** February 23, 2026 | **Owner:** Cliff Jurkiewicz
 
 ---
 
@@ -222,6 +222,7 @@ Key properties:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v4.37.1.0 | 2026-02-23 | Demo mode toggle: isolated data contexts with snapshot/restore, write guards |
 | v4.37.0.0 | 2026-02-23 | Demo: restore HTML/PDF format picker, redirect to sample report viewer with overlay |
 | v4.36.9.0 | 2026-02-22 | PDF: inferred match coloring from matchPct for stale job data |
 | v4.36.8.0 | 2026-02-22 | PDF: pinned hub layout, jobRequired match fallback, max spread |
@@ -278,6 +279,25 @@ Key properties:
 - **Firestore rules:** Must be pasted into Firebase Console. Does NOT deploy from repo.
 - **Admin role:** Set via Firebase Console only. Client code cannot write role field.
 - **Demo lockdown:** Sample profiles show HTML/PDF format picker but both redirect to sample report viewer (4 pre-built HTML reports). Sample profiles remain read-only even after user signs in. Admin (`fbIsAdmin`) bypasses all restrictions.
+
+### Demo Mode Toggle Architecture
+Signed-in users can toggle between their real profile and demo exploration. Data isolation is enforced at three levels:
+
+**State isolation (`appContext`):**
+- `enterDemoMode()` deep-clones `userData`, `skillsData`, and `blueprintData` into snapshots
+- Demo loads via existing `loadTemplate()` infrastructure
+- `exitDemoMode()` restores all three objects from snapshots
+- `appContext.mode` tracks current state: `'live'` or `'demo'`
+
+**Write guards (belt-and-suspenders):**
+- `saveToFirestore()`: blocked by `appContext.mode === 'demo'` AND by templateId guard
+- `saveUserData()`: blocked by `appContext.mode === 'demo'` (won't overwrite localStorage profile preference)
+- `switchProfile()`: routes to `switchDemoProfile()` when in demo mode
+
+**UI:**
+- Demo toggle button in header (visible only when signed in)
+- Amber "DEMO MODE" indicator with pulsing dot and exit button
+- Profile switcher works normally in demo mode (switches between sample profiles)
 - **Two PDF generators:** `generateScoutingReportPDF(R)` for scouting reports, `generatePDF(data, targetJob)` for general exports.
 - **Network egress disabled** in Claude environment — no npm/pip/web fetches.
 
