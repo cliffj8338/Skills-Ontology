@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.36.9.0 | 20260222 | PDF: inferred match coloring from matchPct + gaps for stale data -->
+    <!-- v4.37.0.0 | 20260223 | Demo: restore HTML/PDF picker, redirect to sample reports with overlay -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -960,8 +960,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.36.9.0 - BUILD 20260222-inferred-match-colors
-        var BP_VERSION = 'v4.36.9.0';
+        // BLUEPRINT v4.37.0.0 - BUILD 20260223-demo-report-picker
+        var BP_VERSION = 'v4.37.0.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -9120,6 +9120,36 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             document.addEventListener('keydown', escHandler);
         }
         window.openDemoScoutingReport = openDemoScoutingReport;
+        
+        // Demo sample report viewer — maps current profile to one of the 4 sample HTML reports
+        function viewDemoSampleReport(format) {
+            closeExportModal();
+            
+            // Map template IDs to available sample reports
+            var sampleReports = {
+                'game-of-thrones': { file: 'reports/demos/tyrion-lannister.html', name: 'Tyrion Lannister \u2192 UN Chief of Staff' },
+                'breaking-bad': { file: 'reports/demos/walter-white.html', name: 'Walter White \u2192 Gray Matter CSO' },
+                'stranger-things': { file: 'reports/demos/jim-hopper.html', name: 'Jim Hopper \u2192 DHS Crisis Response' },
+                'succession': { file: 'reports/demos/kendall-roy.html', name: 'Kendall Roy \u2192 Waystar CEO' }
+            };
+            
+            var tid = userData.templateId || '';
+            var sample = sampleReports[tid];
+            
+            // If current profile doesn't have a sample, pick one at random
+            if (!sample) {
+                var keys = Object.keys(sampleReports);
+                sample = sampleReports[keys[Math.floor(Math.random() * keys.length)]];
+            }
+            
+            if (format === 'pdf') {
+                showToast('PDF sample preview opening as interactive report. Full PDF generation available with your own profile.', 'info', 3000);
+            }
+            
+            // Open in the existing iframe overlay with a demo explanation banner
+            openDemoScoutingReport(sample.file, sample.name);
+        }
+        window.viewDemoSampleReport = viewDemoSampleReport;
 
 
         function switchView(view, event) {
@@ -13022,9 +13052,53 @@ body {
             var job = (userData.savedJobs || [])[jobIdx];
             if (!job) { showToast('Job not found.', 'error'); return; }
             
-            // Demo lockdown: skip format picker, go straight to PDF
+            // Demo mode: show picker but redirect both options to sample report viewer
             if (isReadOnlyProfile) {
-                generateScoutingReport(jobIdx);
+                var modal = document.getElementById('exportModal');
+                var modalContent = modal.querySelector('.modal-content');
+                var score = (job.matchData && job.matchData.score) || 0;
+                var scoreColor = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
+                
+                modalContent.innerHTML = '<div class="modal-header">'
+                    + '<div class="modal-header-left"><h2 class="modal-title">\u25C8 Scouting Report</h2></div>'
+                    + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                    + '</div>'
+                    + '<div class="modal-body" style="padding:24px;">'
+                    + '<div style="padding:14px 16px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">'
+                    + '<div><div style="font-weight:600;">' + (job.title || 'Untitled') + '</div>'
+                    + '<div style="font-size:0.82em; color:var(--c-muted);">' + (job.company || 'Unknown company') + '</div></div>'
+                    + '<div style="font-size:1.3em; font-weight:800; color:' + scoreColor + ';">' + score + '%</div></div>'
+                    + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:16px;">Choose a format to preview a sample scouting report:</div>'
+                    + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
+                    // HTML option
+                    + '<div onclick="viewDemoSampleReport(\'html\')" style="padding:20px; background:var(--c-surface-2a); border:1px solid var(--c-accent-border-3c); border-radius:12px; cursor:pointer; transition:all 0.2s; text-align:center;" '
+                    + 'onmouseover="this.style.borderColor=\'rgba(96,165,250,0.6)\';this.style.background=\'var(--c-accent-bg-3c)\'" '
+                    + 'onmouseout="this.style.borderColor=\'var(--c-accent-border-3c)\';this.style.background=\'var(--c-surface-2a)\'">'
+                    + '<div style="font-size:1.6em; margin-bottom:8px;">' + bpIcon('external', 28) + '</div>'
+                    + '<div style="font-weight:700; margin-bottom:4px;">Interactive HTML</div>'
+                    + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">Shareable web page with D3 networks, blind mode toggles, and full interactivity.</div>'
+                    + '<div style="margin-top:10px;"><span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-accent-bg-6c); color:#60a5fa; font-weight:600;">HTML</span>'
+                    + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-green-bg-5b, rgba(16,185,129,0.15)); color:#10b981; font-weight:600;">Shareable Link</span></div>'
+                    + '</div>'
+                    // PDF option
+                    + '<div onclick="viewDemoSampleReport(\'pdf\')" style="padding:20px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:12px; cursor:pointer; transition:all 0.2s; text-align:center;" '
+                    + 'onmouseover="this.style.borderColor=\'rgba(96,165,250,0.6)\';this.style.background=\'var(--c-accent-bg-3c)\'" '
+                    + 'onmouseout="this.style.borderColor=\'var(--c-border-subtle)\';this.style.background=\'var(--c-surface-2a)\'">'
+                    + '<div style="font-size:1.6em; margin-bottom:8px;">' + bpIcon('pdf', 28) + '</div>'
+                    + '<div style="font-weight:700; margin-bottom:4px;">PDF Document</div>'
+                    + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">Downloadable PDF for email attachments, ATS uploads, and offline sharing.</div>'
+                    + '<div style="margin-top:10px;"><span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-accent-bg-6c); color:#60a5fa; font-weight:600;">PDF</span>'
+                    + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-amber-bg-5b, rgba(245,158,11,0.15)); color:#f59e0b; font-weight:600;">Attachment</span></div>'
+                    + '</div>'
+                    + '</div>'
+                    + '<div style="margin-top:14px; padding:12px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2); border-radius:8px; text-align:center;">'
+                    + '<div style="font-size:0.82em; color:#f59e0b; font-weight:600; margin-bottom:4px;">Demo Mode</div>'
+                    + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.5;">Sample profiles include pre-built scouting reports you can preview. Sign up to generate your own with your real skills and career data.</div>'
+                    + '</div>'
+                    + '<div style="margin-top:10px; text-align:center;">'
+                    + '<button onclick="showScoutingReportPicker()" style="background:none; border:none; color:var(--text-muted); font-size:0.82em; cursor:pointer; text-decoration:underline;">\u2190 Back to job list</button>'
+                    + '</div>'
+                    + '</div>';
                 return;
             }
             
@@ -13074,10 +13148,9 @@ body {
         
         // HTML scouting report generator (placeholder — generator bridge coming)
         function generateHTMLScoutingReport(jobIdx) {
-            // Demo lockdown: no HTML reports on sample profiles
+            // Demo lockdown: redirect to sample report viewer
             if (isReadOnlyProfile) {
-                showToast('HTML reports are not available on sample profiles. Generating PDF instead.', 'info');
-                generateScoutingReport(jobIdx);
+                viewDemoSampleReport('html');
                 return;
             }
             var job = (userData.savedJobs || [])[jobIdx];
@@ -13430,6 +13503,8 @@ body {
         window.openSampleScoutingReport = openSampleScoutingReport;
         
         function generateScoutingReport(jobIdx) {
+            // Demo lockdown: redirect to sample viewer
+            if (isReadOnlyProfile) { viewDemoSampleReport('pdf'); return; }
             var job = (userData.savedJobs || [])[jobIdx];
             if (!job) { showToast('Job not found.', 'error'); return; }
             logAnalyticsEvent('scouting_report', { company: job.company || '', title: job.title || '' });

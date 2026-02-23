@@ -1,5 +1,5 @@
 # Blueprint™ Project Context
-**Version:** v4.36.5.0 | **Date:** February 22, 2026 | **Owner:** Cliff Jurkiewicz
+**Version:** v4.37.0.0 | **Date:** February 23, 2026 | **Owner:** Cliff Jurkiewicz
 
 ---
 
@@ -135,7 +135,8 @@ Key properties:
 
 ### Technical Notes
 - **Emoji restriction:** jsPDF + Helvetica cannot render emoji. All PDF text uses plain ASCII/Latin characters only.
-- **Force relaxation:** 40 iterations of node repulsion (6mm clearance) + hub gravity (2% pull per iteration). Produces spread-out layouts similar to D3.
+- **Network graphs:** D3 force simulation rendered to offscreen `<canvas>` (3600×3200px), embedded as JPEG via `doc.addImage()`. Role hubs pinned at fixed positions; only skill nodes float.
+- **Match color inference:** Three-tier fallback: `sk.k` flag → `R.jobRequired` name match → inferred from `matchPct` + `gaps.length` (sorts skills by proficiency, marks top N as matched).
 - **Narrative/outcome rendering:** Explicit per-line loops with auto-sizing boxes. No truncation or line caps.
 - **Role/evidence normalization:** `buildReportData()` auto-converts `skill.role` (string) → `skill.roles` (array) and evidence strings → `{outcome, description}` objects.
 - **Level map:** Mastery, Expert, Advanced, Proficient, Competent (→ Proficient styling), Novice.
@@ -221,6 +222,11 @@ Key properties:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v4.37.0.0 | 2026-02-23 | Demo: restore HTML/PDF format picker, redirect to sample report viewer with overlay |
+| v4.36.9.0 | 2026-02-22 | PDF: inferred match coloring from matchPct for stale job data |
+| v4.36.8.0 | 2026-02-22 | PDF: pinned hub layout, jobRequired match fallback, max spread |
+| v4.36.7.0 | 2026-02-22 | PDF: spread-out D3 graphs, JPEG compression, verified badge fix |
+| v4.36.6.0 | 2026-02-22 | PDF: D3 canvas-rendered network graphs, match % badge |
 | v4.36.5.0 | 2026-02-22 | PDF: force-relaxed network graphs, page 1 skills snapshot + competency bars |
 | v4.36.4.0 | 2026-02-22 | Waitlist write-only fix, FOMO counter disabled, invite check gated |
 | v4.36.3.0 | 2026-02-22 | PDF: emoji removal, network graph rewrite with labeled nodes |
@@ -271,6 +277,31 @@ Key properties:
 - **Case sensitivity:** Vercel = Linux. `templates/` ≠ `Templates/`.
 - **Firestore rules:** Must be pasted into Firebase Console. Does NOT deploy from repo.
 - **Admin role:** Set via Firebase Console only. Client code cannot write role field.
-- **Demo lockdown:** Only Scouting Report PDF allowed on sample profiles.
+- **Demo lockdown:** Sample profiles show HTML/PDF format picker but both redirect to sample report viewer (4 pre-built HTML reports). Sample profiles remain read-only even after user signs in. Admin (`fbIsAdmin`) bypasses all restrictions.
 - **Two PDF generators:** `generateScoutingReportPDF(R)` for scouting reports, `generatePDF(data, targetJob)` for general exports.
 - **Network egress disabled** in Claude environment — no npm/pip/web fetches.
+
+---
+
+## Version Control Rules (MANDATORY)
+
+**Every file change requires a version bump in `index.html`.** This is non-negotiable.
+
+### When to bump
+- ANY change to `index.html` (code, CSS, copy, comments — anything)
+- ANY change to other repo files (`blueprint.css`, `vercel.json`, `firestore.rules`, profile JSONs, report templates, etc.)
+- ANY new file added to the repo
+- Even if `index.html` has zero functional changes, the version must still be bumped to track the release
+
+### What to update (all four locations)
+1. **HTML comment** (line ~7): `<!-- v4.X.Y.Z | YYYYMMDD | description -->`
+2. **JS boot constant** (line ~963): `var BP_VERSION = 'v4.X.Y.Z';`
+3. The console banner and About modal read from `BP_VERSION` automatically
+
+### Version format: `v4.MAJOR.MINOR.PATCH`
+- **MAJOR** — new feature area or breaking change (e.g., PDF scouting report, Firestore integration)
+- **MINOR** — feature iteration or significant fix within a major area
+- **PATCH** — bug fixes, tweaks, polish (usually 0 for fresh minor bumps)
+
+### Why this matters
+Cliff tracks every deployment by version number. Vercel auto-deploys on push, so the version is the only reliable way to confirm which code is live, reproduce issues, and communicate changes. Skipping a version bump breaks the audit trail.
