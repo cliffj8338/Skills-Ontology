@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.20.2 | 20260223 | JSearch debug, honest job counting, API subscription dashboard -->
+    <!-- v4.37.21.0 | 20260223 | Infrastructure costs dashboard, monthly snapshot, manage links -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1203,8 +1203,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.20.2 - BUILD 20260223-jsearch-3page
-        var BP_VERSION = 'v4.37.20.2';
+        // BLUEPRINT v4.37.21.0 - BUILD 20260223-infra-costs
+        var BP_VERSION = 'v4.37.21.0';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1495,7 +1495,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260223-jsearch-3page                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260223-infra-costs                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -3330,6 +3330,7 @@
                         { id: 'p1-7', name: 'Network job selector widget', status: 'done', category: 'feature', priority: 'medium', notes: 'Floating widget on network view. Select saved jobs to overlay match/gap/values analysis directly on the skill graph.' },
                         { id: 'p1-8', name: 'Site traffic analytics dashboard', status: 'done', category: 'feature', priority: 'high', notes: 'Full traffic dashboard in admin overview. Sessions, page views, bounce rate, avg session time, views/time per section, feature usage, device split, dark/light mode, screen sizes, conversion funnel. Local + Firestore dual storage.' },
                         { id: 'p1-9', name: 'Multi-source job search API', status: 'done', category: 'feature', priority: 'critical', notes: 'Serverless proxy at /api/jobs aggregating JSearch (RapidAPI), Remotive, USAJobs, Himalayas, Jobicy. Location search, remote filter, source badges, skill matching, API cost tracking. Fallback to direct fetch if proxy unavailable.' },
+                        { id: 'p1-10', name: 'Infrastructure costs dashboard', status: 'done', category: 'admin', priority: 'high', notes: 'Full infrastructure registry (Claude, JSearch, Vercel, Cloudflare, Firebase, GitHub, all job APIs). Categorized by type with manage links. Monthly Cost Snapshot with gradient total, breakdown bars, fixed/AI/API split tiles, annual projection.' },
                         { id: 'p1-5', name: 'Demo profile polish', status: 'in-progress', category: 'feature', priority: 'medium', notes: '24 TV character profiles with 99 evidence outcomes added. Ongoing refinement.' }
                     ]
                 },
@@ -3905,6 +3906,126 @@
                 + '<div style="font-size:0.7em; color:var(--text-muted); text-transform:uppercase;">Usage cost (last ' + costsTimeRange + 'd)</div></div></div>'
                 + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:10px;">'
                 + '<a href="#" onclick="if(confirm(\'Clear API usage log?\')){localStorage.removeItem(\'bpAPIUsageLog\');renderAdminCosts(document.getElementById(\'adminTabContent\'));showToast(\'API log cleared.\',\'info\');} return false;" style="color:var(--accent);">Clear API log</a></div></div>';
+            
+            // ===== INFRASTRUCTURE COSTS =====
+            var INFRASTRUCTURE = [
+                { name: 'Claude Pro', provider: 'Anthropic', cost: 200.00, cycle: 'monthly', category: 'ai', notes: 'AI development, code generation, content', manageUrl: 'https://claude.ai/settings/billing', icon: '\uD83E\uDDE0' },
+                { name: 'JSearch API', provider: 'RapidAPI', cost: 25.00, cycle: 'monthly', category: 'api', notes: '10,000 req/mo, Google Jobs aggregator', manageUrl: 'https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch/pricing', icon: '\uD83D\uDD0D' },
+                { name: 'Vercel Pro', provider: 'Vercel', cost: 20.00, cycle: 'monthly', category: 'hosting', notes: 'Hosting, serverless functions, edge network', manageUrl: 'https://vercel.com/cliffj8338s-projects/blueprint/settings', icon: '\u25B2' },
+                { name: 'Cloudflare', provider: 'Cloudflare', cost: 0, cycle: 'monthly', category: 'domain', notes: 'DNS, CDN, SSL, DDoS protection (free tier)', manageUrl: 'https://dash.cloudflare.com', icon: '\u2601\uFE0F' },
+                { name: 'Domain (myblueprint.work)', provider: 'Cloudflare', cost: 10.00, cycle: 'yearly', category: 'domain', notes: '~$10/yr, prorated to ~$0.83/mo', manageUrl: 'https://dash.cloudflare.com', icon: '\uD83C\uDF10' },
+                { name: 'Firebase', provider: 'Google', cost: 0, cycle: 'monthly', category: 'database', notes: 'Spark plan (free). Auth, Firestore, hosting', manageUrl: 'https://console.firebase.google.com', icon: '\uD83D\uDD25' },
+                { name: 'GitHub', provider: 'GitHub', cost: 0, cycle: 'monthly', category: 'devops', notes: 'Free tier. Source control, CI/CD', manageUrl: 'https://github.com/settings/billing', icon: '\uD83D\uDC19' },
+                { name: 'Remotive API', provider: 'Remotive', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, no auth. Remote jobs feed', manageUrl: 'https://remotive.com/api/remote-jobs', icon: '\uD83D\uDCBC' },
+                { name: 'USAJobs API', provider: 'USAJobs', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free with registration. Government jobs', manageUrl: 'https://developer.usajobs.gov', icon: '\uD83C\uDFDB\uFE0F' },
+                { name: 'Himalayas API', provider: 'Himalayas', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, no auth. Remote-first jobs', manageUrl: 'https://himalayas.app/jobs/api', icon: '\u26F0\uFE0F' },
+                { name: 'Jobicy API', provider: 'Jobicy', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, no auth. Remote jobs', manageUrl: 'https://jobicy.com/api/v2/remote-jobs', icon: '\uD83D\uDCCB' }
+            ];
+            
+            // Compute monthly costs
+            var infraByCategory = {};
+            var totalMonthlyInfra = 0;
+            INFRASTRUCTURE.forEach(function(item) {
+                var monthly = item.cycle === 'yearly' ? item.cost / 12 : item.cost;
+                totalMonthlyInfra += monthly;
+                item._monthly = monthly;
+                if (!infraByCategory[item.category]) infraByCategory[item.category] = [];
+                infraByCategory[item.category].push(item);
+            });
+            
+            var categoryLabels = { ai: 'AI & Development', api: 'Job Search APIs', hosting: 'Hosting & Compute', domain: 'Domain & CDN', database: 'Database & Auth', devops: 'DevOps & Source Control' };
+            var categoryIcons = { ai: '\uD83E\uDDE0', api: '\uD83D\uDD17', hosting: '\u2601\uFE0F', domain: '\uD83C\uDF10', database: '\uD83D\uDDC4\uFE0F', devops: '\u2699\uFE0F' };
+            
+            html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:10px; margin-bottom:20px;">'
+                + '<div style="font-size:0.85em; font-weight:700; color:var(--text-primary); margin-bottom:16px;">\u2699\uFE0F Infrastructure</div>';
+            
+            Object.keys(infraByCategory).forEach(function(cat) {
+                var items = infraByCategory[cat];
+                var catTotal = items.reduce(function(sum, i) { return sum + i._monthly; }, 0);
+                
+                html += '<div style="margin-bottom:16px;">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding-bottom:4px; border-bottom:1px solid var(--c-border-faint);">'
+                    + '<span style="font-size:0.78em; font-weight:600; color:var(--text-secondary);">' + (categoryIcons[cat] || '') + ' ' + (categoryLabels[cat] || cat) + '</span>'
+                    + '<span style="font-size:0.75em; font-weight:700; color:' + (catTotal > 0 ? '#60a5fa' : '#10b981') + ';">' + (catTotal > 0 ? '$' + catTotal.toFixed(2) + '/mo' : 'Free') + '</span></div>';
+                
+                items.forEach(function(item) {
+                    html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0 6px 12px; font-size:0.8em;">'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="display:flex; align-items:center; gap:6px;">'
+                        + '<span>' + item.icon + '</span>'
+                        + '<span style="font-weight:600; color:var(--text-primary);">' + item.name + '</span>'
+                        + '<span style="font-size:0.82em; color:var(--text-muted);">' + item.provider + '</span>'
+                        + '</div>'
+                        + '<div style="font-size:0.82em; color:var(--text-muted); margin-top:2px; padding-left:22px;">' + item.notes + '</div>'
+                        + '</div>'
+                        + '<div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">'
+                        + '<span style="font-weight:700; min-width:65px; text-align:right; color:' + (item._monthly > 0 ? 'var(--text-primary)' : '#10b981') + ';">' + (item._monthly > 0 ? '$' + item._monthly.toFixed(2) : 'Free') + '</span>'
+                        + '<a href="' + item.manageUrl + '" target="_blank" rel="noopener" style="color:var(--accent); font-size:0.85em; text-decoration:none;" title="Manage">' + bpIcon('external', 10) + '</a>'
+                        + '</div></div>';
+                });
+                
+                html += '</div>';
+            });
+            
+            html += '</div>';
+            
+            // ===== MONTHLY COST SNAPSHOT =====
+            var totalAiUsageCost = totalEstCost; // from AI features section above
+            var totalApiUsageCost = apiTotalCost; // from API section above
+            var totalMonthly = totalMonthlyInfra + totalAiUsageCost + totalApiUsageCost;
+            
+            // Breakdown for pie-style display
+            var costBreakdown = [
+                { label: 'Claude Pro', amount: 200.00, color: '#8b5cf6' },
+                { label: 'JSearch', amount: 25.00, color: '#60a5fa' },
+                { label: 'Vercel', amount: 20.00, color: '#000' },
+                { label: 'Domain', amount: 0.83, color: '#f59e0b' },
+                { label: 'AI Token Usage', amount: totalAiUsageCost, color: '#10b981' },
+                { label: 'API Usage', amount: totalApiUsageCost, color: '#ec4899' }
+            ].filter(function(c) { return c.amount > 0; });
+            
+            html += '<div style="padding:20px; background:linear-gradient(135deg, var(--c-surface-2), var(--c-surface-4b)); border:2px solid var(--accent); border-radius:12px; margin-bottom:20px;">'
+                + '<div style="font-size:0.85em; font-weight:700; color:var(--text-primary); margin-bottom:16px;">\uD83D\uDCCA Monthly Cost Snapshot</div>';
+            
+            // Big total
+            html += '<div style="text-align:center; margin-bottom:20px;">'
+                + '<div style="font-size:2.6em; font-weight:900; background:linear-gradient(135deg, var(--accent), #8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1;">$' + totalMonthly.toFixed(2) + '</div>'
+                + '<div style="font-size:0.78em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-top:4px;">estimated monthly total</div>'
+                + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:2px;">$' + (totalMonthly * 12).toFixed(0) + '/year</div></div>';
+            
+            // Breakdown bars
+            var maxCostItem = Math.max.apply(null, costBreakdown.map(function(c) { return c.amount; })) || 1;
+            costBreakdown.forEach(function(item) {
+                var pct = (item.amount / totalMonthly * 100).toFixed(1);
+                var barW = Math.max((item.amount / maxCostItem) * 100, 1);
+                html += '<div style="margin-bottom:8px;">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px;">'
+                    + '<span style="font-size:0.82em; color:var(--text-secondary);">' + item.label + '</span>'
+                    + '<span style="font-size:0.82em;"><strong style="color:var(--text-primary);">$' + item.amount.toFixed(2) + '</strong>'
+                    + '<span style="color:var(--text-muted); font-size:0.85em;"> (' + pct + '%)</span></span></div>'
+                    + '<div style="height:6px; background:var(--c-surface-5); border-radius:3px; overflow:hidden;">'
+                    + '<div style="height:100%; width:' + barW + '%; background:' + item.color + '; border-radius:3px;"></div></div></div>';
+            });
+            
+            // Summary tiles
+            html += '<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">';
+            
+            var summaryTiles = [
+                { label: 'Fixed Costs', amount: totalMonthlyInfra, color: '#8b5cf6', sub: 'subscriptions' },
+                { label: 'AI Usage', amount: totalAiUsageCost, color: '#10b981', sub: 'token costs' },
+                { label: 'API Usage', amount: totalApiUsageCost, color: '#60a5fa', sub: 'job search' }
+            ];
+            
+            summaryTiles.forEach(function(tile) {
+                html += '<div style="padding:12px 8px; background:var(--c-surface-2); border-radius:8px; text-align:center;">'
+                    + '<div style="font-size:1.2em; font-weight:800; color:' + tile.color + ';">$' + tile.amount.toFixed(2) + '</div>'
+                    + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">' + tile.label + '</div>'
+                    + '<div style="font-size:0.6em; color:var(--text-muted);">' + tile.sub + '</div></div>';
+            });
+            
+            html += '</div>'
+                + '<div style="font-size:0.68em; color:var(--text-muted); margin-top:12px; text-align:center;">Fixed costs are monthly subscriptions. Usage costs are estimates based on tracked calls over the selected period, prorated to 30 days.</div>'
+                + '</div>';
             
             // Pricing reference
             html += '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:10px; font-size:0.78em; color:var(--text-muted); line-height:1.7;">'
