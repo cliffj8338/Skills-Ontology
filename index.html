@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.38.2.0 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
+    <!-- v4.38.2.1 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1203,8 +1203,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.38.2.0 - BUILD 20260223-route-demo-fix
-        var BP_VERSION = 'v4.38.2.0';
+        // BLUEPRINT v4.38.2.1 - BUILD 20260223-route-demo-fix
+        var BP_VERSION = 'v4.38.2.1';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -4483,6 +4483,8 @@
             // Navigate to skills view
             switchView('network');
             setTimeout(function() { window.scrollTo(0, 0); }, 50);
+            // Defensive: re-render job selector after DOM settles
+            setTimeout(function() { renderJobSelectorWidget(); }, 500);
             
             showToast('Exploring demo: ' + (userData.profile.name || targetTemplate) + '. Your data is safely preserved.', 'info', 3000);
         }
@@ -6786,6 +6788,8 @@
             switchView('network');
             // Ensure we're at the top after view switch
             setTimeout(function() { window.scrollTo(0, 0); }, 50);
+            // Defensive: re-render job selector after DOM settles (timing issue on profile switch)
+            setTimeout(function() { renderJobSelectorWidget(); }, 500);
         }
         
         // Save user data preference (which profile they're viewing)
@@ -8908,7 +8912,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (existing) existing.remove();
             
             var jobs = userData.savedJobs || [];
-            if (jobs.length === 0) return;
+            if (jobs.length === 0) {
+                console.log('Job selector: no savedJobs, widget hidden');
+                return;
+            }
             
             // Only show when network view is visible
             var networkSvg = document.getElementById('networkView');
