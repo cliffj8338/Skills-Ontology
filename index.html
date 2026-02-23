@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.7.0 | 20260223 | Fix stale jobs on profile switch: sync skillsData before sample job injection -->
+    <!-- v4.37.8.0 | 20260223 | Preview disclosure, report mismatch banner, feedback function -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -413,6 +413,7 @@
                 <button onclick="showHelp(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="help"></span> Help</button>
                 <button onclick="if(window._bpTour) window._bpTour.startWelcome(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="compass"></span> Take a Tour</button>
                 <button onclick="showAbout(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="about"></span> About</button>
+                <button onclick="sendFeedback('menu'); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="edit"></span> Give Feedback</button>
                 <div style="height:1px; background:var(--border); margin:4px 0;"></div>
                 <button id="overflowSignIn" onclick="showAuthModal('signin'); closeOverflowMenu();" style="color: var(--accent);" class="overflow-icon-btn"><span class="overflow-icon" data-icon="sign-in"></span> Sign In</button>
                 <button id="overflowAdmin" onclick="showAdminPanel(); closeOverflowMenu();" style="color: #fbbf24; display:none;" class="overflow-icon-btn"><span style="margin-right:2px;">👑</span> Admin Dashboard</button>
@@ -1186,8 +1187,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.7.0 - BUILD 20260223-fix-stale-jobs
-        var BP_VERSION = 'v4.37.7.0';
+        // BLUEPRINT v4.37.8.0 - BUILD 20260223-feedback-preview-mismatch
+        var BP_VERSION = 'v4.37.8.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -9532,7 +9533,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         window.initReports = initReports;
         
         // Open any demo scouting report in iframe overlay
-        function openDemoScoutingReport(filePath, name) {
+        function openDemoScoutingReport(filePath, name, isMismatch) {
             var existing = document.getElementById('scoutReportOverlay');
             if (existing) existing.remove();
             
@@ -9548,11 +9549,33 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             header.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="color:var(--accent);">' + bpIcon('target',18) + '</span><span style="font-weight:600;font-size:0.92em;">' + (name || 'Scouting Report') + '</span><span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(245,158,11,0.1);color:#f59e0b;font-weight:600;">DEMO</span></div>'
                 + '<button onclick="document.getElementById(\'scoutReportOverlay\').remove()" style="background:none;border:none;color:var(--text-muted);font-size:1.3em;cursor:pointer;padding:4px 8px;border-radius:6px;transition:all 0.2s;" onmouseover="this.style.color=\'var(--accent)\'" onmouseout="this.style.color=\'var(--text-muted)\'">✕</button>';
             
+            // Context banner for mismatched or generic demo viewing
+            var contextBanner = document.createElement('div');
+            var currentProfileName = (userData.profile && userData.profile.name) || '';
+            var reportCharName = (name || '').split(' \u2192')[0].trim();
+            var showMismatch = isMismatch || (currentProfileName && reportCharName && currentProfileName !== reportCharName);
+            
+            if (showMismatch) {
+                contextBanner.style.cssText = 'padding:10px 20px;background:rgba(245,158,11,0.06);border-bottom:1px solid rgba(245,158,11,0.15);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;';
+                contextBanner.innerHTML = '<div style="font-size:0.8em;color:#d4a017;line-height:1.5;">'
+                    + '<strong>Sample Report:</strong> You\u2019re viewing ' + reportCharName + '\u2019s scouting report. '
+                    + 'During the preview, sample reports are available for select characters. When you build your own Blueprint, reports are generated from your actual skills and job matches.'
+                    + '</div>'
+                    + '<button onclick="sendFeedback(\'report-viewer\')" style="white-space:nowrap;padding:5px 12px;border-radius:6px;border:1px solid rgba(245,158,11,0.2);background:rgba(245,158,11,0.08);color:#fbbf24;font-size:0.72em;font-weight:600;cursor:pointer;">Feedback</button>';
+            } else {
+                contextBanner.style.cssText = 'padding:10px 20px;background:rgba(96,165,250,0.05);border-bottom:1px solid rgba(96,165,250,0.12);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;';
+                contextBanner.innerHTML = '<div style="font-size:0.8em;color:#64748b;line-height:1.5;">'
+                    + 'This is a sample Scouting Report showing how Blueprint builds targeted career intelligence for a specific job. When you build your own Blueprint, these are generated from your actual data.'
+                    + '</div>'
+                    + '<button onclick="sendFeedback(\'report-viewer\')" style="white-space:nowrap;padding:5px 12px;border-radius:6px;border:1px solid rgba(96,165,250,0.2);background:rgba(96,165,250,0.06);color:#60a5fa;font-size:0.72em;font-weight:600;cursor:pointer;">Feedback</button>';
+            }
+            
             var iframe = document.createElement('iframe');
             iframe.src = filePath;
             iframe.style.cssText = 'flex:1;width:100%;border:none;background:var(--bg);';
             
             container.appendChild(header);
+            container.appendChild(contextBanner);
             container.appendChild(iframe);
             overlay.appendChild(container);
             document.body.appendChild(overlay);
@@ -9575,13 +9598,39 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 'succession': { file: 'reports/demos/kendall-roy.html', name: 'Kendall Roy \u2192 Waystar CEO' }
             };
             
-            var tid = userData.templateId || '';
-            var sample = sampleReports[tid];
+            // Also map individual character IDs to their show's sample
+            var characterToShow = {
+                'tyrion-lannister': 'game-of-thrones', 'cersei-lannister': 'game-of-thrones',
+                'tywin-lannister': 'game-of-thrones', 'petyr-baelish': 'game-of-thrones',
+                'daenerys-targaryen': 'game-of-thrones', 'jon-snow': 'game-of-thrones',
+                'walter-white': 'breaking-bad', 'jesse-pinkman': 'breaking-bad',
+                'gus-fring': 'breaking-bad', 'hank-schrader': 'breaking-bad',
+                'saul-goodman': 'breaking-bad', 'tuco-salamanca': 'breaking-bad',
+                'jim-hopper': 'stranger-things', 'joyce-byers': 'stranger-things',
+                'dustin-henderson': 'stranger-things', 'eleven': 'stranger-things',
+                'steve-harrington': 'stranger-things', 'murray-bauman': 'stranger-things',
+                'kendall-roy': 'succession', 'logan-roy': 'succession',
+                'shiv-roy': 'succession', 'roman-roy': 'succession',
+                'tom-wambsgans': 'succession', 'gerri-kellman': 'succession'
+            };
             
-            // If current profile doesn't have a sample, pick one at random
+            var tid = userData.templateId || '';
+            var showKey = characterToShow[tid] || tid;
+            var sample = sampleReports[showKey];
+            var isMismatch = false;
+            
+            // If current profile doesn't have a matching sample, pick one at random
             if (!sample) {
                 var keys = Object.keys(sampleReports);
                 sample = sampleReports[keys[Math.floor(Math.random() * keys.length)]];
+                isMismatch = true;
+            }
+            
+            // Check if the sample character matches the current profile
+            var sampleCharName = sample.name.split(' \u2192')[0].trim().toLowerCase();
+            var currentName = ((userData.profile && userData.profile.name) || '').toLowerCase();
+            if (currentName && sampleCharName && currentName !== sampleCharName) {
+                isMismatch = true;
             }
             
             if (format === 'pdf') {
@@ -9589,7 +9638,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             }
             
             // Open in the existing iframe overlay with a demo explanation banner
-            openDemoScoutingReport(sample.file, sample.name);
+            openDemoScoutingReport(sample.file, sample.name, isMismatch);
         }
         window.viewDemoSampleReport = viewDemoSampleReport;
 
@@ -13910,37 +13959,8 @@ body {
         
         // Open sample scouting report in an iframe overlay
         function openSampleScoutingReport() {
-            var existing = document.getElementById('scoutReportOverlay');
-            if (existing) existing.remove();
-            
-            var overlay = document.createElement('div');
-            overlay.id = 'scoutReportOverlay';
-            overlay.style.cssText = 'position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px;';
-            
-            var container = document.createElement('div');
-            container.style.cssText = 'width:100%;max-width:1200px;height:90vh;background:var(--bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.5);display:flex;flex-direction:column;';
-            
-            var header = document.createElement('div');
-            header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--elev-1);flex-shrink:0;';
-            header.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="color:var(--accent);">' + bpIcon('target',18) + '</span><span style="font-weight:600;font-size:0.92em;">Sample Scouting Report</span><span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(245,158,11,0.1);color:#f59e0b;font-weight:600;">DEMO</span></div>'
-                + '<button onclick="document.getElementById(\'scoutReportOverlay\').remove()" style="background:none;border:none;color:var(--text-muted);font-size:1.3em;cursor:pointer;padding:4px 8px;border-radius:6px;transition:all 0.2s;" onmouseover="this.style.color=\'var(--accent)\'" onmouseout="this.style.color=\'var(--text-muted)\'">✕</button>';
-            
-            var iframe = document.createElement('iframe');
-            iframe.src = 'reports/demos/tyrion-lannister.html';
-            iframe.style.cssText = 'flex:1;width:100%;border:none;background:var(--bg);';
-            
-            container.appendChild(header);
-            container.appendChild(iframe);
-            overlay.appendChild(container);
-            document.body.appendChild(overlay);
-            
-            // Close on background click
-            overlay.addEventListener('click', function(e) {
-                if (e.target === overlay) overlay.remove();
-            });
-            // Close on Escape
-            var escHandler = function(e) { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); }};
-            document.addEventListener('keydown', escHandler);
+            // Route through the standard demo report viewer which handles mismatch detection
+            viewDemoSampleReport('html');
         }
         window.openSampleScoutingReport = openSampleScoutingReport;
         
@@ -24199,6 +24219,17 @@ body {
                 + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding: 30px;">'
+                // Preview disclosure
+                + '<div style="background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.18); border-radius:10px; padding:16px; margin-bottom:20px;">'
+                + '<div style="font-size:0.85em; color:#fbbf24; font-weight:700; margin-bottom:6px;">\u26A1 Active Preview</div>'
+                + '<div style="font-size:0.82em; color:var(--c-muted, #9ca3af); line-height:1.6; margin-bottom:10px;">'
+                + 'Blueprint is in active development. What you\u2019re exploring is a working preview \u2014 features are shipping weekly and the platform is evolving fast. '
+                + 'Sample scouting reports are available for select characters during the preview. Your feedback directly shapes what gets built next.'
+                + '</div>'
+                + '<button onclick="closeExportModal(); sendFeedback(\'help\');" style="padding:7px 16px; border-radius:7px; border:1px solid rgba(245,158,11,0.25); background:rgba(245,158,11,0.08); color:#fbbf24; font-weight:600; font-size:0.78em; cursor:pointer; transition:all 0.2s;"'
+                + ' onmouseover="this.style.background=\'rgba(245,158,11,0.15)\'" onmouseout="this.style.background=\'rgba(245,158,11,0.08)\'">'
+                + '\u2709 Give Feedback</button>'
+                + '</div>'
                 + demoBanner
                 + '<div style="display: flex; flex-direction: column; gap: 20px;">'
                 // Skills Network
@@ -24400,6 +24431,26 @@ body {
             `;
             history.pushState({ modal: true }, ''); modal.classList.add('active');
         }
+        
+        // ===== FEEDBACK =====
+        function sendFeedback(context) {
+            var profileName = (userData.profile && userData.profile.name) || 'Unknown';
+            var templateId = userData.templateId || 'none';
+            var viewName = currentView || 'unknown';
+            var contextNote = context ? ' (' + context + ')' : '';
+            var subject = encodeURIComponent('Blueprint Feedback ' + BP_VERSION + contextNote);
+            var body = encodeURIComponent(
+                'Profile: ' + profileName + '\n'
+                + 'Template: ' + templateId + '\n'
+                + 'View: ' + viewName + '\n'
+                + 'Version: ' + BP_VERSION + '\n'
+                + 'Mode: ' + (appContext.mode || 'live') + '\n'
+                + 'Date: ' + new Date().toISOString() + '\n'
+                + '\n--- Your feedback below ---\n\n'
+            );
+            window.open('mailto:cliff@fynydd.com?subject=' + subject + '&body=' + body, '_blank');
+        }
+        window.sendFeedback = sendFeedback;
         
         function showLegalNotice() {
             var modal = document.getElementById('exportModal');

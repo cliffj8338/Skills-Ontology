@@ -1,5 +1,5 @@
 # Blueprint™ Project Context
-**Version:** v4.37.4.0 | **Date:** February 23, 2026 | **Owner:** Cliff Jurkiewicz
+**Version:** v4.37.8.0 | **Date:** February 23, 2026 | **Owner:** Cliff Jurkiewicz
 
 ---
 
@@ -222,6 +222,10 @@ Key properties:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v4.37.8.0 | 2026-02-23 | Preview disclosure, report mismatch banner, feedback function (mailto), overflow menu button |
+| v4.37.7.0 | 2026-02-23 | Fix stale jobs: sync skillsData before sample job injection in loadTemplate |
+| v4.37.6.0 | 2026-02-23 | Waitlist copy: 150-300→30-60 skills, reframe around agency |
+| v4.37.5.0 | 2026-02-23 | Remove explicit 14,000 skill count from user-facing copy |
 | v4.37.4.0 | 2026-02-23 | Welcome tour: 16→7 steps aligned to teaser pillars (skills, jobs, values, reports, valuation, purpose) |
 | v4.37.3.0 | 2026-02-23 | Gate help tour behind teaser modal dismissal |
 | v4.37.2.0 | 2026-02-23 | First-visit teaser modal: manifesto + feature cards + waitlist CTA + LinkedIn backstory |
