@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.36.8.0 | 20260222 | PDF: pinned hub layout, jobRequired match fallback, max spread -->
+    <!-- v4.36.9.0 | 20260222 | PDF: inferred match coloring from matchPct + gaps for stale data -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -960,8 +960,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.36.8.0 - BUILD 20260222-pinned-hub-spread
-        var BP_VERSION = 'v4.36.8.0';
+        // BLUEPRINT v4.36.9.0 - BUILD 20260222-inferred-match-colors
+        var BP_VERSION = 'v4.36.9.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -13785,10 +13785,29 @@ body {
                 var lvlR = { 'Mastery': 36, 'Expert': 30, 'Advanced': 24, 'Proficient': 20, 'Competent': 20, 'Novice': 14 };
                 var matchedColor = [16, 185, 129], gapColor = [239, 68, 68], surplusColor = [71, 85, 105];
                 
-                // Build job required name set for fallback matching
+                // Build match detection — multi-tier fallback for stale data
                 var jobReqSet = new Set();
                 (R.jobRequired || []).forEach(function(n) { jobReqSet.add(n.toLowerCase()); });
                 var hasAnyMatched = allSkills.some(function(s) { return s.k; });
+                
+                // Tier 3: If no sk.k AND no jobRequired, infer from matchPct + gaps
+                var inferredMatchSet = new Set();
+                if (!hasAnyMatched && jobReqSet.size === 0 && matchPct > 0) {
+                    // Estimate how many skills should be matched
+                    var gapCount = gaps.length || 0;
+                    var estTotal = gapCount > 0 ? Math.round(gapCount / Math.max(1 - matchPct / 100, 0.1)) : Math.round(allSkills.length * matchPct / 100);
+                    var estMatched = Math.max(estTotal - gapCount, 1);
+                    // Build gap name set to exclude
+                    var gapNames = new Set();
+                    gaps.forEach(function(g) { gapNames.add(g.n.toLowerCase()); });
+                    // Sort candidate skills by level priority, take top N as inferred matches
+                    var lvlPri = { 'Mastery': 5, 'Expert': 4, 'Advanced': 3, 'Proficient': 2, 'Competent': 2, 'Novice': 1 };
+                    var candidates = allSkills.filter(function(s) { return !gapNames.has(s.n.toLowerCase()); });
+                    candidates.sort(function(a, b) { return (lvlPri[b.l] || 0) - (lvlPri[a.l] || 0); });
+                    candidates.slice(0, estMatched).forEach(function(sk) {
+                        inferredMatchSet.add(sk.n.toLowerCase());
+                    });
+                }
                 
                 // Group skills by role
                 var rSkills = {}; roles.forEach(function(r) { rSkills[r.id] = []; });
@@ -13826,8 +13845,8 @@ body {
                     var sks = rSkills[role.id] || [];
                     sks.forEach(function(sk) {
                         var nodeId = 'sk-' + (_nid++);
-                        // Match: use sk.k if available, otherwise fallback to jobRequired name match
-                        var isMatched = sk.k || (!hasAnyMatched && jobReqSet.has(sk.n.toLowerCase()));
+                        // Match: sk.k (proper) → jobRequired name → inferred from matchPct
+                        var isMatched = sk.k || jobReqSet.has(sk.n.toLowerCase()) || inferredMatchSet.has(sk.n.toLowerCase());
                         d3nodes.push({
                             id: nodeId, type: 'skill', label: sk.n,
                             color: isMatched ? matchedColor : surplusColor,
