@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.9.0 | 20260223 | Cap BLS % display at 200%; suppress absurd deltas -->
+    <!-- v4.37.10.0 | 20260223 | Cap BLS %, feedback email update, profile schema modernization -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1187,8 +1187,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.9.0 - BUILD 20260223-cap-bls-pct
-        var BP_VERSION = 'v4.37.9.0';
+        // BLUEPRINT v4.37.10.0 - BUILD 20260223-bls-cap-email-schema
+        var BP_VERSION = 'v4.37.10.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -24448,7 +24448,7 @@ body {
                 + 'Date: ' + new Date().toISOString() + '\n'
                 + '\n--- Your feedback below ---\n\n'
             );
-            window.open('mailto:cliff@fynydd.com?subject=' + subject + '&body=' + body, '_blank');
+            window.open('mailto:cliffj8338@gmail.com?subject=' + subject + '&body=' + body, '_blank');
         }
         window.sendFeedback = sendFeedback;
         
