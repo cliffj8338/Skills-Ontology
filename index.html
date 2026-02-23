@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.38.1.0 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
+    <!-- v4.38.2.0 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1203,8 +1203,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.38.1.0 - BUILD 20260223-badge-fix
-        var BP_VERSION = 'v4.38.1.0';
+        // BLUEPRINT v4.38.2.0 - BUILD 20260223-route-demo-fix
+        var BP_VERSION = 'v4.38.2.0';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1495,7 +1495,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260223-badge-fix                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260223-route-demo-fix                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -2198,6 +2198,44 @@
                     if (typeof skillsData !== 'undefined') {
                         skillsData.skills = data.skills || [];
                         skillsData.roles = data.roles || [];
+                    }
+                    
+                    // GUARD: Detect demo data contamination
+                    // If Firestore has roles from demo templates, clear them for signed-in users
+                    var demoRoleNames = [
+                        'Restaurant Executive', 'Supply Chain Director', 'Community Leader',
+                        'King in the North', 'Lord Commander', 'Queen of the Seven Kingdoms',
+                        'Hand of the King', 'Chief Strategic Advisor', 'Mother of Dragons',
+                        'Empire Builder', 'Master of Coin', 'Lord Protector',
+                        'King & Warden of the West', 'Corporate Strategy & Acquisitions',
+                        'Media Conglomerate CEO', 'Political Strategist & Consultant',
+                        'Entertainment & Business Development', 'Media Operations & Compliance',
+                        'Rancher, Producer & Ambassador', 'Retail Worker & Investigator',
+                        'Interdimensional Architect', 'Prodigy & Communicator'
+                    ];
+                    var loadedRoles = (data.roles || []).map(function(r) { return r.name || r; });
+                    var hasDemoRoles = loadedRoles.some(function(rn) {
+                        return demoRoleNames.indexOf(rn) !== -1;
+                    });
+                    
+                    if (hasDemoRoles && fbUser) {
+                        console.warn('⚠️ Demo data detected in Firestore profile — clearing contamination');
+                        userData.skills = [];
+                        userData.roles = [];
+                        userData.values = [];
+                        userData.purpose = '';
+                        userData.workHistory = [];
+                        userData.education = [];
+                        userData.certifications = [];
+                        userData.savedJobs = (userData.savedJobs || []).filter(function(j) { return !j.sample; });
+                        userData.profileBuilt = false;
+                        if (typeof skillsData !== 'undefined') {
+                            skillsData.skills = [];
+                            skillsData.roles = [];
+                        }
+                        // Save the cleaned profile back to Firestore
+                        setTimeout(function() { saveToFirestore(); }, 2000);
+                        console.log('✓ Demo data cleared. Profile reset to clean state.');
                     }
                     
                     // Re-render
@@ -7633,18 +7671,24 @@
                 window._profileExplicitlySelected = true; // signed-in users always have a profile
                 
                 var targetView = 'welcome';
+                
+                // Respect URL hash if present (e.g. #opportunities, #network, #blueprint)
+                var hashView = window.location.hash.replace('#', '');
+                var validViews = ['network', 'opportunities', 'blueprint', 'reports', 'settings', 'admin', 'consent'];
+                var hashTarget = validViews.indexOf(hashView) !== -1 ? hashView : null;
+                
                 try {
                     var loaded = await loadUserFromFirestore(fbUser.uid);
                     if (loaded) {
                         console.log('☁ Firestore profile applied for', fbUser.displayName || fbUser.email);
-                        targetView = fbIsAdmin ? 'admin' : 'blueprint';
+                        targetView = hashTarget || 'blueprint';
                     } else {
                         console.log('ℹ️ No Firestore data for signed-in user');
-                        targetView = fbIsAdmin ? 'admin' : 'welcome';
+                        targetView = hashTarget || 'blueprint';
                     }
                 } catch(e) {
                     console.warn('Firestore load failed:', e);
-                    if (fbIsAdmin) targetView = 'admin';
+                    targetView = hashTarget || 'blueprint';
                 }
                 // Reset view init flags so they render with correct data
                 window.blueprintInitialized = false;
@@ -8947,6 +8991,46 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         window.renderJobSelectorWidget = renderJobSelectorWidget;
         
         function initNetwork() {
+            // Empty state: no skills and signed in (not viewing a sample)
+            var hasSkills = skillsData.skills && skillsData.skills.length > 0;
+            var hasRoles = skillsData.roles && skillsData.roles.length > 0;
+            if (!hasSkills && !hasRoles && fbUser && !isReadOnlyProfile) {
+                var nv = document.getElementById('networkView');
+                if (nv) {
+                    nv.setAttribute('width', window.innerWidth);
+                    nv.setAttribute('height', Math.max(300, window.innerHeight - 160));
+                    d3.select('#networkView').selectAll('*').remove();
+                    var fo = d3.select('#networkView').append('foreignObject')
+                        .attr('x', 0).attr('y', 0)
+                        .attr('width', window.innerWidth)
+                        .attr('height', Math.max(300, window.innerHeight - 160));
+                    fo.append('xhtml:div')
+                        .style('display', 'flex')
+                        .style('flex-direction', 'column')
+                        .style('align-items', 'center')
+                        .style('justify-content', 'center')
+                        .style('height', '100%')
+                        .style('text-align', 'center')
+                        .style('padding', '40px')
+                        .html(
+                            '<div style="font-size:3em; margin-bottom:20px; opacity:0.3;">🎯</div>'
+                            + '<div style="font-family:Outfit,sans-serif; font-size:1.4em; font-weight:700; color:var(--text-primary); margin-bottom:12px; letter-spacing:0.04em;">Build Your Blueprint</div>'
+                            + '<div style="font-size:0.95em; color:var(--text-muted); max-width:420px; margin-bottom:28px; line-height:1.6;">'
+                            + 'Your career intelligence profile is empty. Add your skills, roles, and experience to unlock the full power of Blueprint.'
+                            + '</div>'
+                            + '<div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">'
+                            + '<button onclick="switchView(\'skills\'); setTimeout(function(){var ab=document.querySelector(\'[onclick*=addSkill]\');if(ab)ab.click();},300);" '
+                            + 'style="padding:12px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
+                            + '+ Add Skills Manually</button>'
+                            + '<button onclick="switchView(\'blueprint\');" '
+                            + 'style="padding:12px 24px; background:transparent; color:var(--accent); border:2px solid var(--accent); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
+                            + 'Go to Blueprint</button>'
+                            + '</div>'
+                        );
+                }
+                return;
+            }
+            
             // Safety: ensure roles are normalized before building D3 graph
             if (typeof normalizeUserRoles === 'function') normalizeUserRoles();
             const width = window.innerWidth;
@@ -13341,6 +13425,34 @@ body {
         function renderDashboardTab() {
             var skills = skillsData.skills || [];
             var roles = skillsData.roles || [];
+            
+            // Empty state for signed-in users with no profile data
+            if (skills.length === 0 && roles.length === 0 && fbUser && !isReadOnlyProfile) {
+                return '<div style="text-align:center; padding:80px 30px;">'
+                    + '<div style="font-size:3.5em; margin-bottom:20px; opacity:0.25;">🎯</div>'
+                    + '<div style="font-family:Outfit,sans-serif; font-size:1.6em; font-weight:700; color:var(--text-primary); margin-bottom:12px; letter-spacing:0.04em;">Build Your Blueprint</div>'
+                    + '<div style="font-size:1em; color:var(--text-muted); max-width:480px; margin:0 auto 32px; line-height:1.7;">'
+                    + 'Your career intelligence profile is empty. Map your skills, define your roles, and track your outcomes to unlock salary estimates, job matching, and scouting reports.'
+                    + '</div>'
+                    + '<div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center; margin-bottom:40px;">'
+                    + '<button onclick="switchView(\'skills\');" '
+                    + 'style="padding:14px 28px; background:var(--accent); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:1em;">'
+                    + '⚡ Start Building</button>'
+                    + '</div>'
+                    + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px; max-width:600px; margin:0 auto; text-align:left;">'
+                    + '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px;">'
+                    + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:4px;">1. Add Skills</div>'
+                    + '<div style="font-size:0.82em; color:var(--text-muted);">Map your professional capabilities and expertise levels</div></div>'
+                    + '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px;">'
+                    + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:4px;">2. Define Roles</div>'
+                    + '<div style="font-size:0.82em; color:var(--text-muted);">Group skills into the roles you perform professionally</div></div>'
+                    + '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px;">'
+                    + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:4px;">3. Track Outcomes</div>'
+                    + '<div style="font-size:0.82em; color:var(--text-muted);">Document achievements and measurable impact</div></div>'
+                    + '</div>'
+                    + '</div>';
+            }
+            
             var outcomes = blueprintData.outcomes || [];
             var sharedOutcomes = outcomes.filter(function(o) { return o.shared; }).length;
             var values = (blueprintData.values || []).filter(function(v) { return v.selected; });
