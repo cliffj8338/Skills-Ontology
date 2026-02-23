@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.8.0 | 20260223 | Preview disclosure, report mismatch banner, feedback function -->
+    <!-- v4.37.9.0 | 20260223 | Cap BLS % display at 200%; suppress absurd deltas -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1187,8 +1187,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.8.0 - BUILD 20260223-feedback-preview-mismatch
-        var BP_VERSION = 'v4.37.8.0';
+        // BLUEPRINT v4.37.9.0 - BUILD 20260223-cap-bls-pct
+        var BP_VERSION = 'v4.37.9.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -11988,7 +11988,7 @@ body {
                     + '<div style="font-size:0.78em; color:var(--c-faint); margin-top:6px;">/year</div>'
                     + '</div>'
                     + '<div style="text-align:right;">';
-                if (totalValue.algorithmEstimate > 0 && totalValue.displayComp < 50000000) {
+                if (totalValue.algorithmEstimate > 0 && totalValue.displayComp < 50000000 && Math.abs(deltaPct) <= 200) {
                     html += '<div style="font-size:0.72em; color:var(--c-muted);">vs. BLS Benchmark</div>'
                         + '<div style="font-size:1.4em; font-weight:700; color:' + deltaColor + ';">' + deltaSign + deltaPct + '%</div>'
                         + '<div style="font-size:0.72em; color:var(--c-faint);">' + algoFormatted + '/yr</div>';
@@ -12257,7 +12257,7 @@ body {
                     html += '<div style="padding:20px;">';
                     
                     // Comparison bar
-                    if (totalValue.algorithmEstimate > 0 && totalValue.displayComp < 50000000) {
+                    if (totalValue.algorithmEstimate > 0 && totalValue.displayComp < 50000000 && Math.abs(deltaPct) <= 200) {
                         html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">'
                             + '<div style="text-align:center; padding:14px; background:var(--c-surface-1); border-radius:8px;">'
                             + '<div style="font-size:0.72em; color:var(--c-muted);">' + totalValue.compLabel + '</div>'
