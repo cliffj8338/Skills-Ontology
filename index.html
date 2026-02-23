@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.38.5.0 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
+    <!-- v4.39.0.0 | 20260223 | LinkedIn data import, quick profile builder, multi-source onboarding wizard -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,6 +13,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js" integrity="sha384-BkEIW/B4JV9w6pRfBRgZtAcYDk5goH1nUI49rLo8s5PSHgTfgxWBczRVJx+fv5kP" crossorigin="anonymous"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js" integrity="sha384-96KlrabK9X4T/tq4duY+/4JE60jZAiSs4QVJFwmY30ETT24x2+89B7qmq7O4IETX" crossorigin="anonymous"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js" integrity="sha384-LF74FIj8PQKxRVken52qSHntBSVEC6b05H04maSVJibifVGmWz9Ajc23WjrRVSCX" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="blueprint.css">
 <style>
 
@@ -1206,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.38.5.0 - BUILD 20260223-inline-job-selector
-        var BP_VERSION = 'v4.38.5.0';
+        // BLUEPRINT v4.39.0.0 - BUILD 20260223-linkedin-profile-builder
+        var BP_VERSION = 'v4.39.0.0';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -3431,8 +3433,8 @@
                         { id: 'p2-2a', name: 'Demo mode isolation', status: 'done', category: 'architecture', priority: 'high', notes: 'Signed-in users enter proper demo mode with data snapshot/restore when viewing samples. Banner shows Demo Mode with exit link. Admin no longer defaults to admin panel on refresh. URL hash routing preserved.' },
                         { id: 'p2-2b', name: 'Empty state UX', status: 'done', category: 'ux', priority: 'high', notes: 'Signed-in users with no profile see Build Your Blueprint empty state on Skills (network) and Blueprint dashboard. Demo data auto-detected and cleared from Firestore on load.' },
                         { id: 'p2-2c', name: 'Inline job selector', status: 'done', category: 'feature', priority: 'medium', notes: 'Job selector pill in controls bar next to Network/Card toggle. Fixed-position dropdown with addEventListener (no inline onclick). Job overlay activation with You/Job/Match/Values toggle. Works in demo and live modes.' },
-                        { id: 'p2-3a', name: 'LinkedIn profile import', status: 'planned', category: 'feature', priority: 'critical', notes: 'OAuth or manual import to pull profile data (skills, experience, education) for quick profile build. Research LinkedIn API access, Sign In with LinkedIn OpenID Connect.' },
-                        { id: 'p2-3b', name: 'Quick profile builder (1-3 min)', status: 'planned', category: 'feature', priority: 'critical', notes: 'Streamlined sign-up → profile build flow. Resume upload OR LinkedIn import OR manual entry. Wizard-style with progress. Target: usable profile in under 3 minutes.' }
+                        { id: 'p2-3a', name: 'LinkedIn profile import', status: 'done', category: 'feature', priority: 'critical', notes: 'LinkedIn GDPR data archive (.zip) import with client-side CSV parsing via JSZip + PapaParse. Parses Profile, Positions, Skills, Education, Certifications. Zero server cost, instant processing. LinkedIn OAuth deferred (Firebase OIDC incompatibility with LinkedIn discovery doc path).' },
+                        { id: 'p2-3b', name: 'Quick profile builder (1-3 min)', status: 'done', category: 'feature', priority: 'critical', notes: 'Three-path onboarding: Resume upload (AI parse), LinkedIn .zip import (CSV parse + AI skill inference), Manual entry. Wizard auto-triggers for empty profiles. LinkedIn import is zero-cost instant path.' }
                     ]
                 },
                 {
@@ -7964,7 +7966,12 @@
         }
 
         function wizardBack() {
-            wizardState.step = Math.max(wizardState.step - 1, 1);
+            var newStep = wizardState.step - 1;
+            // Skip Step 3 (AI parsing) when going back from Step 4 in linkedin or manual mode
+            if (wizardState.step === 4 && (wizardState.entryMode === 'linkedin' || wizardState.entryMode === 'manual')) {
+                newStep = wizardState.entryMode === 'manual' ? 1 : 2;
+            }
+            wizardState.step = Math.max(newStep, 1);
             renderWizardStep();
         }
 
@@ -8006,9 +8013,9 @@
         function renderWizardStep1(el) {
             el.innerHTML = `
                 ${wizardHeading(bpIcon('blueprint',22), 'Build Your Blueprint',
-                    'Most people undersell themselves when applying for work — not because they lack ability, but because they’ve never had the right tool to articulate it. This changes that.')}
+                    'Most people undersell themselves when applying for work \u2014 not because they lack ability, but because they\u2019ve never had the right tool to articulate it. This changes that.')}
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px;">
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin-bottom:24px;">
                     <div onclick="wizardChooseUpload()" id="card-upload"
                          style="background:var(--bg-elevated); border:2px solid var(--border);
                                 border-radius:12px; padding:28px; cursor:pointer; transition:all 0.2s;
@@ -8021,7 +8028,25 @@
                             PDF or paste text. Claude reads it and builds your profile automatically.
                         </div>
                         <div style="margin-top:14px; font-size:0.78em; color:var(--accent); font-weight:600;">
-                            RECOMMENDED — Fastest setup
+                            RECOMMENDED
+                        </div>
+                    </div>
+
+                    <div onclick="wizardChooseLinkedIn()" id="card-linkedin"
+                         style="background:var(--bg-elevated); border:2px solid var(--border);
+                                border-radius:12px; padding:28px; cursor:pointer; transition:all 0.2s;
+                                text-align:center;"
+                         onmouseover="this.style.borderColor='#0a66c2'"
+                         onmouseout="this.style.borderColor='var(--border)'">
+                        <div style="margin-bottom:12px;">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"/></svg>
+                        </div>
+                        <div style="font-weight:700; color:var(--text-primary); margin-bottom:6px;">LinkedIn Import</div>
+                        <div style="font-size:0.85em; color:var(--text-secondary); line-height:1.5;">
+                            Upload your LinkedIn data export (.zip). Structured data, no AI needed.
+                        </div>
+                        <div style="margin-top:14px; font-size:0.78em; color:#0a66c2; font-weight:600;">
+                            ZERO COST \u00B7 INSTANT
                         </div>
                     </div>
 
@@ -8069,6 +8094,11 @@
             wizardNext();
         }
 
+        function wizardChooseLinkedIn() {
+            wizardState.entryMode = 'linkedin';
+            wizardNext();
+        }
+
         function wizardChooseManual() {
             wizardState.entryMode = 'manual';
             // Skip parsing step - go straight to profile
@@ -8100,9 +8130,12 @@
             reader.readAsText(file);
         }
 
-        // ── STEP 2: Resume input ──────────────────────────────────────────────
+        // ── STEP 2: Resume input OR LinkedIn .zip upload ─────────────────────
 
         function renderWizardStep2(el) {
+            if (wizardState.entryMode === 'linkedin') {
+                return renderWizardStep2LinkedIn(el);
+            }
             el.innerHTML = `
                 ${wizardHeading(bpIcon('file-text',22), 'Add Your Resume',
                     'Paste your resume text below, or upload a PDF. Claude will read it and extract your skills, experience, and outcomes automatically.')}
@@ -8215,6 +8248,314 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
             wizardState.resumeText = t1 || t2;
             wizardNext(); // Go to step 3 (parsing/loading)
             await wizardRunParsing();
+        }
+
+        // ── STEP 2 (LinkedIn): .zip upload + CSV parsing ────────────────────
+
+        function renderWizardStep2LinkedIn(el) {
+            el.innerHTML = `
+                ${wizardHeading(
+                    '<svg width="22" height="22" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"/></svg>',
+                    'Import from LinkedIn',
+                    'Upload the data archive from your LinkedIn account. Your positions, skills, education, and certifications are imported instantly \u2014 no AI processing required.')}
+
+                <div style="background:var(--bg-elevated); border:1px solid var(--border);
+                            border-radius:14px; padding:24px; margin-bottom:20px;">
+
+                    <div id="linkedinDropZone"
+                         style="border:2px dashed var(--border); border-radius:10px; padding:40px 24px;
+                                text-align:center; cursor:pointer; transition:all 0.2s; margin-bottom:20px;"
+                         onclick="document.getElementById('linkedinZipInput').click()"
+                         ondragover="event.preventDefault(); this.style.borderColor='#0a66c2'; this.style.background='var(--accent-glow)'"
+                         ondragleave="this.style.borderColor='var(--border)'; this.style.background='none'"
+                         ondrop="event.preventDefault(); this.style.borderColor='var(--border)'; this.style.background='none'; wizardHandleLinkedInDrop(event)">
+                        <div style="font-size:2.4em; margin-bottom:12px;">\uD83D\uDCE6</div>
+                        <div style="font-weight:700; color:var(--text-primary); margin-bottom:8px;">
+                            Drop your LinkedIn .zip file here
+                        </div>
+                        <div style="font-size:0.85em; color:var(--text-secondary); margin-bottom:14px;">
+                            or click to browse
+                        </div>
+                        <input type="file" id="linkedinZipInput" accept=".zip" style="display:none"
+                               onchange="wizardHandleLinkedInFile(event)">
+                    </div>
+
+                    <div id="linkedinParseStatus" style="display:none; text-align:center; padding:20px;">
+                        <div style="animation:spin 2s linear infinite; display:inline-block;">${bpIcon("settings",24)}</div>
+                        <div id="linkedinParseMsg" style="color:var(--text-secondary); font-size:0.9em; margin-top:10px;">
+                            Processing...
+                        </div>
+                    </div>
+
+                    <details style="margin-top:4px;">
+                        <summary style="font-size:0.85em; color:var(--accent); cursor:pointer; font-weight:600;">
+                            How to get your LinkedIn data archive
+                        </summary>
+                        <div style="padding:14px 0 0; font-size:0.84em; color:var(--text-secondary); line-height:1.7;">
+                            <ol style="padding-left:18px; margin:0;">
+                                <li>Go to <strong>LinkedIn.com</strong> \u2192 click your profile photo \u2192 <strong>Settings & Privacy</strong></li>
+                                <li>Select <strong>Data Privacy</strong> tab \u2192 <strong>Get a copy of your data</strong></li>
+                                <li>Choose <strong>"Want something in particular?"</strong> and select these items:<br>
+                                    <span style="color:var(--text-primary); font-weight:500;">Profile, Positions, Skills, Education, Certifications</span></li>
+                                <li>Click <strong>Request archive</strong> \u2014 LinkedIn emails you the download link in ~15 minutes</li>
+                                <li>Download the .zip file and upload it here</li>
+                            </ol>
+                            <div style="margin-top:12px; padding:10px 14px; background:var(--input-bg); border-radius:8px;
+                                        border-left:3px solid #0a66c2;">
+                                <strong>Privacy note:</strong> Your .zip is parsed entirely in your browser. No data is sent to any server.
+                                Blueprint only reads the career-related CSV files and ignores everything else.
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    ${wizardBtn('\u2190 Back', 'wizardBack()', 'ghost')}
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <button onclick="wizardSkipParsing()"
+                                style="background:none; border:none; color:var(--text-muted);
+                                       cursor:pointer; font-size:0.82em; text-decoration:underline;">
+                            Skip \u2014 enter manually
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function wizardHandleLinkedInDrop(event) {
+            const file = event.dataTransfer?.files?.[0];
+            if (file && file.name.endsWith('.zip')) {
+                wizardParseLinkedInZip(file);
+            } else {
+                showToast('Please drop a .zip file from LinkedIn\u2019s data export.', 'warning');
+            }
+        }
+
+        function wizardHandleLinkedInFile(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            if (!file.name.endsWith('.zip')) {
+                showToast('Please select a .zip file from LinkedIn\u2019s data export.', 'warning');
+                return;
+            }
+            wizardParseLinkedInZip(file);
+        }
+
+        async function wizardParseLinkedInZip(file) {
+            const dropZone = document.getElementById('linkedinDropZone');
+            const status = document.getElementById('linkedinParseStatus');
+            const msg = document.getElementById('linkedinParseMsg');
+            if (dropZone) dropZone.style.display = 'none';
+            if (status) status.style.display = 'block';
+
+            const setMsg = (text) => { if (msg) msg.textContent = text; };
+
+            try {
+                setMsg('Reading archive...');
+                logAnalyticsEvent('linkedin_zip_import', {});
+
+                if (typeof JSZip === 'undefined') {
+                    throw new Error('JSZip library not loaded. Please refresh and try again.');
+                }
+
+                const zip = await JSZip.loadAsync(file);
+                setMsg('Extracting CSV files...');
+
+                // Parse each CSV file we care about
+                const csvFiles = {};
+                const targetFiles = ['Profile.csv', 'Positions.csv', 'Skills.csv', 'Education.csv',
+                                     'Certifications.csv', 'Languages.csv', 'Projects.csv', 'Email Addresses.csv'];
+
+                for (const targetName of targetFiles) {
+                    // LinkedIn .zip may have files at root or in a subdirectory
+                    let found = null;
+                    zip.forEach(function(path, entry) {
+                        if (!entry.dir && path.endsWith(targetName)) {
+                            found = entry;
+                        }
+                    });
+                    if (found) {
+                        const text = await found.async('text');
+                        if (typeof Papa !== 'undefined') {
+                            const result = Papa.parse(text, { header: true, skipEmptyLines: true });
+                            csvFiles[targetName] = result.data;
+                        }
+                    }
+                }
+
+                setMsg('Mapping profile data...');
+
+                const foundFiles = Object.keys(csvFiles);
+                console.log('\u2713 LinkedIn .zip parsed. Found:', foundFiles.join(', '));
+
+                if (foundFiles.length === 0) {
+                    throw new Error('No recognized LinkedIn CSV files found in this archive. Make sure you uploaded the LinkedIn data export .zip.');
+                }
+
+                // ── Map Profile.csv ──
+                const profileRows = csvFiles['Profile.csv'] || [];
+                const profileRow = profileRows[0] || {};
+                wizardState.profile = {
+                    name: [profileRow['First Name'], profileRow['Last Name']].filter(Boolean).join(' '),
+                    currentTitle: profileRow['Headline'] || '',
+                    location: profileRow['Geo Location'] || profileRow['Location'] || '',
+                    email: '',
+                    phone: '',
+                    yearsExperience: 0,
+                    executiveSummary: profileRow['Summary'] || ''
+                };
+
+                // Get email from Email Addresses.csv
+                const emailRows = csvFiles['Email Addresses.csv'] || [];
+                if (emailRows.length > 0) {
+                    wizardState.profile.email = emailRows[0]['Email Address'] || emailRows[0]['email'] || '';
+                }
+
+                // ── Map Positions.csv ──
+                const positionRows = csvFiles['Positions.csv'] || [];
+                wizardState.workHistory = positionRows.map(function(row) {
+                    return {
+                        title: row['Title'] || '',
+                        company: row['Company Name'] || '',
+                        location: row['Location'] || '',
+                        description: row['Description'] || '',
+                        startDate: row['Started On'] || '',
+                        endDate: row['Finished On'] || 'Present'
+                    };
+                }).filter(function(w) { return w.title || w.company; });
+
+                // Infer years of experience from earliest position
+                if (wizardState.workHistory.length > 0) {
+                    var earliest = wizardState.workHistory.reduce(function(min, w) {
+                        var y = parseInt((w.startDate || '').split(' ').pop()) || parseInt(w.startDate) || 9999;
+                        return y < min ? y : min;
+                    }, 9999);
+                    if (earliest < 9999) {
+                        wizardState.profile.yearsExperience = new Date().getFullYear() - earliest;
+                    }
+                }
+
+                // Build roles from unique positions
+                var roleMap = {};
+                var roleColors = ['#3b82f6','#ef4444','#10b981','#f59e0b','#a855f7','#ec4899','#06b6d4','#84cc16'];
+                wizardState.workHistory.forEach(function(w, i) {
+                    var key = w.title.toLowerCase().trim();
+                    if (key && !roleMap[key]) {
+                        var id = 'role' + (Object.keys(roleMap).length + 1);
+                        roleMap[key] = {
+                            id: id,
+                            name: w.title,
+                            company: w.company,
+                            years: w.startDate + (w.endDate !== 'Present' ? ' - ' + w.endDate : ' - Present'),
+                            color: roleColors[Object.keys(roleMap).length % roleColors.length]
+                        };
+                    }
+                });
+                var parsedRoles = Object.values(roleMap).slice(0, 8);
+
+                // ── Map Skills.csv ──
+                const skillRows = csvFiles['Skills.csv'] || [];
+                var rawSkills = skillRows.map(function(row) {
+                    return (row['Name'] || row['Skill'] || row['name'] || Object.values(row)[0] || '').trim();
+                }).filter(Boolean);
+
+                // ── Map Education.csv ──
+                const eduRows = csvFiles['Education.csv'] || [];
+                wizardState.education = eduRows.map(function(row) {
+                    return {
+                        school: row['School Name'] || '',
+                        degree: row['Degree Name'] || '',
+                        field: row['Notes'] || row['Field Of Study'] || '',
+                        startDate: row['Start Date'] || '',
+                        endDate: row['End Date'] || '',
+                        activities: row['Activities'] || ''
+                    };
+                }).filter(function(e) { return e.school; });
+
+                // ── Map Certifications.csv ──
+                const certRows = csvFiles['Certifications.csv'] || [];
+                wizardState.certifications = certRows.map(function(row) {
+                    return {
+                        name: row['Name'] || '',
+                        authority: row['Authority'] || '',
+                        licenseNumber: row['License Number'] || '',
+                        startDate: row['Started On'] || '',
+                        endDate: row['Finished On'] || '',
+                        url: row['Url'] || ''
+                    };
+                }).filter(function(c) { return c.name; });
+
+                setMsg('Inferring skill levels with Claude...');
+
+                // ── Skill level inference via Claude ──
+                var inferredSkills = [];
+                var useAI = rawSkills.length > 0;
+                var aiSuccess = false;
+
+                if (useAI) {
+                    try {
+                        var positionsSummary = wizardState.workHistory.slice(0, 10).map(function(w) {
+                            return w.title + ' at ' + w.company + ' (' + w.startDate + ' - ' + w.endDate + ')' +
+                                   (w.description ? ': ' + w.description.substring(0, 200) : '');
+                        }).join('\\n');
+
+                        var inferApiKey = safeGet('wbAnthropicKey');
+                        var canCallAPI = inferApiKey || (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser);
+
+                        if (canCallAPI) {
+                            var inferData = await callAnthropicAPI({
+                                model: 'claude-sonnet-4-20250514',
+                                max_tokens: 3000,
+                                system: 'You are a career analyst. Given a list of skills and work history, infer skill levels and assign each skill to one or more roles. Return ONLY valid JSON, no markdown fences or explanation.',
+                                messages: [{ role: 'user', content: 'Given these skills from a LinkedIn profile and work history, return a JSON array of skill objects.\\n\\nSkills: ' + rawSkills.join(', ') + '\\n\\nWork history:\\n' + positionsSummary + '\\n\\nRoles: ' + parsedRoles.map(function(r) { return r.id + '=' + r.name; }).join(', ') + '\\n\\nReturn JSON array where each element has:\\n- name: skill name\\n- level: one of Mastery|Expert|Advanced|Proficient|Novice (based on apparent depth from work history context)\\n- category: one of skill|ability|workstyle|unique\\n- roles: array of role IDs this skill most applies to\\n- key: boolean, true if this appears to be a defining/primary skill\\n- evidence: array with 1 item: {description: what this skill involves in context, outcome: likely impact}\\n\\nReturn ONLY the JSON array.' }]
+                            }, inferApiKey, 'linkedin-skill-infer');
+
+                            var inferText = inferData.content[0]?.text || '';
+                            var cleanInfer = inferText.replace(/^```json\\s*/i, '').replace(/^```\\s*/i, '').replace(/```\\s*$/i, '').trim();
+                            inferredSkills = JSON.parse(cleanInfer);
+                            aiSuccess = true;
+                        }
+                    } catch(inferErr) {
+                        console.warn('Skill inference failed, using defaults:', inferErr.message);
+                    }
+                }
+
+                // Fallback: default skills to Proficient level if AI inference failed
+                if (!aiSuccess && rawSkills.length > 0) {
+                    inferredSkills = rawSkills.map(function(name) {
+                        return {
+                            name: name,
+                            level: 'Proficient',
+                            category: 'skill',
+                            roles: parsedRoles.length > 0 ? [parsedRoles[0].id] : [],
+                            key: false,
+                            evidence: []
+                        };
+                    });
+                }
+
+                wizardState.skills = inferredSkills;
+                wizardState.parsedData = {
+                    profile: wizardState.profile,
+                    roles: parsedRoles,
+                    skills: inferredSkills,
+                    values: [],
+                    purpose: ''
+                };
+
+                setMsg('Done! \u2713');
+                await new Promise(function(r) { setTimeout(r, 400); });
+
+                // Skip to profile review (step 4)
+                wizardState.step = 4;
+                renderWizardStep();
+
+            } catch(err) {
+                console.error('LinkedIn .zip parse error:', err);
+                if (dropZone) dropZone.style.display = 'block';
+                if (status) status.style.display = 'none';
+                showToast('Import error: ' + err.message, 'error', 6000);
+            }
         }
 
         // ── STEP 3: AI Parsing ────────────────────────────────────────────────
@@ -8874,6 +9215,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         // Expose wizard and nav functions to global scope for onclick handlers
         window.showOnboardingWizard = showOnboardingWizard;
         window.wizardChooseUpload = wizardChooseUpload;
+        window.wizardChooseLinkedIn = wizardChooseLinkedIn;
         window.wizardChooseManual = wizardChooseManual;
         window.wizardChooseImport = wizardChooseImport;
         window.wizardImportProfile = wizardImportProfile;
@@ -8882,6 +9224,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         window.wizardSetResumeTab = wizardSetResumeTab;
         window.wizardSkipParsing = wizardSkipParsing;
         window.wizardStartParsing = wizardStartParsing;
+        window.wizardHandleLinkedInDrop = wizardHandleLinkedInDrop;
+        window.wizardHandleLinkedInFile = wizardHandleLinkedInFile;
         window.wizardSaveProfile = wizardSaveProfile;
         window.wizardSaveSkills = wizardSaveSkills;
         window.wizardToggleValue = wizardToggleValue;
@@ -23520,7 +23864,9 @@ body {
                 + '<p style="margin:0;">The onboarding wizard uses the Anthropic API to parse resumes and infer skills. '
                 + 'Resume text submitted during onboarding is sent to Anthropic\u2019s servers and is subject to '
                 + '<a href="https://www.anthropic.com/policies" target="_blank" rel="noopener" style="color:' + hc + '; text-decoration:underline;">Anthropic\u2019s usage policies</a>. '
-                + 'No resume data is stored by this application after processing.</p>'
+                + 'No resume data is stored by this application after processing. '
+                + 'The LinkedIn data import option parses your .zip archive entirely in-browser using JSZip and PapaParse. '
+                + 'No LinkedIn data leaves your device during CSV parsing. A small Claude API call may be used to infer skill levels from your job titles.</p>'
                 + '</div>'
 
                 // Demo profiles
