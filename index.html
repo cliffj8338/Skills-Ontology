@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.39.0.0 | 20260223 | LinkedIn data import, quick profile builder, multi-source onboarding wizard -->
+    <!-- v4.39.1.0 | 20260223 | SRI hashes, PDF file upload, LinkedIn CSV header normalization -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,8 +13,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js" integrity="sha384-BkEIW/B4JV9w6pRfBRgZtAcYDk5goH1nUI49rLo8s5PSHgTfgxWBczRVJx+fv5kP" crossorigin="anonymous"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js" integrity="sha384-96KlrabK9X4T/tq4duY+/4JE60jZAiSs4QVJFwmY30ETT24x2+89B7qmq7O4IETX" crossorigin="anonymous"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js" integrity="sha384-LF74FIj8PQKxRVken52qSHntBSVEC6b05H04maSVJibifVGmWz9Ajc23WjrRVSCX" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-dfX5uYVXzyU8+KHqj8bjo7UkOdg18PaOtpa48djpNbZHwExddghZ+ZmzWT06R5v6NSk3ZUfsH6FNEDepLx9hPQ==" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="blueprint.css">
 <style>
 
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.39.0.0 - BUILD 20260223-linkedin-profile-builder
-        var BP_VERSION = 'v4.39.0.0';
+        // BLUEPRINT v4.39.1.0 - BUILD 20260223-sri-pdfupload-csvnorm
+        var BP_VERSION = 'v4.39.1.0';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -3407,7 +3407,7 @@
                         { id: 's4', name: 'Crypto-secure report IDs', status: 'done', category: 'security', priority: 'high', notes: 'Report IDs now use crypto.getRandomValues (128-bit entropy) instead of Math.random.' },
                         { id: 's5', name: 'Firestore rules hardening', status: 'done', category: 'security', priority: 'critical', notes: 'analytics_events requires auth, report_views field validation, waitlist field limits.' },
                         { id: 's6', name: 'Third-party CORS proxies removed', status: 'done', category: 'security', priority: 'high', notes: 'corsproxy.io and allorigins.win removed. Prevents data leakage to third parties.' },
-                        { id: 's7', name: 'SRI hashes on CDN scripts', status: 'done', category: 'security', priority: 'high', notes: 'Generated and applied. 5 scripts in index.html + D3 in 4 report HTMLs.' },
+                        { id: 's7', name: 'SRI hashes on CDN scripts', status: 'done', category: 'security', priority: 'high', notes: 'Generated and applied. 7 scripts in index.html (D3, jsPDF, Firebase x3, JSZip, PapaParse) + D3 in 4 report HTMLs. sha512 hashes from cdnjs.' },
                         { id: 's8', name: 'Firebase SDK update', status: 'planned', category: 'security', priority: 'medium', notes: 'Update from 10.7.0 to latest stable. Regenerate SRI hashes after.' },
                         { id: 's9', name: 'Remaining innerHTML audit (~130)', status: 'planned', category: 'security', priority: 'medium', notes: 'Systematic audit of all remaining innerHTML assignments for escaping consistency.' },
                         { id: 's10', name: 'Session security review protocol', status: 'done', category: 'security', priority: 'high', notes: 'Every dev session opens with security/stability review before feature work.' }
@@ -3434,7 +3434,9 @@
                         { id: 'p2-2b', name: 'Empty state UX', status: 'done', category: 'ux', priority: 'high', notes: 'Signed-in users with no profile see Build Your Blueprint empty state on Skills (network) and Blueprint dashboard. Demo data auto-detected and cleared from Firestore on load.' },
                         { id: 'p2-2c', name: 'Inline job selector', status: 'done', category: 'feature', priority: 'medium', notes: 'Job selector pill in controls bar next to Network/Card toggle. Fixed-position dropdown with addEventListener (no inline onclick). Job overlay activation with You/Job/Match/Values toggle. Works in demo and live modes.' },
                         { id: 'p2-3a', name: 'LinkedIn profile import', status: 'done', category: 'feature', priority: 'critical', notes: 'LinkedIn GDPR data archive (.zip) import with client-side CSV parsing via JSZip + PapaParse. Parses Profile, Positions, Skills, Education, Certifications. Zero server cost, instant processing. LinkedIn OAuth deferred (Firebase OIDC incompatibility with LinkedIn discovery doc path).' },
-                        { id: 'p2-3b', name: 'Quick profile builder (1-3 min)', status: 'done', category: 'feature', priority: 'critical', notes: 'Three-path onboarding: Resume upload (AI parse), LinkedIn .zip import (CSV parse + AI skill inference), Manual entry. Wizard auto-triggers for empty profiles. LinkedIn import is zero-cost instant path.' }
+                        { id: 'p2-3b', name: 'Quick profile builder (1-3 min)', status: 'done', category: 'feature', priority: 'critical', notes: 'Three-path onboarding: Resume upload (AI parse), LinkedIn .zip import (CSV parse + AI skill inference), Manual entry. Wizard auto-triggers for empty profiles. LinkedIn import is zero-cost instant path.' },
+                        { id: 'p2-3c', name: 'Resume PDF file upload', status: 'done', category: 'feature', priority: 'high', notes: 'Direct PDF upload in wizard Step 2 via drag-and-drop or file picker. PDF sent to Claude as base64 document content block for native processing. 10 MB size limit. Three tabs: Upload PDF (default), Paste Text, LinkedIn Text.' },
+                        { id: 'p2-3d', name: 'LinkedIn CSV header normalization', status: 'done', category: 'feature', priority: 'medium', notes: 'Header normalization map handles case variations, underscore/space differences, BOM removal, and LinkedIn format changes across export versions. Canonical name fallbacks in all CSV field extractors.' }
                     ]
                 },
                 {
@@ -7844,7 +7846,8 @@
             if (existing) existing.remove();
 
             wizardState = { step: 1, totalSteps: 8, resumeText: '', parsedData: null,
-                            profile: {}, skills: [], values: [], purpose: '', processing: false };
+                            profile: {}, skills: [], values: [], purpose: '', processing: false,
+                            resumeFileBase64: null, resumeFileName: null, resumeFileSize: null, useFileUpload: false };
 
             const overlay = document.createElement('div');
             overlay.id = 'onboardingWizard';
@@ -8138,14 +8141,20 @@
             }
             el.innerHTML = `
                 ${wizardHeading(bpIcon('file-text',22), 'Add Your Resume',
-                    'Paste your resume text below, or upload a PDF. Claude will read it and extract your skills, experience, and outcomes automatically.')}
+                    'Upload a PDF, paste resume text, or copy your LinkedIn profile. Claude will extract your skills, experience, and outcomes automatically.')}
 
                 <div style="background:var(--bg-elevated); border:1px solid var(--border);
                             border-radius:14px; padding:24px; margin-bottom:20px;">
                     <div style="display:flex; gap:8px; margin-bottom:16px;">
-                        <button onclick="wizardSetResumeTab('paste')" id="rtab-paste"
+                        <button onclick="wizardSetResumeTab('upload')" id="rtab-upload"
                                 style="padding:7px 16px; border-radius:7px; border:none; cursor:pointer;
                                        background:var(--accent); color:#fff; font-size:0.85em; font-weight:600;">
+                            Upload PDF
+                        </button>
+                        <button onclick="wizardSetResumeTab('paste')" id="rtab-paste"
+                                style="padding:7px 16px; border-radius:7px; border:1px solid var(--border);
+                                       background:var(--input-bg); color:var(--text-secondary);
+                                       cursor:pointer; font-size:0.85em;">
                             Paste Text
                         </button>
                         <button onclick="wizardSetResumeTab('linkedin')" id="rtab-linkedin"
@@ -8156,8 +8165,35 @@
                         </button>
                     </div>
 
-                    <div id="rtab-paste-content">
-                        <textarea id="wizardResumeText" placeholder="Paste your full resume here — the more detail, the better the profile Claude builds for you.
+                    <div id="rtab-upload-content">
+                        <div id="resumeDropZone"
+                             style="border:2px dashed var(--border); border-radius:10px; padding:40px 24px;
+                                    text-align:center; cursor:pointer; transition:all 0.2s;"
+                             onclick="document.getElementById('resumeFileInput').click()"
+                             ondragover="event.preventDefault(); this.style.borderColor='var(--accent)'; this.style.background='var(--accent-glow)'"
+                             ondragleave="this.style.borderColor='var(--border)'; this.style.background='none'"
+                             ondrop="event.preventDefault(); this.style.borderColor='var(--border)'; this.style.background='none'; wizardHandleResumeDrop(event)">
+                            <div style="margin-bottom:12px;">${bpIcon("file-text",40)}</div>
+                            <div style="font-weight:700; color:var(--text-primary); margin-bottom:8px;">
+                                Drop your resume here
+                            </div>
+                            <div style="font-size:0.85em; color:var(--text-secondary);">
+                                PDF files up to 10 MB \u00B7 or click to browse
+                            </div>
+                            <input type="file" id="resumeFileInput" accept=".pdf" style="display:none"
+                                   onchange="wizardHandleResumeFile(event)">
+                        </div>
+                        <div id="resumeFileInfo" style="display:none; margin-top:12px; padding:12px 16px;
+                                    background:var(--input-bg); border-radius:8px;
+                                    display:none; align-items:center; gap:10px;">
+                            <span id="resumeFileName" style="color:var(--text-primary); font-size:0.88em; font-weight:500;"></span>
+                            <button onclick="wizardClearResumeFile()" style="background:none; border:none; color:var(--text-muted);
+                                           cursor:pointer; font-size:0.82em; margin-left:auto;">\u2715 Remove</button>
+                        </div>
+                    </div>
+
+                    <div id="rtab-paste-content" style="display:none;">
+                        <textarea id="wizardResumeText" placeholder="Paste your full resume here \u2014 the more detail, the better the profile Claude builds for you.
 
 Include: job titles, companies, dates, responsibilities, achievements, metrics, skills, education, certifications..."
                                   style="width:100%; min-height:280px; background:var(--input-bg);
@@ -8172,7 +8208,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
 
                     <div id="rtab-linkedin-content" style="display:none;">
                         <p style="color:var(--text-secondary); font-size:0.85em; line-height:1.6; margin-bottom:14px;">
-                            Go to your LinkedIn profile → click <strong>More</strong> → <strong>Save to PDF</strong>,
+                            Go to your LinkedIn profile \u2192 click <strong>More</strong> \u2192 <strong>Save to PDF</strong>,
                             then paste the text here. Or copy your About section and each job entry manually.
                         </p>
                         <textarea id="wizardLinkedInText" placeholder="Paste your LinkedIn profile text here..."
@@ -8185,18 +8221,18 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                 </div>
 
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    ${wizardBtn('← Back', 'wizardBack()', 'ghost')}
+                    ${wizardBtn('\u2190 Back', 'wizardBack()', 'ghost')}
                     <div style="display:flex; gap:10px; align-items:center;">
                         <button onclick="wizardSkipParsing()"
                                 style="background:none; border:none; color:var(--text-muted);
                                        cursor:pointer; font-size:0.82em; text-decoration:underline;">
-                            Skip — enter manually
+                            Skip \u2014 enter manually
                         </button>
                         <button id="wizardParseBtn" onclick="wizardStartParsing()" disabled
                                 style="background:var(--accent); color:#fff; border:none;
                                        padding:11px 28px; border-radius:9px; cursor:pointer;
                                        font-size:0.9em; font-weight:600; opacity:0.5; transition:opacity 0.2s;">
-                            Parse with Claude →
+                            Parse with Claude \u2192
                         </button>
                     </div>
                 </div>
@@ -8204,35 +8240,109 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
         }
 
         function wizardSetResumeTab(tab) {
-            const paste = document.getElementById('rtab-paste-content');
-            const li = document.getElementById('rtab-linkedin-content');
-            const btnPaste = document.getElementById('rtab-paste');
-            const btnLi = document.getElementById('rtab-linkedin');
+            var upload = document.getElementById('rtab-upload-content');
+            var paste = document.getElementById('rtab-paste-content');
+            var li = document.getElementById('rtab-linkedin-content');
+            var btnUpload = document.getElementById('rtab-upload');
+            var btnPaste = document.getElementById('rtab-paste');
+            var btnLi = document.getElementById('rtab-linkedin');
 
-            if (tab === 'paste') {
-                paste.style.display = 'block'; li.style.display = 'none';
-                btnPaste.style.background = 'var(--accent)'; btnPaste.style.color = '#fff';
-                btnPaste.style.border = 'none';
-                btnLi.style.background = 'var(--input-bg)'; btnLi.style.color = 'var(--text-secondary)';
-                btnLi.style.border = '1px solid var(--border)';
-            } else {
-                paste.style.display = 'none'; li.style.display = 'block';
-                btnLi.style.background = 'var(--accent)'; btnLi.style.color = '#fff';
-                btnLi.style.border = 'none';
-                btnPaste.style.background = 'var(--input-bg)'; btnPaste.style.color = 'var(--text-secondary)';
-                btnPaste.style.border = '1px solid var(--border)';
+            var activeStyle = 'background:var(--accent); color:#fff; border:none;';
+            var inactiveStyle = 'background:var(--input-bg); color:var(--text-secondary); border:1px solid var(--border);';
+
+            // Hide all
+            if (upload) upload.style.display = 'none';
+            if (paste) paste.style.display = 'none';
+            if (li) li.style.display = 'none';
+
+            // Reset all buttons
+            [btnUpload, btnPaste, btnLi].forEach(function(btn) {
+                if (btn) btn.style.cssText = 'padding:7px 16px; border-radius:7px; cursor:pointer; font-size:0.85em; font-weight:600; ' + inactiveStyle;
+            });
+
+            // Show active
+            if (tab === 'upload' && upload) {
+                upload.style.display = 'block';
+                if (btnUpload) btnUpload.style.cssText = 'padding:7px 16px; border-radius:7px; cursor:pointer; font-size:0.85em; font-weight:600; ' + activeStyle;
+            } else if (tab === 'paste' && paste) {
+                paste.style.display = 'block';
+                if (btnPaste) btnPaste.style.cssText = 'padding:7px 16px; border-radius:7px; cursor:pointer; font-size:0.85em; font-weight:600; ' + activeStyle;
+            } else if (tab === 'linkedin' && li) {
+                li.style.display = 'block';
+                if (btnLi) btnLi.style.cssText = 'padding:7px 16px; border-radius:7px; cursor:pointer; font-size:0.85em; font-weight:600; ' + activeStyle;
             }
+            wizardCheckResumeReady();
+        }
+
+        // ── Resume PDF file handling ────────────────────────────────────────
+
+        function wizardHandleResumeDrop(event) {
+            var file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0];
+            if (file) wizardProcessResumeFile(file);
+        }
+
+        function wizardHandleResumeFile(event) {
+            var file = event.target && event.target.files && event.target.files[0];
+            if (file) wizardProcessResumeFile(file);
+        }
+
+        function wizardProcessResumeFile(file) {
+            if (!file.name.toLowerCase().endsWith('.pdf')) {
+                showToast('Please upload a PDF file.', 'warning');
+                return;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('File is too large. Maximum size is 10 MB.', 'warning');
+                return;
+            }
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var base64 = e.target.result.split(',')[1];
+                wizardState.resumeFileBase64 = base64;
+                wizardState.resumeFileName = file.name;
+                wizardState.resumeFileSize = file.size;
+
+                // Show file info
+                var info = document.getElementById('resumeFileInfo');
+                var nameEl = document.getElementById('resumeFileName');
+                var dropZone = document.getElementById('resumeDropZone');
+                if (info) info.style.display = 'flex';
+                if (nameEl) nameEl.textContent = '\uD83D\uDCC4 ' + file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
+                if (dropZone) dropZone.style.display = 'none';
+
+                wizardCheckResumeReady();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function wizardClearResumeFile() {
+            wizardState.resumeFileBase64 = null;
+            wizardState.resumeFileName = null;
+            wizardState.resumeFileSize = null;
+
+            var info = document.getElementById('resumeFileInfo');
+            var dropZone = document.getElementById('resumeDropZone');
+            if (info) info.style.display = 'none';
+            if (dropZone) dropZone.style.display = 'block';
+
+            var input = document.getElementById('resumeFileInput');
+            if (input) input.value = '';
+
+            wizardCheckResumeReady();
         }
 
         function wizardCheckResumeReady() {
             const t1 = document.getElementById('wizardResumeText')?.value?.trim() || '';
             const t2 = document.getElementById('wizardLinkedInText')?.value?.trim() || '';
             const hasText = t1.length > 50 || t2.length > 50;
+            const hasFile = !!wizardState.resumeFileBase64;
+            const ready = hasText || hasFile;
             const btn = document.getElementById('wizardParseBtn');
             if (btn) {
-                btn.disabled = !hasText;
-                btn.style.opacity = hasText ? '1' : '0.5';
-                btn.style.cursor = hasText ? 'pointer' : 'default';
+                btn.disabled = !ready;
+                btn.style.opacity = ready ? '1' : '0.5';
+                btn.style.cursor = ready ? 'pointer' : 'default';
             }
         }
 
@@ -8246,6 +8356,8 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
             const t1 = document.getElementById('wizardResumeText')?.value?.trim() || '';
             const t2 = document.getElementById('wizardLinkedInText')?.value?.trim() || '';
             wizardState.resumeText = t1 || t2;
+            // File upload takes priority if present
+            wizardState.useFileUpload = !!wizardState.resumeFileBase64 && !wizardState.resumeText;
             wizardNext(); // Go to step 3 (parsing/loading)
             await wizardRunParsing();
         }
@@ -8366,6 +8478,54 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                 const targetFiles = ['Profile.csv', 'Positions.csv', 'Skills.csv', 'Education.csv',
                                      'Certifications.csv', 'Languages.csv', 'Projects.csv', 'Email Addresses.csv'];
 
+                // Header normalization map: lowercase variant -> canonical name
+                // Handles LinkedIn format changes across regions and export versions
+                var headerMap = {
+                    // Profile.csv
+                    'first name': 'First Name', 'first_name': 'First Name', 'firstname': 'First Name',
+                    'last name': 'Last Name', 'last_name': 'Last Name', 'lastname': 'Last Name',
+                    'headline': 'Headline',
+                    'summary': 'Summary', 'about': 'Summary',
+                    'geo location': 'Geo Location', 'geolocation': 'Geo Location',
+                    'industry': 'Industry',
+                    // Positions.csv
+                    'company name': 'Company Name', 'company': 'Company Name', 'organization name': 'Company Name', 'org name': 'Company Name',
+                    'title': 'Title', 'position': 'Title', 'job title': 'Title',
+                    'description': 'Description',
+                    'location': 'Location',
+                    'started on': 'Started On', 'start date': 'Started On', 'start_date': 'Started On',
+                    'finished on': 'Finished On', 'end date': 'Finished On', 'end_date': 'Finished On',
+                    // Skills.csv
+                    'name': 'Name', 'skill': 'Name', 'skill name': 'Name',
+                    // Education.csv
+                    'school name': 'School Name', 'school': 'School Name', 'institution': 'School Name', 'university': 'School Name',
+                    'degree name': 'Degree Name', 'degree': 'Degree Name',
+                    'notes': 'Notes', 'field of study': 'Field Of Study',
+                    'activities': 'Activities', 'activities and societies': 'Activities',
+                    // Certifications.csv
+                    'authority': 'Authority', 'issuing organization': 'Authority',
+                    'license number': 'License Number', 'credential id': 'License Number',
+                    'url': 'Url', 'credential url': 'Url',
+                    // Email
+                    'email address': 'Email Address', 'email': 'Email Address'
+                };
+
+                function normalizeLinkedInRow(row) {
+                    var normalized = {};
+                    Object.keys(row).forEach(function(key) {
+                        var trimmed = key.trim();
+                        // Remove BOM characters that LinkedIn sometimes includes
+                        trimmed = trimmed.replace(/^\uFEFF/, '');
+                        var lower = trimmed.toLowerCase();
+                        var canonical = headerMap[lower] || trimmed;
+                        // Don't overwrite if canonical already set (first match wins)
+                        if (!(canonical in normalized)) {
+                            normalized[canonical] = row[key];
+                        }
+                    });
+                    return normalized;
+                }
+
                 for (const targetName of targetFiles) {
                     // LinkedIn .zip may have files at root or in a subdirectory
                     let found = null;
@@ -8378,7 +8538,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                         const text = await found.async('text');
                         if (typeof Papa !== 'undefined') {
                             const result = Papa.parse(text, { header: true, skipEmptyLines: true });
-                            csvFiles[targetName] = result.data;
+                            csvFiles[targetName] = result.data.map(normalizeLinkedInRow);
                         }
                     }
                 }
@@ -8397,7 +8557,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                 const profileRow = profileRows[0] || {};
                 wizardState.profile = {
                     name: [profileRow['First Name'], profileRow['Last Name']].filter(Boolean).join(' '),
-                    currentTitle: profileRow['Headline'] || '',
+                    currentTitle: profileRow['Headline'] || profileRow['Title'] || '',
                     location: profileRow['Geo Location'] || profileRow['Location'] || '',
                     email: '',
                     phone: '',
@@ -8465,9 +8625,9 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                     return {
                         school: row['School Name'] || '',
                         degree: row['Degree Name'] || '',
-                        field: row['Notes'] || row['Field Of Study'] || '',
-                        startDate: row['Start Date'] || '',
-                        endDate: row['End Date'] || '',
+                        field: row['Field Of Study'] || row['Notes'] || '',
+                        startDate: row['Start Date'] || row['Started On'] || '',
+                        endDate: row['End Date'] || row['Finished On'] || '',
                         activities: row['Activities'] || ''
                     };
                 }).filter(function(e) { return e.school; });
@@ -8646,13 +8806,29 @@ Rules:
 - Write the purpose statement to be compelling and authentic to this person's actual experience.
 - category="unique" for skills not in standard O*NET taxonomy (industry-specific, rare combinations).`;
 
+                // Build message content: PDF document or plain text
+                var userContent;
+                if (wizardState.useFileUpload && wizardState.resumeFileBase64) {
+                    userContent = [
+                        {
+                            type: 'document',
+                            source: {
+                                type: 'base64',
+                                media_type: 'application/pdf',
+                                data: wizardState.resumeFileBase64
+                            }
+                        },
+                        { type: 'text', text: 'Parse this resume PDF and extract structured profile data.' }
+                    ];
+                } else {
+                    userContent = 'Parse this resume:\n\n' + wizardState.resumeText;
+                }
+
                 var data = await callAnthropicAPI({
                         model: 'claude-sonnet-4-20250514',
                         max_tokens: 4000,
                         system: systemPrompt,
-                        messages: [{ role: 'user', content: `Parse this resume:
-
-${wizardState.resumeText}` }]
+                        messages: [{ role: 'user', content: userContent }]
                     }, wizardApiKey, 'resume-parse');
                 setStatus('Structuring your profile data...', 55);
                 const rawText = data.content[0]?.text || '';
@@ -9222,6 +9398,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         window.wizardBack = wizardBack;
         window.wizardNext = wizardNext;
         window.wizardSetResumeTab = wizardSetResumeTab;
+        window.wizardHandleResumeDrop = wizardHandleResumeDrop;
+        window.wizardHandleResumeFile = wizardHandleResumeFile;
+        window.wizardClearResumeFile = wizardClearResumeFile;
         window.wizardSkipParsing = wizardSkipParsing;
         window.wizardStartParsing = wizardStartParsing;
         window.wizardHandleLinkedInDrop = wizardHandleLinkedInDrop;
