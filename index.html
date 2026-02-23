@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.4.0 | 20260223 | Welcome tour: 16 steps → 7 pillar-aligned steps matching teaser modal -->
+    <!-- v4.37.5.0 | 20260223 | Remove explicit 14,000 skill count from user-facing copy; keep ESCO/ONET callouts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1186,8 +1186,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.4.0 - BUILD 20260223-pillar-tour
-        var BP_VERSION = 'v4.37.4.0';
+        // BLUEPRINT v4.37.5.0 - BUILD 20260223-remove-skill-count
+        var BP_VERSION = 'v4.37.5.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -3444,7 +3444,7 @@
                 + 'display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.2em; color:var(--accent); font-weight:700;">1</div>'
                 + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:5px; font-size:0.95em;">Map Your Architecture</div>'
                 + '<div style="font-size:0.83em; color:var(--text-muted); line-height:1.5;">'
-                + 'AI scans your experience against 14,000+ skills from ESCO and O*NET \u2014 the same taxonomies used by governments and Fortune 500s.</div>'
+                + 'AI scans your experience against professional skill taxonomies from ESCO and O*NET \u2014 the same frameworks used by governments and Fortune 500s.</div>'
                 + '</div>'
                 
                 + '<div style="text-align:center; padding:20px 16px;">'
@@ -24934,7 +24934,7 @@ body {
                     // 1. SKILLS ARCHITECTURE — the wow moment
                     {
                         title: 'Your Skills, Fully Mapped',
-                        desc: 'Every node is a skill. <strong>Size</strong> = proficiency. <strong>Color</strong> = role cluster. Built on 14,000+ skills from <strong>O*NET</strong> and <strong>ESCO</strong> taxonomies.'
+                        desc: 'Every node is a skill. <strong>Size</strong> = proficiency. <strong>Color</strong> = role cluster. Built on professional-grade <strong>O*NET</strong> and <strong>ESCO</strong> taxonomies.'
                             + (skillCount > 0 ? ' This profile has <strong>' + skillCount + '</strong> mapped.' : '')
                             + '<br><br><span style="color:#60a5fa;">Drag any node to rearrange. Tap one to see the evidence behind it.</span>',
                         badge: 'Skills Architecture',
@@ -25020,7 +25020,7 @@ body {
                 var skillCount = (skillsData.skills || []).length;
                 return [
                     {
-                        title: '14,000+ Skills. Yours Are Here.',
+                        title: 'Your Skills, Fully Mapped',
                         desc: 'Built on <strong>ESCO</strong> and <strong>O*NET</strong> taxonomies. Each node is a skill \u2014 <strong>size</strong> = proficiency, <strong>color</strong> = role cluster.' + (skillCount > 0 ? ' This profile: <strong>' + skillCount + '</strong> mapped.' : ''),
                         badge: 'Skills', target: '#controlsBar', spotlightPad: 6,
                         beforeShow: function() { switchView('skills'); }, delay: 600
