@@ -283,7 +283,7 @@ module.exports = async function handler(req, res) {
   const sourceStats = {};
 
   results.forEach(r => {
-    sourceStats[r.source] = { count: r.count || 0, error: r.error || null };
+    sourceStats[r.source] = { count: r.count || 0, error: r.error || null, total: r.total || null };
     (r.jobs || []).forEach(j => {
       const key = (j.title + '-' + j.company).toLowerCase().replace(/[^a-z0-9]/g, '');
       if (!seen.has(key)) {

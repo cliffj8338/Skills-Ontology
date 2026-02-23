@@ -18513,7 +18513,7 @@ body {
                 + '<div class="jobs-subtabs">'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'your-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'your-jobs\')">' + bpIcon('target',14) + ' Pipeline' + (savedCount > 0 ? ' (' + savedCount + ')' : '') + '</button>'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'tracker' ? 'active' : '') + '" onclick="switchJobsSubTab(\'tracker\')">' + bpIcon('tracker',14) + ' Tracker' + (appCount > 0 ? ' (' + appCount + ')' : '') + '</button>'
-                + '<button class="jobs-subtab ' + (jobsSubTab === 'find-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'find-jobs\')">' + bpIcon('search',14) + ' Find Jobs</button>'
+                + '<button class="jobs-subtab ' + (jobsSubTab === 'find-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'find-jobs\')">' + bpIcon('search',14) + ' Find Jobs' + (jobsDbCount > 0 ? ' <span style="font-size:0.75em; opacity:0.7;">(' + formatJobsCount(jobsDbCount) + ')</span>' : '') + '</button>'
                 + '</div>'
                 + '<div id="jobsSubTabContent"></div>'
                 + '</div>';
@@ -18730,9 +18730,16 @@ body {
             }
             
             return '<div style="margin-bottom:24px;">'
+                + '<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">'
+                + '<div>'
                 + '<h2 style="font-family:Outfit,sans-serif; font-size:1.3em; font-weight:700; color:var(--text-primary); margin:0 0 4px 0; letter-spacing:0.08em; text-transform:uppercase;">'
                 + bpIcon('search',20) + ' Find Jobs</h2>'
                 + '<p style="color:var(--text-muted); font-size:0.88em; margin:0;">Search across JSearch, Remotive, USAJobs, Himalayas, and Jobicy. Results scored against your skills.</p>'
+                + '</div>'
+                + (jobsDbCount > 0 ? '<div style="text-align:right; padding:10px 18px; background:linear-gradient(135deg, var(--accent), #8b5cf6); border-radius:10px; min-width:120px;">'
+                + '<div style="font-size:1.6em; font-weight:800; color:#fff; line-height:1;">' + formatJobsCount(jobsDbCount) + '</div>'
+                + '<div style="font-size:0.68em; color:rgba(255,255,255,0.8); text-transform:uppercase; letter-spacing:0.08em;">jobs indexed</div></div>' : '')
+                + '</div>'
                 + '</div>'
                 
                 // Search bar row 1: keyword + location
@@ -20393,11 +20400,13 @@ body {
             }
             
             // Summary bar
-            var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:8px 0;">'
+            var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:8px 0; flex-wrap:wrap; gap:8px;">'
                 + '<span style="font-size:0.88em; color:var(--text-secondary);">'
-                + '<strong>' + filtered.length + '</strong> jobs' + (filtered.length < opportunitiesData.length ? ' (of ' + opportunitiesData.length + ')' : '')
-                + ' above ' + currentMatchThreshold + '% match</span>'
-                + (window._findJobsSources ? '<span style="font-size:0.78em; color:var(--text-muted);">' + window._findJobsSources + '</span>' : '')
+                + '<strong>' + filtered.length + '</strong> jobs' + (filtered.length < opportunitiesData.length ? ' (of ' + opportunitiesData.length + ' returned)' : '')
+                + ' above ' + currentMatchThreshold + '% match'
+                + (jobsDbCount > 0 ? ' <span style="color:var(--text-muted); font-size:0.85em;">\u00B7 ' + formatJobsCount(jobsDbCount) + ' in database</span>' : '')
+                + '</span>'
+                + (window._findJobsSources ? '<span style="font-size:0.72em; color:var(--text-muted);">' + window._findJobsSources + '</span>' : '')
                 + '</div>';
             
             // Pipeline IDs for dedup check
@@ -20476,6 +20485,29 @@ body {
         
         var JOBS_PROXY_URL = '/api/jobs';
         var JOBS_PROXY_AVAILABLE = null;
+        var jobsDbCount = parseInt(safeGet('bpJobsDbCount') || '0');
+        
+        function formatJobsCount(n) {
+            if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M+';
+            if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, '') + 'k+';
+            return n > 0 ? String(n) + '+' : '';
+        }
+        
+        function updateJobsDbCount(data) {
+            // Pull the highest total from JSearch (Google for Jobs total_count)
+            if (data && data.sources) {
+                var jsTotal = data.sources.jsearch && data.sources.jsearch.total;
+                if (jsTotal && jsTotal > jobsDbCount) {
+                    jobsDbCount = jsTotal;
+                    safeSet('bpJobsDbCount', String(jobsDbCount));
+                }
+            }
+            // Also count total returned across all sources as a floor
+            if (data && data.total && data.total > 100 && jobsDbCount === 0) {
+                jobsDbCount = data.total;
+                safeSet('bpJobsDbCount', String(jobsDbCount));
+            }
+        }
         
         function searchOpportunities() {
             if (demoGate('Find Jobs')) return;
@@ -20520,6 +20552,7 @@ body {
                 
                 var data = await res.json();
                 JOBS_PROXY_AVAILABLE = true;
+                updateJobsDbCount(data);
                 
                 // Track API calls per source
                 if (data.sources) {
@@ -20570,6 +20603,15 @@ body {
                 }
                 
                 renderOpportunities();
+                
+                // Update tab label with db count
+                var tabBtns = document.querySelectorAll('.jobs-subtab');
+                tabBtns.forEach(function(btn) {
+                    if (btn.textContent.indexOf('Find Jobs') !== -1) {
+                        var countStr = jobsDbCount > 0 ? ' (' + formatJobsCount(jobsDbCount) + ')' : '';
+                        btn.innerHTML = bpIcon('search',14) + ' Find Jobs' + (countStr ? ' <span style="font-size:0.75em; opacity:0.7;">' + countStr + '</span>' : '');
+                    }
+                });
                 
             } catch(e) {
                 console.warn('Jobs proxy failed:', e.message);
