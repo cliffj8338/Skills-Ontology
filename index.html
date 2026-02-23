@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.39.1.1 | 20260223 | Fix empty-state loop: route to wizard instead of view bounce -->
+    <!-- v4.39.1.2 | 20260223 | Show demo banner on Reports page -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.39.1.1 - BUILD 20260223-fix-empty-loop
-        var BP_VERSION = 'v4.39.1.1';
+        // BLUEPRINT v4.39.1.2 - BUILD 20260223-reports-banner
+        var BP_VERSION = 'v4.39.1.2';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -11835,7 +11835,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Toggle readonly banner: hide on non-profile views, show on profile views when viewing a sample
             var roBanner = document.getElementById('readonlyBanner');
             if (roBanner) {
-                if (view === 'welcome' || view === 'consent' || view === 'admin' || view === 'reports') {
+                if (view === 'welcome' || view === 'consent' || view === 'admin') {
                     roBanner.style.display = 'none';
                 } else if (isReadOnlyProfile) {
                     roBanner.style.cssText = 'display:block !important; text-align:center; padding:10px 16px; font-size:0.88em; word-spacing:normal; white-space:normal;';
