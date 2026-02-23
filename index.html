@@ -20479,7 +20479,7 @@ body {
                 + '<span style="font-size:0.88em; color:var(--text-secondary);">'
                 + '<strong>' + filtered.length + '</strong> jobs' + (filtered.length < opportunitiesData.length ? ' (of ' + opportunitiesData.length + ' returned)' : '')
                 + ' above ' + currentMatchThreshold + '% match'
-                + (jobsDbCount > JOBS_DB_BASELINE ? ' <span style="color:var(--text-muted); font-size:0.85em;">\u00B7 ' + formatJobsCount(jobsDbCount) + ' in database</span>' : '')
+                + (jobsDbCount > 0 ? ' <span style="color:var(--text-muted); font-size:0.85em;">\u00B7 ' + jobsDbCount.toLocaleString() + ' unique jobs seen</span>' : '')
                 + '</span>'
                 + (window._findJobsSources ? '<span style="font-size:0.72em; color:var(--text-muted);">' + window._findJobsSources + '</span>' : '')
                 + '</div>';
@@ -20562,45 +20562,46 @@ body {
         var JOBS_PROXY_AVAILABLE = null;
         var jobsDbCount = parseInt(safeGet('bpJobsDbCount') || '0');
         var jobsSourceCounts = safeParse(safeGet('bpJobsSourceCounts'), {});
-        
-        // Known minimums from our sources (conservative floor estimates)
-        var JOBS_DB_BASELINE = 30000;
-        if (jobsDbCount < JOBS_DB_BASELINE) jobsDbCount = JOBS_DB_BASELINE;
+        var jobsSeenIds = safeParse(safeGet('bpJobsSeenIds'), []);
         
         function formatJobsCount(n) {
             if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M+';
             if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, '') + 'k+';
-            return n > 0 ? String(n) + '+' : '';
+            return n > 0 ? String(n) : '';
         }
         
         function updateJobsDbCount(data) {
             if (!data || !data.sources) return;
-            var newTotal = 0;
             var updated = false;
             
+            // Track per-source counts (highest seen)
             Object.keys(data.sources).forEach(function(src) {
                 var s = data.sources[src];
-                // JSearch returns total_count (full Google for Jobs index)
-                if (s.total && s.total > 0) {
-                    jobsSourceCounts[src] = Math.max(jobsSourceCounts[src] || 0, s.total);
-                    updated = true;
-                } else if (s.count && s.count > 0 && !s.error) {
-                    // For free APIs, track returned count as minimum
+                if (s.count && s.count > 0 && !s.error) {
                     jobsSourceCounts[src] = Math.max(jobsSourceCounts[src] || 0, s.count);
                     updated = true;
                 }
             });
             
-            // Sum all known source totals
-            Object.values(jobsSourceCounts).forEach(function(c) { newTotal += c; });
+            // Track unique job IDs seen across all searches
+            (data.jobs || []).forEach(function(j) {
+                if (j.id && jobsSeenIds.indexOf(j.id) === -1) {
+                    jobsSeenIds.push(j.id);
+                    updated = true;
+                }
+            });
             
-            if (newTotal > jobsDbCount) {
-                jobsDbCount = newTotal;
+            // Cap stored IDs to prevent localStorage bloat (keep last 5000)
+            if (jobsSeenIds.length > 5000) {
+                jobsSeenIds = jobsSeenIds.slice(-5000);
             }
+            
+            jobsDbCount = jobsSeenIds.length;
             
             if (updated) {
                 safeSet('bpJobsDbCount', String(jobsDbCount));
                 safeSet('bpJobsSourceCounts', JSON.stringify(jobsSourceCounts));
+                safeSet('bpJobsSeenIds', JSON.stringify(jobsSeenIds));
             }
         }
         
@@ -20765,6 +20766,15 @@ body {
                     sources.push(k + ': ' + (_apiStatus[k] === 'failed' ? '\u2717' : _apiStatus[k]));
                 });
                 window._findJobsSources = sources.join(' \u00B7 ') + ' (direct mode, deploy proxy for JSearch + USAJobs)';
+                
+                // Track unique jobs seen
+                opportunitiesData.forEach(function(j) {
+                    if (j.id && jobsSeenIds.indexOf(j.id) === -1) jobsSeenIds.push(j.id);
+                });
+                if (jobsSeenIds.length > 5000) jobsSeenIds = jobsSeenIds.slice(-5000);
+                jobsDbCount = jobsSeenIds.length;
+                safeSet('bpJobsDbCount', String(jobsDbCount));
+                safeSet('bpJobsSeenIds', JSON.stringify(jobsSeenIds));
                 
                 renderOpportunities();
             });

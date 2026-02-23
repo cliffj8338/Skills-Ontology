@@ -23,8 +23,8 @@ async function fetchJSearch(query, location, page, remoteOnly) {
     const params = new URLSearchParams({
       query: query + (location ? ' in ' + location : ''),
       page: String(page || 1),
-      num_pages: '1',
-      date_posted: 'month'
+      num_pages: '3',
+      date_posted: 'all'
     });
     if (remoteOnly) params.set('remote_jobs_only', 'true');
 
