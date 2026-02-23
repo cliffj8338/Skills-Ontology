@@ -2,7 +2,7 @@
 // Aggregates: JSearch (RapidAPI), Remotive, USAJobs, Himalayas, Jobicy
 // Requires: RAPIDAPI_KEY env var for JSearch, USAJOBS_EMAIL env var for USAJobs
 
-const ALLOWED_ORIGINS = ['https://myblueprint.work', 'http://localhost:3000'];
+const ALLOWED_ORIGINS = ['https://myblueprint.work', 'https://www.myblueprint.work', 'http://localhost:3000'];
 
 function corsHeaders(origin) {
   const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
