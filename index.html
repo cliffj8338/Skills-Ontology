@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.10.0 | 20260223 | Cap BLS %, feedback email update, profile schema modernization -->
+    <!-- v4.37.11.0 | 20260223 | Fix hasValuation gate blocking stat tiles -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1187,8 +1187,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.10.0 - BUILD 20260223-bls-cap-email-schema
-        var BP_VERSION = 'v4.37.10.0';
+        // BLUEPRINT v4.37.11.0 - BUILD 20260223-fix-valuation-gate
+        var BP_VERSION = 'v4.37.11.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -11942,7 +11942,7 @@ body {
             var values = (blueprintData.values || []).filter(function(v) { return v.selected; });
             var purpose = blueprintData.purpose || '';
             var totalValue = getEffectiveComp();
-            var hasValuation = totalValue && totalValue.total > 0 && skillValuations && Object.keys(skillValuations.skillBaseValues || {}).length > 0;
+            var hasValuation = totalValue && totalValue.total > 0;
             var hasCuratedComp = totalValue.compSource === 'curated' || totalValue.compSource === 'reported';
             // Calculate both modes for dual cards
             var evidenceValue = hasValuation ? calculateTotalMarketValue('evidence') : null;
