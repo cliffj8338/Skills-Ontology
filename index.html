@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.15.0 | 20260223 | AI proxy helper + all API calls routed through callAnthropicAPI -->
+    <!-- v4.37.16.0 | 20260223 | AI cost tracking dashboard + usage telemetry on all API calls -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1203,14 +1203,45 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.15.0 - BUILD 20260223-api-proxy
-        var BP_VERSION = 'v4.37.15.0';
+        // BLUEPRINT v4.37.16.0 - BUILD 20260223-cost-tracking
+        var BP_VERSION = 'v4.37.16.0';
         
-        // ===== AI PROXY HELPER =====
+        // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
         var AI_PROXY_AVAILABLE = null;
         
-        async function callAnthropicAPI(requestBody, userApiKey) {
+        // Feature registry: defines all AI call types for cost tracking
+        var AI_FEATURES = {
+            'resume-parse':     { name: 'Resume Parse',       inputTokens: 2200, outputTokens: 3500, desc: 'One-time per user' },
+            'jd-analysis':      { name: 'JD Analysis',        inputTokens: 1800, outputTokens: 1800, desc: 'Per job added' },
+            'cover-letter':     { name: 'Cover Letter',       inputTokens: 1200, outputTokens: 1200, desc: 'Per application' },
+            'interview-prep':   { name: 'Interview Prep',     inputTokens: 1800, outputTokens: 2500, desc: 'Per application' },
+            'linkedin-profile': { name: 'LinkedIn Profile',   inputTokens: 1200, outputTokens: 1200, desc: 'Occasional' },
+            'purpose-regen':    { name: 'Purpose Statement',  inputTokens: 600,  outputTokens: 250,  desc: 'Regenerations' }
+        };
+        
+        // Sonnet 4 pricing ($ per million tokens)
+        var AI_INPUT_COST_PER_M = 3.0;
+        var AI_OUTPUT_COST_PER_M = 3.0;
+        
+        // Usage log: { 'YYYY-MM-DD': { 'feature-tag': count, ... }, ... }
+        function getAIUsageLog() {
+            return safeParse(safeGet('bpAIUsageLog'), {});
+        }
+        function saveAIUsageLog(log) {
+            safeSet('bpAIUsageLog', JSON.stringify(log));
+        }
+        function trackAICall(featureTag) {
+            if (!featureTag) return;
+            var log = getAIUsageLog();
+            var today = new Date().toISOString().slice(0, 10);
+            if (!log[today]) log[today] = {};
+            log[today][featureTag] = (log[today][featureTag] || 0) + 1;
+            saveAIUsageLog(log);
+        }
+        
+        async function callAnthropicAPI(requestBody, userApiKey, featureTag) {
+            trackAICall(featureTag);
             var idToken = null;
             if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
                 try { idToken = await firebase.auth().currentUser.getIdToken(); } catch (e) {}
@@ -2170,6 +2201,7 @@
                 + '<button class="admin-tab" data-tab="waitlist" onclick="switchAdminTab(\'waitlist\')" style="flex:1; min-width:100px; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('target',14) + ' Waitlist</button>'
                 + '<button class="admin-tab" data-tab="config" onclick="switchAdminTab(\'config\')" style="flex:1; min-width:100px; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('settings',14) + ' Config</button>'
                 + '<button class="admin-tab" data-tab="roadmap" onclick="switchAdminTab(\'roadmap\')" style="flex:1; min-width:100px; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('target',14) + ' Roadmap</button>'
+                + '<button class="admin-tab" data-tab="costs" onclick="switchAdminTab(\'costs\')" style="flex:1; min-width:100px; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('skills',14) + ' Costs</button>'
                 + '</div>'
                 
                 // Content area
@@ -2190,6 +2222,7 @@
             else if (adminSubTab === 'waitlist') renderAdminWaitlist(el);
             else if (adminSubTab === 'config') renderAdminConfig(el);
             else if (adminSubTab === 'roadmap') renderAdminRoadmap(el);
+            else if (adminSubTab === 'costs') renderAdminCosts(el);
         }
         
         function renderAdminOverview(el) {
@@ -3154,6 +3187,214 @@
                 + '<span><span style="color:#3b82f6;">\u25CF</span> Medium</span>'
                 + '<span><span style="color:#6b7280;">\u25CF</span> Low</span>'
                 + '</div></div>';
+            
+            el.innerHTML = html;
+        }
+        
+        // ===== ADMIN COSTS DASHBOARD =====
+        var costsTimeRange = 30; // days
+        var costsProjectionUsers = 100;
+        
+        function setCostsTimeRange(days) {
+            costsTimeRange = days;
+            renderAdminCosts(document.getElementById('adminTabContent'));
+        }
+        window.setCostsTimeRange = setCostsTimeRange;
+        
+        function setCostsProjectionUsers(val) {
+            costsProjectionUsers = parseInt(val) || 100;
+            renderAdminCosts(document.getElementById('adminTabContent'));
+        }
+        window.setCostsProjectionUsers = setCostsProjectionUsers;
+        
+        function clearAIUsageLog() {
+            if (confirm('Clear all tracked AI usage data? This cannot be undone.')) {
+                safeRemove('bpAIUsageLog');
+                renderAdminCosts(document.getElementById('adminTabContent'));
+                showToast('Usage log cleared.', 'info');
+            }
+        }
+        window.clearAIUsageLog = clearAIUsageLog;
+        
+        function renderAdminCosts(el) {
+            var log = getAIUsageLog();
+            var today = new Date();
+            
+            // Compute date range
+            var rangeDates = [];
+            for (var d = 0; d < costsTimeRange; d++) {
+                var dt = new Date(today);
+                dt.setDate(dt.getDate() - d);
+                rangeDates.push(dt.toISOString().slice(0, 10));
+            }
+            
+            // Aggregate calls by feature within range
+            var featureTotals = {};
+            var dailyTotals = {};
+            var totalCalls = 0;
+            Object.keys(AI_FEATURES).forEach(function(tag) { featureTotals[tag] = 0; });
+            
+            rangeDates.forEach(function(date) {
+                var dayData = log[date] || {};
+                var dayTotal = 0;
+                Object.keys(dayData).forEach(function(tag) {
+                    var count = dayData[tag] || 0;
+                    featureTotals[tag] = (featureTotals[tag] || 0) + count;
+                    dayTotal += count;
+                    totalCalls += count;
+                });
+                dailyTotals[date] = dayTotal;
+            });
+            
+            // Calculate costs
+            var featureCosts = [];
+            var totalEstCost = 0;
+            Object.keys(AI_FEATURES).forEach(function(tag) {
+                var spec = AI_FEATURES[tag];
+                var calls = featureTotals[tag] || 0;
+                var inputTokens = calls * spec.inputTokens;
+                var outputTokens = calls * spec.outputTokens;
+                var cost = (inputTokens / 1e6) * AI_INPUT_COST_PER_M + (outputTokens / 1e6) * AI_OUTPUT_COST_PER_M;
+                totalEstCost += cost;
+                featureCosts.push({ tag: tag, name: spec.name, desc: spec.desc, calls: calls, inputTokens: inputTokens, outputTokens: outputTokens, cost: cost });
+            });
+            featureCosts.sort(function(a, b) { return b.cost - a.cost; });
+            
+            // Daily average for projection
+            var daysWithData = Object.keys(log).filter(function(d) { return rangeDates.indexOf(d) >= 0; }).length || 1;
+            var avgCallsPerDay = totalCalls / Math.max(daysWithData, 1);
+            var projectedMonthlyCost = (avgCallsPerDay * 30 / Math.max(totalCalls, 1)) * totalEstCost;
+            if (totalCalls === 0) projectedMonthlyCost = 0;
+            
+            // Sparkline data (last 14 days, most recent on right)
+            var sparkDays = rangeDates.slice(0, 14).reverse();
+            var sparkMax = Math.max.apply(null, sparkDays.map(function(d) { return dailyTotals[d] || 0; })) || 1;
+            
+            function fmt(n) { return n < 0.01 && n > 0 ? '<$0.01' : '$' + n.toFixed(2); }
+            function fmtK(n) { return n >= 1e6 ? (n/1e6).toFixed(1) + 'M' : n >= 1e3 ? (n/1e3).toFixed(0) + 'K' : n.toString(); }
+            
+            var html = '';
+            
+            // Header stats row
+            html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:24px;">';
+            
+            html += '<div style="padding:16px; background:linear-gradient(135deg, rgba(96,165,250,0.1), rgba(96,165,250,0.05)); border:1px solid rgba(96,165,250,0.2); border-radius:12px; text-align:center;">'
+                + '<div style="font-size:2em; font-weight:800; color:#60a5fa;">' + totalCalls + '</div>'
+                + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">API Calls</div>'
+                + '<div style="font-size:0.68em; color:var(--text-muted);">Last ' + costsTimeRange + ' days</div></div>';
+            
+            html += '<div style="padding:16px; background:linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.05)); border:1px solid rgba(16,185,129,0.2); border-radius:12px; text-align:center;">'
+                + '<div style="font-size:2em; font-weight:800; color:#10b981;">' + fmt(totalEstCost) + '</div>'
+                + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Est. Cost</div>'
+                + '<div style="font-size:0.68em; color:var(--text-muted);">Last ' + costsTimeRange + ' days</div></div>';
+            
+            html += '<div style="padding:16px; background:linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.05)); border:1px solid rgba(245,158,11,0.2); border-radius:12px; text-align:center;">'
+                + '<div style="font-size:2em; font-weight:800; color:#f59e0b;">' + fmt(projectedMonthlyCost) + '</div>'
+                + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Projected</div>'
+                + '<div style="font-size:0.68em; color:var(--text-muted);">Monthly at current pace</div></div>';
+            
+            html += '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:12px; text-align:center;">'
+                + '<div style="font-size:2em; font-weight:800; color:var(--text-primary);">' + avgCallsPerDay.toFixed(1) + '</div>'
+                + '<div style="font-size:0.72em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Avg/Day</div>'
+                + '<div style="font-size:0.68em; color:var(--text-muted);">API calls</div></div>';
+            
+            html += '</div>';
+            
+            // Time range selector
+            html += '<div style="display:flex; gap:6px; margin-bottom:20px; flex-wrap:wrap;">';
+            [7, 14, 30, 60, 90].forEach(function(d) {
+                var isActive = costsTimeRange === d;
+                html += '<button onclick="setCostsTimeRange(' + d + ')" style="padding:6px 14px; border-radius:20px; font-size:0.78em; font-weight:600; cursor:pointer; border:1px solid ' + (isActive ? 'var(--accent)' : 'var(--border)') + '; background:' + (isActive ? 'var(--accent)' : 'transparent') + '; color:' + (isActive ? '#fff' : 'var(--text-secondary)') + ';">' + d + 'd</button>';
+            });
+            html += '<button onclick="clearAIUsageLog()" style="margin-left:auto; padding:6px 14px; border-radius:20px; font-size:0.78em; font-weight:600; cursor:pointer; border:1px solid rgba(239,68,68,0.3); background:transparent; color:#ef4444;">Clear Log</button>';
+            html += '</div>';
+            
+            // Sparkline
+            html += '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:10px; margin-bottom:20px;">'
+                + '<div style="font-size:0.78em; font-weight:600; color:var(--text-muted); margin-bottom:10px;">Daily API Calls (last 14 days)</div>'
+                + '<div style="display:flex; align-items:flex-end; gap:3px; height:60px;">';
+            sparkDays.forEach(function(date) {
+                var count = dailyTotals[date] || 0;
+                var h = Math.max((count / sparkMax) * 100, 2);
+                var isToday = date === today.toISOString().slice(0, 10);
+                html += '<div title="' + escapeHtml(date) + ': ' + count + ' calls" style="flex:1; height:' + h + '%; background:' + (isToday ? '#60a5fa' : 'rgba(96,165,250,0.4)') + '; border-radius:3px 3px 0 0; min-width:8px; transition:height 0.3s;"></div>';
+            });
+            html += '</div>'
+                + '<div style="display:flex; justify-content:space-between; font-size:0.65em; color:var(--text-muted); margin-top:4px;">'
+                + '<span>' + sparkDays[0] + '</span><span>' + sparkDays[sparkDays.length - 1] + '</span></div></div>';
+            
+            // Per-feature breakdown
+            html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:10px; margin-bottom:20px;">'
+                + '<div style="font-size:0.85em; font-weight:700; color:var(--text-primary); margin-bottom:14px;">Cost by Feature</div>';
+            
+            var maxFeatureCost = Math.max.apply(null, featureCosts.map(function(f) { return f.cost; })) || 0.01;
+            
+            featureCosts.forEach(function(f) {
+                var barWidth = Math.max((f.cost / maxFeatureCost) * 100, 0.5);
+                var barColor = f.calls === 0 ? '#334155' : f.cost < 0.01 ? '#10b981' : f.cost < 1 ? '#3b82f6' : f.cost < 10 ? '#f59e0b' : '#ef4444';
+                
+                html += '<div style="margin-bottom:12px;">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">'
+                    + '<div><span style="font-weight:600; font-size:0.88em; color:var(--text-primary);">' + escapeHtml(f.name) + '</span>'
+                    + '<span style="font-size:0.72em; color:var(--text-muted); margin-left:8px;">' + escapeHtml(f.desc) + '</span></div>'
+                    + '<div style="text-align:right;">'
+                    + '<span style="font-weight:700; font-size:0.88em; color:' + barColor + ';">' + fmt(f.cost) + '</span>'
+                    + '<span style="font-size:0.72em; color:var(--text-muted); margin-left:8px;">' + f.calls + ' calls</span></div></div>'
+                    + '<div style="height:6px; background:var(--c-surface-5); border-radius:3px; overflow:hidden;">'
+                    + '<div style="height:100%; width:' + barWidth + '%; background:' + barColor + '; border-radius:3px;"></div></div>'
+                    + '<div style="font-size:0.68em; color:var(--text-muted); margin-top:2px;">'
+                    + fmtK(f.inputTokens) + ' in / ' + fmtK(f.outputTokens) + ' out tokens</div>'
+                    + '</div>';
+            });
+            
+            html += '</div>';
+            
+            // Projection calculator
+            html += '<div style="padding:20px; background:linear-gradient(135deg, rgba(96,165,250,0.05), rgba(139,92,246,0.05)); border:1px solid rgba(96,165,250,0.2); border-radius:10px; margin-bottom:20px;">'
+                + '<div style="font-size:0.85em; font-weight:700; color:#60a5fa; margin-bottom:14px;">Scale Projection Calculator</div>'
+                + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">'
+                + '<label style="font-size:0.82em; color:var(--text-secondary); white-space:nowrap;">Active users/month:</label>'
+                + '<input type="range" min="1" max="15000" value="' + costsProjectionUsers + '" oninput="setCostsProjectionUsers(this.value)" style="flex:1; accent-color:#60a5fa; cursor:pointer;" />'
+                + '<span style="font-weight:700; color:#60a5fa; min-width:60px; text-align:right;">' + costsProjectionUsers.toLocaleString() + '</span></div>';
+            
+            // Calculate projection
+            var projFeatures = [];
+            var projTotal = 0;
+            Object.keys(AI_FEATURES).forEach(function(tag) {
+                var spec = AI_FEATURES[tag];
+                // Usage rates per user per month (estimated)
+                var rates = { 'resume-parse': 1.0, 'jd-analysis': 3.0, 'cover-letter': 1.5, 'interview-prep': 1.0, 'linkedin-profile': 0.5, 'purpose-regen': 0.3 };
+                var callsPerMonth = (rates[tag] || 1) * costsProjectionUsers;
+                var cost = ((callsPerMonth * spec.inputTokens / 1e6) * AI_INPUT_COST_PER_M)
+                         + ((callsPerMonth * spec.outputTokens / 1e6) * AI_OUTPUT_COST_PER_M);
+                projTotal += cost;
+                projFeatures.push({ name: spec.name, calls: Math.round(callsPerMonth), cost: cost });
+            });
+            
+            html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:8px; margin-bottom:12px;">';
+            projFeatures.forEach(function(pf) {
+                html += '<div style="padding:10px; background:var(--c-surface-2); border-radius:8px; border:1px solid var(--border);">'
+                    + '<div style="font-size:0.78em; color:var(--text-muted);">' + escapeHtml(pf.name) + '</div>'
+                    + '<div style="font-weight:700; color:var(--text-primary);">' + fmt(pf.cost) + '</div>'
+                    + '<div style="font-size:0.68em; color:var(--text-muted);">' + pf.calls.toLocaleString() + ' calls/mo</div></div>';
+            });
+            html += '</div>';
+            
+            html += '<div style="text-align:center; padding:14px; background:var(--c-surface-2); border-radius:10px; border:1px solid var(--border);">'
+                + '<div style="font-size:0.75em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Projected Monthly Total</div>'
+                + '<div style="font-size:2.2em; font-weight:800; color:' + (projTotal < 1 ? '#10b981' : projTotal < 10 ? '#3b82f6' : projTotal < 50 ? '#f59e0b' : '#ef4444') + ';">' + fmt(projTotal) + '</div>'
+                + '<div style="font-size:0.75em; color:var(--text-muted);">for ' + costsProjectionUsers.toLocaleString() + ' active users at Sonnet 4 pricing</div></div>';
+            
+            html += '</div>';
+            
+            // Pricing reference
+            html += '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:10px; font-size:0.78em; color:var(--text-muted); line-height:1.7;">'
+                + '<div style="font-weight:600; color:var(--text-secondary); margin-bottom:6px;">Pricing Reference (Claude Sonnet 4)</div>'
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">'
+                + '<div>Input: <strong style="color:var(--text-primary);">$3.00</strong> / 1M tokens</div>'
+                + '<div>Output: <strong style="color:var(--text-primary);">$3.00</strong> / 1M tokens</div></div>'
+                + '<div style="margin-top:8px; font-size:0.92em;">Token estimates per feature are approximations based on typical prompt + response sizes. '
+                + 'Actual costs may vary. Add new features to the <code style="background:var(--c-surface-5); padding:1px 5px; border-radius:3px;">AI_FEATURES</code> registry to track them automatically.</div></div>';
             
             el.innerHTML = html;
         }
@@ -7279,7 +7520,7 @@ Rules:
                         messages: [{ role: 'user', content: `Parse this resume:
 
 ${wizardState.resumeText}` }]
-                    }, wizardApiKey);
+                    }, wizardApiKey, 'resume-parse');
                 setStatus('Structuring your profile data...', 55);
                 const rawText = data.content[0]?.text || '';
 
@@ -7641,7 +7882,7 @@ Top skills: ${wizardState.skills.slice(0,8).map(s=>s.name).join(', ')}
 Values: ${wizardState.values.filter(v=>v.selected).map(v=>v.name).join(', ')}
 Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).map(e=>e.outcome).filter(Boolean).join(' | ')}`
                         }]
-                    }, purposeApiKey);
+                    }, purposeApiKey, 'purpose-regen');
                 const newPurpose = data.content[0]?.text?.trim() || '';
                 if (newPurpose) {
                     wizardState.purpose = newPurpose;
@@ -17261,7 +17502,7 @@ body {
                         model: 'claude-sonnet-4-20250514',
                         max_tokens: 1500,
                         messages: [{ role: 'user', content: prompt }]
-                    }, apiKey)
+                    }, apiKey, 'cover-letter')
                 .then(function(data) {
                     var text = (data.content || []).map(function(c) { return c.text || ''; }).join('\n');
                     if (!text) throw new Error('Empty response');
@@ -17452,7 +17693,7 @@ body {
                         model: 'claude-sonnet-4-20250514',
                         max_tokens: 2500,
                         messages: [{ role: 'user', content: prompt }]
-                    }, apiKey)
+                    }, apiKey, 'interview-prep')
                 .then(function(data) {
                     var text = (data.content || []).map(function(c) { return c.text || ''; }).join('\n');
                     if (!text) throw new Error('Empty response');
@@ -17610,7 +17851,7 @@ body {
                         model: 'claude-sonnet-4-20250514',
                         max_tokens: 1500,
                         messages: [{ role: 'user', content: prompt }]
-                    }, apiKey)
+                    }, apiKey, 'linkedin-profile')
                 .then(function(data) {
                     var text = (data.content || []).map(function(c) { return c.text || ''; }).join('\n');
                     if (!text) throw new Error('Empty response');
@@ -18262,7 +18503,7 @@ body {
                     max_tokens: 2000,
                     system: systemPrompt,
                     messages: [{ role: 'user', content: userPrompt }]
-                }, apiKey);
+                }, apiKey, 'jd-analysis');
             
             var text = data.content.map(function(c) { return c.text || ''; }).join('');
             
