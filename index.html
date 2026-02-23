@@ -8,12 +8,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- SECURITY: SRI hashes required before production. Generate with: curl -s URL | openssl dgst -sha384 -binary | openssl base64 -A -->
-    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js" crossorigin="anonymous"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js" crossorigin="anonymous"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js" integrity="sha384-BkEIW/B4JV9w6pRfBRgZtAcYDk5goH1nUI49rLo8s5PSHgTfgxWBczRVJx+fv5kP" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js" integrity="sha384-96KlrabK9X4T/tq4duY+/4JE60jZAiSs4QVJFwmY30ETT24x2+89B7qmq7O4IETX" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js" integrity="sha384-LF74FIj8PQKxRVken52qSHntBSVEC6b05H04maSVJibifVGmWz9Ajc23WjrRVSCX" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="blueprint.css">
 <style>
 
@@ -2823,7 +2822,7 @@
                         { id: 's4', name: 'Crypto-secure report IDs', status: 'done', category: 'security', priority: 'high', notes: 'Report IDs now use crypto.getRandomValues (128-bit entropy) instead of Math.random.' },
                         { id: 's5', name: 'Firestore rules hardening', status: 'done', category: 'security', priority: 'critical', notes: 'analytics_events requires auth, report_views field validation, waitlist field limits.' },
                         { id: 's6', name: 'Third-party CORS proxies removed', status: 'done', category: 'security', priority: 'high', notes: 'corsproxy.io and allorigins.win removed. Prevents data leakage to third parties.' },
-                        { id: 's7', name: 'SRI hashes on CDN scripts', status: 'planned', category: 'security', priority: 'high', notes: 'Run generate-sri-hashes.sh to generate. 5 scripts in index.html + D3 in 4 report HTMLs.' },
+                        { id: 's7', name: 'SRI hashes on CDN scripts', status: 'done', category: 'security', priority: 'high', notes: 'Generated and applied. 5 scripts in index.html + D3 in 4 report HTMLs.' },
                         { id: 's8', name: 'Firebase SDK update', status: 'planned', category: 'security', priority: 'medium', notes: 'Update from 10.7.0 to latest stable. Regenerate SRI hashes after.' },
                         { id: 's9', name: 'Remaining innerHTML audit (~130)', status: 'planned', category: 'security', priority: 'medium', notes: 'Systematic audit of all remaining innerHTML assignments for escaping consistency.' },
                         { id: 's10', name: 'Session security review protocol', status: 'done', category: 'security', priority: 'high', notes: 'Every dev session opens with security/stability review before feature work.' }
