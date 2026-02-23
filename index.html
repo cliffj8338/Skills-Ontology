@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.38.3.2 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
+    <!-- v4.38.4.0 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -446,6 +446,9 @@
                 <button class="view-pill active" data-view="network" onclick="toggleSkillsView('network')">Network</button>
                 <button class="view-pill" data-view="card" onclick="toggleSkillsView('card')">Card</button>
             </div>
+            
+            <!-- Inline job selector (populated dynamically) -->
+            <div id="inlineJobSelector" style="display:none;"></div>
 
             <!-- Job match mode toggle (hidden until a job is activated) -->
             <div id="matchModeToggle" style="display:none;" class="match-mode-toggle">
@@ -1203,8 +1206,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.38.3.2 - BUILD 20260223-demo-mode-fix
-        var BP_VERSION = 'v4.38.3.2';
+        // BLUEPRINT v4.38.4.0 - BUILD 20260223-inline-job-selector
+        var BP_VERSION = 'v4.38.4.0';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1495,7 +1498,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260223-demo-mode-fix                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260223-inline-job-selector                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -8940,104 +8943,100 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         window.toggleJobSelector = toggleJobSelector;
         
         function renderJobSelectorWidget() {
-            var existing = document.getElementById('networkJobSelector');
-            if (existing) existing.remove();
+            // Remove any old floating widget
+            var oldFloat = document.getElementById('networkJobSelector');
+            if (oldFloat) oldFloat.remove();
+            
+            var container = document.getElementById('inlineJobSelector');
+            if (!container) return;
             
             var jobs = userData.savedJobs || [];
             if (jobs.length === 0) {
-                console.log('Job selector: no savedJobs, widget hidden');
+                container.style.display = 'none';
+                container.innerHTML = '';
                 return;
             }
             
-            // Only show when network view is visible
+            // Only show when network/card view is active
             var networkSvg = document.getElementById('networkView');
-            if (!networkSvg) {
-                console.log('Job selector: networkView element not found');
-                return;
-            }
-            if (networkSvg.style.display === 'none') {
-                console.log('Job selector: networkView hidden');
+            var isNetworkVisible = networkSvg && networkSvg.style.display !== 'none';
+            var cardView = document.getElementById('cardView');
+            var isCardVisible = cardView && cardView.style.display !== 'none';
+            if (!isNetworkVisible && !isCardVisible) {
+                container.style.display = 'none';
                 return;
             }
             
-            var container = networkSvg.parentElement;
-            if (!container) {
-                console.log('Job selector: no parent container');
-                return;
-            }
-            container.style.position = 'relative';
-            
-            console.log('Job selector: rendering widget for ' + jobs.length + ' jobs');
-            
-            var widget = document.createElement('div');
-            widget.id = 'networkJobSelector';
-            widget.style.cssText = 'position:fixed; bottom:24px; left:20px; z-index:200; font-family:Outfit,sans-serif;';
+            container.style.display = 'inline-flex';
+            container.style.cssText = 'display:inline-flex; align-items:center; position:relative; margin-left:8px;';
             
             if (!jobSelectorExpanded) {
-                // Collapsed: compact badge
-                var activeLabel = activeJobForNetwork ? escapeHtml(activeJobForNetwork.title || 'Job').substring(0, 20) : '';
-                var badgeColor = activeJobForNetwork ? 'var(--accent)' : 'var(--c-surface-2)';
-                var badgeBorder = activeJobForNetwork ? 'var(--accent)' : 'var(--border)';
-                widget.innerHTML = '<button onclick="toggleJobSelector()" style="'
-                    + 'display:inline-flex; align-items:center; gap:8px; padding:10px 16px; '
-                    + 'background:' + badgeColor + '; border:1px solid ' + badgeBorder + '; border-radius:24px; '
-                    + 'color:' + (activeJobForNetwork ? '#fff' : 'var(--text-secondary)') + '; cursor:pointer; '
-                    + 'font-size:0.82em; font-weight:600; font-family:Outfit,sans-serif; '
-                    + 'backdrop-filter:blur(12px); box-shadow:0 4px 20px rgba(0,0,0,0.3); '
-                    + 'transition:all 0.2s;">'
-                    + bpIcon('target', 14) + ' '
-                    + (activeJobForNetwork ? activeLabel + '...' : jobs.length + ' Saved Job' + (jobs.length !== 1 ? 's' : ''))
+                // Collapsed: compact pill badge
+                var activeLabel = activeJobForNetwork ? escapeHtml(activeJobForNetwork.title || 'Job').substring(0, 18) + '...' : '';
+                var isActive = !!activeJobForNetwork;
+                container.innerHTML = '<button onclick="toggleJobSelector()" style="'
+                    + 'display:inline-flex; align-items:center; gap:6px; padding:6px 14px; '
+                    + 'background:' + (isActive ? 'var(--accent)' : 'var(--c-surface-2)') + '; '
+                    + 'border:1px solid ' + (isActive ? 'var(--accent)' : 'var(--border)') + '; border-radius:20px; '
+                    + 'color:' + (isActive ? '#fff' : 'var(--text-secondary)') + '; cursor:pointer; '
+                    + 'font-size:0.78em; font-weight:600; font-family:Outfit,sans-serif; '
+                    + 'white-space:nowrap; transition:all 0.2s;">'
+                    + bpIcon('target', 12) + ' '
+                    + (isActive ? activeLabel : jobs.length + ' Job' + (jobs.length !== 1 ? 's' : ''))
                     + '</button>';
             } else {
-                // Expanded: job list panel
-                var html = '<div style="background:var(--bg-elevated); border:1px solid var(--border); border-radius:14px; '
-                    + 'backdrop-filter:blur(16px); box-shadow:0 8px 40px rgba(0,0,0,0.4); min-width:260px; max-width:320px; overflow:hidden;">';
+                // Expanded: dropdown panel
+                var html = '<button onclick="toggleJobSelector()" style="'
+                    + 'display:inline-flex; align-items:center; gap:6px; padding:6px 14px; '
+                    + 'background:var(--accent); border:1px solid var(--accent); border-radius:20px; '
+                    + 'color:#fff; cursor:pointer; font-size:0.78em; font-weight:600; font-family:Outfit,sans-serif; '
+                    + 'white-space:nowrap;">'
+                    + bpIcon('target', 12) + ' ' + jobs.length + ' Job' + (jobs.length !== 1 ? 's' : '') + ' ▾</button>';
+                
+                html += '<div style="position:absolute; top:100%; left:0; margin-top:6px; '
+                    + 'background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px; '
+                    + 'box-shadow:0 8px 40px rgba(0,0,0,0.4); min-width:280px; max-width:340px; overflow:hidden; z-index:300;">';
                 
                 // Header
-                html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--border);">'
-                    + '<span style="font-weight:700; font-size:0.88em; color:var(--text-primary);">' + bpIcon('target', 14) + ' Compare to Job</span>'
-                    + '<button onclick="toggleJobSelector()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2em; padding:4px;">&times;</button></div>';
+                html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border);">'
+                    + '<span style="font-weight:700; font-size:0.82em; color:var(--text-primary);">Compare to Job</span>'
+                    + '<button onclick="toggleJobSelector()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.1em; padding:2px 4px;">&times;</button></div>';
                 
                 // Job list
-                html += '<div style="max-height:280px; overflow-y:auto; padding:6px 0;">';
+                html += '<div style="max-height:240px; overflow-y:auto; padding:4px 0;">';
                 
-                // Clear option (if a job is active)
+                // Clear option
                 if (activeJobForNetwork) {
                     html += '<button onclick="clearJobOverlay(); jobSelectorExpanded=false; renderJobSelectorWidget();" style="'
-                        + 'display:flex; align-items:center; gap:10px; width:100%; padding:10px 16px; border:none; '
+                        + 'display:flex; align-items:center; gap:8px; width:100%; padding:8px 14px; border:none; '
                         + 'background:transparent; cursor:pointer; font-family:Outfit,sans-serif; text-align:left; transition:background 0.15s;" '
                         + 'onmouseover="this.style.background=\'var(--c-surface-2)\'" onmouseout="this.style.background=\'transparent\'">'
-                        + '<span style="width:8px; height:8px; border-radius:50%; background:var(--text-muted); flex-shrink:0;"></span>'
-                        + '<span style="font-size:0.82em; color:var(--text-muted); font-weight:500;">Clear overlay</span></button>';
+                        + '<span style="width:6px; height:6px; border-radius:50%; background:var(--text-muted); flex-shrink:0;"></span>'
+                        + '<span style="font-size:0.78em; color:var(--text-muted);">Clear overlay</span></button>';
                 }
                 
+                // Job items
                 jobs.forEach(function(job, idx) {
-                    var isActive = activeJobForNetwork && activeJobForNetwork === job;
-                    var matchPct = job.matchData ? job.matchData.score || job.matchData.matchPercent : null;
-                    var matchColor = matchPct ? (matchPct >= 75 ? '#10b981' : matchPct >= 50 ? '#f59e0b' : '#ef4444') : 'var(--text-muted)';
-                    var title = escapeHtml((job.title || 'Untitled').substring(0, 30));
-                    var company = escapeHtml((job.company || '').substring(0, 25));
-                    
+                    var isSelected = activeJobForNetwork && activeJobForNetwork.id === job.id;
+                    var score = job.matchData ? job.matchData.score : 0;
+                    var scoreColor = score >= 70 ? '#10b981' : score >= 45 ? '#f59e0b' : '#6b7280';
                     html += '<button onclick="activateJobOverlay(' + idx + '); jobSelectorExpanded=false; renderJobSelectorWidget();" style="'
-                        + 'display:flex; align-items:center; gap:10px; width:100%; padding:10px 16px; border:none; '
-                        + 'background:' + (isActive ? 'rgba(96,165,250,0.1)' : 'transparent') + '; cursor:pointer; font-family:Outfit,sans-serif; text-align:left; transition:background 0.15s;'
-                        + (isActive ? ' border-left:3px solid var(--accent);' : '') + '" '
-                        + 'onmouseover="this.style.background=\'' + (isActive ? 'rgba(96,165,250,0.15)' : 'var(--c-surface-2)') + '\'" '
-                        + 'onmouseout="this.style.background=\'' + (isActive ? 'rgba(96,165,250,0.1)' : 'transparent') + '\'">'
-                        + '<span style="width:8px; height:8px; border-radius:50%; background:' + (isActive ? 'var(--accent)' : 'var(--border)') + '; flex-shrink:0;"></span>'
-                        + '<div style="flex:1; min-width:0;">'
-                        + '<div style="font-size:0.82em; font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + title + '</div>'
-                        + (company ? '<div style="font-size:0.72em; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + company + '</div>' : '')
+                        + 'display:flex; align-items:center; gap:8px; width:100%; padding:8px 14px; border:none; '
+                        + 'background:' + (isSelected ? 'var(--c-accent-bg-1)' : 'transparent') + '; cursor:pointer; '
+                        + 'font-family:Outfit,sans-serif; text-align:left; transition:background 0.15s;" '
+                        + 'onmouseover="this.style.background=\'var(--c-surface-2)\'" onmouseout="this.style.background=\'' + (isSelected ? 'var(--c-accent-bg-1)' : 'transparent') + '\'">'
+                        + '<span style="width:6px; height:6px; border-radius:50%; background:' + (isSelected ? 'var(--accent)' : scoreColor) + '; flex-shrink:0;"></span>'
+                        + '<div style="min-width:0; flex:1;">'
+                        + '<div style="font-size:0.78em; font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(job.title || '') + '</div>'
+                        + '<div style="font-size:0.68em; color:var(--text-muted);">' + escapeHtml(job.company || '') + '</div>'
                         + '</div>'
-                        + (matchPct ? '<span style="font-size:0.78em; font-weight:700; color:' + matchColor + '; flex-shrink:0;">' + Math.round(matchPct) + '%</span>' : '')
+                        + '<span style="font-size:0.72em; font-weight:700; color:' + scoreColor + ';">' + score + '%</span>'
                         + '</button>';
                 });
                 
                 html += '</div></div>';
-                widget.innerHTML = html;
+                container.innerHTML = html;
             }
-            
-            document.body.appendChild(widget);
         }
         window.renderJobSelectorWidget = renderJobSelectorWidget;
         
@@ -11251,6 +11250,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             document.getElementById('welcomeView').style.display = 'none';
             document.getElementById('networkView').style.display = 'none';
             var _jsel = document.getElementById('networkJobSelector'); if (_jsel) _jsel.remove();
+            var _ijsel = document.getElementById('inlineJobSelector'); if (_ijsel) { _ijsel.style.display = 'none'; _ijsel.innerHTML = ''; }
             document.getElementById('cardView').style.display = 'none';
             document.getElementById('opportunitiesView').style.display = 'none';
             document.getElementById('applicationsView').style.display = 'none';
