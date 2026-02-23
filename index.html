@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.38.2.1 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
+    <!-- v4.38.3.0 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1203,8 +1203,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.38.2.1 - BUILD 20260223-route-demo-fix
-        var BP_VERSION = 'v4.38.2.1';
+        // BLUEPRINT v4.38.3.0 - BUILD 20260223-demo-mode-fix
+        var BP_VERSION = 'v4.38.3.0';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1495,7 +1495,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260223-route-demo-fix                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260223-demo-mode-fix                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -4321,9 +4321,18 @@
                 
                 // Build banner content based on auth state matrix
                 var bannerHTML = '';
+                var isDemoMode = appContext.mode === 'demo';
                 if (fbIsAdmin) {
                     // Admin viewing sample
-                    bannerHTML = '\uD83D\uDD12 <strong>Viewing: ' + profileName + '</strong> \u00B7 Admin mode';
+                    bannerHTML = (isDemoMode ? '\uD83C\uDFAD' : '\uD83D\uDD12') + ' <strong>Viewing: ' + profileName + '</strong> \u00B7 '
+                        + (isDemoMode ? 'Demo Mode' : 'Admin mode')
+                        + ' \u00B7 <a href="#" onclick="event.preventDefault(); exitDemoMode();" '
+                        + 'style="color:inherit; text-decoration:underline; font-weight:700;">\u2190 Return to my profile</a>';
+                } else if (fbUser && isDemoMode) {
+                    // Signed-in user in demo mode
+                    bannerHTML = '\uD83C\uDFAD <strong>Viewing: ' + profileName + '</strong> \u00B7 Demo Mode \u00B7 '
+                        + '<a href="#" onclick="event.preventDefault(); exitDemoMode();" '
+                        + 'style="color:inherit; text-decoration:underline; font-weight:700;">\u2190 Return to my profile</a>';
                 } else if (appMode === 'waitlisted') {
                     // Waitlisted user viewing sample
                     bannerHTML = '\uD83D\uDD12 <strong>Viewing: ' + profileName + '</strong> \u00B7 Sample profile. You\u2019re #<span id="bannerPosition">' + (waitlistPosition || '...') + '</span> on the waitlist.';
@@ -4491,7 +4500,22 @@
         window.enterDemoMode = enterDemoMode;
         
         function exitDemoMode() {
-            if (appContext.mode !== 'demo' || !appContext.userSnapshot) return;
+            if (appContext.mode !== 'demo' || !appContext.userSnapshot) {
+                // Fallback: not in proper demo mode, just reload from Firestore
+                if (fbUser && fbDb) {
+                    loadUserFromFirestore(fbUser.uid).then(function() {
+                        normalizeUserRoles();
+                        window.blueprintInitialized = false;
+                        window.networkInitialized = false;
+                        window.cardViewInitialized = false;
+                        checkReadOnly();
+                        updateProfileChip(userData.profile.name || 'My Profile');
+                        switchView('blueprint');
+                    });
+                    return;
+                }
+                return;
+            }
             
             // Restore user state from snapshot
             userData = appContext.userSnapshot;
@@ -4523,11 +4547,12 @@
             updateDemoToggleUI();
             updateProfileChip(userData.profile.name || 'My Profile');
             
-            // Return to where they were
-            switchView(appContext.returnView || 'network');
+            // Return to user's profile
+            switchView('blueprint');
             setTimeout(function() { window.scrollTo(0, 0); }, 50);
             
             showToast('Welcome back! Your Blueprint is restored.', 'info', 2000);
+            rebuildProfileDropdown();
         }
         window.exitDemoMode = exitDemoMode;
         
@@ -6706,6 +6731,13 @@
             if (appContext.mode === 'demo' && templateId.indexOf('firestore-') === 0) {
                 closeProfileDropdown();
                 exitDemoMode();
+                return;
+            }
+            
+            // Signed-in users viewing sample profiles → enter demo mode (snapshot + isolate)
+            if (fbUser && templateId.indexOf('firestore-') !== 0) {
+                closeProfileDropdown();
+                enterDemoMode(templateId);
                 return;
             }
             
