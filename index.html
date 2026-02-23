@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.16.1 | 20260223 | Fix skill.level type coercion (non-string levels crashed card view) -->
+    <!-- v4.37.17.0 | 20260223 | Network job selector widget + skill.level type fix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1203,8 +1203,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.16.1 - BUILD 20260223-level-typefix
-        var BP_VERSION = 'v4.37.16.1';
+        // BLUEPRINT v4.37.17.0 - BUILD 20260223-network-job-selector
+        var BP_VERSION = 'v4.37.17.0';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2910,6 +2910,7 @@
                         { id: 'p1-3', name: 'CORS proxy via serverless', status: 'planned', category: 'infrastructure', priority: 'medium', notes: 'Vercel serverless at /api/fetch. Allowlist: remotive.com, himalayas.app, jobicy.com.' },
                         { id: 'p1-4', name: 'Admin roadmap tracker', status: 'done', category: 'feature', priority: 'medium', notes: 'Roadmap tab in admin panel. Tracks all strategy items, features, and tasks.' },
                         { id: 'p1-6', name: 'AI cost tracking dashboard', status: 'done', category: 'feature', priority: 'medium', notes: 'Costs tab in admin. Tracks all API calls by feature tag, shows real usage, estimated costs, sparkline, and scale projection calculator. AI_FEATURES registry auto-picks up new features.' },
+                        { id: 'p1-7', name: 'Network job selector widget', status: 'done', category: 'feature', priority: 'medium', notes: 'Floating widget on network view. Select saved jobs to overlay match/gap/values analysis directly on the skill graph.' },
                         { id: 'p1-5', name: 'Demo profile polish', status: 'in-progress', category: 'feature', priority: 'medium', notes: '24 TV character profiles with 99 evidence outcomes added. Ongoing refinement.' }
                     ]
                 },
@@ -8146,6 +8147,102 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         let networkMatchMode = 'you'; // 'you' | 'job' | 'match'
         let activeJobForNetwork = null; // saved job object when overlay is active
 
+        // ===== NETWORK JOB SELECTOR WIDGET =====
+        var jobSelectorExpanded = false;
+        
+        function toggleJobSelector() {
+            jobSelectorExpanded = !jobSelectorExpanded;
+            renderJobSelectorWidget();
+        }
+        window.toggleJobSelector = toggleJobSelector;
+        
+        function renderJobSelectorWidget() {
+            var existing = document.getElementById('networkJobSelector');
+            if (existing) existing.remove();
+            
+            var jobs = userData.savedJobs || [];
+            if (jobs.length === 0) return;
+            
+            // Only show when network view is visible
+            var networkSvg = document.getElementById('networkView');
+            if (!networkSvg || networkSvg.style.display === 'none') return;
+            
+            var container = networkSvg.parentElement;
+            if (!container) return;
+            container.style.position = 'relative';
+            
+            var widget = document.createElement('div');
+            widget.id = 'networkJobSelector';
+            widget.style.cssText = 'position:absolute; bottom:20px; left:16px; z-index:200; font-family:Outfit,sans-serif;';
+            
+            if (!jobSelectorExpanded) {
+                // Collapsed: compact badge
+                var activeLabel = activeJobForNetwork ? escapeHtml(activeJobForNetwork.title || 'Job').substring(0, 20) : '';
+                var badgeColor = activeJobForNetwork ? 'var(--accent)' : 'var(--c-surface-2)';
+                var badgeBorder = activeJobForNetwork ? 'var(--accent)' : 'var(--border)';
+                widget.innerHTML = '<button onclick="toggleJobSelector()" style="'
+                    + 'display:inline-flex; align-items:center; gap:8px; padding:10px 16px; '
+                    + 'background:' + badgeColor + '; border:1px solid ' + badgeBorder + '; border-radius:24px; '
+                    + 'color:' + (activeJobForNetwork ? '#fff' : 'var(--text-secondary)') + '; cursor:pointer; '
+                    + 'font-size:0.82em; font-weight:600; font-family:Outfit,sans-serif; '
+                    + 'backdrop-filter:blur(12px); box-shadow:0 4px 20px rgba(0,0,0,0.3); '
+                    + 'transition:all 0.2s;">'
+                    + bpIcon('target', 14) + ' '
+                    + (activeJobForNetwork ? activeLabel + '...' : jobs.length + ' Saved Job' + (jobs.length !== 1 ? 's' : ''))
+                    + '</button>';
+            } else {
+                // Expanded: job list panel
+                var html = '<div style="background:var(--bg-elevated); border:1px solid var(--border); border-radius:14px; '
+                    + 'backdrop-filter:blur(16px); box-shadow:0 8px 40px rgba(0,0,0,0.4); min-width:260px; max-width:320px; overflow:hidden;">';
+                
+                // Header
+                html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--border);">'
+                    + '<span style="font-weight:700; font-size:0.88em; color:var(--text-primary);">' + bpIcon('target', 14) + ' Compare to Job</span>'
+                    + '<button onclick="toggleJobSelector()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2em; padding:4px;">&times;</button></div>';
+                
+                // Job list
+                html += '<div style="max-height:280px; overflow-y:auto; padding:6px 0;">';
+                
+                // Clear option (if a job is active)
+                if (activeJobForNetwork) {
+                    html += '<button onclick="clearJobOverlay(); jobSelectorExpanded=false; renderJobSelectorWidget();" style="'
+                        + 'display:flex; align-items:center; gap:10px; width:100%; padding:10px 16px; border:none; '
+                        + 'background:transparent; cursor:pointer; font-family:Outfit,sans-serif; text-align:left; transition:background 0.15s;" '
+                        + 'onmouseover="this.style.background=\'var(--c-surface-2)\'" onmouseout="this.style.background=\'transparent\'">'
+                        + '<span style="width:8px; height:8px; border-radius:50%; background:var(--text-muted); flex-shrink:0;"></span>'
+                        + '<span style="font-size:0.82em; color:var(--text-muted); font-weight:500;">Clear overlay</span></button>';
+                }
+                
+                jobs.forEach(function(job, idx) {
+                    var isActive = activeJobForNetwork && activeJobForNetwork === job;
+                    var matchPct = job.matchData ? job.matchData.score || job.matchData.matchPercent : null;
+                    var matchColor = matchPct ? (matchPct >= 75 ? '#10b981' : matchPct >= 50 ? '#f59e0b' : '#ef4444') : 'var(--text-muted)';
+                    var title = escapeHtml((job.title || 'Untitled').substring(0, 30));
+                    var company = escapeHtml((job.company || '').substring(0, 25));
+                    
+                    html += '<button onclick="activateJobOverlay(' + idx + '); jobSelectorExpanded=false; renderJobSelectorWidget();" style="'
+                        + 'display:flex; align-items:center; gap:10px; width:100%; padding:10px 16px; border:none; '
+                        + 'background:' + (isActive ? 'rgba(96,165,250,0.1)' : 'transparent') + '; cursor:pointer; font-family:Outfit,sans-serif; text-align:left; transition:background 0.15s;'
+                        + (isActive ? ' border-left:3px solid var(--accent);' : '') + '" '
+                        + 'onmouseover="this.style.background=\'' + (isActive ? 'rgba(96,165,250,0.15)' : 'var(--c-surface-2)') + '\'" '
+                        + 'onmouseout="this.style.background=\'' + (isActive ? 'rgba(96,165,250,0.1)' : 'transparent') + '\'">'
+                        + '<span style="width:8px; height:8px; border-radius:50%; background:' + (isActive ? 'var(--accent)' : 'var(--border)') + '; flex-shrink:0;"></span>'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="font-size:0.82em; font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + title + '</div>'
+                        + (company ? '<div style="font-size:0.72em; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + company + '</div>' : '')
+                        + '</div>'
+                        + (matchPct ? '<span style="font-size:0.78em; font-weight:700; color:' + matchColor + '; flex-shrink:0;">' + Math.round(matchPct) + '%</span>' : '')
+                        + '</button>';
+                });
+                
+                html += '</div></div>';
+                widget.innerHTML = html;
+            }
+            
+            container.appendChild(widget);
+        }
+        window.renderJobSelectorWidget = renderJobSelectorWidget;
+        
         function initNetwork() {
             // Safety: ensure roles are normalized before building D3 graph
             if (typeof normalizeUserRoles === 'function') normalizeUserRoles();
@@ -8462,6 +8559,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (container) { container.style.position = 'relative'; container.appendChild(badge); }
                 }
             }
+            
+            // Render job selector widget
+            renderJobSelectorWidget();
         }
 
         // ===== NETWORK OVERLAY ENGINE (Phase 2) =====
@@ -8485,6 +8585,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Render the match network
             setNetworkMatchMode('match');
+            renderJobSelectorWidget();
         }
         window.activateJobOverlay = activateJobOverlay;
         
@@ -8528,6 +8629,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             window.networkInitialized = false;
             initNetwork();
             window.networkInitialized = true;
+            renderJobSelectorWidget();
         }
         window.clearJobOverlay = clearJobOverlay;
         
@@ -10303,6 +10405,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Hide all views
             document.getElementById('welcomeView').style.display = 'none';
             document.getElementById('networkView').style.display = 'none';
+            var _jsel = document.getElementById('networkJobSelector'); if (_jsel) _jsel.remove();
             document.getElementById('cardView').style.display = 'none';
             document.getElementById('opportunitiesView').style.display = 'none';
             document.getElementById('applicationsView').style.display = 'none';
