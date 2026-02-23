@@ -1,5 +1,5 @@
 # Blueprint™ Project Context
-**Version:** v4.37.1.0 | **Date:** February 23, 2026 | **Owner:** Cliff Jurkiewicz
+**Version:** v4.37.2.0 | **Date:** February 23, 2026 | **Owner:** Cliff Jurkiewicz
 
 ---
 
@@ -222,6 +222,7 @@ Key properties:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v4.37.2.0 | 2026-02-23 | First-visit teaser modal: manifesto + feature cards + waitlist CTA + LinkedIn backstory |
 | v4.37.1.0 | 2026-02-23 | Demo mode toggle: isolated data contexts with snapshot/restore, write guards |
 | v4.37.0.0 | 2026-02-23 | Demo: restore HTML/PDF format picker, redirect to sample report viewer with overlay |
 | v4.36.9.0 | 2026-02-22 | PDF: inferred match coloring from matchPct for stale job data |
