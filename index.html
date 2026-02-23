@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.17.0 | 20260223 | Network job selector widget + skill.level type fix -->
+    <!-- v4.37.18.0 | 20260223 | Site traffic analytics dashboard + bpTracker engine -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1203,8 +1203,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.17.0 - BUILD 20260223-network-job-selector
-        var BP_VERSION = 'v4.37.17.0';
+        // BLUEPRINT v4.37.18.0 - BUILD 20260223-traffic-dashboard
+        var BP_VERSION = 'v4.37.18.0';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1299,6 +1299,157 @@
             if (!str) return fallback !== undefined ? fallback : null;
             try { return JSON.parse(str); } catch(e) { return fallback !== undefined ? fallback : null; }
         }
+
+        // ===== SITE ANALYTICS TRACKER =====
+        var bpTracker = {
+            sid: null, vid: null, sessStart: null, curView: null, viewStart: null,
+            viewTimes: {}, hbInterval: null, isNew: false,
+            
+            init: function() {
+                this.vid = safeGet('bpVisitorId');
+                if (!this.vid) {
+                    this.vid = 'v_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
+                    safeSet('bpVisitorId', this.vid);
+                    this.isNew = true;
+                }
+                this.sid = 's_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4);
+                this.sessStart = Date.now();
+                
+                this.log('session_start', { referrer: document.referrer || 'direct', isNew: this.isNew });
+                this.log('device_info', { screenW: screen.width, screenH: screen.height,
+                    vpW: window.innerWidth, vpH: window.innerHeight,
+                    mobile: window.innerWidth <= 768,
+                    dark: document.body?.classList?.contains('dark-theme') || window.matchMedia('(prefers-color-scheme: dark)').matches,
+                    lang: navigator.language });
+                
+                var self = this;
+                this.hbInterval = setInterval(function() { self.flush(); }, 30000);
+                window.addEventListener('beforeunload', function() { self.end(); });
+                document.addEventListener('visibilitychange', function() {
+                    document.hidden ? self.pauseView() : self.resumeView();
+                });
+                
+                var visits = parseInt(safeGet('bpVisitCount') || '0') + 1;
+                safeSet('bpVisitCount', String(visits));
+                safeSet('bpLastVisit', new Date().toISOString());
+                if (!safeGet('bpFirstVisit')) safeSet('bpFirstVisit', new Date().toISOString());
+            },
+            
+            trackView: function(v) {
+                if (!v) return;
+                if (this.curView && this.viewStart) {
+                    var el = Math.round((Date.now() - this.viewStart) / 1000);
+                    if (el > 0 && el < 3600) this.viewTimes[this.curView] = (this.viewTimes[this.curView] || 0) + el;
+                }
+                this.curView = v; this.viewStart = Date.now();
+                this.log('page_view', { view: v });
+            },
+            
+            pauseView: function() {
+                if (this.curView && this.viewStart) {
+                    var el = Math.round((Date.now() - this.viewStart) / 1000);
+                    if (el > 0 && el < 3600) this.viewTimes[this.curView] = (this.viewTimes[this.curView] || 0) + el;
+                    this.viewStart = null;
+                }
+            },
+            resumeView: function() { if (this.curView) this.viewStart = Date.now(); },
+            
+            trackFeature: function(name, extra) { this.log('feature_use', Object.assign({ feature: name }, extra || {})); },
+            
+            trackFunnel: function(step) {
+                this.log('funnel', { step: step });
+                var order = ['visit','signup','profile_created','skills_added','first_job','report_generated'];
+                var cur = safeGet('bpFunnelStep') || 'visit';
+                if (order.indexOf(step) > order.indexOf(cur)) safeSet('bpFunnelStep', step);
+            },
+            
+            flush: function() {
+                var dur = Math.round((Date.now() - this.sessStart) / 1000);
+                var d = this.getData(); var today = new Date().toISOString().slice(0, 10);
+                if (!d.sessions[today]) d.sessions[today] = [];
+                var found = false;
+                for (var i = 0; i < d.sessions[today].length; i++) {
+                    if (d.sessions[today][i].sid === this.sid) { d.sessions[today][i].dur = dur; d.sessions[today][i].vt = Object.assign({}, this.viewTimes); found = true; break; }
+                }
+                if (!found) d.sessions[today].push({ sid: this.sid, vid: this.vid, start: this.sessStart, dur: dur, vt: Object.assign({}, this.viewTimes), isNew: this.isNew });
+                this.saveData(d);
+            },
+            
+            end: function() { clearInterval(this.hbInterval); this.pauseView(); this.flush();
+                var dur = Math.round((Date.now() - this.sessStart) / 1000);
+                var pvCount = 0; var d = this.getData(); var today = new Date().toISOString().slice(0,10);
+                var dpv = d.pageViews[today] || {}; Object.values(dpv).forEach(function(v){pvCount+=v;});
+                this.log('session_end', { duration: dur, pvCount: pvCount });
+            },
+            
+            log: function(type, evData) {
+                var d = this.getData(); var today = new Date().toISOString().slice(0, 10);
+                if (type === 'page_view') {
+                    if (!d.pageViews[today]) d.pageViews[today] = {};
+                    var vw = evData.view || 'unknown';
+                    d.pageViews[today][vw] = (d.pageViews[today][vw] || 0) + 1;
+                    d.totalPV = (d.totalPV || 0) + 1;
+                }
+                if (type === 'feature_use') {
+                    if (!d.features[today]) d.features[today] = {};
+                    d.features[today][evData.feature] = (d.features[today][evData.feature] || 0) + 1;
+                }
+                if (type === 'device_info') {
+                    if (!d.devices) d.devices = { mobile: 0, desktop: 0, dark: 0, light: 0, sizes: {} };
+                    evData.mobile ? d.devices.mobile++ : d.devices.desktop++;
+                    evData.dark ? d.devices.dark++ : d.devices.light++;
+                    var sk = evData.screenW + 'x' + evData.screenH;
+                    d.devices.sizes[sk] = (d.devices.sizes[sk] || 0) + 1;
+                }
+                if (type === 'session_start') {
+                    if (!d.dailySess) d.dailySess = {};
+                    d.dailySess[today] = (d.dailySess[today] || 0) + 1;
+                    d.totalSess = (d.totalSess || 0) + 1;
+                    if (evData.isNew) { if (!d.newVis) d.newVis = {}; d.newVis[today] = (d.newVis[today] || 0) + 1; }
+                }
+                if (type === 'funnel') { if (!d.funnel) d.funnel = {}; d.funnel[evData.step] = (d.funnel[evData.step] || 0) + 1; }
+                if (type === 'session_end' && evData.pvCount <= 1) { if (!d.bounces) d.bounces = {}; d.bounces[today] = (d.bounces[today] || 0) + 1; }
+                this.saveData(d);
+                
+                // Firestore (non-blocking)
+                if (type !== 'device_info' && fbDb && fbUser) {
+                    try { fbDb.collection('site_analytics').add({ type: type, data: evData || {}, uid: fbUser.uid, vid: this.vid, sid: this.sid, ts: firebase.firestore.FieldValue.serverTimestamp(), date: today }); } catch(e) {}
+                }
+            },
+            
+            getData: function() {
+                return safeParse(safeGet('bpSiteAnalytics'), { pageViews:{}, sessions:{}, dailySess:{}, features:{}, devices:{mobile:0,desktop:0,dark:0,light:0,sizes:{}}, funnel:{}, bounces:{}, newVis:{}, totalPV:0, totalSess:0 });
+            },
+            saveData: function(d) { safeSet('bpSiteAnalytics', JSON.stringify(d)); },
+            
+            getStats: function(days) {
+                var d = this.getData(); var dates = []; var now = new Date();
+                for (var i = 0; i < days; i++) { var dt = new Date(now); dt.setDate(dt.getDate()-i); dates.push(dt.toISOString().slice(0,10)); }
+                var sess=0, pv=0, bnc=0, nv=0, viewCts={}, featCts={}, dailyPV=[], dailySess=[], totDur=0, sessCt=0, viewDurs={};
+                dates.forEach(function(date) {
+                    var ds = d.dailySess[date]||0; sess+=ds; dailySess.push({date:date,count:ds});
+                    bnc += d.bounces[date]||0; nv += d.newVis[date]||0;
+                    var dpv = d.pageViews[date]||{}; var dt=0;
+                    Object.keys(dpv).forEach(function(v){viewCts[v]=(viewCts[v]||0)+dpv[v]; dt+=dpv[v];});
+                    pv+=dt; dailyPV.push({date:date,count:dt});
+                    var df = d.features[date]||{};
+                    Object.keys(df).forEach(function(f){featCts[f]=(featCts[f]||0)+df[f];});
+                    (d.sessions[date]||[]).forEach(function(s){
+                        if(s.dur>0){totDur+=s.dur;sessCt++;}
+                        if(s.vt) Object.keys(s.vt).forEach(function(v){viewDurs[v]=(viewDurs[v]||0)+s.vt[v];});
+                    });
+                });
+                return {
+                    sessions:sess, pageViews:pv, bounceRate: sess>0?Math.round(bnc/sess*100):0,
+                    newVisitors:nv, returning: sess-nv,
+                    avgDuration: sessCt>0?Math.round(totDur/sessCt):0, totalDuration:totDur,
+                    viewsPerSession: sess>0?(pv/sess).toFixed(1):'0',
+                    viewCounts:viewCts, viewDurations:viewDurs, featureCounts:featCts,
+                    dailyPV:dailyPV.reverse(), dailySessions:dailySess.reverse(),
+                    devices: d.devices||{}, funnel: d.funnel||{}
+                };
+            }
+        };
 
         // Samples default to Network view + scroll-to-top on all view switches
         // ============================================================
@@ -1790,6 +1941,7 @@
             }
             
             showToast('Welcome, ' + escapeHtml(user.displayName || user.email) + '!', 'success');
+            if (typeof bpTracker !== 'undefined' && bpTracker.sid) bpTracker.trackFunnel('signup');
         }
 
         // ===== ADMIN ROLE CHECK =====
@@ -2301,6 +2453,13 @@
                 + '<div style="margin-top:10px; font-size:0.78em; color:var(--text-muted);">' + totalLoaded + '/' + tiles.length + ' libraries loaded</div>'
                 + '</div>';
             
+            // ===== SITE TRAFFIC & ANALYTICS =====
+            html += '<div id="adminTraffic" style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:20px;">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">'
+                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">Site Traffic</h3>'
+                + '<div style="display:flex; gap:4px;" id="trafficRangeBtns"></div></div>'
+                + '<div id="trafficTiles">Loading...</div></div>';
+            
             // ===== PLATFORM ANALYTICS (loaded from Firestore) =====
             html += '<div id="adminAnalytics" style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:20px;">'
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 16px; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">Platform Analytics</h3>'
@@ -2321,6 +2480,223 @@
             
             // Async: load platform analytics from Firestore
             loadPlatformAnalytics();
+            renderTrafficDashboard(30);
+        }
+        
+        // ===== SITE TRAFFIC DASHBOARD =====
+        var trafficRange = 30;
+        function setTrafficRange(d) { trafficRange = d; renderTrafficDashboard(d); }
+        window.setTrafficRange = setTrafficRange;
+        
+        function renderTrafficDashboard(days) {
+            var container = document.getElementById('trafficTiles');
+            var btnContainer = document.getElementById('trafficRangeBtns');
+            if (!container) return;
+            
+            // Range buttons
+            if (btnContainer) {
+                var bhtml = '';
+                [7,14,30,60,90].forEach(function(d) {
+                    var active = days === d;
+                    bhtml += '<button onclick="setTrafficRange(' + d + ')" style="padding:4px 12px; border-radius:16px; font-size:0.72em; font-weight:600; cursor:pointer; border:1px solid ' + (active ? 'var(--accent)' : 'var(--border)') + '; background:' + (active ? 'var(--accent)' : 'transparent') + '; color:' + (active ? '#fff' : 'var(--text-muted)') + ';">' + d + 'd</button>';
+                });
+                btnContainer.innerHTML = bhtml;
+            }
+            
+            var s = bpTracker.getStats(days);
+            var html = '';
+            
+            function fmt(sec) { if (sec < 60) return sec + 's'; if (sec < 3600) return Math.floor(sec/60) + 'm ' + (sec%60) + 's'; return Math.floor(sec/3600) + 'h ' + Math.floor((sec%3600)/60) + 'm'; }
+            function tile(label, value, color, sub) {
+                return '<div style="padding:14px; background:linear-gradient(135deg, ' + color + '11, ' + color + '08); border:1px solid ' + color + '33; border-radius:10px; text-align:center;">'
+                    + '<div style="font-size:1.8em; font-weight:800; color:' + color + ';">' + value + '</div>'
+                    + '<div style="font-size:0.7em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">' + label + '</div>'
+                    + (sub ? '<div style="font-size:0.65em; color:var(--text-muted); margin-top:2px;">' + sub + '</div>' : '') + '</div>';
+            }
+            
+            // ===== ROW 1: Core Traffic Metrics =====
+            html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px; margin-bottom:16px;">';
+            html += tile('Sessions', s.sessions, '#60a5fa', 'Last ' + days + ' days');
+            html += tile('Page Views', s.pageViews, '#8b5cf6', s.viewsPerSession + ' per session');
+            html += tile('Bounce Rate', s.bounceRate + '%', s.bounceRate > 60 ? '#ef4444' : s.bounceRate > 40 ? '#f59e0b' : '#10b981', 'Single-view sessions');
+            html += tile('Avg Session', fmt(s.avgDuration), '#10b981', 'Time on site');
+            html += tile('New Visitors', s.newVisitors, '#fbbf24', s.returning + ' returning');
+            html += tile('Total Time', fmt(s.totalDuration), '#ec4899', 'All sessions combined');
+            html += '</div>';
+            
+            // ===== ROW 2: Sparklines (Sessions + Page Views) =====
+            html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">';
+            
+            // Sessions sparkline
+            var sMax = Math.max.apply(null, s.dailySessions.map(function(d){return d.count;})) || 1;
+            html += '<div style="padding:14px; background:var(--c-surface-4b); border-radius:10px;">'
+                + '<div style="font-size:0.75em; font-weight:600; color:var(--text-muted); margin-bottom:8px;">Daily Sessions</div>'
+                + '<div style="display:flex; align-items:flex-end; gap:2px; height:50px;">';
+            s.dailySessions.slice(-Math.min(days, 30)).forEach(function(d) {
+                var h = Math.max((d.count / sMax) * 100, 3);
+                html += '<div title="' + escapeHtml(d.date) + ': ' + d.count + '" style="flex:1; height:' + h + '%; background:rgba(96,165,250,0.5); border-radius:2px 2px 0 0; min-width:4px;"></div>';
+            });
+            html += '</div></div>';
+            
+            // Page views sparkline
+            var pvMax = Math.max.apply(null, s.dailyPV.map(function(d){return d.count;})) || 1;
+            html += '<div style="padding:14px; background:var(--c-surface-4b); border-radius:10px;">'
+                + '<div style="font-size:0.75em; font-weight:600; color:var(--text-muted); margin-bottom:8px;">Daily Page Views</div>'
+                + '<div style="display:flex; align-items:flex-end; gap:2px; height:50px;">';
+            s.dailyPV.slice(-Math.min(days, 30)).forEach(function(d) {
+                var h = Math.max((d.count / pvMax) * 100, 3);
+                html += '<div title="' + escapeHtml(d.date) + ': ' + d.count + '" style="flex:1; height:' + h + '%; background:rgba(139,92,246,0.5); border-radius:2px 2px 0 0; min-width:4px;"></div>';
+            });
+            html += '</div></div>';
+            html += '</div>';
+            
+            // ===== ROW 3: Page Views by Section + Time per Section =====
+            html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">';
+            
+            // Views by section
+            var viewLabels = { network:'Skills', card:'Card View', opportunities:'Jobs', blueprint:'Blueprint', reports:'Reports', settings:'Settings', welcome:'Welcome', admin:'Admin' };
+            var viewColors = { network:'#60a5fa', card:'#818cf8', opportunities:'#f59e0b', blueprint:'#10b981', reports:'#ec4899', settings:'#6b7280', welcome:'#a78bfa', admin:'#fbbf24' };
+            var sortedViews = Object.entries(s.viewCounts).sort(function(a,b){return b[1]-a[1];});
+            var maxView = sortedViews.length > 0 ? sortedViews[0][1] : 1;
+            
+            html += '<div style="padding:14px; background:var(--c-surface-4b); border-radius:10px;">'
+                + '<div style="font-size:0.75em; font-weight:600; color:var(--text-muted); margin-bottom:10px;">Views by Section</div>';
+            if (sortedViews.length === 0) { html += '<div style="font-size:0.82em; color:var(--text-muted);">No data yet</div>'; }
+            sortedViews.forEach(function(entry) {
+                var view = entry[0], count = entry[1];
+                var pct = Math.max((count / maxView) * 100, 2);
+                var color = viewColors[view] || '#6b7280';
+                html += '<div style="margin-bottom:6px;">'
+                    + '<div style="display:flex; justify-content:space-between; font-size:0.78em; margin-bottom:2px;">'
+                    + '<span style="color:var(--text-secondary);">' + (viewLabels[view] || view) + '</span>'
+                    + '<span style="color:var(--text-muted);">' + count + '</span></div>'
+                    + '<div style="height:4px; background:var(--c-surface-3a); border-radius:2px; overflow:hidden;">'
+                    + '<div style="height:100%; width:' + pct + '%; background:' + color + '; border-radius:2px;"></div></div></div>';
+            });
+            html += '</div>';
+            
+            // Time per section
+            var sortedDurs = Object.entries(s.viewDurations).sort(function(a,b){return b[1]-a[1];});
+            var maxDur = sortedDurs.length > 0 ? sortedDurs[0][1] : 1;
+            
+            html += '<div style="padding:14px; background:var(--c-surface-4b); border-radius:10px;">'
+                + '<div style="font-size:0.75em; font-weight:600; color:var(--text-muted); margin-bottom:10px;">Time per Section</div>';
+            if (sortedDurs.length === 0) { html += '<div style="font-size:0.82em; color:var(--text-muted);">No data yet</div>'; }
+            sortedDurs.forEach(function(entry) {
+                var view = entry[0], dur = entry[1];
+                var pct = Math.max((dur / maxDur) * 100, 2);
+                var color = viewColors[view] || '#6b7280';
+                html += '<div style="margin-bottom:6px;">'
+                    + '<div style="display:flex; justify-content:space-between; font-size:0.78em; margin-bottom:2px;">'
+                    + '<span style="color:var(--text-secondary);">' + (viewLabels[view] || view) + '</span>'
+                    + '<span style="color:var(--text-muted);">' + fmt(dur) + '</span></div>'
+                    + '<div style="height:4px; background:var(--c-surface-3a); border-radius:2px; overflow:hidden;">'
+                    + '<div style="height:100%; width:' + pct + '%; background:' + color + '; border-radius:2px;"></div></div></div>';
+            });
+            html += '</div>';
+            html += '</div>';
+            
+            // ===== ROW 4: Feature Usage + Device/Context =====
+            html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">';
+            
+            // Feature usage
+            var featLabels = { resume_parse:'Resume Parse', scouting_report:'Scouting Report', export_pdf:'PDF Export', export_html:'Executive Blueprint', export_resume_html:'HTML Resume', export_json:'JSON Export', cover_letter:'Cover Letter', interview_prep:'Interview Prep', linkedin_profile:'LinkedIn Profile', job_analysis:'JD Analysis', negotiation_guide:'Negotiation Guide', scouting_report_html:'Report (HTML)' };
+            var sortedFeats = Object.entries(s.featureCounts).sort(function(a,b){return b[1]-a[1];});
+            var maxFeat = sortedFeats.length > 0 ? sortedFeats[0][1] : 1;
+            
+            html += '<div style="padding:14px; background:var(--c-surface-4b); border-radius:10px;">'
+                + '<div style="font-size:0.75em; font-weight:600; color:var(--text-muted); margin-bottom:10px;">Feature Usage</div>';
+            if (sortedFeats.length === 0) { html += '<div style="font-size:0.82em; color:var(--text-muted);">No feature usage yet</div>'; }
+            sortedFeats.slice(0, 12).forEach(function(entry) {
+                var feat = entry[0], count = entry[1];
+                var pct = Math.max((count / maxFeat) * 100, 2);
+                html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0; font-size:0.78em;">'
+                    + '<span style="color:var(--text-secondary);">' + (featLabels[feat] || feat) + '</span>'
+                    + '<span style="font-weight:700; color:var(--accent);">' + count + '</span></div>';
+            });
+            html += '</div>';
+            
+            // Device & context
+            var dev = s.devices;
+            var totalDev = (dev.mobile || 0) + (dev.desktop || 0);
+            var mobilePct = totalDev > 0 ? Math.round((dev.mobile || 0) / totalDev * 100) : 0;
+            var darkPct = totalDev > 0 ? Math.round((dev.dark || 0) / totalDev * 100) : 0;
+            
+            html += '<div style="padding:14px; background:var(--c-surface-4b); border-radius:10px;">'
+                + '<div style="font-size:0.75em; font-weight:600; color:var(--text-muted); margin-bottom:10px;">Device & Context</div>';
+            
+            // Mobile vs desktop bar
+            html += '<div style="margin-bottom:12px;">'
+                + '<div style="display:flex; justify-content:space-between; font-size:0.78em; margin-bottom:4px;">'
+                + '<span style="color:var(--text-secondary);">Mobile</span>'
+                + '<span style="color:var(--text-secondary);">Desktop</span></div>'
+                + '<div style="display:flex; height:8px; border-radius:4px; overflow:hidden; background:var(--c-surface-3a);">'
+                + '<div style="width:' + mobilePct + '%; background:#f59e0b;"></div>'
+                + '<div style="width:' + (100-mobilePct) + '%; background:#60a5fa;"></div></div>'
+                + '<div style="display:flex; justify-content:space-between; font-size:0.7em; color:var(--text-muted); margin-top:2px;">'
+                + '<span>' + mobilePct + '% (' + (dev.mobile||0) + ')</span><span>' + (100-mobilePct) + '% (' + (dev.desktop||0) + ')</span></div></div>';
+            
+            // Dark vs light bar
+            html += '<div style="margin-bottom:12px;">'
+                + '<div style="display:flex; justify-content:space-between; font-size:0.78em; margin-bottom:4px;">'
+                + '<span style="color:var(--text-secondary);">Dark Mode</span>'
+                + '<span style="color:var(--text-secondary);">Light Mode</span></div>'
+                + '<div style="display:flex; height:8px; border-radius:4px; overflow:hidden; background:var(--c-surface-3a);">'
+                + '<div style="width:' + darkPct + '%; background:#8b5cf6;"></div>'
+                + '<div style="width:' + (100-darkPct) + '%; background:#fbbf24;"></div></div>'
+                + '<div style="display:flex; justify-content:space-between; font-size:0.7em; color:var(--text-muted); margin-top:2px;">'
+                + '<span>' + darkPct + '%</span><span>' + (100-darkPct) + '%</span></div></div>';
+            
+            // Screen sizes
+            var sizes = dev.sizes || {};
+            var sortedSizes = Object.entries(sizes).sort(function(a,b){return b[1]-a[1];}).slice(0, 5);
+            if (sortedSizes.length > 0) {
+                html += '<div style="font-size:0.72em; color:var(--text-muted); margin-top:8px;">Top screen sizes:</div>';
+                sortedSizes.forEach(function(e) {
+                    html += '<div style="font-size:0.72em; color:var(--text-secondary); padding:1px 0;">' + escapeHtml(e[0]) + ' <span style="color:var(--text-muted);">(' + e[1] + ')</span></div>';
+                });
+            }
+            html += '</div>';
+            html += '</div>';
+            
+            // ===== ROW 5: Conversion Funnel =====
+            var funnelSteps = [
+                { key: 'visit', label: 'Visited', icon: '\uD83D\uDC41', color: '#60a5fa' },
+                { key: 'signup', label: 'Signed Up', icon: '\uD83D\uDD11', color: '#8b5cf6' },
+                { key: 'profile_created', label: 'Profile Created', icon: '\uD83D\uDCDD', color: '#a78bfa' },
+                { key: 'skills_added', label: 'Skills Added', icon: '\u2728', color: '#10b981' },
+                { key: 'first_job', label: 'First Job Added', icon: '\uD83C\uDFAF', color: '#f59e0b' },
+                { key: 'report_generated', label: 'Report Generated', icon: '\uD83D\uDCCA', color: '#ec4899' }
+            ];
+            var funnelMax = Math.max.apply(null, funnelSteps.map(function(f) { return s.funnel[f.key] || 0; })) || 1;
+            
+            html += '<div style="padding:14px; background:var(--c-surface-4b); border-radius:10px;">'
+                + '<div style="font-size:0.75em; font-weight:600; color:var(--text-muted); margin-bottom:12px;">Conversion Funnel</div>'
+                + '<div style="display:flex; align-items:flex-end; gap:6px; height:80px; margin-bottom:8px;">';
+            
+            funnelSteps.forEach(function(step) {
+                var count = s.funnel[step.key] || 0;
+                var h = Math.max((count / funnelMax) * 100, 4);
+                html += '<div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;">'
+                    + '<div style="font-size:0.72em; font-weight:700; color:' + step.color + ';">' + count + '</div>'
+                    + '<div style="width:100%; height:' + h + '%; background:' + step.color + '; border-radius:4px 4px 0 0; min-height:3px;"></div>'
+                    + '</div>';
+            });
+            html += '</div><div style="display:flex; gap:6px;">';
+            funnelSteps.forEach(function(step) {
+                html += '<div style="flex:1; text-align:center; font-size:0.65em; color:var(--text-muted); line-height:1.3;">'
+                    + step.icon + '<br>' + step.label + '</div>';
+            });
+            html += '</div></div>';
+            
+            // ===== ROW 6: Data source note =====
+            html += '<div style="font-size:0.72em; color:var(--text-muted); margin-top:12px; line-height:1.5;">'
+                + '\uD83D\uDCCA Local data (this browser). Firestore aggregation available in Platform Analytics below for cross-user totals. '
+                + 'Visit count: ' + (safeGet('bpVisitCount') || '0') + ' | First seen: ' + (safeGet('bpFirstVisit') || 'N/A').slice(0, 10)
+                + ' | <a href="#" onclick="if(confirm(\'Clear all local traffic data?\')){localStorage.removeItem(\'bpSiteAnalytics\');renderTrafficDashboard(' + days + ');showToast(\'Traffic data cleared.\',\'info\');} return false;" style="color:var(--accent);">Clear local data</a>'
+                + '</div>';
+            
+            container.innerHTML = html;
         }
         
         // ===== PLATFORM ANALYTICS (Tier 1: from user docs + Tier 2: from events) =====
@@ -2911,6 +3287,7 @@
                         { id: 'p1-4', name: 'Admin roadmap tracker', status: 'done', category: 'feature', priority: 'medium', notes: 'Roadmap tab in admin panel. Tracks all strategy items, features, and tasks.' },
                         { id: 'p1-6', name: 'AI cost tracking dashboard', status: 'done', category: 'feature', priority: 'medium', notes: 'Costs tab in admin. Tracks all API calls by feature tag, shows real usage, estimated costs, sparkline, and scale projection calculator. AI_FEATURES registry auto-picks up new features.' },
                         { id: 'p1-7', name: 'Network job selector widget', status: 'done', category: 'feature', priority: 'medium', notes: 'Floating widget on network view. Select saved jobs to overlay match/gap/values analysis directly on the skill graph.' },
+                        { id: 'p1-8', name: 'Site traffic analytics dashboard', status: 'done', category: 'feature', priority: 'high', notes: 'Full traffic dashboard in admin overview. Sessions, page views, bounce rate, avg session time, views/time per section, feature usage, device split, dark/light mode, screen sizes, conversion funnel. Local + Firestore dual storage.' },
                         { id: 'p1-5', name: 'Demo profile polish', status: 'in-progress', category: 'feature', priority: 'medium', notes: '24 TV character profiles with 99 evidence outcomes added. Ongoing refinement.' }
                     ]
                 },
@@ -3514,7 +3891,16 @@
         // ===== ENHANCED SAVE (Firestore + localStorage) =====
         // ===== ANALYTICS EVENT LOGGING =====
         function logAnalyticsEvent(type, meta) {
-            if (!fbDb || !fbUser) return; // Only track signed-in users
+            // Bridge to site tracker (local analytics)
+            if (typeof bpTracker !== 'undefined' && bpTracker.sid) bpTracker.trackFeature(type, meta);
+            
+            // Funnel hooks
+            if (typeof bpTracker !== 'undefined' && bpTracker.sid) {
+                if (type === 'resume_parse') bpTracker.trackFunnel('profile_created');
+                if (type === 'scouting_report' || type === 'export_pdf' || type === 'export_html') bpTracker.trackFunnel('report_generated');
+            }
+            
+            if (!fbDb || !fbUser) return;
             try {
                 fbDb.collection('analytics_events').add({
                     type: type,
@@ -3523,7 +3909,7 @@
                     meta: meta || {},
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-            } catch(e) { /* silent fail — analytics should never break the app */ }
+            } catch(e) {}
         }
         window.logAnalyticsEvent = logAnalyticsEvent;
 
@@ -8114,6 +8500,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             }
             
             console.log('✓ Main app initialized with', userData.skills.length, 'skills');
+            if (typeof bpTracker !== 'undefined' && bpTracker.sid && userData.skills.length > 0) bpTracker.trackFunnel('skills_added');
             hydrateIcons();
         }
         
@@ -9939,6 +10326,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Initialize app and get target view
             var targetView = await initializeApp();
             
+            // Initialize site analytics tracker
+            bpTracker.init();
+            bpTracker.trackFunnel('visit');
+            
             // Detect app mode (demo/waitlisted/invited/active)
             detectAppMode();
             checkWaitlistInviteStatus();
@@ -10341,6 +10732,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (view === 'skills') view = 'network';
             if (view === 'jobs') view = 'opportunities';
             if (view === 'applications') { view = 'opportunities'; jobsSubTab = 'tracker'; }
+            
+            // Track view navigation
+            if (typeof bpTracker !== 'undefined' && bpTracker.sid) bpTracker.trackView(view);
             
             // Gate: block main views until user explicitly selects a profile or signs in
             var profileViews = ['network', 'opportunities', 'blueprint', 'reports', 'settings', 'consent'];
@@ -20296,6 +20690,7 @@ body {
             if (fbUser) saveToFirestore();
             
             showToast(job.title + ' added to pipeline: ' + matchData.score + '% match.', 'success', 4000);
+            if (typeof bpTracker !== 'undefined' && bpTracker.sid) bpTracker.trackFunnel('first_job');
             
             // Re-render to update the "In Pipeline" badge
             renderOpportunities();
