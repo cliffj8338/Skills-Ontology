@@ -23,7 +23,7 @@ async function fetchJSearch(query, location, page, remoteOnly) {
     const params = new URLSearchParams({
       query: query + (location ? ' in ' + location : ''),
       page: String(page || 1),
-      num_pages: '1',
+      num_pages: '3',
       date_posted: 'all'
     });
     if (remoteOnly) params.set('remote_jobs_only', 'true');
@@ -88,7 +88,7 @@ async function fetchRemotive(query, category) {
       const catMap = { 'software-dev': 'software-dev', 'marketing': 'marketing', 'business': 'business', 'data': 'data', 'design': 'design', 'product': 'product', 'hr': 'hr', 'finance': 'finance-legal', 'sales': 'sales', 'customer-support': 'customer-support', 'writing': 'writing', 'devops': 'devops-sysadmin' };
       if (catMap[category]) url += '&category=' + catMap[category];
     }
-    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
     if (!res.ok) return { jobs: [], source: 'remotive', error: 'HTTP ' + res.status };
     const data = await res.json();
     const jobs = (data.jobs || []).slice(0, 40).map(j => ({
@@ -128,7 +128,7 @@ async function fetchUSAJobs(query, location) {
         'User-Agent': email,
         'Host': 'data.usajobs.gov'
       },
-      signal: AbortSignal.timeout(8000)
+      signal: AbortSignal.timeout(12000)
     });
     if (!res.ok) return { jobs: [], source: 'usajobs', error: 'HTTP ' + res.status };
     const data = await res.json();
@@ -162,7 +162,7 @@ async function fetchUSAJobs(query, location) {
 // === HIMALAYAS (free, no auth) ===
 async function fetchHimalayas(query) {
   try {
-    const res = await fetch('https://himalayas.app/jobs/api?limit=50', { signal: AbortSignal.timeout(8000) });
+    const res = await fetch('https://himalayas.app/jobs/api?limit=50', { signal: AbortSignal.timeout(12000) });
     if (!res.ok) return { jobs: [], source: 'himalayas', error: 'HTTP ' + res.status };
     let data = await res.json();
     if (!Array.isArray(data)) return { jobs: [], source: 'himalayas', error: 'Invalid response' };
@@ -205,7 +205,7 @@ async function fetchJobicy(query, category) {
       const catMap = { 'software-dev': 'dev', 'marketing': 'marketing', 'business': 'business', 'data': 'data-science', 'design': 'design-multimedia', 'hr': 'hr', 'finance': 'accounting-finance', 'sales': 'seller', 'customer-support': 'supporting', 'writing': 'copywriting', 'devops': 'dev' };
       if (catMap[category]) url += '&job_categories=' + catMap[category];
     }
-    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
     if (!res.ok) return { jobs: [], source: 'jobicy', error: 'HTTP ' + res.status };
     const data = await res.json();
     const jobs = (data.jobs || []).slice(0, 30).map(j => {
