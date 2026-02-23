@@ -1222,11 +1222,11 @@
         
         // External API cost tracking (non-AI)
         var API_FEATURES = {
-            'jsearch':   { name: 'JSearch (RapidAPI)', costPer: 0.0025, desc: 'Google Jobs aggregator', unit: 'request', monthlyLimit: 10000, monthlyCost: 25.00, plan: 'Pro' },
-            'remotive':  { name: 'Remotive',           costPer: 0,      desc: 'Free remote jobs API', unit: 'request', monthlyLimit: null, monthlyCost: 0, plan: 'Free' },
-            'usajobs':   { name: 'USAJobs',            costPer: 0,      desc: 'Free govt jobs API', unit: 'request', monthlyLimit: null, monthlyCost: 0, plan: 'Free' },
-            'himalayas': { name: 'Himalayas',          costPer: 0,      desc: 'Free remote jobs API', unit: 'request', monthlyLimit: null, monthlyCost: 0, plan: 'Free' },
-            'jobicy':    { name: 'Jobicy',             costPer: 0,      desc: 'Free remote jobs API', unit: 'request', monthlyLimit: null, monthlyCost: 0, plan: 'Free' }
+            'jsearch':   { name: 'JSearch (RapidAPI)', costPer: 0.0025, desc: 'Google Jobs aggregator', unit: 'request', monthlyLimit: 10000, monthlyCost: 25.00, plan: 'Pro', manageUrl: 'https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch/pricing' },
+            'remotive':  { name: 'Remotive',           costPer: 0,      desc: 'Free remote jobs API', unit: 'request', monthlyLimit: null, monthlyCost: 0, plan: 'Free', manageUrl: 'https://remotive.com/api/remote-jobs' },
+            'usajobs':   { name: 'USAJobs',            costPer: 0,      desc: 'Free govt jobs API', unit: 'request', monthlyLimit: null, monthlyCost: 0, plan: 'Free', manageUrl: 'https://developer.usajobs.gov/apirequest/index' },
+            'himalayas': { name: 'Himalayas',          costPer: 0,      desc: 'Free remote jobs API', unit: 'request', monthlyLimit: null, monthlyCost: 0, plan: 'Free', manageUrl: 'https://himalayas.app/jobs/api' },
+            'jobicy':    { name: 'Jobicy',             costPer: 0,      desc: 'Free remote jobs API', unit: 'request', monthlyLimit: null, monthlyCost: 0, plan: 'Free', manageUrl: 'https://jobicy.com/api/v2/remote-jobs' }
         };
         
         function getAPIUsageLog() {
@@ -3860,6 +3860,13 @@
                     html += '<div style="height:4px; background:var(--c-surface-3a); border-radius:2px; overflow:hidden; margin-top:4px;">'
                         + '<div style="height:100%; width:' + usagePct + '%; background:' + usageColor + '; border-radius:2px;"></div></div>'
                         + '<div style="font-size:0.65em; color:' + usageColor + '; text-align:right; margin-top:2px;">' + usagePct + '% used</div>';
+                }
+                
+                // Manage link
+                if (spec.manageUrl) {
+                    html += '<div style="margin-top:6px; padding-top:6px; border-top:1px solid var(--c-border-faint);">'
+                        + '<a href="' + spec.manageUrl + '" target="_blank" rel="noopener" style="font-size:0.7em; color:var(--accent); text-decoration:none; display:flex; align-items:center; gap:4px;">'
+                        + bpIcon('external', 10) + ' Manage subscription</a></div>';
                 }
                 
                 html += '</div>';
