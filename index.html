@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.39.1.0 | 20260223 | SRI hashes, PDF file upload, LinkedIn CSV header normalization -->
+    <!-- v4.39.1.1 | 20260223 | Fix empty-state loop: route to wizard instead of view bounce -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.39.1.0 - BUILD 20260223-sri-pdfupload-csvnorm
-        var BP_VERSION = 'v4.39.1.0';
+        // BLUEPRINT v4.39.1.1 - BUILD 20260223-fix-empty-loop
+        var BP_VERSION = 'v4.39.1.1';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -9637,10 +9637,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                             + 'Your career intelligence profile is empty. Add your skills, roles, and experience to unlock the full power of Blueprint.'
                             + '</div>'
                             + '<div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">'
-                            + '<button onclick="switchView(\'skills\'); setTimeout(function(){var ab=document.querySelector(\'[onclick*=addSkill]\');if(ab)ab.click();},300);" '
+                            + '<button onclick="showOnboardingWizard();" '
                             + 'style="padding:12px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
                             + '+ Add Skills Manually</button>'
-                            + '<button onclick="switchView(\'blueprint\');" '
+                            + '<button onclick="showOnboardingWizard();" '
                             + 'style="padding:12px 24px; background:transparent; color:var(--accent); border:2px solid var(--accent); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
                             + 'Go to Blueprint</button>'
                             + '</div>'
@@ -14055,9 +14055,9 @@ body {
                     + 'Your career intelligence profile is empty. Map your skills, define your roles, and track your outcomes to unlock salary estimates, job matching, and scouting reports.'
                     + '</div>'
                     + '<div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center; margin-bottom:40px;">'
-                    + '<button onclick="switchView(\'skills\');" '
+                    + '<button onclick="showOnboardingWizard();" '
                     + 'style="padding:14px 28px; background:var(--accent); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:1em;">'
-                    + '⚡ Start Building</button>'
+                    + '\u26A1 Start Building</button>'
                     + '</div>'
                     + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px; max-width:600px; margin:0 auto; text-align:left;">'
                     + '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px;">'
