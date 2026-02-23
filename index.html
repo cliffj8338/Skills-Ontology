@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.21.1 | 20260223 | Infrastructure costs dashboard, monthly snapshot, manage links -->
+    <!-- v4.38.0.0 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1203,8 +1203,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.21.1 - BUILD 20260223-proxy-timeout
-        var BP_VERSION = 'v4.37.21.1';
+        // BLUEPRINT v4.38.0.0 - BUILD 20260223-firestore-cache
+        var BP_VERSION = 'v4.38.0.0';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1495,7 +1495,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260223-proxy-timeout                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260223-firestore-cache                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -2474,7 +2474,7 @@
                 { name: 'Values', count: valuesCount, source: 'Blueprint', color: '#10b981', loaded: valuesCount > 0 },
                 { name: 'BLS Wages', count: blsWageCount ? blsWageCount.toLocaleString() : 0, source: 'Bureau of Labor Statistics', color: '#f97316', loaded: blsWageCount > 0 },
                 { name: 'Custom Skills', count: '\u221E', source: 'User-defined', color: '#fbbf24', loaded: true },
-                { name: 'Jobs Database', count: jobsDbCount > 0 ? jobsDbCount : 0, source: '5 APIs (JSearch, Remotive, USAJobs, Himalayas, Jobicy)', color: '#ec4899', loaded: jobsDbCount > 0 }
+                { name: 'Jobs Database', count: jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : (jobsDbCount > 0 ? jobsDbCount : 0), source: 'Firestore cache \u00B7 5 APIs synced every 6h', color: '#ec4899', loaded: jobsCacheLoaded || jobsDbCount > 0 }
             ];
             
             var totalLoaded = tiles.filter(function(t) { return t.loaded; }).length;
@@ -2493,6 +2493,13 @@
             html += '</div>'
                 + '<div style="margin-top:10px; font-size:0.78em; color:var(--text-muted);">' + totalLoaded + '/' + tiles.length + ' libraries loaded</div>'
                 + '</div>';
+            
+            // ===== JOBS SYNC STATUS =====
+            html += '<div id="adminJobsSync" style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:20px;">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">'
+                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">\uD83D\uDD04 Jobs Sync</h3>'
+                + '<span style="font-size:0.72em; color:var(--text-muted);">Cron: every 6 hours</span></div>'
+                + '<div id="adminJobsSyncContent" style="color:var(--text-muted); font-size:0.85em;">Loading sync status...</div></div>';
             
             // ===== SITE TRAFFIC & ANALYTICS =====
             html += '<div id="adminTraffic" style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:20px;">'
@@ -2522,6 +2529,53 @@
             // Async: load platform analytics from Firestore
             loadPlatformAnalytics();
             renderTrafficDashboard(30);
+            loadAdminJobsSyncStatus();
+        }
+        
+        function loadAdminJobsSyncStatus() {
+            var el = document.getElementById('adminJobsSyncContent');
+            if (!el || !fbDb) return;
+            
+            fbDb.collection('meta').doc('jobsSync').get().then(function(doc) {
+                if (!doc.exists) {
+                    el.innerHTML = '<p style="color:var(--text-muted);">No sync data yet. The cron will run every 6 hours, or trigger manually.</p>';
+                    return;
+                }
+                var m = doc.data();
+                var ago = formatTimeAgo(m.lastSync);
+                var src = m.sourceCounts || {};
+                var srcHtml = Object.keys(src).map(function(k) {
+                    var color = k === 'jsearch' ? '#60a5fa' : k === 'remotive' ? '#10b981' : k === 'usajobs' ? '#8b5cf6' : k === 'himalayas' ? '#f59e0b' : '#ec4899';
+                    return '<div style="display:flex; justify-content:space-between; padding:4px 0;">'
+                        + '<span style="color:var(--text-secondary);">' + k + '</span>'
+                        + '<span style="font-weight:600; color:' + color + ';">' + (src[k] || 0) + '</span></div>';
+                }).join('');
+                
+                var errHtml = (m.errors || []).length > 0
+                    ? '<details style="margin-top:10px;"><summary style="font-size:0.78em; color:var(--text-muted); cursor:pointer;">' + m.errors.length + ' errors</summary>'
+                    + '<div style="font-size:0.72em; color:#ef4444; margin-top:6px; max-height:100px; overflow-y:auto;">'
+                    + m.errors.map(function(e) { return '<div>' + escapeHtml(e) + '</div>'; }).join('') + '</div></details>' : '';
+                
+                el.innerHTML = '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px; margin-bottom:14px;">'
+                    + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
+                    + '<div style="font-size:1.4em; font-weight:800; color:var(--accent);">' + (m.totalJobs || 0).toLocaleString() + '</div>'
+                    + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase;">Total Jobs</div></div>'
+                    + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
+                    + '<div style="font-size:1.4em; font-weight:800; color:#10b981;">' + (m.jobsSynced || 0).toLocaleString() + '</div>'
+                    + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase;">Last Sync</div></div>'
+                    + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
+                    + '<div style="font-size:1.4em; font-weight:800; color:var(--text-primary);">' + ago + '</div>'
+                    + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase;">Synced</div></div>'
+                    + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
+                    + '<div style="font-size:1.4em; font-weight:800; color:var(--text-muted);">' + ((m.duration || 0) / 1000).toFixed(1) + 's</div>'
+                    + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase;">Duration</div></div>'
+                    + '</div>'
+                    + '<div style="font-size:0.82em; font-weight:600; color:var(--text-secondary); margin-bottom:6px;">Sources</div>'
+                    + srcHtml
+                    + errHtml;
+            }).catch(function(e) {
+                el.innerHTML = '<p style="color:var(--text-muted);">Could not load sync status: ' + escapeHtml(e.message) + '</p>';
+            });
         }
         
         // ===== SITE TRAFFIC DASHBOARD =====
@@ -3331,6 +3385,7 @@
                         { id: 'p1-8', name: 'Site traffic analytics dashboard', status: 'done', category: 'feature', priority: 'high', notes: 'Full traffic dashboard in admin overview. Sessions, page views, bounce rate, avg session time, views/time per section, feature usage, device split, dark/light mode, screen sizes, conversion funnel. Local + Firestore dual storage.' },
                         { id: 'p1-9', name: 'Multi-source job search API', status: 'done', category: 'feature', priority: 'critical', notes: 'Serverless proxy at /api/jobs aggregating JSearch (RapidAPI), Remotive, USAJobs, Himalayas, Jobicy. Location search, remote filter, source badges, skill matching, API cost tracking. Fallback to direct fetch if proxy unavailable.' },
                         { id: 'p1-10', name: 'Infrastructure costs dashboard', status: 'done', category: 'admin', priority: 'high', notes: 'Full infrastructure registry (Claude, JSearch, Vercel, Cloudflare, Firebase, GitHub, all job APIs). Categorized by type with manage links. Monthly Cost Snapshot with gradient total, breakdown bars, fixed/AI/API split tiles, annual projection.' },
+                        { id: 'p2-1', name: 'Jobs database + caching layer', status: 'done', category: 'architecture', priority: 'high', notes: 'Firestore-backed job cache. Cron syncs 5 sources every 6h via /api/jobs-sync (15 queries × 5 sources). Cache-first client search (instant filtering). Live search fallback. Admin sync dashboard with source counts, duration, errors. vercel.json cron config, firebase-admin package.' },
                         { id: 'p1-5', name: 'Demo profile polish', status: 'in-progress', category: 'feature', priority: 'medium', notes: '24 TV character profiles with 99 evidence outcomes added. Ongoing refinement.' }
                     ]
                 },
@@ -18734,10 +18789,15 @@ body {
                 el.innerHTML = renderTrackerInJobs();
             } else {
                 el.innerHTML = renderFindJobs();
-                // Show previous results if any, otherwise show prompt
-                if (opportunitiesData && opportunitiesData.length > 0) {
+                // Load from cache on first visit
+                if (!jobsCacheLoaded) {
+                    loadJobsFromCache();
+                } else if (opportunitiesData && opportunitiesData.length > 0) {
                     renderOpportunities();
+                } else if (jobsCacheData.length > 0) {
+                    scoreAndDisplayCachedJobs();
                 }
+                updateSyncStatusDisplay();
             }
         }
         
@@ -18931,9 +18991,13 @@ body {
                 + bpIcon('search',20) + ' Find Jobs</h2>'
                 + '<p style="color:var(--text-muted); font-size:0.88em; margin:0;">Search across JSearch, Remotive, USAJobs, Himalayas, and Jobicy. Results scored against your skills.</p>'
                 + '</div>'
-                + (jobsDbCount > 50 ? '<div title="' + escapeHtml(getJobsSourceBreakdown() || 'Search to populate counts') + '" style="text-align:right; padding:10px 18px; background:linear-gradient(135deg, var(--accent), #8b5cf6); border-radius:10px; min-width:120px; cursor:help;">'
-                + '<div style="font-size:1.6em; font-weight:800; color:#fff; line-height:1;">' + jobsDbCount.toLocaleString() + '</div>'
-                + '<div style="font-size:0.68em; color:rgba(255,255,255,0.8); text-transform:uppercase; letter-spacing:0.08em;">unique jobs seen</div></div>' : '')
+                + (function() {
+                    var count = jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : (jobsCacheData.length || jobsDbCount);
+                    if (count < 1) return '';
+                    return '<div title="' + escapeHtml(getJobsSourceBreakdown() || 'From Firestore cache') + '" style="text-align:right; padding:10px 18px; background:linear-gradient(135deg, var(--accent), #8b5cf6); border-radius:10px; min-width:120px; cursor:help;">'
+                        + '<div style="font-size:1.6em; font-weight:800; color:#fff; line-height:1;">' + count.toLocaleString() + '</div>'
+                        + '<div style="font-size:0.68em; color:rgba(255,255,255,0.8); text-transform:uppercase; letter-spacing:0.08em;">jobs in database</div></div>';
+                })()
                 + '</div>'
                 + '</div>'
                 
@@ -18983,7 +19047,15 @@ body {
                 + 'color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em; '
                 + 'display:flex; align-items:center; gap:6px; white-space:nowrap;">'
                 + bpIcon('search',14) + ' Search</button>'
+                
+                + '<button onclick="searchLiveFromAPIs()" style="padding:10px 14px; background:none; '
+                + 'border:1px solid var(--border); border-radius:8px; cursor:pointer; font-size:0.78em; '
+                + 'color:var(--text-muted); white-space:nowrap;" title="Search APIs directly for fresh results">'
+                + '\uD83D\uDD04 Live</button>'
                 + '</div>'
+                
+                // Sync status
+                + '<div id="jobsSyncStatus" style="margin-bottom:12px;"></div>'
                 
                 // Quick role chips
                 + (roleSuggestions ? '<div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">'
@@ -20600,7 +20672,7 @@ body {
                 + '<span style="font-size:0.88em; color:var(--text-secondary);">'
                 + '<strong>' + filtered.length + '</strong> jobs' + (filtered.length < opportunitiesData.length ? ' (of ' + opportunitiesData.length + ' returned)' : '')
                 + ' above ' + currentMatchThreshold + '% match'
-                + (jobsDbCount > 0 ? ' <span style="color:var(--text-muted); font-size:0.85em;">\u00B7 ' + jobsDbCount.toLocaleString() + ' unique jobs seen</span>' : '')
+                + (jobsSyncMeta && jobsSyncMeta.totalJobs > 0 ? ' <span style="color:var(--text-muted); font-size:0.85em;">\u00B7 ' + jobsSyncMeta.totalJobs.toLocaleString() + ' in database</span>' : '')
                 + '</span>'
                 + (window._findJobsSources ? '<span style="font-size:0.72em; color:var(--text-muted);">' + window._findJobsSources + '</span>' : '')
                 + '</div>';
@@ -20733,10 +20805,170 @@ body {
             }).join(' \u00B7 ');
         }
         
+        // ===== JOBS CACHE (Firestore-first architecture) =====
+        var jobsCacheLoaded = false;
+        var jobsCacheData = [];
+        var jobsSyncMeta = null;
+        
+        function loadJobsFromCache() {
+            if (!fbDb) return;
+            
+            var resultsDiv = document.getElementById('opportunitiesResults');
+            if (resultsDiv && opportunitiesData.length === 0) {
+                resultsDiv.innerHTML = '<div style="text-align:center; padding:40px;">'
+                    + '<div class="loading-spinner" style="width:32px; height:32px; border-width:3px; margin:0 auto 12px;"></div>'
+                    + '<p style="font-size:0.88em; color:var(--text-muted);">Loading jobs from database...</p></div>';
+            }
+            
+            // Load sync metadata
+            fbDb.collection('meta').doc('jobsSync').get().then(function(doc) {
+                if (doc.exists) {
+                    jobsSyncMeta = doc.data();
+                    updateSyncStatusDisplay();
+                }
+            }).catch(function(e) { console.warn('Sync meta load failed:', e.message); });
+            
+            // Load cached jobs
+            fbDb.collection('jobs')
+                .orderBy('syncedAt', 'desc')
+                .limit(500)
+                .get()
+                .then(function(snapshot) {
+                    jobsCacheData = [];
+                    snapshot.forEach(function(doc) {
+                        var d = doc.data();
+                        d._docId = doc.id;
+                        jobsCacheData.push(d);
+                    });
+                    jobsCacheLoaded = true;
+                    
+                    console.log('Jobs cache loaded: ' + jobsCacheData.length + ' jobs from Firestore');
+                    
+                    if (jobsCacheData.length > 0) {
+                        scoreAndDisplayCachedJobs();
+                    } else if (resultsDiv) {
+                        resultsDiv.innerHTML = '<div style="text-align:center; padding:40px;">'
+                            + '<div style="margin-bottom:16px; opacity:0.35;">' + bpIcon('search', 48) + '</div>'
+                            + '<p style="font-size:1em; color:var(--text-secondary);">No cached jobs yet.</p>'
+                            + '<p style="font-size:0.85em; color:var(--text-muted); margin-top:6px;">First sync will run automatically. Use Search Live to query APIs directly.</p></div>';
+                    }
+                })
+                .catch(function(e) {
+                    console.warn('Jobs cache load failed:', e.message);
+                    jobsCacheLoaded = true;
+                    if (resultsDiv) {
+                        resultsDiv.innerHTML = '<div style="text-align:center; padding:40px;">'
+                            + '<p style="font-size:0.88em; color:var(--text-muted);">Cache unavailable. Use Search Live to query APIs directly.</p></div>';
+                    }
+                });
+        }
+        
+        function scoreAndDisplayCachedJobs(filterKw, filterLoc, filterRemote) {
+            var kw = (filterKw || '').toLowerCase();
+            var loc = (filterLoc || '').toLowerCase();
+            
+            var filtered = jobsCacheData;
+            if (kw || loc || filterRemote) {
+                filtered = jobsCacheData.filter(function(job) {
+                    if (kw && !((job.title || '').toLowerCase().indexOf(kw) !== -1
+                        || (job.description || '').toLowerCase().indexOf(kw) !== -1
+                        || (job.company || '').toLowerCase().indexOf(kw) !== -1
+                        || (job.tags || []).some(function(t) { return (t || '').toLowerCase().indexOf(kw) !== -1; }))) {
+                        return false;
+                    }
+                    if (loc && !((job.location || '').toLowerCase().indexOf(loc) !== -1)) return false;
+                    if (filterRemote && !job.remote) return false;
+                    return true;
+                });
+            }
+            
+            opportunitiesData = filtered.map(function(job) {
+                var match = quickScoreJob(job.title, job.description, job.tags);
+                job.matchScore = match.score;
+                job.matchedSkills = match.matched;
+                job.gapSkills = match.gaps;
+                return job;
+            });
+            
+            var seen = {};
+            opportunitiesData = opportunitiesData.filter(function(job) {
+                var key = (job.title + '-' + job.company).toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (seen[key]) return false;
+                seen[key] = true;
+                return true;
+            });
+            
+            opportunitiesData.sort(function(a, b) { return b.matchScore - a.matchScore; });
+            
+            var cacheLabel = kw || loc || filterRemote
+                ? filtered.length + ' matched from ' + jobsCacheData.length + ' cached'
+                : jobsCacheData.length + ' cached jobs';
+            window._findJobsSources = cacheLabel;
+            
+            jobsDbCount = jobsCacheData.length;
+            
+            renderOpportunities();
+        }
+        
+        function formatTimeAgo(ts) {
+            if (!ts) return '';
+            var date = ts.toDate ? ts.toDate() : new Date(ts);
+            var diff = Date.now() - date.getTime();
+            var mins = Math.floor(diff / 60000);
+            if (mins < 1) return 'just now';
+            if (mins < 60) return mins + 'm ago';
+            if (mins < 1440) return Math.floor(mins / 60) + 'h ago';
+            return Math.floor(mins / 1440) + 'd ago';
+        }
+        
+        function updateSyncStatusDisplay() {
+            var el = document.getElementById('jobsSyncStatus');
+            if (!el) return;
+            if (!jobsSyncMeta) { el.innerHTML = ''; return; }
+            
+            var ago = formatTimeAgo(jobsSyncMeta.lastSync);
+            var total = (jobsSyncMeta.totalJobs || 0).toLocaleString();
+            var src = jobsSyncMeta.sourceCounts || {};
+            var srcParts = Object.keys(src).filter(function(k) { return src[k] > 0; }).map(function(k) {
+                return k + ': ' + src[k];
+            });
+            
+            el.innerHTML = '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">'
+                + '<span style="font-size:0.75em; color:var(--text-muted);">\uD83D\uDD04 Synced ' + ago + '</span>'
+                + '<span style="font-size:0.75em; color:var(--accent); font-weight:600;">' + total + ' jobs in database</span>'
+                + (srcParts.length > 0 ? '<span style="font-size:0.68em; color:var(--text-muted);">' + srcParts.join(' \u00B7 ') + '</span>' : '')
+                + '</div>';
+        }
+        
         function searchOpportunities() {
             if (demoGate('Find Jobs')) return;
             var keyword = (document.getElementById('findJobsKeyword') || {}).value || '';
             keyword = keyword.trim();
+            window._lastJobSearch = keyword;
+            
+            var location = (document.getElementById('findJobsLocation') || {}).value || '';
+            location = location.trim();
+            window._lastJobLocation = location;
+            
+            var category = (document.getElementById('findJobsCategory') || {}).value || '';
+            var remoteOnly = (document.getElementById('findJobsRemote') || {}).checked || false;
+            window._lastJobRemote = remoteOnly;
+            
+            // Cache-first: filter cached results (instant)
+            if (jobsCacheLoaded && jobsCacheData.length > 0) {
+                scoreAndDisplayCachedJobs(keyword, location, remoteOnly);
+                return;
+            }
+            
+            // Fallback: live search
+            searchLiveFromAPIs();
+        }
+        
+        function searchLiveFromAPIs() {
+            if (demoGate('Find Jobs')) return;
+            var keyword = (document.getElementById('findJobsKeyword') || {}).value || '';
+            keyword = keyword.trim();
+            if (!keyword) { showToast('Enter a keyword to search live.', 'info'); return; }
             window._lastJobSearch = keyword;
             
             var location = (document.getElementById('findJobsLocation') || {}).value || '';
@@ -20752,7 +20984,7 @@ body {
             
             resultsDiv.innerHTML = '<div style="text-align:center; padding:40px;">'
                 + '<div class="loading-spinner" style="width:32px; height:32px; border-width:3px; margin:0 auto 12px;"></div>'
-                + '<p style="font-size:1em; color:var(--text-secondary);">Searching 5 job sources...</p>'
+                + '<p style="font-size:1em; color:var(--text-secondary);">Searching 5 job sources live...</p>'
                 + '<p style="font-size:0.82em; color:var(--text-muted); margin-top:6px;">JSearch \u00B7 Remotive \u00B7 USAJobs \u00B7 Himalayas \u00B7 Jobicy</p>'
                 + '</div>';
             
@@ -20763,6 +20995,7 @@ body {
                 searchDirect(keyword, category, resultsDiv);
             }
         }
+        window.searchLiveFromAPIs = searchLiveFromAPIs;
         
         async function searchViaProxy(keyword, location, category, remoteOnly, resultsDiv) {
             try {

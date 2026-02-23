@@ -43,5 +43,11 @@
   ],
   "redirects": [
     { "source": "/index.html", "destination": "/", "permanent": true }
+  ],
+  "crons": [
+    {
+      "path": "/api/jobs-sync",
+      "schedule": "0 */6 * * *"
+    }
   ]
 }
