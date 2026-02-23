@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.38.3.1 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
+    <!-- v4.38.3.2 | 20260223 | Firestore job cache, cron sync, cache-first search, infra costs -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1203,8 +1203,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.38.3.1 - BUILD 20260223-demo-mode-fix
-        var BP_VERSION = 'v4.38.3.1';
+        // BLUEPRINT v4.38.3.2 - BUILD 20260223-demo-mode-fix
+        var BP_VERSION = 'v4.38.3.2';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -8971,7 +8971,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             var widget = document.createElement('div');
             widget.id = 'networkJobSelector';
-            widget.style.cssText = 'position:absolute; bottom:20px; left:16px; z-index:200; font-family:Outfit,sans-serif;';
+            widget.style.cssText = 'position:fixed; bottom:24px; left:20px; z-index:200; font-family:Outfit,sans-serif;';
             
             if (!jobSelectorExpanded) {
                 // Collapsed: compact badge
@@ -9037,7 +9037,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 widget.innerHTML = html;
             }
             
-            container.appendChild(widget);
+            document.body.appendChild(widget);
         }
         window.renderJobSelectorWidget = renderJobSelectorWidget;
         
