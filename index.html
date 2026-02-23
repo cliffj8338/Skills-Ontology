@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.39.1.4 | 20260223 | Add label margin to all D3 network graph views -->
+    <!-- v4.39.1.5 | 20260223 | Fix wizardField crash on non-string values (yearsExperience) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.39.1.4 - BUILD 20260223-label-margin
-        var BP_VERSION = 'v4.39.1.4';
+        // BLUEPRINT v4.39.1.5 - BUILD 20260223-wizardfield-fix
+        var BP_VERSION = 'v4.39.1.5';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -8929,7 +8929,7 @@ Rules:
                               text-transform:uppercase; letter-spacing:0.04em;">
                     ${label}
                 </label>
-                <input id="${id}" type="text" value="${(value || '').replace(/"/g, '&quot;')}"
+                <input id="${id}" type="text" value="${String(value ?? '').replace(/"/g, '&quot;')}"
                        placeholder="${placeholder}"
                        style="width:100%; padding:10px 12px; background:var(--input-bg);
                               border:1px solid var(--border); border-radius:8px;
