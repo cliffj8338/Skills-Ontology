@@ -23,7 +23,7 @@ async function fetchJSearch(query, location, page, remoteOnly) {
     const params = new URLSearchParams({
       query: query + (location ? ' in ' + location : ''),
       page: String(page || 1),
-      num_pages: '3',
+      num_pages: '1',
       date_posted: 'all'
     });
     if (remoteOnly) params.set('remote_jobs_only', 'true');
@@ -33,7 +33,7 @@ async function fetchJSearch(query, location, page, remoteOnly) {
         'X-RapidAPI-Key': apiKey,
         'X-RapidAPI-Host': 'jsearch.p.rapidapi.com'
       },
-      signal: AbortSignal.timeout(10000)
+      signal: AbortSignal.timeout(15000)
     });
 
     if (!res.ok) {

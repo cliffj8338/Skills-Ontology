@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.19.0 | 20260223 | Multi-source job search API (JSearch, Remotive, USAJobs, Himalayas, Jobicy) -->
+    <!-- v4.37.20.1 | 20260223 | JSearch debug, honest job counting, API subscription dashboard -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1203,8 +1203,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.19.0 - BUILD 20260223-multi-source-jobs
-        var BP_VERSION = 'v4.37.19.0';
+        // BLUEPRINT v4.37.20.1 - BUILD 20260223-jsearch-debug
+        var BP_VERSION = 'v4.37.20.1';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1495,7 +1495,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260223-multi-source-jobs                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260223-jsearch-debug                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -18587,7 +18587,7 @@ body {
                 + '<div class="jobs-subtabs">'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'your-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'your-jobs\')">' + bpIcon('target',14) + ' Pipeline' + (savedCount > 0 ? ' (' + savedCount + ')' : '') + '</button>'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'tracker' ? 'active' : '') + '" onclick="switchJobsSubTab(\'tracker\')">' + bpIcon('tracker',14) + ' Tracker' + (appCount > 0 ? ' (' + appCount + ')' : '') + '</button>'
-                + '<button class="jobs-subtab ' + (jobsSubTab === 'find-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'find-jobs\')">' + bpIcon('search',14) + ' Find Jobs' + (jobsDbCount > 0 ? ' <span style="font-size:0.75em; opacity:0.7;">(' + formatJobsCount(jobsDbCount) + ')</span>' : '') + '</button>'
+                + '<button class="jobs-subtab ' + (jobsSubTab === 'find-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'find-jobs\')">' + bpIcon('search',14) + ' Find Jobs' + (opportunitiesData.length > 0 ? ' (' + opportunitiesData.length + ')' : '') + '</button>'
                 + '</div>'
                 + '<div id="jobsSubTabContent"></div>'
                 + '</div>';
@@ -18810,9 +18810,9 @@ body {
                 + bpIcon('search',20) + ' Find Jobs</h2>'
                 + '<p style="color:var(--text-muted); font-size:0.88em; margin:0;">Search across JSearch, Remotive, USAJobs, Himalayas, and Jobicy. Results scored against your skills.</p>'
                 + '</div>'
-                + (jobsDbCount > 0 ? '<div title="' + escapeHtml(getJobsSourceBreakdown() || 'Search to populate counts') + '" style="text-align:right; padding:10px 18px; background:linear-gradient(135deg, var(--accent), #8b5cf6); border-radius:10px; min-width:120px; cursor:help;">'
-                + '<div style="font-size:1.6em; font-weight:800; color:#fff; line-height:1;">' + formatJobsCount(jobsDbCount) + '</div>'
-                + '<div style="font-size:0.68em; color:rgba(255,255,255,0.8); text-transform:uppercase; letter-spacing:0.08em;">jobs indexed</div></div>' : '')
+                + (jobsDbCount > 50 ? '<div title="' + escapeHtml(getJobsSourceBreakdown() || 'Search to populate counts') + '" style="text-align:right; padding:10px 18px; background:linear-gradient(135deg, var(--accent), #8b5cf6); border-radius:10px; min-width:120px; cursor:help;">'
+                + '<div style="font-size:1.6em; font-weight:800; color:#fff; line-height:1;">' + jobsDbCount.toLocaleString() + '</div>'
+                + '<div style="font-size:0.68em; color:rgba(255,255,255,0.8); text-transform:uppercase; letter-spacing:0.08em;">unique jobs seen</div></div>' : '')
                 + '</div>'
                 + '</div>'
                 
@@ -20695,6 +20695,12 @@ body {
                 }
                 window._findJobsSources = sources.join(' \u00B7 ');
                 
+                // Log any source errors for debugging
+                Object.keys(data.sources).forEach(function(src) {
+                    var s = data.sources[src];
+                    if (s.error) console.warn('Job source ' + src + ' error:', s.error, s.detail || '');
+                });
+                
                 console.log('Find Jobs (proxy): ' + opportunitiesData.length + ' results. Sources:', data.sources);
                 
                 if (opportunitiesData.length === 0) {
@@ -20706,15 +20712,6 @@ body {
                 }
                 
                 renderOpportunities();
-                
-                // Update tab label with db count
-                var tabBtns = document.querySelectorAll('.jobs-subtab');
-                tabBtns.forEach(function(btn) {
-                    if (btn.textContent.indexOf('Find Jobs') !== -1) {
-                        var countStr = jobsDbCount > 0 ? ' (' + formatJobsCount(jobsDbCount) + ')' : '';
-                        btn.innerHTML = bpIcon('search',14) + ' Find Jobs' + (countStr ? ' <span style="font-size:0.75em; opacity:0.7;">' + countStr + '</span>' : '');
-                    }
-                });
                 
             } catch(e) {
                 console.warn('Jobs proxy failed:', e.message);
