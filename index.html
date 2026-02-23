@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.37.13.0 | 20260223 | Fix expert+ counter, mobile layout -->
+    <!-- v4.37.14.0 | 20260223 | Security hardening + admin roadmap tracker -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <!-- SECURITY: SRI hashes required before production. Generate with: curl -s URL | openssl dgst -sha384 -binary | openssl base64 -A -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="blueprint.css">
 <style>
 
@@ -530,7 +531,7 @@
 
     <!-- App Footer / Attribution -->
     <footer id="appFooter" style="text-align:center; padding:16px 20px; font-size:0.75em; opacity:0.5; line-height:1.8;">
-        <div style="margin-bottom:4px;">&copy; <script>document.write(new Date().getFullYear())</script> Cliff Jurkiewicz. All rights reserved. Blueprint&trade; and its associated methodologies, ontology structures, and matching algorithms are the intellectual property of Cliff Jurkiewicz.</div>
+        <div style="margin-bottom:4px;">&copy; <span id="copyrightYear"></span> Cliff Jurkiewicz. All rights reserved. Blueprint&trade; and its associated methodologies, ontology structures, and matching algorithms are the intellectual property of Cliff Jurkiewicz.</div>
         <div>Uses the <a href="https://esco.ec.europa.eu" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">ESCO classification</a> of the European Commission and <a href="https://www.onetonline.org" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">O*NET</a> occupational data. <a href="#" onclick="event.preventDefault(); showLegalNotice();" style="color:inherit; text-decoration:underline;">Legal &amp; IP Notice</a> &middot; <a href="#" onclick="event.preventDefault(); switchView('settings'); setTimeout(function(){ window.currentSettingsTab='privacy'; initSettings(); window.settingsInitialized=true; }, 100);" style="color:inherit; text-decoration:underline;">Privacy & Terms</a></div>
     </footer>
     
@@ -1203,8 +1204,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.37.13.0 - BUILD 20260223-expert-counter-fix
-        var BP_VERSION = 'v4.37.13.0';
+        // BLUEPRINT v4.37.14.0 - BUILD 20260223-security-hardening
+        var BP_VERSION = 'v4.37.14.0';
 
         // Safe localStorage wrapper (handles private browsing, quota exceeded)
         function safeGet(key, fallback) {
@@ -1763,7 +1764,7 @@
                     if (nameEl) nameEl.textContent = displayName;
                     if (avatarEl) {
                         if (fbUser.photoURL) {
-                            avatarEl.innerHTML = '<img src="' + fbUser.photoURL + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+                            avatarEl.innerHTML = '<img src="' + escapeHtml(fbUser.photoURL) + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
                         } else {
                             avatarEl.textContent = getInitials(displayName);
                         }
@@ -2131,6 +2132,7 @@
                 + '<button class="admin-tab" data-tab="samples" onclick="switchAdminTab(\'samples\')" style="flex:1; min-width:100px; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('skills',14) + ' Samples</button>'
                 + '<button class="admin-tab" data-tab="waitlist" onclick="switchAdminTab(\'waitlist\')" style="flex:1; min-width:100px; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('target',14) + ' Waitlist</button>'
                 + '<button class="admin-tab" data-tab="config" onclick="switchAdminTab(\'config\')" style="flex:1; min-width:100px; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('settings',14) + ' Config</button>'
+                + '<button class="admin-tab" data-tab="roadmap" onclick="switchAdminTab(\'roadmap\')" style="flex:1; min-width:100px; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('target',14) + ' Roadmap</button>'
                 + '</div>'
                 
                 // Content area
@@ -2150,6 +2152,7 @@
             else if (adminSubTab === 'samples') renderAdminSamples(el);
             else if (adminSubTab === 'waitlist') renderAdminWaitlist(el);
             else if (adminSubTab === 'config') renderAdminConfig(el);
+            else if (adminSubTab === 'roadmap') renderAdminRoadmap(el);
         }
         
         function renderAdminOverview(el) {
@@ -2437,7 +2440,7 @@
                 
                 container.innerHTML = html;
             }).catch(function(err) {
-                container.innerHTML = '<div style="color:#ef4444; padding:12px;">Analytics load error: ' + err.message + '</div>';
+                container.innerHTML = '<div style="color:#ef4444; padding:12px;">Analytics load error: ' + escapeHtml(err.message) + '</div>';
             });
         }
         
@@ -2492,7 +2495,7 @@
                     el.innerHTML = html;
                 })
                 .catch(function(err) {
-                    el.innerHTML = '<div style="color:#ef4444;">Error loading users: ' + err.message + '</div>';
+                    el.innerHTML = '<div style="color:#ef4444;">Error loading users: ' + escapeHtml(err.message) + '</div>';
                 });
         }
         
@@ -2572,7 +2575,7 @@
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Title</label>'
                 + '<input type="text" id="editSampleTitle" class="settings-input" value="' + (template.profile.currentTitle || '').replace(/"/g,'&quot;') + '"></div>'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Description</label>'
-                + '<textarea id="editSampleDesc" class="settings-input" rows="3" style="resize:vertical;">' + (meta.description || '') + '</textarea></div>'
+                + '<textarea id="editSampleDesc" class="settings-input" rows="3" style="resize:vertical;">' + escapeHtml(meta.description || '') + '</textarea></div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Location</label>'
                 + '<input type="text" id="editSampleLocation" class="settings-input" value="' + (template.profile.location || '').replace(/"/g,'&quot;') + '"></div>'
@@ -2714,7 +2717,7 @@
                 
                 el.innerHTML = html;
             }).catch(function(err) {
-                el.innerHTML = '<div style="color:#ef4444;">Error: ' + err.message + '</div>';
+                el.innerHTML = '<div style="color:#ef4444;">Error: ' + escapeHtml(err.message) + '</div>';
             });
         }
         
@@ -2804,6 +2807,320 @@
         }
         window.resetAdminThresholds = resetAdminThresholds;
         
+        // ===== ADMIN ROADMAP TRACKER =====
+        
+        var ROADMAP_DATA = {
+            phases: [
+                {
+                    id: 'security',
+                    name: 'Security & Stability',
+                    color: '#10b981',
+                    icon: 'shield',
+                    items: [
+                        { id: 's1', name: 'Content Security Policy (CSP)', status: 'done', category: 'security', priority: 'critical', notes: 'Added via vercel.json. Blocks unauthorized script loading and data exfiltration.' },
+                        { id: 's2', name: 'HSTS + security headers', status: 'done', category: 'security', priority: 'critical', notes: 'Strict-Transport-Security, X-XSS-Protection, X-Content-Type-Options.' },
+                        { id: 's3', name: 'innerHTML escaping hardening', status: 'done', category: 'security', priority: 'critical', notes: 'escapeHtml coverage 17→39 instances. All err.message, photoURL, profileName, job data, showToast.' },
+                        { id: 's4', name: 'Crypto-secure report IDs', status: 'done', category: 'security', priority: 'high', notes: 'Report IDs now use crypto.getRandomValues (128-bit entropy) instead of Math.random.' },
+                        { id: 's5', name: 'Firestore rules hardening', status: 'done', category: 'security', priority: 'critical', notes: 'analytics_events requires auth, report_views field validation, waitlist field limits.' },
+                        { id: 's6', name: 'Third-party CORS proxies removed', status: 'done', category: 'security', priority: 'high', notes: 'corsproxy.io and allorigins.win removed. Prevents data leakage to third parties.' },
+                        { id: 's7', name: 'SRI hashes on CDN scripts', status: 'planned', category: 'security', priority: 'high', notes: 'Run generate-sri-hashes.sh to generate. 5 scripts in index.html + D3 in 4 report HTMLs.' },
+                        { id: 's8', name: 'Firebase SDK update', status: 'planned', category: 'security', priority: 'medium', notes: 'Update from 10.7.0 to latest stable. Regenerate SRI hashes after.' },
+                        { id: 's9', name: 'Remaining innerHTML audit (~130)', status: 'planned', category: 'security', priority: 'medium', notes: 'Systematic audit of all remaining innerHTML assignments for escaping consistency.' },
+                        { id: 's10', name: 'Session security review protocol', status: 'done', category: 'security', priority: 'high', notes: 'Every dev session opens with security/stability review before feature work.' }
+                    ]
+                },
+                {
+                    id: 'phase1',
+                    name: 'Phase 1: Foundation',
+                    color: '#3b82f6',
+                    icon: 'blueprint',
+                    items: [
+                        { id: 'p1-1', name: 'Anthropic API proxy (serverless)', status: 'planned', category: 'infrastructure', priority: 'critical', notes: 'Vercel serverless at /api/ai. Removes API key from browser entirely. Validates Firebase ID token server-side.' },
+                        { id: 'p1-2', name: 'Report access control (share tokens)', status: 'planned', category: 'security', priority: 'high', notes: 'Add shareToken field to report doc. Validate in Firestore rules. URL becomes /report/{id}?token={random}.' },
+                        { id: 'p1-3', name: 'CORS proxy via serverless', status: 'planned', category: 'infrastructure', priority: 'medium', notes: 'Vercel serverless at /api/fetch. Allowlist: remotive.com, himalayas.app, jobicy.com.' },
+                        { id: 'p1-4', name: 'Admin roadmap tracker', status: 'done', category: 'feature', priority: 'medium', notes: 'Roadmap tab in admin panel. Tracks all strategy items, features, and tasks.' },
+                        { id: 'p1-5', name: 'Demo profile polish', status: 'in-progress', category: 'feature', priority: 'medium', notes: '24 TV character profiles with 99 evidence outcomes added. Ongoing refinement.' }
+                    ]
+                },
+                {
+                    id: 'phase2',
+                    name: 'Phase 2: Enterprise MVP',
+                    color: '#8b5cf6',
+                    icon: 'users',
+                    items: [
+                        { id: 'p2-1', name: 'Scouting Report API', status: 'planned', category: 'monetization', priority: 'critical', notes: 'Batch report generation, filtering, ranking, export. Enterprise integration point.' },
+                        { id: 'p2-2', name: 'Team Blueprint Dashboard', status: 'planned', category: 'monetization', priority: 'high', notes: 'Org-level view: team capability maps, cross-team overlap, internal mobility matching.' },
+                        { id: 'p2-3', name: 'Workforce Skill Mapping', status: 'planned', category: 'monetization', priority: 'critical', notes: 'CSV roster upload → skill concentration heat maps, gap analysis, succession risk. The CHRO product.' },
+                        { id: 'p2-4', name: 'Basic anonymized benchmarking', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Company skill profile vs. industry peers. Requires sufficient platform scale.' }
+                    ]
+                },
+                {
+                    id: 'phase3',
+                    name: 'Phase 3: Integration',
+                    color: '#f59e0b',
+                    icon: 'external',
+                    items: [
+                        { id: 'p3-1', name: 'ATS connector (Greenhouse/Lever)', status: 'planned', category: 'integration', priority: 'high', notes: 'ATS sends requisition → Blueprint returns matched candidates with scouting reports.' },
+                        { id: 'p3-2', name: 'Data export/portability', status: 'planned', category: 'compliance', priority: 'high', notes: 'User right to data portability. Full profile export in standard formats.' },
+                        { id: 'p3-3', name: 'Privacy controls & consent', status: 'planned', category: 'compliance', priority: 'critical', notes: 'Granular consent management. GDPR/CCPA readiness. Cookie consent if needed.' },
+                        { id: 'p3-4', name: 'Enterprise API auth & rate limiting', status: 'planned', category: 'infrastructure', priority: 'high', notes: 'API key management, rate limits, audit logging for enterprise tier.' }
+                    ]
+                },
+                {
+                    id: 'phase4',
+                    name: 'Phase 4: Intelligence',
+                    color: '#ec4899',
+                    icon: 'skills',
+                    items: [
+                        { id: 'p4-1', name: 'Market Skill Benchmarking', status: 'planned', category: 'monetization', priority: 'high', notes: 'Anonymized skill profile comparison against industry verticals and geography.' },
+                        { id: 'p4-2', name: 'Skill Supply Forecasting', status: 'planned', category: 'monetization', priority: 'high', notes: 'Trend data on skill growth, decline, emergence. Leading indicators for workforce planning.' },
+                        { id: 'p4-3', name: 'Role Architecture Tools', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Design roles by skill selection. Shows talent supply, compensation benchmark, role fit.' },
+                        { id: 'p4-4', name: 'Compensation Intelligence', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Tie pay to demonstrated capability. Evidence-backed comp benchmarking.' }
+                    ]
+                },
+                {
+                    id: 'phase5',
+                    name: 'Phase 5: Platform Ecosystem',
+                    color: '#06b6d4',
+                    icon: 'check',
+                    items: [
+                        { id: 'p5-1', name: 'Verified Skills Credential', status: 'planned', category: 'feature', priority: 'medium', notes: 'Badge system for LinkedIn/applications. Enterprise pays for verification infrastructure.' },
+                        { id: 'p5-2', name: 'Internal Mobility Marketplace', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Skills-based employee → opportunity matching. Competes with Gloat, Eightfold, Fuel50.' },
+                        { id: 'p5-3', name: 'L&D Intelligence Layer', status: 'planned', category: 'monetization', priority: 'low', notes: 'Gap → learning resource recommendations. Coursera/Udemy integration. Referral revenue.' },
+                        { id: 'p5-4', name: 'Predictive Attrition Modeling', status: 'planned', category: 'monetization', priority: 'low', notes: 'Structural patterns preceding departure. Signal is structural, never behavioral.' },
+                        { id: 'p5-5', name: 'Custom Talent Market Reports', status: 'planned', category: 'monetization', priority: 'low', notes: 'Commissioned analysis. Gartner-quality deliverables grounded in evidence data.' }
+                    ]
+                }
+            ]
+        };
+        
+        // Load saved roadmap statuses from localStorage
+        function loadRoadmapState() {
+            var saved = safeParse(safeGet('bpRoadmapState'), null);
+            if (!saved) return;
+            ROADMAP_DATA.phases.forEach(function(phase) {
+                phase.items.forEach(function(item) {
+                    if (saved[item.id]) {
+                        item.status = saved[item.id].status || item.status;
+                        item.notes = saved[item.id].notes !== undefined ? saved[item.id].notes : item.notes;
+                    }
+                });
+            });
+        }
+        
+        function saveRoadmapState() {
+            var state = {};
+            ROADMAP_DATA.phases.forEach(function(phase) {
+                phase.items.forEach(function(item) {
+                    state[item.id] = { status: item.status, notes: item.notes };
+                });
+            });
+            safeSet('bpRoadmapState', JSON.stringify(state));
+        }
+        
+        function cycleRoadmapStatus(itemId) {
+            var order = ['planned', 'in-progress', 'done', 'deferred'];
+            ROADMAP_DATA.phases.forEach(function(phase) {
+                phase.items.forEach(function(item) {
+                    if (item.id === itemId) {
+                        var idx = order.indexOf(item.status);
+                        item.status = order[(idx + 1) % order.length];
+                    }
+                });
+            });
+            saveRoadmapState();
+            renderAdminRoadmap(document.getElementById('adminTabContent'));
+        }
+        window.cycleRoadmapStatus = cycleRoadmapStatus;
+        
+        function editRoadmapNotes(itemId) {
+            var item = null;
+            ROADMAP_DATA.phases.forEach(function(phase) {
+                phase.items.forEach(function(i) { if (i.id === itemId) item = i; });
+            });
+            if (!item) return;
+            
+            var modalContent = document.getElementById('modalContent');
+            if (!modalContent) return;
+            
+            modalContent.innerHTML = '<div class="modal-header">'
+                + '<h3 style="margin:0; font-size:1.1em;">' + bpIcon('edit',18) + ' Edit Notes</h3>'
+                + '<button onclick="closeModal()" class="modal-close">\u00D7</button></div>'
+                + '<div class="modal-body" style="padding:20px;">'
+                + '<div style="font-weight:600; margin-bottom:8px; color:var(--text-primary);">' + escapeHtml(item.name) + '</div>'
+                + '<textarea id="roadmapNoteInput" style="width:100%; min-height:120px; background:var(--c-input-bg); border:1px solid var(--border); border-radius:8px; padding:12px; color:var(--text-primary); font-size:0.9em; line-height:1.6; font-family:inherit; resize:vertical;">' + escapeHtml(item.notes || '') + '</textarea>'
+                + '<div style="display:flex; gap:10px; margin-top:16px; justify-content:flex-end;">'
+                + '<button onclick="closeModal()" style="padding:8px 20px; background:transparent; border:1px solid var(--border); color:var(--text-secondary); border-radius:8px; cursor:pointer;">Cancel</button>'
+                + '<button onclick="saveRoadmapNote(\'' + item.id + '\')" style="padding:8px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Save</button>'
+                + '</div></div>';
+            
+            document.getElementById('modal').style.display = 'flex';
+        }
+        window.editRoadmapNotes = editRoadmapNotes;
+        
+        function saveRoadmapNote(itemId) {
+            var noteEl = document.getElementById('roadmapNoteInput');
+            if (!noteEl) return;
+            ROADMAP_DATA.phases.forEach(function(phase) {
+                phase.items.forEach(function(item) {
+                    if (item.id === itemId) item.notes = noteEl.value.trim();
+                });
+            });
+            saveRoadmapState();
+            closeModal();
+            renderAdminRoadmap(document.getElementById('adminTabContent'));
+        }
+        window.saveRoadmapNote = saveRoadmapNote;
+        
+        var roadmapFilter = 'all'; // 'all', 'planned', 'in-progress', 'done', 'deferred'
+        
+        function setRoadmapFilter(f) {
+            roadmapFilter = f;
+            renderAdminRoadmap(document.getElementById('adminTabContent'));
+        }
+        window.setRoadmapFilter = setRoadmapFilter;
+        
+        function renderAdminRoadmap(el) {
+            loadRoadmapState();
+            
+            var statusColors = {
+                'planned': { bg: 'rgba(107,114,128,0.15)', text: '#9ca3af', label: 'Planned' },
+                'in-progress': { bg: 'rgba(59,130,246,0.15)', text: '#60a5fa', label: 'In Progress' },
+                'done': { bg: 'rgba(16,185,129,0.15)', text: '#10b981', label: 'Done' },
+                'deferred': { bg: 'rgba(245,158,11,0.15)', text: '#f59e0b', label: 'Deferred' }
+            };
+            
+            var categoryIcons = {
+                'security': '\uD83D\uDD12',
+                'infrastructure': '\u2699\uFE0F',
+                'feature': '\u2728',
+                'monetization': '\uD83D\uDCB0',
+                'integration': '\uD83D\uDD17',
+                'compliance': '\uD83D\uDCDC'
+            };
+            
+            var priorityColors = {
+                'critical': '#ef4444',
+                'high': '#f59e0b',
+                'medium': '#3b82f6',
+                'low': '#6b7280'
+            };
+            
+            // Count stats
+            var total = 0, done = 0, inProgress = 0, planned = 0, deferred = 0;
+            ROADMAP_DATA.phases.forEach(function(phase) {
+                phase.items.forEach(function(item) {
+                    total++;
+                    if (item.status === 'done') done++;
+                    else if (item.status === 'in-progress') inProgress++;
+                    else if (item.status === 'deferred') deferred++;
+                    else planned++;
+                });
+            });
+            
+            var pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            
+            var html = '';
+            
+            // Header stats
+            html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:24px;">'
+                + '<div style="padding:16px; background:linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.05)); border:1px solid rgba(16,185,129,0.2); border-radius:12px; text-align:center;">'
+                + '<div style="font-size:2em; font-weight:800; color:#10b981;">' + pct + '%</div>'
+                + '<div style="font-size:0.75em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Complete</div></div>'
+                + '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:12px; text-align:center;">'
+                + '<div style="font-size:2em; font-weight:800; color:#10b981;">' + done + '</div>'
+                + '<div style="font-size:0.75em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Done</div></div>'
+                + '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:12px; text-align:center;">'
+                + '<div style="font-size:2em; font-weight:800; color:#60a5fa;">' + inProgress + '</div>'
+                + '<div style="font-size:0.75em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">In Progress</div></div>'
+                + '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:12px; text-align:center;">'
+                + '<div style="font-size:2em; font-weight:800; color:#9ca3af;">' + planned + '</div>'
+                + '<div style="font-size:0.75em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">Planned</div></div>'
+                + '</div>';
+            
+            // Progress bar
+            html += '<div style="height:6px; background:var(--c-surface-5); border-radius:3px; margin-bottom:24px; overflow:hidden;">'
+                + '<div style="height:100%; width:' + pct + '%; background:linear-gradient(90deg, #10b981, #3b82f6); border-radius:3px; transition:width 0.3s;"></div></div>';
+            
+            // Filter bar
+            html += '<div style="display:flex; gap:6px; margin-bottom:20px; flex-wrap:wrap;">';
+            ['all', 'planned', 'in-progress', 'done', 'deferred'].forEach(function(f) {
+                var label = f === 'all' ? 'All (' + total + ')' : (statusColors[f] ? statusColors[f].label : f) + ' (' + (f === 'planned' ? planned : f === 'in-progress' ? inProgress : f === 'done' ? done : deferred) + ')';
+                var isActive = roadmapFilter === f;
+                html += '<button onclick="setRoadmapFilter(\'' + f + '\')" style="padding:6px 14px; border-radius:20px; font-size:0.78em; font-weight:600; cursor:pointer; border:1px solid ' + (isActive ? 'var(--accent)' : 'var(--border)') + '; background:' + (isActive ? 'var(--accent)' : 'transparent') + '; color:' + (isActive ? '#fff' : 'var(--text-secondary)') + ';">' + label + '</button>';
+            });
+            html += '</div>';
+            
+            // Phase sections
+            ROADMAP_DATA.phases.forEach(function(phase) {
+                var filteredItems = phase.items.filter(function(item) {
+                    return roadmapFilter === 'all' || item.status === roadmapFilter;
+                });
+                
+                if (filteredItems.length === 0) return;
+                
+                var phaseDone = phase.items.filter(function(i) { return i.status === 'done'; }).length;
+                var phaseTotal = phase.items.length;
+                var phasePct = Math.round((phaseDone / phaseTotal) * 100);
+                
+                html += '<div style="margin-bottom:24px;">'
+                    + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border);">'
+                    + '<div style="width:28px; height:28px; border-radius:6px; background:' + phase.color + '20; display:flex; align-items:center; justify-content:center; color:' + phase.color + ';">' + bpIcon(phase.icon, 14) + '</div>'
+                    + '<div style="flex:1;">'
+                    + '<div style="font-weight:700; font-size:0.95em; color:var(--text-primary);">' + escapeHtml(phase.name) + '</div>'
+                    + '</div>'
+                    + '<div style="display:flex; align-items:center; gap:8px;">'
+                    + '<div style="width:80px; height:4px; background:var(--c-surface-5); border-radius:2px; overflow:hidden;"><div style="height:100%; width:' + phasePct + '%; background:' + phase.color + '; border-radius:2px;"></div></div>'
+                    + '<span style="font-size:0.75em; color:var(--text-muted); min-width:32px;">' + phaseDone + '/' + phaseTotal + '</span>'
+                    + '</div></div>';
+                
+                filteredItems.forEach(function(item) {
+                    var sc = statusColors[item.status] || statusColors['planned'];
+                    var pc = priorityColors[item.priority] || priorityColors['medium'];
+                    var ci = categoryIcons[item.category] || '\u2022';
+                    
+                    html += '<div style="display:flex; align-items:flex-start; gap:12px; padding:12px 16px; margin-bottom:6px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:10px; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'' + phase.color + '40\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
+                        // Status toggle
+                        + '<button onclick="cycleRoadmapStatus(\'' + item.id + '\')" style="flex-shrink:0; width:28px; height:28px; border-radius:6px; background:' + sc.bg + '; border:1px solid ' + sc.text + '40; color:' + sc.text + '; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.75em; font-weight:700;" title="Click to cycle status">'
+                        + (item.status === 'done' ? '\u2713' : item.status === 'in-progress' ? '\u25B6' : item.status === 'deferred' ? '\u23F8' : '\u25CB')
+                        + '</button>'
+                        // Content
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">'
+                        + '<span style="font-weight:600; font-size:0.9em; color:' + (item.status === 'done' ? 'var(--text-muted)' : 'var(--text-primary)') + ';' + (item.status === 'done' ? ' text-decoration:line-through; opacity:0.7;' : '') + '">' + escapeHtml(item.name) + '</span>'
+                        + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:' + sc.bg + '; color:' + sc.text + '; font-weight:600;">' + sc.label + '</span>'
+                        + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:' + pc + '15; color:' + pc + '; font-weight:600; border:1px solid ' + pc + '30;">' + item.priority + '</span>'
+                        + '<span style="font-size:0.72em;" title="' + escapeHtml(item.category) + '">' + ci + '</span>'
+                        + '</div>'
+                        + (item.notes ? '<div style="font-size:0.8em; color:var(--text-muted); margin-top:4px; line-height:1.5;">' + escapeHtml(item.notes) + '</div>' : '')
+                        + '</div>'
+                        // Edit button
+                        + '<button onclick="editRoadmapNotes(\'' + item.id + '\')" style="flex-shrink:0; background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px; font-size:0.85em; opacity:0.5; transition:opacity 0.2s;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0.5\'" title="Edit notes">' + bpIcon('edit', 14) + '</button>'
+                        + '</div>';
+                });
+                
+                html += '</div>';
+            });
+            
+            // Legend
+            html += '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:10px; margin-top:16px;">'
+                + '<div style="font-size:0.75em; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px;">Legend</div>'
+                + '<div style="display:flex; gap:16px; flex-wrap:wrap; font-size:0.78em; color:var(--text-muted);">'
+                + '<span>\uD83D\uDD12 Security</span>'
+                + '<span>\u2699\uFE0F Infrastructure</span>'
+                + '<span>\u2728 Feature</span>'
+                + '<span>\uD83D\uDCB0 Monetization</span>'
+                + '<span>\uD83D\uDD17 Integration</span>'
+                + '<span>\uD83D\uDCDC Compliance</span>'
+                + '<span style="margin-left:16px;"><span style="color:#ef4444;">\u25CF</span> Critical</span>'
+                + '<span><span style="color:#f59e0b;">\u25CF</span> High</span>'
+                + '<span><span style="color:#3b82f6;">\u25CF</span> Medium</span>'
+                + '<span><span style="color:#6b7280;">\u25CF</span> Low</span>'
+                + '</div></div>';
+            
+            el.innerHTML = html;
+        }
+        
         // ===== ADMIN WAITLIST MANAGEMENT =====
         function loadAdminWaitlist() {
             if (!fbIsAdmin || !fbDb) return;
@@ -2879,7 +3196,7 @@
                 
                 container.innerHTML = html;
             }).catch(function(err) {
-                container.innerHTML = '<div style="color:#ef4444;">Error: ' + err.message + '</div>';
+                container.innerHTML = '<div style="color:#ef4444;">Error: ' + escapeHtml(err.message) + '</div>';
             });
         }
         window.loadAdminWaitlist = loadAdminWaitlist;
@@ -2970,7 +3287,7 @@
             // Shows for ANYONE viewing a sample profile (including admin)
             // Header badge = WHO you are. Banner = WHAT you're viewing.
             var banner = document.getElementById('readonlyBanner');
-            var profileName = (userData.profile && userData.profile.name) || 'Sample Profile';
+            var profileName = escapeHtml((userData.profile && userData.profile.name) || 'Sample Profile');
             
             if (isSample) {
                 if (!banner) {
@@ -3369,7 +3686,7 @@
             var banner = document.getElementById('readonlyBanner');
             if (banner) {
                 var pName = (userData.profile && userData.profile.name) || 'Sample Profile';
-                banner.innerHTML = '\uD83D\uDD12 <strong>Viewing: ' + pName + '</strong> \u00B7 Sample profile. You\u2019re #' + position + ' on the waitlist.';
+                banner.innerHTML = '\uD83D\uDD12 <strong>Viewing: ' + escapeHtml(pName) + '</strong> \u00B7 Sample profile. You\u2019re #' + position + ' on the waitlist.';
             }
             
             showToast('Welcome, ' + name + '! You\u2019re #' + position + ' on the waitlist.', 'success');
@@ -4021,7 +4338,7 @@
             el.id = id;
             el.className = 'toast toast-' + type;
             el.innerHTML = '<span class="toast-icon">' + (icons[type] || icons.info) + '</span>'
-                + '<div class="toast-body"><div class="toast-msg">' + message + '</div></div>'
+                + '<div class="toast-body"><div class="toast-msg">' + escapeHtml(message) + '</div></div>'
                 + '<button class="toast-close" onclick="dismissToast(\u0027' + id + '\u0027'
                 + ')" aria-label="Close">\u00D7</button>';
             container.appendChild(el);
@@ -5553,6 +5870,8 @@
         // Load library on page load
         window.addEventListener('DOMContentLoaded', () => {
             loadSkillLibraryIndex();
+            var cy = document.getElementById('copyrightYear');
+            if (cy) cy.textContent = new Date().getFullYear();
         });
         
         // Load template into userData
@@ -6968,7 +7287,7 @@ ${wizardState.resumeText}` }]
                 const status = document.getElementById('wizardParsingStatus');
                 if (status) status.innerHTML = `
                     <span style="color:var(--danger);">
-                        Parsing failed: ${err.message}<br><br>
+                        Parsing failed: ${escapeHtml(err.message)}<br><br>
                     </span>
                     <button onclick="wizardState.step=2; renderWizardStep();"
                             style="background:var(--accent); color:#fff; border:none; padding:9px 20px;
@@ -9562,7 +9881,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             var header = document.createElement('div');
             header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--elev-1);flex-shrink:0;';
-            header.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="color:var(--accent);">' + bpIcon('target',18) + '</span><span style="font-weight:600;font-size:0.92em;">' + (name || 'Scouting Report') + '</span><span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(245,158,11,0.1);color:#f59e0b;font-weight:600;">DEMO</span></div>'
+            header.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="color:var(--accent);">' + bpIcon('target',18) + '</span><span style="font-weight:600;font-size:0.92em;">' + escapeHtml(name || 'Scouting Report') + '</span><span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(245,158,11,0.1);color:#f59e0b;font-weight:600;">DEMO</span></div>'
                 + '<button onclick="document.getElementById(\'scoutReportOverlay\').remove()" style="background:none;border:none;color:var(--text-muted);font-size:1.3em;cursor:pointer;padding:4px 8px;border-radius:6px;transition:all 0.2s;" onmouseover="this.style.color=\'var(--accent)\'" onmouseout="this.style.color=\'var(--text-muted)\'">✕</button>';
             
             // Context banner for mismatched or generic demo viewing
@@ -9988,7 +10307,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                                    blueprintData.values.filter(v => v.selected).length;
                 statsBar.innerHTML = `${totalShared} Items Shared • Data Privacy & Control`;
             } else if (currentView === 'settings') {
-                statsBar.innerHTML = `Profile Settings • ${userData.preferences.seniorityLevel} Level • Customize Your Experience`;
+                statsBar.innerHTML = `Profile Settings • ${escapeHtml(userData.preferences.seniorityLevel)} Level • Customize Your Experience`;
             }
         }
         
@@ -13858,7 +14177,7 @@ body {
                     header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--elev-1);flex-shrink:0;';
                     header.innerHTML = '<div style="display:flex;align-items:center;gap:10px;">'
                         + '<span style="color:var(--accent);">' + bpIcon('target',18) + '</span>'
-                        + '<span style="font-weight:600;font-size:0.92em;">' + candidateName + ' → ' + reportData.job.title + '</span>'
+                        + '<span style="font-weight:600;font-size:0.92em;">' + escapeHtml(candidateName) + ' → ' + escapeHtml(reportData.job.title) + '</span>'
                         + '<span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(16,185,129,0.1);color:#10b981;font-weight:600;">' + reportData.match.percentage + '% MATCH</span>'
                         + '</div>'
                         + '<div style="display:flex;align-items:center;gap:8px;">'
@@ -13903,8 +14222,10 @@ body {
             
             var reportData = overlay._reportData;
             
-            // Generate short ID: timestamp + random hex
-            var reportId = Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
+            // Generate secure report ID: timestamp + crypto-random hex (128-bit entropy)
+            var cryptoBytes = new Uint8Array(16);
+            crypto.getRandomValues(cryptoBytes);
+            var reportId = Date.now().toString(36) + Array.from(cryptoBytes, function(b) { return b.toString(16).padStart(2, '0'); }).join('');
             
             // Firestore document
             var docData = {
@@ -17900,7 +18221,7 @@ body {
             } catch (err) {
                 console.error('Job analysis error:', err);
                 statusEl.style.background = 'var(--c-red-bg-2b)';
-                statusEl.innerHTML = '<div style="color:#ef4444; font-size:0.88em;">\u26A0 ' + (err.message || 'Analysis failed.') + '</div>';
+                statusEl.innerHTML = '<div style="color:#ef4444; font-size:0.88em;">\u26A0 ' + escapeHtml(err.message || 'Analysis failed.') + '</div>';
             } finally {
                 btn.disabled = false;
                 btn.style.opacity = '1';
@@ -19283,7 +19604,7 @@ body {
             
             filtered.forEach(function(job, idx) {
                 var matchColor = job.matchScore >= 70 ? '#10b981' : job.matchScore >= 45 ? '#f59e0b' : '#6b7280';
-                var jobUrl = job.url || '#';
+                var jobUrl = (job.url && /^https?:\/\//i.test(job.url)) ? escapeHtml(job.url) : '#';
                 var salary = job.salary || '';
                 var alreadyInPipeline = pipelineIds[(job.title + '-' + (job.company || '')).toLowerCase()];
                 
@@ -19294,9 +19615,9 @@ body {
                     + '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:10px;">'
                     + '<div style="flex:1; min-width:0;">'
                     + '<a href="' + jobUrl + '" target="_blank" rel="noopener noreferrer" style="font-size:1.05em; font-weight:600; color:var(--text-primary); text-decoration:none; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"'
-                    + ' onmouseover="this.style.color=\'var(--accent)\'" onmouseout="this.style.color=\'var(--text-primary)\'">' + job.title + '</a>'
+                    + ' onmouseover="this.style.color=\'var(--accent)\'" onmouseout="this.style.color=\'var(--text-primary)\'">' + escapeHtml(job.title) + '</a>'
                     + '<div style="font-size:0.88em; color:var(--text-muted); margin-top:2px;">'
-                    + (job.company || 'Unknown') + (job.location ? ' \u00B7 ' + job.location : '') + '</div>'
+                    + escapeHtml(job.company || 'Unknown') + (job.location ? ' \u00B7 ' + escapeHtml(job.location) : '') + '</div>'
                     + '</div>'
                     + '<div style="text-align:center; min-width:56px;">'
                     + '<div style="font-size:1.4em; font-weight:700; color:' + matchColor + ';">' + job.matchScore + '%</div>'
@@ -19419,9 +19740,8 @@ body {
         // Uses CORS proxy as fallback for browser restrictions
         
         var CORS_PROXIES = [
-            function(url) { return url; }, // Try direct first
-            function(url) { return 'https://corsproxy.io/?' + encodeURIComponent(url); },
-            function(url) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url); }
+            function(url) { return url; } // Direct fetch only — third-party CORS proxies removed for security (data leakage risk)
+            // TODO: Add Vercel serverless proxy at /api/cors-proxy for job boards that block browser requests
         ];
         
         async function fetchWithCorsRetry(url) {
@@ -20455,7 +20775,7 @@ body {
             var container = document.getElementById('certLinkedSkillsContainer');
             var span = document.createElement('span');
             span.style.cssText = 'display:inline-flex; align-items:center; gap:4px; padding:3px 10px; background:var(--c-purple-bg-1); color:var(--c-purple-light); border-radius:12px; font-size:0.82em; margin:2px 4px 2px 0;';
-            span.innerHTML = name + ' <button onclick="removeCertLinkedSkill(this, \'' + name.replace(/'/g,"\\'") + '\')" style="background:none; border:none; cursor:pointer; color:inherit; font-size:1em; padding:0 2px;">\u00D7</button>';
+            span.innerHTML = escapeHtml(name) + ' <button onclick="removeCertLinkedSkill(this, \'' + escapeHtml(name).replace(/'/g,"\\'") + '\')" style="background:none; border:none; cursor:pointer; color:inherit; font-size:1em; padding:0 2px;">\u00D7</button>';
             container.appendChild(span);
             input.value = '';
             input.focus();
@@ -21702,10 +22022,10 @@ body {
                     userData.profile.photo = dataUrl;
                     // Update preview
                     var preview = document.getElementById('settingPhotoPreview');
-                    if (preview) preview.innerHTML = '<img src="' + dataUrl + '" alt="Profile photo" style="width:100%;height:100%;object-fit:cover;">';
+                    if (preview) preview.innerHTML = '<img src="' + escapeHtml(dataUrl) + '" alt="Profile photo" style="width:100%;height:100%;object-fit:cover;">';
                     // Update header chip
                     var avatar = document.getElementById('profileAvatar');
-                    if (avatar) { avatar.innerHTML = '<img src="' + dataUrl + '" alt="Profile photo" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'; }
+                    if (avatar) { avatar.innerHTML = '<img src="' + escapeHtml(dataUrl) + '" alt="Profile photo" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'; }
                     saveUserData();
                     showToast('Profile photo updated.', 'success');
                 };
@@ -22691,7 +23011,7 @@ body {
             reader.onload = function(e) {
                 _bulkCsvData = e.target.result;
                 var lines = _bulkCsvData.split('\n').filter(function(l) { return l.trim(); });
-                document.getElementById('bulkCsvPreview').innerHTML = '✓ Loaded ' + file.name + ' (' + lines.length + ' lines, ' + Math.round(file.size / 1024) + ' KB)';
+                document.getElementById('bulkCsvPreview').innerHTML = '✓ Loaded ' + escapeHtml(file.name) + ' (' + lines.length + ' lines, ' + Math.round(file.size / 1024) + ' KB)';
             };
             reader.readAsText(file);
         }
@@ -24127,7 +24447,7 @@ body {
             if (avatar) {
                 var photoURL = (userData.profile && userData.profile.photo) || (fbUser && fbUser.photoURL) || null;
                 if (photoURL) {
-                    avatar.innerHTML = '<img src="' + photoURL + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+                    avatar.innerHTML = '<img src="' + escapeHtml(photoURL) + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
                 } else {
                     avatar.textContent = initials;
                 }
