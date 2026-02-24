@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.40.0 | 20260223 | Wizard enrichment step: O*NET occupation matching + skill gap suggestions -->
+    <!-- v4.40.1 | 20260223 | Fix: surface actual Anthropic error messages on proxy 4xx responses -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.40.0 - BUILD 20260223-wizard-enrichment
-        var BP_VERSION = 'v4.40.0';
+        // BLUEPRINT v4.40.1 - BUILD 20260223-fix-proxy-errors
+        var BP_VERSION = 'v4.40.1';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1300,9 +1300,17 @@
                     });
                     if (proxyRes.ok) { AI_PROXY_AVAILABLE = true; return await proxyRes.json(); }
                     if (proxyRes.status === 429) { AI_PROXY_AVAILABLE = true; throw new Error('Rate limit exceeded. Please wait a moment.'); }
+                    // Surface actual error from proxy/Anthropic for 4xx errors
+                    if (proxyRes.status >= 400 && proxyRes.status < 500) {
+                        AI_PROXY_AVAILABLE = true;
+                        var errBody = {}; try { errBody = await proxyRes.json(); } catch(e) {}
+                        var errMsg = (errBody.error && typeof errBody.error === 'object' ? errBody.error.message : errBody.error) || 'AI request failed (status ' + proxyRes.status + ')';
+                        console.error('AI Proxy ' + proxyRes.status + ':', errMsg, errBody);
+                        throw new Error(errMsg);
+                    }
                     if (proxyRes.status === 500) AI_PROXY_AVAILABLE = false;
                 } catch (e) {
-                    if (e.message.includes('Rate limit')) throw e;
+                    if (e.message.includes('Rate limit') || e.message.includes('AI request') || e.message.includes('Invalid') || e.message.includes('not found') || e.message.includes('overloaded')) throw e;
                     if (AI_PROXY_AVAILABLE === null) AI_PROXY_AVAILABLE = false;
                 }
             }
