@@ -3620,6 +3620,56 @@
                 + bpIcon('edit',14) + ' Bulk Edit / Remove</button>'
                 + '</div></div>';
             
+            // Job Source API Keys
+            html += '<div style="padding:20px; background:var(--c-surface-2); '
+                + 'border:1px solid var(--c-surface-5); border-radius:10px; margin-top:20px;">'
+                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 4px; font-size:1em;">' + bpIcon('search',16) + ' Job Source API Keys</h3>'
+                + '<p style="font-size:0.78em; color:var(--text-muted); margin:0 0 16px;">Add free API keys to unlock additional job sources. Adzuna adds ~3-4M US jobs. Jooble aggregates from Indeed, LinkedIn, and Glassdoor.</p>'
+                
+                // Adzuna
+                + '<div style="margin-bottom:14px;">'
+                + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px;">Adzuna App ID</label>'
+                + '<input type="text" id="cfgAdzunaAppId" value="' + escapeHtml(safeGet('bpAdzunaAppId') || '') + '" placeholder="Register at developer.adzuna.com" '
+                + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid var(--c-border-strong); border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
+                + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;"><a href="https://developer.adzuna.com/" target="_blank" rel="noopener" style="color:var(--accent);">Get free Adzuna credentials \u2192</a></div>'
+                + '</div>'
+                
+                + '<div style="margin-bottom:14px;">'
+                + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px;">Adzuna API Key</label>'
+                + '<input type="password" id="cfgAdzunaAppKey" value="' + escapeHtml(safeGet('bpAdzunaAppKey') || '') + '" placeholder="Your Adzuna app_key" '
+                + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid var(--c-border-strong); border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
+                + '</div>'
+                
+                // Jooble
+                + '<div style="margin-bottom:14px;">'
+                + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px;">Jooble API Key</label>'
+                + '<input type="password" id="cfgJoobleApiKey" value="' + escapeHtml(safeGet('bpJoobleApiKey') || '') + '" placeholder="Register at jooble.org/api/about" '
+                + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid var(--c-border-strong); border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
+                + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;"><a href="https://jooble.org/api/about" target="_blank" rel="noopener" style="color:var(--accent);">Get free Jooble API key \u2192</a></div>'
+                + '</div>'
+                
+                // The Muse
+                + '<div style="margin-bottom:14px;">'
+                + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px;">The Muse API Key <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label>'
+                + '<input type="text" id="cfgMuseApiKey" value="' + escapeHtml(safeGet('bpMuseApiKey') || '') + '" placeholder="Works without key (lower rate limit)" '
+                + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid var(--c-border-strong); border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
+                + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;"><a href="https://www.themuse.com/developers/api/v2" target="_blank" rel="noopener" style="color:var(--accent);">Register for higher rate limit \u2192</a> (3600/hr vs 500/hr)</div>'
+                + '</div>'
+                
+                // Status summary
+                + '<div style="font-size:0.75em; color:var(--text-muted); padding:10px 12px; border-radius:6px; background:var(--c-accent-bg-1); border:1px solid var(--border); margin-bottom:14px;">'
+                + '<strong>Always active:</strong> JSearch \u00B7 Remotive \u00B7 USAJobs \u00B7 Himalayas \u00B7 Jobicy<br>'
+                + '<strong>With keys:</strong> '
+                + '<span style="color:' + (safeGet('bpAdzunaAppId') ? '#10b981' : '#ef4444') + ';">' + (safeGet('bpAdzunaAppId') ? '\u2713' : '\u2717') + ' Adzuna</span> \u00B7 '
+                + '<span style="color:' + (safeGet('bpJoobleApiKey') ? '#10b981' : '#ef4444') + ';">' + (safeGet('bpJoobleApiKey') ? '\u2713' : '\u2717') + ' Jooble</span> \u00B7 '
+                + '<span style="color:' + (safeGet('bpMuseApiKey') ? '#10b981' : '#f59e0b') + ';">' + (safeGet('bpMuseApiKey') ? '\u2713' : '\u25CB') + ' The Muse</span>'
+                + '</div>'
+                
+                // Save button
+                + '<button onclick="saveJobSourceKeys()" style="padding:10px 20px; background:linear-gradient(135deg,#3b82f6,#2563eb); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">'
+                + bpIcon('save',14) + ' Save API Keys</button>'
+                + '</div>';
+            
             el.innerHTML = html;
         }
         
@@ -3659,6 +3709,28 @@
             showToast('Thresholds reset to defaults.', 'info');
         }
         window.resetAdminThresholds = resetAdminThresholds;
+        
+        function saveJobSourceKeys() {
+            var adzAppId = (document.getElementById('cfgAdzunaAppId') || {}).value || '';
+            var adzAppKey = (document.getElementById('cfgAdzunaAppKey') || {}).value || '';
+            var joobleKey = (document.getElementById('cfgJoobleApiKey') || {}).value || '';
+            var museKey = (document.getElementById('cfgMuseApiKey') || {}).value || '';
+            safeSet('bpAdzunaAppId', adzAppId.trim());
+            safeSet('bpAdzunaAppKey', adzAppKey.trim());
+            safeSet('bpJoobleApiKey', joobleKey.trim());
+            safeSet('bpMuseApiKey', museKey.trim());
+            ADZUNA_APP_ID = adzAppId.trim();
+            ADZUNA_APP_KEY = adzAppKey.trim();
+            JOOBLE_API_KEY = joobleKey.trim();
+            
+            var count = (adzAppId ? 1 : 0) + (joobleKey ? 1 : 0) + (museKey ? 1 : 0);
+            showToast('Job source API keys saved. ' + (count > 0 ? count + ' keyed source' + (count > 1 ? 's' : '') + ' enabled.' : 'No keyed sources configured.'), count > 0 ? 'success' : 'info');
+            
+            // Re-render to update status indicators
+            var el = document.getElementById('adminContent');
+            if (el) renderAdminConfig(el);
+        }
+        window.saveJobSourceKeys = saveJobSourceKeys;
         
         // ===== ADMIN ROADMAP TRACKER =====
         
@@ -25631,61 +25703,6 @@ body {
                                placeholder="e.g., 150000">
                         <div class="settings-help">Leave blank for no minimum. Enter annual salary (USD).</div>
                     </div>
-                </div>
-                
-                <div class="blueprint-section" style="margin-top:20px;">
-                    <div class="blueprint-section-header">
-                        <div class="blueprint-section-title">
-                            <span class="section-icon">${bpIcon("search",20)}</span>
-                            <span>Job Source API Keys</span>
-                        </div>
-                    </div>
-                    
-                    <div class="coaching-tip">
-                        <div class="coaching-tip-title">
-                            ${bpIcon("lightbulb",14)} MORE JOBS = BETTER MATCHES
-                        </div>
-                        <div class="coaching-tip-content">
-                            Add free API keys to unlock additional job sources. Adzuna adds ~3-4M US jobs. 
-                            Jooble aggregates from Indeed, LinkedIn, and Glassdoor. Both are free to register.
-                        </div>
-                    </div>
-                    
-                    <div class="settings-group">
-                        <label class="settings-label">Adzuna App ID</label>
-                        <input type="text" class="settings-input" id="settingAdzunaAppId" 
-                               value="${safeGet('bpAdzunaAppId') || ''}"
-                               placeholder="Register at developer.adzuna.com">
-                        <div class="settings-help"><a href="https://developer.adzuna.com/" target="_blank" rel="noopener" style="color:var(--accent);">Get free Adzuna API credentials →</a></div>
-                    </div>
-                    
-                    <div class="settings-group">
-                        <label class="settings-label">Adzuna API Key</label>
-                        <input type="password" class="settings-input" id="settingAdzunaAppKey" 
-                               value="${safeGet('bpAdzunaAppKey') || ''}"
-                               placeholder="Your Adzuna app_key">
-                    </div>
-                    
-                    <div class="settings-group">
-                        <label class="settings-label">Jooble API Key</label>
-                        <input type="password" class="settings-input" id="settingJoobleApiKey" 
-                               value="${safeGet('bpJoobleApiKey') || ''}"
-                               placeholder="Register at jooble.org/api/about">
-                        <div class="settings-help"><a href="https://jooble.org/api/about" target="_blank" rel="noopener" style="color:var(--accent);">Get free Jooble API key →</a></div>
-                    </div>
-                    
-                    <div class="settings-group">
-                        <label class="settings-label">The Muse API Key (Optional)</label>
-                        <input type="text" class="settings-input" id="settingMuseApiKey" 
-                               value="${safeGet('bpMuseApiKey') || ''}"
-                               placeholder="Optional — works without key (lower rate limit)">
-                        <div class="settings-help"><a href="https://www.themuse.com/developers/api/v2" target="_blank" rel="noopener" style="color:var(--accent);">Register app for higher rate limit →</a> (3600/hr vs 500/hr)</div>
-                    </div>
-                    
-                    <div style="font-size:0.78em; color:var(--text-muted); padding:10px 14px; border-radius:6px; background:var(--c-accent-bg-1); border:1px solid var(--border); margin-bottom:16px;">
-                        <strong>Current sources:</strong> JSearch · Remotive · USAJobs · Himalayas · Jobicy (always active) 
-                        + Adzuna · Jooble · The Muse (enabled with keys above)
-                    </div>
                     
                     <button class="save-settings-btn" onclick="saveSettings()">
                         ${bpIcon("save",14)} Save Settings
@@ -26750,19 +26767,6 @@ body {
             userData.preferences.minimumSkillMatches = parseInt(document.getElementById('settingMinSkills').value);
             const minSalaryInput = document.getElementById('settingMinSalary').value;
             userData.preferences.minSalary = minSalaryInput ? parseInt(minSalaryInput) : null;
-            
-            // Save job source API keys
-            var adzAppId = (document.getElementById('settingAdzunaAppId') || {}).value || '';
-            var adzAppKey = (document.getElementById('settingAdzunaAppKey') || {}).value || '';
-            var joobleKey = (document.getElementById('settingJoobleApiKey') || {}).value || '';
-            var museKey = (document.getElementById('settingMuseApiKey') || {}).value || '';
-            safeSet('bpAdzunaAppId', adzAppId.trim());
-            safeSet('bpAdzunaAppKey', adzAppKey.trim());
-            safeSet('bpJoobleApiKey', joobleKey.trim());
-            safeSet('bpMuseApiKey', museKey.trim());
-            ADZUNA_APP_ID = adzAppId.trim();
-            ADZUNA_APP_KEY = adzAppKey.trim();
-            JOOBLE_API_KEY = joobleKey.trim();
             
             // Update seniority keywords based on level
             if (newSeniority === 'Entry') {
