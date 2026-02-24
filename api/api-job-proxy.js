@@ -1,8 +1,7 @@
-// /api/job-proxy.js — Lightweight CORS proxy for keyed job APIs
-// Deploy to Vercel alongside existing /api/jobs.js
+// /api/api-job-proxy.js — Lightweight CORS proxy for keyed job APIs
 // Routes: ?source=adzuna&q=...&location=... | ?source=muse&... | ?source=jooble&...
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -71,4 +70,4 @@ export default async function handler(req, res) {
         console.error(`job-proxy [${source}]:`, e.message);
         return res.status(502).json({ error: e.message, source });
     }
-}
+};
