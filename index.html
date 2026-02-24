@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.40.3 | 20260223 | Fix: Sonnet 4 output cost $3→$15/M tokens in cost dashboard -->
+    <!-- v4.40.4 | 20260223 | Values step: custom add, inline edit descriptions, fixed rendering, scrollable grid -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.40.3 - BUILD 20260223-fix-cost-pricing
-        var BP_VERSION = 'v4.40.3';
+        // BLUEPRINT v4.40.4 - BUILD 20260223-values-step-rebuild
+        var BP_VERSION = 'v4.40.4';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -9289,65 +9289,96 @@ Rules:
         // ── STEP 7: Values ────────────────────────────────────────────────────
 
         function renderWizardStep7(el) {
-            const vals = wizardState.values.length > 0 ? wizardState.values : [
-                { name: 'Intellectual Integrity', description: 'Evidence-based decisions. Challenge assumptions before accepting conclusions.', selected: false },
-                { name: 'Outcome-Focused', description: 'Judge by impact delivered, not activity performed.', selected: false },
-                { name: 'Continuous Learning', description: 'Seek disconfirming evidence. Update beliefs when data changes.', selected: false },
-                { name: 'Authentic Leadership', description: 'Lead with transparency and truth, especially when it costs something.', selected: false },
-                { name: 'Customer-Centric', description: 'Solve real problems. Understand needs before building solutions.', selected: false },
-                { name: 'Innovation', description: 'Find better ways. Challenge the status quo with purpose, not novelty.', selected: false },
-                { name: 'Collaboration', description: 'Build with others. Shared ownership creates better outcomes than solo brilliance.', selected: false },
-                { name: 'Accountability', description: 'Own the result, not just the effort. Follow through without being chased.', selected: false },
-                { name: 'Craftsmanship', description: 'Sweat the details. Quality compounds over time in ways shortcuts never do.', selected: false },
-                { name: 'Mentorship', description: 'Invest in the people around you. The best legacy is who you helped grow.', selected: false },
-                { name: 'Resilience', description: 'Stay steady under pressure. Adversity reveals character, not just capability.', selected: false },
-                { name: 'Strategic Thinking', description: 'See the system, not just the task. Connect decisions to outcomes two moves ahead.', selected: false },
-                { name: 'Empathy', description: 'Understand before prescribing. Context changes everything about the right answer.', selected: false },
-                { name: 'Service Orientation', description: 'Lead by serving others first. The work matters more than the credit.', selected: false }
-            ];
-            wizardState.values = vals;
+            var hasAIValues = wizardState.values.length > 0 && wizardState.values.some(function(v) { return v._fromAI; });
+            if (wizardState.values.length === 0) {
+                wizardState.values = [
+                    { name: 'Intellectual Integrity', description: 'Evidence-based decisions. Challenge assumptions before accepting conclusions.', selected: false },
+                    { name: 'Outcome-Focused', description: 'Judge by impact delivered, not activity performed.', selected: false },
+                    { name: 'Continuous Learning', description: 'Seek disconfirming evidence. Update beliefs when data changes.', selected: false },
+                    { name: 'Authentic Leadership', description: 'Lead with transparency and truth, especially when it costs something.', selected: false },
+                    { name: 'Customer-Centric', description: 'Solve real problems. Understand needs before building solutions.', selected: false },
+                    { name: 'Innovation', description: 'Find better ways. Challenge the status quo with purpose, not novelty.', selected: false },
+                    { name: 'Collaboration', description: 'Build with others. Shared ownership creates better outcomes than solo brilliance.', selected: false },
+                    { name: 'Accountability', description: 'Own the result, not just the effort. Follow through without being chased.', selected: false },
+                    { name: 'Craftsmanship', description: 'Sweat the details. Quality compounds over time in ways shortcuts never do.', selected: false },
+                    { name: 'Mentorship', description: 'Invest in the people around you. The best legacy is who you helped grow.', selected: false },
+                    { name: 'Resilience', description: 'Stay steady under pressure. Adversity reveals character, not just capability.', selected: false },
+                    { name: 'Strategic Thinking', description: 'See the system, not just the task. Connect decisions to outcomes two moves ahead.', selected: false },
+                    { name: 'Empathy', description: 'Understand before prescribing. Context changes everything about the right answer.', selected: false },
+                    { name: 'Service Orientation', description: 'Lead by serving others first. The work matters more than the credit.', selected: false }
+                ];
+            }
+            var vals = wizardState.values;
+            var selectedCount = vals.filter(function(v) { return v.selected; }).length;
 
-            const isFromResume = !!wizardState.parsedData;
+            var subtitle = hasAIValues
+                ? 'Claude suggested these from your career history. Select the ones that resonate, edit descriptions, or add your own.'
+                : 'Select the values that define how you work, or add your own. Click a description to edit it.';
 
             el.innerHTML = `
-                ${wizardHeading(bpIcon('lightbulb',16),
-                    'Your Professional Values',
-                    isFromResume ? 'Claude inferred these from your career history. Select the ones that feel true. You can edit descriptions to make them personal.'
-                                 : 'Select the values that define how you work. These appear in your Blueprint.')}
+                ${wizardHeading(bpIcon('lightbulb',16), 'Your Professional Values', subtitle)}
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px;">
-                    ${vals.map((v, i) => `
-                        <div onclick="wizardToggleValue(${i})" id="val-card-${i}"
-                             style="background:var(--bg-elevated);
-                                    border:2px solid ${v.selected ? 'var(--accent)' : 'var(--border)'};
-                                    border-radius:10px; padding:14px; cursor:pointer; transition:all 0.18s;
-                                    ${v.selected ? 'background:var(--accent-glow);' : ''}">
-                            <div style="display:flex; align-items:start; gap:10px;">
-                                <div style="width:18px; height:18px; border-radius:4px; flex-shrink:0; margin-top:2px;
-                                            background:${v.selected ? 'var(--accent)' : 'var(--input-bg)'};
-                                            border:2px solid ${v.selected ? 'var(--accent)' : 'var(--border)'};
-                                            display:flex; align-items:center; justify-content:center;
-                                            color:#fff; font-size:11px;">
-                                    ${v.selected ? '✓' : ''}
-                                </div>
-                                <div style="flex:1;">
-                                    <div style="font-weight:700; color:var(--text-primary); font-size:0.88em;
-                                                margin-bottom:4px;">${v.name}</div>
-                                    <div style="font-size:0.78em; color:var(--text-secondary);
-                                                line-height:1.4;">${v.description || ''}</div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
+                <div id="valuesGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; max-height:400px; overflow-y:auto; padding:2px;">
+                    ${vals.map(function(v, i) {
+                        var sel = v.selected;
+                        return '<div onclick="wizardToggleValue(' + i + ')" id="val-card-' + i + '"'
+                            + ' style="background:var(--bg-elevated);'
+                            + ' border:2px solid ' + (sel ? 'var(--accent)' : 'var(--border)') + ';'
+                            + ' border-radius:10px; padding:12px; cursor:pointer; transition:all 0.18s;">'
+                            + '<div style="display:flex; align-items:start; gap:10px;">'
+                            + '<div style="width:18px; height:18px; border-radius:4px; flex-shrink:0; margin-top:2px;'
+                            + ' background:' + (sel ? 'var(--accent)' : 'var(--input-bg)') + ';'
+                            + ' border:2px solid ' + (sel ? 'var(--accent)' : 'var(--border)') + ';'
+                            + ' display:flex; align-items:center; justify-content:center;'
+                            + ' color:#fff; font-size:11px;">'
+                            + (sel ? '\u2713' : '')
+                            + '</div>'
+                            + '<div style="flex:1;">'
+                            + '<div style="font-weight:700; color:var(--text-primary); font-size:0.86em; margin-bottom:3px;">'
+                            + escapeHtml(v.name) + '</div>'
+                            + '<div onclick="event.stopPropagation(); wizardEditValueDesc(' + i + ', this)" '
+                            + 'style="font-size:0.76em; color:var(--text-secondary); line-height:1.4; cursor:text;" '
+                            + 'title="Click to edit">'
+                            + escapeHtml(v.description || '') + '</div>'
+                            + '</div></div></div>';
+                    }).join('')}
+                </div>
+
+                <div style="background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px;
+                            padding:14px; margin-bottom:20px;">
+                    <div style="font-size:0.82em; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">
+                        Add a Custom Value
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <input id="wizardCustomValueName" type="text" placeholder="Value name (e.g. Radical Candor)"
+                               style="flex:1; padding:8px 12px; background:var(--input-bg); border:1px solid var(--border);
+                                      border-radius:8px; color:var(--text-primary); font-size:0.88em; outline:none;
+                                      font-family:inherit;"
+                               onfocus="this.style.borderColor='var(--accent)'"
+                               onblur="this.style.borderColor='var(--border)'"
+                               onkeydown="if(event.key==='Enter'){wizardAddCustomValue();}">
+                        <input id="wizardCustomValueDesc" type="text" placeholder="Brief description (optional)"
+                               style="flex:1.5; padding:8px 12px; background:var(--input-bg); border:1px solid var(--border);
+                                      border-radius:8px; color:var(--text-primary); font-size:0.88em; outline:none;
+                                      font-family:inherit;"
+                               onfocus="this.style.borderColor='var(--accent)'"
+                               onblur="this.style.borderColor='var(--border)'"
+                               onkeydown="if(event.key==='Enter'){wizardAddCustomValue();}">
+                        <button onclick="wizardAddCustomValue()"
+                                style="padding:8px 16px; background:var(--accent); color:#fff; border:none;
+                                       border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap;">
+                            + Add
+                        </button>
+                    </div>
                 </div>
 
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    ${wizardBtn('← Back', 'wizardBack()', 'ghost')}
-                    <div>
-                        <span style="font-size:0.82em; color:var(--text-muted); margin-right:16px;">
-                            ${vals.filter(v=>v.selected).length} selected
+                    ${wizardBtn('\u2190 Back', 'wizardBack()', 'ghost')}
+                    <div style="display:flex; align-items:center; gap:16px;">
+                        <span id="valuesCount" style="font-size:0.82em; color:var(--text-muted);">
+                            ${selectedCount} selected
                         </span>
-                        ${wizardBtn('Continue → Purpose', 'wizardSaveValues()', 'primary')}
+                        ${wizardBtn('Continue \u2192 Purpose', 'wizardSaveValues()', 'primary')}
                     </div>
                 </div>
             `;
@@ -9356,23 +9387,65 @@ Rules:
         function wizardToggleValue(i) {
             if (readOnlyGuard()) return;
             wizardState.values[i].selected = !wizardState.values[i].selected;
-            // Re-render step without full wizard rebuild
-            const card = document.getElementById(`val-card-${i}`);
-            const v = wizardState.values[i];
+            var card = document.getElementById('val-card-' + i);
+            var v = wizardState.values[i];
             if (card) {
                 card.style.borderColor = v.selected ? 'var(--accent)' : 'var(--border)';
-                card.style.background = v.selected ? 'var(--accent-glow)' : 'var(--bg-elevated)';
-                const check = card.querySelector('div > div > div:first-child');
+                var check = card.querySelector('div > div > div:first-child');
                 if (check) {
                     check.style.background = v.selected ? 'var(--accent)' : 'var(--input-bg)';
                     check.style.borderColor = v.selected ? 'var(--accent)' : 'var(--border)';
-                    check.textContent = v.selected ? '✓' : '';
+                    check.textContent = v.selected ? '\u2713' : '';
                 }
             }
-            // Update count
-            const countEl = document.querySelector('[style*="0.82em"][style*="var(--text-muted)"][style*="margin-right"]');
-            if (countEl) countEl.textContent = wizardState.values.filter(v=>v.selected).length + ' selected';
+            var countEl = document.getElementById('valuesCount');
+            if (countEl) countEl.textContent = wizardState.values.filter(function(v) { return v.selected; }).length + ' selected';
         }
+
+        function wizardEditValueDesc(i, el) {
+            var v = wizardState.values[i];
+            var current = v.description || '';
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.value = current;
+            input.style.cssText = 'width:100%; padding:4px 8px; background:var(--input-bg); border:1px solid var(--accent); border-radius:4px; color:var(--text-primary); font-size:1em; line-height:1.4; outline:none; font-family:inherit;';
+            input.onblur = function() {
+                wizardState.values[i].description = input.value.trim();
+                el.textContent = input.value.trim() || current;
+            };
+            input.onkeydown = function(e) { if (e.key === 'Enter') input.blur(); };
+            el.textContent = '';
+            el.appendChild(input);
+            input.focus();
+        }
+
+        function wizardAddCustomValue() {
+            if (readOnlyGuard()) return;
+            var nameEl = document.getElementById('wizardCustomValueName');
+            var descEl = document.getElementById('wizardCustomValueDesc');
+            var name = (nameEl ? nameEl.value.trim() : '');
+            var desc = (descEl ? descEl.value.trim() : '');
+            if (!name) {
+                showToast('Enter a value name.', 'warning');
+                if (nameEl) nameEl.focus();
+                return;
+            }
+            // Check for duplicates
+            var exists = wizardState.values.some(function(v) { return v.name.toLowerCase() === name.toLowerCase(); });
+            if (exists) {
+                showToast('That value already exists.', 'warning');
+                return;
+            }
+            wizardState.values.push({ name: name, description: desc, selected: true, _custom: true });
+            if (nameEl) nameEl.value = '';
+            if (descEl) descEl.value = '';
+            showToast('"' + name + '" added and selected.', 'success');
+            // Re-render to show new card
+            var inner = document.getElementById('wizardInner');
+            if (inner) renderWizardStep7(inner);
+        }
+        window.wizardAddCustomValue = wizardAddCustomValue;
+        window.wizardEditValueDesc = wizardEditValueDesc;
 
         function wizardSaveValues() {
             if (readOnlyGuard()) return;
