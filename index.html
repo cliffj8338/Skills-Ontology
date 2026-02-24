@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.41.1 | 20260223 | Fix: LinkedIn title from positions not headline, robust JSON parsing for skill inference -->
+    <!-- v4.41.2 | 20260223 | Incident log: tracks all operational failures, not just API connectivity -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.41.1 - BUILD 20260223-fix-linkedin-title-json
-        var BP_VERSION = 'v4.41.1';
+        // BLUEPRINT v4.41.2 - BUILD 20260223-incident-log
+        var BP_VERSION = 'v4.41.2';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1265,6 +1265,56 @@
                 stale: age > (entry.ttl || 3600000)
             };
         }
+        
+        // ===== INCIDENT LOG =====
+        // Tracks operational failures: API errors, parse failures, data issues, feature breakage.
+        // Severity: critical (feature completely broken), warning (degraded/fallback), info (recovered)
+        var INCIDENT_MAX = 50; // keep last 50 incidents
+        
+        function getIncidentLog() {
+            return safeParse(safeGet('bpIncidentLog'), []);
+        }
+        function saveIncidentLog(log) {
+            safeSet('bpIncidentLog', JSON.stringify(log));
+        }
+        
+        function logIncident(severity, feature, message, details) {
+            var log = getIncidentLog();
+            log.unshift({
+                id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+                severity: severity, // 'critical' | 'warning' | 'info'
+                feature: feature,   // e.g. 'linkedin-skill-infer', 'purpose-regen', 'firestore-save'
+                message: message,
+                details: details || null,
+                timestamp: new Date().toISOString(),
+                resolved: false
+            });
+            // Cap at max
+            if (log.length > INCIDENT_MAX) log = log.slice(0, INCIDENT_MAX);
+            saveIncidentLog(log);
+            
+            // Console output for visibility
+            var prefix = severity === 'critical' ? '\u274C' : severity === 'warning' ? '\u26A0\uFE0F' : '\u2139\uFE0F';
+            console.log(prefix + ' Incident [' + severity + '] ' + feature + ': ' + message);
+        }
+        
+        function resolveIncidents(feature) {
+            var log = getIncidentLog();
+            var changed = false;
+            log.forEach(function(inc) {
+                if (inc.feature === feature && !inc.resolved) {
+                    inc.resolved = true;
+                    inc.resolvedAt = new Date().toISOString();
+                    changed = true;
+                }
+            });
+            if (changed) saveIncidentLog(log);
+        }
+        
+        function clearIncidentLog() {
+            safeRemove('bpIncidentLog');
+        }
+        window.clearIncidentLog = clearIncidentLog;
         
         // Feature registry: defines all AI call types for cost tracking
         var AI_FEATURES = {
@@ -1370,11 +1420,15 @@
                         var healthStatus = errMsg.includes('credit balance') ? 'down' : 'degraded';
                         var healthMsg = errMsg.includes('credit balance') ? 'Credits depleted' : 'Error: ' + errMsg;
                         recordApiHealth('anthropic-proxy', healthStatus, healthMsg, { status: proxyRes.status, error: errMsg });
+                        if (errMsg.includes('credit balance')) {
+                            logIncident('critical', 'anthropic-credits', 'API credits depleted. All AI features disabled until top-up.', { manageUrl: 'https://console.anthropic.com/settings/billing' });
+                        }
                         proxyApiError = new Error(errMsg);
                     }
                     if (proxyRes.status >= 500) {
                         AI_PROXY_AVAILABLE = false;
                         recordApiHealth('anthropic-proxy', 'down', 'Server error', { status: proxyRes.status });
+                        logIncident('critical', 'anthropic-proxy', 'AI proxy server error (HTTP ' + proxyRes.status + ')', { status: proxyRes.status });
                     }
                 } catch (e) {
                     if (e.message.includes('Rate limit')) throw e;
@@ -2224,6 +2278,7 @@
                 .catch(function(err) {
                     console.error('Firestore save error:', err);
                     recordApiHealth('firebase-db', 'down', 'Save failed: ' + err.message);
+                    logIncident('critical', 'firestore-save', 'Firestore save failed: ' + err.message, { rawError: err.message });
                     var si = document.getElementById('saveIndicator');
                     if (si) { si.innerHTML = bpIcon('warning',12) + ' Save failed'; si.style.opacity = '1'; si.style.color = '#ef4444'; setTimeout(function() { si.style.opacity = '0'; }, 4000); }
                     return false;
@@ -2360,6 +2415,7 @@
                 .catch(function(err) {
                     console.error('Firestore load error:', err);
                     recordApiHealth('firebase-db', 'down', 'Load failed: ' + err.message);
+                    logIncident('critical', 'firestore-load', 'Firestore load failed: ' + err.message, { rawError: err.message });
                     return false;
                 });
         }
@@ -3914,11 +3970,85 @@
                 html += '</div>';
             });
             
+            // ===== INCIDENT LOG =====
+            var incidents = getIncidentLog();
+            var unresolvedCount = incidents.filter(function(i) { return !i.resolved; }).length;
+            
+            html += '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+                + ' border-radius:10px; padding:16px; margin-bottom:14px;">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
+                + '<div style="font-size:0.82em; font-weight:700; color:var(--text-secondary);'
+                + ' text-transform:uppercase; letter-spacing:0.05em;">'
+                + '\uD83D\uDCCB Incident Log'
+                + (unresolvedCount > 0 ? ' <span style="background:#ef4444; color:#fff; padding:1px 8px; border-radius:10px; font-size:0.85em; margin-left:6px;">' + unresolvedCount + ' open</span>' : '')
+                + '</div>'
+                + '<div style="display:flex; gap:8px;">'
+                + '<button onclick="resolveAllIncidents()" style="padding:4px 12px; background:var(--input-bg);'
+                + ' color:var(--text-muted); border:1px solid var(--border); border-radius:6px;'
+                + ' cursor:pointer; font-size:0.75em;">Resolve All</button>'
+                + '<button onclick="clearIncidentLog(); renderAdminStatus(document.getElementById(\'adminTabContent\'));"'
+                + ' style="padding:4px 12px; background:var(--input-bg);'
+                + ' color:var(--text-muted); border:1px solid var(--border); border-radius:6px;'
+                + ' cursor:pointer; font-size:0.75em;">Clear Log</button>'
+                + '</div></div>';
+            
+            if (incidents.length === 0) {
+                html += '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85em;">'
+                    + '\u2705 No incidents recorded</div>';
+            } else {
+                var sevColors = { critical: '#ef4444', warning: '#f59e0b', info: '#3b82f6' };
+                var sevIcons = { critical: '\u274C', warning: '\u26A0\uFE0F', info: '\u2139\uFE0F' };
+                
+                html += '<div style="max-height:350px; overflow-y:auto;">';
+                incidents.slice(0, 30).forEach(function(inc) {
+                    var ts = new Date(inc.timestamp);
+                    var age = Date.now() - ts.getTime();
+                    var ageText = age < 60000 ? 'just now' : age < 3600000 ? Math.round(age / 60000) + 'm ago' : age < 86400000 ? Math.round(age / 3600000) + 'h ago' : Math.round(age / 86400000) + 'd ago';
+                    var resolved = inc.resolved;
+                    
+                    html += '<div style="display:flex; align-items:start; gap:10px; padding:8px 0;'
+                        + ' border-bottom:1px solid var(--border);'
+                        + (resolved ? ' opacity:0.5;' : '') + '">'
+                        + '<div style="flex-shrink:0; margin-top:2px;">'
+                        + (sevIcons[inc.severity] || '\u2753')
+                        + '</div>'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">'
+                        + '<span style="font-weight:600; color:var(--text-primary); font-size:0.84em;">'
+                        + escapeHtml(inc.feature) + '</span>'
+                        + '<span style="font-size:0.7em; padding:1px 6px; border-radius:4px;'
+                        + ' background:' + (sevColors[inc.severity] || '#6b7280') + '20;'
+                        + ' color:' + (sevColors[inc.severity] || '#6b7280') + '; font-weight:700;">'
+                        + inc.severity.toUpperCase() + '</span>'
+                        + (resolved ? '<span style="font-size:0.7em; padding:1px 6px; border-radius:4px; background:#10b98120; color:#10b981; font-weight:700;">RESOLVED</span>' : '')
+                        + '</div>'
+                        + '<div style="font-size:0.78em; color:var(--text-secondary); margin-top:2px;">'
+                        + escapeHtml(inc.message) + '</div>';
+                    
+                    if (inc.details) {
+                        var detailStr = '';
+                        if (inc.details.fallback) detailStr += 'Fallback: ' + inc.details.fallback;
+                        if (inc.details.manageUrl) detailStr += (detailStr ? ' \u00B7 ' : '') + '<a href="' + inc.details.manageUrl + '" target="_blank" rel="noopener" style="color:var(--accent);">Manage</a>';
+                        if (detailStr) {
+                            html += '<div style="font-size:0.72em; color:var(--text-muted); margin-top:2px;">' + detailStr + '</div>';
+                        }
+                    }
+                    
+                    html += '</div>'
+                        + '<div style="flex-shrink:0; font-size:0.72em; color:var(--text-muted); white-space:nowrap;">'
+                        + ageText + '</div></div>';
+                });
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            
             // Actions
             html += '<div style="display:flex; gap:12px; flex-wrap:wrap;">'
-                + '<button onclick="clearApiHealth()" style="padding:8px 16px; background:var(--input-bg);'
+                + '<button onclick="clearApiHealth(); clearIncidentLog(); renderAdminStatus(document.getElementById(\'adminTabContent\'));"'
+                + ' style="padding:8px 16px; background:var(--input-bg);'
                 + ' color:var(--text-secondary); border:1px solid var(--border); border-radius:8px;'
-                + ' cursor:pointer; font-size:0.82em;">Reset Status Data</button>'
+                + ' cursor:pointer; font-size:0.82em;">Reset All Status Data</button>'
                 + '</div>';
             
             html += '</div>';
@@ -4005,6 +4135,15 @@
             renderAdminStatus(document.getElementById('adminTabContent'));
         }
         window.clearApiHealth = clearApiHealth;
+        
+        function resolveAllIncidents() {
+            var log = getIncidentLog();
+            log.forEach(function(inc) { inc.resolved = true; inc.resolvedAt = new Date().toISOString(); });
+            saveIncidentLog(log);
+            showToast('All incidents resolved.', 'info');
+            renderAdminStatus(document.getElementById('adminTabContent'));
+        }
+        window.resolveAllIncidents = resolveAllIncidents;
         
         // ===== ADMIN COSTS DASHBOARD =====
         var costsTimeRange = 30; // days
@@ -7998,6 +8137,7 @@
                 window.onetCrosswalk = null;
                 console.warn('⚠ onet-crosswalk.json failed to load');
                 recordApiHealth('onet-crosswalk', 'down', 'Failed to load');
+                logIncident('warning', 'onet-crosswalk', 'O*NET Crosswalk failed to load', { fallback: 'Enrichment step will be skipped' });
             }
             
             // ===== PROFILE DECISION FLOW =====
@@ -8993,9 +9133,16 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                             inferredSkills = JSON.parse(cleanInfer);
                             if (!Array.isArray(inferredSkills)) inferredSkills = [];
                             aiSuccess = true;
+                            resolveIncidents('linkedin-skill-infer');
                         }
                     } catch(inferErr) {
                         console.warn('Skill inference failed, using defaults:', inferErr.message);
+                        logIncident(
+                            inferErr.message.includes('credit balance') ? 'critical' : 'warning',
+                            'linkedin-skill-infer',
+                            inferErr.message.includes('credit balance') ? 'API credits depleted' : 'Skill inference failed: ' + inferErr.message,
+                            { rawError: inferErr.message, fallback: 'Using default Proficient levels' }
+                        );
                         if (inferErr.message.includes('credit balance')) {
                             showToast('Anthropic API credits depleted. Using default skill levels. Top up at console.anthropic.com.', 'warning', 8000);
                         }
@@ -9034,6 +9181,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
 
             } catch(err) {
                 console.error('LinkedIn .zip parse error:', err);
+                logIncident('critical', 'linkedin-import', 'LinkedIn import failed: ' + err.message, { rawError: err.message });
                 if (dropZone) dropZone.style.display = 'block';
                 if (status) status.style.display = 'none';
                 showToast('Import error: ' + err.message, 'error', 6000);
@@ -9823,9 +9971,16 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     wizardState.purpose = newPurpose;
                     const ta = document.getElementById('wizardPurpose');
                     if (ta) ta.value = newPurpose;
+                    resolveIncidents('purpose-regen');
                 }
             } catch(err) {
                 console.error('Regenerate error:', err);
+                logIncident(
+                    err.message.includes('credit balance') ? 'critical' : 'warning',
+                    'purpose-regen',
+                    'Purpose generation failed: ' + err.message,
+                    { rawError: err.message }
+                );
                 var toastMsg = err.message.includes('credit balance')
                     ? 'Anthropic API credits depleted. Top up at console.anthropic.com.'
                     : 'Purpose generation failed: ' + err.message;
