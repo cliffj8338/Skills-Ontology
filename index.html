@@ -3958,7 +3958,7 @@
                     items: [
                         { id: 'p1-1', name: 'Anthropic API proxy (serverless)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'Client-side helper callAnthropicAPI(). Serverless function at /api/ai.js. Firebase token validation, rate limiting, cost tracking. Deployed.' },
                         { id: 'p1-2', name: 'Report access control (share tokens)', status: 'planned', category: 'security', priority: 'high', notes: 'Add shareToken field to report doc. Validate in Firestore rules. URL becomes /report/{id}?token={random}.' },
-                        { id: 'p1-3', name: 'CORS proxy via serverless', status: 'planned', category: 'infrastructure', priority: 'medium', notes: 'Vercel serverless at /api/fetch. Allowlist: remotive.com, himalayas.app, jobicy.com.' },
+                        { id: 'p1-3', name: 'CORS proxy via serverless', status: 'done', category: 'infrastructure', priority: 'medium', notes: 'Vercel serverless at /api/api-job-proxy. Allowlist: remotive.com, himalayas.app, jobicy.com, adzuna.com, themuse.com, jooble.org, jsearch, usajobs. All 8 sources use proxy+fallback pattern.' },
                         { id: 'p1-4', name: 'Admin roadmap tracker', status: 'done', category: 'feature', priority: 'medium', notes: 'Roadmap tab in admin panel. Tracks all strategy items, features, and tasks.' },
                         { id: 'p1-6', name: 'AI cost tracking dashboard', status: 'done', category: 'feature', priority: 'medium', notes: 'Costs tab in admin. Tracks all API calls by feature tag, shows real usage, estimated costs, sparkline, and scale projection calculator. AI_FEATURES registry auto-picks up new features.' },
                         { id: 'p1-7', name: 'Network job selector widget', status: 'done', category: 'feature', priority: 'medium', notes: 'Floating widget on network view. Select saved jobs to overlay match/gap/values analysis directly on the skill graph.' },
@@ -4642,25 +4642,41 @@
                 recordApiHealth('jooble', 'unknown', 'No API key configured');
             }
             
-            // Remotive (free, no auth)
+            // Remotive (via proxy if available, direct fallback)
             try {
-                var remRes = await fetch('https://remotive.com/api/remote-jobs?limit=1', { signal: AbortSignal.timeout(8000) });
-                if (remRes.ok) recordApiHealth('remotive', 'ok', 'Operational');
-                else recordApiHealth('remotive', 'degraded', 'Status ' + remRes.status);
+                var remUrl = '/api/api-job-proxy?source=remotive&q=test';
+                var remRes = await fetch(remUrl, { signal: AbortSignal.timeout(8000) });
+                if (remRes.ok) recordApiHealth('remotive', 'ok', 'Operational (proxy)');
+                else {
+                    // Proxy failed, try direct
+                    var remDirect = await fetch('https://remotive.com/api/remote-jobs?limit=1', { signal: AbortSignal.timeout(8000) });
+                    if (remDirect.ok) recordApiHealth('remotive', 'ok', 'Operational (direct)');
+                    else recordApiHealth('remotive', 'degraded', 'Status ' + remDirect.status);
+                }
             } catch(e) { recordApiHealth('remotive', 'down', e.message); }
             
-            // Himalayas (free, no auth)
+            // Himalayas (via proxy if available, direct fallback)
             try {
-                var himRes = await fetch('https://himalayas.app/jobs/api?limit=1', { signal: AbortSignal.timeout(8000) });
-                if (himRes.ok) recordApiHealth('himalayas', 'ok', 'Operational');
-                else recordApiHealth('himalayas', 'degraded', 'Status ' + himRes.status);
+                var himUrl = '/api/api-job-proxy?source=himalayas';
+                var himRes = await fetch(himUrl, { signal: AbortSignal.timeout(8000) });
+                if (himRes.ok) recordApiHealth('himalayas', 'ok', 'Operational (proxy)');
+                else {
+                    var himDirect = await fetch('https://himalayas.app/jobs/api?limit=1', { signal: AbortSignal.timeout(8000) });
+                    if (himDirect.ok) recordApiHealth('himalayas', 'ok', 'Operational (direct)');
+                    else recordApiHealth('himalayas', 'degraded', 'Status ' + himDirect.status);
+                }
             } catch(e) { recordApiHealth('himalayas', 'down', e.message); }
             
-            // Jobicy (free, no auth)
+            // Jobicy (via proxy if available, direct fallback)
             try {
-                var jcyRes = await fetch('https://jobicy.com/api/v2/remote-jobs?count=1', { signal: AbortSignal.timeout(8000) });
-                if (jcyRes.ok) recordApiHealth('jobicy', 'ok', 'Operational');
-                else recordApiHealth('jobicy', 'degraded', 'Status ' + jcyRes.status);
+                var jcyUrl = '/api/api-job-proxy?source=jobicy&q=test';
+                var jcyRes = await fetch(jcyUrl, { signal: AbortSignal.timeout(8000) });
+                if (jcyRes.ok) recordApiHealth('jobicy', 'ok', 'Operational (proxy)');
+                else {
+                    var jcyDirect = await fetch('https://jobicy.com/api/v2/remote-jobs?count=1', { signal: AbortSignal.timeout(8000) });
+                    if (jcyDirect.ok) recordApiHealth('jobicy', 'ok', 'Operational (direct)');
+                    else recordApiHealth('jobicy', 'degraded', 'Status ' + jcyDirect.status);
+                }
             } catch(e) { recordApiHealth('jobicy', 'down', e.message); }
             
             // JSearch + USAJobs go through proxy — record from last known proxy results
@@ -24991,59 +25007,106 @@ body {
         
         // === REMOTIVE ===
         async function fetchRemotiveJobs2(keyword, category) {
-            var url = 'https://remotive.com/api/remote-jobs?limit=50';
-            if (category) {
-                var catMap = {
-                    'software-dev': 'software-dev', 'marketing': 'marketing', 'business': 'business',
-                    'data': 'data', 'design': 'design', 'product': 'product', 'hr': 'hr',
-                    'finance': 'finance-legal', 'sales': 'sales', 'customer-support': 'customer-support',
-                    'writing': 'writing', 'devops': 'devops-sysadmin'
-                };
-                if (catMap[category]) url += '&category=' + catMap[category];
+            var catMap = {
+                'software-dev': 'software-dev', 'marketing': 'marketing', 'business': 'business',
+                'data': 'data', 'design': 'design', 'product': 'product', 'hr': 'hr',
+                'finance': 'finance-legal', 'sales': 'sales', 'customer-support': 'customer-support',
+                'writing': 'writing', 'devops': 'devops-sysadmin'
+            };
+            try {
+                var data;
+                if (JOB_PROXY_AVAILABLE !== false) {
+                    try {
+                        var params = new URLSearchParams({ source: 'remotive' });
+                        if (keyword) params.set('q', keyword);
+                        if (category && catMap[category]) params.set('category', catMap[category]);
+                        var proxyRes = await fetch(JOB_PROXY_URL + '?' + params.toString(), { signal: AbortSignal.timeout(12000) });
+                        if (proxyRes.ok) {
+                            data = await proxyRes.json();
+                            JOB_PROXY_AVAILABLE = true;
+                            console.log('Remotive: via proxy, ' + ((data.jobs || []).length) + ' results');
+                        } else throw new Error('Proxy ' + proxyRes.status);
+                    } catch(proxyErr) {
+                        console.warn('Remotive proxy failed, trying direct:', proxyErr.message);
+                        JOB_PROXY_AVAILABLE = false;
+                        var url = 'https://remotive.com/api/remote-jobs?limit=50';
+                        if (category && catMap[category]) url += '&category=' + catMap[category];
+                        if (keyword) url += '&search=' + encodeURIComponent(keyword);
+                        var res = await fetch(url, { signal: AbortSignal.timeout(12000) });
+                        if (!res.ok) throw new Error('Remotive direct ' + res.status);
+                        data = await res.json();
+                        console.log('Remotive: direct, ' + ((data.jobs || []).length) + ' results');
+                    }
+                } else {
+                    var url2 = 'https://remotive.com/api/remote-jobs?limit=50';
+                    if (category && catMap[category]) url2 += '&category=' + catMap[category];
+                    if (keyword) url2 += '&search=' + encodeURIComponent(keyword);
+                    var res2 = await fetch(url2, { signal: AbortSignal.timeout(12000) });
+                    if (!res2.ok) throw new Error('Remotive direct ' + res2.status);
+                    data = await res2.json();
+                }
+                if (!data || !data.jobs) return [];
+            
+                return data.jobs.slice(0, 40).map(function(job) {
+                    var match = quickScoreJob(job.title, job.description, job.tags);
+                    return {
+                        id: 'remotive-' + job.id,
+                        title: job.title || 'Untitled',
+                        company: job.company_name || '',
+                        location: job.candidate_required_location || 'Worldwide',
+                        type: (job.job_type || 'full_time').replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); }),
+                        url: job.url || '',
+                        salary: job.salary || '',
+                        description: (job.description || '').substring(0, 2000),
+                        tags: job.tags || [],
+                        matchScore: match.score,
+                        matchedSkills: match.matched,
+                        gapSkills: match.gaps,
+                        source: 'Remotive',
+                        pubDate: job.publication_date || ''
+                    };
+                });
+            } catch(e) {
+                throw e;
             }
-            if (keyword) url += '&search=' + encodeURIComponent(keyword);
-            
-            var data = await fetchWithCorsRetry(url);
-            if (!data || !data.jobs) return [];
-            
-            return data.jobs.slice(0, 40).map(function(job) {
-                var match = quickScoreJob(job.title, job.description, job.tags);
-                return {
-                    id: 'remotive-' + job.id,
-                    title: job.title || 'Untitled',
-                    company: job.company_name || '',
-                    location: job.candidate_required_location || 'Worldwide',
-                    type: (job.job_type || 'full_time').replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); }),
-                    url: job.url || '',
-                    salary: job.salary || '',
-                    description: (job.description || '').substring(0, 2000),
-                    tags: job.tags || [],
-                    matchScore: match.score,
-                    matchedSkills: match.matched,
-                    gapSkills: match.gaps,
-                    source: 'Remotive',
-                    pubDate: job.publication_date || ''
-                };
-            });
         }
         
         // === HIMALAYAS ===
         async function fetchHimalayasJobs(keyword) {
-            var url = 'https://himalayas.app/jobs/api?limit=50';
-            // Himalayas doesn't support keyword search via API, so we filter client-side
+            try {
+                var data;
+                if (JOB_PROXY_AVAILABLE !== false) {
+                    try {
+                        var params = new URLSearchParams({ source: 'himalayas' });
+                        var proxyRes = await fetch(JOB_PROXY_URL + '?' + params.toString(), { signal: AbortSignal.timeout(12000) });
+                        if (proxyRes.ok) {
+                            data = await proxyRes.json();
+                            JOB_PROXY_AVAILABLE = true;
+                            console.log('Himalayas: via proxy, ' + (Array.isArray(data) ? data.length : 0) + ' results');
+                        } else throw new Error('Proxy ' + proxyRes.status);
+                    } catch(proxyErr) {
+                        console.warn('Himalayas proxy failed, trying direct:', proxyErr.message);
+                        JOB_PROXY_AVAILABLE = false;
+                        var res = await fetch('https://himalayas.app/jobs/api?limit=50', { signal: AbortSignal.timeout(12000) });
+                        if (!res.ok) throw new Error('Himalayas direct ' + res.status);
+                        data = await res.json();
+                        console.log('Himalayas: direct, ' + (Array.isArray(data) ? data.length : 0) + ' results');
+                    }
+                } else {
+                    var res2 = await fetch('https://himalayas.app/jobs/api?limit=50', { signal: AbortSignal.timeout(12000) });
+                    if (!res2.ok) throw new Error('Himalayas direct ' + res2.status);
+                    data = await res2.json();
+                }
+                if (!data || !Array.isArray(data)) return [];
             
-            var data = await fetchWithCorsRetry(url);
-            if (!data || !Array.isArray(data)) return [];
-            
-            var jobs = data;
-            
-            // Client-side keyword filter
-            if (keyword) {
-                var kw = keyword.toLowerCase();
-                jobs = jobs.filter(function(job) {
-                    return ((job.title || '') + ' ' + (job.companyName || '') + ' ' + ((job.categories || []).join(' '))).toLowerCase().indexOf(kw) !== -1;
-                });
-            }
+                var jobs = data;
+                // Client-side keyword filter (Himalayas API doesn't support search)
+                if (keyword) {
+                    var kw = keyword.toLowerCase();
+                    jobs = jobs.filter(function(job) {
+                        return ((job.title || '') + ' ' + (job.companyName || '') + ' ' + ((job.categories || []).join(' '))).toLowerCase().indexOf(kw) !== -1;
+                    });
+                }
             
             return jobs.slice(0, 40).map(function(job) {
                 var match = quickScoreJob(job.title, job.description, job.categories);
@@ -25068,50 +25131,77 @@ body {
                     pubDate: job.pubDate || ''
                 };
             });
+            } catch(e) { throw e; }
         }
         
         // === JOBICY ===
         async function fetchJobicyJobs(keyword, category) {
-            var url = 'https://jobicy.com/api/v2/remote-jobs?count=30';
-            if (keyword) url += '&tag=' + encodeURIComponent(keyword);
-            if (category) {
-                var catMap = {
-                    'software-dev': 'dev', 'marketing': 'marketing', 'business': 'business',
-                    'data': 'data-science', 'design': 'design-multimedia', 'hr': 'hr',
-                    'finance': 'accounting-finance', 'sales': 'seller', 'customer-support': 'supporting',
-                    'writing': 'copywriting', 'devops': 'dev'
-                };
-                if (catMap[category]) url += '&job_categories=' + catMap[category];
-            }
-            
-            var data = await fetchWithCorsRetry(url);
-            if (!data || !data.jobs) return [];
-            
-            return data.jobs.slice(0, 30).map(function(job) {
-                var match = quickScoreJob(job.jobTitle, job.jobDescription, [job.jobIndustry]);
-                var salary = '';
-                if (job.annualSalaryMin && job.annualSalaryMax) {
-                    salary = '$' + (job.annualSalaryMin / 1000).toFixed(0) + 'k - $' + (job.annualSalaryMax / 1000).toFixed(0) + 'k';
-                } else if (job.salaryMin && job.salaryMax) {
-                    salary = '$' + (job.salaryMin / 1000).toFixed(0) + 'k - $' + (job.salaryMax / 1000).toFixed(0) + 'k';
+            var catMap = {
+                'software-dev': 'dev', 'marketing': 'marketing', 'business': 'business',
+                'data': 'data-science', 'design': 'design-multimedia', 'hr': 'hr',
+                'finance': 'accounting-finance', 'sales': 'seller', 'customer-support': 'supporting',
+                'writing': 'copywriting', 'devops': 'dev'
+            };
+            try {
+                var data;
+                if (JOB_PROXY_AVAILABLE !== false) {
+                    try {
+                        var params = new URLSearchParams({ source: 'jobicy' });
+                        if (keyword) params.set('q', keyword);
+                        if (category && catMap[category]) params.set('industry', catMap[category]);
+                        var proxyRes = await fetch(JOB_PROXY_URL + '?' + params.toString(), { signal: AbortSignal.timeout(12000) });
+                        if (proxyRes.ok) {
+                            data = await proxyRes.json();
+                            JOB_PROXY_AVAILABLE = true;
+                            console.log('Jobicy: via proxy, ' + ((data.jobs || []).length) + ' results');
+                        } else throw new Error('Proxy ' + proxyRes.status);
+                    } catch(proxyErr) {
+                        console.warn('Jobicy proxy failed, trying direct:', proxyErr.message);
+                        JOB_PROXY_AVAILABLE = false;
+                        var url = 'https://jobicy.com/api/v2/remote-jobs?count=30';
+                        if (keyword) url += '&tag=' + encodeURIComponent(keyword);
+                        if (category && catMap[category]) url += '&job_categories=' + catMap[category];
+                        var res = await fetch(url, { signal: AbortSignal.timeout(12000) });
+                        if (!res.ok) throw new Error('Jobicy direct ' + res.status);
+                        data = await res.json();
+                        console.log('Jobicy: direct, ' + ((data.jobs || []).length) + ' results');
+                    }
+                } else {
+                    var url2 = 'https://jobicy.com/api/v2/remote-jobs?count=30';
+                    if (keyword) url2 += '&tag=' + encodeURIComponent(keyword);
+                    if (category && catMap[category]) url2 += '&job_categories=' + catMap[category];
+                    var res2 = await fetch(url2, { signal: AbortSignal.timeout(12000) });
+                    if (!res2.ok) throw new Error('Jobicy direct ' + res2.status);
+                    data = await res2.json();
                 }
-                return {
-                    id: 'jobicy-' + (job.id || Date.now()),
-                    title: job.jobTitle || 'Untitled',
-                    company: job.companyName || '',
-                    location: job.jobGeo || 'Anywhere',
-                    type: Array.isArray(job.jobType) ? job.jobType.join(', ') : String(job.jobType || 'Full Time'),
-                    url: job.url || '',
-                    salary: salary,
-                    description: (job.jobDescription || '').substring(0, 2000),
-                    tags: [job.jobIndustry || ''],
-                    matchScore: match.score,
-                    matchedSkills: match.matched,
-                    gapSkills: match.gaps,
-                    source: 'Jobicy',
-                    pubDate: job.pubDate || ''
-                };
-            });
+                if (!data || !data.jobs) return [];
+            
+                return data.jobs.slice(0, 30).map(function(job) {
+                    var match = quickScoreJob(job.jobTitle, job.jobDescription, [job.jobIndustry]);
+                    var salary = '';
+                    if (job.annualSalaryMin && job.annualSalaryMax) {
+                        salary = '$' + (job.annualSalaryMin / 1000).toFixed(0) + 'k - $' + (job.annualSalaryMax / 1000).toFixed(0) + 'k';
+                    } else if (job.salaryMin && job.salaryMax) {
+                        salary = '$' + (job.salaryMin / 1000).toFixed(0) + 'k - $' + (job.salaryMax / 1000).toFixed(0) + 'k';
+                    }
+                    return {
+                        id: 'jobicy-' + (job.id || Date.now()),
+                        title: job.jobTitle || 'Untitled',
+                        company: job.companyName || '',
+                        location: job.jobGeo || 'Anywhere',
+                        type: Array.isArray(job.jobType) ? job.jobType.join(', ') : String(job.jobType || 'Full Time'),
+                        url: job.url || '',
+                        salary: salary,
+                        description: (job.jobDescription || '').substring(0, 2000),
+                        tags: [job.jobIndustry || ''],
+                        matchScore: match.score,
+                        matchedSkills: match.matched,
+                        gapSkills: match.gaps,
+                        source: 'Jobicy',
+                        pubDate: job.pubDate || ''
+                    };
+                });
+            } catch(e) { throw e; }
         }
         
         // === ADZUNA (US market — ~3-4M jobs) ===
