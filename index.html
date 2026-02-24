@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.43.0 | 20260224 | Unified skill editor, network label offsets, quickScore v3, BLS tile, alphabetical skills, bpIcon fix -->
+    <!-- v4.43.1 | 20260224 | Network label fix, job title truncation, match score sync, architecture diagram+export -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.43.0 - BUILD 20260224-unified-skill-editor
-        var BP_VERSION = 'v4.43.0';
+        // BLUEPRINT v4.43.1 - BUILD 20260224-arch-diagram-match-sync
+        var BP_VERSION = 'v4.43.1';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -4405,31 +4405,37 @@
             var layers = ['frontend', 'runtime', 'backend', 'external'];
             
             var html = '';
-            // Header
-            html += '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">'
+            // Header with view toggle and export
+            html += '<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;">'
                 + '<div style="font-size:1.1em; font-weight:700; color:var(--text-primary);">'
-                + bpIcon('compass',18) + ' Platform Architecture <span style="font-size:0.7em; font-weight:400; color:var(--text-muted);">v4.43 \u00B7 29K lines \u00B7 ' + components.length + ' components</span></div>'
-                + '</div>';
+                + bpIcon('compass',18) + ' Platform Architecture <span style="font-size:0.7em; font-weight:400; color:var(--text-muted);">v4.43.1 \u00B7 ~30K lines \u00B7 ' + components.length + ' components</span></div>'
+                + '<div style="display:flex; gap:6px; flex-wrap:wrap;">'
+                + '<div style="display:inline-flex; border:1px solid var(--border); border-radius:6px; overflow:hidden;">'
+                + '<button onclick="archSetView(\'tiles\')" id="archViewTiles" style="padding:4px 12px; font-size:0.75em; cursor:pointer; border:none; background:var(--accent); color:#fff;">Tiles</button>'
+                + '<button onclick="archSetView(\'diagram\')" id="archViewDiagram" style="padding:4px 12px; font-size:0.75em; cursor:pointer; border:none; background:var(--input-bg); color:var(--text-secondary);">Diagram</button>'
+                + '</div>'
+                + '<button onclick="archExportSVG()" style="padding:4px 12px; background:var(--input-bg); color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.75em;">' + bpIcon('clipboard',10) + ' Export SVG</button>'
+                + '<button onclick="archExportJSON()" style="padding:4px 12px; background:var(--input-bg); color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.75em;">' + bpIcon('save',10) + ' Export JSON</button>'
+                + '</div></div>';
             
             // Note
             html += '<div style="font-size:0.75em; color:var(--text-muted); margin-bottom:16px; padding:8px 12px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px;">'
                 + '\u26A0 <strong>Maintenance required:</strong> Update this map when adding/modifying components. See roadmap item p2-3q.'
                 + '</div>';
             
-            // Layers
+            // === TILES VIEW ===
+            html += '<div id="archTilesView">';
             layers.forEach(function(layerId) {
                 var meta = archLayerMeta[layerId];
                 var layerComps = components.filter(function(c) { return c.layer === layerId; });
                 
                 html += '<div style="margin-bottom:12px; border:1px solid ' + meta.border + '; border-radius:10px; overflow:hidden;">';
-                // Lane header
                 html += '<div style="padding:8px 14px; background:' + meta.bg + '; border-bottom:1px solid ' + meta.border + '; display:flex; align-items:center; gap:8px;">'
                     + '<div style="width:10px; height:10px; border-radius:50%; background:' + meta.color + ';"></div>'
                     + '<span style="font-weight:700; font-size:0.82em; color:' + meta.color + '; text-transform:uppercase; letter-spacing:0.5px;">' + meta.label + '</span>'
                     + '<span style="font-size:0.7em; color:var(--text-muted); margin-left:auto;">' + layerComps.length + ' components</span>'
                     + '</div>';
                 
-                // Component cards grid
                 html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:8px; padding:10px;">';
                 layerComps.forEach(function(comp) {
                     html += '<div onclick="archShowDetail(\'' + comp.id + '\')" id="arch-card-' + comp.id + '" '
@@ -4443,12 +4449,206 @@
                 });
                 html += '</div></div>';
             });
+            html += '</div>';
             
-            // Detail panel (hidden until click)
+            // === DIAGRAM VIEW ===
+            html += '<div id="archDiagramView" style="display:none;">'
+                + '<div id="archSvgContainer" style="width:100%; overflow-x:auto; border:1px solid var(--border); border-radius:12px; background:#0a0e1a;"></div>'
+                + '</div>';
+            
+            // Detail panel (shared)
             html += '<div id="archDetailPanel" style="display:none; margin-top:12px;"></div>';
             
             el.innerHTML = html;
         }
+        
+        var archCurrentView = 'tiles';
+        
+        function archSetView(view) {
+            archCurrentView = view;
+            var tilesEl = document.getElementById('archTilesView');
+            var diagramEl = document.getElementById('archDiagramView');
+            var btnTiles = document.getElementById('archViewTiles');
+            var btnDiagram = document.getElementById('archViewDiagram');
+            if (!tilesEl || !diagramEl) return;
+            
+            if (view === 'tiles') {
+                tilesEl.style.display = 'block';
+                diagramEl.style.display = 'none';
+                if (btnTiles) { btnTiles.style.background = 'var(--accent)'; btnTiles.style.color = '#fff'; }
+                if (btnDiagram) { btnDiagram.style.background = 'var(--input-bg)'; btnDiagram.style.color = 'var(--text-secondary)'; }
+            } else {
+                tilesEl.style.display = 'none';
+                diagramEl.style.display = 'block';
+                if (btnTiles) { btnTiles.style.background = 'var(--input-bg)'; btnTiles.style.color = 'var(--text-secondary)'; }
+                if (btnDiagram) { btnDiagram.style.background = 'var(--accent)'; btnDiagram.style.color = '#fff'; }
+                // Build SVG diagram on first show
+                if (!document.querySelector('#archSvgContainer svg')) {
+                    setTimeout(buildArchDiagram, 50);
+                }
+            }
+        }
+        window.archSetView = archSetView;
+        
+        function buildArchDiagram() {
+            var container = document.getElementById('archSvgContainer');
+            if (!container) return;
+            
+            var components = getArchComponents();
+            var flows = getArchFlows();
+            var layers = ['frontend', 'runtime', 'backend', 'external'];
+            
+            // Layout constants
+            var boxW = 120, boxH = 50, padX = 16, padY = 24;
+            var laneH = boxH + padY * 2 + 30; // lane header + boxes + padding
+            var colW = boxW + padX;
+            var maxCols = 8;
+            var svgW = maxCols * colW + 100;
+            var svgH = layers.length * laneH + 60;
+            var startX = 60, startY = 40;
+            
+            // Position map
+            var positions = {};
+            layers.forEach(function(layerId, layerIdx) {
+                var layerComps = components.filter(function(c) { return c.layer === layerId; });
+                layerComps.forEach(function(comp, colIdx) {
+                    positions[comp.id] = {
+                        x: startX + colIdx * colW + boxW / 2,
+                        y: startY + layerIdx * laneH + 28 + boxH / 2,
+                        layer: layerId, comp: comp
+                    };
+                });
+            });
+            
+            var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + svgW + '" height="' + svgH + '" style="font-family:Outfit,sans-serif;">';
+            svg += '<rect width="' + svgW + '" height="' + svgH + '" fill="#0a0e1a"/>';
+            
+            // Arrow marker
+            svg += '<defs><marker id="arrow" viewBox="0 -5 10 10" refX="10" refY="0" markerWidth="6" markerHeight="6" orient="auto">'
+                + '<path d="M0,-4L10,0L0,4" fill="rgba(255,255,255,0.4)"/></marker></defs>';
+            
+            // Draw swim lanes
+            layers.forEach(function(layerId, layerIdx) {
+                var meta = archLayerMeta[layerId];
+                var ly = startY + layerIdx * laneH - 14;
+                svg += '<rect x="10" y="' + ly + '" width="' + (svgW - 20) + '" height="' + (laneH - 4) + '" rx="8" '
+                    + 'fill="' + meta.color + '" fill-opacity="0.04" stroke="' + meta.color + '" stroke-opacity="0.2" stroke-width="1"/>';
+                svg += '<text x="20" y="' + (ly + 16) + '" fill="' + meta.color + '" font-size="11" font-weight="700" text-transform="uppercase">'
+                    + meta.label.toUpperCase() + '</text>';
+            });
+            
+            // Draw flow arrows (behind boxes)
+            flows.forEach(function(f) {
+                var from = positions[f[0]];
+                var to = positions[f[1]];
+                if (!from || !to) return;
+                
+                var flowStyle = f[3] || 'data';
+                var color = flowStyle === 'api' ? 'rgba(239,68,68,0.35)' : flowStyle === 'sync' ? 'rgba(6,182,212,0.35)' : 'rgba(255,255,255,0.15)';
+                var dash = flowStyle === 'api' ? '4,3' : flowStyle === 'read' ? '2,2' : 'none';
+                
+                // Calculate edge points
+                var dx = to.x - from.x, dy = to.y - from.y;
+                var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                var nx = dx / dist, ny = dy / dist;
+                var x1 = from.x + nx * (boxW / 2 + 2), y1 = from.y + ny * (boxH / 2 + 2);
+                var x2 = to.x - nx * (boxW / 2 + 8), y2 = to.y - ny * (boxH / 2 + 8);
+                
+                svg += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" '
+                    + 'stroke="' + color + '" stroke-width="1.5" stroke-dasharray="' + dash + '" marker-end="url(#arrow)"/>';
+                
+                // Flow label
+                var mx = (x1 + x2) / 2, my = (y1 + y2) / 2 - 4;
+                svg += '<text x="' + mx + '" y="' + my + '" fill="rgba(255,255,255,0.25)" font-size="7" text-anchor="middle">' + f[2] + '</text>';
+            });
+            
+            // Draw boxes
+            Object.keys(positions).forEach(function(id) {
+                var p = positions[id];
+                var comp = p.comp;
+                var meta = archLayerMeta[p.layer];
+                var bx = p.x - boxW / 2, by = p.y - boxH / 2;
+                
+                svg += '<g onclick="archShowDetail(\'' + id + '\')" style="cursor:pointer;">'
+                    + '<rect x="' + bx + '" y="' + by + '" width="' + boxW + '" height="' + boxH + '" rx="6" '
+                    + 'fill="#111827" stroke="' + comp.color + '" stroke-width="1.5" stroke-opacity="0.6"/>'
+                    + '<rect x="' + bx + '" y="' + by + '" width="' + boxW + '" height="' + boxH + '" rx="6" '
+                    + 'fill="' + comp.color + '" fill-opacity="0.08"/>';
+                
+                // Component name (split into 2 lines if needed)
+                var nameWords = comp.name.split(' ');
+                if (nameWords.length <= 2 || comp.name.length <= 14) {
+                    svg += '<text x="' + p.x + '" y="' + (p.y + 4) + '" fill="#e2e8f0" font-size="9" font-weight="600" text-anchor="middle">' + escapeHtml(comp.name) + '</text>';
+                } else {
+                    var mid = Math.ceil(nameWords.length / 2);
+                    var line1 = nameWords.slice(0, mid).join(' ');
+                    var line2 = nameWords.slice(mid).join(' ');
+                    svg += '<text x="' + p.x + '" y="' + (p.y - 2) + '" fill="#e2e8f0" font-size="9" font-weight="600" text-anchor="middle">' + escapeHtml(line1) + '</text>';
+                    svg += '<text x="' + p.x + '" y="' + (p.y + 10) + '" fill="#e2e8f0" font-size="9" font-weight="600" text-anchor="middle">' + escapeHtml(line2) + '</text>';
+                }
+                
+                svg += '</g>';
+            });
+            
+            svg += '</svg>';
+            container.innerHTML = svg;
+        }
+        window.buildArchDiagram = buildArchDiagram;
+        
+        function archExportSVG() {
+            // Build fresh SVG and download
+            var tempDiv = document.createElement('div');
+            document.body.appendChild(tempDiv);
+            tempDiv.style.display = 'none';
+            
+            // If diagram already rendered, grab it
+            var existing = document.querySelector('#archSvgContainer svg');
+            var svgContent;
+            if (existing) {
+                svgContent = existing.outerHTML;
+            } else {
+                // Build it temporarily
+                buildArchDiagram();
+                existing = document.querySelector('#archSvgContainer svg');
+                svgContent = existing ? existing.outerHTML : '<svg></svg>';
+            }
+            document.body.removeChild(tempDiv);
+            
+            var blob = new Blob([svgContent], { type: 'image/svg+xml' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'blueprint-architecture-v4.43.1.svg';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Architecture diagram exported as SVG.', 'success');
+        }
+        window.archExportSVG = archExportSVG;
+        
+        function archExportJSON() {
+            var components = getArchComponents();
+            var flows = getArchFlows();
+            var exportData = {
+                version: BP_VERSION,
+                exported: new Date().toISOString(),
+                layers: archLayerMeta,
+                components: components.map(function(c) {
+                    return { id: c.id, name: c.name, layer: c.layer, color: c.color, detail: c.detail };
+                }),
+                dataFlows: flows.map(function(f) {
+                    return { from: f[0], to: f[1], label: f[2], type: f[3] || 'data' };
+                })
+            };
+            var blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'blueprint-architecture-v4.43.1.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Architecture data exported as JSON (' + components.length + ' components, ' + flows.length + ' flows).', 'success');
+        }
+        window.archExportJSON = archExportJSON;
         
         function archShowDetail(compId) {
             var components = getArchComponents();
@@ -10859,7 +11059,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Network body centers in the viewport; name node offsets to the left for visual separation
             var networkCenterX = width / 2;  // where roles + skills cluster
             var centerY = Math.max(80, height * 0.22);
-            var nameX = isMobile ? width / 2 : width * 0.28;  // name node offset left of network body
+            var nameX = isMobile ? width / 2 : width * 0.35;  // name node offset left of network body
             var nameY = centerY;
             const nodes = [
                 { id: "center", name: userData.profile.name || "You", type: "center", homeX: nameX, homeY: nameY, x: nameX, y: nameY, fx: nameX, fy: nameY }
@@ -11096,11 +11296,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         d3.select(this)
                             .text(label)
                             .attr("x", d => {
-                                if (d.type === "center") return Math.round(-50 * scaleFactor);
+                                if (d.type === "center") {
+                                    var r = isMobile ? 30 : Math.round(40 * scaleFactor);
+                                    return -(r + 8); // just outside circle edge
+                                }
                                 return 0;
                             })
                             .attr("y", d => {
-                                if (d.type === "center") return Math.round(-45 * scaleFactor);
+                                if (d.type === "center") return 4; // vertically centered
                                 if (d.type === "role") return Math.round(-35 * scaleFactor);
                                 return -19;
                             })
@@ -11313,7 +11516,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Center node = the job title — pinned to upper area
             var centerY = Math.max(80, height * 0.22);
             var nodes = [
-                { id: "center", name: job.title || "Job", type: "center", x: width/2, y: centerY, fx: width/2, fy: centerY }
+                { id: "center", name: (job.title || "Job").length > 25 ? (job.title || "Job").substring(0, 23) + '\u2026' : (job.title || "Job"), type: "center", x: width/2, y: centerY, fx: width/2, fy: centerY }
             ];
             
             // Group job skills by category into roles
@@ -11405,8 +11608,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             node.append("text")
                 .text(function(d) { return d.name; })
-                .attr("x", function(d) { return d.type === 'center' ? -50 : 0; })
-                .attr("y", function(d) { return d.type === 'center' ? -42 : d.type === 'role' ? -30 : -20; })
+                .attr("x", function(d) {
+                    if (d.type === 'center') {
+                        var r = isMobile ? 28 : Math.round(36 * scaleFactor);
+                        return -(r + 8);
+                    }
+                    return 0;
+                })
+                .attr("y", function(d) { return d.type === 'center' ? 4 : d.type === 'role' ? -30 : -20; })
                 .attr("text-anchor", function(d) { return d.type === 'center' ? 'end' : 'middle'; })
                 .style("font-size", function(d) { return d.type === 'center' ? '14px' : d.type === 'role' ? '11px' : '9px'; });
             
@@ -11477,7 +11686,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var jobRoleAngle = Math.PI; // Put it opposite (below center)
             var jobRoleRadius = (isMobile ? 130 : 200) * scaleFactor;
             nodes.push({
-                id: 'role-job-req', name: (job.title || 'Job') + ' Needs', type: 'role', color: '#ef4444', matchState: 'role',
+                id: 'role-job-req', name: ((job.title || 'Job').length > 25 ? (job.title || 'Job').substring(0, 23) + '\u2026' : (job.title || 'Job')) + ' Needs', type: 'role', color: '#ef4444', matchState: 'role',
                 x: width/2 + Math.cos(jobRoleAngle) * jobRoleRadius,
                 y: centerY + Math.sin(jobRoleAngle) * jobRoleRadius
             });
@@ -11620,8 +11829,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Labels
             node.append("text")
                 .text(function(d) { return d.name; })
-                .attr("x", function(d) { return d.type === 'center' ? -50 : 0; })
-                .attr("y", function(d) { return d.type === 'center' ? -44 : d.type === 'role' ? -34 : -22; })
+                .attr("x", function(d) {
+                    if (d.type === 'center') {
+                        var r = isMobile ? 28 : Math.round(38 * scaleFactor);
+                        return -(r + 8);
+                    }
+                    return 0;
+                })
+                .attr("y", function(d) { return d.type === 'center' ? 4 : d.type === 'role' ? -34 : -22; })
                 .attr("text-anchor", function(d) { return d.type === 'center' ? 'end' : 'middle'; })
                 .style("font-size", function(d) { return d.type === 'center' ? '14px' : d.type === 'role' ? '11px' : '9px'; })
                 .style("fill", function(d) {
@@ -23255,21 +23470,28 @@ body {
                 + (window._findJobsSources ? '<span style="font-size:0.72em; color:var(--text-muted);">' + window._findJobsSources + '</span>' : '')
                 + '</div>';
             
-            // Pipeline IDs for dedup check
+            // Pipeline IDs for dedup check + score lookup
             var pipelineIds = {};
+            var pipelineScores = {};
             (userData.savedJobs || []).forEach(function(j) {
-                pipelineIds[(j.title + '-' + (j.company || '')).toLowerCase()] = true;
+                var key = (j.title + '-' + (j.company || '')).toLowerCase();
+                pipelineIds[key] = true;
+                if (j.matchData && j.matchData.score) pipelineScores[key] = j.matchData.score;
             });
             
             html += '<div style="display:flex; flex-direction:column; gap:12px;">';
             
             filtered.forEach(function(job, idx) {
-                var matchColor = job.matchScore >= 70 ? '#10b981' : job.matchScore >= 45 ? '#f59e0b' : '#6b7280';
+                var pipelineKey = (job.title + '-' + (job.company || '')).toLowerCase();
+                var alreadyInPipeline = pipelineIds[pipelineKey];
+                // Use pipeline score if available (more accurate than quickScore)
+                var displayScore = (alreadyInPipeline && pipelineScores[pipelineKey]) ? pipelineScores[pipelineKey] : job.matchScore;
+                var isVerifiedScore = !!(alreadyInPipeline && pipelineScores[pipelineKey]);
+                var matchColor = displayScore >= 70 ? '#10b981' : displayScore >= 45 ? '#f59e0b' : '#6b7280';
                 var jobUrl = (job.url && /^https?:\/\//i.test(job.url)) ? escapeHtml(job.url) : '#';
                 var salary = job.salary || '';
-                var alreadyInPipeline = pipelineIds[(job.title + '-' + (job.company || '')).toLowerCase()];
                 
-                html += '<div style="padding:16px 20px; border-radius:10px; border:1px solid ' + (job.matchScore >= 70 ? 'rgba(16,185,129,0.3)' : 'var(--border)') + '; '
+                html += '<div style="padding:16px 20px; border-radius:10px; border:1px solid ' + (displayScore >= 70 ? 'rgba(16,185,129,0.3)' : 'var(--border)') + '; '
                     + 'background:var(--c-input-bg-soft); transition:border-color 0.2s;">'
                     
                     // Header row
@@ -23281,7 +23503,7 @@ body {
                     + escapeHtml(job.company || 'Unknown') + (job.location ? ' \u00B7 ' + escapeHtml(job.location) : '') + '</div>'
                     + '</div>'
                     + '<div style="text-align:center; min-width:56px;">'
-                    + '<div style="font-size:1.4em; font-weight:700; color:' + matchColor + ';">' + job.matchScore + '%</div>'
+                    + '<div style="font-size:1.4em; font-weight:700; color:' + matchColor + ';">' + displayScore + '%</div>'
                     + '<div style="font-size:0.68em; color:var(--text-muted);">match</div>'
                     + '</div></div>'
                     
