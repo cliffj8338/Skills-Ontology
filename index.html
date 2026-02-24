@@ -10330,19 +10330,17 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     </div>
                 </div>
 
-                <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px;">
-                    <button onclick="wizardLaunchOnly()"
-                            style="flex:1; background:var(--accent); color:#fff; border:none;
-                                   padding:14px 24px; border-radius:10px; cursor:pointer;
-                                   font-size:0.95em; font-weight:700; min-width:200px;">
+                <div style="display:flex; flex-direction:column; align-items:center; gap:12px; margin-bottom:24px;">
+                    <button onclick="wizardSaveAndGo()"
+                            style="width:100%; max-width:360px; background:var(--accent); color:#fff; border:none;
+                                   padding:16px 24px; border-radius:10px; cursor:pointer;
+                                   font-size:0.95em; font-weight:700;">
                         ${bpIcon("save",14)} Save & Go to Dashboard
                     </button>
-                    <button onclick="wizardDownloadBackup()"
-                            style="background:var(--input-bg); color:var(--text-primary); border:1px solid var(--border);
-                                   padding:14px 20px; border-radius:10px; cursor:pointer; font-size:0.88em;"
-                            title="Download a JSON backup of your profile">
-                        ${bpIcon("clipboard",12)} Download Backup
-                    </button>
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.82em; color:var(--text-secondary);">
+                        <input type="checkbox" id="wizardDownloadCheck" checked style="accent-color:var(--accent);">
+                        Also download JSON backup
+                    </label>
                 </div>
 
                 <p style="text-align:center; font-size:0.8em; color:var(--text-muted);">
@@ -10379,6 +10377,22 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 preferences: { seniorityLevel: 'Senior', minimumMatchScore: 60, minimumSkillMatches: 3 },
                 applications: []
             };
+        }
+
+        function wizardSaveAndGo() {
+            var built = wizardBuildUserData();
+            // Download JSON if checkbox is checked
+            var dlCheck = document.getElementById('wizardDownloadCheck');
+            if (dlCheck && dlCheck.checked) {
+                var blob = new Blob([JSON.stringify(built, null, 2)], { type: 'application/json' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'blueprint-' + (built.profile.name || 'profile').toLowerCase().replace(/\s+/g, '-') + '.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+            wizardApplyAndLaunch(built);
         }
 
         function wizardDownloadBackup() {
@@ -10501,6 +10515,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         window.wizardRegeneratePurpose = wizardRegeneratePurpose;
         window.wizardDownloadBackup = wizardDownloadBackup;
         window.wizardLaunchOnly = wizardLaunchOnly;
+        window.wizardSaveAndGo = wizardSaveAndGo;
         window.confirmExitWizard = confirmExitWizard;
         window.toggleFilterPanel = toggleFilterPanel;
         window.renderFilterChips = renderFilterChips;
