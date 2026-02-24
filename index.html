@@ -12056,30 +12056,31 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var gapSkills = new Set();
             (match.gaps || []).forEach(function(g) { gapSkills.add(g.name.toLowerCase()); });
             
-            // Center node — pinned to upper area
-            var centerY = Math.max(80, height * 0.22);
+            // === LAYOUT: Center (You) on LEFT, Job on RIGHT ===
+            var centerX = width * 0.22;
+            var centerY = height * 0.38;
+            var jobX = width * 0.78;
+            var jobY = height * 0.32;
+            
             var nodes = [
-                { id: "center", name: userData.profile.name || "You", type: "center", matchState: 'center', x: width/2, y: centerY, fx: width/2, fy: centerY }
+                { id: "center", name: userData.profile.name || "You", type: "center", matchState: 'center', x: centerX, y: centerY, fx: centerX, fy: centerY, homeX: centerX, homeY: centerY }
             ];
             
-            // Use the user's actual roles
+            // Use the user's actual roles — fan them out from center-left
             skillsData.roles.forEach(function(role, i) {
-                var angle = (i / skillsData.roles.length) * 2 * Math.PI;
+                var angle = -Math.PI * 0.6 + (i / Math.max(skillsData.roles.length - 1, 1)) * Math.PI * 1.2;
                 var radius = (isMobile ? 110 : 180) * scaleFactor;
                 var roleId = role.id || role.name;
                 nodes.push({
                     id: roleId, name: role.name, type: 'role', color: role.color, matchState: 'role',
-                    x: width/2 + Math.cos(angle) * radius, y: centerY + Math.sin(angle) * radius
+                    x: centerX + Math.cos(angle) * radius, y: centerY + Math.sin(angle) * radius
                 });
             });
             
-            // Add a "job requirements" pseudo-role
-            var jobRoleAngle = Math.PI; // Put it opposite (below center)
-            var jobRoleRadius = (isMobile ? 130 : 200) * scaleFactor;
+            // Add a "job requirements" pseudo-role — pinned to RIGHT side
             nodes.push({
                 id: 'role-job-req', name: ((job.title || 'Job').length > 25 ? (job.title || 'Job').substring(0, 23) + '\u2026' : (job.title || 'Job')) + ' Needs', type: 'role', color: '#ef4444', matchState: 'role',
-                x: width/2 + Math.cos(jobRoleAngle) * jobRoleRadius,
-                y: centerY + Math.sin(jobRoleAngle) * jobRoleRadius
+                x: jobX, y: jobY, fx: jobX, fy: jobY, homeX: jobX, homeY: jobY
             });
             
             var links = [];
@@ -12106,11 +12107,17 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     matchState: state, roles: skill.roles, source: 'user'
                 });
                 // Link to user roles (only if role node exists)
+                var linkedToRole = false;
                 (skill.roles || []).forEach(function(roleId) {
                     if (validMatchRoleIds.has(roleId)) {
                         links.push({ source: roleId, target: id, type: 'skill' });
+                        linkedToRole = true;
                     }
                 });
+                // Orphan skills (no role link) → connect to center node directly
+                if (!linkedToRole) {
+                    links.push({ source: 'center', target: id, type: 'skill' });
+                }
                 // Matched skills also link to job req
                 if (isMatched) {
                     links.push({ source: 'role-job-req', target: id, type: 'match' });
@@ -12136,8 +12143,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 surplus: '#475569'  // slate grey (dimmed)
             };
             
-            // Simulation — scaled forces
-            var gravityCenter = height * 0.48;
+            // Simulation — left/right layout forces
+            var gravityCenter = height * 0.45;
             simulation = d3.forceSimulation(nodes)
                 .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) {
                     if (d.type === 'role') return (isMobile ? 90 : 150) * scaleFactor;
@@ -12150,14 +12157,24 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.matchState === 'gap') return (isMobile ? -80 : -120) * scaleFactor;
                     return (isMobile ? -100 : -150) * scaleFactor;
                 }))
-                .force("center", d3.forceCenter(width/2, gravityCenter))
                 .force("collision", d3.forceCollide().radius(function(d) {
                     if (d.type === 'center') return (isMobile ? 40 : 55) * scaleFactor;
                     if (d.type === 'role') return (isMobile ? 35 : 50) * scaleFactor;
                     return (isMobile ? 22 : 30) * scaleFactor;
                 }))
-                .force("x", d3.forceX(width/2).strength(0.08))
-                .force("y", d3.forceY(gravityCenter).strength(0.08));
+                .force("x", d3.forceX(function(d) {
+                    // Pull user skills toward left, job/gap toward right, matched toward middle
+                    if (d.type === 'center') return centerX;
+                    if (d.id === 'role-job-req') return jobX;
+                    if (d.matchState === 'gap') return jobX;
+                    if (d.matchState === 'matched') return width * 0.5;
+                    return centerX + width * 0.08;
+                }).strength(function(d) {
+                    if (d.type === 'center' || d.id === 'role-job-req') return 0;
+                    if (d.matchState === 'matched') return 0.06;
+                    return 0.1;
+                }))
+                .force("y", d3.forceY(gravityCenter).strength(0.06));
             
             // Draw links - BELOW nodes
             var isLt = document.documentElement.getAttribute('data-theme') === 'light';
@@ -12208,8 +12225,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.matchState === 'matched' || d.matchState === 'gap') return 2.5;
                     return 0;
                 })
+                .style("cursor", function(d) { return d.type === 'center' ? 'pointer' : 'grab'; })
                 .on("click", function(event, d) {
-                    if (d.type === 'skill' && d.source === 'user') {
+                    if (d.type === 'center') {
+                        resetNetworkLayout();
+                    } else if (d.type === 'skill' && d.source === 'user') {
                         var fullSkill = skillsData.skills.find(function(s) { return s.name === d.name; });
                         if (fullSkill) openSkillModal(d.name, fullSkill);
                     }
@@ -14223,6 +14243,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         // Reset all pinned nodes when center node is clicked
         function resetNetworkLayout() {
             if (!simulation) return;
+            
+            // If in match/job/values mode, re-initialize the overlay entirely
+            if (networkMatchMode !== 'you' && activeJobForNetwork) {
+                setNetworkMatchMode(networkMatchMode);
+                showToast('Layout reset', 'info', 1500);
+                return;
+            }
+            
             var hadPins = false;
             simulation.nodes().forEach(function(d) {
                 if (d.type === 'center') {
