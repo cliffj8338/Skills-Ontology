@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.41.2 | 20260223 | Incident log: tracks all operational failures, not just API connectivity -->
+    <!-- v4.41.3 | 20260223 | Fix: skill inference token overflow, truncation recovery, evidence brevity constraint -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.41.2 - BUILD 20260223-incident-log
-        var BP_VERSION = 'v4.41.2';
+        // BLUEPRINT v4.41.3 - BUILD 20260223-fix-skill-inference-overflow
+        var BP_VERSION = 'v4.41.3';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -9115,23 +9115,43 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                         var canCallAPI = inferApiKey || (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser);
 
                         if (canCallAPI) {
+                            // Limit skills sent to avoid token overflow
+                            var skillsToInfer = rawSkills.slice(0, 40);
                             var inferData = await callAnthropicAPI({
                                 model: 'claude-sonnet-4-20250514',
-                                max_tokens: 3000,
-                                system: 'You are a career analyst. Given a list of skills and work history, infer skill levels and assign each skill to one or more roles. Return ONLY a valid JSON array. No markdown, no backticks, no explanation, no trailing commas. Just the raw JSON array.',
-                                messages: [{ role: 'user', content: 'Given these skills from a LinkedIn profile and work history, return a JSON array of skill objects.\n\nSkills: ' + rawSkills.join(', ') + '\n\nWork history:\n' + positionsSummary + '\n\nRoles: ' + parsedRoles.map(function(r) { return r.id + '=' + r.name; }).join(', ') + '\n\nReturn a JSON array where each element has:\n- name: skill name\n- level: one of Mastery|Expert|Advanced|Proficient|Novice (based on apparent depth from work history context)\n- category: one of skill|ability|workstyle|unique\n- roles: array of role IDs this skill most applies to\n- key: boolean, true if this appears to be a defining/primary skill\n- evidence: array with 1 item: {description: what this skill involves in context, outcome: likely impact}\n\nReturn ONLY the JSON array. No other text.' }]
+                                max_tokens: 4096,
+                                system: 'You are a career analyst. Return ONLY a valid JSON array. No markdown, no backticks, no explanation. Keep evidence descriptions under 15 words each.',
+                                messages: [{ role: 'user', content: 'Given these skills from a LinkedIn profile and work history, return a JSON array of skill objects.\n\nSkills: ' + skillsToInfer.join(', ') + '\n\nWork history:\n' + positionsSummary + '\n\nRoles: ' + parsedRoles.map(function(r) { return r.id + '=' + r.name; }).join(', ') + '\n\nReturn a JSON array where each element has:\n- name: skill name (string)\n- level: Mastery|Expert|Advanced|Proficient|Novice (string)\n- category: skill|ability|workstyle|unique (string)\n- roles: array of role ID strings this skill applies to\n- key: true if defining skill, false otherwise (boolean)\n- evidence: array with 1 object: {description: string under 15 words, outcome: string under 15 words}\n\nReturn ONLY the JSON array.' }]
                             }, inferApiKey, 'linkedin-skill-infer');
 
                             var inferText = inferData.content[0]?.text || '';
+                            // Check for truncation
+                            var wasTruncated = inferData.stop_reason === 'max_tokens' || inferData.stop_reason === 'end_turn' && !inferText.trim().endsWith(']');
                             // Strip markdown fences, trim
                             var cleanInfer = inferText.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
                             // Remove trailing commas before ] or }
                             cleanInfer = cleanInfer.replace(/,\s*([\]}])/g, '$1');
                             // Try to extract JSON array if there's extra text
                             var arrayMatch = cleanInfer.match(/\[[\s\S]*\]/);
-                            if (arrayMatch) cleanInfer = arrayMatch[0];
+                            if (arrayMatch) {
+                                cleanInfer = arrayMatch[0];
+                            } else if (wasTruncated && cleanInfer.startsWith('[')) {
+                                // Truncated response — try to recover partial array
+                                // Find last complete object (last valid "}")
+                                var lastBrace = cleanInfer.lastIndexOf('}');
+                                if (lastBrace > 0) {
+                                    cleanInfer = cleanInfer.substring(0, lastBrace + 1) + ']';
+                                    // Clean trailing commas again after surgery
+                                    cleanInfer = cleanInfer.replace(/,\s*([\]}])/g, '$1');
+                                    console.log('Skill inference: recovered truncated JSON, trimmed at position ' + lastBrace);
+                                }
+                            }
                             inferredSkills = JSON.parse(cleanInfer);
                             if (!Array.isArray(inferredSkills)) inferredSkills = [];
+                            if (wasTruncated && inferredSkills.length > 0) {
+                                console.log('Skill inference: recovered ' + inferredSkills.length + ' skills from truncated response');
+                                logIncident('info', 'linkedin-skill-infer', 'Recovered ' + inferredSkills.length + ' of ' + skillsToInfer.length + ' skills from truncated AI response', { truncated: true });
+                            }
                             aiSuccess = true;
                             resolveIncidents('linkedin-skill-infer');
                         }
