@@ -292,6 +292,157 @@ async function fetchUSAJobs(query) {
   }
 }
 
+// === ADZUNA (free API key, ~3-4M US jobs) ===
+const ADZUNA_CATEGORIES = [
+    'it-jobs', 'engineering-jobs', 'healthcare-nursing-jobs', 'accounting-finance-jobs',
+    'sales-jobs', 'hr-jobs', 'marketing-jobs', 'admin-jobs', 'customer-services-jobs',
+    'logistics-warehouse-jobs', 'manufacturing-jobs', 'scientific-qa-jobs',
+    'legal-jobs', 'consultancy-jobs', 'energy-oil-gas-jobs', 'property-jobs',
+    'teaching-jobs', 'trade-construction-jobs', 'travel-jobs'
+];
+
+const ADZUNA_LOCATIONS = [
+    '', 'New York', 'San Francisco', 'Los Angeles', 'Chicago', 'Houston',
+    'Phoenix', 'Philadelphia', 'Dallas', 'Austin', 'Seattle', 'Denver',
+    'Boston', 'Atlanta', 'Miami', 'Washington DC', 'Minneapolis', 'Portland'
+];
+
+function formatAdzunaSalary(job) {
+    if (job.salary_min && job.salary_max) return '$' + Math.round(job.salary_min / 1000) + 'K-$' + Math.round(job.salary_max / 1000) + 'K';
+    if (job.salary_min && !job.salary_is_predicted) return '$' + Math.round(job.salary_min / 1000) + 'K+';
+    return '';
+}
+
+async function fetchAdzuna(category, location, page) {
+    const appId = process.env.ADZUNA_APP_ID;
+    const appKey = process.env.ADZUNA_APP_KEY;
+    if (!appId || !appKey) return { jobs: [], source: 'adzuna', error: 'ADZUNA credentials not configured' };
+    try {
+        let url = `https://api.adzuna.com/v1/api/jobs/us/search/${page}?app_id=${appId}&app_key=${appKey}&results_per_page=50&content-type=application/json&sort_by=date&max_days_old=30`;
+        if (category) url += `&what=${encodeURIComponent(category)}`;
+        if (location) url += `&where=${encodeURIComponent(location)}`;
+        const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+        if (!res.ok) return { jobs: [], source: 'adzuna', error: 'HTTP ' + res.status };
+        const data = await res.json();
+        const jobs = (data.results || []).map(j => ({
+            id: 'adzuna-' + j.id,
+            title: j.title || '',
+            company: (j.company && j.company.display_name) || '',
+            companyLogo: '',
+            location: (j.location && j.location.display_name) || '',
+            type: j.contract_time === 'full_time' ? 'Full Time' : j.contract_time === 'part_time' ? 'Part Time' : 'Full Time',
+            salary: formatAdzunaSalary(j),
+            remote: (j.title || '').toLowerCase().includes('remote') || ((j.location && j.location.display_name) || '').toLowerCase().includes('remote'),
+            source: 'adzuna',
+            url: j.redirect_url || '',
+            description: (j.description || '').substring(0, 2000),
+            tags: j.category ? [j.category.label] : [],
+            qualifications: [],
+            responsibilities: [],
+            benefits: '',
+            postedAt: j.created || ''
+        }));
+        return { jobs, source: 'adzuna', count: jobs.length };
+    } catch (e) {
+        return { jobs: [], source: 'adzuna', error: e.message };
+    }
+}
+
+// === THE MUSE (free, quality professional jobs) ===
+const MUSE_CATEGORIES = [
+    'Engineering', 'Data Science', 'Design', 'Marketing', 'Product',
+    'Finance', 'HR', 'Sales', 'Business Operations', 'Customer Service',
+    'Education', 'Editorial', 'Healthcare', 'Legal', 'Project Management',
+    'Social Media', 'Science', 'Retail'
+];
+
+async function fetchMuse(category, page) {
+    try {
+        const apiKey = process.env.MUSE_API_KEY || '';
+        let url = `https://www.themuse.com/api/public/jobs?page=${page}`;
+        if (category) url += `&category=${encodeURIComponent(category)}`;
+        if (apiKey) url += `&api_key=${apiKey}`;
+        const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+        if (!res.ok) return { jobs: [], source: 'themuse', error: 'HTTP ' + res.status };
+        const data = await res.json();
+        const jobs = (data.results || []).map(j => ({
+            id: 'muse-' + j.id,
+            title: j.name || '',
+            company: (j.company && j.company.name) || '',
+            companyLogo: '',
+            location: (j.locations || []).map(l => l.name).join(', ') || 'Various',
+            type: j.type || 'Full Time',
+            salary: '',
+            remote: ((j.locations || []).map(l => l.name).join(' ')).toLowerCase().includes('remote'),
+            source: 'themuse',
+            url: (j.refs && j.refs.landing_page) || '',
+            description: (j.contents || '').replace(/<[^>]*>/g, '').substring(0, 2000),
+            tags: (j.categories || []).map(c => c.name),
+            qualifications: [],
+            responsibilities: [],
+            benefits: '',
+            postedAt: j.publication_date || ''
+        }));
+        return { jobs, source: 'themuse', count: jobs.length, pageCount: data.page_count || 0 };
+    } catch (e) {
+        return { jobs: [], source: 'themuse', error: e.message };
+    }
+}
+
+// === JOOBLE (free API key, meta-aggregator: Indeed, LinkedIn, Glassdoor) ===
+const JOOBLE_QUERIES = [
+    'Software Engineer', 'Data Scientist', 'Product Manager', 'UX Designer',
+    'Marketing Manager', 'Sales Representative', 'Financial Analyst', 'HR Manager',
+    'Project Manager', 'Business Analyst', 'DevOps Engineer', 'Nurse',
+    'Account Executive', 'Customer Success', 'Operations Manager', 'Content Writer',
+    'Machine Learning', 'Cloud Architect', 'Cybersecurity', 'Full Stack Developer',
+    'React Developer', 'Python Developer', 'Data Engineer', 'Recruiter',
+    'Supply Chain', 'Manufacturing', 'Legal', 'Accounting',
+    'Manager', 'Director', 'Senior', 'Engineer', 'Analyst', 'Remote'
+];
+
+const JOOBLE_LOCATIONS = [
+    'United States', 'New York, NY', 'San Francisco, CA', 'Los Angeles, CA',
+    'Chicago, IL', 'Austin, TX', 'Seattle, WA', 'Boston, MA', 'Denver, CO',
+    'Atlanta, GA', 'Philadelphia, PA', 'Remote'
+];
+
+async function fetchJooble(keywords, location) {
+    const apiKey = process.env.JOOBLE_API_KEY;
+    if (!apiKey) return { jobs: [], source: 'jooble', error: 'JOOBLE_API_KEY not configured' };
+    try {
+        const res = await fetch(`https://jooble.org/api/${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ keywords, location: location || 'United States', page: '1' }),
+            signal: AbortSignal.timeout(15000)
+        });
+        if (!res.ok) return { jobs: [], source: 'jooble', error: 'HTTP ' + res.status };
+        const data = await res.json();
+        const jobs = (data.jobs || []).map(j => ({
+            id: 'jooble-' + (j.id || Date.now() + '-' + Math.random().toString(36).slice(2, 8)),
+            title: j.title || '',
+            company: j.company || '',
+            companyLogo: '',
+            location: j.location || '',
+            type: j.type || 'Full Time',
+            salary: j.salary || '',
+            remote: (j.title || '').toLowerCase().includes('remote') || (j.location || '').toLowerCase().includes('remote'),
+            source: 'jooble',
+            url: j.link || '',
+            description: (j.snippet || '').substring(0, 2000),
+            tags: [],
+            qualifications: [],
+            responsibilities: [],
+            benefits: '',
+            postedAt: j.updated || ''
+        }));
+        return { jobs, source: 'jooble', count: jobs.length, query: keywords };
+    } catch (e) {
+        return { jobs: [], source: 'jooble', error: e.message, query: keywords };
+    }
+}
+
 // Safe Firestore doc ID (no slashes, max 200 chars)
 function safeDocId(id) {
   return id.replace(/[\/\.\#\$\[\]]/g, '_').substring(0, 200);
@@ -314,7 +465,7 @@ module.exports = async function handler(req, res) {
   const startTime = Date.now();
   const allJobs = new Map();
   const errors = [];
-  const sourceCounts = { jsearch: 0, remotive: 0, usajobs: 0, himalayas: 0, jobicy: 0 };
+  const sourceCounts = { jsearch: 0, remotive: 0, usajobs: 0, himalayas: 0, jobicy: 0, adzuna: 0, themuse: 0, jooble: 0 };
   let jsearchApiCalls = 0;
 
   // Determine which JSearch group to run (A or B, alternating per sync)
@@ -374,9 +525,63 @@ module.exports = async function handler(req, res) {
     results.forEach(collectJobs);
   }
 
-  console.log('[jobs-sync] Fetched ' + allJobs.size + ' unique jobs. Sources: jsearch=' + sourceCounts.jsearch + ' remotive=' + sourceCounts.remotive + ' usajobs=' + sourceCounts.usajobs + ' himalayas=' + sourceCounts.himalayas + ' jobicy=' + sourceCounts.jobicy + '. Writing to Firestore...');
+  // ── Phase 3: Adzuna (free API key, massive US inventory) ──
+  // Rotate: 5 categories × 2 locations × 1 page per sync = 10 calls → ~500 jobs
+  if (process.env.ADZUNA_APP_ID && process.env.ADZUNA_APP_KEY) {
+    const adzSyncNum = syncGroup === 'A' ? 0 : 1;
+    const catStart = (adzSyncNum % Math.ceil(ADZUNA_CATEGORIES.length / 5)) * 5;
+    const adzCats = ADZUNA_CATEGORIES.slice(catStart, catStart + 5);
+    const locStart = (adzSyncNum % Math.ceil(ADZUNA_LOCATIONS.length / 3)) * 3;
+    const adzLocs = ADZUNA_LOCATIONS.slice(locStart, locStart + 3);
+    if (!adzLocs.includes('')) adzLocs.unshift(''); // always nationwide
 
-  // ── Phase 3: Write to Firestore (batch upsert) ────────────
+    for (const cat of adzCats) {
+      const results = await Promise.all(adzLocs.map(loc => fetchAdzuna(cat, loc, 1)));
+      results.forEach(collectJobs);
+      await new Promise(r => setTimeout(r, 150)); // rate limit
+    }
+  } else {
+    errors.push('adzuna: ADZUNA_APP_ID/KEY not configured');
+  }
+
+  // ── Phase 4: The Muse (free, quality professional jobs) ───
+  // Rotate: 6 categories × 3 pages per sync = 18 calls → ~360 jobs
+  {
+    const museSyncNum = syncGroup === 'A' ? 0 : 1;
+    const museStart = (museSyncNum % 3) * 6;
+    const museCats = MUSE_CATEGORIES.slice(museStart, museStart + 6);
+
+    for (const cat of museCats) {
+      for (let page = 0; page < 3; page++) {
+        const result = await fetchMuse(cat, page);
+        collectJobs(result);
+        if (result.pageCount && page >= result.pageCount - 1) break;
+        await new Promise(r => setTimeout(r, 80));
+      }
+    }
+  }
+
+  // ── Phase 5: Jooble (free API key, meta-aggregator) ───────
+  // Rotate: 8 queries × 1 location per sync = 8 calls → ~200-400 jobs
+  if (process.env.JOOBLE_API_KEY) {
+    const jooSyncNum = syncGroup === 'A' ? 0 : 1;
+    const qStart = (jooSyncNum % Math.ceil(JOOBLE_QUERIES.length / 8)) * 8;
+    const jooQueries = JOOBLE_QUERIES.slice(qStart, qStart + 8);
+    const jooLoc = JOOBLE_LOCATIONS[jooSyncNum % JOOBLE_LOCATIONS.length];
+
+    for (let i = 0; i < jooQueries.length; i += 2) {
+      const batch = jooQueries.slice(i, i + 2);
+      const results = await Promise.all(batch.map(q => fetchJooble(q, jooLoc)));
+      results.forEach(collectJobs);
+      await new Promise(r => setTimeout(r, 400)); // Jooble rate limit — be polite
+    }
+  } else {
+    errors.push('jooble: JOOBLE_API_KEY not configured');
+  }
+
+  console.log('[jobs-sync] Fetched ' + allJobs.size + ' unique jobs. Sources: jsearch=' + sourceCounts.jsearch + ' remotive=' + sourceCounts.remotive + ' usajobs=' + sourceCounts.usajobs + ' himalayas=' + sourceCounts.himalayas + ' jobicy=' + sourceCounts.jobicy + ' adzuna=' + sourceCounts.adzuna + ' themuse=' + sourceCounts.themuse + ' jooble=' + sourceCounts.jooble + '. Writing to Firestore...');
+
+  // ── Phase 6: Write to Firestore (batch upsert) ────────────
   const jobEntries = Array.from(allJobs.entries());
   let written = 0;
 
@@ -391,7 +596,7 @@ module.exports = async function handler(req, res) {
     written += chunk.length;
   }
 
-  // ── Phase 4: Cleanup old jobs (>30 days) ───────────────────
+  // ── Phase 7: Cleanup old jobs (>30 days) ───────────────────
   let cleaned = 0;
   try {
     const cutoff = admin.firestore.Timestamp.fromDate(new Date(Date.now() - 30 * 86400000));
@@ -406,7 +611,7 @@ module.exports = async function handler(req, res) {
     errors.push('Cleanup: ' + e.message);
   }
 
-  // ── Phase 5: Update metadata ───────────────────────────────
+  // ── Phase 8: Update metadata ───────────────────────────────
   let totalInDb = written;
   try {
     const countSnap = await db.collection('jobs').count().get();
