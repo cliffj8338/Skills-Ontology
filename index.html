@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.41.3 | 20260223 | Fix: skill inference token overflow, truncation recovery, evidence brevity constraint -->
+    <!-- v4.42.0 | 20260223 | Deterministic skill inference engine replaces Claude AI, 30-skill cap, zero API cost -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.41.3 - BUILD 20260223-fix-skill-inference-overflow
-        var BP_VERSION = 'v4.41.3';
+        // BLUEPRINT v4.42.0 - BUILD 20260223-deterministic-skill-engine
+        var BP_VERSION = 'v4.42.0';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -3590,7 +3590,8 @@
                         { id: 'p2-3f', name: 'Wizard enrichment step', status: 'done', category: 'feature', priority: 'critical', notes: 'Step 5 in wizard. Resolves role titles to O*NET occupations, runs gap analysis, presents suggested skills as checkboxes. Adds checked skills with onet-enrichment provenance. Skip-safe if crosswalk not loaded.' },
                         { id: 'p2-3g', name: 'Multi-source profile merge', status: 'planned', category: 'feature', priority: 'critical', notes: 'Import JSON or LinkedIn zip into existing profile without overwriting. mergeSkillSources() deduplicates, keeps higher level, unions evidence/roles, tracks provenance with sources[] array.' },
                         { id: 'p2-3h', name: 'LinkedIn zip import retest', status: 'planned', category: 'testing', priority: 'high', notes: 'yearsExperience .replace() crash fixed. Full flow needs clean test: zip upload → parse → profile review → save. Skill inference fallback if API key not set.' },
-                        { id: 'p2-3i', name: 'API status monitoring dashboard', status: 'done', category: 'admin', priority: 'high', notes: 'Status tab in admin. Passive health tracking from all API calls. Active health check button. Per-service status with age, staleness, critical flags. Categories: AI, infra, jobs, data.' }
+                        { id: 'p2-3i', name: 'API status monitoring dashboard', status: 'done', category: 'admin', priority: 'high', notes: 'Status tab in admin. Passive health tracking from all API calls. Active health check button. Per-service status with age, staleness, critical flags. Categories: AI, infra, jobs, data.' },
+                        { id: 'p2-3j', name: 'Deterministic skill inference engine', status: 'done', category: 'wizard', priority: 'critical', notes: 'Replaced Claude AI skill inference ($0.07/call) with O*NET crosswalk heuristics. Title→SOC→skills pool→fuzzy match→level adjustment by seniority+years. 30-skill cap. Zero API cost.' }
                     ]
                 },
                 {
@@ -9097,91 +9098,11 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                     };
                 }).filter(function(c) { return c.name; });
 
-                setMsg('Inferring skill levels with Claude...');
+                setMsg('Analyzing skills against O*NET data...');
 
-                // ── Skill level inference via Claude ──
-                var inferredSkills = [];
-                var useAI = rawSkills.length > 0;
-                var aiSuccess = false;
-
-                if (useAI) {
-                    try {
-                        var positionsSummary = wizardState.workHistory.slice(0, 10).map(function(w) {
-                            return w.title + ' at ' + w.company + ' (' + w.startDate + ' - ' + w.endDate + ')' +
-                                   (w.description ? ': ' + w.description.substring(0, 200) : '');
-                        }).join('\n');
-
-                        var inferApiKey = safeGet('wbAnthropicKey');
-                        var canCallAPI = inferApiKey || (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser);
-
-                        if (canCallAPI) {
-                            // Limit skills sent to avoid token overflow
-                            var skillsToInfer = rawSkills.slice(0, 40);
-                            var inferData = await callAnthropicAPI({
-                                model: 'claude-sonnet-4-20250514',
-                                max_tokens: 4096,
-                                system: 'You are a career analyst. Return ONLY a valid JSON array. No markdown, no backticks, no explanation. Keep evidence descriptions under 15 words each.',
-                                messages: [{ role: 'user', content: 'Given these skills from a LinkedIn profile and work history, return a JSON array of skill objects.\n\nSkills: ' + skillsToInfer.join(', ') + '\n\nWork history:\n' + positionsSummary + '\n\nRoles: ' + parsedRoles.map(function(r) { return r.id + '=' + r.name; }).join(', ') + '\n\nReturn a JSON array where each element has:\n- name: skill name (string)\n- level: Mastery|Expert|Advanced|Proficient|Novice (string)\n- category: skill|ability|workstyle|unique (string)\n- roles: array of role ID strings this skill applies to\n- key: true if defining skill, false otherwise (boolean)\n- evidence: array with 1 object: {description: string under 15 words, outcome: string under 15 words}\n\nReturn ONLY the JSON array.' }]
-                            }, inferApiKey, 'linkedin-skill-infer');
-
-                            var inferText = inferData.content[0]?.text || '';
-                            // Check for truncation
-                            var wasTruncated = inferData.stop_reason === 'max_tokens' || inferData.stop_reason === 'end_turn' && !inferText.trim().endsWith(']');
-                            // Strip markdown fences, trim
-                            var cleanInfer = inferText.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
-                            // Remove trailing commas before ] or }
-                            cleanInfer = cleanInfer.replace(/,\s*([\]}])/g, '$1');
-                            // Try to extract JSON array if there's extra text
-                            var arrayMatch = cleanInfer.match(/\[[\s\S]*\]/);
-                            if (arrayMatch) {
-                                cleanInfer = arrayMatch[0];
-                            } else if (wasTruncated && cleanInfer.startsWith('[')) {
-                                // Truncated response — try to recover partial array
-                                // Find last complete object (last valid "}")
-                                var lastBrace = cleanInfer.lastIndexOf('}');
-                                if (lastBrace > 0) {
-                                    cleanInfer = cleanInfer.substring(0, lastBrace + 1) + ']';
-                                    // Clean trailing commas again after surgery
-                                    cleanInfer = cleanInfer.replace(/,\s*([\]}])/g, '$1');
-                                    console.log('Skill inference: recovered truncated JSON, trimmed at position ' + lastBrace);
-                                }
-                            }
-                            inferredSkills = JSON.parse(cleanInfer);
-                            if (!Array.isArray(inferredSkills)) inferredSkills = [];
-                            if (wasTruncated && inferredSkills.length > 0) {
-                                console.log('Skill inference: recovered ' + inferredSkills.length + ' skills from truncated response');
-                                logIncident('info', 'linkedin-skill-infer', 'Recovered ' + inferredSkills.length + ' of ' + skillsToInfer.length + ' skills from truncated AI response', { truncated: true });
-                            }
-                            aiSuccess = true;
-                            resolveIncidents('linkedin-skill-infer');
-                        }
-                    } catch(inferErr) {
-                        console.warn('Skill inference failed, using defaults:', inferErr.message);
-                        logIncident(
-                            inferErr.message.includes('credit balance') ? 'critical' : 'warning',
-                            'linkedin-skill-infer',
-                            inferErr.message.includes('credit balance') ? 'API credits depleted' : 'Skill inference failed: ' + inferErr.message,
-                            { rawError: inferErr.message, fallback: 'Using default Proficient levels' }
-                        );
-                        if (inferErr.message.includes('credit balance')) {
-                            showToast('Anthropic API credits depleted. Using default skill levels. Top up at console.anthropic.com.', 'warning', 8000);
-                        }
-                    }
-                }
-
-                // Fallback: default skills to Proficient level if AI inference failed
-                if (!aiSuccess && rawSkills.length > 0) {
-                    inferredSkills = rawSkills.map(function(name) {
-                        return {
-                            name: name,
-                            level: 'Proficient',
-                            category: 'skill',
-                            roles: parsedRoles.length > 0 ? [parsedRoles[0].id] : [],
-                            key: false,
-                            evidence: []
-                        };
-                    });
-                }
+                // ── Deterministic skill inference via O*NET crosswalk ──
+                var SKILL_CAP = 30;
+                var inferredSkills = inferSkillsDeterministic(rawSkills, wizardState.workHistory, parsedRoles, SKILL_CAP);
 
                 wizardState.skills = inferredSkills;
                 wizardState.parsedData = {
@@ -21405,6 +21326,209 @@ body {
          * belowLevel: user has skill but below occupation's typical level
          * surplus:    user has skills not in the occupation profile
          */
+        // ===== DETERMINISTIC SKILL INFERENCE ENGINE =====
+        // Replaces Claude AI skill inference. Uses O*NET crosswalk data + heuristics.
+        // Zero API cost. Deterministic. Works offline.
+        
+        function detectSeniority(title) {
+            if (!title) return 1;
+            var t = title.toLowerCase();
+            if (/\b(chief|ceo|cfo|cto|coo|cio|cmo|president|founder|owner)\b/.test(t)) return 5;
+            if (/\b(svp|evp|senior vice president|executive vice president)\b/.test(t)) return 4.5;
+            if (/\b(vp|vice president|partner|principal|gm|general manager)\b/.test(t)) return 4;
+            if (/\b(director|head of|senior director)\b/.test(t)) return 3.5;
+            if (/\b(senior manager|sr manager|senior lead)\b/.test(t)) return 3;
+            if (/\b(manager|lead|supervisor|team lead)\b/.test(t)) return 2.5;
+            if (/\b(senior|sr|staff|principal)\b/.test(t)) return 2;
+            if (/\b(specialist|analyst|engineer|consultant|developer|designer)\b/.test(t)) return 1.5;
+            if (/\b(associate|coordinator|assistant|junior|jr|intern|entry)\b/.test(t)) return 1;
+            return 1.5;
+        }
+        
+        function adjustLevel(baseLevel, yearsInRole, seniority) {
+            // Level hierarchy: Mastery > Expert > Advanced > Proficient > Novice
+            var levels = ['Novice', 'Proficient', 'Advanced', 'Expert', 'Mastery'];
+            var idx = levels.indexOf(baseLevel);
+            if (idx === -1) idx = 1; // default Proficient
+            
+            // Boost for seniority (VP+ gets +1, Director +0.5)
+            if (seniority >= 4) idx = Math.min(idx + 1, 4);
+            else if (seniority >= 3) idx = Math.min(idx + 0.5, 4);
+            
+            // Boost for years (10+ years: +1, 5-9: +0.5)
+            if (yearsInRole >= 10) idx = Math.min(idx + 1, 4);
+            else if (yearsInRole >= 5) idx = Math.min(idx + 0.5, 4);
+            
+            // Reduce for very junior or short tenure
+            if (seniority <= 1 && yearsInRole < 2) idx = Math.max(idx - 1, 0);
+            
+            return levels[Math.round(Math.min(idx, 4))];
+        }
+        
+        function inferSkillsDeterministic(rawSkills, workHistory, parsedRoles, skillCap) {
+            var cw = window.onetCrosswalk;
+            if (!cw || !rawSkills || rawSkills.length === 0) {
+                // No crosswalk: return skills as Proficient with no enrichment
+                return rawSkills.slice(0, skillCap || 30).map(function(name) {
+                    return { name: name, level: 'Proficient', category: 'skill', roles: parsedRoles.length > 0 ? [parsedRoles[0].id] : [], key: false, evidence: [] };
+                });
+            }
+            
+            // 1. Resolve all position titles to SOC codes
+            var matchedOccupations = [];
+            (workHistory || []).forEach(function(w) {
+                var result = resolveTitle(w.title);
+                if (result) {
+                    var startYear = parseInt((w.startDate || '').replace(/[^0-9]/g, '').slice(0,4)) || new Date().getFullYear();
+                    var endStr = w.endDate === 'Present' || !w.endDate ? '' + new Date().getFullYear() : w.endDate;
+                    var endYear = parseInt((endStr || '').replace(/[^0-9]/g, '').slice(0,4)) || new Date().getFullYear();
+                    var yearsInRole = Math.max(1, endYear - startYear);
+                    
+                    matchedOccupations.push({
+                        soc: result.soc,
+                        title: w.title,
+                        yearsInRole: yearsInRole,
+                        isCurrent: w.endDate === 'Present' || !w.endDate,
+                        seniority: detectSeniority(w.title),
+                        roleId: null // will map below
+                    });
+                    
+                    // Map to parsedRole ID
+                    var roleKey = w.title.toLowerCase().trim();
+                    parsedRoles.forEach(function(r) {
+                        if (r.name.toLowerCase().trim() === roleKey) matchedOccupations[matchedOccupations.length - 1].roleId = r.id;
+                    });
+                }
+            });
+            
+            console.log('Skill inference: resolved ' + matchedOccupations.length + ' of ' + (workHistory || []).length + ' positions to O*NET occupations');
+            
+            // 2. Build O*NET skill pool from all matched occupations
+            var onetPool = {}; // key: normalized name → merged skill data
+            matchedOccupations.forEach(function(occ) {
+                var occData = cw.occupations[occ.soc];
+                if (!occData) return;
+                
+                ['skills', 'abilities', 'knowledge'].forEach(function(type) {
+                    (occData[type] || []).forEach(function(s) {
+                        var key = s.name.toLowerCase().trim();
+                        if (!onetPool[key]) {
+                            onetPool[key] = {
+                                name: s.name,
+                                importance: s.importance,
+                                level: s.level,
+                                blueprintLevel: s.blueprintLevel,
+                                category: s.category || type,
+                                sources: [occ.soc],
+                                roleIds: occ.roleId ? [occ.roleId] : [],
+                                maxYears: occ.yearsInRole,
+                                maxSeniority: occ.seniority,
+                                occCount: 1
+                            };
+                        } else {
+                            // Merge: take highest importance, track multiple sources
+                            if (s.importance > onetPool[key].importance) {
+                                onetPool[key].importance = s.importance;
+                                onetPool[key].level = s.level;
+                                onetPool[key].blueprintLevel = s.blueprintLevel;
+                            }
+                            if (onetPool[key].sources.indexOf(occ.soc) === -1) onetPool[key].sources.push(occ.soc);
+                            if (occ.roleId && onetPool[key].roleIds.indexOf(occ.roleId) === -1) onetPool[key].roleIds.push(occ.roleId);
+                            onetPool[key].maxYears = Math.max(onetPool[key].maxYears, occ.yearsInRole);
+                            onetPool[key].maxSeniority = Math.max(onetPool[key].maxSeniority, occ.seniority);
+                            onetPool[key].occCount++;
+                        }
+                    });
+                });
+            });
+            
+            console.log('Skill inference: O*NET pool has ' + Object.keys(onetPool).length + ' unique skills/abilities/knowledge');
+            
+            // 3. Match LinkedIn skills against O*NET pool
+            var matched = [];
+            var unmatched = [];
+            var usedOnetKeys = {};
+            
+            rawSkills.forEach(function(skillName) {
+                var key = skillName.toLowerCase().trim();
+                var onetMatch = onetPool[key];
+                
+                // Fuzzy: check containment both ways
+                if (!onetMatch) {
+                    var bestKey = null, bestLen = 0;
+                    Object.keys(onetPool).forEach(function(oKey) {
+                        if (oKey.indexOf(key) >= 0 || key.indexOf(oKey) >= 0) {
+                            // Prefer longer match (more specific)
+                            var matchLen = Math.min(oKey.length, key.length);
+                            if (matchLen > bestLen) { bestLen = matchLen; bestKey = oKey; }
+                        }
+                    });
+                    if (bestKey) onetMatch = onetPool[bestKey];
+                }
+                
+                if (onetMatch) {
+                    usedOnetKeys[onetMatch.name.toLowerCase().trim()] = true;
+                    matched.push({
+                        name: skillName,
+                        level: adjustLevel(onetMatch.blueprintLevel, onetMatch.maxYears, onetMatch.maxSeniority),
+                        category: onetMatch.category,
+                        importance: onetMatch.importance,
+                        onetName: onetMatch.name,
+                        roles: onetMatch.roleIds.length > 0 ? onetMatch.roleIds : (parsedRoles.length > 0 ? [parsedRoles[0].id] : []),
+                        occCount: onetMatch.occCount
+                    });
+                } else {
+                    unmatched.push(skillName);
+                }
+            });
+            
+            // 4. Sort matched by importance (highest first), then by occCount (breadth)
+            matched.sort(function(a, b) {
+                if (b.importance !== a.importance) return b.importance - a.importance;
+                return b.occCount - a.occCount;
+            });
+            
+            console.log('Skill inference: ' + matched.length + ' matched to O*NET, ' + unmatched.length + ' unmatched');
+            
+            // 5. Build final skill array with key/supporting tier
+            var results = [];
+            
+            matched.forEach(function(m, i) {
+                results.push({
+                    name: m.name,
+                    level: m.level,
+                    category: m.category,
+                    roles: m.roles,
+                    key: i < 10,
+                    evidence: [{
+                        description: 'O*NET: ' + m.onetName,
+                        outcome: 'Importance ' + m.importance + '/100, spans ' + m.occCount + ' role' + (m.occCount > 1 ? 's' : '')
+                    }]
+                });
+            });
+            
+            // Add unmatched LinkedIn skills as Proficient (capped)
+            unmatched.forEach(function(name) {
+                results.push({
+                    name: name,
+                    level: 'Proficient',
+                    category: 'skill',
+                    roles: parsedRoles.length > 0 ? [parsedRoles[0].id] : [],
+                    key: false,
+                    evidence: [{ description: 'From LinkedIn profile', outcome: 'No O*NET match' }]
+                });
+            });
+            
+            // Cap
+            var cap = skillCap || 30;
+            if (results.length > cap) {
+                console.log('Skill inference: capped from ' + results.length + ' to ' + cap + ' skills');
+            }
+            results = results.slice(0, cap);
+            
+            return results;
+        }
+        
         function suggestMissingSkills(userSkills, socCode) {
             var profile = getOccupationProfile(socCode);
             if (!profile) return null;
