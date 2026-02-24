@@ -3597,7 +3597,10 @@
                         { id: 'p2-3k', name: 'Incident log + values/scoring/badge fixes', status: 'done', category: 'bugfix', priority: 'high', notes: 'Incident log for operational failures. Values card text visibility fix. quickScoreJob scoring inflation fix (realistic denominator). Network job badges render on view switch.' },
                         { id: 'p2-3l', name: 'Interactive architecture map', status: 'done', category: 'admin', priority: 'medium', notes: 'D3 force-directed platform architecture diagram in admin panel. 40+ nodes across 10 subsystem groups. Click-to-highlight with detail panel. Zoom/pan. Data flow edges. Developer onboarding tool.' },
                         { id: 'p2-3m', name: 'Critical Firestore save fix', status: 'done', category: 'bugfix', priority: 'critical', notes: 'templateId guard silently blocked wizard saves (wizard-built != firestore-*). Data sync order fixed. Step 9 UX: save primary, download secondary.' },
-                        { id: 'p2-3n', name: 'Unified skill editor + UX fixes', status: 'done', category: 'ux', priority: 'high', notes: 'Single modal combining level/roles/assess/core. Network name label offset. quickScore v3 (word-boundary + level weighting). Alphabetical skill sorting. BLS Potential tile always shown. bpIcon assess bug.' }
+                        { id: 'p2-3n', name: 'Unified skill editor + UX fixes', status: 'done', category: 'ux', priority: 'high', notes: 'Single modal combining level/roles/assess/core. Network name label offset. quickScore v3 (word-boundary + level weighting). Alphabetical skill sorting. BLS Potential tile always shown. bpIcon assess bug.' },
+                        { id: 'p2-3o', name: 'Wizard Step 9 save+download UX', status: 'done', category: 'ux', priority: 'medium', notes: 'Single Save button with pre-checked download checkbox. Replaces two separate buttons.' },
+                        { id: 'p2-3p', name: 'Architecture map v2 — layered diagram', status: 'done', category: 'admin', priority: 'medium', notes: 'Replaced force-directed graph with structured swim-lane layout. 4 layers: Frontend→Runtime→Backend→External. Rich detail panels with function names, line ranges, data flows, dependencies, tech debt. Engineer-grade onboarding tool.' },
+                        { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'planned', category: 'process', priority: 'medium', notes: 'Architecture diagram must be updated whenever components are added/modified. Add to dev checklist. Consider auto-generation from code comments.' }
                     ]
                 },
                 {
@@ -4152,328 +4155,406 @@
         }
         window.resolveAllIncidents = resolveAllIncidents;
         
-        // ===== ARCHITECTURE MAP =====
-        // Interactive D3 force-directed graph of all platform components
+        // ===== ARCHITECTURE MAP v2 =====
+        // Structured layered diagram with swim lanes, rich detail panels
         
-        var archSelectedNode = null;
-        
-        function getArchitectureData() {
-            var nodes = [
-                // Core — center of gravity
-                { id: 'core', label: 'Blueprint\u2122\nPlatform', group: 'core', tier: 0, desc: 'Single-page application. ~29K lines. Vanilla JS + D3.js. No framework dependency.', lines: '~29,000' },
-                
-                // Frontend Views
-                { id: 'welcome', label: 'Welcome\nLanding', group: 'view', tier: 1, desc: 'Public landing page with animated skill network SVG. CTA to Sign In or See It In Action (demo picker).', parent: 'core' },
-                { id: 'wizard', label: 'Onboarding\nWizard', group: 'view', tier: 1, desc: '9-step guided profile builder. Resume upload, LinkedIn import, manual entry. Skill enrichment, values, purpose gen.', parent: 'core' },
-                { id: 'network', label: 'Skills\nNetwork', group: 'view', tier: 1, desc: 'D3 force-directed graph. Role clusters, skill nodes sized by level. Job match overlay with gap/surplus visualization.', parent: 'core' },
-                { id: 'cardview', label: 'Card\nView', group: 'view', tier: 1, desc: 'Alternative skill display. Filterable cards with proficiency bars, evidence panels, role badges. Mobile-first.', parent: 'core' },
-                { id: 'jobs', label: 'Jobs\nHub', group: 'view', tier: 1, desc: 'Pipeline (saved jobs), Tracker (application stages), Find Jobs (multi-API search). Skill match scoring on all.', parent: 'core' },
-                { id: 'blueprint', label: 'Blueprint\nView', group: 'view', tier: 1, desc: 'Career narrative page. Purpose statement, values display, compensation framework, work history timeline.', parent: 'core' },
-                { id: 'reports', label: 'Reports\nEngine', group: 'view', tier: 1, desc: 'Scouting report generator. PDF output via jsPDF. Templatable with TV character demo profiles.', parent: 'core' },
-                { id: 'admin', label: 'Admin\nPanel', group: 'view', tier: 1, desc: 'Overview, users, samples, waitlist, config, roadmap, costs, status, architecture. Admin-only access.', parent: 'core' },
-                
-                // Data Layer
-                { id: 'firestore', label: 'Firestore\nDatabase', group: 'data', tier: 2, desc: 'Primary persistence. User profiles, skills, roles, values, saved jobs, work history. Real-time sync.', parent: 'core' },
-                { id: 'firebase-auth', label: 'Firebase\nAuth', group: 'data', tier: 2, desc: 'Google sign-in. Token-based auth for API proxy. User management, display name, photo URL.', parent: 'core' },
-                { id: 'localstorage', label: 'localStorage\nCache', group: 'data', tier: 2, desc: 'Preferences, theme, API health, incident log, cost tracking, analytics, job seen IDs. ~15 keys.', parent: 'core' },
-                
-                // Runtime data
-                { id: 'userdata', label: 'userData\nRuntime', group: 'runtime', tier: 2, desc: 'Primary in-memory state. Profile, skills, roles, values, work history, saved jobs, preferences.', parent: 'core' },
-                { id: 'skillsdata', label: 'skillsData\nRuntime', group: 'runtime', tier: 2, desc: 'Active skill/role arrays for rendering. Skills network, card view, matching all read from here.', parent: 'core' },
-                { id: 'blueprintdata', label: 'blueprintData\nRuntime', group: 'runtime', tier: 2, desc: 'Values, purpose, outcomes, compensation. Blueprint view and scouting reports read from here.', parent: 'core' },
-                
-                // AI Services
-                { id: 'ai-proxy', label: 'AI Proxy\n/api/ai.js', group: 'ai', tier: 2, desc: 'Vercel serverless function. Validates Firebase token, proxies to Anthropic API. Rate limiting, cost tracking.', parent: 'core' },
-                { id: 'anthropic', label: 'Anthropic\nClaude Sonnet', group: 'ai', tier: 3, desc: 'Claude Sonnet 4. Resume parsing, purpose generation, JD analysis, cover letter, interview prep.', parent: 'ai-proxy' },
-                
-                // AI Features
-                { id: 'resume-parse', label: 'Resume\nParsing', group: 'ai-feature', tier: 3, desc: 'Extracts profile, skills with evidence, values from uploaded resume. JSON structured output.', parent: 'anthropic' },
-                { id: 'purpose-gen', label: 'Purpose\nGeneration', group: 'ai-feature', tier: 3, desc: 'Generates career purpose statement from skills, values, work history. Regeneratable.', parent: 'anthropic' },
-                { id: 'jd-analysis', label: 'JD\nAnalysis', group: 'ai-feature', tier: 3, desc: 'Parses job descriptions into structured skills, requirements, seniority. Powers pipeline matching.', parent: 'anthropic' },
-                { id: 'cover-letter', label: 'Cover\nLetter', group: 'ai-feature', tier: 3, desc: 'Generates tailored cover letters from profile + job description match data.', parent: 'anthropic' },
-                { id: 'interview-prep', label: 'Interview\nPrep', group: 'ai-feature', tier: 3, desc: 'Behavioral questions, technical topics, gap mitigation strategies based on match analysis.', parent: 'anthropic' },
-                
-                // Deterministic Engines
-                { id: 'skill-engine', label: 'Deterministic\nSkill Engine', group: 'engine', tier: 2, desc: 'Replaces AI skill inference. Title\u2192SOC\u2192skills pool\u2192fuzzy match\u2192level adjust. Zero API cost.', parent: 'core' },
-                { id: 'onet', label: 'O*NET\nCrosswalk', group: 'data-asset', tier: 3, desc: '517 occupations, 20,513 aliases. Skills, abilities, knowledge per SOC code. 6-strategy title resolution.', parent: 'skill-engine' },
-                { id: 'match-engine', label: 'Match\nScoring', group: 'engine', tier: 2, desc: 'Two tiers: quickScoreJob (search results) and matchJobToProfile (pipeline, full gap analysis).', parent: 'core' },
-                { id: 'gap-analysis', label: 'Gap\nAnalysis', group: 'engine', tier: 3, desc: 'Matched/gap/surplus classification. Skill alignment scoring. Powers scouting reports and pipeline.', parent: 'match-engine' },
-                { id: 'scouting-pdf', label: 'PDF\nGenerator', group: 'engine', tier: 3, desc: 'jsPDF-based scouting report. Match rings, skill breakdown, compensation, blind spots. Print-ready.', parent: 'reports' },
-                
-                // Data Assets
-                { id: 'bls-wages', label: 'BLS Wage\nData', group: 'data-asset', tier: 3, desc: '831 occupations with salary ranges. 10th/25th/50th/75th/90th percentiles. Mapped via SOC codes.', parent: 'match-engine' },
-                { id: 'company-values', label: 'Company\nValues DB', group: 'data-asset', tier: 3, desc: '58 companies with mapped values. Used for company culture matching in scouting reports.', parent: 'core' },
-                { id: 'skill-libraries', label: 'Skill\nLibraries', group: 'data-asset', tier: 3, desc: 'O*NET abilities (52), work styles (21), knowledge (33), activities (41), trades (64). Values library (30).', parent: 'skill-engine' },
-                
-                // Job Search APIs
-                { id: 'job-proxy', label: 'Jobs Proxy\n/api/jobs', group: 'jobs-api', tier: 2, desc: 'Vercel serverless. Aggregates JSearch, Remotive, USAJobs, Himalayas, Jobicy. Location + remote filters.', parent: 'jobs' },
-                { id: 'jsearch', label: 'JSearch\nRapidAPI', group: 'jobs-api', tier: 3, desc: 'Primary job source. LinkedIn, Indeed, Glassdoor aggregation. Requires API key.', parent: 'job-proxy' },
-                { id: 'remotive', label: 'Remotive', group: 'jobs-api', tier: 3, desc: 'Remote-only job board. Free API. Technology, marketing, design categories.', parent: 'job-proxy' },
-                { id: 'usajobs', label: 'USAJobs', group: 'jobs-api', tier: 3, desc: 'Federal government positions. Free API with email auth. GS grade levels.', parent: 'job-proxy' },
-                { id: 'himalayas', label: 'Himalayas', group: 'jobs-api', tier: 3, desc: 'Remote job board. Free API. Company profiles with tech stack info.', parent: 'job-proxy' },
-                { id: 'jobicy', label: 'Jobicy', group: 'jobs-api', tier: 3, desc: 'Remote-first job board. Free API. Salary estimates, worldwide positions.', parent: 'job-proxy' },
-                
-                // Monitoring
-                { id: 'health-monitor', label: 'Health\nMonitor', group: 'monitor', tier: 2, desc: 'Passive tracking from all API calls. Active health check button. Per-service TTL-based staleness.', parent: 'admin' },
-                { id: 'incident-log', label: 'Incident\nLog', group: 'monitor', tier: 2, desc: 'Tracks operational failures: API errors, parse failures, credit depletion. Severity, resolution, manage links.', parent: 'admin' },
-                { id: 'cost-tracker', label: 'Cost\nTracker', group: 'monitor', tier: 2, desc: 'Token-level AI usage logging. Infrastructure cost registry. Projection engine for scaling estimates.', parent: 'admin' }
+        function getArchComponents() {
+            // Each component: id, name, layer, col position, color, icon shorthand, detail object
+            return [
+                // ── LAYER 1: FRONTEND VIEWS ──
+                { id: 'welcome', name: 'Welcome Landing', layer: 'frontend', col: 0,
+                  color: '#8b5cf6', icon: 'star',
+                  detail: { desc: 'Public landing page. Animated skill network SVG. CTA to Sign In or demo picker.',
+                    functions: ['renderWelcome()'], lines: '~500-700', route: '#welcome',
+                    inputs: ['URL hash'], outputs: ['View selection', 'Demo trigger'],
+                    deps: ['Firebase Auth'], debt: 'Hero animation could lazy-load' }},
+                { id: 'wizard', name: 'Onboarding Wizard', layer: 'frontend', col: 1,
+                  color: '#8b5cf6', icon: 'compass',
+                  detail: { desc: '9-step guided profile builder. Resume upload, LinkedIn CSV, manual entry. Skill enrichment via O*NET crosswalk.',
+                    functions: ['renderWizardStep1-9()', 'wizardApplyAndLaunch()', 'wizardBuildUserData()', 'inferSkillsDeterministic()'], lines: '~8200-10500', route: '#blueprint (modal)',
+                    inputs: ['Resume file', 'LinkedIn CSVs', 'Manual input'], outputs: ['userData object', 'Firestore save', 'JSON backup'],
+                    deps: ['Anthropic API (resume parse)', 'O*NET Crosswalk', 'Firebase Auth', 'Firestore'], debt: 'Values UI CSS conflict persists on some browsers' }},
+                { id: 'network', name: 'Skills Network', layer: 'frontend', col: 2,
+                  color: '#8b5cf6', icon: 'skills',
+                  detail: { desc: 'D3 force-directed graph. Role clusters, skill nodes sized by level. Job match overlay with gap/surplus colors.',
+                    functions: ['initNetwork()', 'initJobNetwork()', 'initMatchNetwork()', 'initValuesNetwork()'], lines: '~10700-12100', route: '#network',
+                    inputs: ['skillsData', 'savedJobs[].matchData'], outputs: ['Skill modal triggers', 'Job overlay display'],
+                    deps: ['D3.js', 'skillsData', 'userData.roles'], debt: 'Label overlap on dense graphs. Mobile caps at 30 nodes.' }},
+                { id: 'cardview', name: 'Card View', layer: 'frontend', col: 3,
+                  color: '#8b5cf6', icon: 'layers',
+                  detail: { desc: 'Alternative skill display. Filterable cards with proficiency bars, evidence panels, role badges.',
+                    functions: ['initCardView()', 'renderCardView()'], lines: '~12100-12500', route: '#network (Card toggle)',
+                    inputs: ['skillsData'], outputs: ['Skill modal triggers'],
+                    deps: ['skillsData', 'userData.roles'], debt: 'None significant' }},
+                { id: 'jobs', name: 'Jobs Hub', layer: 'frontend', col: 4,
+                  color: '#8b5cf6', icon: 'target',
+                  detail: { desc: 'Pipeline (saved jobs + match analysis), Tracker (application stages), Find Jobs (multi-API search with quickScore).',
+                    functions: ['initOpportunities()', 'renderPipelineTab()', 'renderFindJobs()', 'quickScoreJob()', 'matchJobToProfile()'], lines: '~22000-24000', route: '#opportunities',
+                    inputs: ['Job search APIs', 'skillsData', 'savedJobs'], outputs: ['Saved jobs', 'Match scores', 'Scouting reports'],
+                    deps: ['Jobs proxy API', 'skillsData', 'Match engine'], debt: 'quickScore vs pipeline % gap still visible. Find Jobs count includes all cached.' }},
+                { id: 'blueprint', name: 'Blueprint View', layer: 'frontend', col: 5,
+                  color: '#8b5cf6', icon: 'blueprint',
+                  detail: { desc: 'Career dashboard. Compensation, skill distribution, purpose statement, values, outcomes, skills management, export.',
+                    functions: ['renderBlueprintDashboard()', 'renderSkillsManagementTab()', 'switchBlueprintTab()'], lines: '~14800-16700', route: '#blueprint',
+                    inputs: ['userData', 'skillsData', 'blueprintData', 'BLS wages'], outputs: ['Skill edits', 'Evidence', 'Export HTML/PDF'],
+                    deps: ['Valuation engine', 'BLS wage data', 'blueprintData'], debt: 'Outcomes section needs more guidance' }},
+                { id: 'reports', name: 'Reports Engine', layer: 'frontend', col: 6,
+                  color: '#8b5cf6', icon: 'clipboard',
+                  detail: { desc: 'Scouting report generator. Match rings, skill breakdown, compensation intelligence. PDF via jsPDF + HTML export.',
+                    functions: ['generateScoutingReport()', 'renderScoutingReportPDF()'], lines: '~13500-17300', route: '#reports',
+                    inputs: ['userData', 'savedJob.matchData', 'BLS wages'], outputs: ['PDF file', 'HTML report'],
+                    deps: ['jsPDF', 'Match engine', 'BLS wages'], debt: 'PDF layout breaks on very long skill lists' }},
+                { id: 'admin', name: 'Admin Panel', layer: 'frontend', col: 7,
+                  color: '#8b5cf6', icon: 'settings',
+                  detail: { desc: 'Overview, users, samples, waitlist, config, roadmap, costs, status, architecture. Admin-only access via isAdmin flag.',
+                    functions: ['renderAdminTabContent()', 'switchAdminTab()'], lines: '~2550-4500', route: '#admin',
+                    inputs: ['Firebase admin check', 'localStorage analytics'], outputs: ['Config changes', 'User management'],
+                    deps: ['Firebase Auth (admin flag)', 'Firestore (user docs)'], debt: 'Architecture map needs maintenance process' }},
+
+                // ── LAYER 2: RUNTIME STATE & ENGINES ──
+                { id: 'userdata', name: 'userData', layer: 'runtime', col: 0,
+                  color: '#06b6d4', icon: 'users',
+                  detail: { desc: 'Primary in-memory state object. Profile, skills, roles, values, work history, saved jobs, preferences, education, certs.',
+                    functions: ['userData (global var)', 'saveUserData()', 'loadUserData()'], lines: 'Global ~1200',
+                    inputs: ['Firestore load', 'Wizard build', 'Profile import'], outputs: ['All views read from this', 'Firestore save'],
+                    deps: ['None (root state)'], debt: 'userData vs skillsData vs blueprintData split causes sync bugs. Unification planned.' }},
+                { id: 'skillsdata', name: 'skillsData', layer: 'runtime', col: 1,
+                  color: '#06b6d4', icon: 'skills',
+                  detail: { desc: 'Active skill/role arrays for rendering. Network, card view, matching all read from here. Must stay synced with userData.',
+                    functions: ['skillsData.skills[]', 'skillsData.roles[]', 'skillsData.skillDetails{}'], lines: 'Global ~1210',
+                    inputs: ['userData sync', 'Skill edits'], outputs: ['All skill displays', 'Match scoring'],
+                    deps: ['userData'], debt: 'Dual-write with userData causes drift. Single source of truth needed.' }},
+                { id: 'blueprintdata', name: 'blueprintData', layer: 'runtime', col: 2,
+                  color: '#06b6d4', icon: 'blueprint',
+                  detail: { desc: 'Values array, purpose statement, outcomes array. Blueprint view and scouting reports read from here.',
+                    functions: ['blueprintData.values[]', 'blueprintData.purpose', 'blueprintData.outcomes[]'], lines: 'Global ~1220',
+                    inputs: ['userData sync', 'Values/purpose edits'], outputs: ['Blueprint view', 'Scouting reports'],
+                    deps: ['userData'], debt: 'Same dual-write issue as skillsData' }},
+                { id: 'skill-engine', name: 'Deterministic Skill Engine', layer: 'runtime', col: 3,
+                  color: '#f59e0b', icon: 'compass',
+                  detail: { desc: 'Replaces AI skill inference. Title→SOC→skills pool→fuzzy match→level adjust by seniority+years. Zero API cost.',
+                    functions: ['inferSkillsDeterministic()', 'detectSeniority()', 'adjustLevel()'], lines: '~8000-8200',
+                    inputs: ['LinkedIn skills[]', 'Work history[]', 'Parsed roles[]'], outputs: ['Enriched skills with levels, evidence, categories'],
+                    deps: ['O*NET crosswalk', 'Skill libraries'], debt: 'Fuzzy matching could use Levenshtein distance' }},
+                { id: 'match-engine', name: 'Match Scoring', layer: 'runtime', col: 4,
+                  color: '#f59e0b', icon: 'target',
+                  detail: { desc: 'Two tiers: quickScoreJob (Find Jobs keyword scan, capped 90%) and matchJobToProfile (Pipeline, AI-parsed skill comparison).',
+                    functions: ['quickScoreJob()', 'matchJobToProfile()', 'rescoreAllJobs()'], lines: '~22400-23700',
+                    inputs: ['skillsData', 'Job description text or parsed skills'], outputs: ['Match %', 'Matched/gap/surplus arrays', 'BLS salary'],
+                    deps: ['skillsData', 'BLS wage data', 'O*NET crosswalk'], debt: 'quickScore and pipeline scores diverge. Ideal: single engine.' }},
+                { id: 'valuation', name: 'Valuation Engine', layer: 'runtime', col: 5,
+                  color: '#f59e0b', icon: 'money',
+                  detail: { desc: 'Calculates evidence-based and potential compensation from skill levels, O*NET importance, and BLS wage data.',
+                    functions: ['calculateTotalValue()', 'getEvidenceSummary()', 'calculateUniqueSkillImpact()'], lines: '~6500-6900',
+                    inputs: ['skillsData with levels', 'BLS wage crosswalk', 'User assessments'], outputs: ['Evidence value', 'Potential value', 'Compa ratio'],
+                    deps: ['BLS wages', 'O*NET importance scores'], debt: 'Salary estimates for non-standard roles can be inaccurate' }},
+                { id: 'gap-analysis', name: 'Gap Analysis', layer: 'runtime', col: 6,
+                  color: '#f59e0b', icon: 'shield',
+                  detail: { desc: 'Classifies skills as matched/gap/surplus against job requirements. Powers scouting reports and network overlays.',
+                    functions: ['matchJobToProfile() internals', 'renderMatchOverlay()'], lines: '~22400-22800',
+                    inputs: ['User skills', 'Job parsed skills'], outputs: ['Matched[]', 'Gaps[]', 'Surplus[]', 'Level warnings'],
+                    deps: ['skillsData', 'Parsed job data'], debt: 'None significant' }},
+                { id: 'pdf-gen', name: 'PDF Generator', layer: 'runtime', col: 7,
+                  color: '#f59e0b', icon: 'clipboard',
+                  detail: { desc: 'jsPDF-based scouting report. Match rings, skill breakdown, compensation, blind spots. Print-ready.',
+                    functions: ['renderScoutingReportPDF()', 'jsPDF'], lines: '~17000-17400',
+                    inputs: ['Match data', 'User profile', 'BLS wages'], outputs: ['PDF blob download'],
+                    deps: ['jsPDF library', 'Match engine output'], debt: 'Layout breaks on 40+ skills. Needs pagination.' }},
+
+                // ── LAYER 3: BACKEND SERVICES & PERSISTENCE ──
+                { id: 'firestore', name: 'Firestore Database', layer: 'backend', col: 0,
+                  color: '#10b981', icon: 'save',
+                  detail: { desc: 'Primary persistence. Collection: users/{uid}. Fields: profile, skills, roles, values, purpose, savedJobs, workHistory, etc.',
+                    functions: ['saveToFirestore()', 'loadFromFirestore()', 'fbDb.collection("users")'], lines: '~2215-2350',
+                    inputs: ['userData on save', 'Firebase Auth uid'], outputs: ['Full user profile on load'],
+                    deps: ['Firebase SDK', 'Firebase Auth'], debt: 'templateId guard was blocking wizard saves (fixed v4.42.2). No offline sync.' }},
+                { id: 'firebase-auth', name: 'Firebase Auth', layer: 'backend', col: 1,
+                  color: '#10b981', icon: 'lock',
+                  detail: { desc: 'Google sign-in provider. Token-based auth for API proxy. Provides uid, displayName, photoURL, email.',
+                    functions: ['firebase.auth().signInWithPopup()', 'onAuthStateChanged()', 'fbUser'], lines: '~2100-2200',
+                    inputs: ['Google OAuth'], outputs: ['fbUser object', 'Auth token for API proxy'],
+                    deps: ['Firebase SDK', 'Google Cloud project'], debt: 'No email/password or other providers yet' }},
+                { id: 'localstorage', name: 'localStorage Cache', layer: 'backend', col: 2,
+                  color: '#10b981', icon: 'save',
+                  detail: { desc: '~15 keys: preferences, theme, API health, incident log, cost tracking, analytics, job seen IDs, roadmap state.',
+                    functions: ['safeSet()', 'safeGet()', 'localStorage keys: bp*'], lines: '~1250-1280',
+                    inputs: ['Various subsystem writes'], outputs: ['Persistent preferences', 'Analytics data'],
+                    deps: ['Browser localStorage API'], debt: 'No size monitoring. Could exceed 5MB on heavy usage.' }},
+                { id: 'ai-proxy', name: 'AI Proxy /api/ai.js', layer: 'backend', col: 3,
+                  color: '#ef4444', icon: 'external',
+                  detail: { desc: 'Vercel serverless function. Validates Firebase token, proxies to Anthropic Claude. Rate limiting, cost tracking per feature.',
+                    functions: ['callAnthropicAPI()', '/api/ai.js (serverless)'], lines: 'Serverless + ~7000-7100',
+                    inputs: ['Feature tag', 'Prompt', 'Firebase token'], outputs: ['Claude response JSON'],
+                    deps: ['Vercel', 'Anthropic API key', 'Firebase Admin SDK'], debt: 'Rate limit is per-user but not enforced server-side. $0.07/resume parse.' }},
+                { id: 'job-proxy', name: 'Jobs Proxy /api/jobs', layer: 'backend', col: 4,
+                  color: '#ef4444', icon: 'external',
+                  detail: { desc: 'Vercel serverless aggregator. Merges JSearch, Remotive, USAJobs, Himalayas, Jobicy. Location + remote filters. Firestore cache.',
+                    functions: ['/api/jobs.js (serverless)', 'fetchCachedJobs()', 'loadJobsFromFirestore()'], lines: 'Serverless + ~22000-22300',
+                    inputs: ['Search keywords', 'Category', 'Location'], outputs: ['Normalized job listings[]'],
+                    deps: ['Vercel', 'JSearch API key', 'USAJobs email', 'Firestore job cache'], debt: 'JSearch costs ~$30/mo at Pro. Free APIs have limited coverage.' }},
+                { id: 'health-monitor', name: 'Health Monitor', layer: 'backend', col: 5,
+                  color: '#6366f1', icon: 'shield',
+                  detail: { desc: 'Passive tracking from all API calls via recordApiHealth(). Active health check button. Per-service TTL staleness.',
+                    functions: ['recordApiHealth()', 'renderAdminStatus()', 'activeHealthCheck()'], lines: '~3900-4150',
+                    inputs: ['API call results (success/fail)'], outputs: ['Status dashboard', 'Staleness indicators'],
+                    deps: ['localStorage (bpApiHealth)'], debt: 'No alerting. No uptime history beyond current session.' }},
+                { id: 'incident-log', name: 'Incident Log', layer: 'backend', col: 6,
+                  color: '#6366f1', icon: 'shield',
+                  detail: { desc: 'Operational failure tracking. Severity levels: critical/warning/info. 9 instrumented failure points. Cap at 50 entries.',
+                    functions: ['logIncident()', 'resolveIncidents()', 'clearIncidentLog()', 'getIncidentLog()'], lines: '~4050-4150',
+                    inputs: ['Error events from API calls, parse failures'], outputs: ['Incident cards in admin Status tab'],
+                    deps: ['localStorage (bpIncidentLog)'], debt: 'No persistence beyond localStorage. No email/Slack alerts.' }},
+                { id: 'cost-tracker', name: 'Cost Tracker', layer: 'backend', col: 7,
+                  color: '#6366f1', icon: 'money',
+                  detail: { desc: 'Token-level AI usage logging. Infrastructure cost registry ($49.67/mo total). Projection engine for scaling estimates.',
+                    functions: ['renderAdminCosts()', 'AI_FEATURES cost registry', 'INFRASTRUCTURE_COSTS[]'], lines: '~4480-4700',
+                    inputs: ['AI API call logs from localStorage'], outputs: ['Cost dashboard', 'Scaling projections'],
+                    deps: ['localStorage (bpAIUsageLog)'], debt: 'Cost projections assume linear scaling. No actual billing integration.' }},
+
+                // ── LAYER 4: EXTERNAL APIs & DATA ASSETS ──
+                { id: 'anthropic', name: 'Anthropic Claude Sonnet', layer: 'external', col: 0,
+                  color: '#ef4444', icon: 'external',
+                  detail: { desc: 'Claude Sonnet 4. Features: resume parse, purpose gen, JD analysis, cover letter, interview prep. $3 input / $15 output per M tokens.',
+                    functions: ['callAnthropicAPI() → /api/ai.js → api.anthropic.com'], lines: 'External',
+                    inputs: ['Prompt + feature tag'], outputs: ['Structured JSON response'],
+                    deps: ['Anthropic API key ($30 prepaid)', 'AI proxy'], debt: '$0.07/resume parse. Credits deplete without warning.' }},
+                { id: 'onet', name: 'O*NET Crosswalk', layer: 'external', col: 1,
+                  color: '#84cc16', icon: 'compass',
+                  detail: { desc: '517 occupations, 20,513 title aliases. Skills, abilities, knowledge per SOC code. 6-strategy title resolution chain.',
+                    functions: ['ONET_OCCUPATIONS[]', 'ONET_CROSSWALK{}', 'resolveOccupation()'], lines: '~7300-8000 (data tables)',
+                    inputs: ['Job title string'], outputs: ['SOC code', 'Skills pool with importance/level'],
+                    deps: ['Embedded data (no API call)'], debt: 'Data is from O*NET 28.1. Should update annually.' }},
+                { id: 'bls-wages', name: 'BLS Wage Data', layer: 'external', col: 2,
+                  color: '#84cc16', icon: 'money',
+                  detail: { desc: '831 occupations with salary percentiles (10th/25th/50th/75th/90th). Mapped via SOC codes. BLS May 2024.',
+                    functions: ['BLS_WAGES{}', 'getBLSWage()'], lines: '~6300-6500 (data table)',
+                    inputs: ['SOC code from O*NET match'], outputs: ['Salary range object'],
+                    deps: ['Embedded data (no API call)'], debt: 'Data is BLS May 2024. Should refresh annually.' }},
+                { id: 'skill-libs', name: 'Skill Libraries', layer: 'external', col: 3,
+                  color: '#84cc16', icon: 'layers',
+                  detail: { desc: 'O*NET abilities (52), work styles (21), knowledge (33), activities (41), trades (64). Values library (30). Total ~14,000+ skills.',
+                    functions: ['SKILL_CATEGORIES{}', 'VALUES_LIBRARY[]', 'ESCO crosswalk data'], lines: '~5000-6300',
+                    inputs: ['Skill name queries'], outputs: ['Category, description, related skills'],
+                    deps: ['Embedded data'], debt: 'ESCO mapping incomplete for some specialties' }},
+                { id: 'company-values', name: 'Company Values DB', layer: 'external', col: 4,
+                  color: '#84cc16', icon: 'users',
+                  detail: { desc: '58 companies with mapped values (primary + secondary). Powers values network overlay for culture matching.',
+                    functions: ['COMPANY_VALUES{}'], lines: '~11700-11900',
+                    inputs: ['Company name'], outputs: ['Primary values[]', 'Secondary values[]'],
+                    deps: ['Embedded data'], debt: 'Only 58 companies. Needs expansion. Values are subjective.' }},
+                { id: 'jsearch', name: 'JSearch (RapidAPI)', layer: 'external', col: 5,
+                  color: '#ec4899', icon: 'external',
+                  detail: { desc: 'Primary job source. Aggregates LinkedIn, Indeed, Glassdoor. Pro plan: 10K calls/mo ($30/mo). A/B query rotation.',
+                    functions: ['fetchJSearchJobs()', '/api/jobs.js proxy'], lines: 'Serverless',
+                    inputs: ['Keywords', 'Location', 'Page'], outputs: ['Job listings with title, company, description, salary'],
+                    deps: ['RapidAPI key', 'Jobs proxy'], debt: 'Rate limit causes 429 errors during bulk fetch. A/B rotation helps.' }},
+                { id: 'free-apis', name: 'Free Job APIs', layer: 'external', col: 6,
+                  color: '#ec4899', icon: 'external',
+                  detail: { desc: 'Remotive (remote tech), USAJobs (federal), Himalayas (remote global), Jobicy (remote-first). No API keys needed (except USAJobs email).',
+                    functions: ['fetchRemotiveJobs2()', 'fetchHimalayasJobs()', 'fetchJobicyJobs()'], lines: '~23700-24200',
+                    inputs: ['Keywords', 'Category'], outputs: ['Job listings (varied formats, normalized)'],
+                    deps: ['CORS proxy for some', 'USAJobs requires email header'], debt: 'Coverage is spotty. Remotive only remote tech. USAJobs only federal.' }},
+                { id: 'firebase-sdk', name: 'Firebase SDK', layer: 'external', col: 7,
+                  color: '#10b981', icon: 'external',
+                  detail: { desc: 'Firebase JS SDK v9 compat. Auth, Firestore, Analytics. CDN-loaded. Project: blueprint-career.',
+                    functions: ['firebase.initializeApp()', 'firebase.auth()', 'firebase.firestore()'], lines: 'CDN + ~2050-2100',
+                    inputs: ['Firebase config object'], outputs: ['Auth state', 'Firestore client', 'Analytics'],
+                    deps: ['Google Cloud project', 'CDN availability'], debt: 'Using compat layer. Should migrate to modular SDK for tree-shaking.' }}
             ];
-            
-            var edges = [];
-            nodes.forEach(function(n) {
-                if (n.parent) edges.push({ source: n.parent, target: n.id, type: 'contains' });
-            });
-            // Data flow edges
-            var flows = [
-                ['wizard', 'firestore', 'saves profile'],
-                ['wizard', 'skill-engine', 'LinkedIn skills'],
-                ['wizard', 'anthropic', 'resume parse'],
-                ['firestore', 'userdata', 'loads on auth'],
-                ['userdata', 'skillsdata', 'sync skills'],
-                ['userdata', 'blueprintdata', 'sync values'],
-                ['network', 'skillsdata', 'reads skills'],
-                ['jobs', 'match-engine', 'score jobs'],
-                ['match-engine', 'skillsdata', 'reads user skills'],
-                ['match-engine', 'bls-wages', 'salary lookup'],
-                ['reports', 'gap-analysis', 'match data'],
-                ['reports', 'scouting-pdf', 'generates PDF'],
-                ['firebase-auth', 'ai-proxy', 'token validation'],
-                ['health-monitor', 'localstorage', 'persists status'],
-                ['incident-log', 'localstorage', 'persists log'],
-                ['skill-engine', 'onet', 'title resolution'],
-                ['skill-engine', 'skill-libraries', 'enrichment']
-            ];
-            flows.forEach(function(f) {
-                edges.push({ source: f[0], target: f[1], type: 'flow', label: f[2] });
-            });
-            
-            return { nodes: nodes, edges: edges };
         }
+        
+        function getArchFlows() {
+            // [sourceId, targetId, label, style]
+            return [
+                ['wizard', 'firestore', 'saves profile', 'data'],
+                ['wizard', 'skill-engine', 'LinkedIn skills', 'data'],
+                ['wizard', 'anthropic', 'resume parse', 'api'],
+                ['firestore', 'userdata', 'loads on auth', 'data'],
+                ['userdata', 'skillsdata', 'syncs skills', 'sync'],
+                ['userdata', 'blueprintdata', 'syncs values', 'sync'],
+                ['network', 'skillsdata', 'reads', 'read'],
+                ['cardview', 'skillsdata', 'reads', 'read'],
+                ['jobs', 'match-engine', 'score jobs', 'data'],
+                ['jobs', 'job-proxy', 'search', 'api'],
+                ['match-engine', 'skillsdata', 'reads user skills', 'read'],
+                ['match-engine', 'bls-wages', 'salary lookup', 'read'],
+                ['blueprint', 'valuation', 'comp calc', 'data'],
+                ['reports', 'gap-analysis', 'match data', 'data'],
+                ['reports', 'pdf-gen', 'generates', 'data'],
+                ['firebase-auth', 'ai-proxy', 'token validation', 'api'],
+                ['firebase-auth', 'firestore', 'auth gate', 'api'],
+                ['ai-proxy', 'anthropic', 'proxies', 'api'],
+                ['job-proxy', 'jsearch', 'fetches', 'api'],
+                ['job-proxy', 'free-apis', 'fetches', 'api'],
+                ['skill-engine', 'onet', 'title→SOC', 'read'],
+                ['valuation', 'bls-wages', 'salary data', 'read'],
+                ['health-monitor', 'localstorage', 'persists', 'data'],
+                ['incident-log', 'localstorage', 'persists', 'data']
+            ];
+        }
+        
+        var archLayerMeta = {
+            frontend: { label: 'Frontend Views', color: '#8b5cf6', bg: 'rgba(139,92,246,0.06)', border: 'rgba(139,92,246,0.2)' },
+            runtime:  { label: 'Runtime State & Engines', color: '#06b6d4', bg: 'rgba(6,182,212,0.06)', border: 'rgba(6,182,212,0.2)' },
+            backend:  { label: 'Backend Services & Persistence', color: '#10b981', bg: 'rgba(16,185,129,0.06)', border: 'rgba(16,185,129,0.2)' },
+            external: { label: 'External APIs & Data Assets', color: '#f59e0b', bg: 'rgba(245,158,11,0.06)', border: 'rgba(245,158,11,0.2)' }
+        };
         
         function renderAdminArchitecture(el) {
-            var data = getArchitectureData();
+            var components = getArchComponents();
+            var layers = ['frontend', 'runtime', 'backend', 'external'];
             
-            var groupColors = {
-                core: '#3b82f6',
-                view: '#8b5cf6',
-                data: '#10b981',
-                runtime: '#06b6d4',
-                ai: '#ef4444',
-                'ai-feature': '#f97316',
-                engine: '#f59e0b',
-                'data-asset': '#84cc16',
-                'jobs-api': '#ec4899',
-                monitor: '#6366f1'
-            };
-            var groupLabels = {
-                core: 'Core Platform',
-                view: 'Frontend Views',
-                data: 'Persistence',
-                runtime: 'Runtime State',
-                ai: 'AI Services',
-                'ai-feature': 'AI Features',
-                engine: 'Deterministic Engines',
-                'data-asset': 'Data Assets',
-                'jobs-api': 'Job Search APIs',
-                monitor: 'Monitoring'
-            };
-            
-            el.innerHTML = '<div style="margin-bottom:14px;">'
-                + '<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:12px;">'
+            var html = '';
+            // Header
+            html += '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">'
                 + '<div style="font-size:1.1em; font-weight:700; color:var(--text-primary);">'
-                + bpIcon('compass',18) + ' Platform Architecture</div>'
-                + '<div style="display:flex; gap:6px; flex-wrap:wrap;">'
-                + '<button onclick="archResetZoom()" style="padding:4px 12px; background:var(--input-bg); color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.75em;">Reset View</button>'
-                + '<button onclick="archToggleLabels()" style="padding:4px 12px; background:var(--input-bg); color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.75em;">Toggle Labels</button>'
-                + '</div></div>'
-                + '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;">'
-                + Object.keys(groupColors).map(function(g) {
-                    return '<span style="display:inline-flex; align-items:center; gap:4px; font-size:0.7em; color:var(--text-muted);">'
-                        + '<span style="width:8px; height:8px; border-radius:50%; background:' + groupColors[g] + ';"></span>'
-                        + (groupLabels[g] || g) + '</span>';
-                }).join('')
-                + '</div></div>'
-                + '<div id="archContainer" style="width:100%; height:600px; background:var(--bg-base, #0b1120); border:1px solid var(--border); border-radius:12px; overflow:hidden; position:relative;"></div>'
-                + '<div id="archDetail" style="display:none; margin-top:12px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px; padding:16px;"></div>';
+                + bpIcon('compass',18) + ' Platform Architecture <span style="font-size:0.7em; font-weight:400; color:var(--text-muted);">v4.43 \u00B7 29K lines \u00B7 ' + components.length + ' components</span></div>'
+                + '</div>';
             
-            // Build D3 visualization
-            setTimeout(function() { initArchGraph(data, groupColors); }, 50);
+            // Note
+            html += '<div style="font-size:0.75em; color:var(--text-muted); margin-bottom:16px; padding:8px 12px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px;">'
+                + '\u26A0 <strong>Maintenance required:</strong> Update this map when adding/modifying components. See roadmap item p2-3q.'
+                + '</div>';
+            
+            // Layers
+            layers.forEach(function(layerId) {
+                var meta = archLayerMeta[layerId];
+                var layerComps = components.filter(function(c) { return c.layer === layerId; });
+                
+                html += '<div style="margin-bottom:12px; border:1px solid ' + meta.border + '; border-radius:10px; overflow:hidden;">';
+                // Lane header
+                html += '<div style="padding:8px 14px; background:' + meta.bg + '; border-bottom:1px solid ' + meta.border + '; display:flex; align-items:center; gap:8px;">'
+                    + '<div style="width:10px; height:10px; border-radius:50%; background:' + meta.color + ';"></div>'
+                    + '<span style="font-weight:700; font-size:0.82em; color:' + meta.color + '; text-transform:uppercase; letter-spacing:0.5px;">' + meta.label + '</span>'
+                    + '<span style="font-size:0.7em; color:var(--text-muted); margin-left:auto;">' + layerComps.length + ' components</span>'
+                    + '</div>';
+                
+                // Component cards grid
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:8px; padding:10px;">';
+                layerComps.forEach(function(comp) {
+                    html += '<div onclick="archShowDetail(\'' + comp.id + '\')" id="arch-card-' + comp.id + '" '
+                        + 'style="padding:10px; border-radius:8px; cursor:pointer; text-align:center; transition:all 0.15s; '
+                        + 'background:var(--bg-elevated); border:1.5px solid var(--border); '
+                        + 'min-height:60px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;">'
+                        + '<div style="width:28px; height:28px; border-radius:8px; background:' + comp.color + '20; display:flex; align-items:center; justify-content:center;">'
+                        + '<span style="font-size:12px;">' + bpIcon(comp.icon, 14) + '</span></div>'
+                        + '<div style="font-size:0.72em; font-weight:600; color:var(--text-primary); line-height:1.2;">' + comp.name + '</div>'
+                        + '</div>';
+                });
+                html += '</div></div>';
+            });
+            
+            // Detail panel (hidden until click)
+            html += '<div id="archDetailPanel" style="display:none; margin-top:12px;"></div>';
+            
+            el.innerHTML = html;
         }
         
-        var archShowLabels = true;
-        var archSvg = null;
-        var archZoom = null;
-        
-        function archToggleLabels() {
-            archShowLabels = !archShowLabels;
-            if (archSvg) {
-                archSvg.selectAll('.arch-label').style('display', archShowLabels ? 'block' : 'none');
+        function archShowDetail(compId) {
+            var components = getArchComponents();
+            var comp = components.find(function(c) { return c.id === compId; });
+            if (!comp || !comp.detail) return;
+            
+            var d = comp.detail;
+            var meta = archLayerMeta[comp.layer];
+            
+            // Highlight selected card
+            document.querySelectorAll('[id^="arch-card-"]').forEach(function(el) {
+                el.style.borderColor = 'var(--border)';
+                el.style.background = 'var(--bg-elevated)';
+            });
+            var card = document.getElementById('arch-card-' + compId);
+            if (card) {
+                card.style.borderColor = comp.color;
+                card.style.background = comp.color + '10';
+            }
+            
+            // Find connected flows
+            var flows = getArchFlows();
+            var incoming = flows.filter(function(f) { return f[1] === compId; });
+            var outgoing = flows.filter(function(f) { return f[0] === compId; });
+            
+            var html = '<div style="border:2px solid ' + comp.color + '; border-radius:12px; overflow:hidden;">';
+            
+            // Header
+            html += '<div style="padding:14px 18px; background:' + comp.color + '12; border-bottom:1px solid ' + comp.color + '30; display:flex; align-items:center; gap:12px;">'
+                + '<div style="width:36px; height:36px; border-radius:10px; background:' + comp.color + '25; display:flex; align-items:center; justify-content:center;">'
+                + bpIcon(comp.icon, 18) + '</div>'
+                + '<div><div style="font-weight:700; font-size:1em; color:var(--text-primary);">' + comp.name + '</div>'
+                + '<div style="display:flex; gap:6px; margin-top:3px;">'
+                + '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:' + meta.color + '20; color:' + meta.color + ';">' + meta.label + '</span>'
+                + (d.route ? '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:var(--bg-base); color:var(--text-muted);">' + d.route + '</span>' : '')
+                + (d.lines ? '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:var(--bg-base); color:var(--text-muted);">' + d.lines + '</span>' : '')
+                + '</div></div>'
+                + '<button onclick="document.getElementById(\'archDetailPanel\').style.display=\'none\'; document.querySelectorAll(\'[id^=arch-card-]\').forEach(function(e){e.style.borderColor=\'var(--border)\';e.style.background=\'var(--bg-elevated)\';})" '
+                + 'style="margin-left:auto; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2em;">\u2715</button>'
+                + '</div>';
+            
+            // Body
+            html += '<div style="padding:14px 18px; display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:0.82em;">';
+            
+            // Description
+            html += '<div style="grid-column:1/-1; color:var(--text-secondary); line-height:1.5; margin-bottom:4px;">' + d.desc + '</div>';
+            
+            // Functions
+            html += '<div><div style="font-weight:700; color:var(--accent); margin-bottom:4px; font-size:0.9em;">Key Functions</div>'
+                + '<div style="font-family:monospace; font-size:0.85em; color:var(--text-secondary); line-height:1.7;">'
+                + d.functions.map(function(f) { return '<div style="padding:1px 6px; background:var(--bg-base); border-radius:4px; display:inline-block; margin:1px 0;">' + escapeHtml(f) + '</div>'; }).join('<br>')
+                + '</div></div>';
+            
+            // Dependencies
+            html += '<div><div style="font-weight:700; color:var(--accent); margin-bottom:4px; font-size:0.9em;">Dependencies</div>'
+                + '<div style="color:var(--text-secondary); line-height:1.7;">'
+                + (Array.isArray(d.deps) ? d.deps : [d.deps]).map(function(dep) { return '\u2192 ' + dep; }).join('<br>')
+                + '</div></div>';
+            
+            // Inputs
+            html += '<div><div style="font-weight:700; color:#10b981; margin-bottom:4px; font-size:0.9em;">Inputs</div>'
+                + '<div style="color:var(--text-secondary); line-height:1.7;">'
+                + d.inputs.map(function(inp) { return '\u25B6 ' + inp; }).join('<br>')
+                + '</div></div>';
+            
+            // Outputs
+            html += '<div><div style="font-weight:700; color:#f59e0b; margin-bottom:4px; font-size:0.9em;">Outputs</div>'
+                + '<div style="color:var(--text-secondary); line-height:1.7;">'
+                + d.outputs.map(function(out) { return '\u25C0 ' + out; }).join('<br>')
+                + '</div></div>';
+            
+            // Data flows
+            if (incoming.length > 0 || outgoing.length > 0) {
+                html += '<div style="grid-column:1/-1; border-top:1px solid var(--border); padding-top:10px; margin-top:4px;">'
+                    + '<div style="font-weight:700; color:var(--accent); margin-bottom:6px; font-size:0.9em;">Data Flows</div>'
+                    + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+                incoming.forEach(function(f) {
+                    html += '<span style="font-size:0.78em; padding:3px 8px; border-radius:6px; background:rgba(16,185,129,0.1); color:#10b981; border:1px solid rgba(16,185,129,0.2);">'
+                        + f[0] + ' \u2192 <strong>' + f[2] + '</strong></span>';
+                });
+                outgoing.forEach(function(f) {
+                    html += '<span style="font-size:0.78em; padding:3px 8px; border-radius:6px; background:rgba(245,158,11,0.1); color:#f59e0b; border:1px solid rgba(245,158,11,0.2);">'
+                        + '<strong>' + f[2] + '</strong> \u2192 ' + f[1] + '</span>';
+                });
+                html += '</div></div>';
+            }
+            
+            // Tech debt
+            if (d.debt) {
+                html += '<div style="grid-column:1/-1; border-top:1px solid var(--border); padding-top:10px; margin-top:4px;">'
+                    + '<div style="font-weight:700; color:#ef4444; margin-bottom:4px; font-size:0.9em;">\u26A0 Tech Debt / Gotchas</div>'
+                    + '<div style="color:var(--text-secondary); font-size:0.9em;">' + d.debt + '</div>'
+                    + '</div>';
+            }
+            
+            html += '</div></div>';
+            
+            var panel = document.getElementById('archDetailPanel');
+            if (panel) {
+                panel.innerHTML = html;
+                panel.style.display = 'block';
+                panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
         }
-        window.archToggleLabels = archToggleLabels;
+        window.archShowDetail = archShowDetail;
         
-        function archResetZoom() {
-            if (archSvg && archZoom) {
-                archSvg.transition().duration(500).call(archZoom.transform, d3.zoomIdentity);
-            }
-        }
-        window.archResetZoom = archResetZoom;
-        
-        function initArchGraph(data, groupColors) {
-            var container = document.getElementById('archContainer');
-            if (!container || typeof d3 === 'undefined') return;
-            
-            var width = container.clientWidth;
-            var height = container.clientHeight || 600;
-            
-            // Clear
-            container.innerHTML = '';
-            
-            var svg = d3.select(container).append('svg')
-                .attr('width', width).attr('height', height)
-                .style('font-family', 'Outfit, sans-serif');
-            archSvg = svg;
-            
-            var g = svg.append('g');
-            
-            // Zoom
-            archZoom = d3.zoom()
-                .scaleExtent([0.3, 4])
-                .on('zoom', function(event) { g.attr('transform', event.transform); });
-            svg.call(archZoom);
-            
-            // Arrow marker for flow edges
-            svg.append('defs').append('marker')
-                .attr('id', 'arch-arrow')
-                .attr('viewBox', '0 -5 10 10')
-                .attr('refX', 20).attr('refY', 0)
-                .attr('markerWidth', 6).attr('markerHeight', 6)
-                .attr('orient', 'auto')
-                .append('path').attr('d', 'M0,-5L10,0L0,5')
-                .attr('fill', 'rgba(255,255,255,0.15)');
-            
-            // Size nodes by tier
-            var tierSizes = { 0: 40, 1: 22, 2: 16, 3: 12 };
-            
-            // Force simulation
-            var simulation = d3.forceSimulation(data.nodes)
-                .force('link', d3.forceLink(data.edges).id(function(d) { return d.id; }).distance(function(d) {
-                    return d.type === 'flow' ? 120 : 70;
-                }).strength(function(d) { return d.type === 'flow' ? 0.1 : 0.4; }))
-                .force('charge', d3.forceManyBody().strength(function(d) {
-                    return d.tier === 0 ? -600 : d.tier === 1 ? -200 : -100;
-                }))
-                .force('center', d3.forceCenter(width / 2, height / 2))
-                .force('collision', d3.forceCollide().radius(function(d) { return (tierSizes[d.tier] || 14) + 10; }));
-            
-            // Draw edges
-            var links = g.append('g').selectAll('line')
-                .data(data.edges).enter().append('line')
-                .attr('stroke', function(d) { return d.type === 'flow' ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)'; })
-                .attr('stroke-width', function(d) { return d.type === 'flow' ? 1.5 : 0.8; })
-                .attr('stroke-dasharray', function(d) { return d.type === 'flow' ? '4,3' : 'none'; })
-                .attr('marker-end', function(d) { return d.type === 'flow' ? 'url(#arch-arrow)' : ''; });
-            
-            // Draw nodes
-            var nodeG = g.append('g').selectAll('g')
-                .data(data.nodes).enter().append('g')
-                .style('cursor', 'pointer')
-                .call(d3.drag()
-                    .on('start', function(event, d) { if (!event.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
-                    .on('drag', function(event, d) { d.fx = event.x; d.fy = event.y; })
-                    .on('end', function(event, d) { if (!event.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
-                )
-                .on('click', function(event, d) {
-                    event.stopPropagation();
-                    archSelectedNode = d;
-                    // Highlight connected
-                    var connected = {};
-                    connected[d.id] = true;
-                    data.edges.forEach(function(e) {
-                        var sid = typeof e.source === 'object' ? e.source.id : e.source;
-                        var tid = typeof e.target === 'object' ? e.target.id : e.target;
-                        if (sid === d.id) connected[tid] = true;
-                        if (tid === d.id) connected[sid] = true;
-                    });
-                    nodeG.selectAll('circle').attr('opacity', function(n) { return connected[n.id] ? 1 : 0.15; });
-                    nodeG.selectAll('text').attr('opacity', function(n) { return connected[n.id] ? 1 : 0.1; });
-                    links.attr('opacity', function(e) {
-                        var sid = typeof e.source === 'object' ? e.source.id : e.source;
-                        var tid = typeof e.target === 'object' ? e.target.id : e.target;
-                        return (sid === d.id || tid === d.id) ? 0.8 : 0.05;
-                    });
-                    // Show detail panel
-                    var detail = document.getElementById('archDetail');
-                    if (detail) {
-                        var color = groupColors[d.group] || '#666';
-                        detail.style.display = 'block';
-                        detail.style.borderColor = color;
-                        detail.innerHTML = '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">'
-                            + '<div style="width:12px; height:12px; border-radius:50%; background:' + color + ';"></div>'
-                            + '<span style="font-weight:700; color:var(--text-primary); font-size:0.95em;">' + escapeHtml(d.label.replace(/\n/g, ' ')) + '</span>'
-                            + '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:' + color + '20; color:' + color + ';">' + (groupLabels[d.group] || d.group) + '</span>'
-                            + (d.lines ? '<span style="font-size:0.72em; color:var(--text-muted);">' + d.lines + ' lines</span>' : '')
-                            + '</div>'
-                            + '<div style="font-size:0.84em; color:var(--text-secondary); line-height:1.6;">' + escapeHtml(d.desc) + '</div>'
-                            + '<div style="margin-top:8px; font-size:0.72em; color:var(--text-muted);">ID: ' + d.id + ' \u00B7 Tier ' + d.tier + '</div>';
-                    }
-                });
-            
-            // Click background to reset
-            svg.on('click', function() {
-                archSelectedNode = null;
-                nodeG.selectAll('circle').attr('opacity', 1);
-                nodeG.selectAll('text').attr('opacity', 1);
-                links.attr('opacity', function(d) { return d.type === 'flow' ? 0.4 : 0.15; });
-                var detail = document.getElementById('archDetail');
-                if (detail) detail.style.display = 'none';
-            });
-            
-            // Node circles
-            nodeG.append('circle')
-                .attr('r', function(d) { return tierSizes[d.tier] || 14; })
-                .attr('fill', function(d) { return groupColors[d.group] || '#666'; })
-                .attr('stroke', function(d) { return d.tier === 0 ? '#fff' : 'rgba(255,255,255,0.2)'; })
-                .attr('stroke-width', function(d) { return d.tier === 0 ? 3 : 1; })
-                .attr('opacity', 0.9);
-            
-            // Node labels
-            nodeG.append('text')
-                .attr('class', 'arch-label')
-                .attr('text-anchor', 'middle')
-                .attr('fill', '#e2e8f0')
-                .attr('font-size', function(d) { return d.tier === 0 ? '10px' : d.tier === 1 ? '8px' : '7px'; })
-                .attr('font-weight', function(d) { return d.tier <= 1 ? '700' : '500'; })
-                .attr('pointer-events', 'none')
-                .each(function(d) {
-                    var lines = d.label.split('\n');
-                    var el = d3.select(this);
-                    lines.forEach(function(line, i) {
-                        el.append('tspan')
-                            .attr('x', 0)
-                            .attr('dy', i === 0 ? (-((lines.length - 1) * 5)) + 'px' : '11px')
-                            .text(line);
-                    });
-                });
-            
-            // Tick
-            simulation.on('tick', function() {
-                links.attr('x1', function(d) { return d.source.x; })
-                    .attr('y1', function(d) { return d.source.y; })
-                    .attr('x2', function(d) { return d.target.x; })
-                    .attr('y2', function(d) { return d.target.y; });
-                nodeG.attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
-            });
-            
-            // Initial zoom to fit
-            simulation.on('end', function() {
-                var bounds = g.node().getBBox();
-                var scale = Math.min(width / (bounds.width + 80), height / (bounds.height + 80), 1.2);
-                var tx = (width - bounds.width * scale) / 2 - bounds.x * scale;
-                var ty = (height - bounds.height * scale) / 2 - bounds.y * scale;
-                svg.transition().duration(600).call(archZoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
-            });
-        }
         
         // ===== ADMIN COSTS DASHBOARD =====
         var costsTimeRange = 30; // days
