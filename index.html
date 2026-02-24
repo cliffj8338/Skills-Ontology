@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.40.1 | 20260223 | Fix: surface actual Anthropic error messages on proxy 4xx responses -->
+    <!-- v4.40.3 | 20260223 | Fix: Sonnet 4 output cost $3→$15/M tokens in cost dashboard -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.40.1 - BUILD 20260223-fix-proxy-errors
-        var BP_VERSION = 'v4.40.1';
+        // BLUEPRINT v4.40.3 - BUILD 20260223-fix-cost-pricing
+        var BP_VERSION = 'v4.40.3';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1267,7 +1267,7 @@
         
         // Sonnet 4 pricing ($ per million tokens)
         var AI_INPUT_COST_PER_M = 3.0;
-        var AI_OUTPUT_COST_PER_M = 3.0;
+        var AI_OUTPUT_COST_PER_M = 15.0;
         
         // Usage log: { 'YYYY-MM-DD': { 'feature-tag': count, ... }, ... }
         function getAIUsageLog() {
@@ -1292,6 +1292,7 @@
                 try { idToken = await firebase.auth().currentUser.getIdToken(); } catch (e) {}
             }
             if (idToken && AI_PROXY_AVAILABLE !== false) {
+                var proxyApiError = null;
                 try {
                     var proxyRes = await fetch(AI_PROXY_URL, {
                         method: 'POST',
@@ -1300,19 +1301,21 @@
                     });
                     if (proxyRes.ok) { AI_PROXY_AVAILABLE = true; return await proxyRes.json(); }
                     if (proxyRes.status === 429) { AI_PROXY_AVAILABLE = true; throw new Error('Rate limit exceeded. Please wait a moment.'); }
-                    // Surface actual error from proxy/Anthropic for 4xx errors
+                    // Capture actual error from proxy/Anthropic for 4xx errors
                     if (proxyRes.status >= 400 && proxyRes.status < 500) {
                         AI_PROXY_AVAILABLE = true;
                         var errBody = {}; try { errBody = await proxyRes.json(); } catch(e) {}
                         var errMsg = (errBody.error && typeof errBody.error === 'object' ? errBody.error.message : errBody.error) || 'AI request failed (status ' + proxyRes.status + ')';
                         console.error('AI Proxy ' + proxyRes.status + ':', errMsg, errBody);
-                        throw new Error(errMsg);
+                        proxyApiError = new Error(errMsg);
                     }
-                    if (proxyRes.status === 500) AI_PROXY_AVAILABLE = false;
+                    if (proxyRes.status >= 500) AI_PROXY_AVAILABLE = false;
                 } catch (e) {
-                    if (e.message.includes('Rate limit') || e.message.includes('AI request') || e.message.includes('Invalid') || e.message.includes('not found') || e.message.includes('overloaded')) throw e;
+                    if (e.message.includes('Rate limit')) throw e;
                     if (AI_PROXY_AVAILABLE === null) AI_PROXY_AVAILABLE = false;
                 }
+                // Throw 4xx errors after catch so they propagate to the caller
+                if (proxyApiError) throw proxyApiError;
             }
             if (!userApiKey) throw new Error('AI features require sign-in or an API key in Settings.');
             var directRes = await fetch('https://api.anthropic.com/v1/messages', {
@@ -4027,6 +4030,7 @@
             // ===== INFRASTRUCTURE COSTS =====
             var INFRASTRUCTURE = [
                 { name: 'Claude Pro', provider: 'Anthropic', cost: 200.00, cycle: 'monthly', category: 'ai', notes: 'AI development, code generation, content', manageUrl: 'https://claude.ai/settings/billing', icon: '\uD83E\uDDE0' },
+                { name: 'Anthropic API Credits', provider: 'Anthropic', cost: 30.00, cycle: 'prepaid', category: 'ai', notes: 'Prepaid credits for Blueprint AI features (resume parse, skill inference, purpose gen). Sonnet 4: $3/M input, $15/M output.', manageUrl: 'https://console.anthropic.com/settings/billing', icon: '\uD83D\uDCB3' },
                 { name: 'JSearch API', provider: 'RapidAPI', cost: 25.00, cycle: 'monthly', category: 'api', notes: '10,000 req/mo, Google Jobs aggregator', manageUrl: 'https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch/pricing', icon: '\uD83D\uDD0D' },
                 { name: 'Vercel Pro', provider: 'Vercel', cost: 20.00, cycle: 'monthly', category: 'hosting', notes: 'Hosting, serverless functions, edge network', manageUrl: 'https://vercel.com/cliffj8338s-projects/blueprint/settings', icon: '\u25B2' },
                 { name: 'Cloudflare', provider: 'Cloudflare', cost: 0, cycle: 'monthly', category: 'domain', notes: 'DNS, CDN, SSL, DDoS protection (free tier)', manageUrl: 'https://dash.cloudflare.com', icon: '\u2601\uFE0F' },
@@ -4043,9 +4047,10 @@
             var infraByCategory = {};
             var totalMonthlyInfra = 0;
             INFRASTRUCTURE.forEach(function(item) {
-                var monthly = item.cycle === 'yearly' ? item.cost / 12 : item.cost;
+                var monthly = item.cycle === 'yearly' ? item.cost / 12 : item.cycle === 'prepaid' ? 0 : item.cost;
                 totalMonthlyInfra += monthly;
                 item._monthly = monthly;
+                item._isPrepaid = item.cycle === 'prepaid';
                 if (!infraByCategory[item.category]) infraByCategory[item.category] = [];
                 infraByCategory[item.category].push(item);
             });
@@ -4076,7 +4081,7 @@
                         + '<div style="font-size:0.82em; color:var(--text-muted); margin-top:2px; padding-left:22px;">' + item.notes + '</div>'
                         + '</div>'
                         + '<div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">'
-                        + '<span style="font-weight:700; min-width:65px; text-align:right; color:' + (item._monthly > 0 ? 'var(--text-primary)' : '#10b981') + ';">' + (item._monthly > 0 ? '$' + item._monthly.toFixed(2) : 'Free') + '</span>'
+                        + '<span style="font-weight:700; min-width:65px; text-align:right; color:' + (item._isPrepaid ? '#f59e0b' : item._monthly > 0 ? 'var(--text-primary)' : '#10b981') + ';">' + (item._isPrepaid ? '$' + item.cost.toFixed(2) + ' prepaid' : item._monthly > 0 ? '$' + item._monthly.toFixed(2) : 'Free') + '</span>'
                         + '<a href="' + item.manageUrl + '" target="_blank" rel="noopener" style="color:var(--accent); font-size:0.85em; text-decoration:none;" title="Manage">' + bpIcon('external', 10) + '</a>'
                         + '</div></div>';
                 });
@@ -8701,6 +8706,9 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                         }
                     } catch(inferErr) {
                         console.warn('Skill inference failed, using defaults:', inferErr.message);
+                        if (inferErr.message.includes('credit balance')) {
+                            showToast('Anthropic API credits depleted. Using default skill levels. Top up at console.anthropic.com.', 'warning', 8000);
+                        }
                     }
                 }
 
@@ -9282,12 +9290,20 @@ Rules:
 
         function renderWizardStep7(el) {
             const vals = wizardState.values.length > 0 ? wizardState.values : [
-                { name: 'Intellectual Integrity', description: 'Evidence-based decisions. Challenge assumptions before accepting conclusions.', selected: true },
-                { name: 'Outcome-Focused', description: 'Judge by impact delivered, not activity performed.', selected: true },
-                { name: 'Continuous Learning', description: 'Seek disconfirming evidence. Update beliefs when data changes.', selected: true },
-                { name: 'Authentic Leadership', description: 'Lead with transparency and truth.', selected: false },
-                { name: 'Customer-Centric', description: 'Solve real problems. Understand needs before building.', selected: false },
-                { name: 'Innovation', description: 'Find better ways. Challenge the status quo with purpose.', selected: false }
+                { name: 'Intellectual Integrity', description: 'Evidence-based decisions. Challenge assumptions before accepting conclusions.', selected: false },
+                { name: 'Outcome-Focused', description: 'Judge by impact delivered, not activity performed.', selected: false },
+                { name: 'Continuous Learning', description: 'Seek disconfirming evidence. Update beliefs when data changes.', selected: false },
+                { name: 'Authentic Leadership', description: 'Lead with transparency and truth, especially when it costs something.', selected: false },
+                { name: 'Customer-Centric', description: 'Solve real problems. Understand needs before building solutions.', selected: false },
+                { name: 'Innovation', description: 'Find better ways. Challenge the status quo with purpose, not novelty.', selected: false },
+                { name: 'Collaboration', description: 'Build with others. Shared ownership creates better outcomes than solo brilliance.', selected: false },
+                { name: 'Accountability', description: 'Own the result, not just the effort. Follow through without being chased.', selected: false },
+                { name: 'Craftsmanship', description: 'Sweat the details. Quality compounds over time in ways shortcuts never do.', selected: false },
+                { name: 'Mentorship', description: 'Invest in the people around you. The best legacy is who you helped grow.', selected: false },
+                { name: 'Resilience', description: 'Stay steady under pressure. Adversity reveals character, not just capability.', selected: false },
+                { name: 'Strategic Thinking', description: 'See the system, not just the task. Connect decisions to outcomes two moves ahead.', selected: false },
+                { name: 'Empathy', description: 'Understand before prescribing. Context changes everything about the right answer.', selected: false },
+                { name: 'Service Orientation', description: 'Lead by serving others first. The work matters more than the credit.', selected: false }
             ];
             wizardState.values = vals;
 
@@ -9447,6 +9463,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 }
             } catch(err) {
                 console.error('Regenerate error:', err);
+                var toastMsg = err.message.includes('credit balance')
+                    ? 'Anthropic API credits depleted. Top up at console.anthropic.com.'
+                    : 'Purpose generation failed: ' + err.message;
+                showToast(toastMsg, 'error', 6000);
             }
 
             if (btn) { btn.textContent = '↺ Regenerate with Claude'; btn.disabled = false; }
