@@ -233,6 +233,29 @@
             .rpt-table th:nth-child(3), .rpt-table td:nth-child(3) { display:none; }
         }
 
+        /* ── Page Header (consistent across all views) ────── */
+        .page-header {
+            padding: 24px 0 18px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .page-title {
+            font-family: Outfit, sans-serif;
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--accent, #60a5fa);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin: 0 0 6px;
+            line-height: 1.2;
+        }
+        .page-subtitle {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.5;
+        }
+
         /* ── Demo Mode Toggle ──────────────────────────────────── */
         /* ── Mobile Layout Fixes ──────────────────────────────── */
         @media (max-width: 768px) {
@@ -244,31 +267,6 @@
             .blueprint-container {
                 padding-left: 4px !important;
                 padding-right: 4px !important;
-            }
-            /* ── Page Header (consistent across all views) ────── */
-            .page-header {
-                padding: 20px 0 16px;
-                text-align: center;
-                margin-bottom: 12px;
-            }
-            .page-title {
-                font-family: Outfit, sans-serif;
-                font-size: 1.5em;
-                font-weight: 700;
-                color: var(--text-primary);
-                text-transform: uppercase;
-                letter-spacing: 0.08em;
-                margin: 0 0 6px;
-                line-height: 1.2;
-            }
-            h1.page-title {
-                font-size: 1.5em;
-            }
-            .page-subtitle {
-                font-size: 0.85em;
-                color: var(--text-muted);
-                margin: 0 0 0;
-                line-height: 1.5;
             }
             #appFooter {
                 padding-bottom: 80px !important;
@@ -13739,13 +13737,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Header
             html += '<div class="page-header">'
-                + '<h2 class="page-title">'
-                + bpIcon('reports', 20) + ' Scouting Reports</h2>'
+                + '<h2 class="page-title">Reports</h2>'
                 + '<p class="page-subtitle">Your career intelligence control plane — manage reports, set blind mode, and track engagement.</p>'
-                + '<div style="margin-top:14px;">'
+                + '</div>'
+                + '<div style="text-align:center; margin-bottom:20px;">'
                 + '<button onclick="showScoutingReportPicker()" style="padding:10px 20px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-size:0.9em; white-space:nowrap;">'
                 + bpIcon('plus', 16) + ' New Report</button>'
-                + '</div></div>';
+                + '</div>';
             
             // ── Analytics Overview Cards ────────────────────────
             html += '<div style="position:relative;">'
@@ -25528,7 +25526,7 @@ body {
             view.innerHTML = `
                 <div class="blueprint-container">
                     <div class="page-header">
-                        <h1 class="page-title">Settings</h1>
+                        <h2 class="page-title">Settings</h2>
                         <p class="page-subtitle">Site preferences, account management, and data controls.</p>
                     </div>
                     
@@ -27274,10 +27272,9 @@ body {
             
             view.innerHTML = `
                 <div class="blueprint-container">
-                    <div class="blueprint-header">
-                        <h1 class="page-title">Consent & Sharing</h1>
-                        <p class="page-subtitle">Your data, your control.</p>
-                        <p class="blueprint-tagline">Choose exactly what you share and with whom</p>
+                    <div class="page-header">
+                        <h2 class="page-title">Consent & Sharing</h2>
+                        <p class="page-subtitle">Your data, your control. Choose exactly what you share and with whom.</p>
                     </div>
                     
                     ${renderSharePresets()}
