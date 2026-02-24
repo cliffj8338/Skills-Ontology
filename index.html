@@ -160,7 +160,7 @@
     }
     </script>
 
-    <!-- v4.44.9 | 20260224 | Shield icon added, demo avatar fix, page header CSS global -->
+    <!-- v4.44.10 | 20260224 | Eliminate all innerHTML img src - use DOM API via safeSetAvatar -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1396,8 +1396,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.9 - BUILD 20260224-shield-icon-demo-avatar
-        var BP_VERSION = 'v4.44.9';
+        // BLUEPRINT v4.44.10 - BUILD 20260224-safe-avatar-dom-api
+        var BP_VERSION = 'v4.44.10';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1689,6 +1689,19 @@
             var div = document.createElement('div');
             div.appendChild(document.createTextNode(String(str)));
             return div.innerHTML;
+        }
+
+        // Safe avatar image setter — uses DOM API to avoid innerHTML/template literal context bugs
+        function safeSetAvatar(el, url, rounded) {
+            if (!el) return;
+            if (url) {
+                var img = document.createElement('img');
+                img.src = url;
+                img.alt = '';
+                img.style.cssText = 'width:100%;height:100%;object-fit:cover;' + (rounded ? 'border-radius:50%;' : '');
+                el.innerHTML = '';
+                el.appendChild(img);
+            }
         }
 
         // ===== SECURITY: SAFE JSON PARSE =====
@@ -2469,7 +2482,7 @@
                     if (nameEl) nameEl.textContent = displayName;
                     if (avatarEl) {
                         if (fbUser.photoURL) {
-                            avatarEl.innerHTML = '<img src="' + escapeHtml(fbUser.photoURL) + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+                            safeSetAvatar(avatarEl, fbUser.photoURL, true);
                         } else {
                             avatarEl.textContent = getInitials(displayName);
                         }
@@ -25551,11 +25564,19 @@ body {
                     </div>
                 </div>
             `;
+            // Post-render: set profile photo via DOM API (avoids innerHTML img src issues)
+            if (userData.profile && userData.profile.photo) {
+                safeSetAvatar(document.getElementById('settingPhotoPreview'), userData.profile.photo, false);
+            }
         }
         
         function switchSettingsTab(tab) {
             window.currentSettingsTab = tab;
             document.getElementById('settingsTabContent').innerHTML = renderSettingsTabContent();
+            // Post-render: set profile photo via DOM API
+            if (tab === 'profile' && userData.profile && userData.profile.photo) {
+                safeSetAvatar(document.getElementById('settingPhotoPreview'), userData.profile.photo, false);
+            }
             
             // Update tab styling
             document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
@@ -25615,9 +25636,7 @@ body {
                                         display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.2em;
                                         cursor:pointer; overflow:hidden; border:2px solid var(--border); flex-shrink:0;
                                         ${userData.profile.photo ? 'padding:0' : ''}">
-                                ${userData.profile.photo 
-                                    ? `<img src="${escapeHtml(userData.profile.photo)}" alt="Profile photo" style="width:100%;height:100%;object-fit:cover;">` 
-                                    : (userData.profile.name || 'U').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase()}
+                                ${(userData.profile.name || 'U').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase()}
                             </div>
                             <div>
                                 <button onclick="document.getElementById('settingPhotoInput').click()" 
@@ -27556,10 +27575,10 @@ body {
                     userData.profile.photo = dataUrl;
                     // Update preview
                     var preview = document.getElementById('settingPhotoPreview');
-                    if (preview) preview.innerHTML = '<img src="' + escapeHtml(dataUrl) + '" alt="Profile photo" style="width:100%;height:100%;object-fit:cover;">';
+                    safeSetAvatar(preview, dataUrl, false);
                     // Update header chip
                     var avatar = document.getElementById('profileAvatar');
-                    if (avatar) { avatar.innerHTML = '<img src="' + escapeHtml(dataUrl) + '" alt="Profile photo" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'; }
+                    safeSetAvatar(avatar, dataUrl, true);
                     saveUserData();
                     showToast('Profile photo updated.', 'success');
                 };
@@ -30261,7 +30280,7 @@ body {
                 var isDemo = appContext && appContext.mode === 'demo';
                 var photoURL = (userData.profile && userData.profile.photo) || (!isDemo && fbUser && fbUser.photoURL) || null;
                 if (photoURL) {
-                    avatar.innerHTML = '<img src="' + escapeHtml(photoURL) + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+                    safeSetAvatar(avatar, photoURL, true);
                 } else {
                     avatar.textContent = initials;
                 }
