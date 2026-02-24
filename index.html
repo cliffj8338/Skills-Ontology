@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.41.0 | 20260223 | API status monitoring dashboard with passive health tracking and active checks -->
+    <!-- v4.41.1 | 20260223 | Fix: LinkedIn title from positions not headline, robust JSON parsing for skill inference -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.41.0 - BUILD 20260223-api-status-dashboard
-        var BP_VERSION = 'v4.41.0';
+        // BLUEPRINT v4.41.1 - BUILD 20260223-fix-linkedin-title-json
+        var BP_VERSION = 'v4.41.1';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1273,6 +1273,7 @@
             'cover-letter':     { name: 'Cover Letter',       inputTokens: 1200, outputTokens: 1200, desc: 'Per application' },
             'interview-prep':   { name: 'Interview Prep',     inputTokens: 1800, outputTokens: 2500, desc: 'Per application' },
             'linkedin-profile': { name: 'LinkedIn Profile',   inputTokens: 1200, outputTokens: 1200, desc: 'Occasional' },
+            'linkedin-skill-infer': { name: 'LinkedIn Skill Inference', inputTokens: 3000, outputTokens: 3000, desc: 'Per LinkedIn import' },
             'purpose-regen':    { name: 'Purpose Statement',  inputTokens: 600,  outputTokens: 250,  desc: 'Regenerations' }
         };
         
@@ -8860,7 +8861,8 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                 const profileRow = profileRows[0] || {};
                 wizardState.profile = {
                     name: [profileRow['First Name'], profileRow['Last Name']].filter(Boolean).join(' '),
-                    currentTitle: profileRow['Headline'] || profileRow['Title'] || '',
+                    currentTitle: '', // Set after parsing positions
+                    linkedinHeadline: profileRow['Headline'] || '',
                     location: profileRow['Geo Location'] || profileRow['Location'] || '',
                     email: '',
                     phone: '',
@@ -8889,6 +8891,10 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
 
                 // Infer years of experience from earliest position
                 if (wizardState.workHistory.length > 0) {
+                    // Set current title from most recent position (first in list)
+                    var mostRecent = wizardState.workHistory[0];
+                    wizardState.profile.currentTitle = mostRecent.title || wizardState.profile.linkedinHeadline || '';
+                    
                     var earliest = wizardState.workHistory.reduce(function(min, w) {
                         var y = parseInt((w.startDate || '').split(' ').pop()) || parseInt(w.startDate) || 9999;
                         return y < min ? y : min;
@@ -8896,6 +8902,9 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                     if (earliest < 9999) {
                         wizardState.profile.yearsExperience = new Date().getFullYear() - earliest;
                     }
+                } else {
+                    // No positions — fall back to LinkedIn headline as title
+                    wizardState.profile.currentTitle = wizardState.profile.linkedinHeadline || '';
                 }
 
                 // Build roles from unique positions
@@ -8960,7 +8969,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                         var positionsSummary = wizardState.workHistory.slice(0, 10).map(function(w) {
                             return w.title + ' at ' + w.company + ' (' + w.startDate + ' - ' + w.endDate + ')' +
                                    (w.description ? ': ' + w.description.substring(0, 200) : '');
-                        }).join('\\n');
+                        }).join('\n');
 
                         var inferApiKey = safeGet('wbAnthropicKey');
                         var canCallAPI = inferApiKey || (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser);
@@ -8969,13 +8978,20 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                             var inferData = await callAnthropicAPI({
                                 model: 'claude-sonnet-4-20250514',
                                 max_tokens: 3000,
-                                system: 'You are a career analyst. Given a list of skills and work history, infer skill levels and assign each skill to one or more roles. Return ONLY valid JSON, no markdown fences or explanation.',
-                                messages: [{ role: 'user', content: 'Given these skills from a LinkedIn profile and work history, return a JSON array of skill objects.\\n\\nSkills: ' + rawSkills.join(', ') + '\\n\\nWork history:\\n' + positionsSummary + '\\n\\nRoles: ' + parsedRoles.map(function(r) { return r.id + '=' + r.name; }).join(', ') + '\\n\\nReturn JSON array where each element has:\\n- name: skill name\\n- level: one of Mastery|Expert|Advanced|Proficient|Novice (based on apparent depth from work history context)\\n- category: one of skill|ability|workstyle|unique\\n- roles: array of role IDs this skill most applies to\\n- key: boolean, true if this appears to be a defining/primary skill\\n- evidence: array with 1 item: {description: what this skill involves in context, outcome: likely impact}\\n\\nReturn ONLY the JSON array.' }]
+                                system: 'You are a career analyst. Given a list of skills and work history, infer skill levels and assign each skill to one or more roles. Return ONLY a valid JSON array. No markdown, no backticks, no explanation, no trailing commas. Just the raw JSON array.',
+                                messages: [{ role: 'user', content: 'Given these skills from a LinkedIn profile and work history, return a JSON array of skill objects.\n\nSkills: ' + rawSkills.join(', ') + '\n\nWork history:\n' + positionsSummary + '\n\nRoles: ' + parsedRoles.map(function(r) { return r.id + '=' + r.name; }).join(', ') + '\n\nReturn a JSON array where each element has:\n- name: skill name\n- level: one of Mastery|Expert|Advanced|Proficient|Novice (based on apparent depth from work history context)\n- category: one of skill|ability|workstyle|unique\n- roles: array of role IDs this skill most applies to\n- key: boolean, true if this appears to be a defining/primary skill\n- evidence: array with 1 item: {description: what this skill involves in context, outcome: likely impact}\n\nReturn ONLY the JSON array. No other text.' }]
                             }, inferApiKey, 'linkedin-skill-infer');
 
                             var inferText = inferData.content[0]?.text || '';
-                            var cleanInfer = inferText.replace(/^```json\\s*/i, '').replace(/^```\\s*/i, '').replace(/```\\s*$/i, '').trim();
+                            // Strip markdown fences, trim
+                            var cleanInfer = inferText.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
+                            // Remove trailing commas before ] or }
+                            cleanInfer = cleanInfer.replace(/,\s*([\]}])/g, '$1');
+                            // Try to extract JSON array if there's extra text
+                            var arrayMatch = cleanInfer.match(/\[[\s\S]*\]/);
+                            if (arrayMatch) cleanInfer = arrayMatch[0];
                             inferredSkills = JSON.parse(cleanInfer);
+                            if (!Array.isArray(inferredSkills)) inferredSkills = [];
                             aiSuccess = true;
                         }
                     } catch(inferErr) {
