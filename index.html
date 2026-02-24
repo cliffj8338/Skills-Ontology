@@ -247,7 +247,9 @@
             }
             /* ── Page Header (consistent across all views) ────── */
             .page-header {
-                padding: 18px 0 14px;
+                padding: 20px 0 16px;
+                text-align: center;
+                margin-bottom: 12px;
             }
             .page-title {
                 font-family: Outfit, sans-serif;
@@ -256,13 +258,16 @@
                 color: var(--text-primary);
                 text-transform: uppercase;
                 letter-spacing: 0.08em;
-                margin: 0 0 4px;
+                margin: 0 0 6px;
                 line-height: 1.2;
+            }
+            h1.page-title {
+                font-size: 1.5em;
             }
             .page-subtitle {
                 font-size: 0.85em;
                 color: var(--text-muted);
-                margin: 0;
+                margin: 0 0 0;
                 line-height: 1.5;
             }
             #appFooter {
@@ -545,7 +550,7 @@
                 <circle cx="10" cy="40" r="2.5" fill="#818cf8"/>
             </svg></div>
             <h1>Blueprint<span style="font-size:0.55em; vertical-align:super; letter-spacing:0; opacity:0.6;">&trade;</span></h1>
-            <span id="adminBadge" onclick="showAdminPanel()" style="display:none; font-size:0.55em; padding:2px 8px; border-radius:6px; background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.3); font-weight:600; cursor:pointer; letter-spacing:0.04em; margin-left:6px; white-space:nowrap;" title="Admin Dashboard">ADMIN</span>
+            <span id="adminBadge" onclick="event.stopPropagation(); showAdminPanel()" style="display:none; font-size:0.55em; padding:2px 8px; border-radius:6px; background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.3); font-weight:600; cursor:pointer; letter-spacing:0.04em; margin-left:6px; white-space:nowrap;" title="Admin Dashboard">ADMIN</span>
         </div>
 
         <!-- Center: Primary navigation -->
@@ -701,9 +706,11 @@
     
     <div class="main-content">
         <div id="welcomeView" style="display:none;"></div>
-        <div id="skillsPageHeader" style="display:none; max-width:1200px; margin:0 auto; padding:18px 24px 0;">
-            <h2 class="page-title">Skills</h2>
-            <p class="page-subtitle">Your professional capabilities mapped as a living network.</p>
+        <div id="skillsPageHeader" style="display:none; max-width:1200px; margin:0 auto; padding:20px 24px 0;">
+            <div class="page-header">
+                <h2 class="page-title">Skills</h2>
+                <p class="page-subtitle">Your professional capabilities mapped as a living network.</p>
+            </div>
         </div>
         <svg id="networkView" style="display:none;"></svg>
         <div id="cardView" style="display:none;"></div>
@@ -13731,15 +13738,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             html += '<div class="blueprint-container">';
             
             // Header
-            html += '<div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:18px 0 14px;">'
-                + '<div>'
-                + '<h2 class="page-title" style="display:flex; align-items:center; gap:10px;">'
+            html += '<div class="page-header">'
+                + '<h2 class="page-title">'
                 + bpIcon('reports', 20) + ' Scouting Reports</h2>'
                 + '<p class="page-subtitle">Your career intelligence control plane — manage reports, set blind mode, and track engagement.</p>'
-                + '</div>'
-                + '<button onclick="showScoutingReportPicker()" style="padding:10px 20px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; font-size:0.9em; white-space:nowrap;">'
+                + '<div style="margin-top:14px;">'
+                + '<button onclick="showScoutingReportPicker()" style="padding:10px 20px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-size:0.9em; white-space:nowrap;">'
                 + bpIcon('plus', 16) + ' New Report</button>'
-                + '</div>';
+                + '</div></div>';
             
             // ── Analytics Overview Cards ────────────────────────
             html += '<div style="position:relative;">'
@@ -14029,7 +14035,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Gate: block main views until user explicitly selects a profile or signs in
             var profileViews = ['network', 'opportunities', 'blueprint', 'reports', 'settings', 'consent'];
-            if (!window._profileExplicitlySelected && profileViews.indexOf(view) !== -1) {
+            if (!fbUser && !window._profileExplicitlySelected && profileViews.indexOf(view) !== -1) {
                 showToast('Choose a sample profile or sign in to explore Blueprint.', 'info');
                 view = 'welcome';
             }
@@ -25605,7 +25611,7 @@ body {
                                         cursor:pointer; overflow:hidden; border:2px solid var(--border); flex-shrink:0;
                                         ${userData.profile.photo ? 'padding:0' : ''}">
                                 ${userData.profile.photo 
-                                    ? '<img src="' + escapeHtml(userData.profile.photo) + '" alt="Profile photo" style="width:100%;height:100%;object-fit:cover;">' 
+                                    ? `<img src="${escapeHtml(userData.profile.photo)}" alt="Profile photo" style="width:100%;height:100%;object-fit:cover;">` 
                                     : (userData.profile.name || 'U').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase()}
                             </div>
                             <div>
