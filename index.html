@@ -3764,6 +3764,78 @@
                         { id: 'p5-4', name: 'Predictive Attrition Modeling', status: 'planned', category: 'monetization', priority: 'low', notes: 'Structural patterns preceding departure. Signal is structural, never behavioral.' },
                         { id: 'p5-5', name: 'Custom Talent Market Reports', status: 'planned', category: 'monetization', priority: 'low', notes: 'Commissioned analysis. Gartner-quality deliverables grounded in evidence data.' }
                     ]
+                },
+                {
+                    id: 'ent1',
+                    name: 'Enterprise: Foundation (E1)',
+                    color: '#dc2626',
+                    icon: 'target',
+                    items: [
+                        { id: 'e1-1', name: 'Analytics aggregation engine', status: 'planned', category: 'infrastructure', priority: 'critical', notes: 'Track aggregated skills trends, intent signals, match patterns across all users. Time-series storage for supply/demand indices. Foundation for all enterprise intelligence.' },
+                        { id: 'e1-2', name: 'User consent framework', status: 'planned', category: 'infrastructure', priority: 'critical', notes: 'Explicit opt-in for anonymized data contribution and discoverable talent pool. Granular controls: what\'s visible, who can see it, revocable at any time. GDPR compliant. Not a checkbox — informed, contextual consent.' },
+                        { id: 'e1-3', name: 'Skills ontology cross-mapping', status: 'planned', category: 'infrastructure', priority: 'high', notes: 'Map 14K+ ESCO skills to O*NET, SFIA, and Lightcast taxonomies. Enables enterprise customers to query in their own skill language. Required for taxonomy mapping feature in intelligence tier.' },
+                        { id: 'e1-4', name: 'Recruiter-facing report landing page', status: 'planned', category: 'feature', priority: 'high', notes: 'Polish the shared scouting report viewer for recruiter UX. Add CTA for recruiter registration. Track engagement (view duration, sections read, shortlist clicks). Currently functional but not optimized for conversion.' },
+                        { id: 'e1-5', name: 'Anonymization engine', status: 'planned', category: 'infrastructure', priority: 'critical', notes: 'Minimum cohort size of 50 for any aggregate query. k-anonymity for any exposed data slice. PII stripping pipeline. Differential privacy for small-n edge cases. Enterprise customers never see individual data without mutual consent.' },
+                        { id: 'e1-6', name: 'Terms of Service & Privacy Policy update', status: 'planned', category: 'legal', priority: 'critical', notes: 'Update ToS for enterprise data licensing. Privacy policy must clearly explain anonymized aggregation, consent model, and user rights. Legal review required before any enterprise feature launches.' }
+                    ]
+                },
+                {
+                    id: 'ent2',
+                    name: 'Enterprise: Sponsored Jobs (E2)',
+                    color: '#ea580c',
+                    icon: 'briefcase',
+                    items: [
+                        { id: 'e2-1', name: 'Employer self-service portal', status: 'planned', category: 'feature', priority: 'critical', notes: 'Employer account creation, JD upload, budget setting, skill cluster targeting. Stripe integration for billing. Separate from user auth — employers get their own login and dashboard.' },
+                        { id: 'e2-2', name: 'Sponsored job cards', status: 'planned', category: 'feature', priority: 'high', notes: 'Labeled "Sponsored" badges in Find Jobs and network view. Non-manipulative ranking: sponsorship boosts visibility among equally-matched results, never overrides match score. Users trust the system because match quality is never for sale.' },
+                        { id: 'e2-3', name: 'Click/apply attribution dashboard', status: 'planned', category: 'feature', priority: 'high', notes: 'Employer-facing analytics: impressions, qualified clicks (user has ≥60% match), applications initiated. Cost-per-click and cost-per-application tracking. ROI comparison vs traditional job boards.' },
+                        { id: 'e2-4', name: 'Job board partnership API', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Syndication API for job boards (Indeed, ZipRecruiter, Greenhouse) to push sponsored listings into Blueprint. Revenue share model. Also: outbound API for boards to access Blueprint\'s high-intent candidates (opt-in only).' },
+                        { id: 'e2-5', name: 'AI JD analysis for sponsored jobs', status: 'planned', category: 'feature', priority: 'medium', notes: 'Sponsored jobs get full AI-powered JD parsing (currently user-funded via BYOK). Employer pays the AI cost (~$0.03/job), not the user. Better match data = better click quality = higher employer ROI.' }
+                    ]
+                },
+                {
+                    id: 'ent3',
+                    name: 'Enterprise: Recruiter Access (E3)',
+                    color: '#7c3aed',
+                    icon: 'search',
+                    items: [
+                        { id: 'e3-1', name: 'Discoverable talent pool', status: 'planned', category: 'feature', priority: 'critical', notes: 'Users opt in to be searchable by recruiters. Anonymized profile cards show skills, proficiency, values, location — no name/contact until mutual interest. User controls visibility per field. Revocable at any time.' },
+                        { id: 'e3-2', name: 'Recruiter search dashboard', status: 'planned', category: 'feature', priority: 'critical', notes: 'Search by skill clusters, proficiency levels, values alignment, location, salary range. Boolean-style skill queries: "Kubernetes AND Terraform, both Expert+". Results ranked by match strength, not recency or activity.' },
+                        { id: 'e3-3', name: 'Mutual interest / de-anonymization flow', status: 'planned', category: 'feature', priority: 'high', notes: 'Recruiter requests interest in anonymized candidate → candidate gets notification with role details → candidate approves or declines → approved = profile revealed with contact info. Two-way consent, always.' },
+                        { id: 'e3-4', name: 'Recruiter-requested scouting reports', status: 'planned', category: 'monetization', priority: 'high', notes: 'Recruiter selects candidate from talent pool, uploads their JD → Blueprint generates scouting report matched to that specific role. $25-75 per report. Candidate notified and can review before release.' },
+                        { id: 'e3-5', name: 'Recruiter seat licensing', status: 'planned', category: 'monetization', priority: 'high', notes: '$500-2,000/month per recruiter seat. Includes search access, 20-50 scouting reports/month, candidate engagement tools, analytics. Volume discounts for enterprise teams. Modeled on LinkedIn Recruiter pricing (~$8K-12K/seat/year) at 50-75% discount.' },
+                        { id: 'e3-6', name: 'Bulk campaign scouting', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Enterprise uploads 50 JDs → Blueprint matches against opt-in talent pool → delivers scouting reports for top N matches per role. $5K-15K per campaign. High-value, low-frequency revenue.' }
+                    ]
+                },
+                {
+                    id: 'ent4',
+                    name: 'Enterprise: Talent Intelligence API (E4)',
+                    color: '#0891b2',
+                    icon: 'zap',
+                    items: [
+                        { id: 'e4-1', name: 'Skills supply/demand indices', status: 'planned', category: 'feature', priority: 'critical', notes: 'Real-time aggregated data: how many users have Skill X at Proficiency Y in Region Z. Demand side: how many jobs require it. Gap ratio calculation. Time-series trends. Requires 50K+ users for statistical validity.' },
+                        { id: 'e4-2', name: 'Enterprise intelligence dashboard', status: 'planned', category: 'feature', priority: 'critical', notes: 'Web dashboard for enterprise customers. Skills trend visualizations, gap analysis heatmaps, compensation modeling, regional comparisons. Filterable by industry, role family, skill cluster, geography.' },
+                        { id: 'e4-3', name: 'RESTful intelligence API', status: 'planned', category: 'infrastructure', priority: 'high', notes: 'API endpoints for skills queries, forecast data, benchmark pulls, intent indices. OAuth2 auth, rate limiting, usage metering. Swagger/OpenAPI docs. Webhook support for trend alerts.' },
+                        { id: 'e4-4', name: 'Intent intelligence index', status: 'planned', category: 'feature', priority: 'high', notes: 'Anonymized, aggregated job-seeking activity signals. "38% of senior data engineers in your region analyzed JDs at competitor companies this month." No PII, ever. Minimum 50-person cohorts. Helps enterprises detect flight risk and market shifts.' },
+                        { id: 'e4-5', name: 'Compensation benchmarking by skill cluster', status: 'planned', category: 'feature', priority: 'medium', notes: 'Not just "what do engineers make" but "what do engineers with this specific combination of 8 skills at these proficiency levels command." User-reported ranges validated against BLS data. Anonymized aggregate only.' },
+                        { id: 'e4-6', name: 'Custom taxonomy mapping service', status: 'planned', category: 'feature', priority: 'medium', notes: 'Enterprise customers map Blueprint\'s ESCO-based ontology to their internal skills framework. API translates queries bidirectionally. Required for HRIS/LMS integration. Professional services engagement for initial mapping ($5K-15K setup).' },
+                        { id: 'e4-7', name: 'Enterprise pilot program', status: 'planned', category: 'monetization', priority: 'critical', notes: 'Land 3-5 enterprise customers at Insights tier ($2.5K-5K/month). 90-day pilot with dedicated onboarding. Success metrics: data queries run, dashboards built, decisions influenced. Convert to annual contracts.' }
+                    ]
+                },
+                {
+                    id: 'ent5',
+                    name: 'Enterprise: Verification & Ecosystem (E5-E6)',
+                    color: '#059669',
+                    icon: 'check',
+                    items: [
+                        { id: 'e5-1', name: 'Assessment platform integrations', status: 'planned', category: 'feature', priority: 'high', notes: 'Integrate HackerRank, iMocha, Codility assessment results into Blueprint skill profiles. Validated test scores + evidence chain = highest-confidence skill data in the market. API partnerships required.' },
+                        { id: 'e5-2', name: 'Blueprint Verified badges', status: 'planned', category: 'feature', priority: 'high', notes: 'Evidence chain + peer verification + assessment = "Blueprint Verified: Expert in React.js". Portable credential. Displayed on profile, scouting reports, and talent pool cards. The trust layer that differentiates against every competitor.' },
+                        { id: 'e5-3', name: 'Peer verification network', status: 'planned', category: 'feature', priority: 'medium', notes: 'Structured attestation from colleagues. Not LinkedIn endorsements (drive-by clicks). Verifiers answer specific questions about demonstrated capability. Weight by verifier credibility. Already scaffolded in current verification system.' },
+                        { id: 'e5-4', name: 'Verification-as-a-service API', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Enterprise hiring workflows call Blueprint API to verify candidate\'s claimed skills. Returns evidence chain, verification status, assessment scores. $10-50 per verification. Integrates into ATS screening stage.' },
+                        { id: 'e5-5', name: 'ATS/HRIS integrations', status: 'planned', category: 'infrastructure', priority: 'medium', notes: 'Greenhouse, Lever, Workday, SAP SuccessFactors connectors. Push verified skill profiles into hiring workflows. Pull job requirements for automated matching. Standard webhook + REST patterns.' },
+                        { id: 'e5-6', name: 'LMS integrations', status: 'planned', category: 'infrastructure', priority: 'low', notes: 'Cornerstone, Degreed, LinkedIn Learning connectors. Skill gaps identified in Blueprint → recommended learning paths in LMS. Completion feeds back into Blueprint skill profile. Referral revenue on course enrollments.' },
+                        { id: 'e5-7', name: 'Skills API marketplace', status: 'planned', category: 'monetization', priority: 'low', notes: 'Third parties build on Blueprint\'s ontology and intelligence. Skill taxonomy API, evidence validation API, match scoring API. Usage-based pricing. Blueprint becomes infrastructure — the "skills layer" other platforms build on.' },
+                        { id: 'e5-8', name: 'White-label for staffing firms', status: 'planned', category: 'monetization', priority: 'low', notes: 'Staffing firms embed Blueprint\'s matching + scouting into their own branded experience. Per-placement or monthly licensing. High-margin channel revenue.' }
+                    ]
                 }
             ]
         };
