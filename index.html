@@ -452,6 +452,14 @@
             <!-- Inline job selector (populated dynamically) -->
             <div id="inlineJobSelector" style="display:none;"></div>
 
+            <!-- Label toggles (desktop only) -->
+            <div id="networkLabelToggles" style="display:none; margin-left:8px;">
+                <div class="view-pills" style="gap:2px;">
+                    <button class="view-pill active" id="toggleRoleLabelsBtn" onclick="toggleNetworkLabels('roles')" style="font-size:0.72em; padding:4px 10px;">Roles</button>
+                    <button class="view-pill active" id="toggleSkillLabelsBtn" onclick="toggleNetworkLabels('skills')" style="font-size:0.72em; padding:4px 10px;">Skills</button>
+                </div>
+            </div>
+
             <!-- Job match mode toggle (hidden until a job is activated) -->
             <div id="matchModeToggle" style="display:none;" class="match-mode-toggle">
                 <button class="match-mode-btn active" data-mode="you" onclick="setNetworkMatchMode('you')">You</button>
@@ -1208,8 +1216,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.43.1 - BUILD 20260224-arch-diagram-match-sync
-        var BP_VERSION = 'v4.43.1';
+        // BLUEPRINT v4.43.2 - BUILD 20260224-modal-padding-reports-network
+        var BP_VERSION = 'v4.43.2';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -3600,7 +3608,8 @@
                         { id: 'p2-3n', name: 'Unified skill editor + UX fixes', status: 'done', category: 'ux', priority: 'high', notes: 'Single modal combining level/roles/assess/core. Network name label offset. quickScore v3 (word-boundary + level weighting). Alphabetical skill sorting. BLS Potential tile always shown. bpIcon assess bug.' },
                         { id: 'p2-3o', name: 'Wizard Step 9 save+download UX', status: 'done', category: 'ux', priority: 'medium', notes: 'Single Save button with pre-checked download checkbox. Replaces two separate buttons.' },
                         { id: 'p2-3p', name: 'Architecture map v2 — layered diagram', status: 'done', category: 'admin', priority: 'medium', notes: 'Replaced force-directed graph with structured swim-lane layout. 4 layers: Frontend→Runtime→Backend→External. Rich detail panels with function names, line ranges, data flows, dependencies, tech debt. Engineer-grade onboarding tool.' },
-                        { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'planned', category: 'process', priority: 'medium', notes: 'Architecture diagram must be updated whenever components are added/modified. Add to dev checklist. Consider auto-generation from code comments.' }
+                        { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'planned', category: 'process', priority: 'medium', notes: 'Architecture diagram must be updated whenever components are added/modified. Add to dev checklist. Consider auto-generation from code comments.' },
+                        { id: 'p2-3r', name: 'Skill editor outcomes + reports cleanup + network v3', status: 'done', category: 'ux', priority: 'high', notes: 'Unified editor: wider padding, linked outcomes section. Reports: PREVIEW labels on analytics/heatmap/share links, removed fake views/status from My Reports. Network: center node at width*0.18, role label truncation 24 chars.' }
                     ]
                 },
                 {
@@ -10992,6 +11001,29 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
         window.renderJobSelectorWidget = renderJobSelectorWidget;
         
+        // Network label visibility state
+        var networkShowRoleLabels = true;
+        var networkShowSkillLabels = true;
+        
+        function toggleNetworkLabels(type) {
+            var svg = d3.select('#networkView');
+            if (!svg.node()) return;
+            if (type === 'roles') {
+                networkShowRoleLabels = !networkShowRoleLabels;
+                svg.selectAll('text').filter(function(d) { return d && d.type === 'role'; })
+                    .style('display', networkShowRoleLabels ? 'block' : 'none');
+                var btn = document.getElementById('toggleRoleLabelsBtn');
+                if (btn) btn.classList.toggle('active', networkShowRoleLabels);
+            } else if (type === 'skills') {
+                networkShowSkillLabels = !networkShowSkillLabels;
+                svg.selectAll('text').filter(function(d) { return d && d.type === 'skill'; })
+                    .style('display', networkShowSkillLabels ? 'block' : 'none');
+                var btn2 = document.getElementById('toggleSkillLabelsBtn');
+                if (btn2) btn2.classList.toggle('active', networkShowSkillLabels);
+            }
+        }
+        window.toggleNetworkLabels = toggleNetworkLabels;
+        
         function initNetwork() {
             // Empty state: no skills and signed in (not viewing a sample)
             var hasSkills = skillsData.skills && skillsData.skills.length > 0;
@@ -11056,10 +11088,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             svg.selectAll("*").remove();
 
             // Create nodes
-            // Network body centers in the viewport; name node offsets to the left for visual separation
+            // Center node stays with the network body; text label offsets left for readability
             var networkCenterX = width / 2;  // where roles + skills cluster
             var centerY = Math.max(80, height * 0.22);
-            var nameX = isMobile ? width / 2 : width * 0.35;  // name node offset left of network body
+            var nameX = isMobile ? width / 2 : width * 0.18;  // left of network body, like demo profiles
             var nameY = centerY;
             const nodes = [
                 { id: "center", name: userData.profile.name || "You", type: "center", homeX: nameX, homeY: nameY, x: nameX, y: nameY, fx: nameX, fy: nameY }
@@ -11289,9 +11321,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     } else {
                         // Single line for center and role nodes
                         var label = d.name;
-                        // Truncate long role names on mobile
-                        if (isMobile && d.type === 'role' && label.length > 22) {
-                            label = label.substring(0, 20) + '\u2026';
+                        // Truncate long role names
+                        if (d.type === 'role' && label.length > (isMobile ? 20 : 24)) {
+                            label = label.substring(0, isMobile ? 18 : 22) + '\u2026';
                         }
                         d3.select(this)
                             .text(label)
@@ -12848,10 +12880,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 ]
             };
             
-            // Saved reports mock data
+            // Saved reports from actual pipeline jobs
             var savedReports = (userData.savedJobs || []).filter(function(j) { return j && j.title && j.matchData; }).map(function(j, i) {
                 var score = (j.matchData && j.matchData.score) || 0;
-                return { title: j.title, company: j.company || 'Unknown', match: score, date: new Date(Date.now() - i * 86400000 * 3).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), views: Math.floor(Math.random() * 50) + 5, status: i === 0 ? 'shared' : (i === 1 ? 'draft' : 'shared') };
+                var addedDate = j.addedAt ? new Date(j.addedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown';
+                return { title: j.title, company: j.company || 'Unknown', match: score, date: addedDate };
             });
             
             var scoreColor = function(s) { return s >= 70 ? 'var(--c-success, #10b981)' : s >= 50 ? 'var(--c-warning, #f59e0b)' : 'var(--c-danger, #ef4444)'; };
@@ -12873,7 +12906,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + '</div></div>';
             
             // ── Analytics Overview Cards ────────────────────────
-            html += '<div class="rpt-metrics">'
+            html += '<div style="position:relative;">'
+                + '<div style="position:absolute; top:8px; right:12px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); font-weight:600;">PREVIEW — sample data</div>'
+                + '<div class="rpt-metrics">'
                 + '<div class="rpt-metric-card">'
                 + '<div class="rpt-metric-n">' + mockAnalytics.totalViews.toLocaleString() + '</div>'
                 + '<div class="rpt-metric-l">' + bpIcon('eye', 14) + ' Total Views</div>'
@@ -12893,7 +12928,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + '</div>';
             
             // ── Section Heatmap ─────────────────────────────────
-            html += '<div class="rpt-card" style="margin-bottom:20px;">'
+            html += '<div class="rpt-card" style="margin-bottom:20px; position:relative;">'
+                + '<div style="position:absolute; top:12px; right:14px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); font-weight:600;">PREVIEW — sample data</div>'
                 + '<div class="rpt-card-h">' + bpIcon('bar-chart', 16) + ' Section Engagement Heatmap</div>'
                 + '<div class="rpt-card-sub">Which sections recruiters spend the most time on</div>'
                 + '<div style="margin-top:16px;">';
@@ -12928,7 +12964,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             html += '</div></div>';
             
             // ── Share Link Management ───────────────────────────
-            html += '<div class="rpt-card" style="margin-bottom:20px;">'
+            html += '<div class="rpt-card" style="margin-bottom:20px; position:relative;">'
+                + '<div style="position:absolute; top:12px; right:14px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); font-weight:600;">PREVIEW — sample data</div>'
                 + '<div class="rpt-card-h">' + bpIcon('external', 16) + ' Share Link Management</div>'
                 + '<div class="rpt-card-sub">Create, expire, and revoke share links for your reports.</div>'
                 + '<div style="margin-top:16px;">'
@@ -12955,8 +12992,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         + '<div style="font-size:0.82em; color:var(--text-secondary);">' + r.company + ' · ' + r.date + '</div></div>'
                         + '<div style="display:flex; align-items:center; gap:14px;">'
                         + '<div style="text-align:center; min-width:42px;"><div style="font-weight:800; color:' + scoreColor(r.match) + ';">' + r.match + '%</div><div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase;">Match</div></div>'
-                        + '<div style="text-align:center; min-width:36px;"><div style="font-weight:600;">' + r.views + '</div><div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase;">Views</div></div>'
-                        + '<span class="rpt-status rpt-status-' + r.status + '">' + r.status + '</span>'
                         + '</div></div>';
                 });
                 html += '</div>';
@@ -13380,6 +13415,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 document.getElementById('networkView').style.display = 'block';
                 document.getElementById('cardView').style.display = 'none';
                 networkControls.style.display = 'none';
+                // Show label toggles on desktop
+                var labelToggles = document.getElementById('networkLabelToggles');
+                if (labelToggles) labelToggles.style.display = window.innerWidth >= 768 ? 'block' : 'none';
                 // Lazy-init network if needed (e.g. after profile switch)
                 if (!window.networkInitialized) {
                     initNetwork();
@@ -13418,6 +13456,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 document.getElementById('networkView').style.display = 'none';
                 document.getElementById('cardView').style.display = 'block';
                 networkControls.style.display = 'none';
+                var labelToggles2 = document.getElementById('networkLabelToggles');
+                if (labelToggles2) labelToggles2.style.display = 'none';
                 // Lazy-init card view if needed (e.g. after profile switch)
                 if (!window.cardViewInitialized) {
                     initCardView();
@@ -28008,6 +28048,28 @@ body {
                 + '<div style="font-size:0.75em; color:var(--text-muted);">Core skills appear as key differentiators in scouting reports and job matching.</div>'
                 + '</div></label>';
             
+            // ── LINKED OUTCOMES ──
+            var allOutcomes = (blueprintData && blueprintData.outcomes) || [];
+            var linkedOutcomes = allOutcomes.filter(function(o) {
+                return o.skills && o.skills.indexOf(skillName) !== -1;
+            });
+            html += '<div style="margin-bottom:18px;">'
+                + '<div style="font-weight:600; font-size:0.85em; color:var(--accent); margin-bottom:8px;">Linked Outcomes <span style="font-weight:400; color:var(--text-muted);">(' + linkedOutcomes.length + ')</span></div>';
+            if (linkedOutcomes.length > 0) {
+                html += '<div style="display:flex; flex-direction:column; gap:4px;">';
+                linkedOutcomes.forEach(function(o) {
+                    html += '<div style="padding:6px 10px; border-radius:6px; background:var(--bg-elevated); border:1px solid var(--border); font-size:0.8em;">'
+                        + '<span style="color:var(--text-primary); font-weight:500;">' + escapeHtml(o.title || o.name || 'Untitled') + '</span>'
+                        + '</div>';
+                });
+                html += '</div>';
+            }
+            html += '<button onclick="closeUnifiedSkillEditor(); switchBlueprintTab(\'outcomes\');" '
+                + 'style="margin-top:8px; padding:6px 14px; border-radius:6px; font-size:0.78em; cursor:pointer; '
+                + 'background:none; border:1px solid var(--border); color:var(--accent); display:inline-flex; align-items:center; gap:4px;">'
+                + bpIcon('plus',12) + (linkedOutcomes.length > 0 ? ' Manage Outcomes' : ' Add an Outcome') + '</button>'
+                + '</div>';
+            
             // ── FOOTER ──
             html += '<div style="display:flex; gap:10px; align-items:center;">'
                 + '<button onclick="saveUnifiedSkillEdit()" style="flex:1; padding:12px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.92em;">Save Changes</button>'
@@ -28023,7 +28085,7 @@ body {
                 modal = document.createElement('div');
                 modal.id = 'unifiedSkillEditor';
                 modal.className = 'modal';
-                modal.innerHTML = '<div class="modal-content" style="max-width:560px; max-height:85vh; overflow-y:auto;"><div id="uniEditorContent"></div></div>';
+                modal.innerHTML = '<div class="modal-content" style="max-width:600px; max-height:85vh; overflow-y:auto; padding:28px 32px;"><div id="uniEditorContent"></div></div>';
                 document.body.appendChild(modal);
                 // Close on backdrop click
                 modal.addEventListener('click', function(e) { if (e.target === modal) closeUnifiedSkillEditor(); });
