@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://api.anthropic.com https://*.rapidapi.com https://remotive.com https://himalayas.app https://jobicy.com https://data.usajobs.gov; img-src 'self' data: blob: https://*.googleusercontent.com; frame-src 'none'; object-src 'none'; base-uri 'self';">
     <title>Blueprint™</title>
-    <!-- v4.43.1 | 20260224 | Network label fix, job title truncation, match score sync, architecture diagram+export -->
+    <!-- v4.43.3 | 20260224 | Security audit: CSP, escapeHtml hardening, import validation, URL sanitization, save debounce, global error handlers -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1216,8 +1217,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.43.2 - BUILD 20260224-modal-padding-reports-network
-        var BP_VERSION = 'v4.43.2';
+        // BLUEPRINT v4.43.3 - BUILD 20260224-security-audit-hardening
+        var BP_VERSION = 'v4.43.3';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1473,7 +1474,25 @@
             try { return localStorage.getItem(key); } catch(e) { return fallback || null; }
         }
         function safeSet(key, val) {
-            try { localStorage.setItem(key, val); return true; } catch(e) { return false; }
+            try {
+                localStorage.setItem(key, val);
+                // Periodic quota check (~5% of writes)
+                if (Math.random() < 0.05) {
+                    var total = 0;
+                    for (var i = 0; i < localStorage.length; i++) {
+                        var k = localStorage.key(i);
+                        total += (k.length + (localStorage.getItem(k) || '').length) * 2;
+                    }
+                    if (total > 4000000) { // 4MB warning (limit is ~5MB)
+                        console.warn('localStorage usage high:', Math.round(total / 1024) + 'KB');
+                        if (typeof logIncident === 'function') logIncident('warning', 'storage-quota', 'localStorage at ' + Math.round(total / 1048576 * 100) + '% capacity');
+                    }
+                }
+                return true;
+            } catch(e) {
+                if (typeof logIncident === 'function') logIncident('warning', 'storage-quota', 'localStorage write failed for ' + key + ': ' + e.message);
+                return false;
+            }
         }
         function safeRemove(key) {
             try { localStorage.removeItem(key); } catch(e) {}
@@ -1491,6 +1510,91 @@
         function safeParse(str, fallback) {
             if (!str) return fallback !== undefined ? fallback : null;
             try { return JSON.parse(str); } catch(e) { return fallback !== undefined ? fallback : null; }
+        }
+
+        // ===== SECURITY: URL SANITIZER (M1) =====
+        function sanitizeUrl(url) {
+            if (!url || typeof url !== 'string') return '#';
+            var trimmed = url.trim();
+            if (/^https?:\/\//i.test(trimmed)) return trimmed;
+            if (/^mailto:/i.test(trimmed)) return trimmed;
+            return '#';
+        }
+
+        // ===== SECURITY: IMPORT VALIDATOR (C2) =====
+        function sanitizeImport(raw) {
+            if (!raw || typeof raw !== 'object') throw new Error('Invalid import: not an object');
+            var allowed = ['profile','skills','roles','values','purpose','outcomes','preferences',
+                'applications','workHistory','education','certifications','verifications',
+                'savedJobs','initialized','templateId'];
+            var clean = {};
+            allowed.forEach(function(key) {
+                if (raw[key] !== undefined) clean[key] = raw[key];
+            });
+            // Strip privileged fields
+            delete clean.role;
+            delete clean.isAdmin;
+            // Sanitize profile strings
+            if (clean.profile && typeof clean.profile === 'object') {
+                Object.keys(clean.profile).forEach(function(k) {
+                    if (typeof clean.profile[k] === 'string') {
+                        clean.profile[k] = clean.profile[k].slice(0, 2000);
+                    }
+                });
+            }
+            // Sanitize skill names
+            if (Array.isArray(clean.skills)) {
+                clean.skills = clean.skills.filter(function(s) { return s && typeof s === 'object'; });
+                clean.skills.forEach(function(s) {
+                    if (typeof s.name === 'string') s.name = s.name.slice(0, 200);
+                    if (typeof s.level === 'string') s.level = s.level.slice(0, 50);
+                    if (typeof s.category === 'string') s.category = s.category.slice(0, 100);
+                });
+            }
+            // Sanitize roles
+            if (Array.isArray(clean.roles)) {
+                clean.roles = clean.roles.filter(function(r) { return r && typeof r === 'object'; });
+                clean.roles.forEach(function(r) {
+                    if (typeof r.name === 'string') r.name = r.name.slice(0, 200);
+                    if (typeof r.company === 'string') r.company = r.company.slice(0, 200);
+                });
+            }
+            // Sanitize savedJobs URLs
+            if (Array.isArray(clean.savedJobs)) {
+                clean.savedJobs.forEach(function(j) {
+                    if (j && j.sourceUrl) j.sourceUrl = sanitizeUrl(j.sourceUrl);
+                });
+            }
+            return clean;
+        }
+
+        // ===== SECURITY: GLOBAL ERROR HANDLERS (H5, H4) =====
+        window.onerror = function(msg, url, line, col, error) {
+            try {
+                if (typeof logIncident === 'function') {
+                    logIncident('error', 'runtime', String(msg).slice(0, 200) + ' at line ' + line, { col: col, stack: error && error.stack ? error.stack.slice(0, 500) : '' });
+                }
+            } catch(e) {}
+            return false;
+        };
+        window.addEventListener('unhandledrejection', function(event) {
+            try {
+                var reason = event.reason;
+                var msg = (reason && reason.message) ? reason.message : String(reason);
+                if (typeof logIncident === 'function') {
+                    logIncident('warning', 'unhandled-promise', String(msg).slice(0, 200));
+                }
+            } catch(e) {}
+        });
+
+        // ===== STABILITY: SAVE DEBOUNCE (H3) =====
+        var _saveDebounceTimer = null;
+        function debouncedSave(delay) {
+            if (_saveDebounceTimer) clearTimeout(_saveDebounceTimer);
+            _saveDebounceTimer = setTimeout(function() {
+                _saveDebounceTimer = null;
+                saveToFirestore();
+            }, delay || 2000);
         }
 
         // ===== SITE ANALYTICS TRACKER =====
@@ -2143,7 +2247,7 @@
             return fbDb.collection('users').doc(uid).get()
                 .then(function(doc) {
                     if (doc.exists && doc.data().role === 'admin') {
-                        console.log('👑 Admin role confirmed for', uid);
+                        console.log('👑 Admin role confirmed');
                         return true;
                     }
                     console.log('ℹ️ User role:', doc.exists ? (doc.data().role || 'user') : 'no document');
@@ -7373,7 +7477,7 @@
             
             var existing = idx >= 0 ? skill.evidence[idx] : { description: '', outcome: '' };
             var isEdit = idx >= 0;
-            var escapedName = skillName.replace(/'/g, "\\'");
+            var escapedName = escapeHtml(skillName).replace(/'/g, "\\'");
             
             // Inject form into the evidence list area of the open modal
             var container = document.getElementById('skillEvidenceList');
@@ -8871,7 +8975,7 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const imported = JSON.parse(e.target.result);
+                    const imported = sanitizeImport(JSON.parse(e.target.result));
                     userData = imported;
                     userData.initialized = true;
                     saveUserData();
@@ -9185,7 +9289,7 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const imported = JSON.parse(e.target.result);
+                    const imported = sanitizeImport(JSON.parse(e.target.result));
                     userData = { ...imported, initialized: true };
                     saveUserData();
                     closeWizard();
@@ -10239,15 +10343,15 @@ Rules:
                                         background:${levelColors[s.level] || '#6b7280'};"></div>
                             <div style="flex:1; min-width:0;">
                                 <div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">
-                                    ${s.name}
+                                    ${escapeHtml(s.name)}
                                 </div>
                                 <div style="font-size:0.78em; color:var(--text-muted);">
-                                    ${s.level} · ${s.evidence?.length || 0} evidence items
+                                    ${escapeHtml(s.level)} · ${s.evidence?.length || 0} evidence items
                                 </div>
                             </div>
                             <span style="font-size:0.75em; padding:3px 9px; border-radius:10px;
                                          background:var(--chip-bg); color:var(--text-secondary);">
-                                ${s.level}
+                                ${escapeHtml(s.level)}
                             </span>
                         </div>
                     `).join('')}
@@ -10604,18 +10708,18 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 <div style="background:var(--bg-elevated); border:1px solid var(--border);
                             border-radius:14px; padding:22px; margin-bottom:20px;">
                     <div style="font-weight:700; color:var(--text-primary); margin-bottom:12px; font-size:0.95em;">
-                        ${wizardState.profile.name || 'Your'} · ${wizardState.profile.currentTitle || ''}
+                        ${escapeHtml(wizardState.profile.name || 'Your')} · ${escapeHtml(wizardState.profile.currentTitle || '')}
                     </div>
                     ${wizardState.purpose ? `
                     <p style="color:var(--text-secondary); font-size:0.88em; line-height:1.7; margin-bottom:14px;
                                font-style:italic; border-left:3px solid var(--accent); padding-left:14px;">
-                        "${wizardState.purpose}"
+                        "${escapeHtml(wizardState.purpose)}"
                     </p>` : ''}
                     <div style="display:flex; flex-wrap:wrap; gap:6px;">
                         ${wizardState.values.filter(v=>v.selected).slice(0,5).map(v =>
                             `<span style="background:var(--chip-bg); border:1px solid var(--border);
                                           padding:4px 10px; border-radius:10px; font-size:0.78em;
-                                          color:var(--text-secondary);">${v.name}</span>`
+                                          color:var(--text-secondary);">${escapeHtml(v.name)}</span>`
                         ).join('')}
                     </div>
                 </div>
@@ -11914,9 +12018,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             var html = '<div class="jit-header" onclick="this.parentElement.classList.toggle(\'jit-expanded\')" style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;">'
                 + '<div style="flex:1; min-width:0;">'
-                + '<div class="jit-title">' + (job.title || 'Untitled Position') + '</div>';
+                + '<div class="jit-title">' + escapeHtml(job.title || 'Untitled Position') + '</div>';
             if (job.company) {
-                html += '<div class="jit-company">' + job.company + '</div>';
+                html += '<div class="jit-company">' + escapeHtml(job.company) + '</div>';
             }
             html += '</div>'
                 + '<div class="jit-chevron" style="color:var(--text-muted); font-size:0.8em; margin-left:8px; transition:transform 0.2s;">▾</div>'
@@ -11952,7 +12056,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Source link
             if (job.sourceUrl) {
-                html += '<div class="jit-source"><a href="' + job.sourceUrl + '" target="_blank" rel="noopener noreferrer">View posting \u2192</a></div>';
+                html += '<div class="jit-source"><a href="' + sanitizeUrl(job.sourceUrl) + '" target="_blank" rel="noopener noreferrer">View posting \u2192</a></div>';
             }
             
             html += '</div>'; // close jit-body
@@ -12342,8 +12446,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Header: job info + collapse/close
             html += '<div class="vap-header" id="vapDragHandle">'
                 + '<div class="vap-header-left">'
-                + '<div class="vap-job-title">' + (job.title || 'Untitled Position') + '</div>'
-                + '<div class="vap-job-company">' + (job.company || '') + '</div>'
+                + '<div class="vap-job-title">' + escapeHtml(job.title || 'Untitled Position') + '</div>'
+                + '<div class="vap-job-company">' + escapeHtml(job.company || '') + '</div>'
                 + '</div>'
                 + '<div class="vap-header-controls">'
                 + '<button class="vap-ctrl-btn" onclick="toggleValuesPanel()" title="Collapse" id="vapCollapseBtn">\u2212</button>'
@@ -12804,7 +12908,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 // Auto-save every 60 seconds (Firestore + localStorage)
                 setInterval(() => {
                     saveUserData();
-                    if (fbUser && fbDb) saveToFirestore();
+                    if (fbUser && fbDb) debouncedSave(500);
                 }, 60000);
             }
             
@@ -13569,7 +13673,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (rolesContainer && userData.roles) {
                 rolesContainer.innerHTML = `<div class="role-chip active" data-role="all" onclick="filterByRole('all')">All</div>` +
                     userData.roles.map(role => 
-                        `<div class="role-chip" data-role="${role.id}" onclick="filterByRole('${role.id}')">${role.name}</div>`
+                        `<div class="role-chip" data-role="${escapeHtml(role.id)}" onclick="filterByRole('${escapeHtml(role.id)}')">${escapeHtml(role.name)}</div>`
                     ).join('');
             }
             
@@ -13988,7 +14092,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
         
         function createBlueprintHTML(data) {
-            const htmlContent = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Blueprint - ' + data.name + '</title><link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}:root{--primary:#1e40af;--accent:#f59e0b;--text:#1f2937;--text-light:#6b7280;--border:#e5e7eb;--bg:#fff;--bg-alt:#f9fafb}body{font-family:Crimson Pro,Georgia,serif;color:var(--text);background:var(--bg);line-height:1.7;font-size:18px}.container{max-width:900px;margin:0 auto;padding:60px 40px}header{border-bottom:3px solid var(--primary);padding-bottom:40px;margin-bottom:60px}h1{font-size:48px;font-weight:700;color:var(--primary);margin-bottom:10px}h2{font-size:32px;font-weight:700;color:var(--primary);margin-bottom:20px;border-left:4px solid var(--accent);padding-left:20px}section{margin-bottom:60px}p{margin-bottom:16px}.subtitle{font-size:24px;color:var(--text-light);margin-bottom:20px}.headline{font-size:20px;color:var(--accent);font-weight:600}.meta{font-family:JetBrains Mono,monospace;font-size:14px;color:var(--text-light);margin-top:20px}.skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;margin-top:30px}.skill-card{background:var(--bg-alt);border:1px solid var(--border);border-left:4px solid #3b82f6;padding:20px}.skill-name{font-size:18px;font-weight:600;color:var(--primary);margin-bottom:8px}.skill-level{font-family:JetBrains Mono,monospace;font-size:12px;color:var(--accent);text-transform:uppercase}.outcome{background:linear-gradient(to right,var(--bg-alt),var(--bg));border-left:4px solid var(--accent);padding:24px;margin-bottom:20px}.outcome-title{font-size:20px;font-weight:600;color:var(--primary);margin-bottom:8px}.outcome-metric{font-family:JetBrains Mono,monospace;font-size:16px;color:var(--accent);margin-bottom:10px}.comp-framework{background:var(--bg-alt);border:2px solid var(--primary);padding:30px;margin-top:30px}.comp-row{display:flex;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border)}.comp-label{font-weight:600}.comp-value{font-family:JetBrains Mono,monospace;color:var(--primary);font-weight:600}.quote-block{background:linear-gradient(135deg,var(--primary),#3b82f6);color:#fff;padding:40px;margin:40px 0;font-size:22px;font-style:italic}@media print{body{font-size:11pt}.container{padding:20px}h1{font-size:28pt}h2{font-size:18pt}}</style></head><body><div class="container"><header><h1>' + data.name + '</h1><div class="subtitle">' + data.title + '</div><div class="headline">' + data.headline + '</div><div class="meta">Generated: ' + data.generatedDate + '</div></header><section><h2>Executive Summary</h2><p>' + data.executiveSummary + '</p></section><section><h2>Core Competencies</h2><p>Strategic capabilities driving measurable impact:</p><div class="skills-grid">' + data.coreCompetencies.map(s => '<div class="skill-card"><div class="skill-name">' + s.name + '</div><div class="skill-level">' + (s.proficiency || 'Expert') + '</div></div>').join('') + '</div></section><section><h2>Strategic Outcomes</h2>' + data.strategicOutcomes.map(o => '<div class="outcome"><div class="outcome-title">' + o.title + '</div><div class="outcome-metric">' + o.metric + '</div><p>' + o.description + '</p></div>').join('') + '</section><section><h2>Leadership Philosophy</h2><p>' + data.leadershipPhilosophy + '</p></section><div class="quote-block">"' + data.marketPositioning + '"</div><section><h2>Compensation Framework</h2><p>Market-informed positioning based on skill depth and impact:</p><div class="comp-framework"><div class="comp-row"><span class="comp-label">Base Market Rate</span><span class="comp-value">$' + Math.round(data.compensation.marketRate || 200000).toLocaleString() + '</span></div><div class="comp-row"><span class="comp-label">Conservative Range</span><span class="comp-value">$' + Math.round(data.compensation.conservativeOffer || 225000).toLocaleString() + '</span></div><div class="comp-row"><span class="comp-label">Competitive Range</span><span class="comp-value">$' + Math.round(data.compensation.competitiveOffer || 275000).toLocaleString() + '</span></div></div></section><section><h2>Career Narrative</h2><p>' + data.careerNarrative + '</p></section><section><h2>Future Vision</h2><p>' + data.futureVision + '</p></section><footer style="margin-top:80px;padding-top:40px;border-top:2px solid var(--border);color:var(--text-light);font-size:14px"><p>This Blueprint is a living document representing strategic capabilities and market positioning as of ' + data.generatedDate + '.</p><p style=\"margin-top:8px;\">&copy; ' + new Date().getFullYear() + ' Cliff Jurkiewicz. All rights reserved. Blueprint&trade; and its methodologies are the intellectual property of Cliff Jurkiewicz. · myblueprint.work</p></footer></div></body></html>';
+            var e = escapeHtml; // shorthand
+            const htmlContent = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Blueprint - ' + e(data.name) + '</title><link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}:root{--primary:#1e40af;--accent:#f59e0b;--text:#1f2937;--text-light:#6b7280;--border:#e5e7eb;--bg:#fff;--bg-alt:#f9fafb}body{font-family:Crimson Pro,Georgia,serif;color:var(--text);background:var(--bg);line-height:1.7;font-size:18px}.container{max-width:900px;margin:0 auto;padding:60px 40px}header{border-bottom:3px solid var(--primary);padding-bottom:40px;margin-bottom:60px}h1{font-size:48px;font-weight:700;color:var(--primary);margin-bottom:10px}h2{font-size:32px;font-weight:700;color:var(--primary);margin-bottom:20px;border-left:4px solid var(--accent);padding-left:20px}section{margin-bottom:60px}p{margin-bottom:16px}.subtitle{font-size:24px;color:var(--text-light);margin-bottom:20px}.headline{font-size:20px;color:var(--accent);font-weight:600}.meta{font-family:JetBrains Mono,monospace;font-size:14px;color:var(--text-light);margin-top:20px}.skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;margin-top:30px}.skill-card{background:var(--bg-alt);border:1px solid var(--border);border-left:4px solid #3b82f6;padding:20px}.skill-name{font-size:18px;font-weight:600;color:var(--primary);margin-bottom:8px}.skill-level{font-family:JetBrains Mono,monospace;font-size:12px;color:var(--accent);text-transform:uppercase}.outcome{background:linear-gradient(to right,var(--bg-alt),var(--bg));border-left:4px solid var(--accent);padding:24px;margin-bottom:20px}.outcome-title{font-size:20px;font-weight:600;color:var(--primary);margin-bottom:8px}.outcome-metric{font-family:JetBrains Mono,monospace;font-size:16px;color:var(--accent);margin-bottom:10px}.comp-framework{background:var(--bg-alt);border:2px solid var(--primary);padding:30px;margin-top:30px}.comp-row{display:flex;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border)}.comp-label{font-weight:600}.comp-value{font-family:JetBrains Mono,monospace;color:var(--primary);font-weight:600}.quote-block{background:linear-gradient(135deg,var(--primary),#3b82f6);color:#fff;padding:40px;margin:40px 0;font-size:22px;font-style:italic}@media print{body{font-size:11pt}.container{padding:20px}h1{font-size:28pt}h2{font-size:18pt}}</style></head><body><div class="container"><header><h1>' + e(data.name) + '</h1><div class="subtitle">' + e(data.title) + '</div><div class="headline">' + e(data.headline) + '</div><div class="meta">Generated: ' + e(data.generatedDate) + '</div></header><section><h2>Executive Summary</h2><p>' + e(data.executiveSummary) + '</p></section><section><h2>Core Competencies</h2><p>Strategic capabilities driving measurable impact:</p><div class="skills-grid">' + data.coreCompetencies.map(s => '<div class="skill-card"><div class="skill-name">' + e(s.name) + '</div><div class="skill-level">' + e(s.proficiency || 'Expert') + '</div></div>').join('') + '</div></section><section><h2>Strategic Outcomes</h2>' + data.strategicOutcomes.map(o => '<div class="outcome"><div class="outcome-title">' + e(o.title) + '</div><div class="outcome-metric">' + e(o.metric) + '</div><p>' + e(o.description) + '</p></div>').join('') + '</section><section><h2>Leadership Philosophy</h2><p>' + e(data.leadershipPhilosophy) + '</p></section><div class="quote-block">"' + e(data.marketPositioning) + '"</div><section><h2>Compensation Framework</h2><p>Market-informed positioning based on skill depth and impact:</p><div class="comp-framework"><div class="comp-row"><span class="comp-label">Base Market Rate</span><span class="comp-value">$' + Math.round(data.compensation.marketRate || 200000).toLocaleString() + '</span></div><div class="comp-row"><span class="comp-label">Conservative Range</span><span class="comp-value">$' + Math.round(data.compensation.conservativeOffer || 225000).toLocaleString() + '</span></div><div class="comp-row"><span class="comp-label">Competitive Range</span><span class="comp-value">$' + Math.round(data.compensation.competitiveOffer || 275000).toLocaleString() + '</span></div></div></section><section><h2>Career Narrative</h2><p>' + e(data.careerNarrative) + '</p></section><section><h2>Future Vision</h2><p>' + e(data.futureVision) + '</p></section><footer style="margin-top:80px;padding-top:40px;border-top:2px solid var(--border);color:var(--text-light);font-size:14px"><p>This Blueprint is a living document representing strategic capabilities and market positioning as of ' + e(data.generatedDate) + '.</p><p style=\"margin-top:8px;\">&copy; ' + new Date().getFullYear() + ' Cliff Jurkiewicz. All rights reserved. Blueprint&trade; and its methodologies are the intellectual property of Cliff Jurkiewicz. &middot; myblueprint.work</p></footer></div></body></html>';
             return htmlContent;
         }
         
@@ -14129,7 +14234,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Evidence section — EDITABLE (v4.16.1)
             var rawEvidence = skillData.evidence || [];
-            var escapedSkillName = skillName.replace(/'/g, "\\'");
+            var escapedSkillName = escapeHtml(skillName).replace(/'/g, "\\'");
             
             bodyHTML += '<div class="modal-section">';
             bodyHTML += '<div class="modal-section-title" style="display:flex; justify-content:space-between; align-items:center;">';
@@ -14283,16 +14388,16 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var actionsHtml = '';
             if (!isReadOnlyProfile) {
             actionsHtml = '<div style="display:flex; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">'
-                + '<button onclick="closeSkillModal(); openEditSkillModal(\'' + skillName.replace(/'/g, "\\'") + '\', \'' + (skillData.category || 'unique') + '\');" '
+                + '<button onclick="closeSkillModal(); openEditSkillModal(\'' + escapedSkillName + '\', \'' + (skillData.category || 'unique') + '\');" '
                 + 'style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
                 + `${bpIcon('edit',14)} Edit Skill</button>`
-                + '<button onclick="closeSkillModal(); openAssessSkillModal(\'' + skillName.replace(/'/g, "\\'") + '\');" '
+                + '<button onclick="closeSkillModal(); openAssessSkillModal(\'' + escapedSkillName + '\');" '
                 + 'style="padding:10px 20px; background:rgba(96,165,250,0.15); color:var(--accent); border:1px solid rgba(96,165,250,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
                 + `${bpIcon('clipboard',14)} Assess</button>`
-                + '<button onclick="closeSkillModal(); requestVerification([\'' + skillName.replace(/'/g, "\\'") + '\']);" '
+                + '<button onclick="closeSkillModal(); requestVerification([\'' + escapedSkillName + '\']);" '
                 + 'style="padding:10px 20px; background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
                 + `${bpIcon('check',14)} Verify</button>`
-                + '<button onclick="if(confirm(\'Remove ' + skillName.replace(/'/g, "\\'") + ' from your profile?\')){deleteSkillFromProfile(\'' + skillName.replace(/'/g, "\\'") + '\'); closeSkillModal();}" '
+                + '<button onclick="if(confirm(\'Remove ' + escapedSkillName + ' from your profile?\')){deleteSkillFromProfile(\'' + escapedSkillName + '\'); closeSkillModal();}" '
                 + 'style="margin-left:auto; padding:10px 16px; background:none; color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-size:0.9em;">'
                 + `${bpIcon('trash',14)} Remove</button>`
                 + '</div>';
@@ -14456,12 +14561,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Competencies grid
             const compHTML = d.competencies.map(s => {
                 const levelDot = s.level === 'Mastery' ? '●●●' : s.level === 'Expert' ? '●●○' : s.level === 'Advanced' ? '●○○' : '○○○';
-                return `<div class="comp-item"><span class="comp-name">${s.name}</span><span class="comp-dots">${levelDot}</span></div>`;
+                return `<div class="comp-item"><span class="comp-name">${escapeHtml(s.name)}</span><span class="comp-dots">${levelDot}</span></div>`;
             }).join('\n');
 
             // Values
             const valuesHTML = d.values.length
-                ? d.values.map(v => `<span class="value-tag">${v}</span>`).join('')
+                ? d.values.map(v => `<span class="value-tag">${escapeHtml(v)}</span>`).join('')
                 : '';
 
             // Contact items
@@ -14471,7 +14576,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (location) contactParts.push(`<div class="contact-item">${location}</div>`);
             if (d.linkedinUrl) {
                 const shortLi = d.linkedinUrl.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
-                contactParts.push(`<div class="contact-item"><a href="${d.linkedinUrl}" style="color:var(--ink-2); text-decoration:none;">${shortLi}</a></div>`);
+                contactParts.push(`<div class="contact-item"><a href="${sanitizeUrl(d.linkedinUrl)}" style="color:var(--ink-2); text-decoration:none;">${escapeHtml(shortLi)}</a></div>`);
             }
             if (d.yearsExperience) contactParts.push(`<div class="contact-item">${d.yearsExperience}+ Years Experience</div>`);
             const contactHTML = contactParts.join('<div class="contact-sep">·</div>');
@@ -16815,7 +16920,7 @@ body {
                             font-size: 1em;
                         ">
                             <option value="">-- None --</option>
-                            ${skillsData.skills.slice().sort((a,b) => a.name.localeCompare(b.name)).map(s => `<option value="${s.name}">${s.name}</option>`).join('')}
+                            ${skillsData.skills.slice().sort((a,b) => a.name.localeCompare(b.name)).map(s => `<option value="${escapeHtml(s.name)}">${escapeHtml(s.name)}</option>`).join('')}
                         </select>
                     </div>
                     
@@ -17081,8 +17186,8 @@ body {
                     + 'border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; transition:border-color 0.2s; display:flex; justify-content:space-between; align-items:center;" '
                     + 'onmouseover="this.style.borderColor=\'rgba(96,165,250,0.4)\'" onmouseout="this.style.borderColor=\'var(--c-border-subtle)\'">'
                     + '<div style="flex:1; min-width:0;">'
-                    + '<div style="font-weight:600; color:var(--c-text); margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + job.title + '</div>'
-                    + '<div style="font-size:0.82em; color:var(--c-muted);">' + (job.company || 'Unknown company')
+                    + '<div style="font-weight:600; color:var(--c-text); margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(job.title) + '</div>'
+                    + '<div style="font-size:0.82em; color:var(--c-muted);">' + escapeHtml(job.company || 'Unknown company')
                     + ' \u00B7 ' + matchedCount + ' matched \u00B7 ' + gapCount + ' gap' + (gapCount !== 1 ? 's' : '') + '</div>'
                     + '</div>'
                     + '<div style="text-align:center; min-width:56px; margin-left:12px;">'
@@ -17135,8 +17240,8 @@ body {
                     + '</div>'
                     + '<div class="modal-body" style="padding:24px;">'
                     + '<div style="padding:14px 16px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">'
-                    + '<div><div style="font-weight:600;">' + (job.title || 'Untitled') + '</div>'
-                    + '<div style="font-size:0.82em; color:var(--c-muted);">' + (job.company || 'Unknown company') + '</div></div>'
+                    + '<div><div style="font-weight:600;">' + escapeHtml(job.title || 'Untitled') + '</div>'
+                    + '<div style="font-size:0.82em; color:var(--c-muted);">' + escapeHtml(job.company || 'Unknown company') + '</div></div>'
                     + '<div style="font-size:1.3em; font-weight:800; color:' + scoreColor + ';">' + score + '%</div></div>'
                     + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:16px;">Choose a format to preview a sample scouting report:</div>'
                     + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
@@ -17183,8 +17288,8 @@ body {
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px;">'
                 + '<div style="padding:14px 16px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">'
-                + '<div><div style="font-weight:600;">' + (job.title || 'Untitled') + '</div>'
-                + '<div style="font-size:0.82em; color:var(--c-muted);">' + (job.company || 'Unknown company') + '</div></div>'
+                + '<div><div style="font-weight:600;">' + escapeHtml(job.title || 'Untitled') + '</div>'
+                + '<div style="font-size:0.82em; color:var(--c-muted);">' + escapeHtml(job.company || 'Unknown company') + '</div></div>'
                 + '<div style="font-size:1.3em; font-weight:800; color:' + scoreColor + ';">' + score + '%</div></div>'
                 + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:16px;">Choose a format for your scouting report:</div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
@@ -21073,7 +21178,7 @@ body {
                     + '<div style="font-size:0.88em; color:var(--text-muted);">'
                     + (job.company || '')
                     + (job.company && dateStr ? ' \u00B7 ' : '') + dateStr
-                    + (job.sourceUrl ? ' \u00B7 <a href="' + job.sourceUrl + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color:var(--accent); text-decoration:none;">Source \u2192</a>' : '')
+                    + (job.sourceUrl ? ' \u00B7 <a href="' + sanitizeUrl(job.sourceUrl) + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color:var(--accent); text-decoration:none;">Source \u2192</a>' : '')
                     + (job.sourceNote ? ' \u00B7 ' + job.sourceNote : '')
                     + '</div></div>'
                     + '<div style="text-align:right; min-width:70px;">'
@@ -21473,7 +21578,7 @@ body {
                 }
                 userData.savedJobs.unshift(job);
                 saveUserData();
-                if (fbUser) saveToFirestore();
+                if (fbUser) debouncedSave();
                 
                 closeExportModal();
                 
@@ -22940,7 +23045,7 @@ body {
             
             if (updated > 0) {
                 saveUserData();
-                if (fbUser) saveToFirestore();
+                if (fbUser) debouncedSave();
                 showToast(updated + ' job match score' + (updated > 1 ? 's' : '') + ' updated.', 'info', 3000);
             }
         }
@@ -22956,7 +23061,7 @@ body {
             job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles || [] });
             if (!job.companyValues) job.companyValues = getCompanyValues(job.company, job.rawText || job.description || "");
             saveUserData();
-            if (fbUser) saveToFirestore();
+            if (fbUser) debouncedSave();
             showJobDetail(idx);
             var delta = job.matchData.score - oldScore;
             var deltaStr = delta > 0 ? ' (+' + delta + ')' : delta < 0 ? ' (' + delta + ')' : '';
@@ -23008,7 +23113,7 @@ body {
                 + '<p style="font-size:0.82em; color:var(--text-muted); margin-bottom:16px;">The skill will be added to your profile and all job matches will be rescored automatically.</p>'
                 + '<div style="display:flex; gap:10px; justify-content:flex-end;">'
                 + '<button onclick="closeExportModal()" style="padding:10px 20px; background:rgba(255,255,255,0.1); border:1px solid var(--border); border-radius:6px; cursor:pointer; color:var(--text-primary);">Cancel</button>'
-                + '<button onclick="confirmQuickAddGapSkill(\'' + skillName.replace(/'/g, "\\'") + '\', ' + jobIdx + ')" style="'
+                + '<button onclick="confirmQuickAddGapSkill(\'' + escapeHtml(skillName).replace(/'/g, "\\'") + '\', ' + jobIdx + ')" style="'
                 + 'padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Add to Profile</button>'
                 + '</div></div>';
             
@@ -23039,7 +23144,7 @@ body {
             registerInSkillLibrary(skillName, 'unique');
             
             saveUserData();
-            if (fbUser) saveToFirestore();
+            if (fbUser) debouncedSave();
             rescoreAllJobs();
             
             closeExportModal();
@@ -23111,7 +23216,7 @@ body {
                 + '<div>'
                 + '<h2 style="font-size:1.5em; font-weight:700; color:var(--text-primary); margin:0;">' + (job.title || 'Untitled') + '</h2>'
                 + '<div style="color:var(--text-muted); margin-top:4px;">' + (job.company || '') 
-                + (job.sourceUrl ? ' \u00B7 <a href="' + job.sourceUrl + '" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">View original</a>' : '') + '</div>'
+                + (job.sourceUrl ? ' \u00B7 <a href="' + sanitizeUrl(job.sourceUrl) + '" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">View original</a>' : '') + '</div>'
                 + '</div>'
                 + '<div style="text-align:center; padding:12px 24px; border-radius:12px; '
                 + 'background:' + matchColor + '15; border:2px solid ' + matchColor + '40;">'
@@ -23342,7 +23447,7 @@ body {
             if (!confirm('Remove this job from your pipeline?')) return;
             userData.savedJobs.splice(idx, 1);
             saveUserData();
-            if (fbUser) saveToFirestore();
+            if (fbUser) debouncedSave();
             // Clear overlay if this was the active job
             if (activeJobForNetwork && activeJobForNetwork.id === (userData.savedJobs[idx] || {}).id) {
                 clearJobOverlay();
@@ -23417,7 +23522,7 @@ body {
             job.sourceNote = (document.getElementById('editJobNote').value || '').trim();
             
             saveUserData();
-            if (fbUser) saveToFirestore();
+            if (fbUser) debouncedSave();
             closeExportModal();
             showJobDetail(idx);
             showToast('Job info updated.', 'success');
@@ -23461,7 +23566,7 @@ body {
                     if (parsed.company) job.company = parsed.company;
                     
                     saveUserData();
-                    if (fbUser) saveToFirestore();
+                    if (fbUser) debouncedSave();
                     
                     showJobDetail(idx);
                     showToast('Re-analyzed: ' + matchData.score + '% match with ' + (matchData.matched || []).length + ' skills.', 'success', 5000);
@@ -24258,7 +24363,7 @@ body {
             
             userData.savedJobs.unshift(pipelineJob);
             saveUserData();
-            if (fbUser) saveToFirestore();
+            if (fbUser) debouncedSave();
             
             showToast(job.title + ' added to pipeline: ' + matchData.score + '% match.', 'success', 4000);
             if (typeof bpTracker !== 'undefined' && bpTracker.sid) bpTracker.trackFunnel('first_job');
@@ -25647,12 +25752,19 @@ body {
                     const imported = JSON.parse(e.target.result);
                     
                     if (confirm('This will replace your current Blueprint data. Continue?')) {
-                        // Restore all data
-                        if (imported.userData) Object.assign(userData, imported.userData);
-                        if (imported.blueprintData) Object.assign(blueprintData, imported.blueprintData);
-                        if (imported.skillsData) {
-                            if (imported.skillsData.skills) skillsData.skills = imported.skillsData.skills;
-                            if (imported.skillsData.roles) skillsData.roles = imported.skillsData.roles;
+                        // Restore all data with sanitization
+                        if (imported.userData) {
+                            var safeUserData = sanitizeImport(imported.userData);
+                            Object.assign(userData, safeUserData);
+                        }
+                        if (imported.blueprintData && typeof imported.blueprintData === 'object') {
+                            if (Array.isArray(imported.blueprintData.values)) blueprintData.values = imported.blueprintData.values;
+                            if (Array.isArray(imported.blueprintData.outcomes)) blueprintData.outcomes = imported.blueprintData.outcomes;
+                            if (typeof imported.blueprintData.purpose === 'string') blueprintData.purpose = imported.blueprintData.purpose.slice(0, 5000);
+                        }
+                        if (imported.skillsData && typeof imported.skillsData === 'object') {
+                            if (Array.isArray(imported.skillsData.skills)) skillsData.skills = imported.skillsData.skills;
+                            if (Array.isArray(imported.skillsData.roles)) skillsData.roles = imported.skillsData.roles;
                             if (imported.skillsData.skillDetails) skillsData.skillDetails = imported.skillsData.skillDetails;
                         }
                         
@@ -25783,7 +25895,7 @@ body {
                             ✏️ Edit
                         </button>
                         ${app.url ? `
-                            <button class="application-btn" onclick="window.open('${app.url}', '_blank')">
+                            <button class="application-btn" onclick="window.open('${sanitizeUrl(app.url)}', '_blank')">
                                 ${bpIcon("external",12)} View Job
                             </button>
                         ` : ''}
@@ -27262,8 +27374,8 @@ body {
             var rolesEl = document.getElementById('bulkImportRoles');
             rolesEl.innerHTML = (userData.roles || []).map(function(role) {
                 return '<label style="display:flex; align-items:center; gap:8px; cursor:pointer;">'
-                    + '<input type="checkbox" value="' + role.id + '" class="bulk-role-checkbox">'
-                    + '<span style="font-size:0.9em;">' + role.name + '</span></label>';
+                    + '<input type="checkbox" value="' + escapeHtml(role.id) + '" class="bulk-role-checkbox">'
+                    + '<span style="font-size:0.9em;">' + escapeHtml(role.name) + '</span></label>';
             }).join('');
             
             history.pushState({ modal: true }, ''); modal.classList.add('active');
@@ -27655,7 +27767,7 @@ body {
             
             // Save, rescore, refresh
             saveUserData();
-            if (fbUser) saveToFirestore();
+            if (fbUser) debouncedSave();
             rescoreAllJobs();
             refreshAllViews();
             
@@ -27795,7 +27907,7 @@ body {
             });
             
             saveUserData();
-            if (fbUser) saveToFirestore();
+            if (fbUser) debouncedSave();
             rescoreAllJobs();
             refreshAllViews();
             renderBulkManagerList();
@@ -27817,7 +27929,7 @@ body {
             });
             
             saveUserData();
-            if (fbUser) saveToFirestore();
+            if (fbUser) debouncedSave();
             rescoreAllJobs();
             refreshAllViews();
             renderBulkManagerList();
@@ -27848,8 +27960,8 @@ body {
             const rolesContainer = document.getElementById('editSkillRoles');
             rolesContainer.innerHTML = userData.roles.map(role => `
                 <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                    <input type="checkbox" value="${role.id}" class="edit-skill-role-checkbox" ${skill.roles.includes(role.id) ? 'checked' : ''}>
-                    <span>${role.name}</span>
+                    <input type="checkbox" value="${escapeHtml(role.id)}" class="edit-skill-role-checkbox" ${skill.roles.includes(role.id) ? 'checked' : ''}>
+                    <span>${escapeHtml(role.name)}</span>
                 </label>
             `).join('');
             
@@ -27865,7 +27977,7 @@ body {
                     + '<span style="color:' + evColor + '; font-weight:600;">' + evs.points + ' evidence pts \u2192 ' + evs.effectiveLevel + '</span>'
                     + '<span style="color:var(--c-muted); margin-left:8px;">(' + evs.evidenceCount + ' outcome' + (evs.evidenceCount !== 1 ? 's' : '') + ')</span>'
                     + (evs.verifiedCount > 0 ? ' <span style="color:#10b981;"> \u2713 ' + evs.verifiedCount + ' verified</span>' : '')
-                    + '<br><button onclick="closeEditSkillModal(); setTimeout(function(){ var sk = (skillsData.skills||[]).find(function(s){return s.name===\'' + skillName.replace(/'/g,"\\'") + '\';}); if(sk) openSkillModal(\'' + skillName.replace(/'/g,"\\'") + '\', sk); }, 100);" '
+                    + '<br><button onclick="closeEditSkillModal(); setTimeout(function(){ var sk = (skillsData.skills||[]).find(function(s){return s.name===\'' + escapeHtml(skillName).replace(/'/g,"\\'") + '\';}); if(sk) openSkillModal(\'' + escapeHtml(skillName).replace(/'/g,"\\'") + '\', sk); }, 100);" '
                     + 'style="margin-top:6px; padding:3px 10px; background:transparent; border:1px solid var(--c-green-border-2); color:#10b981; border-radius:4px; cursor:pointer; font-size:0.88em;">+ Add Evidence</button>'
                     + '</div>';
             }
