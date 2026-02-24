@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.42.1 | 20260224 | Fix: values card visibility, quickScore inflation, network job badges on view switch -->
+    <!-- v4.42.2 | 20260224 | CRITICAL: Fix Firestore save blocked by templateId guard, fix data sync order, values re-render -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.42.1 - BUILD 20260224-values-scoring-badges-fix
-        var BP_VERSION = 'v4.42.1';
+        // BLUEPRINT v4.42.2 - BUILD 20260224-critical-save-fix
+        var BP_VERSION = 'v4.42.2';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2220,7 +2220,7 @@
             
             // GUARD: Never save demo/sample profile data to the user's Firestore doc
             var tid = userData.templateId || '';
-            if (tid && tid.indexOf('firestore-') !== 0) {
+            if (tid && tid.indexOf('firestore-') !== 0 && tid !== 'wizard-built') {
                 // Viewing a sample profile — skip save silently
                 return Promise.resolve(false);
             }
@@ -9769,18 +9769,33 @@ Rules:
         function wizardToggleValue(i) {
             if (readOnlyGuard()) return;
             wizardState.values[i].selected = !wizardState.values[i].selected;
-            var card = document.getElementById('val-card-' + i);
-            var v = wizardState.values[i];
-            if (card) {
-                card.style.borderColor = v.selected ? 'var(--accent, #3b82f6)' : 'var(--border, #334155)';
-                card.style.background = v.selected ? 'rgba(59,130,246,0.08)' : 'var(--bg-elevated, #1e293b)';
-                card.setAttribute('data-selected', v.selected ? '1' : '0');
-                var check = card.querySelector('div > div > div:first-child');
-                if (check) {
-                    check.style.background = v.selected ? 'var(--accent, #3b82f6)' : 'var(--input-bg, #0f172a)';
-                    check.style.borderColor = v.selected ? 'var(--accent, #3b82f6)' : 'var(--border, #334155)';
-                    check.textContent = v.selected ? '\u2713' : '';
-                }
+            // Re-render the grid and counter (avoids fragile DOM patching)
+            var grid = document.getElementById('valuesGrid');
+            if (grid) {
+                var vals = wizardState.values;
+                grid.innerHTML = vals.map(function(v, idx) {
+                    var sel = v.selected;
+                    return '<div onclick="wizardToggleValue(' + idx + ')" id="val-card-' + idx + '"'
+                        + ' style="background:' + (sel ? 'rgba(59,130,246,0.08)' : 'var(--bg-elevated, #1e293b)') + ';'
+                        + ' border:2px solid ' + (sel ? 'var(--accent, #3b82f6)' : 'var(--border, #334155)') + ';'
+                        + ' border-radius:10px; padding:12px; cursor:pointer;">'
+                        + '<div style="display:flex; align-items:start; gap:10px;">'
+                        + '<div style="width:18px; height:18px; border-radius:4px; flex-shrink:0; margin-top:2px;'
+                        + ' background:' + (sel ? 'var(--accent, #3b82f6)' : 'var(--input-bg, #0f172a)') + ';'
+                        + ' border:2px solid ' + (sel ? 'var(--accent, #3b82f6)' : 'var(--border, #334155)') + ';'
+                        + ' display:flex; align-items:center; justify-content:center;'
+                        + ' color:#fff; font-size:11px; line-height:1;">'
+                        + (sel ? '\u2713' : '')
+                        + '</div>'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="font-weight:700; color:var(--text-primary, #e2e8f0); font-size:0.86em; margin-bottom:3px;">'
+                        + escapeHtml(v.name) + '</div>'
+                        + '<div onclick="event.stopPropagation(); wizardEditValueDesc(' + idx + ', this)" '
+                        + 'style="font-size:0.76em; color:var(--text-secondary, #94a3b8); line-height:1.4; cursor:text;" '
+                        + 'title="Click to edit">'
+                        + escapeHtml(v.description || '') + '</div>'
+                        + '</div></div></div>';
+                }).join('');
             }
             var countEl = document.getElementById('valuesCount');
             if (countEl) countEl.textContent = wizardState.values.filter(function(v) { return v.selected; }).length + ' selected';
@@ -9988,21 +10003,22 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 </div>
 
                 <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px;">
-                    <button onclick="wizardDownloadAndLaunch()"
+                    <button onclick="wizardLaunchOnly()"
                             style="flex:1; background:var(--accent); color:#fff; border:none;
                                    padding:14px 24px; border-radius:10px; cursor:pointer;
                                    font-size:0.95em; font-weight:700; min-width:200px;">
-                        ${bpIcon("save",14)} Save Profile & Go to Dashboard
+                        ${bpIcon("save",14)} Save & Go to Dashboard
                     </button>
-                    <button onclick="wizardLaunchOnly()"
+                    <button onclick="wizardDownloadBackup()"
                             style="background:var(--input-bg); color:var(--text-primary); border:1px solid var(--border);
-                                   padding:14px 20px; border-radius:10px; cursor:pointer; font-size:0.88em;">
-                        Explore Dashboard →
+                                   padding:14px 20px; border-radius:10px; cursor:pointer; font-size:0.88em;"
+                            title="Download a JSON backup of your profile">
+                        ${bpIcon("clipboard",12)} Download Backup
                     </button>
                 </div>
 
                 <p style="text-align:center; font-size:0.8em; color:var(--text-muted);">
-                    Your profile is saved to your account automatically. Download the JSON file as a backup.
+                    Your profile saves to your account automatically when signed in.
                 </p>
             `;
         }
@@ -10037,9 +10053,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             };
         }
 
-        function wizardDownloadAndLaunch() {
+        function wizardDownloadBackup() {
             const built = wizardBuildUserData();
-            // Download JSON
+            // Download JSON backup
             const blob = new Blob([JSON.stringify(built, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -10047,8 +10063,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             a.download = `blueprint-${(built.profile.name || 'profile').toLowerCase().replace(/\s+/g,'-')}.json`;
             a.click();
             URL.revokeObjectURL(url);
-            // Apply and launch
-            wizardApplyAndLaunch(built);
+            showToast('Backup downloaded.', 'info');
         }
 
         function wizardLaunchOnly() {
@@ -10063,21 +10078,35 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Store wizard profile in templates so it loads on reload
             templates['wizard-built'] = built;
 
+            // Update all data structures BEFORE saving to Firestore
+            // (saveToFirestore reads from skillsData and blueprintData, not userData directly)
+            normalizeUserRoles();
+            skillsData.skills = userData.skills || [];
+            skillsData.roles = userData.roles || [];
+            skillsData.skillDetails = {};
+            blueprintData.values = userData.values || [];
+            blueprintData.purpose = userData.purpose || '';
+            blueprintData.outcomes = userData.outcomes || [];
+
             // Save to Firestore if signed in
             if (fbUser && fbDb) {
-                saveToFirestore();
-                showToast('Profile saved to your account.', 'success');
+                saveToFirestore().then(function(ok) {
+                    if (ok) {
+                        showToast('Profile saved to your account.', 'success');
+                    } else {
+                        showToast('Profile save failed. Use Download Backup to keep your data.', 'warning', 6000);
+                        logIncident('critical', 'wizard-save', 'Firestore save returned false after wizard completion');
+                    }
+                }).catch(function(err) {
+                    showToast('Save error: ' + err.message, 'error', 6000);
+                    logIncident('critical', 'wizard-save', 'Firestore save threw: ' + err.message);
+                });
             } else {
                 // Prompt to sign in so data persists
                 showToast('Sign in to save your profile permanently.', 'info');
             }
 
             closeWizard();
-            // Re-initialize the app with new data
-            normalizeUserRoles();
-            skillsData.skills = userData.skills || [];
-            skillsData.roles = userData.roles || [];
-            skillsData.skillDetails = {};
             renderFilterChips();
             // Only update chip for non-signed-in users (signed-in users get chip from updateAuthUI)
             if (!fbUser) {
@@ -10142,7 +10171,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         window.wizardSaveValues = wizardSaveValues;
         window.wizardSavePurpose = wizardSavePurpose;
         window.wizardRegeneratePurpose = wizardRegeneratePurpose;
-        window.wizardDownloadAndLaunch = wizardDownloadAndLaunch;
+        window.wizardDownloadBackup = wizardDownloadBackup;
         window.wizardLaunchOnly = wizardLaunchOnly;
         window.confirmExitWizard = confirmExitWizard;
         window.toggleFilterPanel = toggleFilterPanel;
