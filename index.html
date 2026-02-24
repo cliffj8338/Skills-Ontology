@@ -160,7 +160,7 @@
     }
     </script>
 
-    <!-- v4.44.6 | 20260224 | Slider re-render fix (page limit 100), aggressive sync, emoji→SVG icon cleanup, auto health check -->
+    <!-- v4.44.7 | 20260224 | Consistent page headers, admin badge, label toggle right-align, skill save→Firestore fix, SEO metadata -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -244,6 +244,26 @@
             .blueprint-container {
                 padding-left: 4px !important;
                 padding-right: 4px !important;
+            }
+            /* ── Page Header (consistent across all views) ────── */
+            .page-header {
+                padding: 18px 0 14px;
+            }
+            .page-title {
+                font-family: Outfit, sans-serif;
+                font-size: 1.5em;
+                font-weight: 700;
+                color: var(--text-primary);
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                margin: 0 0 4px;
+                line-height: 1.2;
+            }
+            .page-subtitle {
+                font-size: 0.85em;
+                color: var(--text-muted);
+                margin: 0;
+                line-height: 1.5;
             }
             #appFooter {
                 padding-bottom: 80px !important;
@@ -525,6 +545,7 @@
                 <circle cx="10" cy="40" r="2.5" fill="#818cf8"/>
             </svg></div>
             <h1>Blueprint<span style="font-size:0.55em; vertical-align:super; letter-spacing:0; opacity:0.6;">&trade;</span></h1>
+            <span id="adminBadge" onclick="showAdminPanel()" style="display:none; font-size:0.55em; padding:2px 8px; border-radius:6px; background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.3); font-weight:600; cursor:pointer; letter-spacing:0.04em; margin-left:6px; white-space:nowrap;" title="Admin Dashboard">ADMIN</span>
         </div>
 
         <!-- Center: Primary navigation -->
@@ -597,7 +618,7 @@
     </div>
 
     <!-- ===== CONTEXTUAL FILTER BAR (Skills tab only) ===== -->
-    <div class="controls" id="controlsBar" style="display:none;">
+    <div class="controls" id="controlsBar" style="display:none; align-items:center; width:100%;">
         <div class="controls-left">
             <!-- View pills -->
             <div class="view-pills" id="skillsViewToggle">
@@ -607,14 +628,6 @@
             
             <!-- Inline job selector (populated dynamically) -->
             <div id="inlineJobSelector" style="display:none;"></div>
-
-            <!-- Label toggles (desktop only) -->
-            <div id="networkLabelToggles" style="display:none; margin-left:8px;">
-                <div class="view-pills" style="gap:2px;">
-                    <button class="view-pill active" id="toggleRoleLabelsBtn" onclick="toggleNetworkLabels('roles')" style="font-size:0.72em; padding:4px 10px;">Roles</button>
-                    <button class="view-pill active" id="toggleSkillLabelsBtn" onclick="toggleNetworkLabels('skills')" style="font-size:0.72em; padding:4px 10px;">Skills</button>
-                </div>
-            </div>
 
             <!-- Job match mode toggle (hidden until a job is activated) -->
             <div id="matchModeToggle" style="display:none;" class="match-mode-toggle">
@@ -642,11 +655,13 @@
             </button>
         </div>
 
-        <div class="controls-right" id="networkControls" style="display:none !important;">
-            <div class="label-pills">
-                <button class="label-pill active" id="labelPillRole" onclick="toggleLabelPill('role')" title="Toggle role labels">Roles</button>
-                <button class="label-pill active" id="labelPillSkill" onclick="toggleLabelPill('skill')" title="Toggle skill labels">Skills</button>
-                <button class="label-pill" id="labelPillValue" onclick="toggleLabelPill('value')" title="Toggle value labels" style="display:none;">Values</button>
+        <div class="controls-right" id="networkControls" style="margin-left:auto;">
+            <!-- Label toggles (desktop only) -->
+            <div id="networkLabelToggles" style="display:none;">
+                <div class="view-pills" style="gap:2px;">
+                    <button class="view-pill active" id="toggleRoleLabelsBtn" onclick="toggleNetworkLabels('roles')" style="font-size:0.72em; padding:4px 10px;">Roles</button>
+                    <button class="view-pill active" id="toggleSkillLabelsBtn" onclick="toggleNetworkLabels('skills')" style="font-size:0.72em; padding:4px 10px;">Skills</button>
+                </div>
             </div>
         </div>
 
@@ -686,6 +701,10 @@
     
     <div class="main-content">
         <div id="welcomeView" style="display:none;"></div>
+        <div id="skillsPageHeader" style="display:none; max-width:1200px; margin:0 auto; padding:18px 24px 0;">
+            <h2 class="page-title">Skills</h2>
+            <p class="page-subtitle">Your professional capabilities mapped as a living network.</p>
+        </div>
         <svg id="networkView" style="display:none;"></svg>
         <div id="cardView" style="display:none;"></div>
         <div id="opportunitiesView" style="display:none;"></div>
@@ -1372,8 +1391,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.6 - BUILD 20260224-svg-icons-auto-health
-        var BP_VERSION = 'v4.44.6';
+        // BLUEPRINT v4.44.7 - BUILD 20260224-page-headers-admin-badge
+        var BP_VERSION = 'v4.44.7';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2434,6 +2453,8 @@
                 if (overflowSignIn) overflowSignIn.style.display = 'none';
                 if (overflowSignOut) overflowSignOut.style.display = '';
                 if (overflowAdmin) overflowAdmin.style.display = fbIsAdmin ? '' : 'none';
+                var adminBadge = document.getElementById('adminBadge');
+                if (adminBadge) adminBadge.style.display = fbIsAdmin ? 'inline-block' : 'none';
                 if (profileChip) {
                     profileChip.style.display = '';
                     var nameEl = document.getElementById('profileChipName');
@@ -2455,6 +2476,8 @@
                 if (overflowSignIn) overflowSignIn.style.display = '';
                 if (overflowSignOut) overflowSignOut.style.display = 'none';
                 if (overflowAdmin) overflowAdmin.style.display = 'none';
+                var adminBadge2 = document.getElementById('adminBadge');
+                if (adminBadge2) adminBadge2.style.display = 'none';
                 if (profileChip) profileChip.style.display = 'none';
                 updateDemoToggleUI();
             }
@@ -7061,11 +7084,10 @@
             var html = '<div style="max-width:1100px; margin:0 auto; padding:48px 24px 80px;">';
             
             // Header
-            html += '<div style="text-align:center; margin-bottom:36px;">'
-                + '<h2 style="font-size:2.2em; font-weight:800; color:var(--text-primary); margin-bottom:8px; font-family:Outfit,sans-serif; text-transform:uppercase; letter-spacing:0.08em;">Sample Blueprints</h2>'
-                + '<p style="color:var(--text-secondary); font-size:1.05em; line-height:1.6; max-width:700px; margin:0 auto;">'
-                + 'Famous fictional characters \u2192 real-world career Blueprints. <br>24 characters from four iconic TV shows \u2014 explore their skills, job matches, and market values to see Blueprint in action.'
-                + '</p></div>';
+            html += '<div class="page-header">'
+                + '<h2 class="page-title">Sample Blueprints</h2>'
+                + '<p class="page-subtitle">Famous fictional characters \u2192 real-world career Blueprints. 24 characters from four iconic TV shows \u2014 explore their skills, job matches, and market values.</p>'
+                + '</div>';
             
             // Show selector tabs
             html += '<div style="display:flex; justify-content:center; gap:8px; margin-bottom:32px; flex-wrap:wrap;">';
@@ -13693,16 +13715,15 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             html += '<div class="blueprint-container">';
             
             // Header
-            html += '<div style="padding:20px 0 16px;">'
-                + '<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">'
+            html += '<div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:18px 0 14px;">'
                 + '<div>'
-                + '<h2 style="font-size:1.15em; font-weight:700; display:flex; align-items:center; gap:10px; margin:0 0 4px; color:var(--c-text, var(--text-primary));">'
+                + '<h2 class="page-title" style="display:flex; align-items:center; gap:10px;">'
                 + bpIcon('reports', 20) + ' Scouting Reports</h2>'
-                + '<p style="font-size:0.82em; color:var(--c-muted, var(--text-secondary)); margin:0; line-height:1.5;">Your career intelligence control plane — manage reports, set blind mode defaults, and track engagement.</p>'
+                + '<p class="page-subtitle">Your career intelligence control plane — manage reports, set blind mode, and track engagement.</p>'
                 + '</div>'
                 + '<button onclick="showScoutingReportPicker()" style="padding:10px 20px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; font-size:0.9em; white-space:nowrap;">'
                 + bpIcon('plus', 16) + ' New Report</button>'
-                + '</div></div>';
+                + '</div>';
             
             // ── Analytics Overview Cards ────────────────────────
             html += '<div style="position:relative;">'
@@ -14053,6 +14074,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Hide all views
             document.getElementById('welcomeView').style.display = 'none';
             document.getElementById('networkView').style.display = 'none';
+            var _sph = document.getElementById('skillsPageHeader'); if (_sph) _sph.style.display = 'none';
             var _jsel = document.getElementById('networkJobSelector'); if (_jsel) _jsel.remove();
             var _ijsel = document.getElementById('inlineJobSelector'); if (_ijsel) { _ijsel.style.display = 'none'; _ijsel.innerHTML = ''; }
             var _jdrop = document.getElementById('jobSelectorDropdown'); if (_jdrop) _jdrop.remove();
@@ -14065,7 +14087,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             document.getElementById('reportsView').style.display = 'none';
             var adminV = document.getElementById('adminView');
             if (adminV) adminV.style.display = 'none';
-            networkControls.style.display = 'none';
             controls.style.display = 'none';
             
             // Toggle readonly banner: hide on non-profile views, show on profile views when viewing a sample
@@ -14095,6 +14116,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 window._welcomePickerActive = false;
             } else if (view === 'network') {
                 // Skills Ontology view
+                var sph = document.getElementById('skillsPageHeader'); if (sph) sph.style.display = 'block';
                 controls.style.display = 'flex';
                 document.querySelector('.main-content')?.classList.add('with-controls');
                 // Sync toggle pills with current sub-view
@@ -14103,7 +14125,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 });
                 if (currentSkillsView === 'network') {
                     document.getElementById('networkView').style.display = 'block';
-                    networkControls.style.display = 'none';
+                    // networkControls visibility managed by parent controls bar
                     // Hide filter button in network view (filtering via node clicks)
                     var fBtn = document.getElementById('filterToggleBtn');
                     var fPnl = document.getElementById('filterPanel');
@@ -14129,7 +14151,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     }
                 } else {
                     document.getElementById('cardView').style.display = 'block';
-                    networkControls.style.display = 'none';
+                    // networkControls visibility managed by parent controls bar
                     // Render job selector for card view too
                     setTimeout(function() { renderJobSelectorWidget(); }, 100);
                     // Hide filter button in card view (removed for cleaner UX)
@@ -14213,7 +14235,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (view === 'network') {
                 document.getElementById('networkView').style.display = 'block';
                 document.getElementById('cardView').style.display = 'none';
-                networkControls.style.display = 'none';
+                // networkControls visibility managed by parent controls bar
                 // Show label toggles on desktop
                 var labelToggles = document.getElementById('networkLabelToggles');
                 if (labelToggles) labelToggles.style.display = window.innerWidth >= 768 ? 'block' : 'none';
@@ -14254,7 +14276,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             } else {
                 document.getElementById('networkView').style.display = 'none';
                 document.getElementById('cardView').style.display = 'block';
-                networkControls.style.display = 'none';
+                // networkControls visibility managed by parent controls bar
                 var labelToggles2 = document.getElementById('networkLabelToggles');
                 if (labelToggles2) labelToggles2.style.display = 'none';
                 // Lazy-init card view if needed (e.g. after profile switch)
@@ -16228,6 +16250,10 @@ body {
             
             view.innerHTML = `
                 <div class="blueprint-container">
+                    <div class="page-header">
+                        <h2 class="page-title">Blueprint</h2>
+                        <p class="page-subtitle">Your career intelligence profile — skills, experience, outcomes, and market value.</p>
+                    </div>
                     <div class="blueprint-subnav" id="blueprintSubnav">
                         <button class="bp-tab ${blueprintTab === 'dashboard' ? 'active' : ''}" onclick="switchBlueprintTab('dashboard')">
                             <span class="bp-tab-icon">${bpIcon('blueprint',16)}</span>
@@ -21744,6 +21770,10 @@ body {
             var appCount = (userData.applications || []).length;
             
             view.innerHTML = '<div style="max-width:1200px; margin:0 auto; padding:24px;">'
+                + '<div class="page-header">'
+                + '<h2 class="page-title">Jobs</h2>'
+                + '<p class="page-subtitle">Search, match, and track opportunities — scored against your skills.</p>'
+                + '</div>'
                 + '<div class="jobs-subtabs">'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'your-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'your-jobs\')">' + bpIcon('target',14) + ' Pipeline' + (savedCount > 0 ? ' (' + savedCount + ')' : '') + '</button>'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'tracker' ? 'active' : '') + '" onclick="switchJobsSubTab(\'tracker\')">' + bpIcon('tracker',14) + ' Tracker' + (appCount > 0 ? ' (' + appCount + ')' : '') + '</button>'
@@ -21790,8 +21820,7 @@ body {
             var apps = userData.applications || [];
             var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">'
                 + '<div>'
-                + '<h2 style="font-family:Outfit,sans-serif; font-size:1.3em; font-weight:700; color:var(--text-primary); margin:0; letter-spacing:0.08em; text-transform:uppercase;">Application Tracker</h2>'
-                + '<p style="font-size:0.85em; color:var(--text-muted); margin-top:4px;">Track your applications and follow-ups</p>'
+                + '<p style="font-size:0.85em; color:var(--text-muted); margin:0;">Track your applications and follow-ups</p>'
                 + '</div>'
                 + '<button onclick="addApplicationModal()" style="'
                 + 'background:var(--accent); color:#fff; border:none; padding:10px 20px; border-radius:8px; '
@@ -21971,8 +22000,6 @@ body {
             return '<div style="margin-bottom:24px;">'
                 + '<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">'
                 + '<div>'
-                + '<h2 style="font-family:Outfit,sans-serif; font-size:1.3em; font-weight:700; color:var(--text-primary); margin:0 0 4px 0; letter-spacing:0.08em; text-transform:uppercase;">'
-                + bpIcon('search',20) + ' Find Jobs</h2>'
                 + '<p style="color:var(--text-muted); font-size:0.88em; margin:0;">Search across 8 sources including Adzuna, Jooble, JSearch, and more. Results scored against your skills.</p>'
                 + '</div>'
                 + '<div id="jobsDbBadge"></div>'
@@ -25408,9 +25435,9 @@ body {
             
             view.innerHTML = `
                 <div class="blueprint-container">
-                    <div class="blueprint-header">
-                        <h1 class="blueprint-title">Settings</h1>
-                        <p class="blueprint-subtitle">Site &amp; Personal Settings</p>
+                    <div class="page-header">
+                        <h1 class="page-title">Settings</h1>
+                        <p class="page-subtitle">Site preferences, account management, and data controls.</p>
                     </div>
                     
                     <div class="settings-tabs">
@@ -27146,8 +27173,8 @@ body {
             view.innerHTML = `
                 <div class="blueprint-container">
                     <div class="blueprint-header">
-                        <h1 class="blueprint-title">Consent & Sharing</h1>
-                        <p class="blueprint-subtitle">Your Data, Your Control</p>
+                        <h1 class="page-title">Consent & Sharing</h1>
+                        <p class="page-subtitle">Your data, your control.</p>
                         <p class="blueprint-tagline">Choose exactly what you share and with whom</p>
                     </div>
                     
