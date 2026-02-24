@@ -17930,9 +17930,11 @@ body {
             
             var reportSkills = allSkills.map(function(s) {
                 var sk = { n: s.name, l: s.level || 'Proficient', r: s.roles || [] };
-                var isRequired = jobRequiredSet.has(s.name.toLowerCase()) || matched.some(function(m) {
-                    return m.userSkill.toLowerCase() === s.name.toLowerCase() && m.requirement === 'Required';
+                // Mark as matched (green) if skill appears in matchData.matched OR in job's required skills
+                var isMatched = matched.some(function(m) {
+                    return m.userSkill.toLowerCase() === s.name.toLowerCase();
                 });
+                var isRequired = jobRequiredSet.has(s.name.toLowerCase()) || isMatched;
                 if (isRequired) sk.k = 1;
                 var ev = (s.evidence || []).map(function(e) {
                     if (typeof e === 'string') return e;
