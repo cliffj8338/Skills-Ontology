@@ -160,7 +160,7 @@
     }
     </script>
 
-    <!-- v4.44.7 | 20260224 | Consistent page headers, admin badge, label toggle right-align, skill save→Firestore fix, SEO metadata -->
+    <!-- v4.44.9 | 20260224 | Shield icon added, demo avatar fix, page header CSS global -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1396,8 +1396,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.7 - BUILD 20260224-page-headers-admin-badge
-        var BP_VERSION = 'v4.44.7';
+        // BLUEPRINT v4.44.9 - BUILD 20260224-shield-icon-demo-avatar
+        var BP_VERSION = 'v4.44.9';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1996,6 +1996,7 @@
                 'experience':   '<svg ' + s + '><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>',
                 'preferences':  '<svg ' + s + '><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>',
                 'privacy':      '<svg ' + s + '><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+                'shield':       '<svg ' + s + '><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
 
                 // -- Section icons --
                 'lightbulb':    '<svg ' + s + '><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>',
@@ -30256,7 +30257,9 @@ body {
             const avatar = document.getElementById('profileAvatar');
             const chipName = document.getElementById('profileChipName');
             if (avatar) {
-                var photoURL = (userData.profile && userData.profile.photo) || (fbUser && fbUser.photoURL) || null;
+                // In demo mode, only use the sample profile's own photo (not the signed-in user's Google photo)
+                var isDemo = appContext && appContext.mode === 'demo';
+                var photoURL = (userData.profile && userData.profile.photo) || (!isDemo && fbUser && fbUser.photoURL) || null;
                 if (photoURL) {
                     avatar.innerHTML = '<img src="' + escapeHtml(photoURL) + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
                 } else {
