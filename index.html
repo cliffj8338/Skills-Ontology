@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.39.2.0 | 20260223 | O*NET Crosswalk: load, title resolver, skill enrichment, merge engine -->
+    <!-- v4.39.2.1 | 20260223 | Enhanced title resolver: qualifier stripping, word-overlap, occupation scan -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.39.2.0 - BUILD 20260223-crosswalk-runtime
-        var BP_VERSION = 'v4.39.2.0';
+        // BLUEPRINT v4.39.2.1 - BUILD 20260223-resolver-enhanced
+        var BP_VERSION = 'v4.39.2.1';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -20410,8 +20410,10 @@ body {
          *
          * Strategy:
          *   1. Exact normalized alias match (confidence: 1.0)
-         *   2. Partial match — normalized title contains or is contained by an alias (confidence: 0.85)
-         *   3. Fuzzy match via Dice coefficient (confidence: dice score × 0.9)
+         *   2. Stripped qualifiers retry (confidence: 0.95)
+         *   3. Partial substring match (confidence: 0.85)
+         *   4. Word-overlap scoring — best match by shared meaningful words (confidence: 0.6-0.8)
+         *   5. Fuzzy bigram match via Dice coefficient (confidence: 0.5-0.7)
          */
         function resolveTitle(rawTitle) {
             if (!window.onetCrosswalk || !rawTitle) return null;
@@ -20419,83 +20421,165 @@ body {
             var norm = crosswalkNormalizeTitle(rawTitle);
             if (!norm) return null;
 
+            function buildResult(soc, confidence, alts) {
+                var primary = cw.occupations[soc];
+                if (!primary) return null;
+                return {
+                    soc: soc,
+                    title: primary.title,
+                    family: primary.family,
+                    confidence: confidence,
+                    alternatives: (alts || []).slice(0, 4).map(function(s) {
+                        var o = cw.occupations[s];
+                        return o ? { soc: s, title: o.title, family: o.family } : null;
+                    }).filter(Boolean)
+                };
+            }
+
             // Step 1: Exact alias match
             if (cw.aliases[norm]) {
                 var socs = cw.aliases[norm];
-                var primary = cw.occupations[socs[0]];
-                if (primary) {
-                    return {
-                        soc: socs[0],
-                        title: primary.title,
-                        family: primary.family,
-                        confidence: 1.0,
-                        alternatives: socs.slice(1).map(function(s) {
-                            var o = cw.occupations[s];
-                            return o ? { soc: s, title: o.title, family: o.family } : null;
-                        }).filter(Boolean)
-                    };
-                }
+                var r = buildResult(socs[0], 1.0, socs.slice(1));
+                if (r) return r;
             }
 
-            // Step 2: Partial match — check if norm is a substring of an alias or vice versa
+            // Step 2: Strip common qualifiers and retry
+            // Words like "global", "digital", "corporate", "regional" modify scope but not occupation
+            var qualifiers = ['global', 'digital', 'corporate', 'regional', 'national', 'international', 'enterprise', 'strategic', 'commercial', 'general', 'group', 'divisional', 'worldwide', 'north america', 'emea', 'apac', 'americas'];
+            var stripped = norm;
+            qualifiers.forEach(function(q) {
+                stripped = stripped.replace(new RegExp('\\b' + q + '\\b', 'g'), '');
+            });
+            // Also strip "of", "and", "the" that might be left dangling
+            stripped = stripped.replace(/\b(of|and|the|for|in)\b/g, '').replace(/\s+/g, ' ').trim();
+            if (stripped !== norm && stripped.length >= 3 && cw.aliases[stripped]) {
+                var socs = cw.aliases[stripped];
+                var r = buildResult(socs[0], 0.95, socs.slice(1));
+                if (r) return r;
+            }
+
+            // Also try with "of" preserved (e.g., "vp of strategy" vs "vp strategy")
+            var strippedKeepOf = norm;
+            qualifiers.forEach(function(q) {
+                strippedKeepOf = strippedKeepOf.replace(new RegExp('\\b' + q + '\\b', 'g'), '');
+            });
+            strippedKeepOf = strippedKeepOf.replace(/\s+/g, ' ').trim();
+            if (strippedKeepOf !== norm && strippedKeepOf !== stripped && strippedKeepOf.length >= 3 && cw.aliases[strippedKeepOf]) {
+                var socs = cw.aliases[strippedKeepOf];
+                var r = buildResult(socs[0], 0.95, socs.slice(1));
+                if (r) return r;
+            }
+
+            // Step 3: Partial substring match
             var partialMatches = [];
             for (var alias in cw.aliases) {
-                if (alias.length < 4) continue; // Skip very short aliases
+                if (alias.length < 4) continue;
                 if (norm.indexOf(alias) !== -1 || alias.indexOf(norm) !== -1) {
                     var socs = cw.aliases[alias];
                     for (var i = 0; i < socs.length; i++) {
                         if (cw.occupations[socs[i]]) {
-                            partialMatches.push({ soc: socs[i], alias: alias });
+                            partialMatches.push({ soc: socs[i], alias: alias, len: alias.length });
+                        }
+                    }
+                }
+            }
+            // Also try stripped version for partial matching
+            if (stripped !== norm) {
+                for (var alias in cw.aliases) {
+                    if (alias.length < 4) continue;
+                    if (stripped.indexOf(alias) !== -1 || alias.indexOf(stripped) !== -1) {
+                        var socs = cw.aliases[alias];
+                        for (var i = 0; i < socs.length; i++) {
+                            if (cw.occupations[socs[i]]) {
+                                partialMatches.push({ soc: socs[i], alias: alias, len: alias.length });
+                            }
                         }
                     }
                 }
             }
             if (partialMatches.length > 0) {
-                // Dedupe by SOC
+                // Prefer longest alias match (more specific)
+                partialMatches.sort(function(a, b) { return b.len - a.len; });
                 var seen = {};
                 var unique = partialMatches.filter(function(m) {
                     if (seen[m.soc]) return false;
                     seen[m.soc] = true;
                     return true;
                 });
-                var primary = cw.occupations[unique[0].soc];
-                return {
-                    soc: unique[0].soc,
-                    title: primary.title,
-                    family: primary.family,
-                    confidence: 0.85,
-                    alternatives: unique.slice(1, 4).map(function(m) {
-                        var o = cw.occupations[m.soc];
-                        return o ? { soc: m.soc, title: o.title, family: o.family } : null;
-                    }).filter(Boolean)
-                };
+                var r = buildResult(unique[0].soc, 0.85, unique.slice(1).map(function(m) { return m.soc; }));
+                if (r) return r;
             }
 
-            // Step 3: Fuzzy match via Dice coefficient
-            var bestScore = 0;
-            var bestAlias = null;
-            var bestSocs = null;
+            // Step 4: Word-overlap scoring
+            // Tokenize the input and compare word sets against each alias
+            var normWords = norm.split(' ').filter(function(w) { return w.length > 2; });
+            var strippedWords = stripped.split(' ').filter(function(w) { return w.length > 2; });
+            var stopWords = { 'the': 1, 'and': 1, 'for': 1, 'all': 1, 'other': 1 };
+            var meaningfulWords = (strippedWords.length > 0 ? strippedWords : normWords).filter(function(w) { return !stopWords[w]; });
+
+            if (meaningfulWords.length > 0) {
+                var bestWordScore = 0;
+                var bestWordSocs = null;
+                for (var alias in cw.aliases) {
+                    if (alias.length < 4) continue;
+                    var aliasWords = alias.split(' ').filter(function(w) { return w.length > 2 && !stopWords[w]; });
+                    if (aliasWords.length === 0) continue;
+
+                    // Count shared meaningful words
+                    var shared = 0;
+                    meaningfulWords.forEach(function(w) {
+                        if (aliasWords.indexOf(w) !== -1) shared++;
+                    });
+
+                    // Score: proportion of input words found in alias, weighted by proportion of alias covered
+                    if (shared > 0) {
+                        var inputCoverage = shared / meaningfulWords.length;
+                        var aliasCoverage = shared / aliasWords.length;
+                        var wordScore = (inputCoverage * 0.6) + (aliasCoverage * 0.4);
+
+                        if (wordScore > bestWordScore) {
+                            bestWordScore = wordScore;
+                            bestWordSocs = cw.aliases[alias];
+                        }
+                    }
+                }
+                if (bestWordScore >= 0.5 && bestWordSocs && bestWordSocs.length > 0) {
+                    var confidence = Math.round((0.6 + bestWordScore * 0.2) * 100) / 100;
+                    var r = buildResult(bestWordSocs[0], Math.min(confidence, 0.8), bestWordSocs.slice(1));
+                    if (r) return r;
+                }
+            }
+
+            // Step 5: Fuzzy bigram match via Dice coefficient
+            var bestDice = 0;
+            var bestDiceSocs = null;
             for (var alias in cw.aliases) {
                 if (alias.length < 4) continue;
                 var score = crosswalkDice(norm, alias);
-                if (score > bestScore && score >= 0.6) {
-                    bestScore = score;
-                    bestAlias = alias;
-                    bestSocs = cw.aliases[alias];
+                if (score > bestDice && score >= 0.55) {
+                    bestDice = score;
+                    bestDiceSocs = cw.aliases[alias];
                 }
             }
-            if (bestSocs && bestSocs.length > 0 && cw.occupations[bestSocs[0]]) {
-                var primary = cw.occupations[bestSocs[0]];
-                return {
-                    soc: bestSocs[0],
-                    title: primary.title,
-                    family: primary.family,
-                    confidence: Math.round(bestScore * 90) / 100,
-                    alternatives: bestSocs.slice(1, 4).map(function(s) {
-                        var o = cw.occupations[s];
-                        return o ? { soc: s, title: o.title, family: o.family } : null;
-                    }).filter(Boolean)
-                };
+            if (bestDiceSocs && bestDiceSocs.length > 0 && cw.occupations[bestDiceSocs[0]]) {
+                var r = buildResult(bestDiceSocs[0], Math.round(bestDice * 80) / 100, bestDiceSocs.slice(1));
+                if (r) return r;
+            }
+
+            // Step 6: Last resort — scan occupation primary titles
+            var bestOccDice = 0;
+            var bestOccSoc = null;
+            for (var soc in cw.occupations) {
+                var occTitle = cw.occupations[soc].title.toLowerCase();
+                var score = crosswalkDice(stripped || norm, occTitle);
+                if (score > bestOccDice && score >= 0.5) {
+                    bestOccDice = score;
+                    bestOccSoc = soc;
+                }
+            }
+            if (bestOccSoc) {
+                var r = buildResult(bestOccSoc, Math.round(bestOccDice * 70) / 100, []);
+                if (r) return r;
             }
 
             return null;
