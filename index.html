@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.42.0 | 20260223 | Deterministic skill inference engine replaces Claude AI, 30-skill cap, zero API cost -->
+    <!-- v4.42.1 | 20260224 | Fix: values card visibility, quickScore inflation, network job badges on view switch -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.42.0 - BUILD 20260223-deterministic-skill-engine
-        var BP_VERSION = 'v4.42.0';
+        // BLUEPRINT v4.42.1 - BUILD 20260224-values-scoring-badges-fix
+        var BP_VERSION = 'v4.42.1';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -3591,7 +3591,8 @@
                         { id: 'p2-3g', name: 'Multi-source profile merge', status: 'planned', category: 'feature', priority: 'critical', notes: 'Import JSON or LinkedIn zip into existing profile without overwriting. mergeSkillSources() deduplicates, keeps higher level, unions evidence/roles, tracks provenance with sources[] array.' },
                         { id: 'p2-3h', name: 'LinkedIn zip import retest', status: 'planned', category: 'testing', priority: 'high', notes: 'yearsExperience .replace() crash fixed. Full flow needs clean test: zip upload → parse → profile review → save. Skill inference fallback if API key not set.' },
                         { id: 'p2-3i', name: 'API status monitoring dashboard', status: 'done', category: 'admin', priority: 'high', notes: 'Status tab in admin. Passive health tracking from all API calls. Active health check button. Per-service status with age, staleness, critical flags. Categories: AI, infra, jobs, data.' },
-                        { id: 'p2-3j', name: 'Deterministic skill inference engine', status: 'done', category: 'wizard', priority: 'critical', notes: 'Replaced Claude AI skill inference ($0.07/call) with O*NET crosswalk heuristics. Title→SOC→skills pool→fuzzy match→level adjustment by seniority+years. 30-skill cap. Zero API cost.' }
+                        { id: 'p2-3j', name: 'Deterministic skill inference engine', status: 'done', category: 'wizard', priority: 'critical', notes: 'Replaced Claude AI skill inference ($0.07/call) with O*NET crosswalk heuristics. Title→SOC→skills pool→fuzzy match→level adjustment by seniority+years. 30-skill cap. Zero API cost.' },
+                        { id: 'p2-3k', name: 'Incident log + values/scoring/badge fixes', status: 'done', category: 'bugfix', priority: 'high', notes: 'Incident log for operational failures. Values card text visibility fix. quickScoreJob scoring inflation fix (realistic denominator). Network job badges render on view switch.' }
                     ]
                 },
                 {
@@ -9701,22 +9702,24 @@ Rules:
                     ${vals.map(function(v, i) {
                         var sel = v.selected;
                         return '<div onclick="wizardToggleValue(' + i + ')" id="val-card-' + i + '"'
-                            + ' style="background:var(--bg-elevated);'
-                            + ' border:2px solid ' + (sel ? 'var(--accent)' : 'var(--border)') + ';'
-                            + ' border-radius:10px; padding:12px; cursor:pointer; transition:all 0.18s;">'
-                            + '<div style="display:flex; align-items:start; gap:10px;">'
+                            + ' data-selected="' + (sel ? '1' : '0') + '"'
+                            + ' style="background:' + (sel ? 'rgba(59,130,246,0.08)' : 'var(--bg-elevated, #1e293b)') + ';'
+                            + ' border:2px solid ' + (sel ? 'var(--accent, #3b82f6)' : 'var(--border, #334155)') + ';'
+                            + ' border-radius:10px; padding:12px; cursor:pointer; transition:border-color 0.18s, background 0.18s;'
+                            + ' position:relative; overflow:hidden;">'
+                            + '<div style="display:flex; align-items:start; gap:10px; position:relative; z-index:1;">'
                             + '<div style="width:18px; height:18px; border-radius:4px; flex-shrink:0; margin-top:2px;'
-                            + ' background:' + (sel ? 'var(--accent)' : 'var(--input-bg)') + ';'
-                            + ' border:2px solid ' + (sel ? 'var(--accent)' : 'var(--border)') + ';'
+                            + ' background:' + (sel ? 'var(--accent, #3b82f6)' : 'var(--input-bg, #0f172a)') + ';'
+                            + ' border:2px solid ' + (sel ? 'var(--accent, #3b82f6)' : 'var(--border, #334155)') + ';'
                             + ' display:flex; align-items:center; justify-content:center;'
-                            + ' color:#fff; font-size:11px;">'
+                            + ' color:#fff; font-size:11px; line-height:1;">'
                             + (sel ? '\u2713' : '')
                             + '</div>'
-                            + '<div style="flex:1;">'
-                            + '<div style="font-weight:700; color:var(--text-primary); font-size:0.86em; margin-bottom:3px;">'
+                            + '<div style="flex:1; min-width:0;">'
+                            + '<div style="font-weight:700; color:var(--text-primary, #e2e8f0); font-size:0.86em; margin-bottom:3px;">'
                             + escapeHtml(v.name) + '</div>'
                             + '<div onclick="event.stopPropagation(); wizardEditValueDesc(' + i + ', this)" '
-                            + 'style="font-size:0.76em; color:var(--text-secondary); line-height:1.4; cursor:text;" '
+                            + 'style="font-size:0.76em; color:var(--text-secondary, #94a3b8); line-height:1.4; cursor:text;" '
                             + 'title="Click to edit">'
                             + escapeHtml(v.description || '') + '</div>'
                             + '</div></div></div>';
@@ -9769,11 +9772,13 @@ Rules:
             var card = document.getElementById('val-card-' + i);
             var v = wizardState.values[i];
             if (card) {
-                card.style.borderColor = v.selected ? 'var(--accent)' : 'var(--border)';
+                card.style.borderColor = v.selected ? 'var(--accent, #3b82f6)' : 'var(--border, #334155)';
+                card.style.background = v.selected ? 'rgba(59,130,246,0.08)' : 'var(--bg-elevated, #1e293b)';
+                card.setAttribute('data-selected', v.selected ? '1' : '0');
                 var check = card.querySelector('div > div > div:first-child');
                 if (check) {
-                    check.style.background = v.selected ? 'var(--accent)' : 'var(--input-bg)';
-                    check.style.borderColor = v.selected ? 'var(--accent)' : 'var(--border)';
+                    check.style.background = v.selected ? 'var(--accent, #3b82f6)' : 'var(--input-bg, #0f172a)';
+                    check.style.borderColor = v.selected ? 'var(--accent, #3b82f6)' : 'var(--border, #334155)';
                     check.textContent = v.selected ? '\u2713' : '';
                 }
             }
@@ -12607,6 +12612,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         initNetwork();
                         window.networkInitialized = true;
                     }
+                    // Always render job selector when entering network view
+                    setTimeout(function() { renderJobSelectorWidget(); }, 100);
                     // Restore match overlay UI if a job is active
                     if (activeJobForNetwork) {
                         updateMatchOverlayUI();
@@ -12618,6 +12625,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 } else {
                     document.getElementById('cardView').style.display = 'block';
                     networkControls.style.display = 'none';
+                    // Render job selector for card view too
+                    setTimeout(function() { renderJobSelectorWidget(); }, 100);
                     // Hide filter button in card view (removed for cleaner UX)
                     var fBtn2 = document.getElementById('filterToggleBtn');
                     if (fBtn2) fBtn2.style.display = 'none';
@@ -23333,10 +23342,13 @@ body {
             });
             
             var total = matchedSkills.length + gapSkills.length;
-            var score = total > 0 ? Math.min(98, Math.round((matchedSkills.length / Math.max(total, 1)) * 100)) : 0;
-            // Bonus for having many matched skills
-            if (matchedSkills.length >= 5) score = Math.min(98, score + 10);
-            if (matchedSkills.length >= 10) score = Math.min(98, score + 10);
+            // Use a realistic minimum denominator: most JDs require 8-12 skills
+            // Without this, a JD with 2 found skills and 0 gaps = 100%
+            var minRequired = Math.max(8, Math.round(matchedSkills.length * 1.3));
+            var effectiveTotal = Math.max(total, minRequired);
+            var score = effectiveTotal > 0 ? Math.min(95, Math.round((matchedSkills.length / effectiveTotal) * 100)) : 0;
+            // Small bonus for breadth (many matched skills)
+            if (matchedSkills.length >= 8) score = Math.min(95, score + 5);
             
             return { score: score, matched: matchedSkills, gaps: gapSkills.slice(0, 8) };
         }
