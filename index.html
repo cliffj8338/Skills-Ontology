@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://api.anthropic.com https://*.rapidapi.com https://remotive.com https://himalayas.app https://jobicy.com https://data.usajobs.gov https://api.adzuna.com https://www.themuse.com https://jooble.org; img-src 'self' data: blob: https://*.googleusercontent.com; frame-src 'none'; object-src 'none'; base-uri 'self';">
     <title>Blueprint™</title>
-    <!-- v4.44.3 | 20260224 | Health probes for all 8 job APIs. Key-entered indicators in Config. recordApiHealth in hybrid + direct search. -->
+    <!-- v4.44.4 | 20260224 | Proxy-first fetch for Adzuna/Muse/Jooble via /api/job-proxy with direct CORS fallback. Debug logging. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1217,8 +1217,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.3 - BUILD 20260224-api-health-probes
-        var BP_VERSION = 'v4.44.3';
+        // BLUEPRINT v4.44.4 - BUILD 20260224-proxy-first-keyed-apis
+        var BP_VERSION = 'v4.44.4';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -4414,7 +4414,10 @@
             // Adzuna (needs key)
             if (ADZUNA_APP_ID && ADZUNA_APP_KEY) {
                 try {
-                    var adzRes = await fetch('https://api.adzuna.com/v1/api/jobs/us/search/1?app_id=' + encodeURIComponent(ADZUNA_APP_ID) + '&app_key=' + encodeURIComponent(ADZUNA_APP_KEY) + '&results_per_page=1&what=test', { signal: AbortSignal.timeout(8000) });
+                    var adzUrl = JOB_PROXY_AVAILABLE !== false
+                        ? JOB_PROXY_URL + '?source=adzuna&app_id=' + encodeURIComponent(ADZUNA_APP_ID) + '&app_key=' + encodeURIComponent(ADZUNA_APP_KEY) + '&q=test'
+                        : 'https://api.adzuna.com/v1/api/jobs/us/search/1?app_id=' + encodeURIComponent(ADZUNA_APP_ID) + '&app_key=' + encodeURIComponent(ADZUNA_APP_KEY) + '&results_per_page=1&what=test';
+                    var adzRes = await fetch(adzUrl, { signal: AbortSignal.timeout(8000) });
                     if (adzRes.ok) recordApiHealth('adzuna', 'ok', 'Operational');
                     else recordApiHealth('adzuna', adzRes.status === 401 ? 'down' : 'degraded', 'Status ' + adzRes.status);
                 } catch(e) { recordApiHealth('adzuna', 'down', e.message); }
@@ -4424,7 +4427,10 @@
             
             // The Muse (no key needed)
             try {
-                var museRes = await fetch('https://www.themuse.com/api/public/jobs?page=0', { signal: AbortSignal.timeout(8000) });
+                var museUrl = JOB_PROXY_AVAILABLE !== false
+                    ? JOB_PROXY_URL + '?source=muse'
+                    : 'https://www.themuse.com/api/public/jobs?page=0';
+                var museRes = await fetch(museUrl, { signal: AbortSignal.timeout(8000) });
                 if (museRes.ok) recordApiHealth('themuse', 'ok', 'Operational');
                 else recordApiHealth('themuse', 'degraded', 'Status ' + museRes.status);
             } catch(e) { recordApiHealth('themuse', 'down', e.message); }
@@ -4432,11 +4438,16 @@
             // Jooble (needs key)
             if (JOOBLE_API_KEY) {
                 try {
-                    var jooRes = await fetch('https://jooble.org/api/' + encodeURIComponent(JOOBLE_API_KEY), {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ keywords: 'test', location: 'United States' }),
-                        signal: AbortSignal.timeout(8000)
-                    });
+                    var jooRes;
+                    if (JOB_PROXY_AVAILABLE !== false) {
+                        jooRes = await fetch(JOB_PROXY_URL + '?source=jooble&api_key=' + encodeURIComponent(JOOBLE_API_KEY) + '&q=test', { signal: AbortSignal.timeout(8000) });
+                    } else {
+                        jooRes = await fetch('https://jooble.org/api/' + encodeURIComponent(JOOBLE_API_KEY), {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ keywords: 'test', location: 'United States' }),
+                            signal: AbortSignal.timeout(8000)
+                        });
+                    }
                     if (jooRes.ok) recordApiHealth('jooble', 'ok', 'Operational');
                     else recordApiHealth('jooble', jooRes.status === 403 ? 'down' : 'degraded', 'Status ' + jooRes.status);
                 } catch(e) { recordApiHealth('jooble', 'down', e.message); }
@@ -24606,100 +24617,175 @@ body {
         // === ADZUNA (US market — ~3-4M jobs) ===
         var ADZUNA_APP_ID = safeGet('bpAdzunaAppId') || '';
         var ADZUNA_APP_KEY = safeGet('bpAdzunaAppKey') || '';
+        var JOB_PROXY_URL = '/api/job-proxy';
+        var JOB_PROXY_AVAILABLE = null; // null=unknown, true/false after first attempt
         
         async function fetchAdzunaJobs(keyword, location) {
             if (!ADZUNA_APP_ID || !ADZUNA_APP_KEY) return [];
             
-            var url = 'https://api.adzuna.com/v1/api/jobs/us/search/1'
-                + '?app_id=' + encodeURIComponent(ADZUNA_APP_ID)
-                + '&app_key=' + encodeURIComponent(ADZUNA_APP_KEY)
-                + '&results_per_page=50&content-type=application/json';
-            if (keyword) url += '&what=' + encodeURIComponent(keyword);
-            if (location) url += '&where=' + encodeURIComponent(location);
-            
-            var res = await fetch(url, { signal: AbortSignal.timeout(12000) });
-            if (!res.ok) throw new Error('Adzuna ' + res.status);
-            var data = await res.json();
-            if (!data || !data.results) return [];
-            
-            return data.results.map(function(job) {
-                var desc = (job.description || '').substring(0, 2000);
-                var match = quickScoreJob(job.title, desc, []);
-                var salary = '';
-                if (job.salary_min && job.salary_max) {
-                    salary = '$' + (job.salary_min / 1000).toFixed(0) + 'k - $' + (job.salary_max / 1000).toFixed(0) + 'k';
-                } else if (job.salary_is_predicted === 0 && job.salary_min) {
-                    salary = '$' + (job.salary_min / 1000).toFixed(0) + 'k+';
+            try {
+                var data;
+                // Try serverless proxy first (avoids CORS), then direct
+                if (JOB_PROXY_AVAILABLE !== false) {
+                    try {
+                        var params = new URLSearchParams({ source: 'adzuna', app_id: ADZUNA_APP_ID, app_key: ADZUNA_APP_KEY });
+                        if (keyword) params.set('q', keyword);
+                        if (location) params.set('location', location);
+                        var proxyRes = await fetch(JOB_PROXY_URL + '?' + params.toString(), { signal: AbortSignal.timeout(12000) });
+                        if (proxyRes.ok) {
+                            data = await proxyRes.json();
+                            JOB_PROXY_AVAILABLE = true;
+                            console.log('Adzuna: via proxy, ' + (data.results || []).length + ' results');
+                        } else throw new Error('Proxy ' + proxyRes.status);
+                    } catch(proxyErr) {
+                        console.warn('Adzuna proxy failed, trying direct:', proxyErr.message);
+                        JOB_PROXY_AVAILABLE = false;
+                        // Direct fallback
+                        var url = 'https://api.adzuna.com/v1/api/jobs/us/search/1'
+                            + '?app_id=' + encodeURIComponent(ADZUNA_APP_ID)
+                            + '&app_key=' + encodeURIComponent(ADZUNA_APP_KEY)
+                            + '&results_per_page=50&content-type=application/json&sort_by=date&max_days_old=30';
+                        if (keyword) url += '&what=' + encodeURIComponent(keyword);
+                        if (location) url += '&where=' + encodeURIComponent(location);
+                        var res = await fetch(url, { signal: AbortSignal.timeout(12000) });
+                        if (!res.ok) throw new Error('Adzuna direct ' + res.status);
+                        data = await res.json();
+                        console.log('Adzuna: direct, ' + (data.results || []).length + ' results');
+                    }
+                } else {
+                    // Direct only (proxy known unavailable)
+                    var url2 = 'https://api.adzuna.com/v1/api/jobs/us/search/1'
+                        + '?app_id=' + encodeURIComponent(ADZUNA_APP_ID)
+                        + '&app_key=' + encodeURIComponent(ADZUNA_APP_KEY)
+                        + '&results_per_page=50&content-type=application/json&sort_by=date&max_days_old=30';
+                    if (keyword) url2 += '&what=' + encodeURIComponent(keyword);
+                    if (location) url2 += '&where=' + encodeURIComponent(location);
+                    var res2 = await fetch(url2, { signal: AbortSignal.timeout(12000) });
+                    if (!res2.ok) throw new Error('Adzuna direct ' + res2.status);
+                    data = await res2.json();
+                    console.log('Adzuna: direct, ' + (data.results || []).length + ' results');
                 }
-                var loc = job.location ? job.location.display_name : '';
-                return {
-                    id: 'adzuna-' + (job.id || Date.now() + Math.random()),
-                    title: job.title || 'Untitled',
-                    company: (job.company && job.company.display_name) ? job.company.display_name : '',
-                    location: loc,
-                    type: (job.contract_time === 'full_time' ? 'Full Time' : job.contract_time === 'part_time' ? 'Part Time' : job.contract_type || 'Full Time'),
-                    url: job.redirect_url || '',
-                    salary: salary,
-                    description: desc,
-                    tags: job.category ? [job.category.label || ''] : [],
-                    matchScore: match.score,
-                    matchedSkills: match.matched,
-                    gapSkills: match.gaps,
-                    source: 'Adzuna',
-                    pubDate: job.created || ''
-                };
-            });
+                if (!data || !data.results) return [];
+                
+                return data.results.map(function(job) {
+                    var desc = (job.description || '').substring(0, 2000);
+                    var match = quickScoreJob(job.title, desc, []);
+                    var salary = '';
+                    if (job.salary_min && job.salary_max) {
+                        salary = '$' + (job.salary_min / 1000).toFixed(0) + 'k - $' + (job.salary_max / 1000).toFixed(0) + 'k';
+                    } else if (job.salary_is_predicted === 0 && job.salary_min) {
+                        salary = '$' + (job.salary_min / 1000).toFixed(0) + 'k+';
+                    }
+                    var loc = job.location ? job.location.display_name : '';
+                    return {
+                        id: 'adzuna-' + (job.id || Date.now() + Math.random()),
+                        title: job.title || 'Untitled',
+                        company: (job.company && job.company.display_name) ? job.company.display_name : '',
+                        location: loc,
+                        type: (job.contract_time === 'full_time' ? 'Full Time' : job.contract_time === 'part_time' ? 'Part Time' : job.contract_type || 'Full Time'),
+                        url: job.redirect_url || '',
+                        salary: salary,
+                        description: desc,
+                        tags: job.category ? [job.category.label || ''] : [],
+                        matchScore: match.score,
+                        matchedSkills: match.matched,
+                        gapSkills: match.gaps,
+                        source: 'Adzuna',
+                        pubDate: job.created || ''
+                    };
+                });
+            } catch(e) {
+                console.error('Adzuna fetch failed:', e.message);
+                throw e;
+            }
         }
         
         // === THE MUSE (quality professional jobs, ~10-20K listings) ===
         async function fetchMuseJobs(keyword, category, location) {
-            var url = 'https://www.themuse.com/api/public/jobs?page=0';
-            if (category) {
-                var catMap = {
-                    'software-dev': 'Engineering', 'data': 'Data Science', 'design': 'Design',
-                    'marketing': 'Marketing', 'product': 'Product', 'hr': 'HR',
-                    'finance': 'Finance', 'sales': 'Sales', 'business': 'Business Operations',
-                    'customer-support': 'Customer Service', 'writing': 'Editorial'
-                };
-                if (catMap[category]) url += '&category=' + encodeURIComponent(catMap[category]);
-            }
-            if (location) url += '&location=' + encodeURIComponent(location);
-            
-            var res = await fetch(url, { signal: AbortSignal.timeout(12000) });
-            if (!res.ok) throw new Error('TheMuse ' + res.status);
-            var data = await res.json();
-            if (!data || !data.results) return [];
-            
-            // Client-side keyword filter since Muse API doesn't support keyword search
-            var jobs = data.results;
-            if (keyword) {
-                var kw = keyword.toLowerCase();
-                jobs = jobs.filter(function(job) {
-                    return ((job.name || '') + ' ' + (job.company && job.company.name || '') + ' ' + (job.contents || '')).toLowerCase().indexOf(kw) !== -1;
+            try {
+                var data;
+                if (JOB_PROXY_AVAILABLE !== false) {
+                    try {
+                        var params = new URLSearchParams({ source: 'muse' });
+                        if (category) {
+                            var catMap = {
+                                'software-dev': 'Engineering', 'data': 'Data Science', 'design': 'Design',
+                                'marketing': 'Marketing', 'product': 'Product', 'hr': 'HR',
+                                'finance': 'Finance', 'sales': 'Sales', 'business': 'Business Operations',
+                                'customer-support': 'Customer Service', 'writing': 'Editorial'
+                            };
+                            if (catMap[category]) params.set('category', catMap[category]);
+                        }
+                        if (location) params.set('location', location);
+                        var museKey = safeGet('bpMuseApiKey') || '';
+                        if (museKey) params.set('api_key', museKey);
+                        var proxyRes = await fetch(JOB_PROXY_URL + '?' + params.toString(), { signal: AbortSignal.timeout(12000) });
+                        if (proxyRes.ok) {
+                            data = await proxyRes.json();
+                            JOB_PROXY_AVAILABLE = true;
+                            console.log('Muse: via proxy, ' + (data.results || []).length + ' results');
+                        } else throw new Error('Proxy ' + proxyRes.status);
+                    } catch(proxyErr) {
+                        console.warn('Muse proxy failed, trying direct:', proxyErr.message);
+                        // Direct fallback
+                        var url = 'https://www.themuse.com/api/public/jobs?page=0';
+                        if (category) {
+                            var catMap2 = {
+                                'software-dev': 'Engineering', 'data': 'Data Science', 'design': 'Design',
+                                'marketing': 'Marketing', 'product': 'Product', 'hr': 'HR',
+                                'finance': 'Finance', 'sales': 'Sales', 'business': 'Business Operations',
+                                'customer-support': 'Customer Service', 'writing': 'Editorial'
+                            };
+                            if (catMap2[category]) url += '&category=' + encodeURIComponent(catMap2[category]);
+                        }
+                        if (location) url += '&location=' + encodeURIComponent(location);
+                        var res = await fetch(url, { signal: AbortSignal.timeout(12000) });
+                        if (!res.ok) throw new Error('Muse direct ' + res.status);
+                        data = await res.json();
+                        console.log('Muse: direct, ' + (data.results || []).length + ' results');
+                    }
+                } else {
+                    var url3 = 'https://www.themuse.com/api/public/jobs?page=0';
+                    var res3 = await fetch(url3, { signal: AbortSignal.timeout(12000) });
+                    if (!res3.ok) throw new Error('Muse direct ' + res3.status);
+                    data = await res3.json();
+                    console.log('Muse: direct, ' + (data.results || []).length + ' results');
+                }
+                if (!data || !data.results) return [];
+                
+                var jobs = data.results;
+                if (keyword) {
+                    var kw = keyword.toLowerCase();
+                    jobs = jobs.filter(function(job) {
+                        return ((job.name || '') + ' ' + (job.company && job.company.name || '') + ' ' + (job.contents || '')).toLowerCase().indexOf(kw) !== -1;
+                    });
+                }
+                
+                return jobs.slice(0, 20).map(function(job) {
+                    var desc = (job.contents || '').replace(/<[^>]+>/g, '').substring(0, 2000);
+                    var match = quickScoreJob(job.name, desc, (job.categories || []).map(function(c) { return c.name; }));
+                    var locs = (job.locations || []).map(function(l) { return l.name; }).join(', ');
+                    return {
+                        id: 'muse-' + (job.id || Date.now()),
+                        title: job.name || 'Untitled',
+                        company: (job.company && job.company.name) ? job.company.name : '',
+                        location: locs || 'Various',
+                        type: (job.type || 'Full Time'),
+                        url: job.refs && job.refs.landing_page ? job.refs.landing_page : '',
+                        salary: '',
+                        description: desc,
+                        tags: (job.categories || []).map(function(c) { return c.name; }),
+                        matchScore: match.score,
+                        matchedSkills: match.matched,
+                        gapSkills: match.gaps,
+                        source: 'The Muse',
+                        pubDate: job.publication_date || ''
+                    };
                 });
+            } catch(e) {
+                console.error('Muse fetch failed:', e.message);
+                throw e;
             }
-            
-            return jobs.slice(0, 20).map(function(job) {
-                var desc = (job.contents || '').replace(/<[^>]+>/g, '').substring(0, 2000);
-                var match = quickScoreJob(job.name, desc, (job.categories || []).map(function(c) { return c.name; }));
-                var locs = (job.locations || []).map(function(l) { return l.name; }).join(', ');
-                return {
-                    id: 'muse-' + (job.id || Date.now()),
-                    title: job.name || 'Untitled',
-                    company: (job.company && job.company.name) ? job.company.name : '',
-                    location: locs || 'Various',
-                    type: (job.type || 'Full Time'),
-                    url: job.refs && job.refs.landing_page ? job.refs.landing_page : '',
-                    salary: '',
-                    description: desc,
-                    tags: (job.categories || []).map(function(c) { return c.name; }),
-                    matchScore: match.score,
-                    matchedSkills: match.matched,
-                    gapSkills: match.gaps,
-                    source: 'The Muse',
-                    pubDate: job.publication_date || ''
-                };
-            });
         }
         
         // === JOOBLE (meta-aggregator — indexes Indeed, LinkedIn, Glassdoor, etc.) ===
@@ -24708,39 +24794,73 @@ body {
         async function fetchJoobleJobs(keyword, location) {
             if (!JOOBLE_API_KEY) return [];
             
-            var url = 'https://jooble.org/api/' + encodeURIComponent(JOOBLE_API_KEY);
-            var body = { keywords: keyword || '', location: location || 'United States' };
-            
-            var res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
-                signal: AbortSignal.timeout(12000)
-            });
-            if (!res.ok) throw new Error('Jooble ' + res.status);
-            var data = await res.json();
-            if (!data || !data.jobs) return [];
-            
-            return data.jobs.slice(0, 50).map(function(job) {
-                var desc = (job.snippet || '').substring(0, 2000);
-                var match = quickScoreJob(job.title, desc, []);
-                return {
-                    id: 'jooble-' + (job.id || Date.now() + Math.random()),
-                    title: job.title || 'Untitled',
-                    company: job.company || '',
-                    location: job.location || '',
-                    type: job.type || 'Full Time',
-                    url: job.link || '',
-                    salary: job.salary || '',
-                    description: desc,
-                    tags: [],
-                    matchScore: match.score,
-                    matchedSkills: match.matched,
-                    gapSkills: match.gaps,
-                    source: 'Jooble',
-                    pubDate: job.updated || ''
-                };
-            });
+            try {
+                var data;
+                if (JOB_PROXY_AVAILABLE !== false) {
+                    try {
+                        var params = new URLSearchParams({ source: 'jooble', api_key: JOOBLE_API_KEY });
+                        if (keyword) params.set('q', keyword);
+                        if (location) params.set('location', location);
+                        var proxyRes = await fetch(JOB_PROXY_URL + '?' + params.toString(), { signal: AbortSignal.timeout(12000) });
+                        if (proxyRes.ok) {
+                            data = await proxyRes.json();
+                            JOB_PROXY_AVAILABLE = true;
+                            console.log('Jooble: via proxy, ' + (data.jobs || []).length + ' results');
+                        } else throw new Error('Proxy ' + proxyRes.status);
+                    } catch(proxyErr) {
+                        console.warn('Jooble proxy failed, trying direct:', proxyErr.message);
+                        // Direct fallback (likely CORS blocked)
+                        var url = 'https://jooble.org/api/' + encodeURIComponent(JOOBLE_API_KEY);
+                        var body = { keywords: keyword || '', location: location || 'United States' };
+                        var res = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(body),
+                            signal: AbortSignal.timeout(12000)
+                        });
+                        if (!res.ok) throw new Error('Jooble direct ' + res.status);
+                        data = await res.json();
+                        console.log('Jooble: direct, ' + (data.jobs || []).length + ' results');
+                    }
+                } else {
+                    var url2 = 'https://jooble.org/api/' + encodeURIComponent(JOOBLE_API_KEY);
+                    var body2 = { keywords: keyword || '', location: location || 'United States' };
+                    var res2 = await fetch(url2, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body2),
+                        signal: AbortSignal.timeout(12000)
+                    });
+                    if (!res2.ok) throw new Error('Jooble direct ' + res2.status);
+                    data = await res2.json();
+                    console.log('Jooble: direct, ' + (data.jobs || []).length + ' results');
+                }
+                if (!data || !data.jobs) return [];
+                
+                return data.jobs.slice(0, 50).map(function(job) {
+                    var desc = (job.snippet || '').substring(0, 2000);
+                    var match = quickScoreJob(job.title, desc, []);
+                    return {
+                        id: 'jooble-' + (job.id || Date.now() + Math.random()),
+                        title: job.title || 'Untitled',
+                        company: job.company || '',
+                        location: job.location || '',
+                        type: job.type || 'Full Time',
+                        url: job.link || '',
+                        salary: job.salary || '',
+                        description: desc,
+                        tags: [],
+                        matchScore: match.score,
+                        matchedSkills: match.matched,
+                        gapSkills: match.gaps,
+                        source: 'Jooble',
+                        pubDate: job.updated || ''
+                    };
+                });
+            } catch(e) {
+                console.error('Jooble fetch failed:', e.message);
+                throw e;
+            }
         }
         
         // === ADD REMOTE JOB TO PIPELINE ===
