@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.gstatic.com https://cdnjs.cloudflare.com https://api.anthropic.com https://*.rapidapi.com https://remotive.com https://himalayas.app https://jobicy.com https://data.usajobs.gov https://api.adzuna.com https://www.themuse.com https://jooble.org; img-src 'self' data: blob: https://*.googleusercontent.com; frame-src 'none'; object-src 'none'; base-uri 'self';">
     <title>Blueprint™</title>
-    <!-- v4.44.6 | 20260224 | Slider re-render fix (page limit 100), aggressive sync parallelization for Adzuna/Muse/Jooble -->
+    <!-- v4.44.6 | 20260224 | Slider re-render fix (page limit 100), aggressive sync, emoji→SVG icon cleanup, auto health check -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -435,7 +435,7 @@
                 <button onclick="sendFeedback('menu'); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="edit"></span> Give Feedback</button>
                 <div style="height:1px; background:var(--border); margin:4px 0;"></div>
                 <button id="overflowSignIn" onclick="showAuthModal('signin'); closeOverflowMenu();" style="color: var(--accent);" class="overflow-icon-btn"><span class="overflow-icon" data-icon="sign-in"></span> Sign In</button>
-                <button id="overflowAdmin" onclick="showAdminPanel(); closeOverflowMenu();" style="color: #fbbf24; display:none;" class="overflow-icon-btn"><span style="margin-right:2px;">👑</span> Admin Dashboard</button>
+                <button id="overflowAdmin" onclick="showAdminPanel(); closeOverflowMenu();" style="color: #fbbf24; display:none;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="shield"></span> Admin Dashboard</button>
                 <button id="overflowSignOut" onclick="authSignOut(); closeOverflowMenu();" style="color: #ef4444; display:none;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="power"></span> Sign Out</button>
             </div>
         </div>
@@ -1217,7 +1217,7 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.6 - BUILD 20260224-slider-fix-aggressive-sync
+        // BLUEPRINT v4.44.6 - BUILD 20260224-svg-icons-auto-health
         var BP_VERSION = 'v4.44.6';
         
         // ===== AI COST & USAGE TRACKING =====
@@ -1229,19 +1229,19 @@
         // Active checks: on-demand health ping from admin dashboard
         
         var API_HEALTH_SERVICES = {
-            'anthropic-proxy':  { name: 'Anthropic AI Proxy', icon: '\uD83E\uDDE0', category: 'ai', manageUrl: 'https://console.anthropic.com/settings/billing', critical: true },
-            'anthropic-direct': { name: 'Anthropic Direct API', icon: '\uD83D\uDD11', category: 'ai', manageUrl: 'https://console.anthropic.com/settings/api-keys', critical: false },
-            'firebase-auth':    { name: 'Firebase Auth', icon: '\uD83D\uDD12', category: 'infra', manageUrl: 'https://console.firebase.google.com', critical: true },
-            'firebase-db':      { name: 'Firestore Database', icon: '\uD83D\uDD25', category: 'infra', manageUrl: 'https://console.firebase.google.com', critical: true },
-            'jsearch':          { name: 'JSearch (RapidAPI)', icon: '\uD83D\uDD0D', category: 'jobs', manageUrl: 'https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch', critical: false },
-            'remotive':         { name: 'Remotive', icon: '\uD83D\uDCBC', category: 'jobs', manageUrl: 'https://remotive.com/api/remote-jobs', critical: false },
-            'usajobs':          { name: 'USAJobs', icon: '\uD83C\uDFDB\uFE0F', category: 'jobs', manageUrl: 'https://developer.usajobs.gov', critical: false },
-            'himalayas':        { name: 'Himalayas', icon: '\u26F0\uFE0F', category: 'jobs', manageUrl: 'https://himalayas.app/jobs/api', critical: false },
-            'jobicy':           { name: 'Jobicy', icon: '\uD83D\uDCCB', category: 'jobs', manageUrl: 'https://jobicy.com/api/v2/remote-jobs', critical: false },
-            'adzuna':           { name: 'Adzuna', icon: '\uD83C\uDF10', category: 'jobs', manageUrl: 'https://developer.adzuna.com', critical: false },
-            'themuse':          { name: 'The Muse', icon: '\u2728', category: 'jobs', manageUrl: 'https://www.themuse.com/developers/api/v2', critical: false },
-            'jooble':           { name: 'Jooble', icon: '\uD83D\uDD0E', category: 'jobs', manageUrl: 'https://jooble.org/api/about', critical: false },
-            'onet-crosswalk':   { name: 'O*NET Crosswalk', icon: '\uD83C\uDFAF', category: 'data', manageUrl: null, critical: false }
+            'anthropic-proxy':  { name: 'Anthropic AI Proxy', icon: 'zap', category: 'ai', manageUrl: 'https://console.anthropic.com/settings/billing', critical: true },
+            'anthropic-direct': { name: 'Anthropic Direct API', icon: 'lock', category: 'ai', manageUrl: 'https://console.anthropic.com/settings/api-keys', critical: false },
+            'firebase-auth':    { name: 'Firebase Auth', icon: 'shield', category: 'infra', manageUrl: 'https://console.firebase.google.com', critical: true },
+            'firebase-db':      { name: 'Firestore Database', icon: 'database', category: 'infra', manageUrl: 'https://console.firebase.google.com', critical: true },
+            'jsearch':          { name: 'JSearch (RapidAPI)', icon: 'search', category: 'jobs', manageUrl: 'https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch', critical: false },
+            'remotive':         { name: 'Remotive', icon: 'briefcase', category: 'jobs', manageUrl: 'https://remotive.com/api/remote-jobs', critical: false },
+            'usajobs':          { name: 'USAJobs', icon: 'award', category: 'jobs', manageUrl: 'https://developer.usajobs.gov', critical: false },
+            'himalayas':        { name: 'Himalayas', icon: 'trending-up', category: 'jobs', manageUrl: 'https://himalayas.app/jobs/api', critical: false },
+            'jobicy':           { name: 'Jobicy', icon: 'clipboard', category: 'jobs', manageUrl: 'https://jobicy.com/api/v2/remote-jobs', critical: false },
+            'adzuna':           { name: 'Adzuna', icon: 'compass', category: 'jobs', manageUrl: 'https://developer.adzuna.com', critical: false },
+            'themuse':          { name: 'The Muse', icon: 'star', category: 'jobs', manageUrl: 'https://www.themuse.com/developers/api/v2', critical: false },
+            'jooble':           { name: 'Jooble', icon: 'search', category: 'jobs', manageUrl: 'https://jooble.org/api/about', critical: false },
+            'onet-crosswalk':   { name: 'O*NET Crosswalk', icon: 'target', category: 'data', manageUrl: null, critical: false }
         };
         
         // Status: 'ok' | 'degraded' | 'down' | 'unknown'
@@ -2253,7 +2253,7 @@
             return fbDb.collection('users').doc(uid).get()
                 .then(function(doc) {
                     if (doc.exists && doc.data().role === 'admin') {
-                        console.log('👑 Admin role confirmed');
+                        console.log('[Admin] Admin role confirmed');
                         return true;
                     }
                     console.log('ℹ️ User role:', doc.exists ? (doc.data().role || 'user') : 'no document');
@@ -2689,7 +2689,7 @@
                 // Header
                 + '<div style="text-align:center; margin-bottom:32px;">'
                 + '<h1 style="font-family:Outfit,sans-serif; font-size:2em; font-weight:700; color:#fbbf24; letter-spacing:0.1em; text-transform:uppercase; margin:0;">'
-                + '\uD83D\uDC51 Admin Dashboard</h1>'
+                + '<span style="display:inline-block; vertical-align:middle; margin-right:8px;">' + bpIcon('shield', 28) + '</span> Admin Dashboard</h1>'
                 + '<p style="color:var(--text-muted); margin-top:6px;">Signed in as <strong style="color:var(--text-primary);">' + authName + '</strong></p>'
                 + '</div>'
                 
@@ -2809,7 +2809,7 @@
             // ===== JOBS SYNC STATUS =====
             html += '<div id="adminJobsSync" style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:20px;">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">'
-                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">\uD83D\uDD04 Jobs Sync</h3>'
+                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">' + bpIcon('tool', 16) + ' Jobs Sync</h3>'
                 + '<span style="font-size:0.72em; color:var(--text-muted);">Cron: every 6 hours</span></div>'
                 + '<div id="adminJobsSyncContent" style="color:var(--text-muted); font-size:0.85em;">Loading sync status...</div></div>';
             
@@ -3068,12 +3068,12 @@
             
             // ===== ROW 5: Conversion Funnel =====
             var funnelSteps = [
-                { key: 'visit', label: 'Visited', icon: '\uD83D\uDC41', color: '#60a5fa' },
-                { key: 'signup', label: 'Signed Up', icon: '\uD83D\uDD11', color: '#8b5cf6' },
-                { key: 'profile_created', label: 'Profile Created', icon: '\uD83D\uDCDD', color: '#a78bfa' },
-                { key: 'skills_added', label: 'Skills Added', icon: '\u2728', color: '#10b981' },
-                { key: 'first_job', label: 'First Job Added', icon: '\uD83C\uDFAF', color: '#f59e0b' },
-                { key: 'report_generated', label: 'Report Generated', icon: '\uD83D\uDCCA', color: '#ec4899' }
+                { key: 'visit', label: 'Visited', icon: 'eye', color: '#60a5fa' },
+                { key: 'signup', label: 'Signed Up', icon: 'lock', color: '#8b5cf6' },
+                { key: 'profile_created', label: 'Profile Created', icon: 'edit', color: '#a78bfa' },
+                { key: 'skills_added', label: 'Skills Added', icon: 'skills', color: '#10b981' },
+                { key: 'first_job', label: 'First Job Added', icon: 'target', color: '#f59e0b' },
+                { key: 'report_generated', label: 'Report Generated', icon: 'bar-chart', color: '#ec4899' }
             ];
             var funnelMax = Math.max.apply(null, funnelSteps.map(function(f) { return s.funnel[f.key] || 0; })) || 1;
             
@@ -3092,13 +3092,13 @@
             html += '</div><div style="display:flex; gap:6px;">';
             funnelSteps.forEach(function(step) {
                 html += '<div style="flex:1; text-align:center; font-size:0.65em; color:var(--text-muted); line-height:1.3;">'
-                    + step.icon + '<br>' + step.label + '</div>';
+                    + '<span style="color:' + step.color + ';">' + bpIcon(step.icon, 14) + '</span><br>' + step.label + '</div>';
             });
             html += '</div></div>';
             
             // ===== ROW 6: Data source note =====
             html += '<div style="font-size:0.72em; color:var(--text-muted); margin-top:12px; line-height:1.5;">'
-                + '\uD83D\uDCCA Local data (this browser). Firestore aggregation available in Platform Analytics below for cross-user totals. '
+                + '' + bpIcon('bar-chart', 12) + ' Local data (this browser). Firestore aggregation available in Platform Analytics below for cross-user totals. '
                 + 'Visit count: ' + (safeGet('bpVisitCount') || '0') + ' | First seen: ' + (safeGet('bpFirstVisit') || 'N/A').slice(0, 10)
                 + ' | <a href="#" onclick="if(confirm(\'Clear all local traffic data?\')){localStorage.removeItem(\'bpSiteAnalytics\');renderTrafficDashboard(' + days + ');showToast(\'Traffic data cleared.\',\'info\');} return false;" style="color:var(--accent);">Clear local data</a>'
                 + '</div>';
@@ -4033,12 +4033,12 @@
             };
             
             var categoryIcons = {
-                'security': '\uD83D\uDD12',
-                'infrastructure': '\u2699\uFE0F',
-                'feature': '\u2728',
-                'monetization': '\uD83D\uDCB0',
-                'integration': '\uD83D\uDD17',
-                'compliance': '\uD83D\uDCDC'
+                'security': 'shield',
+                'infrastructure': 'settings',
+                'feature': 'star',
+                'monetization': 'dollar',
+                'integration': 'network',
+                'compliance': 'file-text'
             };
             
             var priorityColors = {
@@ -4119,7 +4119,7 @@
                 filteredItems.forEach(function(item) {
                     var sc = statusColors[item.status] || statusColors['planned'];
                     var pc = priorityColors[item.priority] || priorityColors['medium'];
-                    var ci = categoryIcons[item.category] || '\u2022';
+                    var ci = categoryIcons[item.category] || 'target';
                     
                     html += '<div style="display:flex; align-items:flex-start; gap:12px; padding:12px 16px; margin-bottom:6px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:10px; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'' + phase.color + '40\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
                         // Status toggle
@@ -4132,7 +4132,7 @@
                         + '<span style="font-weight:600; font-size:0.9em; color:' + (item.status === 'done' ? 'var(--text-muted)' : 'var(--text-primary)') + ';' + (item.status === 'done' ? ' text-decoration:line-through; opacity:0.7;' : '') + '">' + escapeHtml(item.name) + '</span>'
                         + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:' + sc.bg + '; color:' + sc.text + '; font-weight:600;">' + sc.label + '</span>'
                         + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:' + pc + '15; color:' + pc + '; font-weight:600; border:1px solid ' + pc + '30;">' + item.priority + '</span>'
-                        + '<span style="font-size:0.72em;" title="' + escapeHtml(item.category) + '">' + ci + '</span>'
+                        + '<span style="font-size:0.72em; color:var(--text-muted);" title="' + escapeHtml(item.category) + '">' + bpIcon(ci, 13) + '</span>'
                         + '</div>'
                         + (item.notes ? '<div style="font-size:0.8em; color:var(--text-muted); margin-top:4px; line-height:1.5;">' + escapeHtml(item.notes) + '</div>' : '')
                         + '</div>'
@@ -4148,12 +4148,12 @@
             html += '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:10px; margin-top:16px;">'
                 + '<div style="font-size:0.75em; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px;">Legend</div>'
                 + '<div style="display:flex; gap:16px; flex-wrap:wrap; font-size:0.78em; color:var(--text-muted);">'
-                + '<span>\uD83D\uDD12 Security</span>'
-                + '<span>\u2699\uFE0F Infrastructure</span>'
-                + '<span>\u2728 Feature</span>'
-                + '<span>\uD83D\uDCB0 Monetization</span>'
-                + '<span>\uD83D\uDD17 Integration</span>'
-                + '<span>\uD83D\uDCDC Compliance</span>'
+                + '<span>' + bpIcon('shield', 12) + ' Security</span>'
+                + '<span>' + bpIcon('settings', 12) + ' Infrastructure</span>'
+                + '<span>' + bpIcon('star', 12) + ' Feature</span>'
+                + '<span>' + bpIcon('dollar', 12) + ' Monetization</span>'
+                + '<span>' + bpIcon('network', 12) + ' Integration</span>'
+                + '<span>' + bpIcon('file-text', 12) + ' Compliance</span>'
                 + '<span style="margin-left:16px;"><span style="color:#ef4444;">\u25CF</span> Critical</span>'
                 + '<span><span style="color:#f59e0b;">\u25CF</span> High</span>'
                 + '<span><span style="color:#3b82f6;">\u25CF</span> Medium</span>'
@@ -4172,7 +4172,7 @@
             
             var statusColors = { ok: '#10b981', degraded: '#f59e0b', down: '#ef4444', unknown: '#6b7280' };
             var statusLabels = { ok: 'Operational', degraded: 'Degraded', down: 'Down', unknown: 'Unknown' };
-            var statusIcons = { ok: '\u2705', degraded: '\u26A0\uFE0F', down: '\u274C', unknown: '\u2754' };
+            var statusIcons = { ok: 'check', degraded: 'warning', down: 'x', unknown: 'help' };
             
             // Compute overall status
             var criticalDown = [];
@@ -4235,7 +4235,7 @@
                         + ' border-bottom:1px solid var(--border);">'
                         + '<div style="width:10px; height:10px; border-radius:50%; flex-shrink:0;'
                         + ' background:' + (statusColors[svc.status] || statusColors.unknown) + ';"></div>'
-                        + '<span style="font-size:0.9em; flex-shrink:0;">' + svc.icon + '</span>'
+                        + '<span style="font-size:0.9em; flex-shrink:0; color:var(--text-muted);">' + bpIcon(svc.icon, 16) + '</span>'
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">'
                         + escapeHtml(svc.name)
@@ -4270,7 +4270,7 @@
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                 + '<div style="font-size:0.82em; font-weight:700; color:var(--text-secondary);'
                 + ' text-transform:uppercase; letter-spacing:0.05em;">'
-                + '\uD83D\uDCCB Incident Log'
+                + '' + bpIcon('clipboard', 14) + ' Incident Log'
                 + (unresolvedCount > 0 ? ' <span style="background:#ef4444; color:#fff; padding:1px 8px; border-radius:10px; font-size:0.85em; margin-left:6px;">' + unresolvedCount + ' open</span>' : '')
                 + '</div>'
                 + '<div style="display:flex; gap:8px;">'
@@ -4285,10 +4285,10 @@
             
             if (incidents.length === 0) {
                 html += '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85em;">'
-                    + '\u2705 No incidents recorded</div>';
+                    + bpIcon('check', 14) + ' No incidents recorded</div>';
             } else {
                 var sevColors = { critical: '#ef4444', warning: '#f59e0b', info: '#3b82f6' };
-                var sevIcons = { critical: '\u274C', warning: '\u26A0\uFE0F', info: '\u2139\uFE0F' };
+                var sevIcons = { critical: 'x', warning: 'warning', info: 'about' };
                 
                 html += '<div style="max-height:350px; overflow-y:auto;">';
                 incidents.slice(0, 30).forEach(function(inc) {
@@ -4301,7 +4301,7 @@
                         + ' border-bottom:1px solid var(--border);'
                         + (resolved ? ' opacity:0.5;' : '') + '">'
                         + '<div style="flex-shrink:0; margin-top:2px;">'
-                        + (sevIcons[inc.severity] || '\u2753')
+                        + '<span style="color:' + (sevColors[inc.severity] || 'var(--text-muted)') + ';">' + bpIcon(sevIcons[inc.severity] || 'help', 14) + '</span>'
                         + '</div>'
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">'
@@ -4344,6 +4344,13 @@
             
             html += '</div>';
             el.innerHTML = html;
+            
+            // Auto-run health checks if no data yet
+            var health = getApiHealth();
+            var hasData = Object.keys(health).some(function(k) { return health[k] && health[k].status; });
+            if (!hasData) {
+                setTimeout(function() { runHealthChecks(); }, 300);
+            }
         }
         
         async function runHealthChecks() {
@@ -4777,7 +4784,7 @@
             
             // Note
             html += '<div style="font-size:0.75em; color:var(--text-muted); margin-bottom:16px; padding:8px 12px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px;">'
-                + '\u26A0 <strong>Maintenance required:</strong> Update this map when adding/modifying components. See roadmap item p2-3q.'
+                + '' + bpIcon('warning', 12) + ' <strong>Maintenance required:</strong> Update this map when adding/modifying components. See roadmap item p2-3q.'
                 + '</div>';
             
             // === TILES VIEW ===
@@ -5096,7 +5103,7 @@
             // Tech debt
             if (d.debt) {
                 html += '<div style="grid-column:1/-1; border-top:1px solid var(--border); padding-top:10px; margin-top:4px;">'
-                    + '<div style="font-weight:700; color:#ef4444; margin-bottom:4px; font-size:0.9em;">\u26A0 Tech Debt / Gotchas</div>'
+                    + '<div style="font-weight:700; color:#ef4444; margin-bottom:4px; font-size:0.9em;">' + bpIcon('warning', 12) + ' Tech Debt / Gotchas</div>'
                     + '<div style="color:var(--text-secondary); font-size:0.9em;">' + d.debt + '</div>'
                     + '</div>';
             }
@@ -5409,21 +5416,21 @@
             
             // ===== INFRASTRUCTURE COSTS =====
             var INFRASTRUCTURE = [
-                { name: 'Claude Pro', provider: 'Anthropic', cost: 200.00, cycle: 'monthly', category: 'ai', notes: 'AI development, code generation, content', manageUrl: 'https://claude.ai/settings/billing', icon: '\uD83E\uDDE0' },
-                { name: 'Anthropic API Credits', provider: 'Anthropic', cost: 30.00, cycle: 'prepaid', category: 'ai', notes: 'Prepaid credits for Blueprint AI features (resume parse, skill inference, purpose gen). Sonnet 4: $3/M input, $15/M output.', manageUrl: 'https://console.anthropic.com/settings/billing', icon: '\uD83D\uDCB3' },
-                { name: 'JSearch API', provider: 'RapidAPI', cost: 25.00, cycle: 'monthly', category: 'api', notes: '10,000 req/mo, Google Jobs aggregator', manageUrl: 'https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch/pricing', icon: '\uD83D\uDD0D' },
-                { name: 'Vercel Pro', provider: 'Vercel', cost: 20.00, cycle: 'monthly', category: 'hosting', notes: 'Hosting, serverless functions, edge network', manageUrl: 'https://vercel.com/cliffj8338s-projects/blueprint/settings', icon: '\u25B2' },
-                { name: 'Cloudflare', provider: 'Cloudflare', cost: 0, cycle: 'monthly', category: 'domain', notes: 'DNS, CDN, SSL, DDoS protection (free tier)', manageUrl: 'https://dash.cloudflare.com', icon: '\u2601\uFE0F' },
-                { name: 'Domain (myblueprint.work)', provider: 'Cloudflare', cost: 10.00, cycle: 'yearly', category: 'domain', notes: '~$10/yr, prorated to ~$0.83/mo', manageUrl: 'https://dash.cloudflare.com', icon: '\uD83C\uDF10' },
-                { name: 'Firebase', provider: 'Google', cost: 0, cycle: 'monthly', category: 'database', notes: 'Spark plan (free). Auth, Firestore, hosting', manageUrl: 'https://console.firebase.google.com', icon: '\uD83D\uDD25' },
-                { name: 'GitHub', provider: 'GitHub', cost: 0, cycle: 'monthly', category: 'devops', notes: 'Free tier. Source control, CI/CD', manageUrl: 'https://github.com/settings/billing', icon: '\uD83D\uDC19' },
-                { name: 'Remotive API', provider: 'Remotive', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, no auth. Remote jobs feed', manageUrl: 'https://remotive.com/api/remote-jobs', icon: '\uD83D\uDCBC' },
-                { name: 'USAJobs API', provider: 'USAJobs', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free with registration. Government jobs', manageUrl: 'https://developer.usajobs.gov', icon: '\uD83C\uDFDB\uFE0F' },
-                { name: 'Himalayas API', provider: 'Himalayas', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, no auth. Remote-first jobs', manageUrl: 'https://himalayas.app/jobs/api', icon: '\u26F0\uFE0F' },
-                { name: 'Jobicy API', provider: 'Jobicy', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, no auth. Remote jobs', manageUrl: 'https://jobicy.com/api/v2/remote-jobs', icon: '\uD83D\uDCCB' },
-                { name: 'Adzuna API', provider: 'Adzuna', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free with registration. ~3-4M US jobs. app_id + app_key', manageUrl: 'https://developer.adzuna.com', icon: '\uD83C\uDF10' },
-                { name: 'The Muse API', provider: 'The Muse', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, 3600 req/hr with API key. Professional jobs + company profiles', manageUrl: 'https://www.themuse.com/developers/api/v2', icon: '\u2728' },
-                { name: 'Jooble API', provider: 'Jooble', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free with registration. Meta-aggregator: Indeed, LinkedIn, Glassdoor', manageUrl: 'https://jooble.org/api/about', icon: '\uD83D\uDD0E' }
+                { name: 'Claude Pro', provider: 'Anthropic', cost: 200.00, cycle: 'monthly', category: 'ai', notes: 'AI development, code generation, content', manageUrl: 'https://claude.ai/settings/billing', icon: 'zap' },
+                { name: 'Anthropic API Credits', provider: 'Anthropic', cost: 30.00, cycle: 'prepaid', category: 'ai', notes: 'Prepaid credits for Blueprint AI features (resume parse, skill inference, purpose gen). Sonnet 4: $3/M input, $15/M output.', manageUrl: 'https://console.anthropic.com/settings/billing', icon: 'dollar' },
+                { name: 'JSearch API', provider: 'RapidAPI', cost: 25.00, cycle: 'monthly', category: 'api', notes: '10,000 req/mo, Google Jobs aggregator', manageUrl: 'https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch/pricing', icon: 'search' },
+                { name: 'Vercel Pro', provider: 'Vercel', cost: 20.00, cycle: 'monthly', category: 'hosting', notes: 'Hosting, serverless functions, edge network', manageUrl: 'https://vercel.com/cliffj8338s-projects/blueprint/settings', icon: 'layers' },
+                { name: 'Cloudflare', provider: 'Cloudflare', cost: 0, cycle: 'monthly', category: 'domain', notes: 'DNS, CDN, SSL, DDoS protection (free tier)', manageUrl: 'https://dash.cloudflare.com', icon: 'shield' },
+                { name: 'Domain (myblueprint.work)', provider: 'Cloudflare', cost: 10.00, cycle: 'yearly', category: 'domain', notes: '~$10/yr, prorated to ~$0.83/mo', manageUrl: 'https://dash.cloudflare.com', icon: 'compass' },
+                { name: 'Firebase', provider: 'Google', cost: 0, cycle: 'monthly', category: 'database', notes: 'Spark plan (free). Auth, Firestore, hosting', manageUrl: 'https://console.firebase.google.com', icon: 'database' },
+                { name: 'GitHub', provider: 'GitHub', cost: 0, cycle: 'monthly', category: 'devops', notes: 'Free tier. Source control, CI/CD', manageUrl: 'https://github.com/settings/billing', icon: 'tool' },
+                { name: 'Remotive API', provider: 'Remotive', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, no auth. Remote jobs feed', manageUrl: 'https://remotive.com/api/remote-jobs', icon: 'briefcase' },
+                { name: 'USAJobs API', provider: 'USAJobs', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free with registration. Government jobs', manageUrl: 'https://developer.usajobs.gov', icon: 'award' },
+                { name: 'Himalayas API', provider: 'Himalayas', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, no auth. Remote-first jobs', manageUrl: 'https://himalayas.app/jobs/api', icon: 'trending-up' },
+                { name: 'Jobicy API', provider: 'Jobicy', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, no auth. Remote jobs', manageUrl: 'https://jobicy.com/api/v2/remote-jobs', icon: 'clipboard' },
+                { name: 'Adzuna API', provider: 'Adzuna', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free with registration. ~3-4M US jobs. app_id + app_key', manageUrl: 'https://developer.adzuna.com', icon: 'compass' },
+                { name: 'The Muse API', provider: 'The Muse', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, 3600 req/hr with API key. Professional jobs + company profiles', manageUrl: 'https://www.themuse.com/developers/api/v2', icon: 'star' },
+                { name: 'Jooble API', provider: 'Jooble', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free with registration. Meta-aggregator: Indeed, LinkedIn, Glassdoor', manageUrl: 'https://jooble.org/api/about', icon: 'search' }
             ];
             
             // Compute monthly costs
@@ -5439,10 +5446,10 @@
             });
             
             var categoryLabels = { ai: 'AI & Development', api: 'Job Search APIs', hosting: 'Hosting & Compute', domain: 'Domain & CDN', database: 'Database & Auth', devops: 'DevOps & Source Control' };
-            var categoryIcons = { ai: '\uD83E\uDDE0', api: '\uD83D\uDD17', hosting: '\u2601\uFE0F', domain: '\uD83C\uDF10', database: '\uD83D\uDDC4\uFE0F', devops: '\u2699\uFE0F' };
+            var categoryIcons = { ai: 'zap', api: 'network', hosting: 'layers', domain: 'compass', database: 'database', devops: 'settings' };
             
             html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:10px; margin-bottom:20px;">'
-                + '<div style="font-size:0.85em; font-weight:700; color:var(--text-primary); margin-bottom:16px;">\u2699\uFE0F Infrastructure</div>';
+                + '<div style="font-size:0.85em; font-weight:700; color:var(--text-primary); margin-bottom:16px;">' + bpIcon('settings', 14) + ' Infrastructure</div>';
             
             Object.keys(infraByCategory).forEach(function(cat) {
                 var items = infraByCategory[cat];
@@ -5450,14 +5457,14 @@
                 
                 html += '<div style="margin-bottom:16px;">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding-bottom:4px; border-bottom:1px solid var(--c-border-faint);">'
-                    + '<span style="font-size:0.78em; font-weight:600; color:var(--text-secondary);">' + (categoryIcons[cat] || '') + ' ' + (categoryLabels[cat] || cat) + '</span>'
+                    + '<span style="font-size:0.78em; font-weight:600; color:var(--text-secondary);">' + bpIcon(categoryIcons[cat] || 'target', 13) + ' ' + (categoryLabels[cat] || cat) + '</span>'
                     + '<span style="font-size:0.75em; font-weight:700; color:' + (catTotal > 0 ? '#60a5fa' : '#10b981') + ';">' + (catTotal > 0 ? '$' + catTotal.toFixed(2) + '/mo' : 'Free') + '</span></div>';
                 
                 items.forEach(function(item) {
                     html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0 6px 12px; font-size:0.8em;">'
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="display:flex; align-items:center; gap:6px;">'
-                        + '<span>' + item.icon + '</span>'
+                        + '<span style="color:var(--text-muted);">' + bpIcon(item.icon, 14) + '</span>'
                         + '<span style="font-weight:600; color:var(--text-primary);">' + item.name + '</span>'
                         + '<span style="font-size:0.82em; color:var(--text-muted);">' + item.provider + '</span>'
                         + '</div>'
@@ -5490,7 +5497,7 @@
             ].filter(function(c) { return c.amount > 0; });
             
             html += '<div style="padding:20px; background:linear-gradient(135deg, var(--c-surface-2), var(--c-surface-4b)); border:2px solid var(--accent); border-radius:12px; margin-bottom:20px;">'
-                + '<div style="font-size:0.85em; font-weight:700; color:var(--text-primary); margin-bottom:16px;">\uD83D\uDCCA Monthly Cost Snapshot</div>';
+                + '<div style="font-size:0.85em; font-weight:700; color:var(--text-primary); margin-bottom:16px;">' + bpIcon('dollar', 14) + ' Monthly Cost Snapshot</div>';
             
             // Big total
             html += '<div style="text-align:center; margin-bottom:20px;">'
@@ -5736,25 +5743,25 @@
                 var isDemoMode = appContext.mode === 'demo';
                 if (fbIsAdmin) {
                     // Admin viewing sample
-                    bannerHTML = (isDemoMode ? '\uD83C\uDFAD' : '\uD83D\uDD12') + ' <strong>Viewing: ' + profileName + '</strong> \u00B7 '
+                    bannerHTML = bpIcon(isDemoMode ? 'eye' : 'lock', 14) + ' <strong>Viewing: ' + profileName + '</strong> \u00B7 '
                         + (isDemoMode ? 'Demo Mode' : 'Admin mode')
                         + ' \u00B7 <a href="#" onclick="event.preventDefault(); exitDemoMode();" '
                         + 'style="color:inherit; text-decoration:underline; font-weight:700;">\u2190 Return to my profile</a>';
                 } else if (fbUser && isDemoMode) {
                     // Signed-in user in demo mode
-                    bannerHTML = '\uD83C\uDFAD <strong>Viewing: ' + profileName + '</strong> \u00B7 Demo Mode \u00B7 '
+                    bannerHTML = bpIcon('eye', 14) + ' <strong>Viewing: ' + profileName + '</strong> \u00B7 Demo Mode \u00B7 '
                         + '<a href="#" onclick="event.preventDefault(); exitDemoMode();" '
                         + 'style="color:inherit; text-decoration:underline; font-weight:700;">\u2190 Return to my profile</a>';
                 } else if (appMode === 'waitlisted') {
                     // Waitlisted user viewing sample
-                    bannerHTML = '\uD83D\uDD12 <strong>Viewing: ' + profileName + '</strong> \u00B7 Sample profile. You\u2019re #<span id="bannerPosition">' + (waitlistPosition || '...') + '</span> on the waitlist.';
+                    bannerHTML = bpIcon('lock', 14) + ' <strong>Viewing: ' + profileName + '</strong> \u00B7 Sample profile. You\u2019re #<span id="bannerPosition">' + (waitlistPosition || '...') + '</span> on the waitlist.';
                 } else if (fbUser) {
                     // Signed-in user (active/invited) browsing a sample
-                    bannerHTML = '\uD83D\uDD12 <strong>Viewing: ' + profileName + '</strong> \u00B7 Sample profile. '
+                    bannerHTML = bpIcon('lock', 14) + ' <strong>Viewing: ' + profileName + '</strong> \u00B7 Sample profile. '
                         + '<a href="#" onclick="event.preventDefault(); loadUserFromFirestore(fbUser.uid);" style="color:inherit; text-decoration:underline; font-weight:700;">\u2190 Back to my profile</a>';
                 } else {
                     // Demo visitor (not signed in)
-                    bannerHTML = '\uD83D\uDD12 <strong>Viewing: ' + profileName + '</strong> \u00B7 Sample profile. '
+                    bannerHTML = bpIcon('lock', 14) + ' <strong>Viewing: ' + profileName + '</strong> \u00B7 Sample profile. '
                         + '<a href="#" onclick="event.preventDefault(); showWaitlist();" style="color:inherit; text-decoration:underline; font-weight:700;">Join the waitlist</a> for early access '
                         + 'or <a href="#" onclick="event.preventDefault(); showAuthModal(\'signin\');" style="color:inherit; text-decoration:underline;">sign in</a>.';
                 }
@@ -5825,7 +5832,7 @@
             var modal = document.getElementById('exportModal');
             var modalContent = modal.querySelector('.modal-content');
             modalContent.innerHTML = '<div class="modal-header">'
-                + '<div class="modal-header-left"><h2 class="modal-title">\uD83D\uDD12 Early Access Feature</h2></div>'
+                + '<div class="modal-header-left"><h2 class="modal-title">' + bpIcon('lock', 18) + ' Early Access Feature</h2></div>'
                 + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:40px 32px; text-align:center;">'
@@ -6037,7 +6044,7 @@
             var btnAction = appMode === 'waitlisted' ? "showToast('You are on the waitlist! We will unlock this soon.', 'info')" : 'showWaitlist()';
             var btnText = appMode === 'waitlisted' ? 'You\u2019re on the list \u2714' : 'Join Waitlist for Access';
             return '<div class="gated-prompt">'
-                + '<div class="gp-icon">\uD83D\uDD12</div>'
+                + '<div class="gp-icon">' + bpIcon('lock', 48) + '</div>'
                 + '<div class="gp-title">' + featureName + '</div>'
                 + '<div class="gp-text">' + description + '</div>'
                 + '<button class="gp-btn" onclick="' + btnAction + '">' + btnText + '</button>'
@@ -6145,7 +6152,7 @@
             var banner = document.getElementById('readonlyBanner');
             if (banner) {
                 var pName = (userData.profile && userData.profile.name) || 'Sample Profile';
-                banner.innerHTML = '\uD83D\uDD12 <strong>Viewing: ' + escapeHtml(pName) + '</strong> \u00B7 Sample profile. You\u2019re #' + position + ' on the waitlist.';
+                banner.innerHTML = bpIcon('lock', 14) + ' <strong>Viewing: ' + escapeHtml(pName) + '</strong> \u00B7 Sample profile. You\u2019re #' + position + ' on the waitlist.';
             }
             
             showToast('Welcome, ' + name + '! You\u2019re #' + position + ' on the waitlist.', 'success');
@@ -6782,7 +6789,7 @@
         function showToast(message, type, duration) {
             type = type || 'info';
             duration = duration || 4000;
-            const icons = { success: '\u2705', error: '\u274C', info: '\u2139\uFE0F', warning: '\u26A0\uFE0F' };
+            const icons = { success: 'check', error: 'x', info: 'about', warning: 'warning' };
             const id = 'toast-' + (++toastCounter);
             const container = document.getElementById('toastContainer');
             if (!container) return;
@@ -6796,7 +6803,7 @@
             const el = document.createElement('div');
             el.id = id;
             el.className = 'toast toast-' + type;
-            el.innerHTML = '<span class="toast-icon">' + (icons[type] || icons.info) + '</span>'
+            el.innerHTML = '<span class="toast-icon">' + bpIcon(icons[type] || icons.info, 16) + '</span>'
                 + '<div class="toast-body"><div class="toast-msg">' + escapeHtml(message) + '</div></div>'
                 + '<button class="toast-close" onclick="dismissToast(\u0027' + id + '\u0027'
                 + ')" aria-label="Close">\u00D7</button>';
@@ -7525,7 +7532,7 @@
             
             mc.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left">'
-                + '<h2 class="modal-title">\u2705 Request Verification</h2>'
+                + '<h2 class="modal-title">' + bpIcon('check', 18) + ' Request Verification</h2>'
                 + '<p style="color:var(--c-muted); margin-top:5px;">Ask a colleague or manager to verify your evidence</p>'
                 + '</div>'
                 + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
@@ -9723,7 +9730,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                 var nameEl = document.getElementById('resumeFileName');
                 var dropZone = document.getElementById('resumeDropZone');
                 if (info) info.style.display = 'flex';
-                if (nameEl) nameEl.textContent = '\uD83D\uDCC4 ' + file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
+                if (nameEl) nameEl.textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
                 if (dropZone) dropZone.style.display = 'none';
 
                 wizardCheckResumeReady();
@@ -9796,7 +9803,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                          ondragover="event.preventDefault(); this.style.borderColor='#0a66c2'; this.style.background='var(--accent-glow)'"
                          ondragleave="this.style.borderColor='var(--border)'; this.style.background='none'"
                          ondrop="event.preventDefault(); this.style.borderColor='var(--border)'; this.style.background='none'; wizardHandleLinkedInDrop(event)">
-                        <div style="font-size:2.4em; margin-bottom:12px;">\uD83D\uDCE6</div>
+                        <div style="font-size:2.4em; margin-bottom:12px;">${bpIcon('upload', 36)}</div>
                         <div style="font-weight:700; color:var(--text-primary); margin-bottom:8px;">
                             Drop your LinkedIn .zip file here
                         </div>
@@ -12279,11 +12286,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Meta row: seniority, date added
             var metaItems = [];
             if (job.seniority) {
-                metaItems.push('<span class="jit-meta-item">\uD83C\uDFAF ' + job.seniority + '</span>');
+                metaItems.push('<span class="jit-meta-item">' + bpIcon('target', 12) + ' ' + job.seniority + '</span>');
             }
             if (job.addedAt) {
                 var d = new Date(job.addedAt);
-                metaItems.push('<span class="jit-meta-item">\uD83D\uDCC5 ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + '</span>');
+                metaItems.push('<span class="jit-meta-item">' + bpIcon('clock', 12) + ' ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + '</span>');
             }
             if (metaItems.length > 0) {
                 html += '<div class="jit-meta">' + metaItems.join('') + '</div>';
@@ -14455,7 +14462,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-amber-bg-5b); color:#f59e0b;">\u23F3 ' + evSummary.pendingCount + ' pending</span>';
                 }
                 if (evSummary.hasCert) {
-                    bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-purple-bg-2b); color:#a78bfa;">\uD83C\uDFC5 Certification linked</span>';
+                    bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-purple-bg-2b); color:#a78bfa;">' + bpIcon('award', 11) + ' Certification linked</span>';
                 }
                 bodyHTML += '</div>';
             }
@@ -20909,11 +20916,11 @@ body {
                 + '<div style="display:flex; gap:10px; margin-top:16px;">'
                 + '<button onclick="copyCoverLetter()" style="flex:1; background:var(--accent); color:#fff; border:none; '
                 + 'padding:12px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
-                + '\uD83D\uDCCB Copy to Clipboard</button>'
+                + '' + bpIcon('clipboard', 14) + ' Copy to Clipboard</button>'
                 + '<button onclick="downloadCoverLetter(\'' + (job.company || 'company').replace(/'/g, '') + '\')" '
                 + 'style="background:var(--input-bg); color:var(--text-primary); border:1px solid var(--border); '
                 + 'padding:12px 20px; border-radius:8px; cursor:pointer; font-size:0.9em;">'
-                + '\uD83D\uDCE5 Download</button>'
+                + '' + bpIcon('download', 14) + ' Download</button>'
                 + '</div></div>';
             history.pushState({ modal: true }, ''); modal.classList.add('active');
         }
@@ -21124,11 +21131,11 @@ body {
                 + '<div style="display:flex; gap:10px; margin-top:16px;">'
                 + '<button onclick="copyInterviewPrep()" style="flex:1; background:var(--accent); color:#fff; border:none; '
                 + 'padding:12px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
-                + '\uD83D\uDCCB Copy to Clipboard</button>'
+                + '' + bpIcon('clipboard', 14) + ' Copy to Clipboard</button>'
                 + '<button onclick="downloadInterviewPrep(\'' + (job.company || 'company').replace(/'/g, '') + '\')" '
                 + 'style="background:var(--input-bg); color:var(--text-primary); border:1px solid var(--border); '
                 + 'padding:12px 20px; border-radius:8px; cursor:pointer; font-size:0.9em;">'
-                + '\uD83D\uDCE5 Download</button>'
+                + '' + bpIcon('download', 14) + ' Download</button>'
                 + '</div></div>';
             history.pushState({ modal: true }, ''); modal.classList.add('active');
         }
@@ -21260,7 +21267,7 @@ body {
                 + '<div style="display:flex; gap:10px; margin-top:16px;">'
                 + '<button onclick="copyLinkedIn()" style="flex:1; background:#0a66c2; color:#fff; border:none; '
                 + 'padding:12px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
-                + '\uD83D\uDD17 Copy to Clipboard</button>'
+                + '' + bpIcon('clipboard', 14) + ' Copy to Clipboard</button>'
                 + '</div></div>';
             history.pushState({ modal: true }, ''); modal.classList.add('active');
         }
@@ -21454,7 +21461,7 @@ body {
                     var med = '$' + bls.median.toLocaleString();
                     var rangeStr = lo && hi ? lo + ' \u2013 ' + hi : 'Median ' + med;
                     html += '<div style="margin-top:8px; font-size:0.78em; color:var(--text-muted); display:flex; align-items:center; gap:6px;">'
-                        + '<span style="color:#a78bfa;">\uD83D\uDCB0</span> '
+                        + '<span style="color:#a78bfa;">' + bpIcon('dollar', 12) + '</span> '
                         + '<span style="color:#a78bfa;">' + rangeStr + '</span>'
                         + '<span style="opacity:0.5;"> \u00B7 ' + bls.title + ' (BLS)</span>'
                         + '</div>';
@@ -21463,10 +21470,10 @@ body {
                 // Edit/remove — hidden for sample jobs unless admin
                 var isSampleJob = job.sample === true;
                 if (isSampleJob && !fbIsAdmin) {
-                    html += '<div style="margin-top:8px; font-size:0.72em; color:var(--text-muted); text-align:right; font-style:italic;">\uD83D\uDD12 Demo job</div>';
+                    html += '<div style="margin-top:8px; font-size:0.72em; color:var(--text-muted); text-align:right; font-style:italic;">' + bpIcon('lock', 10) + ' Demo job</div>';
                 } else {
                     html += '<div style="margin-top:8px; display:flex; justify-content:flex-end; gap:8px;">'
-                        + (isSampleJob ? '<span style="font-size:0.72em; color:var(--text-muted); align-self:center; margin-right:auto; font-style:italic;">\uD83D\uDD12 Demo</span>' : '')
+                        + (isSampleJob ? '<span style="font-size:0.72em; color:var(--text-muted); align-self:center; margin-right:auto; font-style:italic;">' + bpIcon('lock', 10) + ' Demo</span>' : '')
                         + '<button onclick="event.stopPropagation(); editJobInfo(' + idx + ')" style="'
                         + 'background:none; border:1px solid var(--border); color:var(--text-muted); font-size:0.75em; '
                         + 'cursor:pointer; padding:4px 10px; border-radius:5px;" '
