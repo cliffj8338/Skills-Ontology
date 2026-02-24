@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.39.1.5 | 20260223 | Fix wizardField crash on non-string values (yearsExperience) -->
+    <!-- v4.39.2.0 | 20260223 | O*NET Crosswalk: load, title resolver, skill enrichment, merge engine -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.39.1.5 - BUILD 20260223-wizardfield-fix
-        var BP_VERSION = 'v4.39.1.5';
+        // BLUEPRINT v4.39.2.0 - BUILD 20260223-crosswalk-runtime
+        var BP_VERSION = 'v4.39.2.0';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -3436,7 +3436,10 @@
                         { id: 'p2-3a', name: 'LinkedIn profile import', status: 'done', category: 'feature', priority: 'critical', notes: 'LinkedIn GDPR data archive (.zip) import with client-side CSV parsing via JSZip + PapaParse. Parses Profile, Positions, Skills, Education, Certifications. Zero server cost, instant processing. LinkedIn OAuth deferred (Firebase OIDC incompatibility with LinkedIn discovery doc path).' },
                         { id: 'p2-3b', name: 'Quick profile builder (1-3 min)', status: 'done', category: 'feature', priority: 'critical', notes: 'Three-path onboarding: Resume upload (AI parse), LinkedIn .zip import (CSV parse + AI skill inference), Manual entry. Wizard auto-triggers for empty profiles. LinkedIn import is zero-cost instant path.' },
                         { id: 'p2-3c', name: 'Resume PDF file upload', status: 'done', category: 'feature', priority: 'high', notes: 'Direct PDF upload in wizard Step 2 via drag-and-drop or file picker. PDF sent to Claude as base64 document content block for native processing. 10 MB size limit. Three tabs: Upload PDF (default), Paste Text, LinkedIn Text.' },
-                        { id: 'p2-3d', name: 'LinkedIn CSV header normalization', status: 'done', category: 'feature', priority: 'medium', notes: 'Header normalization map handles case variations, underscore/space differences, BOM removal, and LinkedIn format changes across export versions. Canonical name fallbacks in all CSV field extractors.' }
+                        { id: 'p2-3d', name: 'LinkedIn CSV header normalization', status: 'done', category: 'feature', priority: 'medium', notes: 'Header normalization map handles case variations, underscore/space differences, BOM removal, and LinkedIn format changes across export versions. Canonical name fallbacks in all CSV field extractors.' },
+                        { id: 'p2-3e', name: 'O*NET Occupation Crosswalk', status: 'in-progress', category: 'infrastructure', priority: 'critical', notes: 'Separate pipeline repo (blueprint-onet-crosswalk) processes raw O*NET 30.1 database into crosswalk JSON mapping titles → SOC codes → skill profiles. Runtime: title resolver (exact/partial/fuzzy), skill enrichment (suggestMissingSkills), multi-source merge (dedup by name + Dice coefficient). Loaded as static asset.' },
+                        { id: 'p2-3f', name: 'Wizard enrichment step', status: 'planned', category: 'feature', priority: 'critical', notes: 'Post-parse wizard step shows occupation matches for role titles, suggests missing skills from O*NET profile, offers level upgrades. User reviews and accepts/rejects before proceeding.' },
+                        { id: 'p2-3g', name: 'Multi-source profile merge', status: 'planned', category: 'feature', priority: 'critical', notes: 'Import JSON or LinkedIn zip into existing profile without overwriting. mergeSkillSources() deduplicates, keeps higher level, unions evidence/roles, tracks provenance with sources[] array.' }
                     ]
                 },
                 {
@@ -7682,7 +7685,8 @@
                 fetch('trades-creative-library.json').then(r => r.json()),
                 fetch('values-library.json').then(r => r.json()),
                 fetch('bls-wages.json').then(r => r.json()),
-                fetch('companies.json').then(r => r.json())
+                fetch('companies.json').then(r => r.json()),
+                fetch('onet-crosswalk.json').then(r => r.json())
             ]);
             
             // Assign results — fulfilled or silently skip
@@ -7697,6 +7701,15 @@
             else { window.blsWages = null; }
             if (libResults[8].status === 'fulfilled') { window.companyDataLoaded = libResults[8].value; console.log('✅ Company values loaded: ' + Object.keys(libResults[8].value).length + ' companies'); }
             else { window.companyDataLoaded = {}; console.warn('⚠ companies.json failed to load — using JD inference fallback'); }
+            if (libResults[9].status === 'fulfilled') {
+                window.onetCrosswalk = libResults[9].value;
+                var occCount = Object.keys(libResults[9].value.occupations || {}).length;
+                var aliasCount = Object.keys(libResults[9].value.aliases || {}).length;
+                console.log('✅ O*NET Crosswalk loaded: ' + occCount + ' occupations, ' + aliasCount + ' aliases');
+            } else {
+                window.onetCrosswalk = null;
+                console.warn('⚠ onet-crosswalk.json failed to load');
+            }
             
             // ===== PROFILE DECISION FLOW =====
             const currentProfile = safeGet('currentProfile');
@@ -20344,6 +20357,384 @@ body {
             return PROFICIENCY_SCALE[level] || PROFICIENCY_SCALE['Proficient'];
         }
         
+        // ===== O*NET CROSSWALK RUNTIME =====
+        // Title resolution, skill enrichment, and multi-source merge
+        // Powered by onet-crosswalk.json
+
+        /**
+         * Normalize a job title for alias lookup.
+         * Mirrors the pipeline's normalizeTitle() logic client-side.
+         */
+        function crosswalkNormalizeTitle(title) {
+            if (!title) return '';
+            var t = title.toLowerCase().trim();
+            // Remove parentheticals
+            t = t.replace(/\([^)]*\)/g, '');
+            // Strip common prefixes
+            var prefixes = ['senior ', 'sr ', 'sr. ', 'junior ', 'jr ', 'jr. ', 'lead ', 'principal ', 'staff ', 'associate ', 'assistant ', 'deputy ', 'interim '];
+            for (var i = 0; i < prefixes.length; i++) {
+                if (t.indexOf(prefixes[i]) === 0) { t = t.substring(prefixes[i].length); break; }
+            }
+            // Strip level suffixes
+            var suffixes = [' i', ' ii', ' iii', ' iv', ' v', ' 1', ' 2', ' 3', ' level 1', ' level 2', ' level 3'];
+            for (var i = 0; i < suffixes.length; i++) {
+                if (t.length > suffixes[i].length && t.substring(t.length - suffixes[i].length) === suffixes[i]) {
+                    t = t.substring(0, t.length - suffixes[i].length); break;
+                }
+            }
+            // Normalize punctuation and whitespace
+            t = t.replace(/[^\w\s]/g, ' ').replace(/\s+/g, ' ').trim();
+            return t;
+        }
+
+        /**
+         * Compute Dice coefficient (bigram overlap) for fuzzy matching.
+         * Returns 0-1, where 1 = identical.
+         */
+        function crosswalkDice(a, b) {
+            var sa = a.toLowerCase().replace(/\s+/g, ' ').trim();
+            var sb = b.toLowerCase().replace(/\s+/g, ' ').trim();
+            if (sa === sb) return 1;
+            if (sa.length < 2 || sb.length < 2) return 0;
+            var gramsA = {}, gramsB = {}, countA = 0, countB = 0;
+            for (var i = 0; i < sa.length - 1; i++) { var g = sa.substring(i, i+2); if (!gramsA[g]) { gramsA[g] = true; countA++; } }
+            for (var i = 0; i < sb.length - 1; i++) { var g = sb.substring(i, i+2); if (!gramsB[g]) { gramsB[g] = true; countB++; } }
+            var intersection = 0;
+            for (var g in gramsA) { if (gramsB[g]) intersection++; }
+            return (2 * intersection) / (countA + countB);
+        }
+
+        /**
+         * Resolve a raw job title to O*NET occupation(s).
+         * Returns: { soc, title, family, confidence, alternatives[] } or null
+         *
+         * Strategy:
+         *   1. Exact normalized alias match (confidence: 1.0)
+         *   2. Partial match — normalized title contains or is contained by an alias (confidence: 0.85)
+         *   3. Fuzzy match via Dice coefficient (confidence: dice score × 0.9)
+         */
+        function resolveTitle(rawTitle) {
+            if (!window.onetCrosswalk || !rawTitle) return null;
+            var cw = window.onetCrosswalk;
+            var norm = crosswalkNormalizeTitle(rawTitle);
+            if (!norm) return null;
+
+            // Step 1: Exact alias match
+            if (cw.aliases[norm]) {
+                var socs = cw.aliases[norm];
+                var primary = cw.occupations[socs[0]];
+                if (primary) {
+                    return {
+                        soc: socs[0],
+                        title: primary.title,
+                        family: primary.family,
+                        confidence: 1.0,
+                        alternatives: socs.slice(1).map(function(s) {
+                            var o = cw.occupations[s];
+                            return o ? { soc: s, title: o.title, family: o.family } : null;
+                        }).filter(Boolean)
+                    };
+                }
+            }
+
+            // Step 2: Partial match — check if norm is a substring of an alias or vice versa
+            var partialMatches = [];
+            for (var alias in cw.aliases) {
+                if (alias.length < 4) continue; // Skip very short aliases
+                if (norm.indexOf(alias) !== -1 || alias.indexOf(norm) !== -1) {
+                    var socs = cw.aliases[alias];
+                    for (var i = 0; i < socs.length; i++) {
+                        if (cw.occupations[socs[i]]) {
+                            partialMatches.push({ soc: socs[i], alias: alias });
+                        }
+                    }
+                }
+            }
+            if (partialMatches.length > 0) {
+                // Dedupe by SOC
+                var seen = {};
+                var unique = partialMatches.filter(function(m) {
+                    if (seen[m.soc]) return false;
+                    seen[m.soc] = true;
+                    return true;
+                });
+                var primary = cw.occupations[unique[0].soc];
+                return {
+                    soc: unique[0].soc,
+                    title: primary.title,
+                    family: primary.family,
+                    confidence: 0.85,
+                    alternatives: unique.slice(1, 4).map(function(m) {
+                        var o = cw.occupations[m.soc];
+                        return o ? { soc: m.soc, title: o.title, family: o.family } : null;
+                    }).filter(Boolean)
+                };
+            }
+
+            // Step 3: Fuzzy match via Dice coefficient
+            var bestScore = 0;
+            var bestAlias = null;
+            var bestSocs = null;
+            for (var alias in cw.aliases) {
+                if (alias.length < 4) continue;
+                var score = crosswalkDice(norm, alias);
+                if (score > bestScore && score >= 0.6) {
+                    bestScore = score;
+                    bestAlias = alias;
+                    bestSocs = cw.aliases[alias];
+                }
+            }
+            if (bestSocs && bestSocs.length > 0 && cw.occupations[bestSocs[0]]) {
+                var primary = cw.occupations[bestSocs[0]];
+                return {
+                    soc: bestSocs[0],
+                    title: primary.title,
+                    family: primary.family,
+                    confidence: Math.round(bestScore * 90) / 100,
+                    alternatives: bestSocs.slice(1, 4).map(function(s) {
+                        var o = cw.occupations[s];
+                        return o ? { soc: s, title: o.title, family: o.family } : null;
+                    }).filter(Boolean)
+                };
+            }
+
+            return null;
+        }
+
+        /**
+         * Get the full skill profile for an occupation.
+         * Returns: { skills[], abilities[], knowledge[], workStyles[] } or null
+         */
+        function getOccupationProfile(socCode) {
+            if (!window.onetCrosswalk || !socCode) return null;
+            var occ = window.onetCrosswalk.occupations[socCode];
+            if (!occ) return null;
+            return {
+                soc: occ.soc,
+                title: occ.title,
+                family: occ.family,
+                skills: occ.skills || [],
+                abilities: occ.abilities || [],
+                knowledge: occ.knowledge || [],
+                workStyles: occ.workStyles || []
+            };
+        }
+
+        /**
+         * Compare user's skills against an occupation profile.
+         * Returns: { matched[], gaps[], belowLevel[], surplus[] }
+         *
+         * matched:    user has skill at or above occupation level
+         * gaps:       occupation expects skill, user doesn't have it
+         * belowLevel: user has skill but below occupation's typical level
+         * surplus:    user has skills not in the occupation profile
+         */
+        function suggestMissingSkills(userSkills, socCode) {
+            var profile = getOccupationProfile(socCode);
+            if (!profile) return null;
+
+            // Combine all occupation elements into one list
+            var occElements = [].concat(
+                profile.skills.map(function(s) { return Object.assign({}, s, { _type: 'skill' }); }),
+                profile.abilities.map(function(s) { return Object.assign({}, s, { _type: 'ability' }); }),
+                profile.knowledge.map(function(s) { return Object.assign({}, s, { _type: 'knowledge' }); }),
+                profile.workStyles.map(function(s) { return Object.assign({}, s, { _type: 'workstyle' }); })
+            );
+
+            // Blueprint proficiency → numeric score for comparison
+            var levelScores = { 'Mastery': 95, 'Expert': 80, 'Advanced': 65, 'Proficient': 50, 'Novice': 25 };
+
+            // Build lookup of user skills by normalized name
+            var userSkillMap = {};
+            (userSkills || []).forEach(function(s) {
+                userSkillMap[s.name.toLowerCase()] = s;
+                // Also index by onetId/blueprintSlug if available
+                if (s.onetId) userSkillMap[s.onetId.toLowerCase()] = s;
+            });
+
+            var matched = [];
+            var gaps = [];
+            var belowLevel = [];
+            var matchedNames = {};
+
+            occElements.forEach(function(el) {
+                var nameLower = el.name.toLowerCase();
+                var slugLower = (el.blueprintSlug || '').toLowerCase();
+
+                // Try to find matching user skill
+                var userSkill = userSkillMap[nameLower] || userSkillMap[slugLower];
+
+                // Fuzzy fallback: check if any user skill name is very similar
+                if (!userSkill) {
+                    for (var key in userSkillMap) {
+                        if (crosswalkDice(nameLower, key) >= 0.8) {
+                            userSkill = userSkillMap[key];
+                            break;
+                        }
+                    }
+                }
+
+                if (userSkill) {
+                    var userScore = levelScores[userSkill.level] || 50;
+                    var occScore = el.level || 50;
+                    matchedNames[userSkill.name.toLowerCase()] = true;
+
+                    if (userScore >= occScore - 10) {
+                        matched.push({
+                            name: el.name,
+                            userLevel: userSkill.level,
+                            occupationLevel: el.blueprintLevel,
+                            category: el.category || el._type,
+                            importance: el.importance
+                        });
+                    } else {
+                        belowLevel.push({
+                            name: el.name,
+                            userLevel: userSkill.level,
+                            occupationLevel: el.blueprintLevel,
+                            category: el.category || el._type,
+                            importance: el.importance
+                        });
+                    }
+                } else {
+                    gaps.push({
+                        name: el.name,
+                        blueprintSlug: el.blueprintSlug,
+                        occupationLevel: el.blueprintLevel,
+                        category: el.category || el._type,
+                        importance: el.importance,
+                        elementId: el.elementId
+                    });
+                }
+            });
+
+            // Surplus: user skills not in the occupation profile
+            var surplus = (userSkills || []).filter(function(s) {
+                return !matchedNames[s.name.toLowerCase()];
+            }).map(function(s) {
+                return { name: s.name, level: s.level, category: s.category };
+            });
+
+            // Sort gaps by importance (highest first)
+            gaps.sort(function(a, b) { return (b.importance || 0) - (a.importance || 0); });
+
+            return {
+                occupation: profile.title,
+                soc: socCode,
+                matched: matched,
+                gaps: gaps,
+                belowLevel: belowLevel,
+                surplus: surplus,
+                matchPercent: Math.round((matched.length / Math.max(occElements.length, 1)) * 100)
+            };
+        }
+
+        /**
+         * Merge skills from a new source into existing skills.
+         * Deduplicates by name (fuzzy), keeps higher level, unions evidence and roles.
+         *
+         * Each skill gains a `sources` array tracking provenance:
+         *   e.g., ["json-import:2026-02-23", "linkedin-csv:2026-02-23"]
+         *
+         * Returns: { merged[], added[], upgraded[], unchanged[] }
+         */
+        function mergeSkillSources(existingSkills, newSkills, sourceName) {
+            var dateStr = new Date().toISOString().substring(0, 10);
+            var sourceTag = (sourceName || 'unknown') + ':' + dateStr;
+
+            var levelRank = { 'Mastery': 5, 'Expert': 4, 'Advanced': 3, 'Proficient': 2, 'Novice': 1 };
+
+            // Build index of existing skills by normalized name
+            var existingIndex = {};
+            var mergedSkills = (existingSkills || []).map(function(s) {
+                var copy = Object.assign({}, s);
+                if (!copy.sources) copy.sources = [];
+                existingIndex[s.name.toLowerCase()] = copy;
+                return copy;
+            });
+
+            var added = [];
+            var upgraded = [];
+            var unchanged = [];
+
+            (newSkills || []).forEach(function(newSkill) {
+                var nameLower = newSkill.name.toLowerCase();
+
+                // Try exact name match first
+                var existing = existingIndex[nameLower];
+
+                // Fuzzy fallback
+                if (!existing) {
+                    for (var key in existingIndex) {
+                        if (crosswalkDice(nameLower, key) >= 0.85) {
+                            existing = existingIndex[key];
+                            break;
+                        }
+                    }
+                }
+
+                if (existing) {
+                    var existRank = levelRank[existing.level] || 2;
+                    var newRank = levelRank[newSkill.level] || 2;
+
+                    // Add source provenance
+                    if (existing.sources.indexOf(sourceTag) === -1) {
+                        existing.sources.push(sourceTag);
+                    }
+
+                    // Upgrade level if new source reports higher
+                    if (newRank > existRank) {
+                        existing.level = newSkill.level;
+                        upgraded.push({ name: existing.name, from: existing.level, to: newSkill.level });
+                    } else {
+                        unchanged.push({ name: existing.name });
+                    }
+
+                    // Union roles
+                    if (newSkill.roles && newSkill.roles.length > 0) {
+                        if (!existing.roles) existing.roles = [];
+                        newSkill.roles.forEach(function(r) {
+                            if (existing.roles.indexOf(r) === -1) existing.roles.push(r);
+                        });
+                    }
+
+                    // Union evidence
+                    if (newSkill.evidence && newSkill.evidence.length > 0) {
+                        if (!existing.evidence) existing.evidence = [];
+                        newSkill.evidence.forEach(function(e) {
+                            var desc = (e.description || '').toLowerCase();
+                            var alreadyHas = existing.evidence.some(function(ex) {
+                                return (ex.description || '').toLowerCase() === desc;
+                            });
+                            if (!alreadyHas) existing.evidence.push(e);
+                        });
+                    }
+                } else {
+                    // New skill — add with provenance
+                    var copy = Object.assign({}, newSkill);
+                    copy.sources = [sourceTag];
+                    mergedSkills.push(copy);
+                    existingIndex[nameLower] = copy;
+                    added.push({ name: newSkill.name, level: newSkill.level });
+                }
+            });
+
+            return {
+                merged: mergedSkills,
+                added: added,
+                upgraded: upgraded,
+                unchanged: unchanged,
+                summary: added.length + ' added, ' + upgraded.length + ' upgraded, ' + unchanged.length + ' unchanged'
+            };
+        }
+
+        // Expose crosswalk functions globally
+        window.resolveTitle = resolveTitle;
+        window.getOccupationProfile = getOccupationProfile;
+        window.suggestMissingSkills = suggestMissingSkills;
+        window.mergeSkillSources = mergeSkillSources;
+        window.crosswalkNormalizeTitle = crosswalkNormalizeTitle;
+
         // ===== SKILL REGISTRY UTILITIES =====
         
         // Register a skill in the searchable library index (deduped by name)
