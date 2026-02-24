@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.39.2.1 | 20260223 | Enhanced title resolver: qualifier stripping, word-overlap, occupation scan -->
+    <!-- v4.40.0 | 20260223 | Wizard enrichment step: O*NET occupation matching + skill gap suggestions -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.39.2.1 - BUILD 20260223-resolver-enhanced
-        var BP_VERSION = 'v4.39.2.1';
+        // BLUEPRINT v4.40.0 - BUILD 20260223-wizard-enrichment
+        var BP_VERSION = 'v4.40.0';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -3437,9 +3437,10 @@
                         { id: 'p2-3b', name: 'Quick profile builder (1-3 min)', status: 'done', category: 'feature', priority: 'critical', notes: 'Three-path onboarding: Resume upload (AI parse), LinkedIn .zip import (CSV parse + AI skill inference), Manual entry. Wizard auto-triggers for empty profiles. LinkedIn import is zero-cost instant path.' },
                         { id: 'p2-3c', name: 'Resume PDF file upload', status: 'done', category: 'feature', priority: 'high', notes: 'Direct PDF upload in wizard Step 2 via drag-and-drop or file picker. PDF sent to Claude as base64 document content block for native processing. 10 MB size limit. Three tabs: Upload PDF (default), Paste Text, LinkedIn Text.' },
                         { id: 'p2-3d', name: 'LinkedIn CSV header normalization', status: 'done', category: 'feature', priority: 'medium', notes: 'Header normalization map handles case variations, underscore/space differences, BOM removal, and LinkedIn format changes across export versions. Canonical name fallbacks in all CSV field extractors.' },
-                        { id: 'p2-3e', name: 'O*NET Occupation Crosswalk', status: 'in-progress', category: 'infrastructure', priority: 'critical', notes: 'Separate pipeline repo (blueprint-onet-crosswalk) processes raw O*NET 30.1 database into crosswalk JSON mapping titles → SOC codes → skill profiles. Runtime: title resolver (exact/partial/fuzzy), skill enrichment (suggestMissingSkills), multi-source merge (dedup by name + Dice coefficient). Loaded as static asset.' },
-                        { id: 'p2-3f', name: 'Wizard enrichment step', status: 'planned', category: 'feature', priority: 'critical', notes: 'Post-parse wizard step shows occupation matches for role titles, suggests missing skills from O*NET profile, offers level upgrades. User reviews and accepts/rejects before proceeding.' },
-                        { id: 'p2-3g', name: 'Multi-source profile merge', status: 'planned', category: 'feature', priority: 'critical', notes: 'Import JSON or LinkedIn zip into existing profile without overwriting. mergeSkillSources() deduplicates, keeps higher level, unions evidence/roles, tracks provenance with sources[] array.' }
+                        { id: 'p2-3e', name: 'O*NET Occupation Crosswalk', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'Pipeline repo generates crosswalk JSON (517 occupations, 20k+ aliases). 6-strategy title resolver, skill enrichment, multi-source merge. Custom aliases for VP/GM titles. Deployed as static asset.' },
+                        { id: 'p2-3f', name: 'Wizard enrichment step', status: 'done', category: 'feature', priority: 'critical', notes: 'Step 5 in wizard. Resolves role titles to O*NET occupations, runs gap analysis, presents suggested skills as checkboxes. Adds checked skills with onet-enrichment provenance. Skip-safe if crosswalk not loaded.' },
+                        { id: 'p2-3g', name: 'Multi-source profile merge', status: 'planned', category: 'feature', priority: 'critical', notes: 'Import JSON or LinkedIn zip into existing profile without overwriting. mergeSkillSources() deduplicates, keeps higher level, unions evidence/roles, tracks provenance with sources[] array.' },
+                        { id: 'p2-3h', name: 'LinkedIn zip import retest', status: 'planned', category: 'testing', priority: 'high', notes: 'yearsExperience .replace() crash fixed. Full flow needs clean test: zip upload → parse → profile review → save. Skill inference fallback if API key not set.' }
                     ]
                 },
                 {
@@ -7841,7 +7842,7 @@
 
         let wizardState = {
             step: 1,
-            totalSteps: 8,
+            totalSteps: 9,
             resumeText: '',
             parsedData: null,
             profile: {},
@@ -7858,7 +7859,7 @@
             const existing = document.getElementById('onboardingWizard');
             if (existing) existing.remove();
 
-            wizardState = { step: 1, totalSteps: 8, resumeText: '', parsedData: null,
+            wizardState = { step: 1, totalSteps: 9, resumeText: '', parsedData: null,
                             profile: {}, skills: [], values: [], purpose: '', processing: false,
                             resumeFileBase64: null, resumeFileName: null, resumeFileSize: null, useFileUpload: false };
 
@@ -7888,6 +7889,7 @@
                 { label: 'Resume' },
                 { label: 'Parsing' },
                 { label: 'Profile' },
+                { label: 'Enrich' },
                 { label: 'Skills' },
                 { label: 'Values' },
                 { label: 'Purpose' },
@@ -7973,6 +7975,7 @@
                 case 6: renderWizardStep6(inner); break;
                 case 7: renderWizardStep7(inner); break;
                 case 8: renderWizardStep8(inner); break;
+                case 9: renderWizardStep9(inner); break;
             }
         }
 
@@ -8930,7 +8933,7 @@ Rules:
 
                 <div style="display:flex; justify-content:space-between;">
                     ${wizardBtn('← Back', wizardState.entryMode === 'manual' ? 'wizardBack()' : 'wizardBack()', 'ghost')}
-                    ${wizardBtn('Continue → Skills', 'wizardSaveProfile()', 'primary')}
+                    ${wizardBtn('Continue → Occupation Match', 'wizardSaveProfile()', 'primary')}
                 </div>
             `;
         }
@@ -8974,9 +8977,232 @@ Rules:
             wizardNext();
         }
 
-        // ── STEP 5: Skills review ──────────────────────────────────────────────
+        // ── STEP 5: O*NET Occupation Enrichment ─────────────────────────────
 
         function renderWizardStep5(el) {
+            // If crosswalk not loaded, skip enrichment
+            if (!window.onetCrosswalk) {
+                el.innerHTML = `
+                    ${wizardHeading(bpIcon('compass',22), 'Skill Enrichment',
+                        'O*NET crosswalk data is loading. You can continue and add skills manually.')}
+                    <div style="background:var(--bg-elevated); border:2px dashed var(--border);
+                                border-radius:14px; padding:32px; text-align:center; margin-bottom:20px;">
+                        <p style="color:var(--text-secondary);">Occupation matching is not available right now. Continuing to skill review.</p>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        ${wizardBtn('← Back', 'wizardBack()', 'ghost')}
+                        ${wizardBtn('Continue → Skills', 'wizardNext()', 'primary')}
+                    </div>
+                `;
+                return;
+            }
+
+            // Gather titles to resolve
+            var titles = [];
+            var currentTitle = (wizardState.profile.currentTitle || '').trim();
+            if (currentTitle) {
+                titles.push({ label: currentTitle, source: 'current' });
+            }
+            var roles = (wizardState.parsedData && wizardState.parsedData.roles) ? wizardState.parsedData.roles : [];
+            roles.forEach(function(r) {
+                var rName = (r.name || '').trim();
+                if (rName && rName.toLowerCase() !== currentTitle.toLowerCase()) {
+                    titles.push({ label: rName, source: 'history', company: r.company || '', years: r.years || '' });
+                }
+            });
+
+            // Resolve all titles
+            var resolutions = [];
+            var seenSocs = {};
+            titles.forEach(function(t) {
+                var result = resolveTitle(t.label);
+                if (result && !seenSocs[result.soc]) {
+                    seenSocs[result.soc] = true;
+                    resolutions.push({
+                        inputTitle: t.label,
+                        source: t.source,
+                        company: t.company || '',
+                        years: t.years || '',
+                        soc: result.soc,
+                        occTitle: result.title,
+                        family: result.family,
+                        confidence: result.confidence,
+                        alternatives: result.alternatives || []
+                    });
+                }
+            });
+
+            // Run gap analysis for primary occupation (highest confidence current title, or first match)
+            var primaryRes = resolutions.find(function(r) { return r.source === 'current'; }) || resolutions[0];
+            var gapResult = null;
+            var gapSkills = [];
+            if (primaryRes) {
+                gapResult = suggestMissingSkills(wizardState.skills, primaryRes.soc);
+                if (gapResult) {
+                    // Filter to meaningful gaps (importance > 40, not already in user skills)
+                    gapSkills = gapResult.gaps.filter(function(g) {
+                        return (g.importance || 0) >= 40;
+                    }).slice(0, 20);
+                }
+            }
+
+            // Store enrichment state for the save function
+            wizardState.enrichment = {
+                resolutions: resolutions,
+                primarySoc: primaryRes ? primaryRes.soc : null,
+                gapResult: gapResult,
+                gapSkills: gapSkills
+            };
+
+            var confidenceColor = function(c) {
+                if (c >= 0.9) return '#10b981';
+                if (c >= 0.7) return '#f59e0b';
+                return '#f97316';
+            };
+
+            var categoryIcon = function(cat) {
+                if (cat === 'skill') return '\u{1F3AF}';
+                if (cat === 'ability') return '\u26A1';
+                if (cat === 'knowledge') return '\u{1F4DA}';
+                if (cat === 'workstyle') return '\u{1F9E0}';
+                return '\u{1F4A1}';
+            };
+
+            el.innerHTML = `
+                ${wizardHeading(bpIcon('target',22), 'Occupation Match & Skill Enrichment',
+                    resolutions.length > 0
+                        ? 'We matched your roles to O*NET occupations and found skills you may want to add.'
+                        : 'No role titles could be matched. Continue to review your skills.')}
+
+                ${resolutions.length > 0 ? `
+                <div style="background:var(--bg-elevated); border:1px solid var(--border);
+                            border-radius:14px; padding:20px; margin-bottom:20px;">
+                    <div style="font-weight:700; color:var(--text-primary); margin-bottom:14px; font-size:0.92em;">
+                        Occupation Matches
+                    </div>
+                    ${resolutions.map(function(r) {
+                        return '<div style="display:flex; align-items:center; gap:12px; padding:10px 0;'
+                            + 'border-bottom:1px solid var(--border);">'
+                            + '<div style="flex:1; min-width:0;">'
+                            + '<div style="font-weight:600; color:var(--text-primary); font-size:0.9em;">'
+                            + escapeHtml(r.inputTitle)
+                            + (r.company ? ' <span style="color:var(--text-muted); font-weight:400;">at ' + escapeHtml(r.company) + '</span>' : '')
+                            + '</div>'
+                            + '<div style="font-size:0.8em; color:var(--text-secondary); margin-top:2px;">'
+                            + '\u2192 ' + escapeHtml(r.occTitle) + ' <span style="color:var(--text-muted);">(' + r.soc + ')</span>'
+                            + '</div>'
+                            + '</div>'
+                            + '<div style="display:flex; align-items:center; gap:6px;">'
+                            + '<div style="width:8px; height:8px; border-radius:50%; background:' + confidenceColor(r.confidence) + ';"></div>'
+                            + '<span style="font-size:0.78em; color:var(--text-secondary);">' + Math.round(r.confidence * 100) + '%</span>'
+                            + '</div>'
+                            + '</div>';
+                    }).join('')}
+                </div>
+                ` : ''}
+
+                ${gapSkills.length > 0 ? `
+                <div style="background:var(--bg-elevated); border:1px solid var(--border);
+                            border-radius:14px; padding:20px; margin-bottom:20px;">
+                    <div style="font-weight:700; color:var(--text-primary); margin-bottom:4px; font-size:0.92em;">
+                        Suggested Skills from O*NET
+                    </div>
+                    <p style="font-size:0.82em; color:var(--text-muted); margin-bottom:14px;">
+                        Based on ${escapeHtml(primaryRes.occTitle)}, these skills are typical for the role but missing from your profile. Check the ones you want to add.
+                    </p>
+                    <div style="max-height:340px; overflow-y:auto;">
+                        ${gapSkills.map(function(g, i) {
+                            return '<div style="display:flex; align-items:center; gap:12px; padding:8px 0;'
+                                + 'border-bottom:1px solid var(--border);">'
+                                + '<input type="checkbox" id="enrich-skill-' + i + '"'
+                                + ' style="width:16px; height:16px; cursor:pointer; accent-color:var(--accent); flex-shrink:0;">'
+                                + '<span style="font-size:0.85em; flex-shrink:0;">' + categoryIcon(g.category) + '</span>'
+                                + '<div style="flex:1; min-width:0;">'
+                                + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">'
+                                + escapeHtml(g.name) + '</div>'
+                                + '<div style="font-size:0.76em; color:var(--text-muted);">'
+                                + (g.category || 'skill') + ' \u00B7 ' + (g.occupationLevel || 'Proficient')
+                                + '</div></div></div>';
+                        }).join('')}
+                    </div>
+                </div>
+
+                ${gapResult ? `
+                <div style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:120px; background:var(--bg-elevated); border:1px solid var(--border);
+                                border-radius:10px; padding:14px; text-align:center;">
+                        <div style="font-size:1.5em; font-weight:800; color:var(--accent);">${gapResult.matchPercent}%</div>
+                        <div style="font-size:0.78em; color:var(--text-muted);">Profile Match</div>
+                    </div>
+                    <div style="flex:1; min-width:120px; background:var(--bg-elevated); border:1px solid var(--border);
+                                border-radius:10px; padding:14px; text-align:center;">
+                        <div style="font-size:1.5em; font-weight:800; color:#10b981;">${gapResult.matched.length}</div>
+                        <div style="font-size:0.78em; color:var(--text-muted);">Skills Matched</div>
+                    </div>
+                    <div style="flex:1; min-width:120px; background:var(--bg-elevated); border:1px solid var(--border);
+                                border-radius:10px; padding:14px; text-align:center;">
+                        <div style="font-size:1.5em; font-weight:800; color:#f59e0b;">${gapSkills.length}</div>
+                        <div style="font-size:0.78em; color:var(--text-muted);">Gaps Found</div>
+                    </div>
+                </div>
+                ` : ''}
+                ` : `
+                <div style="background:var(--bg-elevated); border:2px dashed var(--border);
+                            border-radius:14px; padding:32px; text-align:center; margin-bottom:20px;">
+                    <p style="color:var(--text-secondary);">
+                        No skill gaps identified. Your existing skills cover the matched occupation profile well.
+                    </p>
+                </div>
+                `}
+
+                <div style="display:flex; justify-content:space-between;">
+                    ${wizardBtn('\u2190 Back', 'wizardBack()', 'ghost')}
+                    ${wizardBtn('Continue \u2192 Skills', 'wizardSaveEnrichment()', 'primary')}
+                </div>
+            `;
+        }
+
+        function wizardSaveEnrichment() {
+            if (readOnlyGuard()) return;
+            var enrichment = wizardState.enrichment;
+            if (!enrichment || !enrichment.gapSkills) {
+                wizardNext();
+                return;
+            }
+
+            // Collect checked gap skills
+            var addedCount = 0;
+            enrichment.gapSkills.forEach(function(g, i) {
+                var cb = document.getElementById('enrich-skill-' + i);
+                if (cb && cb.checked) {
+                    // Map O*NET level to Blueprint level
+                    var levelMap = { 'Mastery': 'Mastery', 'Expert': 'Expert', 'Advanced': 'Advanced', 'Proficient': 'Proficient', 'Novice': 'Novice' };
+                    var level = levelMap[g.occupationLevel] || 'Proficient';
+
+                    wizardState.skills.push({
+                        name: g.name,
+                        level: level,
+                        category: g.category || 'skill',
+                        roles: [],
+                        key: false,
+                        evidence: [],
+                        onetId: g.elementId || null,
+                        sources: ['onet-enrichment:' + new Date().toISOString().substring(0, 10)]
+                    });
+                    addedCount++;
+                }
+            });
+
+            if (addedCount > 0) {
+                showToast(addedCount + ' skill' + (addedCount > 1 ? 's' : '') + ' added from O*NET enrichment.', 'success');
+            }
+
+            wizardNext();
+        }
+
+        // ── STEP 6: Skills review ──────────────────────────────────────────────
+
+        function renderWizardStep6(el) {
             const skills = wizardState.skills;
             const isFromResume = skills.length > 0;
             const levelColors = { Mastery:'#ef4444', Expert:'#f97316', Advanced:'#f59e0b', Proficient:'#10b981', Novice:'#6b7280' };
@@ -9044,9 +9270,9 @@ Rules:
             wizardNext();
         }
 
-        // ── STEP 6: Values ────────────────────────────────────────────────────
+        // ── STEP 7: Values ────────────────────────────────────────────────────
 
-        function renderWizardStep6(el) {
+        function renderWizardStep7(el) {
             const vals = wizardState.values.length > 0 ? wizardState.values : [
                 { name: 'Intellectual Integrity', description: 'Evidence-based decisions. Challenge assumptions before accepting conclusions.', selected: true },
                 { name: 'Outcome-Focused', description: 'Judge by impact delivered, not activity performed.', selected: true },
@@ -9129,9 +9355,9 @@ Rules:
             wizardNext();
         }
 
-        // ── STEP 7: Purpose ───────────────────────────────────────────────────
+        // ── STEP 8: Purpose ───────────────────────────────────────────────────
 
-        function renderWizardStep7(el) {
+        function renderWizardStep8(el) {
             const purpose = wizardState.purpose;
             const isFromResume = !!wizardState.parsedData;
 
@@ -9224,9 +9450,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             wizardNext();
         }
 
-        // ── STEP 8: Complete ──────────────────────────────────────────────────
+        // ── STEP 9: Complete ──────────────────────────────────────────────────
 
-        function renderWizardStep8(el) {
+        function renderWizardStep9(el) {
             const skillCount = wizardState.skills.length;
             const valueCount = wizardState.values.filter(v => v.selected).length;
             const evidenceCount = wizardState.skills.reduce((n, s) => n + (s.evidence?.length || 0), 0);
