@@ -160,7 +160,7 @@
     }
     </script>
 
-    <!-- v4.44.10 | 20260224 | Eliminate all innerHTML img src - use DOM API via safeSetAvatar -->
+    <!-- v4.44.12 | 20260224 | Center card view grid, label toggles visible -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -234,6 +234,10 @@
         }
 
         /* ── Page Header (consistent across all views) ────── */
+        .cards-grid {
+            max-width: 900px;
+            margin: 0 auto;
+        }
         .page-header {
             padding: 24px 0 18px;
             text-align: center;
@@ -1396,8 +1400,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.10 - BUILD 20260224-safe-avatar-dom-api
-        var BP_VERSION = 'v4.44.10';
+        // BLUEPRINT v4.44.12 - BUILD 20260224-card-center-labels
+        var BP_VERSION = 'v4.44.12';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -14155,6 +14159,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 });
                 if (currentSkillsView === 'network') {
                     document.getElementById('networkView').style.display = 'block';
+                    // Show label toggles on desktop
+                    var _lt = document.getElementById('networkLabelToggles');
+                    if (_lt) _lt.style.display = window.innerWidth >= 768 ? 'flex' : 'none';
                     // networkControls visibility managed by parent controls bar
                     // Hide filter button in network view (filtering via node clicks)
                     var fBtn = document.getElementById('filterToggleBtn');
@@ -14181,6 +14188,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     }
                 } else {
                     document.getElementById('cardView').style.display = 'block';
+                    // Hide label toggles in card view
+                    var _lt2 = document.getElementById('networkLabelToggles');
+                    if (_lt2) _lt2.style.display = 'none';
                     // networkControls visibility managed by parent controls bar
                     // Render job selector for card view too
                     setTimeout(function() { renderJobSelectorWidget(); }, 100);
@@ -14268,7 +14278,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 // networkControls visibility managed by parent controls bar
                 // Show label toggles on desktop
                 var labelToggles = document.getElementById('networkLabelToggles');
-                if (labelToggles) labelToggles.style.display = window.innerWidth >= 768 ? 'block' : 'none';
+                if (labelToggles) labelToggles.style.display = window.innerWidth >= 768 ? 'flex' : 'none';
                 // Lazy-init network if needed (e.g. after profile switch)
                 if (!window.networkInitialized) {
                     initNetwork();
