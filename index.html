@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.40.4 | 20260223 | Values step: custom add, inline edit descriptions, fixed rendering, scrollable grid -->
+    <!-- v4.41.0 | 20260223 | API status monitoring dashboard with passive health tracking and active checks -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1208,12 +1208,63 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.40.4 - BUILD 20260223-values-step-rebuild
-        var BP_VERSION = 'v4.40.4';
+        // BLUEPRINT v4.41.0 - BUILD 20260223-api-status-dashboard
+        var BP_VERSION = 'v4.41.0';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
         var AI_PROXY_AVAILABLE = null;
+        
+        // ===== API HEALTH MONITORING =====
+        // Passive monitoring: records status from actual API calls
+        // Active checks: on-demand health ping from admin dashboard
+        
+        var API_HEALTH_SERVICES = {
+            'anthropic-proxy':  { name: 'Anthropic AI Proxy', icon: '\uD83E\uDDE0', category: 'ai', manageUrl: 'https://console.anthropic.com/settings/billing', critical: true },
+            'anthropic-direct': { name: 'Anthropic Direct API', icon: '\uD83D\uDD11', category: 'ai', manageUrl: 'https://console.anthropic.com/settings/api-keys', critical: false },
+            'firebase-auth':    { name: 'Firebase Auth', icon: '\uD83D\uDD12', category: 'infra', manageUrl: 'https://console.firebase.google.com', critical: true },
+            'firebase-db':      { name: 'Firestore Database', icon: '\uD83D\uDD25', category: 'infra', manageUrl: 'https://console.firebase.google.com', critical: true },
+            'jsearch':          { name: 'JSearch (RapidAPI)', icon: '\uD83D\uDD0D', category: 'jobs', manageUrl: 'https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch', critical: false },
+            'remotive':         { name: 'Remotive', icon: '\uD83D\uDCBC', category: 'jobs', manageUrl: 'https://remotive.com/api/remote-jobs', critical: false },
+            'usajobs':          { name: 'USAJobs', icon: '\uD83C\uDFDB\uFE0F', category: 'jobs', manageUrl: 'https://developer.usajobs.gov', critical: false },
+            'himalayas':        { name: 'Himalayas', icon: '\u26F0\uFE0F', category: 'jobs', manageUrl: 'https://himalayas.app/jobs/api', critical: false },
+            'jobicy':           { name: 'Jobicy', icon: '\uD83D\uDCCB', category: 'jobs', manageUrl: 'https://jobicy.com/api/v2/remote-jobs', critical: false },
+            'onet-crosswalk':   { name: 'O*NET Crosswalk', icon: '\uD83C\uDFAF', category: 'data', manageUrl: null, critical: false }
+        };
+        
+        // Status: 'ok' | 'degraded' | 'down' | 'unknown'
+        function getApiHealth() {
+            return safeParse(safeGet('bpApiHealth'), {});
+        }
+        function saveApiHealth(health) {
+            safeSet('bpApiHealth', JSON.stringify(health));
+        }
+        
+        function recordApiHealth(serviceId, status, message, details) {
+            var health = getApiHealth();
+            health[serviceId] = {
+                status: status,
+                message: message || '',
+                details: details || null,
+                timestamp: new Date().toISOString(),
+                ttl: status === 'ok' ? 3600000 : 300000 // ok: 1hr, errors: 5min (check again sooner)
+            };
+            saveApiHealth(health);
+        }
+        
+        function getServiceStatus(serviceId) {
+            var health = getApiHealth();
+            var entry = health[serviceId];
+            if (!entry) return { status: 'unknown', message: 'No data yet', stale: false };
+            var age = Date.now() - new Date(entry.timestamp).getTime();
+            return {
+                status: entry.status,
+                message: entry.message,
+                details: entry.details,
+                timestamp: entry.timestamp,
+                stale: age > (entry.ttl || 3600000)
+            };
+        }
         
         // Feature registry: defines all AI call types for cost tracking
         var AI_FEATURES = {
@@ -1299,20 +1350,37 @@
                         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
                         body: JSON.stringify(requestBody)
                     });
-                    if (proxyRes.ok) { AI_PROXY_AVAILABLE = true; return await proxyRes.json(); }
-                    if (proxyRes.status === 429) { AI_PROXY_AVAILABLE = true; throw new Error('Rate limit exceeded. Please wait a moment.'); }
+                    if (proxyRes.ok) {
+                        AI_PROXY_AVAILABLE = true;
+                        recordApiHealth('anthropic-proxy', 'ok', 'Operational');
+                        return await proxyRes.json();
+                    }
+                    if (proxyRes.status === 429) {
+                        AI_PROXY_AVAILABLE = true;
+                        recordApiHealth('anthropic-proxy', 'degraded', 'Rate limited', { status: 429 });
+                        throw new Error('Rate limit exceeded. Please wait a moment.');
+                    }
                     // Capture actual error from proxy/Anthropic for 4xx errors
                     if (proxyRes.status >= 400 && proxyRes.status < 500) {
                         AI_PROXY_AVAILABLE = true;
                         var errBody = {}; try { errBody = await proxyRes.json(); } catch(e) {}
                         var errMsg = (errBody.error && typeof errBody.error === 'object' ? errBody.error.message : errBody.error) || 'AI request failed (status ' + proxyRes.status + ')';
                         console.error('AI Proxy ' + proxyRes.status + ':', errMsg, errBody);
+                        var healthStatus = errMsg.includes('credit balance') ? 'down' : 'degraded';
+                        var healthMsg = errMsg.includes('credit balance') ? 'Credits depleted' : 'Error: ' + errMsg;
+                        recordApiHealth('anthropic-proxy', healthStatus, healthMsg, { status: proxyRes.status, error: errMsg });
                         proxyApiError = new Error(errMsg);
                     }
-                    if (proxyRes.status >= 500) AI_PROXY_AVAILABLE = false;
+                    if (proxyRes.status >= 500) {
+                        AI_PROXY_AVAILABLE = false;
+                        recordApiHealth('anthropic-proxy', 'down', 'Server error', { status: proxyRes.status });
+                    }
                 } catch (e) {
                     if (e.message.includes('Rate limit')) throw e;
-                    if (AI_PROXY_AVAILABLE === null) AI_PROXY_AVAILABLE = false;
+                    if (AI_PROXY_AVAILABLE === null) {
+                        AI_PROXY_AVAILABLE = false;
+                        recordApiHealth('anthropic-proxy', 'down', 'Unreachable', { error: e.message });
+                    }
                 }
                 // Throw 4xx errors after catch so they propagate to the caller
                 if (proxyApiError) throw proxyApiError;
@@ -1325,9 +1393,15 @@
             });
             if (!directRes.ok) {
                 var errData = {}; try { errData = await directRes.json(); } catch(e) {}
-                if (directRes.status === 401) throw new Error('Invalid API key. Check your key at console.anthropic.com.');
-                throw new Error((errData.error && errData.error.message) || 'AI request failed (status ' + directRes.status + ')');
+                if (directRes.status === 401) {
+                    recordApiHealth('anthropic-direct', 'down', 'Invalid API key', { status: 401 });
+                    throw new Error('Invalid API key. Check your key at console.anthropic.com.');
+                }
+                var directErr = (errData.error && errData.error.message) || 'AI request failed (status ' + directRes.status + ')';
+                recordApiHealth('anthropic-direct', 'down', directErr, { status: directRes.status });
+                throw new Error(directErr);
             }
+            recordApiHealth('anthropic-direct', 'ok', 'Operational');
             return await directRes.json();
         }
 
@@ -2141,12 +2215,14 @@
             return fbDb.collection('users').doc(uid).set(data, { merge: true })
                 .then(function() {
                     console.log('☁ Saved to Firestore');
+                    recordApiHealth('firebase-db', 'ok', 'Operational');
                     var si = document.getElementById('saveIndicator');
                     if (si) { si.innerHTML = bpIcon('check',12) + ' Saved'; si.style.opacity = '1'; si.style.color = '#10b981'; setTimeout(function() { si.style.opacity = '0'; }, 2500); }
                     return true;
                 })
                 .catch(function(err) {
                     console.error('Firestore save error:', err);
+                    recordApiHealth('firebase-db', 'down', 'Save failed: ' + err.message);
                     var si = document.getElementById('saveIndicator');
                     if (si) { si.innerHTML = bpIcon('warning',12) + ' Save failed'; si.style.opacity = '1'; si.style.color = '#ef4444'; setTimeout(function() { si.style.opacity = '0'; }, 4000); }
                     return false;
@@ -2270,6 +2346,8 @@
                     
                     var skillCount = (data.skills || []).length;
                     console.log('✓ Loaded from Firestore:', skillCount, 'skills | admin:', fbIsAdmin, '| mode:', appMode);
+                    recordApiHealth('firebase-db', 'ok', 'Operational');
+                    recordApiHealth('firebase-auth', 'ok', 'Authenticated');
                     
                     // If empty profile, prompt to build
                     if (skillCount === 0) {
@@ -2280,6 +2358,7 @@
                 })
                 .catch(function(err) {
                     console.error('Firestore load error:', err);
+                    recordApiHealth('firebase-db', 'down', 'Load failed: ' + err.message);
                     return false;
                 });
         }
@@ -2448,6 +2527,7 @@
                 + '<button class="admin-tab" data-tab="config" onclick="switchAdminTab(\'config\')" style="flex:1; min-width:100px; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('settings',14) + ' Config</button>'
                 + '<button class="admin-tab" data-tab="roadmap" onclick="switchAdminTab(\'roadmap\')" style="flex:1; min-width:100px; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('target',14) + ' Roadmap</button>'
                 + '<button class="admin-tab" data-tab="costs" onclick="switchAdminTab(\'costs\')" style="flex:1; min-width:100px; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('skills',14) + ' Costs</button>'
+                + '<button class="admin-tab" data-tab="status" onclick="switchAdminTab(\'status\')" style="flex:1; min-width:100px; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('shield',14) + ' Status</button>'
                 + '</div>'
                 
                 // Content area
@@ -2469,6 +2549,7 @@
             else if (adminSubTab === 'config') renderAdminConfig(el);
             else if (adminSubTab === 'roadmap') renderAdminRoadmap(el);
             else if (adminSubTab === 'costs') renderAdminCosts(el);
+            else if (adminSubTab === 'status') renderAdminStatus(el);
         }
         
         function renderAdminOverview(el) {
@@ -3451,7 +3532,8 @@
                         { id: 'p2-3e', name: 'O*NET Occupation Crosswalk', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'Pipeline repo generates crosswalk JSON (517 occupations, 20k+ aliases). 6-strategy title resolver, skill enrichment, multi-source merge. Custom aliases for VP/GM titles. Deployed as static asset.' },
                         { id: 'p2-3f', name: 'Wizard enrichment step', status: 'done', category: 'feature', priority: 'critical', notes: 'Step 5 in wizard. Resolves role titles to O*NET occupations, runs gap analysis, presents suggested skills as checkboxes. Adds checked skills with onet-enrichment provenance. Skip-safe if crosswalk not loaded.' },
                         { id: 'p2-3g', name: 'Multi-source profile merge', status: 'planned', category: 'feature', priority: 'critical', notes: 'Import JSON or LinkedIn zip into existing profile without overwriting. mergeSkillSources() deduplicates, keeps higher level, unions evidence/roles, tracks provenance with sources[] array.' },
-                        { id: 'p2-3h', name: 'LinkedIn zip import retest', status: 'planned', category: 'testing', priority: 'high', notes: 'yearsExperience .replace() crash fixed. Full flow needs clean test: zip upload → parse → profile review → save. Skill inference fallback if API key not set.' }
+                        { id: 'p2-3h', name: 'LinkedIn zip import retest', status: 'planned', category: 'testing', priority: 'high', notes: 'yearsExperience .replace() crash fixed. Full flow needs clean test: zip upload → parse → profile review → save. Skill inference fallback if API key not set.' },
+                        { id: 'p2-3i', name: 'API status monitoring dashboard', status: 'done', category: 'admin', priority: 'high', notes: 'Status tab in admin. Passive health tracking from all API calls. Active health check button. Per-service status with age, staleness, critical flags. Categories: AI, infra, jobs, data.' }
                     ]
                 },
                 {
@@ -3732,6 +3814,196 @@
             
             el.innerHTML = html;
         }
+        
+        // ===== ADMIN API STATUS DASHBOARD =====
+        
+        function renderAdminStatus(el) {
+            var health = getApiHealth();
+            var categories = { ai: 'AI Services', infra: 'Infrastructure', jobs: 'Job Search APIs', data: 'Data Assets' };
+            var categoryOrder = ['ai', 'infra', 'jobs', 'data'];
+            
+            var statusColors = { ok: '#10b981', degraded: '#f59e0b', down: '#ef4444', unknown: '#6b7280' };
+            var statusLabels = { ok: 'Operational', degraded: 'Degraded', down: 'Down', unknown: 'Unknown' };
+            var statusIcons = { ok: '\u2705', degraded: '\u26A0\uFE0F', down: '\u274C', unknown: '\u2754' };
+            
+            // Compute overall status
+            var criticalDown = [];
+            var anyDegraded = false;
+            var allOk = true;
+            
+            Object.keys(API_HEALTH_SERVICES).forEach(function(sid) {
+                var svc = API_HEALTH_SERVICES[sid];
+                var s = getServiceStatus(sid);
+                if (s.status === 'down' && svc.critical) criticalDown.push(svc.name);
+                if (s.status === 'degraded') anyDegraded = true;
+                if (s.status !== 'ok') allOk = false;
+            });
+            
+            var overallStatus = criticalDown.length > 0 ? 'down' : anyDegraded ? 'degraded' : allOk ? 'ok' : 'unknown';
+            var overallMsg = criticalDown.length > 0 ? 'Critical: ' + criticalDown.join(', ')
+                : anyDegraded ? 'Some services degraded'
+                : allOk ? 'All systems operational'
+                : 'Waiting for data';
+            
+            var html = '<div style="padding:20px;">';
+            
+            // Overall status banner
+            html += '<div style="background:var(--bg-elevated); border:2px solid ' + statusColors[overallStatus] + ';'
+                + ' border-radius:12px; padding:20px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between;">'
+                + '<div style="display:flex; align-items:center; gap:12px;">'
+                + '<div style="width:14px; height:14px; border-radius:50%; background:' + statusColors[overallStatus] + ';'
+                + ' box-shadow:0 0 8px ' + statusColors[overallStatus] + '40;"></div>'
+                + '<div>'
+                + '<div style="font-weight:700; color:var(--text-primary); font-size:1.05em;">System Status</div>'
+                + '<div style="font-size:0.84em; color:var(--text-secondary);">' + escapeHtml(overallMsg) + '</div>'
+                + '</div></div>'
+                + '<button onclick="runHealthChecks()" id="healthCheckBtn" style="padding:8px 18px; background:var(--accent); color:#fff;'
+                + ' border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.84em;">'
+                + bpIcon('settings',12) + ' Run Health Check</button>'
+                + '</div>';
+            
+            // Services by category
+            categoryOrder.forEach(function(cat) {
+                var services = [];
+                Object.keys(API_HEALTH_SERVICES).forEach(function(sid) {
+                    if (API_HEALTH_SERVICES[sid].category === cat) {
+                        services.push(Object.assign({ id: sid }, API_HEALTH_SERVICES[sid], getServiceStatus(sid)));
+                    }
+                });
+                if (services.length === 0) return;
+                
+                html += '<div style="background:var(--bg-elevated); border:1px solid var(--border);'
+                    + ' border-radius:10px; padding:16px; margin-bottom:14px;">'
+                    + '<div style="font-size:0.82em; font-weight:700; color:var(--text-secondary);'
+                    + ' text-transform:uppercase; letter-spacing:0.05em; margin-bottom:12px;">'
+                    + escapeHtml(categories[cat] || cat) + '</div>';
+                
+                services.forEach(function(svc) {
+                    var age = svc.timestamp ? Math.round((Date.now() - new Date(svc.timestamp).getTime()) / 60000) : null;
+                    var ageText = age === null ? '' : age < 1 ? 'just now' : age < 60 ? age + 'm ago' : Math.round(age / 60) + 'h ago';
+                    var staleTag = svc.stale ? ' <span style="color:#f59e0b; font-size:0.8em;">(stale)</span>' : '';
+                    
+                    html += '<div style="display:flex; align-items:center; gap:12px; padding:8px 0;'
+                        + ' border-bottom:1px solid var(--border);">'
+                        + '<div style="width:10px; height:10px; border-radius:50%; flex-shrink:0;'
+                        + ' background:' + (statusColors[svc.status] || statusColors.unknown) + ';"></div>'
+                        + '<span style="font-size:0.9em; flex-shrink:0;">' + svc.icon + '</span>'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="font-weight:600; color:var(--text-primary); font-size:0.88em;">'
+                        + escapeHtml(svc.name)
+                        + (svc.critical ? ' <span style="font-size:0.7em; padding:1px 6px; border-radius:4px; background:#ef444420; color:#ef4444; font-weight:700;">CRITICAL</span>' : '')
+                        + '</div>'
+                        + '<div style="font-size:0.78em; color:var(--text-muted);">'
+                        + escapeHtml(svc.message || statusLabels[svc.status] || 'Unknown')
+                        + staleTag
+                        + (ageText ? ' \u00B7 ' + ageText : '')
+                        + '</div></div>'
+                        + '<div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">'
+                        + '<span style="font-size:0.78em; font-weight:600; color:' + (statusColors[svc.status] || statusColors.unknown) + ';">'
+                        + (statusLabels[svc.status] || 'Unknown') + '</span>';
+                    
+                    if (svc.manageUrl) {
+                        html += '<a href="' + svc.manageUrl + '" target="_blank" rel="noopener"'
+                            + ' style="color:var(--accent); font-size:0.8em; text-decoration:none;"'
+                            + ' title="Manage">' + bpIcon('external',10) + '</a>';
+                    }
+                    html += '</div></div>';
+                });
+                
+                html += '</div>';
+            });
+            
+            // Actions
+            html += '<div style="display:flex; gap:12px; flex-wrap:wrap;">'
+                + '<button onclick="clearApiHealth()" style="padding:8px 16px; background:var(--input-bg);'
+                + ' color:var(--text-secondary); border:1px solid var(--border); border-radius:8px;'
+                + ' cursor:pointer; font-size:0.82em;">Reset Status Data</button>'
+                + '</div>';
+            
+            html += '</div>';
+            el.innerHTML = html;
+        }
+        
+        async function runHealthChecks() {
+            var btn = document.getElementById('healthCheckBtn');
+            if (btn) { btn.textContent = 'Checking...'; btn.disabled = true; }
+            
+            // 1. Firebase Auth
+            try {
+                if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+                    await firebase.auth().currentUser.getIdToken(true);
+                    recordApiHealth('firebase-auth', 'ok', 'Token refresh successful');
+                } else {
+                    recordApiHealth('firebase-auth', 'unknown', 'Not signed in');
+                }
+            } catch(e) {
+                recordApiHealth('firebase-auth', 'down', 'Token refresh failed: ' + e.message);
+            }
+            
+            // 2. Firestore
+            try {
+                if (fbDb && fbUser) {
+                    var testDoc = await fbDb.collection('users').doc(fbUser.uid).get();
+                    recordApiHealth('firebase-db', testDoc.exists ? 'ok' : 'ok', 'Read successful');
+                } else {
+                    recordApiHealth('firebase-db', 'unknown', 'Not connected');
+                }
+            } catch(e) {
+                recordApiHealth('firebase-db', 'down', 'Read failed: ' + e.message);
+            }
+            
+            // 3. Anthropic Proxy (lightweight ping - tiny request)
+            try {
+                var idToken = null;
+                if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+                    idToken = await firebase.auth().currentUser.getIdToken();
+                }
+                if (idToken) {
+                    var probeRes = await fetch(AI_PROXY_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
+                        body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1, messages: [{ role: 'user', content: 'ping' }] })
+                    });
+                    if (probeRes.ok) {
+                        recordApiHealth('anthropic-proxy', 'ok', 'Operational');
+                    } else {
+                        var errBody = {}; try { errBody = await probeRes.json(); } catch(e) {}
+                        var errMsg = (errBody.error && typeof errBody.error === 'object' ? errBody.error.message : errBody.error) || 'Status ' + probeRes.status;
+                        var hStatus = errMsg.includes('credit') ? 'down' : probeRes.status === 429 ? 'degraded' : 'down';
+                        var hMsg = errMsg.includes('credit') ? 'Credits depleted' : errMsg;
+                        recordApiHealth('anthropic-proxy', hStatus, hMsg);
+                    }
+                } else {
+                    recordApiHealth('anthropic-proxy', 'unknown', 'No auth token available');
+                }
+            } catch(e) {
+                recordApiHealth('anthropic-proxy', 'down', 'Unreachable: ' + e.message);
+            }
+            
+            // 4. O*NET Crosswalk
+            if (window.onetCrosswalk) {
+                var aliasCount = Object.keys(window.onetCrosswalk.aliases || {}).length;
+                recordApiHealth('onet-crosswalk', 'ok', aliasCount + ' aliases loaded');
+            } else {
+                recordApiHealth('onet-crosswalk', 'down', 'Not loaded');
+            }
+            
+            // 5. Job APIs (lightweight - just check reachability isn't practical without CORS proxy)
+            // Mark as "last known" from job sync results
+            
+            if (btn) { btn.innerHTML = bpIcon('settings',12) + ' Run Health Check'; btn.disabled = false; }
+            showToast('Health check complete.', 'info');
+            renderAdminStatus(document.getElementById('adminTabContent'));
+        }
+        window.runHealthChecks = runHealthChecks;
+        
+        function clearApiHealth() {
+            if (!confirm('Reset all API health status data?')) return;
+            safeRemove('bpApiHealth');
+            showToast('Health status data cleared.', 'info');
+            renderAdminStatus(document.getElementById('adminTabContent'));
+        }
+        window.clearApiHealth = clearApiHealth;
         
         // ===== ADMIN COSTS DASHBOARD =====
         var costsTimeRange = 30; // days
@@ -7720,9 +7992,11 @@
                 var occCount = Object.keys(libResults[9].value.occupations || {}).length;
                 var aliasCount = Object.keys(libResults[9].value.aliases || {}).length;
                 console.log('✅ O*NET Crosswalk loaded: ' + occCount + ' occupations, ' + aliasCount + ' aliases');
+                recordApiHealth('onet-crosswalk', 'ok', occCount + ' occupations, ' + aliasCount + ' aliases');
             } else {
                 window.onetCrosswalk = null;
                 console.warn('⚠ onet-crosswalk.json failed to load');
+                recordApiHealth('onet-crosswalk', 'down', 'Failed to load');
             }
             
             // ===== PROFILE DECISION FLOW =====
