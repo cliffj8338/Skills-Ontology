@@ -14033,12 +14033,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Track view navigation
             if (typeof bpTracker !== 'undefined' && bpTracker.sid) bpTracker.trackView(view);
             
-            // Gate: block main views until user explicitly selects a profile or signs in
-            var profileViews = ['network', 'opportunities', 'blueprint', 'reports', 'settings', 'consent'];
-            if (!fbUser && !window._profileExplicitlySelected && profileViews.indexOf(view) !== -1) {
-                showToast('Choose a sample profile or sign in to explore Blueprint.', 'info');
-                view = 'welcome';
-            }
+            // Nav gate removed — all viewers can browse all views.
+            // Mutations are blocked by readOnlyGuard() on each edit action.
             
             currentView = view;
             window.scrollTo(0, 0);
@@ -25585,6 +25581,16 @@ body {
         }
         
         function renderProfileSettings() {
+            // Guard: don't render editable profile in demo/read-only mode
+            if (!fbUser || appContext.mode === 'demo' || isReadOnlyProfile) {
+                return `<div style="text-align:center; padding:60px 20px;">
+                    <div style="margin-bottom:16px; opacity:0.4;">${bpIcon('profile',48)}</div>
+                    <div style="font-size:1.1em; font-weight:600; color:var(--text-primary); margin-bottom:8px;">Sign in to edit your profile</div>
+                    <div style="color:var(--text-muted); max-width:400px; margin:0 auto 24px; line-height:1.6;">
+                        Your name, photo, and headline are saved to your account. Sign in to personalize your Blueprint.</div>
+                    <button onclick="showAuthModal('signin')" style="padding:12px 28px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.95em;">Sign In</button>
+                </div>`;
+            }
             return `
                 <div class="blueprint-section">
                     <div class="blueprint-section-header">
