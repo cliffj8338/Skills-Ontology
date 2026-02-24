@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blueprint™</title>
-    <!-- v4.42.2 | 20260224 | CRITICAL: Firestore save fix, values re-render, architecture map admin tab -->
+    <!-- v4.43.0 | 20260224 | Unified skill editor, network label offsets, quickScore v3, BLS tile, alphabetical skills, bpIcon fix -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -953,7 +953,7 @@
             <div class="modal-body">
                 <div class="coaching-tip" style="margin-bottom: 25px;">
                     <div class="coaching-tip-title">
-                        ${bpIcon('lightbulb',14)} WHY ASSESS THIS SKILL?
+                        <span style="color:#f59e0b; font-weight:700;">&#x1F4A1; WHY ASSESS THIS SKILL?</span>
                     </div>
                     <div class="coaching-tip-content">
                         This skill doesn't have a direct O*NET match. Answer a few questions so we can accurately rate its market impact.
@@ -1208,8 +1208,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.42.2 - BUILD 20260224-critical-save-fix
-        var BP_VERSION = 'v4.42.2';
+        // BLUEPRINT v4.43.0 - BUILD 20260224-unified-skill-editor
+        var BP_VERSION = 'v4.43.0';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -3596,7 +3596,8 @@
                         { id: 'p2-3j', name: 'Deterministic skill inference engine', status: 'done', category: 'wizard', priority: 'critical', notes: 'Replaced Claude AI skill inference ($0.07/call) with O*NET crosswalk heuristics. Title→SOC→skills pool→fuzzy match→level adjustment by seniority+years. 30-skill cap. Zero API cost.' },
                         { id: 'p2-3k', name: 'Incident log + values/scoring/badge fixes', status: 'done', category: 'bugfix', priority: 'high', notes: 'Incident log for operational failures. Values card text visibility fix. quickScoreJob scoring inflation fix (realistic denominator). Network job badges render on view switch.' },
                         { id: 'p2-3l', name: 'Interactive architecture map', status: 'done', category: 'admin', priority: 'medium', notes: 'D3 force-directed platform architecture diagram in admin panel. 40+ nodes across 10 subsystem groups. Click-to-highlight with detail panel. Zoom/pan. Data flow edges. Developer onboarding tool.' },
-                        { id: 'p2-3m', name: 'Critical Firestore save fix', status: 'done', category: 'bugfix', priority: 'critical', notes: 'templateId guard silently blocked wizard saves (wizard-built != firestore-*). Data sync order fixed. Step 9 UX: save primary, download secondary.' }
+                        { id: 'p2-3m', name: 'Critical Firestore save fix', status: 'done', category: 'bugfix', priority: 'critical', notes: 'templateId guard silently blocked wizard saves (wizard-built != firestore-*). Data sync order fixed. Step 9 UX: save primary, download secondary.' },
+                        { id: 'p2-3n', name: 'Unified skill editor + UX fixes', status: 'done', category: 'ux', priority: 'high', notes: 'Single modal combining level/roles/assess/core. Network name label offset. quickScore v3 (word-boundary + level weighting). Alphabetical skill sorting. BLS Potential tile always shown. bpIcon assess bug.' }
                     ]
                 },
                 {
@@ -10998,13 +10999,16 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         }
                         d3.select(this)
                             .text(label)
-                            .attr("x", 0)
+                            .attr("x", d => {
+                                if (d.type === "center") return Math.round(-50 * scaleFactor);
+                                return 0;
+                            })
                             .attr("y", d => {
                                 if (d.type === "center") return Math.round(-45 * scaleFactor);
                                 if (d.type === "role") return Math.round(-35 * scaleFactor);
                                 return -19;
                             })
-                            .attr("text-anchor", "middle");
+                            .attr("text-anchor", d => d.type === "center" ? "end" : "middle");
                     }
                 });
 
@@ -11305,9 +11309,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             node.append("text")
                 .text(function(d) { return d.name; })
-                .attr("x", 0)
+                .attr("x", function(d) { return d.type === 'center' ? -50 : 0; })
                 .attr("y", function(d) { return d.type === 'center' ? -42 : d.type === 'role' ? -30 : -20; })
-                .attr("text-anchor", "middle")
+                .attr("text-anchor", function(d) { return d.type === 'center' ? 'end' : 'middle'; })
                 .style("font-size", function(d) { return d.type === 'center' ? '14px' : d.type === 'role' ? '11px' : '9px'; });
             
             if (isMobile) node.selectAll('text').filter(function(d) { return d.type === 'skill'; }).classed('hidden', true);
@@ -11520,9 +11524,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Labels
             node.append("text")
                 .text(function(d) { return d.name; })
-                .attr("x", 0)
+                .attr("x", function(d) { return d.type === 'center' ? -50 : 0; })
                 .attr("y", function(d) { return d.type === 'center' ? -44 : d.type === 'role' ? -34 : -22; })
-                .attr("text-anchor", "middle")
+                .attr("text-anchor", function(d) { return d.type === 'center' ? 'end' : 'middle'; })
                 .style("font-size", function(d) { return d.type === 'center' ? '14px' : d.type === 'role' ? '11px' : '9px'; })
                 .style("fill", function(d) {
                     if (d.matchState === 'matched') return matchColors.matched;
@@ -15234,9 +15238,6 @@ body {
             if (hasValuation && evidenceValue) {
                 var evActive = valuationMode === 'evidence';
                 var evLabel = hasCuratedComp ? 'BLS Evidence' : 'Evidence-Based';
-                // If evidence = potential, collapse to single "BLS Estimate" card
-                var showSingleBls = hasCuratedComp && potentialValue && evidenceValue.yourWorth === potentialValue.yourWorth;
-                if (showSingleBls) evLabel = 'BLS Estimate';
                 
                 html += '<div style="background:' + (evActive ? 'var(--c-green-bg-2a)' : 'var(--c-surface-2)') + '; border:' + (evActive ? '2px' : '1px') + ' solid ' + (evActive ? 'var(--c-green-border-3)' : 'var(--c-surface-5)') + '; border-radius:12px; padding:18px; cursor:pointer;" onclick="setValuationMode(\'evidence\'); switchBlueprintTab(\'dashboard\');">'
                     + '<div style="display:flex; align-items:center; gap:5px; font-size:0.78em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">'
@@ -15246,8 +15247,8 @@ body {
                     + '</div>';
             }
             
-            // Potential Value card — skip if same as evidence AND curated comp exists
-            if (hasValuation && potentialValue && !(hasCuratedComp && evidenceValue && evidenceValue.yourWorth === potentialValue.yourWorth)) {
+            // Potential Value card — always show when data exists
+            if (hasValuation && potentialValue) {
                 var potActive = valuationMode === 'potential';
                 var potLabel = hasCuratedComp ? 'BLS Potential' : 'Potential';
                 html += '<div style="background:' + (potActive ? 'var(--c-orange-bg-1)' : 'var(--c-surface-2)') + '; border:' + (potActive ? '2px' : '1px') + ' solid ' + (potActive ? 'var(--c-orange-border)' : 'var(--c-surface-5)') + '; border-radius:12px; padding:18px; cursor:pointer;" onclick="setValuationMode(\'potential\'); switchBlueprintTab(\'dashboard\');">'
@@ -15667,8 +15668,7 @@ body {
                 var domainSkills = domain === '_unassigned' ? unassigned : skillsByRole[domain];
                 var displayName = domain === '_unassigned' ? 'Uncategorized' : domain;
                 domainSkills.sort(function(a,b) {
-                    var order = {'Mastery':0,'Expert':1,'Advanced':2,'Proficient':3,'Novice':4};
-                    return (order[a.level]||3) - (order[b.level]||3);
+                    return (a.name || '').localeCompare(b.name || '');
                 });
                 
                 html += '<div style="margin-bottom:16px; border:1px solid var(--c-surface-4); border-radius:10px; overflow:hidden;">';
@@ -15693,7 +15693,7 @@ body {
                         html += '<span style="font-size:0.65em; padding:2px 6px; border-radius:8px; background:var(--c-orange-bg-2); color:#f59e0b; font-weight:600;">CORE</span>';
                     }
                     
-                    html += '<button onclick="openSkillModalFromCard(\'' + escapedName + '\')" title="Edit" style="background:none; border:none; cursor:pointer; color:#60a5fa; padding:4px;' + (isReadOnlyProfile ? ' display:none;' : '') + '">' + bpIcon('edit',14) + '</button>'
+                    html += '<button onclick="openUnifiedSkillEditor(\'' + escapedName + '\')" title="Edit" style="background:none; border:none; cursor:pointer; color:#60a5fa; padding:4px;' + (isReadOnlyProfile ? ' display:none;' : '') + '">' + bpIcon('edit',14) + '</button>'
                         + '<button onclick="if(confirm(\'Remove skill: ' + escapedName + '?\')) { removeSkillFromProfile(\'' + escapedName + '\', \'' + (s.category || 'skill') + '\'); switchBlueprintTab(\'skills\'); }" title="Remove" style="background:none; border:none; cursor:pointer; color:var(--c-faint); padding:4px;' + (isReadOnlyProfile ? ' display:none;' : '') + '">' + bpIcon('trash',14) + '</button>'
                         + '</div>';
                 });
@@ -16464,7 +16464,7 @@ body {
                             font-size: 1em;
                         ">
                             <option value="">-- None --</option>
-                            ${skillsData.skills.map(s => `<option value="${s.name}">${s.name}</option>`).join('')}
+                            ${skillsData.skills.slice().sort((a,b) => a.name.localeCompare(b.name)).map(s => `<option value="${s.name}">${s.name}</option>`).join('')}
                         </select>
                     </div>
                     
@@ -23653,17 +23653,40 @@ body {
             var searchText = ((title || '') + ' ' + (description || '') + ' ' + (tags || []).join(' ')).toLowerCase();
             // Strip HTML
             searchText = searchText.replace(/<[^>]+>/g, ' ').replace(/&[^;]+;/g, ' ');
+            // Normalize whitespace for word boundary checks
+            searchText = ' ' + searchText.replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ') + ' ';
             
             var userSkills = skillsData.skills || [];
             var matchedSkills = [];
+            var matchWeight = 0;
             var seen = {};
             
+            // Level weights: higher-level skills count more toward match quality
+            var levelWeight = { 'Mastery': 3, 'Expert': 2.5, 'Advanced': 2, 'Proficient': 1.5, 'Novice': 1 };
+            
             userSkills.forEach(function(skill) {
-                var lower = skill.name.toLowerCase();
+                var lower = skill.name.toLowerCase().trim();
                 if (lower.length < 3) return;
-                if (searchText.indexOf(lower) !== -1 && !seen[lower]) {
+                if (seen[lower]) return;
+                
+                // Word-boundary matching for short terms (prevents "design" matching "designated")
+                var found = false;
+                if (lower.length <= 6) {
+                    // Short terms: require word boundaries
+                    found = searchText.indexOf(' ' + lower + ' ') !== -1
+                         || searchText.indexOf(' ' + lower + ',') !== -1
+                         || searchText.indexOf(' ' + lower + '.') !== -1;
+                } else {
+                    // Longer terms: substring is fine (e.g. "project management")
+                    found = searchText.indexOf(lower) !== -1;
+                }
+                
+                if (found) {
                     seen[lower] = true;
                     matchedSkills.push(skill.name);
+                    var w = levelWeight[skill.level] || 1;
+                    if (skill.key) w += 0.5; // bonus for key skills
+                    matchWeight += w;
                 }
             });
             
@@ -23673,11 +23696,11 @@ body {
                 var syns = SKILL_SYNONYMS[canonical];
                 for (var i = 0; i < syns.length; i++) {
                     if (searchText.indexOf(syns[i]) !== -1) {
-                        // Check if user has this skill
                         var userSkill = userSkills.find(function(s) { return s.name.toLowerCase() === canonical; });
                         if (userSkill && !seen[canonical]) {
                             seen[canonical] = true;
                             matchedSkills.push(userSkill.name);
+                            matchWeight += levelWeight[userSkill.level] || 1;
                         }
                         break;
                     }
@@ -23697,14 +23720,15 @@ body {
                 }
             });
             
-            var total = matchedSkills.length + gapSkills.length;
-            // Use a realistic minimum denominator: most JDs require 8-12 skills
-            // Without this, a JD with 2 found skills and 0 gaps = 100%
-            var minRequired = Math.max(8, Math.round(matchedSkills.length * 1.3));
-            var effectiveTotal = Math.max(total, minRequired);
-            var score = effectiveTotal > 0 ? Math.min(95, Math.round((matchedSkills.length / effectiveTotal) * 100)) : 0;
-            // Small bonus for breadth (many matched skills)
-            if (matchedSkills.length >= 8) score = Math.min(95, score + 5);
+            // Scoring: weighted approach
+            // Total possible weight = userSkills count * avg weight (~2) - we approximate expected JD requirements
+            var totalPossible = matchWeight + (gapSkills.length * 1.5);
+            // Most JDs require 10-15 weighted skills worth of capability
+            var expectedTotal = Math.max(totalPossible, 12);
+            var score = expectedTotal > 0 ? Math.round((matchWeight / expectedTotal) * 100) : 0;
+            
+            // Cap at 90% (quick score should never exceed pipeline's proper analysis)
+            score = Math.min(90, score);
             
             return { score: score, matched: matchedSkills, gaps: gapSkills.slice(0, 8) };
         }
@@ -27533,6 +27557,247 @@ body {
             showToast('Removed "' + skillName + '" from profile.', 'info');
         }
         window.deleteSkillFromProfile = deleteSkillFromProfile;
+        
+        // ===== UNIFIED SKILL EDITOR =====
+        // Single modal combining: level, roles, assess, evidence, core differentiator
+        
+        function openUnifiedSkillEditor(skillName) {
+            if (readOnlyGuard()) return;
+            var skill = (userData.skills || []).find(function(s) { return s.name === skillName; });
+            if (!skill) { showToast('Skill not found.', 'error'); return; }
+            
+            currentEditingSkill = skillName;
+            
+            var levels = ['Novice','Competent','Proficient','Advanced','Expert','Mastery'];
+            var levelColors = { 'Novice':'#6b7280','Competent':'#3b82f6','Proficient':'#10b981','Advanced':'#f59e0b','Expert':'#f97316','Mastery':'#ef4444' };
+            var evs = (typeof getEvidenceSummary === 'function') ? getEvidenceSummary(skill) : null;
+            var roles = userData.roles || [];
+            var skillRoles = skill.roles || [];
+            var hasAssess = !!skill.userAssessment;
+            var assessData = skill.userAssessment || { years: 5, impact: 'significant', rarity: 'uncommon', salaryBand: '$150-250k' };
+            var isOnetSkill = !!(skill.onetId || skill.onetCode);
+            
+            var html = '';
+            
+            // ── HEADER ──
+            html += '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">'
+                + '<div>'
+                + '<h2 style="margin:0; font-size:1.3em; color:var(--text-primary);">' + escapeHtml(skillName) + '</h2>'
+                + '<div style="display:flex; align-items:center; gap:8px; margin-top:6px;">'
+                + '<span style="padding:3px 10px; border-radius:10px; font-size:0.75em; font-weight:600; background:' + (levelColors[skill.level] || '#6b7280') + '22; color:' + (levelColors[skill.level] || '#6b7280') + ';">' + (skill.level || 'Proficient') + '</span>'
+                + (skill.key ? '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(245,158,11,0.15); color:#f59e0b; font-weight:600;">CORE</span>' : '')
+                + (isOnetSkill ? '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(96,165,250,0.15); color:#60a5fa;">O*NET</span>' : '')
+                + '</div></div>'
+                + '<button onclick="closeUnifiedSkillEditor()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.4em; padding:4px;">\u2715</button>'
+                + '</div>';
+            
+            // ── PROFICIENCY LEVEL ──
+            html += '<div style="margin-bottom:18px;">'
+                + '<div style="font-weight:600; font-size:0.85em; color:var(--accent); margin-bottom:8px;">Proficiency Level</div>'
+                + '<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;">';
+            levels.forEach(function(lv) {
+                var sel = (skill.level === lv);
+                var c = levelColors[lv];
+                html += '<label style="display:flex; align-items:center; gap:6px; padding:8px 10px; border-radius:8px; cursor:pointer;'
+                    + ' background:' + (sel ? c + '18' : 'var(--input-bg)') + '; border:1.5px solid ' + (sel ? c : 'var(--border)') + ';">'
+                    + '<input type="radio" name="uniLevel" value="' + lv + '"' + (sel ? ' checked' : '') + ' onchange="uniUpdateGapWarning()" style="accent-color:' + c + ';">'
+                    + '<span style="font-size:0.82em; font-weight:' + (sel ? '700' : '500') + '; color:' + (sel ? c : 'var(--text-secondary)') + ';">' + lv + '</span>'
+                    + '</label>';
+            });
+            html += '</div>';
+            // Evidence gap warning
+            html += '<div id="uniGapWarning" style="margin-top:6px;"></div>';
+            // Evidence summary
+            if (evs) {
+                var evColor = evs.hasGap ? '#f59e0b' : '#10b981';
+                html += '<div style="margin-top:6px; padding:6px 10px; border-radius:6px; font-size:0.78em; background:var(--bg-elevated); border:1px solid var(--border);">'
+                    + '<span style="color:' + evColor + '; font-weight:600;">' + evs.points + ' evidence pts \u2192 ' + evs.effectiveLevel + '</span>'
+                    + '<span style="color:var(--text-muted); margin-left:6px;">(' + evs.evidenceCount + ' outcome' + (evs.evidenceCount !== 1 ? 's' : '') + ')</span>'
+                    + (evs.verifiedCount > 0 ? ' <span style="color:#10b981;"> \u2713 ' + evs.verifiedCount + ' verified</span>' : '')
+                    + '</div>';
+            }
+            html += '</div>';
+            
+            // ── ROLE ASSIGNMENT ──
+            if (roles.length > 0) {
+                html += '<div style="margin-bottom:18px;">'
+                    + '<div style="font-weight:600; font-size:0.85em; color:var(--accent); margin-bottom:8px;">Used in Roles <span style="color:var(--text-muted); font-weight:400; font-size:0.9em;">(defaults to all)</span></div>'
+                    + '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:4px;">';
+                roles.forEach(function(role) {
+                    var checked = skillRoles.includes(role.id) || skillRoles.includes(role.name);
+                    html += '<label style="display:flex; align-items:center; gap:6px; padding:6px 8px; border-radius:6px; cursor:pointer; font-size:0.82em; color:var(--text-secondary);">'
+                        + '<input type="checkbox" class="uni-role-cb" value="' + (role.id || role.name) + '"' + (checked ? ' checked' : '') + '>'
+                        + '<span>' + escapeHtml(role.name) + '</span></label>';
+                });
+                html += '</div></div>';
+            }
+            
+            // ── IMPACT ASSESSMENT ──
+            html += '<div style="margin-bottom:18px; border:1px solid var(--border); border-radius:10px; overflow:hidden;">'
+                + '<div onclick="document.getElementById(\'uniAssessBody\').style.display = document.getElementById(\'uniAssessBody\').style.display === \'none\' ? \'block\' : \'none\';" '
+                + 'style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; cursor:pointer; background:var(--bg-elevated);">'
+                + '<div style="font-weight:600; font-size:0.85em; color:var(--accent);">\uD83D\uDCCA Impact Assessment'
+                + (hasAssess ? ' <span style="color:#10b981; font-size:0.85em;">\u2713 Assessed</span>' : ' <span style="color:var(--text-muted); font-size:0.85em;">(optional)</span>')
+                + '</div>'
+                + '<span style="color:var(--text-muted);">\u25BC</span></div>'
+                + '<div id="uniAssessBody" style="display:' + (isOnetSkill && !hasAssess ? 'none' : 'block') + '; padding:14px;">';
+            
+            if (!isOnetSkill) {
+                html += '<div style="padding:8px 10px; background:rgba(245,158,11,0.1); border-left:3px solid #f59e0b; border-radius:4px; font-size:0.78em; color:var(--text-secondary); margin-bottom:12px;">'
+                    + '\uD83D\uDCA1 This skill doesn\'t have a direct O*NET match. Assess it to improve market impact accuracy.</div>';
+            }
+            
+            html += '<div style="margin-bottom:12px;">'
+                + '<label style="font-size:0.8em; color:var(--accent); font-weight:600;">Years of experience</label>'
+                + '<input type="number" id="uniAssessYears" value="' + (assessData.years || 5) + '" min="0" max="40" '
+                + 'style="display:block; width:80px; margin-top:4px; padding:6px 10px; background:var(--input-bg); border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;">'
+                + '</div>';
+            
+            var impacts = [
+                ['minor', 'Minor', 'Supports work but doesn\'t directly drive outcomes'],
+                ['significant', 'Significant', 'Directly contributes to key business results'],
+                ['transformative', 'Transformative', 'Creates new capabilities or markets']
+            ];
+            html += '<div style="margin-bottom:12px;">'
+                + '<label style="font-size:0.8em; color:var(--accent); font-weight:600;">Impact on business outcomes</label>';
+            impacts.forEach(function(imp) {
+                var sel = assessData.impact === imp[0];
+                html += '<label style="display:flex; align-items:start; gap:8px; padding:6px 0; cursor:pointer; font-size:0.82em;">'
+                    + '<input type="radio" name="uniImpact" value="' + imp[0] + '"' + (sel ? ' checked' : '') + ' style="margin-top:2px;">'
+                    + '<div><strong style="color:var(--text-primary);">' + imp[1] + '</strong><div style="color:var(--text-muted); font-size:0.9em;">' + imp[2] + '</div></div></label>';
+            });
+            html += '</div>';
+            
+            var rarities = [
+                ['common', 'Common', 'Many professionals have this'],
+                ['uncommon', 'Uncommon', 'Requires specialized training'],
+                ['rare', 'Rare', 'Few people have deep expertise']
+            ];
+            html += '<div style="margin-bottom:8px;">'
+                + '<label style="font-size:0.8em; color:var(--accent); font-weight:600;">How rare is deep expertise?</label>';
+            rarities.forEach(function(r) {
+                var sel = assessData.rarity === r[0];
+                html += '<label style="display:flex; align-items:start; gap:8px; padding:6px 0; cursor:pointer; font-size:0.82em;">'
+                    + '<input type="radio" name="uniRarity" value="' + r[0] + '"' + (sel ? ' checked' : '') + ' style="margin-top:2px;">'
+                    + '<div><strong style="color:var(--text-primary);">' + r[1] + '</strong><div style="color:var(--text-muted); font-size:0.9em;">' + r[2] + '</div></div></label>';
+            });
+            html += '</div></div></div>';
+            
+            // ── CORE DIFFERENTIATOR ──
+            html += '<label style="display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:8px; background:var(--bg-elevated); border:1px solid var(--border); cursor:pointer; margin-bottom:18px;">'
+                + '<input type="checkbox" id="uniCore"' + (skill.key ? ' checked' : '') + '>'
+                + '<div><span style="font-weight:600; font-size:0.85em; color:var(--accent);">Mark as Core Differentiator</span>'
+                + '<div style="font-size:0.75em; color:var(--text-muted);">Core skills appear as key differentiators in scouting reports and job matching.</div>'
+                + '</div></label>';
+            
+            // ── FOOTER ──
+            html += '<div style="display:flex; gap:10px; align-items:center;">'
+                + '<button onclick="saveUnifiedSkillEdit()" style="flex:1; padding:12px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.92em;">Save Changes</button>'
+                + '<button onclick="closeUnifiedSkillEditor()" style="padding:12px 20px; background:var(--input-bg); color:var(--text-secondary); border:1px solid var(--border); border-radius:8px; cursor:pointer; font-size:0.88em;">Cancel</button>'
+                + '<button onclick="if(confirm(\'Remove ' + escapeHtml(skillName).replace(/'/g,"\\'") + '?\')) { deleteSkillFromProfile(\'' + escapeHtml(skillName).replace(/'/g,"\\'") + '\'); closeUnifiedSkillEditor(); }" '
+                + 'style="margin-left:auto; padding:10px 14px; background:none; color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-size:0.82em;">'
+                + bpIcon('trash',14) + ' Remove</button>'
+                + '</div>';
+            
+            // Build modal
+            var modal = document.getElementById('unifiedSkillEditor');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'unifiedSkillEditor';
+                modal.className = 'modal';
+                modal.innerHTML = '<div class="modal-content" style="max-width:560px; max-height:85vh; overflow-y:auto;"><div id="uniEditorContent"></div></div>';
+                document.body.appendChild(modal);
+                // Close on backdrop click
+                modal.addEventListener('click', function(e) { if (e.target === modal) closeUnifiedSkillEditor(); });
+            }
+            document.getElementById('uniEditorContent').innerHTML = html;
+            history.pushState({ modal: true }, '');
+            modal.classList.add('active');
+            
+            // Initialize gap warning
+            setTimeout(uniUpdateGapWarning, 50);
+        }
+        window.openUnifiedSkillEditor = openUnifiedSkillEditor;
+        
+        function closeUnifiedSkillEditor() {
+            var modal = document.getElementById('unifiedSkillEditor');
+            if (modal) modal.classList.remove('active');
+            currentEditingSkill = null;
+        }
+        window.closeUnifiedSkillEditor = closeUnifiedSkillEditor;
+        
+        function uniUpdateGapWarning() {
+            var warning = document.getElementById('uniGapWarning');
+            if (!warning || !currentEditingSkill) return;
+            var skill = (skillsData.skills || []).find(function(s) { return s.name === currentEditingSkill; });
+            if (!skill) return;
+            var selectedLevel = (document.querySelector('input[name="uniLevel"]:checked') || {}).value || 'Novice';
+            var evs = (typeof getEvidenceSummary === 'function') ? getEvidenceSummary(skill) : null;
+            if (!evs) { warning.innerHTML = ''; return; }
+            var selectedVal = proficiencyValue(selectedLevel);
+            var effectiveVal = proficiencyValue(evs.effectiveLevel);
+            if (selectedVal > effectiveVal) {
+                warning.innerHTML = '<div style="padding:6px 10px; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:6px; font-size:0.78em; color:#f59e0b;">'
+                    + '\u26A0 Claiming <strong>' + selectedLevel + '</strong> but evidence supports <strong>' + evs.effectiveLevel + '</strong>. '
+                    + 'Market valuation uses ' + evs.effectiveLevel + ' until more evidence is added.</div>';
+            } else { warning.innerHTML = ''; }
+        }
+        window.uniUpdateGapWarning = uniUpdateGapWarning;
+        
+        function saveUnifiedSkillEdit() {
+            if (readOnlyGuard()) return;
+            if (!currentEditingSkill) return;
+            var skill = userData.skills.find(function(s) { return s.name === currentEditingSkill; });
+            if (!skill) return;
+            
+            // Level
+            var levelEl = document.querySelector('input[name="uniLevel"]:checked');
+            if (levelEl) skill.level = levelEl.value;
+            
+            // Core
+            var coreEl = document.getElementById('uniCore');
+            if (coreEl) skill.key = coreEl.checked;
+            
+            // Roles
+            var roleCbs = document.querySelectorAll('.uni-role-cb:checked');
+            var roleIds = Array.from(roleCbs).map(function(cb) { return cb.value; });
+            if (roleIds.length === 0) {
+                roleIds = (userData.roles || []).map(function(r) { return r.id; });
+            }
+            skill.roles = roleIds;
+            
+            // Assessment (if filled)
+            var yearsEl = document.getElementById('uniAssessYears');
+            var impactEl = document.querySelector('input[name="uniImpact"]:checked');
+            var rarityEl = document.querySelector('input[name="uniRarity"]:checked');
+            if (yearsEl && impactEl && rarityEl) {
+                skill.userAssessment = {
+                    years: parseInt(yearsEl.value) || 0,
+                    impact: impactEl.value,
+                    rarity: rarityEl.value,
+                    salaryBand: (document.querySelector('input[name="uniSalary"]:checked') || {}).value || '$150-250k'
+                };
+                // Calculate impact rating
+                if (typeof calculateUniqueSkillImpact === 'function') {
+                    var result = calculateUniqueSkillImpact(skill.userAssessment);
+                    skill.impactRating = result.level;
+                    skill.impactScore = result.score;
+                }
+            }
+            
+            // Sync to skillsData
+            var sdIdx = skillsData.skills.findIndex(function(s) { return s.name === currentEditingSkill; });
+            if (sdIdx !== -1) skillsData.skills[sdIdx] = Object.assign({}, skill);
+            
+            saveUserData();
+            rescoreAllJobs();
+            refreshAllViews();
+            
+            var name = currentEditingSkill;
+            closeUnifiedSkillEditor();
+            showToast('Updated "' + name + '".', 'success');
+        }
+        window.saveUnifiedSkillEdit = saveUnifiedSkillEdit;
         
         function saveSkillEdit() {
             if (readOnlyGuard()) return;
