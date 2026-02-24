@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://api.anthropic.com https://*.rapidapi.com https://remotive.com https://himalayas.app https://jobicy.com https://data.usajobs.gov https://api.adzuna.com https://www.themuse.com https://jooble.org; img-src 'self' data: blob: https://*.googleusercontent.com; frame-src 'none'; object-src 'none'; base-uri 'self';">
     <title>Blueprint™</title>
-    <!-- v4.43.3 | 20260224 | Security audit: CSP, escapeHtml hardening, import validation, URL sanitization, save debounce, global error handlers -->
+    <!-- v4.44.1 | 20260224 | Fix null reference in saveSettings when on non-active settings tab -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1217,8 +1217,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.43.3 - BUILD 20260224-security-audit-hardening
-        var BP_VERSION = 'v4.43.3';
+        // BLUEPRINT v4.44.1 - BUILD 20260224-null-guard-settings
+        var BP_VERSION = 'v4.44.1';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -26748,11 +26748,12 @@ body {
         function saveSettings() {
             if (readOnlyGuard()) return;
             // Get values from form
-            userData.profile.name = document.getElementById('settingName').value;
-            userData.profile.email = document.getElementById('settingEmail').value;
-            userData.profile.phone = document.getElementById('settingPhone') ? document.getElementById('settingPhone').value : '';
-            userData.profile.linkedinUrl = document.getElementById('settingLinkedIn') ? document.getElementById('settingLinkedIn').value : '';
-            userData.profile.location = document.getElementById('settingLocation').value;
+            userData.profile.name = (document.getElementById('settingName') || {}).value || userData.profile.name;
+            userData.profile.email = (document.getElementById('settingEmail') || {}).value || userData.profile.email || '';
+            userData.profile.phone = (document.getElementById('settingPhone') || {}).value || userData.profile.phone || '';
+            userData.profile.linkedinUrl = (document.getElementById('settingLinkedIn') || {}).value || userData.profile.linkedinUrl || '';
+            var locEl = document.getElementById('settingLocation');
+            if (locEl) userData.profile.location = locEl.value;
             
             // Parse and save reported compensation
             var compInput = document.getElementById('settingComp');
@@ -26761,12 +26762,18 @@ body {
                 userData.profile.reportedComp = compVal > 0 ? compVal : null;
             }
             
-            const newSeniority = document.getElementById('settingSeniority').value;
+            var seniorityEl = document.getElementById('settingSeniority');
+            var newSeniority = seniorityEl ? seniorityEl.value : userData.preferences.seniorityLevel;
             userData.preferences.seniorityLevel = newSeniority;
-            userData.preferences.minimumMatchScore = parseInt(document.querySelector('#settingsView .match-slider').value);
-            userData.preferences.minimumSkillMatches = parseInt(document.getElementById('settingMinSkills').value);
-            const minSalaryInput = document.getElementById('settingMinSalary').value;
-            userData.preferences.minSalary = minSalaryInput ? parseInt(minSalaryInput) : null;
+            var matchSlider = document.querySelector('#settingsView .match-slider');
+            if (matchSlider) userData.preferences.minimumMatchScore = parseInt(matchSlider.value);
+            var minSkillsEl = document.getElementById('settingMinSkills');
+            if (minSkillsEl) userData.preferences.minimumSkillMatches = parseInt(minSkillsEl.value);
+            var minSalaryEl = document.getElementById('settingMinSalary');
+            if (minSalaryEl) {
+                var minSalaryInput = minSalaryEl.value;
+                userData.preferences.minSalary = minSalaryInput ? parseInt(minSalaryInput) : null;
+            }
             
             // Update seniority keywords based on level
             if (newSeniority === 'Entry') {
