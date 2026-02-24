@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.gstatic.com https://cdnjs.cloudflare.com https://api.anthropic.com https://*.rapidapi.com https://remotive.com https://himalayas.app https://jobicy.com https://data.usajobs.gov https://api.adzuna.com https://www.themuse.com https://jooble.org; img-src 'self' data: blob: https://*.googleusercontent.com; frame-src 'none'; object-src 'none'; base-uri 'self';">
     <title>Blueprint™</title>
-    <!-- v4.44.5 | 20260224 | CSP cleanup: added gstatic.com + cdnjs.cloudflare.com to connect-src for Firebase SDK + jsPDF dynamic imports -->
+    <!-- v4.44.6 | 20260224 | Slider re-render fix (page limit 100), aggressive sync parallelization for Adzuna/Muse/Jooble -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1217,8 +1217,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.5 - BUILD 20260224-csp-cleanup
-        var BP_VERSION = 'v4.44.5';
+        // BLUEPRINT v4.44.6 - BUILD 20260224-slider-fix-aggressive-sync
+        var BP_VERSION = 'v4.44.6';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -23831,6 +23831,7 @@ body {
         function updateMatchThreshold(value) {
             currentMatchThreshold = parseInt(value);
             document.getElementById('matchValue').textContent = value + '%+';
+            window._jobsPageSize = 100; // reset pagination on threshold change
             filterOpportunities();
         }
         
@@ -23854,6 +23855,11 @@ body {
                 return;
             }
             
+            // Page size — render in chunks for performance
+            var pageSize = window._jobsPageSize || 100;
+            var showing = filtered.slice(0, pageSize);
+            var hasMore = filtered.length > pageSize;
+            
             // Summary bar
             var sourceBreak = getJobsSourceBreakdown();
             var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:8px 0; flex-wrap:wrap; gap:8px;">'
@@ -23876,7 +23882,7 @@ body {
             
             html += '<div style="display:flex; flex-direction:column; gap:12px;">';
             
-            filtered.forEach(function(job, idx) {
+            showing.forEach(function(job, idx) {
                 var pipelineKey = (job.title + '-' + (job.company || '')).toLowerCase();
                 var alreadyInPipeline = pipelineIds[pipelineKey];
                 // Use pipeline score if available (more accurate than quickScore)
@@ -23943,6 +23949,15 @@ body {
             });
             
             html += '</div>';
+            
+            // "Show More" button if there are more results
+            if (hasMore) {
+                html += '<div style="text-align:center; padding:20px;">'
+                    + '<button onclick="window._jobsPageSize=' + (pageSize + 100) + ';renderOpportunities();" '
+                    + 'style="padding:10px 28px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">'
+                    + 'Show More (' + (filtered.length - pageSize) + ' remaining)</button></div>';
+            }
+            
             resultsDiv.innerHTML = html;
         }
         

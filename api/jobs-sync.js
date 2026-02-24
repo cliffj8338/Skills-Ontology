@@ -526,55 +526,75 @@ module.exports = async function handler(req, res) {
   }
 
   // ── Phase 3: Adzuna (free API key, massive US inventory) ──
-  // Rotate: 5 categories × 2 locations × 1 page per sync = 10 calls → ~500 jobs
+  // AGGRESSIVE: 10 categories × 5 locations × 3 pages = 150 calls, batched 15 at a time
+  // Should yield 3,000-7,000 jobs per sync
   if (process.env.ADZUNA_APP_ID && process.env.ADZUNA_APP_KEY) {
     const adzSyncNum = syncGroup === 'A' ? 0 : 1;
-    const catStart = (adzSyncNum % Math.ceil(ADZUNA_CATEGORIES.length / 5)) * 5;
-    const adzCats = ADZUNA_CATEGORIES.slice(catStart, catStart + 5);
-    const locStart = (adzSyncNum % Math.ceil(ADZUNA_LOCATIONS.length / 3)) * 3;
-    const adzLocs = ADZUNA_LOCATIONS.slice(locStart, locStart + 3);
-    if (!adzLocs.includes('')) adzLocs.unshift(''); // always nationwide
+    const catStart = (adzSyncNum % Math.ceil(ADZUNA_CATEGORIES.length / 10)) * 10;
+    const adzCats = ADZUNA_CATEGORIES.slice(catStart, catStart + 10);
+    const locStart = (adzSyncNum % Math.ceil(ADZUNA_LOCATIONS.length / 5)) * 5;
+    const adzLocs = ADZUNA_LOCATIONS.slice(locStart, locStart + 5);
+    if (!adzLocs.includes('')) adzLocs.unshift('');
 
+    // Build all calls, then batch-parallelize
+    const adzCalls = [];
     for (const cat of adzCats) {
-      const results = await Promise.all(adzLocs.map(loc => fetchAdzuna(cat, loc, 1)));
-      results.forEach(collectJobs);
-      await new Promise(r => setTimeout(r, 150)); // rate limit
+      for (const loc of adzLocs) {
+        for (let p = 1; p <= 3; p++) {
+          adzCalls.push([cat, loc, p]);
+        }
+      }
     }
+    // Run 15 at a time
+    for (let i = 0; i < adzCalls.length; i += 15) {
+      const batch = adzCalls.slice(i, i + 15);
+      const results = await Promise.all(batch.map(c => fetchAdzuna(c[0], c[1], c[2])));
+      results.forEach(collectJobs);
+    }
+    console.log('[jobs-sync] Adzuna: ' + (sourceCounts.adzuna || 0) + ' jobs (' + adzCalls.length + ' API calls, ' + adzCats.length + ' cats × ' + adzLocs.length + ' locs × 3 pages)');
   } else {
     errors.push('adzuna: ADZUNA_APP_ID/KEY not configured');
   }
 
   // ── Phase 4: The Muse (free, quality professional jobs) ───
-  // Rotate: 6 categories × 3 pages per sync = 18 calls → ~360 jobs
+  // All 18 categories × 5 pages = 90 calls, batched 10 at a time
   {
-    const museSyncNum = syncGroup === 'A' ? 0 : 1;
-    const museStart = (museSyncNum % 3) * 6;
-    const museCats = MUSE_CATEGORIES.slice(museStart, museStart + 6);
-
-    for (const cat of museCats) {
-      for (let page = 0; page < 3; page++) {
-        const result = await fetchMuse(cat, page);
-        collectJobs(result);
-        if (result.pageCount && page >= result.pageCount - 1) break;
-        await new Promise(r => setTimeout(r, 80));
+    const museCalls = [];
+    for (const cat of MUSE_CATEGORIES) {
+      for (let page = 0; page < 5; page++) {
+        museCalls.push([cat, page]);
       }
     }
+    for (let i = 0; i < museCalls.length; i += 10) {
+      const batch = museCalls.slice(i, i + 10);
+      const results = await Promise.all(batch.map(c => fetchMuse(c[0], c[1])));
+      results.forEach(collectJobs);
+    }
+    console.log('[jobs-sync] Muse: ' + (sourceCounts.themuse || 0) + ' jobs (' + museCalls.length + ' API calls)');
   }
 
   // ── Phase 5: Jooble (free API key, meta-aggregator) ───────
-  // Rotate: 8 queries × 1 location per sync = 8 calls → ~200-400 jobs
+  // 18 queries × 2 locations × 2 pages = 72 calls, batched 6 at a time (Jooble rate limits)
   if (process.env.JOOBLE_API_KEY) {
     const jooSyncNum = syncGroup === 'A' ? 0 : 1;
-    const qStart = (jooSyncNum % Math.ceil(JOOBLE_QUERIES.length / 8)) * 8;
-    const jooQueries = JOOBLE_QUERIES.slice(qStart, qStart + 8);
-    const jooLoc = JOOBLE_LOCATIONS[jooSyncNum % JOOBLE_LOCATIONS.length];
+    const qStart = (jooSyncNum % Math.ceil(JOOBLE_QUERIES.length / 18)) * 18;
+    const jooQueries = JOOBLE_QUERIES.slice(qStart, qStart + 18);
+    const jooLoc1 = JOOBLE_LOCATIONS[jooSyncNum % JOOBLE_LOCATIONS.length];
+    const jooLoc2 = JOOBLE_LOCATIONS[(jooSyncNum + 1) % JOOBLE_LOCATIONS.length];
 
-    for (let i = 0; i < jooQueries.length; i += 2) {
-      const batch = jooQueries.slice(i, i + 2);
-      const results = await Promise.all(batch.map(q => fetchJooble(q, jooLoc)));
-      results.forEach(collectJobs);
-      await new Promise(r => setTimeout(r, 400)); // Jooble rate limit — be polite
+    const jooCalls = [];
+    for (const q of jooQueries) {
+      jooCalls.push([q, jooLoc1]);
+      jooCalls.push([q, jooLoc2]);
     }
+    // Jooble is rate-limited — batch 6 at a time with delays
+    for (let i = 0; i < jooCalls.length; i += 6) {
+      const batch = jooCalls.slice(i, i + 6);
+      const results = await Promise.all(batch.map(c => fetchJooble(c[0], c[1])));
+      results.forEach(collectJobs);
+      await new Promise(r => setTimeout(r, 300));
+    }
+    console.log('[jobs-sync] Jooble: ' + (sourceCounts.jooble || 0) + ' jobs (' + jooCalls.length + ' API calls)');
   } else {
     errors.push('jooble: JOOBLE_API_KEY not configured');
   }
