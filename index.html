@@ -8654,11 +8654,14 @@
             try {
                 // Don't save demo profile as user preference
                 if (appContext.mode === 'demo') return true;
-                // Don't save userData to localStorage anymore
                 // Only save which profile is active
                 const currentProfileId = userData.templateId || Object.keys(templates)[0] || 'walter-white';
                 safeSet('currentProfile', currentProfileId);
                 console.log('✓ Profile preference saved:', currentProfileId);
+                // Persist to Firestore if signed in
+                if (fbUser && fbDb) {
+                    saveToFirestore();
+                }
                 return true;
             } catch (e) {
                 console.error('Error saving profile preference:', e);
@@ -29482,6 +29485,14 @@ body {
             const skillsList = document.getElementById('skillsList');
             if (skillsList) {
                 skillsList.innerHTML = renderSkillsList();
+            }
+            
+            // Refresh Blueprint tab content if active
+            if (currentView === 'blueprint') {
+                var bpContent = document.getElementById('blueprintTabContent');
+                if (bpContent) {
+                    try { bpContent.innerHTML = renderBlueprintTabContent(); } catch(e) { console.warn('Blueprint refresh error:', e); }
+                }
             }
             
             // Refresh network graph
