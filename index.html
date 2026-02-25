@@ -1,4 +1,4 @@
-<!-- v4.44.30 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
+<!-- v4.44.31 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.30 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
+    <!-- v4.44.31 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.30 - BUILD 20260225-verification-system
-        var BP_VERSION = 'v4.44.30';
+        // BLUEPRINT v4.44.31 - BUILD 20260225-verification-system
+        var BP_VERSION = 'v4.44.31';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -6596,6 +6596,7 @@
             
             // Restore user state from snapshot
             userData = appContext.userSnapshot;
+            window._userData = userData;
             skillsData.roles = appContext.skillsSnapshot.roles;
             skillsData.skills = appContext.skillsSnapshot.skills;
             blueprintData.values = appContext.blueprintSnapshot.values;
@@ -8380,7 +8381,7 @@
         window.declineVerification = declineVerification;
         window.getVerificationStats = getVerificationStats;
         
-        // ===== VERIFICATION EXPIRY (v4.44.30) =====
+        // ===== VERIFICATION EXPIRY (v4.44.31) =====
         // Auto-expire pending verifications older than configured TTL
         function expireStalePendingVerifications() {
             var verifications = userData.verifications || [];
@@ -8414,7 +8415,7 @@
         window.getCredibilityLabel = getCredibilityLabel;
         window.expireStalePendingVerifications = expireStalePendingVerifications;
         
-        // ===== VERIFIER LANDING PAGE (v4.44.30) =====
+        // ===== VERIFIER LANDING PAGE (v4.44.31) =====
         // When someone visits ?verify=TOKEN&uid=UID, show standalone verification UI
         function checkVerificationLandingPage() {
             var params = new URLSearchParams(window.location.search);
@@ -9906,6 +9907,7 @@
             // which still points to the PREVIOUS profile if we don't update it here.
             skillsData.skills = userData.skills;
             skillsData.roles = userData.roles;
+            window._userData = userData;
             
             if (!hasCuratedJobs) {
                 if (isManifestProfile || templateId.indexOf('demo') !== -1 || templateId.indexOf('sample') !== -1) {
@@ -10044,6 +10046,7 @@
                 };
                 skillsData.skills = [];
                 skillsData.roles = [];
+                window._userData = userData;
                 
                 initializeMainApp();
                 window._profileExplicitlySelected = true; // signed-in users always have a profile
@@ -10142,6 +10145,7 @@
                     const imported = sanitizeImport(JSON.parse(e.target.result));
                     userData = imported;
                     userData.initialized = true;
+                    window._userData = userData;
                     saveUserData();
                     location.reload();
                 } catch (error) {
@@ -10455,6 +10459,7 @@
                 try {
                     const imported = sanitizeImport(JSON.parse(e.target.result));
                     userData = { ...imported, initialized: true };
+                    window._userData = userData;
                     saveUserData();
                     closeWizard();
                     location.reload();
@@ -11973,6 +11978,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         function wizardApplyAndLaunch(built) {
             userData = built;
             userData.initialized = true;
+            window._userData = userData;
             safeSet('currentProfile', 'wizard-built');
 
             // Store wizard profile in templates so it loads on reload
@@ -14176,7 +14182,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         
         // Initialize user interface on load
         document.addEventListener('DOMContentLoaded', async () => {
-            // v4.44.30: Check if this is a verification landing page URL
+            // v4.44.31: Check if this is a verification landing page URL
             if (checkVerificationLandingPage()) return; // Skip normal app init
             
             // v4.0: Check for magic link sign-in first
