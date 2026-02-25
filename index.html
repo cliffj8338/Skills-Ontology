@@ -1,4 +1,4 @@
-<!-- v4.44.43 | 2026-02-25 | Security: innerHTML audit, 57 new escapeHtml calls -->
+<!-- v4.44.44 | 2026-02-25 | Security: textarea injection + verifier suggested level scoring -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.43 | 2026-02-25 | Security: innerHTML audit, 57 new escapeHtml calls -->
+    <!-- v4.44.44 | 2026-02-25 | Security: textarea injection + verifier suggested level scoring -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.43 - BUILD 20260225-innerhtml-audit
-        var BP_VERSION = 'v4.44.43';
+        // BLUEPRINT v4.44.44 - BUILD 20260225-security-textarea-verifier
+        var BP_VERSION = 'v4.44.44';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2035,7 +2035,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260225-innerhtml-audit                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260225-security-textarea-verifier          ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -3854,16 +3854,16 @@
                 + '<div class="modal-body" style="padding:24px; max-height:70vh; overflow-y:auto;">'
                 + '<div style="display:grid; gap:16px;">'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Name</label>'
-                + '<input type="text" id="editSampleName" class="settings-input" value="' + (template.profile.name || '').replace(/"/g,'&quot;') + '"></div>'
+                + '<input type="text" id="editSampleName" class="settings-input" value="' + escapeHtml(template.profile.name || '') + '"></div>'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Title</label>'
-                + '<input type="text" id="editSampleTitle" class="settings-input" value="' + (template.profile.currentTitle || '').replace(/"/g,'&quot;') + '"></div>'
+                + '<input type="text" id="editSampleTitle" class="settings-input" value="' + escapeHtml(template.profile.currentTitle || '') + '"></div>'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Description</label>'
                 + '<textarea id="editSampleDesc" class="settings-input" rows="3" style="resize:vertical;">' + escapeHtml(meta.description || '') + '</textarea></div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Location</label>'
-                + '<input type="text" id="editSampleLocation" class="settings-input" value="' + (template.profile.location || '').replace(/"/g,'&quot;') + '"></div>'
+                + '<input type="text" id="editSampleLocation" class="settings-input" value="' + escapeHtml(template.profile.location || '') + '"></div>'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Role Level</label>'
-                + '<input type="text" id="editSampleLevel" class="settings-input" value="' + (template.profile.roleLevel || '').replace(/"/g,'&quot;') + '"></div>'
+                + '<input type="text" id="editSampleLevel" class="settings-input" value="' + escapeHtml(template.profile.roleLevel || '') + '"></div>'
                 + '</div>'
                 + '<div style="padding:14px; background:var(--c-surface-2); border-radius:8px; font-size:0.85em; color:var(--text-muted);">'
                 + '<strong style="color:var(--text-secondary);">Profile Contents:</strong> ' + skillCount + ' skills \u00B7 ' + roleCount + ' roles \u00B7 ' + outcomeCount + ' outcomes'
@@ -4261,7 +4261,9 @@
                         { id: 's7', name: 'SRI hashes on CDN scripts', status: 'done', category: 'security', priority: 'high', notes: 'Generated and applied. 7 scripts in index.html (D3, jsPDF, Firebase x3, JSZip, PapaParse) + D3 in 4 report HTMLs. sha512 hashes from cdnjs.' },
                         { id: 's8', name: 'Firebase SDK update', status: 'planned', category: 'security', priority: 'medium', notes: 'Update from 10.7.0 to latest stable. Regenerate SRI hashes after.' },
                         { id: 's9', name: 'Remaining innerHTML audit (~130)', status: 'done', category: 'security', priority: 'medium', notes: 'v4.44.43: Systematic audit of all 213 innerHTML assignments. Added 57 new escapeHtml calls covering D3 tooltips, card view, skill browser, values picker, verify tab, settings, gap/surplus chips, error displays, and demo profiles. Coverage: 156→213 escapeHtml call sites.' },
-                        { id: 's10', name: 'Session security review protocol', status: 'done', category: 'security', priority: 'high', notes: 'Every dev session opens with security/stability review before feature work.' }
+                        { id: 's10', name: 'Session security review protocol', status: 'done', category: 'security', priority: 'high', notes: 'Every dev session opens with security/stability review before feature work.' },
+                        { id: 's11', name: 'Textarea injection hardening', status: 'done', category: 'security', priority: 'medium', notes: 'v4.44.44: All textarea pre-filled values now use escapeHtml to prevent </textarea> breakout XSS. Covers outcome editor, wizard resume/summary/purpose, value notes. Input value attributes upgraded from partial &quot; escaping to full escapeHtml.' },
+                        { id: 's12', name: 'Firestore field-size limits', status: 'planned', category: 'security', priority: 'medium', notes: 'Add field-size validation rules in Firestore to prevent oversized document writes.' }
                     ]
                 },
                 {
@@ -4436,7 +4438,7 @@
                     items: [
                         { id: 'e5-1', name: 'Assessment platform integrations', status: 'planned', category: 'feature', priority: 'high', notes: 'Integrate HackerRank, iMocha, Codility assessment results into Blueprint skill profiles. Validated test scores + evidence chain = highest-confidence skill data in the market. API partnerships required.' },
                         { id: 'e5-2', name: 'Blueprint Verified badges', status: 'planned', category: 'feature', priority: 'high', notes: 'Evidence chain + peer verification + assessment = "Blueprint Verified: Expert in React.js". Portable credential. Displayed on profile, scouting reports, and talent pool cards. The trust layer that differentiates against every competitor.' },
-                        { id: 'e5-3', name: 'Peer verification network', status: 'in-progress', category: 'feature', priority: 'medium', notes: 'Structured attestation from colleagues. Not LinkedIn endorsements (drive-by clicks). Verifiers answer specific questions about demonstrated capability. Weight by verifier credibility. v4.44.29-34: Built verification loop with token-based landing page, credibility weighting by relationship (Manager 2.0x → Direct Report 1.3x), 30-day expiry, serverless API (/api/verify.js), Verify management tab in Blueprint, verified badges across all skill views. Remaining: verifier-suggested level adjustments reflected in scoring, email notification on verification completion.' },
+                        { id: 'e5-3', name: 'Peer verification network', status: 'in-progress', category: 'feature', priority: 'medium', notes: 'Structured attestation from colleagues. Not LinkedIn endorsements (drive-by clicks). Verifiers answer specific questions about demonstrated capability. Weight by verifier credibility. v4.44.29-34: Built verification loop with token-based landing page, credibility weighting by relationship (Manager 2.0x → Direct Report 1.3x), 30-day expiry, serverless API (/api/verify.js), Verify management tab in Blueprint, verified badges across all skill views. v4.44.44: Verifier-suggested level adjustments reflected in evidence scoring (bonus/penalty by credibility weight), suggested level badges in verify tab and skill modal. Remaining: email notification on verification completion.' },
                         { id: 'e5-4', name: 'Verification-as-a-service API', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Enterprise hiring workflows call Blueprint API to verify candidate\'s claimed skills. Returns evidence chain, verification status, assessment scores. $10-50 per verification. Integrates into ATS screening stage.' },
                         { id: 'e5-5', name: 'ATS/HRIS integrations', status: 'planned', category: 'infrastructure', priority: 'medium', notes: 'Greenhouse, Lever, Workday, SAP SuccessFactors connectors. Push verified skill profiles into hiring workflows. Pull job requirements for automated matching. Standard webhook + REST patterns.' },
                         { id: 'e5-6', name: 'LMS integrations', status: 'planned', category: 'infrastructure', priority: 'low', notes: 'Cornerstone, Degreed, LinkedIn Learning connectors. Skill gaps identified in Blueprint → recommended learning paths in LMS. Completion feeds back into Blueprint skill profile. Referral revenue on course enrollments.' },
@@ -8287,6 +8289,27 @@
                 points = Math.max(points, floorPts);
             }
             
+            // Verifier-suggested level adjustment (v4.44.44)
+            // When a verifier suggests a different level than claimed, adjust points
+            if (confirmedVerifications.length > 0) {
+                var claimedVal = proficiencyValue(skill.level || 'Novice');
+                confirmedVerifications.forEach(function(v) {
+                    if (v.confirmedLevel && v.confirmedLevel !== skill.level) {
+                        var rel = v.relationship || 'Other';
+                        var weight = evidenceConfig.credibilityWeights[rel] || 1.2;
+                        var suggestedVal = proficiencyValue(v.confirmedLevel);
+                        if (suggestedVal > claimedVal) {
+                            // Verifier thinks you're better than claimed: bonus
+                            points += weight * 1.5;
+                        } else if (suggestedVal < claimedVal) {
+                            // Verifier disagrees with your claim: penalty
+                            points -= weight * 1.5;
+                        }
+                    }
+                });
+                points = Math.max(points, 0); // floor at 0
+            }
+            
             return Math.round(points * 10) / 10; // one decimal
         }
         
@@ -8381,6 +8404,13 @@
             var verifiedCount = verifications.filter(function(v) { return v.status === 'confirmed'; }).length;
             var pendingCount = verifications.filter(function(v) { return v.status === 'pending'; }).length;
             
+            // Track verifier level suggestions (v4.44.44)
+            var levelSuggestions = verifications.filter(function(v) {
+                return v.status === 'confirmed' && v.confirmedLevel && v.confirmedLevel !== claimed;
+            }).map(function(v) {
+                return { name: v.verifierName, level: v.confirmedLevel, relationship: v.relationship };
+            });
+            
             // Find next level threshold
             var nextLevel = null;
             var pointsNeeded = 0;
@@ -8404,6 +8434,7 @@
                 hasCert: hasCert,
                 verifiedCount: verifiedCount,
                 pendingCount: pendingCount,
+                levelSuggestions: levelSuggestions,
                 nextLevel: nextLevel,
                 pointsNeeded: pointsNeeded
             };
@@ -8560,12 +8591,17 @@
             showToast('Verification request created for ' + records.length + ' skill(s). Email client opened.', 'success');
         }
         
-        // Mark a verification as confirmed (manual, for now — verifier landing page is Phase 2)
-        function confirmVerification(verificationId) {
+        // Mark a verification as confirmed with optional level suggestion
+        function confirmVerification(verificationId, confirmedLevel) {
             var vIdx = (userData.verifications || []).findIndex(function(v) { return v.id === verificationId; });
             if (vIdx >= 0) {
                 userData.verifications[vIdx].status = 'confirmed';
                 userData.verifications[vIdx].respondedAt = new Date().toISOString();
+                if (confirmedLevel && confirmedLevel !== 'confirm') {
+                    userData.verifications[vIdx].confirmedLevel = confirmedLevel;
+                } else {
+                    userData.verifications[vIdx].confirmedLevel = userData.verifications[vIdx].claimedLevel;
+                }
                 saveAll();
                 showToast('Verification confirmed.', 'success');
             }
@@ -9056,7 +9092,7 @@
                 + '<div class="settings-group" style="margin-bottom:10px;">'
                 + '<label class="settings-label" style="font-size:0.82em;">What was the measurable result? *</label>'
                 + '<input type="text" class="settings-input" id="outcomeResult" '
-                + 'value="' + (existing.outcome || '').replace(/"/g, '&quot;') + '" '
+                + 'value="' + escapeHtml(existing.outcome || '') + '" '
                 + 'placeholder="e.g., Increased pipeline velocity 40% saving $2.3M annually" '
                 + 'oninput="updateOutcomeScorePreview()" '
                 + 'style="font-size:0.88em;">'
@@ -9068,7 +9104,7 @@
                 + '<textarea class="settings-input" id="outcomeDescription" rows="2" '
                 + 'placeholder="e.g., Redesigned the lead qualification process across 3 sales teams" '
                 + 'oninput="updateOutcomeScorePreview()" '
-                + 'style="font-size:0.88em; resize:vertical;">' + (existing.description || '') + '</textarea>'
+                + 'style="font-size:0.88em; resize:vertical;">' + escapeHtml(existing.description || '') + '</textarea>'
                 + '</div>'
                 
                 + '<div style="display:flex; justify-content:space-between; align-items:center;">'
@@ -10935,7 +10971,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                                          transition:border-color 0.2s;"
                                   onfocus="this.style.borderColor='var(--accent)'"
                                   onblur="this.style.borderColor='var(--border)'"
-                                  oninput="wizardCheckResumeReady()">${wizardState.resumeText}</textarea>
+                                  oninput="wizardCheckResumeReady()">${escapeHtml(wizardState.resumeText)}</textarea>
                     </div>
 
                     <div id="rtab-linkedin-content" style="display:none;">
@@ -11609,7 +11645,7 @@ Rules:
                                          color:var(--text-primary); font-size:0.9em; line-height:1.6;
                                          font-family:inherit; resize:vertical; outline:none;"
                                   onfocus="this.style.borderColor='var(--accent)'"
-                                  onblur="this.style.borderColor='var(--border)'">${p.executiveSummary || ''}</textarea>
+                                  onblur="this.style.borderColor='var(--border)'">${escapeHtml(p.executiveSummary || '')}</textarea>
                     </div>
                 </div>
 
@@ -11627,7 +11663,7 @@ Rules:
                               text-transform:uppercase; letter-spacing:0.04em;">
                     ${label}
                 </label>
-                <input id="${id}" type="text" value="${String(value ?? '').replace(/"/g, '&quot;')}"
+                <input id="${id}" type="text" value="${escapeHtml(String(value ?? ''))}"
                        placeholder="${placeholder}"
                        style="width:100%; padding:10px 12px; background:var(--input-bg);
                               border:1px solid var(--border); border-radius:8px;
@@ -12158,7 +12194,7 @@ Rules:
                                      color:var(--text-primary); font-size:0.95em; line-height:1.7;
                                      font-family:inherit; resize:vertical; outline:none;"
                               onfocus="this.style.borderColor='var(--accent)'"
-                              onblur="this.style.borderColor='var(--border)'">${purpose}</textarea>
+                              onblur="this.style.borderColor='var(--border)'">${escapeHtml(purpose)}</textarea>
 
                     ${isFromResume ? `
                     <button onclick="wizardRegeneratePurpose()"
@@ -15945,6 +15981,17 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 if (evSummary.hasCert) {
                     bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-purple-bg-2b); color:#a78bfa;">' + bpIcon('award', 11) + ' Certification linked</span>';
                 }
+                // Suggested level adjustments (v4.44.44)
+                if (evSummary.levelSuggestions && evSummary.levelSuggestions.length > 0) {
+                    evSummary.levelSuggestions.forEach(function(sug) {
+                        var sugVal = proficiencyValue(sug.level);
+                        var claimedVal = proficiencyValue(evSummary.claimedLevel);
+                        var sugIcon = sugVal > claimedVal ? '\u2191' : '\u2193';
+                        var sugClr = sugVal > claimedVal ? '#10b981' : '#f59e0b';
+                        bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:' + sugClr + '18; color:' + sugClr + ';" title="' + escapeHtml(sug.name) + ' suggested ' + escapeHtml(sug.level) + ' (scoring adjusted)">'
+                            + sugIcon + ' ' + escapeHtml(sug.name) + ' suggests ' + escapeHtml(sug.level) + '</span>';
+                    });
+                }
                 bodyHTML += '</div>';
             }
             
@@ -17155,7 +17202,7 @@ body {
             
             modalContent.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left">'
-                + '<h2 class="modal-title">Personal Note: ' + value.name + '</h2>'
+                + '<h2 class="modal-title">Personal Note: ' + escapeHtml(value.name) + '</h2>'
                 + '<p style="color:var(--c-muted); margin-top:5px;">Why does this value matter to you?</p>'
                 + '</div>'
                 + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
@@ -17165,7 +17212,7 @@ body {
                 + 'width:100%; min-height:100px; padding:14px; background:var(--c-surface-3w); '
                 + 'border:1px solid var(--c-accent-border-solid); border-radius:8px; '
                 + 'color:var(--c-text-alt); font-size:0.95em; line-height:1.6; font-family:inherit; resize:vertical;'
-                + '">' + currentNote + '</textarea>'
+                + '">' + escapeHtml(currentNote) + '</textarea>'
                 + '<div style="margin-top:8px; font-size:0.78em; color:var(--c-faint);">'
                 + 'This note appears on your value card and in exported blueprints. Keep it concise.</div>'
                 + '<div style="display:flex; gap:12px; justify-content:flex-end; margin-top:18px;">'
@@ -17589,7 +17636,7 @@ body {
                 + '<textarea id="dashPurposeEdit" readonly onchange="updatePurpose(this.value)" style="'
                 + 'width:100%; min-height:48px; background:transparent; border:none; color:var(--c-heading); '
                 + 'font-size:0.95em; line-height:1.6; resize:vertical; outline:none; font-style:italic;">'
-                + (purpose || 'No purpose statement yet. Click Edit to add yours.')
+                + escapeHtml(purpose || 'No purpose statement yet. Click Edit to add yours.')
                 + '</textarea></div>';
             
             // ── QUICK ACTIONS ──
@@ -18514,11 +18561,22 @@ body {
                     var cred = getCredibilityLabel(v.relationship || 'Other');
                     var respondedDate = v.respondedAt ? new Date(v.respondedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
                     
+                    // Suggested level badge (v4.44.44)
+                    var suggestedBadge = '';
+                    if (v.confirmedLevel && v.confirmedLevel !== lv) {
+                        var sugColor = levelColors[v.confirmedLevel] || '#6b7280';
+                        var sugVal = proficiencyValue(v.confirmedLevel);
+                        var claimedVal = proficiencyValue(lv);
+                        var arrow = sugVal > claimedVal ? '\u2191' : '\u2193';
+                        suggestedBadge = '<span style="font-size:0.65em; padding:2px 6px; border-radius:8px; background:' + sugColor + '18; color:' + sugColor + '; font-weight:600; white-space:nowrap; margin-left:4px;" title="Verifier suggested ' + escapeHtml(v.confirmedLevel) + ' instead of ' + escapeHtml(lv) + '">' + arrow + ' ' + escapeHtml(v.confirmedLevel) + '</span>';
+                    }
+                    
                     html += '<div style="display:flex; align-items:center; gap:10px; padding:10px 16px; border-bottom:1px solid var(--c-surface-1b); flex-wrap:wrap;">'
                         // Skill name
                         + '<div style="flex:1; min-width:140px; font-size:0.88em; color:var(--c-text); cursor:pointer;" onclick="openSkillModalFromCard(\'' + (v.skillName || '').replace(/'/g, "\\'") + '\')">' + escapeHtml(v.skillName) + '</div>'
                         // Level
                         + '<span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:' + lvColor + '22; color:' + lvColor + '; font-weight:600; white-space:nowrap;">' + escapeHtml(lv) + '</span>'
+                        + suggestedBadge
                         // Verifier
                         + '<div style="min-width:140px; font-size:0.82em; color:var(--c-label);">'
                         + '<div style="font-weight:600;">' + escapeHtml(v.verifierName || 'Unknown') + '</div>'
@@ -22638,7 +22696,7 @@ body {
                 + '<textarea id="coverLetterOutput" style="width:100%; min-height:350px; padding:18px; '
                 + 'background:var(--input-bg); border:1px solid var(--border); border-radius:10px; '
                 + 'color:var(--text-primary); font-size:0.95em; line-height:1.7; font-family:inherit; resize:vertical;">'
-                + text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                + escapeHtml(text)
                 + '</textarea>'
                 + '<div style="display:flex; gap:10px; margin-top:16px;">'
                 + '<button onclick="copyCoverLetter()" style="flex:1; background:var(--accent); color:#fff; border:none; '
@@ -22853,7 +22911,7 @@ body {
                 + '<textarea id="interviewPrepOutput" style="width:100%; min-height:400px; padding:18px; '
                 + 'background:var(--input-bg); border:1px solid var(--border); border-radius:10px; '
                 + 'color:var(--text-primary); font-size:0.92em; line-height:1.7; font-family:inherit; resize:vertical;">'
-                + text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                + escapeHtml(text)
                 + '</textarea>'
                 + '<div style="display:flex; gap:10px; margin-top:16px;">'
                 + '<button onclick="copyInterviewPrep()" style="flex:1; background:var(--accent); color:#fff; border:none; '
@@ -22989,7 +23047,7 @@ body {
                 + '<textarea id="linkedinOutput" style="width:100%; min-height:380px; padding:18px; '
                 + 'background:var(--input-bg); border:1px solid var(--border); border-radius:10px; '
                 + 'color:var(--text-primary); font-size:0.92em; line-height:1.7; font-family:inherit; resize:vertical;">'
-                + text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                + escapeHtml(text)
                 + '</textarea>'
                 + '<div style="display:flex; gap:10px; margin-top:16px;">'
                 + '<button onclick="copyLinkedIn()" style="flex:1; background:#0a66c2; color:#fff; border:none; '
@@ -25452,26 +25510,26 @@ body {
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
                 + '<div>'
                 + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Job Title</label>'
-                + '<input id="editJobTitle" value="' + (job.title || '').replace(/"/g, '&quot;') + '" style="'
+                + '<input id="editJobTitle" value="' + escapeHtml(job.title || '') + '" style="'
                 + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
                 + '</div>'
                 + '<div>'
                 + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Company</label>'
-                + '<input id="editJobCompany" value="' + (job.company || '').replace(/"/g, '&quot;') + '" style="'
+                + '<input id="editJobCompany" value="' + escapeHtml(job.company || '') + '" style="'
                 + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
                 + '</div></div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;">'
                 + '<div>'
                 + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Source URL</label>'
-                + '<input id="editJobUrl" value="' + (job.sourceUrl || '').replace(/"/g, '&quot;') + '" style="'
+                + '<input id="editJobUrl" value="' + escapeHtml(job.sourceUrl || '') + '" style="'
                 + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
                 + '</div>'
                 + '<div>'
                 + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Source Note</label>'
-                + '<input id="editJobNote" value="' + (job.sourceNote || '').replace(/"/g, '&quot;') + '" style="'
+                + '<input id="editJobNote" value="' + escapeHtml(job.sourceNote || '') + '" style="'
                 + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
                 + '</div></div>'
@@ -27172,7 +27230,7 @@ body {
             
             var achHTML = (job.achievements || []).map(function(a, i) {
                 return '<div style="display:flex; gap:8px; margin-bottom:8px;">'
-                    + '<input type="text" class="settings-input wh-ach-input" value="' + (a||'').replace(/"/g,'&quot;') + '" '
+                    + '<input type="text" class="settings-input wh-ach-input" value="' + escapeHtml(a||'') + '" '
                     + 'placeholder="e.g., Increased pipeline velocity 40% through process redesign" '
                     + 'style="flex:1; font-size:0.88em;">'
                     + '<button onclick="this.parentElement.remove()" style="background:none; border:none; color:var(--c-danger); cursor:pointer; font-size:1.1em; padding:0 4px;">\u00D7</button>'
@@ -27189,11 +27247,11 @@ body {
                 + '<div class="modal-body" style="padding:24px; max-height:70vh; overflow-y:auto;">'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
                 + '<div class="settings-group"><label class="settings-label">Job Title *</label>'
-                + '<input type="text" class="settings-input" id="whTitle" value="' + (job.title||'').replace(/"/g,'&quot;') + '" placeholder="VP of Strategy"></div>'
+                + '<input type="text" class="settings-input" id="whTitle" value="' + escapeHtml(job.title||'') + '" placeholder="VP of Strategy"></div>'
                 + '<div class="settings-group"><label class="settings-label">Company *</label>'
-                + '<input type="text" class="settings-input" id="whCompany" value="' + (job.company||'').replace(/"/g,'&quot;') + '" placeholder="Acme Corp"></div>'
+                + '<input type="text" class="settings-input" id="whCompany" value="' + escapeHtml(job.company||'') + '" placeholder="Acme Corp"></div>'
                 + '<div class="settings-group"><label class="settings-label">Location</label>'
-                + '<input type="text" class="settings-input" id="whLocation" value="' + (job.location||'').replace(/"/g,'&quot;') + '" placeholder="Philadelphia, PA"></div>'
+                + '<input type="text" class="settings-input" id="whLocation" value="' + escapeHtml(job.location||'') + '" placeholder="Philadelphia, PA"></div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">'
                 + '<div class="settings-group"><label class="settings-label">Start Date</label>'
                 + '<input type="text" class="settings-input" id="whStartDate" value="' + (job.startDate||'') + '" placeholder="Jan 2020"></div>'
@@ -27308,11 +27366,11 @@ body {
                 + '<div class="modal-body" style="padding:24px;">'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
                 + '<div class="settings-group"><label class="settings-label">School / University</label>'
-                + '<input type="text" class="settings-input" id="edSchool" value="' + (ed.school||'').replace(/"/g,'&quot;') + '" placeholder="University of Pennsylvania"></div>'
+                + '<input type="text" class="settings-input" id="edSchool" value="' + escapeHtml(ed.school||'') + '" placeholder="University of Pennsylvania"></div>'
                 + '<div class="settings-group"><label class="settings-label">Degree</label>'
-                + '<input type="text" class="settings-input" id="edDegree" value="' + (ed.degree||'').replace(/"/g,'&quot;') + '" placeholder="B.S., M.B.A., etc."></div>'
+                + '<input type="text" class="settings-input" id="edDegree" value="' + escapeHtml(ed.degree||'') + '" placeholder="B.S., M.B.A., etc."></div>'
                 + '<div class="settings-group"><label class="settings-label">Field of Study</label>'
-                + '<input type="text" class="settings-input" id="edField" value="' + (ed.field||'').replace(/"/g,'&quot;') + '" placeholder="Business Administration"></div>'
+                + '<input type="text" class="settings-input" id="edField" value="' + escapeHtml(ed.field||'') + '" placeholder="Business Administration"></div>'
                 + '<div class="settings-group"><label class="settings-label">Year</label>'
                 + '<input type="text" class="settings-input" id="edYear" value="' + (ed.year||'') + '" placeholder="2012"></div>'
                 + '</div>'
@@ -27402,7 +27460,7 @@ body {
                 + 'placeholder="Type name, abbreviation, or category..." '
                 + 'oninput="onCertLibrarySearch()" autocomplete="off" '
                 + 'style="font-size:0.9em;"'
-                + (isEdit ? ' value="' + (cert.name||'').replace(/"/g,'&quot;') + '"' : '') + '>'
+                + (isEdit ? ' value="' + escapeHtml(cert.name||'') + '"' : '') + '>'
                 + '<div id="certSearchResults" style="display:none; position:absolute; top:100%; left:0; right:0; z-index:100; max-height:240px; overflow-y:auto; '
                 + 'background:var(--c-bg-solid-alt); border:1px solid var(--c-border-strong); border-radius:8px; margin-top:4px; '
                 + 'box-shadow:0 8px 24px rgba(0,0,0,0.3);"></div>'
@@ -27417,11 +27475,11 @@ body {
                 // Manual fields
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
                 + '<div class="settings-group" style="grid-column:1/-1;"><label class="settings-label">Credential Name *</label>'
-                + '<input type="text" class="settings-input" id="certName" value="' + (cert.name||'').replace(/"/g,'&quot;') + '" placeholder="Full credential name"></div>'
+                + '<input type="text" class="settings-input" id="certName" value="' + escapeHtml(cert.name||'') + '" placeholder="Full credential name"></div>'
                 + '<div class="settings-group"><label class="settings-label">Abbreviation</label>'
-                + '<input type="text" class="settings-input" id="certAbbr" value="' + (cert.abbr||'').replace(/"/g,'&quot;') + '" placeholder="PMP, CFA, CDL-A" style="font-size:0.9em;"></div>'
+                + '<input type="text" class="settings-input" id="certAbbr" value="' + escapeHtml(cert.abbr||'') + '" placeholder="PMP, CFA, CDL-A" style="font-size:0.9em;"></div>'
                 + '<div class="settings-group"><label class="settings-label">Issuing Organization</label>'
-                + '<input type="text" class="settings-input" id="certIssuer" value="' + (cert.issuer||'').replace(/"/g,'&quot;') + '" placeholder="PMI, SHRM, AWS, etc."></div>'
+                + '<input type="text" class="settings-input" id="certIssuer" value="' + escapeHtml(cert.issuer||'') + '" placeholder="PMI, SHRM, AWS, etc."></div>'
                 + '<div class="settings-group"><label class="settings-label">Type</label>'
                 + '<select class="settings-select" id="certType" style="font-size:0.88em;">'
                 + ['Certification','License','Degree','Rating','Endorsement','Credential','Certificate','Commission'].map(function(t) {
