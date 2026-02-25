@@ -160,7 +160,7 @@
     }
     </script>
 
-    <!-- v4.44.19 | 20260224 | Fix scouting report picker right-edge bleed with overflow+box-sizing -->
+    <!-- v4.44.20 | 20260224 | Role label truncation 20chars, architecture diagram spacing, match network labels -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1479,8 +1479,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.19 - BUILD 20260224-modal-overflow-fix
-        var BP_VERSION = 'v4.44.19';
+        // BLUEPRINT v4.44.20 - BUILD 20260224-role-labels-arch-diagram
+        var BP_VERSION = 'v4.44.20';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -5159,7 +5159,7 @@
             
             // === LAYOUT: 70% scale for no horizontal scroll ===
             var S = 0.7; // global scale factor
-            var W = Math.round(1480 * S), H = Math.round(960 * S);
+            var W = Math.round(1480 * S), H = Math.round(1020 * S);
             var layerYs = { frontend: Math.round(100*S), runtime: Math.round(320*S), backend: Math.round(540*S), external: Math.round(760*S) };
             var layerH = Math.round(160 * S);
             
@@ -5193,15 +5193,15 @@
                 'incident-log':   { x: Math.round(1160*S), y: layerYs.backend, shape: 'service' },
                 'cost-tracker':   { x: Math.round(1300*S), y: layerYs.backend, shape: 'service' },
                 // External APIs & Data
-                'anthropic':    { x: Math.round(180*S),  y: layerYs.external, shape: 'cloud' },
-                'onet':         { x: Math.round(370*S),  y: layerYs.external, shape: 'data' },
+                'anthropic':    { x: Math.round(290*S),  y: layerYs.external + Math.round(50*S), shape: 'cloud' },
+                'onet':         { x: Math.round(460*S),  y: layerYs.external + Math.round(50*S), shape: 'data' },
                 'bls-wages':    { x: Math.round(530*S),  y: layerYs.external, shape: 'data' },
                 'skill-libs':   { x: Math.round(680*S),  y: layerYs.external, shape: 'data' },
                 'company-values':{ x: Math.round(830*S), y: layerYs.external, shape: 'data' },
                 'jsearch':      { x: Math.round(990*S),  y: layerYs.external, shape: 'cloud' },
                 'free-apis':    { x: Math.round(1140*S), y: layerYs.external, shape: 'cloud' },
                 'keyed-apis':   { x: Math.round(1300*S), y: layerYs.external, shape: 'cloud' },
-                'firebase-sdk': { x: Math.round(70*S),   y: layerYs.external, shape: 'cloud' }
+                'firebase-sdk': { x: Math.round(120*S),   y: layerYs.external + Math.round(50*S), shape: 'cloud' }
             };
             
             // === LIGHT THEME COLORS ===
@@ -12245,8 +12245,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         // Single line for center and role nodes
                         var label = d.name;
                         // Truncate long role names
-                        if (d.type === 'role' && label.length > (isMobile ? 20 : 24)) {
-                            label = label.substring(0, isMobile ? 18 : 22) + '\u2026';
+                        if (d.type === 'role' && label.length > 20) {
+                            label = label.substring(0, 18) + '\u2026';
                         }
                         d3.select(this)
                             .text(label)
@@ -12574,7 +12574,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 });
             
             node.append("text")
-                .text(function(d) { return d.name; })
+                .text(function(d) { var n = d.name; if (d.type === 'role' && n.length > 20) n = n.substring(0, 18) + '\u2026'; return n; })
                 .attr("x", function(d) {
                     if (d.type === 'center') {
                         var r = isMobile ? 30 : Math.round(40 * scaleFactor);
@@ -12821,7 +12821,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Labels
             node.append("text")
-                .text(function(d) { return d.name; })
+                .text(function(d) { var n = d.name; if (d.type === 'role' && n.length > 20) n = n.substring(0, 18) + '\u2026'; return n; })
                 .attr("x", function(d) {
                     if (d.type === 'center') {
                         var r = isMobile ? 28 : Math.round(38 * scaleFactor);
