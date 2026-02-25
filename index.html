@@ -1,4 +1,4 @@
-<!-- v4.44.23 | 2026-02-25 | Security hardening: Firestore rules, XSS escaping, report template fixes -->
+<!-- v4.44.24 | 2026-02-25 | Stability: save retry/backup, load recovery, error visibility, job search timeout -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1481,7 +1481,7 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.44.21 - BUILD 20260224-cache-dedup-labels
-        var BP_VERSION = 'v4.44.23';
+        var BP_VERSION = 'v4.44.24';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2517,6 +2517,7 @@
                     }
                 }).catch(function(err) {
                     console.error('Firestore user check failed:', err);
+                    showToast('Could not verify your account. Some features may be limited.', 'error', 5000);
                 });
             }
             
@@ -2611,28 +2612,7 @@
             return clean;
         }
         
-        function saveToFirestore() {
-            if (!fbDb || !fbUser) return Promise.resolve(false);
-            
-            // GUARD: Never save while in demo mode
-            if (appContext.mode === 'demo') return Promise.resolve(false);
-            
-            // GUARD: Never save demo/sample profile data to the user's Firestore doc
-            var tid = userData.templateId || '';
-            if (tid && tid.indexOf('firestore-') !== 0 && tid !== 'wizard-built') {
-                // Viewing a sample profile — skip save silently
-                return Promise.resolve(false);
-            }
-            
-            // GUARD: Ensure profile name comes from Firebase auth, never scaffold
-            if (fbUser.displayName && userData.profile) {
-                userData.profile.name = fbUser.displayName;
-            }
-            
-            var si = document.getElementById('saveIndicator');
-            if (si) { si.innerHTML = bpIcon('upload',12) + ' Saving...'; si.style.opacity = '0.6'; si.style.color = 'var(--text-muted)'; }
-            
-            var uid = fbUser.uid;
+        function _buildFirestoreData() {
             var data = {
                 profile: userData.profile || {},
                 skills: (skillsData && skillsData.skills) ? skillsData.skills.map(function(s) {
@@ -2656,32 +2636,85 @@
                 }),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
-            
-            // Strip any remaining undefined values (Firestore rejects them)
             data = sanitizeForFirestore(data);
-            // Restore server timestamp (sanitizer converts it to plain object)
             data.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-            
-            // SECURITY: Never let client set role or admin flags
             delete data.role;
             delete data.isAdmin;
+            return data;
+        }
+
+        var _saveBackupKey = 'bp_save_backup';
+        function _backupToLocalStorage(data) {
+            try {
+                var backup = JSON.parse(JSON.stringify(data));
+                delete backup.updatedAt;
+                localStorage.setItem(_saveBackupKey, JSON.stringify({ ts: Date.now(), data: backup }));
+            } catch(e) { console.warn('localStorage backup failed:', e.message); }
+        }
+        function _clearSaveBackup() {
+            try { localStorage.removeItem(_saveBackupKey); } catch(e) {}
+        }
+        function getSaveBackup() {
+            try {
+                var raw = localStorage.getItem(_saveBackupKey);
+                if (!raw) return null;
+                var parsed = JSON.parse(raw);
+                if (Date.now() - parsed.ts > 86400000) { _clearSaveBackup(); return null; }
+                return parsed;
+            } catch(e) { return null; }
+        }
+
+        function saveToFirestore() {
+            if (!fbDb || !fbUser) return Promise.resolve(false);
             
-            return fbDb.collection('users').doc(uid).set(data, { merge: true })
-                .then(function() {
-                    console.log('☁ Saved to Firestore');
-                    recordApiHealth('firebase-db', 'ok', 'Operational');
-                    var si = document.getElementById('saveIndicator');
-                    if (si) { si.innerHTML = bpIcon('check',12) + ' Saved'; si.style.opacity = '1'; si.style.color = '#10b981'; setTimeout(function() { si.style.opacity = '0'; }, 2500); }
-                    return true;
-                })
-                .catch(function(err) {
-                    console.error('Firestore save error:', err);
-                    recordApiHealth('firebase-db', 'down', 'Save failed: ' + err.message);
-                    logIncident('critical', 'firestore-save', 'Firestore save failed: ' + err.message, { rawError: err.message });
-                    var si = document.getElementById('saveIndicator');
-                    if (si) { si.innerHTML = bpIcon('warning',12) + ' Save failed'; si.style.opacity = '1'; si.style.color = '#ef4444'; setTimeout(function() { si.style.opacity = '0'; }, 4000); }
-                    return false;
-                });
+            if (appContext.mode === 'demo') return Promise.resolve(false);
+            
+            var tid = userData.templateId || '';
+            if (tid && tid.indexOf('firestore-') !== 0 && tid !== 'wizard-built') {
+                return Promise.resolve(false);
+            }
+            
+            if (fbUser.displayName && userData.profile) {
+                userData.profile.name = fbUser.displayName;
+            }
+            
+            var si = document.getElementById('saveIndicator');
+            if (si) { si.innerHTML = bpIcon('upload',12) + ' Saving...'; si.style.opacity = '0.6'; si.style.color = 'var(--text-muted)'; }
+            
+            var uid = fbUser.uid;
+            var data = _buildFirestoreData();
+            
+            _backupToLocalStorage(data);
+            
+            var maxRetries = 3;
+            function attemptSave(attempt) {
+                return fbDb.collection('users').doc(uid).set(data, { merge: true })
+                    .then(function() {
+                        console.log('☁ Saved to Firestore' + (attempt > 1 ? ' (retry ' + (attempt - 1) + ')' : ''));
+                        recordApiHealth('firebase-db', 'ok', 'Operational');
+                        _clearSaveBackup();
+                        var si = document.getElementById('saveIndicator');
+                        if (si) { si.innerHTML = bpIcon('check',12) + ' Saved'; si.style.opacity = '1'; si.style.color = '#10b981'; setTimeout(function() { si.style.opacity = '0'; }, 2500); }
+                        return true;
+                    })
+                    .catch(function(err) {
+                        if (attempt < maxRetries) {
+                            var delay = Math.pow(2, attempt) * 500;
+                            console.warn('Firestore save attempt ' + attempt + ' failed, retrying in ' + delay + 'ms:', err.message);
+                            return new Promise(function(resolve) {
+                                setTimeout(function() { resolve(attemptSave(attempt + 1)); }, delay);
+                            });
+                        }
+                        console.error('Firestore save error (all retries exhausted):', err);
+                        recordApiHealth('firebase-db', 'down', 'Save failed: ' + err.message);
+                        logIncident('critical', 'firestore-save', 'Firestore save failed after ' + maxRetries + ' attempts: ' + err.message, { rawError: err.message });
+                        var si = document.getElementById('saveIndicator');
+                        if (si) { si.innerHTML = bpIcon('warning',12) + ' Save failed'; si.style.opacity = '1'; si.style.color = '#ef4444'; setTimeout(function() { si.style.opacity = '0'; }, 4000); }
+                        showToast('Your changes could not be saved. They are backed up locally and will sync when connection restores.', 'error', 6000);
+                        return false;
+                    });
+            }
+            return attemptSave(1);
         }
         window.saveToFirestore = saveToFirestore;
 
@@ -2815,6 +2848,34 @@
                     console.error('Firestore load error:', err);
                     recordApiHealth('firebase-db', 'down', 'Load failed: ' + err.message);
                     logIncident('critical', 'firestore-load', 'Firestore load failed: ' + err.message, { rawError: err.message });
+                    showToast('Could not load your profile. Check your connection and try refreshing.', 'error', 8000);
+                    var backup = getSaveBackup();
+                    if (backup && backup.data) {
+                        console.log('Restoring from local backup (saved ' + new Date(backup.ts).toLocaleTimeString() + ')');
+                        var d = backup.data;
+                        userData.initialized = true;
+                        userData.profile = d.profile || userData.profile;
+                        userData.skills = d.skills || [];
+                        userData.values = d.values || [];
+                        userData.purpose = d.purpose || '';
+                        userData.roles = d.roles || [];
+                        userData.savedJobs = d.savedJobs || [];
+                        userData.workHistory = d.workHistory || [];
+                        userData.education = d.education || [];
+                        userData.certifications = d.certifications || [];
+                        userData.templateId = fbUser ? 'firestore-' + fbUser.uid : userData.templateId;
+                        if (typeof skillsData !== 'undefined') {
+                            skillsData.skills = d.skills || [];
+                            skillsData.roles = d.roles || [];
+                        }
+                        if (typeof blueprintData !== 'undefined') {
+                            blueprintData.values = d.values || [];
+                            blueprintData.purpose = d.purpose || '';
+                            blueprintData.outcomes = d.outcomes || [];
+                        }
+                        try { if (typeof initializeMainApp === 'function') initializeMainApp(); } catch(e) { console.warn('Backup restore re-init error:', e.message); }
+                        showToast('Loaded from local backup. Your latest changes may appear once connection restores.', 'info', 6000);
+                    }
                     return false;
                 });
         }
@@ -8914,6 +8975,7 @@
                     .slice(0, 20);
             } catch (error) {
                 console.error('searchSkills error:', error);
+                logIncident('warning', 'skill-search', 'Skill search failed: ' + error.message);
                 return [];
             }
         }
@@ -14946,7 +15008,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 showToast('Blueprint downloaded! Open in any browser to view, print, or share.', 'success', 6000);
             } catch (error) {
                 console.error('Error generating blueprint:', error);
-                showToast('Error generating Blueprint. Check console for details.', 'error');
+                showToast('Error generating Blueprint: ' + (error.message || 'Unknown error'), 'error');
             }
         }
         
@@ -16366,7 +16428,7 @@ body {
                 + '</div></div>';
             
             history.pushState({ modal: true }, ''); modal.classList.add('active');
-            setTimeout(function() { document.getElementById('valueNoteInput').focus(); }, 100);
+            setTimeout(function() { var el = document.getElementById('valueNoteInput'); if (el) el.focus(); }, 100);
         }
         window.editValueNote = editValueNote;
         
@@ -22368,7 +22430,7 @@ body {
                 + '</div></div>';
             
             history.pushState({ modal: true }, ''); modal.classList.add('active');
-            setTimeout(function() { document.getElementById('jdTextInput').focus(); }, 100);
+            setTimeout(function() { var el = document.getElementById('jdTextInput'); if (el) el.focus(); }, 100);
         }
         window.showAddJobModal = showAddJobModal;
         
@@ -24526,6 +24588,7 @@ body {
         }
         
         function renderOpportunities() {
+            if (window._jobSearchTimeout) { clearTimeout(window._jobSearchTimeout); window._jobSearchTimeout = null; }
             var filtered = opportunitiesData.filter(function(job) { return job.matchScore >= currentMatchThreshold; });
             var resultsDiv = document.getElementById('opportunitiesResults');
             if (!resultsDiv) return;
@@ -24907,7 +24970,23 @@ body {
                 + '<p style="font-size:0.82em; color:var(--text-muted); margin-top:6px;">JSearch \u00B7 Remotive \u00B7 USAJobs \u00B7 Himalayas \u00B7 Jobicy \u00B7 Adzuna \u00B7 The Muse \u00B7 Jooble</p>'
                 + '</div>';
             
-            // Try proxy first, fall back to direct
+            var searchId = Date.now();
+            window._currentJobSearchId = searchId;
+            window._jobSearchTimeout = setTimeout(function() {
+                if (window._currentJobSearchId !== searchId) return;
+                if (resultsDiv && resultsDiv.querySelector('.loading-spinner')) {
+                    if (opportunitiesData && opportunitiesData.length > 0) {
+                        renderOpportunities();
+                        showToast('Some job sources timed out. Showing partial results.', 'info', 4000);
+                    } else {
+                        resultsDiv.innerHTML = '<div style="text-align:center; padding:40px 20px;">'
+                            + '<div style="margin-bottom:16px; opacity:0.35;">' + bpIcon('search',48) + '</div>'
+                            + '<p style="font-size:1.05em; color:var(--text-primary); margin-bottom:8px;">Search timed out</p>'
+                            + '<p style="color:var(--text-muted); font-size:0.88em;">Job sources took too long to respond. Please try again.</p></div>';
+                    }
+                }
+            }, 35000);
+            
             if (JOBS_PROXY_AVAILABLE !== false) {
                 searchViaProxy(keyword, location, category, remoteOnly, resultsDiv);
             } else {
