@@ -1,4 +1,4 @@
-<!-- v4.44.38 | 2026-02-25 | Security: Firestore rules sync, waitlist hasOnly + rate limit -->
+<!-- v4.44.39 | 2026-02-25 | Perf: parallel profile loading, deferred crosswalk, concurrent init -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.38 | 2026-02-25 | Security: Firestore rules sync, waitlist hasOnly + rate limit -->
+    <!-- v4.44.39 | 2026-02-25 | Perf: parallel profile loading, deferred crosswalk, concurrent init -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.38 - BUILD 20260225-security-hardening
-        var BP_VERSION = 'v4.44.38';
+        // BLUEPRINT v4.44.39 - BUILD 20260225-perf-parallel-init
+        var BP_VERSION = 'v4.44.39';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2035,7 +2035,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260225-stability-tiles                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260225-perf-parallel-init                 ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -8694,17 +8694,17 @@
                     fetch('trades-creative-library.json').then(r => r.json()),
                     fetch('values-library.json').then(r => r.json()),
                     fetch('bls-wages.json').then(r => r.json()),
-                    fetch('companies.json').then(r => r.json()),
-                    fetch('onet-crosswalk.json').then(r => r.json())
+                    fetch('companies.json').then(r => r.json())
                 ]);
                 
                 var libNames = ['onetSkillsLibrary','onetAbilitiesLibrary','onetWorkstylesLibrary',
                     'onetKnowledgeLibrary','onetWorkActivitiesLibrary','tradesCreativeLibrary',
-                    'valuesLibrary','blsWages','companiesData','onetCrosswalk'];
+                    'valuesLibrary','blsWages','companiesData'];
                 libResults.forEach(function(r, i) {
                     if (r.status === 'fulfilled') window[libNames[i]] = r.value;
                 });
                 console.log('✓ Data libraries loaded for showcase');
+                setTimeout(_loadCrosswalkDeferred, 100);
             } catch(e) {
                 console.warn('⚠ Library load error:', e);
             }
@@ -8717,12 +8717,12 @@
                 if (Array.isArray(manifest)) manifest = { profiles: manifest };
                 window.profilesManifest = manifest;
                 var enabledProfiles = manifest.profiles.filter(function(p) { return p.enabled; });
-                for (var pm of enabledProfiles) {
-                    try {
-                        var tpl = await fetch(pm.path + '?v=' + Date.now()).then(r => r.json());
+                var cb = '?v=' + Date.now();
+                await Promise.allSettled(enabledProfiles.map(function(pm) {
+                    return fetch(pm.path + cb).then(function(r) { return r.json(); }).then(function(tpl) {
                         templates[pm.id] = tpl;
-                    } catch(e) {}
-                }
+                    });
+                }));
             } catch(e) {
                 console.warn('⚠ Manifest load error:', e);
             }
@@ -10342,53 +10342,60 @@
             });
         }
 
+        function _loadCrosswalkDeferred() {
+            if (window.onetCrosswalk) return;
+            fetch('onet-crosswalk.json').then(function(r) { return r.json(); }).then(function(data) {
+                window.onetCrosswalk = data;
+                var occCount = Object.keys(data.occupations || {}).length;
+                var aliasCount = Object.keys(data.aliases || {}).length;
+                console.log('✅ O*NET Crosswalk loaded (deferred): ' + occCount + ' occupations, ' + aliasCount + ' aliases');
+                recordApiHealth('onet-crosswalk', 'ok', occCount + ' occupations, ' + aliasCount + ' aliases');
+            }).catch(function(e) {
+                window.onetCrosswalk = null;
+                console.warn('⚠ onet-crosswalk.json failed to load:', e.message);
+                recordApiHealth('onet-crosswalk', 'down', 'Failed to load');
+            });
+        }
+
         async function initializeApp() {
-            initTheme(); // Apply saved theme before anything renders
-            // Load profile manifest and templates dynamically
-            try {
-                const cacheBust = `?v=${Date.now()}`;
-                
-                // STEP 1: Load profiles manifest
-                console.log('📋 Loading profiles manifest...');
-                var sp = document.getElementById('splashProgress');
-                if (sp) sp.style.width = '20%';
-                let manifest = await fetch(`profiles-manifest.json${cacheBust}`).then(r => r.json());
-                // Normalize: if manifest is array, wrap in {profiles: [...]}
-                if (Array.isArray(manifest)) {
-                    manifest = { profiles: manifest };
+            initTheme();
+            var sp = document.getElementById('splashProgress');
+            if (sp) sp.style.width = '20%';
+            const cacheBust = `?v=${Date.now()}`;
+
+            var profilesPromise = (async function() {
+                try {
+                    console.log('📋 Loading profiles manifest...');
+                    let manifest = await fetch(`profiles-manifest.json${cacheBust}`).then(r => r.json());
+                    if (Array.isArray(manifest)) manifest = { profiles: manifest };
+                    window.profilesManifest = manifest;
+
+                    const enabledProfiles = manifest.profiles.filter(p => p.enabled);
+                    console.log(`✓ Found ${enabledProfiles.length} enabled profiles in manifest`);
+
+                    var profileResults = await Promise.allSettled(
+                        enabledProfiles.map(function(pm) {
+                            return fetch(`${pm.path}${cacheBust}`).then(r => r.json()).then(function(t) {
+                                templates[pm.id] = t;
+                                console.log(`  ✓ Loaded: ${pm.name} (${pm.title}) from ${pm.path}`);
+                            });
+                        })
+                    );
+                    profileResults.forEach(function(r, i) {
+                        if (r.status === 'rejected') console.error(`  ✗ Failed to load ${enabledProfiles[i].path}:`, r.reason);
+                    });
+
+                    var blankTemplate = await fetch(`profiles/templates/blank.json${cacheBust}`).then(r => r.json());
+                    templates['blank'] = blankTemplate;
+
+                    console.log(`✓ Profile loading complete: ${enabledProfiles.length} profiles ready`);
+                    buildProfileSelector(enabledProfiles);
+                } catch (e) {
+                    console.error('Error loading profiles:', e);
                 }
-                window.profilesManifest = manifest; // Store for profile selector
-                
-                // STEP 2: Load all enabled profiles from manifest
-                const enabledProfiles = manifest.profiles.filter(p => p.enabled);
-                console.log(`✓ Found ${enabledProfiles.length} enabled profiles in manifest`);
-                
-                for (const profileMeta of enabledProfiles) {
-                    try {
-                        const template = await fetch(`${profileMeta.path}${cacheBust}`).then(r => r.json());
-                        templates[profileMeta.id] = template;
-                        console.log(`  ✓ Loaded: ${profileMeta.name} (${profileMeta.title}) from ${profileMeta.path}`);
-                    } catch (err) {
-                        console.error(`  ✗ Failed to load ${profileMeta.path}:`, err);
-                    }
-                }
-                
-                // STEP 3: Load blank template
-                const blankTemplate = await fetch(`profiles/templates/blank.json${cacheBust}`).then(r => r.json());
-                templates['blank'] = blankTemplate;
-                
-                console.log(`✓ Profile loading complete: ${enabledProfiles.length} profiles ready`);
-                if (sp) sp.style.width = '60%';
-                
-                // STEP 4: Build profile selector dropdown
-                buildProfileSelector(enabledProfiles);
-                
-            } catch (e) {
-                console.error('Error loading profiles:', e);
-            }
-            
-            // Load all data libraries in PARALLEL (not sequential)
-            var libResults = await Promise.allSettled([
+            })();
+
+            var librariesPromise = Promise.allSettled([
                 fetch('onet-skills-library.json').then(r => r.json()),
                 fetch('onet-abilities-library.json').then(r => r.json()),
                 fetch('onet-workstyles-library.json').then(r => r.json()),
@@ -10397,11 +10404,13 @@
                 fetch('trades-creative-library.json').then(r => r.json()),
                 fetch('values-library.json').then(r => r.json()),
                 fetch('bls-wages.json').then(r => r.json()),
-                fetch('companies.json').then(r => r.json()),
-                fetch('onet-crosswalk.json').then(r => r.json())
+                fetch('companies.json').then(r => r.json())
             ]);
-            
-            // Assign results — fulfilled or silently skip
+
+            await Promise.all([profilesPromise, librariesPromise]);
+            if (sp) sp.style.width = '60%';
+
+            var libResults = await librariesPromise;
             if (libResults[0].status === 'fulfilled') { window.onetSkillsLibrary = libResults[0].value; console.log('✓ O*NET Skills Library loaded'); }
             if (libResults[1].status === 'fulfilled') { window.onetAbilitiesLibrary = libResults[1].value; console.log('✓ O*NET Abilities Library loaded (' + (libResults[1].value.abilities?.length || '?') + ')'); }
             if (libResults[2].status === 'fulfilled') { window.onetWorkStylesLibrary = libResults[2].value; console.log('✓ O*NET Work Styles Library loaded (' + (libResults[2].value.workStyles?.length || '?') + ')'); }
@@ -10413,18 +10422,8 @@
             else { window.blsWages = null; }
             if (libResults[8].status === 'fulfilled') { window.companyDataLoaded = libResults[8].value; console.log('✅ Company values loaded: ' + Object.keys(libResults[8].value).length + ' companies'); }
             else { window.companyDataLoaded = {}; console.warn('⚠ companies.json failed to load — using JD inference fallback'); }
-            if (libResults[9].status === 'fulfilled') {
-                window.onetCrosswalk = libResults[9].value;
-                var occCount = Object.keys(libResults[9].value.occupations || {}).length;
-                var aliasCount = Object.keys(libResults[9].value.aliases || {}).length;
-                console.log('✅ O*NET Crosswalk loaded: ' + occCount + ' occupations, ' + aliasCount + ' aliases');
-                recordApiHealth('onet-crosswalk', 'ok', occCount + ' occupations, ' + aliasCount + ' aliases');
-            } else {
-                window.onetCrosswalk = null;
-                console.warn('⚠ onet-crosswalk.json failed to load');
-                recordApiHealth('onet-crosswalk', 'down', 'Failed to load');
-                logIncident('warning', 'onet-crosswalk', 'O*NET Crosswalk failed to load', { fallback: 'Enrichment step will be skipped' });
-            }
+
+            setTimeout(_loadCrosswalkDeferred, 100);
             
             // ===== PROFILE DECISION FLOW =====
             const currentProfile = safeGet('currentProfile');
