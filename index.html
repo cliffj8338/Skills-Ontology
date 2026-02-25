@@ -1,4 +1,4 @@
-<!-- v4.44.36 | 2026-02-25 | Admin showcase mode: shareable read-only URL with full app visibility -->
+<!-- v4.44.37 | 2026-02-25 | Admin showcase mode: shareable read-only URL with full app visibility -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.36 | 2026-02-25 | Admin showcase mode -->
+    <!-- v4.44.37 | 2026-02-25 | Admin showcase mode -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1482,7 +1482,7 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.44.35 - BUILD 20260225-showcase-mode
-        var BP_VERSION = 'v4.44.36';
+        var BP_VERSION = 'v4.44.37';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -8787,16 +8787,17 @@
             // Add readonly body class
             document.body.classList.add('readonly-mode');
             
+            // Hydrate SVG icons (normally done in initializeApp which showcase skips)
+            hydrateIcons();
+            
             // Expire stale verifications
             if (typeof expireStalePendingVerifications === 'function') expireStalePendingVerifications();
             
             // Initialize card view
             if (typeof initCardView === 'function') initCardView();
             
-            // Navigate to network view
-            var isMobile = window.innerWidth <= 768;
-            if (isMobile) currentSkillsView = 'card';
-            switchView('network');
+            // Navigate to admin dashboard (showcase landing)
+            switchView('admin');
             
             // Dismiss splash
             var splash = document.getElementById('appSplash');
