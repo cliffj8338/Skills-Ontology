@@ -160,7 +160,7 @@
     }
     </script>
 
-    <!-- v4.44.18 | 20260224 | Mobile: hide skills header, fix tile overlap, fix toggle overflow, name truncation -->
+    <!-- v4.44.19 | 20260224 | Fix scouting report picker right-edge bleed with overflow+box-sizing -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -547,6 +547,16 @@
                 max-width: none !important;
                 margin: 0 12px !important;
             }
+            /* Modal overflow fix for mobile */
+            #exportModal .modal-content {
+                max-width: calc(100vw - 32px) !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+            }
+            #exportModal .modal-body {
+                overflow-x: hidden !important;
+                box-sizing: border-box !important;
+            }
         }
         
         @media (max-width: 768px) {
@@ -840,7 +850,7 @@
     
     <!-- Export Modal (used dynamically for outcome editing and value notes) -->
     <div class="modal" id="exportModal">
-        <div class="modal-content" style="max-width:560px; width:calc(100% - 32px); box-sizing:border-box;">
+        <div class="modal-content" style="max-width:560px; width:calc(100% - 32px); box-sizing:border-box; overflow:hidden;">
             <div class="modal-header">
                 <div class="modal-header-left">
                     <h2 class="modal-title">Export Options</h2>
@@ -1469,8 +1479,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.18 - BUILD 20260224-mobile-tile-toggle-name
-        var BP_VERSION = 'v4.44.18';
+        // BLUEPRINT v4.44.19 - BUILD 20260224-modal-overflow-fix
+        var BP_VERSION = 'v4.44.19';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -18054,7 +18064,7 @@ body {
                 var realIdx = userData.savedJobs.indexOf(job);
                 
                 return '<div onclick="showReportFormatPicker(' + realIdx + ')" style="padding:16px; background:var(--c-surface-2a); '
-                    + 'border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; transition:border-color 0.2s; display:flex; justify-content:space-between; align-items:center;" '
+                    + 'border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; transition:border-color 0.2s; display:flex; justify-content:space-between; align-items:center; box-sizing:border-box; overflow:hidden;" '
                     + 'onmouseover="this.style.borderColor=\'rgba(96,165,250,0.4)\'" onmouseout="this.style.borderColor=\'var(--c-border-subtle)\'">'
                     + '<div style="flex:1; min-width:0;">'
                     + '<div style="font-weight:600; color:var(--c-text); margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(job.title) + '</div>'
@@ -18075,7 +18085,7 @@ body {
                 + '<div class="modal-body" style="padding:24px; overflow:hidden; box-sizing:border-box;">'
                 + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:16px; line-height:1.5;">'
                 + 'Select a job to generate a targeted career intelligence report. This is your scouting report \u2014 built to send to recruiters and hiring managers.</div>'
-                + '<div style="display:grid; gap:10px;">' + jobCardsHTML + '</div>'
+                + '<div style="display:grid; gap:10px; overflow:hidden; box-sizing:border-box; max-width:100%;">' + jobCardsHTML + '</div>'
                 + (isReadOnlyProfile ? '' : '<div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--c-surface-5);">'
                 + '<button onclick="closeExportModal(); exportBlueprint(\'pdf\')" style="width:100%; padding:10px; border:1px solid var(--c-border-mid); background:transparent; color:var(--text-secondary); border-radius:8px; cursor:pointer; font-size:0.88em;">'
                 + 'Or generate a general Blueprint PDF (no job targeting)</button>'
