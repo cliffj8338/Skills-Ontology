@@ -1,4 +1,4 @@
-<!-- v4.44.42 | 2026-02-25 | Mobile: Match hubs separated, You view fits viewport -->
+<!-- v4.44.43 | 2026-02-25 | Security: innerHTML audit, 57 new escapeHtml calls -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.42 | 2026-02-25 | Mobile: Match hubs separated, You view fits viewport -->
+    <!-- v4.44.43 | 2026-02-25 | Security: innerHTML audit, 57 new escapeHtml calls -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.42 - BUILD 20260225-mobile-network-v3
-        var BP_VERSION = 'v4.44.42';
+        // BLUEPRINT v4.44.43 - BUILD 20260225-innerhtml-audit
+        var BP_VERSION = 'v4.44.43';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2035,7 +2035,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260225-mobile-network-v3                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260225-innerhtml-audit                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -4260,7 +4260,7 @@
                         { id: 's6', name: 'Third-party CORS proxies removed', status: 'done', category: 'security', priority: 'high', notes: 'corsproxy.io and allorigins.win removed. Prevents data leakage to third parties.' },
                         { id: 's7', name: 'SRI hashes on CDN scripts', status: 'done', category: 'security', priority: 'high', notes: 'Generated and applied. 7 scripts in index.html (D3, jsPDF, Firebase x3, JSZip, PapaParse) + D3 in 4 report HTMLs. sha512 hashes from cdnjs.' },
                         { id: 's8', name: 'Firebase SDK update', status: 'planned', category: 'security', priority: 'medium', notes: 'Update from 10.7.0 to latest stable. Regenerate SRI hashes after.' },
-                        { id: 's9', name: 'Remaining innerHTML audit (~130)', status: 'planned', category: 'security', priority: 'medium', notes: 'Systematic audit of all remaining innerHTML assignments for escaping consistency.' },
+                        { id: 's9', name: 'Remaining innerHTML audit (~130)', status: 'done', category: 'security', priority: 'medium', notes: 'v4.44.43: Systematic audit of all 213 innerHTML assignments. Added 57 new escapeHtml calls covering D3 tooltips, card view, skill browser, values picker, verify tab, settings, gap/surplus chips, error displays, and demo profiles. Coverage: 156→213 escapeHtml call sites.' },
                         { id: 's10', name: 'Session security review protocol', status: 'done', category: 'security', priority: 'high', notes: 'Every dev session opens with security/stability review before feature work.' }
                     ]
                 },
@@ -8431,11 +8431,11 @@
                 var summary = skill ? getEvidenceSummary(skill) : { points:0, effectiveLevel:'Novice', evidenceCount:0 };
                 var evPreview = (skill && skill.evidence) ? skill.evidence.slice(0,3).map(function(e) {
                     var t = (e.outcome || e.description || '').substring(0, 80);
-                    return '<div style="font-size:0.8em; color:var(--c-muted); padding:2px 0;">• ' + t + (t.length >= 80 ? '\u2026' : '') + '</div>';
+                    return '<div style="font-size:0.8em; color:var(--c-muted); padding:2px 0;">• ' + escapeHtml(t) + (t.length >= 80 ? '\u2026' : '') + '</div>';
                 }).join('') : '<div style="font-size:0.8em; color:var(--c-faint); font-style:italic;">No evidence yet</div>';
                 
                 return '<div style="padding:10px; background:var(--c-surface-1); border-radius:8px; margin-bottom:8px;">'
-                    + '<div style="font-weight:600; color:var(--c-text-alt);">' + sn + '</div>'
+                    + '<div style="font-weight:600; color:var(--c-text-alt);">' + escapeHtml(sn) + '</div>'
                     + '<div style="font-size:0.82em; color:var(--c-accent); margin-top:2px;">Claimed: ' + (skill ? skill.level : '?') + ' · Evidence: ' + summary.points + ' pts → ' + summary.effectiveLevel + '</div>'
                     + evPreview + '</div>';
             }).join('');
@@ -14464,7 +14464,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     <div class="domain-card">
                         <div class="domain-header">
                             <span class="domain-icon">${data.icon}</span>
-                            <span class="domain-title">${domainTitle}</span>
+                            <span class="domain-title">${escapeHtml(domainTitle)}</span>
                         </div>
                         <div class="skills-list">
                 `;
@@ -14514,9 +14514,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     }
                     
                     html += `
-                        <div class="skill-item ${levelClass}" title="${rolesList}" onclick='openSkillModalFromCard("${skill.name.replace(/'/g, "\\'")}")' style="cursor: pointer;">
+                        <div class="skill-item ${levelClass}" title="${escapeHtml(rolesList)}" onclick='openSkillModalFromCard("${escapeHtml(skill.name).replace(/'/g, "\\'")}")' style="cursor: pointer;">
                             <div class="skill-dot" style="background: ${levelColors[skill.level] || '#6b7280'}"></div>
-                            <span class="skill-name">${skill.name}</span>
+                            <span class="skill-name">${escapeHtml(skill.name)}</span>
                             ${categoryBadge}
                             ${yearsBadge}
                             ${keyBadge}
@@ -14549,10 +14549,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:16px; '
                         + 'font-size:0.82em; cursor:pointer; transition:all 0.15s; '
                         + 'background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); color:var(--text-secondary);" '
-                        + 'onclick="quickAddSuggested(\'' + s.name.replace(/'/g, "\\'") + '\', \'' + s.level + '\', \'' + s.roleId + '\')" '
-                        + 'title="Expected for ' + s.reason + ' (' + s.level + ') — click to add">'
-                        + '<span style="font-size:0.9em;">+</span> ' + s.name
-                        + '<span style="font-size:0.7em; opacity:0.5;">' + s.reason + '</span></span>';
+                        + 'onclick="quickAddSuggested(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\', \'' + escapeHtml(s.level) + '\', \'' + escapeHtml(s.roleId) + '\')" '
+                        + 'title="Expected for ' + escapeHtml(s.reason) + ' (' + escapeHtml(s.level) + ') — click to add">'
+                        + '<span style="font-size:0.9em;">+</span> ' + escapeHtml(s.name)
+                        + '<span style="font-size:0.7em; opacity:0.5;">' + escapeHtml(s.reason) + '</span></span>';
                 });
                 if (suggestions.length > 20) {
                     html += '<span style="font-size:0.78em; color:var(--text-muted); padding:5px 8px;">+' + (suggestions.length - 20) + ' more</span>';
@@ -14567,7 +14567,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 cardView.innerHTML = '<div style="text-align:center; padding:60px 20px; color:var(--text-muted);">'
                     + '<div style="font-size:2em; margin-bottom:12px;">⚠️</div>'
                     + '<div style="font-size:1.05em; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">Card view error</div>'
-                    + '<div style="font-size:0.88em; line-height:1.6;">' + err.message + '</div>'
+                    + '<div style="font-size:0.88em; line-height:1.6;">' + escapeHtml(err.message) + '</div>'
                     + '</div>';
             }
         }
@@ -14824,13 +14824,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + '<div class="rpt-card-sub">Preview scouting reports with TV character data to see how the format works.</div>'
                 + '<div class="rpt-demo-grid">';
             demoProfiles.forEach(function(p) {
-                html += '<div class="rpt-demo-card" onclick="openDemoScoutingReport(\'' + p.file + '\', \'' + p.name.replace(/'/g, "\\'") + '\')">'
+                html += '<div class="rpt-demo-card" onclick="openDemoScoutingReport(\'' + escapeHtml(p.file) + '\', \'' + escapeHtml(p.name).replace(/'/g, "\\'") + '\')">'
                     + '<div class="rpt-demo-emoji">' + p.emoji + '</div>'
                     + '<div style="flex:1; min-width:0;">'
-                    + '<div style="font-weight:700; margin-bottom:2px;">' + p.name + '</div>'
-                    + '<div style="font-size:0.78em; color:var(--text-muted); margin-bottom:4px;">' + p.show + '</div>'
-                    + '<div style="font-size:0.82em; color:var(--text-secondary);">' + p.role + '</div>'
-                    + '<div style="font-size:0.78em; color:var(--text-muted);">' + p.company + '</div></div>'
+                    + '<div style="font-weight:700; margin-bottom:2px;">' + escapeHtml(p.name) + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--text-muted); margin-bottom:4px;">' + escapeHtml(p.show) + '</div>'
+                    + '<div style="font-size:0.82em; color:var(--text-secondary);">' + escapeHtml(p.role) + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--text-muted);">' + escapeHtml(p.company) + '</div></div>'
                     + '<div style="text-align:center; min-width:48px;">'
                     + '<div style="font-size:1.3em; font-weight:800; color:' + scoreColor(p.match) + ';">' + p.match + '%</div>'
                     + '<div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Match</div></div>'
@@ -15548,14 +15548,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (d.type === 'center') {
                 html = `<div class="tooltip-title" style="font-size:0.85em; opacity:0.7;">Click to reset layout</div>`;
             } else if (d.type === 'hub') {
-                html = `<div class="tooltip-title">${d.name}</div><div style="font-size:0.78em; opacity:0.6; margin-top:2px;">Click to reset layout</div>`;
+                html = `<div class="tooltip-title">${escapeHtml(d.name)}</div><div style="font-size:0.78em; opacity:0.6; margin-top:2px;">Click to reset layout</div>`;
             } else if (d.type === 'tension-marker') {
                 html = `<div class="tooltip-title" style="color:#ef4444;">\u26A0 Friction Risk</div>`;
                 html += `<div style="font-size:0.82em; color:#9ca3af; margin-top:2px;">This value may conflict with the company culture</div>`;
             } else if (d.type === 'value') {
-                html = `<div class="tooltip-title">${d.name}</div>`;
+                html = `<div class="tooltip-title">${escapeHtml(d.name)}</div>`;
                 var desc = getCatalogDescription(d.name);
-                if (desc) html += `<div style="font-size:0.82em; color:#9ca3af; margin-top:3px; line-height:1.4;">${desc}</div>`;
+                if (desc) html += `<div style="font-size:0.82em; color:#9ca3af; margin-top:3px; line-height:1.4;">${escapeHtml(desc)}</div>`;
                 var stateLabels = { aligned: '\u2705 Shared value', yours: '\uD83D\uDFE1 Your priority', theirs: '\uD83D\uDFE3 Their priority', tension: '\u26A0 Friction risk' };
                 var stateColors = { aligned: '#10b981', yours: '#f59e0b', theirs: '#6366f1', tension: '#ef4444' };
                 if (d.valState) {
@@ -15564,10 +15564,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 if (d.tier) html += `<div style="font-size:0.72em; color:#6b7280; margin-top:2px;">${d.tier === 'primary' ? 'Core company value' : 'Secondary value'}</div>`;
             } else if (d.type === 'role') {
                 var roleSkillCount = (skillsData.skills || []).filter(s => (s.roles || []).indexOf(d.id) !== -1).length;
-                html = `<div class="tooltip-title">${d.name}</div>`;
+                html = `<div class="tooltip-title">${escapeHtml(d.name)}</div>`;
                 html += `<div style="font-size:0.82em; color:#9ca3af; margin-top:2px;">${roleSkillCount} skills · Click to filter</div>`;
             } else {
-                html = `<div class="tooltip-title">${d.name}</div>`;
+                html = `<div class="tooltip-title">${escapeHtml(d.name)}</div>`;
                 var levelText = d.level || '';
                 var keyText = d.key ? ' · Core Differentiator' : '';
                 // Look up full skill for years of experience
@@ -15587,7 +15587,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     html += `<div class="tooltip-roles">Used in: `;
                     skillRoles.forEach(roleId => {
                         const role = skillsData.roles.find(r => r.id === roleId || r.name === roleId);
-                        html += `<span class="tooltip-role-tag">${role ? role.name : roleId}</span>`;
+                        html += `<span class="tooltip-role-tag">${escapeHtml(role ? role.name : roleId)}</span>`;
                     });
                     html += `</div>`;
                 }
@@ -15861,7 +15861,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             const details = skillsData.skillDetails[skillName] || {};
             
             // Get evidence from skill object if not in skillDetails
-            const evidence = details.evidence || (skillData.evidence ? skillData.evidence.map(e => `${e.description}<br><strong>Outcome:</strong> ${e.outcome}`) : null);
+            const evidence = details.evidence || (skillData.evidence ? skillData.evidence.map(e => `${escapeHtml(e.description)}<br><strong>Outcome:</strong> ${escapeHtml(e.outcome)}`) : null);
             
             const years = details.years || skillData.yearsExperience || estimateSkillYears(skillData.level);
             
@@ -16005,10 +16005,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     bodyHTML += '</div>';
                     
                     if (ev.outcome) {
-                        bodyHTML += '<div style="font-size:0.88em; font-weight:600; color:var(--c-text-alt); line-height:1.45;">' + ev.outcome + '</div>';
+                        bodyHTML += '<div style="font-size:0.88em; font-weight:600; color:var(--c-text-alt); line-height:1.45;">' + escapeHtml(ev.outcome) + '</div>';
                     }
                     if (ev.description) {
-                        bodyHTML += '<div style="font-size:0.82em; color:var(--c-muted); margin-top:3px; line-height:1.4;">' + ev.description + '</div>';
+                        bodyHTML += '<div style="font-size:0.82em; color:var(--c-muted); margin-top:3px; line-height:1.4;">' + escapeHtml(ev.description) + '</div>';
                     }
                     
                     bodyHTML += '</div>';
@@ -16045,9 +16045,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                             <div style="background: rgba(251, 191, 36, 0.1); padding: 15px; border-radius: 6px; margin-bottom: 15px; border-left: 3px solid #fbbf24;">
                                 <div style="color: #fbbf24; font-weight: 600; margin-bottom: 8px;">${bpIcon("warning",14)} Estimated Rating</div>
                                 <div style="color: #d1d5db; font-size: 0.9em; line-height: 1.5; margin-bottom: 12px;">
-                                    ${skillImpact.rationale}
+                                    ${escapeHtml(skillImpact.rationale)}
                                 </div>
-                                <button onclick="closeSkillModal(); openAssessSkillModal('${skillData.name.replace(/'/g, "\\'")}');" 
+                                <button onclick="closeSkillModal(); openAssessSkillModal('${escapeHtml(skillData.name).replace(/'/g, "\\'")}');" 
                                         style="padding: 8px 16px; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); border: none; border-radius: 6px; cursor: pointer; font-weight: 600; color: #000;">
                                     ${bpIcon("clipboard",14)} Assess This Skill
                                 </button>
@@ -16059,7 +16059,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                                 <div style="color: #10b981; font-weight: 600; margin-bottom: 5px;">✓ User Assessed</div>
                                 <div style="color: #d1d5db; font-size: 0.85em;">
                                     Based on your assessment of this skill's experience, impact, and market scarcity.
-                                    ${!isReadOnlyProfile ? `<button onclick="closeSkillModal(); openAssessSkillModal('${skillData.name.replace(/'/g, "\\'")}');" 
+                                    ${!isReadOnlyProfile ? `<button onclick="closeSkillModal(); openAssessSkillModal('${escapeHtml(skillData.name).replace(/'/g, "\\'")}');" 
                                             style="margin-left: 10px; padding: 4px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; cursor: pointer; font-size: 0.85em;">
                                         Edit Assessment
                                     </button>` : ''}
@@ -17889,8 +17889,8 @@ body {
                     var escapedName = s.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     
                     html += '<div style="display:flex; align-items:center; gap:10px; padding:10px 16px; border-bottom:1px solid var(--c-surface-1b);">'
-                        + '<div style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.88em; color:var(--c-text); cursor:pointer;" onclick="openSkillModalFromCard(\'' + escapedName + '\')">' + s.name + '</div>'
-                        + '<span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:' + lvColor + '22; color:' + lvColor + '; font-weight:600; white-space:nowrap;">' + lv + '</span>';
+                        + '<div style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.88em; color:var(--c-text); cursor:pointer;" onclick="openSkillModalFromCard(\'' + escapedName + '\')">' + escapeHtml(s.name) + '</div>'
+                        + '<span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:' + lvColor + '22; color:' + lvColor + '; font-weight:600; white-space:nowrap;">' + escapeHtml(lv) + '</span>';
                     
                     // Verified badge
                     var skillVerifs = getSkillVerifications(s.name);
@@ -18069,12 +18069,12 @@ body {
                         + 'background:none; border:none; cursor:pointer; font-size:0.9em; color:var(--c-muted); padding:2px 4px;">\u00D7</button>';
                     html += '</div>';
                     
-                    html += '<div class="value-title">' + value.name + '</div>';
+                    html += '<div class="value-title">' + escapeHtml(value.name) + '</div>';
                     
                     // Description from catalog
                     if (catalogDesc) {
                         html += '<div style="font-size:0.82em; color:var(--c-muted); line-height:1.45; margin-top:4px;">'
-                            + catalogDesc + '</div>';
+                            + escapeHtml(catalogDesc) + '</div>';
                     }
                     
                     // Badges
@@ -18203,12 +18203,12 @@ body {
                         color = 'var(--c-muted)';
                     }
                     
-                    html += '<button onclick="pickValue(\'' + val.name.replace(/'/g, "\\'") + '\')" title="' + (val.description || '').replace(/"/g, '&quot;') + '" style="'
+                    html += '<button onclick="pickValue(\'' + escapeHtml(val.name).replace(/'/g, "\\'") + '\')" title="' + escapeHtml(val.description || '') + '" style="'
                         + 'background:' + bg + '; border:1.5px solid ' + border + '; color:' + color + '; '
                         + 'padding:8px 16px; border-radius:20px; cursor:pointer; font-size:0.88em; '
                         + 'font-weight:' + (isSelected ? '700' : '500') + '; transition:all 0.15s ease;">'
                         + (isSelected ? '\u2713 ' : '')
-                        + val.name
+                        + escapeHtml(val.name)
                         + (hasEvidence && !isSelected ? ' \u2022' : '')
                         + '</button>';
                 });
@@ -18518,7 +18518,7 @@ body {
                         // Skill name
                         + '<div style="flex:1; min-width:140px; font-size:0.88em; color:var(--c-text); cursor:pointer;" onclick="openSkillModalFromCard(\'' + (v.skillName || '').replace(/'/g, "\\'") + '\')">' + escapeHtml(v.skillName) + '</div>'
                         // Level
-                        + '<span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:' + lvColor + '22; color:' + lvColor + '; font-weight:600; white-space:nowrap;">' + lv + '</span>'
+                        + '<span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:' + lvColor + '22; color:' + lvColor + '; font-weight:600; white-space:nowrap;">' + escapeHtml(lv) + '</span>'
                         // Verifier
                         + '<div style="min-width:140px; font-size:0.82em; color:var(--c-label);">'
                         + '<div style="font-weight:600;">' + escapeHtml(v.verifierName || 'Unknown') + '</div>'
@@ -25326,9 +25326,9 @@ body {
                     var reqBadge = g.requirement === 'Required' ? ' \u2605' : '';
                     var profLabel = g.proficiency ? ' (' + g.proficiency + ')' : '';
                     html += '<span class="jd-skill-chip jd-chip-gap" style="cursor:pointer;" '
-                        + 'onclick="quickAddGapSkill(\'' + g.name.replace(/'/g, "\\'") + '\', \'' + (g.proficiency || 'Proficient') + '\', ' + idx + ')" '
+                        + 'onclick="quickAddGapSkill(\'' + escapeHtml(g.name).replace(/'/g, "\\'") + '\', \'' + escapeHtml(g.proficiency || 'Proficient') + '\', ' + idx + ')" '
                         + 'title="Click to add to your profile">'
-                        + g.name + '<span style="font-size:0.72em; opacity:0.6;">' + profLabel + '</span>' + reqBadge + '</span>';
+                        + escapeHtml(g.name) + '<span style="font-size:0.72em; opacity:0.6;">' + escapeHtml(profLabel) + '</span>' + reqBadge + '</span>';
                 });
                 html += '</div>'
                     + '<div style="margin-top:8px; font-size:0.75em; color:var(--text-muted);">\u2605 = Required by employer</div>'
@@ -25377,8 +25377,8 @@ body {
                     roleGapOverlap.forEach(function(s) {
                         html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:16px; '
                             + 'font-size:0.82em; cursor:pointer; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.25); color:var(--text-secondary);" '
-                            + 'onclick="quickAddSuggested(\'' + s.name.replace(/'/g, "\\'") + '\', \'' + s.level + '\', \'' + s.roleId + '\'); showJobDetail(' + idx + ');" '
-                            + 'title="Expected for ' + s.reason + ' at ' + s.level + '">+ ' + s.name + '</span>';
+                            + 'onclick="quickAddSuggested(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\', \'' + escapeHtml(s.level) + '\', \'' + escapeHtml(s.roleId) + '\'); showJobDetail(' + idx + ');" '
+                            + 'title="Expected for ' + escapeHtml(s.reason) + ' at ' + escapeHtml(s.level) + '">+ ' + escapeHtml(s.name) + '</span>';
                     });
                     html += '</div>';
                 }
@@ -25387,8 +25387,8 @@ body {
                     roleOther.slice(0, 12).forEach(function(s) {
                         html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:16px; '
                             + 'font-size:0.82em; cursor:pointer; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); color:var(--text-secondary);" '
-                            + 'onclick="quickAddSuggested(\'' + s.name.replace(/'/g, "\\'") + '\', \'' + s.level + '\', \'' + s.roleId + '\'); showJobDetail(' + idx + ');" '
-                            + 'title="Expected for ' + s.reason + ' at ' + s.level + '">+ ' + s.name + '</span>';
+                            + 'onclick="quickAddSuggested(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\', \'' + escapeHtml(s.level) + '\', \'' + escapeHtml(s.roleId) + '\'); showJobDetail(' + idx + ');" '
+                            + 'title="Expected for ' + escapeHtml(s.reason) + ' at ' + escapeHtml(s.level) + '">+ ' + escapeHtml(s.name) + '</span>';
                     });
                     html += '</div>';
                 }
@@ -25403,7 +25403,7 @@ body {
                     + '<h3 style="font-size:0.95em; font-weight:700; color:#6b7280; margin-bottom:10px;">\u25CF Your Surplus (Not Listed in JD)</h3>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 showSurplus.forEach(function(s) {
-                    html += '<span class="jd-skill-chip jd-chip-surplus">' + s.name + '</span>';
+                    html += '<span class="jd-skill-chip jd-chip-surplus">' + escapeHtml(s.name) + '</span>';
                 });
                 if (surplus.length > showSurplus.length) {
                     html += '<span style="font-size:0.75em; color:var(--text-muted); padding:4px 8px;">+' + (surplus.length - showSurplus.length) + ' more</span>';
@@ -27009,12 +27009,12 @@ body {
                         + '<button onclick="removeWorkHistoryItem(' + idx + ')" title="Remove" style="background:none; border:none; cursor:pointer; font-size:0.9em; color:var(--c-danger);">\u00D7</button>'
                         + '</div>';
                     
-                    html += '<div style="font-weight:700; color:var(--c-text-alt); font-size:0.95em;">' + (job.title || 'Untitled Role') + '</div>'
-                        + '<div style="color:var(--c-accent); font-size:0.88em; margin-top:2px;">' + (job.company || '') + (job.location ? ' \u00B7 ' + job.location : '') + '</div>'
+                    html += '<div style="font-weight:700; color:var(--c-text-alt); font-size:0.95em;">' + escapeHtml(job.title || 'Untitled Role') + '</div>'
+                        + '<div style="color:var(--c-accent); font-size:0.88em; margin-top:2px;">' + escapeHtml(job.company || '') + (job.location ? ' \u00B7 ' + escapeHtml(job.location) : '') + '</div>'
                         + '<div style="color:var(--c-muted); font-size:0.82em; margin-top:2px;">' + dateRange + '</div>';
                     
                     if (job.description) {
-                        html += '<div style="color:var(--c-heading); font-size:0.85em; margin-top:8px; line-height:1.5;">' + job.description + '</div>';
+                        html += '<div style="color:var(--c-heading); font-size:0.85em; margin-top:8px; line-height:1.5;">' + escapeHtml(job.description) + '</div>';
                     }
                     
                     if (job.achievements && job.achievements.length > 0) {
@@ -27022,7 +27022,7 @@ body {
                         job.achievements.forEach(function(ach) {
                             html += '<div style="font-size:0.83em; color:var(--c-heading); padding:3px 0 3px 14px; position:relative; line-height:1.45;">'
                                 + '<span style="position:absolute; left:0; color:var(--c-success);">\u25B8</span>'
-                                + ach + '</div>';
+                                + escapeHtml(ach) + '</div>';
                         });
                         html += '</div>';
                     }
@@ -28075,7 +28075,7 @@ body {
                             <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px;">
                                 <div style="flex: 1;">
                                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
-                                        <span style="font-weight: 600; font-size: 1.05em;">${skill.name}</span>
+                                        <span style="font-weight: 600; font-size: 1.05em;">${escapeHtml(skill.name)}</span>
                                         <span style="background: rgba(${category === 'skill' ? '59, 130, 246' : category === 'ability' ? '139, 92, 246' : category === 'workstyle' ? '16, 185, 129' : '251, 191, 36'}, 0.2); 
                                                      color: ${label.color}; 
                                                      font-size: 0.7em; 
@@ -28086,16 +28086,16 @@ body {
                                         ${skill.key ? '<span style="background: rgba(251, 191, 36, 0.2); color: #fbbf24; font-size: 0.7em; padding: 2px 6px; border-radius: 3px;">CORE</span>' : ''}
                                     </div>
                                     <div style="color: #9ca3af; font-size: 0.9em;">
-                                        <span style="color: ${levelColors[skill.level]}; font-weight: 600;">${skill.level}</span>
-                                        ${roleNames ? ` • ${roleNames}` : ''}
+                                        <span style="color: ${levelColors[skill.level]}; font-weight: 600;">${escapeHtml(skill.level)}</span>
+                                        ${roleNames ? ` • ${escapeHtml(roleNames)}` : ''}
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 8px; flex-shrink: 0; ${isReadOnlyProfile ? 'display:none;' : ''}">
-                                    <button onclick="openEditSkillModal('${skill.name.replace(/'/g, "\\'")}', '${category}')" 
+                                    <button onclick="openEditSkillModal('${escapeHtml(skill.name).replace(/'/g, "\\'")}', '${category}')" 
                                             style="padding: 6px 12px; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 4px; cursor: pointer; font-size: 0.9em; white-space: nowrap;">
                                         ${bpIcon("edit",12)} Edit
                                     </button>
-                                    <button onclick="confirmDeleteSkill('${skill.name.replace(/'/g, "\\'")}', '${category}')" 
+                                    <button onclick="confirmDeleteSkill('${escapeHtml(skill.name).replace(/'/g, "\\'")}', '${category}')" 
                                             style="padding: 6px 12px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 4px; cursor: pointer; font-size: 0.9em; white-space: nowrap;">
                                         ${bpIcon("trash",14)}
                                     </button>
@@ -29042,11 +29042,11 @@ body {
                                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255, 255, 255, 0.03); border-radius: 6px; border-left: 3px solid ${impactColor};">
                                     <div style="flex: 1;">
                                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                                            <span style="color: #e0e0e0; font-weight: 500;">${skill.name}</span>
+                                            <span style="color: #e0e0e0; font-weight: 500;">${escapeHtml(skill.name)}</span>
                                             <span style="color: #6b7280; font-size: 0.75em; padding: 2px 6px; background: rgba(255,255,255,0.1); border-radius: 3px;">${categoryBadge}</span>
                                         </div>
                                         <div style="color: #9ca3af; font-size: 0.85em;">
-                                            ${skill.level} • ${skill.impact.label}
+                                            ${escapeHtml(skill.level)} • ${escapeHtml(skill.impact.label)}
                                         </div>
                                     </div>
                                     <div style="color: ${impactColor}; font-weight: 600; font-size: 1.2em; min-width: 40px; text-align: right;">
@@ -31048,17 +31048,17 @@ body {
                             <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px;">
                                 <div style="flex: 1;">
                                     <div style="color: #e0e0e0; font-weight: 600; margin-bottom: 6px; font-size: 1.05em;">
-                                        ${skill.name}
+                                        ${escapeHtml(skill.name)}
                                     </div>
                                     <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                                         <span style="color: #60a5fa; font-size: 0.8em; padding: 2px 8px; background: rgba(96, 165, 250, 0.2); border-radius: 3px;">
-                                            ${skill.level}
+                                            ${escapeHtml(skill.level)}
                                         </span>
                                         ${skill.key ? '<span style="color: #fbbf24; font-size: 0.8em;">⭐ Core</span>' : ''}
                                         ${skill.roles ? `<span style="color: #9ca3af; font-size: 0.8em;">${skill.roles.length} role${skill.roles.length > 1 ? 's' : ''}</span>` : ''}
                                     </div>
                                 </div>
-                                <button onclick="removeSkillFromProfile('${skill.name.replace(/'/g, "\\'")}', '${cat}')" 
+                                <button onclick="removeSkillFromProfile('${escapeHtml(skill.name).replace(/'/g, "\\'")}', '${cat}')" 
                                         style="padding: 8px 16px; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444; border-radius: 6px; cursor: pointer; font-size: 0.9em; white-space: nowrap; font-weight: 600; transition: all 0.2s;"
                                         onmouseover="this.style.background='rgba(239, 68, 68, 0.3)'"
                                         onmouseout="this.style.background='rgba(239, 68, 68, 0.2)'">
@@ -31260,7 +31260,7 @@ body {
                     container.innerHTML = `
                         <div style="text-align: center; padding: 60px 20px; color: #9ca3af;">
                             <div style="font-size: 3em; margin-bottom: 10px;">❌</div>
-                            <div style="font-size: 1.1em;">No skills found for "${query}"</div>
+                            <div style="font-size: 1.1em;">No skills found for "${escapeHtml(query)}"</div>
                             <div style="font-size: 0.9em; margin-top: 10px;">Try a different search term</div>
                         </div>
                     `;
@@ -31278,29 +31278,29 @@ body {
                         return `
                             <div class="skill-search-result ${isAdded ? 'added' : ''}" 
                                  style="padding: 12px; margin-bottom: 8px; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 3px solid ${categoryColor}; cursor: ${isAdded ? 'default' : 'pointer'}; transition: all 0.2s;"
-                                 ${isAdded ? '' : `onclick="addSkillFromLibrary('${skill.id}')"`}
+                                 ${isAdded ? '' : `onclick="addSkillFromLibrary('${escapeHtml(skill.id)}')"`}
                                  onmouseover="if (!this.classList.contains('added')) this.style.background='rgba(255,255,255,0.06)'"
                                  onmouseout="if (!this.classList.contains('added')) this.style.background='rgba(255,255,255,0.03)'">
                                 <div style="display: flex; justify-content: space-between; align-items: start;">
                                     <div style="flex: 1;">
                                         <div style="color: #e0e0e0; font-weight: 600; margin-bottom: 4px;">
-                                            ${skill.n}
+                                            ${escapeHtml(skill.n)}
                                             ${isAdded ? '<span style="color: #10b981; font-size: 0.85em; margin-left: 8px;">✓ Already have</span>' : ''}
                                         </div>
                                         <div style="display: flex; gap: 8px; align-items: center;">
                                             <span style="color: ${categoryColor}; font-size: 0.75em; padding: 2px 6px; background: rgba(255,255,255,0.1); border-radius: 3px;">
-                                                ${skill.c}
+                                                ${escapeHtml(skill.c)}
                                             </span>
                                             ${skill.sc ? `
                                                 <span style="color: #9ca3af; font-size: 0.75em;">
-                                                    ${skill.sc}
+                                                    ${escapeHtml(skill.sc)}
                                                 </span>
                                             ` : ''}
                                         </div>
                                     </div>
                                     ${!isAdded ? `
                                         <button style="padding: 6px 12px; background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); border: none; border-radius: 6px; color: white; font-size: 0.85em; font-weight: 600; cursor: pointer;"
-                                                onclick="event.stopPropagation(); addSkillFromLibrary('${skill.id}')">
+                                                onclick="event.stopPropagation(); addSkillFromLibrary('${escapeHtml(skill.id)}')">
                                             + Add
                                         </button>
                                     ` : ''}
@@ -31333,7 +31333,7 @@ body {
                             <div style="margin-bottom: 10px;">${bpIcon("warning",48)}</div>
                             <div style="font-size: 1.1em; font-weight: bold;">Search Error</div>
                             <div style="font-size: 0.9em; margin-top: 10px; font-family: monospace;">
-                                ${error.message}
+                                ${escapeHtml(error.message)}
                             </div>
                             <div style="font-size: 0.85em; margin-top: 10px; color: #9ca3af;">
                                 Check browser console (F12) for details
@@ -31368,11 +31368,11 @@ body {
                 container.innerHTML = tradeResults.map(function(skill) {
                     var isAdded = isSkillAlreadyAdded(skill.n);
                     var color = catColors[skill.c] || '#d97706';
-                    return '<div style="padding:12px;margin-bottom:8px;background:rgba(255,255,255,0.03);border-radius:8px;border-left:3px solid '+color+';cursor:'+(isAdded?'default':'pointer')+';" '+(isAdded?'':'onclick="addSkillFromLibrary(\'' + skill.id + '\')"')+'>'
+                    return '<div style="padding:12px;margin-bottom:8px;background:rgba(255,255,255,0.03);border-radius:8px;border-left:3px solid '+color+';cursor:'+(isAdded?'default':'pointer')+';" '+(isAdded?'':'onclick="addSkillFromLibrary(\'' + escapeHtml(skill.id) + '\')"')+'>'
                         +'<div style="display:flex;justify-content:space-between;align-items:start;">'
-                        +'<div style="flex:1;"><div style="color:#e0e0e0;font-weight:600;margin-bottom:4px;">'+skill.n+(isAdded?' <span style="color:#10b981;font-size:0.85em;">✓ Added</span>':'')+'</div>'
-                        +'<span style="color:'+color+';font-size:0.75em;padding:2px 6px;background:rgba(255,255,255,0.1);border-radius:3px;">'+skill.c+'</span></div>'
-                        +(!isAdded?'<button style="padding:6px 12px;background:linear-gradient(135deg,#60a5fa,#3b82f6);border:none;border-radius:6px;color:white;font-size:0.85em;font-weight:600;cursor:pointer;" onclick="event.stopPropagation();addSkillFromLibrary(\'' + skill.id + '\')">+ Add</button>':'')
+                        +'<div style="flex:1;"><div style="color:#e0e0e0;font-weight:600;margin-bottom:4px;">'+escapeHtml(skill.n)+(isAdded?' <span style="color:#10b981;font-size:0.85em;">✓ Added</span>':'')+'</div>'
+                        +'<span style="color:'+color+';font-size:0.75em;padding:2px 6px;background:rgba(255,255,255,0.1);border-radius:3px;">'+escapeHtml(skill.c)+'</span></div>'
+                        +(!isAdded?'<button style="padding:6px 12px;background:linear-gradient(135deg,#60a5fa,#3b82f6);border:none;border-radius:6px;color:white;font-size:0.85em;font-weight:600;cursor:pointer;" onclick="event.stopPropagation();addSkillFromLibrary(\'' + escapeHtml(skill.id) + '\')">+ Add</button>':'')
                         +'</div></div>';
                 }).join('');
                 var statusEl = document.getElementById('skillManagementStatus');
