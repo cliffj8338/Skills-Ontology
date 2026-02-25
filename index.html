@@ -7312,10 +7312,7 @@
             var html = '<div style="max-width:1100px; margin:0 auto; padding:48px 24px 80px;">';
             
             // Header
-            html += '<div class="page-header">'
-                + '<h2 class="page-title">Sample Blueprints</h2>'
-                + '<p class="page-subtitle">Famous fictional characters \u2192 real-world career Blueprints. 24 characters from four iconic TV shows \u2014 explore their skills, job matches, and market values.</p>'
-                + '</div>';
+            
             
             // Show selector tabs
             html += '<div style="display:flex; justify-content:center; gap:8px; margin-bottom:32px; flex-wrap:wrap;">';
@@ -14026,10 +14023,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             html += '<div class="blueprint-container">';
             
             // Header
-            html += '<div class="page-header">'
-                + '<h2 class="page-title">Reports</h2>'
-                + '<p class="page-subtitle">Your career intelligence control plane — manage reports, set blind mode, and track engagement.</p>'
-                + '</div>'
+            html += ''
                 + '<div style="text-align:center; margin-bottom:20px;">'
                 + '<button onclick="showScoutingReportPicker()" style="padding:10px 20px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-size:0.9em; white-space:nowrap;">'
                 + bpIcon('plus', 16) + ' New Report</button>'
@@ -16562,10 +16556,7 @@ body {
             
             view.innerHTML = `
                 <div class="blueprint-container">
-                    <div class="page-header">
-                        <h2 class="page-title">Blueprint</h2>
-                        <p class="page-subtitle">Your career intelligence profile — skills, experience, outcomes, and market value.</p>
-                    </div>
+                    
                     <div class="blueprint-subnav" id="blueprintSubnav">
                         <button class="bp-tab ${blueprintTab === 'dashboard' ? 'active' : ''}" onclick="switchBlueprintTab('dashboard')">
                             <span class="bp-tab-icon">${bpIcon('blueprint',16)}</span>
@@ -22082,11 +22073,7 @@ body {
             var appCount = (userData.applications || []).length;
             
             view.innerHTML = '<div style="max-width:1200px; margin:0 auto; padding:24px;">'
-                + '<div class="page-header">'
-                + '<h2 class="page-title">Jobs</h2>'
-                + '<p class="page-subtitle">Search, match, and track opportunities — scored against your skills.</p>'
-                + '</div>'
-                + '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">'
+                + '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px;">'
                 + '<div class="jobs-subtabs" style="margin-bottom:0;">'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'your-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'your-jobs\')">' + bpIcon('target',14) + ' Pipeline' + (savedCount > 0 ? ' (' + savedCount + ')' : '') + '</button>'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'tracker' ? 'active' : '') + '" onclick="switchJobsSubTab(\'tracker\')">' + bpIcon('tracker',14) + ' Tracker' + (appCount > 0 ? ' (' + appCount + ')' : '') + '</button>'
@@ -25847,10 +25834,7 @@ body {
             
             view.innerHTML = `
                 <div class="blueprint-container">
-                    <div class="page-header">
-                        <h2 class="page-title">Settings</h2>
-                        <p class="page-subtitle">Site preferences, account management, and data controls.</p>
-                    </div>
+                    
                     
                     <div class="settings-tabs" style="overflow-x:auto; -webkit-overflow-scrolling:touch; white-space:nowrap; scrollbar-width:none;">
                         <button class="settings-tab ${window.currentSettingsTab === 'profile' ? 'active' : ''}" 
@@ -27600,10 +27584,7 @@ body {
             
             view.innerHTML = `
                 <div class="blueprint-container">
-                    <div class="page-header">
-                        <h2 class="page-title">Consent & Sharing</h2>
-                        <p class="page-subtitle">Your data, your control. Choose exactly what you share and with whom.</p>
-                    </div>
+                    
                     
                     ${renderSharePresets()}
                     ${renderSharingStatus()}
