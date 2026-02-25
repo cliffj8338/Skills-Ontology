@@ -160,7 +160,7 @@
     }
     </script>
 
-    <!-- v4.44.17 | 20260224 | CSP frame-src self, hide page header on overlays, fix toggle overflow -->
+    <!-- v4.44.18 | 20260224 | Mobile: hide skills header, fix tile overlap, fix toggle overflow, name truncation -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -509,9 +509,43 @@
             .match-mode-toggle {
                 max-width: 100%;
                 box-sizing: border-box;
+                overflow: hidden;
+                border-radius: 8px;
+            }
+            .match-mode-btn {
+                flex: 1;
+                min-width: 0;
+                padding: 6px 10px !important;
+                font-size: 0.82em !important;
             }
             #matchActiveBadge {
                 display: none !important;
+            }
+            /* Job info tile on mobile - compact, don't overlap network */
+            .job-info-tile {
+                position: relative !important;
+                top: auto !important;
+                left: auto !important;
+                right: auto !important;
+                width: calc(100% - 24px) !important;
+                max-width: none !important;
+                margin: 0 12px 4px !important;
+                z-index: 5;
+            }
+            .job-info-tile .jit-body {
+                display: none;
+            }
+            .job-info-tile.jit-expanded .jit-body {
+                display: block;
+            }
+            /* Match legend on mobile - compact bottom position */
+            .match-legend {
+                position: relative !important;
+                bottom: auto !important;
+                right: auto !important;
+                width: calc(100% - 24px) !important;
+                max-width: none !important;
+                margin: 0 12px !important;
             }
         }
         
@@ -1435,8 +1469,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.17 - BUILD 20260224-csp-frame-overlay-fixes
-        var BP_VERSION = 'v4.44.17';
+        // BLUEPRINT v4.44.18 - BUILD 20260224-mobile-tile-toggle-name
+        var BP_VERSION = 'v4.44.18';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -11959,10 +11993,19 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Center node stays with the network body; text label offsets left for readability
             var networkCenterX = width / 2;  // where roles + skills cluster
             var centerY = Math.max(80, height * 0.22);
-            var nameX = isMobile ? width / 2 : width * 0.18;  // left of network body, like demo profiles
+            var nameX = isMobile ? width / 2 : Math.max(width * 0.22, 180);  // left of network body
             var nameY = centerY;
             var centerName = userData.profile.name || "You";
-            if (isMobile && centerName.length > 18) centerName = centerName.substring(0, 16) + '\u2026';
+            var maxNameLen = isMobile ? 18 : 24;
+            if (centerName.length > maxNameLen) {
+                // Try first name only
+                var firstName = centerName.split(' ')[0];
+                if (firstName.length <= maxNameLen) {
+                    centerName = firstName;
+                } else {
+                    centerName = centerName.substring(0, maxNameLen - 1) + '\u2026';
+                }
+            }
             const nodes = [
                 { id: "center", name: centerName, type: "center", homeX: nameX, homeY: nameY, x: nameX, y: nameY, fx: nameX, fy: nameY }
             ];
@@ -12354,9 +12397,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             networkMatchMode = mode;
             updateMatchOverlayUI();
             
-            // Hide skills page header on overlay modes (job/match/values)
+            // Hide skills page header on overlay modes (job/match/values) and on mobile always
             var _sph = document.getElementById('skillsPageHeader');
-            if (_sph) _sph.style.display = (mode === 'you') ? 'block' : 'none';
+            if (_sph) _sph.style.display = (mode === 'you' && window.innerWidth > 768) ? 'block' : 'none';
             // Label toggles disabled — interactive nodes make them unnecessary
             // var nc = document.getElementById('networkControls');
             // if (nc) nc.style.display = '';
@@ -12586,7 +12629,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var jobY = height * 0.32;
             
             var matchCenterName = userData.profile.name || "You";
-            if (isMobile && matchCenterName.length > 18) matchCenterName = matchCenterName.substring(0, 16) + '\u2026';
+            var maxMatchNameLen = isMobile ? 18 : 28;
+            if (matchCenterName.length > maxMatchNameLen) {
+                var fn = matchCenterName.split(' ')[0];
+                matchCenterName = fn.length <= maxMatchNameLen ? fn : matchCenterName.substring(0, maxMatchNameLen - 1) + '\u2026';
+            }
             var nodes = [
                 { id: "center", name: matchCenterName, type: "center", matchState: 'center', x: centerX, y: centerY, fx: centerX, fy: centerY, homeX: centerX, homeY: centerY }
             ];
@@ -12594,7 +12641,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Use the user's actual roles — fan them out from center-left
             skillsData.roles.forEach(function(role, i) {
                 var angle = -Math.PI * 0.6 + (i / Math.max(skillsData.roles.length - 1, 1)) * Math.PI * 1.2;
-                var radius = (isMobile ? 85 : 180) * scaleFactor;
+                var radius = (isMobile ? 100 : 180) * scaleFactor;
                 var roleId = role.id || role.name;
                 nodes.push({
                     id: roleId, name: role.name, type: 'role', color: role.color, matchState: 'role',
@@ -14205,7 +14252,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 window._welcomePickerActive = false;
             } else if (view === 'network') {
                 // Skills Ontology view
-                var sph = document.getElementById('skillsPageHeader'); if (sph) sph.style.display = 'block';
+                var sph = document.getElementById('skillsPageHeader'); if (sph) sph.style.display = (window.innerWidth <= 768) ? 'none' : 'block';
                 controls.style.display = 'flex';
                 document.querySelector('.main-content')?.classList.add('with-controls');
                 // Sync toggle pills with current sub-view
