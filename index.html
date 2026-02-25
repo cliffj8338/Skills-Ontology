@@ -1,4 +1,4 @@
-<!-- v4.44.29 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
+<!-- v4.44.30 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.29 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
+    <!-- v4.44.30 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -768,10 +768,10 @@
         </div>
         
         <!-- Role Info Card (appears when role node clicked in network) -->
-        <div id="roleInfoCard" style="display:none; position:absolute; top:108px; left:16px;
-            z-index:150; background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px;
+        <div id="roleInfoCard" style="display:none; position:fixed; top:108px; left:16px;
+            z-index:500; background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px;
             padding:16px 18px; font-family:'Outfit',sans-serif; min-width:220px; max-width:280px;
-            backdrop-filter:blur(16px); box-shadow:0 8px 32px rgba(0,0,0,0.3); cursor:default;">
+            backdrop-filter:blur(16px); box-shadow:0 8px 32px rgba(0,0,0,0.3); cursor:default; pointer-events:auto;">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span id="roleInfoDot" style="width:10px; height:10px; border-radius:50%; flex-shrink:0;"></span>
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.29 - BUILD 20260225-verification-system
-        var BP_VERSION = 'v4.44.29';
+        // BLUEPRINT v4.44.30 - BUILD 20260225-verification-system
+        var BP_VERSION = 'v4.44.30';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -3988,7 +3988,7 @@
                 + '<div style="flex:1;">'
                 + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600;">Cert Floor</label>'
                 + '<select id="threshold_certFloor" style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid var(--c-border-strong); border-radius:6px; color:var(--text-primary); font-size:0.88em;">'
-                + ['Novice','Competent','Proficient','Advanced'].map(function(l) { return '<option value="' + l + '"' + (evidenceConfig.certFloor === l ? ' selected' : '') + '>' + l + '</option>'; }).join('')
+                + ['Novice','Competent','Proficient','Advanced','Expert','Mastery'].map(function(l) { return '<option value="' + l + '"' + (evidenceConfig.certFloor === l ? ' selected' : '') + '>' + l + '</option>'; }).join('')
                 + '</select></div>'
                 + '<div style="flex:1;">'
                 + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600;">Verification Multiplier</label>'
@@ -8380,7 +8380,7 @@
         window.declineVerification = declineVerification;
         window.getVerificationStats = getVerificationStats;
         
-        // ===== VERIFICATION EXPIRY (v4.44.29) =====
+        // ===== VERIFICATION EXPIRY (v4.44.30) =====
         // Auto-expire pending verifications older than configured TTL
         function expireStalePendingVerifications() {
             var verifications = userData.verifications || [];
@@ -8414,7 +8414,7 @@
         window.getCredibilityLabel = getCredibilityLabel;
         window.expireStalePendingVerifications = expireStalePendingVerifications;
         
-        // ===== VERIFIER LANDING PAGE (v4.44.29) =====
+        // ===== VERIFIER LANDING PAGE (v4.44.30) =====
         // When someone visits ?verify=TOKEN&uid=UID, show standalone verification UI
         function checkVerificationLandingPage() {
             var params = new URLSearchParams(window.location.search);
@@ -14107,7 +14107,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                             evidenceBadge = '<span style="font-size:0.65em; color:#10b981; margin-left:4px;" title="' + evs.points + ' evidence pts, ' + evs.evidenceCount + ' outcomes">\u2713</span>';
                         }
                         if (evs.verifiedCount > 0) {
-                            evidenceBadge += '<span style="font-size:0.6em; color:#a78bfa; margin-left:2px;" title="Verified by ' + evs.verifiedCount + '">\u2605</span>';
+                            evidenceBadge += '<span style="font-size:0.6em; padding:1px 5px; border-radius:6px; background:rgba(16,185,129,0.15); color:#10b981; margin-left:3px; font-weight:600;" title="Verified by ' + evs.verifiedCount + '">\u2713 Verified</span>';
                         }
                     }
                     
@@ -14176,7 +14176,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         
         // Initialize user interface on load
         document.addEventListener('DOMContentLoaded', async () => {
-            // v4.44.29: Check if this is a verification landing page URL
+            // v4.44.30: Check if this is a verification landing page URL
             if (checkVerificationLandingPage()) return; // Skip normal app init
             
             // v4.0: Check for magic link sign-in first
@@ -15058,6 +15058,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (levelBars) statsHtml += '<div style="display:flex; flex-direction:column; gap:3px; margin-top:6px;">' + levelBars + '</div>';
                     if (keyCount > 0) statsHtml += '<div style="margin-top:8px; padding-top:8px; border-top:1px solid var(--border);">' + bpIcon('star',13) + ' <strong>' + keyCount + '</strong> core competencies</div>';
                     
+                    // Verified skills count
+                    var verifiedInRole = roleSkills.filter(function(sk) { var vs = getSkillVerifications(sk.name); return vs.some(function(v) { return v.status === 'confirmed'; }); }).length;
+                    if (verifiedInRole > 0) statsHtml += '<div style="margin-top:4px; color:#10b981;">\u2713 <strong>' + verifiedInRole + '</strong> verified</div>';
+                    
                     document.getElementById('roleInfoStats').innerHTML = statsHtml;
                     ric.style.display = 'block';
                 }
@@ -15473,6 +15477,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 <span class="modal-years">${years} years experience</span>
                 ${categoryBadge}
                 ${coreBadge}
+                ${(function() { var vrs = getSkillVerifications(skillName); var conf = vrs.filter(function(v){return v.status==='confirmed';}); if (conf.length > 0) { var vn = conf[0].verifierName || 'verifier'; var vrel = conf[0].relationship || 'Peer'; return '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(16,185,129,0.15); color:#10b981; font-weight:600;">\u2713 Verified by ' + escapeHtml(vn) + ' (' + vrel + ')</span>'; } return ''; })()}
             `;
             
             // Build body content
@@ -17475,6 +17480,13 @@ body {
                     html += '<div style="display:flex; align-items:center; gap:10px; padding:10px 16px; border-bottom:1px solid var(--c-surface-1b);">'
                         + '<div style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.88em; color:var(--c-text); cursor:pointer;" onclick="openSkillModalFromCard(\'' + escapedName + '\')">' + s.name + '</div>'
                         + '<span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:' + lvColor + '22; color:' + lvColor + '; font-weight:600; white-space:nowrap;">' + lv + '</span>';
+                    
+                    // Verified badge
+                    var skillVerifs = getSkillVerifications(s.name);
+                    var hasConfirmed = skillVerifs.some(function(v) { return v.status === 'confirmed'; });
+                    if (hasConfirmed) {
+                        html += '<span title="Verified" style="font-size:0.65em; padding:2px 6px; border-radius:8px; background:rgba(16,185,129,0.15); color:#10b981; font-weight:600; white-space:nowrap;">\u2713 Verified</span>';
+                    }
                     
                     if (s.core) {
                         html += '<span style="font-size:0.65em; padding:2px 6px; border-radius:8px; background:var(--c-orange-bg-2); color:#f59e0b; font-weight:600;">CORE</span>';
@@ -29810,10 +29822,11 @@ body {
             html += '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">'
                 + '<div>'
                 + '<h2 style="margin:0; font-size:1.3em; color:var(--text-primary);">' + escapeHtml(skillName) + '</h2>'
-                + '<div style="display:flex; align-items:center; gap:8px; margin-top:6px;">'
+                + '<div style="display:flex; align-items:center; gap:8px; margin-top:6px; flex-wrap:wrap;">'
                 + '<span style="padding:3px 10px; border-radius:10px; font-size:0.75em; font-weight:600; background:' + (levelColors[skill.level] || '#6b7280') + '22; color:' + (levelColors[skill.level] || '#6b7280') + ';">' + (skill.level || 'Proficient') + '</span>'
                 + (skill.key ? '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(245,158,11,0.15); color:#f59e0b; font-weight:600;">CORE</span>' : '')
                 + (isOnetSkill ? '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(96,165,250,0.15); color:#60a5fa;">O*NET</span>' : '')
+                + (function() { var vrs = getSkillVerifications(skillName); var conf = vrs.filter(function(v){return v.status==='confirmed';}); if (conf.length > 0) { var vn = conf[0].verifierName || 'verifier'; return '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; background:rgba(16,185,129,0.15); color:#10b981; font-weight:600;">\u2713 Verified by ' + escapeHtml(vn) + '</span>'; } return ''; })()
                 + '</div></div>'
                 + '<button onclick="closeUnifiedSkillEditor()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.4em; padding:4px;">\u2715</button>'
                 + '</div>';
