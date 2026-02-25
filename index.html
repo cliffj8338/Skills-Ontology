@@ -160,7 +160,7 @@
     }
     </script>
 
-    <!-- v4.44.13 | 20260224 | Mobile network: SVG overflow visible, push nodes inward, increase padding, shorter labels -->
+    <!-- v4.44.14 | 20260224 | Mobile: settings tab label, job dropdown viewport, center node truncation -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1400,8 +1400,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.13 - BUILD 20260224-mobile-network-labels
-        var BP_VERSION = 'v4.44.13';
+        // BLUEPRINT v4.44.14 - BUILD 20260224-mobile-ui-polish
+        var BP_VERSION = 'v4.44.14';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -11746,9 +11746,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 
                 var drop = document.createElement('div');
                 drop.id = 'jobSelectorDropdown';
-                drop.style.cssText = 'position:fixed; top:' + (rect.bottom + 6) + 'px; left:' + rect.left + 'px; '
+                var dropLeft = rect.left;
+                var dropWidth = Math.min(360, window.innerWidth - 16);
+                if (dropLeft + dropWidth > window.innerWidth - 8) {
+                    dropLeft = Math.max(8, window.innerWidth - dropWidth - 8);
+                }
+                drop.style.cssText = 'position:fixed; top:' + (rect.bottom + 6) + 'px; left:' + dropLeft + 'px; '
                     + 'background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px; '
-                    + 'box-shadow:0 8px 40px rgba(0,0,0,0.4); min-width:300px; max-width:360px; overflow:hidden; '
+                    + 'box-shadow:0 8px 40px rgba(0,0,0,0.4); width:' + dropWidth + 'px; overflow:hidden; '
                     + 'z-index:9999; font-family:Outfit,sans-serif;';
                 
                 var html = '';
@@ -11921,8 +11926,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var centerY = Math.max(80, height * 0.22);
             var nameX = isMobile ? width / 2 : width * 0.18;  // left of network body, like demo profiles
             var nameY = centerY;
+            var centerName = userData.profile.name || "You";
+            if (isMobile && centerName.length > 18) centerName = centerName.substring(0, 16) + '\u2026';
             const nodes = [
-                { id: "center", name: userData.profile.name || "You", type: "center", homeX: nameX, homeY: nameY, x: nameX, y: nameY, fx: nameX, fy: nameY }
+                { id: "center", name: centerName, type: "center", homeX: nameX, homeY: nameY, x: nameX, y: nameY, fx: nameX, fy: nameY }
             ];
 
             // Add role nodes — orbit around network center, not the name node
@@ -12539,8 +12546,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var jobX = isMobile ? width * 0.72 : width * 0.78;
             var jobY = height * 0.32;
             
+            var matchCenterName = userData.profile.name || "You";
+            if (isMobile && matchCenterName.length > 18) matchCenterName = matchCenterName.substring(0, 16) + '\u2026';
             var nodes = [
-                { id: "center", name: userData.profile.name || "You", type: "center", matchState: 'center', x: centerX, y: centerY, fx: centerX, fy: centerY, homeX: centerX, homeY: centerY }
+                { id: "center", name: matchCenterName, type: "center", matchState: 'center', x: centerX, y: centerY, fx: centerX, fy: centerY, homeX: centerX, homeY: centerY }
             ];
             
             // Use the user's actual roles — fan them out from center-left
@@ -25557,7 +25566,7 @@ body {
                         <p class="page-subtitle">Site preferences, account management, and data controls.</p>
                     </div>
                     
-                    <div class="settings-tabs">
+                    <div class="settings-tabs" style="overflow-x:auto; -webkit-overflow-scrolling:touch; white-space:nowrap; scrollbar-width:none;">
                         <button class="settings-tab ${window.currentSettingsTab === 'profile' ? 'active' : ''}" 
                                 onclick="switchSettingsTab('profile')">
                             ${bpIcon('profile',15)} Profile
@@ -25568,7 +25577,7 @@ body {
                         </button>
                         <button class="settings-tab ${window.currentSettingsTab === 'privacy' ? 'active' : ''}" 
                                 onclick="switchSettingsTab('privacy')">
-                            ${bpIcon('privacy',15)} Privacy & Data
+                            ${bpIcon('privacy',15)} Privacy
                         </button>
                     </div>
                     
