@@ -12584,7 +12584,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (simulation) simulation.stop();
             
             // Center node = the job title — pinned to center of canvas
-            var centerX = isMobile ? width * 0.48 : width * 0.42;
+            // Account for left overlay tile (~200px) on desktop
+            var jTileLeftW = isMobile ? 0 : 220;
+            if (width - jTileLeftW < 400) jTileLeftW = 0;
+            var centerX = isMobile ? width * 0.48 : jTileLeftW + (width - jTileLeftW) * 0.38;
             var centerY = height * 0.35;
             var maxTitleLen = isMobile ? 20 : 30;
             var truncTitle = (job.title || "Job").length > maxTitleLen ? (job.title || "Job").substring(0, maxTitleLen - 2) + '\u2026' : (job.title || "Job");
@@ -12647,7 +12650,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) { return d.type === 'role' ? (isMobile ? 120 : 200 * scaleFactor) : (isMobile ? 100 : 160 * scaleFactor); }))
                 .force("charge", d3.forceManyBody().strength(function(d) { return d.type === 'center' ? 0 : d.type === 'role' ? -350 * scaleFactor : -150 * scaleFactor; }))
                 .force("collision", d3.forceCollide().radius(function(d) { return d.type === 'center' ? 60 * scaleFactor : d.type === 'role' ? 50 * scaleFactor : 35 * scaleFactor; }))
-                .force("x", d3.forceX(function(d) { return d.type === 'center' ? centerX : width * 0.48; }).strength(function(d) { return d.type === 'center' ? 0 : 0.04; }))
+                .force("x", d3.forceX(function(d) { return d.type === 'center' ? centerX : jTileLeftW + (width - jTileLeftW) * 0.45; }).strength(function(d) { return d.type === 'center' ? 0 : 0.04; }))
                 .force("y", d3.forceY(gravityCenter).strength(0.04));
             
             // Draw - links layer BELOW nodes layer
@@ -12744,9 +12747,16 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             (match.gaps || []).forEach(function(g) { gapSkills.add(g.name.toLowerCase()); });
             
             // === LAYOUT: Center (You) on LEFT, Job on RIGHT ===
-            var centerX = isMobile ? width * 0.40 : width * 0.22;
+            // Account for overlay tiles: left tile ~200px, right tile ~320px
+            var tileLeftW = isMobile ? 0 : 220;
+            var tileRightW = isMobile ? 0 : 340;
+            var safeLeft = tileLeftW;
+            var safeRight = width - tileRightW;
+            var safeWidth = safeRight - safeLeft;
+            if (safeWidth < 300) { safeLeft = 0; safeRight = width; safeWidth = width; }
+            var centerX = isMobile ? width * 0.40 : safeLeft + safeWidth * 0.25;
             var centerY = isMobile ? height * 0.30 : height * 0.38;
-            var jobX = isMobile ? width * 0.68 : width * 0.78;
+            var jobX = isMobile ? width * 0.68 : safeLeft + safeWidth * 0.78;
             var jobY = height * 0.32;
             
             var matchCenterName = userData.profile.name || "You";
@@ -12860,8 +12870,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.type === 'center') return centerX;
                     if (d.id === 'role-job-req') return jobX;
                     if (d.matchState === 'gap') return jobX;
-                    if (d.matchState === 'matched') return width * 0.5;
-                    return centerX + width * 0.08;
+                    if (d.matchState === 'matched') return safeLeft + safeWidth * 0.5;
+                    return centerX + safeWidth * 0.08;
                 }).strength(function(d) {
                     if (d.type === 'center' || d.id === 'role-job-req') return 0;
                     if (d.matchState === 'matched') return 0.06;
@@ -12991,6 +13001,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 el.style.right = 'auto';
                 el.style.left = startLeft + 'px';
                 el.style.top = startTop + 'px';
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+                document.addEventListener('touchmove', onMove, { passive: false });
+                document.addEventListener('touchend', onUp);
                 e.preventDefault();
             }
             function onMove(e) {
@@ -13006,16 +13020,15 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 el.style.top = newTop + 'px';
             }
             function onUp() {
-                if (!isDragging) return;
                 isDragging = false;
                 el.classList.remove('dragging');
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+                document.removeEventListener('touchmove', onMove);
+                document.removeEventListener('touchend', onUp);
             }
             el.addEventListener('mousedown', onDown);
-            document.addEventListener('mousemove', onMove);
-            document.addEventListener('mouseup', onUp);
             el.addEventListener('touchstart', onDown, { passive: false });
-            document.addEventListener('touchmove', onMove, { passive: false });
-            document.addEventListener('touchend', onUp);
         }
 
         function addJobInfoTile(job) {
