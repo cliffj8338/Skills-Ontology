@@ -1,4 +1,4 @@
-<!-- v4.44.32 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
+<!-- v4.44.33 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.32 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
+    <!-- v4.44.33 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.32 - BUILD 20260225-verification-system
-        var BP_VERSION = 'v4.44.32';
+        // BLUEPRINT v4.44.33 - BUILD 20260225-verification-system
+        var BP_VERSION = 'v4.44.33';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -8381,7 +8381,7 @@
         window.declineVerification = declineVerification;
         window.getVerificationStats = getVerificationStats;
         
-        // ===== VERIFICATION EXPIRY (v4.44.32) =====
+        // ===== VERIFICATION EXPIRY (v4.44.33) =====
         // Auto-expire pending verifications older than configured TTL
         function expireStalePendingVerifications() {
             var verifications = userData.verifications || [];
@@ -8415,7 +8415,7 @@
         window.getCredibilityLabel = getCredibilityLabel;
         window.expireStalePendingVerifications = expireStalePendingVerifications;
         
-        // ===== VERIFIER LANDING PAGE (v4.44.32) =====
+        // ===== VERIFIER LANDING PAGE (v4.44.33) =====
         // When someone visits ?verify=TOKEN&uid=UID, show standalone verification UI
         function checkVerificationLandingPage() {
             var params = new URLSearchParams(window.location.search);
@@ -14182,7 +14182,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         
         // Initialize user interface on load
         document.addEventListener('DOMContentLoaded', async () => {
-            // v4.44.32: Check if this is a verification landing page URL
+            // v4.44.33: Check if this is a verification landing page URL
             if (checkVerificationLandingPage()) return; // Skip normal app init
             
             // v4.0: Check for magic link sign-in first
@@ -16876,6 +16876,11 @@ body {
                             <span class="bp-tab-label">Skills</span>
                             <span class="bp-tab-count">${skillCount}</span>
                         </button>
+                        <button class="bp-tab ${blueprintTab === 'verifications' ? 'active' : ''}" onclick="switchBlueprintTab('verifications')">
+                            <span class="bp-tab-icon">${bpIcon('shield',16)}</span>
+                            <span class="bp-tab-label">Verify</span>
+                            <span class="bp-tab-count">${(userData.verifications || []).filter(v => v.status === 'confirmed').length}</span>
+                        </button>
                         <button class="bp-tab ${blueprintTab === 'experience' ? 'active' : ''}" onclick="switchBlueprintTab('experience')">
                             <span class="bp-tab-icon">${bpIcon('experience',16)}</span>
                             <span class="bp-tab-label">Experience</span>
@@ -16893,11 +16898,6 @@ body {
                         <button class="bp-tab ${blueprintTab === 'export' ? 'active' : ''}" onclick="switchBlueprintTab('export')">
                             <span class="bp-tab-icon">${bpIcon('export',16)}</span>
                             <span class="bp-tab-label">Export</span>
-                        </button>
-                        <button class="bp-tab ${blueprintTab === 'verifications' ? 'active' : ''}" onclick="switchBlueprintTab('verifications')">
-                            <span class="bp-tab-icon">${bpIcon('shield',16)}</span>
-                            <span class="bp-tab-label">Verify</span>
-                            <span class="bp-tab-count">${(userData.verifications || []).filter(v => v.status === 'confirmed').length}</span>
                         </button>
                     </div>
                     
@@ -18038,7 +18038,7 @@ body {
             return html;
         }
         
-        // ===== VERIFICATIONS TAB (v4.44.32) =====
+        // ===== VERIFICATIONS TAB (v4.44.33) =====
         function renderVerificationsTab() {
             var verifications = userData.verifications || [];
             var skills = skillsData.skills || [];
