@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blueprint™ Platform Architecture — v4.44.46</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+  }
+  
+  .header {
+    padding: 28px 32px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .header h1 {
+    font-size: 1.5em;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .header .meta {
+    font-size: 0.78em;
+    color: #64748b;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  
+  .header .meta .pill {
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    font-weight: 600;
+    font-size: 0.9em;
+  }
+  
+  .controls {
+    padding: 12px 32px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  
+  .controls .label {
+    font-size: 0.7em;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    margin-right: 4px;
+  }
+  
+  .filter-btn {
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: transparent;
+    color: #94a3b8;
+    font-size: 0.72em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  
+  .filter-btn:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+  .filter-btn.active { background: rgba(139,92,246,0.2); border-color: rgba(139,92,246,0.4); color: #a78bfa; }
+  
+  .search-box {
+    margin-left: auto;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: #e2e8f0;
+    font-size: 0.75em;
+    font-family: inherit;
+    width: 200px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  
+  .search-box:focus { border-color: rgba(139,92,246,0.5); }
+  .search-box::placeholder { color: #475569; }
+  
+  .main {
+    display: flex;
+    gap: 0;
+    min-height: calc(100vh - 140px);
+  }
+  
+  .diagram-area {
+    flex: 1;
+    padding: 24px;
+    overflow: auto;
+  }
+  
+  .layer-section {
+    margin-bottom: 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.06);
+    overflow: hidden;
+    transition: opacity 0.2s;
+  }
+  
+  .layer-section.dimmed { opacity: 0.25; }
+  
+  .layer-header {
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  
+  .layer-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  
+  .layer-label {
+    font-size: 0.7em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .layer-count {
+    margin-left: auto;
+    font-size: 0.65em;
+    color: #475569;
+  }
+  
+  .component-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    gap: 8px;
+    padding: 12px;
+  }
+  
+  .comp-card {
+    padding: 14px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    background: rgba(255,255,255,0.03);
+    border: 1.5px solid rgba(255,255,255,0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-height: 72px;
+    justify-content: center;
+    position: relative;
+  }
+  
+  .comp-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  }
+  
+  .comp-card.active {
+    box-shadow: 0 0 0 2px var(--comp-color), 0 6px 20px rgba(0,0,0,0.4);
+    background: rgba(255,255,255,0.06);
+  }
+  
+  .comp-card.search-match {
+    box-shadow: 0 0 0 2px #f59e0b, 0 0 12px rgba(245,158,11,0.2);
+  }
+  
+  .comp-card.dimmed { opacity: 0.2; pointer-events: none; }
+  
+  .comp-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+  
+  .comp-name {
+    font-size: 0.72em;
+    font-weight: 600;
+    color: #e2e8f0;
+    line-height: 1.3;
+  }
+  
+  .comp-badge {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    font-size: 0.5em;
+    padding: 1px 5px;
+    border-radius: 8px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  
+  /* Detail panel */
+  .detail-panel {
+    width: 380px;
+    background: #1e293b;
+    border-left: 1px solid rgba(255,255,255,0.06);
+    overflow-y: auto;
+    transition: width 0.2s;
+    flex-shrink: 0;
+  }
+  
+  .detail-panel.collapsed { width: 0; overflow: hidden; padding: 0; }
+  
+  .detail-header {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .detail-header .icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  
+  .detail-header .info h2 {
+    font-size: 1em;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  
+  .detail-header .tags {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  
+  .detail-header .tags span {
+    font-size: 0.65em;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  
+  .detail-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 1.1em;
+    padding: 4px;
+  }
+  
+  .detail-body { padding: 16px 20px; }
+  
+  .detail-desc {
+    font-size: 0.82em;
+    color: #94a3b8;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  
+  .detail-section {
+    margin-bottom: 14px;
+  }
+  
+  .detail-section-title {
+    font-size: 0.68em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+  
+  .detail-section .items {
+    font-size: 0.78em;
+    color: #94a3b8;
+    line-height: 1.8;
+  }
+  
+  .detail-section .fn-tag {
+    display: inline-block;
+    padding: 1px 8px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.88em;
+    margin: 1px 0;
+  }
+  
+  .detail-section .flow-chip {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 8px;
+    font-size: 0.85em;
+    margin: 2px 2px;
+    font-weight: 500;
+  }
+  
+  .detail-debt {
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.15);
+    font-size: 0.78em;
+    color: #fca5a5;
+    line-height: 1.5;
+  }
+  
+  .detail-debt .title {
+    font-weight: 700;
+    color: #ef4444;
+    margin-bottom: 3px;
+    font-size: 0.9em;
+  }
+  
+  /* Stats bar */
+  .stats-bar {
+    padding: 14px 32px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.02);
+  }
+  
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .stat .num {
+    font-size: 1.1em;
+    font-weight: 800;
+    background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .stat .lbl {
+    font-size: 0.68em;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .footer {
+    padding: 16px 32px;
+    text-align: center;
+    font-size: 0.65em;
+    color: #334155;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+  
+  @media (max-width: 900px) {
+    .detail-panel { width: 100%; position: fixed; bottom: 0; left: 0; right: 0; max-height: 50vh; border-left: none; border-top: 1px solid rgba(255,255,255,0.1); z-index: 10; }
+    .detail-panel.collapsed { max-height: 0; }
+    .component-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Blueprint™ Platform Architecture</h1>
+  <div class="meta">
+    <span class="pill">v4.44.46</span>
+    <span>~33,000 lines</span>
+    <span>·</span>
+    <span>Vanilla JS SPA</span>
+    <span>·</span>
+    <span>Firebase + Vercel</span>
+  </div>
+</div>
+
+<div class="controls">
+  <span class="label">Filter</span>
+  <button class="filter-btn active" onclick="filterLayer('all')">All</button>
+  <button class="filter-btn" onclick="filterLayer('frontend')" data-layer="frontend">Frontend</button>
+  <button class="filter-btn" onclick="filterLayer('runtime')" data-layer="runtime">Runtime</button>
+  <button class="filter-btn" onclick="filterLayer('backend')" data-layer="backend">Backend</button>
+  <button class="filter-btn" onclick="filterLayer('external')" data-layer="external">External</button>
+  <input type="text" class="search-box" placeholder="Search components..." oninput="searchComponents(this.value)">
+</div>
+
+<div class="main">
+  <div class="diagram-area" id="diagramArea"></div>
+  <div class="detail-panel collapsed" id="detailPanel"></div>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<div class="footer">
+  Blueprint™ Career Intelligence Platform · Architecture Map · Generated Feb 2026 · myblueprint.work
+</div>
+
+<script>
+// ===== ARCHITECTURE DATA =====
+var LAYERS = {
+  frontend: { label: 'Frontend Views', color: '#8b5cf6', icons: { star:'★', compass:'⎈', skills:'◉', layers:'☰', target:'⊕', blueprint:'▣', clipboard:'📋', settings:'⚙', users:'👤' }},
+  runtime:  { label: 'Runtime State & Engines', color: '#06b6d4', icons: { users:'☷', skills:'◉', blueprint:'▣', compass:'⎈', target:'⊕', money:'$', shield:'⛨', clipboard:'📋', lock:'🔒' }},
+  backend:  { label: 'Backend Services & Persistence', color: '#10b981', icons: { save:'💾', lock:'🔐', external:'⬡', shield:'⛨', money:'$' }},
+  external: { label: 'External APIs & Data Assets', color: '#f59e0b', icons: { external:'⬡', compass:'⎈', money:'$', layers:'☰', users:'☷', software:'⚡' }}
+};
+
+var COMPONENTS = [
+  // Frontend
+  { id:'welcome', name:'Welcome Landing', layer:'frontend', icon:'star', desc:'Public landing page. Animated skill network SVG. CTA to Sign In or demo picker.', functions:['renderWelcome()'], lines:'~500-700', deps:['Firebase Auth'], inputs:['URL hash'], outputs:['View selection','Demo trigger'], debt:'Hero animation could lazy-load' },
+  { id:'wizard', name:'Onboarding Wizard', layer:'frontend', icon:'compass', desc:'9-step guided profile builder. Resume upload, LinkedIn CSV, manual entry. Skill enrichment via O*NET crosswalk.', functions:['renderWizardStep1-9()','wizardApplyAndLaunch()','wizardBuildUserData()','inferSkillsDeterministic()'], lines:'~8200-10500', deps:['Anthropic API','O*NET Crosswalk','Firebase Auth','Firestore'], inputs:['Resume file','LinkedIn CSVs','Manual input'], outputs:['userData object','Firestore save','JSON backup'], debt:'Values UI CSS conflict persists on some browsers' },
+  { id:'network', name:'Skills Network', layer:'frontend', icon:'skills', desc:'D3 force-directed graph. Role clusters, skill nodes sized by level. Job match overlay with gap/surplus colors.', functions:['initNetwork()','initJobNetwork()','initMatchNetwork()','initValuesNetwork()'], lines:'~10700-12100', deps:['D3.js','skillsData','userData.roles'], inputs:['skillsData','savedJobs[].matchData'], outputs:['Skill modal triggers','Job overlay display'], debt:'Label overlap on dense graphs. Mobile caps at 30 nodes.' },
+  { id:'cardview', name:'Card View', layer:'frontend', icon:'layers', desc:'Alternative skill display. Filterable cards with proficiency bars, evidence panels, role badges.', functions:['initCardView()','renderCardView()'], lines:'~12100-12500', deps:['skillsData','userData.roles'], inputs:['skillsData'], outputs:['Skill modal triggers'], debt:'None significant' },
+  { id:'jobs', name:'Jobs Hub', layer:'frontend', icon:'target', desc:'Pipeline (saved jobs + match analysis), Tracker (application stages), Find Jobs (multi-API search with quickScore).', functions:['initOpportunities()','renderPipelineTab()','renderFindJobs()','quickScoreJob()','matchJobToProfile()'], lines:'~22000-24000', deps:['Jobs proxy API','skillsData','Match engine'], inputs:['Job search APIs','skillsData','savedJobs'], outputs:['Saved jobs','Match scores','Scouting reports'], debt:'quickScore vs pipeline % gap still visible.' },
+  { id:'blueprint', name:'Blueprint View', layer:'frontend', icon:'blueprint', desc:'Career dashboard. Compensation, skill distribution, purpose statement, values, outcomes, skills management, export.', functions:['renderBlueprintDashboard()','renderSkillsManagementTab()','switchBlueprintTab()'], lines:'~14800-16700', deps:['Valuation engine','BLS wage data','blueprintData'], inputs:['userData','skillsData','blueprintData','BLS wages'], outputs:['Skill edits','Evidence','Export HTML/PDF'], debt:'Outcomes section needs more guidance' },
+  { id:'reports', name:'Reports Engine', layer:'frontend', icon:'clipboard', desc:'Scouting report generator. Match rings, skill breakdown, compensation intelligence. PDF via jsPDF + HTML export. Share via 128-bit tokens with Firestore access control.', functions:['generateScoutingReport()','renderScoutingReportPDF()','generateShareToken()'], lines:'~13500-17300 + 19605-19690', deps:['jsPDF','Match engine','BLS wages','Firestore (reports)'], inputs:['userData','savedJob.matchData','BLS wages'], outputs:['PDF file','HTML report','Shareable URL with token'], debt:'PDF layout breaks on very long skill lists. Share URL requires manual copy.' },
+  { id:'admin', name:'Admin Panel', layer:'frontend', icon:'settings', desc:'Overview, users, samples, waitlist, config, roadmap (109 items), costs, status, architecture. Admin-only access via isAdmin flag.', functions:['renderAdminTabContent()','switchAdminTab()'], lines:'~2550-5990', deps:['Firebase Auth (admin flag)','Firestore (user docs)'], inputs:['Firebase admin check','localStorage analytics'], outputs:['Config changes','User management'], debt:'Architecture map maintenance tracked via p2-3q.' },
+  { id:'showcase', name:'Showcase Mode', layer:'frontend', icon:'users', desc:'Read-only public profile viewer. Exports full Blueprint as self-contained HTML with embedded data. Disables editing, API calls, admin access, and all mutation paths.', functions:['toggleShowcaseMode()','exportShowcaseProfile()','showcaseMode flag'], lines:'~2450-2550', deps:['All frontend views (read-only paths)'], inputs:['userData snapshot','skillsData snapshot'], outputs:['Self-contained HTML file','Read-only locked view'], debt:'Export requires browser console. Needs in-app deploy workflow.' },
+  
+  // Runtime
+  { id:'userdata', name:'userData', layer:'runtime', icon:'users', desc:'Primary in-memory state object. Profile, skills, roles, values, work history, saved jobs, preferences, education, certs.', functions:['userData (global var)','saveUserData()','loadUserData()'], lines:'Global ~1200', deps:['None (root state)'], inputs:['Firestore load','Wizard build','Profile import'], outputs:['All views read from this','Firestore save'], debt:'userData vs skillsData vs blueprintData split causes sync bugs.' },
+  { id:'skillsdata', name:'skillsData', layer:'runtime', icon:'skills', desc:'Active skill/role arrays for rendering. Network, card view, matching all read from here. Must stay synced with userData.', functions:['skillsData.skills[]','skillsData.roles[]','skillsData.skillDetails{}'], lines:'Global ~1210', deps:['userData'], inputs:['userData sync','Skill edits'], outputs:['All skill displays','Match scoring'], debt:'Dual-write with userData causes drift. Single source of truth needed.' },
+  { id:'blueprintdata', name:'blueprintData', layer:'runtime', icon:'blueprint', desc:'Values array, purpose statement, outcomes array. Blueprint view and scouting reports read from here.', functions:['blueprintData.values[]','blueprintData.purpose','blueprintData.outcomes[]'], lines:'Global ~1220', deps:['userData'], inputs:['userData sync','Values/purpose edits'], outputs:['Blueprint view','Scouting reports'], debt:'Same dual-write issue as skillsData' },
+  { id:'skill-engine', name:'Deterministic Skill Engine', layer:'runtime', icon:'compass', desc:'Replaces AI skill inference. Title→SOC→skills pool→fuzzy match→level adjust by seniority+years. Zero API cost.', functions:['inferSkillsDeterministic()','detectSeniority()','adjustLevel()'], lines:'~8000-8200', deps:['O*NET crosswalk','Skill libraries'], inputs:['LinkedIn skills[]','Work history[]','Parsed roles[]'], outputs:['Enriched skills with levels, evidence, categories'], debt:'Fuzzy matching could use Levenshtein distance' },
+  { id:'match-engine', name:'Match Scoring', layer:'runtime', icon:'target', desc:'Two tiers: quickScoreJob (Find Jobs keyword scan, capped 90%) and matchJobToProfile (Pipeline, AI-parsed skill comparison).', functions:['quickScoreJob()','matchJobToProfile()','rescoreAllJobs()'], lines:'~22400-23700', deps:['skillsData','BLS wage data','O*NET crosswalk'], inputs:['skillsData','Job description text or parsed skills'], outputs:['Match %','Matched/gap/surplus arrays','BLS salary'], debt:'quickScore and pipeline scores diverge.' },
+  { id:'valuation', name:'Valuation Engine', layer:'runtime', icon:'money', desc:'Calculates evidence-based and potential compensation from skill levels, O*NET importance, BLS wage data, and peer verification evidence scores.', functions:['calculateTotalValue()','getEvidenceSummary()','calculateUniqueSkillImpact()'], lines:'~6500-6900', deps:['BLS wages','O*NET importance scores','Verification system'], inputs:['skillsData with levels','BLS wage crosswalk','Evidence scores'], outputs:['Evidence value','Potential value','Compa ratio'], debt:'Salary estimates for non-standard roles can be inaccurate' },
+  { id:'gap-analysis', name:'Gap Analysis', layer:'runtime', icon:'shield', desc:'Classifies skills as matched/gap/surplus against job requirements. Powers scouting reports and network overlays.', functions:['matchJobToProfile() internals','renderMatchOverlay()'], lines:'~22400-22800', deps:['skillsData','Parsed job data'], inputs:['User skills','Job parsed skills'], outputs:['Matched[]','Gaps[]','Surplus[]','Level warnings'], debt:'None significant' },
+  { id:'pdf-gen', name:'PDF Generator', layer:'runtime', icon:'clipboard', desc:'jsPDF-based scouting report. Match rings, skill breakdown, compensation, blind spots. Print-ready.', functions:['renderScoutingReportPDF()','jsPDF'], lines:'~17000-17400', deps:['jsPDF library','Match engine output'], inputs:['Match data','User profile','BLS wages'], outputs:['PDF blob download'], debt:'Layout breaks on 40+ skills. Needs pagination.' },
+  { id:'verification', name:'Verification System', layer:'runtime', icon:'shield', desc:'Peer verification engine. Evidence collection with credibility-weighted scoring and verifier level suggestions. Self/peer/manager/exec tiers. Suggested-level bonuses/penalties (±1.5 × weight).', functions:['calculateEvidencePoints()','confirmVerification()','getEvidenceSummary()','renderVerifyTab()'], lines:'~8168-8830', deps:['skillsData','Firestore (verifications)'], inputs:['Verification requests','Peer endorsements','Level confirmations'], outputs:['Evidence scores','Credibility weights','Level suggestion badges'], debt:'Verifier email notifications not implemented. No spam protection on requests.' },
+  { id:'security', name:'XSS Security Layer', layer:'runtime', icon:'lock', desc:'249 escapeHtml() call sites across all views. Covers innerHTML injection, textarea breakout, and input attribute escaping. Defense-in-depth for user input, O*NET data, and API responses.', functions:['escapeHtml()','textarea value escaping','input attribute sanitization'], lines:'Distributed across all views', deps:['None (pure utility function)'], inputs:['All dynamic string content'], outputs:['Sanitized HTML-safe strings'], debt:'No CSP header yet. SVG diagram export uses innerHTML.' },
+  
+  // Backend
+  { id:'firestore', name:'Firestore Database', layer:'backend', icon:'save', desc:'Primary persistence. Collections: users/{uid}, reports/{reportId}. Server-side rules enforce 30 field-size limits, hasOnly field whitelisting, 1-write/sec rate limiting, and read/list split for report enumeration prevention.', functions:['saveToFirestore()','loadFromFirestore()','fbDb.collection("users")','fbDb.collection("reports")'], lines:'~2215-2350 + firestore.rules', deps:['Firebase SDK','Firebase Auth','firestore.rules'], inputs:['userData on save','Firebase Auth uid','Report data with shareToken'], outputs:['Full user profile on load','Shared reports via token'], debt:'Rules must deploy via Firebase Console, not Vercel. No offline sync.' },
+  { id:'firebase-auth', name:'Firebase Auth', layer:'backend', icon:'lock', desc:'Google sign-in provider. Token-based auth for API proxy. Provides uid, displayName, photoURL, email.', functions:['firebase.auth().signInWithPopup()','onAuthStateChanged()','fbUser'], lines:'~2100-2200', deps:['Firebase SDK','Google Cloud project'], inputs:['Google OAuth'], outputs:['fbUser object','Auth token for API proxy'], debt:'No email/password or other providers yet' },
+  { id:'localstorage', name:'localStorage Cache', layer:'backend', icon:'save', desc:'~15 keys: preferences, theme, API health, incident log, cost tracking, analytics, job seen IDs, roadmap state.', functions:['safeSet()','safeGet()','localStorage keys: bp*'], lines:'~1250-1280', deps:['Browser localStorage API'], inputs:['Various subsystem writes'], outputs:['Persistent preferences','Analytics data'], debt:'No size monitoring. Could exceed 5MB on heavy usage.' },
+  { id:'ai-proxy', name:'AI Proxy /api/ai.js', layer:'backend', icon:'external', desc:'Vercel serverless function. Validates Firebase token, proxies to Anthropic Claude. Rate limiting, cost tracking per feature.', functions:['callAnthropicAPI()','/api/ai.js (serverless)'], lines:'Serverless + ~7000-7100', deps:['Vercel','Anthropic API key','Firebase Admin SDK'], inputs:['Feature tag','Prompt','Firebase token'], outputs:['Claude response JSON'], debt:'Rate limit is per-user but not enforced server-side. $0.07/resume parse.' },
+  { id:'job-proxy', name:'Jobs Proxy /api/jobs', layer:'backend', icon:'external', desc:'Vercel serverless aggregator. Merges JSearch, Remotive, USAJobs, Himalayas, Jobicy, Adzuna, The Muse, Jooble. Location + remote filters. Firestore cache.', functions:['/api/jobs.js (serverless)','fetchCachedJobs()','loadJobsFromFirestore()'], lines:'Serverless + ~22000-22300', deps:['Vercel','JSearch API key','USAJobs email','Firestore job cache','Adzuna keys','Jooble key'], inputs:['Search keywords','Category','Location'], outputs:['Normalized job listings[]'], debt:'JSearch costs ~$30/mo at Pro.' },
+  { id:'health-monitor', name:'Health Monitor', layer:'backend', icon:'shield', desc:'Passive tracking from all API calls via recordApiHealth(). Active health check button. Per-service TTL staleness.', functions:['recordApiHealth()','renderAdminStatus()','activeHealthCheck()'], lines:'~3900-4150', deps:['localStorage (bpApiHealth)'], inputs:['API call results (success/fail)'], outputs:['Status dashboard','Staleness indicators'], debt:'No alerting. No uptime history beyond current session.' },
+  { id:'incident-log', name:'Incident Log', layer:'backend', icon:'shield', desc:'Operational failure tracking. Severity levels: critical/warning/info. 9 instrumented failure points. Cap at 50 entries.', functions:['logIncident()','resolveIncidents()','clearIncidentLog()','getIncidentLog()'], lines:'~4050-4150', deps:['localStorage (bpIncidentLog)'], inputs:['Error events from API calls, parse failures'], outputs:['Incident cards in admin Status tab'], debt:'No persistence beyond localStorage. No email/Slack alerts.' },
+  { id:'cost-tracker', name:'Cost Tracker', layer:'backend', icon:'money', desc:'Token-level AI usage logging. Infrastructure cost registry ($49.67/mo total). Projection engine for scaling estimates.', functions:['renderAdminCosts()','AI_FEATURES cost registry','INFRASTRUCTURE_COSTS[]'], lines:'~4480-4700', deps:['localStorage (bpAIUsageLog)'], inputs:['AI API call logs from localStorage'], outputs:['Cost dashboard','Scaling projections'], debt:'Cost projections assume linear scaling. No actual billing integration.' },
+  
+  // External
+  { id:'anthropic', name:'Anthropic Claude Sonnet', layer:'external', icon:'external', desc:'Claude Sonnet 4. Features: resume parse, purpose gen, JD analysis, cover letter, interview prep.', functions:['callAnthropicAPI() → /api/ai.js → api.anthropic.com'], lines:'External', deps:['Anthropic API key ($30 prepaid)','AI proxy'], inputs:['Prompt + feature tag'], outputs:['Structured JSON response'], debt:'$0.07/resume parse. Credits deplete without warning.' },
+  { id:'onet', name:'O*NET Crosswalk', layer:'external', icon:'compass', desc:'517 occupations, 20,513 title aliases. Skills, abilities, knowledge per SOC code. 6-strategy title resolution chain.', functions:['ONET_OCCUPATIONS[]','ONET_CROSSWALK{}','resolveOccupation()'], lines:'~7300-8000 (data tables)', deps:['Embedded data (no API call)'], inputs:['Job title string'], outputs:['SOC code','Skills pool with importance/level'], debt:'Data is from O*NET 28.1. Should update annually.' },
+  { id:'bls-wages', name:'BLS Wage Data', layer:'external', icon:'money', desc:'831 occupations with salary percentiles (10th/25th/50th/75th/90th). Mapped via SOC codes. BLS May 2024.', functions:['BLS_WAGES{}','getBLSWage()'], lines:'~6300-6500 (data table)', deps:['Embedded data (no API call)'], inputs:['SOC code from O*NET match'], outputs:['Salary range object'], debt:'Data is BLS May 2024. Should refresh annually.' },
+  { id:'skill-libs', name:'Skill Libraries', layer:'external', icon:'layers', desc:'O*NET abilities (52), work styles (21), knowledge (33), activities (41), trades (64). Values library (30). Total ~14,000+ skills.', functions:['SKILL_CATEGORIES{}','VALUES_LIBRARY[]','ESCO crosswalk data'], lines:'~5000-6300', deps:['Embedded data'], inputs:['Skill name queries'], outputs:['Category, description, related skills'], debt:'ESCO mapping incomplete for some specialties' },
+  { id:'company-values', name:'Company Values DB', layer:'external', icon:'users', desc:'58 companies with mapped values. Powers values network overlay for culture matching.', functions:['COMPANY_VALUES{}'], lines:'~11700-11900', deps:['Embedded data'], inputs:['Company name'], outputs:['Primary values[]','Secondary values[]'], debt:'Only 58 companies. Needs expansion.' },
+  { id:'jsearch', name:'JSearch (RapidAPI)', layer:'external', icon:'external', desc:'Primary job source. Aggregates LinkedIn, Indeed, Glassdoor. Pro plan: 10K calls/mo ($30/mo).', functions:['fetchJSearchJobs()','/api/jobs.js proxy'], lines:'Serverless', deps:['RapidAPI key','Jobs proxy'], inputs:['Keywords','Location','Page'], outputs:['Job listings with title, company, description, salary'], debt:'Rate limit causes 429 errors during bulk fetch.' },
+  { id:'free-apis', name:'Free Job APIs', layer:'external', icon:'external', desc:'Remotive (remote tech), USAJobs (federal), Himalayas (remote global), Jobicy (remote-first).', functions:['fetchRemotiveJobs2()','fetchHimalayasJobs()','fetchJobicyJobs()'], lines:'~23700-24200', deps:['CORS proxy for some','USAJobs requires email header'], inputs:['Keywords','Category'], outputs:['Job listings (varied formats, normalized)'], debt:'Coverage is spotty. Remotive only remote tech.' },
+  { id:'keyed-apis', name:'Keyed Job APIs', layer:'external', icon:'external', desc:'Adzuna (~3-4M US jobs), The Muse (~10-20K professional jobs), Jooble (meta-aggregator). Major volume play.', functions:['fetchAdzunaJobs()','fetchMuseJobs()','fetchJoobleJobs()'], lines:'~24400-24700 + serverless', deps:['Adzuna app_id + app_key','Jooble API key'], inputs:['Keywords','Location','Category','Page'], outputs:['Job listings (normalized)'], debt:'Keys required for Adzuna + Jooble.' },
+  { id:'firebase-sdk', name:'Firebase SDK', layer:'external', icon:'external', desc:'Firebase JS SDK v9 compat. Auth, Firestore, Analytics. CDN-loaded. Project: blueprint-career.', functions:['firebase.initializeApp()','firebase.auth()','firebase.firestore()'], lines:'CDN + ~2050-2100', deps:['Google Cloud project','CDN availability'], inputs:['Firebase config object'], outputs:['Auth state','Firestore client','Analytics'], debt:'Using compat layer. Should migrate to modular SDK.' },
+  { id:'replit', name:'Replit (AI Dev)', layer:'external', icon:'software', desc:'AI-powered cloud IDE and coding agent. Pro plan ($100/mo). Agent 3 for autonomous code generation.', functions:['Replit Agent 3','Cloud IDE','App Hosting'], lines:'External', deps:['replit.com account','Pro plan ($100/mo)'], inputs:['Natural language prompts','PRDs','Code repos'], outputs:['Generated code','Deployed apps'], debt:'Credit-based usage can spike with heavy Agent use.' }
+];
+
+var FLOWS = [
+  ['wizard','firestore','saves profile','data'],
+  ['wizard','skill-engine','LinkedIn skills','data'],
+  ['wizard','anthropic','resume parse','api'],
+  ['firestore','userdata','loads on auth','data'],
+  ['userdata','skillsdata','syncs skills','sync'],
+  ['userdata','blueprintdata','syncs values','sync'],
+  ['network','skillsdata','reads','read'],
+  ['cardview','skillsdata','reads','read'],
+  ['jobs','match-engine','score jobs','data'],
+  ['jobs','job-proxy','search','api'],
+  ['match-engine','skillsdata','reads user skills','read'],
+  ['match-engine','bls-wages','salary lookup','read'],
+  ['blueprint','valuation','comp calc','data'],
+  ['reports','gap-analysis','match data','data'],
+  ['reports','pdf-gen','generates','data'],
+  ['firebase-auth','ai-proxy','token validation','api'],
+  ['firebase-auth','firestore','auth gate','api'],
+  ['ai-proxy','anthropic','proxies','api'],
+  ['job-proxy','jsearch','fetches','api'],
+  ['job-proxy','free-apis','fetches','api'],
+  ['job-proxy','keyed-apis','fetches','api'],
+  ['skill-engine','onet','title→SOC','read'],
+  ['valuation','bls-wages','salary data','read'],
+  ['health-monitor','localstorage','persists','data'],
+  ['incident-log','localstorage','persists','data'],
+  ['verification','firestore','stores evidence','data'],
+  ['verification','skillsdata','updates scores','sync'],
+  ['blueprint','verification','evidence display','read'],
+  ['reports','firestore','share tokens','data'],
+  ['showcase','userdata','reads snapshot','read'],
+  ['showcase','skillsdata','reads snapshot','read']
+];
+
+// ===== ICON MAP =====
+var ICONS = {
+  star:'★', compass:'⎈', skills:'◉', layers:'☰', target:'⊕', blueprint:'▣',
+  clipboard:'📋', settings:'⚙', users:'👤', save:'💾', lock:'🔐', external:'⬡',
+  shield:'⛨', money:'💲', software:'⚡'
+};
+
+// ===== RENDER =====
+var activeComp = null;
+var activeLayer = 'all';
+var searchQuery = '';
+
+function render() {
+  var area = document.getElementById('diagramArea');
+  var html = '';
+  var layerOrder = ['frontend','runtime','backend','external'];
+  
+  layerOrder.forEach(function(layerId) {
+    var meta = LAYERS[layerId];
+    var comps = COMPONENTS.filter(function(c) { return c.layer === layerId; });
+    var dimmed = activeLayer !== 'all' && activeLayer !== layerId;
+    
+    html += '<div class="layer-section' + (dimmed ? ' dimmed' : '') + '" data-layer="' + layerId + '">';
+    html += '<div class="layer-header" style="background:' + meta.color + '0a;">'
+      + '<div class="layer-dot" style="background:' + meta.color + ';"></div>'
+      + '<span class="layer-label" style="color:' + meta.color + ';">' + meta.label + '</span>'
+      + '<span class="layer-count">' + comps.length + ' components</span>'
+      + '</div>';
+    
+    html += '<div class="component-grid">';
+    comps.forEach(function(comp) {
+      var isActive = activeComp === comp.id;
+      var isMatch = searchQuery && (comp.name.toLowerCase().indexOf(searchQuery) >= 0 || comp.desc.toLowerCase().indexOf(searchQuery) >= 0);
+      var isDimSearch = searchQuery && !isMatch;
+      
+      // Count connections
+      var conns = FLOWS.filter(function(f) { return f[0] === comp.id || f[1] === comp.id; }).length;
+      
+      html += '<div class="comp-card' + (isActive ? ' active' : '') + (isMatch ? ' search-match' : '') + (isDimSearch ? ' dimmed' : '') + '" '
+        + 'style="--comp-color:' + meta.color + ';" '
+        + 'onclick="selectComponent(\'' + comp.id + '\')">'
+        + '<div class="comp-icon" style="background:' + meta.color + '20; color:' + meta.color + ';">' + (ICONS[comp.icon] || '◆') + '</div>'
+        + '<div class="comp-name">' + comp.name + '</div>'
+        + (conns > 0 ? '<span class="comp-badge" style="background:' + meta.color + '25; color:' + meta.color + ';">' + conns + ' flows</span>' : '')
+        + '</div>';
+    });
+    html += '</div></div>';
+  });
+  
+  area.innerHTML = html;
+  renderStats();
+}
+
+function selectComponent(id) {
+  if (activeComp === id) { activeComp = null; closeDetail(); render(); return; }
+  activeComp = id;
+  render();
+  showDetail(id);
+}
+
+function showDetail(id) {
+  var comp = COMPONENTS.find(function(c) { return c.id === id; });
+  if (!comp) return;
+  
+  var meta = LAYERS[comp.layer];
+  var panel = document.getElementById('detailPanel');
+  panel.classList.remove('collapsed');
+  
+  var incoming = FLOWS.filter(function(f) { return f[1] === id; });
+  var outgoing = FLOWS.filter(function(f) { return f[0] === id; });
+  
+  var html = '<div class="detail-header">'
+    + '<div class="icon" style="background:' + meta.color + '25; color:' + meta.color + ';">' + (ICONS[comp.icon] || '◆') + '</div>'
+    + '<div class="info"><h2>' + comp.name + '</h2>'
+    + '<div class="tags">'
+    + '<span style="background:' + meta.color + '20; color:' + meta.color + ';">' + meta.label + '</span>'
+    + (comp.lines ? '<span style="background:rgba(255,255,255,0.06); color:#64748b;">' + comp.lines + '</span>' : '')
+    + '</div></div>'
+    + '<button class="detail-close" onclick="closeDetail()">✕</button>'
+    + '</div>';
+  
+  html += '<div class="detail-body">';
+  html += '<div class="detail-desc">' + comp.desc + '</div>';
+  
+  // Functions
+  html += '<div class="detail-section">'
+    + '<div class="detail-section-title" style="color:#8b5cf6;">Key Functions</div>'
+    + '<div class="items">' + comp.functions.map(function(f) { return '<span class="fn-tag">' + f + '</span>'; }).join(' ') + '</div>'
+    + '</div>';
+  
+  // Dependencies
+  html += '<div class="detail-section">'
+    + '<div class="detail-section-title" style="color:#f59e0b;">Dependencies</div>'
+    + '<div class="items">' + comp.deps.map(function(d) { return '→ ' + d; }).join('<br>') + '</div>'
+    + '</div>';
+  
+  // I/O
+  html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">';
+  html += '<div class="detail-section">'
+    + '<div class="detail-section-title" style="color:#10b981;">Inputs</div>'
+    + '<div class="items">' + comp.inputs.map(function(i) { return '▸ ' + i; }).join('<br>') + '</div>'
+    + '</div>';
+  html += '<div class="detail-section">'
+    + '<div class="detail-section-title" style="color:#06b6d4;">Outputs</div>'
+    + '<div class="items">' + comp.outputs.map(function(o) { return '◂ ' + o; }).join('<br>') + '</div>'
+    + '</div>';
+  html += '</div>';
+  
+  // Data flows
+  if (incoming.length > 0 || outgoing.length > 0) {
+    html += '<div class="detail-section">'
+      + '<div class="detail-section-title" style="color:#8b5cf6;">Data Flows</div>'
+      + '<div class="items" style="display:flex; flex-wrap:wrap; gap:4px;">';
+    incoming.forEach(function(f) {
+      html += '<span class="flow-chip" style="background:rgba(16,185,129,0.12); color:#34d399; border:1px solid rgba(16,185,129,0.2);">' + f[0] + ' → ' + f[2] + '</span>';
+    });
+    outgoing.forEach(function(f) {
+      html += '<span class="flow-chip" style="background:rgba(245,158,11,0.12); color:#fbbf24; border:1px solid rgba(245,158,11,0.2);">' + f[2] + ' → ' + f[1] + '</span>';
+    });
+    html += '</div></div>';
+  }
+  
+  // Tech debt
+  if (comp.debt) {
+    html += '<div class="detail-debt">'
+      + '<div class="title">⚠ Tech Debt</div>'
+      + comp.debt
+      + '</div>';
+  }
+  
+  html += '</div>';
+  panel.innerHTML = html;
+}
+
+function closeDetail() {
+  activeComp = null;
+  document.getElementById('detailPanel').classList.add('collapsed');
+  render();
+}
+
+function filterLayer(layer) {
+  activeLayer = layer;
+  document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  if (layer === 'all') {
+    document.querySelector('.filter-btn').classList.add('active');
+  } else {
+    var btn = document.querySelector('.filter-btn[data-layer="' + layer + '"]');
+    if (btn) btn.classList.add('active');
+  }
+  render();
+}
+
+function searchComponents(query) {
+  searchQuery = query.toLowerCase().trim();
+  render();
+}
+
+function renderStats() {
+  var bar = document.getElementById('statsBar');
+  var layerCounts = {};
+  ['frontend','runtime','backend','external'].forEach(function(l) {
+    layerCounts[l] = COMPONENTS.filter(function(c) { return c.layer === l; }).length;
+  });
+  
+  var debtCount = COMPONENTS.filter(function(c) { return c.debt && c.debt !== 'None significant'; }).length;
+  
+  bar.innerHTML = '<div class="stat"><span class="num">' + COMPONENTS.length + '</span><span class="lbl">Components</span></div>'
+    + '<div class="stat"><span class="num">' + FLOWS.length + '</span><span class="lbl">Data Flows</span></div>'
+    + '<div class="stat"><span class="num">' + layerCounts.frontend + '</span><span class="lbl">Frontend</span></div>'
+    + '<div class="stat"><span class="num">' + layerCounts.runtime + '</span><span class="lbl">Runtime</span></div>'
+    + '<div class="stat"><span class="num">' + layerCounts.backend + '</span><span class="lbl">Backend</span></div>'
+    + '<div class="stat"><span class="num">' + layerCounts.external + '</span><span class="lbl">External</span></div>'
+    + '<div class="stat"><span class="num">' + debtCount + '</span><span class="lbl">Tech Debt Items</span></div>';
+}
+
+// Init
+render();
+</script>
+</body>
+</html>

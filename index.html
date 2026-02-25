@@ -1,3 +1,4 @@
+<!-- v4.44.46 | 2026-02-25 | Architecture map update: +3 components (verification, showcase, security), +6 flows, updated stale details -->
 <!-- v4.44.45 | 2026-02-25 | Security: report share tokens + Firestore field-size limits -->
 <!DOCTYPE html>
 <html lang="en">
@@ -161,6 +162,7 @@
     }
     </script>
 
+    <!-- v4.44.46 | 2026-02-25 | Architecture map update: +3 components (verification, showcase, security), +6 flows, updated stale details -->
     <!-- v4.44.45 | 2026-02-25 | Security: report share tokens + Firestore field-size limits -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1482,7 +1484,7 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.44.45 - BUILD 20260225-security-report-tokens
-        var BP_VERSION = 'v4.44.45';
+        var BP_VERSION = 'v4.44.46';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -4303,7 +4305,7 @@
                         { id: 'p2-3n', name: 'Unified skill editor + UX fixes', status: 'done', category: 'ux', priority: 'high', notes: 'Single modal combining level/roles/assess/core. Network name label offset. quickScore v3 (word-boundary + level weighting). Alphabetical skill sorting. BLS Potential tile always shown. bpIcon assess bug.' },
                         { id: 'p2-3o', name: 'Wizard Step 9 save+download UX', status: 'done', category: 'ux', priority: 'medium', notes: 'Single Save button with pre-checked download checkbox. Replaces two separate buttons.' },
                         { id: 'p2-3p', name: 'Architecture map v2 — layered diagram', status: 'done', category: 'admin', priority: 'medium', notes: 'Replaced force-directed graph with structured swim-lane layout. 4 layers: Frontend→Runtime→Backend→External. Rich detail panels with function names, line ranges, data flows, dependencies, tech debt. Engineer-grade onboarding tool.' },
-                        { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'planned', category: 'process', priority: 'medium', notes: 'Architecture diagram must be updated whenever components are added/modified. Add to dev checklist. Consider auto-generation from code comments.' },
+                        { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'in-progress', category: 'process', priority: 'medium', notes: 'v4.44.46: Major update adding verification system, showcase mode, XSS security layer, share token flows. 38 components, 31 data flows. Still needs automated generation from code comments.' },
                         { id: 'p2-3r', name: 'Skill editor outcomes + reports cleanup + network v3', status: 'done', category: 'ux', priority: 'high', notes: 'Unified editor: wider padding, linked outcomes section. Reports: PREVIEW labels on analytics/heatmap/share links, removed fake views/status from My Reports. Network: center node at width*0.18, role label truncation 24 chars.' },
                         { id: 'p2-3s', name: 'Job description → Work Blueprint converter', status: 'planned', category: 'feature', priority: 'high', notes: 'Paste or import a job description and AI extracts it into Blueprint format: Skills/Outcomes/Proficiency Levels, demonstrated experience requirements, values & purpose signals, and regional compensation data. Outputs a structured Work Blueprint that can be matched against candidate profiles. The inverse of the scouting report — instead of scoring a person against a job, it scores a job into the ontology.' },
                         { id: 'p2-3t', name: 'SEO + Generative Engine Optimization', status: 'active', category: 'infrastructure', priority: 'high', notes: 'Full metadata suite: title, description, Open Graph, Twitter Cards, canonical URL, favicon, JSON-LD structured data (WebApplication + Organization), robots, theme-color. Generative engine optimization: semantic HTML, descriptive headings, FAQ schema, HowTo schema, speakable metadata, citation-friendly content structure. Goal: discoverable by both traditional search and AI-powered answer engines (Google SGE, Perplexity, ChatGPT Browse).' },
@@ -5170,16 +5172,22 @@
                     deps: ['Valuation engine', 'BLS wage data', 'blueprintData'], debt: 'Outcomes section needs more guidance' }},
                 { id: 'reports', name: 'Reports Engine', layer: 'frontend', col: 6,
                   color: '#8b5cf6', icon: 'clipboard',
-                  detail: { desc: 'Scouting report generator. Match rings, skill breakdown, compensation intelligence. PDF via jsPDF + HTML export.',
-                    functions: ['generateScoutingReport()', 'renderScoutingReportPDF()'], lines: '~13500-17300', route: '#reports',
-                    inputs: ['userData', 'savedJob.matchData', 'BLS wages'], outputs: ['PDF file', 'HTML report'],
-                    deps: ['jsPDF', 'Match engine', 'BLS wages'], debt: 'PDF layout breaks on very long skill lists' }},
+                  detail: { desc: 'Scouting report generator. Match rings, skill breakdown, compensation intelligence. PDF via jsPDF + HTML export. Share via 128-bit tokens with Firestore access control (blocks enumeration).',
+                    functions: ['generateScoutingReport()', 'renderScoutingReportPDF()', 'generateShareToken()'], lines: '~13500-17300 + 19605-19690',
+                    inputs: ['userData', 'savedJob.matchData', 'BLS wages'], outputs: ['PDF file', 'HTML report', 'Shareable URL with token'],
+                    deps: ['jsPDF', 'Match engine', 'BLS wages', 'Firestore (reports collection)'], debt: 'PDF layout breaks on very long skill lists. Share URL requires manual copy.' }},
                 { id: 'admin', name: 'Admin Panel', layer: 'frontend', col: 7,
                   color: '#8b5cf6', icon: 'settings',
-                  detail: { desc: 'Overview, users, samples, waitlist, config, roadmap, costs, status, architecture. Admin-only access via isAdmin flag.',
-                    functions: ['renderAdminTabContent()', 'switchAdminTab()'], lines: '~2550-4500', route: '#admin',
+                  detail: { desc: 'Overview, users, samples, waitlist, config, roadmap, costs, status, architecture. Admin-only access via isAdmin flag. 109 roadmap items with visible IDs.',
+                    functions: ['renderAdminTabContent()', 'switchAdminTab()'], lines: '~2550-5990',
                     inputs: ['Firebase admin check', 'localStorage analytics'], outputs: ['Config changes', 'User management'],
-                    deps: ['Firebase Auth (admin flag)', 'Firestore (user docs)'], debt: 'Architecture map needs maintenance process' }},
+                    deps: ['Firebase Auth (admin flag)', 'Firestore (user docs)'], debt: 'Architecture map maintenance tracked via p2-3q.' }},
+                { id: 'showcase', name: 'Showcase Mode', layer: 'frontend', col: 8,
+                  color: '#8b5cf6', icon: 'users',
+                  detail: { desc: 'Read-only public profile viewer. Exports full Blueprint as self-contained HTML with embedded data. Disables editing, API calls, admin access, and all mutation paths.',
+                    functions: ['toggleShowcaseMode()', 'exportShowcaseProfile()', 'showcaseMode flag'], lines: '~2450-2550',
+                    inputs: ['userData snapshot', 'skillsData snapshot'], outputs: ['Self-contained HTML file', 'Read-only locked view'],
+                    deps: ['All frontend views (read-only code paths)'], debt: 'Export requires browser console. Needs in-app deploy workflow (p2-4d).' }},
 
                 // ── LAYER 2: RUNTIME STATE & ENGINES ──
                 { id: 'userdata', name: 'userData', layer: 'runtime', col: 0,
@@ -5214,10 +5222,10 @@
                     deps: ['skillsData', 'BLS wage data', 'O*NET crosswalk'], debt: 'quickScore and pipeline scores diverge. Ideal: single engine.' }},
                 { id: 'valuation', name: 'Valuation Engine', layer: 'runtime', col: 5,
                   color: '#f59e0b', icon: 'money',
-                  detail: { desc: 'Calculates evidence-based and potential compensation from skill levels, O*NET importance, and BLS wage data.',
+                  detail: { desc: 'Calculates evidence-based and potential compensation from skill levels, O*NET importance, BLS wage data, and peer verification evidence scores.',
                     functions: ['calculateTotalValue()', 'getEvidenceSummary()', 'calculateUniqueSkillImpact()'], lines: '~6500-6900',
-                    inputs: ['skillsData with levels', 'BLS wage crosswalk', 'User assessments'], outputs: ['Evidence value', 'Potential value', 'Compa ratio'],
-                    deps: ['BLS wages', 'O*NET importance scores'], debt: 'Salary estimates for non-standard roles can be inaccurate' }},
+                    inputs: ['skillsData with levels', 'BLS wage crosswalk', 'Evidence scores from verification'], outputs: ['Evidence value', 'Potential value', 'Compa ratio'],
+                    deps: ['BLS wages', 'O*NET importance scores', 'Verification system'], debt: 'Salary estimates for non-standard roles can be inaccurate' }},
                 { id: 'gap-analysis', name: 'Gap Analysis', layer: 'runtime', col: 6,
                   color: '#f59e0b', icon: 'shield',
                   detail: { desc: 'Classifies skills as matched/gap/surplus against job requirements. Powers scouting reports and network overlays.',
@@ -5230,14 +5238,26 @@
                     functions: ['renderScoutingReportPDF()', 'jsPDF'], lines: '~17000-17400',
                     inputs: ['Match data', 'User profile', 'BLS wages'], outputs: ['PDF blob download'],
                     deps: ['jsPDF library', 'Match engine output'], debt: 'Layout breaks on 40+ skills. Needs pagination.' }},
+                { id: 'verification', name: 'Verification System', layer: 'runtime', col: 8,
+                  color: '#f59e0b', icon: 'shield',
+                  detail: { desc: 'Peer verification engine. Evidence collection with credibility-weighted scoring and verifier level suggestions. Self/peer/manager/exec tiers. Suggested-level bonuses/penalties (+/-1.5 × weight).',
+                    functions: ['calculateEvidencePoints()', 'confirmVerification()', 'getEvidenceSummary()', 'renderVerifyTab()'], lines: '~8168-8830',
+                    inputs: ['Verification requests', 'Peer endorsements', 'Level confirmations'], outputs: ['Evidence scores', 'Credibility weights', 'Level suggestion badges'],
+                    deps: ['skillsData', 'Firestore (verifications array)'], debt: 'Verifier email notifications not implemented. No spam protection on requests.' }},
+                { id: 'security', name: 'XSS Security Layer', layer: 'runtime', col: 9,
+                  color: '#f59e0b', icon: 'lock',
+                  detail: { desc: '249 escapeHtml() call sites across all views. Covers innerHTML injection, textarea breakout, and input attribute escaping. Defense-in-depth for user input, O*NET data, and API responses.',
+                    functions: ['escapeHtml()', 'textarea value escaping', 'input attribute sanitization'], lines: 'Distributed (~1300, 14500, 25400, 31200+)',
+                    inputs: ['All dynamic string content'], outputs: ['Sanitized HTML-safe strings'],
+                    deps: ['None (pure utility function)'], debt: 'No CSP header yet. SVG diagram export uses innerHTML.' }},
 
                 // ── LAYER 3: BACKEND SERVICES & PERSISTENCE ──
                 { id: 'firestore', name: 'Firestore Database', layer: 'backend', col: 0,
                   color: '#10b981', icon: 'save',
-                  detail: { desc: 'Primary persistence. Collection: users/{uid}. Fields: profile, skills, roles, values, purpose, savedJobs, workHistory, etc.',
-                    functions: ['saveToFirestore()', 'loadFromFirestore()', 'fbDb.collection("users")'], lines: '~2215-2350',
-                    inputs: ['userData on save', 'Firebase Auth uid'], outputs: ['Full user profile on load'],
-                    deps: ['Firebase SDK', 'Firebase Auth'], debt: 'templateId guard was blocking wizard saves (fixed v4.42.2). No offline sync.' }},
+                  detail: { desc: 'Primary persistence. Collections: users/{uid}, reports/{reportId}. Server-side rules enforce 30 field-size limits, hasOnly field whitelisting, 1-write/sec rate limiting, and read/list split for report enumeration prevention. Share tokens (128-bit) gate report access.',
+                    functions: ['saveToFirestore()', 'loadFromFirestore()', 'fbDb.collection("users")', 'fbDb.collection("reports")'], lines: '~2215-2350 + firestore.rules',
+                    inputs: ['userData on save', 'Firebase Auth uid', 'Report data with shareToken'], outputs: ['Full user profile on load', 'Shared reports via token'],
+                    deps: ['Firebase SDK', 'Firebase Auth', 'firestore.rules (deployed separately)'], debt: 'Rules must deploy via Firebase Console, not Vercel. No offline sync. No automated rules deployment pipeline.' }},
                 { id: 'firebase-auth', name: 'Firebase Auth', layer: 'backend', col: 1,
                   color: '#10b981', icon: 'lock',
                   detail: { desc: 'Google sign-in provider. Token-based auth for API proxy. Provides uid, displayName, photoURL, email.',
@@ -5372,7 +5392,13 @@
                 ['skill-engine', 'onet', 'title→SOC', 'read'],
                 ['valuation', 'bls-wages', 'salary data', 'read'],
                 ['health-monitor', 'localstorage', 'persists', 'data'],
-                ['incident-log', 'localstorage', 'persists', 'data']
+                ['incident-log', 'localstorage', 'persists', 'data'],
+                ['verification', 'firestore', 'stores evidence', 'data'],
+                ['verification', 'skillsdata', 'updates scores', 'sync'],
+                ['blueprint', 'verification', 'evidence display', 'read'],
+                ['reports', 'firestore', 'share tokens', 'data'],
+                ['showcase', 'userdata', 'reads snapshot', 'read'],
+                ['showcase', 'skillsdata', 'reads snapshot', 'read']
             ];
         }
         
@@ -5391,7 +5417,7 @@
             // Header with view toggle and export
             html += '<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;">'
                 + '<div style="font-size:1.1em; font-weight:700; color:var(--text-primary);">'
-                + bpIcon('compass',18) + ' Platform Architecture <span style="font-size:0.7em; font-weight:400; color:var(--text-muted);">' + BP_VERSION + ' \u00B7 ~30K lines \u00B7 ' + components.length + ' components</span></div>'
+                + bpIcon('compass',18) + ' Platform Architecture <span style="font-size:0.7em; font-weight:400; color:var(--text-muted);">' + BP_VERSION + ' \u00B7 ~33K lines \u00B7 ' + components.length + ' components</span></div>'
                 + '<div style="display:flex; gap:6px; flex-wrap:wrap;">'
                 + '<div style="display:inline-flex; border:1px solid var(--border); border-radius:6px; overflow:hidden;">'
                 + '<button onclick="archSetView(\'tiles\')" id="archViewTiles" style="padding:4px 12px; font-size:0.75em; cursor:pointer; border:none; background:var(--accent); color:#fff;">Tiles</button>'
@@ -5403,7 +5429,7 @@
             
             // Note
             html += '<div style="font-size:0.75em; color:var(--text-muted); margin-bottom:16px; padding:8px 12px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px;">'
-                + '' + bpIcon('warning', 12) + ' <strong>Maintenance required:</strong> Update this map when adding/modifying components. See roadmap item p2-3q.'
+                + '' + bpIcon('warning', 12) + ' <strong>Last updated:</strong> v4.44.46 \u2014 Added verification system, showcase mode, XSS security layer, share token flows. See roadmap item p2-3q.'
                 + '</div>';
             
             // === TILES VIEW ===
@@ -5478,15 +5504,15 @@
             var components = getArchComponents();
             var flows = getArchFlows();
             
-            // === LAYOUT: 70% scale for no horizontal scroll ===
-            var S = 0.7; // global scale factor
-            var W = Math.round(1480 * S), H = Math.round(1020 * S);
+            // === LAYOUT: 65% scale for expanded canvas ===
+            var S = 0.65; // global scale factor
+            var W = Math.round(1680 * S), H = Math.round(1020 * S);
             var layerYs = { frontend: Math.round(100*S), runtime: Math.round(320*S), backend: Math.round(540*S), external: Math.round(760*S) };
             var layerH = Math.round(160 * S);
             
             // Position map — hand-tuned, scaled
             var pos = {
-                // Frontend Views
+                // Frontend Views (9 items)
                 'welcome':    { x: Math.round(100*S),  y: layerYs.frontend, shape: 'screen' },
                 'wizard':     { x: Math.round(250*S),  y: layerYs.frontend, shape: 'screen' },
                 'network':    { x: Math.round(420*S),  y: layerYs.frontend, shape: 'screen' },
@@ -5495,34 +5521,38 @@
                 'blueprint':  { x: Math.round(880*S),  y: layerYs.frontend, shape: 'screen' },
                 'reports':    { x: Math.round(1040*S), y: layerYs.frontend, shape: 'screen' },
                 'admin':      { x: Math.round(1200*S), y: layerYs.frontend, shape: 'screen' },
-                // Runtime State & Engines
-                'userdata':     { x: Math.round(140*S),  y: layerYs.runtime, shape: 'state' },
-                'skillsdata':   { x: Math.round(310*S),  y: layerYs.runtime, shape: 'state' },
-                'blueprintdata':{ x: Math.round(480*S),  y: layerYs.runtime, shape: 'state' },
-                'skill-engine': { x: Math.round(660*S),  y: layerYs.runtime, shape: 'engine' },
-                'match-engine': { x: Math.round(830*S),  y: layerYs.runtime, shape: 'engine' },
-                'valuation':    { x: Math.round(970*S),  y: layerYs.runtime, shape: 'engine' },
-                'gap-analysis': { x: Math.round(1110*S), y: layerYs.runtime, shape: 'engine' },
-                'pdf-gen':      { x: Math.round(1250*S), y: layerYs.runtime, shape: 'engine' },
-                // Backend Services
+                'showcase':   { x: Math.round(1380*S), y: layerYs.frontend, shape: 'screen' },
+                // Runtime State & Engines (10 items)
+                'userdata':     { x: Math.round(100*S),  y: layerYs.runtime, shape: 'state' },
+                'skillsdata':   { x: Math.round(250*S),  y: layerYs.runtime, shape: 'state' },
+                'blueprintdata':{ x: Math.round(400*S),  y: layerYs.runtime, shape: 'state' },
+                'skill-engine': { x: Math.round(560*S),  y: layerYs.runtime, shape: 'engine' },
+                'match-engine': { x: Math.round(710*S),  y: layerYs.runtime, shape: 'engine' },
+                'valuation':    { x: Math.round(850*S),  y: layerYs.runtime, shape: 'engine' },
+                'gap-analysis': { x: Math.round(990*S),  y: layerYs.runtime, shape: 'engine' },
+                'pdf-gen':      { x: Math.round(1120*S), y: layerYs.runtime, shape: 'engine' },
+                'verification': { x: Math.round(1270*S), y: layerYs.runtime, shape: 'engine' },
+                'security':     { x: Math.round(1430*S), y: layerYs.runtime, shape: 'engine' },
+                // Backend Services (8 items, wider spread)
                 'firestore':      { x: Math.round(160*S),  y: layerYs.backend, shape: 'db' },
-                'firebase-auth':  { x: Math.round(330*S),  y: layerYs.backend, shape: 'lock' },
-                'localstorage':   { x: Math.round(500*S),  y: layerYs.backend, shape: 'db' },
-                'ai-proxy':       { x: Math.round(680*S),  y: layerYs.backend, shape: 'proxy' },
-                'job-proxy':      { x: Math.round(850*S),  y: layerYs.backend, shape: 'proxy' },
-                'health-monitor': { x: Math.round(1020*S), y: layerYs.backend, shape: 'service' },
-                'incident-log':   { x: Math.round(1160*S), y: layerYs.backend, shape: 'service' },
-                'cost-tracker':   { x: Math.round(1300*S), y: layerYs.backend, shape: 'service' },
-                // External APIs & Data
+                'firebase-auth':  { x: Math.round(340*S),  y: layerYs.backend, shape: 'lock' },
+                'localstorage':   { x: Math.round(520*S),  y: layerYs.backend, shape: 'db' },
+                'ai-proxy':       { x: Math.round(710*S),  y: layerYs.backend, shape: 'proxy' },
+                'job-proxy':      { x: Math.round(900*S),  y: layerYs.backend, shape: 'proxy' },
+                'health-monitor': { x: Math.round(1080*S), y: layerYs.backend, shape: 'service' },
+                'incident-log':   { x: Math.round(1250*S), y: layerYs.backend, shape: 'service' },
+                'cost-tracker':   { x: Math.round(1420*S), y: layerYs.backend, shape: 'service' },
+                // External APIs & Data (10 items, wider spread)
                 'anthropic':    { x: Math.round(290*S),  y: layerYs.external + Math.round(50*S), shape: 'cloud' },
                 'onet':         { x: Math.round(460*S),  y: layerYs.external + Math.round(50*S), shape: 'data' },
-                'bls-wages':    { x: Math.round(530*S),  y: layerYs.external, shape: 'data' },
-                'skill-libs':   { x: Math.round(680*S),  y: layerYs.external, shape: 'data' },
-                'company-values':{ x: Math.round(830*S), y: layerYs.external, shape: 'data' },
-                'jsearch':      { x: Math.round(990*S),  y: layerYs.external, shape: 'cloud' },
-                'free-apis':    { x: Math.round(1140*S), y: layerYs.external, shape: 'cloud' },
-                'keyed-apis':   { x: Math.round(1300*S), y: layerYs.external, shape: 'cloud' },
-                'firebase-sdk': { x: Math.round(120*S),   y: layerYs.external + Math.round(50*S), shape: 'cloud' }
+                'bls-wages':    { x: Math.round(560*S),  y: layerYs.external, shape: 'data' },
+                'skill-libs':   { x: Math.round(720*S),  y: layerYs.external, shape: 'data' },
+                'company-values':{ x: Math.round(880*S), y: layerYs.external, shape: 'data' },
+                'jsearch':      { x: Math.round(1040*S),  y: layerYs.external, shape: 'cloud' },
+                'free-apis':    { x: Math.round(1200*S), y: layerYs.external, shape: 'cloud' },
+                'keyed-apis':   { x: Math.round(1360*S), y: layerYs.external, shape: 'cloud' },
+                'firebase-sdk': { x: Math.round(120*S),   y: layerYs.external + Math.round(50*S), shape: 'cloud' },
+                'replit':       { x: Math.round(1520*S),  y: layerYs.external, shape: 'cloud' }
             };
             
             // === LIGHT THEME COLORS ===
@@ -5798,7 +5828,7 @@
             
             // Title only (legend moves to HTML overlay)
             svg += '<text x="' + Math.round(50*S) + '" y="' + Math.round(22*S) + '" fill="' + TEXT + '" font-size="' + Math.max(9, Math.round(14*S)) + '" font-weight="700" letter-spacing="0.3">Blueprint Platform Architecture</text>';
-            svg += '<text x="' + Math.round(50*S) + '" y="' + Math.round(36*S) + '" fill="' + TEXT_MUTED + '" font-size="' + Math.max(6, Math.round(9*S)) + '">' + BP_VERSION + ' \u00B7 ~30K lines \u00B7 ' + components.length + ' components \u00B7 ' + flows.length + ' data flows</text>';
+            svg += '<text x="' + Math.round(50*S) + '" y="' + Math.round(36*S) + '" fill="' + TEXT_MUTED + '" font-size="' + Math.max(6, Math.round(9*S)) + '">' + BP_VERSION + ' \u00B7 ~33K lines \u00B7 ' + components.length + ' components \u00B7 ' + flows.length + ' data flows</text>';
             
             svg += '</svg>';
             container.innerHTML = svg;
