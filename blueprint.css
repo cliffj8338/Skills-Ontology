@@ -1419,6 +1419,15 @@
         .main-content.with-filters {
             height: calc(100vh - 56px - 48px);
         }
+        .main-content.with-controls {
+            height: calc(100vh - 56px - 48px);
+        }
+        .main-content.with-banner {
+            height: calc(100vh - 56px - 40px);
+        }
+        .main-content.with-controls.with-banner {
+            height: calc(100vh - 56px - 48px - 40px);
+        }
         
         #networkView {
             width: 100%;
