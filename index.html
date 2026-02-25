@@ -2235,6 +2235,8 @@
         
         if (fbAuth) {
             fbAuth.onAuthStateChanged(function(user) {
+                // v4.44.36: Showcase mode manages its own auth state — skip Firebase overrides
+                if (showcaseMode) { authReadyResolve(null); return; }
                 fbUser = user;
                 if (user) {
                     console.log('🔐 Signed in:', user.email);
@@ -2556,6 +2558,8 @@
 
         // ===== AUTH UI UPDATE =====
         function updateAuthUI() {
+            // v4.44.36: Showcase mode manages its own header state
+            if (showcaseMode) return;
             var authBtn = document.getElementById('authNavBtn');
             var profileChip = document.getElementById('profileChip');
             var overflowSignIn = document.getElementById('overflowSignIn');
@@ -6650,6 +6654,8 @@
         var waitlistEmail = null;
         
         function detectAppMode() {
+            // v4.44.36: Showcase mode sets its own appMode
+            if (showcaseMode) return;
             // Admins always get full access
             if (fbUser && fbIsAdmin) {
                 appMode = 'active';
@@ -8743,7 +8749,7 @@
             if (sp) sp.style.width = '90%';
             
             // Set up header for showcase
-            var authBtn = document.getElementById('authBtn');
+            var authBtn = document.getElementById('authNavBtn');
             if (authBtn) authBtn.style.display = 'none';
             var overflowSignIn = document.getElementById('overflowSignIn');
             if (overflowSignIn) overflowSignIn.style.display = 'none';
