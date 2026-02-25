@@ -1,4 +1,4 @@
-<!-- v4.44.27 | 2026-02-25 | Expand outcome extraction verb list + window state expose -->
+<!-- v4.44.28 | 2026-02-25 | Outcome verb expansion + valuation trusts 4+ evidence skills -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.27 | 2026-02-25 | Expand outcome extraction verb list + window state expose -->
+    <!-- v4.44.28 | 2026-02-25 | Outcome verb expansion + valuation trusts 4+ evidence skills -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.27 - BUILD 20260225-outcome-verbs
-        var BP_VERSION = 'v4.44.27';
+        // BLUEPRINT v4.44.28 - BUILD 20260225-valuation-evidence-trust
+        var BP_VERSION = 'v4.44.28';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -8109,8 +8109,11 @@
             var effective = getEffectiveLevel(skill);
             var claimedVal = proficiencyValue(claimed);
             var effectiveVal = proficiencyValue(effective);
-            // Valuation uses whichever is LOWER — you can't claim above your evidence
-            // But evidence CAN push you higher than you claimed (cert floor, etc.)
+            // If skill has substantial evidence (4+ outcomes), trust the claimed level
+            // Evidence validates the claim rather than constraining it
+            var evidenceCount = (skill.evidence || []).length;
+            if (evidenceCount >= 4) return claimed;
+            // Otherwise: valuation uses whichever is LOWER — can't claim above evidence
             return effectiveVal < claimedVal ? effective : claimed;
         }
         
@@ -16135,7 +16138,7 @@ body {
                     // Score the outcome — anything with a real metric qualifies
                     const combined = outcomeText + ' ' + descText;
                     const hasMetric = /\$[\d,]+[MBK]?|\d+%|\d+x|\d+ times|million|billion/i.test(combined);
-                    const hasResult = /retained|increased|reduced|improved|delivered|generated|achieved|enabled|saved|prevented|launched|built|founded|established|designed|developed|created|published|advised|managed|led|maintained|predicted|grew|expanded|scaled|transformed|implemented|coordinated|negotiated|secured|trained|recognized|served|produced|completed|resolved|translated|tracked|identified|advocated|guided|proposed|calculated|commanded|influenced|shaped|architected|recruited|mentored/i.test(combined);
+                    const hasResult = /retained|increased|reduced|improved|delivered|generated|achieved|enabled|saved|prevented|launched|built|founded|established|designed|developed|created|published|advised|managed|led|maintained|predicted|grew|expanded|scaled|transformed|implemented|coordinated|negotiated|secured|trained|recognized|served|produced|completed|resolved|translated|tracked|identified|advocated|guided|proposed|calculated|commanded|influenced|shaped|architected|recruited|mentored|applied|aligned|evaluated|made|openly|reached|channeled|spent/i.test(combined);
 
                     if (hasMetric || hasResult) {
                         // Build a combined display text: outcome is the headline, description adds context
