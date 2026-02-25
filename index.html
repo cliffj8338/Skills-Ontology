@@ -12055,12 +12055,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 var nv = document.getElementById('networkView');
                 if (nv) {
                     nv.setAttribute('width', window.innerWidth);
-                    nv.setAttribute('height', Math.max(300, window.innerHeight - 160));
+                    nv.setAttribute('height', Math.max(300, window.innerHeight - 100));
                     d3.select('#networkView').selectAll('*').remove();
                     var fo = d3.select('#networkView').append('foreignObject')
                         .attr('x', 0).attr('y', 0)
                         .attr('width', window.innerWidth)
-                        .attr('height', Math.max(300, window.innerHeight - 160));
+                        .attr('height', Math.max(300, window.innerHeight - 100));
                     fo.append('xhtml:div')
                         .style('display', 'flex')
                         .style('flex-direction', 'column')
@@ -12092,8 +12092,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (typeof normalizeUserRoles === 'function') normalizeUserRoles();
             const width = window.innerWidth;
             const isMobile = width <= 768;
-            // Height: subtract header, controls, banner (if visible), and bottom nav on mobile
-            var heightOffset = 160; // desktop default
+            // Height: subtract navbar + controls (no page header on desktop)
+            var heightOffset = 100; // desktop: navbar(52) + controls(48)
             if (isMobile) {
                 heightOffset = 52 + 48 + 60; // header + controls + bottom nav
                 if (document.getElementById('readonlyBanner')?.style.display !== 'none') heightOffset += 44;
@@ -12520,7 +12520,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Hide skills page header on overlay modes (job/match/values) and on mobile always
             var _sph = document.getElementById('skillsPageHeader');
-            if (_sph) _sph.style.display = (mode === 'you' && window.innerWidth > 768) ? 'block' : 'none';
+            if (_sph) _sph.style.display = 'none';
             // Label toggles disabled — interactive nodes make them unnecessary
             // var nc = document.getElementById('networkControls');
             // if (nc) nc.style.display = '';
@@ -12572,7 +12572,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (!job || !job.parsedSkills) return;
             
             var width = window.innerWidth;
-            var height = window.innerHeight - 160;
+            var height = window.innerHeight - 100;
             var isMobile = width <= 768;
             var scaleFactor = Math.min(width, height) / 900;
             scaleFactor = Math.max(0.8, Math.min(scaleFactor, 1.6));
@@ -12721,7 +12721,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (!job || !job.matchData) return;
             
             var width = window.innerWidth;
-            var height = window.innerHeight - 160;
+            var height = window.innerHeight - 100;
             var isMobile = width <= 768;
             var match = job.matchData;
             var scaleFactor = Math.min(width, height) / 900;
@@ -13176,7 +13176,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             var width = window.innerWidth;
             var isMobile = width <= 768;
-            var height = isMobile ? Math.max(window.innerHeight - 200, 400) : window.innerHeight - 160;
+            var height = isMobile ? Math.max(window.innerHeight - 200, 400) : window.innerHeight - 100;
             var scaleFactor = Math.min(width, height) / 900;
             scaleFactor = Math.max(0.8, Math.min(scaleFactor, 1.6));
             
@@ -14422,7 +14422,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 window._welcomePickerActive = false;
             } else if (view === 'network') {
                 // Skills Ontology view
-                var sph = document.getElementById('skillsPageHeader'); if (sph) sph.style.display = (window.innerWidth <= 768) ? 'none' : 'block';
+                var sph = document.getElementById('skillsPageHeader'); if (sph) sph.style.display = 'none';
                 controls.style.display = 'flex';
                 document.querySelector('.main-content')?.classList.add('with-controls');
                 // Sync toggle pills with current sub-view
