@@ -3103,6 +3103,16 @@
             });
             html += '</div>';
             
+            // ===== SHOWCASE URL (v4.44.36) =====
+            if (!showcaseMode) {
+                var showcaseUrl = window.location.origin + window.location.pathname + '?showcase=' + SHOWCASE_CONFIG.key;
+                html += '<div style="margin-bottom:24px; padding:14px 18px; background:linear-gradient(135deg, rgba(251,191,36,0.08), rgba(139,92,246,0.08)); border:1px solid rgba(251,191,36,0.2); border-radius:10px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">'
+                    + '<div style="font-size:0.78em; color:#fbbf24; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; white-space:nowrap;">' + bpIcon('eye', 14) + ' Showcase URL</div>'
+                    + '<code id="showcaseUrlText" style="flex:1; min-width:200px; font-size:0.82em; color:var(--text-secondary); background:var(--c-surface-2); padding:8px 12px; border-radius:6px; border:1px solid var(--c-surface-5); word-break:break-all; cursor:text; user-select:all;">' + escapeHtml(showcaseUrl) + '</code>'
+                    + '<button onclick="navigator.clipboard.writeText(document.getElementById(\'showcaseUrlText\').textContent); this.textContent=\'Copied!\'; this.style.background=\'#10b981\'; setTimeout(function(){document.querySelector(\'[data-showcase-copy]\').textContent=\'Copy\'; document.querySelector(\'[data-showcase-copy]\').style.background=\'rgba(251,191,36,0.15)\';}, 1500);" data-showcase-copy style="padding:6px 16px; background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.3); border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8em; white-space:nowrap;">Copy</button>'
+                    + '</div>';
+            }
+            
             // ===== DATA LIBRARIES (tiles) =====
             // Count O*NET skills (nested categories structure)
             var skillLibCount = 0;
