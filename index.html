@@ -1,4 +1,4 @@
-<!-- v4.44.24 | 2026-02-25 | Stability: save retry/backup, load recovery, error visibility, job search timeout -->
+<!-- v4.44.25 | 2026-02-25 | Stability: user-facing error toasts, null DOM guards, empty catch logging -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1482,7 +1482,7 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.44.21 - BUILD 20260224-cache-dedup-labels
-        var BP_VERSION = 'v4.44.24';
+        var BP_VERSION = 'v4.44.25';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1670,7 +1670,7 @@
             trackAICall(featureTag);
             var idToken = null;
             if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
-                try { idToken = await firebase.auth().currentUser.getIdToken(); } catch (e) {}
+                try { idToken = await firebase.auth().currentUser.getIdToken(); } catch (e) { console.warn('Failed to get Firebase ID token:', e.message); }
             }
             if (idToken && AI_PROXY_AVAILABLE !== false) {
                 var proxyApiError = null;
@@ -8974,6 +8974,7 @@
             } catch (error) {
                 console.error('searchSkills error:', error);
                 logIncident('warning', 'skill-search', 'Skill search failed: ' + error.message);
+                showToast('Skill search failed. Please try again.', 'error');
                 return [];
             }
         }
@@ -12022,6 +12023,41 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
         window.renderJobSelectorWidget = renderJobSelectorWidget;
         
+        function networkLabelLines(name, maxChars) {
+            if (!name) return [''];
+            if (name.length <= maxChars) return [name];
+            var words = name.split(' ');
+            var lines = [];
+            var cur = '';
+            for (var i = 0; i < words.length; i++) {
+                var test = cur ? cur + ' ' + words[i] : words[i];
+                if (test.length > maxChars && cur.length > 0) {
+                    if (lines.length >= 1) {
+                        cur = cur.length > maxChars ? cur.substring(0, maxChars - 1) + '\u2026' : cur;
+                        lines.push(cur);
+                        return lines;
+                    }
+                    lines.push(cur);
+                    cur = words[i];
+                } else {
+                    cur = test;
+                }
+            }
+            if (cur) {
+                if (lines.length >= 1 && cur.length > maxChars) {
+                    cur = cur.substring(0, maxChars - 1) + '\u2026';
+                }
+                lines.push(cur);
+            }
+            if (lines.length > 2) {
+                lines = lines.slice(0, 2);
+                var last = lines[1];
+                if (last.length > maxChars - 1) last = last.substring(0, maxChars - 1);
+                lines[1] = last + '\u2026';
+            }
+            return lines;
+        }
+
         // Network label visibility state
         var networkShowRoleLabels = true;
         var networkShowSkillLabels = true;
@@ -12331,54 +12367,20 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             node.append("text")
                 .each(function(d) {
-                    if (d.type === 'skill') {
-                        // Split long skill names into multiple lines
-                        const words = d.name.split(' ');
-                        const maxWidth = isMobile ? 12 : 15; // characters per line
-                        let lines = [];
-                        let currentLine = '';
-                        
-                        words.forEach(word => {
-                            if ((currentLine + ' ' + word).length > maxWidth && currentLine.length > 0) {
-                                lines.push(currentLine);
-                                currentLine = word;
-                            } else {
-                                currentLine = currentLine ? currentLine + ' ' + word : word;
-                            }
-                        });
-                        if (currentLine) lines.push(currentLine);
-                        
-                        // Create tspan for each line
-                        const text = d3.select(this);
-                        lines.forEach((line, i) => {
-                            text.append('tspan')
-                                .text(line)
-                                .attr('x', 0)
-                                .attr('dy', i === 0 ? -19 - (lines.length - 1) * 5 : 10)
-                                .attr('text-anchor', 'middle');
-                        });
+                    var el = d3.select(this);
+                    var maxC = d.type === 'center' ? 25 : d.type === 'role' ? (isMobile ? 16 : 22) : (isMobile ? 12 : 15);
+                    var lines = networkLabelLines(d.name, maxC);
+                    if (d.type === 'center') {
+                        var r = isMobile ? 30 : Math.round(40 * scaleFactor);
+                        el.attr('text-anchor', 'end');
+                        lines.forEach(function(ln, i) { el.append('tspan').text(ln).attr('x', -(r + 8)).attr('dy', i === 0 ? 4 : 12); });
+                    } else if (d.type === 'role') {
+                        var roleBaseY = Math.round(-35 * scaleFactor);
+                        el.attr('text-anchor', 'middle');
+                        lines.forEach(function(ln, i) { el.append('tspan').text(ln).attr('x', 0).attr('dy', i === 0 ? roleBaseY - (lines.length - 1) * 5 : 11); });
                     } else {
-                        // Single line for center and role nodes
-                        var label = d.name;
-                        // Truncate long role names
-                        if (d.type === 'role' && label.length > 20) {
-                            label = label.substring(0, 18) + '\u2026';
-                        }
-                        d3.select(this)
-                            .text(label)
-                            .attr("x", d => {
-                                if (d.type === "center") {
-                                    var r = isMobile ? 30 : Math.round(40 * scaleFactor);
-                                    return -(r + 8); // just outside circle edge
-                                }
-                                return 0;
-                            })
-                            .attr("y", d => {
-                                if (d.type === "center") return 4; // vertically centered
-                                if (d.type === "role") return Math.round(-35 * scaleFactor);
-                                return -19;
-                            })
-                            .attr("text-anchor", d => d.type === "center" ? "end" : "middle");
+                        el.attr('text-anchor', 'middle');
+                        lines.forEach(function(ln, i) { el.append('tspan').text(ln).attr('x', 0).attr('dy', i === 0 ? -19 - (lines.length - 1) * 5 : 10); });
                     }
                 });
 
@@ -12695,16 +12697,20 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 });
             
             node.append("text")
-                .text(function(d) { var n = d.name; if (d.type === 'role' && n.length > 20) n = n.substring(0, 18) + '\u2026'; return n; })
-                .attr("x", function(d) {
+                .each(function(d) {
+                    var el = d3.select(this);
+                    var maxC = d.type === 'center' ? 25 : d.type === 'role' ? (isMobile ? 16 : 22) : (isMobile ? 12 : 15);
+                    var lines = networkLabelLines(d.name, maxC);
                     if (d.type === 'center') {
                         var r = isMobile ? 30 : Math.round(40 * scaleFactor);
-                        return -(r + 8);
+                        el.attr('text-anchor', 'end');
+                        lines.forEach(function(ln, i) { el.append('tspan').text(ln).attr('x', -(r + 8)).attr('dy', i === 0 ? 4 : 12); });
+                    } else {
+                        var baseY = d.type === 'role' ? -34 : -22;
+                        el.attr('text-anchor', 'middle');
+                        lines.forEach(function(ln, i) { el.append('tspan').text(ln).attr('x', 0).attr('dy', i === 0 ? baseY - (lines.length - 1) * 5 : 11); });
                     }
-                    return 0;
                 })
-                .attr("y", function(d) { return d.type === 'center' ? 4 : d.type === 'role' ? -34 : -22; })
-                .attr("text-anchor", function(d) { return d.type === 'center' ? 'end' : 'middle'; })
                 .style("font-size", function(d) { return d.type === 'center' ? '14px' : d.type === 'role' ? '11px' : '9px'; });
             
             if (isMobile) node.selectAll('text').filter(function(d) { return d.type === 'skill'; }).classed('hidden', true);
@@ -12942,16 +12948,20 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Labels
             node.append("text")
-                .text(function(d) { var n = d.name; if (d.type === 'role' && n.length > 20) n = n.substring(0, 18) + '\u2026'; return n; })
-                .attr("x", function(d) {
+                .each(function(d) {
+                    var el = d3.select(this);
+                    var maxC = d.type === 'center' ? 25 : d.type === 'role' ? (isMobile ? 16 : 22) : (isMobile ? 12 : 15);
+                    var lines = networkLabelLines(d.name, maxC);
                     if (d.type === 'center') {
                         var r = isMobile ? 28 : Math.round(38 * scaleFactor);
-                        return -(r + 8);
+                        el.attr('text-anchor', 'end');
+                        lines.forEach(function(ln, i) { el.append('tspan').text(ln).attr('x', -(r + 8)).attr('dy', i === 0 ? 4 : 12); });
+                    } else {
+                        var baseY = d.type === 'role' ? -34 : -22;
+                        el.attr('text-anchor', 'middle');
+                        lines.forEach(function(ln, i) { el.append('tspan').text(ln).attr('x', 0).attr('dy', i === 0 ? baseY - (lines.length - 1) * 5 : 11); });
                     }
-                    return 0;
                 })
-                .attr("y", function(d) { return d.type === 'center' ? 4 : d.type === 'role' ? -34 : -22; })
-                .attr("text-anchor", function(d) { return d.type === 'center' ? 'end' : 'middle'; })
                 .style("font-size", function(d) { return d.type === 'center' ? '14px' : d.type === 'role' ? '11px' : '9px'; })
                 .style("fill", function(d) {
                     if (d.matchState === 'matched') return matchColors.matched;
@@ -13227,7 +13237,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             }
             var companyPossessive = companyName.endsWith('s') ? companyName + "'" : companyName + "'s";
             nodes.push({
-                id: 'hub-company', name: companyPossessive + ' Culture', type: 'hub', side: 'company',
+                id: 'hub-company', name: companyPossessive, type: 'hub', side: 'company',
                 x: rightX, y: topY, fx: rightX, fy: topY, homeX: rightX, homeY: topY
             });
             
@@ -13408,17 +13418,20 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Labels
             node.append("text")
-                .text(function(d) {
-                    if (d.type === 'tension-marker') return '\u26A0';
-                    return d.name;
+                .each(function(d) {
+                    var el = d3.select(this);
+                    if (d.type === 'tension-marker') {
+                        el.text('\u26A0').attr('x', 0).attr('y', 4).attr('text-anchor', 'middle');
+                        return;
+                    }
+                    var maxC = d.type === 'hub' ? (isMobile ? 18 : 24) : (isMobile ? 14 : 18);
+                    var lines = networkLabelLines(d.name, maxC);
+                    var baseY = d.type === 'hub' ? -(isMobile ? 36 : Math.round(46 * scaleFactor)) : -(isMobile ? 26 : Math.round(30 * scaleFactor));
+                    el.attr('text-anchor', 'middle');
+                    lines.forEach(function(ln, i) {
+                        el.append('tspan').text(ln).attr('x', 0).attr('dy', i === 0 ? baseY - (lines.length - 1) * 5 : 11);
+                    });
                 })
-                .attr("x", 0)
-                .attr("y", function(d) {
-                    if (d.type === 'hub') return -(isMobile ? 36 : Math.round(46 * scaleFactor));
-                    if (d.type === 'tension-marker') return 4;
-                    return -(isMobile ? 26 : Math.round(30 * scaleFactor));
-                })
-                .attr("text-anchor", "middle")
                 .style("font-size", function(d) {
                     if (d.type === 'hub') return isMobile ? '12px' : '14px';
                     if (d.type === 'tension-marker') return '12px';
@@ -13897,6 +13910,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             cardView.innerHTML = html;
             } catch (err) {
                 console.error('initCardView error:', err);
+                showToast('Card view failed to load: ' + err.message, 'error');
                 cardView.innerHTML = '<div style="text-align:center; padding:60px 20px; color:var(--text-muted);">'
                     + '<div style="font-size:2em; margin-bottom:12px;">⚠️</div>'
                     + '<div style="font-size:1.05em; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">Card view error</div>'
@@ -16619,6 +16633,7 @@ body {
                     contentEl.innerHTML = renderBlueprintTabContent();
                 } catch(e) {
                     console.error('Blueprint tab render error (' + tab + '):', e);
+                    showToast('Blueprint view failed to render.', 'error');
                     contentEl.innerHTML = '<div style="padding:40px; text-align:center; color:#ef4444;">'
                         + '<div style="font-size:1.2em; margin-bottom:8px;">' + bpIcon('warning',18) + ' Rendering Error</div>'
                         + '<div style="font-size:0.85em; color:var(--c-muted);">' + (e.message || e) + '</div></div>';
@@ -18007,7 +18022,7 @@ body {
             
             if (templates[type]) {
                 textarea.value = templates[type];
-                textarea.focus();
+                if (textarea) textarea.focus();
             }
         }
         
@@ -26302,7 +26317,8 @@ body {
             div.innerHTML = '<input type="text" class="settings-input wh-ach-input" placeholder="e.g., Led $2M digital transformation initiative" style="flex:1; font-size:0.88em;">'
                 + '<button onclick="this.parentElement.remove()" style="background:none; border:none; color:var(--c-danger); cursor:pointer; font-size:1.1em; padding:0 4px;">\u00D7</button>';
             container.appendChild(div);
-            div.querySelector('input').focus();
+            var newInput = div.querySelector('input');
+            if (newInput) newInput.focus();
         }
         
         function saveWorkHistoryFromModal(idx) {
@@ -30388,6 +30404,7 @@ body {
                 console.error('Error:', error);
                 console.error('Error message:', error.message);
                 console.error('Error stack:', error.stack);
+                showToast('Skill search encountered an error. Please try again.', 'error');
                 
                 const container = document.getElementById('addSkillsResults');
                 if (container) {

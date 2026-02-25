@@ -39,14 +39,16 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - Report templates hardened with escapeHtml for all user-controlled data
 - See `docs/SECURITY_AUDIT.md` for full audit details
 
-## Stability (v4.44.24)
+## Stability (v4.44.25)
 - Firestore save: 3-attempt retry with exponential backoff + localStorage backup
 - Firestore load: user-facing error toast + automatic restore from local backup
 - Global error handlers: window.onerror + unhandledrejection (log to incident system)
 - Save debouncing: debouncedSave() prevents race conditions on rapid edits
 - Job search: 35s overall timeout safety net prevents stuck loading spinners
-- Error visibility: showToast on all critical operation failures (auth, search, reports)
+- Error visibility: showToast on all critical operation failures (auth, search, reports, card view, blueprint render, skill search)
 - Null DOM guards on focus/querySelector calls inside setTimeout
+- Empty catch blocks: console.warn added to non-trivial operations (getIdToken, etc.)
+- Shared networkLabelLines() utility for consistent multi-line label truncation across all 4 graph views
 
 ## Data Libraries
 - `onet-skills-library.json` — O*NET skills (13,960 skills)
