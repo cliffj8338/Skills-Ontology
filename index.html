@@ -160,7 +160,7 @@
     }
     </script>
 
-    <!-- v4.44.14 | 20260224 | Mobile: settings tab label, job dropdown viewport, center node truncation -->
+    <!-- v4.44.15 | 20260224 | Mobile: center controls, hide badge, tighter match layout, smart truncation -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -479,6 +479,34 @@
             transition: color 0.2s;
         }
         .teaser-backstory a:hover { color: #93bbfc; text-decoration: underline; }
+        
+        /* Mobile controls centering */
+        @media (max-width: 768px) {
+            .controls {
+                flex-wrap: wrap;
+                justify-content: center !important;
+            }
+            .controls-left {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+                gap: 8px;
+            }
+            .controls-right {
+                justify-content: center;
+                margin-left: 0 !important;
+                width: 100%;
+            }
+            #matchModeToggle {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+            #matchActiveBadge {
+                display: none !important;
+            }
+        }
         
         @media (max-width: 768px) {
             .teaser-card { max-width: 100%; border-radius: 14px; }
@@ -1400,8 +1428,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.14 - BUILD 20260224-mobile-ui-polish
-        var BP_VERSION = 'v4.44.14';
+        // BLUEPRINT v4.44.15 - BUILD 20260224-mobile-controls-center
+        var BP_VERSION = 'v4.44.15';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -12541,7 +12569,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             (match.gaps || []).forEach(function(g) { gapSkills.add(g.name.toLowerCase()); });
             
             // === LAYOUT: Center (You) on LEFT, Job on RIGHT ===
-            var centerX = isMobile ? width * 0.28 : width * 0.22;
+            var centerX = isMobile ? width * 0.35 : width * 0.22;
             var centerY = height * 0.38;
             var jobX = isMobile ? width * 0.72 : width * 0.78;
             var jobY = height * 0.32;
@@ -12555,7 +12583,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Use the user's actual roles — fan them out from center-left
             skillsData.roles.forEach(function(role, i) {
                 var angle = -Math.PI * 0.6 + (i / Math.max(skillsData.roles.length - 1, 1)) * Math.PI * 1.2;
-                var radius = (isMobile ? 110 : 180) * scaleFactor;
+                var radius = (isMobile ? 85 : 180) * scaleFactor;
                 var roleId = role.id || role.name;
                 nodes.push({
                     id: roleId, name: role.name, type: 'role', color: role.color, matchState: 'role',
@@ -12954,7 +12982,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 x: leftX, y: topY, fx: leftX, fy: topY, homeX: leftX, homeY: topY
             });
             var companyName = job.company || 'Company';
-            if (isMobile && companyName.length > 14) companyName = companyName.substring(0, 12) + '\u2026';
+            if (isMobile && companyName.length > 14) {
+                var truncAt = companyName.lastIndexOf(' ', 12);
+                if (truncAt < 6) truncAt = 12;
+                companyName = companyName.substring(0, truncAt) + '\u2026';
+            }
             var companyPossessive = companyName.endsWith('s') ? companyName + "'" : companyName + "'s";
             nodes.push({
                 id: 'hub-company', name: companyPossessive + ' Culture', type: 'hub', side: 'company',
