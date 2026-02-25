@@ -2251,7 +2251,7 @@
         }
         .match-legend {
             position: absolute;
-            top: 16px;
+            bottom: 16px;
             right: 16px;
             display: flex;
             flex-direction: column;
@@ -2270,7 +2270,7 @@
         }
         .job-info-tile {
             position: absolute;
-            top: 16px;
+            bottom: 16px;
             left: 16px;
             display: flex;
             flex-direction: column;
@@ -3337,6 +3337,7 @@
             }
             .job-info-tile {
                 top: 8px;
+                bottom: auto;
                 left: 8px;
                 right: 8px;
                 min-width: unset;
