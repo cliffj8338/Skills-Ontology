@@ -1,4 +1,4 @@
-<!-- v4.44.28 | 2026-02-25 | Outcome verb expansion + valuation trusts 4+ evidence skills -->
+<!-- v4.44.29 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.28 | 2026-02-25 | Outcome verb expansion + valuation trusts 4+ evidence skills -->
+    <!-- v4.44.29 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.28 - BUILD 20260225-valuation-evidence-trust
-        var BP_VERSION = 'v4.44.28';
+        // BLUEPRINT v4.44.29 - BUILD 20260225-verification-system
+        var BP_VERSION = 'v4.44.29';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -7949,8 +7949,23 @@
             // Certification floor: certs bump effective level to at least this
             certFloor: 'Proficient',
             certFloorPoints: 5,
-            // Verification bonus: verified outcomes get a multiplier
-            verificationMultiplier: 1.5
+            // Verification bonus: legacy flat multiplier (kept for admin UI compat)
+            verificationMultiplier: 1.5,
+            // Credibility weights by verifier relationship (replaces flat multiplier)
+            credibilityWeights: {
+                'Manager': 2.0,
+                'Executive': 2.0,
+                'Client': 1.8,
+                'Colleague': 1.5,
+                'Industry Peer': 1.5,
+                'Peer': 1.5,
+                'Direct Report': 1.3,
+                'Board Member': 1.8,
+                'Co-founder': 1.8,
+                'Other': 1.2
+            },
+            // Verification expiry: pending requests older than this are auto-expired
+            verificationExpiryDays: 30
         };
         
         // Load/save admin-configured thresholds
@@ -8011,16 +8026,26 @@
             var points = 0;
             var evidence = skill.evidence || [];
             
+            // Get the best verification for this skill (highest credibility)
+            var verifications = getSkillVerifications(skill.name);
+            var confirmedVerifications = verifications.filter(function(v) { return v.status === 'confirmed'; });
+            var bestMultiplier = 1.0;
+            if (confirmedVerifications.length > 0) {
+                confirmedVerifications.forEach(function(v) {
+                    var rel = v.relationship || 'Other';
+                    var weight = evidenceConfig.credibilityWeights[rel] || evidenceConfig.verificationMultiplier || 1.2;
+                    if (weight > bestMultiplier) bestMultiplier = weight;
+                });
+            }
+            
             evidence.forEach(function(ev) {
                 var text = ((ev.outcome || '') + ' ' + (ev.description || '')).trim();
                 if (!text) return;
                 var outcomeScore = scoreOutcome(text);
                 
-                // Verification bonus: verified outcomes count more
-                var verifications = getSkillVerifications(skill.name);
-                var isVerified = verifications.some(function(v) { return v.status === 'confirmed'; });
-                if (isVerified) {
-                    outcomeScore = Math.min(outcomeScore * evidenceConfig.verificationMultiplier, 5);
+                // Apply credibility-weighted verification bonus
+                if (bestMultiplier > 1.0) {
+                    outcomeScore = Math.min(outcomeScore * bestMultiplier, 5);
                 }
                 
                 points += outcomeScore;
@@ -8203,12 +8228,14 @@
                 + '<input type="email" class="settings-input" id="verifyEmail" placeholder="jane@company.com"></div>'
                 + '<div class="settings-group"><label class="settings-label">Relationship</label>'
                 + '<select class="settings-select" id="verifyRelationship">'
-                + '<option value="Manager">Manager / Supervisor</option>'
-                + '<option value="Colleague">Colleague / Peer</option>'
-                + '<option value="Direct Report">Direct Report</option>'
-                + '<option value="Client">Client / Customer</option>'
-                + '<option value="Executive">Executive Sponsor</option>'
-                + '<option value="Other">Other</option>'
+                + '<option value="Manager">Manager / Supervisor (2.0x \u2014 Highest)</option>'
+                + '<option value="Executive">Executive Sponsor (2.0x \u2014 Highest)</option>'
+                + '<option value="Client">Client / Customer (1.8x \u2014 High)</option>'
+                + '<option value="Board Member">Board Member (1.8x \u2014 High)</option>'
+                + '<option value="Colleague">Colleague / Peer (1.5x \u2014 Standard)</option>'
+                + '<option value="Industry Peer">Industry Peer (1.5x \u2014 Standard)</option>'
+                + '<option value="Direct Report">Direct Report (1.3x \u2014 Basic)</option>'
+                + '<option value="Other">Other (1.2x)</option>'
                 + '</select></div>'
                 + '<div class="settings-group"><label class="settings-label">Personal Note (Optional)</label>'
                 + '<textarea class="settings-input" id="verifyNote" rows="2" style="resize:vertical; font-size:0.88em;" '
@@ -8352,6 +8379,227 @@
         window.confirmVerification = confirmVerification;
         window.declineVerification = declineVerification;
         window.getVerificationStats = getVerificationStats;
+        
+        // ===== VERIFICATION EXPIRY (v4.44.29) =====
+        // Auto-expire pending verifications older than configured TTL
+        function expireStalePendingVerifications() {
+            var verifications = userData.verifications || [];
+            var ttlMs = (evidenceConfig.verificationExpiryDays || 30) * 24 * 60 * 60 * 1000;
+            var now = Date.now();
+            var expired = 0;
+            verifications.forEach(function(v) {
+                if (v.status === 'pending' && v.requestedAt) {
+                    var requestedMs = new Date(v.requestedAt).getTime();
+                    if (now - requestedMs > ttlMs) {
+                        v.status = 'expired';
+                        v.respondedAt = new Date().toISOString();
+                        expired++;
+                    }
+                }
+            });
+            if (expired > 0) {
+                console.log('Verification expiry: marked ' + expired + ' pending request(s) as expired');
+                saveAll();
+            }
+        }
+        
+        // Get credibility weight label for display
+        function getCredibilityLabel(relationship) {
+            var weight = evidenceConfig.credibilityWeights[relationship] || 1.2;
+            if (weight >= 2.0) return { label: 'Highest', color: '#10b981', weight: weight };
+            if (weight >= 1.8) return { label: 'High', color: '#60a5fa', weight: weight };
+            if (weight >= 1.5) return { label: 'Standard', color: '#a78bfa', weight: weight };
+            return { label: 'Basic', color: '#9ca3af', weight: weight };
+        }
+        window.getCredibilityLabel = getCredibilityLabel;
+        window.expireStalePendingVerifications = expireStalePendingVerifications;
+        
+        // ===== VERIFIER LANDING PAGE (v4.44.29) =====
+        // When someone visits ?verify=TOKEN&uid=UID, show standalone verification UI
+        function checkVerificationLandingPage() {
+            var params = new URLSearchParams(window.location.search);
+            var token = params.get('verify');
+            var uid = params.get('uid');
+            if (!token || !uid) return false;
+            
+            // We have a verification URL — show the landing page
+            showVerifierLandingPage(token, uid);
+            return true;
+        }
+        
+        function showVerifierLandingPage(token, uid) {
+            // Hide all normal app UI
+            Array.from(document.body.children).forEach(function(child) {
+                if (child.nodeType === 1) child.style.display = 'none';
+            });
+            
+            // Create standalone verification container
+            var container = document.createElement('div');
+            container.id = 'verifierLanding';
+            container.style.cssText = 'min-height:100vh; background:var(--bg, #0f172a); color:#e2e8f0; display:flex; align-items:center; justify-content:center; padding:20px; font-family:Inter,system-ui,sans-serif;';
+            container.innerHTML = '<div style="max-width:640px; width:100%; text-align:center;">'
+                + '<div style="margin-bottom:32px;">'
+                + '<div style="font-family:Outfit,sans-serif; font-size:1.4em; font-weight:700; letter-spacing:0.12em; color:#60a5fa;">BLUEPRINT\u2122</div>'
+                + '<div style="font-size:0.85em; color:#94a3b8; margin-top:4px;">Skill Verification</div>'
+                + '</div>'
+                + '<div id="verifyLandingContent" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:32px;">'
+                + '<div style="color:#94a3b8;">Loading verification request\u2026</div>'
+                + '</div>'
+                + '<div style="margin-top:24px; font-size:0.75em; color:#475569;">Powered by Blueprint\u2122 Career Intelligence \u00B7 myblueprint.work</div>'
+                + '</div>';
+            document.body.appendChild(container);
+            
+            // Fetch verification data from serverless proxy
+            fetchVerificationData(token, uid);
+        }
+        
+        function fetchVerificationData(token, uid) {
+            var el = document.getElementById('verifyLandingContent');
+            
+            // Try the serverless API first
+            fetch('/api/verify?token=' + encodeURIComponent(token) + '&uid=' + encodeURIComponent(uid))
+                .then(function(res) {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json();
+                })
+                .then(function(data) {
+                    if (!data.records || data.records.length === 0) {
+                        el.innerHTML = '<div style="color:#ef4444; font-size:1.1em; font-weight:600; margin-bottom:12px;">Verification Not Found</div>'
+                            + '<div style="color:#94a3b8;">This verification link may have expired or already been completed.</div>';
+                        return;
+                    }
+                    renderVerifierForm(data.records, data.profileName || 'A professional', token, uid);
+                })
+                .catch(function(err) {
+                    console.warn('Verify API error:', err);
+                    // Fallback: try direct Firestore read if user happens to be signed in
+                    if (typeof fbDb !== 'undefined' && fbDb) {
+                        fbDb.collection('users').doc(uid).get()
+                            .then(function(doc) {
+                                if (!doc.exists) throw new Error('User not found');
+                                var d = doc.data();
+                                var vRecords = (d.verifications || []).filter(function(v) { return v.token === token && v.status === 'pending'; });
+                                if (vRecords.length === 0) {
+                                    el.innerHTML = '<div style="color:#ef4444; font-size:1.1em; font-weight:600; margin-bottom:12px;">Verification Not Found</div>'
+                                        + '<div style="color:#94a3b8;">This link may have expired or been completed already.</div>';
+                                    return;
+                                }
+                                renderVerifierForm(vRecords, d.profile ? d.profile.name : 'A professional', token, uid);
+                            })
+                            .catch(function(e2) {
+                                el.innerHTML = '<div style="color:#ef4444; font-size:1.1em; font-weight:600; margin-bottom:12px;">Unable to Load</div>'
+                                    + '<div style="color:#94a3b8;">The verification API is not yet deployed. Please ask the profile owner to deploy <code>/api/verify.js</code> to Vercel.</div>';
+                            });
+                    } else {
+                        el.innerHTML = '<div style="color:#ef4444; font-size:1.1em; font-weight:600; margin-bottom:12px;">Unable to Load</div>'
+                            + '<div style="color:#94a3b8;">Could not connect to the verification service. The link may be invalid.</div>';
+                    }
+                });
+        }
+        
+        function renderVerifierForm(records, profileName, token, uid) {
+            var el = document.getElementById('verifyLandingContent');
+            
+            var skillCards = records.map(function(rec, idx) {
+                var cred = getCredibilityLabel(rec.relationship || 'Other');
+                return '<div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:20px; margin-bottom:12px; text-align:left;">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
+                    + '<div style="font-weight:700; font-size:1.05em; color:#e2e8f0;">' + escapeHtml(rec.skillName) + '</div>'
+                    + '<div style="font-size:0.75em; padding:3px 10px; border-radius:12px; background:rgba(96,165,250,0.15); color:#60a5fa;">Claimed: ' + escapeHtml(rec.claimedLevel) + '</div>'
+                    + '</div>'
+                    + (rec.evidenceSummary ? '<div style="font-size:0.82em; color:#94a3b8; margin-bottom:12px; line-height:1.5;">' + escapeHtml(rec.evidenceSummary).substring(0, 300) + '</div>' : '')
+                    + '<div style="margin-bottom:8px;">'
+                    + '<label style="font-size:0.82em; color:#94a3b8; display:block; margin-bottom:4px;">Your assessment of this skill level:</label>'
+                    + '<select id="verifyLevel_' + idx + '" style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#e2e8f0; font-size:0.9em;">'
+                    + '<option value="confirm">\u2713 Confirm ' + escapeHtml(rec.claimedLevel) + ' level</option>'
+                    + '<option value="Mastery">Suggest: Mastery</option>'
+                    + '<option value="Expert">Suggest: Expert</option>'
+                    + '<option value="Advanced">Suggest: Advanced</option>'
+                    + '<option value="Proficient">Suggest: Proficient</option>'
+                    + '<option value="Competent">Suggest: Competent</option>'
+                    + '<option value="decline">\u2717 Decline to verify</option>'
+                    + '</select></div>'
+                    + '</div>';
+            }).join('');
+            
+            el.innerHTML = '<div style="text-align:left;">'
+                + '<div style="margin-bottom:20px;">'
+                + '<div style="font-size:1.2em; font-weight:700; color:#e2e8f0; margin-bottom:6px;">'
+                + escapeHtml(profileName) + ' has requested your verification</div>'
+                + '<div style="font-size:0.88em; color:#94a3b8; line-height:1.5;">Please review the skills below and confirm, suggest a different level, or decline. '
+                + 'Your verification strengthens their professional credibility.</div>'
+                + '</div>'
+                
+                + '<div style="margin-bottom:16px;">' + skillCards + '</div>'
+                
+                + '<div style="margin-bottom:16px;">'
+                + '<label style="font-size:0.82em; color:#94a3b8; display:block; margin-bottom:4px;">Add a note (optional):</label>'
+                + '<textarea id="verifyResponseNote" rows="3" style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#e2e8f0; font-size:0.88em; resize:vertical; box-sizing:border-box;" '
+                + 'placeholder="Any additional context about your professional assessment\u2026"></textarea></div>'
+                
+                + '<div style="margin-bottom:16px;">'
+                + '<label style="font-size:0.82em; color:#94a3b8; display:block; margin-bottom:4px;">Your name (for attribution):</label>'
+                + '<input type="text" id="verifyResponseName" value="' + escapeHtml(records[0].verifierName || '') + '" '
+                + 'style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#e2e8f0; font-size:0.9em; box-sizing:border-box;"></div>'
+                
+                + '<button onclick="submitVerifierResponse(\'' + escapeHtml(token).replace(/'/g,"\\'") + '\',\'' + escapeHtml(uid).replace(/'/g,"\\'") + '\',' + records.length + ')" '
+                + 'style="width:100%; padding:14px; background:linear-gradient(135deg, #60a5fa, #8b5cf6); color:#fff; border:none; border-radius:10px; font-weight:700; font-size:1em; cursor:pointer; transition:opacity 0.2s;" '
+                + 'onmouseover="this.style.opacity=\'0.9\'" onmouseout="this.style.opacity=\'1\'">Submit Verification</button>'
+                + '</div>';
+        }
+        
+        function submitVerifierResponse(token, uid, count) {
+            var responses = [];
+            for (var i = 0; i < count; i++) {
+                var sel = document.getElementById('verifyLevel_' + i);
+                if (sel) responses.push(sel.value);
+            }
+            var note = (document.getElementById('verifyResponseNote') || {}).value || '';
+            var name = (document.getElementById('verifyResponseName') || {}).value || '';
+            
+            var payload = {
+                token: token,
+                uid: uid,
+                responses: responses,
+                note: note.trim(),
+                verifierName: name.trim(),
+                respondedAt: new Date().toISOString()
+            };
+            
+            // Submit to serverless API
+            var el = document.getElementById('verifyLandingContent');
+            
+            fetch('/api/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(function(res) {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(function(data) {
+                el.innerHTML = '<div style="text-align:center; padding:40px 20px;">'
+                    + '<div style="font-size:3em; margin-bottom:16px;">\u2705</div>'
+                    + '<div style="font-size:1.3em; font-weight:700; color:#10b981; margin-bottom:12px;">Verification Submitted</div>'
+                    + '<div style="color:#94a3b8; line-height:1.6;">Thank you for verifying ' + escapeHtml(data.profileName || 'this professional') + '\'s skills. '
+                    + 'Your assessment has been recorded and will strengthen their Blueprint profile.</div>'
+                    + '<div style="margin-top:24px; padding:16px; background:rgba(16,185,129,0.1); border-radius:10px; font-size:0.85em; color:#94a3b8;">'
+                    + 'Verification weight: <strong style="color:#10b981;">' + (data.credibilityLabel || 'Standard') + '</strong></div>'
+                    + '</div>';
+            })
+            .catch(function(err) {
+                console.warn('Verify submit error:', err);
+                el.innerHTML = '<div style="text-align:center; padding:40px 20px;">'
+                    + '<div style="font-size:3em; margin-bottom:16px;">\u26A0\uFE0F</div>'
+                    + '<div style="font-size:1.1em; font-weight:600; color:#f59e0b; margin-bottom:12px;">Submission Issue</div>'
+                    + '<div style="color:#94a3b8;">The verification API may not be deployed yet. Your response was:</div>'
+                    + '<pre style="text-align:left; background:rgba(255,255,255,0.05); padding:12px; border-radius:8px; margin-top:12px; font-size:0.8em; color:#94a3b8; overflow-x:auto;">' + JSON.stringify(payload, null, 2) + '</pre>'
+                    + '<div style="margin-top:12px; font-size:0.82em; color:#64748b;">Please share this response with the profile owner.</div>'
+                    + '</div>';
+            });
+        }
+        window.submitVerifierResponse = submitVerifierResponse;
         
         // ===== EVIDENCE CRUD (v4.16.1) =====
         
@@ -13928,6 +14176,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         
         // Initialize user interface on load
         document.addEventListener('DOMContentLoaded', async () => {
+            // v4.44.29: Check if this is a verification landing page URL
+            if (checkVerificationLandingPage()) return; // Skip normal app init
+            
             // v4.0: Check for magic link sign-in first
             checkMagicLinkSignIn();
             
@@ -13949,6 +14200,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // If user has profile, set up UI
             if (userData.initialized) {
+                // Expire stale pending verifications
+                expireStalePendingVerifications();
+                
                 // Update profile chip — signed-in users always show their auth name
                 if (fbUser) {
                     var authName = fbUser.displayName || fbUser.email.split('@')[0];
@@ -15263,7 +15517,17 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (evSummary.verifiedCount > 0 || evSummary.pendingCount > 0) {
                 bodyHTML += '<div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">';
                 if (evSummary.verifiedCount > 0) {
-                    bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-green-bg-5b); color:#10b981;">\u2713 Verified by ' + evSummary.verifiedCount + '</span>';
+                    // Show verifier details with credibility weight
+                    var vRecs = (userData.verifications || []).filter(function(v) { return v.skillName === skillName && v.status === 'confirmed'; });
+                    if (vRecs.length > 0) {
+                        var vr = vRecs[0];
+                        var cred = getCredibilityLabel(vr.relationship || 'Other');
+                        bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-green-bg-5b); color:#10b981;">'
+                            + '\u2713 Verified by ' + escapeHtml(vr.verifierName || 'verifier') + ' (' + escapeHtml(vr.relationship || 'Peer') + ')'
+                            + ' \u00B7 <span style="color:' + cred.color + ';">' + cred.weight + 'x ' + cred.label + '</span></span>';
+                    } else {
+                        bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-green-bg-5b); color:#10b981;">\u2713 Verified by ' + evSummary.verifiedCount + '</span>';
+                    }
                 }
                 if (evSummary.pendingCount > 0) {
                     bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-amber-bg-5b); color:#f59e0b;">\u23F3 ' + evSummary.pendingCount + ' pending</span>';
