@@ -1,4 +1,4 @@
-<!-- v4.44.33 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
+<!-- v4.44.34 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.33 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
+    <!-- v4.44.34 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.33 - BUILD 20260225-verification-system
-        var BP_VERSION = 'v4.44.33';
+        // BLUEPRINT v4.44.34 - BUILD 20260225-verification-system
+        var BP_VERSION = 'v4.44.34';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -4255,6 +4255,22 @@
                     ]
                 },
                 {
+                    id: 'p6',
+                    name: 'Phase 6: Explorer Mode (Early Career Outlook)',
+                    color: '#8b5cf6',
+                    icon: 'lightbulb',
+                    items: [
+                        { id: 'p6-1', name: 'Explorer Mode architecture', status: 'planned', category: 'feature', priority: 'critical', notes: 'Separate application mode for high school and college students/recent graduates. Lighter-weight UI, different navigation, simplified mental model. Users select "Explorer" on entry, can upgrade to "Builder" (standard mode) at any time. Profile data carries forward on upgrade with no loss. Shares core skill ontology, BLS data, and values engine with standard Blueprint.' },
+                        { id: 'p6-2', name: 'Interest/aptitude input model', status: 'planned', category: 'feature', priority: 'critical', notes: 'Replaces proficiency levels (Novice→Mastery) with an exploration spectrum: "Curious About / Learning / Passionate About / Talented In." No evidence or verification required. Students also flag aspirational skills they want to develop. The input asks "what lights you up" rather than "what can you prove." Maps internally to proficiency ranges for BLS matching but never exposes that machinery.' },
+                        { id: 'p6-3', name: 'Field recommendation engine', status: 'planned', category: 'feature', priority: 'critical', notes: 'Maps skill/interest clusters to BLS occupational fields (not specific job listings). Output is "people with your combination of interests in [X, Y, Z] tend to work in these 6-10 fields." Weighted by interest intensity and skill adjacency. Values layer differentiates: same skills + different values = different field recommendations. Autonomy-seeking creative gets entrepreneurship/consulting; stability-seeking collaborator gets corporate strategy/education.' },
+                        { id: 'p6-4', name: 'Compensation trajectory visualization', status: 'planned', category: 'feature', priority: 'high', notes: 'Instead of a single market value number, shows compensation trajectories over time per recommended field: entry-level, 5-year, 10-year, peak. Uses BLS percentile data (25th/50th/75th/90th). Visualization designed for 17-22 year olds and their parents: clear, honest, not reductive. Language frames it as "fields where your talents are valued" rather than "what you are worth." Interactive: slide interest levels and watch fields and trajectories shift in real time.' },
+                        { id: 'p6-5', name: 'Explorer-specific values assessment', status: 'planned', category: 'feature', priority: 'high', notes: 'Simplified values discovery tuned for people who may not have professional context. Questions framed around life preferences rather than work preferences: "Do you want to solve problems independently or with a team?" rather than "Rate your preference for autonomous work." Values become the primary differentiator in field recommendations since skills/interests are still forming.' },
+                        { id: 'p6-6', name: 'Skill adjacency explorer', status: 'planned', category: 'feature', priority: 'medium', notes: 'Interactive D3 visualization showing how interests connect to fields and how fields connect to each other. "You like data analysis and psychology? Those overlap in market research, UX research, behavioral economics, and public health." Shows the student that their interests are not isolated but part of interconnected professional ecosystems.' },
+                        { id: 'p6-7', name: 'Explorer → Builder upgrade path', status: 'planned', category: 'feature', priority: 'medium', notes: 'When an Explorer user gains work experience, internships, or evidence, they can upgrade to Builder (standard Blueprint). Interests map to initial skill claims, aspirational skills become gap targets, values carry forward. The upgrade feels like leveling up, not starting over. Consider gamification elements for the transition.' },
+                        { id: 'p6-8', name: 'Institutional/guidance counselor mode', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Schools and universities license Explorer Mode for their student body. Guidance counselors get a dashboard showing aggregate interest patterns, field alignment trends, skills gaps across their cohort. No individual student data shared without consent. Potential B2B revenue channel distinct from enterprise recruiting.' }
+                    ]
+                },
+                {
                     id: 'ent1',
                     name: 'Enterprise: Foundation (E1)',
                     color: '#dc2626',
@@ -4318,7 +4334,7 @@
                     items: [
                         { id: 'e5-1', name: 'Assessment platform integrations', status: 'planned', category: 'feature', priority: 'high', notes: 'Integrate HackerRank, iMocha, Codility assessment results into Blueprint skill profiles. Validated test scores + evidence chain = highest-confidence skill data in the market. API partnerships required.' },
                         { id: 'e5-2', name: 'Blueprint Verified badges', status: 'planned', category: 'feature', priority: 'high', notes: 'Evidence chain + peer verification + assessment = "Blueprint Verified: Expert in React.js". Portable credential. Displayed on profile, scouting reports, and talent pool cards. The trust layer that differentiates against every competitor.' },
-                        { id: 'e5-3', name: 'Peer verification network', status: 'planned', category: 'feature', priority: 'medium', notes: 'Structured attestation from colleagues. Not LinkedIn endorsements (drive-by clicks). Verifiers answer specific questions about demonstrated capability. Weight by verifier credibility. Already scaffolded in current verification system.' },
+                        { id: 'e5-3', name: 'Peer verification network', status: 'in-progress', category: 'feature', priority: 'medium', notes: 'Structured attestation from colleagues. Not LinkedIn endorsements (drive-by clicks). Verifiers answer specific questions about demonstrated capability. Weight by verifier credibility. v4.44.29-34: Built verification loop with token-based landing page, credibility weighting by relationship (Manager 2.0x → Direct Report 1.3x), 30-day expiry, serverless API (/api/verify.js), Verify management tab in Blueprint, verified badges across all skill views. Remaining: verifier-suggested level adjustments reflected in scoring, email notification on verification completion.' },
                         { id: 'e5-4', name: 'Verification-as-a-service API', status: 'planned', category: 'monetization', priority: 'medium', notes: 'Enterprise hiring workflows call Blueprint API to verify candidate\'s claimed skills. Returns evidence chain, verification status, assessment scores. $10-50 per verification. Integrates into ATS screening stage.' },
                         { id: 'e5-5', name: 'ATS/HRIS integrations', status: 'planned', category: 'infrastructure', priority: 'medium', notes: 'Greenhouse, Lever, Workday, SAP SuccessFactors connectors. Push verified skill profiles into hiring workflows. Pull job requirements for automated matching. Standard webhook + REST patterns.' },
                         { id: 'e5-6', name: 'LMS integrations', status: 'planned', category: 'infrastructure', priority: 'low', notes: 'Cornerstone, Degreed, LinkedIn Learning connectors. Skill gaps identified in Blueprint → recommended learning paths in LMS. Completion feeds back into Blueprint skill profile. Referral revenue on course enrollments.' },
@@ -8381,7 +8397,7 @@
         window.declineVerification = declineVerification;
         window.getVerificationStats = getVerificationStats;
         
-        // ===== VERIFICATION EXPIRY (v4.44.33) =====
+        // ===== VERIFICATION EXPIRY (v4.44.34) =====
         // Auto-expire pending verifications older than configured TTL
         function expireStalePendingVerifications() {
             var verifications = userData.verifications || [];
@@ -8415,7 +8431,7 @@
         window.getCredibilityLabel = getCredibilityLabel;
         window.expireStalePendingVerifications = expireStalePendingVerifications;
         
-        // ===== VERIFIER LANDING PAGE (v4.44.33) =====
+        // ===== VERIFIER LANDING PAGE (v4.44.34) =====
         // When someone visits ?verify=TOKEN&uid=UID, show standalone verification UI
         function checkVerificationLandingPage() {
             var params = new URLSearchParams(window.location.search);
@@ -14182,7 +14198,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         
         // Initialize user interface on load
         document.addEventListener('DOMContentLoaded', async () => {
-            // v4.44.33: Check if this is a verification landing page URL
+            // v4.44.34: Check if this is a verification landing page URL
             if (checkVerificationLandingPage()) return; // Skip normal app init
             
             // v4.0: Check for magic link sign-in first
@@ -18038,7 +18054,7 @@ body {
             return html;
         }
         
-        // ===== VERIFICATIONS TAB (v4.44.33) =====
+        // ===== VERIFICATIONS TAB (v4.44.34) =====
         function renderVerificationsTab() {
             var verifications = userData.verifications || [];
             var skills = skillsData.skills || [];
