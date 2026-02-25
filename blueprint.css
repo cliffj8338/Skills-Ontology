@@ -2350,6 +2350,22 @@
         .jit-chevron { display: none; }
         .ml-body { display: block; }
         .ml-chevron { display: none; }
+        .job-info-tile,
+        .match-legend {
+            cursor: grab;
+            user-select: none;
+            transition: box-shadow 0.15s ease;
+        }
+        .job-info-tile.dragging,
+        .match-legend.dragging {
+            cursor: grabbing;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.6);
+            opacity: 0.95;
+        }
+        .job-info-tile .jit-header,
+        .match-legend .ml-score-row { cursor: grab; }
+        .job-info-tile.dragging .jit-header,
+        .match-legend.dragging .ml-score-row { cursor: grabbing; }
         [data-theme="light"] .match-legend {
             background: rgba(255,255,255,0.95);
             border-color: rgba(0,0,0,0.12);

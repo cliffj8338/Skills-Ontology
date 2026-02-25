@@ -12975,6 +12975,49 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             setTimeout(applyLabelToggles, 100);
         }
         
+        function makeTileDraggable(el) {
+            if (!el || window.innerWidth <= 768) return;
+            var startX, startY, startLeft, startTop, isDragging = false;
+            function onDown(e) {
+                if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.closest('button') || e.target.closest('a')) return;
+                isDragging = true;
+                el.classList.add('dragging');
+                var rect = el.getBoundingClientRect();
+                var parentRect = el.parentElement.getBoundingClientRect();
+                startX = e.clientX || (e.touches && e.touches[0].clientX);
+                startY = e.clientY || (e.touches && e.touches[0].clientY);
+                startLeft = rect.left - parentRect.left;
+                startTop = rect.top - parentRect.top;
+                el.style.right = 'auto';
+                el.style.left = startLeft + 'px';
+                el.style.top = startTop + 'px';
+                e.preventDefault();
+            }
+            function onMove(e) {
+                if (!isDragging) return;
+                var cx = e.clientX || (e.touches && e.touches[0].clientX);
+                var cy = e.clientY || (e.touches && e.touches[0].clientY);
+                var dx = cx - startX;
+                var dy = cy - startY;
+                var parentRect = el.parentElement.getBoundingClientRect();
+                var newLeft = Math.max(0, Math.min(parentRect.width - el.offsetWidth, startLeft + dx));
+                var newTop = Math.max(0, Math.min(parentRect.height - el.offsetHeight, startTop + dy));
+                el.style.left = newLeft + 'px';
+                el.style.top = newTop + 'px';
+            }
+            function onUp() {
+                if (!isDragging) return;
+                isDragging = false;
+                el.classList.remove('dragging');
+            }
+            el.addEventListener('mousedown', onDown);
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+            el.addEventListener('touchstart', onDown, { passive: false });
+            document.addEventListener('touchmove', onMove, { passive: false });
+            document.addEventListener('touchend', onUp);
+        }
+
         function addJobInfoTile(job) {
             var existing = document.getElementById('jobInfoTile');
             if (existing) existing.remove();
@@ -13033,6 +13076,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             var container = document.getElementById('networkView').parentElement;
             if (container) { container.style.position = 'relative'; container.appendChild(tile); }
+            makeTileDraggable(tile);
         }
         
         function addMatchLegend(match) {
@@ -13101,6 +13145,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             var container = document.getElementById('networkView').parentElement;
             if (container) { container.style.position = 'relative'; container.appendChild(legend); }
+            makeTileDraggable(legend);
         }
         
         // ===== VALUES ALIGNMENT NETWORK =====
