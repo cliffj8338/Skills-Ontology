@@ -1,12 +1,12 @@
-# Blueprint™ — Career Intelligence App
+# Blueprint — Career Intelligence App
 
 ## Overview
 Blueprint is a single-page career intelligence web application. It visualizes skills, reveals market value, and connects users to matching jobs. Originally hosted on Vercel with Firebase backend.
 
 ## Architecture
-- **Frontend**: Single-file `index.html` (~15,000 lines), vanilla JavaScript, D3.js network graph
+- **Frontend**: Single-file `index.html` (~31,600 lines), vanilla JavaScript, D3.js network graph
 - **Auth**: Firebase Auth (Google provider, email/password) — project: `work-blueprint`
-- **Database**: Firestore (users, analytics_events, jobs, meta collections)
+- **Database**: Firestore (users, analytics_events, jobs, meta, reports, waitlist collections)
 - **API**: Vercel serverless functions in `/api/` (ai.js, jobs.js, jobs-sync.js, api-job-proxy.js)
 - **Static assets**: JSON data files (skills, certifications, O*NET data, BLS wages, profiles)
 
@@ -14,16 +14,30 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - Static file server using `serve` npm package
 - Served on port 5000 via `npm start`
 - Workflow: "Start application" → `npm start`
+- Deployment: Configured as static (publicDir: ".")
+- Git remote: `origin` → `https://github.com/cliffj8338/blueprint` (push to GitHub, Vercel picks up)
 
 ## Key Files
-- `index.html` — Main application (entire frontend)
+- `index.html` — Main application (entire frontend, ~31,600 lines)
 - `blueprint.css` — Stylesheet
-- `api/` — Serverless API functions (designed for Vercel)
+- `api/` — Serverless API functions (designed for Vercel, not served locally)
 - `profiles/demo/` — 24 demo profiles (fictional TV/film characters)
 - `profiles/templates/` — Profile templates
-- `reports/` — Report templates and demo reports
+- `reports/` — Report templates and demo reports (view.html, base.html, 4 demos)
 - `skills/` — Skills index files
 - `*.json` — Reference data (O*NET, BLS wages, certifications, etc.)
+- `firestore.rules` — Firestore security rules (deploy to Firebase console)
+- `vercel.json` — Vercel deployment config (headers, rewrites, crons)
+- `docs/SECURITY_AUDIT.md` — Security audit and remediation tracking
+
+## Security
+- CSP meta tag + vercel.json header
+- SRI integrity hashes on all 7 CDN scripts
+- escapeHtml() used on 121+ innerHTML assignments
+- Firestore rules: role escalation prevention, auth requirements, field validation
+- HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
+- Report templates hardened with escapeHtml for all user-controlled data
+- See `docs/SECURITY_AUDIT.md` for full audit details
 
 ## Data Libraries
 - `onet-skills-library.json` — O*NET skills (13,960 skills)
@@ -33,7 +47,3 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - `companies.json` — Company values (58 companies)
 - `certification_library.json` — 191 credentials
 - `values-library.json` — 30 work values
-
-## Deployment
-- Configured as static deployment (publicDir: ".")
-- User can publish via the Publish button in Replit

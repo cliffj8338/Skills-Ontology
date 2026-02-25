@@ -379,6 +379,13 @@ In production, candidates set blind mode defaults from their Blueprint dashboard
 <div class="nmod" id="nm"><div class="nbox"><h3 id="noteTitle">Send a Note to Jim</h3><textarea class="nta" placeholder="I'd like to discuss this role further..."></textarea><div class="nacts"><button style="padding:8px 18px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--tm);font-family:'Outfit';cursor:pointer" onclick="document.getElementById('nm').classList.remove('open')">Cancel</button><button style="padding:8px 22px;border-radius:8px;border:none;background:var(--a);color:#fff;font-family:'Outfit';font-weight:600;cursor:pointer" onclick="document.getElementById('nm').classList.remove('open')">Send</button></div></div></div>
 
 <script>
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(String(str)));
+        return div.innerHTML;
+    }
+
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║                    REPORT DATA CONTRACT                         ║
 // ║  All profile data lives here. Change this object to generate    ║
@@ -753,12 +760,12 @@ function initReport(){
     document.getElementById('ringArc').setAttribute('stroke-dashoffset',offset.toFixed(1));
     document.getElementById('ringPct').textContent=pct+'%';
     // Target card
-    document.getElementById('targetCard').innerHTML='<div><div class="target-lbl">Target Role</div><div class="target-role">'+JT+'</div><div class="target-co">'+R.job.company+'</div></div><div class="target-stats"><div class="tstat"><div class="tstat-n" style="color:var(--a)">'+US.length+'</div><div class="tstat-l">Skills</div></div><div class="tstat"><div class="tstat-n" style="color:var(--g)">'+matchedCount+'</div><div class="tstat-l">Matched</div></div><div class="tstat"><div class="tstat-n" style="color:var(--r)">'+gapCount+'</div><div class="tstat-l">Gaps</div></div><div class="tstat"><div class="tstat-n" style="color:var(--tm)">'+surplusCount+'</div><div class="tstat-l">Surplus</div></div></div>';
+    document.getElementById('targetCard').innerHTML='<div><div class="target-lbl">Target Role</div><div class="target-role">'+escapeHtml(JT)+'</div><div class="target-co">'+escapeHtml(R.job.company)+'</div></div><div class="target-stats"><div class="tstat"><div class="tstat-n" style="color:var(--a)">'+US.length+'</div><div class="tstat-l">Skills</div></div><div class="tstat"><div class="tstat-n" style="color:var(--g)">'+matchedCount+'</div><div class="tstat-l">Matched</div></div><div class="tstat"><div class="tstat-n" style="color:var(--r)">'+gapCount+'</div><div class="tstat-l">Gaps</div></div><div class="tstat"><div class="tstat-n" style="color:var(--tm)">'+surplusCount+'</div><div class="tstat-l">Surplus</div></div></div>';
     // Narrative
-    document.getElementById('narrativeBox').innerHTML='<div class="narr-lbl">⭐ Why This Candidate Fits</div>'+R.match.narrative;
+    document.getElementById('narrativeBox').innerHTML='<div class="narr-lbl">⭐ Why This Candidate Fits</div>'+escapeHtml(R.match.narrative);
     // Values
     document.getElementById('valScoreN').textContent=R.values.score+'%';
-    document.getElementById('valNarrative').innerHTML=R.values.narrative;
+    document.getElementById('valNarrative').innerHTML=escapeHtml(R.values.narrative);
     // Credentials
     renderCredentials();
     // Outcomes
@@ -807,11 +814,11 @@ const rest=US.filter(s=>!MS.has(s.n)).slice(0,10);
 const vbSvg='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
 el.innerHTML=[...matched,...rest].map(s=>{const im=MS.has(s.n),lp={Mastery:100,Expert:80,Advanced:60,Proficient:40,Novice:20}[s.l]||0,sc=im?'var(--g)':'var(--tm)';
 const vbHtml=s.vf?'<span class="vb'+(s.vf==='cert'?' cert':s.vf==='edu'?' edu':'')+'">'+vbSvg+(s.vfLabel||'Verified')+'</span>':'';
-return`<div class="sk-r" onclick="this.classList.toggle('ex')"><div class="sk-top"><div class="sk-dot" style="background:${sc}"></div><div class="sk-nm">${s.n}${vbHtml}</div><div class="sk-rq">${im?'Matched':'Surplus'}</div><div class="sk-bars"><div class="sk-bar-r"><div style="width:36px;text-align:right">Level</div><div class="sk-bar-t"><div class="sk-bar-f" style="width:${lp}%;background:var(--a)"></div></div></div></div><div class="sk-chev">▾</div></div><div class="sk-det"><div style="margin-bottom:6px"><strong style="color:var(--a)">${s.l}</strong>${vbHtml}</div>${s.ev?`<div class="sk-ev"><div class="sk-ev-l">Evidence</div>${s.ev}</div>`:''}</div></div>`}).join('')}
+return`<div class="sk-r" onclick="this.classList.toggle('ex')"><div class="sk-top"><div class="sk-dot" style="background:${sc}"></div><div class="sk-nm">${escapeHtml(s.n)}${vbHtml}</div><div class="sk-rq">${im?'Matched':'Surplus'}</div><div class="sk-bars"><div class="sk-bar-r"><div style="width:36px;text-align:right">Level</div><div class="sk-bar-t"><div class="sk-bar-f" style="width:${lp}%;background:var(--a)"></div></div></div></div><div class="sk-chev">▾</div></div><div class="sk-det"><div style="margin-bottom:6px"><strong style="color:var(--a)">${s.l}</strong>${vbHtml}</div>${s.ev?`<div class="sk-ev"><div class="sk-ev-l">Evidence</div>${s.ev}</div>`:''}</div></div>`}).join('')}
 
-function renderGaps(){document.getElementById('gapL').innerHTML=gapData.map(g=>`<div class="gap-c"><div class="gap-h"><div class="gap-n">${g.n}</div><div class="sk-rq" style="color:var(--r);border:1px solid var(--r);background:transparent">${g.rq}</div></div><div class="gap-br">${g.br}</div><div class="gap-adj"><span style="font-size:.72em;color:var(--tm);margin-right:4px">Bridge skills:</span>${g.adj.map(a=>`<span class="gap-tag">${a}</span>`).join('')}</div></div>`).join('')}
+function renderGaps(){document.getElementById('gapL').innerHTML=gapData.map(g=>`<div class="gap-c"><div class="gap-h"><div class="gap-n">${escapeHtml(g.n)}</div><div class="sk-rq" style="color:var(--r);border:1px solid var(--r);background:transparent">${g.rq}</div></div><div class="gap-br">${g.br}</div><div class="gap-adj"><span style="font-size:.72em;color:var(--tm);margin-right:4px">Bridge skills:</span>${g.adj.map(a=>`<span class="gap-tag">${escapeHtml(a)}</span>`).join('')}</div></div>`).join('')}
 
-function renderDom(){document.getElementById('domL').innerHTML=doms.map(d=>`<div class="dom-r"><div class="dom-n" style="color:${d.cl}">${d.n}</div><div class="dom-bt"><div class="dom-bf" style="width:${(d.c/d.m)*100}%;background:${d.cl}"></div></div><div class="dom-c">${d.c} skills</div></div>`).join('')}
+function renderDom(){document.getElementById('domL').innerHTML=doms.map(d=>`<div class="dom-r"><div class="dom-n" style="color:${d.cl}">${escapeHtml(d.n)}</div><div class="dom-bt"><div class="dom-bf" style="width:${(d.c/d.m)*100}%;background:${d.cl}"></div></div><div class="dom-c">${d.c} skills</div></div>`).join('')}
 
 function rx(b){document.querySelectorAll('.rbtn').forEach(x=>x.classList.remove('sel'));b.classList.add('sel')}
 function go(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'})}

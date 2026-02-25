@@ -8,7 +8,10 @@ service cloud.firestore {
         request.auth.uid == userId || 
         isAdmin()
       );
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId
+        && !('role' in request.resource.data);
+      allow update: if request.auth != null && request.auth.uid == userId
+        && !('role' in request.resource.data && request.resource.data.role != resource.data.role);
     }
     
     // Sample profiles: readable by everyone, writable only by admin
@@ -16,10 +19,65 @@ service cloud.firestore {
       allow read: if true;
       allow write: if request.auth != null && isAdmin();
     }
+
+    // Analytics events: require authentication, limit document size
+    match /analytics_events/{eventId} {
+      allow read: if request.auth != null && isAdmin();
+      allow create: if request.auth != null
+        && request.resource.data.type is string
+        && request.resource.data.type.size() <= 50;
+    }
+
+    // Reports: owner can read/write, shared via access token
+    match /reports/{reportId} {
+      allow read: if request.auth != null && (
+        request.auth.uid == resource.data.uid ||
+        isAdmin()
+      );
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid;
+      allow update: if request.auth != null
+        && resource.data.uid == request.auth.uid;
+      allow delete: if request.auth != null
+        && (resource.data.uid == request.auth.uid || isAdmin());
+    }
+
+    // Report views: require authentication
+    match /report_views/{viewId} {
+      allow read: if request.auth != null && isAdmin();
+      allow create: if request.auth != null;
+    }
+
+    // Waitlist: anyone can join but fields are validated
+    match /waitlist/{entryId} {
+      allow read: if request.auth != null && isAdmin();
+      allow create: if request.resource.data.keys().hasAll(['email', 'createdAt'])
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 0
+        && request.resource.data.email.size() <= 320
+        && request.resource.data.createdAt == request.time;
+    }
+
+    // Jobs collection: admin-only write (populated by cron), authenticated read
+    match /jobs/{jobId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Jobs metadata
+    match /meta/{docId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
     
     // Helper: check if current user is admin
     function isAdmin() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Default: deny everything else
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

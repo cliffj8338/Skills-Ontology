@@ -2910,7 +2910,7 @@
                     var modal = document.getElementById('exportModal');
                     var modalContent = modal.querySelector('.modal-content');
                     
-                    var summary = 'Account: ' + (data.email || 'N/A')
+                    var summary = 'Account: ' + escapeHtml(data.email || 'N/A')
                         + '\nCreated: ' + (data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : 'N/A')
                         + '\nLast Login: ' + (data.lastLogin ? new Date(data.lastLogin.seconds * 1000).toLocaleDateString() : 'N/A')
                         + '\nSkills stored: ' + (data.skills ? data.skills.length : 0)
@@ -6658,7 +6658,7 @@
                 document.getElementById('waitlistFormView').style.display = 'none';
                 document.getElementById('waitlistConfirmView').style.display = 'block';
                 document.getElementById('wlPositionMsg').textContent = 'You\u2019re #' + (waitlistPosition || '?') + ' on the waitlist.';
-                document.getElementById('wlPositionBadge').innerHTML = '\u25C8 Position #' + (waitlistPosition || '?');
+                document.getElementById('wlPositionBadge').textContent = '\u25C8 Position #' + (waitlistPosition || '?');
             } else {
                 document.getElementById('waitlistFormView').style.display = 'block';
                 document.getElementById('waitlistConfirmView').style.display = 'none';
@@ -6738,7 +6738,7 @@
             document.getElementById('waitlistFormView').style.display = 'none';
             document.getElementById('waitlistConfirmView').style.display = 'block';
             document.getElementById('wlPositionMsg').textContent = 'You\u2019re #' + position + ' on the waitlist. We\u2019ll notify you when it\u2019s your turn.';
-            document.getElementById('wlPositionBadge').innerHTML = '\u25C8 Position #' + position;
+            document.getElementById('wlPositionBadge').textContent = '\u25C8 Position #' + position;
             
             var btn = document.getElementById('wlSubmitBtn');
             btn.disabled = false;
@@ -6751,7 +6751,7 @@
                 banner.innerHTML = bpIcon('lock', 14) + ' <strong>Viewing: ' + escapeHtml(pName) + '</strong> \u00B7 Sample profile. You\u2019re #' + position + ' on the waitlist.';
             }
             
-            showToast('Welcome, ' + name + '! You\u2019re #' + position + ' on the waitlist.', 'success');
+            showToast('Welcome, ' + escapeHtml(name) + '! You\u2019re #' + position + ' on the waitlist.', 'success');
         }
         
         // Check if waitlisted user has been invited (on app load)
@@ -22347,11 +22347,11 @@ body {
                 + '\u26A1 AI-powered analysis (optional, requires API key)</summary>'
                 + '<div style="margin-top:8px; padding:12px; background:var(--c-surface-1); '
                 + 'border:1px solid var(--border); border-radius:8px;">'
-                + '<input id="jdApiKey" type="password" placeholder="sk-ant-..." value="' + savedKey + '" style="'
+                + '<input id="jdApiKey" type="password" placeholder="sk-ant-..." value="' + escapeHtml(savedKey) + '" style="'
                 + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.88em; font-family:monospace;" />'
                 + '<div style="font-size:0.75em; color:var(--text-muted); margin-top:6px; line-height:1.5;">'
-                + 'Stored locally, never sent to our servers. Get a key at <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">console.anthropic.com</a>. '
+                + '⚠ Security: This key is stored in your browser\u2019s localStorage and is accessible to browser extensions. Clear it when done. Get a key at <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">console.anthropic.com</a>. '
                 + 'Signed-in users get AI features automatically. Without sign-in or a key, analysis uses local skill matching (still good, but less nuanced).'
                 + '</div></div></details>'
                 
@@ -26476,7 +26476,7 @@ body {
                     window._certLinkedSkills.push(sn);
                     var span = document.createElement('span');
                     span.style.cssText = 'display:inline-flex; align-items:center; gap:4px; padding:3px 10px; background:var(--c-purple-bg-1); color:var(--c-purple-light); border-radius:12px; font-size:0.82em; margin:2px 4px 2px 0;';
-                    span.innerHTML = sn + ' <button onclick="removeCertLinkedSkill(this, \'' + sn.replace(/'/g,"\\'") + '\')" style="background:none; border:none; cursor:pointer; color:inherit; font-size:1em; padding:0 2px;">\u00D7</button>';
+                    span.innerHTML = escapeHtml(sn) + ' <button onclick="removeCertLinkedSkill(this, \'' + sn.replace(/'/g,"\\'") + '\')" style="background:none; border:none; cursor:pointer; color:inherit; font-size:1em; padding:0 2px;">\u00D7</button>';
                     container.appendChild(span);
                 });
             }
