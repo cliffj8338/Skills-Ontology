@@ -160,7 +160,7 @@
     }
     </script>
 
-    <!-- v4.44.12 | 20260224 | Center card view grid, label toggles visible -->
+    <!-- v4.44.13 | 20260224 | Mobile network: SVG overflow visible, push nodes inward, increase padding, shorter labels -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -714,7 +714,7 @@
                 <p class="page-subtitle">Your professional capabilities mapped as a living network.</p>
             </div>
         </div>
-        <svg id="networkView" style="display:none;"></svg>
+        <svg id="networkView" style="display:none; overflow:visible;"></svg>
         <div id="cardView" style="display:none;"></div>
         <div id="opportunitiesView" style="display:none;"></div>
         <div id="applicationsView" style="display:none;"></div>
@@ -1400,8 +1400,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.12 - BUILD 20260224-card-center-labels
-        var BP_VERSION = 'v4.44.12';
+        // BLUEPRINT v4.44.13 - BUILD 20260224-mobile-network-labels
+        var BP_VERSION = 'v4.44.13';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -12374,10 +12374,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (simulation) simulation.stop();
             
             // Center node = the job title — pinned to center of canvas
-            var centerX = width * 0.42;
+            var centerX = isMobile ? width * 0.48 : width * 0.42;
             var centerY = height * 0.35;
+            var maxTitleLen = isMobile ? 20 : 30;
+            var truncTitle = (job.title || "Job").length > maxTitleLen ? (job.title || "Job").substring(0, maxTitleLen - 2) + '\u2026' : (job.title || "Job");
             var nodes = [
-                { id: "center", name: (job.title || "Job").length > 30 ? (job.title || "Job").substring(0, 28) + '\u2026' : (job.title || "Job"), type: "center", x: centerX, y: centerY, fx: centerX, fy: centerY, homeX: centerX, homeY: centerY }
+                { id: "center", name: truncTitle, type: "center", x: centerX, y: centerY, fx: centerX, fy: centerY, homeX: centerX, homeY: centerY }
             ];
             
             // Group job skills by category into roles
@@ -12532,9 +12534,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             (match.gaps || []).forEach(function(g) { gapSkills.add(g.name.toLowerCase()); });
             
             // === LAYOUT: Center (You) on LEFT, Job on RIGHT ===
-            var centerX = width * 0.22;
+            var centerX = isMobile ? width * 0.28 : width * 0.22;
             var centerY = height * 0.38;
-            var jobX = width * 0.78;
+            var jobX = isMobile ? width * 0.72 : width * 0.78;
             var jobY = height * 0.32;
             
             var nodes = [
@@ -12554,7 +12556,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Add a "job requirements" pseudo-role — pinned to RIGHT side
             nodes.push({
-                id: 'role-job-req', name: ((job.title || 'Job').length > 25 ? (job.title || 'Job').substring(0, 23) + '\u2026' : (job.title || 'Job')) + ' Needs', type: 'role', color: '#ef4444', matchState: 'role',
+                id: 'role-job-req', name: ((job.title || 'Job').length > (isMobile ? 18 : 25) ? (job.title || 'Job').substring(0, isMobile ? 16 : 23) + '\u2026' : (job.title || 'Job')) + ' Needs', type: 'role', color: '#ef4444', matchState: 'role',
                 x: jobX, y: jobY, fx: jobX, fy: jobY, homeX: jobX, homeY: jobY
             });
             
@@ -12921,8 +12923,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Layout: user values on left, company values on right
             var centerY = height * 0.45;
-            var leftX = isMobile ? width * 0.24 : width * 0.28;
-            var rightX = isMobile ? width * 0.76 : width * 0.72;
+            var leftX = isMobile ? width * 0.30 : width * 0.28;
+            var rightX = isMobile ? width * 0.70 : width * 0.72;
             var topY = isMobile ? Math.max(45, height * 0.10) : Math.max(60, height * 0.13);
             
             // Build lookup sets
@@ -12943,6 +12945,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 x: leftX, y: topY, fx: leftX, fy: topY, homeX: leftX, homeY: topY
             });
             var companyName = job.company || 'Company';
+            if (isMobile && companyName.length > 14) companyName = companyName.substring(0, 12) + '\u2026';
             var companyPossessive = companyName.endsWith('s') ? companyName + "'" : companyName + "'s";
             nodes.push({
                 id: 'hub-company', name: companyPossessive + ' Culture', type: 'hub', side: 'company',
@@ -13163,7 +13166,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Tick
             simulation.on("tick", function() {
-                var padding = isMobile ? 28 : 55;
+                var padding = isMobile ? 50 : 55;
                 nodes.forEach(function(d) {
                     if (d.type !== 'hub') {
                         d.x = Math.max(padding, Math.min(width - padding, d.x));
