@@ -1,3 +1,4 @@
+<!-- v4.44.22 | 2026-02-24 | Jobs page layout: badge to tabs row, remove description text -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1480,7 +1481,7 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.44.21 - BUILD 20260224-cache-dedup-labels
-        var BP_VERSION = 'v4.44.21';
+        var BP_VERSION = 'v4.44.22';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -21974,10 +21975,13 @@ body {
                 + '<h2 class="page-title">Jobs</h2>'
                 + '<p class="page-subtitle">Search, match, and track opportunities — scored against your skills.</p>'
                 + '</div>'
-                + '<div class="jobs-subtabs">'
+                + '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">'
+                + '<div class="jobs-subtabs" style="margin-bottom:0;">'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'your-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'your-jobs\')">' + bpIcon('target',14) + ' Pipeline' + (savedCount > 0 ? ' (' + savedCount + ')' : '') + '</button>'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'tracker' ? 'active' : '') + '" onclick="switchJobsSubTab(\'tracker\')">' + bpIcon('tracker',14) + ' Tracker' + (appCount > 0 ? ' (' + appCount + ')' : '') + '</button>'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'find-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'find-jobs\')">' + bpIcon('search',14) + ' Find Jobs' + (opportunitiesData.length > 0 ? ' (' + opportunitiesData.length + ')' : '') + '</button>'
+                + '</div>'
+                + '<div id="jobsDbBadge"></div>'
                 + '</div>'
                 + '<div id="jobsSubTabContent"></div>'
                 + '</div>';
@@ -22197,14 +22201,7 @@ body {
                 }).join('');
             }
             
-            return '<div style="margin-bottom:24px;">'
-                + '<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">'
-                + '<div>'
-                + '<p style="color:var(--text-muted); font-size:0.88em; margin:0;">Search across 8 sources including Adzuna, Jooble, JSearch, and more. Results scored against your skills.</p>'
-                + '</div>'
-                + '<div id="jobsDbBadge"></div>'
-                + '</div>'
-                + '</div>'
+            return ''
                 
                 // Search bar row 1: keyword + location
                 + '<div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">'
