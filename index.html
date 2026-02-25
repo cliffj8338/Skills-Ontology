@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com https://apis.google.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.gstatic.com https://cdnjs.cloudflare.com https://api.anthropic.com https://*.rapidapi.com https://remotive.com https://himalayas.app https://jobicy.com https://data.usajobs.gov https://api.adzuna.com https://www.themuse.com https://jooble.org https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; img-src 'self' data: blob: https://*.googleusercontent.com; frame-src blob: https://apis.google.com https://accounts.google.com https://*.firebaseapp.com; object-src 'none'; base-uri 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com https://apis.google.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.gstatic.com https://cdnjs.cloudflare.com https://api.anthropic.com https://*.rapidapi.com https://remotive.com https://himalayas.app https://jobicy.com https://data.usajobs.gov https://api.adzuna.com https://www.themuse.com https://jooble.org https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; img-src 'self' data: blob: https://*.googleusercontent.com; frame-src 'self' blob: https://apis.google.com https://accounts.google.com https://*.firebaseapp.com; object-src 'none'; base-uri 'self';">
     <title>Blueprint™ — See Your Career as a Living Map | Skills. Value. Direction.</title>
     <meta name="description" content="See your career as a living map — not a flat resume. Blueprint visualizes your skills, reveals your real market value, and connects you to work that actually fits who you are and what you care about.">
     <meta name="keywords" content="career intelligence, skills mapping, job matching, scouting report, career ontology, skill gap analysis, salary negotiation, professional development, AI career tools, work blueprint, talent intelligence, career planning">
@@ -160,7 +160,7 @@
     }
     </script>
 
-    <!-- v4.44.15 | 20260224 | Mobile: center controls, hide badge, tighter match layout, smart truncation -->
+    <!-- v4.44.17 | 20260224 | CSP frame-src self, hide page header on overlays, fix toggle overflow -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -502,6 +502,13 @@
                 width: 100%;
                 display: flex;
                 justify-content: center;
+                max-width: 100%;
+                box-sizing: border-box;
+                margin-top: 4px;
+            }
+            .match-mode-toggle {
+                max-width: 100%;
+                box-sizing: border-box;
             }
             #matchActiveBadge {
                 display: none !important;
@@ -799,7 +806,7 @@
     
     <!-- Export Modal (used dynamically for outcome editing and value notes) -->
     <div class="modal" id="exportModal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width:560px; width:calc(100% - 32px); box-sizing:border-box;">
             <div class="modal-header">
                 <div class="modal-header-left">
                     <h2 class="modal-title">Export Options</h2>
@@ -1428,8 +1435,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.15 - BUILD 20260224-mobile-controls-center
-        var BP_VERSION = 'v4.44.15';
+        // BLUEPRINT v4.44.17 - BUILD 20260224-csp-frame-overlay-fixes
+        var BP_VERSION = 'v4.44.17';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -12346,6 +12353,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         function setNetworkMatchMode(mode) {
             networkMatchMode = mode;
             updateMatchOverlayUI();
+            
+            // Hide skills page header on overlay modes (job/match/values)
+            var _sph = document.getElementById('skillsPageHeader');
+            if (_sph) _sph.style.display = (mode === 'you') ? 'block' : 'none';
             // Label toggles disabled — interactive nodes make them unnecessary
             // var nc = document.getElementById('networkControls');
             // if (nc) nc.style.display = '';
@@ -12569,9 +12580,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             (match.gaps || []).forEach(function(g) { gapSkills.add(g.name.toLowerCase()); });
             
             // === LAYOUT: Center (You) on LEFT, Job on RIGHT ===
-            var centerX = isMobile ? width * 0.35 : width * 0.22;
-            var centerY = height * 0.38;
-            var jobX = isMobile ? width * 0.72 : width * 0.78;
+            var centerX = isMobile ? width * 0.40 : width * 0.22;
+            var centerY = isMobile ? height * 0.30 : height * 0.38;
+            var jobX = isMobile ? width * 0.68 : width * 0.78;
             var jobY = height * 0.32;
             
             var matchCenterName = userData.profile.name || "You";
@@ -18014,7 +18025,7 @@ body {
                 + '<div class="modal-header-left"><h2 class="modal-title">\u25C8 Scouting Report</h2></div>'
                 + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
-                + '<div class="modal-body" style="padding:24px;">'
+                + '<div class="modal-body" style="padding:24px; overflow:hidden; box-sizing:border-box;">'
                 + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:16px; line-height:1.5;">'
                 + 'Select a job to generate a targeted career intelligence report. This is your scouting report \u2014 built to send to recruiters and hiring managers.</div>'
                 + '<div style="display:grid; gap:10px;">' + jobCardsHTML + '</div>'
