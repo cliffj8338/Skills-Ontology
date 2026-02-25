@@ -1,4 +1,4 @@
-<!-- v4.44.31 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
+<!-- v4.44.32 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.31 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
+    <!-- v4.44.32 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.31 - BUILD 20260225-verification-system
-        var BP_VERSION = 'v4.44.31';
+        // BLUEPRINT v4.44.32 - BUILD 20260225-verification-system
+        var BP_VERSION = 'v4.44.32';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -8381,7 +8381,7 @@
         window.declineVerification = declineVerification;
         window.getVerificationStats = getVerificationStats;
         
-        // ===== VERIFICATION EXPIRY (v4.44.31) =====
+        // ===== VERIFICATION EXPIRY (v4.44.32) =====
         // Auto-expire pending verifications older than configured TTL
         function expireStalePendingVerifications() {
             var verifications = userData.verifications || [];
@@ -8415,7 +8415,7 @@
         window.getCredibilityLabel = getCredibilityLabel;
         window.expireStalePendingVerifications = expireStalePendingVerifications;
         
-        // ===== VERIFIER LANDING PAGE (v4.44.31) =====
+        // ===== VERIFIER LANDING PAGE (v4.44.32) =====
         // When someone visits ?verify=TOKEN&uid=UID, show standalone verification UI
         function checkVerificationLandingPage() {
             var params = new URLSearchParams(window.location.search);
@@ -14182,7 +14182,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         
         // Initialize user interface on load
         document.addEventListener('DOMContentLoaded', async () => {
-            // v4.44.31: Check if this is a verification landing page URL
+            // v4.44.32: Check if this is a verification landing page URL
             if (checkVerificationLandingPage()) return; // Skip normal app init
             
             // v4.0: Check for magic link sign-in first
@@ -16894,6 +16894,11 @@ body {
                             <span class="bp-tab-icon">${bpIcon('export',16)}</span>
                             <span class="bp-tab-label">Export</span>
                         </button>
+                        <button class="bp-tab ${blueprintTab === 'verifications' ? 'active' : ''}" onclick="switchBlueprintTab('verifications')">
+                            <span class="bp-tab-icon">${bpIcon('shield',16)}</span>
+                            <span class="bp-tab-label">Verify</span>
+                            <span class="bp-tab-count">${(userData.verifications || []).filter(v => v.status === 'confirmed').length}</span>
+                        </button>
                     </div>
                     
                     <div id="blueprintTabContent">
@@ -16932,6 +16937,7 @@ body {
             if (blueprintTab === 'values')   return renderValuesSection();
             if (blueprintTab === 'purpose')  return renderDashboardTab(); // redirect legacy
             if (blueprintTab === 'export')   return renderExportSection();
+            if (blueprintTab === 'verifications') return renderVerificationsTab();
             return renderDashboardTab();
         }
 
@@ -18031,6 +18037,231 @@ body {
             html += '</div>'; // close blueprint-section
             return html;
         }
+        
+        // ===== VERIFICATIONS TAB (v4.44.32) =====
+        function renderVerificationsTab() {
+            var verifications = userData.verifications || [];
+            var skills = skillsData.skills || [];
+            var html = '';
+            
+            // ── STATS SUMMARY ──
+            var confirmed = verifications.filter(function(v) { return v.status === 'confirmed'; });
+            var pending = verifications.filter(function(v) { return v.status === 'pending'; });
+            var expired = verifications.filter(function(v) { return v.status === 'expired'; });
+            var declined = verifications.filter(function(v) { return v.status === 'declined'; });
+            var unverifiedSkills = skills.filter(function(s) {
+                return !verifications.some(function(v) { return v.skillName === s.name && v.status === 'confirmed'; });
+            });
+            
+            html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:12px; margin-bottom:24px;">';
+            var statBoxes = [
+                { label: 'Verified', count: confirmed.length, color: '#10b981', icon: 'check' },
+                { label: 'Pending', count: pending.length, color: '#f59e0b', icon: 'clock' },
+                { label: 'Expired', count: expired.length, color: '#6b7280', icon: 'warning' },
+                { label: 'Declined', count: declined.length, color: '#ef4444', icon: 'warning' },
+                { label: 'Unverified', count: unverifiedSkills.length, color: '#64748b', icon: 'shield' }
+            ];
+            statBoxes.forEach(function(sb) {
+                html += '<div style="padding:14px; background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:10px; text-align:center;">'
+                    + '<div style="font-size:1.6em; font-weight:700; color:' + sb.color + ';">' + sb.count + '</div>'
+                    + '<div style="font-size:0.75em; color:var(--c-muted); margin-top:2px;">' + sb.label + '</div>'
+                    + '</div>';
+            });
+            html += '</div>';
+            
+            // ── CREDIBILITY SCALE ──
+            html += '<div style="padding:14px; background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:10px; margin-bottom:24px;">'
+                + '<div style="font-weight:600; font-size:0.85em; color:var(--c-heading); margin-bottom:10px;">' + bpIcon('scale',15) + ' Credibility Weights</div>'
+                + '<div style="display:flex; flex-wrap:wrap; gap:8px;">';
+            var weights = [
+                { rel: 'Manager / Executive', weight: '2.0x', label: 'Highest', color: '#10b981' },
+                { rel: 'Client / Board / Co-founder', weight: '1.8x', label: 'High', color: '#60a5fa' },
+                { rel: 'Peer / Industry Peer', weight: '1.5x', label: 'Standard', color: '#a78bfa' },
+                { rel: 'Direct Report', weight: '1.3x', label: 'Basic', color: '#9ca3af' }
+            ];
+            weights.forEach(function(w) {
+                html += '<div style="padding:4px 10px; border-radius:8px; font-size:0.75em; background:' + w.color + '15; color:' + w.color + '; border:1px solid ' + w.color + '30;">'
+                    + '<strong>' + w.weight + '</strong> ' + w.rel + '</div>';
+            });
+            html += '</div></div>';
+            
+            // ── ACTION BAR ──
+            if (!isReadOnlyProfile) {
+                html += '<div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;">';
+                if (unverifiedSkills.length > 0) {
+                    html += '<button onclick="verifyTabRequestNew()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.08)); border:1px solid rgba(16,185,129,0.3); border-radius:8px; color:#10b981; cursor:pointer; font-weight:600; font-size:0.88em;">'
+                        + bpIcon('plus',14) + ' Request Verification (' + unverifiedSkills.length + ' unverified)</button>';
+                }
+                if (expired.length > 0) {
+                    html += '<button onclick="verifyTabClearExpired()" style="display:flex; align-items:center; gap:7px; padding:10px 18px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:8px; color:var(--c-label); cursor:pointer; font-weight:600; font-size:0.88em;">'
+                        + bpIcon('trash',14) + ' Clear Expired (' + expired.length + ')</button>';
+                }
+                html += '</div>';
+            }
+            
+            // ── VERIFIED SKILLS LIST ──
+            if (confirmed.length > 0) {
+                html += '<div style="margin-bottom:20px;">'
+                    + '<div style="font-weight:700; font-size:0.92em; color:var(--c-heading); margin-bottom:12px;">' + bpIcon('check',16) + ' Verified Skills (' + confirmed.length + ')</div>'
+                    + '<div style="border:1px solid var(--c-surface-4); border-radius:10px; overflow:hidden;">';
+                
+                confirmed.sort(function(a,b) { return (a.skillName || '').localeCompare(b.skillName || ''); });
+                
+                confirmed.forEach(function(v) {
+                    var skill = skills.find(function(s) { return s.name === v.skillName; });
+                    var levelColors = { 'Mastery':'#ef4444','Expert':'#f97316','Advanced':'#f59e0b','Proficient':'#10b981','Novice':'#6b7280' };
+                    var lv = skill ? skill.level : v.claimedLevel || '?';
+                    var lvColor = levelColors[lv] || '#6b7280';
+                    var cred = getCredibilityLabel(v.relationship || 'Other');
+                    var respondedDate = v.respondedAt ? new Date(v.respondedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                    
+                    html += '<div style="display:flex; align-items:center; gap:10px; padding:10px 16px; border-bottom:1px solid var(--c-surface-1b); flex-wrap:wrap;">'
+                        // Skill name
+                        + '<div style="flex:1; min-width:140px; font-size:0.88em; color:var(--c-text); cursor:pointer;" onclick="openSkillModalFromCard(\'' + (v.skillName || '').replace(/'/g, "\\'") + '\')">' + escapeHtml(v.skillName) + '</div>'
+                        // Level
+                        + '<span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:' + lvColor + '22; color:' + lvColor + '; font-weight:600; white-space:nowrap;">' + lv + '</span>'
+                        // Verifier
+                        + '<div style="min-width:140px; font-size:0.82em; color:var(--c-label);">'
+                        + '<div style="font-weight:600;">' + escapeHtml(v.verifierName || 'Unknown') + '</div>'
+                        + '<div style="font-size:0.9em; color:var(--c-muted);">' + escapeHtml(v.relationship || 'Peer') + '</div>'
+                        + '</div>'
+                        // Credibility weight
+                        + '<span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:' + cred.color + '18; color:' + cred.color + '; font-weight:600; white-space:nowrap;">' + cred.weight + 'x ' + cred.label + '</span>'
+                        // Date
+                        + '<div style="font-size:0.72em; color:var(--c-faint); min-width:80px; text-align:right;">' + respondedDate + '</div>'
+                        // Revoke action
+                        + (!isReadOnlyProfile ? '<button onclick="verifyTabRevoke(\'' + (v.id || '').replace(/'/g, "\\'") + '\')" title="Revoke" style="background:none; border:none; cursor:pointer; color:var(--c-faint); padding:4px; opacity:0.5;" onmouseover="this.style.opacity=\'1\';this.style.color=\'#ef4444\'" onmouseout="this.style.opacity=\'0.5\';this.style.color=\'var(--c-faint)\'">' + bpIcon('trash',14) + '</button>' : '')
+                        + '</div>';
+                });
+                
+                html += '</div></div>';
+            }
+            
+            // ── PENDING REQUESTS ──
+            if (pending.length > 0) {
+                html += '<div style="margin-bottom:20px;">'
+                    + '<div style="font-weight:700; font-size:0.92em; color:#f59e0b; margin-bottom:12px;">' + bpIcon('clock',16) + ' Pending Requests (' + pending.length + ')</div>'
+                    + '<div style="border:1px solid var(--c-surface-4); border-radius:10px; overflow:hidden;">';
+                
+                pending.forEach(function(v) {
+                    var requestedDate = v.requestedAt ? new Date(v.requestedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                    var daysPending = v.requestedAt ? Math.floor((Date.now() - new Date(v.requestedAt).getTime()) / 86400000) : 0;
+                    var urgency = daysPending > 21 ? '#ef4444' : daysPending > 14 ? '#f59e0b' : 'var(--c-muted)';
+                    
+                    html += '<div style="display:flex; align-items:center; gap:10px; padding:10px 16px; border-bottom:1px solid var(--c-surface-1b); flex-wrap:wrap;">'
+                        + '<div style="flex:1; min-width:140px; font-size:0.88em; color:var(--c-text);">' + escapeHtml(v.skillName) + '</div>'
+                        + '<div style="min-width:140px; font-size:0.82em; color:var(--c-label);">'
+                        + '<div>' + escapeHtml(v.verifierName || 'Unknown') + '</div>'
+                        + '<div style="font-size:0.9em; color:var(--c-muted);">' + escapeHtml(v.verifierEmail || '') + '</div>'
+                        + '</div>'
+                        + '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(245,158,11,0.12); color:#f59e0b;">Pending</span>'
+                        + '<div style="font-size:0.72em; color:' + urgency + '; min-width:80px; text-align:right;">' + requestedDate + '<br>' + daysPending + ' days</div>'
+                        + (!isReadOnlyProfile ? '<button onclick="verifyTabResend(\'' + (v.skillName || '').replace(/'/g, "\\'") + '\')" title="Resend" style="background:none; border:none; cursor:pointer; color:#60a5fa; padding:4px; font-size:0.75em;">Resend</button>' : '')
+                        + '</div>';
+                });
+                
+                html += '</div></div>';
+            }
+            
+            // ── EXPIRED / DECLINED ──
+            if (expired.length > 0 || declined.length > 0) {
+                var inactive = expired.concat(declined);
+                html += '<div style="margin-bottom:20px;">'
+                    + '<div style="font-weight:700; font-size:0.92em; color:var(--c-faint); margin-bottom:12px;">' + bpIcon('warning',16) + ' Expired & Declined (' + inactive.length + ')</div>'
+                    + '<div style="border:1px solid var(--c-surface-4); border-radius:10px; overflow:hidden; opacity:0.65;">';
+                
+                inactive.forEach(function(v) {
+                    var statusColor = v.status === 'expired' ? '#6b7280' : '#ef4444';
+                    var statusLabel = v.status === 'expired' ? 'Expired' : 'Declined';
+                    
+                    html += '<div style="display:flex; align-items:center; gap:10px; padding:8px 16px; border-bottom:1px solid var(--c-surface-1b);">'
+                        + '<div style="flex:1; font-size:0.85em; color:var(--c-muted);">' + escapeHtml(v.skillName) + '</div>'
+                        + '<div style="font-size:0.8em; color:var(--c-faint);">' + escapeHtml(v.verifierName || '') + '</div>'
+                        + '<span style="font-size:0.7em; padding:2px 6px; border-radius:8px; background:' + statusColor + '18; color:' + statusColor + ';">' + statusLabel + '</span>'
+                        + '</div>';
+                });
+                
+                html += '</div></div>';
+            }
+            
+            // ── UNVERIFIED SKILLS ──
+            if (unverifiedSkills.length > 0) {
+                html += '<div style="margin-bottom:20px;">'
+                    + '<div style="font-weight:700; font-size:0.92em; color:var(--c-faint); margin-bottom:12px;">' + bpIcon('shield',16) + ' Unverified Skills (' + unverifiedSkills.length + ')</div>'
+                    + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+                
+                unverifiedSkills.forEach(function(s) {
+                    var levelColors = { 'Mastery':'#ef4444','Expert':'#f97316','Advanced':'#f59e0b','Proficient':'#10b981','Novice':'#6b7280' };
+                    var c = levelColors[s.level] || '#6b7280';
+                    html += '<div style="padding:4px 10px; border-radius:8px; font-size:0.78em; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); color:var(--c-label); cursor:pointer;" '
+                        + 'onclick="requestVerification([\'' + (s.name || '').replace(/'/g, "\\'") + '\'])">'
+                        + '<span style="color:' + c + ';">\u25CF</span> ' + escapeHtml(s.name)
+                        + '</div>';
+                });
+                
+                html += '</div></div>';
+            }
+            
+            // ── EMPTY STATE ──
+            if (verifications.length === 0 && skills.length > 0) {
+                html += '<div style="text-align:center; padding:60px 20px; color:var(--c-faint);">'
+                    + '<div style="font-size:3em; margin-bottom:16px; opacity:0.3;">' + bpIcon('shield',64) + '</div>'
+                    + '<div style="font-size:1.1em; font-weight:600; color:var(--c-heading); margin-bottom:8px;">No Verifications Yet</div>'
+                    + '<div style="font-size:0.9em; max-width:440px; margin:0 auto; line-height:1.5; margin-bottom:20px;">'
+                    + 'Skill verifications strengthen your profile by having colleagues, managers, and clients confirm your expertise. '
+                    + 'Higher-credibility verifiers (managers, executives) multiply your evidence scores more than peers.</div>'
+                    + (!isReadOnlyProfile ? '<button onclick="verifyTabRequestNew()" style="padding:12px 24px; background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; border-radius:10px; font-weight:600; cursor:pointer; font-size:0.92em;">'
+                    + bpIcon('plus',14) + ' Request Your First Verification</button>' : '')
+                    + '</div>';
+            }
+            
+            return html;
+        }
+        
+        // Verification tab actions
+        function verifyTabRequestNew() {
+            // Get all unverified skill names
+            var verifications = userData.verifications || [];
+            var skills = skillsData.skills || [];
+            var unverified = skills.filter(function(s) {
+                return !verifications.some(function(v) { return v.skillName === s.name && v.status === 'confirmed'; });
+            }).map(function(s) { return s.name; });
+            
+            if (unverified.length === 0) {
+                showToast('All skills are verified!', 'success');
+                return;
+            }
+            // Open the existing request verification modal with unverified skills
+            requestVerification(unverified.slice(0, 10)); // Batch max 10 at a time
+        }
+        window.verifyTabRequestNew = verifyTabRequestNew;
+        
+        function verifyTabRevoke(verificationId) {
+            if (readOnlyGuard()) return;
+            if (!confirm('Revoke this verification? The verifier would need to re-verify.')) return;
+            var idx = (userData.verifications || []).findIndex(function(v) { return v.id === verificationId; });
+            if (idx >= 0) {
+                userData.verifications.splice(idx, 1);
+                saveAll();
+                switchBlueprintTab('verifications');
+                showToast('Verification revoked.', 'info');
+            }
+        }
+        window.verifyTabRevoke = verifyTabRevoke;
+        
+        function verifyTabClearExpired() {
+            if (readOnlyGuard()) return;
+            userData.verifications = (userData.verifications || []).filter(function(v) { return v.status !== 'expired'; });
+            saveAll();
+            switchBlueprintTab('verifications');
+            showToast('Expired verifications cleared.', 'info');
+        }
+        window.verifyTabClearExpired = verifyTabClearExpired;
+        
+        function verifyTabResend(skillName) {
+            requestVerification([skillName]);
+        }
+        window.verifyTabResend = verifyTabResend;
         
         // Blueprint interaction functions
         function toggleOutcomeShare(idx) {
