@@ -1,4 +1,4 @@
-<!-- v4.44.34 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
+<!-- v4.44.35 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.34 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
+    <!-- v4.44.35 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.34 - BUILD 20260225-verification-system
-        var BP_VERSION = 'v4.44.34';
+        // BLUEPRINT v4.44.35 - BUILD 20260225-verification-system
+        var BP_VERSION = 'v4.44.35';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -4354,6 +4354,9 @@
                     if (saved[item.id]) {
                         item.status = saved[item.id].status || item.status;
                         item.notes = saved[item.id].notes !== undefined ? saved[item.id].notes : item.notes;
+                        if (saved[item.id].name) item.name = saved[item.id].name;
+                        if (saved[item.id].priority) item.priority = saved[item.id].priority;
+                        if (saved[item.id].category) item.category = saved[item.id].category;
                     }
                 });
             });
@@ -4363,7 +4366,7 @@
             var state = {};
             ROADMAP_DATA.phases.forEach(function(phase) {
                 phase.items.forEach(function(item) {
-                    state[item.id] = { status: item.status, notes: item.notes };
+                    state[item.id] = { status: item.status, notes: item.notes, name: item.name, priority: item.priority, category: item.category };
                 });
             });
             safeSet('bpRoadmapState', JSON.stringify(state));
@@ -4386,42 +4389,116 @@
         
         function editRoadmapNotes(itemId) {
             var item = null;
+            var parentPhase = null;
             ROADMAP_DATA.phases.forEach(function(phase) {
-                phase.items.forEach(function(i) { if (i.id === itemId) item = i; });
+                phase.items.forEach(function(i) { if (i.id === itemId) { item = i; parentPhase = phase; } });
             });
             if (!item) return;
             
-            var modalContent = document.getElementById('modalContent');
-            if (!modalContent) return;
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content');
             
-            modalContent.innerHTML = '<div class="modal-header">'
-                + '<h3 style="margin:0; font-size:1.1em;">' + bpIcon('edit',18) + ' Edit Notes</h3>'
-                + '<button onclick="closeModal()" class="modal-close">\u00D7</button></div>'
-                + '<div class="modal-body" style="padding:20px;">'
-                + '<div style="font-weight:600; margin-bottom:8px; color:var(--text-primary);">' + escapeHtml(item.name) + '</div>'
-                + '<textarea id="roadmapNoteInput" style="width:100%; min-height:120px; background:var(--c-input-bg); border:1px solid var(--border); border-radius:8px; padding:12px; color:var(--text-primary); font-size:0.9em; line-height:1.6; font-family:inherit; resize:vertical;">' + escapeHtml(item.notes || '') + '</textarea>'
-                + '<div style="display:flex; gap:10px; margin-top:16px; justify-content:flex-end;">'
-                + '<button onclick="closeModal()" style="padding:8px 20px; background:transparent; border:1px solid var(--border); color:var(--text-secondary); border-radius:8px; cursor:pointer;">Cancel</button>'
-                + '<button onclick="saveRoadmapNote(\'' + item.id + '\')" style="padding:8px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Save</button>'
-                + '</div></div>';
+            var statusOptions = ['planned', 'in-progress', 'done', 'deferred'].map(function(s) {
+                return '<option value="' + s + '"' + (item.status === s ? ' selected' : '') + '>' + s.charAt(0).toUpperCase() + s.slice(1).replace('-', ' ') + '</option>';
+            }).join('');
             
-            document.getElementById('modal').style.display = 'flex';
+            var priorityOptions = ['critical', 'high', 'medium', 'low'].map(function(p) {
+                return '<option value="' + p + '"' + (item.priority === p ? ' selected' : '') + '>' + p.charAt(0).toUpperCase() + p.slice(1) + '</option>';
+            }).join('');
+            
+            var categoryOptions = ['feature', 'infrastructure', 'security', 'monetization', 'integration', 'legal'].map(function(c) {
+                return '<option value="' + c + '"' + (item.category === c ? ' selected' : '') + '>' + c.charAt(0).toUpperCase() + c.slice(1) + '</option>';
+            }).join('');
+            
+            var selectStyle = 'width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid var(--c-border-strong); border-radius:6px; color:var(--text-primary); font-size:0.88em;';
+            
+            mc.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">' + bpIcon('edit', 18) + ' Edit Roadmap Item</h2>'
+                + '<p style="color:var(--c-muted); margin-top:4px; font-size:0.82em;">' + escapeHtml(parentPhase ? parentPhase.name : '') + ' \u00B7 ' + item.id + '</p>'
+                + '</div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:24px; max-height:70vh; overflow-y:auto;">'
+                
+                // Name
+                + '<div style="margin-bottom:14px;">'
+                + '<label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Name</label>'
+                + '<input type="text" id="rmEditName" value="' + escapeHtml(item.name) + '" style="' + selectStyle + '">'
+                + '</div>'
+                
+                // Status + Priority + Category row
+                + '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:14px;">'
+                + '<div>'
+                + '<label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Status</label>'
+                + '<select id="rmEditStatus" style="' + selectStyle + '">' + statusOptions + '</select>'
+                + '</div>'
+                + '<div>'
+                + '<label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Priority</label>'
+                + '<select id="rmEditPriority" style="' + selectStyle + '">' + priorityOptions + '</select>'
+                + '</div>'
+                + '<div>'
+                + '<label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Category</label>'
+                + '<select id="rmEditCategory" style="' + selectStyle + '">' + categoryOptions + '</select>'
+                + '</div>'
+                + '</div>'
+                
+                // Notes
+                + '<div style="margin-bottom:14px;">'
+                + '<label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Notes</label>'
+                + '<textarea id="rmEditNotes" style="' + selectStyle + ' min-height:140px; resize:vertical; line-height:1.6; font-family:inherit;">' + escapeHtml(item.notes || '') + '</textarea>'
+                + '</div>'
+                
+                // Actions
+                + '<div style="display:flex; gap:10px; justify-content:space-between; align-items:center;">'
+                + '<button onclick="deleteRoadmapItem(\'' + item.id + '\')" style="padding:8px 16px; background:transparent; border:1px solid #ef4444; color:#ef4444; border-radius:8px; cursor:pointer; font-size:0.82em;">' + bpIcon('trash',13) + ' Delete</button>'
+                + '<div style="display:flex; gap:10px;">'
+                + '<button onclick="closeExportModal()" style="padding:8px 20px; background:transparent; border:1px solid var(--border); color:var(--text-secondary); border-radius:8px; cursor:pointer;">Cancel</button>'
+                + '<button onclick="saveRoadmapItem(\'' + item.id + '\')" style="padding:8px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Save Changes</button>'
+                + '</div></div>'
+                
+                + '</div>';
+            
+            modal.style.display = 'flex';
         }
         window.editRoadmapNotes = editRoadmapNotes;
         
-        function saveRoadmapNote(itemId) {
-            var noteEl = document.getElementById('roadmapNoteInput');
-            if (!noteEl) return;
+        function saveRoadmapItem(itemId) {
+            var nameEl = document.getElementById('rmEditName');
+            var statusEl = document.getElementById('rmEditStatus');
+            var priorityEl = document.getElementById('rmEditPriority');
+            var categoryEl = document.getElementById('rmEditCategory');
+            var notesEl = document.getElementById('rmEditNotes');
+            
             ROADMAP_DATA.phases.forEach(function(phase) {
                 phase.items.forEach(function(item) {
-                    if (item.id === itemId) item.notes = noteEl.value.trim();
+                    if (item.id === itemId) {
+                        if (nameEl) item.name = nameEl.value.trim() || item.name;
+                        if (statusEl) item.status = statusEl.value;
+                        if (priorityEl) item.priority = priorityEl.value;
+                        if (categoryEl) item.category = categoryEl.value;
+                        if (notesEl) item.notes = notesEl.value.trim();
+                    }
                 });
             });
             saveRoadmapState();
-            closeModal();
+            closeExportModal();
             renderAdminRoadmap(document.getElementById('adminTabContent'));
+            showToast('Roadmap item updated.', 'success');
         }
-        window.saveRoadmapNote = saveRoadmapNote;
+        window.saveRoadmapItem = saveRoadmapItem;
+        
+        function deleteRoadmapItem(itemId) {
+            if (!confirm('Delete this roadmap item? This cannot be undone.')) return;
+            ROADMAP_DATA.phases.forEach(function(phase) {
+                phase.items = phase.items.filter(function(i) { return i.id !== itemId; });
+            });
+            saveRoadmapState();
+            closeExportModal();
+            renderAdminRoadmap(document.getElementById('adminTabContent'));
+            showToast('Roadmap item deleted.', 'info');
+        }
+        window.deleteRoadmapItem = deleteRoadmapItem;
         
         var roadmapFilter = 'all'; // 'all', 'planned', 'in-progress', 'done', 'deferred'
         
@@ -4546,7 +4623,7 @@
                         + (item.notes ? '<div style="font-size:0.8em; color:var(--text-muted); margin-top:4px; line-height:1.5;">' + escapeHtml(item.notes) + '</div>' : '')
                         + '</div>'
                         // Edit button
-                        + '<button onclick="editRoadmapNotes(\'' + item.id + '\')" style="flex-shrink:0; background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px; font-size:0.85em; opacity:0.5; transition:opacity 0.2s;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0.5\'" title="Edit notes">' + bpIcon('edit', 14) + '</button>'
+                        + '<button onclick="editRoadmapNotes(\'' + item.id + '\')" style="flex-shrink:0; background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px; font-size:0.85em; opacity:0.5; transition:opacity 0.2s;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0.5\'" title="Edit item">' + bpIcon('edit', 14) + '</button>'
                         + '</div>';
                 });
                 
@@ -8397,7 +8474,7 @@
         window.declineVerification = declineVerification;
         window.getVerificationStats = getVerificationStats;
         
-        // ===== VERIFICATION EXPIRY (v4.44.34) =====
+        // ===== VERIFICATION EXPIRY (v4.44.35) =====
         // Auto-expire pending verifications older than configured TTL
         function expireStalePendingVerifications() {
             var verifications = userData.verifications || [];
@@ -8431,7 +8508,7 @@
         window.getCredibilityLabel = getCredibilityLabel;
         window.expireStalePendingVerifications = expireStalePendingVerifications;
         
-        // ===== VERIFIER LANDING PAGE (v4.44.34) =====
+        // ===== VERIFIER LANDING PAGE (v4.44.35) =====
         // When someone visits ?verify=TOKEN&uid=UID, show standalone verification UI
         function checkVerificationLandingPage() {
             var params = new URLSearchParams(window.location.search);
@@ -14198,7 +14275,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         
         // Initialize user interface on load
         document.addEventListener('DOMContentLoaded', async () => {
-            // v4.44.34: Check if this is a verification landing page URL
+            // v4.44.35: Check if this is a verification landing page URL
             if (checkVerificationLandingPage()) return; // Skip normal app init
             
             // v4.0: Check for magic link sign-in first
@@ -18054,7 +18131,7 @@ body {
             return html;
         }
         
-        // ===== VERIFICATIONS TAB (v4.44.34) =====
+        // ===== VERIFICATIONS TAB (v4.44.35) =====
         function renderVerificationsTab() {
             var verifications = userData.verifications || [];
             var skills = skillsData.skills || [];
