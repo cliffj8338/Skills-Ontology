@@ -1,4 +1,4 @@
-<!-- v4.44.44 | 2026-02-25 | Security: textarea injection + verifier suggested level scoring -->
+<!-- v4.44.45 | 2026-02-25 | Security: report share tokens + Firestore field-size limits -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.44 | 2026-02-25 | Security: textarea injection + verifier suggested level scoring -->
+    <!-- v4.44.45 | 2026-02-25 | Security: report share tokens + Firestore field-size limits -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.44 - BUILD 20260225-security-textarea-verifier
-        var BP_VERSION = 'v4.44.44';
+        // BLUEPRINT v4.44.45 - BUILD 20260225-security-report-tokens
+        var BP_VERSION = 'v4.44.45';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2035,7 +2035,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260225-security-textarea-verifier          ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260225-security-report-tokens              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -4263,7 +4263,7 @@
                         { id: 's9', name: 'Full innerHTML audit', status: 'done', category: 'security', priority: 'medium', notes: 'v4.44.43: Systematic audit of all 213 innerHTML assignments. Added 57 new escapeHtml calls covering D3 tooltips, card view, skill browser, values picker, verify tab, settings, gap/surplus chips, error displays, and demo profiles. Coverage: 156→213 escapeHtml call sites.' },
                         { id: 's10', name: 'Session security review protocol', status: 'done', category: 'security', priority: 'high', notes: 'Every dev session opens with security/stability review before feature work.' },
                         { id: 's11', name: 'Textarea injection hardening', status: 'done', category: 'security', priority: 'medium', notes: 'v4.44.44: All textarea pre-filled values now use escapeHtml to prevent tag-breakout XSS. Covers outcome editor, wizard resume/summary/purpose, value notes, cover letter, interview prep. Input value attributes upgraded from partial quote escaping to full escapeHtml. Also covers admin sample edit, work history, education, and cert forms.' },
-                        { id: 's12', name: 'Firestore field-size limits', status: 'planned', category: 'security', priority: 'medium', notes: 'Add field-size validation rules in Firestore to prevent oversized document writes.' }
+                        { id: 's12', name: 'Firestore field-size limits', status: 'done', category: 'security', priority: 'medium', notes: 'v4.44.45: Array size caps on user doc writes: skills 500, savedJobs 200, verifications 1000, applications 500, workHistory 100, education 50, certifications 100, values 100, outcomes 200, roles 50, purpose 5000 chars. Report fields: reportData 500K, candidateName 200, jobTitle 300, company 200, max 15 keys. Profile object max 20 keys.' }
                     ]
                 },
                 {
@@ -4273,7 +4273,7 @@
                     icon: 'blueprint',
                     items: [
                         { id: 'p1-1', name: 'Anthropic API proxy (serverless)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'Client-side helper callAnthropicAPI(). Serverless function at /api/ai.js. Firebase token validation, rate limiting, cost tracking. Deployed.' },
-                        { id: 'p1-2', name: 'Report access control (share tokens)', status: 'planned', category: 'security', priority: 'high', notes: 'Add shareToken field to report doc. Validate in Firestore rules. URL becomes /report/{id}?token={random}.' },
+                        { id: 'p1-2', name: 'Report access control (share tokens)', status: 'done', category: 'security', priority: 'high', notes: 'v4.44.45: Crypto 128-bit shareToken generated on report creation. Share URL includes token param. Firestore rules split read→get/list: get allows active+token reports (single doc by ID), list restricted to auth+owner/admin (blocks enumeration). Field-size limits on report creation (jobTitle 300, company 200, createdByName 200, max 15 keys).' },
                         { id: 'p1-3', name: 'CORS proxy via serverless', status: 'done', category: 'infrastructure', priority: 'medium', notes: 'Vercel serverless at /api/api-job-proxy. Allowlist: remotive.com, himalayas.app, jobicy.com, adzuna.com, themuse.com, jooble.org, jsearch, usajobs. All 8 sources use proxy+fallback pattern.' },
                         { id: 'p1-4', name: 'Admin roadmap tracker', status: 'done', category: 'feature', priority: 'medium', notes: 'Roadmap tab in admin panel. Tracks all strategy items, features, and tasks.' },
                         { id: 'p1-6', name: 'AI cost tracking dashboard', status: 'done', category: 'feature', priority: 'medium', notes: 'Costs tab in admin. Tracks all API calls by feature tag, shows real usage, estimated costs, sparkline, and scale projection calculator. AI_FEATURES registry auto-picks up new features.' },
@@ -19620,6 +19620,11 @@ body {
             crypto.getRandomValues(cryptoBytes);
             var reportId = Date.now().toString(36) + Array.from(cryptoBytes, function(b) { return b.toString(16).padStart(2, '0'); }).join('');
             
+            // Generate share token (p1-2): separate 128-bit token for URL sharing
+            var tokenBytes = new Uint8Array(16);
+            crypto.getRandomValues(tokenBytes);
+            var shareToken = Array.from(tokenBytes, function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+            
             // Firestore document
             var docData = {
                 reportData: JSON.stringify(reportData),
@@ -19633,7 +19638,8 @@ body {
                 viewCount: 0,
                 shortlisted: 0,
                 notes: [],
-                status: 'active'
+                status: 'active',
+                shareToken: shareToken
             };
             
             if (!fbDb) {
@@ -19644,7 +19650,7 @@ body {
             
             fbDb.collection('reports').doc(reportId).set(docData)
                 .then(function() {
-                    var shareUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/reports/view.html?id=' + reportId);
+                    var shareUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/reports/view.html?id=' + reportId + '&token=' + shareToken);
                     
                     // Copy to clipboard
                     if (navigator.clipboard) {

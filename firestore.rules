@@ -1,6 +1,8 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // ── HELPERS ──────────────────────────────────────
     function isAdmin() {
       return request.auth != null
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
@@ -11,36 +13,125 @@ service cloud.firestore {
     function isOwner(userId) {
       return isAuth() && request.auth.uid == userId;
     }
+
+    // ── USERS ───────────────────────────────────────
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
+
       allow create: if isOwner(userId)
-        && request.resource.data.role == 'user';
+        && request.resource.data.role == 'user'
+        // Field-size limits (s12)
+        && (!('profile' in request.resource.data) || (
+          request.resource.data.profile.keys().size() <= 20
+        ))
+        && (!('skills' in request.resource.data) || (
+          request.resource.data.skills.size() <= 500
+        ))
+        && (!('purpose' in request.resource.data) || (
+          request.resource.data.purpose is string
+          && request.resource.data.purpose.size() <= 5000
+        ));
+
       allow update: if isOwner(userId)
-        && (!('role' in request.resource.data) || request.resource.data.role == resource.data.role);
+        && (!('role' in request.resource.data) || request.resource.data.role == resource.data.role)
+        // Field-size limits (s12)
+        && (!('skills' in request.resource.data) || (
+          request.resource.data.skills.size() <= 500
+        ))
+        && (!('savedJobs' in request.resource.data) || (
+          request.resource.data.savedJobs.size() <= 200
+        ))
+        && (!('verifications' in request.resource.data) || (
+          request.resource.data.verifications.size() <= 1000
+        ))
+        && (!('applications' in request.resource.data) || (
+          request.resource.data.applications.size() <= 500
+        ))
+        && (!('workHistory' in request.resource.data) || (
+          request.resource.data.workHistory.size() <= 100
+        ))
+        && (!('education' in request.resource.data) || (
+          request.resource.data.education.size() <= 50
+        ))
+        && (!('certifications' in request.resource.data) || (
+          request.resource.data.certifications.size() <= 100
+        ))
+        && (!('values' in request.resource.data) || (
+          request.resource.data.values.size() <= 100
+        ))
+        && (!('outcomes' in request.resource.data) || (
+          request.resource.data.outcomes.size() <= 200
+        ))
+        && (!('purpose' in request.resource.data) || (
+          request.resource.data.purpose is string
+          && request.resource.data.purpose.size() <= 5000
+        ))
+        && (!('roles' in request.resource.data) || (
+          request.resource.data.roles.size() <= 50
+        ));
 
       allow delete: if isOwner(userId)
         && resource.data.role != 'admin';
 
+      // Verification subcollection (written by serverless /api/verify.js via Admin SDK)
       match /verifications/{verificationId} {
         allow read, write: if isOwner(userId);
       }
     }
+
+    // ── REPORTS ──────────────────────────────────────
+    // p1-2: Split read into get (single doc) and list (collection query)
+    // get: requires knowing the 128-bit crypto ID + share token, OR auth+owner
+    // list: requires auth+owner or admin (blocks enumeration of all reports)
     match /reports/{reportId} {
-      allow read: if resource.data.status == 'active'
+      // Single document reads: token-gated for public, owner/admin for private
+      allow get: if (
+          resource.data.status == 'active'
+          && resource.data.shareToken is string
+          && resource.data.shareToken.size() > 0
+        )
         || (isAuth() && request.auth.uid == resource.data.createdBy)
         || isAdmin();
+
+      // Collection queries: only owner or admin (prevents enumeration)
+      allow list: if isAuth()
+        && (request.auth.uid == resource.data.createdBy || isAdmin());
+
       allow create: if isAuth()
         && request.resource.data.createdBy == request.auth.uid
-        && request.resource.data.keys().hasAll(['reportData', 'candidateName', 'createdBy', 'createdAt', 'status'])
+        && request.resource.data.keys().hasAll(['reportData', 'candidateName', 'createdBy', 'createdAt', 'status', 'shareToken'])
         && request.resource.data.reportData is string
         && request.resource.data.reportData.size() <= 500000
         && request.resource.data.candidateName is string
         && request.resource.data.candidateName.size() <= 200
-        && request.resource.data.status in ['active', 'draft'];
+        && request.resource.data.status in ['active', 'draft']
+        // Share token validation (p1-2)
+        && request.resource.data.shareToken is string
+        && request.resource.data.shareToken.size() >= 16
+        && request.resource.data.shareToken.size() <= 64
+        // Field-size limits (s12)
+        && (!('jobTitle' in request.resource.data) || (
+          request.resource.data.jobTitle is string
+          && request.resource.data.jobTitle.size() <= 300
+        ))
+        && (!('company' in request.resource.data) || (
+          request.resource.data.company is string
+          && request.resource.data.company.size() <= 200
+        ))
+        && (!('createdByName' in request.resource.data) || (
+          request.resource.data.createdByName is string
+          && request.resource.data.createdByName.size() <= 200
+        ))
+        && request.resource.data.keys().size() <= 15;
+
+      // Owner can update their reports; anonymous view counter still works
       allow update: if (isAuth() && request.auth.uid == resource.data.createdBy)
         || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewCount', 'lastViewedAt']);
+
       allow delete: if isAuth() && request.auth.uid == resource.data.createdBy;
     }
+
+    // ── REPORT VIEWS ────────────────────────────────
     match /report_views/{viewId} {
       allow create: if isAuth()
         && request.resource.data.keys().hasAll(['reportId', 'viewedAt'])
@@ -51,6 +142,8 @@ service cloud.firestore {
       allow read: if isAuth();
       allow update, delete: if false;
     }
+
+    // ── ANALYTICS EVENTS ────────────────────────────
     match /analytics_events/{eventId} {
       allow create: if isAuth()
         && request.resource.data.type is string
@@ -60,6 +153,8 @@ service cloud.firestore {
       allow read: if isAuth();
       allow update, delete: if false;
     }
+
+    // ── SITE ANALYTICS ──────────────────────────────
     match /site_analytics/{eventId} {
       allow create: if isAuth()
         && request.resource.data.type is string
@@ -69,6 +164,8 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow update, delete: if false;
     }
+
+    // ── WAITLIST ─────────────────────────────────────
     match /waitlist/{entryId} {
       allow create: if request.resource.data.email is string
         && request.resource.data.name is string
@@ -82,10 +179,14 @@ service cloud.firestore {
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
+
+    // ── JOBS (serverless write only) ────────────────
     match /jobs/{jobId} {
       allow read: if isAuth();
       allow write: if false;
     }
+
+    // ── META (serverless write only) ────────────────
     match /meta/{docId} {
       allow read: if isAuth();
       allow write: if false;
