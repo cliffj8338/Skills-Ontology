@@ -1,4 +1,4 @@
-<!-- v4.44.40 | 2026-02-25 | Mobile network: upper-right hub, expanded spacing across all 4 views -->
+<!-- v4.44.41 | 2026-02-25 | Mobile network: Match view name upper-right, You view tighter spacing -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.40 | 2026-02-25 | Mobile network: upper-right hub, expanded spacing across all 4 views -->
+    <!-- v4.44.41 | 2026-02-25 | Mobile network: Match view name upper-right, You view tighter spacing -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.40 - BUILD 20260225-mobile-network-layout
-        var BP_VERSION = 'v4.44.40';
+        // BLUEPRINT v4.44.41 - BUILD 20260225-mobile-network-layout
+        var BP_VERSION = 'v4.44.41';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2035,7 +2035,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260225-mobile-network-layout              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260225-mobile-network-v2                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -12953,12 +12953,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.type === "role") return collisionR[1];
                     return collisionR[2];
                 }))
-                .force("x", d3.forceX(networkCenterX).strength(isMobile ? 0.05 : 0.06))
-                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.05 : 0.08))
+                .force("x", d3.forceX(networkCenterX).strength(isMobile ? 0.07 : 0.06))
+                .force("y", d3.forceY(gravityCenter).strength(isMobile ? 0.06 : 0.08))
                 .force("radial", d3.forceRadial(d => {
-                    if (d.type === "skill") return Math.min(width, height) * (isMobile ? 0.42 : 0.4) * scaleFactor;
+                    if (d.type === "skill") return Math.min(width, height) * (isMobile ? 0.36 : 0.4) * scaleFactor;
                     return 0;
-                }).strength(isMobile ? 0.12 : 0.1));
+                }).strength(isMobile ? 0.10 : 0.1));
 
             // Draw links
             const link = svg.append("g")
@@ -13411,11 +13411,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var gapSkills = new Set();
             (match.gaps || []).forEach(function(g) { gapSkills.add(g.name.toLowerCase()); });
             
-            // === LAYOUT: Center (You) on LEFT, Job on RIGHT ===
-            var centerX = isMobile ? width * 0.28 : width * 0.22;
-            var centerY = isMobile ? height * 0.18 : height * 0.38;
+            // === LAYOUT: Center (You) pinned upper-right on mobile, roles orbit from network center ===
+            var nameX = isMobile ? width * 0.72 : width * 0.22;
+            var nameY = isMobile ? height * 0.15 : height * 0.38;
+            var networkBodyX = isMobile ? width * 0.38 : width * 0.22;
             var jobX = isMobile ? width * 0.75 : width * 0.78;
-            var jobY = isMobile ? height * 0.18 : height * 0.32;
+            var jobY = isMobile ? height * 0.15 : height * 0.32;
             
             var matchCenterName = userData.profile.name || "You";
             var maxMatchNameLen = isMobile ? 18 : 28;
@@ -13424,17 +13425,17 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 matchCenterName = fn.length <= maxMatchNameLen ? fn : matchCenterName.substring(0, maxMatchNameLen - 1) + '\u2026';
             }
             var nodes = [
-                { id: "center", name: matchCenterName, type: "center", matchState: 'center', x: centerX, y: centerY, fx: centerX, fy: centerY, homeX: centerX, homeY: centerY }
+                { id: "center", name: matchCenterName, type: "center", matchState: 'center', x: nameX, y: nameY, fx: nameX, fy: nameY, homeX: nameX, homeY: nameY }
             ];
             
-            // Use the user's actual roles — fan them out from center-left
+            // Use the user's actual roles — fan them out from network body center (not name pin)
             skillsData.roles.forEach(function(role, i) {
                 var angle = -Math.PI * 0.6 + (i / Math.max(skillsData.roles.length - 1, 1)) * Math.PI * 1.2;
                 var radius = (isMobile ? 140 : 180) * scaleFactor;
                 var roleId = role.id || role.name;
                 nodes.push({
                     id: roleId, name: role.name, type: 'role', color: role.color, matchState: 'role',
-                    x: centerX + Math.cos(angle) * radius, y: centerY + Math.sin(angle) * radius
+                    x: networkBodyX + Math.cos(angle) * radius, y: (isMobile ? height * 0.45 : nameY) + Math.sin(angle) * radius
                 });
             });
             
@@ -13524,11 +13525,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     return (isMobile ? 28 : 30) * scaleFactor;
                 }))
                 .force("x", d3.forceX(function(d) {
-                    if (d.type === 'center') return centerX;
+                    if (d.type === 'center') return nameX;
                     if (d.id === 'role-job-req') return jobX;
                     if (d.matchState === 'gap') return jobX;
-                    if (d.matchState === 'matched') return width * 0.5;
-                    return centerX + width * 0.08;
+                    if (d.matchState === 'matched') return isMobile ? width * 0.45 : width * 0.5;
+                    return networkBodyX + width * 0.05;
                 }).strength(function(d) {
                     if (d.type === 'center' || d.id === 'role-job-req') return 0;
                     if (d.matchState === 'matched') return 0.06;
