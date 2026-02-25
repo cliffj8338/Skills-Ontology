@@ -12044,7 +12044,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 if (btn2) btn2.classList.toggle('active', networkShowSkillLabels);
             } else if (type === 'values') {
                 networkShowValueLabels = !networkShowValueLabels;
-                svg.selectAll('text').filter(function(d) { return d && (d.type === 'value' || d.type === 'hub'); })
+                svg.selectAll('text').filter(function(d) { return d && d.type === 'value'; })
                     .style('display', networkShowValueLabels ? 'block' : 'none');
                 var btn3 = document.getElementById('labelPillValue');
                 if (btn3) btn3.classList.toggle('active', networkShowValueLabels);
