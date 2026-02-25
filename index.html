@@ -3818,7 +3818,7 @@
                     + '<span>' + outcomeCount + ' outcomes</span>'
                     + '</div>'
                     + '<div style="display:flex; gap:6px;">'
-                    + '<button onclick="editSampleProfile(\'' + p.id + '\');" style="padding:6px 14px; background:var(--c-surface-5); color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.82em; font-weight:600;">Edit</button>'
+                    + (showcaseMode ? '' : '<button onclick="editSampleProfile(\'' + p.id + '\');" style="padding:6px 14px; background:var(--c-surface-5); color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.82em; font-weight:600;">Edit</button>')
                     + '<button onclick="switchProfile(\'' + p.id + '\'); switchView(\'blueprint\');" style="padding:6px 14px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.82em; font-weight:600;">View</button>'
                     + '<span style="padding:6px 12px; border-radius:6px; font-size:0.78em; font-weight:600; '
                     + 'background:' + (p.enabled ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)') + '; '
@@ -3834,6 +3834,7 @@
         
         // ===== EDIT SAMPLE PROFILE =====
         function editSampleProfile(profileId) {
+            if (showcaseMode) { showToast('Editing disabled in showcase mode', 'info'); return; }
             var manifest = window.profilesManifest;
             var meta = manifest && manifest.profiles ? manifest.profiles.find(function(p) { return p.id === profileId; }) : null;
             var template = templates[profileId];
@@ -3908,6 +3909,7 @@
         window.saveSampleEdits = saveSampleEdits;
         
         function exportSampleJSON(profileId) {
+            if (showcaseMode) { showToast('Exports disabled in showcase mode', 'info'); return; }
             var template = templates[profileId];
             if (!template) return;
             var json = JSON.stringify(template, null, 2);
@@ -4488,6 +4490,7 @@
         window.cycleRoadmapStatus = cycleRoadmapStatus;
         
         function editRoadmapNotes(itemId) {
+            if (showcaseMode) { showToast('Editing disabled in showcase mode', 'info'); return; }
             var item = null;
             var parentPhase = null;
             ROADMAP_DATA.phases.forEach(function(phase) {
@@ -5386,8 +5389,8 @@
                 + '<button onclick="archSetView(\'tiles\')" id="archViewTiles" style="padding:4px 12px; font-size:0.75em; cursor:pointer; border:none; background:var(--accent); color:#fff;">Tiles</button>'
                 + '<button onclick="archSetView(\'diagram\')" id="archViewDiagram" style="padding:4px 12px; font-size:0.75em; cursor:pointer; border:none; background:var(--input-bg); color:var(--text-secondary);">Diagram</button>'
                 + '</div>'
-                + '<button onclick="archExportSVG()" style="padding:4px 12px; background:var(--input-bg); color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.75em;">' + bpIcon('clipboard',10) + ' Export SVG</button>'
-                + '<button onclick="archExportJSON()" style="padding:4px 12px; background:var(--input-bg); color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.75em;">' + bpIcon('save',10) + ' Export JSON</button>'
+                + '<button onclick="archExportSVG()" style="padding:4px 12px; background:var(--input-bg); color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.75em;' + (showcaseMode ? ' display:none;' : '') + '">' + bpIcon('clipboard',10) + ' Export SVG</button>'
+                + '<button onclick="archExportJSON()" style="padding:4px 12px; background:var(--input-bg); color:var(--text-secondary); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:0.75em;' + (showcaseMode ? ' display:none;' : '') + '">' + bpIcon('save',10) + ' Export JSON</button>'
                 + '</div></div>';
             
             // Note
@@ -5817,6 +5820,7 @@
         window.buildArchDiagram = buildArchDiagram;
         
         function archExportSVG() {
+            if (showcaseMode) { showToast('Exports disabled in showcase mode', 'info'); return; }
             // Build fresh SVG and download
             var tempDiv = document.createElement('div');
             document.body.appendChild(tempDiv);
@@ -5847,6 +5851,7 @@
         window.archExportSVG = archExportSVG;
         
         function archExportJSON() {
+            if (showcaseMode) { showToast('Exports disabled in showcase mode', 'info'); return; }
             var components = getArchComponents();
             var flows = getArchFlows();
             var exportData = {
