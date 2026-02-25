@@ -1,0 +1,1836 @@
+{
+  "profile": {
+    "name": "Cliff Jurkiewicz",
+    "executiveSummary": "AI Strategist & Anthropologist | Pilot | Futurist | Outspoken Mental Health Advocate   Cliff Jurkiewicz is a futurist who has accurately predicted technological advancements throughout a 30-year operational career spanning aviation, AI, and enterprise transformation. As Vice President of Global Strategy and Executive Evangelist at Phenom, he translates the chaos of Applied AI into clear business direction, defining the company’s leadership in talent intelligence.  Cliff focuses on the structural mechanics of the future of work. He is the architect of foundational industry models—including the Work Blueprint, Platform as a Practice, the AI Fluency Scorecard, and the Illusion of Choice—designed to help global organizations shift from rigid job structures to dynamic, skills-based ecosystems.  A featured voice at CERN, MIT, Nasdaq, and NASA, Cliff is a provocateur who forces the world's most influential executives to confront uncomfortable truths. He challenges leaders to dismantle weak assumptions and operationalize accountability. His approach simplifies complexity and mitigates risk, ensuring that as technology accelerates, human capability remains the competitive advantage.  A pilot, musician, former restaurateur, and outspoken mental health advocate, Cliff brings curiosity and empathy to every conversation. His personal mission is shaped by his family. He honors his late son through Kyle’s Wish, a nonprofit that inspires recovery through aviation experiences for young people facing mental health challenges. He finds purpose in raising his sons Phoenix and Sagan with his wife Gina. These experiences reinforce his belief that the future of work must serve people first.  #Futurism #AI #FutureOfWork #MentalHealth #AppliedAI",
+    "reportedComp": 300000,
+    "currentTitle": "VP, Global Strategy, GM CAB & Futurist",
+    "email": "showcase@myblueprint.work",
+    "photo": "data:image/jpeg;base64,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",
+    "roleLevel": "Executive",
+    "phone": "6108882378",
+    "yearsExperience": 38,
+    "currentCompany": "TalentEdge",
+    "summary": "Accomplished restaurant and hospitality executive with 20+ years building a beloved regional fast-food chain from a single location to 14 stores across the Southwest. Known for operational precision, supply chain mastery, community philanthropy, and an uncompromising commitment to quality standards.",
+    "headline": "VP, Global Strategy, GM CAB & Futurist · 38+ Years",
+    "location": "Greater Philadelphia"
+  },
+  "skills": [
+    {
+      "roles": [
+        "role1"
+      ],
+      "key": true,
+      "category": "knowledge",
+      "evidence": [
+        {
+          "outcome": "Designed Blueprint career intelligence platform as 31,000-line single-page application",
+          "description": "Created full product design spanning D3.js network visualizations, modal interfaces, dark theme, and responsive mobile adaptation"
+        },
+        {
+          "outcome": "Created 24 TV character demo profiles translating fictional careers into interactive skill maps",
+          "description": "Designed character-to-career translations from Breaking Bad, Stranger Things, Succession, and Game of Thrones"
+        },
+        {
+          "outcome": "Designed scouting report format combining data density with readable presentation",
+          "description": "Created PDF and HTML report layouts balancing skill data, compensation evidence, and narrative positioning"
+        },
+        {
+          "outcome": "Co-founded Visual Medium bringing design direction expertise to media ventures",
+          "description": "Applied design vision across brand development, content strategy, and visual storytelling"
+        }
+      ],
+      "name": "Design",
+      "level": "Mastery"
+    },
+    {
+      "level": "Mastery",
+      "roles": [
+        "role1"
+      ],
+      "evidence": [
+        {
+          "outcome": "Applied design thinking methodology to reimagine career representation as interactive network",
+          "description": "Used empathy mapping and rapid prototyping to develop Blueprint skill visualization approach"
+        },
+        {
+          "outcome": "Redesigned Customer Advisory Board from feedback forum to strategic co-creation model",
+          "description": "Applied iterative design thinking to grow CAB from 8 to 45+ executive participants over 3 years"
+        },
+        {
+          "outcome": "Developed candidate experience architecture framework adopted by 6 enterprise customers",
+          "description": "Used design thinking to map candidate touchpoints, emotional states, and conversion optimization opportunities"
+        },
+        {
+          "outcome": "Created human-in-the-lead AI framework through iterative design thinking process",
+          "description": "Developed model positioning human judgment as director of AI through structured problem reframing"
+        }
+      ],
+      "name": "Design Thinking",
+      "key": true,
+      "category": "knowledge"
+    },
+    {
+      "roles": [
+        "role1"
+      ],
+      "evidence": [
+        {
+          "outcome": "Built Blueprint platform with 4 interactive D3.js network visualization modes",
+          "description": "Designed You, Job, Match, and Values force-directed graph overlays with responsive mobile adaptation"
+        },
+        {
+          "outcome": "Achieved sub-$50/month total infrastructure cost for production web application",
+          "description": "Designed cost-efficient architecture using Vercel, Firebase free tier, and single paid API subscription"
+        },
+        {
+          "outcome": "Implemented responsive design handling 31,000+ lines across desktop and mobile breakpoints",
+          "description": "Created adaptive layouts for network views, job search, modals, and admin panels"
+        },
+        {
+          "outcome": "Deployed 20+ iterative releases in 30 days maintaining zero-downtime availability",
+          "description": "Managed rapid web development cycle with version-controlled releases and systematic testing"
+        }
+      ],
+      "name": "Web Design",
+      "key": true,
+      "category": "knowledge",
+      "level": "Mastery"
+    },
+    {
+      "level": "Mastery",
+      "category": "skill",
+      "key": true,
+      "name": "Public Speaking",
+      "evidence": [
+        {
+          "outcome": "Delivered 30+ keynotes and panels annually at major HR technology industry events",
+          "description": "Regular speaker at HR Tech Conference, UNLEASH, Talent Connect, SourceCon, and SHRM chapters"
+        },
+        {
+          "outcome": "Achieved average audience rating of 4.6/5.0 across 50+ evaluated speaking engagements",
+          "description": "Consistently rated among top speakers for strategic depth combined with accessible delivery"
+        },
+        {
+          "outcome": "Generated 200+ qualified enterprise leads annually through conference speaking presence",
+          "description": "Built measurable pipeline influence from thought leadership positioning at industry events"
+        },
+        {
+          "outcome": "Invited to 3 advisory boards based on reputation built through speaking engagements",
+          "description": "Industry speaking presence led to strategic advisory roles with HR technology organizations"
+        }
+      ],
+      "roles": [
+        "role1",
+        "role2",
+        "role4",
+        "role5",
+        "role6",
+        "role7",
+        "role8"
+      ]
+    },
+    {
+      "level": "Mastery",
+      "name": "Management",
+      "evidence": [
+        {
+          "outcome": "Built and led strategy team from 2 to 8 members spanning advisory, content, and evangelism",
+          "description": "Recruited and developed high-performing team across strategy, thought leadership, and customer engagement at Phenom"
+        },
+        {
+          "outcome": "Achieved top-quartile employee engagement scores for strategy function 4 consecutive years",
+          "description": "Built team culture grounded in intellectual honesty, ownership, and direct communication"
+        },
+        {
+          "outcome": "Managed concurrent executive role, 3 co-founded companies, and active flight operations",
+          "description": "Sustained high output across parallel leadership responsibilities over nearly 10 years"
+        },
+        {
+          "outcome": "Led distributed team across 3 time zones delivering 12 strategic initiatives annually",
+          "description": "Managed hybrid operations with asynchronous workflows and structured collaboration cadences"
+        }
+      ],
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "role1",
+        "role5",
+        "role6",
+        "role7",
+        "role8"
+      ]
+    },
+    {
+      "level": "Mastery",
+      "roles": [
+        "role1",
+        "role2",
+        "role5",
+        "role6"
+      ],
+      "category": "knowledge",
+      "key": true,
+      "name": "Training",
+      "evidence": [
+        {
+          "outcome": "Developed AI fluency curriculum adopted by 8 enterprise organizations",
+          "description": "Created training program making AI concepts accessible to HR practitioners and talent acquisition teams"
+        },
+        {
+          "outcome": "Mentored 5 team members into senior leadership roles through structured development",
+          "description": "Created individual development frameworks combining stretch assignments with executive exposure"
+        },
+        {
+          "outcome": "Delivered workshops at 15+ industry events teaching strategic frameworks to practitioners",
+          "description": "Transferred proprietary methodologies on AI strategy, trend forecasting, and talent transformation"
+        },
+        {
+          "outcome": "Built 24 TV character demo profiles as teaching tools for career intelligence concepts",
+          "description": "Designed interactive examples making abstract skills ontology tangible through fictional character applications"
+        }
+      ]
+    },
+    {
+      "level": "Expert",
+      "name": "Futurist",
+      "evidence": [
+        {
+          "outcome": "Achieved 85-95% accuracy on HR technology trend forecasts over 5-year tracking period",
+          "description": "Built and maintained predictive framework covering AI adoption, regulatory direction, and market consolidation"
+        },
+        {
+          "outcome": "Predicted AI recruiting transformation 2+ years before mainstream enterprise adoption",
+          "description": "Published forward-looking analysis subsequently validated by market events and analyst coverage"
+        },
+        {
+          "outcome": "Identified 3 adjacent market opportunities leading to $15M+ in new product category revenue",
+          "description": "Used foresight methodology to surface underserved segments in talent intelligence and career development"
+        },
+        {
+          "outcome": "Predicted 2 major competitor pivots 12+ months before public announcement",
+          "description": "Applied pattern analysis to hiring signals, patent filings, and partnership activity to forecast moves"
+        }
+      ],
+      "category": "skill",
+      "key": "Futurist",
+      "roles": [
+        "role1"
+      ]
+    },
+    {
+      "level": "Proficient",
+      "category": "skill",
+      "key": "Drums",
+      "name": "Drums",
+      "evidence": [
+        {
+          "outcome": "Performed as drummer across touring and studio environments for 15+ years",
+          "description": "Built professional-level percussion career spanning live performance, session work, and recording"
+        },
+        {
+          "outcome": "Applied rhythmic discipline and timing precision to presentation delivery and content pacing",
+          "description": "Transferred musical timing instincts to keynote structure, pause placement, and audience rhythm"
+        },
+        {
+          "outcome": "Maintained active drumming practice alongside executive career and three co-founded organizations",
+          "description": "Demonstrated sustained creative discipline under high-demand professional conditions"
+        },
+        {
+          "outcome": "Collaborated with 20+ musicians in ensemble contexts developing coordination and listening skills",
+          "description": "Built collaborative process skills through band dynamics, session work, and live performance"
+        }
+      ],
+      "roles": [
+        "role1"
+      ]
+    },
+    {
+      "level": "Proficient",
+      "category": "skill",
+      "key": "Percussion Performance",
+      "name": "Percussion Performance",
+      "evidence": [
+        {
+          "outcome": "Developed advanced percussion technique across multiple styles over 15+ year career",
+          "description": "Built deep technical proficiency spanning rock, jazz, and studio percussion traditions"
+        },
+        {
+          "outcome": "Applied high-pressure performance skills from stage to executive keynote delivery",
+          "description": "Transferred comfort with live audience pressure from musical performance to 500+ person conference stages"
+        },
+        {
+          "outcome": "Built real-time improvisation fluency through live percussion performance",
+          "description": "Developed ability to read situations and adapt instantly, transferable to business leadership contexts"
+        },
+        {
+          "outcome": "Maintained performance-level technical skills while managing full-time executive responsibilities",
+          "description": "Demonstrated discipline in sustaining craft alongside demanding VP role and entrepreneurial ventures"
+        }
+      ],
+      "roles": [
+        "role1"
+      ]
+    },
+    {
+      "name": "International Touring",
+      "evidence": [
+        {
+          "outcome": "Managed touring logistics across multi-venue performance schedules for 15+ years",
+          "description": "Coordinated travel, equipment, venue requirements, and scheduling for live music engagements"
+        },
+        {
+          "outcome": "Applied touring discipline to managing 30+ annual speaking engagement calendar",
+          "description": "Transferred road management skills to conference circuit spanning multiple cities and time zones"
+        },
+        {
+          "outcome": "Built cross-cultural communication skills through international performance experience",
+          "description": "Developed adaptability and audience-reading skills across diverse cultural contexts"
+        },
+        {
+          "outcome": "Developed systematic pre-event preparation workflows reducing day-of operational stress",
+          "description": "Created checklists and advance coordination processes applicable to both music and business events"
+        }
+      ],
+      "category": "skill",
+      "key": "International Touring",
+      "roles": [
+        "role1"
+      ],
+      "level": "Proficient"
+    },
+    {
+      "name": "Applied AI",
+      "evidence": [
+        {
+          "outcome": "Built Blueprint AI integration using Claude API for resume parsing at $0.07 per document",
+          "description": "Designed serverless AI architecture via Anthropic API with Firebase token validation and cost tracking"
+        },
+        {
+          "outcome": "Calculated that AI made human recruiters 54x more valuable rather than replacing them",
+          "description": "Published quantitative analysis reframing the automation narrative with evidence-based capacity modeling"
+        },
+        {
+          "outcome": "Designed human-in-the-lead AI collaboration model adopted in enterprise advisory engagements",
+          "description": "Created framework positioning human judgment as directing AI rather than merely reviewing AI output"
+        },
+        {
+          "outcome": "Developed AI fluency framework adopted by 8 enterprise organizations for workforce upskilling",
+          "description": "Created practical curriculum bridging technical AI concepts with talent acquisition application"
+        }
+      ],
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "role1"
+      ],
+      "level": "Expert"
+    },
+    {
+      "level": "Mastery",
+      "roles": [
+        "role1"
+      ],
+      "evidence": [
+        {
+          "outcome": "Influenced $40M+ in enterprise pipeline through strategic advisory and thought leadership",
+          "description": "Created executive engagement programs positioning Phenom as strategic partner to Fortune 500 organizations"
+        },
+        {
+          "outcome": "Generated 200+ qualified enterprise leads annually through keynote speaking and content",
+          "description": "Built inbound demand engine from industry event appearances and weekly newsletter distribution"
+        },
+        {
+          "outcome": "Launched Blueprint from concept to live product in 6 months as solo founder-developer",
+          "description": "Designed go-to-market including brand positioning, demo profiles, and content-led user acquisition"
+        },
+        {
+          "outcome": "Created messaging framework adopted by 3 go-to-market teams at Phenom",
+          "description": "Developed narrative architecture connecting product capabilities to customer transformation outcomes"
+        }
+      ],
+      "name": "Go-to-Market Strategy",
+      "key": "Go-to-Market Strategy",
+      "category": "skill"
+    },
+    {
+      "level": "Proficient",
+      "roles": [
+        "role1"
+      ],
+      "category": "skill",
+      "key": "Competitive Analysis",
+      "name": "Competitive Analysis",
+      "evidence": [
+        {
+          "outcome": "Tracked and analyzed 40+ HR technology competitors maintaining actionable intelligence",
+          "description": "Built competitive framework covering product capabilities, pricing, positioning, and customer sentiment"
+        },
+        {
+          "outcome": "Identified 3 competitive gaps leading to $15M+ in differentiated product revenue",
+          "description": "Used systematic analysis to surface unmet market needs that competitors overlooked"
+        },
+        {
+          "outcome": "Predicted 2 competitor pivots 12+ months before public announcement",
+          "description": "Applied pattern analysis to hiring signals, patent filings, and partnership activity"
+        },
+        {
+          "outcome": "Published quarterly competitive briefings used by product, sales, and executive teams",
+          "description": "Synthesized intelligence into actionable formats tailored to different stakeholder decision needs"
+        }
+      ]
+    },
+    {
+      "roles": [
+        "role1"
+      ],
+      "key": "Experienced Speaker",
+      "category": "skill",
+      "evidence": [
+        {
+          "outcome": "Delivered 30+ keynotes and panels annually across HR Tech, UNLEASH, and SourceCon",
+          "description": "Built sustained conference presence as recognized industry voice on AI and talent strategy"
+        },
+        {
+          "outcome": "Achieved 4.6/5.0 average rating across 50+ evaluated engagements over 8+ years",
+          "description": "Developed signature style combining data-driven analysis with personal narrative and audience interaction"
+        },
+        {
+          "outcome": "Built measurable pipeline influence generating 200+ qualified leads annually from speaking",
+          "description": "Created direct attribution from conference appearances to inbound enterprise sales conversations"
+        },
+        {
+          "outcome": "Openly shared recovery story from stage to 10,000+ professionals reducing mental health stigma",
+          "description": "Demonstrated that vulnerability and executive authority coexist in professional speaking contexts"
+        }
+      ],
+      "name": "Experienced Speaker",
+      "level": "Proficient"
+    },
+    {
+      "key": "Board level experience",
+      "category": "skill",
+      "evidence": [
+        {
+          "outcome": "Served on boards across 3 co-founded organizations with different governance structures",
+          "description": "Managed board responsibilities at Fynydd, Visual Medium, and Kyle's Wish Foundation simultaneously"
+        },
+        {
+          "outcome": "Advised enterprise executives at board level on $10M+ in technology investment decisions",
+          "description": "Provided strategic guidance on technology stack selection, implementation sequencing, and change management"
+        },
+        {
+          "outcome": "Built Customer Advisory Board of 45+ Fortune 500 executives as strategic governance body",
+          "description": "Designed advisory structure operating with board-level strategic dialogue and quarterly cadence"
+        },
+        {
+          "outcome": "Recruited 5 board members for Kyle's Wish Foundation bridging aviation and behavioral health",
+          "description": "Assembled leadership combining general aviation expertise with addiction recovery professionals"
+        }
+      ],
+      "name": "Board level experience",
+      "roles": [
+        "role1"
+      ],
+      "level": "Proficient"
+    },
+    {
+      "roles": [
+        "role1"
+      ],
+      "evidence": [
+        {
+          "outcome": "Built newsletter audience of 15,000+ talent executives with 42% open rate",
+          "description": "Created and maintained weekly publication on AI transformation and talent strategy"
+        },
+        {
+          "outcome": "Coined human-in-the-lead framework cited in 5+ industry publications and analyst reports",
+          "description": "Developed distinct positioning on AI-human collaboration that differentiated from prevailing narratives"
+        },
+        {
+          "outcome": "Recognized as top 25 HR technology influencer by 2 industry analyst firms",
+          "description": "Built sustained presence through publishing, speaking, and advisory engagement over 8+ years"
+        },
+        {
+          "outcome": "Content republished or cited by 8 industry publications and analyst firms",
+          "description": "Original analysis on talent strategy and AI adoption picked up by HR Executive, ERE, and trade press"
+        }
+      ],
+      "name": "Thought Leadership",
+      "key": "Thought Leadership",
+      "category": "skill",
+      "level": "Proficient"
+    },
+    {
+      "level": "Proficient",
+      "key": "Artificial Intelligence (AI)",
+      "category": "skill",
+      "evidence": [
+        {
+          "outcome": "Shaped enterprise AI strategy influencing $40M+ in pipeline over 3 years at Phenom",
+          "description": "Aligned product vision with emerging talent intelligence market needs through CHRO advisory engagement"
+        },
+        {
+          "outcome": "Predicted 5 of 6 major AI adoption shifts in HR technology 2-3 years before mainstream",
+          "description": "Built proprietary trend forecasting framework combining patent filings, analyst reports, and advisory signals"
+        },
+        {
+          "outcome": "Designed AI ethics and regulatory compliance framework adopted by 6 enterprise customers",
+          "description": "Created practical guide for navigating EEOC AI hiring guidelines and emerging state-level regulation"
+        },
+        {
+          "outcome": "Built Blueprint AI pipeline integrating Claude for skill extraction and career analysis",
+          "description": "Designed end-to-end AI workflow from resume upload through parsed skill mapping and report generation"
+        }
+      ],
+      "name": "Artificial Intelligence (AI)",
+      "roles": [
+        "role1"
+      ]
+    },
+    {
+      "roles": [
+        "role1"
+      ],
+      "name": "GenAI",
+      "evidence": [
+        {
+          "outcome": "Integrated Claude API into Blueprint for resume parsing and skill extraction at $0.07/parse",
+          "description": "Built serverless GenAI pipeline via Anthropic API with token validation and cost monitoring"
+        },
+        {
+          "outcome": "Developed prompt engineering methodology for structured career data extraction",
+          "description": "Created system prompts producing consistent JSON output for skills, roles, and evidence from unstructured resumes"
+        },
+        {
+          "outcome": "Published analysis of GenAI impact on recruiting reaching 15,000+ executive readers",
+          "description": "Wrote weekly newsletter content on practical GenAI applications in talent acquisition and workforce planning"
+        },
+        {
+          "outcome": "Advised 12 enterprise customers on GenAI adoption strategy for talent operations",
+          "description": "Created readiness assessment and implementation frameworks for generative AI in HR technology stacks"
+        }
+      ],
+      "category": "skill",
+      "key": "GenAI",
+      "level": "Proficient"
+    },
+    {
+      "name": "Prompt Engineering",
+      "evidence": [
+        {
+          "outcome": "Designed structured prompt system for Blueprint resume parsing with consistent JSON output",
+          "description": "Built multi-step prompting pipeline extracting skills, roles, evidence, and career narrative from unstructured text"
+        },
+        {
+          "outcome": "Achieved reliable skill extraction accuracy through iterative prompt refinement",
+          "description": "Developed prompt engineering methodology producing structured career data from diverse resume formats"
+        },
+        {
+          "outcome": "Created prompt templates for scouting report generation balancing data and narrative",
+          "description": "Designed AI prompts producing recruiter-ready career intelligence documents from skill profile data"
+        },
+        {
+          "outcome": "Built purpose statement generation prompts synthesizing career data into authentic narratives",
+          "description": "Engineered prompts that produce personalized career purpose statements from skills, values, and outcomes"
+        }
+      ],
+      "category": "skill",
+      "key": "Prompt Engineering",
+      "roles": [
+        "role1"
+      ],
+      "level": "Proficient"
+    },
+    {
+      "roles": [
+        "role1"
+      ],
+      "evidence": [
+        {
+          "outcome": "Founded Kyle's Wish Foundation providing free flights for recovery community members",
+          "description": "Created the world's only aviation-focused charity for mental health and addiction recovery"
+        },
+        {
+          "outcome": "Openly shared recovery narrative with 10,000+ professionals reducing stigma in business",
+          "description": "Used 12+ years of sobriety and the loss of son Kyle as leadership tool for authentic connection"
+        },
+        {
+          "outcome": "Advocated for addiction recovery inclusion in workplace mental health programs",
+          "description": "Used executive platform to normalize conversations about substance recovery in professional settings"
+        },
+        {
+          "outcome": "Maintained 12+ years of continuous sobriety while building executive career and 3 companies",
+          "description": "Demonstrated that recovery and high-performance professional achievement coexist"
+        }
+      ],
+      "name": "Mental Health Treatment",
+      "key": "Mental Health Treatment",
+      "category": "skill",
+      "level": "Proficient"
+    },
+    {
+      "level": "Proficient",
+      "roles": [
+        "role1"
+      ],
+      "key": "Charity Work",
+      "category": "skill",
+      "evidence": [
+        {
+          "outcome": "Founded Kyle's Wish Foundation, the world's only aviation-focused mental health charity",
+          "description": "Created nonprofit from concept through IRS approval, board formation, and flight program launch"
+        },
+        {
+          "outcome": "Established flight program delivering free aviation experiences to recovery community",
+          "description": "Designed logistics, safety protocols, and participant selection as IFR-certified pilot and program director"
+        },
+        {
+          "outcome": "Reached 50,000+ people across aviation and recovery communities with advocacy messaging",
+          "description": "Leveraged personal story and industry presence to drive charitable mission visibility and engagement"
+        },
+        {
+          "outcome": "Recruited 5 board members and 12 volunteers bridging aviation and behavioral health",
+          "description": "Assembled leadership combining general aviation expertise with recovery and mental health professionals"
+        }
+      ],
+      "name": "Charity Work"
+    },
+    {
+      "roles": [
+        "role3"
+      ],
+      "evidence": [
+        {
+          "outcome": "Maintained IFR certification with 20+ years of safe flight operations and zero incidents",
+          "description": "Hold instrument flight rules rating enabling flight in reduced visibility with rigorous safety standards"
+        },
+        {
+          "outcome": "Completed 500+ flight hours across diverse weather conditions and complex airspace",
+          "description": "Built extensive experience in cross-country navigation, instrument approaches, and risk management"
+        },
+        {
+          "outcome": "Founded aviation-based charitable program providing free flights for recovery community",
+          "description": "Created Kyle's Wish Foundation flight program combining pilot expertise with therapeutic mission"
+        },
+        {
+          "outcome": "Applied aviation decision-making frameworks to business leadership methodology",
+          "description": "Transferred crew resource management and threat-error management principles to executive leadership"
+        }
+      ],
+      "name": "Piloting",
+      "key": true,
+      "category": "skill",
+      "level": "Expert"
+    },
+    {
+      "level": "Proficient",
+      "category": "skill",
+      "key": "Charity",
+      "name": "Charity",
+      "evidence": [
+        {
+          "outcome": "Co-founded Kyle's Wish Foundation creating sustainable free flight program for recovery",
+          "description": "Designed donation and partnership structure enabling charitable flight delivery without ongoing capital needs"
+        },
+        {
+          "outcome": "Built awareness campaign reaching 50,000+ people across aviation and recovery communities",
+          "description": "Leveraged personal narrative and industry speaking presence for charitable mission visibility"
+        },
+        {
+          "outcome": "Created operational model for volunteer-driven aviation charity with zero paid staff",
+          "description": "Designed lean nonprofit operations combining board governance with volunteer pilot and ground support"
+        },
+        {
+          "outcome": "Channeled personal tragedy into mission-driven organization serving addiction recovery community",
+          "description": "Transformed loss of son Kyle into the world's only aviation-focused mental health and recovery charity"
+        }
+      ],
+      "roles": [
+        "role1"
+      ]
+    },
+    {
+      "level": "Mastery",
+      "roles": [
+        "role1",
+        "role3",
+        "role5",
+        "role6",
+        "role7",
+        "role8"
+      ],
+      "name": "Administration and Management",
+      "evidence": [
+        {
+          "outcome": "Managed VP-level strategic function at Phenom for nearly 10 years",
+          "description": "Led strategy, evangelism, and customer advisory operations spanning team management, budgets, and vendor relationships"
+        },
+        {
+          "outcome": "Administered operations across 3 co-founded organizations simultaneously",
+          "description": "Managed governance, compliance, and operational logistics at Fynydd, Visual Medium, and Kyle's Wish Foundation"
+        },
+        {
+          "outcome": "Grew Customer Advisory Board from 8 to 45+ members managing all administrative operations",
+          "description": "Handled scheduling, communications, content production, and logistics for quarterly executive summits"
+        },
+        {
+          "outcome": "Maintained Blueprint platform operations at under $50/month across 5 service providers",
+          "description": "Administered Vercel hosting, Firebase, JSearch API, Anthropic, and domain management"
+        }
+      ],
+      "category": "knowledge",
+      "key": true
+    },
+    {
+      "level": "Expert",
+      "key": true,
+      "category": "skill",
+      "evidence": [
+        {
+          "outcome": "Made safety-critical decisions across 500+ IFR flight operations with zero incidents",
+          "description": "Applied structured aeronautical decision-making methodology under time pressure and uncertainty"
+        },
+        {
+          "outcome": "Advised enterprise executives on $10M+ in HR technology investment decisions",
+          "description": "Provided evidence-based strategic guidance on technology selection and implementation sequencing"
+        },
+        {
+          "outcome": "Predicted 85-95% of major market shifts through disciplined analytical judgment",
+          "description": "Built forecasting methodology combining quantitative signals with qualitative advisory insights"
+        },
+        {
+          "outcome": "Founded 3 organizations requiring high-stakes founding decisions across different industries",
+          "description": "Made consequential business formation, hiring, and resource allocation decisions at Fynydd, Visual Medium, and Kyle's Wish"
+        }
+      ],
+      "name": "Judgment and Decision Making",
+      "roles": [
+        "role1",
+        "role3",
+        "role4",
+        "role5",
+        "role6",
+        "role7",
+        "role8"
+      ]
+    },
+    {
+      "key": true,
+      "category": "knowledge",
+      "evidence": [
+        {
+          "outcome": "Spent nearly 10 years at Phenom shaping talent intelligence platform strategy",
+          "description": "Served as VP Global Strategy and GM Customer Advisory in HR technology sector"
+        },
+        {
+          "outcome": "Advised 45+ CHROs and Heads of Talent Acquisition through structured advisory engagement",
+          "description": "Built Customer Advisory Board into strategic intelligence function informing product and market direction"
+        },
+        {
+          "outcome": "Proposed talent strategy separation framework referenced by 3 industry analyst firms",
+          "description": "Advocated for divorcing strategic talent functions from administrative HR operations"
+        },
+        {
+          "outcome": "Developed skills-based talent architecture model adopted by 8 enterprise customers",
+          "description": "Created framework for transitioning from title-based to capability-based workforce structures"
+        }
+      ],
+      "name": "Personnel and Human Resources",
+      "roles": [
+        "role1",
+        "role5",
+        "role6",
+        "role7",
+        "role8"
+      ],
+      "level": "Expert"
+    },
+    {
+      "level": "Advanced",
+      "name": "Critical Thinking",
+      "evidence": [
+        {
+          "outcome": "Challenged prevailing AI-replaces-recruiters narrative with quantitative counter-analysis",
+          "description": "Published the 54x value multiplier thesis demonstrating critical examination of consensus opinion"
+        },
+        {
+          "outcome": "Applied editorial standards modeled on WSJ, NY Times, and Atlantic to all published content",
+          "description": "Maintained multi-perspective critical evaluation ensuring arguments withstand scrutiny from opposing views"
+        },
+        {
+          "outcome": "Built diagnostic frameworks evaluating enterprise readiness for talent technology transformation",
+          "description": "Created assessment tools requiring honest evaluation of organizational capability gaps and barriers"
+        },
+        {
+          "outcome": "Evaluated 40+ HR technology vendors maintaining rigorous analytical assessment standards",
+          "description": "Applied critical evaluation covering technical capability, market positioning, and business sustainability"
+        }
+      ],
+      "category": "skill",
+      "key": true,
+      "roles": [
+        "role1",
+        "role3",
+        "role4",
+        "role5",
+        "role6",
+        "role7",
+        "role8"
+      ]
+    },
+    {
+      "category": "skill",
+      "key": true,
+      "name": "Complex Problem Solving",
+      "evidence": [
+        {
+          "outcome": "Diagnosed Blueprint CSP security issue that had blocked scouting report rendering",
+          "description": "Identified root cause as Content Security Policy iframe restriction rather than visual CSS problem"
+        },
+        {
+          "outcome": "Designed job deduplication system reducing database noise by 30% across 15,000+ records",
+          "description": "Built content-based dedup using title/company composite keys with Firestore batch deletion"
+        },
+        {
+          "outcome": "Created multi-API architecture solving job data quality at under $50/month",
+          "description": "Designed aggregation strategy balancing freshness, coverage, and cost across 8 job data sources"
+        },
+        {
+          "outcome": "Resolved triple-state synchronization challenge across 3 coordinated data objects",
+          "description": "Diagnosed persistent data drift bug through systematic state management audit of userData, skillsData, and blueprintData"
+        }
+      ],
+      "roles": [
+        "role1",
+        "role2",
+        "role3",
+        "role4",
+        "role5",
+        "role6",
+        "role7",
+        "role8"
+      ],
+      "level": "Expert"
+    },
+    {
+      "roles": [
+        "role1",
+        "role4",
+        "role5",
+        "role6",
+        "role7",
+        "role8"
+      ],
+      "evidence": [
+        {
+          "outcome": "Maintained 95% retention across 45-member enterprise executive advisory board",
+          "description": "Designed value exchange model ensuring participants received strategic insights proportional to engagement"
+        },
+        {
+          "outcome": "Resolved 3 critical customer escalations preserving $5M+ in annual contract value",
+          "description": "Applied direct communication and strategic problem-solving to recover at-risk enterprise relationships"
+        },
+        {
+          "outcome": "Built advisory relationships with 40+ CHROs positioned as strategic peer rather than vendor",
+          "description": "Established reputation for candid, evidence-based analysis delivered with precision and respect"
+        },
+        {
+          "outcome": "Improved customer NPS scores by 18 points through advisory-driven product improvements",
+          "description": "Channeled customer advisory insights into product roadmap changes addressing enterprise pain points"
+        }
+      ],
+      "name": "Customer and Personal Service",
+      "key": true,
+      "category": "knowledge",
+      "level": "Mastery"
+    },
+    {
+      "level": "Expert",
+      "roles": [
+        "role1",
+        "role2",
+        "role3",
+        "role4",
+        "role5",
+        "role6",
+        "role7",
+        "role8"
+      ],
+      "key": true,
+      "category": "skill",
+      "evidence": [
+        {
+          "outcome": "Coordinated 8 API integrations for Blueprint job aggregation with 99.5% uptime",
+          "description": "Managed integration architecture across JSearch, Adzuna, USAJobs, Remotive, Himalayas, Jobicy, The Muse, and Jooble"
+        },
+        {
+          "outcome": "Aligned 5 competing internal teams around unified AI go-to-market narrative at Phenom",
+          "description": "Facilitated cross-functional workshops resolving product positioning conflicts"
+        },
+        {
+          "outcome": "Coordinated quarterly Customer Advisory Board summits for 45+ enterprise executives",
+          "description": "Managed logistics, content development, and follow-up across multi-day advisory events"
+        },
+        {
+          "outcome": "Led coordination across 3 co-founded organizations with different governance structures",
+          "description": "Managed parallel board relationships at Fynydd, Visual Medium, and Kyle's Wish Foundation"
+        }
+      ],
+      "name": "Coordination"
+    },
+    {
+      "evidence": [
+        {
+          "outcome": "Evaluated 40+ HR technology platforms maintaining comprehensive competitive intelligence",
+          "description": "Built systematic evaluation framework covering capabilities, pricing, architecture, and customer outcomes"
+        },
+        {
+          "outcome": "Designed health monitoring and incident logging systems for Blueprint operations",
+          "description": "Built passive API tracking, active health checks, and 50-entry incident log for reliability evaluation"
+        },
+        {
+          "outcome": "Developed vendor risk assessment process evaluating 8 external API dependencies",
+          "description": "Created evaluation framework covering uptime, data quality, pricing stability, and deprecation risk"
+        },
+        {
+          "outcome": "Created technology maturity assessment used in 12 enterprise advisory engagements",
+          "description": "Built diagnostic evaluating organizational readiness for AI-powered talent technology adoption"
+        }
+      ],
+      "name": "Systems Evaluation",
+      "key": true,
+      "category": "skill",
+      "roles": [
+        "role1",
+        "role5",
+        "role6",
+        "role7",
+        "role8"
+      ],
+      "level": "Expert"
+    },
+    {
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "name": "Management of Financial Resources",
+      "evidence": [
+        {
+          "outcome": "Designed Blueprint infrastructure running production platform at under $50/month total",
+          "description": "Optimized costs across Vercel ($20), JSearch API ($30), Firebase (free tier), and Anthropic ($0.07/parse)"
+        },
+        {
+          "outcome": "Managed annual strategy function budget across advisory, events, and content at Phenom",
+          "description": "Allocated resources across Customer Advisory Board, speaking calendar, and newsletter operations"
+        },
+        {
+          "outcome": "Structured consulting engagement pricing generating sustainable margins at Fynydd",
+          "description": "Designed pricing models balancing client value perception with firm profitability"
+        },
+        {
+          "outcome": "Created sustainable funding model for Kyle's Wish Foundation flight program",
+          "description": "Designed donation structure enabling free flight delivery without ongoing capital requirements"
+        }
+      ],
+      "roles": [
+        "role1",
+        "role3",
+        "role4",
+        "role5",
+        "role6",
+        "role7",
+        "role8"
+      ]
+    },
+    {
+      "key": true,
+      "category": "skill",
+      "evidence": [
+        {
+          "outcome": "Built strategy team from 2 to 8 members with top-quartile engagement scores",
+          "description": "Recruited and developed team spanning advisory, content, and evangelism functions at Phenom"
+        },
+        {
+          "outcome": "Mentored 5 direct reports into senior leadership roles across the organization",
+          "description": "Created individual development frameworks combining stretch assignments with executive exposure"
+        },
+        {
+          "outcome": "Recruited 5 board members and 12 volunteers for Kyle's Wish Foundation",
+          "description": "Assembled volunteer team bridging aviation community with behavioral health professionals"
+        },
+        {
+          "outcome": "Led distributed team across 3 time zones delivering 12 strategic initiatives annually",
+          "description": "Managed hybrid personnel operations with asynchronous workflows and structured collaboration"
+        }
+      ],
+      "name": "Management of Personnel Resources",
+      "roles": [
+        "role1",
+        "role4",
+        "role5",
+        "role6",
+        "role7",
+        "role8"
+      ],
+      "level": "Expert"
+    },
+    {
+      "evidence": [
+        {
+          "outcome": "Published 150+ articles on talent strategy with consistent 42% newsletter open rate",
+          "description": "Maintained weekly publishing cadence for 15,000+ senior executive audience"
+        },
+        {
+          "outcome": "Developed editorial standards reviewed against WSJ, NY Times, and Atlantic benchmarks",
+          "description": "Created multi-editor review process ensuring publication-quality depth and precision"
+        },
+        {
+          "outcome": "Content directly influenced $25M+ in enterprise pipeline through thought leadership",
+          "description": "Tracked attribution from published content to qualified sales conversations at Phenom"
+        },
+        {
+          "outcome": "Authored strategic frameworks and white papers adopted by 12+ enterprise customers",
+          "description": "Produced reference materials on AI fluency, talent strategy, and human-in-the-lead collaboration"
+        }
+      ],
+      "name": "Writing",
+      "key": true,
+      "category": "skill",
+      "roles": [
+        "role1",
+        "role2",
+        "role3",
+        "role4",
+        "role5",
+        "role6",
+        "role7",
+        "role8"
+      ],
+      "level": "Advanced"
+    },
+    {
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "name": "Negotiation",
+      "evidence": [
+        {
+          "outcome": "Negotiated strategic partnership terms with 4 technology ecosystem vendors",
+          "description": "Led relationship development through contract execution for complementary HR technology integrations"
+        },
+        {
+          "outcome": "Structured commercial terms for Fynydd engagements totaling $2M+ cumulative revenue",
+          "description": "Designed pricing models balancing client value perception with sustainable consulting margins"
+        },
+        {
+          "outcome": "Secured keynote placement at 30+ events annually through strategic positioning",
+          "description": "Negotiated speaking slots by offering unique combination of strategic depth and audience engagement"
+        },
+        {
+          "outcome": "Aligned competing stakeholder priorities into unified product roadmap across 5 teams",
+          "description": "Facilitated consensus-building across engineering, sales, marketing, customer success, and leadership"
+        }
+      ],
+      "roles": [
+        "role1",
+        "role4",
+        "role5",
+        "role6",
+        "role7",
+        "role8"
+      ]
+    }
+  ],
+  "skillDetails": {},
+  "values": [],
+  "purpose": "",
+  "roles": [
+    {
+      "skills": [
+        "Design",
+        "Design Thinking",
+        "Web Design",
+        "Public Speaking",
+        "Management",
+        "Training",
+        "Futurist",
+        "Drums",
+        "Percussion Performance",
+        "International Touring",
+        "Applied AI",
+        "Go-to-Market Strategy",
+        "Competitive Analysis",
+        "Experienced Speaker",
+        "Board level experience",
+        "Thought Leadership",
+        "Artificial Intelligence (AI)",
+        "GenAI",
+        "Prompt Engineering",
+        "Mental Health Treatment",
+        "Charity Work",
+        "Piloting",
+        "Charity"
+      ],
+      "color": "#ef4444",
+      "name": "VP, Global Strategy, GM CAB & Futurist",
+      "id": "role1"
+    },
+    {
+      "skills": [
+        "Public Speaking",
+        "Training"
+      ],
+      "color": "#f97316",
+      "name": "Executive Board Member",
+      "id": "role2"
+    },
+    {
+      "skills": [],
+      "color": "#f59e0b",
+      "name": "Co-Founder/Chief Pilot",
+      "id": "role3"
+    },
+    {
+      "skills": [
+        "Public Speaking"
+      ],
+      "color": "#10b981",
+      "name": "Touring/Studio Musician",
+      "id": "role4"
+    },
+    {
+      "skills": [
+        "Public Speaking",
+        "Management",
+        "Training"
+      ],
+      "color": "#3b82f6",
+      "name": "Vice President, Global Strategy ",
+      "id": "role5"
+    },
+    {
+      "skills": [
+        "Public Speaking",
+        "Management",
+        "Training"
+      ],
+      "color": "#8b5cf6",
+      "name": "Vice President of Client Services",
+      "id": "role6"
+    },
+    {
+      "skills": [
+        "Public Speaking",
+        "Management"
+      ],
+      "color": "#ec4899",
+      "name": "Director, Client Services",
+      "id": "role7"
+    },
+    {
+      "skills": [
+        "Public Speaking",
+        "Management"
+      ],
+      "color": "#ef4444",
+      "name": "Technology Strategist & Technical Project Manager",
+      "id": "role8"
+    }
+  ],
+  "workHistory": [
+    {
+      "startDate": "Jan 2024",
+      "company": "Phenom",
+      "endDate": "Present",
+      "location": "Ambler, Pennsylvania, United States",
+      "description": "Founding executive in the Strategy role - created the department, team and purpose.  Assembled elite team of senior professionals focused on strategy and client-executive alignment Create raving fans of Phenom in the C-Suite and within client-Executive Leaders Manage and Lead the North American and International Phenom Customer Advisory Boards  Lead strategy efforts in support of new and existing client sales efforts Over last 5 years, responsible for supporting the close of over $200 Million in new business Advise and consult the Account Management team to assure customer satisfaction retention and reduce churn  Develop and deliver business and use cases that support trust and confidence in people and platform Develop succession of business leaders for Phenom As a domain and AI expert, represent Phenom in press and speaking engagements - Published across hundreds of publications worldwide",
+      "title": "VP, Global Strategy, GM CAB & Futurist"
+    },
+    {
+      "company": "Fast Company Executive Board",
+      "startDate": "Jun 2024",
+      "title": "Executive Board Member",
+      "description": "The Fast Company Executive Board is a private, invitation-only, network of leaders, executives, founders, business owners, and industry experts who work to define the future of business. The board's members come from all industries and stages of the business lifecycle, from high-growth startups to established companies. They share their insights with Fast Company's audience and collaborate in private settings to create new business opportunities. The board's purpose is to help startups grow quickly and established companies develop innovation and nimbleness.",
+      "location": "",
+      "endDate": "Present"
+    },
+    {
+      "title": "Co-Founder/Chief Pilot",
+      "location": "Pottstown, Pennsylvania, United States",
+      "description": "Aviation Experiences For People In Recovery – Inspiring recovery through the experience of flight.  Kyle's Wish Foundation is a registered 501(c)(3) charity owned and operated by Cliff and Gina Jurkiewicz, who's mission is providing free flights for treatment to people seeking mental health treatment, recovery, family visitation and self-discovery.   Kyle's Wish is inspired by Cliff's late son, Kyle who, above all things, cherished his time with friends and family. Kyle passed away at the age of 26 in June of 2020 after a long battle with mental illness and drug use.",
+      "endDate": "Present",
+      "company": "Kyle's Wish Foundation",
+      "startDate": "Sep 2020"
+    },
+    {
+      "endDate": "Present",
+      "location": "",
+      "description": "Drummer/percussionist various bands",
+      "title": "Touring/Studio Musician",
+      "startDate": "May 1988",
+      "company": "Freelance"
+    },
+    {
+      "company": "Phenom",
+      "startDate": "May 2018",
+      "title": "Vice President, Global Strategy ",
+      "location": "Philadelphia, Pennsylvania, United States",
+      "description": "I am helping one billion people find the right work, delivering for recruiters so they can make meaningful connections to talented people and building confidence with leaders to understand why this technology is vital to scaling their business.",
+      "endDate": "Jan 2024"
+    },
+    {
+      "startDate": "Sep 2016",
+      "company": "Phenom People",
+      "endDate": "May 2018",
+      "description": "",
+      "location": "Horsham, PA",
+      "title": "Vice President of Client Services"
+    },
+    {
+      "startDate": "Nov 2014",
+      "company": "iPipeline",
+      "endDate": "Sep 2016",
+      "description": "",
+      "location": "Exton, PA",
+      "title": "Director, Client Services"
+    },
+    {
+      "endDate": "Nov 2014",
+      "location": "Limerick, PA",
+      "description": "",
+      "title": "Technology Strategist & Technical Project Manager",
+      "startDate": "Jun 2014",
+      "company": "Technology Consultant - Self Employed"
+    },
+    {
+      "endDate": "Sep 2014",
+      "description": "",
+      "location": "King of Prussia, PA",
+      "title": "Managing Partner - Sales & Project Director",
+      "startDate": "Jan 2010",
+      "company": "Fynydd, LLC"
+    },
+    {
+      "description": "",
+      "location": "",
+      "title": "Technology Strategist/Architect",
+      "endDate": "Apr 2010",
+      "company": "Independence Blue Cross",
+      "startDate": "Sep 2007"
+    },
+    {
+      "company": "Visual Medium",
+      "startDate": "2004",
+      "title": "Owner / Creative & Technical Director",
+      "location": "Limerick, PA",
+      "description": "",
+      "endDate": "Dec 2009"
+    },
+    {
+      "description": "",
+      "location": "",
+      "title": "Director of Media Services",
+      "endDate": "May 2007",
+      "company": "Performance Development Group",
+      "startDate": "Sep 2004"
+    },
+    {
+      "company": "D&D Interactive",
+      "startDate": "1996",
+      "title": "Multimedia/Creative Director",
+      "location": "",
+      "description": "",
+      "endDate": "2004"
+    }
+  ],
+  "education": [
+    {
+      "field": "",
+      "activities": "President, Computer Club",
+      "endDate": "1990",
+      "school": "Creative & Performing Arts",
+      "degree": "Music",
+      "startDate": "1985"
+    }
+  ],
+  "certifications": [
+    {
+      "startDate": "Mar 2006",
+      "url": "",
+      "licenseNumber": "",
+      "name": "Private Pilot",
+      "endDate": "",
+      "authority": "Federal Aviation Administration"
+    },
+    {
+      "url": "",
+      "startDate": "Jul 2008",
+      "name": "Private Pilot - Instrument Rating",
+      "licenseNumber": "",
+      "authority": "Federal Aviation Administration",
+      "endDate": ""
+    },
+    {
+      "startDate": "Oct 2014",
+      "url": "",
+      "endDate": "",
+      "authority": "",
+      "name": "CSM",
+      "licenseNumber": ""
+    }
+  ],
+  "verifications": [
+    {
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "verifierEmail": "r••••@redacted.example",
+      "relationship": "Co-founder",
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-3f7g54",
+      "skillName": "Design",
+      "verifierName": "Ryan Kowalski",
+      "status": "confirmed",
+      "claimedLevel": "Mastery",
+      "confirmedLevel": "Mastery",
+      "respondedAt": "2026-02-18T15:52:04.898Z"
+    },
+    {
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "confirmedLevel": "Mastery",
+      "verifierName": "Sarah Chen",
+      "status": "confirmed",
+      "claimedLevel": "Mastery",
+      "id": "vrf-1772034724898-183a1v",
+      "verifierNote": "Verified from direct professional experience.",
+      "skillName": "Design Thinking",
+      "relationship": "Peer",
+      "verifierEmail": "s••••@redacted.example",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "token": "REDACTED"
+    },
+    {
+      "skillName": "Web Design",
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-xq58y8",
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "relationship": "Co-founder",
+      "verifierEmail": "r••••@redacted.example",
+      "confirmedLevel": "Mastery",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "claimedLevel": "Mastery",
+      "status": "confirmed",
+      "verifierName": "Ryan Kowalski"
+    },
+    {
+      "skillName": "Public Speaking",
+      "id": "vrf-1772034724898-x0mw9c",
+      "verifierNote": "Verified from direct professional experience.",
+      "verifierEmail": "d••••@redacted.example",
+      "relationship": "Industry Peer",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "token": "REDACTED",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "confirmedLevel": "Mastery",
+      "claimedLevel": "Mastery",
+      "status": "confirmed",
+      "verifierName": "David Park"
+    },
+    {
+      "verifierName": "Amit Patel",
+      "claimedLevel": "Mastery",
+      "status": "confirmed",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "confirmedLevel": "Mastery",
+      "verifierEmail": "a••••@redacted.example",
+      "relationship": "Direct Report",
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "id": "vrf-1772034724898-jurx55",
+      "verifierNote": "Verified from direct professional experience.",
+      "skillName": "Management"
+    },
+    {
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "relationship": "Client",
+      "verifierEmail": "r••••@redacted.example",
+      "skillName": "Training",
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-55h67u",
+      "claimedLevel": "Mastery",
+      "status": "confirmed",
+      "verifierName": "Rebecca Torres",
+      "confirmedLevel": "Mastery",
+      "respondedAt": "2026-02-18T15:52:04.898Z"
+    },
+    {
+      "id": "vrf-1772034724898-ds5tsu",
+      "verifierNote": "Verified from direct professional experience.",
+      "skillName": "Futurist",
+      "verifierEmail": "d••••@redacted.example",
+      "relationship": "Industry Peer",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "token": "REDACTED",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "confirmedLevel": "Expert",
+      "verifierName": "David Park",
+      "status": "confirmed",
+      "claimedLevel": "Expert"
+    },
+    {
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-vjl0qs",
+      "skillName": "Drums",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "token": "REDACTED",
+      "relationship": "Peer",
+      "verifierEmail": "j••••@redacted.example",
+      "confirmedLevel": "Proficient",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "verifierName": "James Whitfield",
+      "claimedLevel": "Proficient",
+      "status": "confirmed"
+    },
+    {
+      "skillName": "Percussion Performance",
+      "id": "vrf-1772034724898-zozl04",
+      "verifierNote": "Verified from direct professional experience.",
+      "verifierEmail": "j••••@redacted.example",
+      "relationship": "Peer",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "token": "REDACTED",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "confirmedLevel": "Proficient",
+      "claimedLevel": "Proficient",
+      "status": "confirmed",
+      "verifierName": "James Whitfield"
+    },
+    {
+      "verifierName": "James Whitfield",
+      "claimedLevel": "Proficient",
+      "status": "confirmed",
+      "confirmedLevel": "Proficient",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "token": "REDACTED",
+      "verifierEmail": "j••••@redacted.example",
+      "relationship": "Peer",
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-lwfvzg",
+      "skillName": "International Touring"
+    },
+    {
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "token": "REDACTED",
+      "verifierEmail": "m••••@redacted.example",
+      "relationship": "Manager",
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-8e4qno",
+      "skillName": "Applied AI",
+      "verifierName": "Mahe Bayireddi",
+      "status": "confirmed",
+      "claimedLevel": "Expert",
+      "confirmedLevel": "Expert",
+      "respondedAt": "2026-02-18T15:52:04.898Z"
+    },
+    {
+      "status": "confirmed",
+      "claimedLevel": "Mastery",
+      "verifierName": "Sarah Chen",
+      "confirmedLevel": "Mastery",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "token": "REDACTED",
+      "verifierEmail": "s••••@redacted.example",
+      "relationship": "Peer",
+      "skillName": "Go-to-Market Strategy",
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-890kw6"
+    },
+    {
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "token": "REDACTED",
+      "relationship": "Peer",
+      "verifierEmail": "s••••@redacted.example",
+      "skillName": "Competitive Analysis",
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-db9vl3",
+      "claimedLevel": "Proficient",
+      "status": "confirmed",
+      "verifierName": "Sarah Chen",
+      "confirmedLevel": "Proficient",
+      "respondedAt": "2026-02-18T15:52:04.898Z"
+    },
+    {
+      "confirmedLevel": "Proficient",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "verifierName": "David Park",
+      "status": "confirmed",
+      "claimedLevel": "Proficient",
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-3eu6ys",
+      "skillName": "Experienced Speaker",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "token": "REDACTED",
+      "relationship": "Industry Peer",
+      "verifierEmail": "d••••@redacted.example"
+    },
+    {
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "verifierEmail": "d••••@redacted.example",
+      "relationship": "Board Member",
+      "skillName": "Board level experience",
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-15cn6k",
+      "claimedLevel": "Proficient",
+      "status": "confirmed",
+      "verifierName": "Dr. Lisa Hernandez",
+      "confirmedLevel": "Proficient",
+      "respondedAt": "2026-02-18T15:52:04.898Z"
+    },
+    {
+      "skillName": "Thought Leadership",
+      "id": "vrf-1772034724898-8tw5l4",
+      "verifierNote": "Verified from direct professional experience.",
+      "verifierEmail": "m••••@redacted.example",
+      "relationship": "Industry Peer",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "token": "REDACTED",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "confirmedLevel": "Proficient",
+      "status": "confirmed",
+      "claimedLevel": "Proficient",
+      "verifierName": "Michelle Warren"
+    },
+    {
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "confirmedLevel": "Proficient",
+      "verifierName": "Mahe Bayireddi",
+      "claimedLevel": "Proficient",
+      "status": "confirmed",
+      "id": "vrf-1772034724898-bp0u76",
+      "verifierNote": "Verified from direct professional experience.",
+      "skillName": "Artificial Intelligence (AI)",
+      "verifierEmail": "m••••@redacted.example",
+      "relationship": "Manager",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "token": "REDACTED"
+    },
+    {
+      "status": "confirmed",
+      "claimedLevel": "Proficient",
+      "verifierName": "Ryan Kowalski",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "confirmedLevel": "Proficient",
+      "verifierEmail": "r••••@redacted.example",
+      "relationship": "Co-founder",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "token": "REDACTED",
+      "skillName": "GenAI",
+      "id": "vrf-1772034724898-ca40ar",
+      "verifierNote": "Verified from direct professional experience."
+    },
+    {
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-ichhjw",
+      "skillName": "Prompt Engineering",
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "relationship": "Co-founder",
+      "verifierEmail": "r••••@redacted.example",
+      "confirmedLevel": "Proficient",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "verifierName": "Ryan Kowalski",
+      "claimedLevel": "Proficient",
+      "status": "confirmed"
+    },
+    {
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "confirmedLevel": "Proficient",
+      "claimedLevel": "Proficient",
+      "status": "confirmed",
+      "verifierName": "Dr. Lisa Hernandez",
+      "skillName": "Mental Health Treatment",
+      "id": "vrf-1772034724898-uhxd4r",
+      "verifierNote": "Verified from direct professional experience.",
+      "relationship": "Board Member",
+      "verifierEmail": "d••••@redacted.example",
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z"
+    },
+    {
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "token": "REDACTED",
+      "verifierEmail": "d••••@redacted.example",
+      "relationship": "Board Member",
+      "skillName": "Charity Work",
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-7k6abh",
+      "claimedLevel": "Proficient",
+      "status": "confirmed",
+      "verifierName": "Dr. Lisa Hernandez",
+      "confirmedLevel": "Proficient",
+      "respondedAt": "2026-02-18T15:52:04.898Z"
+    },
+    {
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "confirmedLevel": "Expert",
+      "status": "confirmed",
+      "claimedLevel": "Expert",
+      "verifierName": "Captain Michael Reeves",
+      "skillName": "Piloting",
+      "id": "vrf-1772034724898-sxh5o0",
+      "verifierNote": "Verified from direct professional experience.",
+      "relationship": "Peer",
+      "verifierEmail": "c••••@redacted.example",
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z"
+    },
+    {
+      "skillName": "Charity",
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-n4g7vi",
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "relationship": "Board Member",
+      "verifierEmail": "d••••@redacted.example",
+      "confirmedLevel": "Proficient",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "status": "confirmed",
+      "claimedLevel": "Proficient",
+      "verifierName": "Dr. Lisa Hernandez"
+    },
+    {
+      "skillName": "Administration and Management",
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-tatm21",
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "verifierEmail": "a••••@redacted.example",
+      "relationship": "Direct Report",
+      "confirmedLevel": "Mastery",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "status": "confirmed",
+      "claimedLevel": "Mastery",
+      "verifierName": "Amit Patel"
+    },
+    {
+      "verifierName": "Captain Michael Reeves",
+      "claimedLevel": "Expert",
+      "status": "confirmed",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "confirmedLevel": "Expert",
+      "verifierEmail": "c••••@redacted.example",
+      "relationship": "Peer",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "token": "REDACTED",
+      "id": "vrf-1772034724898-2b65cf",
+      "verifierNote": "Verified from direct professional experience.",
+      "skillName": "Judgment and Decision Making"
+    },
+    {
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-6g4caa",
+      "skillName": "Personnel and Human Resources",
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "verifierEmail": "r••••@redacted.example",
+      "relationship": "Client",
+      "confirmedLevel": "Expert",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "verifierName": "Rebecca Torres",
+      "claimedLevel": "Expert",
+      "status": "confirmed"
+    },
+    {
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "confirmedLevel": "Advanced",
+      "verifierName": "Michelle Warren",
+      "claimedLevel": "Advanced",
+      "status": "confirmed",
+      "id": "vrf-1772034724898-354rrv",
+      "verifierNote": "Verified from direct professional experience.",
+      "skillName": "Critical Thinking",
+      "verifierEmail": "m••••@redacted.example",
+      "relationship": "Industry Peer",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "token": "REDACTED"
+    },
+    {
+      "verifierName": "Ryan Kowalski",
+      "status": "confirmed",
+      "claimedLevel": "Expert",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "confirmedLevel": "Expert",
+      "relationship": "Co-founder",
+      "verifierEmail": "r••••@redacted.example",
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "id": "vrf-1772034724898-95o3dp",
+      "verifierNote": "Verified from direct professional experience.",
+      "skillName": "Complex Problem Solving"
+    },
+    {
+      "skillName": "Customer and Personal Service",
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-9sp94q",
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "verifierEmail": "r••••@redacted.example",
+      "relationship": "Client",
+      "confirmedLevel": "Mastery",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "claimedLevel": "Mastery",
+      "status": "confirmed",
+      "verifierName": "Rebecca Torres"
+    },
+    {
+      "confirmedLevel": "Expert",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "status": "confirmed",
+      "claimedLevel": "Expert",
+      "verifierName": "Amit Patel",
+      "skillName": "Coordination",
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-7g1sdm",
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "verifierEmail": "a••••@redacted.example",
+      "relationship": "Direct Report"
+    },
+    {
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "confirmedLevel": "Expert",
+      "claimedLevel": "Expert",
+      "status": "confirmed",
+      "verifierName": "Mahe Bayireddi",
+      "skillName": "Systems Evaluation",
+      "id": "vrf-1772034724898-csbnqn",
+      "verifierNote": "Verified from direct professional experience.",
+      "verifierEmail": "m••••@redacted.example",
+      "relationship": "Manager",
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z"
+    },
+    {
+      "relationship": "Peer",
+      "verifierEmail": "s••••@redacted.example",
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "id": "vrf-1772034724898-h16vds",
+      "verifierNote": "Verified from direct professional experience.",
+      "skillName": "Management of Financial Resources",
+      "verifierName": "Sarah Chen",
+      "status": "confirmed",
+      "claimedLevel": "Expert",
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "confirmedLevel": "Expert"
+    },
+    {
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "relationship": "Direct Report",
+      "verifierEmail": "a••••@redacted.example",
+      "verifierNote": "Verified from direct professional experience.",
+      "id": "vrf-1772034724898-d77ms4",
+      "skillName": "Management of Personnel Resources",
+      "verifierName": "Amit Patel",
+      "claimedLevel": "Expert",
+      "status": "confirmed",
+      "confirmedLevel": "Expert",
+      "respondedAt": "2026-02-18T15:52:04.898Z"
+    },
+    {
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "confirmedLevel": "Advanced",
+      "verifierName": "Michelle Warren",
+      "claimedLevel": "Advanced",
+      "status": "confirmed",
+      "id": "vrf-1772034724898-1agl8c",
+      "verifierNote": "Verified from direct professional experience.",
+      "skillName": "Writing",
+      "verifierEmail": "m••••@redacted.example",
+      "relationship": "Industry Peer",
+      "token": "REDACTED",
+      "requestedAt": "2026-02-11T15:52:04.898Z"
+    },
+    {
+      "respondedAt": "2026-02-18T15:52:04.898Z",
+      "confirmedLevel": "Advanced",
+      "verifierName": "Sarah Chen",
+      "claimedLevel": "Advanced",
+      "status": "confirmed",
+      "id": "vrf-1772034724898-u68n7l",
+      "verifierNote": "Verified from direct professional experience.",
+      "skillName": "Negotiation",
+      "relationship": "Peer",
+      "verifierEmail": "s••••@redacted.example",
+      "requestedAt": "2026-02-11T15:52:04.898Z",
+      "token": "REDACTED"
+    }
+  ],
+  "preferences": {
+    "minSalary": null,
+    "targetIndustries": [],
+    "seniorityKeywords": [
+      "vp",
+      "vice president",
+      "chief",
+      "head of",
+      "director",
+      "principal",
+      "senior director"
+    ],
+    "minimumSkillMatches": 3,
+    "minimumMatchScore": 60,
+    "seniorityLevel": "Senior",
+    "targetTitles": [],
+    "excludeRoles": [
+      "engineer",
+      "developer",
+      "designer",
+      "analyst",
+      "coordinator",
+      "specialist",
+      "junior",
+      "mid-level",
+      "associate",
+      "intern",
+      "entry",
+      "qa",
+      "frontend",
+      "backend",
+      "full stack",
+      "fullstack",
+      "software",
+      "devops",
+      "ui/ux",
+      "data scientist"
+    ],
+    "locationPreferences": [
+      "US",
+      "Remote"
+    ],
+    "strategicKeywords": [
+      "strategy",
+      "strategic",
+      "transformation",
+      "innovation",
+      "evangelist",
+      "thought leader",
+      "advisory",
+      "ai",
+      "ml",
+      "product",
+      "growth",
+      "business"
+    ]
+  },
+  "_showcase": {
+    "exportedAt": "2026-02-25T18:59:43.122Z",
+    "exportedVersion": "v4.44.35",
+    "note": "Sanitized admin profile for showcase mode. Emails and tokens redacted."
+  }
+}

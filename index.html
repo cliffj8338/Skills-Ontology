@@ -1,4 +1,4 @@
-<!-- v4.44.35 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
+<!-- v4.44.36 | 2026-02-25 | Admin showcase mode: shareable read-only URL with full app visibility -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.35 | 2026-02-25 | Verification system: landing page, credibility weights, expiry, serverless API -->
+    <!-- v4.44.36 | 2026-02-25 | Admin showcase mode -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.35 - BUILD 20260225-verification-system
-        var BP_VERSION = 'v4.44.35';
+        // BLUEPRINT v4.44.35 - BUILD 20260225-showcase-mode
+        var BP_VERSION = 'v4.44.36';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2207,6 +2207,16 @@
         var fbUser = null;       // Current Firebase auth user
         var fbIsAdmin = false;   // Admin role flag
         var fbReady = false;     // Firebase SDK loaded and initialized
+        var showcaseMode = false; // Locked admin showcase (read-only with full UI)
+        
+        // ===== SHOWCASE MODE CONFIG =====
+        // URL: myblueprint.work?showcase=KEY
+        // Loads admin profile read-only with full admin UI visible
+        var SHOWCASE_CONFIG = {
+            key: 'blueprint-demo-2026',           // URL param value (change this to your own secret)
+            sourceUid: '',                         // Set to your Firebase UID (run fbUser.uid in console)
+            bannerText: 'Showcase Mode — All features visible, editing disabled'
+        };
         
         try {
             fbApp = firebase.initializeApp(firebaseConfig);
@@ -3026,7 +3036,7 @@
             var view = document.getElementById('adminView');
             if (!view) return;
             
-            var authName = fbUser ? (fbUser.displayName || fbUser.email) : 'Admin';
+            var authName = showcaseMode ? (userData.profile.name || 'Showcase Admin') : (fbUser ? (fbUser.displayName || fbUser.email) : 'Admin');
             
             view.innerHTML = '<div style="max-width:1200px; margin:0 auto; padding:32px 24px 80px;">'
                 // Header
@@ -3084,8 +3094,8 @@
                 { label: 'App Version', value: BP_VERSION, color: '#60a5fa' },
                 { label: 'App Mode', value: appMode || 'unknown', color: '#fbbf24' },
                 { label: 'Sample Profiles', value: sampleCount, color: '#8b5cf6' },
-                { label: 'Firebase', value: fbDb ? 'Connected' : 'Offline', color: fbDb ? '#10b981' : '#ef4444' },
-                { label: 'Admin UID', value: fbUser ? fbUser.uid.substring(0,8) + '...' : 'N/A', color: '#6b7280' }
+                { label: 'Firebase', value: showcaseMode ? 'Showcase (static)' : (fbDb ? 'Connected' : 'Offline'), color: showcaseMode ? '#fbbf24' : (fbDb ? '#10b981' : '#ef4444') },
+                { label: 'Admin UID', value: showcaseMode ? 'Showcase' : (fbUser ? fbUser.uid.substring(0,8) + '...' : 'N/A'), color: '#6b7280' }
             ].forEach(function(c) {
                 html += '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px;">'
                     + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); margin-bottom:4px;">' + c.label + '</div>'
@@ -3689,6 +3699,20 @@
         }
         
         function renderAdminUsers(el) {
+            // v4.44.36: Showcase mode — show structure without PII
+            if (showcaseMode) {
+                el.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">'
+                    + '<div>'
+                    + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1.1em; letter-spacing:0.06em; text-transform:uppercase;">Registered Users</h3>'
+                    + '<p style="color:var(--text-muted); font-size:0.85em; margin-top:4px;">User management with Firebase Authentication</p>'
+                    + '</div></div>'
+                    + '<div style="padding:32px; text-align:center; background:var(--c-surface-2); border:1px dashed var(--c-surface-5); border-radius:12px;">'
+                    + '<div style="font-size:2em; margin-bottom:8px;">🔒</div>'
+                    + '<div style="color:var(--text-secondary); font-weight:600; margin-bottom:4px;">User Data Redacted</div>'
+                    + '<div style="color:var(--text-muted); font-size:0.85em;">Email addresses, login timestamps, and account details are hidden in showcase mode to protect user privacy.</div>'
+                    + '</div>';
+                return;
+            }
             if (!fbDb) { el.innerHTML = '<div style="color:#ef4444;">Firebase not connected.</div>'; return; }
             
             el.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Loading users...</div>';
@@ -3885,6 +3909,20 @@
         window.exportSampleJSON = exportSampleJSON;
         
         function renderAdminWaitlist(el) {
+            // v4.44.36: Showcase mode — show structure without PII
+            if (showcaseMode) {
+                el.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">'
+                    + '<div>'
+                    + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1.1em; letter-spacing:0.06em; text-transform:uppercase;">Waitlist Management</h3>'
+                    + '<p style="color:var(--text-muted); font-size:0.85em; margin-top:4px;">Invite-gated access with position tracking</p>'
+                    + '</div></div>'
+                    + '<div style="padding:32px; text-align:center; background:var(--c-surface-2); border:1px dashed var(--c-surface-5); border-radius:12px;">'
+                    + '<div style="font-size:2em; margin-bottom:8px;">🔒</div>'
+                    + '<div style="color:var(--text-secondary); font-weight:600; margin-bottom:4px;">Waitlist Data Redacted</div>'
+                    + '<div style="color:var(--text-muted); font-size:0.85em;">Names, emails, and invitation status are hidden in showcase mode. The waitlist system supports position tracking, batch invites, and status management.</div>'
+                    + '</div>';
+                return;
+            }
             if (!fbDb) { el.innerHTML = '<div style="color:#ef4444;">Firebase not connected.</div>'; return; }
             
             el.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Loading waitlist...</div>';
@@ -3966,6 +4004,53 @@
         }
         
         function renderAdminConfig(el) {
+            // v4.44.36: Showcase mode — show config structure, redact API keys, disable edits
+            if (showcaseMode) {
+                var html = '';
+                
+                // Evidence Thresholds (visible, read-only)
+                html += '<div style="padding:20px; background:var(--c-green-bg-1b); border:1px solid var(--c-green-bg-6); border-radius:10px; margin-bottom:20px;">'
+                    + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:#10b981; margin:0 0 8px; font-size:1em;">Evidence Threshold Configuration</h3>'
+                    + '<p style="font-size:0.82em; color:var(--text-muted); margin-bottom:16px;">Points required for each effective level. Quality outcomes earn 1-5 points each.</p>'
+                    + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px;">';
+                ['Competent','Proficient','Advanced','Expert','Mastery'].forEach(function(level) {
+                    html += '<div style="display:flex; flex-direction:column; gap:4px;">'
+                        + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600;">' + level + '</label>'
+                        + '<div style="padding:8px 10px; background:var(--c-input-bg); border:1px solid var(--c-border-strong); border-radius:6px; color:var(--text-primary); font-size:0.9em; text-align:center; opacity:0.7;">'
+                        + evidenceConfig.thresholds[level] + ' pts</div></div>';
+                });
+                html += '</div>'
+                    + '<div style="margin-top:10px; font-size:0.8em; color:var(--text-muted);">Cert Floor: <strong>' + evidenceConfig.certFloor + '</strong> · Verification Multiplier: <strong>' + evidenceConfig.verificationMultiplier + 'x</strong></div>'
+                    + '</div>';
+                
+                // Bulk tools (visible, disabled)
+                html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:20px;">'
+                    + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 12px; font-size:1em;">Bulk Skill Tools</h3>'
+                    + '<div style="display:flex; gap:10px; flex-wrap:wrap;">'
+                    + '<button disabled style="padding:10px 20px; background:linear-gradient(135deg,#8b5cf6,#7c3aed); color:#fff; border:none; border-radius:8px; font-weight:600; font-size:0.88em; opacity:0.5; cursor:not-allowed;">'
+                    + bpIcon('upload',14) + ' Bulk Import Skills</button>'
+                    + '<button disabled style="padding:10px 20px; background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; border:none; border-radius:8px; font-weight:600; font-size:0.88em; opacity:0.5; cursor:not-allowed;">'
+                    + bpIcon('edit',14) + ' Bulk Edit / Remove</button>'
+                    + '</div></div>';
+                
+                // API Keys — redacted
+                html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px;">'
+                    + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">'
+                    + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em;">' + bpIcon('search',16) + ' Job Source API Keys</h3>'
+                    + '</div>'
+                    + '<div style="padding:24px; text-align:center; background:var(--c-surface-3a); border:1px dashed var(--c-surface-5); border-radius:10px;">'
+                    + '<div style="font-size:1.5em; margin-bottom:6px;">🔑</div>'
+                    + '<div style="color:var(--text-secondary); font-weight:600; margin-bottom:4px;">API Keys Redacted</div>'
+                    + '<div style="color:var(--text-muted); font-size:0.85em;">Credentials for Adzuna, Jooble, and The Muse are hidden in showcase mode.</div>'
+                    + '</div>'
+                    + '<div style="font-size:0.75em; color:var(--text-muted); padding:10px 12px; border-radius:6px; background:var(--c-accent-bg-1); border:1px solid var(--border); margin-top:14px;">'
+                    + '<strong>Proxy sources:</strong> JSearch · Remotive · USAJobs · Himalayas · Jobicy (via /api/jobs)<br>'
+                    + '<strong>Direct sources:</strong> Adzuna · Jooble · The Muse'
+                    + '</div></div>';
+                
+                el.innerHTML = html;
+                return;
+            }
             var html = '';
             
             // Evidence Threshold Configuration
@@ -4181,6 +4266,7 @@
                         { id: 'p2-1', name: 'Jobs database + caching layer', status: 'done', category: 'architecture', priority: 'high', notes: 'Firestore-backed job cache. Source-aware sync: JSearch A/B query groups (18 queries × 5 pages, alternating), free sources with broad queries, Himalayas single-fetch. Cache-first client (15k limit). Upsert accumulation, 90-day cleanup. Content-based dedup (title+company). Budget: ~5,400 JSearch calls/month of 10k Pro plan.' },
                         { id: 'p1-5', name: 'Demo profile polish', status: 'in-progress', category: 'feature', priority: 'medium', notes: '24 TV character profiles with 99 evidence outcomes added. Ongoing refinement.' },
                         { id: 'p2-2a', name: 'Demo mode isolation', status: 'done', category: 'architecture', priority: 'high', notes: 'Signed-in users enter proper demo mode with data snapshot/restore when viewing samples. Banner shows Demo Mode with exit link. Admin no longer defaults to admin panel on refresh. URL hash routing preserved.' },
+                        { id: 'p2-2a2', name: 'Admin showcase mode', status: 'done', category: 'feature', priority: 'high', notes: 'v4.44.36: Shareable URL (?showcase=KEY) loads frozen admin profile read-only with full app visibility including admin dashboard. No sign-in required. Sensitive data redacted (emails, API keys, user PII). Showcase banner with exit link. Export script sanitizes and freezes live profile as static JSON.' },
                         { id: 'p2-2b', name: 'Empty state UX', status: 'done', category: 'ux', priority: 'high', notes: 'Signed-in users with no profile see Build Your Blueprint empty state on Skills (network) and Blueprint dashboard. Demo data auto-detected and cleared from Firestore on load.' },
                         { id: 'p2-2c', name: 'Inline job selector', status: 'done', category: 'feature', priority: 'medium', notes: 'Job selector pill in controls bar next to Network/Card toggle. Fixed-position dropdown with addEventListener (no inline onclick). Job overlay activation with You/Job/Match/Values toggle. Works in demo and live modes.' },
                         { id: 'p2-3a', name: 'LinkedIn profile import', status: 'done', category: 'feature', priority: 'critical', notes: 'LinkedIn GDPR data archive (.zip) import with client-side CSV parsing via JSZip + PapaParse. Parses Profile, Positions, Skills, Education, Certifications. Zero server cost, instant processing. LinkedIn OAuth deferred (Firebase OIDC incompatibility with LinkedIn discovery doc path).' },
@@ -6463,6 +6549,12 @@
         };
 
         function checkReadOnly() {
+            // v4.44.36: Showcase mode always stays read-only
+            if (showcaseMode) {
+                isReadOnlyProfile = true;
+                document.body.classList.add('readonly-mode');
+                return;
+            }
             var templateId = userData.templateId || '';
             var isSample = templateId.indexOf('demo') !== -1 || templateId.indexOf('sample') !== -1;
             if (!isSample && window.profilesManifest && window.profilesManifest.profiles) {
@@ -6572,6 +6664,12 @@
         
         function demoGate(featureName) {
             if (appMode === 'active' || appMode === 'invited') return false;
+            
+            // v4.44.36: Showcase mode — simple toast, no waitlist gate
+            if (showcaseMode) {
+                showToast('Editing disabled in showcase mode', 'info');
+                return true;
+            }
             
             var msg = appMode === 'waitlisted'
                 ? 'You\u2019re #' + (waitlistPosition || '?') + ' on the waitlist! We\u2019ll unlock <strong>' + featureName + '</strong> when it\u2019s your turn.'
@@ -8519,6 +8617,174 @@
             // We have a verification URL — show the landing page
             showVerifierLandingPage(token, uid);
             return true;
+        }
+        
+        // ===== ADMIN SHOWCASE MODE (v4.44.36) =====
+        // URL: myblueprint.work?showcase=blueprint-demo-2026
+        // Loads admin profile as read-only with full admin UI, no auth required
+        // Sensitive data (emails, API keys, user PII) redacted
+        function checkShowcaseMode() {
+            var params = new URLSearchParams(window.location.search);
+            var key = params.get('showcase');
+            if (!key || key !== SHOWCASE_CONFIG.key) return false;
+            
+            // Activate showcase mode globals
+            showcaseMode = true;
+            fbIsAdmin = true;
+            isReadOnlyProfile = true;
+            appMode = 'showcase';
+            
+            console.log('🎭 Showcase mode activated');
+            
+            // Run async init
+            initShowcaseMode();
+            return true;
+        }
+        
+        async function initShowcaseMode() {
+            initTheme();
+            
+            var sp = document.getElementById('splashProgress');
+            if (sp) sp.style.width = '30%';
+            
+            // Load data libraries in parallel
+            try {
+                var libResults = await Promise.allSettled([
+                    fetch('onet-skills-library.json').then(r => r.json()),
+                    fetch('onet-abilities-library.json').then(r => r.json()),
+                    fetch('onet-workstyles-library.json').then(r => r.json()),
+                    fetch('onet-knowledge-library.json').then(r => r.json()),
+                    fetch('onet-work-activities-library.json').then(r => r.json()),
+                    fetch('trades-creative-library.json').then(r => r.json()),
+                    fetch('values-library.json').then(r => r.json()),
+                    fetch('bls-wages.json').then(r => r.json()),
+                    fetch('companies.json').then(r => r.json()),
+                    fetch('onet-crosswalk.json').then(r => r.json())
+                ]);
+                
+                var libNames = ['onetSkillsLibrary','onetAbilitiesLibrary','onetWorkstylesLibrary',
+                    'onetKnowledgeLibrary','onetWorkActivitiesLibrary','tradesCreativeLibrary',
+                    'valuesLibrary','blsWages','companiesData','onetCrosswalk'];
+                libResults.forEach(function(r, i) {
+                    if (r.status === 'fulfilled') window[libNames[i]] = r.value;
+                });
+                console.log('✓ Data libraries loaded for showcase');
+            } catch(e) {
+                console.warn('⚠ Library load error:', e);
+            }
+            
+            if (sp) sp.style.width = '50%';
+            
+            // Load profiles manifest (for admin overview counts)
+            try {
+                var manifest = await fetch('profiles-manifest.json?v=' + Date.now()).then(r => r.json());
+                if (Array.isArray(manifest)) manifest = { profiles: manifest };
+                window.profilesManifest = manifest;
+                var enabledProfiles = manifest.profiles.filter(function(p) { return p.enabled; });
+                for (var pm of enabledProfiles) {
+                    try {
+                        var tpl = await fetch(pm.path + '?v=' + Date.now()).then(r => r.json());
+                        templates[pm.id] = tpl;
+                    } catch(e) {}
+                }
+            } catch(e) {
+                console.warn('⚠ Manifest load error:', e);
+            }
+            
+            if (sp) sp.style.width = '70%';
+            
+            // Load showcase profile
+            try {
+                var profileData = await fetch('profiles/showcase/admin-demo.json?v=' + Date.now()).then(r => r.json());
+                
+                userData = {
+                    initialized: true,
+                    profile: profileData.profile || {},
+                    skills: profileData.skills || [],
+                    skillDetails: profileData.skillDetails || {},
+                    values: profileData.values || [],
+                    purpose: profileData.purpose || '',
+                    roles: (profileData.roles || []).map(function(r) { if (!r.id) r.id = r.name; return r; }),
+                    workHistory: profileData.workHistory || [],
+                    education: profileData.education || [],
+                    certifications: profileData.certifications || [],
+                    verifications: profileData.verifications || [],
+                    preferences: profileData.preferences || {},
+                    templateId: 'admin-showcase'
+                };
+                window._userData = userData;
+                
+                console.log('✓ Showcase profile loaded:', userData.skills.length, 'skills');
+            } catch(e) {
+                console.error('✗ Failed to load showcase profile:', e);
+                showcaseMode = false;
+                window.location.href = window.location.pathname; // Fallback to normal app
+                return;
+            }
+            
+            if (sp) sp.style.width = '90%';
+            
+            // Set up header for showcase
+            var authBtn = document.getElementById('authBtn');
+            if (authBtn) authBtn.style.display = 'none';
+            var overflowSignIn = document.getElementById('overflowSignIn');
+            if (overflowSignIn) overflowSignIn.style.display = 'none';
+            var overflowSignOut = document.getElementById('overflowSignOut');
+            if (overflowSignOut) overflowSignOut.style.display = 'none';
+            
+            // Show admin badge and overflow admin button
+            var adminBadge = document.getElementById('adminBadge');
+            if (adminBadge) adminBadge.style.display = 'inline-block';
+            var overflowAdmin = document.getElementById('overflowAdmin');
+            if (overflowAdmin) overflowAdmin.style.display = '';
+            
+            // Show profile chip with showcase identity
+            var profileChip = document.getElementById('profileChip');
+            if (profileChip) profileChip.style.display = '';
+            var nameEl = document.getElementById('profileChipName');
+            if (nameEl) nameEl.textContent = userData.profile.name || 'Admin Showcase';
+            var avatarEl = document.getElementById('profileAvatar');
+            if (avatarEl) avatarEl.textContent = getInitials(userData.profile.name || 'AS');
+            
+            // Add showcase banner
+            var header = document.querySelector('.header');
+            if (header) {
+                var banner = document.createElement('div');
+                banner.id = 'showcaseBanner';
+                banner.style.cssText = 'display:block; text-align:center; padding:10px 16px; font-size:0.88em; '
+                    + 'background:linear-gradient(135deg, rgba(251,191,36,0.12), rgba(139,92,246,0.12)); '
+                    + 'border-bottom:1px solid rgba(251,191,36,0.25); color:var(--text-secondary);';
+                banner.innerHTML = '<span style="color:#fbbf24; font-weight:700;">' + bpIcon('shield', 14) + ' SHOWCASE MODE</span>'
+                    + ' &mdash; ' + SHOWCASE_CONFIG.bannerText
+                    + ' &bull; <a href="' + window.location.pathname + '" style="color:var(--accent); text-decoration:underline;">Exit showcase</a>';
+                header.parentNode.insertBefore(banner, header.nextSibling);
+            }
+            
+            // Add readonly body class
+            document.body.classList.add('readonly-mode');
+            
+            // Expire stale verifications
+            if (typeof expireStalePendingVerifications === 'function') expireStalePendingVerifications();
+            
+            // Initialize card view
+            if (typeof initCardView === 'function') initCardView();
+            
+            // Navigate to network view
+            var isMobile = window.innerWidth <= 768;
+            if (isMobile) currentSkillsView = 'card';
+            switchView('network');
+            
+            // Dismiss splash
+            var splash = document.getElementById('appSplash');
+            if (splash) {
+                if (sp) sp.style.width = '100%';
+                setTimeout(function() {
+                    splash.style.opacity = '0';
+                    setTimeout(function() { splash.remove(); }, 400);
+                }, 300);
+            }
+            
+            console.log('🎭 Showcase mode ready');
         }
         
         function showVerifierLandingPage(token, uid) {
@@ -14278,6 +14544,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // v4.44.35: Check if this is a verification landing page URL
             if (checkVerificationLandingPage()) return; // Skip normal app init
             
+            // v4.44.36: Check for showcase mode
+            if (checkShowcaseMode()) return; // Showcase handles its own init
+            
             // v4.0: Check for magic link sign-in first
             checkMagicLinkSignIn();
             
@@ -18245,7 +18514,7 @@ body {
                         + '<div style="flex:1; min-width:140px; font-size:0.88em; color:var(--c-text);">' + escapeHtml(v.skillName) + '</div>'
                         + '<div style="min-width:140px; font-size:0.82em; color:var(--c-label);">'
                         + '<div>' + escapeHtml(v.verifierName || 'Unknown') + '</div>'
-                        + '<div style="font-size:0.9em; color:var(--c-muted);">' + escapeHtml(v.verifierEmail || '') + '</div>'
+                        + '<div style="font-size:0.9em; color:var(--c-muted);">' + (showcaseMode ? '••••@redacted' : escapeHtml(v.verifierEmail || '')) + '</div>'
                         + '</div>'
                         + '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(245,158,11,0.12); color:#f59e0b;">Pending</span>'
                         + '<div style="font-size:0.72em; color:' + urgency + '; min-width:80px; text-align:right;">' + requestedDate + '<br>' + daysPending + ' days</div>'
