@@ -1,5 +1,5 @@
 # Blueprint Security Hardening Audit
-## Updated: 2026-02-25 | Codebase: v4.44.25
+## Updated: 2026-02-25 | Codebase: v4.44.38
 ## Original Audit: 2026-02-23 | Codebase: v4.37.13.0
 
 ---

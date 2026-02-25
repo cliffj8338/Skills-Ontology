@@ -1,4 +1,4 @@
-<!-- v4.44.37 | 2026-02-25 | Admin showcase mode: shareable read-only URL with full app visibility -->
+<!-- v4.44.38 | 2026-02-25 | Security: Firestore rules sync, waitlist hasOnly + rate limit -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.37 | 2026-02-25 | Admin showcase mode -->
+    <!-- v4.44.38 | 2026-02-25 | Security: Firestore rules sync, waitlist hasOnly + rate limit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.35 - BUILD 20260225-showcase-mode
-        var BP_VERSION = 'v4.44.37';
+        // BLUEPRINT v4.44.38 - BUILD 20260225-security-hardening
+        var BP_VERSION = 'v4.44.38';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -6959,7 +6959,13 @@
         }
         window.closeWaitlist = closeWaitlist;
         
+        var _wlLastSubmit = 0;
         function submitWaitlist() {
+            var now = Date.now();
+            if (now - _wlLastSubmit < 30000) {
+                showToast('Please wait before submitting again.', 'warning');
+                return;
+            }
             var name = (document.getElementById('wlName').value || '').trim();
             var email = (document.getElementById('wlEmail').value || '').trim();
             var type = document.getElementById('wlType').value;
@@ -6972,6 +6978,7 @@
                 showToast('Please enter a valid email address.', 'warning');
                 return;
             }
+            _wlLastSubmit = now;
             
             var btn = document.getElementById('wlSubmitBtn');
             btn.disabled = true;
