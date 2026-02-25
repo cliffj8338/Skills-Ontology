@@ -746,8 +746,9 @@
             <!-- Label toggles (desktop only) -->
             <div id="networkLabelToggles" style="display:none;">
                 <div class="view-pills" style="gap:2px;">
-                    <button class="view-pill active" id="toggleRoleLabelsBtn" onclick="toggleNetworkLabels('roles')" style="font-size:0.72em; padding:4px 10px;">Roles</button>
-                    <button class="view-pill active" id="toggleSkillLabelsBtn" onclick="toggleNetworkLabels('skills')" style="font-size:0.72em; padding:4px 10px;">Skills</button>
+                    <button class="view-pill active" id="labelPillRole" onclick="toggleNetworkLabels('roles')" style="font-size:0.72em; padding:4px 10px;">Roles</button>
+                    <button class="view-pill active" id="labelPillSkill" onclick="toggleNetworkLabels('skills')" style="font-size:0.72em; padding:4px 10px;">Skills</button>
+                    <button class="view-pill active" id="labelPillValue" onclick="toggleNetworkLabels('values')" style="font-size:0.72em; padding:4px 10px; display:none;">Values</button>
                 </div>
             </div>
         </div>
@@ -12025,6 +12026,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         var networkShowRoleLabels = true;
         var networkShowSkillLabels = true;
         
+        var networkShowValueLabels = true;
         function toggleNetworkLabels(type) {
             var svg = d3.select('#networkView');
             if (!svg.node()) return;
@@ -12032,14 +12034,20 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 networkShowRoleLabels = !networkShowRoleLabels;
                 svg.selectAll('text').filter(function(d) { return d && d.type === 'role'; })
                     .style('display', networkShowRoleLabels ? 'block' : 'none');
-                var btn = document.getElementById('toggleRoleLabelsBtn');
+                var btn = document.getElementById('labelPillRole');
                 if (btn) btn.classList.toggle('active', networkShowRoleLabels);
             } else if (type === 'skills') {
                 networkShowSkillLabels = !networkShowSkillLabels;
                 svg.selectAll('text').filter(function(d) { return d && d.type === 'skill'; })
                     .style('display', networkShowSkillLabels ? 'block' : 'none');
-                var btn2 = document.getElementById('toggleSkillLabelsBtn');
+                var btn2 = document.getElementById('labelPillSkill');
                 if (btn2) btn2.classList.toggle('active', networkShowSkillLabels);
+            } else if (type === 'values') {
+                networkShowValueLabels = !networkShowValueLabels;
+                svg.selectAll('text').filter(function(d) { return d && (d.type === 'value' || d.type === 'hub'); })
+                    .style('display', networkShowValueLabels ? 'block' : 'none');
+                var btn3 = document.getElementById('labelPillValue');
+                if (btn3) btn3.classList.toggle('active', networkShowValueLabels);
             }
         }
         window.toggleNetworkLabels = toggleNetworkLabels;
@@ -12530,8 +12538,13 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var skillPill = document.getElementById('labelPillSkill');
             if (rolePill) rolePill.style.display = (mode === 'values') ? 'none' : '';
             if (skillPill) skillPill.style.display = (mode === 'values') ? 'none' : '';
-            // Default Values pill to active when entering values mode
-            if (mode === 'values' && valPill) valPill.classList.add('active');
+            if (mode === 'values') {
+                networkShowValueLabels = true;
+                if (valPill) valPill.classList.add('active');
+            } else {
+                if (rolePill) rolePill.classList.toggle('active', networkShowRoleLabels);
+                if (skillPill) skillPill.classList.toggle('active', networkShowSkillLabels);
+            }
             
             // Remove any existing overlays
             var legend = document.getElementById('matchLegend');
