@@ -1,4 +1,4 @@
-<!-- v4.44.89 | 2026-02-26 | UX: fully opaque edit modal takeover, value desc fallback, comp blinding, job graph offset -->
+<!-- v4.44.90 | 2026-02-26 | UX: inline edit panel replaces overlay modal, value desc fallback, comp blinding, job graph offset -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.89 - BUILD 20260226-modal-opaque
-        var BP_VERSION = 'v4.44.89';
+        // BLUEPRINT v4.44.90 - BUILD 20260226-inline-edit
+        var BP_VERSION = 'v4.44.90';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -9139,8 +9139,8 @@
             } else {
                 data.hiddenCompRows.push(key);
             }
-            var modalOverlay = document.getElementById('wbRepoEditOverlay');
-            if (modalOverlay) {
+            var editPanel = document.getElementById('wbRepoEditOverlay');
+            if (editPanel) {
                 _jdcSyncFormToState();
                 _wbRepoRenderEditModal();
                 return;
@@ -9880,23 +9880,18 @@
         window.wbRepoEditModal = wbRepoEditModal;
 
         function _wbRepoRenderEditModal() {
-            var existing = document.getElementById('wbRepoEditOverlay');
-            if (existing) existing.remove();
-            var overlay = document.createElement('div');
-            overlay.id = 'wbRepoEditOverlay';
-            overlay.style.cssText = 'position:fixed; inset:0; z-index:99999; background:var(--c-bg); overflow-y:auto;';
-            var modal = document.createElement('div');
-            modal.style.cssText = 'width:100%; max-width:900px; margin:0 auto; padding:28px 28px 60px 28px;';
-            var formHtml = renderJDCEditForm(_jdcResult, {
-                saveFn: 'wbRepoEditSave()',
-                cancelFn: 'wbRepoEditCancel()',
-                refreshFn: '_wbRepoModalRefresh()',
-                saveLabel: 'Save',
-                showBottomRow: false
-            });
-            modal.innerHTML = formHtml;
-            overlay.appendChild(modal);
-            document.body.appendChild(overlay);
+            var container = document.getElementById('adminTabContent');
+            if (!container) return;
+            var formHtml = '<div id="wbRepoEditOverlay" style="max-width:900px;">'
+                + renderJDCEditForm(_jdcResult, {
+                    saveFn: 'wbRepoEditSave()',
+                    cancelFn: 'wbRepoEditCancel()',
+                    refreshFn: '_wbRepoModalRefresh()',
+                    saveLabel: 'Save',
+                    showBottomRow: false
+                })
+                + '</div>';
+            container.innerHTML = formHtml;
         }
 
         function _wbRepoModalRefresh() {
@@ -9933,10 +9928,10 @@
         window.wbRepoEditSave = wbRepoEditSave;
 
         function wbRepoEditCancel() {
-            var overlay = document.getElementById('wbRepoEditOverlay');
-            if (overlay) overlay.remove();
             _jdcResult = null;
             _wbRepoEditIdx = -1;
+            var container = document.getElementById('adminTabContent');
+            if (container) renderAdminWBRepository(container);
         }
         window.wbRepoEditCancel = wbRepoEditCancel;
 
