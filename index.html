@@ -2068,7 +2068,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-wb-wizard           ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-stability           ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -9131,6 +9131,7 @@
         window.wbRepoView = wbRepoView;
 
         function wbRepoDelete(id) {
+            console.log('[WB Delete] Called with id:', id, 'fbUser:', !!fbUser, 'fbDb:', !!fbDb);
             if (!fbUser) { showToast('You must be signed in to delete blueprints.', 'warning'); return; }
             if (!id) { showToast('Blueprint ID missing — cannot delete.', 'error'); return; }
             if (!fbDb) { showToast('Database not available. Try refreshing.', 'error'); return; }
