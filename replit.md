@@ -67,6 +67,9 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - Edit form (v4.44.73): Full field editing — compensation, years of experience, education (with "Other"), certifications (searchable from 191-entry library + custom freeform), qualifications
 - JDC extraction (v4.44.73): Compensation range/bonus from JD text, qualifications section, "Industry:" / "Travel:" label parsing, High School + Other education levels
 - WBW Wizard (v4.44.73): Step 1 adds Travel, Industry, Compensation fields; Step 3 adds searchable certification picker (from certification_library.json, 191 entries, Enter to add custom), qualifications field with add/remove
+- Inline editing (v4.44.73): WBW Step 5 Edit button opens full field editor before save/export; Apply Edits returns to preview
+- Admin sidebar (v4.44.74): "Work Blueprint" group replaces JDC/WBW under Content; items: Converter, Wizard, Repository
+- Repository (v4.44.74): Standalone admin tab for browsing/viewing/exporting/deleting saved Work Blueprints; loads from Firestore `work_blueprints` subcollection; "Edit in Converter" loads blueprint into JDC for modification
 
 ## Stability (v4.44.70)
 - Firestore save: 3-attempt retry with exponential backoff + localStorage backup

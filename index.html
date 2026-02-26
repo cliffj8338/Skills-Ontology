@@ -1,4 +1,4 @@
-<!-- v4.44.73 | 2026-02-26 | Complete fields: compensation, qualifications, cert search, education Other -->
+<!-- v4.44.74 | 2026-02-26 | Sidebar menu restructure, standalone WB Repository, stability improvements -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.73 | 2026-02-26 | Complete fields: compensation, qualifications, cert search -->
+    <!-- v4.44.74 | 2026-02-26 | Sidebar menu restructure, standalone WB Repository -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.73 - BUILD 20260226-fields
-        var BP_VERSION = 'v4.44.73';
+        // BLUEPRINT v4.44.74 - BUILD 20260226-menu
+        var BP_VERSION = 'v4.44.74';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -3145,8 +3145,10 @@
                 + _adminSidebarBtn('waitlist', 'target', 'Waitlist')
                 + _adminSidebarGroup('Content')
                 + _adminSidebarBtn('samples', 'skills', 'Samples')
-                + _adminSidebarBtn('jdconverter', 'wand', 'JD Converter')
-                + _adminSidebarBtn('wbwizard', 'blueprint', 'WB Wizard')
+                + _adminSidebarGroup('Work Blueprint')
+                + _adminSidebarBtn('jdconverter', 'wand', 'Converter')
+                + _adminSidebarBtn('wbwizard', 'blueprint', 'Wizard')
+                + _adminSidebarBtn('wbrepo', 'folder', 'Repository')
                 + _adminSidebarGroup('System')
                 + _adminSidebarBtn('config', 'settings', 'Config')
                 + _adminSidebarBtn('status', 'shield', 'Status')
@@ -3180,6 +3182,7 @@
             else if (adminSubTab === 'architecture') renderAdminArchitecture(el);
             else if (adminSubTab === 'jdconverter') renderAdminJDConverter(el);
             else if (adminSubTab === 'wbwizard') renderWBWizard(el);
+            else if (adminSubTab === 'wbrepo') renderAdminWBRepo(el);
         }
         
         function renderAdminOverview(el) {
@@ -7124,14 +7127,20 @@
                 { id: 'paste', icon: 'edit', label: 'Paste' },
                 { id: 'url', icon: 'link', label: 'From URL' },
                 { id: 'bulk', icon: 'list', label: 'Bulk' },
-                { id: 'repo', icon: 'folder', label: 'Repository' }
+                { id: 'repo', icon: 'folder', label: 'Repository', onclick: "adminSubTab='wbrepo'; renderAdminTabContent();" }
             ];
             html += '<div style="display:flex; gap:2px; background:var(--c-surface-2); border-radius:10px; padding:3px; margin-bottom:20px; max-width:400px;">';
             modes.forEach(function(m) {
                 var active = _jdcInputMode === m.id;
-                html += '<button onclick="_jdcInputMode=\'' + m.id + '\'; _jdcResult=null; _jdcBulkResults=[]; _jdcBulkViewIdx=-1; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="flex:1; padding:8px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; display:flex; align-items:center; justify-content:center; gap:5px; '
-                    + (active ? 'background:var(--accent); color:#fff;' : 'background:transparent; color:var(--text-secondary);') + '">'
-                    + bpIcon(m.icon, 14) + ' ' + m.label + '</button>';
+                if (m.onclick) {
+                    html += '<button onclick="' + m.onclick + '" style="flex:1; padding:8px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; display:flex; align-items:center; justify-content:center; gap:5px; '
+                        + (active || adminSubTab === 'wbrepo' && m.id === 'repo' ? 'background:var(--accent); color:#fff;' : 'background:transparent; color:var(--text-secondary);') + '">'
+                        + bpIcon(m.icon, 14) + ' ' + m.label + '</button>';
+                } else {
+                    html += '<button onclick="_jdcInputMode=\'' + m.id + '\'; _jdcResult=null; _jdcBulkResults=[]; _jdcBulkViewIdx=-1; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="flex:1; padding:8px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; display:flex; align-items:center; justify-content:center; gap:5px; '
+                        + (active ? 'background:var(--accent); color:#fff;' : 'background:transparent; color:var(--text-secondary);') + '">'
+                        + bpIcon(m.icon, 14) + ' ' + m.label + '</button>';
+                }
             });
             html += '</div>';
 
@@ -8786,6 +8795,7 @@
                 .then(function() {
                     showToast('Work Blueprint saved to repository.', 'success');
                     _jdcRepoCache = null;
+                    _wbRepoCache = null;
                 })
                 .catch(function(err) {
                     console.warn('Save blueprint error:', err);
@@ -8796,24 +8806,8 @@
 
         var _jdcRepoCache = null;
         function jdcLoadRepository() {
-            if (!fbUser) { showToast('Sign in to access your repository.', 'warning'); return; }
-            _jdcInputMode = 'repo';
-            _jdcRepoCache = null;
-            renderAdminJDConverter(document.getElementById('adminTabContent'));
-            fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').orderBy('savedAt', 'desc').get()
-                .then(function(snapshot) {
-                    _jdcRepoCache = [];
-                    snapshot.forEach(function(doc) {
-                        var data = doc.data();
-                        data.id = doc.id;
-                        _jdcRepoCache.push(data);
-                    });
-                    renderAdminJDConverter(document.getElementById('adminTabContent'));
-                })
-                .catch(function(err) {
-                    console.warn('Load repository error:', err);
-                    showToast('Failed to load repository: ' + err.message, 'error');
-                });
+            adminSubTab = 'wbrepo';
+            renderAdminTabContent();
         }
         window.jdcLoadRepository = jdcLoadRepository;
 
@@ -8840,8 +8834,156 @@
                 .catch(function(err) { showToast('Delete failed: ' + err.message, 'error'); });
         }
         window.jdcDeleteFromRepo = jdcDeleteFromRepo;
-        
-        
+
+        var _wbRepoCache = null;
+        var _wbRepoViewIdx = -1;
+
+        function renderAdminWBRepo(el) {
+            var html = '<div style="max-width:1000px;">'
+                + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">'
+                + '<div>'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.3em; color:var(--c-heading-bold);">'
+                + bpIcon('folder',22) + ' Work Blueprint Repository</div>'
+                + '<div style="font-size:0.85em; color:var(--c-muted); margin-top:4px;">Your saved Work Blueprints from the Converter and Wizard.</div>'
+                + '</div>'
+                + '</div>';
+
+            if (!fbUser) {
+                html += '<div style="padding:40px 20px; text-align:center; color:var(--text-muted);">'
+                    + bpIcon('shield',32) + '<p style="margin-top:12px;">Sign in to access your Work Blueprint Repository.</p></div>';
+                el.innerHTML = html + '</div>';
+                return;
+            }
+
+            if (_wbRepoCache === null) {
+                html += '<div style="text-align:center; padding:40px;">'
+                    + '<div class="loading-spinner" style="width:28px; height:28px; border-width:3px; margin:0 auto 12px;"></div>'
+                    + '<p style="font-size:0.88em; color:var(--text-muted);">Loading blueprints...</p></div>';
+                el.innerHTML = html + '</div>';
+                _wbRepoLoadData();
+                return;
+            }
+
+            if (_wbRepoCache.length === 0) {
+                html += '<div style="padding:40px 20px; text-align:center; color:var(--text-muted);">'
+                    + '<div style="margin-bottom:12px; opacity:0.35;">' + bpIcon('blueprint',48) + '</div>'
+                    + '<p style="font-size:1.05em; color:var(--c-heading); margin-bottom:8px;">No Work Blueprints saved yet</p>'
+                    + '<p style="font-size:0.88em;">Use the <strong>Converter</strong> or <strong>Wizard</strong> to create and save blueprints.</p>'
+                    + '<div style="display:flex; gap:10px; justify-content:center; margin-top:16px;">'
+                    + '<button onclick="adminSubTab=\'jdconverter\'; renderAdminTabContent();" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('wand',14) + ' Open Converter</button>'
+                    + '<button onclick="adminSubTab=\'wbwizard\'; renderAdminTabContent();" style="padding:8px 16px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('blueprint',14) + ' Open Wizard</button>'
+                    + '</div></div>';
+                el.innerHTML = html + '</div>';
+                return;
+            }
+
+            html += '<div style="display:flex; align-items:center; gap:12px; margin:16px 0;">'
+                + '<span style="font-size:0.88em; color:var(--c-muted);">' + _wbRepoCache.length + ' blueprint' + (_wbRepoCache.length !== 1 ? 's' : '') + '</span>'
+                + '<button onclick="_wbRepoCache=null; _wbRepoViewIdx=-1; renderAdminWBRepo(document.getElementById(\'adminTabContent\'));" style="padding:4px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.78em;">' + bpIcon('refresh',12) + ' Refresh</button>'
+                + '</div>';
+
+            html += '<div style="display:grid; gap:10px; margin-bottom:20px;">';
+            _wbRepoCache.forEach(function(bp, idx) {
+                var isActive = _wbRepoViewIdx === idx;
+                var savedDate = bp.savedAt && bp.savedAt.toDate ? bp.savedAt.toDate().toLocaleDateString() : (bp.createdAt ? new Date(bp.createdAt).toLocaleDateString() : '');
+                html += '<div style="display:flex; align-items:center; gap:14px; padding:14px 16px; background:' + (isActive ? 'rgba(96,165,250,0.1)' : 'var(--c-surface-1)') + '; border:1px solid ' + (isActive ? 'var(--accent)' : 'var(--c-surface-5)') + '; border-radius:10px; cursor:pointer; transition:border-color 0.15s;" onclick="wbRepoView(' + idx + ')">'
+                    + '<div style="flex:1; min-width:0;">'
+                    + '<div style="font-weight:600; font-size:0.95em; color:var(--c-heading-bold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(bp.title || 'Untitled') + '</div>'
+                    + '<div style="font-size:0.8em; color:var(--c-muted); margin-top:3px;">' + escapeHtml(bp.company || '') + (bp.location ? ' \u00B7 ' + escapeHtml(bp.location) : '') + ' \u00B7 ' + (bp.skills ? bp.skills.length : 0) + ' skills' + (savedDate ? ' \u00B7 ' + savedDate : '') + '</div></div>'
+                    + '<button onclick="event.stopPropagation(); wbRepoDelete(' + JSON.stringify(bp.id) + ')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:4px 8px; font-size:0.85em; opacity:0.6;" title="Delete">' + bpIcon('trash',16) + '</button>'
+                    + '</div>';
+            });
+            html += '</div>';
+
+            if (_wbRepoViewIdx >= 0 && _wbRepoCache[_wbRepoViewIdx]) {
+                var viewBp = _wbRepoCache[_wbRepoViewIdx];
+                html += '<div style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;">'
+                    + '<button onclick="wbRepoExport(\'json\')" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('download',14) + ' Export JSON</button>'
+                    + '<button onclick="wbRepoExport(\'pdf\')" style="padding:8px 16px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('download',14) + ' Export PDF</button>'
+                    + '<button onclick="wbRepoExport(\'word\')" style="padding:8px 16px; background:#2563eb; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('download',14) + ' Export Word</button>'
+                    + '<button onclick="wbRepoLoadInConverter(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('edit',14) + ' Edit in Converter</button>'
+                    + '</div>';
+                html += renderWorkBlueprint(viewBp, false, { hideButtons: true });
+            }
+
+            html += '</div>';
+            el.innerHTML = html;
+        }
+        window.renderAdminWBRepo = renderAdminWBRepo;
+
+        function _wbRepoLoadData() {
+            fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').orderBy('savedAt', 'desc').get()
+                .then(function(snapshot) {
+                    _wbRepoCache = [];
+                    snapshot.forEach(function(doc) {
+                        var data = doc.data();
+                        data.id = doc.id;
+                        _wbRepoCache.push(data);
+                    });
+                    renderAdminWBRepo(document.getElementById('adminTabContent'));
+                })
+                .catch(function(err) {
+                    console.warn('Load repository error:', err);
+                    showToast('Failed to load repository: ' + err.message, 'error');
+                    _wbRepoCache = [];
+                    renderAdminWBRepo(document.getElementById('adminTabContent'));
+                });
+        }
+
+        function wbRepoView(idx) {
+            _wbRepoViewIdx = _wbRepoViewIdx === idx ? -1 : idx;
+            renderAdminWBRepo(document.getElementById('adminTabContent'));
+        }
+        window.wbRepoView = wbRepoView;
+
+        function wbRepoDelete(id) {
+            if (!fbUser || !id) return;
+            if (!confirm('Delete this Work Blueprint from your repository?')) return;
+            fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc(id).delete()
+                .then(function() {
+                    showToast('Blueprint deleted.', 'info');
+                    _wbRepoCache = null;
+                    _wbRepoViewIdx = -1;
+                    renderAdminWBRepo(document.getElementById('adminTabContent'));
+                })
+                .catch(function(err) { showToast('Delete failed: ' + err.message, 'error'); });
+        }
+        window.wbRepoDelete = wbRepoDelete;
+
+        function wbRepoExport(mode) {
+            if (_wbRepoViewIdx < 0 || !_wbRepoCache[_wbRepoViewIdx]) return;
+            var bp = _wbRepoCache[_wbRepoViewIdx];
+            if (mode === 'json') {
+                var blob = new Blob([JSON.stringify(bp, null, 2)], { type: 'application/json' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url; a.download = (bp.title || 'work-blueprint').replace(/[^a-zA-Z0-9]+/g, '-') + '.json';
+                document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+                showToast('JSON exported.', 'success');
+            } else if (mode === 'pdf' && typeof jdcExportPDF === 'function') {
+                _jdcResult = bp;
+                jdcExportPDF();
+            } else if (mode === 'word' && typeof jdcExportWord === 'function') {
+                _jdcResult = bp;
+                jdcExportWord();
+            } else {
+                showToast('Export not available for this format.', 'warning');
+            }
+        }
+        window.wbRepoExport = wbRepoExport;
+
+        function wbRepoLoadInConverter(idx) {
+            if (!_wbRepoCache || !_wbRepoCache[idx]) return;
+            _jdcResult = _wbRepoCache[idx];
+            _jdcCompMode = 'without';
+            _jdcInputMode = 'paste';
+            _jdcEditMode = false;
+            adminSubTab = 'jdconverter';
+            renderAdminTabContent();
+            showToast('Loaded: ' + (_jdcResult.title || 'Untitled') + '. Click Edit to modify.', 'success');
+        }
+        window.wbRepoLoadInConverter = wbRepoLoadInConverter;
+
         // ===== ADMIN COSTS DASHBOARD =====
         var costsTimeRange = 30; // days
         var costsProjectionUsers = 100;
