@@ -1,4 +1,4 @@
-<!-- v4.44.78 | 2026-02-26 | JD skills priority + explicit values parsing + delete fix -->
+<!-- v4.44.79 | 2026-02-26 | Values fix + skill dedup + compensation blinding + stability -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.78 | 2026-02-26 | JD skills priority + explicit values parsing -->
+    <!-- v4.44.79 | 2026-02-26 | Values fix + skill dedup + compensation blinding -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.78 - BUILD 20260226-jdc-skills-values
-        var BP_VERSION = 'v4.44.78';
+        // BLUEPRINT v4.44.79 - BUILD 20260226-comp-blinding
+        var BP_VERSION = 'v4.44.79';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2068,7 +2068,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-jdc-skills-values   ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-comp-blinding        ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -2175,6 +2175,7 @@
                 'pie-chart':    '<svg ' + s + '><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>',
                 'share-preset': '<svg ' + s + '><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>',
                 'eye':          '<svg ' + s + '><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+                'eye-off':      '<svg ' + s + '><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>',
                 'zap':          '<svg ' + s + '><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
                 'flag':         '<svg ' + s + '><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>',
                 'heart':        '<svg ' + s + '><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
@@ -7910,6 +7911,19 @@
                 addSkill('Agentic AI', 68);
             }
 
+            var dedupKeys = {};
+            found = found.filter(function(s) {
+                var normalized = s.name.toLowerCase()
+                    .replace(/\s+tools?\b/g, '')
+                    .replace(/\s+(?:creation|usage|and usage|tool creation)\b/gi, '')
+                    .replace(/\s+(?:and|or|&)\s+/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                if (dedupKeys[normalized]) return false;
+                dedupKeys[normalized] = true;
+                return true;
+            });
+
             var bulletLines = jdText.split('\n');
             var inSkillsSection = false;
             bulletLines.forEach(function(line) {
@@ -8072,13 +8086,36 @@
             };
             var fuzzyMap = {
                 'instesirty': 'integrity', 'integirty': 'integrity', 'intergity': 'integrity', 'integrtiy': 'integrity',
-                'responsibilty': 'responsibility', 'responsiblity': 'responsibility',
-                'creativty': 'creativity', 'cretivity': 'creativity',
+                'integriy': 'integrity', 'integirty': 'integrity', 'intergrity': 'integrity', 'inegrity': 'integrity',
+                'intensity': 'integrity',
+                'responsibilty': 'responsibility', 'responsiblity': 'responsibility', 'responsibiliy': 'responsibility',
+                'creativty': 'creativity', 'cretivity': 'creativity', 'creativiy': 'creativity',
                 'accountabilty': 'accountability', 'accountablity': 'accountability',
                 'transparancy': 'transparency', 'transpareny': 'transparency',
                 'collaboartion': 'collaboration', 'colaboration': 'collaboration',
-                'excellance': 'excellence', 'excelence': 'excellence'
+                'excellance': 'excellence', 'excelence': 'excellence',
+                'curosity': 'curiosity', 'curiousity': 'curiosity'
             };
+            function _fuzzyMatchValue(input) {
+                if (fuzzyMap[input]) return fuzzyMap[input];
+                if (valueDescriptions[input]) return input;
+                var bestMatch = null, bestScore = 0;
+                var keys = Object.keys(valueDescriptions);
+                for (var k = 0; k < keys.length; k++) {
+                    var target = keys[k];
+                    if (Math.abs(input.length - target.length) > 3) continue;
+                    var matches = 0;
+                    for (var c = 0; c < Math.min(input.length, target.length); c++) {
+                        if (input[c] === target[c]) matches++;
+                    }
+                    var score = matches / Math.max(input.length, target.length);
+                    if (score > bestScore && score >= 0.7) {
+                        bestScore = score;
+                        bestMatch = target;
+                    }
+                }
+                return bestMatch;
+            }
             for (var i = 0; i < lines.length; i++) {
                 var stripped = lines[i].trim();
                 if (/^values?\s*[:]/i.test(stripped)) {
@@ -8088,12 +8125,12 @@
                         afterColon.split(/[,;\n]/).forEach(function(v) {
                             var val = v.trim().toLowerCase().replace(/[^a-z\s]/g, '').trim();
                             if (val && val.length >= 3) {
-                                var mapped = fuzzyMap[val] || val;
-                                var entry = valueDescriptions[mapped];
+                                var mapped = _fuzzyMatchValue(val);
+                                var entry = mapped ? valueDescriptions[mapped] : null;
                                 if (entry) {
                                     explicitValues.push({ name: entry.name, desc: entry.desc });
                                 } else {
-                                    explicitValues.push({ name: val.charAt(0).toUpperCase() + val.slice(1), desc: 'Core organizational value' });
+                                    explicitValues.push({ name: v.trim().charAt(0).toUpperCase() + v.trim().slice(1).toLowerCase(), desc: 'Core organizational value' });
                                 }
                             }
                         });
@@ -8101,15 +8138,23 @@
                     continue;
                 }
                 if (inValuesSection) {
-                    if (!stripped || /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s*:/.test(stripped) || /^(?:education|qualification|requirement|experience|responsibilit|key\s+skill|compensation|benefit)/i.test(stripped)) {
+                    if (!stripped) {
+                        if (explicitValues.length >= 2) { inValuesSection = false; }
+                        continue;
+                    }
+                    if (/^(?:education|qualifications?|requirements?|experience|responsibilities|key\s+skills?|compensation|benefits?|about\s+|position|duties|summary|overview|description)/i.test(stripped)) {
+                        inValuesSection = false;
+                        continue;
+                    }
+                    if (/^[A-Z][a-z]+(?:\s+[A-Za-z]+)*\s*:/.test(stripped) && stripped.length > 30) {
                         inValuesSection = false;
                         continue;
                     }
                     var valLine = stripped.replace(/^[\u2022\u2023\u25E6\u25AA\u25CF\u00B7\-\*\>●]\s*/, '').replace(/^\d+[\.\)]\s*/, '').trim();
                     if (valLine.length >= 3 && valLine.length <= 60) {
                         var valKey = valLine.toLowerCase().replace(/[^a-z\s]/g, '').trim();
-                        var mappedKey = fuzzyMap[valKey] || valKey;
-                        var valEntry = valueDescriptions[mappedKey];
+                        var mappedKey = _fuzzyMatchValue(valKey);
+                        var valEntry = mappedKey ? valueDescriptions[mappedKey] : null;
                         if (valEntry) {
                             explicitValues.push({ name: valEntry.name, desc: valEntry.desc });
                         } else if (valKey.length >= 3) {
@@ -8446,26 +8491,37 @@
                 + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">3) Regional Compensation Overview</span></div>';
 
             if (data.bls) {
-                html += '<table style="width:100%; border-collapse:collapse; font-size:0.85em; max-width:700px;">'
+                var showBlindCol = !opts.hideButtons && !opts.isExport;
+                html += '<table style="width:100%; border-collapse:collapse; font-size:0.85em; max-width:800px;">'
                     + '<thead><tr style="border-bottom:2px solid ' + borderColor + ';">'
                     + '<th style="text-align:left; padding:8px 10px; color:#10b981; font-weight:700;">Percentile</th>'
                     + '<th style="text-align:right; padding:8px 10px; color:#10b981; font-weight:700;">Annual (USD)</th>'
                     + '<th style="text-align:left; padding:8px 10px; color:#10b981; font-weight:700;">Notes</th>'
+                    + (showBlindCol ? '<th style="text-align:center; padding:8px 10px; color:#10b981; font-weight:700; width:80px;">Export</th>' : '')
                     + '</tr></thead><tbody>';
+                var hiddenPcts = (data.hiddenCompRows || []);
                 var pctData = [
-                    { label: '10th (Entry Floor)', val: data.bls.pct10, note: 'Entry-level, limited experience' },
-                    { label: '25th', val: data.bls.pct25, note: 'Below median, developing' },
-                    { label: '50th (Median)', val: data.bls.median, note: 'National median for this occupation' },
-                    { label: '75th', val: data.bls.pct75, note: 'Experienced, strong market position' },
-                    { label: '90th (Top Tier)', val: data.bls.pct90, note: 'Top performers, premium markets' }
+                    { key: 'pct10', label: '10th (Entry Floor)', val: data.bls.pct10, note: 'Entry-level, limited experience' },
+                    { key: 'pct25', label: '25th', val: data.bls.pct25, note: 'Below median, developing' },
+                    { key: 'median', label: '50th (Median)', val: data.bls.median, note: 'National median for this occupation' },
+                    { key: 'pct75', label: '75th', val: data.bls.pct75, note: 'Experienced, strong market position' },
+                    { key: 'pct90', label: '90th (Top Tier)', val: data.bls.pct90, note: 'Top performers, premium markets' }
                 ];
+                var isExportMode = opts.isExport || false;
                 pctData.forEach(function(p, i) {
+                    var isHidden = hiddenPcts.indexOf(p.key) !== -1;
+                    if (isExportMode && isHidden) return;
                     var bg = i % 2 === 0 ? 'transparent' : 'var(--c-surface-2)';
                     var isMedian = p.label.indexOf('Median') !== -1;
-                    html += '<tr style="background:' + bg + '; border-bottom:1px solid ' + borderColor + ';' + (isMedian ? 'font-weight:700;' : '') + '">'
+                    var eyeIcon = isHidden ? bpIcon('eye-off',14) : bpIcon('eye',14);
+                    var toggleColor = isHidden ? '#ef4444' : '#10b981';
+                    var toggleTitle = isHidden ? 'Hidden on export — click to show' : 'Visible on export — click to hide';
+                    html += '<tr style="background:' + bg + '; border-bottom:1px solid ' + borderColor + ';' + (isMedian ? 'font-weight:700;' : '') + (isHidden ? ' opacity:0.45;' : '') + '">'
                         + '<td style="padding:8px 10px; color:' + headingColor + ';">' + p.label + '</td>'
-                        + '<td style="padding:8px 10px; text-align:right; color:#10b981; font-weight:600;">$' + (p.val || 0).toLocaleString() + '</td>'
-                        + '<td style="padding:8px 10px; color:' + mutedColor + '; font-size:0.9em;">' + p.note + '</td></tr>';
+                        + '<td style="padding:8px 10px; text-align:right; color:#10b981; font-weight:600;">' + (isHidden ? '<s style="opacity:0.5;">$' + (p.val || 0).toLocaleString() + '</s>' : '$' + (p.val || 0).toLocaleString()) + '</td>'
+                        + '<td style="padding:8px 10px; color:' + mutedColor + '; font-size:0.9em;">' + p.note + '</td>'
+                        + (showBlindCol ? '<td style="text-align:center; padding:8px 4px;"><button onclick="toggleCompBlinding(\'' + p.key + '\')" title="' + toggleTitle + '" style="background:none; border:1px solid ' + toggleColor + '44; border-radius:6px; padding:4px 8px; cursor:pointer; color:' + toggleColor + '; font-size:0.8em;">' + eyeIcon + '</button></td>' : '')
+                        + '</tr>';
                 });
                 html += '</tbody></table>'
                     + '<div style="margin-top:12px; font-size:0.78em; color:var(--c-faint);">Source: BLS OEWS ' + (data.bls.source || 'May 2024') + ' \u00B7 SOC: ' + escapeHtml(data.bls.soc || '') + ' \u00B7 ' + escapeHtml(data.bls.title || '') + '</div>';
@@ -8550,6 +8606,14 @@
             delete d._rawJD;
             d.generatedAt = d.generatedAt || new Date().toISOString();
             d.generatedBy = 'Blueprint Work Blueprint Converter';
+            if (d.hiddenCompRows && d.hiddenCompRows.length > 0 && d.bls) {
+                d.bls = Object.assign({}, d.bls);
+                var keyMap = { pct10: 'pct10', pct25: 'pct25', median: 'median', pct75: 'pct75', pct90: 'pct90' };
+                d.hiddenCompRows.forEach(function(key) {
+                    if (keyMap[key]) delete d.bls[keyMap[key]];
+                });
+                delete d.hiddenCompRows;
+            }
             return d;
         }
 
@@ -8652,7 +8716,14 @@
 
             if (d.bls) {
                 addLine('COMPENSATION (BLS)', 10, GREEN, true);
-                addLine('10th: $' + (d.bls.pct10 || 0).toLocaleString() + '  |  25th: $' + (d.bls.pct25 || 0).toLocaleString() + '  |  Median: $' + (d.bls.median || 0).toLocaleString() + '  |  75th: $' + (d.bls.pct75 || 0).toLocaleString() + '  |  90th: $' + (d.bls.pct90 || 0).toLocaleString(), 8, DARK);
+                var hcr = d.hiddenCompRows || [];
+                var compParts = [];
+                if (hcr.indexOf('pct10') === -1) compParts.push('10th: $' + (d.bls.pct10 || 0).toLocaleString());
+                if (hcr.indexOf('pct25') === -1) compParts.push('25th: $' + (d.bls.pct25 || 0).toLocaleString());
+                if (hcr.indexOf('median') === -1) compParts.push('Median: $' + (d.bls.median || 0).toLocaleString());
+                if (hcr.indexOf('pct75') === -1) compParts.push('75th: $' + (d.bls.pct75 || 0).toLocaleString());
+                if (hcr.indexOf('pct90') === -1) compParts.push('90th: $' + (d.bls.pct90 || 0).toLocaleString());
+                if (compParts.length > 0) addLine(compParts.join('  |  '), 8, DARK);
                 y += 3;
             }
 
@@ -8726,7 +8797,9 @@
             h += '</tbody></table>';
             if (d.bls) {
                 h += '<h2>Compensation (BLS)</h2><table><thead><tr><th>Percentile</th><th>Annual (USD)</th></tr></thead><tbody>';
-                [['10th', d.bls.pct10], ['25th', d.bls.pct25], ['Median', d.bls.median], ['75th', d.bls.pct75], ['90th', d.bls.pct90]].forEach(function(p) {
+                var whcr = d.hiddenCompRows || [];
+                [['10th', d.bls.pct10, 'pct10'], ['25th', d.bls.pct25, 'pct25'], ['Median', d.bls.median, 'median'], ['75th', d.bls.pct75, 'pct75'], ['90th', d.bls.pct90, 'pct90']].forEach(function(p) {
+                    if (whcr.indexOf(p[2]) !== -1) return;
                     h += '<tr><td>' + p[0] + '</td><td>$' + (p[1] || 0).toLocaleString() + '</td></tr>';
                 });
                 h += '</tbody></table>';
@@ -8769,6 +8842,27 @@
             renderAdminJDConverter(document.getElementById('adminTabContent'));
         }
         window.jdcEditBlueprint = jdcEditBlueprint;
+
+        function toggleCompBlinding(key) {
+            var data = _jdcResult || (window._wbwResult || null);
+            if (!data) return;
+            if (!data.hiddenCompRows) data.hiddenCompRows = [];
+            var idx = data.hiddenCompRows.indexOf(key);
+            if (idx !== -1) {
+                data.hiddenCompRows.splice(idx, 1);
+            } else {
+                data.hiddenCompRows.push(key);
+            }
+            var container = document.getElementById('adminTabContent');
+            if (container) {
+                if (_jdcResult) {
+                    renderAdminJDConverter(container);
+                } else if (typeof renderWBWizard === 'function') {
+                    renderWBWizard(container);
+                }
+            }
+        }
+        window.toggleCompBlinding = toggleCompBlinding;
 
         function _jdcSyncFormToState() {
             if (!_jdcResult) return;
@@ -9267,7 +9361,8 @@
             if (_wbRepoViewIdx < 0 || !_wbRepoCache[_wbRepoViewIdx]) return;
             var bp = _wbRepoCache[_wbRepoViewIdx];
             if (mode === 'json') {
-                var blob = new Blob([JSON.stringify(bp, null, 2)], { type: 'application/json' });
+                var exportData = _jdcPrepareExport(bp);
+                var blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
                 var url = URL.createObjectURL(blob);
                 var a = document.createElement('a');
                 a.href = url; a.download = (bp.title || 'work-blueprint').replace(/[^a-zA-Z0-9]+/g, '-') + '.json';

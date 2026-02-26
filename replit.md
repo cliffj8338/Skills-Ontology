@@ -50,7 +50,7 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - Custom skill addition, inline outcome editing, proficiency level adjustment
 - Reuses existing renderWorkBlueprint, exportWorkBlueprintJSON/PDF/Word, jdcSaveToRepository
 
-## Work Blueprint Converter (v4.44.69)
+## Work Blueprint Converter (v4.44.79)
 - Admin → JD Converter: paste any job description, get a structured Work Blueprint
 - Extraction pipeline: title, company, location, employment type, department, reports-to, schedule, travel, seniority, industry
 - Requirements extraction: years of experience (with area), education levels, certifications (191 known certs)
@@ -58,14 +58,15 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - Proficiency inference: years-based + keyword-based + seniority-aware defaults (no more flat "Advanced" default)
 - Outcome generation: seniority-aware verbs with varied templates per skill category
 - Summary generation: extracts actual JD sentences when available, falls back to structured template
-- Values: pattern-matched from JD text, sorted by hit count, tighter patterns to reduce false positives
-- Compensation: BLS wage data + per-skill comp model (importance × proficiency weighting)
-- Export: JSON download + clipboard copy; bulk export all as single JSON
+- Values: explicit "Values:" section parsing + fuzzy matching (Levenshtein-like 70% threshold) + misspelling map + pattern inference fallback
+- Skills: JD-extracted skills prioritized over O*NET generic skills; AI skill deduplication (strips "tools", "creation", "and usage" variants)
+- Compensation: BLS wage data + per-skill comp model; compensation blinding per-row (toggle eye icon hides rows on export while visible in admin)
+- Export: JSON/PDF/Word all respect hiddenCompRows; blinded rows stripped from export data
 - Input modes: Paste (single JD), URL fetch (via /api/api-job-proxy?source=page&url=...), Bulk (--- separated or file upload)
 - Bulk: supports .txt (--- separated), .json (array of strings or objects with description), .csv (auto-detects description column)
 - Section order: Header/Logistics → Skills/Outcomes/Proficiency → Requirements → Compensation → Demonstrated Experience → Values
 - Edit form (v4.44.73→75): Full field editing with auto-save — _jdcSyncFormToState() preserves all edits when adding/deleting fields. Skills table + values section. AI skills suggestion banner (6 suggestions: Generative AI, Agentic AI, AI Fluency, Prompt Engineering, AI Tool Adoption, AI-Assisted Decision Making). Suggested values banner (8 core values). Click-to-add for both. Blueprint preview hidden during edit. Save & Preview + Save to Repository buttons
-- JDC extraction (v4.44.73→75): AI compound phrase detection ("Generative and Agentic AI" decomposed into separate skills). Section-header bullet scanning captures skills from "Key Skills and Competencies:" sections. Skill cap raised from 14 to 18. Tech terms expanded with 50+ AI/ML terms. Company name from possessives/context, department allows commas, reports-to prioritizes explicit labels. Compensation range/bonus, qualifications, Industry/Travel parsing, High School + Other education
+- JDC extraction (v4.44.73→79): AI compound phrase detection ("Generative and Agentic AI" decomposed into separate skills). Section-header bullet scanning captures skills from "Key Skills and Competencies:" sections. Skill cap raised from 14 to 18. Tech terms expanded with 50+ AI/ML terms. Company name from possessives/context, department allows commas, reports-to prioritizes explicit labels. Compensation range/bonus, qualifications, Industry/Travel parsing, High School + Other education
 - WBW Wizard (v4.44.73): Step 1 adds Travel, Industry, Compensation fields; Step 3 adds searchable certification picker (from certification_library.json, 191 entries, Enter to add custom), qualifications field with add/remove
 - Inline editing (v4.44.73): WBW Step 5 Edit button opens full field editor before save/export; Apply Edits returns to preview
 - Admin sidebar (v4.44.74): "Work Blueprint" group replaces JDC/WBW under Content; items: Converter, Wizard, Repository
