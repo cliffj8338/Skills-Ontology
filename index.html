@@ -1,4 +1,4 @@
-<!-- v4.44.80 | 2026-02-26 | UX flow: auto-edit, repo workflow, AI value descriptions -->
+<!-- v4.44.81 | 2026-02-26 | Stability: cleanup catch-rethrow no-ops, double-click save guard -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.80 - BUILD 20260226-ux-flow
-        var BP_VERSION = 'v4.44.80';
+        // BLUEPRINT v4.44.81 - BUILD 20260226-stability
+        var BP_VERSION = 'v4.44.81';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2068,7 +2068,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-ux-flow               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-stability               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -29909,7 +29909,6 @@ body {
                 'finance': 'finance-legal', 'sales': 'sales', 'customer-support': 'customer-support',
                 'writing': 'writing', 'devops': 'devops-sysadmin'
             };
-            try {
                 var data;
                 if (JOB_PROXY_AVAILABLE !== false) {
                     try {
@@ -29962,14 +29961,10 @@ body {
                         pubDate: job.publication_date || ''
                     };
                 });
-            } catch(e) {
-                throw e;
-            }
         }
         
         // === HIMALAYAS ===
         async function fetchHimalayasJobs(keyword) {
-            try {
                 var data;
                 if (JOB_PROXY_AVAILABLE !== false) {
                     try {
@@ -30027,7 +30022,6 @@ body {
                     pubDate: job.pubDate || ''
                 };
             });
-            } catch(e) { throw e; }
         }
         
         // === JOBICY ===
@@ -30038,7 +30032,6 @@ body {
                 'finance': 'accounting-finance', 'sales': 'seller', 'customer-support': 'supporting',
                 'writing': 'copywriting', 'devops': 'dev'
             };
-            try {
                 var data;
                 if (JOB_PROXY_AVAILABLE !== false) {
                     try {
@@ -30097,7 +30090,6 @@ body {
                         pubDate: job.pubDate || ''
                     };
                 });
-            } catch(e) { throw e; }
         }
         
         // === ADZUNA (US market — ~3-4M jobs) ===

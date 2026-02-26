@@ -72,6 +72,7 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - Admin sidebar (v4.44.74): "Work Blueprint" group replaces JDC/WBW under Content; items: Converter, Wizard, Repository
 - Repository (v4.44.74): Standalone admin tab for browsing/viewing/exporting/deleting saved Work Blueprints; loads from Firestore `work_blueprints` subcollection; "Edit in Converter" loads blueprint into JDC for modification
 - UX Flow (v4.44.80): Converter defaults to edit mode after first conversion; Repository → Edit opens directly in edit mode (no extra click); "Save to Repository" shows "Save" when editing from repo; after save, navigates back to Repository tab; AI value descriptions (per-value wand button or bulk "AI Fill Descriptions" button) generate professional descriptions via Claude Haiku; `_jdcFromRepo` flag tracks source for context-aware UI
+- Stability (v4.44.81): Double-click save protection (`_jdcSaving` guard flag prevents duplicate Firestore writes); removed useless `catch(e) { throw e; }` no-ops in Himalayas/Jobicy fetch functions
 
 ## Stability (v4.44.70)
 - Firestore save: 3-attempt retry with exponential backoff + localStorage backup
