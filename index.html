@@ -1,4 +1,4 @@
-<!-- v4.44.88 | 2026-02-26 | UX: opaque edit modal, value desc fallback, comp blinding in edit form, job graph offset -->
+<!-- v4.44.89 | 2026-02-26 | UX: fully opaque edit modal takeover, value desc fallback, comp blinding, job graph offset -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.88 - BUILD 20260226-ux-fixes
-        var BP_VERSION = 'v4.44.88';
+        // BLUEPRINT v4.44.89 - BUILD 20260226-modal-opaque
+        var BP_VERSION = 'v4.44.89';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -9884,10 +9884,9 @@
             if (existing) existing.remove();
             var overlay = document.createElement('div');
             overlay.id = 'wbRepoEditOverlay';
-            overlay.style.cssText = 'position:fixed; inset:0; z-index:99999; background:var(--c-bg); display:flex; align-items:flex-start; justify-content:center; padding:30px 20px; overflow-y:auto;';
-            overlay.onclick = function(e) { if (e.target === overlay) wbRepoEditCancel(); };
+            overlay.style.cssText = 'position:fixed; inset:0; z-index:99999; background:var(--c-bg); overflow-y:auto;';
             var modal = document.createElement('div');
-            modal.style.cssText = 'width:100%; max-width:900px; background:var(--c-bg); border:1px solid var(--c-surface-5); border-radius:16px; padding:28px; box-shadow:0 12px 40px rgba(0,0,0,0.4); max-height:90vh; overflow-y:auto;';
+            modal.style.cssText = 'width:100%; max-width:900px; margin:0 auto; padding:28px 28px 60px 28px;';
             var formHtml = renderJDCEditForm(_jdcResult, {
                 saveFn: 'wbRepoEditSave()',
                 cancelFn: 'wbRepoEditCancel()',
