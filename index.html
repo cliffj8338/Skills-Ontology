@@ -1,4 +1,4 @@
-<!-- v4.44.49 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
+<!-- v4.44.50 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.49 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
+    <!-- v4.44.50 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.49 - BUILD 20260226-ui-about-modal-widow
-        var BP_VERSION = 'v4.44.49';
+        // BLUEPRINT v4.44.50 - BUILD 20260226-fix-jobs-cache-limit
+        var BP_VERSION = 'v4.44.50';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2035,7 +2035,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-ui-about-modal-widow                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-fix-jobs-cache-limit               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -25874,7 +25874,7 @@ body {
             // Load cached jobs
             fbDb.collection('jobs')
                 .orderBy('syncedAt', 'desc')
-                .limit(15000)
+                .limit(10000)
                 .get()
                 .then(function(snapshot) {
                     jobsCacheData = [];
