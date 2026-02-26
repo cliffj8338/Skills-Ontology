@@ -1,4 +1,4 @@
-<!-- v4.44.51 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
+<!-- v4.44.52 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.51 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
+    <!-- v4.44.52 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.51 - BUILD 20260226-roadmap-audit-p3-2-p3-3
-        var BP_VERSION = 'v4.44.51';
+        // BLUEPRINT v4.44.52 - BUILD 20260226-completeness-shortcuts-lastsaved
+        var BP_VERSION = 'v4.44.52';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2035,7 +2035,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-roadmap-audit-p3-2-p3-3               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-completeness-shortcuts-lastsaved               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -2708,8 +2708,9 @@
                         console.log('☁ Saved to Firestore' + (attempt > 1 ? ' (retry ' + (attempt - 1) + ')' : ''));
                         recordApiHealth('firebase-db', 'ok', 'Operational');
                         _clearSaveBackup();
+                        window._lastSavedAt = new Date();
                         var si = document.getElementById('saveIndicator');
-                        if (si) { si.innerHTML = bpIcon('check',12) + ' Saved'; si.style.opacity = '1'; si.style.color = '#10b981'; setTimeout(function() { si.style.opacity = '0'; }, 2500); }
+                        if (si) { si.innerHTML = bpIcon('check',12) + ' Saved'; si.style.opacity = '1'; si.style.color = '#10b981'; setTimeout(function() { updateLastSavedDisplay(); }, 2500); }
                         return true;
                     })
                     .catch(function(err) {
@@ -2732,6 +2733,42 @@
             return attemptSave(1);
         }
         window.saveToFirestore = saveToFirestore;
+        
+        // ===== LAST SAVED DISPLAY =====
+        function updateLastSavedDisplay() {
+            var si = document.getElementById('saveIndicator');
+            if (!si || !window._lastSavedAt) { if (si) si.style.opacity = '0'; return; }
+            var now = new Date();
+            var diff = Math.round((now - window._lastSavedAt) / 1000);
+            var label = diff < 10 ? 'just now' : diff < 60 ? diff + 's ago' : diff < 3600 ? Math.floor(diff / 60) + 'm ago' : Math.floor(diff / 3600) + 'h ago';
+            si.innerHTML = bpIcon('clock', 10) + ' ' + label;
+            si.style.color = 'var(--text-muted)';
+            si.style.opacity = '0.6';
+        }
+        setInterval(updateLastSavedDisplay, 30000);
+        
+        // ===== KEYBOARD SHORTCUTS =====
+        document.addEventListener('keydown', function(e) {
+            // Skip if typing in an input, textarea, or contenteditable
+            var tag = (e.target.tagName || '').toLowerCase();
+            if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+            // Skip if modal is open
+            var exportModal = document.getElementById('exportModal');
+            if (exportModal && exportModal.style.display !== 'none' && exportModal.style.display !== '') return;
+            // Skip if tour is active
+            if (window._bpTour && document.querySelector('.tour-overlay')) return;
+            
+            if (e.altKey || e.ctrlKey || e.metaKey) return;
+            
+            switch (e.key) {
+                case '1': e.preventDefault(); switchView('skills'); break;
+                case '2': e.preventDefault(); switchView('jobs'); break;
+                case '3': e.preventDefault(); switchView('blueprint'); break;
+                case '4': e.preventDefault(); switchView('reports'); break;
+                case '5': e.preventDefault(); switchView('settings'); break;
+                case '?': e.preventDefault(); if (typeof showHelp === 'function') showHelp(); break;
+            }
+        });
 
         function loadUserFromFirestore(uid) {
             if (!fbDb) return Promise.resolve(false);
@@ -2851,6 +2888,7 @@
                     console.log('✓ Loaded from Firestore:', skillCount, 'skills | admin:', fbIsAdmin, '| mode:', appMode);
                     recordApiHealth('firebase-db', 'ok', 'Operational');
                     recordApiHealth('firebase-auth', 'ok', 'Authenticated');
+                    window._lastSavedAt = new Date();
                     
                     // If empty profile, prompt to build
                     if (skillCount === 0) {
@@ -4311,7 +4349,10 @@
                         { id: 'p2-4b', name: 'Mobile network layout optimization', status: 'done', category: 'ux', priority: 'high', notes: 'v4.44.40-42: Hub/name nodes repositioned to upper-right on mobile across all 4 views. Match view: name and job hubs fully separated (upper-right vs upper-left). You view: forces tightened, height accounts for match toggle row. Desktop unchanged.' },
                         { id: 'p2-4c', name: 'Verification API deployment', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.44.29: Serverless /api/verify.js deployed to Vercel with Firebase Admin SDK env vars. GET returns pending records, POST writes verifier response. Token-based auth, no sign-in required for verifiers.' },
                         { id: 'p2-4d', name: 'Showcase profile export + deploy', status: 'planned', category: 'feature', priority: 'high', notes: 'Run export-showcase.js in browser console while signed in. Place downloaded JSON at profiles/showcase/admin-demo.json. Verify ?showcase=blueprint-demo-2026 URL works end-to-end.' },
-                        { id: 'p2-4e', name: 'Verifier email notifications', status: 'planned', category: 'feature', priority: 'medium', notes: 'Send email when verification is completed. Requires email provider decision (SendGrid, Resend, etc.) and serverless function update.' }
+                        { id: 'p2-4e', name: 'Verifier email notifications', status: 'planned', category: 'feature', priority: 'medium', notes: 'Send email when verification is completed. Requires email provider decision (SendGrid, Resend, etc.) and serverless function update.' },
+                        { id: 'p2-4f', name: 'Expanded profile completeness (7 items)', status: 'done', category: 'feature', priority: 'low', notes: 'v4.44.52: Dashboard readiness ring expanded from 5→7 items. Added work history and education tracking alongside skills, outcomes, values, purpose, and jobs.' },
+                        { id: 'p2-4g', name: 'Keyboard shortcuts', status: 'done', category: 'feature', priority: 'low', notes: 'v4.44.52: Global keyboard navigation. 1-5 for nav tabs (Skills/Jobs/Blueprint/Reports/Settings), ? for help. Disabled in inputs, modals, and during tours.' },
+                        { id: 'p2-4h', name: 'Last saved indicator', status: 'done', category: 'feature', priority: 'low', notes: 'v4.44.52: Persistent timestamp in header showing time since last Firestore sync. Updates every 30s. Shows "just now" → "Xs ago" → "Xm ago" → "Xh ago". Replaces brief flash-and-fade.' }
                     ]
                 },
                 {
@@ -17489,6 +17530,12 @@ body {
             else completeness.push({ label: 'Write purpose statement', done: false, action: '' });
             if (savedJobs.length > 0) completeness.push({ label: 'Jobs tracked', done: true, action: "switchView('jobs')" });
             else completeness.push({ label: 'Add target jobs', done: false, action: "switchView('jobs')" });
+            var workHistory = userData.workHistory || [];
+            if (workHistory.length > 0) completeness.push({ label: 'Work history added', done: true, action: "switchBlueprintTab('experience')" });
+            else completeness.push({ label: 'Add work history', done: false, action: "switchBlueprintTab('experience')" });
+            var education = userData.education || [];
+            if (education.length > 0) completeness.push({ label: 'Education added', done: true, action: "switchBlueprintTab('experience')" });
+            else completeness.push({ label: 'Add education', done: false, action: "switchBlueprintTab('experience')" });
             var doneCount = completeness.filter(function(c) { return c.done; }).length;
             var readinessPct = Math.round((doneCount / completeness.length) * 100);
             
