@@ -1,4 +1,4 @@
-<!-- v4.44.48 | 2026-02-26 | UI: Sample Blueprints header, tour finish → samples -->
+<!-- v4.44.48 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.48 | 2026-02-26 | UI: Sample Blueprints header, tour finish → samples -->
+    <!-- v4.44.48 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -694,7 +694,7 @@
                 <div style="height:1px; background:var(--border); margin:4px 0;"></div>
                 <button onclick="showHelp(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="help"></span> Help</button>
                 <button onclick="if(window._bpTour) window._bpTour.startWelcome(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="compass"></span> Take a Tour</button>
-                <button onclick="showAbout(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="about"></span> About</button>
+                <button onclick="showAbout(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="about"></span> Why Blueprint</button>
                 <button onclick="sendFeedback('menu'); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="edit"></span> Give Feedback</button>
                 <div style="height:1px; background:var(--border); margin:4px 0;"></div>
                 <button id="overflowSignIn" onclick="showAuthModal('signin'); closeOverflowMenu();" style="color: var(--accent);" class="overflow-icon-btn"><span class="overflow-icon" data-icon="sign-in"></span> Sign In</button>
@@ -1481,7 +1481,7 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.48 - BUILD 20260226-ui-sample-header-tour
+        // BLUEPRINT v4.44.48 - BUILD 20260226-ui-welcome-ctas
         var BP_VERSION = 'v4.44.48';
         
         // ===== AI COST & USAGE TRACKING =====
@@ -2035,7 +2035,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-ui-sample-header-tour              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-ui-welcome-ctas                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -7134,13 +7134,17 @@
                 + 'The system wasn\u2019t built to show your full value. So we built something that does. Blueprint gives you the complete picture \u2014 your skills, your worth, your direction \u2014 so you negotiate from strength and choose work that matters to you.</p>'
                 + '<div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:40px;">'
                 + '<button onclick="viewSampleProfile()" style="'
-                + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; '
+                + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; min-width:240px; text-align:center; '
                 + 'background:transparent; color:var(--accent); border:2px solid var(--accent); transition:all 0.2s;'
                 + '">' + bpIcon('users',16) + ' See It In Action</button>'
                 + '<button onclick="' + (appMode === 'active' || appMode === 'invited' ? 'showOnboardingWizard()' : 'showWaitlist()') + '" style="'
-                + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; '
+                + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; min-width:240px; text-align:center; '
                 + 'background:var(--accent); color:#fff; border:2px solid var(--accent); transition:all 0.2s;'
                 + '">' + bpIcon('zap',16) + ' Build My Blueprint</button>'
+                + '<button onclick="showAbout()" style="'
+                + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; min-width:240px; text-align:center; '
+                + 'background:transparent; color:#10b981; border:2px solid #10b981; transition:all 0.2s;'
+                + '">' + bpIcon('about',16) + ' Why Blueprint</button>'
                 + '</div>'
                 + '</div>'
                 
