@@ -8825,10 +8825,11 @@
                 + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">5) Values & Purpose</span></div>'
                 + '<div style="display:grid; gap:10px;">';
             (data.values || []).forEach(function(v) {
+                var vDesc = v.desc || v.description || '';
                 html += '<div style="display:flex; gap:10px; align-items:flex-start; padding:10px 14px; background:var(--c-surface-2); border-radius:8px;">'
                     + '<span style="color:#fbbf24; flex-shrink:0; margin-top:2px;">' + bpIcon('check',14) + '</span>'
                     + '<div><strong style="color:' + headingColor + '; font-size:0.9em;">' + escapeHtml(v.name) + '</strong>'
-                    + '<span style="color:' + mutedColor + '; font-size:0.85em;"> \u2014 ' + escapeHtml(v.desc) + '</span></div></div>';
+                    + '<span style="color:' + mutedColor + '; font-size:0.85em;"> \u2014 ' + escapeHtml(vDesc) + '</span></div></div>';
             });
             html += '</div></div>';
 
@@ -9015,7 +9016,7 @@
             }
 
             addLine('VALUES & PURPOSE', 10, BLUE, true);
-            (d.values || []).forEach(function(v) { addLine(v.name + ' \u2014 ' + v.desc, 8, DARK); });
+            (d.values || []).forEach(function(v) { addLine(v.name + ' \u2014 ' + (v.desc || v.description || ''), 8, DARK); });
             y += 3;
 
             addLine('DEMONSTRATED EXPERIENCE', 10, BLUE, true);
@@ -9095,7 +9096,7 @@
                 if (d.certifications && d.certifications.length) h += '<p><strong>Certifications:</strong> ' + d.certifications.map(function(c) { return _esc(c); }).join(', ') + '</p>';
             }
             h += '<h2>Values &amp; Purpose</h2><ul>';
-            (d.values || []).forEach(function(v) { h += '<li><strong>' + _esc(v.name) + '</strong> &mdash; ' + _esc(v.desc) + '</li>'; });
+            (d.values || []).forEach(function(v) { h += '<li><strong>' + _esc(v.name) + '</strong> &mdash; ' + _esc(v.desc || v.description || '') + '</li>'; });
             h += '</ul>';
             h += '<h2>Demonstrated Experience</h2><ul>';
             (d.demonstrated.evidence || []).forEach(function(e) { h += '<li>' + _esc(e) + '</li>'; });
@@ -9137,6 +9138,12 @@
                 data.hiddenCompRows.splice(idx, 1);
             } else {
                 data.hiddenCompRows.push(key);
+            }
+            var modalOverlay = document.getElementById('wbRepoEditOverlay');
+            if (modalOverlay) {
+                _jdcSyncFormToState();
+                _wbRepoRenderEditModal();
+                return;
             }
             var container = document.getElementById('adminTabContent');
             if (container) {
@@ -9424,6 +9431,17 @@
             html += '<div><label style="' + labelStyle + '">Compensation</label>'
                 + '<input id="jdcEditCompensation" type="text" value="' + escapeHtml(compVal) + '" placeholder="e.g. $100,000 - $120,000" style="' + fieldStyle + '" /></div>';
             html += '</div>';
+            if (data.bls) {
+                var editHiddenPcts = data.hiddenCompRows || [];
+                html += '<div style="margin-bottom:16px;"><label style="' + labelStyle + '">Comp Export Blinding</label>'
+                    + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+                [{ key: 'pct10', label: '10th' }, { key: 'pct25', label: '25th' }, { key: 'median', label: '50th' }, { key: 'pct75', label: '75th' }, { key: 'pct90', label: '90th' }].forEach(function(p) {
+                    var isHidden = editHiddenPcts.indexOf(p.key) !== -1;
+                    html += '<button onclick="toggleCompBlinding(\'' + p.key + '\')" style="display:flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:0.78em; font-weight:600; border:1px solid ' + (isHidden ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)') + '; background:' + (isHidden ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)') + '; color:' + (isHidden ? '#ef4444' : '#10b981') + ';">'
+                        + bpIcon(isHidden ? 'eye-off' : 'eye', 12) + ' ' + p.label + (isHidden ? ' (hidden)' : '') + '</button>';
+                });
+                html += '</div><div style="font-size:0.68em; color:var(--text-muted); margin-top:4px;">Toggle which percentile rows appear on PDF/Word exports</div></div>';
+            }
 
             html += '<div style="margin-bottom:16px;"><label style="' + labelStyle + '">Work Summary</label>'
                 + '<textarea id="jdcEditSummary" style="' + fieldStyle + ' min-height:120px; resize:vertical; line-height:1.6;">' + escapeHtml(data.summary || '') + '</textarea></div>';
@@ -9534,7 +9552,7 @@
                 + '</div>';
             (data.values || []).forEach(function(v, vi) {
                 var valName = typeof v === 'string' ? v : (v.name || '');
-                var valDesc = typeof v === 'object' ? (v.description || '') : '';
+                var valDesc = typeof v === 'object' ? (v.description || v.desc || '') : '';
                 html += '<div style="display:flex; gap:8px; margin-bottom:6px; align-items:center;">'
                     + '<input id="jdcEditValName' + vi + '" type="text" value="' + escapeHtml(valName) + '" placeholder="Value name" style="' + fieldStyle + ' max-width:200px; font-weight:600;" />'
                     + '<input id="jdcEditValDesc' + vi + '" type="text" value="' + escapeHtml(valDesc) + '" placeholder="Description" style="' + fieldStyle + ' flex:1;" />'
@@ -9866,7 +9884,7 @@
             if (existing) existing.remove();
             var overlay = document.createElement('div');
             overlay.id = 'wbRepoEditOverlay';
-            overlay.style.cssText = 'position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.6); display:flex; align-items:flex-start; justify-content:center; padding:30px 20px; overflow-y:auto;';
+            overlay.style.cssText = 'position:fixed; inset:0; z-index:99999; background:var(--c-bg); display:flex; align-items:flex-start; justify-content:center; padding:30px 20px; overflow-y:auto;';
             overlay.onclick = function(e) { if (e.target === overlay) wbRepoEditCancel(); };
             var modal = document.createElement('div');
             modal.style.cssText = 'width:100%; max-width:900px; background:var(--c-bg); border:1px solid var(--c-surface-5); border-radius:16px; padding:28px; box-shadow:0 12px 40px rgba(0,0,0,0.4); max-height:90vh; overflow-y:auto;';
@@ -17293,9 +17311,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             svg.selectAll("*").remove();
             if (simulation) simulation.stop();
             
-            // Center node = the job title — pinned upper-right on mobile for spacing
-            var centerX = isMobile ? width * 0.68 : width * 0.42;
-            var centerY = isMobile ? height * 0.18 : height * 0.35;
+            var centerX = isMobile ? width * 0.68 : width * 0.18;
+            var centerY = isMobile ? height * 0.18 : height * 0.22;
             var maxTitleLen = isMobile ? 20 : 30;
             var truncTitle = (job.title || "Job").length > maxTitleLen ? (job.title || "Job").substring(0, maxTitleLen - 2) + '\u2026' : (job.title || "Job");
             var nodes = [
