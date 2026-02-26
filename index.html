@@ -6151,6 +6151,7 @@
         var _jdcBulkViewIdx = -1;
 
         var _wbw = { step: 1, company: '', title: '', seniority: 'mid', location: '', department: '', reportsTo: '', employmentType: 'Full-time', schedule: '', travel: '', industry: '', compensationRange: '', companyResearch: null, researchLoading: false, socResult: null, skills: [], bls: null, yearsRequired: [], education: [], certifications: [], qualifications: [], selectedValues: [], summary: '', keyResponsibilities: [], demonstrated: null };
+        var _wbwEditMode = false;
 
         function renderWBWizard(el) {
             var s = _wbw;
@@ -6801,23 +6802,33 @@
             var html = '<div style="' + _wbwCardStyle + '">';
             html += '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.1em; color:var(--c-heading-bold); margin-bottom:16px;">'
                 + bpIcon('check',18) + ' Step 5: Review & Finish</div>';
-            html += '<div style="font-size:0.82em; color:var(--c-muted); margin-bottom:14px;">Review your Work Blueprint. Edit the summary below, then save or export.</div>';
-
-            html += '<div style="margin-bottom:16px;"><label style="' + _wbwLabelStyle + '">Work Summary</label>'
-                + '<textarea id="wbwSummary" style="' + _wbwFieldStyle + ' min-height:100px; resize:vertical; line-height:1.6;">' + escapeHtml(s.summary) + '</textarea></div>';
+            html += '<div style="font-size:0.82em; color:var(--c-muted); margin-bottom:14px;">Review your Work Blueprint. Click Edit to modify any field before saving or exporting.</div>';
 
             var finalData = _wbwBuildResult();
-            html += renderWorkBlueprint(finalData, true, { hideButtons: true });
+
+            if (_wbwEditMode) {
+                html += _wbwRenderEditForm(finalData);
+            } else {
+                html += '<div style="margin-bottom:16px;"><label style="' + _wbwLabelStyle + '">Work Summary</label>'
+                    + '<textarea id="wbwSummary" style="' + _wbwFieldStyle + ' min-height:100px; resize:vertical; line-height:1.6;">' + escapeHtml(s.summary) + '</textarea></div>';
+                html += renderWorkBlueprint(finalData, true, { hideButtons: true });
+            }
 
             html += '</div>';
 
             html += '<div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">'
-                + '<button onclick="wbwGoStep(4)" style="padding:10px 20px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('arrow-left',14) + ' Back</button>'
-                + '<button onclick="wbwFinish(\'json\')" style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('download',14) + ' Export JSON</button>'
-                + '<button onclick="wbwFinish(\'pdf\')" style="padding:10px 20px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('download',14) + ' Export PDF</button>'
-                + '<button onclick="wbwFinish(\'word\')" style="padding:10px 20px; background:#2563eb; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('download',14) + ' Export Word</button>';
-            if (typeof fbUser !== 'undefined' && fbUser) {
-                html += '<button onclick="wbwFinish(\'save\')" style="padding:10px 20px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' Save to Repository</button>';
+                + '<button onclick="wbwGoStep(4)" style="padding:10px 20px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('arrow-left',14) + ' Back</button>';
+            if (_wbwEditMode) {
+                html += '<button onclick="wbwSaveEditAndPreview()" style="padding:10px 20px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('check',14) + ' Apply Edits</button>'
+                    + '<button onclick="_wbwEditMode=false; renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:10px 20px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Cancel</button>';
+            } else {
+                html += '<button onclick="_wbwEditMode=true; renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:10px 20px; background:#f59e0b; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('edit',14) + ' Edit</button>'
+                    + '<button onclick="wbwFinish(\'json\')" style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('download',14) + ' Export JSON</button>'
+                    + '<button onclick="wbwFinish(\'pdf\')" style="padding:10px 20px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('download',14) + ' Export PDF</button>'
+                    + '<button onclick="wbwFinish(\'word\')" style="padding:10px 20px; background:#2563eb; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('download',14) + ' Export Word</button>';
+                if (typeof fbUser !== 'undefined' && fbUser) {
+                    html += '<button onclick="wbwFinish(\'save\')" style="padding:10px 20px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' Save to Repository</button>';
+                }
             }
             html += '<button onclick="wbwReset()" style="padding:10px 20px; background:var(--c-surface-3); color:#ef4444; border:1px solid #ef444440; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Start Over</button>'
                 + '</div>';
@@ -6886,6 +6897,152 @@
             };
         }
 
+        function _wbwRenderEditForm(data) {
+            var fs = _wbwFieldStyle;
+            var ls = _wbwLabelStyle;
+            var html = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px;">';
+            html += '<div style="grid-column:1/-1;"><label style="' + ls + '">Role Title</label><input id="wbwEditTitle" type="text" value="' + escapeHtml(data.title || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Company</label><input id="wbwEditCompany" type="text" value="' + escapeHtml(data.company || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Location</label><input id="wbwEditLocation" type="text" value="' + escapeHtml(data.location || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Department</label><input id="wbwEditDepartment" type="text" value="' + escapeHtml(data.department || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Reports To</label><input id="wbwEditReportsTo" type="text" value="' + escapeHtml(data.reportsTo || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Employment Type</label><select id="wbwEditEmploymentType" style="' + fs + '">';
+            ['Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship'].forEach(function(t) {
+                html += '<option' + (data.employmentType === t ? ' selected' : '') + '>' + t + '</option>';
+            });
+            html += '</select></div>';
+            html += '<div><label style="' + ls + '">Seniority</label><select id="wbwEditSeniority" style="' + fs + '">';
+            [{ v: 'entry', l: 'Entry' }, { v: 'mid', l: 'Mid' }, { v: 'senior', l: 'Senior' }, { v: 'director', l: 'Director' }, { v: 'executive', l: 'Executive' }].forEach(function(o) {
+                html += '<option value="' + o.v + '"' + (data.seniority === o.v ? ' selected' : '') + '>' + o.l + '</option>';
+            });
+            html += '</select></div>';
+            html += '<div><label style="' + ls + '">Schedule</label><input id="wbwEditSchedule" type="text" value="' + escapeHtml(data.schedule || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Travel</label><input id="wbwEditTravel" type="text" value="' + escapeHtml(data.travel || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Industry</label><input id="wbwEditIndustry" type="text" value="' + escapeHtml(data.industry || '') + '" style="' + fs + '" /></div>';
+            html += '<div style="grid-column:1/-1;"><label style="' + ls + '">Compensation</label><input id="wbwEditCompensation" type="text" value="' + escapeHtml(data.compensationRange || '') + '" style="' + fs + '" /></div>';
+            html += '</div>';
+
+            html += '<div style="margin-bottom:16px;"><label style="' + ls + '">Work Summary</label>'
+                + '<textarea id="wbwEditSummary" style="' + fs + ' min-height:120px; resize:vertical; line-height:1.6;">' + escapeHtml(data.summary || '') + '</textarea></div>';
+
+            html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px;">';
+            html += '<div><label style="' + ls + '">Years of Experience</label>';
+            (_wbw.yearsRequired || []).forEach(function(yr, i) {
+                html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
+                    + '<input id="wbwEditYearsRange' + i + '" type="text" value="' + escapeHtml(yr.range) + '" placeholder="3-5" style="' + fs + ' max-width:80px;" />'
+                    + '<input id="wbwEditYearsArea' + i + '" type="text" value="' + escapeHtml(yr.area) + '" placeholder="Area" style="' + fs + '" /></div>';
+            });
+            html += '<button onclick="_wbw.yearsRequired.push({range:\'\',area:\'\'});renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
+
+            html += '<div><label style="' + ls + '">Education</label>';
+            (_wbw.education || []).forEach(function(ed, i) {
+                html += '<div style="display:flex; gap:8px; align-items:center; margin-bottom:4px;">'
+                    + '<select id="wbwEditEdLevel' + i + '" style="' + fs + ' max-width:160px;">';
+                ["High School", "Associate's", "Bachelor's", "Master's", "Master's/MBA", "Doctorate", "Professional", "Other"].forEach(function(lv) {
+                    html += '<option' + (ed.level === lv ? ' selected' : '') + '>' + lv + '</option>';
+                });
+                html += '</select>'
+                    + '<input id="wbwEditEdField' + i + '" type="text" value="' + escapeHtml(ed.field) + '" placeholder="Field" style="' + fs + '" />'
+                    + '<label style="display:flex; align-items:center; gap:3px; font-size:0.75em; color:var(--c-muted); white-space:nowrap;"><input type="checkbox" id="wbwEditEdPref' + i + '"' + (ed.preferred ? ' checked' : '') + ' /> Pref</label></div>';
+            });
+            html += '<button onclick="_wbw.education.push({level:\'Bachelor\\\'s\',field:\'\',preferred:false});renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
+            html += '</div>';
+
+            html += '<div style="margin-bottom:16px;"><label style="' + ls + '">Certifications</label>'
+                + '<div style="position:relative;">'
+                + '<input id="wbwEditCertSearch" type="text" placeholder="Search or type certification..." style="' + fs + '" oninput="wbwEditSearchCerts(this.value)" onkeydown="if(event.key===\'Enter\'){event.preventDefault();var v=this.value.trim();if(v)wbwEditAddCert(v);}" autocomplete="off" />'
+                + '<div id="wbwEditCertDropdown" style="display:none; position:absolute; top:100%; left:0; right:0; max-height:200px; overflow-y:auto; background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:0 0 8px 8px; z-index:10; box-shadow:0 4px 12px rgba(0,0,0,0.3);"></div></div>'
+                + '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">';
+            (_wbw.certifications || []).forEach(function(cert, ci) {
+                html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; background:var(--c-surface-2); color:var(--c-heading); font-size:0.82em; font-weight:500;">'
+                    + escapeHtml(cert)
+                    + '<button onclick="_wbw.certifications.splice(' + ci + ',1);renderWBWizard(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.1em; padding:0 2px; line-height:1;">&times;</button></span>';
+            });
+            html += '</div></div>';
+
+            html += '<div style="margin-bottom:16px;"><label style="' + ls + '">Qualifications</label>';
+            (_wbw.qualifications || []).forEach(function(q, qi) {
+                html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
+                    + '<input id="wbwEditQual' + qi + '" type="text" value="' + escapeHtml(q) + '" style="' + fs + ' flex:1;" />'
+                    + '<button onclick="_wbw.qualifications.splice(' + qi + ',1);renderWBWizard(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
+            });
+            html += '<button onclick="_wbw.qualifications.push(\'\');renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
+
+            return html;
+        }
+
+        function wbwEditSearchCerts(query) {
+            var dropdown = document.getElementById('wbwEditCertDropdown');
+            if (!dropdown) return;
+            if (!query || query.length < 2) { dropdown.style.display = 'none'; return; }
+            var q = query.toLowerCase();
+            var lib = _wbwCertLibrary || [];
+            var existing = _wbw.certifications.map(function(c) { return c.toLowerCase(); });
+            var matches = lib.filter(function(c) {
+                return (c.name.toLowerCase().indexOf(q) !== -1 || (c.abbr && c.abbr.toLowerCase().indexOf(q) !== -1))
+                    && existing.indexOf(c.name.toLowerCase()) === -1;
+            }).slice(0, 12);
+            var html = '';
+            matches.forEach(function(c) {
+                var displayName = escapeHtml(c.name) + (c.abbr ? ' <span style="color:var(--c-muted); font-size:0.85em;">(' + escapeHtml(c.abbr) + ')</span>' : '');
+                html += '<div onclick="wbwEditAddCert(\'' + escapeHtml(c.name).replace(/'/g, "\\'") + '\')" style="padding:8px 12px; cursor:pointer; font-size:0.88em; border-bottom:1px solid var(--c-surface-3); color:var(--c-heading);" onmouseover="this.style.background=\'var(--c-surface-3)\'" onmouseout="this.style.background=\'transparent\'">'
+                    + displayName + '</div>';
+            });
+            if (matches.length === 0) {
+                html += '<div onclick="wbwEditAddCert(\'' + escapeHtml(query).replace(/'/g, "\\'") + '\')" style="padding:8px 12px; cursor:pointer; font-size:0.88em; color:var(--accent);">'
+                    + bpIcon('plus',12) + ' Add "' + escapeHtml(query) + '"</div>';
+            }
+            dropdown.innerHTML = html;
+            dropdown.style.display = html ? 'block' : 'none';
+        }
+        window.wbwEditSearchCerts = wbwEditSearchCerts;
+
+        function wbwEditAddCert(name) {
+            if (name && _wbw.certifications.indexOf(name) === -1) _wbw.certifications.push(name);
+            renderWBWizard(document.getElementById('adminTabContent'));
+        }
+        window.wbwEditAddCert = wbwEditAddCert;
+
+        function wbwSaveEditAndPreview() {
+            var g = function(id) { var el = document.getElementById(id); return el ? el.value : ''; };
+            _wbw.title = g('wbwEditTitle') || _wbw.title;
+            _wbw.company = g('wbwEditCompany');
+            _wbw.location = g('wbwEditLocation');
+            _wbw.department = g('wbwEditDepartment');
+            _wbw.reportsTo = g('wbwEditReportsTo');
+            _wbw.employmentType = g('wbwEditEmploymentType') || 'Full-time';
+            _wbw.seniority = g('wbwEditSeniority') || 'mid';
+            _wbw.schedule = g('wbwEditSchedule');
+            _wbw.travel = g('wbwEditTravel');
+            _wbw.industry = g('wbwEditIndustry');
+            _wbw.compensationRange = g('wbwEditCompensation');
+            _wbw.summary = g('wbwEditSummary') || _wbw.summary;
+
+            _wbw.yearsRequired = [];
+            for (var yi = 0; yi < 10; yi++) {
+                var yr = g('wbwEditYearsRange' + yi);
+                var ya = g('wbwEditYearsArea' + yi);
+                if (yr) _wbw.yearsRequired.push({ range: yr.trim(), area: (ya || '').trim() });
+            }
+            _wbw.education = [];
+            for (var ei = 0; ei < 10; ei++) {
+                var elv = g('wbwEditEdLevel' + ei);
+                var efld = g('wbwEditEdField' + ei);
+                var epref = (document.getElementById('wbwEditEdPref' + ei) || {}).checked || false;
+                if (elv) _wbw.education.push({ level: elv, field: (efld || '').trim(), preferred: epref });
+            }
+            _wbw.qualifications = [];
+            for (var qi = 0; qi < 20; qi++) {
+                var qv = g('wbwEditQual' + qi);
+                if (qv && qv.trim()) _wbw.qualifications.push(qv.trim());
+            }
+
+            _wbwEditMode = false;
+            renderWBWizard(document.getElementById('adminTabContent'));
+            showToast('Edits applied. Review your updated blueprint.', 'success');
+        }
+        window.wbwSaveEditAndPreview = wbwSaveEditAndPreview;
+
         function wbwFinish(mode) {
             var result = _wbwBuildResult();
             _jdcResult = result;
@@ -6898,6 +7055,7 @@
 
         function wbwReset() {
             if (!confirm('Start over? All wizard data will be cleared.')) return;
+            _wbwEditMode = false;
             _wbw = { step: 1, company: '', title: '', seniority: 'mid', location: '', department: '', reportsTo: '', employmentType: 'Full-time', schedule: '', travel: '', industry: '', compensationRange: '', companyResearch: null, researchLoading: false, socResult: null, skills: [], bls: null, yearsRequired: [], education: [], certifications: [], qualifications: [], selectedValues: [], summary: '', keyResponsibilities: [], demonstrated: null };
             renderWBWizard(document.getElementById('adminTabContent'));
         }
