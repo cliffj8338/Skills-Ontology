@@ -1,4 +1,4 @@
-<!-- v4.44.92 | 2026-02-26 | Fix: wbRepoEditCancel called nonexistent renderAdminWBRepository, double _jdcSyncFormToState on skill delete -->
+<!-- v4.44.93 | 2026-02-26 | AI skill outcomes (per-skill wand + bulk fill), comp table in edit form, edit panel fixes -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.92 - BUILD 20260226-edit-fix
-        var BP_VERSION = 'v4.44.92';
+        // BLUEPRINT v4.44.93 - BUILD 20260226-ai-outcomes
+        var BP_VERSION = 'v4.44.93';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1646,7 +1646,9 @@
             'purpose-regen':    { name: 'Purpose Statement',  inputTokens: 600,  outputTokens: 250,  desc: 'Regenerations' },
             'wb-company-research': { name: 'WB Company Research', inputTokens: 1500, outputTokens: 2000, desc: 'Per wizard run' },
             'wb-value-desc':    { name: 'WB Value Description', inputTokens: 400,  outputTokens: 200,  desc: 'Per value AI fill' },
-            'wb-value-desc-bulk': { name: 'WB Value Desc Bulk', inputTokens: 800,  outputTokens: 1500, desc: 'Bulk value fill' }
+            'wb-value-desc-bulk': { name: 'WB Value Desc Bulk', inputTokens: 800,  outputTokens: 1500, desc: 'Bulk value fill' },
+            'wb-skill-outcome':  { name: 'WB Skill Outcome',  inputTokens: 600,  outputTokens: 50,   desc: 'Per skill outcome fill' },
+            'wb-skill-outcome-bulk': { name: 'WB Skill Outcomes Bulk', inputTokens: 900, outputTokens: 1200, desc: 'Bulk skill outcome fill' }
         };
         
         // External API cost tracking (non-AI)
@@ -9324,6 +9326,90 @@
         }
         window.jdcAIFillOneValueDesc = jdcAIFillOneValueDesc;
 
+        async function jdcAIFillSkillOutcomes() {
+            _jdcSyncFormToState();
+            if (!_jdcResult || !_jdcResult.skills || _jdcResult.skills.length === 0) {
+                showToast('No skills to generate outcomes for.', 'warning');
+                return;
+            }
+            var missing = [];
+            _jdcResult.skills.forEach(function(s, i) {
+                if (s.name && s.name.trim() && (!s.outcome || !s.outcome.trim())) missing.push({ index: i, name: s.name });
+            });
+            if (missing.length === 0) {
+                showToast('All skills already have outcomes.', 'info');
+                return;
+            }
+            showToast('Generating outcomes for ' + missing.length + ' skill(s)...', 'info');
+            try {
+                var roleCtx = (_jdcResult.title || 'professional') + ' at ' + (_jdcResult.company || 'a company');
+                var industry = _jdcResult.industry ? ' in the ' + _jdcResult.industry + ' industry' : '';
+                var seniority = _jdcResult.seniority ? ' (seniority: ' + _jdcResult.seniority + ')' : '';
+                var skillNames = missing.map(function(m) { return m.name; }).join(', ');
+                var requestBody = {
+                    model: 'claude-haiku-4-5-20251001',
+                    max_tokens: 1500,
+                    messages: [{ role: 'user', content: 'For the role of "' + roleCtx + '"' + industry + seniority + ', write a concise one-sentence expected outcome for each of these skills. Each outcome should describe what success looks like when applying this skill in the role, using an action verb (e.g. Execute, Deliver, Manage, Apply, Lead). Return ONLY a JSON array of objects with "name" and "outcome" fields, no other text.\n\nSkills: ' + skillNames }]
+                };
+                var resp = await callAnthropicAPI(requestBody, null, 'wb-skill-outcome-bulk');
+                var text = (resp.content && resp.content[0] && resp.content[0].text) || '';
+                var jsonMatch = text.match(/\[[\s\S]*\]/);
+                if (!jsonMatch) throw new Error('Could not parse AI response');
+                var outcomes = JSON.parse(jsonMatch[0]);
+                var outcomeMap = {};
+                outcomes.forEach(function(o) { outcomeMap[o.name.toLowerCase()] = o.outcome; });
+                missing.forEach(function(m) {
+                    var generated = outcomeMap[m.name.toLowerCase()];
+                    if (generated && _jdcResult.skills[m.index]) {
+                        _jdcResult.skills[m.index].outcome = generated;
+                    }
+                });
+                var editPanel = document.getElementById('wbRepoEditOverlay');
+                if (editPanel) {
+                    _wbRepoRenderEditModal();
+                } else {
+                    renderAdminJDConverter(document.getElementById('adminTabContent'));
+                }
+                showToast('AI outcomes generated for ' + missing.length + ' skill(s).', 'success');
+            } catch (err) {
+                console.warn('AI skill outcome error:', err);
+                showToast('AI outcome generation failed: ' + err.message, 'error');
+            }
+        }
+        window.jdcAIFillSkillOutcomes = jdcAIFillSkillOutcomes;
+
+        async function jdcAIFillOneSkillOutcome(idx) {
+            _jdcSyncFormToState();
+            if (!_jdcResult || !_jdcResult.skills || !_jdcResult.skills[idx]) return;
+            var s = _jdcResult.skills[idx];
+            if (!s.name || !s.name.trim()) { showToast('Enter a skill name first.', 'warning'); return; }
+            var outcomeEl = document.getElementById('jdcEditSkillOutcome' + idx);
+            if (outcomeEl) outcomeEl.placeholder = 'Generating...';
+            try {
+                var roleCtx = (_jdcResult.title || 'professional') + ' at ' + (_jdcResult.company || 'a company');
+                var industry = _jdcResult.industry ? ' in the ' + _jdcResult.industry + ' industry' : '';
+                var seniority = _jdcResult.seniority ? ' (seniority: ' + _jdcResult.seniority + ')' : '';
+                var requestBody = {
+                    model: 'claude-haiku-4-5-20251001',
+                    max_tokens: 128,
+                    messages: [{ role: 'user', content: 'For the role of "' + roleCtx + '"' + industry + seniority + ', write a concise one-sentence expected outcome for this skill: "' + s.name + '". The outcome should describe what success looks like using an action verb (e.g. Execute, Deliver, Manage, Apply). Return ONLY the outcome text, nothing else.' }]
+                };
+                var resp = await callAnthropicAPI(requestBody, null, 'wb-skill-outcome');
+                var text = (resp.content && resp.content[0] && resp.content[0].text) || '';
+                text = text.replace(/^["'\s]+|["'\s]+$/g, '').trim();
+                if (text) {
+                    _jdcResult.skills[idx].outcome = text;
+                    if (outcomeEl) outcomeEl.value = text;
+                    showToast('Outcome generated for ' + s.name + '.', 'success');
+                }
+            } catch (err) {
+                console.warn('AI skill outcome error:', err);
+                showToast('AI failed: ' + err.message, 'error');
+                if (outcomeEl) outcomeEl.placeholder = 'Expected Outcome';
+            }
+        }
+        window.jdcAIFillOneSkillOutcome = jdcAIFillOneSkillOutcome;
+
         function jdcSearchCerts(query) {
             var dropdown = document.getElementById('jdcEditCertDropdown');
             if (!dropdown) return;
@@ -9442,7 +9528,30 @@
                     html += '<button onclick="toggleCompBlinding(\'' + p.key + '\')" style="display:flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:0.78em; font-weight:600; border:1px solid ' + (isHidden ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)') + '; background:' + (isHidden ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)') + '; color:' + (isHidden ? '#ef4444' : '#10b981') + ';">'
                         + bpIcon(isHidden ? 'eye-off' : 'eye', 12) + ' ' + p.label + (isHidden ? ' (hidden)' : '') + '</button>';
                 });
-                html += '</div><div style="font-size:0.68em; color:var(--text-muted); margin-top:4px;">Toggle which percentile rows appear on PDF/Word exports</div></div>';
+                html += '</div><div style="font-size:0.68em; color:var(--text-muted); margin-top:4px;">Toggle which percentile rows appear on PDF/Word exports</div>';
+                var editHiddenPcts2 = data.hiddenCompRows || [];
+                html += '<table style="width:100%; border-collapse:collapse; font-size:0.8em; margin-top:10px; max-width:600px;">'
+                    + '<thead><tr style="border-bottom:1px solid ' + borderColor + ';">'
+                    + '<th style="text-align:left; padding:4px 8px; color:#10b981; font-weight:600; font-size:0.9em;">Percentile</th>'
+                    + '<th style="text-align:right; padding:4px 8px; color:#10b981; font-weight:600; font-size:0.9em;">Annual</th>'
+                    + '<th style="text-align:left; padding:4px 8px; color:var(--text-muted); font-weight:600; font-size:0.9em;">Notes</th>'
+                    + '</tr></thead><tbody>';
+                [
+                    { key: 'pct10', label: '10th', val: data.bls.pct10, note: 'Entry-level' },
+                    { key: 'pct25', label: '25th', val: data.bls.pct25, note: 'Below median' },
+                    { key: 'median', label: '50th (Median)', val: data.bls.median, note: 'National median' },
+                    { key: 'pct75', label: '75th', val: data.bls.pct75, note: 'Experienced' },
+                    { key: 'pct90', label: '90th', val: data.bls.pct90, note: 'Top tier' }
+                ].forEach(function(p, i) {
+                    var hidden = editHiddenPcts2.indexOf(p.key) !== -1;
+                    html += '<tr style="' + (hidden ? 'opacity:0.35;' : '') + (i % 2 === 1 ? 'background:var(--c-surface-2);' : '') + '">'
+                        + '<td style="padding:4px 8px; color:var(--c-heading);">' + p.label + '</td>'
+                        + '<td style="padding:4px 8px; text-align:right; color:#10b981; font-weight:600;">' + (hidden ? '<s>$' + (p.val || 0).toLocaleString() + '</s>' : '$' + (p.val || 0).toLocaleString()) + '</td>'
+                        + '<td style="padding:4px 8px; color:var(--text-muted);">' + p.note + '</td></tr>';
+                });
+                html += '</tbody></table>'
+                    + '<div style="font-size:0.65em; color:var(--c-faint); margin-top:4px;">Source: BLS OEWS ' + (data.bls.source || 'May 2024') + ' · SOC: ' + escapeHtml(data.bls.soc || '') + '</div>';
+                html += '</div>';
             }
 
             html += '<div style="margin-bottom:16px;"><label style="' + labelStyle + '">Work Summary</label>'
@@ -9498,6 +9607,7 @@
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                 + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">'
                 + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:var(--c-heading-bold);">' + bpIcon('skills',18) + ' Skills / Outcomes / Proficiency</span>'
+                + '<button onclick="jdcAIFillSkillOutcomes()" style="padding:4px 12px; background:rgba(96,165,250,0.15); color:var(--accent); border:1px solid rgba(96,165,250,0.3); border-radius:6px; cursor:pointer; font-size:0.75em; font-weight:600;" title="Use AI to fill in missing skill outcomes">' + bpIcon('wand',12) + ' AI Fill Outcomes</button>'
                 + '</div>';
             html += '<div style="overflow-x:auto;"><table style="width:100%; border-collapse:collapse; font-size:0.85em;">'
                 + '<thead><tr style="border-bottom:2px solid ' + borderColor + ';">'
@@ -9510,7 +9620,8 @@
             (data.skills || []).forEach(function(s, si) {
                 html += '<tr style="border-bottom:1px solid ' + borderColor + ';">'
                     + '<td style="padding:8px;"><input id="jdcEditSkillName' + si + '" type="text" value="' + escapeHtml(s.name) + '" style="' + fieldStyle + ' font-weight:600;" /></td>'
-                    + '<td style="padding:8px;"><input id="jdcEditSkillOutcome' + si + '" type="text" value="' + escapeHtml(s.outcome || '') + '" style="' + fieldStyle + '" /></td>'
+                    + '<td style="padding:8px;"><div style="display:flex; align-items:center; gap:4px;"><input id="jdcEditSkillOutcome' + si + '" type="text" value="' + escapeHtml(s.outcome || '') + '" style="' + fieldStyle + ' flex:1;" />'
+                    + '<button onclick="jdcAIFillOneSkillOutcome(' + si + ')" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size:0.9em; padding:0 3px; flex-shrink:0;" title="AI generate outcome">' + bpIcon('wand',13) + '</button></div></td>'
                     + '<td style="padding:8px;"><select id="jdcEditSkillLevel' + si + '" style="' + fieldStyle + '">';
                 profLevels.forEach(function(lv) {
                     html += '<option' + (s.blueprintLevel === lv ? ' selected' : '') + '>' + lv + '</option>';
