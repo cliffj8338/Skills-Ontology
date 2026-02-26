@@ -1,4 +1,4 @@
-<!-- v4.44.65 | 2026-02-26 | Fix: decode named entities before numeric for double-encoded API data -->
+<!-- v4.44.66 | 2026-02-26 | Pipeline preserves Find Jobs quickScore on add -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.65 | 2026-02-26 | Fix: decode named entities before numeric for double-encoded API data -->
+    <!-- v4.44.66 | 2026-02-26 | Pipeline preserves Find Jobs quickScore on add -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.65 - BUILD 20260226-entity-decode-order
-        var BP_VERSION = 'v4.44.65';
+        // BLUEPRINT v4.44.66 - BUILD 20260226-stable-pipeline-scores
+        var BP_VERSION = 'v4.44.66';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2068,7 +2068,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-entity-decode-order         ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-stable-pipeline-scores      ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -27378,11 +27378,11 @@ body {
             });
             if (exists) { showToast('Already in your pipeline.', 'warning'); return; }
             
-            // Parse skills from description for full matching
             var parsed = parseJobLocally(job.description || job.title);
             parsed.title = job.title;
             parsed.company = job.company;
             var matchData = matchJobToProfile(parsed);
+            matchData.score = job.matchScore || matchData.score;
             var blsSalary = matchJobToBLS(job.title, job.description || '');
             
             var pipelineJob = {
