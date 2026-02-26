@@ -8885,12 +8885,13 @@
             delete d._rawJD;
             d.generatedAt = d.generatedAt || new Date().toISOString();
             d.generatedBy = 'Blueprint Work Blueprint Converter';
+            return d;
+        }
+
+        function _jdcStripHiddenComp(d) {
             if (d.hiddenCompRows && d.hiddenCompRows.length > 0 && d.bls) {
                 d.bls = Object.assign({}, d.bls);
-                var keyMap = { pct10: 'pct10', pct25: 'pct25', median: 'median', pct75: 'pct75', pct90: 'pct90' };
-                d.hiddenCompRows.forEach(function(key) {
-                    if (keyMap[key]) delete d.bls[keyMap[key]];
-                });
+                d.hiddenCompRows.forEach(function(key) { delete d.bls[key]; });
                 delete d.hiddenCompRows;
             }
             return d;
@@ -8898,7 +8899,7 @@
 
         function exportWorkBlueprintJSON() {
             if (!_jdcResult) { showToast('No Work Blueprint to export.', 'warning'); return; }
-            var exportData = _jdcPrepareExport();
+            var exportData = _jdcStripHiddenComp(_jdcPrepareExport());
             var blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
             var a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
@@ -8911,7 +8912,7 @@
 
         function copyWorkBlueprintJSON() {
             if (!_jdcResult) { showToast('No Work Blueprint to copy.', 'warning'); return; }
-            var exportData = _jdcPrepareExport();
+            var exportData = _jdcStripHiddenComp(_jdcPrepareExport());
             navigator.clipboard.writeText(JSON.stringify(exportData, null, 2)).then(function() {
                 showToast('Work Blueprint JSON copied to clipboard.', 'success');
             }).catch(function() {
@@ -8929,106 +8930,236 @@
             }
             var jsPDF = (window.jspdf || jspdf).jsPDF;
             var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-            var W = 210, M = 15, CW = W - 2 * M, y = 15;
-            var BLUE = [96, 165, 250], DARK = [30, 41, 59], GRAY = [100, 116, 139], GREEN = [16, 185, 129];
+            var W = 210, M = 18, MR = W - M, CW = MR - M, y = 0;
+            var ACCENT = [59, 130, 246], DARK = [15, 23, 42], MID = [51, 65, 85], MUTED = [100, 116, 139];
+            var GREEN = [16, 185, 129], PURPLE = [139, 92, 246], WHITE = [255, 255, 255];
+            var hcr = d.hiddenCompRows || [];
 
-            function addLine(text, fontSize, color, bold, maxWidth) {
-                doc.setFontSize(fontSize || 10);
-                doc.setTextColor.apply(doc, color || DARK);
-                if (bold) doc.setFont('helvetica', 'bold'); else doc.setFont('helvetica', 'normal');
-                var lines = doc.splitTextToSize(text, maxWidth || CW);
-                if (y + lines.length * (fontSize || 10) * 0.45 > 280) { doc.addPage(); y = 15; }
-                doc.text(lines, M, y);
-                y += lines.length * (fontSize || 10) * 0.45 + 2;
+            function checkPage(need) { if (y + need > 280) { doc.addPage(); y = 12; } }
+            function wrappedText(text, x, fontSize, color, bold, maxW) {
+                doc.setFontSize(fontSize); doc.setTextColor.apply(doc, color);
+                doc.setFont('helvetica', bold ? 'bold' : 'normal');
+                var lines = doc.splitTextToSize(text || '', maxW || (MR - x));
+                checkPage(lines.length * fontSize * 0.4 + 2);
+                doc.text(lines, x, y);
+                y += lines.length * fontSize * 0.4 + 1;
                 return lines.length;
             }
+            function sectionHead(title, color) {
+                checkPage(14);
+                y += 4;
+                doc.setFillColor.apply(doc, color || ACCENT);
+                doc.roundedRect(M, y - 4, 3, 10, 1.5, 1.5, 'F');
+                doc.setFontSize(11); doc.setTextColor.apply(doc, color || ACCENT); doc.setFont('helvetica', 'bold');
+                doc.text(title, M + 6, y + 3);
+                y += 10;
+            }
+            function drawLine(x1, yPos, x2, color, width) {
+                doc.setDrawColor.apply(doc, color || [226, 232, 240]);
+                doc.setLineWidth(width || 0.3);
+                doc.line(x1, yPos, x2, yPos);
+            }
 
-            doc.setFillColor(30, 41, 59);
-            doc.rect(0, 0, W, 35, 'F');
-            doc.setFontSize(8); doc.setTextColor(96, 165, 250); doc.setFont('helvetica', 'bold');
-            doc.text('WORK BLUEPRINT', M, 12);
-            doc.setFontSize(16); doc.setTextColor(255, 255, 255);
-            doc.text(d.title || '', M, 22);
-            doc.setFontSize(9); doc.setTextColor(180, 190, 210); doc.setFont('helvetica', 'normal');
+            doc.setFillColor(15, 23, 42);
+            doc.rect(0, 0, W, 44, 'F');
+            doc.setFillColor(59, 130, 246);
+            doc.rect(0, 44, W, 1.5, 'F');
+
+            doc.setFontSize(7); doc.setTextColor(96, 165, 250); doc.setFont('helvetica', 'bold');
+            doc.text('WORK BLUEPRINT', M, 13);
+            doc.setDrawColor(96, 165, 250); doc.setLineWidth(0.3);
+            doc.line(M, 15, M + 30, 15);
+
+            doc.setFontSize(18); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold');
+            doc.text(d.title || 'Untitled Role', M, 26);
+
+            doc.setFontSize(9); doc.setTextColor(180, 190, 220); doc.setFont('helvetica', 'normal');
             var subParts = [];
             if (d.company) subParts.push(d.company);
-            subParts.push(d.location || 'Not specified');
+            if (d.location) subParts.push(d.location);
             if (d.employmentType) subParts.push(d.employmentType);
             if (d.seniority) subParts.push(d.seniority.charAt(0).toUpperCase() + d.seniority.slice(1));
-            doc.text(subParts.join(' \u00B7 '), M, 30);
-            y = 42;
+            doc.text(subParts.join('  \u00B7  '), M, 34);
+
+            if (d.industry) {
+                doc.setFontSize(7); doc.setTextColor(140, 160, 190);
+                doc.text(d.industry, M, 40);
+            }
+
+            y = 52;
 
             var logistics = [];
-            if (d.department) logistics.push('Department: ' + d.department);
-            if (d.reportsTo) logistics.push('Reports To: ' + d.reportsTo);
-            if (d.schedule) logistics.push('Schedule: ' + d.schedule);
-            if (d.travel) logistics.push('Travel: ' + d.travel);
-            if (d.industry) logistics.push('Industry: ' + d.industry);
+            if (d.department) logistics.push({ l: 'Department', v: d.department });
+            if (d.reportsTo) logistics.push({ l: 'Reports To', v: d.reportsTo });
+            if (d.schedule) logistics.push({ l: 'Schedule', v: d.schedule });
+            if (d.travel) logistics.push({ l: 'Travel', v: d.travel });
+            if (d.compensationRange || (d.compensation && d.compensation.range)) logistics.push({ l: 'Compensation', v: (d.compensation && d.compensation.range) || d.compensationRange });
             if (d.customFields && d.customFields.length > 0) {
                 d.customFields.forEach(function(cf) {
-                    if (cf.key && cf.value) logistics.push(cf.key + ': ' + cf.value);
+                    if (cf.key && cf.value) logistics.push({ l: cf.key, v: cf.value });
                 });
             }
             if (logistics.length > 0) {
-                addLine(logistics.join('  |  '), 8, GRAY);
+                doc.setFillColor(248, 250, 252);
+                doc.roundedRect(M, y - 4, CW, Math.ceil(logistics.length / 3) * 10 + 6, 2, 2, 'F');
+                var lx = M + 4, ly = y + 1;
+                logistics.forEach(function(item, i) {
+                    var col = i % 3, colW = (CW - 8) / 3;
+                    var cx = lx + col * colW;
+                    if (i > 0 && col === 0) ly += 10;
+                    doc.setFontSize(6); doc.setTextColor.apply(doc, MUTED); doc.setFont('helvetica', 'bold');
+                    doc.text(item.l.toUpperCase(), cx, ly);
+                    doc.setFontSize(8); doc.setTextColor.apply(doc, DARK); doc.setFont('helvetica', 'normal');
+                    doc.text((item.v || '').substring(0, 35), cx, ly + 4);
+                });
+                y += Math.ceil(logistics.length / 3) * 10 + 6;
+            }
+
+            sectionHead('Work Summary');
+            wrappedText(d.summary || '', M + 6, 9, MID, false, CW - 6);
+            y += 2;
+
+            if (d.keyResponsibilities && d.keyResponsibilities.length > 0) {
+                sectionHead('Key Responsibilities');
+                d.keyResponsibilities.forEach(function(cat) {
+                    wrappedText(cat.category, M + 6, 9, DARK, true, CW - 6);
+                    cat.items.forEach(function(item) {
+                        checkPage(6);
+                        doc.setFillColor(59, 130, 246); doc.circle(M + 8, y - 1, 0.8, 'F');
+                        wrappedText(item, M + 12, 8, MID, false, CW - 14);
+                    });
+                    y += 2;
+                });
+            }
+
+            sectionHead('Skills & Expected Outcomes');
+            var skills = d.skills || [];
+            if (skills.length > 0) {
+                var colSkill = M, colOutcome = M + 55, colProf = MR - 22;
+                checkPage(8);
+                doc.setFillColor(248, 250, 252);
+                doc.rect(M, y - 4, CW, 7, 'F');
+                doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+                doc.setTextColor.apply(doc, ACCENT);
+                doc.text('SKILL', colSkill + 2, y);
+                doc.text('EXPECTED OUTCOME', colOutcome, y);
+                doc.text('LEVEL', colProf, y);
+                y += 5;
+                drawLine(M, y, MR, [226, 232, 240], 0.5);
+                y += 3;
+
+                skills.forEach(function(s, i) {
+                    checkPage(10);
+                    if (i % 2 === 1) {
+                        doc.setFillColor(248, 250, 252);
+                        doc.rect(M, y - 4, CW, 8, 'F');
+                    }
+                    doc.setFontSize(8); doc.setTextColor.apply(doc, DARK); doc.setFont('helvetica', 'bold');
+                    doc.text((s.name || '').substring(0, 30), colSkill + 2, y);
+                    doc.setFont('helvetica', 'normal'); doc.setTextColor.apply(doc, MID);
+                    var outcomeLines = doc.splitTextToSize(s.outcome || '', colProf - colOutcome - 3);
+                    doc.text(outcomeLines.slice(0, 2), colOutcome, y);
+                    var lvl = s.blueprintLevel || 'Proficient';
+                    var lvlColor = lvl === 'Expert' || lvl === 'Mastery' ? GREEN : (lvl === 'Advanced' ? ACCENT : MUTED);
+                    doc.setFontSize(7); doc.setTextColor.apply(doc, lvlColor); doc.setFont('helvetica', 'bold');
+                    doc.text(lvl, colProf, y);
+                    y += Math.max(outcomeLines.slice(0, 2).length * 3.5, 6) + 2;
+                });
                 y += 2;
             }
 
-            addLine('WORK SUMMARY', 10, BLUE, true);
-            addLine(d.summary || '', 9, DARK, false);
-            y += 4;
-
-            if (d.keyResponsibilities && d.keyResponsibilities.length > 0) {
-                addLine('KEY RESPONSIBILITIES', 10, BLUE, true);
-                d.keyResponsibilities.forEach(function(cat) {
-                    addLine(cat.category, 9, DARK, true);
-                    cat.items.forEach(function(item) {
-                        addLine('\u2022 ' + item, 8, GRAY, false, CW - 5);
-                    });
-                    y += 1;
-                });
-                y += 3;
-            }
-
-            addLine('SKILLS / OUTCOMES / PROFICIENCY', 10, BLUE, true);
-            (d.skills || []).forEach(function(s) {
-                var lvl = s.blueprintLevel || 'Proficient';
-                addLine(s.name + '  [' + lvl + ']', 9, DARK, true);
-                if (s.outcome) addLine(s.outcome, 8, GRAY, false, CW - 5);
-            });
-            y += 3;
-
             if (d.bls) {
-                addLine('COMPENSATION (BLS)', 10, GREEN, true);
-                var hcr = d.hiddenCompRows || [];
-                var compParts = [];
-                if (hcr.indexOf('pct10') === -1) compParts.push('10th: $' + (d.bls.pct10 || 0).toLocaleString());
-                if (hcr.indexOf('pct25') === -1) compParts.push('25th: $' + (d.bls.pct25 || 0).toLocaleString());
-                if (hcr.indexOf('median') === -1) compParts.push('Median: $' + (d.bls.median || 0).toLocaleString());
-                if (hcr.indexOf('pct75') === -1) compParts.push('75th: $' + (d.bls.pct75 || 0).toLocaleString());
-                if (hcr.indexOf('pct90') === -1) compParts.push('90th: $' + (d.bls.pct90 || 0).toLocaleString());
-                if (compParts.length > 0) addLine(compParts.join('  |  '), 8, DARK);
-                y += 3;
+                sectionHead('Compensation Overview', GREEN);
+                var compData = [
+                    { key: 'pct10', label: '10th Percentile', val: d.bls.pct10 },
+                    { key: 'pct25', label: '25th Percentile', val: d.bls.pct25 },
+                    { key: 'median', label: '50th (Median)', val: d.bls.median },
+                    { key: 'pct75', label: '75th Percentile', val: d.bls.pct75 },
+                    { key: 'pct90', label: '90th Percentile', val: d.bls.pct90 }
+                ].filter(function(p) { return hcr.indexOf(p.key) === -1; });
+                if (compData.length > 0) {
+                    var barW = (CW - 4) / compData.length;
+                    checkPage(22);
+                    compData.forEach(function(p, i) {
+                        var bx = M + 2 + i * barW;
+                        var isMedian = p.key === 'median';
+                        doc.setFillColor.apply(doc, isMedian ? [16, 185, 129] : [240, 253, 244]);
+                        doc.roundedRect(bx, y - 2, barW - 3, 18, 2, 2, 'F');
+                        doc.setFontSize(6); doc.setTextColor.apply(doc, isMedian ? WHITE : MUTED); doc.setFont('helvetica', 'normal');
+                        doc.text(p.label, bx + (barW - 3) / 2, y + 3, { align: 'center' });
+                        doc.setFontSize(10); doc.setTextColor.apply(doc, isMedian ? WHITE : GREEN); doc.setFont('helvetica', 'bold');
+                        doc.text('$' + (p.val || 0).toLocaleString(), bx + (barW - 3) / 2, y + 11, { align: 'center' });
+                    });
+                    y += 20;
+                    doc.setFontSize(6); doc.setTextColor.apply(doc, MUTED); doc.setFont('helvetica', 'normal');
+                    doc.text('Source: BLS OEWS ' + (d.bls.source || 'May 2024') + ' \u00B7 SOC: ' + (d.bls.soc || ''), M + 2, y);
+                    y += 4;
+                }
             }
 
-            if ((d.yearsRequired && d.yearsRequired.length) || (d.education && d.education.length) || (d.certifications && d.certifications.length)) {
-                addLine('REQUIREMENTS', 10, BLUE, true);
-                if (d.yearsRequired) d.yearsRequired.forEach(function(yr) { addLine(yr.range + ' years \u2014 ' + yr.area, 8, DARK); });
-                if (d.education) d.education.forEach(function(ed) { addLine(ed.level + (ed.field ? ' in ' + ed.field : '') + (ed.preferred ? ' (Preferred)' : ''), 8, DARK); });
-                if (d.certifications && d.certifications.length) addLine('Certifications: ' + d.certifications.join(', '), 8, DARK);
-                y += 3;
+            if ((d.yearsRequired && d.yearsRequired.length) || (d.education && d.education.length) || (d.certifications && d.certifications.length) || (d.qualifications && d.qualifications.length)) {
+                sectionHead('Requirements');
+                if (d.yearsRequired && d.yearsRequired.length) {
+                    wrappedText('Experience', M + 6, 8, DARK, true, CW - 6);
+                    d.yearsRequired.forEach(function(yr) {
+                        checkPage(5);
+                        doc.setFillColor(59, 130, 246); doc.circle(M + 8, y - 1, 0.6, 'F');
+                        wrappedText(yr.range + ' years \u2014 ' + yr.area, M + 12, 8, MID, false, CW - 14);
+                    });
+                    y += 2;
+                }
+                if (d.education && d.education.length) {
+                    wrappedText('Education', M + 6, 8, DARK, true, CW - 6);
+                    d.education.forEach(function(ed) {
+                        checkPage(5);
+                        doc.setFillColor(59, 130, 246); doc.circle(M + 8, y - 1, 0.6, 'F');
+                        wrappedText(ed.level + (ed.field ? ' in ' + ed.field : '') + (ed.preferred ? ' (Preferred)' : ''), M + 12, 8, MID, false, CW - 14);
+                    });
+                    y += 2;
+                }
+                if (d.certifications && d.certifications.length) {
+                    wrappedText('Certifications', M + 6, 8, DARK, true, CW - 6);
+                    wrappedText(d.certifications.join(', '), M + 12, 8, MID, false, CW - 14);
+                    y += 2;
+                }
+                if (d.qualifications && d.qualifications.length) {
+                    wrappedText('Qualifications', M + 6, 8, DARK, true, CW - 6);
+                    d.qualifications.forEach(function(q) {
+                        checkPage(5);
+                        doc.setFillColor(59, 130, 246); doc.circle(M + 8, y - 1, 0.6, 'F');
+                        wrappedText(q, M + 12, 8, MID, false, CW - 14);
+                    });
+                }
             }
 
-            addLine('VALUES & PURPOSE', 10, BLUE, true);
-            (d.values || []).forEach(function(v) { addLine(v.name + ' \u2014 ' + (v.desc || v.description || ''), 8, DARK); });
-            y += 3;
+            sectionHead('Values & Purpose', PURPLE);
+            (d.values || []).forEach(function(v) {
+                checkPage(8);
+                doc.setFontSize(8); doc.setTextColor.apply(doc, DARK); doc.setFont('helvetica', 'bold');
+                doc.text(v.name || '', M + 6, y);
+                doc.setFont('helvetica', 'normal'); doc.setTextColor.apply(doc, MID);
+                var descLines = doc.splitTextToSize(v.desc || v.description || '', CW - 8);
+                doc.text(descLines.slice(0, 2), M + 6, y + 4);
+                y += Math.max(descLines.slice(0, 2).length * 3.5, 4) + 4;
+            });
 
-            addLine('DEMONSTRATED EXPERIENCE', 10, BLUE, true);
-            (d.demonstrated.evidence || []).forEach(function(e) { addLine('\u2022 ' + e, 8, GRAY); });
-            addLine(d.demonstrated.artifacts || '', 7, [140, 150, 170]);
+            if (d.demonstrated) {
+                sectionHead('Demonstrated Experience');
+                (d.demonstrated.evidence || []).forEach(function(e) {
+                    checkPage(6);
+                    doc.setFillColor(139, 92, 246); doc.circle(M + 8, y - 1, 0.6, 'F');
+                    wrappedText(e, M + 12, 8, MID, false, CW - 14);
+                });
+                if (d.demonstrated.artifacts) {
+                    y += 2;
+                    wrappedText('Artifacts: ' + d.demonstrated.artifacts, M + 6, 7, MUTED, false, CW - 6);
+                }
+            }
 
-            doc.setFontSize(6); doc.setTextColor(140, 150, 170);
-            doc.text('Generated by Blueprint\u2122 Work Blueprint Converter \u00B7 ' + new Date().toLocaleDateString(), M, 290);
+            drawLine(M, 285, MR, [200, 210, 220], 0.3);
+            doc.setFontSize(6); doc.setTextColor(140, 150, 170); doc.setFont('helvetica', 'normal');
+            doc.text('Generated by Blueprint\u2122  \u00B7  ' + new Date().toLocaleDateString(), M, 289);
+            doc.text('blueprint.work', MR, 289, { align: 'right' });
 
             doc.save('work-blueprint-' + (d.title || 'export').replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase() + '.pdf');
             showToast('Work Blueprint exported as PDF.', 'success');
@@ -9038,39 +9169,61 @@
         function exportWorkBlueprintWord() {
             if (!_jdcResult) { showToast('No Work Blueprint to export.', 'warning'); return; }
             var d = _jdcResult;
+            var whcr = d.hiddenCompRows || [];
+            function _esc(s) { return escapeHtml(s || ''); }
             var h = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>'
-                + 'body{font-family:Calibri,Arial,sans-serif;color:#1e293b;max-width:800px;margin:0 auto;padding:20px;font-size:11pt;}'
-                + 'h1{color:#1e40af;font-size:18pt;margin-bottom:4px;}'
-                + 'h2{color:#3b82f6;font-size:13pt;margin-top:20px;margin-bottom:8px;border-bottom:2px solid #e2e8f0;padding-bottom:4px;}'
-                + 'h3{color:#1e293b;font-size:11pt;margin-top:12px;margin-bottom:4px;}'
-                + '.sub{color:#64748b;font-size:10pt;margin-bottom:12px;}'
-                + '.tag{display:inline-block;background:#f1f5f9;padding:2px 8px;border-radius:4px;font-size:9pt;color:#475569;margin:2px;}'
-                + '.level{display:inline-block;padding:1px 6px;border-radius:3px;font-size:8pt;font-weight:bold;}'
-                + 'table{border-collapse:collapse;width:100%;margin:8px 0;} th,td{border:1px solid #e2e8f0;padding:6px 8px;text-align:left;font-size:10pt;} th{background:#f8fafc;color:#3b82f6;font-weight:bold;}'
-                + 'ul{margin:4px 0;padding-left:20px;} li{margin:3px 0;font-size:10pt;color:#334155;}'
+                + 'body{font-family:Calibri,Arial,sans-serif;color:#1e293b;max-width:780px;margin:0 auto;padding:20px 30px;font-size:11pt;line-height:1.5;}'
+                + '.header{background:#0f172a;padding:18px 24px;margin:-20px -30px 20px;}'
+                + '.header .label{color:#60a5fa;font-size:8pt;text-transform:uppercase;letter-spacing:3px;font-weight:bold;margin-bottom:6px;}'
+                + '.header h1{color:white;font-size:18pt;margin:0 0 6px;}'
+                + '.header .sub{color:#b4bedd;font-size:10pt;margin:0;}'
+                + 'h2{color:#3b82f6;font-size:12pt;margin-top:22px;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid #3b82f6;}'
+                + 'h3{color:#1e293b;font-size:11pt;margin:10px 0 4px;}'
+                + '.logistics{background:#f8fafc;padding:10px 14px;margin-bottom:16px;font-size:9pt;color:#475569;}'
+                + '.logistics span{margin-right:16px;}'
+                + '.logistics .lbl{font-weight:bold;color:#64748b;text-transform:uppercase;font-size:8pt;}'
+                + 'table{border-collapse:collapse;width:100%;margin:8px 0;}'
+                + 'th{background:#f1f5f9;color:#3b82f6;font-weight:bold;padding:7px 10px;text-align:left;font-size:9pt;border:1px solid #e2e8f0;}'
+                + 'td{padding:6px 10px;font-size:10pt;border:1px solid #e2e8f0;vertical-align:top;}'
+                + 'tr:nth-child(even) td{background:#fafbfd;}'
+                + '.prof{font-weight:bold;font-size:9pt;}'
+                + 'ul{margin:4px 0;padding-left:18px;} li{margin:4px 0;font-size:10pt;color:#334155;}'
+                + '.value-name{font-weight:bold;color:#1e293b;}'
+                + '.value-desc{color:#475569;font-size:10pt;}'
+                + '.comp-row{display:inline-block;text-align:center;padding:6px 14px;margin:3px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:10pt;}'
+                + '.comp-row .amt{font-weight:bold;color:#059669;font-size:12pt;}'
+                + '.comp-row .pct{color:#64748b;font-size:8pt;}'
                 + '.footer{color:#94a3b8;font-size:8pt;margin-top:30px;border-top:1px solid #e2e8f0;padding-top:8px;}'
                 + '</style></head><body>';
-            h += '<div style="color:#3b82f6;font-size:9pt;text-transform:uppercase;letter-spacing:2px;font-weight:bold;">WORK BLUEPRINT</div>';
+            h += '<div class="header"><div class="label">WORK BLUEPRINT</div>';
             h += '<h1>' + _esc(d.title) + '</h1>';
             var subs = [];
             if (d.company) subs.push(_esc(d.company));
-            subs.push(_esc(d.location || 'Not specified'));
+            if (d.location) subs.push(_esc(d.location));
             if (d.employmentType) subs.push(_esc(d.employmentType));
             if (d.seniority) subs.push(_esc(d.seniority.charAt(0).toUpperCase() + d.seniority.slice(1)));
-            h += '<div class="sub">' + subs.join(' &middot; ') + '</div>';
+            if (d.industry) subs.push(_esc(d.industry));
+            h += '<div class="sub">' + subs.join(' &middot; ') + '</div></div>';
+
             var tags = [];
-            if (d.department) tags.push('Department: ' + _esc(d.department));
-            if (d.reportsTo) tags.push('Reports To: ' + _esc(d.reportsTo));
-            if (d.schedule) tags.push('Schedule: ' + _esc(d.schedule));
-            if (d.travel) tags.push('Travel: ' + _esc(d.travel));
-            if (d.industry) tags.push('Industry: ' + _esc(d.industry));
+            if (d.department) tags.push({ l: 'Department', v: d.department });
+            if (d.reportsTo) tags.push({ l: 'Reports To', v: d.reportsTo });
+            if (d.schedule) tags.push({ l: 'Schedule', v: d.schedule });
+            if (d.travel) tags.push({ l: 'Travel', v: d.travel });
+            if (d.compensationRange || (d.compensation && d.compensation.range)) tags.push({ l: 'Compensation', v: (d.compensation && d.compensation.range) || d.compensationRange });
             if (d.customFields && d.customFields.length > 0) {
                 d.customFields.forEach(function(cf) {
-                    if (cf.key && cf.value) tags.push(_esc(cf.key) + ': ' + _esc(cf.value));
+                    if (cf.key && cf.value) tags.push({ l: cf.key, v: cf.value });
                 });
             }
-            if (tags.length) h += '<div>' + tags.map(function(t) { return '<span class="tag">' + t + '</span>'; }).join(' ') + '</div>';
-            h += '<h2>Work Summary</h2><p>' + _esc(d.summary) + '</p>';
+            if (tags.length) {
+                h += '<div class="logistics">';
+                tags.forEach(function(t) { h += '<span><span class="lbl">' + _esc(t.l) + ':</span> ' + _esc(t.v) + '</span>'; });
+                h += '</div>';
+            }
+
+            h += '<h2>Work Summary</h2><p style="color:#334155;">' + _esc(d.summary) + '</p>';
+
             if (d.keyResponsibilities && d.keyResponsibilities.length) {
                 h += '<h2>Key Responsibilities</h2>';
                 d.keyResponsibilities.forEach(function(cat) {
@@ -9079,33 +9232,69 @@
                     h += '</ul>';
                 });
             }
-            h += '<h2>Skills / Outcomes / Proficiency</h2><table><thead><tr><th>Skill</th><th>Expected Outcome</th><th>Proficiency</th></tr></thead><tbody>';
+
+            h += '<h2>Skills, Outcomes &amp; Proficiency</h2><table><thead><tr><th style="width:28%;">Skill</th><th>Expected Outcome</th><th style="width:12%;text-align:center;">Level</th></tr></thead><tbody>';
             (d.skills || []).forEach(function(s) {
-                h += '<tr><td><strong>' + _esc(s.name) + '</strong></td><td>' + _esc(s.outcome || '') + '</td><td>' + _esc(s.blueprintLevel) + '</td></tr>';
+                var lvl = _esc(s.blueprintLevel || 'Proficient');
+                h += '<tr><td><strong>' + _esc(s.name) + '</strong></td><td>' + _esc(s.outcome || '') + '</td><td style="text-align:center;" class="prof">' + lvl + '</td></tr>';
             });
             h += '</tbody></table>';
+
             if (d.bls) {
-                h += '<h2>Compensation (BLS)</h2><table><thead><tr><th>Percentile</th><th>Annual (USD)</th></tr></thead><tbody>';
-                var whcr = d.hiddenCompRows || [];
-                [['10th', d.bls.pct10, 'pct10'], ['25th', d.bls.pct25, 'pct25'], ['Median', d.bls.median, 'median'], ['75th', d.bls.pct75, 'pct75'], ['90th', d.bls.pct90, 'pct90']].forEach(function(p) {
-                    if (whcr.indexOf(p[2]) !== -1) return;
-                    h += '<tr><td>' + p[0] + '</td><td>$' + (p[1] || 0).toLocaleString() + '</td></tr>';
-                });
-                h += '</tbody></table>';
+                var compRows = [
+                    { key: 'pct10', label: '10th', val: d.bls.pct10 },
+                    { key: 'pct25', label: '25th', val: d.bls.pct25 },
+                    { key: 'median', label: 'Median', val: d.bls.median },
+                    { key: 'pct75', label: '75th', val: d.bls.pct75 },
+                    { key: 'pct90', label: '90th', val: d.bls.pct90 }
+                ].filter(function(p) { return whcr.indexOf(p.key) === -1; });
+                if (compRows.length > 0) {
+                    h += '<h2>Compensation Overview</h2><div>';
+                    compRows.forEach(function(p) {
+                        var isMed = p.key === 'median';
+                        h += '<div class="comp-row"' + (isMed ? ' style="background:#059669;border-color:#059669;"' : '') + '>'
+                            + '<div class="pct"' + (isMed ? ' style="color:white;"' : '') + '>' + p.label + '</div>'
+                            + '<div class="amt"' + (isMed ? ' style="color:white;"' : '') + '>$' + (p.val || 0).toLocaleString() + '</div></div>';
+                    });
+                    h += '</div><p style="font-size:8pt;color:#94a3b8;">Source: BLS OEWS ' + _esc(d.bls.source || 'May 2024') + ' &middot; SOC: ' + _esc(d.bls.soc || '') + '</p>';
+                }
             }
-            if ((d.yearsRequired && d.yearsRequired.length) || (d.education && d.education.length) || (d.certifications && d.certifications.length)) {
+
+            if ((d.yearsRequired && d.yearsRequired.length) || (d.education && d.education.length) || (d.certifications && d.certifications.length) || (d.qualifications && d.qualifications.length)) {
                 h += '<h2>Requirements</h2>';
-                if (d.yearsRequired && d.yearsRequired.length) { h += '<ul>'; d.yearsRequired.forEach(function(yr) { h += '<li>' + _esc(yr.range) + ' years &mdash; ' + _esc(yr.area) + '</li>'; }); h += '</ul>'; }
-                if (d.education && d.education.length) { h += '<ul>'; d.education.forEach(function(ed) { h += '<li>' + _esc(ed.level) + (ed.field ? ' in ' + _esc(ed.field) : '') + (ed.preferred ? ' <em>(Preferred)</em>' : '') + '</li>'; }); h += '</ul>'; }
-                if (d.certifications && d.certifications.length) h += '<p><strong>Certifications:</strong> ' + d.certifications.map(function(c) { return _esc(c); }).join(', ') + '</p>';
+                if (d.yearsRequired && d.yearsRequired.length) {
+                    h += '<h3>Experience</h3><ul>';
+                    d.yearsRequired.forEach(function(yr) { h += '<li><strong>' + _esc(yr.range) + ' years</strong> &mdash; ' + _esc(yr.area) + '</li>'; });
+                    h += '</ul>';
+                }
+                if (d.education && d.education.length) {
+                    h += '<h3>Education</h3><ul>';
+                    d.education.forEach(function(ed) { h += '<li>' + _esc(ed.level) + (ed.field ? ' in ' + _esc(ed.field) : '') + (ed.preferred ? ' <em>(Preferred)</em>' : '') + '</li>'; });
+                    h += '</ul>';
+                }
+                if (d.certifications && d.certifications.length) {
+                    h += '<h3>Certifications</h3><p>' + d.certifications.map(function(c) { return _esc(c); }).join(', ') + '</p>';
+                }
+                if (d.qualifications && d.qualifications.length) {
+                    h += '<h3>Qualifications</h3><ul>';
+                    d.qualifications.forEach(function(q) { h += '<li>' + _esc(q) + '</li>'; });
+                    h += '</ul>';
+                }
             }
-            h += '<h2>Values &amp; Purpose</h2><ul>';
-            (d.values || []).forEach(function(v) { h += '<li><strong>' + _esc(v.name) + '</strong> &mdash; ' + _esc(v.desc || v.description || '') + '</li>'; });
-            h += '</ul>';
-            h += '<h2>Demonstrated Experience</h2><ul>';
-            (d.demonstrated.evidence || []).forEach(function(e) { h += '<li>' + _esc(e) + '</li>'; });
-            h += '</ul><p style="font-size:9pt;color:#64748b;"><strong>Artifacts:</strong> ' + _esc(d.demonstrated.artifacts) + '</p>';
-            h += '<div class="footer">Generated by Blueprint\u2122 Work Blueprint Converter &middot; ' + new Date().toLocaleDateString() + '</div>';
+
+            h += '<h2>Values &amp; Purpose</h2>';
+            (d.values || []).forEach(function(v) {
+                h += '<p style="margin:6px 0;"><span class="value-name">' + _esc(v.name) + '</span> &mdash; <span class="value-desc">' + _esc(v.desc || v.description || '') + '</span></p>';
+            });
+
+            if (d.demonstrated) {
+                h += '<h2>Demonstrated Experience</h2><ul>';
+                (d.demonstrated.evidence || []).forEach(function(e) { h += '<li>' + _esc(e) + '</li>'; });
+                h += '</ul>';
+                if (d.demonstrated.artifacts) h += '<p style="font-size:9pt;color:#64748b;"><strong>Artifacts:</strong> ' + _esc(d.demonstrated.artifacts) + '</p>';
+            }
+
+            h += '<div class="footer">Generated by Blueprint\u2122 &middot; ' + new Date().toLocaleDateString() + '</div>';
             h += '</body></html>';
             var blob = new Blob(['\ufeff' + h], { type: 'application/msword' });
             var a = document.createElement('a');
@@ -9114,7 +9303,6 @@
             a.click();
             URL.revokeObjectURL(a.href);
             showToast('Work Blueprint exported as Word document.', 'success');
-            function _esc(s) { return escapeHtml(s || ''); }
         }
         window.exportWorkBlueprintWord = exportWorkBlueprintWord;
 
