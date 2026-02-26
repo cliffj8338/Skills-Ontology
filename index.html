@@ -1,5 +1,4 @@
-<!-- v4.44.46 | 2026-02-25 | Architecture map update: +3 components (verification, showcase, security), +6 flows, updated stale details -->
-<!-- v4.44.45 | 2026-02-25 | Security: report share tokens + Firestore field-size limits -->
+<!-- v4.44.47 | 2026-02-26 | Audit: 7 XSS gaps patched (textareas + input values) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -162,8 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.46 | 2026-02-25 | Architecture map update: +3 components (verification, showcase, security), +6 flows, updated stale details -->
-    <!-- v4.44.45 | 2026-02-25 | Security: report share tokens + Firestore field-size limits -->
+    <!-- v4.44.47 | 2026-02-26 | Audit: 7 XSS gaps patched (textareas + input values) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1483,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.45 - BUILD 20260225-security-report-tokens
-        var BP_VERSION = 'v4.44.46';
+        // BLUEPRINT v4.44.47 - BUILD 20260226-audit-xss-gaps
+        var BP_VERSION = 'v4.44.47';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2037,7 +2035,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260225-security-report-tokens              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-audit-xss-gaps                     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -18806,7 +18804,7 @@ body {
                             line-height: 1.6;
                             font-family: inherit;
                             resize: vertical;
-                        ">${outcome.text}</textarea>
+                        ">${escapeHtml(outcome.text)}</textarea>
                     </div>
                     
                     <div style="margin-bottom: 20px;">
@@ -27296,9 +27294,9 @@ body {
                 + '<input type="text" class="settings-input" id="whLocation" value="' + escapeHtml(job.location||'') + '" placeholder="Philadelphia, PA"></div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">'
                 + '<div class="settings-group"><label class="settings-label">Start Date</label>'
-                + '<input type="text" class="settings-input" id="whStartDate" value="' + (job.startDate||'') + '" placeholder="Jan 2020"></div>'
+                + '<input type="text" class="settings-input" id="whStartDate" value="' + escapeHtml(job.startDate||'') + '" placeholder="Jan 2020"></div>'
                 + '<div class="settings-group"><label class="settings-label">End Date</label>'
-                + '<input type="text" class="settings-input" id="whEndDate" value="' + (job.endDate||'') + '" placeholder="Present" ' + (job.current ? 'disabled' : '') + '></div>'
+                + '<input type="text" class="settings-input" id="whEndDate" value="' + escapeHtml(job.endDate||'') + '" placeholder="Present" ' + (job.current ? 'disabled' : '') + '></div>'
                 + '</div>'
                 + '</div>'
                 + '<div class="settings-group" style="margin-top:4px;">'
@@ -27309,7 +27307,7 @@ body {
                 + '<div class="settings-group" style="margin-top:10px;">'
                 + '<label class="settings-label">Role Description (Optional)</label>'
                 + '<textarea class="settings-input" id="whDescription" rows="2" style="resize:vertical; font-size:0.88em;" '
-                + 'placeholder="Brief summary of your responsibilities and scope">' + (job.description||'') + '</textarea>'
+                + 'placeholder="Brief summary of your responsibilities and scope">' + escapeHtml(job.description||'') + '</textarea>'
                 + '</div>'
                 + '<div class="settings-group" style="margin-top:10px;">'
                 + '<label class="settings-label">Key Achievements</label>'
@@ -27414,7 +27412,7 @@ body {
                 + '<div class="settings-group"><label class="settings-label">Field of Study</label>'
                 + '<input type="text" class="settings-input" id="edField" value="' + escapeHtml(ed.field||'') + '" placeholder="Business Administration"></div>'
                 + '<div class="settings-group"><label class="settings-label">Year</label>'
-                + '<input type="text" class="settings-input" id="edYear" value="' + (ed.year||'') + '" placeholder="2012"></div>'
+                + '<input type="text" class="settings-input" id="edYear" value="' + escapeHtml(ed.year||'') + '" placeholder="2012"></div>'
                 + '</div>'
                 + '<div style="display:flex; gap:10px; margin-top:20px;">'
                 + '<button onclick="saveEducationFromModal(' + idx + ')" style="background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:8px; cursor:pointer; font-weight:600;">'
@@ -27529,7 +27527,7 @@ body {
                 }).join('')
                 + '</select></div>'
                 + '<div class="settings-group"><label class="settings-label">Year Obtained</label>'
-                + '<input type="text" class="settings-input" id="certYear" value="' + (cert.year||'') + '" placeholder="2023"></div>'
+                + '<input type="text" class="settings-input" id="certYear" value="' + escapeHtml(cert.year||'') + '" placeholder="2023"></div>'
                 + '</div>'
                 
                 // Linked skills
@@ -28579,7 +28577,7 @@ body {
                         
                         <div>
                             <label class="settings-label">Notes</label>
-                            <textarea id="editAppNotes" class="purpose-editor" style="min-height: 80px;">${app.notes || ''}</textarea>
+                            <textarea id="editAppNotes" class="purpose-editor" style="min-height: 80px;">${escapeHtml(app.notes || '')}</textarea>
                         </div>
                     </div>
                     
