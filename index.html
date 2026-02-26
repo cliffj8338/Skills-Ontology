@@ -2099,7 +2099,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-showcase-tracking              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-export-redesign              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -10123,7 +10123,7 @@
             if (_wbRepoViewIdx < 0 || !_wbRepoCache[_wbRepoViewIdx]) return;
             var bp = _wbRepoCache[_wbRepoViewIdx];
             if (mode === 'json') {
-                var exportData = _jdcPrepareExport(bp);
+                var exportData = _jdcStripHiddenComp(_jdcPrepareExport(bp));
                 var blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
                 var url = URL.createObjectURL(blob);
                 var a = document.createElement('a');
