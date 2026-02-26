@@ -1,4 +1,4 @@
-<!-- v4.44.69 | 2026-02-26 | Added URL fetch, bulk paste, and file upload to JD converter -->
+<!-- v4.44.70 | 2026-02-26 | Stability: null DOM guards, querySelector safety -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.69 | 2026-02-26 | Added URL fetch, bulk paste, and file upload to JD converter -->
+    <!-- v4.44.70 | 2026-02-26 | Stability: null DOM guards, querySelector safety -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.69 - BUILD 20260226-jdc-bulk-url
-        var BP_VERSION = 'v4.44.69';
+        // BLUEPRINT v4.44.70 - BUILD 20260226-stability
+        var BP_VERSION = 'v4.44.70';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2068,7 +2068,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-unified-quickscore           ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-stability-guards           ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -6161,7 +6161,8 @@
             var modes = [
                 { id: 'paste', icon: 'edit', label: 'Paste' },
                 { id: 'url', icon: 'link', label: 'From URL' },
-                { id: 'bulk', icon: 'list', label: 'Bulk' }
+                { id: 'bulk', icon: 'list', label: 'Bulk' },
+                { id: 'repo', icon: 'folder', label: 'Repository' }
             ];
             html += '<div style="display:flex; gap:2px; background:var(--c-surface-2); border-radius:10px; padding:3px; margin-bottom:20px; max-width:400px;">';
             modes.forEach(function(m) {
@@ -6522,6 +6523,7 @@
             var summary = _jdcGenerateSummary(title, company, skills.slice(0, 5), seniority, jdText);
             var demoExperience = _jdcGenerateDemonstrated(title, skills.slice(0, 6), seniority, jdText);
             var industry = _jdcDetectIndustry(jdText);
+            var keyResponsibilities = _jdcExtractResponsibilities(jdText);
 
             return {
                 title: title,
@@ -6540,6 +6542,7 @@
                 education: education,
                 certifications: certifications,
                 summary: summary,
+                keyResponsibilities: keyResponsibilities,
                 skills: skills,
                 bls: bls,
                 values: values,
@@ -6938,6 +6941,9 @@
         }
 
         function _jdcGenerateSummary(title, company, topSkills, seniority, jdText) {
+            var extracted = _jdcExtractSummarySection(jdText);
+            if (extracted) return extracted;
+
             var skillNames = topSkills.map(function(s) { return s.name; });
             var companyPhrase = company ? ' at ' + company : '';
             var seniorityContext = {
@@ -6953,25 +6959,26 @@
                 return l.length > 40 && l.length < 300 && !/^[\u2022\u2023\u25E6\-\*]/.test(l) && !/^\d+[\.\)]/.test(l);
             });
             var firstSentences = [];
-            lines.slice(0, 10).forEach(function(line) {
+            lines.slice(0, 15).forEach(function(line) {
                 var sentences = line.match(/[^\.!\?]+[\.!\?]+/g) || [line];
                 sentences.forEach(function(s) {
                     var trimmed = s.trim();
-                    if (trimmed.length > 30 && trimmed.length < 250 && !/^(about|we are|our company|equal|eoe|disclaimer)/i.test(trimmed)) {
+                    if (trimmed.length > 30 && trimmed.length < 300 && !/^(about|we are|our company|equal|eoe|disclaimer|benefits|perks)/i.test(trimmed)) {
                         firstSentences.push(trimmed);
                     }
                 });
             });
             if (firstSentences.length > 0) {
-                var best = firstSentences[0];
-                for (var i = 0; i < Math.min(3, firstSentences.length); i++) {
+                var collected = [];
+                var titleWord = title.toLowerCase().split(' ')[0];
+                for (var i = 0; i < Math.min(6, firstSentences.length); i++) {
                     var s = firstSentences[i].toLowerCase();
-                    if (s.indexOf(title.toLowerCase().split(' ')[0].toLowerCase()) !== -1 || /\brole\b|\bposition\b|\bresponsib/.test(s)) {
-                        best = firstSentences[i]; break;
+                    if (s.indexOf(titleWord) !== -1 || /\brole\b|\bposition\b|\bresponsib|\binvolves\b|\bfocused\b|\bleading\b|\bdriving\b|\bmanaging\b/.test(s)) {
+                        collected.push(firstSentences[i]);
                     }
                 }
-                var coreSkills = skillNames.slice(0, 3).map(function(n) { return n.toLowerCase(); }).join(', ');
-                return best + ' Core competencies include ' + coreSkills + ', ' + ctx.impact + '.';
+                if (collected.length === 0) collected = firstSentences.slice(0, 2);
+                return collected.join(' ').substring(0, 600);
             }
 
             return 'This ' + title + ' role' + companyPhrase + ' focuses on ' + ctx.scope + ' ' + (skillNames[0] || 'core functions').toLowerCase()
@@ -6979,6 +6986,81 @@
                 + '. Key responsibilities include ' + (skillNames[2] || 'operational delivery').toLowerCase()
                 + ', ' + (skillNames[3] || 'stakeholder engagement').toLowerCase()
                 + ', and ' + ctx.impact + '.';
+        }
+
+        function _jdcExtractSummarySection(jdText) {
+            var lines = jdText.split('\n');
+            var summaryHeaders = /^(?:job\s+)?summary|^(?:position|role)\s+(?:summary|overview|description)|^overview|^about\s+(?:the|this)\s+(?:role|position|opportunity)/i;
+            var sectionHeaders = /^(?:key\s+)?responsibilities|^qualifications|^requirements|^what\s+you|^who\s+you|^duties|^competencies|^education|^experience|^compensation|^benefits|^about\s+(?:us|the\s+company)|^equal\s+opportunity/i;
+
+            var inSummary = false;
+            var summaryLines = [];
+
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (!line) {
+                    if (inSummary && summaryLines.length > 0) continue;
+                    continue;
+                }
+                if (summaryHeaders.test(line.replace(/[:\-\u2013\u2014]/g, '').trim())) {
+                    inSummary = true;
+                    var afterColon = line.replace(summaryHeaders, '').replace(/^[:\s\-\u2013\u2014]+/, '').trim();
+                    if (afterColon.length > 20) summaryLines.push(afterColon);
+                    continue;
+                }
+                if (inSummary && sectionHeaders.test(line.replace(/[:\-\u2013\u2014]/g, '').trim())) {
+                    break;
+                }
+                if (inSummary) {
+                    if (/^[\u2022\u2023\u25E6\-\*]\s/.test(line) || /^\d+[\.\)]/.test(line)) break;
+                    if (line.length > 15) summaryLines.push(line);
+                }
+            }
+            var result = summaryLines.join(' ').replace(/\s+/g, ' ').trim();
+            return result.length >= 40 ? result.substring(0, 800) : '';
+        }
+
+        function _jdcExtractResponsibilities(jdText) {
+            var lines = jdText.split('\n');
+            var respHeaders = /^(?:key\s+)?responsibilities|^what\s+you(?:'ll| will)\s+do|^duties|^key\s+duties|^primary\s+(?:responsibilities|duties)|^the\s+role|^in\s+this\s+role/i;
+            var sectionEnd = /^(?:qualifications|requirements|what\s+you.*(?:need|bring)|who\s+you|education|experience|competencies|compensation|benefits|about\s+(?:us|the\s+company)|equal\s+opportunity)/i;
+            var categories = [];
+            var currentCat = null;
+            var inResp = false;
+
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (!line) continue;
+
+                if (respHeaders.test(line.replace(/[:\-\u2013\u2014]/g, '').trim())) {
+                    inResp = true;
+                    continue;
+                }
+                if (inResp && sectionEnd.test(line.replace(/[:\-\u2013\u2014]/g, '').trim())) break;
+
+                if (!inResp) continue;
+
+                if (/^\d+[\.\)\u2019]\s*/.test(line) && line.length < 80 && !/^[\u2022\u2023\u25E6\-\*]/.test(line)) {
+                    var catName = line.replace(/^\d+[\.\)\u2019]\s*/, '').replace(/[:]+$/, '').trim();
+                    if (catName.length > 3) {
+                        currentCat = { category: catName, items: [] };
+                        categories.push(currentCat);
+                        continue;
+                    }
+                }
+
+                if (/^[\u2022\u2023\u25E6\u25AA\u25CB\u25CF\u2013\u2014\-\*\>]\s+/.test(line) || /^\u25CB\s+/.test(line) || /^[a-z]\)\s+/.test(line) || /^\u25E6\s+/.test(line) || /^\u25AA\s+/.test(line)) {
+                    var item = line.replace(/^[\u2022\u2023\u25E6\u25AA\u25CB\u25CF\u2013\u2014\-\*\>]\s+/, '').replace(/^[a-z]\)\s+/, '').trim();
+                    if (item.length > 10) {
+                        if (!currentCat) {
+                            currentCat = { category: 'Key Responsibilities', items: [] };
+                            categories.push(currentCat);
+                        }
+                        currentCat.items.push(item);
+                    }
+                }
+            }
+            return categories;
         }
 
         function _jdcGenerateDemonstrated(title, topSkills, seniority, jdText) {
@@ -7226,22 +7308,57 @@
             });
             html += '</div></div>';
 
+            if (data.keyResponsibilities && data.keyResponsibilities.length > 0) {
+                var respNum = hasReqs ? '3' : '2';
+                html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
+                    + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">'
+                    + '<span style="color:#6366f1;">' + bpIcon('list',18) + '</span>'
+                    + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">' + respNum + ') Key Responsibilities</span></div>';
+                data.keyResponsibilities.forEach(function(cat) {
+                    html += '<div style="margin-bottom:14px;">'
+                        + '<div style="font-size:0.88em; font-weight:700; color:' + headingColor + '; margin-bottom:8px; padding-left:4px;">' + escapeHtml(cat.category) + '</div>'
+                        + '<div style="display:grid; gap:5px;">';
+                    cat.items.forEach(function(item) {
+                        html += '<div style="display:flex; gap:8px; align-items:flex-start; padding:6px 12px;">'
+                            + '<span style="color:#6366f1; flex-shrink:0; margin-top:3px; font-size:0.7em;">\u25CF</span>'
+                            + '<span style="font-size:0.85em; color:var(--text-secondary); line-height:1.6;">' + escapeHtml(item) + '</span></div>';
+                    });
+                    html += '</div></div>';
+                });
+                html += '</div>';
+            }
+
             html += '<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">'
                 + '<button onclick="exportWorkBlueprintJSON()" style="padding:8px 18px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
                 + bpIcon('download',14) + ' Export JSON</button>'
+                + '<button onclick="exportWorkBlueprintPDF()" style="padding:8px 18px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
+                + bpIcon('download',14) + ' Export PDF</button>'
+                + '<button onclick="exportWorkBlueprintWord()" style="padding:8px 18px; background:#2563eb; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
+                + bpIcon('download',14) + ' Export Word</button>'
                 + '<button onclick="copyWorkBlueprintJSON()" style="padding:8px 18px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
                 + bpIcon('share',14) + ' Copy JSON</button>'
-                + '</div>';
+                + '<button onclick="jdcEditBlueprint()" style="padding:8px 18px; background:#f59e0b; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
+                + bpIcon('edit',14) + ' Edit</button>';
+            if (typeof fbUser !== 'undefined' && fbUser) {
+                html += '<button onclick="jdcSaveToRepository()" style="padding:8px 18px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
+                    + bpIcon('save',14) + ' Save to Repository</button>';
+            }
+            html += '</div>';
 
             return html;
         }
 
+        function _jdcPrepareExport(result) {
+            var d = Object.assign({}, result || _jdcResult);
+            delete d._rawJD;
+            d.generatedAt = d.generatedAt || new Date().toISOString();
+            d.generatedBy = 'Blueprint Work Blueprint Converter';
+            return d;
+        }
+
         function exportWorkBlueprintJSON() {
             if (!_jdcResult) { showToast('No Work Blueprint to export.', 'warning'); return; }
-            var exportData = Object.assign({}, _jdcResult);
-            delete exportData._rawJD;
-            exportData.generatedAt = new Date().toISOString();
-            exportData.generatedBy = 'Blueprint Work Blueprint Converter';
+            var exportData = _jdcPrepareExport();
             var blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
             var a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
@@ -7254,10 +7371,7 @@
 
         function copyWorkBlueprintJSON() {
             if (!_jdcResult) { showToast('No Work Blueprint to copy.', 'warning'); return; }
-            var exportData = Object.assign({}, _jdcResult);
-            delete exportData._rawJD;
-            exportData.generatedAt = new Date().toISOString();
-            exportData.generatedBy = 'Blueprint Work Blueprint Converter';
+            var exportData = _jdcPrepareExport();
             navigator.clipboard.writeText(JSON.stringify(exportData, null, 2)).then(function() {
                 showToast('Work Blueprint JSON copied to clipboard.', 'success');
             }).catch(function() {
@@ -7265,6 +7379,333 @@
             });
         }
         window.copyWorkBlueprintJSON = copyWorkBlueprintJSON;
+
+        function exportWorkBlueprintPDF() {
+            if (!_jdcResult) { showToast('No Work Blueprint to export.', 'warning'); return; }
+            var d = _jdcResult;
+            if (typeof jspdf === 'undefined' && typeof window.jspdf === 'undefined') {
+                showToast('PDF library not available. Try again in a moment.', 'warning');
+                return;
+            }
+            var jsPDF = (window.jspdf || jspdf).jsPDF;
+            var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+            var W = 210, M = 15, CW = W - 2 * M, y = 15;
+            var BLUE = [96, 165, 250], DARK = [30, 41, 59], GRAY = [100, 116, 139], GREEN = [16, 185, 129];
+
+            function addLine(text, fontSize, color, bold, maxWidth) {
+                doc.setFontSize(fontSize || 10);
+                doc.setTextColor.apply(doc, color || DARK);
+                if (bold) doc.setFont('helvetica', 'bold'); else doc.setFont('helvetica', 'normal');
+                var lines = doc.splitTextToSize(text, maxWidth || CW);
+                if (y + lines.length * (fontSize || 10) * 0.45 > 280) { doc.addPage(); y = 15; }
+                doc.text(lines, M, y);
+                y += lines.length * (fontSize || 10) * 0.45 + 2;
+                return lines.length;
+            }
+
+            doc.setFillColor(30, 41, 59);
+            doc.rect(0, 0, W, 35, 'F');
+            doc.setFontSize(8); doc.setTextColor(96, 165, 250); doc.setFont('helvetica', 'bold');
+            doc.text('WORK BLUEPRINT', M, 12);
+            doc.setFontSize(16); doc.setTextColor(255, 255, 255);
+            doc.text(d.title || '', M, 22);
+            doc.setFontSize(9); doc.setTextColor(180, 190, 210); doc.setFont('helvetica', 'normal');
+            var subParts = [];
+            if (d.company) subParts.push(d.company);
+            subParts.push(d.location || 'Not specified');
+            if (d.employmentType) subParts.push(d.employmentType);
+            if (d.seniority) subParts.push(d.seniority.charAt(0).toUpperCase() + d.seniority.slice(1));
+            doc.text(subParts.join(' \u00B7 '), M, 30);
+            y = 42;
+
+            var logistics = [];
+            if (d.department) logistics.push('Department: ' + d.department);
+            if (d.reportsTo) logistics.push('Reports To: ' + d.reportsTo);
+            if (d.schedule) logistics.push('Schedule: ' + d.schedule);
+            if (d.travel) logistics.push('Travel: ' + d.travel);
+            if (d.industry) logistics.push('Industry: ' + d.industry);
+            if (logistics.length > 0) {
+                addLine(logistics.join('  |  '), 8, GRAY);
+                y += 2;
+            }
+
+            addLine('WORK SUMMARY', 10, BLUE, true);
+            addLine(d.summary || '', 9, DARK, false);
+            y += 4;
+
+            if (d.keyResponsibilities && d.keyResponsibilities.length > 0) {
+                addLine('KEY RESPONSIBILITIES', 10, BLUE, true);
+                d.keyResponsibilities.forEach(function(cat) {
+                    addLine(cat.category, 9, DARK, true);
+                    cat.items.forEach(function(item) {
+                        addLine('\u2022 ' + item, 8, GRAY, false, CW - 5);
+                    });
+                    y += 1;
+                });
+                y += 3;
+            }
+
+            addLine('SKILLS / OUTCOMES / PROFICIENCY', 10, BLUE, true);
+            (d.skills || []).forEach(function(s) {
+                var lvl = s.blueprintLevel || 'Proficient';
+                addLine(s.name + '  [' + lvl + ']', 9, DARK, true);
+                if (s.outcome) addLine(s.outcome, 8, GRAY, false, CW - 5);
+            });
+            y += 3;
+
+            if (d.bls) {
+                addLine('COMPENSATION (BLS)', 10, GREEN, true);
+                addLine('10th: $' + (d.bls.pct10 || 0).toLocaleString() + '  |  25th: $' + (d.bls.pct25 || 0).toLocaleString() + '  |  Median: $' + (d.bls.median || 0).toLocaleString() + '  |  75th: $' + (d.bls.pct75 || 0).toLocaleString() + '  |  90th: $' + (d.bls.pct90 || 0).toLocaleString(), 8, DARK);
+                y += 3;
+            }
+
+            if ((d.yearsRequired && d.yearsRequired.length) || (d.education && d.education.length) || (d.certifications && d.certifications.length)) {
+                addLine('REQUIREMENTS', 10, BLUE, true);
+                if (d.yearsRequired) d.yearsRequired.forEach(function(yr) { addLine(yr.range + ' years \u2014 ' + yr.area, 8, DARK); });
+                if (d.education) d.education.forEach(function(ed) { addLine(ed.level + (ed.field ? ' in ' + ed.field : '') + (ed.preferred ? ' (Preferred)' : ''), 8, DARK); });
+                if (d.certifications && d.certifications.length) addLine('Certifications: ' + d.certifications.join(', '), 8, DARK);
+                y += 3;
+            }
+
+            addLine('VALUES & PURPOSE', 10, BLUE, true);
+            (d.values || []).forEach(function(v) { addLine(v.name + ' \u2014 ' + v.desc, 8, DARK); });
+            y += 3;
+
+            addLine('DEMONSTRATED EXPERIENCE', 10, BLUE, true);
+            (d.demonstrated.evidence || []).forEach(function(e) { addLine('\u2022 ' + e, 8, GRAY); });
+            addLine(d.demonstrated.artifacts || '', 7, [140, 150, 170]);
+
+            doc.setFontSize(6); doc.setTextColor(140, 150, 170);
+            doc.text('Generated by Blueprint\u2122 Work Blueprint Converter \u00B7 ' + new Date().toLocaleDateString(), M, 290);
+
+            doc.save('work-blueprint-' + (d.title || 'export').replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase() + '.pdf');
+            showToast('Work Blueprint exported as PDF.', 'success');
+        }
+        window.exportWorkBlueprintPDF = exportWorkBlueprintPDF;
+
+        function exportWorkBlueprintWord() {
+            if (!_jdcResult) { showToast('No Work Blueprint to export.', 'warning'); return; }
+            var d = _jdcResult;
+            var h = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>'
+                + 'body{font-family:Calibri,Arial,sans-serif;color:#1e293b;max-width:800px;margin:0 auto;padding:20px;font-size:11pt;}'
+                + 'h1{color:#1e40af;font-size:18pt;margin-bottom:4px;}'
+                + 'h2{color:#3b82f6;font-size:13pt;margin-top:20px;margin-bottom:8px;border-bottom:2px solid #e2e8f0;padding-bottom:4px;}'
+                + 'h3{color:#1e293b;font-size:11pt;margin-top:12px;margin-bottom:4px;}'
+                + '.sub{color:#64748b;font-size:10pt;margin-bottom:12px;}'
+                + '.tag{display:inline-block;background:#f1f5f9;padding:2px 8px;border-radius:4px;font-size:9pt;color:#475569;margin:2px;}'
+                + '.level{display:inline-block;padding:1px 6px;border-radius:3px;font-size:8pt;font-weight:bold;}'
+                + 'table{border-collapse:collapse;width:100%;margin:8px 0;} th,td{border:1px solid #e2e8f0;padding:6px 8px;text-align:left;font-size:10pt;} th{background:#f8fafc;color:#3b82f6;font-weight:bold;}'
+                + 'ul{margin:4px 0;padding-left:20px;} li{margin:3px 0;font-size:10pt;color:#334155;}'
+                + '.footer{color:#94a3b8;font-size:8pt;margin-top:30px;border-top:1px solid #e2e8f0;padding-top:8px;}'
+                + '</style></head><body>';
+            h += '<div style="color:#3b82f6;font-size:9pt;text-transform:uppercase;letter-spacing:2px;font-weight:bold;">WORK BLUEPRINT</div>';
+            h += '<h1>' + _esc(d.title) + '</h1>';
+            var subs = [];
+            if (d.company) subs.push(_esc(d.company));
+            subs.push(_esc(d.location || 'Not specified'));
+            if (d.employmentType) subs.push(_esc(d.employmentType));
+            if (d.seniority) subs.push(_esc(d.seniority.charAt(0).toUpperCase() + d.seniority.slice(1)));
+            h += '<div class="sub">' + subs.join(' &middot; ') + '</div>';
+            var tags = [];
+            if (d.department) tags.push('Department: ' + _esc(d.department));
+            if (d.reportsTo) tags.push('Reports To: ' + _esc(d.reportsTo));
+            if (d.schedule) tags.push('Schedule: ' + _esc(d.schedule));
+            if (d.travel) tags.push('Travel: ' + _esc(d.travel));
+            if (d.industry) tags.push('Industry: ' + _esc(d.industry));
+            if (tags.length) h += '<div>' + tags.map(function(t) { return '<span class="tag">' + t + '</span>'; }).join(' ') + '</div>';
+            h += '<h2>Work Summary</h2><p>' + _esc(d.summary) + '</p>';
+            if (d.keyResponsibilities && d.keyResponsibilities.length) {
+                h += '<h2>Key Responsibilities</h2>';
+                d.keyResponsibilities.forEach(function(cat) {
+                    h += '<h3>' + _esc(cat.category) + '</h3><ul>';
+                    cat.items.forEach(function(item) { h += '<li>' + _esc(item) + '</li>'; });
+                    h += '</ul>';
+                });
+            }
+            h += '<h2>Skills / Outcomes / Proficiency</h2><table><thead><tr><th>Skill</th><th>Expected Outcome</th><th>Proficiency</th></tr></thead><tbody>';
+            (d.skills || []).forEach(function(s) {
+                h += '<tr><td><strong>' + _esc(s.name) + '</strong></td><td>' + _esc(s.outcome || '') + '</td><td>' + _esc(s.blueprintLevel) + '</td></tr>';
+            });
+            h += '</tbody></table>';
+            if (d.bls) {
+                h += '<h2>Compensation (BLS)</h2><table><thead><tr><th>Percentile</th><th>Annual (USD)</th></tr></thead><tbody>';
+                [['10th', d.bls.pct10], ['25th', d.bls.pct25], ['Median', d.bls.median], ['75th', d.bls.pct75], ['90th', d.bls.pct90]].forEach(function(p) {
+                    h += '<tr><td>' + p[0] + '</td><td>$' + (p[1] || 0).toLocaleString() + '</td></tr>';
+                });
+                h += '</tbody></table>';
+            }
+            if ((d.yearsRequired && d.yearsRequired.length) || (d.education && d.education.length) || (d.certifications && d.certifications.length)) {
+                h += '<h2>Requirements</h2>';
+                if (d.yearsRequired && d.yearsRequired.length) { h += '<ul>'; d.yearsRequired.forEach(function(yr) { h += '<li>' + _esc(yr.range) + ' years &mdash; ' + _esc(yr.area) + '</li>'; }); h += '</ul>'; }
+                if (d.education && d.education.length) { h += '<ul>'; d.education.forEach(function(ed) { h += '<li>' + _esc(ed.level) + (ed.field ? ' in ' + _esc(ed.field) : '') + (ed.preferred ? ' <em>(Preferred)</em>' : '') + '</li>'; }); h += '</ul>'; }
+                if (d.certifications && d.certifications.length) h += '<p><strong>Certifications:</strong> ' + d.certifications.map(function(c) { return _esc(c); }).join(', ') + '</p>';
+            }
+            h += '<h2>Values &amp; Purpose</h2><ul>';
+            (d.values || []).forEach(function(v) { h += '<li><strong>' + _esc(v.name) + '</strong> &mdash; ' + _esc(v.desc) + '</li>'; });
+            h += '</ul>';
+            h += '<h2>Demonstrated Experience</h2><ul>';
+            (d.demonstrated.evidence || []).forEach(function(e) { h += '<li>' + _esc(e) + '</li>'; });
+            h += '</ul><p style="font-size:9pt;color:#64748b;"><strong>Artifacts:</strong> ' + _esc(d.demonstrated.artifacts) + '</p>';
+            h += '<div class="footer">Generated by Blueprint\u2122 Work Blueprint Converter &middot; ' + new Date().toLocaleDateString() + '</div>';
+            h += '</body></html>';
+            var blob = new Blob(['\ufeff' + h], { type: 'application/msword' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'work-blueprint-' + (d.title || 'export').replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase() + '.doc';
+            a.click();
+            URL.revokeObjectURL(a.href);
+            showToast('Work Blueprint exported as Word document.', 'success');
+            function _esc(s) { return escapeHtml(s || ''); }
+        }
+        window.exportWorkBlueprintWord = exportWorkBlueprintWord;
+
+        var _jdcEditMode = false;
+        function jdcEditBlueprint() {
+            if (!_jdcResult) return;
+            _jdcEditMode = true;
+            renderAdminJDConverter(document.getElementById('adminTabContent'));
+        }
+        window.jdcEditBlueprint = jdcEditBlueprint;
+
+        function jdcSaveEdits() {
+            if (!_jdcResult) return;
+            var d = _jdcResult;
+            var g = function(id) { var el = document.getElementById(id); return el ? el.value : ''; };
+            d.title = g('jdcEditTitle') || d.title;
+            d.company = g('jdcEditCompany');
+            d.location = g('jdcEditLocation');
+            d.department = g('jdcEditDepartment');
+            d.reportsTo = g('jdcEditReportsTo');
+            d.employmentType = g('jdcEditEmploymentType');
+            d.schedule = g('jdcEditSchedule');
+            d.travel = g('jdcEditTravel');
+            d.industry = g('jdcEditIndustry');
+            d.summary = g('jdcEditSummary') || d.summary;
+            d.seniority = g('jdcEditSeniority') || d.seniority;
+            _jdcEditMode = false;
+            renderAdminJDConverter(document.getElementById('adminTabContent'));
+            showToast('Blueprint edits saved.', 'success');
+        }
+        window.jdcSaveEdits = jdcSaveEdits;
+
+        function jdcCancelEdit() {
+            _jdcEditMode = false;
+            renderAdminJDConverter(document.getElementById('adminTabContent'));
+        }
+        window.jdcCancelEdit = jdcCancelEdit;
+
+        function renderJDCEditForm(data) {
+            var html = '';
+            var fieldStyle = 'width:100%; box-sizing:border-box; padding:8px 12px; border:1px solid var(--c-surface-5); border-radius:8px; background:var(--c-surface-1); color:var(--c-heading); font-size:0.9em; font-family:inherit;';
+            var labelStyle = 'font-size:0.78em; font-weight:600; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; display:block;';
+            var cardBg = 'var(--c-surface-1)';
+            var borderColor = 'var(--c-surface-5)';
+
+            html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
+                + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">'
+                + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.15em; color:var(--c-heading-bold);">' + bpIcon('edit',18) + ' Edit Work Blueprint</span>'
+                + '<div style="display:flex; gap:8px;">'
+                + '<button onclick="jdcSaveEdits()" style="padding:8px 18px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('save',14) + ' Save Edits</button>'
+                + '<button onclick="jdcCancelEdit()" style="padding:8px 18px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Cancel</button>'
+                + '</div></div>';
+
+            html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px;">';
+            var fields = [
+                { id: 'Title', val: data.title, span: 2 },
+                { id: 'Company', val: data.company },
+                { id: 'Location', val: data.location },
+                { id: 'Department', val: data.department },
+                { id: 'ReportsTo', val: data.reportsTo, label: 'Reports To' },
+                { id: 'EmploymentType', val: data.employmentType, label: 'Employment Type' },
+                { id: 'Schedule', val: data.schedule },
+                { id: 'Travel', val: data.travel },
+                { id: 'Industry', val: data.industry }
+            ];
+            fields.forEach(function(f) {
+                var spanStyle = f.span === 2 ? 'grid-column:1/-1;' : '';
+                html += '<div style="' + spanStyle + '"><label style="' + labelStyle + '">' + (f.label || f.id) + '</label>'
+                    + '<input id="jdcEdit' + f.id + '" type="text" value="' + escapeHtml(f.val || '') + '" style="' + fieldStyle + '" /></div>';
+            });
+            html += '<div><label style="' + labelStyle + '">Seniority Level</label>'
+                + '<select id="jdcEditSeniority" style="' + fieldStyle + '">';
+            ['entry', 'mid', 'senior', 'director', 'executive'].forEach(function(lvl) {
+                html += '<option value="' + lvl + '"' + (data.seniority === lvl ? ' selected' : '') + '>' + lvl.charAt(0).toUpperCase() + lvl.slice(1) + '</option>';
+            });
+            html += '</select></div></div>';
+
+            html += '<div style="margin-bottom:16px;"><label style="' + labelStyle + '">Work Summary</label>'
+                + '<textarea id="jdcEditSummary" style="' + fieldStyle + ' min-height:120px; resize:vertical; line-height:1.6;">' + escapeHtml(data.summary || '') + '</textarea></div>';
+
+            html += '</div>';
+            return html;
+        }
+
+        function jdcSaveToRepository() {
+            if (!_jdcResult) { showToast('No blueprint to save.', 'warning'); return; }
+            if (!fbUser) { showToast('Sign in to save blueprints.', 'warning'); return; }
+            var d = _jdcPrepareExport();
+            d.savedAt = firebase.firestore.FieldValue.serverTimestamp();
+            d.savedBy = fbUser.uid;
+            d.id = d.id || ('wb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6));
+            _jdcResult.id = d.id;
+            fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc(d.id).set(d, { merge: true })
+                .then(function() {
+                    showToast('Work Blueprint saved to repository.', 'success');
+                    _jdcRepoCache = null;
+                })
+                .catch(function(err) {
+                    console.warn('Save blueprint error:', err);
+                    showToast('Failed to save: ' + err.message, 'error');
+                });
+        }
+        window.jdcSaveToRepository = jdcSaveToRepository;
+
+        var _jdcRepoCache = null;
+        function jdcLoadRepository() {
+            if (!fbUser) { showToast('Sign in to access your repository.', 'warning'); return; }
+            _jdcInputMode = 'repo';
+            _jdcRepoCache = null;
+            renderAdminJDConverter(document.getElementById('adminTabContent'));
+            fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').orderBy('savedAt', 'desc').get()
+                .then(function(snapshot) {
+                    _jdcRepoCache = [];
+                    snapshot.forEach(function(doc) {
+                        var data = doc.data();
+                        data.id = doc.id;
+                        _jdcRepoCache.push(data);
+                    });
+                    renderAdminJDConverter(document.getElementById('adminTabContent'));
+                })
+                .catch(function(err) {
+                    console.warn('Load repository error:', err);
+                    showToast('Failed to load repository: ' + err.message, 'error');
+                });
+        }
+        window.jdcLoadRepository = jdcLoadRepository;
+
+        function jdcLoadFromRepo(idx) {
+            if (!_jdcRepoCache || !_jdcRepoCache[idx]) return;
+            _jdcResult = _jdcRepoCache[idx];
+            _jdcCompMode = 'without';
+            _jdcInputMode = 'repo';
+            _jdcEditMode = false;
+            renderAdminJDConverter(document.getElementById('adminTabContent'));
+            showToast('Loaded: ' + (_jdcResult.title || 'Untitled'), 'success');
+        }
+        window.jdcLoadFromRepo = jdcLoadFromRepo;
+
+        function jdcDeleteFromRepo(id) {
+            if (!fbUser || !id) return;
+            if (!confirm('Delete this Work Blueprint from your repository?')) return;
+            fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc(id).delete()
+                .then(function() {
+                    showToast('Blueprint deleted.', 'info');
+                    _jdcRepoCache = null;
+                    jdcLoadRepository();
+                })
+                .catch(function(err) { showToast('Delete failed: ' + err.message, 'error'); });
+        }
+        window.jdcDeleteFromRepo = jdcDeleteFromRepo;
         
         
         // ===== ADMIN COSTS DASHBOARD =====
@@ -16549,8 +16990,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var matchBadge = document.getElementById('matchActiveBadge');
             
             if (view === 'network') {
-                document.getElementById('networkView').style.display = 'block';
-                document.getElementById('cardView').style.display = 'none';
+                var nv = document.getElementById('networkView');
+                var cv = document.getElementById('cardView');
+                if (nv) nv.style.display = 'block';
+                if (cv) cv.style.display = 'none';
                 // networkControls visibility managed by parent controls bar
                 // Show label toggles on desktop
                 var labelToggles = document.getElementById('networkLabelToggles');
@@ -16590,8 +17033,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     }
                 }
             } else {
-                document.getElementById('networkView').style.display = 'none';
-                document.getElementById('cardView').style.display = 'block';
+                var nv2 = document.getElementById('networkView');
+                var cv2 = document.getElementById('cardView');
+                if (nv2) nv2.style.display = 'none';
+                if (cv2) cv2.style.display = 'block';
                 // networkControls visibility managed by parent controls bar
                 var labelToggles2 = document.getElementById('networkLabelToggles');
                 if (labelToggles2) labelToggles2.style.display = 'none';
@@ -16756,8 +17201,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         }
                     }
                     
-                    document.getElementById('roleInfoName').textContent = roleName;
-                    document.getElementById('roleInfoDot').style.background = roleColor;
+                    var riName = document.getElementById('roleInfoName');
+                    var riDot = document.getElementById('roleInfoDot');
+                    if (riName) riName.textContent = roleName;
+                    if (riDot) riDot.style.background = roleColor;
                     
                     // Build stats from skills data
                     var roleSkills = skillsData.skills.filter(function(s) { return s.roles && s.roles.includes(roleId); });
@@ -16788,7 +17235,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     var verifiedInRole = roleSkills.filter(function(sk) { var vs = getSkillVerifications(sk.name); return vs.some(function(v) { return v.status === 'confirmed'; }); }).length;
                     if (verifiedInRole > 0) statsHtml += '<div style="margin-top:4px; color:#10b981;">\u2713 <strong>' + verifiedInRole + '</strong> verified</div>';
                     
-                    document.getElementById('roleInfoStats').innerHTML = statsHtml;
+                    var riStats = document.getElementById('roleInfoStats');
+                    if (riStats) riStats.innerHTML = statsHtml;
                     ric.style.display = 'block';
                 }
             }
@@ -26894,7 +27342,8 @@ body {
         
         function updateMatchThreshold(value) {
             currentMatchThreshold = parseInt(value);
-            document.getElementById('matchValue').textContent = value + '%+';
+            var matchEl = document.getElementById('matchValue');
+            if (matchEl) matchEl.textContent = value + '%+';
             window._jobsPageSize = 100; // reset pagination on threshold change
             filterOpportunities();
         }
@@ -28180,7 +28629,8 @@ body {
         
         function switchSettingsTab(tab) {
             window.currentSettingsTab = tab;
-            document.getElementById('settingsTabContent').innerHTML = renderSettingsTabContent();
+            var stc = document.getElementById('settingsTabContent');
+            if (stc) stc.innerHTML = renderSettingsTabContent();
             // Post-render: set profile photo via DOM API
             if (tab === 'profile' && userData.profile && userData.profile.photo) {
                 safeSetAvatar(document.getElementById('settingPhotoPreview'), userData.profile.photo, false);
@@ -31075,7 +31525,9 @@ body {
         function createCustomSkill() {
             if (readOnlyGuard()) return;
             const name = document.getElementById('customSkillName').value.trim();
-            const level = document.querySelector('input[name="customSkillLevel"]:checked').value;
+            const levelEl = document.querySelector('input[name="customSkillLevel"]:checked');
+            if (!levelEl) { showToast('Please select a proficiency level.', 'warning'); return; }
+            const level = levelEl.value;
             const core = document.getElementById('customSkillCore').checked;
             const roles = Array.from(document.querySelectorAll('.custom-skill-role-checkbox:checked')).map(cb => cb.value);
             
@@ -32073,7 +32525,9 @@ body {
             const skill = userData.skills.find(s => s.name === currentEditingSkill);
             if (!skill) return;
             
-            const level = document.querySelector('input[name="editSkillLevel"]:checked').value;
+            const editLevelEl = document.querySelector('input[name="editSkillLevel"]:checked');
+            if (!editLevelEl) { showToast('Please select a proficiency level.', 'warning'); return; }
+            const level = editLevelEl.value;
             const core = document.getElementById('editSkillCore').checked;
             var roles = Array.from(document.querySelectorAll('.edit-skill-role-checkbox:checked')).map(cb => cb.value);
             

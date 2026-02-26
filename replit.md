@@ -54,14 +54,14 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - Bulk: supports .txt (--- separated), .json (array of strings or objects with description), .csv (auto-detects description column)
 - Section order: Header/Logistics → Skills/Outcomes/Proficiency → Requirements → Compensation → Demonstrated Experience → Values
 
-## Stability (v4.44.60)
+## Stability (v4.44.70)
 - Firestore save: 3-attempt retry with exponential backoff + localStorage backup
 - Firestore load: user-facing error toast + automatic restore from local backup
 - Global error handlers: window.onerror + unhandledrejection (log to incident system)
 - Save debouncing: debouncedSave() prevents race conditions on rapid edits
 - Job search: 30s overall timeout safety net prevents stuck loading spinners
 - Error visibility: showToast on all critical operation failures (auth, search, reports, card view, blueprint render, skill search)
-- Null DOM guards: view switching, waitlist forms, controlsBar, focus() calls inside setTimeout
+- Null DOM guards: view switching, waitlist forms, controlsBar, focus() calls inside setTimeout, networkView/cardView, roleInfo, matchValue, settingsTabContent, querySelector for skill level inputs
 - Empty catch blocks: console.warn added to non-trivial operations (analytics, mode detection, getIdToken)
 - Shared networkLabelLines() utility for consistent multi-line label truncation across all 4 graph views
 - Mobile network layout (v4.44.40-42): hub/name nodes positioned upper-right on mobile for all views; expanded link distances, stronger charge repulsion, larger collision radii; reduced boundary padding to 30px for full canvas use; Match view: name upper-right, job upper-left; You view: height accounts for match toggle row
