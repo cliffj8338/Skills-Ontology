@@ -7577,7 +7577,10 @@
             var html = '<div style="max-width:1100px; margin:0 auto; padding:48px 24px 80px;">';
             
             // Header
-            
+            html += '<div style="text-align:center; margin-bottom:36px;">'
+                + '<div style="font-family:Outfit,sans-serif; font-size:1.6em; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; color:#60a5fa; margin-bottom:12px;">SAMPLE BLUEPRINTS</div>'
+                + '<div style="font-size:1em; color:var(--text-secondary); max-width:600px; margin:0 auto; line-height:1.6;">Famous fictional characters &rarr; real-world career Blueprints. Explore their skills, outcomes, and job matches to see how Blueprint works.</div>'
+                + '</div>';
             
             // Show selector tabs
             html += '<div style="display:flex; justify-content:center; gap:8px; margin-bottom:32px; flex-wrap:wrap;">';
@@ -32574,7 +32577,7 @@ body {
                         target: '#tourHelpBtn',
                         spotlightPad: 6,
                         spotlightRadius: '50%',
-                        beforeShow: function() { switchView('skills'); }
+                        beforeShow: function() { viewSampleProfile(); }
                     }
                 ];
             }
