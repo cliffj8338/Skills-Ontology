@@ -1,4 +1,4 @@
-<!-- v4.44.63 | 2026-02-26 | Find Jobs: sort by displayed score, robust entity decode -->
+<!-- v4.44.64 | 2026-02-26 | Find Jobs: consistent quickScore display, entity decode in toast -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.63 | 2026-02-26 | Find Jobs: sort by displayed score, robust entity decode -->
+    <!-- v4.44.64 | 2026-02-26 | Find Jobs: consistent quickScore display, entity decode in toast -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.63 - BUILD 20260226-find-jobs-sort-fix
-        var BP_VERSION = 'v4.44.63';
+        // BLUEPRINT v4.44.64 - BUILD 20260226-find-jobs-stable-scores
+        var BP_VERSION = 'v4.44.64';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2068,7 +2068,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-find-jobs-sort-fix          ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-find-jobs-stable-scores     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -26197,20 +26197,14 @@ body {
         }
         window.setJobsSort = setJobsSort;
 
-        function getJobDisplayScore(job, pipelineScores) {
-            if (!pipelineScores) return job.matchScore;
-            var key = (job.title + '-' + (job.company || '')).toLowerCase();
-            return (pipelineScores[key] != null) ? pipelineScores[key] : job.matchScore;
-        }
-
-        function sortJobResults(jobs, pipelineScores) {
+        function sortJobResults(jobs) {
             var sorted = jobs.slice();
             switch (jobsSortOrder) {
                 case 'match-desc':
-                    sorted.sort(function(a, b) { return getJobDisplayScore(b, pipelineScores) - getJobDisplayScore(a, pipelineScores); });
+                    sorted.sort(function(a, b) { return b.matchScore - a.matchScore; });
                     break;
                 case 'match-asc':
-                    sorted.sort(function(a, b) { return getJobDisplayScore(a, pipelineScores) - getJobDisplayScore(b, pipelineScores); });
+                    sorted.sort(function(a, b) { return a.matchScore - b.matchScore; });
                     break;
                 case 'title-asc':
                     sorted.sort(function(a, b) { return (a.title || '').localeCompare(b.title || ''); });
@@ -26222,7 +26216,7 @@ body {
                     sorted.sort(function(a, b) { return (a.company || '').localeCompare(b.company || ''); });
                     break;
                 default:
-                    sorted.sort(function(a, b) { return getJobDisplayScore(b, pipelineScores) - getJobDisplayScore(a, pipelineScores); });
+                    sorted.sort(function(a, b) { return b.matchScore - a.matchScore; });
             }
             return sorted;
         }
@@ -26241,14 +26235,12 @@ body {
             }
             
             var pipelineIds = {};
-            var pipelineScores = {};
             (userData.savedJobs || []).forEach(function(j) {
                 var key = (j.title + '-' + (j.company || '')).toLowerCase();
                 pipelineIds[key] = true;
-                if (j.matchData && j.matchData.score) pipelineScores[key] = j.matchData.score;
             });
             
-            filtered = sortJobResults(filtered, pipelineScores);
+            filtered = sortJobResults(filtered);
             
             var pageSize = window._jobsPageSize || 100;
             var showing = filtered.slice(0, pageSize);
@@ -26275,9 +26267,7 @@ body {
             showing.forEach(function(job, idx) {
                 var pipelineKey = (job.title + '-' + (job.company || '')).toLowerCase();
                 var alreadyInPipeline = pipelineIds[pipelineKey];
-                // Use pipeline score if available (more accurate than quickScore)
-                var displayScore = (alreadyInPipeline && pipelineScores[pipelineKey]) ? pipelineScores[pipelineKey] : job.matchScore;
-                var isVerifiedScore = !!(alreadyInPipeline && pipelineScores[pipelineKey]);
+                var displayScore = job.matchScore;
                 var matchColor = displayScore >= 70 ? '#10b981' : displayScore >= 45 ? '#f59e0b' : '#6b7280';
                 var jobUrl = (job.url && /^https?:\/\//i.test(job.url)) ? escapeHtml(job.url) : '#';
                 var salary = job.salary || '';
@@ -27414,7 +27404,7 @@ body {
             saveUserData();
             if (fbUser) debouncedSave();
             
-            showToast(job.title + ' added to pipeline: ' + matchData.score + '% match.', 'success', 4000);
+            showToast(decodeHtmlEntities(job.title) + ' added to pipeline.', 'success', 4000);
             if (typeof bpTracker !== 'undefined' && bpTracker.sid) bpTracker.trackFunnel('first_job');
             
             // Re-render to update the "In Pipeline" badge
