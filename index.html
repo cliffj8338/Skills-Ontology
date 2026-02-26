@@ -1,4 +1,4 @@
-<!-- v4.44.55 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
+<!-- v4.44.57 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.55 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
+    <!-- v4.44.57 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1487,8 +1487,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.55 - BUILD 20260226-welcome-copy
-        var BP_VERSION = 'v4.44.55';
+        // BLUEPRINT v4.44.57 - BUILD 20260226-jd-converter
+        var BP_VERSION = 'v4.44.57';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2041,7 +2041,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-welcome-copy               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-jd-converter               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -3105,6 +3105,7 @@
                 + '<button class="admin-tab" data-tab="costs" onclick="switchAdminTab(\'costs\')" style="flex:1; min-width:80px; padding:10px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('skills',14) + ' Costs</button>'
                 + '<button class="admin-tab" data-tab="status" onclick="switchAdminTab(\'status\')" style="flex:1; min-width:80px; padding:10px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('shield',14) + ' Status</button>'
                 + '<button class="admin-tab" data-tab="architecture" onclick="switchAdminTab(\'architecture\')" style="flex:1; min-width:80px; padding:10px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('compass',14) + ' Architecture</button>'
+                + '<button class="admin-tab" data-tab="jdconverter" onclick="switchAdminTab(\'jdconverter\')" style="flex:1; min-width:80px; padding:10px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('wand',14) + ' JD Converter</button>'
                 + '</div>'
                 
                 // Content area
@@ -3128,6 +3129,7 @@
             else if (adminSubTab === 'costs') renderAdminCosts(el);
             else if (adminSubTab === 'status') renderAdminStatus(el);
             else if (adminSubTab === 'architecture') renderAdminArchitecture(el);
+            else if (adminSubTab === 'jdconverter') renderAdminJDConverter(el);
         }
         
         function renderAdminOverview(el) {
@@ -4347,9 +4349,9 @@
                         { id: 'p2-3n', name: 'Unified skill editor + UX fixes', status: 'done', category: 'ux', priority: 'high', notes: 'Single modal combining level/roles/assess/core. Network name label offset. quickScore v3 (word-boundary + level weighting). Alphabetical skill sorting. BLS Potential tile always shown. bpIcon assess bug.' },
                         { id: 'p2-3o', name: 'Wizard Step 9 save+download UX', status: 'done', category: 'ux', priority: 'medium', notes: 'Single Save button with pre-checked download checkbox. Replaces two separate buttons.' },
                         { id: 'p2-3p', name: 'Architecture map v2 — layered diagram', status: 'done', category: 'admin', priority: 'medium', notes: 'Replaced force-directed graph with structured swim-lane layout. 4 layers: Frontend→Runtime→Backend→External. Rich detail panels with function names, line ranges, data flows, dependencies, tech debt. Engineer-grade onboarding tool.' },
-                        { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'in-progress', category: 'process', priority: 'medium', notes: 'v4.44.46: Major update adding verification system, showcase mode, XSS security layer, share token flows. 38 components, 31 data flows. Still needs automated generation from code comments.' },
+                        { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'in-progress', category: 'process', priority: 'medium', notes: 'v4.44.56: Added accessibility layer component (a11y), updated welcome landing detail, added 4 a11y flows. 38 components, 35 data flows. Still needs automated generation from code comments.' },
                         { id: 'p2-3r', name: 'Skill editor outcomes + reports cleanup + network v3', status: 'done', category: 'ux', priority: 'high', notes: 'Unified editor: wider padding, linked outcomes section. Reports: PREVIEW labels on analytics/heatmap/share links, removed fake views/status from My Reports. Network: center node at width*0.18, role label truncation 24 chars.' },
-                        { id: 'p2-3s', name: 'Job description → Work Blueprint converter', status: 'planned', category: 'feature', priority: 'high', notes: 'Paste or import a job description and AI extracts it into Blueprint format: Skills/Outcomes/Proficiency Levels, demonstrated experience requirements, values & purpose signals, and regional compensation data. Outputs a structured Work Blueprint that can be matched against candidate profiles. The inverse of the scouting report — instead of scoring a person against a job, it scores a job into the ontology.' },
+                        { id: 'p2-3s', name: 'JD → Work Blueprint converter', status: 'in-progress', category: 'feature', priority: 'high', notes: 'Paste or import a job description and AI extracts it into Blueprint format: Skills/Outcomes/Proficiency Levels, demonstrated experience requirements, values & purpose signals, and regional compensation data. Outputs a structured Work Blueprint that can be matched against candidate profiles. The inverse of the scouting report — instead of scoring a person against a job, it scores a job into the ontology.' },
                         { id: 'p2-3t', name: 'SEO + Generative Engine Optimization', status: 'active', category: 'infrastructure', priority: 'high', notes: 'Full metadata suite: title, description, Open Graph, Twitter Cards, canonical URL, favicon, JSON-LD structured data (WebApplication + Organization), robots, theme-color. Generative engine optimization: semantic HTML, descriptive headings, FAQ schema, HowTo schema, speakable metadata, citation-friendly content structure. Goal: discoverable by both traditional search and AI-powered answer engines (Google SGE, Perplexity, ChatGPT Browse).' },
                         { id: 'p2-4a', name: 'Parallel profile loading + deferred crosswalk', status: 'done', category: 'infrastructure', priority: 'high', notes: 'v4.44.39: Sequential profile loading replaced with Promise.allSettled() for all 24 demos + 9 data libraries. O*NET crosswalk (4.6MB) deferred until after initial render. Significant load time improvement.' },
                         { id: 'p2-4b', name: 'Mobile network layout optimization', status: 'done', category: 'ux', priority: 'high', notes: 'v4.44.40-42: Hub/name nodes repositioned to upper-right on mobile across all 4 views. Match view: name and job hubs fully separated (upper-right vs upper-left). You view: forces tightened, height accounts for match toggle row. Desktop unchanged.' },
@@ -5195,10 +5197,10 @@
                 // ── LAYER 1: FRONTEND VIEWS ──
                 { id: 'welcome', name: 'Welcome Landing', layer: 'frontend', col: 0,
                   color: '#8b5cf6', icon: 'star',
-                  detail: { desc: 'Public landing page. Animated skill network SVG. CTA to Sign In or demo picker.',
-                    functions: ['renderWelcome()'], lines: '~500-700', route: '#welcome',
-                    inputs: ['URL hash'], outputs: ['View selection', 'Demo trigger'],
-                    deps: ['Firebase Auth'], debt: 'Hero animation could lazy-load' }},
+                  detail: { desc: 'Public landing page. Animated skill network canvas. Three CTAs: See It In Action, Build My Blueprint, Why Blueprint. Body copy positions Blueprint as leverage, not a profile.',
+                    functions: ['renderWelcomePage()', 'initHeroNetwork()'], lines: '~7181-7270', route: '#welcome',
+                    inputs: ['URL hash', 'appMode'], outputs: ['View selection', 'Demo trigger', 'Waitlist modal'],
+                    deps: ['Firebase Auth', 'appMode state'], debt: 'Hero canvas animation could lazy-load' }},
                 { id: 'wizard', name: 'Onboarding Wizard', layer: 'frontend', col: 1,
                   color: '#8b5cf6', icon: 'compass',
                   detail: { desc: '9-step guided profile builder. Resume upload, LinkedIn CSV, manual entry. Skill enrichment via O*NET crosswalk.',
@@ -5309,6 +5311,12 @@
                     functions: ['escapeHtml()', 'textarea value escaping', 'input attribute sanitization'], lines: 'Distributed (~1300, 14500, 25400, 31200+)',
                     inputs: ['All dynamic string content'], outputs: ['Sanitized HTML-safe strings'],
                     deps: ['None (pure utility function)'], debt: 'No CSP header yet. SVG diagram export uses innerHTML.' }},
+                { id: 'a11y', name: 'Accessibility Layer', layer: 'runtime', col: 10,
+                  color: '#f59e0b', icon: 'eye',
+                  detail: { desc: 'Cross-cutting a11y infrastructure. ARIA landmarks (banner, navigation, main, contentinfo), skip-to-content link, aria-live regions for toasts and view changes, keyboard shortcuts (1-5 nav, ? help). bpIcon SVGs marked aria-hidden. 9 modals with role=dialog + aria-modal. 40 close buttons labeled.',
+                    functions: ['updateLastSavedDisplay()', 'srAnnounce (live region)', 'keyboard listener', 'bpIcon() aria-hidden injection'], lines: 'Distributed (shell HTML ~604-830, shortcuts ~2750, announcer ~15155)',
+                    inputs: ['View switches', 'Keyboard events', 'Save events'], outputs: ['Screen reader announcements', 'Focus management', 'Keyboard navigation'],
+                    deps: ['switchView()', 'saveToFirestore()', 'All modal open/close functions'], debt: 'Modal focus trapping not yet implemented. 43 onclick-divs still inaccessible. Form input aria-labels needed. WCAG 2.2 AA audit pending.' }},
 
                 // ── LAYER 3: BACKEND SERVICES & PERSISTENCE ──
                 { id: 'firestore', name: 'Firestore Database', layer: 'backend', col: 0,
@@ -5457,7 +5465,11 @@
                 ['blueprint', 'verification', 'evidence display', 'read'],
                 ['reports', 'firestore', 'share tokens', 'data'],
                 ['showcase', 'userdata', 'reads snapshot', 'read'],
-                ['showcase', 'skillsdata', 'reads snapshot', 'read']
+                ['showcase', 'skillsdata', 'reads snapshot', 'read'],
+                ['a11y', 'welcome', 'landmarks + skip link', 'sync'],
+                ['a11y', 'network', 'aria-hidden SVGs', 'sync'],
+                ['a11y', 'jobs', 'live regions', 'sync'],
+                ['a11y', 'blueprint', 'view announcer', 'sync']
             ];
         }
         
@@ -5488,7 +5500,7 @@
             
             // Note
             html += '<div style="font-size:0.75em; color:var(--text-muted); margin-bottom:16px; padding:8px 12px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px;">'
-                + '' + bpIcon('warning', 12) + ' <strong>Last updated:</strong> v4.44.46 \u2014 Added verification system, showcase mode, XSS security layer, share token flows. See roadmap item p2-3q.'
+                + '' + bpIcon('warning', 12) + ' <strong>Last updated:</strong> v4.44.56 \u2014 Added accessibility layer, updated welcome landing, 4 new a11y flows. 38 components, 35 data flows. See roadmap item p2-3q.'
                 + '</div>';
             
             // === TILES VIEW ===
@@ -5581,7 +5593,7 @@
                 'reports':    { x: Math.round(1040*S), y: layerYs.frontend, shape: 'screen' },
                 'admin':      { x: Math.round(1200*S), y: layerYs.frontend, shape: 'screen' },
                 'showcase':   { x: Math.round(1380*S), y: layerYs.frontend, shape: 'screen' },
-                // Runtime State & Engines (10 items)
+                // Runtime State & Engines (11 items)
                 'userdata':     { x: Math.round(100*S),  y: layerYs.runtime, shape: 'state' },
                 'skillsdata':   { x: Math.round(250*S),  y: layerYs.runtime, shape: 'state' },
                 'blueprintdata':{ x: Math.round(400*S),  y: layerYs.runtime, shape: 'state' },
@@ -5592,6 +5604,7 @@
                 'pdf-gen':      { x: Math.round(1120*S), y: layerYs.runtime, shape: 'engine' },
                 'verification': { x: Math.round(1270*S), y: layerYs.runtime, shape: 'engine' },
                 'security':     { x: Math.round(1430*S), y: layerYs.runtime, shape: 'engine' },
+                'a11y':         { x: Math.round(1580*S), y: layerYs.runtime, shape: 'engine' },
                 // Backend Services (8 items, wider spread)
                 'firestore':      { x: Math.round(160*S),  y: layerYs.backend, shape: 'db' },
                 'firebase-auth':  { x: Math.round(340*S),  y: layerYs.backend, shape: 'lock' },
@@ -6077,6 +6090,430 @@
             }
         }
         window.archShowDetail = archShowDetail;
+        
+        
+        // ===== JD → WORK BLUEPRINT CONVERTER =====
+        var _jdcResult = null;
+        var _jdcCompMode = 'without'; // 'without' or 'with'
+        
+        function renderAdminJDConverter(el) {
+            var html = '<div style="max-width:1200px; margin:0 auto;">';
+            
+            // Header
+            html += '<div style="margin-bottom:24px;">'
+                + '<div style="font-family:Outfit,sans-serif; font-size:1.4em; font-weight:700; color:var(--c-heading-bold); margin-bottom:6px;">'
+                + bpIcon('wand',20) + ' JD \u2192 Work Blueprint Converter</div>'
+                + '<div style="font-size:0.9em; color:var(--c-muted); line-height:1.6;">'
+                + 'Paste a traditional job description. Blueprint converts it into a structured Work Blueprint with skills, outcomes, proficiency levels, compensation, demonstrated experience criteria, and values.</div>'
+                + '</div>';
+            
+            // Input area
+            html += '<div style="margin-bottom:20px;">'
+                + '<textarea id="jdcInput" placeholder="Paste a job description here..." style="width:100%; box-sizing:border-box; min-height:180px; padding:14px; border:1px solid var(--c-surface-5); border-radius:10px; background:var(--c-surface-1); color:var(--c-heading); font-size:0.9em; line-height:1.6; resize:vertical; font-family:inherit;">' + escapeHtml((_jdcResult ? _jdcResult._rawJD : '') || '') + '</textarea>'
+                + '<div style="display:flex; gap:12px; margin-top:12px; align-items:center; flex-wrap:wrap;">'
+                + '<button onclick="runJDConverter()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
+                + bpIcon('zap',14) + ' Convert to Work Blueprint</button>'
+                + '<span style="font-size:0.78em; color:var(--c-faint);">Deterministic engine: O*NET crosswalk + BLS wages. No AI API calls.</span>'
+                + '</div></div>';
+            
+            // Output
+            if (_jdcResult) {
+                // Mode toggle
+                html += '<div style="display:flex; gap:2px; background:var(--c-surface-2); border-radius:10px; padding:3px; margin-bottom:20px; max-width:440px;">'
+                    + '<button onclick="_jdcCompMode=\'without\'; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="flex:1; padding:8px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; '
+                    + (_jdcCompMode === 'without' ? 'background:var(--accent); color:#fff;' : 'background:transparent; color:var(--text-secondary);') + '">'
+                    + 'Without Skills Comp Model</button>'
+                    + '<button onclick="_jdcCompMode=\'with\'; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="flex:1; padding:8px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; '
+                    + (_jdcCompMode === 'with' ? 'background:var(--accent); color:#fff;' : 'background:transparent; color:var(--text-secondary);') + '">'
+                    + 'With Skills Comp Model</button></div>';
+                
+                html += renderWorkBlueprint(_jdcResult, _jdcCompMode === 'with');
+            }
+            
+            html += '</div>';
+            el.innerHTML = html;
+        }
+        
+        function runJDConverter() {
+            var raw = (document.getElementById('jdcInput') || {}).value || '';
+            if (!raw || raw.trim().length < 50) {
+                showToast('Paste a job description with at least a few sentences.', 'warning');
+                return;
+            }
+            
+            _jdcResult = convertJDToBlueprint(raw.trim());
+            _jdcCompMode = 'without';
+            renderAdminJDConverter(document.getElementById('adminTabContent'));
+            showToast('Work Blueprint generated: ' + _jdcResult.skills.length + ' skills extracted.', 'success');
+        }
+        window.runJDConverter = runJDConverter;
+        
+        function convertJDToBlueprint(jdText) {
+            var lines = jdText.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);
+            var text = jdText.toLowerCase();
+            
+            // ── Extract title ──
+            var title = '';
+            // Try first non-empty line that looks like a title (< 80 chars, no bullet)
+            for (var li = 0; li < Math.min(5, lines.length); li++) {
+                var ln = lines[li].replace(/^[\u2022\u2023\u25E6\-\*]\s*/, '');
+                if (ln.length > 5 && ln.length < 100 && !/^\d+\./.test(ln) && !/^(about|we |our |the company|description|overview)/i.test(ln)) {
+                    title = ln; break;
+                }
+            }
+            if (!title) title = lines[0] || 'Unknown Role';
+            
+            // ── Extract company ──
+            var company = '';
+            var companyMatch = jdText.match(/(?:at|for|with|company[:\s]*|employer[:\s]*)\s+([A-Z][A-Za-z\s&\.\-]+?)(?:\s+is|\s+seeks|\s+looking|[,\.\n])/);
+            if (companyMatch) company = companyMatch[1].trim();
+            
+            // ── Extract location ──
+            var location = 'Remote';
+            var locMatch = jdText.match(/(?:location|based in|located in)[:\s]*([^\n,]{3,40})/i);
+            if (locMatch) location = locMatch[1].trim();
+            else if (/remote/i.test(jdText)) location = 'Remote';
+            
+            // ── Resolve to O*NET ──
+            var socResult = null;
+            var onetSkills = [];
+            if (typeof resolveTitle === 'function') {
+                socResult = resolveTitle(title);
+            }
+            if (socResult && window.onetCrosswalk) {
+                var occData = window.onetCrosswalk.occupations[socResult.soc];
+                if (occData) {
+                    ['skills', 'abilities', 'knowledge'].forEach(function(type) {
+                        (occData[type] || []).forEach(function(s) {
+                            onetSkills.push({
+                                name: s.name,
+                                importance: s.importance || 50,
+                                level: s.level || 50,
+                                blueprintLevel: s.blueprintLevel || 'Proficient',
+                                category: s.category || type
+                            });
+                        });
+                    });
+                }
+            }
+            
+            // ── Extract skills from JD text (keyword scan) ──
+            var jdSkills = extractSkillsFromText(jdText);
+            
+            // ── Merge: O*NET skills + JD-extracted, deduped, sorted by importance ──
+            var seen = {};
+            var merged = [];
+            // O*NET first (canonical)
+            onetSkills.forEach(function(s) {
+                var key = s.name.toLowerCase().trim();
+                if (!seen[key]) {
+                    seen[key] = true;
+                    // Check if JD text mentions this skill (boost if so)
+                    var mentioned = text.indexOf(key) !== -1 || text.indexOf(key.replace(/ /g, '-')) !== -1;
+                    merged.push({
+                        name: s.name,
+                        importance: mentioned ? Math.min(100, s.importance + 10) : s.importance,
+                        blueprintLevel: s.blueprintLevel,
+                        source: mentioned ? 'onet+jd' : 'onet',
+                        category: s.category
+                    });
+                }
+            });
+            // JD-only skills
+            jdSkills.forEach(function(name) {
+                var key = name.toLowerCase().trim();
+                if (!seen[key]) {
+                    seen[key] = true;
+                    merged.push({ name: name, importance: 55, blueprintLevel: 'Proficient', source: 'jd', category: 'skill' });
+                }
+            });
+            
+            // Sort by importance descending, take top 12
+            merged.sort(function(a, b) { return b.importance - a.importance; });
+            var skills = merged.slice(0, 12);
+            
+            // ── Infer proficiency from JD language ──
+            skills.forEach(function(s) {
+                s.blueprintLevel = inferProficiencyFromJD(s.name, jdText);
+                s.outcome = generateOutcome(s.name, s.category);
+            });
+            
+            // ── BLS Compensation ──
+            var bls = null;
+            if (typeof matchJobToBLS === 'function') {
+                bls = matchJobToBLS(title, jdText.substring(0, 1000));
+            }
+            
+            // ── Per-skill comp (skills comp model) ──
+            if (bls && bls.median) {
+                var totalImportance = skills.reduce(function(sum, s) { return sum + s.importance; }, 0);
+                var levelMultipliers = { 'Awareness': 0.6, 'Foundational': 0.75, 'Proficient': 1.0, 'Advanced': 1.2, 'Expert': 1.4, 'Mastery': 1.6 };
+                var totalWeighted = skills.reduce(function(sum, s) {
+                    return sum + (s.importance * (levelMultipliers[s.blueprintLevel] || 1.0));
+                }, 0);
+                skills.forEach(function(s) {
+                    var weight = (s.importance * (levelMultipliers[s.blueprintLevel] || 1.0)) / totalWeighted;
+                    s.compValue = Math.round(bls.median * weight);
+                });
+            }
+            
+            // ── Seniority detection ──
+            var seniority = 'mid';
+            if (/\b(senior|sr\.|lead|principal|staff)\b/i.test(title)) seniority = 'senior';
+            if (/\b(director|head of|vp |vice president)\b/i.test(title)) seniority = 'director';
+            if (/\b(chief|cto|cfo|ceo|coo|cmo|cio|svp|evp)\b/i.test(title)) seniority = 'executive';
+            if (/\b(junior|jr\.|entry|associate|intern)\b/i.test(title)) seniority = 'entry';
+            
+            // ── Extract values from JD language ──
+            var values = inferValuesFromJD(jdText);
+            
+            // ── Generate work summary ──
+            var summary = generateWorkSummary(title, company, skills.slice(0, 5), seniority);
+            
+            // ── Generate demonstrated experience ──
+            var demoExperience = generateDemonstrated(title, skills.slice(0, 6), seniority);
+            
+            return {
+                title: title,
+                company: company,
+                location: location,
+                soc: socResult ? socResult.soc : null,
+                socTitle: socResult ? socResult.title : null,
+                seniority: seniority,
+                summary: summary,
+                skills: skills,
+                bls: bls,
+                values: values,
+                demonstrated: demoExperience,
+                _rawJD: jdText
+            };
+        }
+        
+        function extractSkillsFromText(jdText) {
+            var text = jdText.toLowerCase();
+            var found = [];
+            // Common skill patterns from JD phrasing
+            var patterns = [
+                /(?:experience|proficiency|expertise|knowledge|skilled)\s+(?:in|with|of)\s+([A-Za-z\s\+\#\/\-]{3,40})/gi,
+                /(?:familiarity with|understanding of|ability to use)\s+([A-Za-z\s\+\#\/\-]{3,40})/gi
+            ];
+            patterns.forEach(function(rx) {
+                var m;
+                while ((m = rx.exec(jdText)) !== null) {
+                    var skill = m[1].trim().replace(/[,\.\;]+$/, '').trim();
+                    if (skill.length > 2 && skill.length < 40 && !/\b(and|the|our|you|your|this|that|will|must)\b/i.test(skill)) {
+                        found.push(skill.charAt(0).toUpperCase() + skill.slice(1));
+                    }
+                }
+            });
+            return found.slice(0, 8);
+        }
+        
+        function inferProficiencyFromJD(skillName, jdText) {
+            var text = jdText.toLowerCase();
+            var sn = skillName.toLowerCase();
+            // Look for years near skill mention
+            var idx = text.indexOf(sn);
+            var context = idx >= 0 ? text.substring(Math.max(0, idx - 80), Math.min(text.length, idx + 80)) : text;
+            
+            if (/(?:10|12|15|20)\+?\s*(?:years|yrs)/i.test(context)) return 'Mastery';
+            if (/(?:7|8|9)\+?\s*(?:years|yrs)/i.test(context)) return 'Expert';
+            if (/(?:5|6)\+?\s*(?:years|yrs)/i.test(context)) return 'Advanced';
+            if (/(?:3|4)\+?\s*(?:years|yrs)/i.test(context)) return 'Proficient';
+            if (/(?:1|2)\+?\s*(?:years|yrs)/i.test(context)) return 'Foundational';
+            
+            // Keyword-based
+            if (/\b(master|expert|deep expertise|authority)\b/i.test(context)) return 'Mastery';
+            if (/\b(extensive|thorough|strong expertise)\b/i.test(context)) return 'Expert';
+            if (/\b(senior|advanced|strong|demonstrated|significant)\b/i.test(context)) return 'Advanced';
+            if (/\b(solid|working knowledge|proficient|competent)\b/i.test(context)) return 'Proficient';
+            if (/\b(basic|fundamental|familiar|exposure)\b/i.test(context)) return 'Foundational';
+            
+            return 'Advanced'; // Default for JD requirements
+        }
+        
+        function generateOutcome(skillName, category) {
+            var outcomeTemplates = {
+                'skills': 'Applies ' + skillName + ' to deliver measurable results aligned with organizational objectives',
+                'abilities': 'Demonstrates ' + skillName + ' in complex, ambiguous situations requiring judgment',
+                'knowledge': 'Leverages ' + skillName + ' to inform decisions and guide team execution',
+                'skill': 'Uses ' + skillName + ' to produce consistent, quality work outputs'
+            };
+            return outcomeTemplates[category] || outcomeTemplates['skill'];
+        }
+        
+        function inferValuesFromJD(jdText) {
+            var text = jdText.toLowerCase();
+            var values = [];
+            var valuePatterns = [
+                { name: 'Integrity', desc: 'Upholds rigorous standards and ethical decision-making', patterns: /\b(integrity|ethic|trust|honest|transparent|compliance)\b/ },
+                { name: 'Curiosity', desc: 'Digs beneath surface data to uncover patterns and root causes', patterns: /\b(curious|innovate|creative|research|analytic|discover|explore|investigate)\b/ },
+                { name: 'Collaborative Impact', desc: 'Works across functions to drive outcomes as a team', patterns: /\b(collaborat|team|cross.?function|partner|stakeholder|together)\b/ },
+                { name: 'Accountability', desc: 'Owns work through to resolution and supports outcomes', patterns: /\b(accountab|ownership|responsible|reliable|deliver|results.?driven|outcome)\b/ },
+                { name: 'Resilience', desc: 'Navigates ambiguous, adversarial, and regulated environments', patterns: /\b(resilien|adapt|agile|fast.?paced|ambiguit|pressure|challenge)\b/ },
+                { name: 'Strategic Insight', desc: 'Converts findings into program-level recommendations', patterns: /\b(strateg|vision|long.?term|roadmap|thought leader|foresight|influence)\b/ },
+                { name: 'Continuous Growth', desc: 'Actively develops skills and stays current with the field', patterns: /\b(learn|develop|growth|certif|train|mentor|improv|evolve)\b/ },
+                { name: 'Precision', desc: 'Executes with attention to detail and quality standards', patterns: /\b(detail|precision|quality|thorough|meticulous|accurate|rigor)\b/ },
+                { name: 'Empathy', desc: 'Understands and responds to the needs of others with care', patterns: /\b(empathy|compassion|patient|support|listen|understand|inclusion|diverse|equity)\b/ },
+                { name: 'Autonomy', desc: 'Operates independently with sound judgment', patterns: /\b(independent|autonomy|self.?directed|initiative|proactive|self.?starter)\b/ }
+            ];
+            valuePatterns.forEach(function(v) {
+                if (v.patterns.test(text)) values.push({ name: v.name, desc: v.desc });
+            });
+            // Always return at least 3
+            if (values.length < 3) {
+                var defaults = [
+                    { name: 'Accountability', desc: 'Owns work through to resolution and supports outcomes' },
+                    { name: 'Collaborative Impact', desc: 'Works across functions to drive outcomes as a team' },
+                    { name: 'Continuous Growth', desc: 'Actively develops skills and stays current with the field' }
+                ];
+                defaults.forEach(function(d) {
+                    if (values.length < 4 && !values.some(function(v) { return v.name === d.name; })) values.push(d);
+                });
+            }
+            return values.slice(0, 6);
+        }
+        
+        function generateWorkSummary(title, company, topSkills, seniority) {
+            var skillNames = topSkills.map(function(s) { return s.name; });
+            var seniorityMap = { entry: 'Support', mid: 'Execute', senior: 'Lead', director: 'Direct', executive: 'Set strategy for' };
+            var verb = seniorityMap[seniority] || 'Execute';
+            var companyPhrase = company ? ' at ' + company : '';
+            return verb + ' ' + (skillNames[0] || 'core functions').toLowerCase() + ' and ' + (skillNames[1] || 'cross-functional initiatives').toLowerCase() + companyPhrase + '. '
+                + 'Drive ' + (skillNames[2] || 'operational outcomes').toLowerCase() + ', ' + (skillNames[3] || 'process improvements').toLowerCase()
+                + ', and coordination across teams. Operate as both practitioner and strategic partner, combining technical execution with organizational impact.';
+        }
+        
+        function generateDemonstrated(title, topSkills, seniority) {
+            var evidence = [];
+            var quantifiers = { entry: 'Contributed to', mid: 'Successfully completed', senior: 'Led', director: 'Directed', executive: 'Set enterprise strategy for' };
+            var q = quantifiers[seniority] || 'Completed';
+            topSkills.forEach(function(s) {
+                evidence.push(q + ' initiatives requiring ' + s.name + ' with measurable impact on business outcomes.');
+            });
+            var artifacts = 'Relevant artifacts: project deliverables, performance metrics, stakeholder feedback, process documentation, audit trails.';
+            return { evidence: evidence, artifacts: artifacts };
+        }
+        
+        function renderWorkBlueprint(data, showComp) {
+            var html = '';
+            var cardBg = 'var(--c-surface-1)';
+            var borderColor = 'var(--c-surface-5)';
+            var headingColor = 'var(--c-heading-bold)';
+            var mutedColor = 'var(--c-muted)';
+            var accentColor = '#60a5fa';
+            
+            // ── Blueprint header ──
+            html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
+                + '<div style="font-size:0.78em; text-transform:uppercase; letter-spacing:1.5px; color:' + accentColor + '; margin-bottom:6px; font-weight:600;">Work Blueprint' + (showComp ? ' (With Skills Comp Model)' : '') + '</div>'
+                + '<div style="font-family:Outfit,sans-serif; font-size:1.4em; font-weight:700; color:' + headingColor + '; margin-bottom:4px;">' + escapeHtml(data.title) + '</div>'
+                + (data.company ? '<div style="font-size:0.9em; color:' + mutedColor + ';">' + escapeHtml(data.company) + ' \u00B7 ' + escapeHtml(data.location) + '</div>' : '<div style="font-size:0.9em; color:' + mutedColor + ';">' + escapeHtml(data.location) + '</div>')
+                + (data.soc ? '<div style="font-size:0.75em; color:var(--c-faint); margin-top:4px;">O*NET: ' + escapeHtml(data.socTitle || data.soc) + ' (' + escapeHtml(data.soc) + ')</div>' : '')
+                + '<div style="margin-top:14px; font-size:0.9em; color:var(--text-secondary); line-height:1.7;"><strong style="color:' + headingColor + ';">Work Summary:</strong> ' + escapeHtml(data.summary) + '</div>'
+                + '</div>';
+            
+            // ── Section 1: Skills / Outcomes / Proficiency ──
+            html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
+                + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">'
+                + '<span style="color:' + accentColor + ';">' + bpIcon('skills',18) + '</span>'
+                + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">1) Skills / Outcomes / Proficiency</span></div>'
+                + '<div style="overflow-x:auto;">'
+                + '<table style="width:100%; border-collapse:collapse; font-size:0.85em;">'
+                + '<thead><tr style="border-bottom:2px solid ' + borderColor + ';">'
+                + '<th style="text-align:left; padding:8px 10px; color:' + accentColor + '; font-weight:700;">Skill</th>'
+                + '<th style="text-align:left; padding:8px 10px; color:' + accentColor + '; font-weight:700;">Expected Outcome</th>'
+                + '<th style="text-align:center; padding:8px 10px; color:' + accentColor + '; font-weight:700;">Proficiency</th>'
+                + (showComp ? '<th style="text-align:right; padding:8px 10px; color:' + accentColor + '; font-weight:700;">Comp Value (USD)</th>' : '')
+                + '</tr></thead><tbody>';
+            
+            var totalComp = 0;
+            data.skills.forEach(function(s, i) {
+                var bg = i % 2 === 0 ? 'transparent' : 'var(--c-surface-2)';
+                var levelColors = { 'Mastery': '#10b981', 'Expert': '#8b5cf6', 'Advanced': '#3b82f6', 'Proficient': '#f59e0b', 'Foundational': '#6b7280', 'Awareness': '#9ca3af' };
+                var lc = levelColors[s.blueprintLevel] || '#6b7280';
+                totalComp += (s.compValue || 0);
+                html += '<tr style="background:' + bg + '; border-bottom:1px solid ' + borderColor + ';">'
+                    + '<td style="padding:10px; font-weight:600; color:' + headingColor + '; white-space:nowrap;">' + escapeHtml(s.name) + '</td>'
+                    + '<td style="padding:10px; color:var(--text-secondary); line-height:1.5;">' + escapeHtml(s.outcome || '') + '</td>'
+                    + '<td style="padding:10px; text-align:center;"><span style="padding:3px 10px; border-radius:12px; font-size:0.82em; font-weight:600; background:' + lc + '22; color:' + lc + '; border:1px solid ' + lc + '44;">' + escapeHtml(s.blueprintLevel) + '</span></td>'
+                    + (showComp ? '<td style="padding:10px; text-align:right; font-weight:700; color:#10b981;">$' + (s.compValue || 0).toLocaleString() + '</td>' : '')
+                    + '</tr>';
+            });
+            if (showComp) {
+                html += '<tr style="border-top:2px solid ' + borderColor + '; background:rgba(16,185,129,0.06);">'
+                    + '<td colspan="3" style="padding:10px; font-weight:700; text-align:right; color:' + headingColor + ';">Total Estimated Compensation</td>'
+                    + '<td style="padding:10px; text-align:right; font-weight:800; color:#10b981; font-size:1.05em;">$' + totalComp.toLocaleString() + '</td></tr>';
+            }
+            html += '</tbody></table></div></div>';
+            
+            // ── Section 2: Regional Compensation Overview ──
+            html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
+                + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">'
+                + '<span style="color:#10b981;">' + bpIcon('money',18) + '</span>'
+                + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">2) Regional Compensation Overview</span></div>';
+            
+            if (data.bls) {
+                html += '<table style="width:100%; border-collapse:collapse; font-size:0.85em; max-width:700px;">'
+                    + '<thead><tr style="border-bottom:2px solid ' + borderColor + ';">'
+                    + '<th style="text-align:left; padding:8px 10px; color:#10b981; font-weight:700;">Percentile</th>'
+                    + '<th style="text-align:right; padding:8px 10px; color:#10b981; font-weight:700;">Annual (USD)</th>'
+                    + '<th style="text-align:left; padding:8px 10px; color:#10b981; font-weight:700;">Notes</th>'
+                    + '</tr></thead><tbody>';
+                var pctData = [
+                    { label: '10th (Entry Floor)', val: data.bls.pct10, note: 'Entry-level, limited experience' },
+                    { label: '25th', val: data.bls.pct25, note: 'Below median, developing' },
+                    { label: '50th (Median)', val: data.bls.median, note: 'National median for this occupation' },
+                    { label: '75th', val: data.bls.pct75, note: 'Experienced, strong market position' },
+                    { label: '90th (Top Tier)', val: data.bls.pct90, note: 'Top performers, premium markets' }
+                ];
+                pctData.forEach(function(p, i) {
+                    var bg = i % 2 === 0 ? 'transparent' : 'var(--c-surface-2)';
+                    var isMedian = p.label.indexOf('Median') !== -1;
+                    html += '<tr style="background:' + bg + '; border-bottom:1px solid ' + borderColor + ';' + (isMedian ? 'font-weight:700;' : '') + '">'
+                        + '<td style="padding:8px 10px; color:' + headingColor + ';">' + p.label + '</td>'
+                        + '<td style="padding:8px 10px; text-align:right; color:#10b981; font-weight:600;">$' + (p.val || 0).toLocaleString() + '</td>'
+                        + '<td style="padding:8px 10px; color:' + mutedColor + '; font-size:0.9em;">' + p.note + '</td></tr>';
+                });
+                html += '</tbody></table>'
+                    + '<div style="margin-top:12px; font-size:0.78em; color:var(--c-faint);">Source: BLS OEWS ' + (data.bls.source || 'May 2024') + ' \u00B7 SOC: ' + escapeHtml(data.bls.soc || '') + ' \u00B7 ' + escapeHtml(data.bls.title || '') + '</div>';
+            } else {
+                html += '<div style="color:' + mutedColor + '; font-size:0.9em;">No BLS wage data matched for this title. Try a more standard job title.</div>';
+            }
+            html += '</div>';
+            
+            // ── Section 3: Demonstrated Experience ──
+            html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
+                + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">'
+                + '<span style="color:#8b5cf6;">' + bpIcon('check',18) + '</span>'
+                + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">3) Demonstrated Experience</span></div>'
+                + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:14px; line-height:1.6;">'
+                + 'A <strong>' + escapeHtml(data.title) + '</strong> does more than fill a role. Evidence of mastery should include:</div>'
+                + '<div style="display:grid; gap:8px;">';
+            (data.demonstrated.evidence || []).forEach(function(e) {
+                html += '<div style="display:flex; gap:8px; align-items:flex-start; padding:8px 12px; background:var(--c-surface-2); border-radius:8px;">'
+                    + '<span style="color:#8b5cf6; flex-shrink:0; margin-top:2px;">' + bpIcon('check',14) + '</span>'
+                    + '<span style="font-size:0.85em; color:var(--text-secondary); line-height:1.6;">' + escapeHtml(e) + '</span></div>';
+            });
+            html += '</div>'
+                + '<div style="margin-top:14px; padding:10px 14px; background:rgba(139,92,246,0.06); border:1px solid rgba(139,92,246,0.15); border-radius:8px; font-size:0.82em; color:' + mutedColor + '; line-height:1.5;">'
+                + '<strong style="color:#8b5cf6;">Artifacts:</strong> ' + escapeHtml(data.demonstrated.artifacts) + '</div></div>';
+            
+            // ── Section 4: Values & Purpose ──
+            html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
+                + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">'
+                + '<span style="color:#fbbf24;">' + bpIcon('values',18) + '</span>'
+                + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">4) Values & Purpose</span></div>'
+                + '<div style="display:grid; gap:10px;">';
+            (data.values || []).forEach(function(v) {
+                html += '<div style="display:flex; gap:10px; align-items:flex-start; padding:10px 14px; background:var(--c-surface-2); border-radius:8px;">'
+                    + '<span style="color:#fbbf24; flex-shrink:0; margin-top:2px;">' + bpIcon('check',14) + '</span>'
+                    + '<div><strong style="color:' + headingColor + '; font-size:0.9em;">' + escapeHtml(v.name) + '</strong>'
+                    + '<span style="color:' + mutedColor + '; font-size:0.85em;"> \u2014 ' + escapeHtml(v.desc) + '</span></div></div>';
+            });
+            html += '</div></div>';
+            
+            return html;
+        }
         
         
         // ===== ADMIN COSTS DASHBOARD =====
