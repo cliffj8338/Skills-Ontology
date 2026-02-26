@@ -39,6 +39,17 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - Report templates hardened with escapeHtml for all user-controlled data
 - See `docs/SECURITY_AUDIT.md` for full audit details
 
+## Work Blueprint Wizard (v4.44.71)
+- Admin → WB Wizard: Create a Work Blueprint from scratch with AI-powered curation
+- 5-step guided flow: Company & Title → Skills & Outcomes → Requirements → Values & Culture → Review & Finish
+- Step 1: Company research via web scrape + LLM (Anthropic Haiku), falls back to companies.json (58 companies)
+- Step 2: Skills pre-populated from O*NET crosswalk based on resolved SOC code, proficiency adjusted by seniority
+- Step 3: Requirements auto-populated by seniority (years, education, certifications)
+- Step 4: Values picker from values-library.json (30 values, 7 categories), company values pre-selected
+- Step 5: Review with full Work Blueprint render, export to JSON/PDF/Word, save to Firestore repository
+- Custom skill addition, inline outcome editing, proficiency level adjustment
+- Reuses existing renderWorkBlueprint, exportWorkBlueprintJSON/PDF/Word, jdcSaveToRepository
+
 ## Work Blueprint Converter (v4.44.69)
 - Admin → JD Converter: paste any job description, get a structured Work Blueprint
 - Extraction pipeline: title, company, location, employment type, department, reports-to, schedule, travel, seniority, industry

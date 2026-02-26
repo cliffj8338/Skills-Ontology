@@ -1,4 +1,4 @@
-<!-- v4.44.70 | 2026-02-26 | Stability: null DOM guards, querySelector safety -->
+<!-- v4.44.71 | 2026-02-26 | Work Blueprint Wizard: AI-powered curation from O*NET, BLS, company research -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.70 | 2026-02-26 | Stability: null DOM guards, querySelector safety -->
+    <!-- v4.44.71 | 2026-02-26 | Work Blueprint Wizard -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.70 - BUILD 20260226-stability
-        var BP_VERSION = 'v4.44.70';
+        // BLUEPRINT v4.44.71 - BUILD 20260226-wb-wizard
+        var BP_VERSION = 'v4.44.71';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2068,7 +2068,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-stability-guards           ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-wb-wizard           ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -3146,6 +3146,7 @@
                 + _adminSidebarGroup('Content')
                 + _adminSidebarBtn('samples', 'skills', 'Samples')
                 + _adminSidebarBtn('jdconverter', 'wand', 'JD Converter')
+                + _adminSidebarBtn('wbwizard', 'blueprint', 'WB Wizard')
                 + _adminSidebarGroup('System')
                 + _adminSidebarBtn('config', 'settings', 'Config')
                 + _adminSidebarBtn('status', 'shield', 'Status')
@@ -3178,6 +3179,7 @@
             else if (adminSubTab === 'status') renderAdminStatus(el);
             else if (adminSubTab === 'architecture') renderAdminArchitecture(el);
             else if (adminSubTab === 'jdconverter') renderAdminJDConverter(el);
+            else if (adminSubTab === 'wbwizard') renderWBWizard(el);
         }
         
         function renderAdminOverview(el) {
@@ -6147,6 +6149,704 @@
         var _jdcInputMode = 'paste';
         var _jdcBulkResults = [];
         var _jdcBulkViewIdx = -1;
+
+        var _wbw = { step: 1, company: '', title: '', seniority: 'mid', location: '', department: '', reportsTo: '', employmentType: 'Full-time', schedule: '', travel: '', industry: '', companyResearch: null, researchLoading: false, socResult: null, skills: [], bls: null, yearsRequired: [], education: [], certifications: [], selectedValues: [], summary: '', keyResponsibilities: [], demonstrated: null };
+
+        function renderWBWizard(el) {
+            var s = _wbw;
+            var html = '<div style="margin-bottom:24px;">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:800; font-size:1.4em; color:var(--c-heading-bold); margin-bottom:6px;">'
+                + bpIcon('blueprint',22) + ' Work Blueprint Wizard</div>'
+                + '<div style="font-size:0.9em; color:var(--c-muted); line-height:1.6;">Create a Work Blueprint from scratch in under 3 minutes. Curate from data — don\'t create from zero.</div></div>';
+
+            html += '<div style="display:flex; gap:4px; margin-bottom:24px;">';
+            var stepNames = ['Company & Title', 'Skills & Outcomes', 'Requirements', 'Values & Culture', 'Review & Finish'];
+            for (var i = 1; i <= 5; i++) {
+                var active = s.step === i, done = s.step > i;
+                var bg = active ? 'var(--accent)' : done ? '#10b981' : 'var(--c-surface-3)';
+                var clr = active || done ? '#fff' : 'var(--c-muted)';
+                html += '<div style="flex:1; text-align:center;">'
+                    + '<div style="height:4px; border-radius:2px; background:' + bg + '; margin-bottom:6px;"></div>'
+                    + '<span style="font-size:0.72em; font-weight:600; color:' + clr + ';">' + i + '. ' + stepNames[i - 1] + '</span></div>';
+            }
+            html += '</div>';
+
+            if (s.step === 1) html += _wbwStep1();
+            else if (s.step === 2) html += _wbwStep2();
+            else if (s.step === 3) html += _wbwStep3();
+            else if (s.step === 4) html += _wbwStep4();
+            else if (s.step === 5) html += _wbwStep5();
+
+            el.innerHTML = html;
+            _wbwPostRender();
+        }
+
+        function _wbwPostRender() {
+            if (_wbw.step === 1) {
+                setTimeout(function() { var el = document.getElementById('wbwCompany'); if (el && !el.value) el.focus(); }, 100);
+            }
+        }
+
+        var _wbwFieldStyle = 'width:100%; box-sizing:border-box; padding:10px 14px; border:1px solid var(--c-surface-5); border-radius:8px; background:var(--c-surface-1); color:var(--c-heading); font-size:0.9em; font-family:inherit;';
+        var _wbwLabelStyle = 'font-size:0.78em; font-weight:600; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; display:block;';
+        var _wbwCardStyle = 'background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:12px; padding:24px; margin-bottom:20px;';
+
+        function _wbwStep1() {
+            var s = _wbw;
+            var html = '<div style="' + _wbwCardStyle + '">';
+            html += '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.1em; color:var(--c-heading-bold); margin-bottom:16px;">' + bpIcon('search',18) + ' Step 1: Company & Role</div>';
+
+            html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px;">';
+            html += '<div><label style="' + _wbwLabelStyle + '">Company Name</label>'
+                + '<input id="wbwCompany" type="text" value="' + escapeHtml(s.company) + '" placeholder="e.g. Phenom" style="' + _wbwFieldStyle + '" /></div>';
+            html += '<div><label style="' + _wbwLabelStyle + '">Role Title</label>'
+                + '<input id="wbwTitle" type="text" value="' + escapeHtml(s.title) + '" placeholder="e.g. Director of Strategy" style="' + _wbwFieldStyle + '" /></div>';
+            html += '<div><label style="' + _wbwLabelStyle + '">Location</label>'
+                + '<input id="wbwLocation" type="text" value="' + escapeHtml(s.location) + '" placeholder="e.g. New York, NY" style="' + _wbwFieldStyle + '" /></div>';
+            html += '<div><label style="' + _wbwLabelStyle + '">Department</label>'
+                + '<input id="wbwDepartment" type="text" value="' + escapeHtml(s.department) + '" placeholder="e.g. Strategy" style="' + _wbwFieldStyle + '" /></div>';
+            html += '<div><label style="' + _wbwLabelStyle + '">Reports To</label>'
+                + '<input id="wbwReportsTo" type="text" value="' + escapeHtml(s.reportsTo) + '" placeholder="e.g. Chief Strategy Officer" style="' + _wbwFieldStyle + '" /></div>';
+            html += '<div><label style="' + _wbwLabelStyle + '">Employment Type</label>'
+                + '<select id="wbwEmploymentType" style="' + _wbwFieldStyle + '">';
+            ['Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship'].forEach(function(t) {
+                html += '<option' + (s.employmentType === t ? ' selected' : '') + '>' + t + '</option>';
+            });
+            html += '</select></div>';
+            html += '<div><label style="' + _wbwLabelStyle + '">Seniority</label>'
+                + '<select id="wbwSeniority" style="' + _wbwFieldStyle + '">';
+            [{ v: 'entry', l: 'Entry' }, { v: 'mid', l: 'Mid' }, { v: 'senior', l: 'Senior' }, { v: 'director', l: 'Director' }, { v: 'executive', l: 'Executive' }].forEach(function(o) {
+                html += '<option value="' + o.v + '"' + (s.seniority === o.v ? ' selected' : '') + '>' + o.l + '</option>';
+            });
+            html += '</select></div>';
+            html += '<div><label style="' + _wbwLabelStyle + '">Schedule</label>'
+                + '<input id="wbwSchedule" type="text" value="' + escapeHtml(s.schedule) + '" placeholder="e.g. Monday-Friday" style="' + _wbwFieldStyle + '" /></div>';
+            html += '</div>';
+
+            html += '<div style="display:flex; gap:10px; align-items:center; margin-top:8px;">'
+                + '<button onclick="wbwResearchAndNext()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">'
+                + bpIcon('search',14) + ' Research & Continue</button>';
+            if (s.researchLoading) {
+                html += '<div class="loading-spinner" style="width:20px; height:20px; border-width:2px;"></div>'
+                    + '<span style="font-size:0.85em; color:var(--c-muted);">Researching company...</span>';
+            }
+            html += '</div>';
+
+            if (s.companyResearch) {
+                var r = s.companyResearch;
+                html += '<div style="margin-top:18px; padding:16px; background:var(--c-surface-2); border-radius:10px; border:1px solid var(--c-surface-5);">'
+                    + '<div style="font-weight:700; font-size:0.9em; color:var(--c-heading); margin-bottom:8px;">' + bpIcon('check',14) + ' Company Intelligence: ' + escapeHtml(r.name || s.company) + '</div>'
+                    + '<div style="font-size:0.85em; color:var(--text-secondary); line-height:1.7;">';
+                if (r.industry) html += '<div><strong>Industry:</strong> ' + escapeHtml(r.industry) + '</div>';
+                if (r.description) html += '<div><strong>About:</strong> ' + escapeHtml(r.description) + '</div>';
+                if (r.size) html += '<div><strong>Size:</strong> ' + escapeHtml(r.size) + '</div>';
+                if (r.headquarters) html += '<div><strong>HQ:</strong> ' + escapeHtml(r.headquarters) + '</div>';
+                if (r.values && r.values.length) html += '<div><strong>Values:</strong> ' + r.values.map(function(v) { return escapeHtml(v); }).join(', ') + '</div>';
+                if (r.culture) html += '<div><strong>Culture:</strong> ' + escapeHtml(r.culture) + '</div>';
+                html += '</div></div>';
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        async function wbwResearchAndNext() {
+            var company = (document.getElementById('wbwCompany') || {}).value || '';
+            var title = (document.getElementById('wbwTitle') || {}).value || '';
+            company = company.trim();
+            title = title.trim();
+            if (!company || !title) { showToast('Enter both company name and role title.', 'warning'); return; }
+
+            if (!window.onetCrosswalk) {
+                showToast('Loading skills data...', 'info');
+                try {
+                    if (typeof _loadCrosswalkDeferred === 'function') await new Promise(function(resolve) { _loadCrosswalkDeferred(); setTimeout(resolve, 2000); });
+                } catch(e) {}
+                if (!window.onetCrosswalk) {
+                    showToast('Skills data (O*NET crosswalk) is not available. Skills will need to be added manually.', 'warning', 5000);
+                }
+            }
+            if (typeof valuesLibrary === 'undefined' || !Array.isArray(valuesLibrary) || valuesLibrary.length === 0) {
+                showToast('Values library not loaded. Values step may be limited.', 'warning', 4000);
+            }
+
+            _wbw.company = company;
+            _wbw.title = title;
+            _wbw.location = ((document.getElementById('wbwLocation') || {}).value || '').trim();
+            _wbw.department = ((document.getElementById('wbwDepartment') || {}).value || '').trim();
+            _wbw.reportsTo = ((document.getElementById('wbwReportsTo') || {}).value || '').trim();
+            _wbw.employmentType = ((document.getElementById('wbwEmploymentType') || {}).value || 'Full-time');
+            _wbw.seniority = ((document.getElementById('wbwSeniority') || {}).value || 'mid');
+            _wbw.schedule = ((document.getElementById('wbwSchedule') || {}).value || '').trim();
+
+            _wbw.researchLoading = true;
+            renderWBWizard(document.getElementById('adminTabContent'));
+
+            try {
+                var companyData = window.companyDataLoaded ? window.companyDataLoaded[company] : null;
+
+                var companyInfo = null;
+                try {
+                    var pageHtml = await fetch('/api/api-job-proxy?source=page&url=' + encodeURIComponent('https://www.' + company.toLowerCase().replace(/[^a-z0-9]/g, '') + '.com/about'), { signal: AbortSignal.timeout(10000) });
+                    if (pageHtml.ok) {
+                        var rawHtml = await pageHtml.text();
+                        companyInfo = rawHtml.substring(0, 8000);
+                    }
+                } catch (e) { console.warn('Company page fetch failed:', e.message); }
+
+                var prompt = 'You are a company research assistant. Research this company and provide structured data.\n\n'
+                    + 'Company: ' + company + '\n'
+                    + 'Role being created: ' + title + '\n'
+                    + (companyInfo ? 'Company website excerpt:\n' + companyInfo.substring(0, 4000) + '\n\n' : '')
+                    + (companyData ? 'Known data - Industry: ' + companyData.industry + ', Values: ' + (companyData.values.primary || []).join(', ') + '\n\n' : '')
+                    + 'Return a JSON object (no markdown, just raw JSON) with these fields:\n'
+                    + '{\n'
+                    + '  "name": "Official company name",\n'
+                    + '  "industry": "Primary industry",\n'
+                    + '  "description": "1-2 sentence company description",\n'
+                    + '  "size": "Approximate employee count or range",\n'
+                    + '  "headquarters": "City, State/Country",\n'
+                    + '  "values": ["value1", "value2", "value3", "value4", "value5"],\n'
+                    + '  "culture": "1-2 sentence culture description",\n'
+                    + '  "roleContext": "2-3 sentences about what a ' + title + ' typically does at a company like this",\n'
+                    + '  "suggestedDepartment": "Most likely department",\n'
+                    + '  "suggestedReportsTo": "Typical reporting line",\n'
+                    + '  "suggestedIndustry": "Industry classification",\n'
+                    + '  "keyResponsibilities": [{"category": "Category Name", "items": ["responsibility 1", "responsibility 2"]}]\n'
+                    + '}';
+
+                var aiRes = await callAnthropicAPI({
+                    model: 'claude-haiku-4-5-20251001',
+                    max_tokens: 1024,
+                    messages: [{ role: 'user', content: prompt }]
+                }, null, 'wb-wizard-research');
+
+                var text = aiRes.content[0].text;
+                var jsonMatch = text.match(/\{[\s\S]*\}/);
+                var research = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+
+                _wbw.companyResearch = research;
+                if (research.suggestedIndustry && !_wbw.industry) _wbw.industry = research.suggestedIndustry;
+                if (research.suggestedDepartment && !_wbw.department) _wbw.department = research.suggestedDepartment;
+                if (research.suggestedReportsTo && !_wbw.reportsTo) _wbw.reportsTo = research.suggestedReportsTo;
+                if (research.keyResponsibilities && Array.isArray(research.keyResponsibilities)) {
+                    _wbw.keyResponsibilities = research.keyResponsibilities;
+                }
+
+            } catch (err) {
+                console.warn('Company research error:', err.message);
+                if (companyData) {
+                    _wbw.companyResearch = {
+                        name: company,
+                        industry: companyData.industry,
+                        values: companyData.values.primary || [],
+                        culture: companyData.values.story || ''
+                    };
+                    _wbw.industry = companyData.industry;
+                } else {
+                    showToast('Company research unavailable. You can still proceed manually.', 'info');
+                }
+            }
+
+            _wbwPopulateSkills();
+
+            _wbw.researchLoading = false;
+            _wbw.step = 2;
+            renderWBWizard(document.getElementById('adminTabContent'));
+        }
+        window.wbwResearchAndNext = wbwResearchAndNext;
+
+        function _wbwPopulateSkills() {
+            var resolved = resolveTitle(_wbw.title);
+            _wbw.socResult = resolved;
+            var skills = [];
+            if (resolved && window.onetCrosswalk) {
+                var occ = window.onetCrosswalk.occupations[resolved.soc];
+                if (occ && occ.skills) {
+                    skills = occ.skills.map(function(sk) {
+                        var level = _wbwAdjustProficiency(sk.blueprintLevel, _wbw.seniority);
+                        return {
+                            name: sk.name,
+                            importance: sk.importance,
+                            blueprintLevel: level,
+                            category: sk.category || 'skill',
+                            outcome: _wbwGenerateOutcome(sk.name, level, _wbw.seniority, _wbw.title),
+                            source: 'O*NET',
+                            selected: sk.importance >= 50,
+                            compValue: 0
+                        };
+                    });
+                }
+            }
+
+            if (_wbw.companyResearch && _wbw.companyResearch.roleContext) {
+                var context = _wbw.companyResearch.roleContext.toLowerCase();
+                var existingNames = skills.map(function(s) { return s.name.toLowerCase(); });
+                var contextSkills = [
+                    { term: 'strategic planning', name: 'Strategic Planning' },
+                    { term: 'stakeholder', name: 'Stakeholder Management' },
+                    { term: 'data analysis', name: 'Data Analysis' },
+                    { term: 'market research', name: 'Market Research' },
+                    { term: 'financial model', name: 'Financial Modeling' },
+                    { term: 'business development', name: 'Business Development' },
+                    { term: 'project management', name: 'Project Management' },
+                    { term: 'change management', name: 'Change Management' },
+                    { term: 'cross-functional', name: 'Cross-Functional Leadership' },
+                    { term: 'presentation', name: 'Presentation Skills' },
+                    { term: 'executive communication', name: 'Executive Communication' },
+                    { term: 'competitive analysis', name: 'Competitive Analysis' }
+                ];
+                contextSkills.forEach(function(cs) {
+                    if (context.indexOf(cs.term) !== -1 && existingNames.indexOf(cs.name.toLowerCase()) === -1) {
+                        var level = _wbwAdjustProficiency('Advanced', _wbw.seniority);
+                        skills.push({
+                            name: cs.name,
+                            importance: 65,
+                            blueprintLevel: level,
+                            category: 'skill',
+                            outcome: _wbwGenerateOutcome(cs.name, level, _wbw.seniority, _wbw.title),
+                            source: 'Research',
+                            selected: true,
+                            compValue: 0
+                        });
+                    }
+                });
+            }
+
+            if (resolved) {
+                var bls = typeof matchJobToBLS === 'function' ? matchJobToBLS(resolved.title, '') : null;
+                _wbw.bls = bls;
+                if (bls && bls.median) {
+                    var levelMults = { 'Awareness': 0.6, 'Foundational': 0.75, 'Proficient': 1.0, 'Advanced': 1.2, 'Expert': 1.4, 'Mastery': 1.6 };
+                    var totalW = skills.filter(function(s) { return s.selected; }).reduce(function(sum, s) {
+                        return sum + (s.importance * (levelMults[s.blueprintLevel] || 1.0));
+                    }, 0);
+                    skills.forEach(function(s) {
+                        var w = (s.importance * (levelMults[s.blueprintLevel] || 1.0)) / (totalW || 1);
+                        s.compValue = Math.round(bls.median * w);
+                    });
+                }
+            }
+
+            _wbw.skills = skills;
+
+            _wbwPopulateRequirements();
+        }
+
+        function _wbwAdjustProficiency(base, seniority) {
+            var levels = ['Awareness', 'Foundational', 'Proficient', 'Advanced', 'Expert', 'Mastery'];
+            var idx = levels.indexOf(base);
+            if (idx === -1) idx = 2;
+            var adj = { entry: -1, mid: 0, senior: 1, director: 1, executive: 2 };
+            idx = Math.max(0, Math.min(5, idx + (adj[seniority] || 0)));
+            return levels[idx];
+        }
+
+        function _wbwGenerateOutcome(skillName, level, seniority, title) {
+            var verbs = {
+                entry: ['Support', 'Assist with', 'Contribute to', 'Help deliver', 'Participate in'],
+                mid: ['Execute', 'Deliver', 'Implement', 'Drive', 'Manage'],
+                senior: ['Lead', 'Architect', 'Optimize', 'Design', 'Champion'],
+                director: ['Direct', 'Scale', 'Transform', 'Define strategy for', 'Oversee'],
+                executive: ['Set vision for', 'Drive enterprise-wide', 'Shape organizational', 'Pioneer', 'Establish']
+            };
+            var v = verbs[seniority] || verbs['mid'];
+            var verb = v[Math.abs(_wbwHash(skillName)) % v.length];
+            return verb + ' ' + skillName.toLowerCase() + ' initiatives aligned with organizational objectives.';
+        }
+
+        function _wbwHash(str) { var h = 0; for (var i = 0; i < str.length; i++) { h = ((h << 5) - h) + str.charCodeAt(i); h |= 0; } return h; }
+
+        function _wbwPopulateRequirements() {
+            var s = _wbw;
+            var senYears = { entry: '0-2', mid: '3-5', senior: '5-8', director: '8-12', executive: '12+' };
+            s.yearsRequired = [{ range: senYears[s.seniority] || '3-5', area: s.department || s.title }];
+
+            var senEd = {
+                entry: [{ level: "Bachelor's", field: '', preferred: false }],
+                mid: [{ level: "Bachelor's", field: '', preferred: false }],
+                senior: [{ level: "Bachelor's", field: '', preferred: false }, { level: "Master's", field: '', preferred: true }],
+                director: [{ level: "Bachelor's", field: '', preferred: false }, { level: "Master's/MBA", field: '', preferred: true }],
+                executive: [{ level: "Master's/MBA", field: '', preferred: false }]
+            };
+            s.education = senEd[s.seniority] || senEd['mid'];
+
+            s.certifications = [];
+        }
+
+        function _wbwStep2() {
+            var s = _wbw;
+            var html = '<div style="' + _wbwCardStyle + '">';
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.1em; color:var(--c-heading-bold);">'
+                + bpIcon('skills',18) + ' Step 2: Skills & Outcomes</div>';
+            if (s.socResult) {
+                html += '<span style="font-size:0.75em; color:var(--c-muted); background:var(--c-surface-2); padding:4px 10px; border-radius:6px;">'
+                    + 'SOC: ' + escapeHtml(s.socResult.soc) + ' — ' + escapeHtml(s.socResult.title) + '</span>';
+            }
+            html += '</div>';
+
+            if (s.skills.length === 0) {
+                html += '<div style="padding:20px; text-align:center; background:var(--c-surface-2); border-radius:10px; margin-bottom:14px; color:var(--c-muted);">'
+                    + '<div style="margin-bottom:8px;">' + bpIcon('warning',18) + ' No skills found for this role in O*NET.</div>'
+                    + '<div style="font-size:0.85em;">Use the field below to add skills manually.</div></div>';
+            }
+            html += '<div style="font-size:0.82em; color:var(--c-muted); margin-bottom:14px;">Toggle skills on/off. Adjust proficiency levels. Edit outcomes inline.' + (s.socResult ? ' Skills pre-populated from O*NET.' : '') + '</div>';
+
+            html += '<div id="wbwSkillsList" style="display:grid; gap:8px;">';
+            s.skills.forEach(function(sk, idx) {
+                var bgColor = sk.selected ? 'var(--c-surface-2)' : 'var(--c-surface-1)';
+                var opacity = sk.selected ? '1' : '0.5';
+                var badgeColor = sk.source === 'O*NET' ? '#3b82f6' : '#8b5cf6';
+                html += '<div style="display:grid; grid-template-columns:32px 1fr 140px; gap:10px; align-items:start; padding:12px 14px; background:' + bgColor + '; border:1px solid var(--c-surface-5); border-radius:10px; opacity:' + opacity + ';" id="wbwSkillRow' + idx + '">';
+
+                html += '<label style="cursor:pointer; display:flex; align-items:center; margin-top:4px;">'
+                    + '<input type="checkbox" ' + (sk.selected ? 'checked' : '') + ' onchange="wbwToggleSkill(' + idx + ', this.checked)" style="width:16px; height:16px; accent-color:var(--accent);" /></label>';
+
+                html += '<div>'
+                    + '<div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">'
+                    + '<strong style="font-size:0.9em; color:var(--c-heading);">' + escapeHtml(sk.name) + '</strong>'
+                    + '<span style="font-size:0.65em; padding:2px 6px; border-radius:4px; background:' + badgeColor + '20; color:' + badgeColor + '; font-weight:600;">' + escapeHtml(sk.source) + '</span>'
+                    + '<span style="font-size:0.7em; color:var(--c-muted);">imp:' + sk.importance + '</span>'
+                    + '</div>'
+                    + '<textarea onchange="wbwUpdateOutcome(' + idx + ', this.value)" style="width:100%; box-sizing:border-box; padding:6px 10px; border:1px solid var(--c-surface-5); border-radius:6px; background:var(--c-surface-1); color:var(--text-secondary); font-size:0.82em; font-family:inherit; resize:vertical; min-height:36px; line-height:1.5;">' + escapeHtml(sk.outcome) + '</textarea></div>';
+
+                html += '<select onchange="wbwUpdateLevel(' + idx + ', this.value)" style="padding:6px 8px; border:1px solid var(--c-surface-5); border-radius:6px; background:var(--c-surface-1); color:var(--c-heading); font-size:0.82em; font-family:inherit;">';
+                ['Awareness', 'Foundational', 'Proficient', 'Advanced', 'Expert', 'Mastery'].forEach(function(lvl) {
+                    html += '<option' + (sk.blueprintLevel === lvl ? ' selected' : '') + '>' + lvl + '</option>';
+                });
+                html += '</select>';
+
+                html += '</div>';
+            });
+            html += '</div>';
+
+            html += '<div style="margin-top:14px; display:flex; gap:10px; align-items:center;">'
+                + '<input id="wbwAddSkillInput" type="text" placeholder="Add a custom skill..." style="' + _wbwFieldStyle + ' max-width:300px;" />'
+                + '<button onclick="wbwAddCustomSkill()" style="padding:8px 16px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em;">' + bpIcon('plus',12) + ' Add</button>'
+                + '</div>';
+
+            html += '</div>';
+            html += _wbwNavButtons(1, 2);
+            return html;
+        }
+
+        function wbwToggleSkill(idx, checked) {
+            _wbw.skills[idx].selected = checked;
+            var row = document.getElementById('wbwSkillRow' + idx);
+            if (row) {
+                row.style.opacity = checked ? '1' : '0.5';
+                row.style.background = checked ? 'var(--c-surface-2)' : 'var(--c-surface-1)';
+            }
+        }
+        window.wbwToggleSkill = wbwToggleSkill;
+
+        function wbwUpdateLevel(idx, val) { _wbw.skills[idx].blueprintLevel = val; }
+        window.wbwUpdateLevel = wbwUpdateLevel;
+
+        function wbwUpdateOutcome(idx, val) { _wbw.skills[idx].outcome = val; }
+        window.wbwUpdateOutcome = wbwUpdateOutcome;
+
+        function wbwAddCustomSkill() {
+            var input = document.getElementById('wbwAddSkillInput');
+            if (!input) return;
+            var name = input.value.trim();
+            if (!name) return;
+            var level = _wbwAdjustProficiency('Proficient', _wbw.seniority);
+            _wbw.skills.push({
+                name: name,
+                importance: 60,
+                blueprintLevel: level,
+                category: 'skill',
+                outcome: _wbwGenerateOutcome(name, level, _wbw.seniority, _wbw.title),
+                source: 'Custom',
+                selected: true,
+                compValue: 0
+            });
+            renderWBWizard(document.getElementById('adminTabContent'));
+        }
+        window.wbwAddCustomSkill = wbwAddCustomSkill;
+
+        function _wbwStep3() {
+            var s = _wbw;
+            var html = '<div style="' + _wbwCardStyle + '">';
+            html += '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.1em; color:var(--c-heading-bold); margin-bottom:16px;">'
+                + bpIcon('list',18) + ' Step 3: Requirements</div>';
+            html += '<div style="font-size:0.82em; color:var(--c-muted); margin-bottom:14px;">Pre-populated based on seniority. Adjust as needed.</div>';
+
+            html += '<div style="margin-bottom:18px;">'
+                + '<label style="' + _wbwLabelStyle + '">Years of Experience</label>';
+            s.yearsRequired.forEach(function(yr, i) {
+                html += '<div style="display:flex; gap:10px; margin-bottom:6px;">'
+                    + '<input id="wbwYearsRange' + i + '" type="text" value="' + escapeHtml(yr.range) + '" placeholder="5-8" style="' + _wbwFieldStyle + ' max-width:100px;" />'
+                    + '<input id="wbwYearsArea' + i + '" type="text" value="' + escapeHtml(yr.area) + '" placeholder="Area of experience" style="' + _wbwFieldStyle + '" />'
+                    + '</div>';
+            });
+            html += '<button onclick="wbwAddYears()" style="padding:4px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button>';
+            html += '</div>';
+
+            html += '<div style="margin-bottom:18px;">'
+                + '<label style="' + _wbwLabelStyle + '">Education</label>';
+            s.education.forEach(function(ed, i) {
+                html += '<div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">'
+                    + '<select id="wbwEdLevel' + i + '" style="' + _wbwFieldStyle + ' max-width:180px;">';
+                ["High School", "Associate's", "Bachelor's", "Master's", "Master's/MBA", "Doctorate", "Professional"].forEach(function(lv) {
+                    html += '<option' + (ed.level === lv ? ' selected' : '') + '>' + lv + '</option>';
+                });
+                html += '</select>'
+                    + '<input id="wbwEdField' + i + '" type="text" value="' + escapeHtml(ed.field) + '" placeholder="Field of study" style="' + _wbwFieldStyle + '" />'
+                    + '<label style="display:flex; align-items:center; gap:4px; font-size:0.8em; color:var(--c-muted); white-space:nowrap;"><input type="checkbox" id="wbwEdPref' + i + '"' + (ed.preferred ? ' checked' : '') + ' /> Preferred</label>'
+                    + '</div>';
+            });
+            html += '<button onclick="wbwAddEducation()" style="padding:4px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button>';
+            html += '</div>';
+
+            html += '<div style="margin-bottom:18px;">'
+                + '<label style="' + _wbwLabelStyle + '">Certifications (optional)</label>'
+                + '<input id="wbwCerts" type="text" value="' + escapeHtml(s.certifications.join(', ')) + '" placeholder="e.g. PMP, Six Sigma, CFA" style="' + _wbwFieldStyle + '" />'
+                + '<div style="font-size:0.75em; color:var(--c-muted); margin-top:4px;">Comma-separated</div>'
+                + '</div>';
+
+            html += '</div>';
+            html += _wbwNavButtons(2, 3);
+            return html;
+        }
+
+        function wbwAddYears() {
+            _wbw.yearsRequired.push({ range: '', area: '' });
+            renderWBWizard(document.getElementById('adminTabContent'));
+        }
+        window.wbwAddYears = wbwAddYears;
+
+        function wbwAddEducation() {
+            _wbw.education.push({ level: "Bachelor's", field: '', preferred: false });
+            renderWBWizard(document.getElementById('adminTabContent'));
+        }
+        window.wbwAddEducation = wbwAddEducation;
+
+        function _wbwStep4() {
+            var s = _wbw;
+            var html = '<div style="' + _wbwCardStyle + '">';
+            html += '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.1em; color:var(--c-heading-bold); margin-bottom:16px;">'
+                + bpIcon('check',18) + ' Step 4: Values & Culture</div>';
+            html += '<div style="font-size:0.82em; color:var(--c-muted); margin-bottom:14px;">Select 4-6 values. Company research values are pre-selected.</div>';
+
+            var companyValues = (s.companyResearch && s.companyResearch.values) || [];
+            var companyNames = companyValues.map(function(v) { return v.toLowerCase(); });
+
+            var allValues = (typeof valuesLibrary !== 'undefined' && Array.isArray(valuesLibrary)) ? valuesLibrary : [];
+            if (allValues.length === 0) {
+                html += '<div style="padding:24px; text-align:center; color:var(--c-muted); background:var(--c-surface-2); border-radius:10px;">'
+                    + '<div style="font-size:1.1em; margin-bottom:8px;">' + bpIcon('warning',18) + ' Values library not loaded</div>'
+                    + '<div style="font-size:0.85em;">The values library is still loading or unavailable. You can proceed and add values later, or refresh the page.</div></div>';
+                html += '</div>';
+                html += _wbwNavButtons(3, 4);
+                return html;
+            }
+            var categories = {};
+            allValues.forEach(function(v) {
+                var cat = v.category || 'Core';
+                if (!categories[cat]) categories[cat] = [];
+                categories[cat].push(v);
+            });
+
+            if (s.selectedValues.length === 0 && companyNames.length > 0) {
+                allValues.forEach(function(v) {
+                    if (companyNames.indexOf(v.name.toLowerCase()) !== -1) {
+                        s.selectedValues.push(v.name);
+                    }
+                });
+                companyValues.forEach(function(cv) {
+                    if (s.selectedValues.map(function(n) { return n.toLowerCase(); }).indexOf(cv.toLowerCase()) === -1) {
+                        s.selectedValues.push(cv);
+                    }
+                });
+            }
+
+            Object.keys(categories).forEach(function(cat) {
+                html += '<div style="margin-bottom:14px;">'
+                    + '<div style="font-size:0.78em; font-weight:700; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">' + escapeHtml(cat) + '</div>'
+                    + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+                categories[cat].forEach(function(v) {
+                    var isSel = s.selectedValues.indexOf(v.name) !== -1;
+                    var isCompany = companyNames.indexOf(v.name.toLowerCase()) !== -1;
+                    var bg = isSel ? 'var(--accent)' : 'var(--c-surface-2)';
+                    var clr = isSel ? '#fff' : 'var(--c-heading)';
+                    var border = isCompany && !isSel ? '2px solid var(--accent)' : '1px solid var(--c-surface-5)';
+                    html += '<button onclick="wbwToggleValue(\'' + escapeHtml(v.name).replace(/'/g, "\\'") + '\')" title="' + escapeHtml(v.description) + '" style="padding:6px 14px; background:' + bg + '; color:' + clr + '; border:' + border + '; border-radius:20px; cursor:pointer; font-size:0.82em; font-weight:600; transition:all 0.15s;">'
+                        + (isCompany ? bpIcon('star',10) + ' ' : '') + escapeHtml(v.name) + '</button>';
+                });
+                html += '</div></div>';
+            });
+
+            html += '<div style="margin-top:12px; font-size:0.8em; color:var(--c-muted);">Selected: ' + s.selectedValues.length + ' values '
+                + (s.selectedValues.length < 4 ? '<span style="color:#f59e0b;">— select at least 4</span>' : '<span style="color:#10b981;">✓</span>') + '</div>';
+
+            html += '</div>';
+            html += _wbwNavButtons(3, 4);
+            return html;
+        }
+
+        function wbwToggleValue(name) {
+            var idx = _wbw.selectedValues.indexOf(name);
+            if (idx !== -1) _wbw.selectedValues.splice(idx, 1);
+            else _wbw.selectedValues.push(name);
+            renderWBWizard(document.getElementById('adminTabContent'));
+        }
+        window.wbwToggleValue = wbwToggleValue;
+
+        function _wbwStep5() {
+            var s = _wbw;
+            _wbwBuildSummary();
+
+            var html = '<div style="' + _wbwCardStyle + '">';
+            html += '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.1em; color:var(--c-heading-bold); margin-bottom:16px;">'
+                + bpIcon('check',18) + ' Step 5: Review & Finish</div>';
+            html += '<div style="font-size:0.82em; color:var(--c-muted); margin-bottom:14px;">Review your Work Blueprint. Edit the summary below, then save or export.</div>';
+
+            html += '<div style="margin-bottom:16px;"><label style="' + _wbwLabelStyle + '">Work Summary</label>'
+                + '<textarea id="wbwSummary" style="' + _wbwFieldStyle + ' min-height:100px; resize:vertical; line-height:1.6;">' + escapeHtml(s.summary) + '</textarea></div>';
+
+            var finalData = _wbwBuildResult();
+            html += renderWorkBlueprint(finalData, true);
+
+            html += '</div>';
+
+            html += '<div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">'
+                + '<button onclick="wbwGoStep(4)" style="padding:10px 20px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('arrow-left',14) + ' Back</button>'
+                + '<button onclick="wbwFinish(\'json\')" style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('download',14) + ' Export JSON</button>'
+                + '<button onclick="wbwFinish(\'pdf\')" style="padding:10px 20px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('download',14) + ' Export PDF</button>'
+                + '<button onclick="wbwFinish(\'word\')" style="padding:10px 20px; background:#2563eb; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('download',14) + ' Export Word</button>';
+            if (typeof fbUser !== 'undefined' && fbUser) {
+                html += '<button onclick="wbwFinish(\'save\')" style="padding:10px 20px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' Save to Repository</button>';
+            }
+            html += '<button onclick="wbwReset()" style="padding:10px 20px; background:var(--c-surface-3); color:#ef4444; border:1px solid #ef444440; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Start Over</button>'
+                + '</div>';
+            return html;
+        }
+
+        function _wbwBuildSummary() {
+            if (_wbw.summary) return;
+            var s = _wbw;
+            var skillNames = s.skills.filter(function(sk) { return sk.selected; }).slice(0, 5).map(function(sk) { return sk.name.toLowerCase(); });
+            var roleContext = (s.companyResearch && s.companyResearch.roleContext) || '';
+            if (roleContext) {
+                _wbw.summary = roleContext;
+            } else {
+                var senCtx = { entry: 'supporting', mid: 'executing', senior: 'leading', director: 'directing', executive: 'setting vision for' };
+                _wbw.summary = 'This ' + s.title + ' role at ' + s.company + ' focuses on ' + (senCtx[s.seniority] || 'driving')
+                    + ' ' + (skillNames[0] || 'strategic initiatives') + ' and ' + (skillNames[1] || 'cross-functional collaboration')
+                    + '. Key competencies include ' + skillNames.slice(0, 4).join(', ') + '.';
+            }
+        }
+
+        function _wbwBuildResult() {
+            var s = _wbw;
+            var summaryEl = document.getElementById('wbwSummary');
+            if (summaryEl) s.summary = summaryEl.value;
+
+            var selectedSkills = s.skills.filter(function(sk) { return sk.selected; });
+
+            var allValues = (typeof valuesLibrary !== 'undefined' && Array.isArray(valuesLibrary)) ? valuesLibrary : [];
+            var values = s.selectedValues.map(function(name) {
+                var lib = allValues.find(function(v) { return v.name === name; });
+                return { name: name, desc: lib ? lib.description : '' };
+            });
+
+            var demonstrated = typeof _jdcGenerateDemonstrated === 'function'
+                ? _jdcGenerateDemonstrated(s.title, selectedSkills.slice(0, 6), s.seniority, '')
+                : { evidence: [], artifacts: '' };
+
+            return {
+                title: s.title,
+                company: s.company,
+                location: s.location,
+                employmentType: s.employmentType,
+                department: s.department,
+                reportsTo: s.reportsTo,
+                schedule: s.schedule,
+                travel: s.travel || '',
+                soc: s.socResult ? s.socResult.soc : null,
+                socTitle: s.socResult ? s.socResult.title : null,
+                seniority: s.seniority,
+                industry: s.industry,
+                yearsRequired: s.yearsRequired,
+                education: s.education,
+                certifications: s.certifications,
+                summary: s.summary,
+                keyResponsibilities: s.keyResponsibilities,
+                skills: selectedSkills,
+                bls: s.bls,
+                values: values,
+                demonstrated: demonstrated,
+                companyResearch: s.companyResearch,
+                createdVia: 'wb-wizard',
+                createdAt: new Date().toISOString()
+            };
+        }
+
+        function wbwFinish(mode) {
+            var result = _wbwBuildResult();
+            _jdcResult = result;
+            if (mode === 'json') exportWorkBlueprintJSON();
+            else if (mode === 'pdf') exportWorkBlueprintPDF();
+            else if (mode === 'word') exportWorkBlueprintWord();
+            else if (mode === 'save') jdcSaveToRepository();
+        }
+        window.wbwFinish = wbwFinish;
+
+        function wbwReset() {
+            if (!confirm('Start over? All wizard data will be cleared.')) return;
+            _wbw = { step: 1, company: '', title: '', seniority: 'mid', location: '', department: '', reportsTo: '', employmentType: 'Full-time', schedule: '', travel: '', industry: '', companyResearch: null, researchLoading: false, socResult: null, skills: [], bls: null, yearsRequired: [], education: [], certifications: [], selectedValues: [], summary: '', keyResponsibilities: [], demonstrated: null };
+            renderWBWizard(document.getElementById('adminTabContent'));
+        }
+        window.wbwReset = wbwReset;
+
+        function wbwGoStep(n) {
+            _wbwSaveCurrentStep();
+            _wbw.step = n;
+            renderWBWizard(document.getElementById('adminTabContent'));
+        }
+        window.wbwGoStep = wbwGoStep;
+
+        function _wbwSaveCurrentStep() {
+            var s = _wbw;
+            if (s.step === 3) {
+                s.yearsRequired = [];
+                for (var i = 0; i < 10; i++) {
+                    var r = (document.getElementById('wbwYearsRange' + i) || {}).value;
+                    var a = (document.getElementById('wbwYearsArea' + i) || {}).value;
+                    if (r) s.yearsRequired.push({ range: r.trim(), area: (a || '').trim() });
+                }
+                s.education = [];
+                for (var j = 0; j < 10; j++) {
+                    var lv = (document.getElementById('wbwEdLevel' + j) || {}).value;
+                    var fld = (document.getElementById('wbwEdField' + j) || {}).value;
+                    var pref = (document.getElementById('wbwEdPref' + j) || {}).checked;
+                    if (lv) s.education.push({ level: lv, field: (fld || '').trim(), preferred: pref || false });
+                }
+                var certsVal = (document.getElementById('wbwCerts') || {}).value || '';
+                s.certifications = certsVal.split(',').map(function(c) { return c.trim(); }).filter(Boolean);
+            }
+        }
+
+        function _wbwNavButtons(prevStep, currentStep) {
+            var html = '<div style="display:flex; gap:10px; margin-top:10px;">';
+            if (prevStep >= 1) {
+                html += '<button onclick="wbwGoStep(' + prevStep + ')" style="padding:10px 20px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
+                    + bpIcon('arrow-left',14) + ' Back</button>';
+            }
+            if (currentStep < 4) {
+                html += '<button onclick="_wbwSaveCurrentStep(); wbwGoStep(' + (currentStep + 1) + ')" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">'
+                    + 'Continue ' + bpIcon('arrow-right',14) + '</button>';
+            } else {
+                html += '<button onclick="wbwGoStep(5)" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">'
+                    + 'Review & Finish ' + bpIcon('arrow-right',14) + '</button>';
+            }
+            html += '</div>';
+            return html;
+        }
+        window._wbwSaveCurrentStep = _wbwSaveCurrentStep;
 
         function renderAdminJDConverter(el) {
             var html = '<div style="max-width:1200px; margin:0 auto;">';
