@@ -4,7 +4,7 @@
 Blueprint is a single-page career intelligence web application. It visualizes skills, reveals market value, and connects users to matching jobs. Originally hosted on Vercel with Firebase backend.
 
 ## Architecture
-- **Frontend**: Single-file `index.html` (~31,600 lines), vanilla JavaScript, D3.js network graph
+- **Frontend**: Single-file `index.html` (~35,200 lines), vanilla JavaScript, D3.js network graph
 - **Auth**: Firebase Auth (Google provider, email/password) — project: `work-blueprint`
 - **Database**: Firestore (users, analytics_events, jobs, meta, reports, waitlist collections)
 - **API**: Vercel serverless functions in `/api/` (ai.js, jobs.js, jobs-sync.js, api-job-proxy.js)

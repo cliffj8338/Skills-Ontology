@@ -1,4 +1,4 @@
-<!-- v4.44.71 | 2026-02-26 | Work Blueprint Wizard: AI-powered curation from O*NET, BLS, company research -->
+<!-- v4.44.72 | 2026-02-26 | Stability: error toasts, null DOM guards, empty-catch logging -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.71 | 2026-02-26 | Work Blueprint Wizard -->
+    <!-- v4.44.72 | 2026-02-26 | Stability: error toasts, null DOM guards -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.71 - BUILD 20260226-wb-wizard
-        var BP_VERSION = 'v4.44.71';
+        // BLUEPRINT v4.44.72 - BUILD 20260226-stability
+        var BP_VERSION = 'v4.44.72';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -6261,7 +6261,7 @@
                 showToast('Loading skills data...', 'info');
                 try {
                     if (typeof _loadCrosswalkDeferred === 'function') await new Promise(function(resolve) { _loadCrosswalkDeferred(); setTimeout(resolve, 2000); });
-                } catch(e) {}
+                } catch(e) { console.warn('Crosswalk deferred load failed:', e.message); }
                 if (!window.onetCrosswalk) {
                     showToast('Skills data (O*NET crosswalk) is not available. Skills will need to be added manually.', 'warning', 5000);
                 }
@@ -6708,7 +6708,7 @@
                 + '<textarea id="wbwSummary" style="' + _wbwFieldStyle + ' min-height:100px; resize:vertical; line-height:1.6;">' + escapeHtml(s.summary) + '</textarea></div>';
 
             var finalData = _wbwBuildResult();
-            html += renderWorkBlueprint(finalData, true);
+            html += renderWorkBlueprint(finalData, true, { hideButtons: true });
 
             html += '</div>';
 
@@ -7833,7 +7833,8 @@
             return best || '';
         }
         
-        function renderWorkBlueprint(data, showComp) {
+        function renderWorkBlueprint(data, showComp, opts) {
+            opts = opts || {};
             var html = '';
             var cardBg = 'var(--c-surface-1)';
             var borderColor = 'var(--c-surface-5)';
@@ -8031,22 +8032,24 @@
                 html += '</div>';
             }
 
-            html += '<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">'
-                + '<button onclick="exportWorkBlueprintJSON()" style="padding:8px 18px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                + bpIcon('download',14) + ' Export JSON</button>'
-                + '<button onclick="exportWorkBlueprintPDF()" style="padding:8px 18px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                + bpIcon('download',14) + ' Export PDF</button>'
-                + '<button onclick="exportWorkBlueprintWord()" style="padding:8px 18px; background:#2563eb; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                + bpIcon('download',14) + ' Export Word</button>'
-                + '<button onclick="copyWorkBlueprintJSON()" style="padding:8px 18px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                + bpIcon('share',14) + ' Copy JSON</button>'
-                + '<button onclick="jdcEditBlueprint()" style="padding:8px 18px; background:#f59e0b; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                + bpIcon('edit',14) + ' Edit</button>';
-            if (typeof fbUser !== 'undefined' && fbUser) {
-                html += '<button onclick="jdcSaveToRepository()" style="padding:8px 18px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                    + bpIcon('save',14) + ' Save to Repository</button>';
+            if (!opts.hideButtons) {
+                html += '<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">'
+                    + '<button onclick="exportWorkBlueprintJSON()" style="padding:8px 18px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
+                    + bpIcon('download',14) + ' Export JSON</button>'
+                    + '<button onclick="exportWorkBlueprintPDF()" style="padding:8px 18px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
+                    + bpIcon('download',14) + ' Export PDF</button>'
+                    + '<button onclick="exportWorkBlueprintWord()" style="padding:8px 18px; background:#2563eb; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
+                    + bpIcon('download',14) + ' Export Word</button>'
+                    + '<button onclick="copyWorkBlueprintJSON()" style="padding:8px 18px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
+                    + bpIcon('share',14) + ' Copy JSON</button>'
+                    + '<button onclick="jdcEditBlueprint()" style="padding:8px 18px; background:#f59e0b; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
+                    + bpIcon('edit',14) + ' Edit</button>';
+                if (typeof fbUser !== 'undefined' && fbUser) {
+                    html += '<button onclick="jdcSaveToRepository()" style="padding:8px 18px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
+                        + bpIcon('save',14) + ' Save to Repository</button>';
+                }
+                html += '</div>';
             }
-            html += '</div>';
 
             return html;
         }
@@ -10988,7 +10991,7 @@
             if (fbUser && fbDb) {
                 records.forEach(function(rec) {
                     fbDb.collection('users').doc(fbUser.uid).collection('verifications').doc(rec.id).set(rec)
-                        .catch(function(err) { console.error('Verification save error:', err); });
+                        .catch(function(err) { console.error('Verification save error:', err); showToast('Verification could not be saved: ' + err.message, 'error'); });
                 });
                 saveToFirestore();
             }
@@ -31788,7 +31791,7 @@ body {
                 impactRatings = await response.json();
                 console.log('✓ Impact ratings loaded');
             } catch (e) {
-                console.error('Error loading impact ratings:', e);
+                console.warn('Impact ratings not available (non-critical):', e.message);
             }
         }
         
@@ -33640,12 +33643,16 @@ body {
             clearTimeout(addSkillsSearchTimeout);
             
             addSkillsSearchTimeout = setTimeout(() => {
-                const query = document.getElementById('addSkillsSearchInput').value;
+                const inputEl = document.getElementById('addSkillsSearchInput');
+                if (!inputEl) return;
+                const query = inputEl.value;
                 console.log('Search triggered for:', query);
                 
                 if (!skillLibraryIndex || !skillLibraryIndex.index) {
                     console.error('Skill library not loaded!');
+                    showToast('Skill library is still loading. Please wait a moment.', 'info');
                     const container = document.getElementById('addSkillsResults');
+                    if (!container) return;
                     container.innerHTML = `
                         <div style="text-align: center; padding: 60px 20px; color: #f59e0b;">
                             <div style="font-size: 3em; margin-bottom: 10px;">⏳</div>
