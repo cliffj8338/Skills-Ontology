@@ -54,6 +54,7 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - Admin sidebar (v4.44.58): 10-tab horizontal bar replaced with grouped sidebar layout (Operations, Content, System, Planning); sticky sidebar on desktop, wrapping pill bar on mobile (<900px); group labels hidden on mobile
 - UX nav cleanup (v4.44.59): Top nav "Skills" renamed to "Map"; "Samples" moved from primary nav to overflow menu (already existed there); Blueprint sub-tabs reordered to workflow sequence (Dashboard→Experience→Skills→Outcomes→Verify→Values→Export); tour badges updated
 - Find Jobs redesign (v4.44.61): Unified search — one Search button always does live API search; removed separate "Live" button, source badges, sync status display, and database badge; cache no longer auto-loads on tab visit (eliminates slow Firestore fetch); search bar simplified to keyword + location + Search in one row, filters in second row with match threshold inline
+- Find Jobs sorting + entity fix (v4.44.62): Sort dropdown (Match % high/low, Title A–Z, Company A–Z, Location A–Z) defaults to highest match first; HTML entity decoding (decodeHtmlEntities) fixes double-encoded titles from API responses; addRemoteJobToPipeline uses displayed sort order via window._displayedJobs
 
 ## Data Libraries
 - `onet-skills-library.json` — O*NET skills (13,960 skills)

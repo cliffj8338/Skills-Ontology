@@ -1,4 +1,4 @@
-<!-- v4.44.61 | 2026-02-26 | Find Jobs: unified search, live-first, simplified UI -->
+<!-- v4.44.62 | 2026-02-26 | Find Jobs: sort dropdown, HTML entity fix, match% default sort -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.61 | 2026-02-26 | Find Jobs: unified search, live-first, simplified UI -->
+    <!-- v4.44.62 | 2026-02-26 | Find Jobs: sort dropdown, HTML entity fix, match% default sort -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.61 - BUILD 20260226-find-jobs-redesign
-        var BP_VERSION = 'v4.44.61';
+        // BLUEPRINT v4.44.62 - BUILD 20260226-find-jobs-sort
+        var BP_VERSION = 'v4.44.62';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1793,6 +1793,13 @@
             return div.innerHTML;
         }
 
+        function decodeHtmlEntities(str) {
+            if (!str) return '';
+            var txt = document.createElement('textarea');
+            txt.innerHTML = str;
+            return txt.value;
+        }
+
         // Safe avatar image setter — uses DOM API to avoid innerHTML/template literal context bugs
         function safeSetAvatar(el, url, rounded) {
             if (!el) return;
@@ -2052,7 +2059,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-find-jobs-redesign          ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-find-jobs-sort              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -26173,6 +26180,38 @@ body {
             renderOpportunities();
         }
         
+        var jobsSortOrder = 'match-desc';
+
+        function setJobsSort(val) {
+            jobsSortOrder = val;
+            renderOpportunities();
+        }
+        window.setJobsSort = setJobsSort;
+
+        function sortJobResults(jobs) {
+            var sorted = jobs.slice();
+            switch (jobsSortOrder) {
+                case 'match-desc':
+                    sorted.sort(function(a, b) { return b.matchScore - a.matchScore; });
+                    break;
+                case 'match-asc':
+                    sorted.sort(function(a, b) { return a.matchScore - b.matchScore; });
+                    break;
+                case 'title-asc':
+                    sorted.sort(function(a, b) { return (a.title || '').localeCompare(b.title || ''); });
+                    break;
+                case 'location-asc':
+                    sorted.sort(function(a, b) { return (a.location || '').localeCompare(b.location || ''); });
+                    break;
+                case 'company-asc':
+                    sorted.sort(function(a, b) { return (a.company || '').localeCompare(b.company || ''); });
+                    break;
+                default:
+                    sorted.sort(function(a, b) { return b.matchScore - a.matchScore; });
+            }
+            return sorted;
+        }
+
         function renderOpportunities() {
             if (window._jobSearchTimeout) { clearTimeout(window._jobSearchTimeout); window._jobSearchTimeout = null; }
             var filtered = opportunitiesData.filter(function(job) { return job.matchScore >= currentMatchThreshold; });
@@ -26186,18 +26225,26 @@ body {
                 return;
             }
             
-            // Page size — render in chunks for performance
+            filtered = sortJobResults(filtered);
+            
             var pageSize = window._jobsPageSize || 100;
             var showing = filtered.slice(0, pageSize);
             var hasMore = filtered.length > pageSize;
+            window._displayedJobs = showing;
             
-            // Summary bar
             var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:8px 0; flex-wrap:wrap; gap:8px;">'
                 + '<span style="font-size:0.88em; color:var(--text-secondary);">'
                 + '<strong>' + filtered.length + '</strong> jobs'
                 + (filtered.length < opportunitiesData.length ? ' (of ' + opportunitiesData.length + ' total)' : '')
                 + (currentMatchThreshold > 0 ? ' above ' + currentMatchThreshold + '% match' : '')
                 + '</span>'
+                + '<select onchange="setJobsSort(this.value)" style="padding:4px 8px; border-radius:6px; border:1px solid var(--border); background:var(--c-input-bg-soft); color:var(--text-primary); font-size:0.82em; cursor:pointer;">'
+                + '<option value="match-desc"' + (jobsSortOrder === 'match-desc' ? ' selected' : '') + '>Match % (high first)</option>'
+                + '<option value="match-asc"' + (jobsSortOrder === 'match-asc' ? ' selected' : '') + '>Match % (low first)</option>'
+                + '<option value="title-asc"' + (jobsSortOrder === 'title-asc' ? ' selected' : '') + '>Title A\u2013Z</option>'
+                + '<option value="company-asc"' + (jobsSortOrder === 'company-asc' ? ' selected' : '') + '>Company A\u2013Z</option>'
+                + '<option value="location-asc"' + (jobsSortOrder === 'location-asc' ? ' selected' : '') + '>Location A\u2013Z</option>'
+                + '</select>'
                 + '</div>';
             
             // Pipeline IDs for dedup check + score lookup
@@ -26445,6 +26492,8 @@ body {
             
             var seen = {};
             opportunitiesData = opportunitiesData.filter(function(job) {
+                if (job.title) job.title = decodeHtmlEntities(job.title);
+                if (job.company) job.company = decodeHtmlEntities(job.company);
                 var key = (job.title + '-' + job.company).toLowerCase().replace(/[^a-z0-9]/g, '');
                 if (seen[key]) return false;
                 seen[key] = true;
@@ -26633,9 +26682,11 @@ body {
                 
                 var allJobs = proxyJobs.concat(directJobs);
                 
-                // Deduplicate
+                // Deduplicate + decode HTML entities from APIs
                 var seen = {};
                 opportunitiesData = allJobs.filter(function(job) {
+                    if (job.title) job.title = decodeHtmlEntities(job.title);
+                    if (job.company) job.company = decodeHtmlEntities(job.company);
                     var key = (job.title + '-' + job.company).toLowerCase().replace(/[^a-z0-9]/g, '');
                     if (seen[key]) return false;
                     seen[key] = true;
@@ -26706,6 +26757,8 @@ body {
                 
                 var seen = {};
                 opportunitiesData = allJobs.filter(function(job) {
+                    if (job.title) job.title = decodeHtmlEntities(job.title);
+                    if (job.company) job.company = decodeHtmlEntities(job.company);
                     var key = (job.title + '-' + job.company).toLowerCase().replace(/[^a-z0-9]/g, '');
                     if (seen[key]) return false;
                     seen[key] = true;
@@ -27305,7 +27358,7 @@ body {
         
         // === ADD REMOTE JOB TO PIPELINE ===
         function addRemoteJobToPipeline(idx) {
-            var job = opportunitiesData[idx];
+            var job = (window._displayedJobs || opportunitiesData)[idx];
             if (!job) { showToast('Job not found.', 'warning'); return; }
             
             if (!userData.savedJobs) userData.savedJobs = [];
