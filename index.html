@@ -1,4 +1,4 @@
-<!-- v4.44.53 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
+<!-- v4.44.54 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.53 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
+    <!-- v4.44.54 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -601,22 +601,28 @@
     </div>
 
     <!-- Toast Notification Container -->
-    <div id="toastContainer"></div>
+    <div id="toastContainer" role="status" aria-live="polite" aria-atomic="false"></div>
+    
+    <!-- Screen reader announcements for view changes -->
+    <div id="srAnnounce" aria-live="assertive" aria-atomic="true" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;"></div>
+    
+    <!-- Skip to content (accessibility) -->
+    <a href="#mainContentArea" id="skipToContent" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:10000;padding:12px 24px;background:var(--accent);color:#fff;font-weight:700;font-size:1em;text-decoration:none;border-radius:0 0 8px 0;" onfocus="this.style.cssText='position:fixed;left:0;top:0;z-index:10000;padding:12px 24px;background:var(--accent);color:#fff;font-weight:700;font-size:1em;text-decoration:none;border-radius:0 0 8px 0;'" onblur="this.style.cssText='position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;'">Skip to content</a>
     
     <!-- Auth Modal -->
-    <div class="auth-overlay" id="authOverlay">
+    <div class="auth-overlay" id="authOverlay" role="dialog" aria-modal="true" aria-label="Sign in">
         <div class="auth-dialog">
-            <button class="auth-close" onclick="closeAuthModal()">&times;</button>
+            <button class="auth-close" onclick="closeAuthModal()" aria-label="Close sign in dialog">&times;</button>
             <div id="authModalContent">
                 <!-- Populated by showAuthModal() -->
             </div>
         </div>
     </div>
     <!-- ===== NAV BAR ===== -->
-    <div class="header">
+    <div class="header" role="banner">
         <!-- Left: Logo + wordmark -->
-        <div class="header-left" style="cursor:pointer;" onclick="switchView('welcome')">
-            <div class="header-logo"><svg width="26" height="26" viewBox="0 0 52 52" fill="none">
+        <div class="header-left" style="cursor:pointer;" onclick="switchView('welcome')" role="button" tabindex="0" aria-label="Blueprint home" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchView('welcome')}">
+            <div class="header-logo"><svg width="26" height="26" viewBox="0 0 52 52" fill="none" aria-hidden="true" focusable="false">
                 <circle cx="26" cy="26" r="24" stroke="#60a5fa" stroke-width="1.5" opacity="0.22"/>
                 <line x1="26" y1="26" x2="12" y2="10" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
                 <line x1="26" y1="26" x2="42" y2="12" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
@@ -636,7 +642,7 @@
         </div>
 
         <!-- Center: Primary navigation -->
-        <div class="header-center" id="mainNav">
+        <div class="header-center" id="mainNav" role="navigation" aria-label="Main navigation">
             <button class="nav-btn active" id="nav-skills" onclick="switchView('skills', event)">
                 <span class="nav-icon" data-icon="skills"></span> Skills</button>
             <button class="nav-btn" id="nav-jobs" onclick="switchView('jobs', event)">
@@ -657,7 +663,7 @@
             <span id="statsBar" style="font-size:0.78em; color: var(--text-muted); white-space:nowrap; display:none;"></span>
 
             <!-- Theme toggle -->
-            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggleBtn" title="Toggle light/dark mode">🌙</button>
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggleBtn" title="Toggle light/dark mode" aria-label="Toggle light/dark mode">🌙</button>
 
             <!-- Auth button (shown when not logged in) -->
             <button class="auth-nav-btn" id="authNavBtn" onclick="showAuthModal('signin')" style="display:none;">Sign In</button>
@@ -686,8 +692,8 @@
             <span id="saveIndicator" style="font-size:0.72em; color:var(--text-muted); opacity:0; transition:opacity 0.3s; white-space:nowrap; margin-right:4px;"></span>
 
             <!-- More menu -->
-            <button class="more-btn" onclick="toggleOverflowMenu(event)" id="overflowMenuBtn" title="More options"><span data-icon="more" style="display:inline-flex;"></span></button>
-            <div id="overflowMenu" class="overflow-menu" style="display:none;">
+            <button class="more-btn" onclick="toggleOverflowMenu(event)" id="overflowMenuBtn" title="More options" aria-label="More options" aria-haspopup="true" aria-expanded="false"><span data-icon="more" style="display:inline-flex;" aria-hidden="true"></span></button>
+            <div id="overflowMenu" class="overflow-menu" role="menu" style="display:none;">
                 <button onclick="closeOverflowMenu(); switchView('welcome');" style="color: var(--accent); font-weight: 600;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="home"></span> Home</button>
                 <button onclick="closeOverflowMenu(); viewSampleProfile();" style="color: var(--accent); font-weight: 600;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="users"></span> Sample Profiles</button>
                 <button onclick="closeOverflowMenu(); showOnboardingWizard();" style="color: var(--accent); font-weight: 600;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="wand"></span> Build My Blueprint</button>
@@ -758,7 +764,7 @@
             <div class="filter-group" id="rolesFilterGroup">
                 <span class="filter-label">Roles:</span>
                 <div id="roleChipsContainer">
-                    <div class="role-chip active" data-role="all" onclick="filterByRole('all')">All</div>
+                    <div class="role-chip active" data-role="all" onclick="filterByRole('all')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterByRole('all')}">All</div>
                 </div>
             </div>
             <div class="filter-group">
@@ -787,7 +793,7 @@
         <div id="networkFilterPill" style="display:none;"><span id="networkFilterPillDot"></span><span id="networkFilterPillText"></span></div>
     </div>
     
-    <div class="main-content">
+    <div class="main-content" id="mainContentArea" role="main" aria-label="Main content">
         <div id="welcomeView" style="display:none;"></div>
         <div id="skillsPageHeader" style="display:none; max-width:1200px; margin:0 auto; padding:20px 24px 0;">
             <div class="page-header">
@@ -807,13 +813,13 @@
     </div>
 
     <!-- App Footer / Attribution -->
-    <footer id="appFooter" style="text-align:center; padding:16px 20px; font-size:0.75em; opacity:0.5; line-height:1.8;">
+    <footer id="appFooter" role="contentinfo" style="text-align:center; padding:16px 20px; font-size:0.75em; opacity:0.5; line-height:1.8;">
         <div style="margin-bottom:4px;">&copy; <span id="copyrightYear"></span> Cliff Jurkiewicz. All rights reserved. Blueprint&trade; and its associated methodologies, ontology structures, and matching algorithms are the intellectual property of Cliff Jurkiewicz.</div>
         <div>Uses the <a href="https://esco.ec.europa.eu" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">ESCO classification</a> of the European Commission and <a href="https://www.onetonline.org" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">O*NET</a> occupational data. <a href="#" onclick="event.preventDefault(); showLegalNotice();" style="color:inherit; text-decoration:underline;">Legal &amp; IP Notice</a> &middot; <a href="#" onclick="event.preventDefault(); switchView('settings'); setTimeout(function(){ window.currentSettingsTab='privacy'; initSettings(); window.settingsInitialized=true; }, 100);" style="color:inherit; text-decoration:underline;">Privacy & Terms</a></div>
     </footer>
     
     <!-- Mobile bottom nav (hidden on desktop via CSS) -->
-    <div class="mobile-nav" id="mobileNav" style="display:none;">
+    <div class="mobile-nav" id="mobileNav" role="navigation" aria-label="Mobile navigation" style="display:none;">
         <button class="mobile-nav-btn active" id="mob-skills" onclick="switchView('skills',event)">
             <span class="mobile-nav-icon" data-icon="skills"></span>Skills
         </button>
@@ -837,27 +843,27 @@
     <div class="tooltip" id="tooltip"></div>
     
     <!-- Skill Detail Modal -->
-    <div class="modal" id="skillModal">
+    <div class="modal" id="skillModal" role="dialog" aria-modal="true" aria-label="Skill details">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-header-left">
                     <h2 class="modal-title" id="skillDetailTitle"></h2>
                     <div class="modal-subtitle" id="skillDetailSubtitle"></div>
                 </div>
-                <button class="modal-close" onclick="closeSkillModal()">×</button>
+                <button class="modal-close" aria-label="Close dialog" onclick="closeSkillModal()">×</button>
             </div>
             <div class="modal-body" id="skillDetailBody"></div>
         </div>
     </div>
     
     <!-- Export Modal (used dynamically for outcome editing and value notes) -->
-    <div class="modal" id="exportModal">
+    <div class="modal" id="exportModal" role="dialog" aria-modal="true" aria-labelledby="exportModalTitle">
         <div class="modal-content" style="max-width:560px; width:calc(100% - 32px); box-sizing:border-box; overflow:hidden;">
             <div class="modal-header">
                 <div class="modal-header-left">
-                    <h2 class="modal-title">Export Options</h2>
+                    <h2 class="modal-title" id="exportModalTitle">Export Options</h2>
                 </div>
-                <button class="modal-close" onclick="closeExportModal()">×</button>
+                <button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()" aria-label="Close dialog">×</button>
             </div>
             <div class="modal-body">
                 <p style="color: #9ca3af; margin-bottom: 20px;">All export options are available in the Blueprint tab.</p>
@@ -869,13 +875,13 @@
     </div>
 
     <!-- O*NET Skill Picker Modal -->
-    <div class="modal" id="onetPickerModal">
+    <div class="modal" id="onetPickerModal" role="dialog" aria-modal="true" aria-label="O*NET skill picker">
         <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
             <div class="modal-header">
                 <div class="modal-header-left">
                     <h2 class="modal-title">Add Skills from O*NET Library</h2>
                 </div>
-                <button class="modal-close" onclick="closeONETPicker()">×</button>
+                <button class="modal-close" aria-label="Close dialog" onclick="closeONETPicker()">×</button>
             </div>
             <div class="modal-body" style="overflow-y: auto;">
                 <div style="margin-bottom: 20px;">
@@ -922,13 +928,13 @@
     </div>
 
     <!-- Custom Skill Builder Modal -->
-    <div class="modal" id="customSkillModal">
+    <div class="modal" id="customSkillModal" role="dialog" aria-modal="true" aria-label="Create custom skill">
         <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
                 <div class="modal-header-left">
                     <h2 class="modal-title">Create Custom Skill</h2>
                 </div>
-                <button class="modal-close" onclick="closeCustomSkillBuilder()">×</button>
+                <button class="modal-close" aria-label="Close dialog" onclick="closeCustomSkillBuilder()">×</button>
             </div>
             <div class="modal-body">
                 <div class="settings-group">
@@ -995,13 +1001,13 @@
     </div>
 
     <!-- Bulk Skill Import Modal -->
-    <div class="modal" id="bulkImportModal">
+    <div class="modal" id="bulkImportModal" role="dialog" aria-modal="true" aria-label="Bulk import skills">
         <div class="modal-content" style="max-width: 800px; max-height: 90vh;">
             <div class="modal-header">
                 <div class="modal-header-left">
                     <h2 class="modal-title">Bulk Import Skills</h2>
                 </div>
-                <button class="modal-close" onclick="closeBulkImport()">×</button>
+                <button class="modal-close" aria-label="Close dialog" onclick="closeBulkImport()">×</button>
             </div>
             <div class="modal-body" style="overflow-y: auto;">
                 <div id="bulkImportStep1">
@@ -1104,13 +1110,13 @@
     </div>
 
     <!-- Bulk Skill Manager Modal -->
-    <div class="modal" id="bulkSkillManagerModal">
+    <div class="modal" id="bulkSkillManagerModal" role="dialog" aria-modal="true" aria-label="Manage profile skills">
         <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
             <div class="modal-header">
                 <div class="modal-header-left">
                     <h2 class="modal-title">Manage Profile Skills</h2>
                 </div>
-                <button class="modal-close" onclick="closeBulkManager()">×</button>
+                <button class="modal-close" aria-label="Close dialog" onclick="closeBulkManager()">×</button>
             </div>
             <div class="modal-body" style="overflow-y: auto; padding: 20px;">
                 <div style="display:flex; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap;">
@@ -1140,13 +1146,13 @@
     </div>
 
     <!-- Edit Skill Modal -->
-    <div class="modal" id="editSkillModal">
+    <div class="modal" id="editSkillModal" role="dialog" aria-modal="true" aria-label="Edit skill">
         <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
                 <div class="modal-header-left">
                     <h2 class="modal-title">Edit Skill</h2>
                 </div>
-                <button class="modal-close" onclick="closeEditSkillModal()">×</button>
+                <button class="modal-close" aria-label="Close dialog" onclick="closeEditSkillModal()">×</button>
             </div>
             <div class="modal-body">
                 <div class="settings-group">
@@ -1215,13 +1221,13 @@
     </div>
 
     <!-- Skill Assessment Modal (for unique skills) -->
-    <div class="modal" id="assessSkillModal">
+    <div class="modal" id="assessSkillModal" role="dialog" aria-modal="true" aria-label="Assess skill impact">
         <div class="modal-content" style="max-width: 650px;">
             <div class="modal-header">
                 <div class="modal-header-left">
                     <h2 class="modal-title">Assess Skill Impact</h2>
                 </div>
-                <button class="modal-close" onclick="closeAssessSkillModal()">×</button>
+                <button class="modal-close" aria-label="Close dialog" onclick="closeAssessSkillModal()">×</button>
             </div>
             <div class="modal-body">
                 <div class="coaching-tip" style="margin-bottom: 25px;">
@@ -1342,7 +1348,7 @@
 
     <!-- Skill Search Modal (v2.3.0) -->
     <!-- Unified Skill Management Modal (v2.4.0) -->
-    <div class="modal" id="skillManagementModal">
+    <div class="modal" id="skillManagementModal" role="dialog" aria-modal="true" aria-label="Manage skills">
         <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
             <div class="modal-header">
                 <div class="modal-header-left">
@@ -1351,7 +1357,7 @@
                         <span id="skillManagementCount">Loading...</span>
                     </p>
                 </div>
-                <button class="modal-close" onclick="closeSkillManagement()">×</button>
+                <button class="modal-close" aria-label="Close dialog" onclick="closeSkillManagement()">×</button>
             </div>
             
             <!-- Tabs -->
@@ -1481,8 +1487,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.53 - BUILD 20260226-a11y-roadmap
-        var BP_VERSION = 'v4.44.53';
+        // BLUEPRINT v4.44.54 - BUILD 20260226-a11y-quick-wins
+        var BP_VERSION = 'v4.44.54';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2035,7 +2041,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-a11y-roadmap               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-a11y-quick-wins               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -2065,7 +2071,7 @@
         // Stroke-based SVG icons using currentColor for theme-awareness
         function bpIcon(name, size) {
             size = size || 18;
-            var s = 'xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+            var s = 'xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"';
             var icons = {
                 // -- Navigation --
                 'skills':       '<svg ' + s + '><circle cx="12" cy="12" r="3"/><circle cx="4" cy="8" r="2"/><circle cx="20" cy="8" r="2"/><circle cx="4" cy="18" r="2"/><circle cx="20" cy="18" r="2"/><line x1="6" y1="8" x2="9.5" y2="10.5"/><line x1="18" y1="8" x2="14.5" y2="10.5"/><line x1="6" y1="18" x2="9.5" y2="13.5"/><line x1="18" y1="18" x2="14.5" y2="13.5"/></svg>',
@@ -3034,7 +3040,7 @@
                     
                     modalContent.innerHTML = '<div class="modal-header">'
                         + '<div class="modal-header-left"><h2 class="modal-title">Your Stored Data</h2></div>'
-                        + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                        + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                         + '</div>'
                         + '<div class="modal-body" style="padding:24px;">'
                         + '<pre style="background:var(--c-input-bg-deep); padding:20px; border-radius:8px; '
@@ -3888,7 +3894,7 @@
             modalContent.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left"><h2 class="modal-title">' + bpIcon('skills',18) + ' Edit Sample Profile</h2>'
                 + '<p style="color:var(--text-muted); margin-top:4px; font-size:0.88em;">Changes apply to in-memory template. Export JSON to persist.</p></div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button></div>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button></div>'
                 + '<div class="modal-body" style="padding:24px; max-height:70vh; overflow-y:auto;">'
                 + '<div style="display:grid; gap:16px;">'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Name</label>'
@@ -4495,7 +4501,7 @@
                 {
                     name: 'Accessibility (A11Y)',
                     items: [
-                        { id: 'a11y-1', name: 'Screen reader compatibility', status: 'planned', category: 'compliance', priority: 'critical', notes: 'ARIA landmarks, roles, and labels across all views. Live regions for dynamic content (toasts, save indicators, skill additions). Focus management on view switches and modal open/close. Test with NVDA, VoiceOver, and JAWS.' },
+                        { id: 'a11y-1', name: 'Screen reader compatibility', status: 'in-progress', category: 'compliance', priority: 'critical', notes: 'v4.44.54 quick wins: ARIA landmarks (banner, navigation, main, contentinfo), skip-to-content link, aria-live toast container + view change announcer, bpIcon aria-hidden+focusable=false on all 102 SVGs, role=dialog+aria-modal on 9 modals, aria-label on 40 close buttons, aria-expanded on overflow menu, aria-current=page on nav buttons. Remaining: focus trapping in modals, div→button conversion for 44 onclick divs, form input aria-labels.' },
                         { id: 'a11y-2', name: 'WCAG 2.2 AA compliance audit', status: 'planned', category: 'compliance', priority: 'critical', notes: 'Full audit against WCAG 2.2 Level AA success criteria. Covers perceivable, operable, understandable, and robust principles. Automated scan (axe-core) plus manual testing. Document findings and remediation plan.' },
                         { id: 'a11y-3', name: 'Keyboard navigation completeness', status: 'planned', category: 'compliance', priority: 'high', notes: 'All interactive elements reachable and operable via keyboard alone. Visible focus indicators on every focusable element. Logical tab order through all views. Skip-to-content link. No keyboard traps in modals or menus.' },
                         { id: 'a11y-4', name: 'Color contrast and visual accessibility', status: 'planned', category: 'compliance', priority: 'high', notes: 'Minimum 4.5:1 contrast ratio for normal text, 3:1 for large text (WCAG AA). Audit both light and dark themes. No information conveyed by color alone (add icons or patterns). Ensure focus indicators meet 3:1 contrast against adjacent colors.' },
@@ -4582,7 +4588,7 @@
                 + '<h2 class="modal-title">' + bpIcon('edit', 18) + ' Edit Roadmap Item</h2>'
                 + '<p style="color:var(--c-muted); margin-top:4px; font-size:0.82em;">' + escapeHtml(parentPhase ? parentPhase.name : '') + ' \u00B7 ' + item.id + '</p>'
                 + '</div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px; max-height:70vh; overflow-y:auto;">'
                 
@@ -6802,7 +6808,7 @@
             var modalContent = modal.querySelector('.modal-content');
             modalContent.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left"><h2 class="modal-title">' + bpIcon('lock', 18) + ' Early Access Feature</h2></div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:40px 32px; text-align:center;">'
                 + '<div style="font-size:2.8em; margin-bottom:16px; opacity:0.8;">\u25C8</div>'
@@ -8572,7 +8578,7 @@
                 + '<h2 class="modal-title">' + bpIcon('check', 18) + ' Request Verification</h2>'
                 + '<p style="color:var(--c-muted); margin-top:5px;">Ask a colleague or manager to verify your evidence</p>'
                 + '</div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px; max-height:70vh; overflow-y:auto;">'
                 + '<div style="margin-bottom:16px;">' + skillListHTML + '</div>'
@@ -15142,15 +15148,20 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             currentView = view;
             window.scrollTo(0, 0);
             
+            // Announce view change to screen readers
+            var viewNames = { network: 'Skills', opportunities: 'Jobs', blueprint: 'Blueprint', reports: 'Reports', settings: 'Settings', consent: 'Settings', welcome: 'Home', admin: 'Admin' };
+            var srEl = document.getElementById('srAnnounce');
+            if (srEl) srEl.textContent = (viewNames[view] || view) + ' view';
+            
             // Push browser history (skip if triggered by popstate)
             if (!_skipHistoryPush) {
                 history.pushState({ view: view }, '', '#' + view);
             }
             // Update nav button active state
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => { btn.classList.remove('active'); btn.removeAttribute('aria-current'); });
             const navMap = { network: 'nav-skills', skills: 'nav-skills', opportunities: 'nav-jobs', jobs: 'nav-jobs', applications: 'nav-jobs', blueprint: 'nav-blueprint', reports: 'nav-reports', settings: 'nav-settings', consent: 'nav-settings' };
             const navId = navMap[view] || navMap[currentView];
-            if (navId) { const nb = document.getElementById(navId); if (nb) nb.classList.add('active'); }
+            if (navId) { const nb = document.getElementById(navId); if (nb) { nb.classList.add('active'); nb.setAttribute('aria-current', 'page'); } }
             
             const networkControls = document.getElementById('networkControls');
             const skillsViewToggle = document.getElementById('skillsViewToggle');
@@ -15187,10 +15198,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             }
 
             // Update mobile nav
-            document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.mobile-nav-btn').forEach(b => { b.classList.remove('active'); b.removeAttribute('aria-current'); });
             const mobMap = { network: 'mob-skills', opportunities: 'mob-jobs', applications: 'mob-jobs', blueprint: 'mob-blueprint', reports: 'mob-reports', settings: 'mob-settings', consent: 'mob-settings' };
             const mobId = mobMap[view];
-            if (mobId) { const mb = document.getElementById(mobId); if (mb) mb.classList.add('active'); }
+            if (mobId) { const mb = document.getElementById(mobId); if (mb) { mb.classList.add('active'); mb.setAttribute('aria-current', 'page'); } }
 
             // Hide all views
             document.getElementById('welcomeView').style.display = 'none';
@@ -17301,7 +17312,7 @@ body {
                 + '<h2 class="modal-title">Personal Note: ' + escapeHtml(value.name) + '</h2>'
                 + '<p style="color:var(--c-muted); margin-top:5px;">Why does this value matter to you?</p>'
                 + '</div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px;">'
                 + '<textarea id="valueNoteInput" placeholder="e.g., This shaped how I lead after watching top-down decisions fail repeatedly..." style="'
@@ -18853,7 +18864,7 @@ body {
                         <h2 class="modal-title">Edit Outcome</h2>
                         <p style="color: #9ca3af; margin-top: 5px;">Refine how you describe this achievement</p>
                     </div>
-                    <button class="modal-close" onclick="closeExportModal()">×</button>
+                    <button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">×</button>
                 </div>
                 <div class="modal-body" style="padding: 30px;">
                     <div style="margin-bottom: 20px;">
@@ -18980,7 +18991,7 @@ body {
                         <h2 class="modal-title">Add Custom Outcome</h2>
                         <p style="color: #9ca3af; margin-top: 5px;">Describe an achievement or impact you've made</p>
                     </div>
-                    <button class="modal-close" onclick="closeExportModal()">×</button>
+                    <button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">×</button>
                 </div>
                 <div class="modal-body" style="padding: 30px;">
                     <div style="margin-bottom: 20px;">
@@ -19297,7 +19308,7 @@ body {
             if (savedJobs.length === 0) {
                 modalContent.innerHTML = '<div class="modal-header">'
                     + '<div class="modal-header-left"><h2 class="modal-title">\u25C8 Scouting Report</h2></div>'
-                    + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                    + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                     + '</div>'
                     + '<div class="modal-body" style="padding:40px 32px; text-align:center;">'
                     + '<div style="font-size:2.4em; margin-bottom:16px; opacity:0.5;">' + bpIcon('target',48) + '</div>'
@@ -19338,7 +19349,7 @@ body {
             
             modalContent.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left"><h2 class="modal-title">\u25C8 Scouting Report</h2></div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px; overflow:hidden; box-sizing:border-box;">'
                 + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:16px; line-height:1.5;">'
@@ -19375,7 +19386,7 @@ body {
                 
                 modalContent.innerHTML = '<div class="modal-header">'
                     + '<div class="modal-header-left"><h2 class="modal-title">\u25C8 Scouting Report</h2></div>'
-                    + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                    + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                     + '</div>'
                     + '<div class="modal-body" style="padding:24px;">'
                     + '<div style="padding:14px 16px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">'
@@ -19423,7 +19434,7 @@ body {
             
             modalContent.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left"><h2 class="modal-title">\u25C8 Scouting Report</h2></div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px;">'
                 + '<div style="padding:14px 16px; background:var(--c-surface-2a); border:1px solid var(--c-border-subtle); border-radius:10px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">'
@@ -22679,7 +22690,7 @@ body {
                 + '<h2 class="modal-title">Generate Cover Letter</h2>'
                 + '<p style="color:var(--text-secondary); margin-top:5px;">Select a job to tailor your letter</p>'
                 + '</div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00d7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00d7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px;">'
                 + jobs.map(function(j, i) {
@@ -22798,7 +22809,7 @@ body {
                 + '<p style="color:var(--text-secondary); margin-top:5px;">'
                 + (job.title || '') + ' at ' + (job.company || '') + '</p>'
                 + '</div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00d7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00d7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px;">'
                 + '<textarea id="coverLetterOutput" style="width:100%; min-height:350px; padding:18px; '
@@ -22858,7 +22869,7 @@ body {
                 + '<h2 class="modal-title">Interview Prep</h2>'
                 + '<p style="color:var(--text-secondary); margin-top:5px;">Select a job for tailored STAR stories and talking points</p>'
                 + '</div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00d7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00d7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px;">'
                 + jobs.map(function(j, i) {
@@ -23013,7 +23024,7 @@ body {
                 + '<p style="color:var(--text-secondary); margin-top:5px;">'
                 + (job.title || '') + ' at ' + (job.company || '') + '</p>'
                 + '</div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00d7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00d7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px;">'
                 + '<textarea id="interviewPrepOutput" style="width:100%; min-height:400px; padding:18px; '
@@ -23149,7 +23160,7 @@ body {
                 + '<h2 class="modal-title">LinkedIn Profile</h2>'
                 + '<p style="color:var(--text-secondary); margin-top:5px;">Copy each section directly to LinkedIn</p>'
                 + '</div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00d7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00d7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px;">'
                 + '<textarea id="linkedinOutput" style="width:100%; min-height:380px; padding:18px; '
@@ -23526,7 +23537,7 @@ body {
                 + '<h2 class="modal-title">Add a Job</h2>'
                 + '<p style="color:var(--text-muted); margin-top:5px;">Paste a job description to analyze your fit</p>'
                 + '</div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px;">'
                 
@@ -25234,7 +25245,7 @@ body {
             
             mc.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left"><h2 class="modal-title">Add Skill: ' + skillName + '</h2></div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button></div>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button></div>'
                 + '<div class="modal-body" style="padding:24px;">'
                 + '<p style="color:var(--text-secondary); margin-bottom:16px;">This job expects <strong>' + suggestedLevel + '</strong> proficiency. What\'s your actual level?</p>'
                 + '<div style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;">'
@@ -25612,7 +25623,7 @@ body {
                 + '<div class="modal-header-left">'
                 + '<h2 class="modal-title">Edit Job Info</h2>'
                 + '</div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px;">'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
@@ -27350,7 +27361,7 @@ body {
                 + '<h2 class="modal-title">' + (isEdit ? 'Edit Position' : 'Add Position') + '</h2>'
                 + '<p style="color:var(--c-muted); margin-top:5px;">Add your role details and key accomplishments</p>'
                 + '</div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px; max-height:70vh; overflow-y:auto;">'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
@@ -27469,7 +27480,7 @@ body {
                 + '<div class="modal-header-left">'
                 + '<h2 class="modal-title">' + (isEdit ? 'Edit Education' : 'Add Education') + '</h2>'
                 + '</div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px;">'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
@@ -27557,7 +27568,7 @@ body {
                 + '<h2 class="modal-title">' + (isEdit ? 'Edit Credential' : 'Add Credential') + '</h2>'
                 + '<p style="color:var(--c-muted); margin-top:4px; font-size:0.85em;">Search the library or enter manually</p>'
                 + '</div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px; max-height:75vh; overflow-y:auto;">'
                 
@@ -27847,7 +27858,7 @@ body {
                 + '<h2 class="modal-title">\uD83C\uDFC5 Credential Impact</h2>'
                 + '<p style="color:var(--c-muted); margin-top:4px; font-size:0.85em;">' + cert.name + (cert.abbr ? ' (' + cert.abbr + ')' : '') + '</p>'
                 + '</div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px;">';
             
@@ -28486,7 +28497,7 @@ body {
                         <h2 class="modal-title">Add Application</h2>
                         <p style="color: #9ca3af; margin-top: 5px;">Track a job you've applied to</p>
                     </div>
-                    <button class="modal-close" onclick="closeExportModal()">×</button>
+                    <button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">×</button>
                 </div>
                 <div class="modal-body" style="padding: 30px;">
                     <div style="display: grid; gap: 20px;">
@@ -28614,7 +28625,7 @@ body {
                     <div class="modal-header-left">
                         <h2 class="modal-title">Edit Application</h2>
                     </div>
-                    <button class="modal-close" onclick="closeExportModal()">×</button>
+                    <button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">×</button>
                 </div>
                 <div class="modal-body" style="padding: 30px;">
                     <div style="display: grid; gap: 20px;">
@@ -29164,7 +29175,7 @@ body {
                         <h2 class="modal-title">All ${skillsData.skills.length} Skills</h2>
                         <p style="color: #9ca3af; margin-top: 5px;">Complete list with impact ratings</p>
                     </div>
-                    <button class="modal-close" onclick="closeExportModal()">×</button>
+                    <button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">×</button>
                 </div>
                 <div class="modal-body" style="padding: 30px; max-height: 70vh; overflow-y: auto;">
                     <div style="background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
@@ -29274,7 +29285,7 @@ body {
                         <h2 class="modal-title">${bpIcon("briefcase",18)} Salary Negotiation Strategy</h2>
                         <p style="color: #9ca3af; margin-top: 5px;">Compa-ratio based negotiation guidance</p>
                     </div>
-                    <button class="modal-close" onclick="closeExportModal()">×</button>
+                    <button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">×</button>
                 </div>
                 <div class="modal-body" style="padding: 30px; max-height: 70vh; overflow-y: auto;">
                     <div style="background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 25px;">
@@ -31726,9 +31737,11 @@ body {
             if (isVisible) {
                 menu.style.display = 'none';
                 btn.classList.remove('active');
+                btn.setAttribute('aria-expanded', 'false');
             } else {
                 menu.style.display = 'block';
                 btn.classList.add('active');
+                btn.setAttribute('aria-expanded', 'true');
             }
         }
         
@@ -31736,7 +31749,7 @@ body {
             const menu = document.getElementById('overflowMenu');
             const btn = document.getElementById('overflowMenuBtn');
             if (menu) menu.style.display = 'none';
-            if (btn) btn.classList.remove('active');
+            if (btn) { btn.classList.remove('active'); btn.setAttribute('aria-expanded', 'false'); }
         }
         
         function showHelp() {
@@ -31792,7 +31805,7 @@ body {
             
             modalContent.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left"><h2 class="modal-title">How to Use Blueprint</h2></div>'
-                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding: 30px;">'
                 // Preview disclosure
@@ -31965,7 +31978,7 @@ body {
             const modalContent = modal.querySelector('.modal-content');
             modalContent.innerHTML = `
                 <div class="modal-header" style="flex-direction:column; align-items:center; text-align:center; padding-bottom:20px;">
-                    <button class="modal-close" onclick="closeExportModal()" style="position:absolute; top:16px; right:16px;">\u00D7</button>
+                    <button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()" style="position:absolute; top:16px; right:16px;">\u00D7</button>
                     <h2 class="modal-title" style="text-align:center; width:100%;">The Resume is Dead.<br>Here is Your Blueprint.<span style="font-size:0.5em; font-weight:400; vertical-align:super;">\u2122</span></h2>
                     <p style="color: var(--text-secondary); margin-top: 8px; font-size:0.95em;">Your career, fully represented.</p>
                     <p style="color: var(--text-muted); margin-top: 4px; font-size:0.78em;">${BP_VERSION}</p>
@@ -32034,7 +32047,7 @@ body {
                 + '<div class="modal-header-left">'
                 + '<h2 class="modal-title">Legal &amp; Intellectual Property Notice</h2>'
                 + '</div>'
-                + '<button class="modal-close" onclick="closeExportModal()">&times;</button>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">&times;</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:28px; color:var(--text-secondary); line-height:1.8; font-size:0.9em;">'
                 + '<h3 style="color:var(--text-primary); font-size:1.05em; margin-bottom:12px;">Trademark</h3>'
