@@ -39,7 +39,7 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - Report templates hardened with escapeHtml for all user-controlled data
 - See `docs/SECURITY_AUDIT.md` for full audit details
 
-## Work Blueprint Converter (v4.44.68)
+## Work Blueprint Converter (v4.44.69)
 - Admin → JD Converter: paste any job description, get a structured Work Blueprint
 - Extraction pipeline: title, company, location, employment type, department, reports-to, schedule, travel, seniority, industry
 - Requirements extraction: years of experience (with area), education levels, certifications (191 known certs)
@@ -49,7 +49,9 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - Summary generation: extracts actual JD sentences when available, falls back to structured template
 - Values: pattern-matched from JD text, sorted by hit count, tighter patterns to reduce false positives
 - Compensation: BLS wage data + per-skill comp model (importance × proficiency weighting)
-- Export: JSON download + clipboard copy
+- Export: JSON download + clipboard copy; bulk export all as single JSON
+- Input modes: Paste (single JD), URL fetch (via /api/api-job-proxy?source=page&url=...), Bulk (--- separated or file upload)
+- Bulk: supports .txt (--- separated), .json (array of strings or objects with description), .csv (auto-detects description column)
 - Section order: Header/Logistics → Skills/Outcomes/Proficiency → Requirements → Compensation → Demonstrated Experience → Values
 
 ## Stability (v4.44.60)

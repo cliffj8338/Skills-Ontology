@@ -1,4 +1,4 @@
-<!-- v4.44.68 | 2026-02-26 | Rebuilt JD-to-Work-Blueprint converter with full extraction pipeline -->
+<!-- v4.44.69 | 2026-02-26 | Added URL fetch, bulk paste, and file upload to JD converter -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.68 | 2026-02-26 | Rebuilt JD-to-Work-Blueprint converter with full extraction pipeline -->
+    <!-- v4.44.69 | 2026-02-26 | Added URL fetch, bulk paste, and file upload to JD converter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.68 - BUILD 20260226-wb-converter-rebuild
-        var BP_VERSION = 'v4.44.68';
+        // BLUEPRINT v4.44.69 - BUILD 20260226-jdc-bulk-url
+        var BP_VERSION = 'v4.44.69';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -6144,29 +6144,92 @@
         var _jdcResult = null;
         var _jdcCompMode = 'without'; // 'without' or 'with'
         
+        var _jdcInputMode = 'paste';
+        var _jdcBulkResults = [];
+        var _jdcBulkViewIdx = -1;
+
         function renderAdminJDConverter(el) {
             var html = '<div style="max-width:1200px; margin:0 auto;">';
-            
-            // Header
+
             html += '<div style="margin-bottom:24px;">'
                 + '<div style="font-family:Outfit,sans-serif; font-size:1.4em; font-weight:700; color:var(--c-heading-bold); margin-bottom:6px;">'
                 + bpIcon('wand',20) + ' JD \u2192 Work Blueprint Converter</div>'
                 + '<div style="font-size:0.9em; color:var(--c-muted); line-height:1.6;">'
-                + 'Paste a traditional job description. Blueprint converts it into a structured Work Blueprint with skills, outcomes, proficiency levels, compensation, demonstrated experience criteria, and values.</div>'
+                + 'Convert traditional job descriptions into structured Work Blueprints. Paste, fetch from URL, or bulk process multiple JDs at once.</div>'
                 + '</div>';
-            
-            // Input area
-            html += '<div style="margin-bottom:20px;">'
-                + '<textarea id="jdcInput" placeholder="Paste a job description here..." style="width:100%; box-sizing:border-box; min-height:180px; padding:14px; border:1px solid var(--c-surface-5); border-radius:10px; background:var(--c-surface-1); color:var(--c-heading); font-size:0.9em; line-height:1.6; resize:vertical; font-family:inherit;">' + escapeHtml((_jdcResult ? _jdcResult._rawJD : '') || '') + '</textarea>'
-                + '<div style="display:flex; gap:12px; margin-top:12px; align-items:center; flex-wrap:wrap;">'
-                + '<button onclick="runJDConverter()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
-                + bpIcon('zap',14) + ' Convert to Work Blueprint</button>'
-                + '<span style="font-size:0.78em; color:var(--c-faint);">Deterministic engine: O*NET crosswalk + BLS wages. No AI API calls.</span>'
-                + '</div></div>';
-            
-            // Output
+
+            var modes = [
+                { id: 'paste', icon: 'edit', label: 'Paste' },
+                { id: 'url', icon: 'link', label: 'From URL' },
+                { id: 'bulk', icon: 'list', label: 'Bulk' }
+            ];
+            html += '<div style="display:flex; gap:2px; background:var(--c-surface-2); border-radius:10px; padding:3px; margin-bottom:20px; max-width:400px;">';
+            modes.forEach(function(m) {
+                var active = _jdcInputMode === m.id;
+                html += '<button onclick="_jdcInputMode=\'' + m.id + '\'; _jdcResult=null; _jdcBulkResults=[]; _jdcBulkViewIdx=-1; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="flex:1; padding:8px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; display:flex; align-items:center; justify-content:center; gap:5px; '
+                    + (active ? 'background:var(--accent); color:#fff;' : 'background:transparent; color:var(--text-secondary);') + '">'
+                    + bpIcon(m.icon, 14) + ' ' + m.label + '</button>';
+            });
+            html += '</div>';
+
+            if (_jdcInputMode === 'paste') {
+                html += '<div style="margin-bottom:20px;">'
+                    + '<textarea id="jdcInput" placeholder="Paste a job description here..." style="width:100%; box-sizing:border-box; min-height:180px; padding:14px; border:1px solid var(--c-surface-5); border-radius:10px; background:var(--c-surface-1); color:var(--c-heading); font-size:0.9em; line-height:1.6; resize:vertical; font-family:inherit;">' + escapeHtml((_jdcResult ? _jdcResult._rawJD : '') || '') + '</textarea>'
+                    + '<div style="display:flex; gap:12px; margin-top:12px; align-items:center; flex-wrap:wrap;">'
+                    + '<button onclick="runJDConverter()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
+                    + bpIcon('zap',14) + ' Convert to Work Blueprint</button>'
+                    + '<span style="font-size:0.78em; color:var(--c-faint);">Deterministic engine: O*NET crosswalk + BLS wages. No AI API calls.</span>'
+                    + '</div></div>';
+            } else if (_jdcInputMode === 'url') {
+                html += '<div style="margin-bottom:20px;">'
+                    + '<div style="display:flex; gap:10px; align-items:stretch;">'
+                    + '<input id="jdcUrlInput" type="url" placeholder="https://example.com/jobs/senior-engineer" style="flex:1; padding:12px 14px; border:1px solid var(--c-surface-5); border-radius:10px; background:var(--c-surface-1); color:var(--c-heading); font-size:0.9em; font-family:inherit;" />'
+                    + '<button onclick="runJDConverterFromURL()" style="padding:10px 20px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em; white-space:nowrap;">'
+                    + bpIcon('download',14) + ' Fetch & Convert</button>'
+                    + '</div>'
+                    + '<div id="jdcUrlStatus" style="margin-top:8px; font-size:0.82em; color:var(--c-muted);"></div>'
+                    + '<div style="margin-top:8px; font-size:0.78em; color:var(--c-faint);">Fetches the page content and extracts the job description text. Works best with direct job posting pages. Some sites may block external fetching.</div>'
+                    + '</div>';
+            } else if (_jdcInputMode === 'bulk') {
+                html += '<div style="margin-bottom:20px;">'
+                    + '<div style="display:flex; gap:2px; background:var(--c-surface-2); border-radius:8px; padding:3px; margin-bottom:12px; max-width:340px;">'
+                    + '<button onclick="document.getElementById(\'jdcBulkPaste\').style.display=\'block\'; document.getElementById(\'jdcBulkFile\').style.display=\'none\';" style="flex:1; padding:6px 12px; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600; background:var(--accent); color:#fff;">Paste Multiple</button>'
+                    + '<button onclick="document.getElementById(\'jdcBulkPaste\').style.display=\'none\'; document.getElementById(\'jdcBulkFile\').style.display=\'block\';" style="flex:1; padding:6px 12px; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600; background:transparent; color:var(--text-secondary);">Upload File</button>'
+                    + '</div>'
+                    + '<div id="jdcBulkPaste">'
+                    + '<textarea id="jdcBulkInput" placeholder="Paste multiple job descriptions separated by ---\n\nExample:\nSenior Engineer at Acme Corp...\n---\nProduct Manager at Widget Inc...\n---\nData Analyst at DataCo..." style="width:100%; box-sizing:border-box; min-height:200px; padding:14px; border:1px solid var(--c-surface-5); border-radius:10px; background:var(--c-surface-1); color:var(--c-heading); font-size:0.9em; line-height:1.6; resize:vertical; font-family:inherit;"></textarea>'
+                    + '</div>'
+                    + '<div id="jdcBulkFile" style="display:none;">'
+                    + '<div style="border:2px dashed var(--c-surface-5); border-radius:10px; padding:30px; text-align:center; cursor:pointer;" onclick="document.getElementById(\'jdcFileInput\').click();">'
+                    + '<input type="file" id="jdcFileInput" accept=".txt,.json,.csv" style="display:none;" onchange="handleJDCFileUpload(this)" />'
+                    + bpIcon('upload',28) + '<div style="margin-top:8px; font-size:0.9em; color:var(--c-muted);">Click to upload or drag a file</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-faint); margin-top:4px;">Accepts .txt (--- separated), .json (array of strings or objects with "description" field), or .csv</div>'
+                    + '</div></div>'
+                    + '<div style="display:flex; gap:12px; margin-top:12px; align-items:center; flex-wrap:wrap;">'
+                    + '<button onclick="runJDConverterBulk()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
+                    + bpIcon('zap',14) + ' Convert All</button>'
+                    + '<span style="font-size:0.78em; color:var(--c-faint);">Separate multiple JDs with --- (three dashes on their own line).</span>'
+                    + '</div></div>';
+            }
+
+            if (_jdcBulkResults.length > 0) {
+                html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:12px; padding:20px; margin-bottom:20px;">'
+                    + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">'
+                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:var(--c-heading-bold);">' + bpIcon('list',18) + ' Bulk Results (' + _jdcBulkResults.length + ' blueprints)</div>'
+                    + '<button onclick="exportAllBulkBlueprints()" style="padding:6px 14px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                    + bpIcon('download',12) + ' Export All JSON</button></div>'
+                    + '<div style="display:grid; gap:8px;">';
+                _jdcBulkResults.forEach(function(bp, idx) {
+                    var isActive = _jdcBulkViewIdx === idx;
+                    html += '<div style="display:flex; align-items:center; gap:10px; padding:10px 14px; background:' + (isActive ? 'rgba(96,165,250,0.1)' : 'var(--c-surface-2)') + '; border:1px solid ' + (isActive ? 'var(--accent)' : 'transparent') + '; border-radius:8px; cursor:pointer;" onclick="_jdcBulkViewIdx=' + idx + '; _jdcResult=_jdcBulkResults[' + idx + ']; _jdcCompMode=\'without\'; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));">'
+                        + '<span style="font-size:0.82em; font-weight:700; color:var(--accent); min-width:24px; text-align:center;">' + (idx + 1) + '</span>'
+                        + '<div style="flex:1; min-width:0;"><div style="font-weight:600; font-size:0.9em; color:var(--c-heading-bold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(bp.title) + '</div>'
+                        + '<div style="font-size:0.78em; color:var(--c-muted);">' + escapeHtml(bp.company || 'Unknown company') + ' \u00B7 ' + bp.skills.length + ' skills' + (bp.bls ? ' \u00B7 $' + (bp.bls.median || 0).toLocaleString() : '') + '</div></div></div>';
+                });
+                html += '</div></div>';
+            }
+
             if (_jdcResult) {
-                // Mode toggle
                 html += '<div style="display:flex; gap:2px; background:var(--c-surface-2); border-radius:10px; padding:3px; margin-bottom:20px; max-width:440px;">'
                     + '<button onclick="_jdcCompMode=\'without\'; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="flex:1; padding:8px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; '
                     + (_jdcCompMode === 'without' ? 'background:var(--accent); color:#fff;' : 'background:transparent; color:var(--text-secondary);') + '">'
@@ -6174,31 +6237,195 @@
                     + '<button onclick="_jdcCompMode=\'with\'; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="flex:1; padding:8px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; '
                     + (_jdcCompMode === 'with' ? 'background:var(--accent); color:#fff;' : 'background:transparent; color:var(--text-secondary);') + '">'
                     + 'With Skills Comp Model</button></div>';
-                
+
                 html += renderWorkBlueprint(_jdcResult, _jdcCompMode === 'with');
             }
-            
+
             html += '</div>';
             el.innerHTML = html;
         }
-        
+
         function runJDConverter() {
             var raw = (document.getElementById('jdcInput') || {}).value || '';
             if (!raw || raw.trim().length < 50) {
                 showToast('Paste a job description with at least a few sentences.', 'warning');
                 return;
             }
-            
             _jdcResult = convertJDToBlueprint(raw.trim());
             _jdcCompMode = 'without';
+            _jdcBulkResults = [];
+            _jdcBulkViewIdx = -1;
             renderAdminJDConverter(document.getElementById('adminTabContent'));
-            var statParts = [_jdcResult.skills.length + ' skills'];
-            if (_jdcResult.certifications && _jdcResult.certifications.length) statParts.push(_jdcResult.certifications.length + ' certs');
-            if (_jdcResult.education && _jdcResult.education.length) statParts.push(_jdcResult.education.length + ' edu');
-            if (_jdcResult.values && _jdcResult.values.length) statParts.push(_jdcResult.values.length + ' values');
-            showToast('Work Blueprint generated: ' + statParts.join(', ') + ' extracted.', 'success');
+            _jdcShowStats(_jdcResult);
         }
         window.runJDConverter = runJDConverter;
+
+        function _jdcShowStats(result) {
+            var statParts = [result.skills.length + ' skills'];
+            if (result.certifications && result.certifications.length) statParts.push(result.certifications.length + ' certs');
+            if (result.education && result.education.length) statParts.push(result.education.length + ' edu');
+            if (result.values && result.values.length) statParts.push(result.values.length + ' values');
+            showToast('Work Blueprint generated: ' + statParts.join(', ') + ' extracted.', 'success');
+        }
+
+        function runJDConverterFromURL() {
+            var urlInput = document.getElementById('jdcUrlInput');
+            var url = (urlInput || {}).value || '';
+            if (!url || !url.match(/^https?:\/\/.+/)) {
+                showToast('Enter a valid URL starting with http:// or https://', 'warning');
+                return;
+            }
+            var statusEl = document.getElementById('jdcUrlStatus');
+            if (statusEl) statusEl.innerHTML = '<span style="color:var(--accent);">' + bpIcon('loader',14) + ' Fetching page content...</span>';
+
+            var proxyUrl = '/api/api-job-proxy?source=page&url=' + encodeURIComponent(url);
+            fetch(proxyUrl, { signal: AbortSignal.timeout(15000) })
+                .then(function(r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.text();
+                })
+                .then(function(html) {
+                    var text = _jdcExtractTextFromHTML(html);
+                    if (text.length < 50) throw new Error('Could not extract meaningful text from the page.');
+                    _jdcResult = convertJDToBlueprint(text);
+                    _jdcCompMode = 'without';
+                    _jdcBulkResults = [];
+                    _jdcBulkViewIdx = -1;
+                    renderAdminJDConverter(document.getElementById('adminTabContent'));
+                    _jdcShowStats(_jdcResult);
+                })
+                .catch(function(err) {
+                    console.warn('JDC URL fetch error:', err);
+                    if (statusEl) statusEl.innerHTML = '<span style="color:#ef4444;">' + bpIcon('alert',14) + ' Failed to fetch: ' + escapeHtml(err.message) + '. Try pasting the job description directly instead.</span>';
+                    showToast('Could not fetch job posting. Try pasting the text instead.', 'error');
+                });
+        }
+        window.runJDConverterFromURL = runJDConverterFromURL;
+
+        function _jdcExtractTextFromHTML(html) {
+            var tmp = document.createElement('div');
+            tmp.innerHTML = html;
+            ['script','style','nav','header','footer','noscript','iframe','svg'].forEach(function(tag) {
+                var els = tmp.querySelectorAll(tag);
+                for (var i = 0; i < els.length; i++) els[i].remove();
+            });
+            var text = (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+            var lines = text.split(/\.\s+/).map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 10; });
+            return lines.join('.\n');
+        }
+
+        function runJDConverterBulk() {
+            var raw = (document.getElementById('jdcBulkInput') || {}).value || '';
+            if (!raw || raw.trim().length < 50) {
+                showToast('Paste at least one job description.', 'warning');
+                return;
+            }
+            var jds = raw.split(/\n\s*---\s*\n/).map(function(s) { return s.trim(); }).filter(function(s) { return s.length >= 50; });
+            if (jds.length === 0) {
+                showToast('No valid job descriptions found. Separate multiple JDs with --- on its own line.', 'warning');
+                return;
+            }
+            _jdcBulkResults = [];
+            _jdcBulkViewIdx = 0;
+            jds.forEach(function(jd) {
+                try {
+                    _jdcBulkResults.push(convertJDToBlueprint(jd));
+                } catch(e) {
+                    console.warn('JDC bulk conversion error:', e);
+                }
+            });
+            if (_jdcBulkResults.length > 0) {
+                _jdcResult = _jdcBulkResults[0];
+                _jdcCompMode = 'without';
+            }
+            renderAdminJDConverter(document.getElementById('adminTabContent'));
+            showToast('Bulk conversion complete: ' + _jdcBulkResults.length + ' of ' + jds.length + ' job descriptions converted.', 'success');
+        }
+        window.runJDConverterBulk = runJDConverterBulk;
+
+        function handleJDCFileUpload(input) {
+            if (!input.files || !input.files[0]) return;
+            var file = input.files[0];
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var content = e.target.result;
+                var jds = [];
+                if (file.name.endsWith('.json')) {
+                    try {
+                        var parsed = JSON.parse(content);
+                        if (Array.isArray(parsed)) {
+                            parsed.forEach(function(item) {
+                                if (typeof item === 'string' && item.length >= 50) jds.push(item);
+                                else if (item && typeof item === 'object') {
+                                    var text = item.description || item.text || item.jd || item.content || item.body || '';
+                                    if (text.length >= 50) jds.push(text);
+                                }
+                            });
+                        }
+                    } catch(err) {
+                        showToast('Invalid JSON file. Expected an array of strings or objects.', 'error');
+                        return;
+                    }
+                } else if (file.name.endsWith('.csv')) {
+                    var csvLines = content.split('\n');
+                    var header = (csvLines[0] || '').toLowerCase();
+                    var descIdx = -1;
+                    header.split(',').forEach(function(col, i) {
+                        var c = col.trim().replace(/"/g, '');
+                        if (c === 'description' || c === 'jd' || c === 'text' || c === 'content' || c === 'job_description') descIdx = i;
+                    });
+                    if (descIdx === -1) descIdx = 0;
+                    csvLines.slice(1).forEach(function(line) {
+                        var cols = line.split(',');
+                        var text = (cols[descIdx] || '').replace(/^"|"$/g, '').trim();
+                        if (text.length >= 50) jds.push(text);
+                    });
+                } else {
+                    jds = content.split(/\n\s*---\s*\n/).map(function(s) { return s.trim(); }).filter(function(s) { return s.length >= 50; });
+                    if (jds.length === 0 && content.trim().length >= 50) jds.push(content.trim());
+                }
+
+                if (jds.length === 0) {
+                    showToast('No valid job descriptions found in file.', 'warning');
+                    return;
+                }
+
+                _jdcBulkResults = [];
+                _jdcBulkViewIdx = 0;
+                jds.forEach(function(jd) {
+                    try {
+                        _jdcBulkResults.push(convertJDToBlueprint(jd));
+                    } catch(err) {
+                        console.warn('JDC file conversion error:', err);
+                    }
+                });
+                if (_jdcBulkResults.length > 0) {
+                    _jdcResult = _jdcBulkResults[0];
+                    _jdcCompMode = 'without';
+                }
+                renderAdminJDConverter(document.getElementById('adminTabContent'));
+                showToast('File processed: ' + _jdcBulkResults.length + ' blueprints from ' + jds.length + ' descriptions.', 'success');
+            };
+            reader.readAsText(file);
+        }
+        window.handleJDCFileUpload = handleJDCFileUpload;
+
+        function exportAllBulkBlueprints() {
+            if (!_jdcBulkResults.length) { showToast('No bulk results to export.', 'warning'); return; }
+            var exportData = _jdcBulkResults.map(function(bp) {
+                var copy = Object.assign({}, bp);
+                delete copy._rawJD;
+                return copy;
+            });
+            var blob = new Blob([JSON.stringify({ blueprints: exportData, count: exportData.length, generatedAt: new Date().toISOString(), generatedBy: 'Blueprint Work Blueprint Converter' }, null, 2)], { type: 'application/json' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'work-blueprints-bulk-' + exportData.length + '.json';
+            a.click();
+            URL.revokeObjectURL(a.href);
+            showToast('Exported ' + exportData.length + ' Work Blueprints as JSON.', 'success');
+        }
+        window.exportAllBulkBlueprints = exportAllBulkBlueprints;
         
         function convertJDToBlueprint(jdText) {
             var lines = jdText.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);

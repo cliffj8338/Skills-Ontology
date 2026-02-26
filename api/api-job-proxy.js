@@ -136,10 +136,39 @@ module.exports = async function handler(req, res) {
     const params = req.query || {};
     const source = (params.source || '').toLowerCase();
 
+    if (source === 'page') {
+        const pageUrl = params.url || '';
+        if (!pageUrl || !pageUrl.match(/^https?:\/\//)) {
+            return res.status(400).json({ error: 'Missing or invalid url parameter' });
+        }
+        try {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 12000);
+            const pageRes = await fetch(pageUrl, {
+                signal: controller.signal,
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (compatible; BlueprintBot/1.0)',
+                    'Accept': 'text/html,application/xhtml+xml,*/*'
+                }
+            });
+            clearTimeout(timeout);
+            if (!pageRes.ok) {
+                return res.status(pageRes.status).json({ error: 'Page returned ' + pageRes.status });
+            }
+            const html = await pageRes.text();
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            res.setHeader('Cache-Control', 'public, max-age=3600');
+            return res.status(200).send(html.substring(0, 500000));
+        } catch (err) {
+            const status = err.name === 'AbortError' ? 504 : 502;
+            return res.status(status).json({ error: 'Page fetch error', message: err.message });
+        }
+    }
+
     if (!source || !SOURCE_CONFIG[source]) {
         return res.status(400).json({
             error: 'Invalid source',
-            valid: Object.keys(SOURCE_CONFIG),
+            valid: Object.keys(SOURCE_CONFIG).concat(['page']),
             usage: '/api/api-job-proxy?source=remotive&q=engineer'
         });
     }
