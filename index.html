@@ -1,4 +1,4 @@
-<!-- v4.44.83 | 2026-02-26 | Fix: Repository PDF/Word export function name mismatch -->
+<!-- v4.44.84 | 2026-02-26 | UX: Repository edit opens modal, export fix, button labels -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.83 - BUILD 20260226-repo-export-fix
-        var BP_VERSION = 'v4.44.83';
+        // BLUEPRINT v4.44.84 - BUILD 20260226-repo-edit-modal
+        var BP_VERSION = 'v4.44.84';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2068,7 +2068,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-repo-export-fix               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-repo-edit-modal               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -9286,7 +9286,14 @@
         }
         window.jdcCancelEdit = jdcCancelEdit;
 
-        function renderJDCEditForm(data) {
+        function renderJDCEditForm(data, opts) {
+            opts = opts || {};
+            var saveFn = opts.saveFn || 'jdcSaveEdits()';
+            var cancelFn = opts.cancelFn || 'jdcCancelEdit()';
+            var refreshFn = opts.refreshFn || "renderAdminJDConverter(document.getElementById('adminTabContent'))";
+            var refreshEsc = refreshFn.replace(/'/g, "\\'");
+            var saveLabel = opts.saveLabel || 'Save Edits';
+            var showBottomRow = opts.showBottomRow !== false;
             var html = '';
             var fieldStyle = 'width:100%; box-sizing:border-box; padding:8px 12px; border:1px solid var(--c-surface-5); border-radius:8px; background:var(--c-surface-1); color:var(--c-heading); font-size:0.9em; font-family:inherit;';
             var labelStyle = 'font-size:0.78em; font-weight:600; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; display:block;';
@@ -9297,8 +9304,8 @@
                 + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">'
                 + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.15em; color:var(--c-heading-bold);">' + bpIcon('edit',18) + ' Edit Work Blueprint</span>'
                 + '<div style="display:flex; gap:8px;">'
-                + '<button onclick="jdcSaveEdits()" style="padding:8px 18px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('save',14) + ' Save Edits</button>'
-                + '<button onclick="jdcCancelEdit()" style="padding:8px 18px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Cancel</button>'
+                + '<button onclick="' + saveFn + '" style="padding:8px 18px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('save',14) + ' ' + saveLabel + '</button>'
+                + '<button onclick="' + cancelFn + '" style="padding:8px 18px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Cancel</button>'
                 + '</div></div>';
 
             html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px;">';
@@ -9341,7 +9348,7 @@
                     + '<input id="jdcEditYearsArea' + i + '" type="text" value="' + escapeHtml(yr.area) + '" placeholder="Area" style="' + fieldStyle + '" />'
                     + '</div>';
             });
-            html += '<button onclick="_jdcSyncFormToState();_jdcResult.yearsRequired=_jdcResult.yearsRequired||[];_jdcResult.yearsRequired.push({range:\'\',area:\'\'});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
+            html += '<button onclick="_jdcSyncFormToState();_jdcResult.yearsRequired=_jdcResult.yearsRequired||[];_jdcResult.yearsRequired.push({range:\'\',area:\'\'});' + refreshEsc + ';" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
 
             html += '<div><label style="' + labelStyle + '">Education</label>';
             (data.education || []).forEach(function(ed, i) {
@@ -9354,7 +9361,7 @@
                     + '<input id="jdcEditEdField' + i + '" type="text" value="' + escapeHtml(ed.field) + '" placeholder="Field" style="' + fieldStyle + '" />'
                     + '<label style="display:flex; align-items:center; gap:3px; font-size:0.75em; color:var(--c-muted); white-space:nowrap;"><input type="checkbox" id="jdcEditEdPref' + i + '"' + (ed.preferred ? ' checked' : '') + ' /> Pref</label></div>';
             });
-            html += '<button onclick="_jdcSyncFormToState();_jdcResult.education=_jdcResult.education||[];_jdcResult.education.push({level:\'Bachelor\\\'s\',field:\'\',preferred:false});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
+            html += '<button onclick="_jdcSyncFormToState();_jdcResult.education=_jdcResult.education||[];_jdcResult.education.push({level:\'Bachelor\\\'s\',field:\'\',preferred:false});' + refreshEsc + ';" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
             html += '</div>';
 
             html += '<div style="margin-bottom:16px;"><label style="' + labelStyle + '">Certifications</label>'
@@ -9365,7 +9372,7 @@
             (data.certifications || []).forEach(function(cert, ci) {
                 html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; background:var(--c-surface-2); color:var(--c-heading); font-size:0.82em; font-weight:500;">'
                     + escapeHtml(cert)
-                    + '<button onclick="_jdcSyncFormToState();_jdcResult.certifications.splice(' + ci + ',1);renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.1em; padding:0 2px; line-height:1;">&times;</button></span>';
+                    + '<button onclick="_jdcSyncFormToState();_jdcResult.certifications.splice(' + ci + ',1);' + refreshEsc + ';" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.1em; padding:0 2px; line-height:1;">&times;</button></span>';
             });
             html += '</div></div>';
 
@@ -9373,9 +9380,9 @@
             (data.qualifications || []).forEach(function(q, qi) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
                     + '<input id="jdcEditQual' + qi + '" type="text" value="' + escapeHtml(q) + '" style="' + fieldStyle + ' flex:1;" />'
-                    + '<button onclick="_jdcSyncFormToState();_jdcResult.qualifications.splice(' + qi + ',1);renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
+                    + '<button onclick="_jdcSyncFormToState();_jdcResult.qualifications.splice(' + qi + ',1);' + refreshEsc + ';" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
-            html += '<button onclick="_jdcSyncFormToState();_jdcResult.qualifications=_jdcResult.qualifications||[];_jdcResult.qualifications.push(\'\');renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
+            html += '<button onclick="_jdcSyncFormToState();_jdcResult.qualifications=_jdcResult.qualifications||[];_jdcResult.qualifications.push(\'\');' + refreshEsc + ';" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
 
             html += '</div>';
 
@@ -9400,10 +9407,10 @@
                     html += '<option' + (s.blueprintLevel === lv ? ' selected' : '') + '>' + lv + '</option>';
                 });
                 html += '</select></td>'
-                    + '<td style="padding:8px;"><button onclick="_jdcSyncFormToState();_jdcResult.skills.splice(' + si + ',1);renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em;">&times;</button></td></tr>';
+                    + '<td style="padding:8px;"><button onclick="_jdcSyncFormToState();_jdcResult.skills.splice(' + si + ',1);' + refreshEsc + ';" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em;">&times;</button></td></tr>';
             });
             html += '</tbody></table></div>';
-            html += '<button onclick="_jdcSyncFormToState();_jdcResult.skills=_jdcResult.skills||[];_jdcResult.skills.push({name:\'\',outcome:\'\',blueprintLevel:\'Proficient\',source:\'jd\'});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:5px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:8px;">' + bpIcon('plus',10) + ' Add Skill</button>'
+            html += '<button onclick="_jdcSyncFormToState();_jdcResult.skills=_jdcResult.skills||[];_jdcResult.skills.push({name:\'\',outcome:\'\',blueprintLevel:\'Proficient\',source:\'jd\'});' + refreshEsc + ';" style="padding:5px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:8px;">' + bpIcon('plus',10) + ' Add Skill</button>'
                 + '</div>';
 
             var existingSkillNames = (data.skills || []).map(function(s) { return s.name.toLowerCase(); });
@@ -9423,7 +9430,7 @@
                     + '<span style="font-size:0.78em; color:var(--c-muted);">— Nearly every role benefits from AI competencies</span></div>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 aiSuggestions.forEach(function(s) {
-                    html += '<button onclick="_jdcSyncFormToState();_jdcResult.skills.push({name:\'' + s.name.replace(/'/g, "\\'") + '\',outcome:\'' + s.outcome.replace(/'/g, "\\'") + '\',blueprintLevel:\'Proficient\',source:\'suggested\'});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" '
+                    html += '<button onclick="_jdcSyncFormToState();_jdcResult.skills.push({name:\'' + s.name.replace(/'/g, "\\'") + '\',outcome:\'' + s.outcome.replace(/'/g, "\\'") + '\',blueprintLevel:\'Proficient\',source:\'suggested\'});' + refreshEsc + ';" '
                         + 'style="padding:5px 12px; background:var(--c-surface-2); color:var(--c-heading); border:1px solid rgba(96,165,250,0.3); border-radius:16px; cursor:pointer; font-size:0.8em; font-weight:500; transition:background 0.15s;" '
                         + 'onmouseover="this.style.background=\'rgba(96,165,250,0.15)\'" onmouseout="this.style.background=\'var(--c-surface-2)\'">'
                         + bpIcon('plus',10) + ' ' + escapeHtml(s.name) + '</button>';
@@ -9443,9 +9450,9 @@
                     + '<input id="jdcEditValName' + vi + '" type="text" value="' + escapeHtml(valName) + '" placeholder="Value name" style="' + fieldStyle + ' max-width:200px; font-weight:600;" />'
                     + '<input id="jdcEditValDesc' + vi + '" type="text" value="' + escapeHtml(valDesc) + '" placeholder="Description" style="' + fieldStyle + ' flex:1;" />'
                     + '<button onclick="jdcAIFillOneValueDesc(' + vi + ')" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size:0.9em; padding:0 3px;" title="AI generate description">' + bpIcon('wand',13) + '</button>'
-                    + '<button onclick="_jdcSyncFormToState();_jdcResult.values.splice(' + vi + ',1);renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
+                    + '<button onclick="_jdcSyncFormToState();_jdcResult.values.splice(' + vi + ',1);' + refreshEsc + ';" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
-            html += '<button onclick="_jdcSyncFormToState();_jdcResult.values=_jdcResult.values||[];_jdcResult.values.push({name:\'\',description:\'\'});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:5px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Value</button>'
+            html += '<button onclick="_jdcSyncFormToState();_jdcResult.values=_jdcResult.values||[];_jdcResult.values.push({name:\'\',description:\'\'});' + refreshEsc + ';" style="padding:5px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Value</button>'
                 + '</div>';
 
             var existingValNames = (data.values || []).map(function(v) { return (typeof v === 'string' ? v : (v.name || '')).toLowerCase(); });
@@ -9464,7 +9471,7 @@
                     + '<div style="font-weight:600; font-size:0.82em; color:#8b5cf6; margin-bottom:8px;">' + bpIcon('star',12) + ' Suggested Values</div>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 suggestedValues.forEach(function(v) {
-                    html += '<button onclick="_jdcSyncFormToState();_jdcResult.values.push({name:\'' + v.name.replace(/'/g, "\\'") + '\',description:\'' + v.description.replace(/'/g, "\\'") + '\'});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" '
+                    html += '<button onclick="_jdcSyncFormToState();_jdcResult.values.push({name:\'' + v.name.replace(/'/g, "\\'") + '\',description:\'' + v.description.replace(/'/g, "\\'") + '\'});' + refreshEsc + ';" '
                         + 'style="padding:4px 11px; background:var(--c-surface-2); color:var(--c-heading); border:1px solid rgba(139,92,246,0.25); border-radius:16px; cursor:pointer; font-size:0.78em; font-weight:500; transition:background 0.15s;" '
                         + 'onmouseover="this.style.background=\'rgba(139,92,246,0.12)\'" onmouseout="this.style.background=\'var(--c-surface-2)\'">'
                         + bpIcon('plus',10) + ' ' + escapeHtml(v.name) + '</button>';
@@ -9478,17 +9485,19 @@
                 html += '<div style="display:flex; gap:8px; align-items:center; margin-bottom:4px;">'
                     + '<input id="jdcEditCFKey' + i + '" type="text" value="' + escapeHtml(cf.key) + '" placeholder="Field name" style="' + fieldStyle + ' max-width:180px;" />'
                     + '<input id="jdcEditCFVal' + i + '" type="text" value="' + escapeHtml(cf.value) + '" placeholder="Value" style="' + fieldStyle + '" />'
-                    + '<button onclick="_jdcSyncFormToState(); _jdcResult.customFields.splice(' + i + ',1); renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
+                    + '<button onclick="_jdcSyncFormToState(); _jdcResult.customFields.splice(' + i + ',1); ' + refreshEsc + ';" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
-            html += '<button onclick="_jdcSyncFormToState(); if(!_jdcResult.customFields) _jdcResult.customFields=[]; _jdcResult.customFields.push({key:\'\',value:\'\'}); renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Custom Field</button></div>';
+            html += '<button onclick="_jdcSyncFormToState(); if(!_jdcResult.customFields) _jdcResult.customFields=[]; _jdcResult.customFields.push({key:\'\',value:\'\'}); ' + refreshEsc + ';" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Custom Field</button></div>';
 
+            if (showBottomRow) {
                 html += '<div style="display:flex; gap:10px; flex-wrap:wrap;">'
-                + '<button onclick="jdcSaveEdits()" style="padding:10px 24px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' Save & Preview</button>';
-            if (typeof fbUser !== 'undefined' && fbUser) {
-                html += '<button onclick="jdcSaveAndRepository()" style="padding:10px 24px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' ' + _repoSaveLabel + '</button>';
+                + '<button onclick="' + saveFn + '" style="padding:10px 24px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' Save & Preview</button>';
+                if (typeof fbUser !== 'undefined' && fbUser) {
+                    html += '<button onclick="jdcSaveAndRepository()" style="padding:10px 24px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' ' + _repoSaveLabel + '</button>';
+                }
+                html += '<button onclick="' + cancelFn + '" style="padding:10px 24px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Cancel</button>'
+                    + '</div>';
             }
-            html += '<button onclick="jdcCancelEdit()" style="padding:10px 24px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Cancel</button>'
-                + '</div>';
 
             return html;
         }
@@ -9634,7 +9643,7 @@
                     + '<button onclick="wbRepoExport(\'json\')" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('download',14) + ' Export JSON</button>'
                     + '<button onclick="wbRepoExport(\'pdf\')" style="padding:8px 16px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('download',14) + ' Export PDF</button>'
                     + '<button onclick="wbRepoExport(\'word\')" style="padding:8px 16px; background:#2563eb; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('download',14) + ' Export Word</button>'
-                    + '<button onclick="wbRepoLoadInConverter(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('edit',14) + ' Edit in Converter</button>'
+                    + '<button onclick="wbRepoEditModal(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('edit',14) + ' Edit</button>'
                     + '<button onclick="wbRepoDelete(\'' + (viewBp.id || '').replace(/'/g, "\\'") + '\')" style="padding:8px 16px; background:none; color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('trash',14) + ' Delete</button>'
                     + '</div>';
                 html += renderWorkBlueprint(viewBp, false, { hideButtons: true });
@@ -9741,6 +9750,83 @@
             showToast('Editing: ' + (_jdcResult.title || 'Untitled'), 'success');
         }
         window.wbRepoLoadInConverter = wbRepoLoadInConverter;
+
+        var _wbRepoEditIdx = -1;
+        function wbRepoEditModal(idx) {
+            if (!_wbRepoCache || !_wbRepoCache[idx]) return;
+            _wbRepoEditIdx = idx;
+            _jdcResult = JSON.parse(JSON.stringify(_wbRepoCache[idx]));
+            if (!_jdcResult.skills) _jdcResult.skills = [];
+            if (!_jdcResult.values) _jdcResult.values = [];
+            if (!_jdcResult.certifications) _jdcResult.certifications = [];
+            if (!_jdcResult.qualifications) _jdcResult.qualifications = [];
+            if (!_jdcResult.yearsRequired) _jdcResult.yearsRequired = [];
+            if (!_jdcResult.education) _jdcResult.education = [];
+            if (!_jdcResult.customFields) _jdcResult.customFields = [];
+            _wbRepoRenderEditModal();
+        }
+        window.wbRepoEditModal = wbRepoEditModal;
+
+        function _wbRepoRenderEditModal() {
+            var existing = document.getElementById('wbRepoEditOverlay');
+            if (existing) existing.remove();
+            var overlay = document.createElement('div');
+            overlay.id = 'wbRepoEditOverlay';
+            overlay.style.cssText = 'position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.6); display:flex; align-items:flex-start; justify-content:center; padding:30px 20px; overflow-y:auto;';
+            overlay.onclick = function(e) { if (e.target === overlay) wbRepoEditCancel(); };
+            var modal = document.createElement('div');
+            modal.style.cssText = 'width:100%; max-width:900px; background:var(--c-bg); border:1px solid var(--c-surface-5); border-radius:16px; padding:28px; box-shadow:0 12px 40px rgba(0,0,0,0.4); max-height:90vh; overflow-y:auto;';
+            var formHtml = renderJDCEditForm(_jdcResult, {
+                saveFn: 'wbRepoEditSave()',
+                cancelFn: 'wbRepoEditCancel()',
+                refreshFn: '_wbRepoModalRefresh()',
+                saveLabel: 'Save',
+                showBottomRow: false
+            });
+            modal.innerHTML = formHtml;
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+        }
+
+        function _wbRepoModalRefresh() {
+            _jdcSyncFormToState();
+            _wbRepoRenderEditModal();
+        }
+        window._wbRepoModalRefresh = _wbRepoModalRefresh;
+
+        function wbRepoEditSave() {
+            _jdcSyncFormToState();
+            if (!_jdcResult || !fbUser) return;
+            if (_jdcSaving) return;
+            _jdcSaving = true;
+            var d = _jdcPrepareExport();
+            d.savedAt = firebase.firestore.FieldValue.serverTimestamp();
+            d.savedBy = fbUser.uid;
+            d.id = d.id || _wbRepoCache[_wbRepoEditIdx].id;
+            showToast('Saving...', 'info', 2000);
+            fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc(d.id).set(d, { merge: true })
+                .then(function() {
+                    _jdcSaving = false;
+                    showToast('Work Blueprint saved.', 'success');
+                    wbRepoEditCancel();
+                    _wbRepoCache = null;
+                    renderAdminWBRepo(document.getElementById('adminTabContent'));
+                })
+                .catch(function(err) {
+                    _jdcSaving = false;
+                    console.warn('Save blueprint error:', err);
+                    showToast('Failed to save: ' + err.message, 'error');
+                });
+        }
+        window.wbRepoEditSave = wbRepoEditSave;
+
+        function wbRepoEditCancel() {
+            var overlay = document.getElementById('wbRepoEditOverlay');
+            if (overlay) overlay.remove();
+            _jdcResult = null;
+            _wbRepoEditIdx = -1;
+        }
+        window.wbRepoEditCancel = wbRepoEditCancel;
 
         // ===== ADMIN COSTS DASHBOARD =====
         var costsTimeRange = 30; // days
