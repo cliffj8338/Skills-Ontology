@@ -1,4 +1,4 @@
-<!-- v4.44.86 | 2026-02-26 | UX: WBW/Converter dropdowns, WB AI tracking, WB analytics, admin WB metrics, showcase visit tracking -->
+<!-- v4.44.87 | 2026-02-26 | Cost dashboard: Replit usage breakdown, editable actuals, dynamic cost snapshot -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.86 - BUILD 20260226-showcase-tracking
-        var BP_VERSION = 'v4.44.86';
+        // BLUEPRINT v4.44.87 - BUILD 20260226-cost-actuals
+        var BP_VERSION = 'v4.44.87';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -9924,8 +9924,33 @@
         window.wbRepoEditCancel = wbRepoEditCancel;
 
         // ===== ADMIN COSTS DASHBOARD =====
-        var costsTimeRange = 30; // days
+        var costsTimeRange = 30;
         var costsProjectionUsers = 100;
+
+        function _getCostActuals() {
+            try { return JSON.parse(safeGet('bpCostActuals') || '{}'); } catch(e) { return {}; }
+        }
+        function _setCostActual(key, val) {
+            var a = _getCostActuals();
+            a[key] = { amount: parseFloat(val) || 0, updatedAt: new Date().toISOString() };
+            safeSet('bpCostActuals', JSON.stringify(a));
+        }
+        function costActualEdit(key, label) {
+            var a = _getCostActuals();
+            var cur = a[key] ? a[key].amount : '';
+            var val = prompt('Enter actual cost for ' + label + ':', cur);
+            if (val === null) return;
+            _setCostActual(key, val);
+            renderAdminCosts(document.getElementById('adminTabContent'));
+        }
+        window.costActualEdit = costActualEdit;
+        function costActualClearAll() {
+            if (!confirm('Clear all manually entered actual costs?')) return;
+            safeRemove('bpCostActuals');
+            renderAdminCosts(document.getElementById('adminTabContent'));
+            showToast('Actual costs cleared.', 'info');
+        }
+        window.costActualClearAll = costActualClearAll;
         
         function setCostsTimeRange(days) {
             costsTimeRange = days;
@@ -10218,88 +10243,125 @@
                 + '<a href="#" onclick="if(confirm(\'Clear API usage log?\')){localStorage.removeItem(\'bpAPIUsageLog\');renderAdminCosts(document.getElementById(\'adminTabContent\'));showToast(\'API log cleared.\',\'info\');} return false;" style="color:var(--accent);">Clear API log</a></div></div>';
             
             // ===== INFRASTRUCTURE COSTS =====
-            var INFRASTRUCTURE = [
-                { name: 'Claude Pro', provider: 'Anthropic', cost: 200.00, cycle: 'monthly', category: 'ai', notes: 'AI development, code generation, content', manageUrl: 'https://claude.ai/settings/billing', icon: 'zap' },
-                { name: 'Replit Pro', provider: 'Replit', cost: 100.00, cycle: 'monthly', category: 'ai', notes: 'AI coding agent (Agent 3), cloud IDE, app hosting. Up to 15 builders, Turbo Mode, pooled credits.', manageUrl: 'https://replit.com/pricing', icon: 'software' },
-                { name: 'Anthropic API Credits', provider: 'Anthropic', cost: 30.00, cycle: 'prepaid', category: 'ai', notes: 'Prepaid credits for Blueprint AI features (resume parse, skill inference, purpose gen). Sonnet 4: $3/M input, $15/M output.', manageUrl: 'https://console.anthropic.com/settings/billing', icon: 'dollar' },
-                { name: 'JSearch API', provider: 'RapidAPI', cost: 25.00, cycle: 'monthly', category: 'api', notes: '10,000 req/mo, Google Jobs aggregator', manageUrl: 'https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch/pricing', icon: 'search' },
-                { name: 'Vercel Pro', provider: 'Vercel', cost: 20.00, cycle: 'monthly', category: 'hosting', notes: 'Hosting, serverless functions, edge network', manageUrl: 'https://vercel.com/cliffj8338s-projects/blueprint/settings', icon: 'layers' },
-                { name: 'Cloudflare', provider: 'Cloudflare', cost: 0, cycle: 'monthly', category: 'domain', notes: 'DNS, CDN, SSL, DDoS protection (free tier)', manageUrl: 'https://dash.cloudflare.com', icon: 'shield' },
-                { name: 'Domain (myblueprint.work)', provider: 'Cloudflare', cost: 10.00, cycle: 'yearly', category: 'domain', notes: '~$10/yr, prorated to ~$0.83/mo', manageUrl: 'https://dash.cloudflare.com', icon: 'compass' },
-                { name: 'Firebase', provider: 'Google', cost: 0, cycle: 'monthly', category: 'database', notes: 'Spark plan (free). Auth, Firestore, hosting', manageUrl: 'https://console.firebase.google.com', icon: 'database' },
-                { name: 'GitHub', provider: 'GitHub', cost: 0, cycle: 'monthly', category: 'devops', notes: 'Free tier. Source control, CI/CD', manageUrl: 'https://github.com/settings/billing', icon: 'tool' },
-                { name: 'Remotive API', provider: 'Remotive', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, no auth. Remote jobs feed', manageUrl: 'https://remotive.com/api/remote-jobs', icon: 'briefcase' },
-                { name: 'USAJobs API', provider: 'USAJobs', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free with registration. Government jobs', manageUrl: 'https://developer.usajobs.gov', icon: 'award' },
-                { name: 'Himalayas API', provider: 'Himalayas', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, no auth. Remote-first jobs', manageUrl: 'https://himalayas.app/jobs/api', icon: 'trending-up' },
-                { name: 'Jobicy API', provider: 'Jobicy', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, no auth. Remote jobs', manageUrl: 'https://jobicy.com/api/v2/remote-jobs', icon: 'clipboard' },
-                { name: 'Adzuna API', provider: 'Adzuna', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free with registration. ~3-4M US jobs. app_id + app_key', manageUrl: 'https://developer.adzuna.com', icon: 'compass' },
-                { name: 'The Muse API', provider: 'The Muse', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, 3600 req/hr with API key. Professional jobs + company profiles', manageUrl: 'https://www.themuse.com/developers/api/v2', icon: 'star' },
-                { name: 'Jooble API', provider: 'Jooble', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free with registration. Meta-aggregator: Indeed, LinkedIn, Glassdoor', manageUrl: 'https://jooble.org/api/about', icon: 'search' }
-            ];
-            
-            // Compute monthly costs
-            var infraByCategory = {};
-            var totalMonthlyInfra = 0;
-            INFRASTRUCTURE.forEach(function(item) {
-                var monthly = item.cycle === 'yearly' ? item.cost / 12 : item.cycle === 'prepaid' ? 0 : item.cost;
-                totalMonthlyInfra += monthly;
-                item._monthly = monthly;
-                item._isPrepaid = item.cycle === 'prepaid';
-                if (!infraByCategory[item.category]) infraByCategory[item.category] = [];
-                infraByCategory[item.category].push(item);
-            });
-            
-            var categoryLabels = { ai: 'AI & Development', api: 'Job Search APIs', hosting: 'Hosting & Compute', domain: 'Domain & CDN', database: 'Database & Auth', devops: 'DevOps & Source Control' };
-            var categoryIcons = { ai: 'zap', api: 'network', hosting: 'layers', domain: 'compass', database: 'database', devops: 'settings' };
-            
-            html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:10px; margin-bottom:20px;">'
-                + '<div style="font-size:0.85em; font-weight:700; color:var(--text-primary); margin-bottom:16px;">' + bpIcon('settings', 14) + ' Infrastructure</div>';
-            
-            Object.keys(infraByCategory).forEach(function(cat) {
-                var items = infraByCategory[cat];
-                var catTotal = items.reduce(function(sum, i) { return sum + i._monthly; }, 0);
-                
-                html += '<div style="margin-bottom:16px;">'
-                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding-bottom:4px; border-bottom:1px solid var(--c-border-faint);">'
-                    + '<span style="font-size:0.78em; font-weight:600; color:var(--text-secondary);">' + bpIcon(categoryIcons[cat] || 'target', 13) + ' ' + (categoryLabels[cat] || cat) + '</span>'
-                    + '<span style="font-size:0.75em; font-weight:700; color:' + (catTotal > 0 ? '#60a5fa' : '#10b981') + ';">' + (catTotal > 0 ? '$' + catTotal.toFixed(2) + '/mo' : 'Free') + '</span></div>';
-                
-                items.forEach(function(item) {
-                    html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0 6px 12px; font-size:0.8em;">'
-                        + '<div style="flex:1; min-width:0;">'
-                        + '<div style="display:flex; align-items:center; gap:6px;">'
-                        + '<span style="color:var(--text-muted);">' + bpIcon(item.icon, 14) + '</span>'
-                        + '<span style="font-weight:600; color:var(--text-primary);">' + item.name + '</span>'
-                        + '<span style="font-size:0.82em; color:var(--text-muted);">' + item.provider + '</span>'
-                        + '</div>'
-                        + '<div style="font-size:0.82em; color:var(--text-muted); margin-top:2px; padding-left:22px;">' + item.notes + '</div>'
-                        + '</div>'
-                        + '<div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">'
-                        + '<span style="font-weight:700; min-width:65px; text-align:right; color:' + (item._isPrepaid ? '#f59e0b' : item._monthly > 0 ? 'var(--text-primary)' : '#10b981') + ';">' + (item._isPrepaid ? '$' + item.cost.toFixed(2) + ' prepaid' : item._monthly > 0 ? '$' + item._monthly.toFixed(2) : 'Free') + '</span>'
-                        + '<a href="' + item.manageUrl + '" target="_blank" rel="noopener" style="color:var(--accent); font-size:0.85em; text-decoration:none;" title="Manage">' + bpIcon('external', 10) + '</a>'
-                        + '</div></div>';
-                });
-                
-                html += '</div>';
-            });
-            
-            html += '</div>';
+              var INFRASTRUCTURE = [
+                  { name: 'Replit Core Plan', key: 'replit_core', provider: 'Replit', cost: 25.00, cycle: 'monthly', category: 'platform', notes: 'Cloud IDE, static deployments, 100 GiB transfer quota', manageUrl: 'https://replit.com/pricing', icon: 'software' },
+                  { name: 'Replit AI Agent', key: 'replit_agent', provider: 'Replit', cost: 0, cycle: 'usage', category: 'platform', notes: 'Variable — enter actual from billing page', manageUrl: 'https://replit.com/my-published-apps?settings.show=true&settings.tab=customerUsage', icon: 'zap', editable: true },
+                  { name: 'Replit Credit Overages', key: 'replit_overages', provider: 'Replit', cost: 0, cycle: 'usage', category: 'platform', notes: 'Additional usage beyond included credits', manageUrl: 'https://replit.com/my-published-apps?settings.show=true&settings.tab=customerUsage', icon: 'dollar', editable: true },
+                  { name: 'Replit Data Transfer', key: 'replit_transfer', provider: 'Replit', cost: 0, cycle: 'usage', category: 'platform', notes: '$0.10/GiB over 100 GiB quota', manageUrl: 'https://replit.com/my-published-apps?settings.show=true&settings.tab=customerUsage', icon: 'network', editable: true },
+                  { name: 'Replit App Storage', key: 'replit_storage', provider: 'Replit', cost: 0, cycle: 'usage', category: 'platform', notes: '$0.03/GiB/mo + ops charges', manageUrl: 'https://replit.com/my-published-apps?settings.show=true&settings.tab=customerUsage', icon: 'database', editable: true },
+                  { name: 'Claude Max', key: 'claude_pro', provider: 'Anthropic', cost: 200.00, cycle: 'monthly', category: 'ai', notes: 'AI development, code generation, content', manageUrl: 'https://claude.ai/settings/billing', icon: 'zap' },
+                  { name: 'Anthropic API Credits', key: 'anthropic_api', provider: 'Anthropic', cost: 30.00, cycle: 'prepaid', category: 'ai', notes: 'Prepaid credits for Blueprint AI features. Sonnet 4: $3/M in, $15/M out.', manageUrl: 'https://console.anthropic.com/settings/billing', icon: 'dollar' },
+                  { name: 'JSearch API', key: 'jsearch', provider: 'RapidAPI', cost: 25.00, cycle: 'monthly', category: 'api', notes: '10,000 req/mo, Google Jobs aggregator', manageUrl: 'https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch/pricing', icon: 'search' },
+                  { name: 'Vercel Pro', key: 'vercel', provider: 'Vercel', cost: 20.00, cycle: 'monthly', category: 'hosting', notes: 'Hosting, serverless functions, edge network', manageUrl: 'https://vercel.com/cliffj8338s-projects/blueprint/settings', icon: 'layers' },
+                  { name: 'Cloudflare', key: 'cloudflare', provider: 'Cloudflare', cost: 0, cycle: 'monthly', category: 'domain', notes: 'DNS, CDN, SSL, DDoS protection (free tier)', manageUrl: 'https://dash.cloudflare.com', icon: 'shield' },
+                  { name: 'Domain (myblueprint.work)', key: 'domain', provider: 'Cloudflare', cost: 10.00, cycle: 'yearly', category: 'domain', notes: '~$10/yr, prorated to ~$0.83/mo', manageUrl: 'https://dash.cloudflare.com', icon: 'compass' },
+                  { name: 'Firebase', key: 'firebase', provider: 'Google', cost: 0, cycle: 'monthly', category: 'database', notes: 'Spark plan (free). Auth, Firestore, hosting', manageUrl: 'https://console.firebase.google.com', icon: 'database' },
+                  { name: 'GitHub', key: 'github', provider: 'GitHub', cost: 0, cycle: 'monthly', category: 'devops', notes: 'Free tier. Source control, CI/CD', manageUrl: 'https://github.com/settings/billing', icon: 'tool' },
+                  { name: 'Remotive API', key: 'remotive', provider: 'Remotive', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, no auth. Remote jobs feed', manageUrl: 'https://remotive.com/api/remote-jobs', icon: 'briefcase' },
+                  { name: 'USAJobs API', key: 'usajobs', provider: 'USAJobs', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free. Government jobs', manageUrl: 'https://developer.usajobs.gov', icon: 'award' },
+                  { name: 'Himalayas API', key: 'himalayas', provider: 'Himalayas', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free. Remote-first jobs', manageUrl: 'https://himalayas.app/jobs/api', icon: 'trending-up' },
+                  { name: 'Jobicy API', key: 'jobicy', provider: 'Jobicy', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free. Remote jobs', manageUrl: 'https://jobicy.com/api/v2/remote-jobs', icon: 'clipboard' },
+                  { name: 'Adzuna API', key: 'adzuna', provider: 'Adzuna', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free. ~3-4M US jobs', manageUrl: 'https://developer.adzuna.com', icon: 'compass' },
+                  { name: 'The Muse API', key: 'themuse', provider: 'The Muse', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, 3600 req/hr', manageUrl: 'https://www.themuse.com/developers/api/v2', icon: 'star' },
+                  { name: 'Jooble API', key: 'jooble', provider: 'Jooble', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free. Meta-aggregator', manageUrl: 'https://jooble.org/api/about', icon: 'search' }
+              ];
+              
+              var actuals = _getCostActuals();
+              var infraByCategory = {};
+              var totalMonthlyInfra = 0;
+              INFRASTRUCTURE.forEach(function(item) {
+                  var hasActual = actuals[item.key] && actuals[item.key].amount > 0;
+                  var monthly;
+                  if (item.cycle === 'usage') {
+                      monthly = hasActual ? actuals[item.key].amount : item.cost;
+                  } else if (item.cycle === 'yearly') {
+                      monthly = (hasActual ? actuals[item.key].amount : item.cost) / 12;
+                  } else if (item.cycle === 'prepaid') {
+                      monthly = 0;
+                  } else {
+                      monthly = hasActual ? actuals[item.key].amount : item.cost;
+                  }
+                  totalMonthlyInfra += monthly;
+                  item._monthly = monthly;
+                  item._isPrepaid = item.cycle === 'prepaid';
+                  item._hasActual = hasActual;
+                  item._actualUpdated = hasActual ? actuals[item.key].updatedAt : null;
+                  if (!infraByCategory[item.category]) infraByCategory[item.category] = [];
+                  infraByCategory[item.category].push(item);
+              });
+              
+              var categoryLabels = { platform: 'Replit Platform', ai: 'AI & Development', api: 'Job Search APIs', hosting: 'Hosting & Compute', domain: 'Domain & CDN', database: 'Database & Auth', devops: 'DevOps & Source Control' };
+              var categoryIcons = { platform: 'software', ai: 'zap', api: 'network', hosting: 'layers', domain: 'compass', database: 'database', devops: 'settings' };
+              var categoryOrder = ['platform', 'ai', 'hosting', 'api', 'domain', 'database', 'devops'];
+              
+              html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--border); border-radius:10px; margin-bottom:20px;">'
+                  + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">'
+                  + '<span style="font-size:0.85em; font-weight:700; color:var(--text-primary);">' + bpIcon('settings', 14) + ' Infrastructure</span>'
+                  + '<div style="display:flex; gap:6px; align-items:center;">'
+                  + '<span style="font-size:0.65em; color:var(--text-muted);">Click ' + bpIcon('edit', 10) + ' to enter actual costs</span>'
+                  + '<button onclick="costActualClearAll()" style="padding:3px 10px; font-size:0.68em; background:transparent; color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:6px; cursor:pointer;">Reset</button>'
+                  + '</div></div>';
+              
+              categoryOrder.filter(function(c){ return infraByCategory[c]; }).forEach(function(cat) {
+                  var items = infraByCategory[cat];
+                  var catTotal = items.reduce(function(sum, i) { return sum + i._monthly; }, 0);
+                  
+                  html += '<div style="margin-bottom:16px;">'
+                      + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding-bottom:4px; border-bottom:1px solid var(--c-border-faint);">'
+                      + '<span style="font-size:0.78em; font-weight:600; color:var(--text-secondary);">' + bpIcon(categoryIcons[cat] || 'target', 13) + ' ' + (categoryLabels[cat] || cat) + '</span>'
+                      + '<span style="font-size:0.75em; font-weight:700; color:' + (catTotal > 0 ? '#60a5fa' : '#10b981') + ';">' + (catTotal > 0 ? '$' + catTotal.toFixed(2) + '/mo' : 'Free') + '</span></div>';
+                  
+                  items.forEach(function(item) {
+                      var costDisplay = item._isPrepaid ? '$' + (item._hasActual ? actuals[item.key].amount : item.cost).toFixed(2) + ' prepaid'
+                          : item._monthly > 0 ? '$' + item._monthly.toFixed(2) : (item.editable ? '$0.00' : 'Free');
+                      var costColor = item._isPrepaid ? '#f59e0b' : item._monthly > 0 ? 'var(--text-primary)' : '#10b981';
+                      var actualBadge = item._hasActual ? '<span style="font-size:0.55em; padding:1px 4px; border-radius:3px; background:rgba(16,185,129,0.15); color:#10b981; vertical-align:middle;">actual</span>' : '';
+                      var editBtn = '<a href="#" onclick="costActualEdit(\'' + item.key + '\',\'' + escapeHtml(item.name).replace(/'/g, "\\'") + '\'); return false;" style="color:var(--text-muted); text-decoration:none; opacity:0.6;" title="Edit actual cost">' + bpIcon('edit', 10) + '</a>';
+                      html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0 5px 12px; font-size:0.8em;">'
+                          + '<div style="flex:1; min-width:0;">'
+                          + '<div style="display:flex; align-items:center; gap:6px;">'
+                          + '<span style="color:var(--text-muted);">' + bpIcon(item.icon, 14) + '</span>'
+                          + '<span style="font-weight:600; color:var(--text-primary);">' + item.name + '</span>'
+                          + '<span style="font-size:0.82em; color:var(--text-muted);">' + item.provider + '</span>'
+                          + '</div>'
+                          + '<div style="font-size:0.8em; color:var(--text-muted); margin-top:1px; padding-left:22px;">' + item.notes + '</div>'
+                          + '</div>'
+                          + '<div style="display:flex; align-items:center; gap:5px; flex-shrink:0;">'
+                          + '<span style="font-weight:700; min-width:60px; text-align:right; color:' + costColor + ';">' + costDisplay + '</span>'
+                          + actualBadge + editBtn
+                          + '<a href="' + item.manageUrl + '" target="_blank" rel="noopener" style="color:var(--accent); font-size:0.85em; text-decoration:none;" title="Open billing">' + bpIcon('external', 10) + '</a>'
+                          + '</div></div>';
+                  });
+                  
+                  html += '</div>';
+              });
+              
+              var actualCount = Object.keys(actuals).length;
+              if (actualCount > 0) {
+                  var newestDate = '';
+                  Object.values(actuals).forEach(function(a) { if (a.updatedAt > newestDate) newestDate = a.updatedAt; });
+                  html += '<div style="font-size:0.68em; color:var(--text-muted); padding:6px 0; border-top:1px solid var(--border);">'
+                      + bpIcon('check', 10) + ' ' + actualCount + ' actual cost' + (actualCount > 1 ? 's' : '') + ' entered'
+                      + (newestDate ? ' (last updated: ' + new Date(newestDate).toLocaleDateString() + ')' : '') + '</div>';
+              }
+              
+              html += '</div>';
             
             // ===== MONTHLY COST SNAPSHOT =====
             var totalAiUsageCost = totalEstCost; // from AI features section above
             var totalApiUsageCost = apiTotalCost; // from API section above
             var totalMonthly = totalMonthlyInfra + totalAiUsageCost + totalApiUsageCost;
             
-            // Breakdown for pie-style display
-            var costBreakdown = [
-                { label: 'Claude Pro', amount: 200.00, color: '#8b5cf6' },
-                { label: 'Replit Pro', amount: 100.00, color: '#f97316' },
-                { label: 'JSearch', amount: 25.00, color: '#60a5fa' },
-                { label: 'Vercel', amount: 20.00, color: '#000' },
-                { label: 'Domain', amount: 0.83, color: '#f59e0b' },
-                { label: 'AI Token Usage', amount: totalAiUsageCost, color: '#10b981' },
-                { label: 'API Usage', amount: totalApiUsageCost, color: '#ec4899' }
-            ].filter(function(c) { return c.amount > 0; });
+            var costBreakdown = [];
+            INFRASTRUCTURE.forEach(function(item) {
+                if (item._monthly > 0) {
+                    var colors = { platform: '#f97316', ai: '#8b5cf6', api: '#60a5fa', hosting: '#000', domain: '#f59e0b', database: '#06b6d4', devops: '#6b7280' };
+                    costBreakdown.push({ label: item.name + (item._hasActual ? ' *' : ''), amount: item._monthly, color: colors[item.category] || '#94a3b8' });
+                }
+            });
+            if (totalAiUsageCost > 0) costBreakdown.push({ label: 'AI Token Usage', amount: totalAiUsageCost, color: '#10b981' });
+            if (totalApiUsageCost > 0) costBreakdown.push({ label: 'API Usage', amount: totalApiUsageCost, color: '#ec4899' });
+            costBreakdown.sort(function(a, b) { return b.amount - a.amount; });
             
             html += '<div style="padding:20px; background:linear-gradient(135deg, var(--c-surface-2), var(--c-surface-4b)); border:2px solid var(--accent); border-radius:12px; margin-bottom:20px;">'
                 + '<div style="font-size:0.85em; font-weight:700; color:var(--text-primary); margin-bottom:16px;">' + bpIcon('dollar', 14) + ' Monthly Cost Snapshot</div>';
@@ -10328,7 +10390,7 @@
             html += '<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">';
             
             var summaryTiles = [
-                { label: 'Fixed Costs', amount: totalMonthlyInfra, color: '#8b5cf6', sub: 'subscriptions' },
+                { label: 'Infrastructure', amount: totalMonthlyInfra, color: '#8b5cf6', sub: 'subs + actuals' },
                 { label: 'AI Usage', amount: totalAiUsageCost, color: '#10b981', sub: 'token costs' },
                 { label: 'API Usage', amount: totalApiUsageCost, color: '#60a5fa', sub: 'job search' }
             ];
@@ -10341,7 +10403,7 @@
             });
             
             html += '</div>'
-                + '<div style="font-size:0.68em; color:var(--text-muted); margin-top:12px; text-align:center;">Fixed costs are monthly subscriptions. Usage costs are estimates based on tracked calls over the selected period, prorated to 30 days.</div>'
+                + '<div style="font-size:0.68em; color:var(--text-muted); margin-top:12px; text-align:center;">Infrastructure includes fixed subscriptions and manually-entered actuals (marked with *). Usage-based items (Replit Agent, overages, transfer, storage) default to $0 until you enter actual costs. Usage costs are estimates based on tracked API calls prorated to 30 days.</div>'
                 + '</div>';
             
             // Pricing reference
