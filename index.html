@@ -7473,7 +7473,7 @@
             });
 
             merged.sort(function(a, b) { return b.importance - a.importance; });
-            var skills = merged.slice(0, 14);
+            var skills = merged.slice(0, 18);
 
             skills.forEach(function(s) {
                 s.blueprintLevel = _jdcInferProficiency(s.name, jdText, seniority);
@@ -7873,11 +7873,44 @@
                     addSkill(cleanTerm, 65);
                 }
             });
+            var aiCompoundPatterns = [
+                /\b(generative\s+(?:and\s+)?agentic\s+ai)\b/gi,
+                /\b(agentic\s+(?:and\s+)?generative\s+ai)\b/gi,
+                /\b(generative\s+ai\s+(?:tools?|platforms?|solutions?|capabilities|fluency|literacy|adoption|strategy))\b/gi,
+                /\b(agentic\s+ai\s+(?:tools?|platforms?|solutions?|capabilities|agents?|workflows?))\b/gi,
+                /\b(ai[\-\s]+(?:tools?|fluency|literacy|automation|adoption|powered|driven|enabled|based))\b/gi,
+                /\b(ai\s+tool\s+creation(?:\s+and\s+usage)?)\b/gi
+            ];
+            aiCompoundPatterns.forEach(function(rx) {
+                var m;
+                while ((m = rx.exec(jdText)) !== null) {
+                    addSkill(m[1], 68);
+                }
+            });
+            if (/\bgenerative\s+and\s+agentic\s+ai\b/i.test(jdText)) {
+                addSkill('Generative AI', 68);
+                addSkill('Agentic AI', 68);
+            }
+
             var bulletLines = jdText.split('\n');
+            var inSkillsSection = false;
             bulletLines.forEach(function(line) {
                 var stripped = line.trim();
-                if (/^[\u2022\u2023\u25E6\u25AA\-\*\>]\s+/.test(stripped) || /^\d+[\.\)]\s+/.test(stripped)) {
-                    var content = stripped.replace(/^[\u2022\u2023\u25E6\u25AA\-\*\>]\s+/, '').replace(/^\d+[\.\)]\s+/, '');
+                if (/^(?:key\s+)?(?:skills?|competenc|abilit|capabilit)/i.test(stripped) && /[:]/i.test(stripped)) {
+                    inSkillsSection = true;
+                    return;
+                }
+                if (inSkillsSection && /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s*:/.test(stripped)) {
+                    inSkillsSection = false;
+                }
+                if (/^[\u2022\u2023\u25E6\u25AA\u25CF\u00B7\-\*\>●]\s+/.test(stripped) || /^\d+[\.\)]\s+/.test(stripped)) {
+                    var content = stripped.replace(/^[\u2022\u2023\u25E6\u25AA\u25CF\u00B7\-\*\>●]\s+/, '').replace(/^\d+[\.\)]\s+/, '');
+                    if (inSkillsSection && content.length >= 3 && content.length <= 80) {
+                        var cleanContent = content.replace(/[,\.\;\:\!]+$/, '').trim();
+                        if (cleanContent.length >= 3 && !stopWords.test(cleanContent)) {
+                            addSkill(cleanContent, 62);
+                        }
+                    }
                     var toolMatch = content.match(/(?:tools?\s+(?:like|such as|including)|(?:e\.g\.|i\.e\.))\s*[:;]?\s*([^\.]+)/i);
                     if (toolMatch) {
                         toolMatch[1].split(/[,;\/]|\band\b/).forEach(function(t) {
@@ -8634,7 +8667,7 @@
         }
         window.jdcEditBlueprint = jdcEditBlueprint;
 
-        function jdcSaveEdits() {
+        function _jdcSyncFormToState() {
             if (!_jdcResult) return;
             var d = _jdcResult;
             var g = function(id) { var el = document.getElementById(id); return el ? el.value : ''; };
@@ -8688,6 +8721,12 @@
                 var vDesc = g('jdcEditValDesc' + vi);
                 if (vName && vName.trim()) d.values.push({ name: vName.trim(), description: (vDesc || '').trim() });
             }
+        }
+        window._jdcSyncFormToState = _jdcSyncFormToState;
+
+        function jdcSaveEdits() {
+            if (!_jdcResult) return;
+            _jdcSyncFormToState();
             _jdcEditMode = false;
             renderAdminJDConverter(document.getElementById('adminTabContent'));
             showToast('Blueprint edits saved.', 'success');
@@ -8799,7 +8838,7 @@
                     + '<input id="jdcEditYearsArea' + i + '" type="text" value="' + escapeHtml(yr.area) + '" placeholder="Area" style="' + fieldStyle + '" />'
                     + '</div>';
             });
-            html += '<button onclick="_jdcResult.yearsRequired=_jdcResult.yearsRequired||[];_jdcResult.yearsRequired.push({range:\'\',area:\'\'});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
+            html += '<button onclick="_jdcSyncFormToState();_jdcResult.yearsRequired=_jdcResult.yearsRequired||[];_jdcResult.yearsRequired.push({range:\'\',area:\'\'});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
 
             html += '<div><label style="' + labelStyle + '">Education</label>';
             (data.education || []).forEach(function(ed, i) {
@@ -8812,7 +8851,7 @@
                     + '<input id="jdcEditEdField' + i + '" type="text" value="' + escapeHtml(ed.field) + '" placeholder="Field" style="' + fieldStyle + '" />'
                     + '<label style="display:flex; align-items:center; gap:3px; font-size:0.75em; color:var(--c-muted); white-space:nowrap;"><input type="checkbox" id="jdcEditEdPref' + i + '"' + (ed.preferred ? ' checked' : '') + ' /> Pref</label></div>';
             });
-            html += '<button onclick="_jdcResult.education=_jdcResult.education||[];_jdcResult.education.push({level:\'Bachelor\\\'s\',field:\'\',preferred:false});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
+            html += '<button onclick="_jdcSyncFormToState();_jdcResult.education=_jdcResult.education||[];_jdcResult.education.push({level:\'Bachelor\\\'s\',field:\'\',preferred:false});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
             html += '</div>';
 
             html += '<div style="margin-bottom:16px;"><label style="' + labelStyle + '">Certifications</label>'
@@ -8823,7 +8862,7 @@
             (data.certifications || []).forEach(function(cert, ci) {
                 html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; background:var(--c-surface-2); color:var(--c-heading); font-size:0.82em; font-weight:500;">'
                     + escapeHtml(cert)
-                    + '<button onclick="_jdcResult.certifications.splice(' + ci + ',1);renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.1em; padding:0 2px; line-height:1;">&times;</button></span>';
+                    + '<button onclick="_jdcSyncFormToState();_jdcResult.certifications.splice(' + ci + ',1);renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.1em; padding:0 2px; line-height:1;">&times;</button></span>';
             });
             html += '</div></div>';
 
@@ -8831,9 +8870,9 @@
             (data.qualifications || []).forEach(function(q, qi) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
                     + '<input id="jdcEditQual' + qi + '" type="text" value="' + escapeHtml(q) + '" style="' + fieldStyle + ' flex:1;" />'
-                    + '<button onclick="_jdcResult.qualifications.splice(' + qi + ',1);renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
+                    + '<button onclick="_jdcSyncFormToState();_jdcResult.qualifications.splice(' + qi + ',1);renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
-            html += '<button onclick="_jdcResult.qualifications=_jdcResult.qualifications||[];_jdcResult.qualifications.push(\'\');renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
+            html += '<button onclick="_jdcSyncFormToState();_jdcResult.qualifications=_jdcResult.qualifications||[];_jdcResult.qualifications.push(\'\');renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
 
             html += '</div>';
 
@@ -8858,11 +8897,36 @@
                     html += '<option' + (s.blueprintLevel === lv ? ' selected' : '') + '>' + lv + '</option>';
                 });
                 html += '</select></td>'
-                    + '<td style="padding:8px;"><button onclick="_jdcResult.skills.splice(' + si + ',1);renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em;">&times;</button></td></tr>';
+                    + '<td style="padding:8px;"><button onclick="_jdcSyncFormToState();_jdcResult.skills.splice(' + si + ',1);renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em;">&times;</button></td></tr>';
             });
             html += '</tbody></table></div>';
-            html += '<button onclick="_jdcResult.skills=_jdcResult.skills||[];_jdcResult.skills.push({name:\'\',outcome:\'\',blueprintLevel:\'Proficient\',source:\'jd\'});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:5px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:8px;">' + bpIcon('plus',10) + ' Add Skill</button>'
+            html += '<button onclick="_jdcSyncFormToState();_jdcResult.skills=_jdcResult.skills||[];_jdcResult.skills.push({name:\'\',outcome:\'\',blueprintLevel:\'Proficient\',source:\'jd\'});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:5px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:8px;">' + bpIcon('plus',10) + ' Add Skill</button>'
                 + '</div>';
+
+            var existingSkillNames = (data.skills || []).map(function(s) { return s.name.toLowerCase(); });
+            var aiSuggestions = [
+                { name: 'Generative AI', outcome: 'Apply generative AI tools to enhance productivity and create innovative solutions' },
+                { name: 'Agentic AI', outcome: 'Design and deploy AI agent workflows to automate complex business processes' },
+                { name: 'AI Fluency', outcome: 'Demonstrate proficiency in understanding and applying AI concepts across work contexts' },
+                { name: 'Prompt Engineering', outcome: 'Craft effective prompts to optimize AI model outputs for business needs' },
+                { name: 'AI Tool Adoption', outcome: 'Evaluate, implement, and champion AI tools to improve team efficiency' },
+                { name: 'AI-Assisted Decision Making', outcome: 'Leverage AI-generated insights to inform strategic and operational decisions' }
+            ].filter(function(s) { return !existingSkillNames.some(function(n) { return n === s.name.toLowerCase() || n.indexOf(s.name.toLowerCase()) !== -1; }); });
+            if (aiSuggestions.length > 0) {
+                html += '<div style="background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.25); border-radius:10px; padding:14px 18px; margin-bottom:20px;">'
+                    + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">'
+                    + '<span style="font-size:1.1em;">🤖</span>'
+                    + '<span style="font-weight:600; font-size:0.88em; color:var(--accent);">Consider adding AI skills</span>'
+                    + '<span style="font-size:0.78em; color:var(--c-muted);">— Nearly every role benefits from AI competencies</span></div>'
+                    + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+                aiSuggestions.forEach(function(s) {
+                    html += '<button onclick="_jdcSyncFormToState();_jdcResult.skills.push({name:\'' + s.name.replace(/'/g, "\\'") + '\',outcome:\'' + s.outcome.replace(/'/g, "\\'") + '\',blueprintLevel:\'Proficient\',source:\'suggested\'});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" '
+                        + 'style="padding:5px 12px; background:var(--c-surface-2); color:var(--c-heading); border:1px solid rgba(96,165,250,0.3); border-radius:16px; cursor:pointer; font-size:0.8em; font-weight:500; transition:background 0.15s;" '
+                        + 'onmouseover="this.style.background=\'rgba(96,165,250,0.15)\'" onmouseout="this.style.background=\'var(--c-surface-2)\'">'
+                        + bpIcon('plus',10) + ' ' + escapeHtml(s.name) + '</button>';
+                });
+                html += '</div></div>';
+            }
 
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                 + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">'
@@ -8874,10 +8938,34 @@
                 html += '<div style="display:flex; gap:8px; margin-bottom:6px; align-items:center;">'
                     + '<input id="jdcEditValName' + vi + '" type="text" value="' + escapeHtml(valName) + '" placeholder="Value name" style="' + fieldStyle + ' max-width:200px; font-weight:600;" />'
                     + '<input id="jdcEditValDesc' + vi + '" type="text" value="' + escapeHtml(valDesc) + '" placeholder="Description" style="' + fieldStyle + ' flex:1;" />'
-                    + '<button onclick="_jdcResult.values.splice(' + vi + ',1);renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
+                    + '<button onclick="_jdcSyncFormToState();_jdcResult.values.splice(' + vi + ',1);renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
-            html += '<button onclick="_jdcResult.values=_jdcResult.values||[];_jdcResult.values.push({name:\'\',description:\'\'});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:5px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Value</button>'
+            html += '<button onclick="_jdcSyncFormToState();_jdcResult.values=_jdcResult.values||[];_jdcResult.values.push({name:\'\',description:\'\'});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:5px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Value</button>'
                 + '</div>';
+
+            var existingValNames = (data.values || []).map(function(v) { return (typeof v === 'string' ? v : (v.name || '')).toLowerCase(); });
+            var suggestedValues = [
+                { name: 'Integrity', description: 'Upholds rigorous standards and ethical decision-making' },
+                { name: 'Collaborative Impact', description: 'Works across functions to drive outcomes as a team' },
+                { name: 'Accountability', description: 'Owns work through to resolution and supports outcomes' },
+                { name: 'Continuous Growth', description: 'Actively develops skills and stays current with the field' },
+                { name: 'Curiosity', description: 'Digs beneath surface data to uncover patterns and root causes' },
+                { name: 'Strategic Insight', description: 'Converts findings into program-level recommendations' },
+                { name: 'Resilience', description: 'Navigates ambiguous and fast-paced environments with composure' },
+                { name: 'Precision', description: 'Executes with attention to detail and quality standards' }
+            ].filter(function(v) { return existingValNames.indexOf(v.name.toLowerCase()) === -1; });
+            if (suggestedValues.length > 0) {
+                html += '<div style="background:rgba(139,92,246,0.08); border:1px solid rgba(139,92,246,0.2); border-radius:10px; padding:12px 16px; margin-bottom:20px;">'
+                    + '<div style="font-weight:600; font-size:0.82em; color:#8b5cf6; margin-bottom:8px;">' + bpIcon('star',12) + ' Suggested Values</div>'
+                    + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+                suggestedValues.forEach(function(v) {
+                    html += '<button onclick="_jdcSyncFormToState();_jdcResult.values.push({name:\'' + v.name.replace(/'/g, "\\'") + '\',description:\'' + v.description.replace(/'/g, "\\'") + '\'});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" '
+                        + 'style="padding:4px 11px; background:var(--c-surface-2); color:var(--c-heading); border:1px solid rgba(139,92,246,0.25); border-radius:16px; cursor:pointer; font-size:0.78em; font-weight:500; transition:background 0.15s;" '
+                        + 'onmouseover="this.style.background=\'rgba(139,92,246,0.12)\'" onmouseout="this.style.background=\'var(--c-surface-2)\'">'
+                        + bpIcon('plus',10) + ' ' + escapeHtml(v.name) + '</button>';
+                });
+                html += '</div></div>';
+            }
 
             html += '<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">'
                 + '<button onclick="jdcSaveEdits()" style="padding:10px 24px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' Save & Preview</button>'
