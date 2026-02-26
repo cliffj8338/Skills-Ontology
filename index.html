@@ -9131,7 +9131,6 @@
         window.wbRepoView = wbRepoView;
 
         function wbRepoDelete(id) {
-            console.log('[WB Delete] Called with id:', id, 'fbUser:', !!fbUser, 'fbDb:', !!fbDb);
             if (!fbUser) { showToast('You must be signed in to delete blueprints.', 'warning'); return; }
             if (!id) { showToast('Blueprint ID missing — cannot delete.', 'error'); return; }
             if (!fbDb) { showToast('Database not available. Try refreshing.', 'error'); return; }
