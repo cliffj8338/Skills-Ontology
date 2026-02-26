@@ -1,4 +1,4 @@
-<!-- v4.44.81 | 2026-02-26 | Stability: cleanup catch-rethrow no-ops, double-click save guard -->
+<!-- v4.44.82 | 2026-02-26 | Wizard: parity with Converter fields, custom fields, value descriptions + AI -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.81 - BUILD 20260226-stability
-        var BP_VERSION = 'v4.44.81';
+        // BLUEPRINT v4.44.82 - BUILD 20260226-wizard-parity
+        var BP_VERSION = 'v4.44.82';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2068,7 +2068,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-stability               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-wizard-parity               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -6154,7 +6154,7 @@
         var _jdcBulkResults = [];
         var _jdcBulkViewIdx = -1;
 
-        var _wbw = { step: 1, company: '', title: '', seniority: 'mid', location: '', department: '', reportsTo: '', employmentType: 'Full-time', schedule: '', travel: '', industry: '', compensationRange: '', companyResearch: null, researchLoading: false, socResult: null, skills: [], bls: null, yearsRequired: [], education: [], certifications: [], qualifications: [], selectedValues: [], summary: '', keyResponsibilities: [], demonstrated: null };
+        var _wbw = { step: 1, company: '', title: '', seniority: 'mid', location: '', department: '', reportsTo: '', employmentType: 'Full-time', schedule: '', travel: '', industry: '', compensationRange: '', companyResearch: null, researchLoading: false, socResult: null, skills: [], bls: null, yearsRequired: [], education: [], certifications: [], qualifications: [], selectedValues: [], valueDescriptions: {}, summary: '', keyResponsibilities: [], demonstrated: null, customFields: [] };
         var _wbwEditMode = false;
 
         function renderWBWizard(el) {
@@ -6234,6 +6234,22 @@
                 + '<input id="wbwCompensation" type="text" value="' + escapeHtml(s.compensationRange || '') + '" placeholder="e.g. $100,000 - $120,000 plus bonus" style="' + _wbwFieldStyle + '" /></div>';
             html += '</div>';
 
+            html += '<div style="margin-top:4px; margin-bottom:16px;"><label style="' + _wbwLabelStyle + '">Work Summary (optional)</label>'
+                + '<textarea id="wbwSummaryStep1" style="' + _wbwFieldStyle + ' min-height:80px; resize:vertical; line-height:1.6;" placeholder="Describe the role\'s purpose and key responsibilities. Will be auto-generated if left blank.">' + escapeHtml(s.summary || '') + '</textarea></div>';
+
+            html += '<div style="margin-bottom:16px;">'
+                + '<label style="' + _wbwLabelStyle + '">Custom Fields (optional)</label>'
+                + '<div style="font-size:0.78em; color:var(--c-muted); margin-bottom:8px;">Add any additional metadata not covered above.</div>';
+            (s.customFields || []).forEach(function(cf, i) {
+                html += '<div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">'
+                    + '<input id="wbwCFKey' + i + '" type="text" value="' + escapeHtml(cf.key) + '" placeholder="Field name" style="' + _wbwFieldStyle + ' max-width:180px;" />'
+                    + '<input id="wbwCFVal' + i + '" type="text" value="' + escapeHtml(cf.value) + '" placeholder="Value" style="' + _wbwFieldStyle + '" />'
+                    + '<button onclick="wbwRemoveCustomField(' + i + ')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.1em; padding:4px 8px;">&times;</button>'
+                    + '</div>';
+            });
+            html += '<button onclick="wbwAddCustomField()" style="padding:4px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Custom Field</button>';
+            html += '</div>';
+
             html += '<div style="display:flex; gap:10px; align-items:center; margin-top:8px;">'
                 + '<button onclick="wbwResearchAndNext()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">'
                 + bpIcon('search',14) + ' Research & Continue</button>';
@@ -6292,6 +6308,15 @@
             _wbw.travel = ((document.getElementById('wbwTravel') || {}).value || '').trim();
             _wbw.industry = ((document.getElementById('wbwIndustry') || {}).value || '').trim();
             _wbw.compensationRange = ((document.getElementById('wbwCompensation') || {}).value || '').trim();
+            var summaryStep1 = ((document.getElementById('wbwSummaryStep1') || {}).value || '').trim();
+            if (summaryStep1) _wbw.summary = summaryStep1;
+            var cfs = [];
+            (_wbw.customFields || []).forEach(function(cf, i) {
+                var k = ((document.getElementById('wbwCFKey' + i) || {}).value || '').trim();
+                var v = ((document.getElementById('wbwCFVal' + i) || {}).value || '').trim();
+                if (k || v) cfs.push({ key: k, value: v });
+            });
+            _wbw.customFields = cfs;
 
             _wbw.researchLoading = true;
             renderWBWizard(document.getElementById('adminTabContent'));
@@ -6716,6 +6741,36 @@
         }
         window.wbwRemoveCert = wbwRemoveCert;
 
+        function wbwAddCustomField() {
+            var summaryStep1 = ((document.getElementById('wbwSummaryStep1') || {}).value || '').trim();
+            if (summaryStep1) _wbw.summary = summaryStep1;
+            var cfs = [];
+            (_wbw.customFields || []).forEach(function(cf, i) {
+                var k = ((document.getElementById('wbwCFKey' + i) || {}).value || '').trim();
+                var v = ((document.getElementById('wbwCFVal' + i) || {}).value || '').trim();
+                cfs.push({ key: k, value: v });
+            });
+            cfs.push({ key: '', value: '' });
+            _wbw.customFields = cfs;
+            renderWBWizard(document.getElementById('adminTabContent'));
+        }
+        window.wbwAddCustomField = wbwAddCustomField;
+
+        function wbwRemoveCustomField(idx) {
+            var summaryStep1 = ((document.getElementById('wbwSummaryStep1') || {}).value || '').trim();
+            if (summaryStep1) _wbw.summary = summaryStep1;
+            var cfs = [];
+            (_wbw.customFields || []).forEach(function(cf, i) {
+                var k = ((document.getElementById('wbwCFKey' + i) || {}).value || '').trim();
+                var v = ((document.getElementById('wbwCFVal' + i) || {}).value || '').trim();
+                cfs.push({ key: k, value: v });
+            });
+            cfs.splice(idx, 1);
+            _wbw.customFields = cfs;
+            renderWBWizard(document.getElementById('adminTabContent'));
+        }
+        window.wbwRemoveCustomField = wbwRemoveCustomField;
+
         function wbwAddYears() {
             _wbw.yearsRequired.push({ range: '', area: '' });
             renderWBWizard(document.getElementById('adminTabContent'));
@@ -6786,18 +6841,113 @@
             html += '<div style="margin-top:12px; font-size:0.8em; color:var(--c-muted);">Selected: ' + s.selectedValues.length + ' values '
                 + (s.selectedValues.length < 4 ? '<span style="color:#f59e0b;">— select at least 4</span>' : '<span style="color:#10b981;">✓</span>') + '</div>';
 
+            if (s.selectedValues.length > 0) {
+                html += '<div style="margin-top:18px; padding:16px; background:var(--c-surface-2); border-radius:10px; border:1px solid var(--c-surface-5);">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
+                    + '<div style="font-weight:700; font-size:0.9em; color:var(--c-heading);">Value Descriptions</div>';
+                if (typeof fbUser !== 'undefined' && fbUser) {
+                    html += '<button onclick="wbwAIFillValueDescs()" style="padding:5px 14px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.78em; font-weight:600;">' + bpIcon('sparkle',12) + ' AI Fill Descriptions</button>';
+                }
+                html += '</div>';
+                s.selectedValues.forEach(function(name, vi) {
+                    var libVal = allValues.find(function(v) { return v.name === name; });
+                    var desc = (s.valueDescriptions && s.valueDescriptions[name]) || (libVal ? libVal.description : '');
+                    html += '<div style="margin-bottom:10px;">'
+                        + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">'
+                        + '<span style="font-weight:600; font-size:0.88em; color:var(--c-heading);">' + escapeHtml(name) + '</span>';
+                    if (typeof fbUser !== 'undefined' && fbUser) {
+                        html += '<button onclick="wbwAIFillOneValueDesc(' + vi + ')" style="background:none; border:none; cursor:pointer; color:var(--accent); padding:2px 4px; font-size:0.85em;" title="AI generate description">' + bpIcon('sparkle',12) + '</button>';
+                    }
+                    html += '</div>'
+                        + '<textarea id="wbwValDesc' + vi + '" style="' + _wbwFieldStyle + ' min-height:50px; resize:vertical; font-size:0.85em; line-height:1.5;" placeholder="Describe how this value applies to the role...">' + escapeHtml(desc) + '</textarea>'
+                        + '</div>';
+                });
+                html += '</div>';
+            }
+
+            html += '<div style="margin-top:14px; display:flex; gap:10px; align-items:center;">'
+                + '<input id="wbwCustomValueName" type="text" placeholder="Custom value name" style="' + _wbwFieldStyle + ' max-width:200px;" />'
+                + '<button onclick="wbwAddCustomValue()" style="padding:6px 14px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.78em;">' + bpIcon('plus',10) + ' Add Custom Value</button>'
+                + '</div>';
+
             html += '</div>';
             html += _wbwNavButtons(3, 4);
             return html;
         }
 
+        function wbwAddCustomValue() {
+            var nameEl = document.getElementById('wbwCustomValueName');
+            var name = (nameEl ? nameEl.value.trim() : '');
+            if (!name) { showToast('Enter a value name.', 'warning'); return; }
+            if (_wbw.selectedValues.indexOf(name) !== -1) { showToast('Value already selected.', 'warning'); return; }
+            _wbwSaveValueDescs();
+            _wbw.selectedValues.push(name);
+            renderWBWizard(document.getElementById('adminTabContent'));
+        }
+        window.wbwAddCustomValue = wbwAddCustomValue;
+
+        function _wbwSaveValueDescs() {
+            if (!_wbw.valueDescriptions) _wbw.valueDescriptions = {};
+            _wbw.selectedValues.forEach(function(name, vi) {
+                var el = document.getElementById('wbwValDesc' + vi);
+                if (el) _wbw.valueDescriptions[name] = el.value;
+            });
+        }
+
         function wbwToggleValue(name) {
+            _wbwSaveValueDescs();
             var idx = _wbw.selectedValues.indexOf(name);
             if (idx !== -1) _wbw.selectedValues.splice(idx, 1);
             else _wbw.selectedValues.push(name);
             renderWBWizard(document.getElementById('adminTabContent'));
         }
         window.wbwToggleValue = wbwToggleValue;
+
+        async function wbwAIFillValueDescs() {
+            if (!fbUser) { showToast('Sign in to use AI features.', 'warning'); return; }
+            _wbwSaveValueDescs();
+            var vals = _wbw.selectedValues.filter(function(name) {
+                return !_wbw.valueDescriptions[name] || !_wbw.valueDescriptions[name].trim();
+            });
+            if (vals.length === 0) { showToast('All values already have descriptions.', 'info'); return; }
+            showToast('Generating descriptions for ' + vals.length + ' values...', 'info');
+            try {
+                var prompt = 'For the role "' + (_wbw.title || 'this role') + '" at "' + (_wbw.company || 'this company') + '", write a 1-2 sentence professional description for each workplace value below. Return JSON array of objects with "name" and "description" keys.\n\nValues:\n' + vals.map(function(n) { return '- ' + n; }).join('\n');
+                var resp = await callAnthropicAPI(prompt, 'claude-haiku-4-5-20251001', 1500);
+                var parsed = JSON.parse(resp.replace(/```json?\n?/g, '').replace(/```/g, '').trim());
+                parsed.forEach(function(item) {
+                    if (item.name && item.description) _wbw.valueDescriptions[item.name] = item.description;
+                });
+                showToast('Value descriptions generated.', 'success');
+            } catch (e) {
+                console.warn('AI value desc error:', e.message);
+                showToast('Could not generate descriptions: ' + e.message, 'error');
+            }
+            renderWBWizard(document.getElementById('adminTabContent'));
+        }
+        window.wbwAIFillValueDescs = wbwAIFillValueDescs;
+
+        async function wbwAIFillOneValueDesc(idx) {
+            if (!fbUser) { showToast('Sign in to use AI features.', 'warning'); return; }
+            _wbwSaveValueDescs();
+            var name = _wbw.selectedValues[idx];
+            if (!name) return;
+            var descEl = document.getElementById('wbwValDesc' + idx);
+            if (descEl) descEl.placeholder = 'Generating...';
+            try {
+                var prompt = 'For the role "' + (_wbw.title || 'this role') + '" at "' + (_wbw.company || 'this company') + '", write a 1-2 sentence professional description of the workplace value "' + name + '". Return only the description text, no JSON.';
+                var resp = await callAnthropicAPI(prompt, 'claude-haiku-4-5-20251001', 300);
+                var desc = resp.replace(/^["']|["']$/g, '').trim();
+                _wbw.valueDescriptions[name] = desc;
+                if (descEl) descEl.value = desc;
+                showToast('Description generated for ' + name + '.', 'success');
+            } catch (e) {
+                console.warn('AI value desc error:', e.message);
+                showToast('Could not generate description: ' + e.message, 'error');
+                if (descEl) descEl.placeholder = 'Describe how this value applies to the role...';
+            }
+        }
+        window.wbwAIFillOneValueDesc = wbwAIFillOneValueDesc;
 
         function _wbwStep5() {
             var s = _wbw;
@@ -6864,7 +7014,8 @@
             var allValues = (typeof valuesLibrary !== 'undefined' && Array.isArray(valuesLibrary)) ? valuesLibrary : [];
             var values = s.selectedValues.map(function(name) {
                 var lib = allValues.find(function(v) { return v.name === name; });
-                return { name: name, desc: lib ? lib.description : '' };
+                var desc = (s.valueDescriptions && s.valueDescriptions[name]) || (lib ? lib.description : '');
+                return { name: name, desc: desc };
             });
 
             var demonstrated = typeof _jdcGenerateDemonstrated === 'function'
@@ -6896,6 +7047,7 @@
                 values: values,
                 demonstrated: demonstrated,
                 companyResearch: s.companyResearch,
+                customFields: (s.customFields || []).filter(function(cf) { return cf.key && cf.key.trim(); }),
                 createdVia: 'wb-wizard',
                 createdAt: new Date().toISOString()
             };
@@ -6972,6 +7124,15 @@
             });
             html += '<button onclick="_wbw.qualifications.push(\'\');renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
 
+            html += '<div style="margin-bottom:16px;"><label style="' + ls + '">Custom Fields</label>';
+            (data.customFields || []).forEach(function(cf, i) {
+                html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
+                    + '<input id="wbwEditCFKey' + i + '" type="text" value="' + escapeHtml(cf.key) + '" placeholder="Field name" style="' + fs + ' max-width:180px;" />'
+                    + '<input id="wbwEditCFVal' + i + '" type="text" value="' + escapeHtml(cf.value) + '" placeholder="Value" style="' + fs + ' flex:1;" />'
+                    + '<button onclick="_wbw.customFields.splice(' + i + ',1);renderWBWizard(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
+            });
+            html += '<button onclick="_wbw.customFields.push({key:\'\',value:\'\'});renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Custom Field</button></div>';
+
             return html;
         }
 
@@ -7040,6 +7201,13 @@
                 var qv = g('wbwEditQual' + qi);
                 if (qv && qv.trim()) _wbw.qualifications.push(qv.trim());
             }
+            var editCFs = [];
+            for (var cfi = 0; cfi < 20; cfi++) {
+                var cfk = g('wbwEditCFKey' + cfi);
+                var cfv = g('wbwEditCFVal' + cfi);
+                if (cfk && cfk.trim()) editCFs.push({ key: cfk.trim(), value: (cfv || '').trim() });
+            }
+            _wbw.customFields = editCFs;
 
             _wbwEditMode = false;
             renderWBWizard(document.getElementById('adminTabContent'));
@@ -7060,7 +7228,7 @@
         function wbwReset() {
             if (!confirm('Start over? All wizard data will be cleared.')) return;
             _wbwEditMode = false;
-            _wbw = { step: 1, company: '', title: '', seniority: 'mid', location: '', department: '', reportsTo: '', employmentType: 'Full-time', schedule: '', travel: '', industry: '', compensationRange: '', companyResearch: null, researchLoading: false, socResult: null, skills: [], bls: null, yearsRequired: [], education: [], certifications: [], qualifications: [], selectedValues: [], summary: '', keyResponsibilities: [], demonstrated: null };
+            _wbw = { step: 1, company: '', title: '', seniority: 'mid', location: '', department: '', reportsTo: '', employmentType: 'Full-time', schedule: '', travel: '', industry: '', compensationRange: '', companyResearch: null, researchLoading: false, socResult: null, skills: [], bls: null, yearsRequired: [], education: [], certifications: [], qualifications: [], selectedValues: [], valueDescriptions: {}, summary: '', keyResponsibilities: [], demonstrated: null, customFields: [] };
             renderWBWizard(document.getElementById('adminTabContent'));
         }
         window.wbwReset = wbwReset;
@@ -7074,6 +7242,31 @@
 
         function _wbwSaveCurrentStep() {
             var s = _wbw;
+            if (s.step === 1) {
+                var summaryStep1 = ((document.getElementById('wbwSummaryStep1') || {}).value || '').trim();
+                if (summaryStep1) s.summary = summaryStep1;
+                s.company = ((document.getElementById('wbwCompany') || {}).value || '').trim();
+                s.title = ((document.getElementById('wbwTitle') || {}).value || '').trim();
+                s.location = ((document.getElementById('wbwLocation') || {}).value || '').trim();
+                s.department = ((document.getElementById('wbwDepartment') || {}).value || '').trim();
+                s.reportsTo = ((document.getElementById('wbwReportsTo') || {}).value || '').trim();
+                s.employmentType = ((document.getElementById('wbwEmploymentType') || {}).value || 'Full-time');
+                s.seniority = ((document.getElementById('wbwSeniority') || {}).value || 'mid');
+                s.schedule = ((document.getElementById('wbwSchedule') || {}).value || '').trim();
+                s.travel = ((document.getElementById('wbwTravel') || {}).value || '').trim();
+                s.industry = ((document.getElementById('wbwIndustry') || {}).value || '').trim();
+                s.compensationRange = ((document.getElementById('wbwCompensation') || {}).value || '').trim();
+                var cfs = [];
+                (s.customFields || []).forEach(function(cf, i) {
+                    var k = ((document.getElementById('wbwCFKey' + i) || {}).value || '').trim();
+                    var v = ((document.getElementById('wbwCFVal' + i) || {}).value || '').trim();
+                    if (k || v) cfs.push({ key: k, value: v });
+                });
+                s.customFields = cfs;
+            }
+            if (s.step === 4) {
+                _wbwSaveValueDescs();
+            }
             if (s.step === 3) {
                 s.yearsRequired = [];
                 for (var i = 0; i < 10; i++) {
@@ -8388,6 +8581,11 @@
             if (data.seniority) logistics.push({ label: 'Level', value: data.seniority.charAt(0).toUpperCase() + data.seniority.slice(1) });
             var compDisplay = (data.compensation && data.compensation.range) ? data.compensation.range : (data.compensationRange || '');
             if (compDisplay) logistics.push({ label: 'Compensation', value: compDisplay });
+            if (data.customFields && data.customFields.length > 0) {
+                data.customFields.forEach(function(cf) {
+                    if (cf.key && cf.value) logistics.push({ label: cf.key, value: cf.value });
+                });
+            }
             if (logistics.length > 0) {
                 html += '<div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;">';
                 logistics.forEach(function(l) {
@@ -8688,6 +8886,11 @@
             if (d.schedule) logistics.push('Schedule: ' + d.schedule);
             if (d.travel) logistics.push('Travel: ' + d.travel);
             if (d.industry) logistics.push('Industry: ' + d.industry);
+            if (d.customFields && d.customFields.length > 0) {
+                d.customFields.forEach(function(cf) {
+                    if (cf.key && cf.value) logistics.push(cf.key + ': ' + cf.value);
+                });
+            }
             if (logistics.length > 0) {
                 addLine(logistics.join('  |  '), 8, GRAY);
                 y += 2;
@@ -8783,6 +8986,11 @@
             if (d.schedule) tags.push('Schedule: ' + _esc(d.schedule));
             if (d.travel) tags.push('Travel: ' + _esc(d.travel));
             if (d.industry) tags.push('Industry: ' + _esc(d.industry));
+            if (d.customFields && d.customFields.length > 0) {
+                d.customFields.forEach(function(cf) {
+                    if (cf.key && cf.value) tags.push(_esc(cf.key) + ': ' + _esc(cf.value));
+                });
+            }
             if (tags.length) h += '<div>' + tags.map(function(t) { return '<span class="tag">' + t + '</span>'; }).join(' ') + '</div>';
             h += '<h2>Work Summary</h2><p>' + _esc(d.summary) + '</p>';
             if (d.keyResponsibilities && d.keyResponsibilities.length) {
@@ -8922,6 +9130,13 @@
                 var vDesc = g('jdcEditValDesc' + vi);
                 if (vName && vName.trim()) d.values.push({ name: vName.trim(), description: (vDesc || '').trim() });
             }
+            var syncCFs = [];
+            for (var cfi = 0; cfi < 20; cfi++) {
+                var cfk = g('jdcEditCFKey' + cfi);
+                var cfv = g('jdcEditCFVal' + cfi);
+                if (cfk && cfk.trim()) syncCFs.push({ key: cfk.trim(), value: (cfv || '').trim() });
+            }
+            d.customFields = syncCFs;
         }
         window._jdcSyncFormToState = _jdcSyncFormToState;
 
@@ -9258,7 +9473,16 @@
             }
 
             var _repoSaveLabel = _jdcFromRepo ? 'Save' : 'Save to Repository';
-            html += '<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">'
+            html += '<div style="margin-bottom:16px;"><label style="' + labelStyle + '">Custom Fields</label>';
+            (data.customFields || []).forEach(function(cf, i) {
+                html += '<div style="display:flex; gap:8px; align-items:center; margin-bottom:4px;">'
+                    + '<input id="jdcEditCFKey' + i + '" type="text" value="' + escapeHtml(cf.key) + '" placeholder="Field name" style="' + fieldStyle + ' max-width:180px;" />'
+                    + '<input id="jdcEditCFVal' + i + '" type="text" value="' + escapeHtml(cf.value) + '" placeholder="Value" style="' + fieldStyle + '" />'
+                    + '<button onclick="_jdcSyncFormToState(); _jdcResult.customFields.splice(' + i + ',1); renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
+            });
+            html += '<button onclick="_jdcSyncFormToState(); if(!_jdcResult.customFields) _jdcResult.customFields=[]; _jdcResult.customFields.push({key:\'\',value:\'\'}); renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Custom Field</button></div>';
+
+                html += '<div style="display:flex; gap:10px; flex-wrap:wrap;">'
                 + '<button onclick="jdcSaveEdits()" style="padding:10px 24px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' Save & Preview</button>';
             if (typeof fbUser !== 'undefined' && fbUser) {
                 html += '<button onclick="jdcSaveAndRepository()" style="padding:10px 24px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' ' + _repoSaveLabel + '</button>';
