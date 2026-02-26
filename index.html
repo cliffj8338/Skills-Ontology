@@ -1,4 +1,4 @@
-<!-- v4.44.84 | 2026-02-26 | UX: Repository edit opens modal, export fix, button labels -->
+<!-- v4.44.85 | 2026-02-26 | UX: WBW/Converter dropdowns, WB AI tracking, WB analytics, admin WB metrics -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.84 - BUILD 20260226-repo-edit-modal
-        var BP_VERSION = 'v4.44.84';
+        // BLUEPRINT v4.44.85 - BUILD 20260226-wb-dropdowns-tracking
+        var BP_VERSION = 'v4.44.85';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1609,6 +1609,32 @@
         }
         window.clearIncidentLog = clearIncidentLog;
         
+        // ===== SHARED DROPDOWN OPTION LISTS =====
+        var WB_INDUSTRIES = [
+            'Accounting & Tax Services', 'Advertising & Marketing', 'Aerospace & Defense',
+            'Agriculture, Forestry, Fishing & Hunting', 'Architectural & Engineering Services',
+            'Arts, Entertainment & Recreation', 'Automotive', 'Aviation',
+            'Biotechnology & Life Sciences', 'Business Consulting', 'Construction',
+            'Consumer Electronics', 'Consumer Goods & Services', 'Education',
+            'Energy, Utilities & Renewables', 'Finance & Insurance',
+            'Government & Public Administration', 'Healthcare & Social Assistance',
+            'Hospitality & Food Services', 'Human Resources & Recruiting',
+            'Information Technology & Software', 'Legal Services', 'Logistics & Supply Chain',
+            'Manufacturing', 'Media & Broadcasting', 'Non-Profit & Religious Organizations',
+            'Pharmaceuticals', 'Professional, Scientific & Technical Services',
+            'Real Estate, Rental & Leasing', 'Retail Trade', 'Staffing & Recruiting',
+            'Telecommunications', 'Transportation & Warehousing', 'Wholesale Trade', 'Other'
+        ];
+        var WB_TRAVEL_OPTIONS = [
+            'None', 'Up to 5%', 'Up to 10%', 'Up to 15%', 'Up to 20%', 'Up to 25%',
+            'Up to 30%', 'Up to 40%', 'Up to 50%', 'Up to 75%', '100% / Full Travel'
+        ];
+        var WB_SCHEDULE_OPTIONS = [
+            'Monday \u2013 Friday', 'Monday \u2013 Saturday', 'Rotating Shifts',
+            'Flexible / Hybrid', 'Weekends', 'Nights', 'On-Call', 'Compressed (4\u00D710)', 'Other'
+        ];
+        var WB_EMPLOYMENT_TYPES = ['Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship'];
+
         // Feature registry: defines all AI call types for cost tracking
         var AI_FEATURES = {
             'resume-parse':     { name: 'Resume Parse',       inputTokens: 2200, outputTokens: 3500, desc: 'One-time per user' },
@@ -1617,7 +1643,11 @@
             'interview-prep':   { name: 'Interview Prep',     inputTokens: 1800, outputTokens: 2500, desc: 'Per application' },
             'linkedin-profile': { name: 'LinkedIn Profile',   inputTokens: 1200, outputTokens: 1200, desc: 'Occasional' },
             'linkedin-skill-infer': { name: 'LinkedIn Skill Inference', inputTokens: 3000, outputTokens: 3000, desc: 'Per LinkedIn import' },
-            'purpose-regen':    { name: 'Purpose Statement',  inputTokens: 600,  outputTokens: 250,  desc: 'Regenerations' }
+            'purpose-regen':    { name: 'Purpose Statement',  inputTokens: 600,  outputTokens: 250,  desc: 'Regenerations' },
+            'wb-company-research': { name: 'WB Company Research', inputTokens: 1500, outputTokens: 2000, desc: 'Per wizard run' },
+            'wb-value-desc':    { name: 'WB Value Description', inputTokens: 400,  outputTokens: 200,  desc: 'Per value AI fill' },
+            'wb-value-desc-bulk': { name: 'WB Value Desc Bulk', inputTokens: 800,  outputTokens: 1500, desc: 'Bulk value fill' },
+            'wb-jd-convert':    { name: 'WB JD Conversion',  inputTokens: 2500, outputTokens: 3000, desc: 'Per JD conversion' }
         };
         
         // External API cost tracking (non-AI)
@@ -2068,7 +2098,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-repo-edit-modal               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-wb-dropdowns-tracking         ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -3522,7 +3552,7 @@
             html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">';
             
             // Feature usage
-            var featLabels = { resume_parse:'Resume Parse', scouting_report:'Scouting Report', export_pdf:'PDF Export', export_html:'Executive Blueprint', export_resume_html:'HTML Resume', export_json:'JSON Export', cover_letter:'Cover Letter', interview_prep:'Interview Prep', linkedin_profile:'LinkedIn Profile', job_analysis:'JD Analysis', negotiation_guide:'Negotiation Guide', scouting_report_html:'Report (HTML)' };
+            var featLabels = { resume_parse:'Resume Parse', scouting_report:'Scouting Report', export_pdf:'PDF Export', export_html:'Executive Blueprint', export_resume_html:'HTML Resume', export_json:'JSON Export', cover_letter:'Cover Letter', interview_prep:'Interview Prep', linkedin_profile:'LinkedIn Profile', job_analysis:'JD Analysis', negotiation_guide:'Negotiation Guide', scouting_report_html:'Report (HTML)', wb_created:'WB Created', wb_edited:'WB Edited', wb_deleted:'WB Deleted', wb_exported_pdf:'WB Export PDF', wb_exported_word:'WB Export Word', wb_exported_json:'WB Export JSON', wb_wizard_complete:'WB Wizard Complete', wb_converted:'WB JD Converted' };
             var sortedFeats = Object.entries(s.featureCounts).sort(function(a,b){return b[1]-a[1];});
             var maxFeat = sortedFeats.length > 0 ? sortedFeats[0][1] : 1;
             
@@ -3581,6 +3611,34 @@
             html += '</div>';
             html += '</div>';
             
+            // ===== ROW 4b: Work Blueprint Metrics =====
+            var wbKeys = ['wb_created','wb_edited','wb_deleted','wb_exported_pdf','wb_exported_word','wb_exported_json','wb_wizard_complete','wb_converted'];
+            var wbTotal = 0; wbKeys.forEach(function(k){ wbTotal += (s.featureCounts[k] || 0); });
+            if (wbTotal > 0) {
+                html += '<div style="padding:14px; background:var(--c-surface-4b); border:1px solid var(--border); border-radius:10px; margin-bottom:16px;">'
+                    + '<div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">'
+                    + '<span style="font-size:0.8em; font-weight:700; color:var(--c-heading-bold);">' + bpIcon('briefcase',14) + ' Work Blueprint Activity</span>'
+                    + '<span style="font-size:0.65em; color:var(--text-muted);">Last ' + days + ' days</span></div>'
+                    + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(90px, 1fr)); gap:8px;">';
+                var wbTiles = [
+                    { k:'wb_created', l:'Created', c:'#10b981' },
+                    { k:'wb_edited', l:'Edited', c:'#60a5fa' },
+                    { k:'wb_converted', l:'Converted', c:'#8b5cf6' },
+                    { k:'wb_wizard_complete', l:'Wizard', c:'#a78bfa' },
+                    { k:'wb_exported_pdf', l:'PDF', c:'#ef4444' },
+                    { k:'wb_exported_word', l:'Word', c:'#2563eb' },
+                    { k:'wb_exported_json', l:'JSON', c:'#f59e0b' },
+                    { k:'wb_deleted', l:'Deleted', c:'#6b7280' }
+                ];
+                wbTiles.forEach(function(t) {
+                    var cnt = s.featureCounts[t.k] || 0;
+                    if (cnt > 0) html += '<div style="text-align:center; padding:8px; background:' + t.c + '11; border-radius:8px;">'
+                        + '<div style="font-size:1.4em; font-weight:800; color:' + t.c + ';">' + cnt + '</div>'
+                        + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase;">' + t.l + '</div></div>';
+                });
+                html += '</div></div>';
+            }
+
             // ===== ROW 5: Conversion Funnel =====
             var funnelSteps = [
                 { key: 'visit', label: 'Visited', icon: 'eye', color: '#60a5fa' },
@@ -6225,11 +6283,23 @@
             });
             html += '</select></div>';
             html += '<div><label style="' + _wbwLabelStyle + '">Schedule</label>'
-                + '<input id="wbwSchedule" type="text" value="' + escapeHtml(s.schedule) + '" placeholder="e.g. Monday-Friday" style="' + _wbwFieldStyle + '" /></div>';
+                + '<select id="wbwSchedule" style="' + _wbwFieldStyle + '"><option value="">— Select —</option>';
+            var schMatched = false;
+            WB_SCHEDULE_OPTIONS.forEach(function(o) { var sel = s.schedule === o; if (sel) schMatched = true; html += '<option' + (sel ? ' selected' : '') + '>' + escapeHtml(o) + '</option>'; });
+            if (s.schedule && !schMatched) html += '<option selected>' + escapeHtml(s.schedule) + '</option>';
+            html += '</select></div>';
             html += '<div><label style="' + _wbwLabelStyle + '">Travel</label>'
-                + '<input id="wbwTravel" type="text" value="' + escapeHtml(s.travel || '') + '" placeholder="e.g. Up to 25%" style="' + _wbwFieldStyle + '" /></div>';
+                + '<select id="wbwTravel" style="' + _wbwFieldStyle + '"><option value="">— Select —</option>';
+            var trvMatched = false;
+            WB_TRAVEL_OPTIONS.forEach(function(o) { var sel = (s.travel || '') === o; if (sel) trvMatched = true; html += '<option' + (sel ? ' selected' : '') + '>' + escapeHtml(o) + '</option>'; });
+            if (s.travel && !trvMatched) html += '<option selected>' + escapeHtml(s.travel) + '</option>';
+            html += '</select></div>';
             html += '<div><label style="' + _wbwLabelStyle + '">Industry</label>'
-                + '<input id="wbwIndustry" type="text" value="' + escapeHtml(s.industry || '') + '" placeholder="e.g. Human Resources Technology" style="' + _wbwFieldStyle + '" /></div>';
+                + '<select id="wbwIndustry" style="' + _wbwFieldStyle + '"><option value="">— Select —</option>';
+            var indMatched = false;
+            WB_INDUSTRIES.forEach(function(ind) { var sel = (s.industry || '') === ind; if (sel) indMatched = true; html += '<option' + (sel ? ' selected' : '') + '>' + escapeHtml(ind) + '</option>'; });
+            if (s.industry && !indMatched) html += '<option selected>' + escapeHtml(s.industry) + '</option>';
+            html += '</select></div>';
             html += '<div style="grid-column:1/-1;"><label style="' + _wbwLabelStyle + '">Compensation (optional)</label>'
                 + '<input id="wbwCompensation" type="text" value="' + escapeHtml(s.compensationRange || '') + '" placeholder="e.g. $100,000 - $120,000 plus bonus" style="' + _wbwFieldStyle + '" /></div>';
             html += '</div>';
@@ -6358,7 +6428,7 @@
                     model: 'claude-haiku-4-5-20251001',
                     max_tokens: 1024,
                     messages: [{ role: 'user', content: prompt }]
-                }, null, 'wb-wizard-research');
+                }, null, 'wb-company-research');
 
                 var text = aiRes.content[0].text;
                 var jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -6913,8 +6983,9 @@
             showToast('Generating descriptions for ' + vals.length + ' values...', 'info');
             try {
                 var prompt = 'For the role "' + (_wbw.title || 'this role') + '" at "' + (_wbw.company || 'this company') + '", write a 1-2 sentence professional description for each workplace value below. Return JSON array of objects with "name" and "description" keys.\n\nValues:\n' + vals.map(function(n) { return '- ' + n; }).join('\n');
-                var resp = await callAnthropicAPI(prompt, 'claude-haiku-4-5-20251001', 1500);
-                var parsed = JSON.parse(resp.replace(/```json?\n?/g, '').replace(/```/g, '').trim());
+                var resp = await callAnthropicAPI({ model: 'claude-haiku-4-5-20251001', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] }, null, 'wb-value-desc-bulk');
+                var respText = (resp.content && resp.content[0] && resp.content[0].text) || (typeof resp === 'string' ? resp : JSON.stringify(resp));
+                var parsed = JSON.parse(respText.replace(/```json?\n?/g, '').replace(/```/g, '').trim());
                 parsed.forEach(function(item) {
                     if (item.name && item.description) _wbw.valueDescriptions[item.name] = item.description;
                 });
@@ -6936,8 +7007,8 @@
             if (descEl) descEl.placeholder = 'Generating...';
             try {
                 var prompt = 'For the role "' + (_wbw.title || 'this role') + '" at "' + (_wbw.company || 'this company') + '", write a 1-2 sentence professional description of the workplace value "' + name + '". Return only the description text, no JSON.';
-                var resp = await callAnthropicAPI(prompt, 'claude-haiku-4-5-20251001', 300);
-                var desc = resp.replace(/^["']|["']$/g, '').trim();
+                var resp = await callAnthropicAPI({ model: 'claude-haiku-4-5-20251001', max_tokens: 300, messages: [{ role: 'user', content: prompt }] }, null, 'wb-value-desc');
+                var desc = ((resp.content && resp.content[0] && resp.content[0].text) || (typeof resp === 'string' ? resp : '')).replace(/^["']|["']$/g, '').trim();
                 _wbw.valueDescriptions[name] = desc;
                 if (descEl) descEl.value = desc;
                 showToast('Description generated for ' + name + '.', 'success');
@@ -7218,6 +7289,7 @@
         function wbwFinish(mode) {
             var result = _wbwBuildResult();
             _jdcResult = result;
+            logAnalyticsEvent('wb_wizard_complete', { title: result.title || '', mode: mode });
             if (mode === 'json') exportWorkBlueprintJSON();
             else if (mode === 'pdf') exportWorkBlueprintPDF();
             else if (mode === 'word') exportWorkBlueprintWord();
@@ -7422,6 +7494,7 @@
                 return;
             }
             _jdcResult = convertJDToBlueprint(raw.trim());
+            logAnalyticsEvent('wb_converted', { title: _jdcResult.title || '', company: _jdcResult.company || '' });
             _jdcCompMode = 'without';
             _jdcBulkResults = [];
             _jdcBulkViewIdx = -1;
@@ -9181,7 +9254,7 @@
                     max_tokens: 1024,
                     messages: [{ role: 'user', content: 'For the role of "' + roleCtx + '", write a concise one-sentence professional description for each of these workplace values. Each description should explain what the value means in this professional context and how it manifests in day-to-day work. Return ONLY a JSON array of objects with "name" and "description" fields, no other text.\n\nValues: ' + valueNames }]
                 };
-                var resp = await callAnthropicAPI(requestBody, null, 'jdc-value-desc');
+                var resp = await callAnthropicAPI(requestBody, null, 'wb-value-desc-bulk');
                 var text = (resp.content && resp.content[0] && resp.content[0].text) || '';
                 var jsonMatch = text.match(/\[[\s\S]*\]/);
                 if (!jsonMatch) throw new Error('Could not parse AI response');
@@ -9222,7 +9295,7 @@
                     max_tokens: 256,
                     messages: [{ role: 'user', content: 'For the role of "' + roleCtx + '", write a concise one-sentence professional description for this workplace value: "' + name + '". The description should explain what it means in this professional context. Return ONLY the description text, nothing else.' }]
                 };
-                var resp = await callAnthropicAPI(requestBody, null, 'jdc-value-desc-single');
+                var resp = await callAnthropicAPI(requestBody, null, 'wb-value-desc');
                 var text = (resp.content && resp.content[0] && resp.content[0].text) || '';
                 text = text.replace(/^["'\s]+|["'\s]+$/g, '').trim();
                 if (text) {
@@ -9309,22 +9382,38 @@
                 + '</div></div>';
 
             html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px;">';
-            var fields = [
+            var textFields = [
                 { id: 'Title', val: data.title, span: 2 },
                 { id: 'Company', val: data.company },
                 { id: 'Location', val: data.location },
                 { id: 'Department', val: data.department },
-                { id: 'ReportsTo', val: data.reportsTo, label: 'Reports To' },
-                { id: 'EmploymentType', val: data.employmentType, label: 'Employment Type' },
-                { id: 'Schedule', val: data.schedule },
-                { id: 'Travel', val: data.travel },
-                { id: 'Industry', val: data.industry }
+                { id: 'ReportsTo', val: data.reportsTo, label: 'Reports To' }
             ];
-            fields.forEach(function(f) {
+            textFields.forEach(function(f) {
                 var spanStyle = f.span === 2 ? 'grid-column:1/-1;' : '';
                 html += '<div style="' + spanStyle + '"><label style="' + labelStyle + '">' + (f.label || f.id) + '</label>'
                     + '<input id="jdcEdit' + f.id + '" type="text" value="' + escapeHtml(f.val || '') + '" style="' + fieldStyle + '" /></div>';
             });
+            html += '<div><label style="' + labelStyle + '">Employment Type</label><select id="jdcEditEmploymentType" style="' + fieldStyle + '"><option value="">—</option>';
+            var etMatch = false;
+            WB_EMPLOYMENT_TYPES.forEach(function(t) { var sel = data.employmentType === t; if (sel) etMatch = true; html += '<option' + (sel ? ' selected' : '') + '>' + t + '</option>'; });
+            if (data.employmentType && !etMatch) html += '<option selected>' + escapeHtml(data.employmentType) + '</option>';
+            html += '</select></div>';
+            html += '<div><label style="' + labelStyle + '">Schedule</label><select id="jdcEditSchedule" style="' + fieldStyle + '"><option value="">—</option>';
+            var editSchMatch = false;
+            WB_SCHEDULE_OPTIONS.forEach(function(o) { var sel = data.schedule === o; if (sel) editSchMatch = true; html += '<option' + (sel ? ' selected' : '') + '>' + o + '</option>'; });
+            if (data.schedule && !editSchMatch) html += '<option selected>' + escapeHtml(data.schedule) + '</option>';
+            html += '</select></div>';
+            html += '<div><label style="' + labelStyle + '">Travel</label><select id="jdcEditTravel" style="' + fieldStyle + '"><option value="">—</option>';
+            var editTrvMatch = false;
+            WB_TRAVEL_OPTIONS.forEach(function(o) { var sel = data.travel === o; if (sel) editTrvMatch = true; html += '<option' + (sel ? ' selected' : '') + '>' + o + '</option>'; });
+            if (data.travel && !editTrvMatch) html += '<option selected>' + escapeHtml(data.travel) + '</option>';
+            html += '</select></div>';
+            html += '<div><label style="' + labelStyle + '">Industry</label><select id="jdcEditIndustry" style="' + fieldStyle + '"><option value="">—</option>';
+            var editIndMatch = false;
+            WB_INDUSTRIES.forEach(function(ind) { var sel = (data.industry || '') === ind; if (sel) editIndMatch = true; html += '<option' + (sel ? ' selected' : '') + '>' + ind + '</option>'; });
+            if (data.industry && !editIndMatch) html += '<option selected>' + escapeHtml(data.industry) + '</option>';
+            html += '</select></div>';
             html += '<div><label style="' + labelStyle + '">Seniority Level</label>'
                 + '<select id="jdcEditSeniority" style="' + fieldStyle + '">';
             ['entry', 'mid', 'senior', 'director', 'executive'].forEach(function(lvl) {
@@ -9517,6 +9606,7 @@
                 .then(function() {
                     _jdcSaving = false;
                     showToast('Work Blueprint saved.', 'success');
+                    logAnalyticsEvent(_jdcFromRepo ? 'wb_edited' : 'wb_created', { title: d.title || '', company: d.company || '' });
                     _jdcRepoCache = null;
                     _wbRepoCache = null;
                     if (_jdcFromRepo) {
@@ -9689,6 +9779,7 @@
                 fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc(id).delete()
                     .then(function() {
                         showToast('Blueprint deleted successfully.', 'success');
+                        logAnalyticsEvent('wb_deleted', { id: id });
                         _wbRepoCache = null;
                         _wbRepoViewIdx = -1;
                         renderAdminWBRepo(document.getElementById('adminTabContent'));
@@ -9720,12 +9811,15 @@
                 a.href = url; a.download = (bp.title || 'work-blueprint').replace(/[^a-zA-Z0-9]+/g, '-') + '.json';
                 document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
                 showToast('JSON exported.', 'success');
+                logAnalyticsEvent('wb_exported_json', { title: bp.title || '' });
             } else if (mode === 'pdf' && typeof exportWorkBlueprintPDF === 'function') {
                 _jdcResult = bp;
                 exportWorkBlueprintPDF();
+                logAnalyticsEvent('wb_exported_pdf', { title: bp.title || '' });
             } else if (mode === 'word' && typeof exportWorkBlueprintWord === 'function') {
                 _jdcResult = bp;
                 exportWorkBlueprintWord();
+                logAnalyticsEvent('wb_exported_word', { title: bp.title || '' });
             } else {
                 showToast('Export not available for this format.', 'warning');
             }
@@ -9808,6 +9902,7 @@
                 .then(function() {
                     _jdcSaving = false;
                     showToast('Work Blueprint saved.', 'success');
+                    logAnalyticsEvent('wb_edited', { title: d.title || '', company: d.company || '', source: 'repo_modal' });
                     wbRepoEditCancel();
                     _wbRepoCache = null;
                     renderAdminWBRepo(document.getElementById('adminTabContent'));
