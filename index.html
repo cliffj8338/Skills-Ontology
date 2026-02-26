@@ -1,4 +1,4 @@
-<!-- v4.44.62 | 2026-02-26 | Find Jobs: sort dropdown, HTML entity fix, match% default sort -->
+<!-- v4.44.63 | 2026-02-26 | Find Jobs: sort by displayed score, robust entity decode -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.62 | 2026-02-26 | Find Jobs: sort dropdown, HTML entity fix, match% default sort -->
+    <!-- v4.44.63 | 2026-02-26 | Find Jobs: sort by displayed score, robust entity decode -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.62 - BUILD 20260226-find-jobs-sort
-        var BP_VERSION = 'v4.44.62';
+        // BLUEPRINT v4.44.63 - BUILD 20260226-find-jobs-sort-fix
+        var BP_VERSION = 'v4.44.63';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1794,10 +1794,19 @@
         }
 
         function decodeHtmlEntities(str) {
-            if (!str) return '';
-            var txt = document.createElement('textarea');
-            txt.innerHTML = str;
-            return txt.value;
+            if (!str || typeof str !== 'string') return str || '';
+            var decoded = str
+                .replace(/&#(\d+);/g, function(m, code) { return String.fromCharCode(parseInt(code, 10)); })
+                .replace(/&#x([0-9a-fA-F]+);/g, function(m, code) { return String.fromCharCode(parseInt(code, 16)); })
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&quot;/g, '"')
+                .replace(/&apos;/g, "'")
+                .replace(/&ndash;/g, '\u2013')
+                .replace(/&mdash;/g, '\u2014')
+                .replace(/&nbsp;/g, ' ');
+            return decoded;
         }
 
         // Safe avatar image setter — uses DOM API to avoid innerHTML/template literal context bugs
@@ -2059,7 +2068,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-find-jobs-sort              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-find-jobs-sort-fix          ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -26188,14 +26197,20 @@ body {
         }
         window.setJobsSort = setJobsSort;
 
-        function sortJobResults(jobs) {
+        function getJobDisplayScore(job, pipelineScores) {
+            if (!pipelineScores) return job.matchScore;
+            var key = (job.title + '-' + (job.company || '')).toLowerCase();
+            return (pipelineScores[key] != null) ? pipelineScores[key] : job.matchScore;
+        }
+
+        function sortJobResults(jobs, pipelineScores) {
             var sorted = jobs.slice();
             switch (jobsSortOrder) {
                 case 'match-desc':
-                    sorted.sort(function(a, b) { return b.matchScore - a.matchScore; });
+                    sorted.sort(function(a, b) { return getJobDisplayScore(b, pipelineScores) - getJobDisplayScore(a, pipelineScores); });
                     break;
                 case 'match-asc':
-                    sorted.sort(function(a, b) { return a.matchScore - b.matchScore; });
+                    sorted.sort(function(a, b) { return getJobDisplayScore(a, pipelineScores) - getJobDisplayScore(b, pipelineScores); });
                     break;
                 case 'title-asc':
                     sorted.sort(function(a, b) { return (a.title || '').localeCompare(b.title || ''); });
@@ -26207,7 +26222,7 @@ body {
                     sorted.sort(function(a, b) { return (a.company || '').localeCompare(b.company || ''); });
                     break;
                 default:
-                    sorted.sort(function(a, b) { return b.matchScore - a.matchScore; });
+                    sorted.sort(function(a, b) { return getJobDisplayScore(b, pipelineScores) - getJobDisplayScore(a, pipelineScores); });
             }
             return sorted;
         }
@@ -26225,7 +26240,15 @@ body {
                 return;
             }
             
-            filtered = sortJobResults(filtered);
+            var pipelineIds = {};
+            var pipelineScores = {};
+            (userData.savedJobs || []).forEach(function(j) {
+                var key = (j.title + '-' + (j.company || '')).toLowerCase();
+                pipelineIds[key] = true;
+                if (j.matchData && j.matchData.score) pipelineScores[key] = j.matchData.score;
+            });
+            
+            filtered = sortJobResults(filtered, pipelineScores);
             
             var pageSize = window._jobsPageSize || 100;
             var showing = filtered.slice(0, pageSize);
@@ -26246,15 +26269,6 @@ body {
                 + '<option value="location-asc"' + (jobsSortOrder === 'location-asc' ? ' selected' : '') + '>Location A\u2013Z</option>'
                 + '</select>'
                 + '</div>';
-            
-            // Pipeline IDs for dedup check + score lookup
-            var pipelineIds = {};
-            var pipelineScores = {};
-            (userData.savedJobs || []).forEach(function(j) {
-                var key = (j.title + '-' + (j.company || '')).toLowerCase();
-                pipelineIds[key] = true;
-                if (j.matchData && j.matchData.score) pipelineScores[key] = j.matchData.score;
-            });
             
             html += '<div style="display:flex; flex-direction:column; gap:12px;">';
             
