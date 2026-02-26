@@ -8995,7 +8995,7 @@
                     + '<div style="flex:1; min-width:0;">'
                     + '<div style="font-weight:600; font-size:0.95em; color:var(--c-heading-bold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(bp.title || 'Untitled') + '</div>'
                     + '<div style="font-size:0.8em; color:var(--c-muted); margin-top:3px;">' + escapeHtml(bp.company || '') + (bp.location ? ' \u00B7 ' + escapeHtml(bp.location) : '') + ' \u00B7 ' + (bp.skills ? bp.skills.length : 0) + ' skills' + (savedDate ? ' \u00B7 ' + savedDate : '') + '</div></div>'
-                    + '<button onclick="event.stopPropagation(); wbRepoDelete(' + JSON.stringify(bp.id) + ')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:4px 8px; font-size:0.85em; opacity:0.6;" title="Delete">' + bpIcon('trash',16) + '</button>'
+                    + '<button onclick="event.stopPropagation(); wbRepoDelete(' + JSON.stringify(bp.id) + ')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:6px 10px; font-size:0.85em; opacity:0.8; border-radius:6px; transition:opacity 0.15s, background 0.15s;" onmouseover="this.style.opacity=\'1\'; this.style.background=\'rgba(239,68,68,0.1)\';" onmouseout="this.style.opacity=\'0.8\'; this.style.background=\'none\';" title="Delete">' + bpIcon('trash',16) + '</button>'
                     + '</div>';
             });
             html += '</div>';
@@ -9007,6 +9007,7 @@
                     + '<button onclick="wbRepoExport(\'pdf\')" style="padding:8px 16px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('download',14) + ' Export PDF</button>'
                     + '<button onclick="wbRepoExport(\'word\')" style="padding:8px 16px; background:#2563eb; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('download',14) + ' Export Word</button>'
                     + '<button onclick="wbRepoLoadInConverter(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('edit',14) + ' Edit in Converter</button>'
+                    + '<button onclick="wbRepoDelete(' + JSON.stringify(viewBp.id) + ')" style="padding:8px 16px; background:none; color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('trash',14) + ' Delete</button>'
                     + '</div>';
                 html += renderWorkBlueprint(viewBp, false, { hideButtons: true });
             }
@@ -9042,16 +9043,22 @@
         window.wbRepoView = wbRepoView;
 
         function wbRepoDelete(id) {
-            if (!fbUser || !id) return;
-            if (!confirm('Delete this Work Blueprint from your repository?')) return;
+            if (!fbUser) { showToast('You must be signed in to delete blueprints.', 'warning'); return; }
+            if (!id) { showToast('Blueprint ID missing — cannot delete.', 'error'); return; }
+            if (!fbDb) { showToast('Database not available. Try refreshing.', 'error'); return; }
+            if (!confirm('Delete this Work Blueprint from your repository? This cannot be undone.')) return;
+            showToast('Deleting blueprint...', 'info', 2000);
             fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc(id).delete()
                 .then(function() {
-                    showToast('Blueprint deleted.', 'info');
+                    showToast('Blueprint deleted successfully.', 'success');
                     _wbRepoCache = null;
                     _wbRepoViewIdx = -1;
                     renderAdminWBRepo(document.getElementById('adminTabContent'));
                 })
-                .catch(function(err) { showToast('Delete failed: ' + err.message, 'error'); });
+                .catch(function(err) {
+                    console.error('WB Repository delete error:', err);
+                    showToast('Delete failed: ' + (err.message || 'Unknown error. Check your connection.'), 'error', 6000);
+                });
         }
         window.wbRepoDelete = wbRepoDelete;
 
