@@ -1,4 +1,4 @@
-<!-- v4.44.77 | 2026-02-26 | Fix delete onclick quoting bug, stability -->
+<!-- v4.44.78 | 2026-02-26 | JD skills priority + explicit values parsing + delete fix -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.77 | 2026-02-26 | Fix delete onclick quoting bug -->
+    <!-- v4.44.78 | 2026-02-26 | JD skills priority + explicit values parsing -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.77 - BUILD 20260226-delete-onclick-fix
-        var BP_VERSION = 'v4.44.77';
+        // BLUEPRINT v4.44.78 - BUILD 20260226-jdc-skills-values
+        var BP_VERSION = 'v4.44.78';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2068,7 +2068,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-delete-onclick-fix  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-jdc-skills-values   ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -7450,6 +7450,9 @@
 
             var seen = {};
             var merged = [];
+            var jdSkillKeys = {};
+            jdSkills.forEach(function(s) { jdSkillKeys[s.name.toLowerCase().trim()] = true; });
+
             onetSkills.forEach(function(s) {
                 var key = s.name.toLowerCase().trim();
                 if (!seen[key]) {
@@ -7473,7 +7476,22 @@
             });
 
             merged.sort(function(a, b) { return b.importance - a.importance; });
-            var skills = merged.slice(0, 18);
+            var jdOnly = merged.filter(function(s) { return s.source === 'jd'; });
+            var onetOnly = merged.filter(function(s) { return s.source !== 'jd'; });
+            var skills = [];
+            var skillSeen = {};
+            jdOnly.forEach(function(s) {
+                if (skills.length < 18 && !skillSeen[s.name.toLowerCase()]) {
+                    skillSeen[s.name.toLowerCase()] = true;
+                    skills.push(s);
+                }
+            });
+            onetOnly.forEach(function(s) {
+                if (skills.length < 18 && !skillSeen[s.name.toLowerCase()]) {
+                    skillSeen[s.name.toLowerCase()] = true;
+                    skills.push(s);
+                }
+            });
 
             skills.forEach(function(s) {
                 s.blueprintLevel = _jdcInferProficiency(s.name, jdText, seniority);
@@ -7988,17 +8006,25 @@
         function _jdcInferValues(jdText) {
             var text = jdText.toLowerCase();
             var values = [];
+
+            var explicitValues = _jdcExtractExplicitValues(jdText);
+            if (explicitValues.length > 0) {
+                return explicitValues.slice(0, 6);
+            }
+
             var valuePatterns = [
-                { name: 'Integrity', desc: 'Upholds rigorous standards and ethical decision-making', patterns: /\b(integrity|ethic|trust|honest|transparent|compliance|governance)\b/, weight: 2 },
-                { name: 'Curiosity', desc: 'Digs beneath surface data to uncover patterns and root causes', patterns: /\b(curious|curios|innovate|innovation|creative|research|discover|explore|investigate|experiment)\b/, weight: 2 },
+                { name: 'Integrity', desc: 'Upholds rigorous standards and ethical decision-making', patterns: /\b(integrity|integrit|ethic|trust|honest|transparent|compliance|governance)\b/, weight: 2 },
+                { name: 'Curiosity', desc: 'Digs beneath surface data to uncover patterns and root causes', patterns: /\b(curiosity|curious|innovate|innovation|creative|research|discover|explore|investigate|experiment)\b/, weight: 2 },
                 { name: 'Collaborative Impact', desc: 'Works across functions to drive outcomes as a team', patterns: /\b(collaborat|cross.?function|partner|stakeholder|together|teamwork|interdisciplin)\b/, weight: 2 },
-                { name: 'Accountability', desc: 'Owns work through to resolution and supports outcomes', patterns: /\b(accountab|ownership|responsible|reliable|results.?driven|outcome.?orient|deliver.?results)\b/, weight: 2 },
+                { name: 'Accountability', desc: 'Owns work through to resolution and supports outcomes', patterns: /\b(accountab|accountability|ownership|responsible|responsibility|reliable|results.?driven|outcome.?orient|deliver.?results)\b/, weight: 2 },
                 { name: 'Resilience', desc: 'Navigates ambiguous, adversarial, and regulated environments', patterns: /\b(resilien|fast.?paced|ambiguit|high.?pressure|dynamic\s+environment|uncertainty|pivoting)\b/, weight: 2 },
                 { name: 'Strategic Insight', desc: 'Converts findings into program-level recommendations', patterns: /\b(strateg|vision|long.?term|roadmap|thought\s+leader|foresight)\b/, weight: 2 },
                 { name: 'Continuous Growth', desc: 'Actively develops skills and stays current with the field', patterns: /\b(continuous.?(?:learn|improv)|professional\s+develop|certif|upskill|growth\s+mindset|stay\s+current)\b/, weight: 2 },
                 { name: 'Precision', desc: 'Executes with attention to detail and quality standards', patterns: /\b(attention\s+to\s+detail|precision|quality\s+(?:assurance|standard|control)|meticulous|accurate|rigor)\b/, weight: 2 },
                 { name: 'Empathy', desc: 'Understands and responds to the needs of others with care', patterns: /\b(empathy|empathetic|compassion|patient[\-\s](?:care|cent)|human[\-\s]center|inclusion|belonging|equity|accessibility)\b/, weight: 2 },
-                { name: 'Autonomy', desc: 'Operates independently with sound judgment', patterns: /\b(independent|autonomy|self.?directed|initiative|proactive|self.?starter|self.?motivated|minimal\s+supervision)\b/, weight: 2 }
+                { name: 'Autonomy', desc: 'Operates independently with sound judgment', patterns: /\b(independent|autonomy|self.?directed|initiative|proactive|self.?starter|self.?motivated|minimal\s+supervision)\b/, weight: 2 },
+                { name: 'Responsibility', desc: 'Takes ownership of duties and follows through reliably', patterns: /\b(responsibility|responsible|dependable|duty|duties|stewardship|conscientiou)\b/, weight: 2 },
+                { name: 'Creativity', desc: 'Generates novel solutions and approaches to challenges', patterns: /\b(creativity|creative|imaginat|inventive|originality|ideation|design\s+thinking)\b/, weight: 2 }
             ];
             valuePatterns.forEach(function(v) {
                 var matches = (text.match(v.patterns) || []).length;
@@ -8016,6 +8042,83 @@
                 });
             }
             return values.slice(0, 6).map(function(v) { return { name: v.name, desc: v.desc }; });
+        }
+
+        function _jdcExtractExplicitValues(jdText) {
+            var lines = jdText.split('\n');
+            var inValuesSection = false;
+            var explicitValues = [];
+            var valueDescriptions = {
+                'integrity': { name: 'Integrity', desc: 'Upholds rigorous standards and ethical decision-making' },
+                'curiosity': { name: 'Curiosity', desc: 'Digs beneath surface data to uncover patterns and root causes' },
+                'responsibility': { name: 'Responsibility', desc: 'Takes ownership of duties and follows through reliably' },
+                'creativity': { name: 'Creativity', desc: 'Generates novel solutions and approaches to challenges' },
+                'accountability': { name: 'Accountability', desc: 'Owns work through to resolution and supports outcomes' },
+                'collaboration': { name: 'Collaborative Impact', desc: 'Works across functions to drive outcomes as a team' },
+                'innovation': { name: 'Innovation', desc: 'Pursues new ideas and approaches to drive progress' },
+                'excellence': { name: 'Excellence', desc: 'Strives for the highest quality in all work' },
+                'respect': { name: 'Respect', desc: 'Values diverse perspectives and treats others with dignity' },
+                'transparency': { name: 'Transparency', desc: 'Communicates openly and honestly with stakeholders' },
+                'empathy': { name: 'Empathy', desc: 'Understands and responds to the needs of others with care' },
+                'resilience': { name: 'Resilience', desc: 'Navigates ambiguous, adversarial, and regulated environments' },
+                'trust': { name: 'Trust', desc: 'Builds reliable relationships through consistent actions' },
+                'diversity': { name: 'Diversity', desc: 'Champions inclusive practices and diverse perspectives' },
+                'passion': { name: 'Passion', desc: 'Brings enthusiasm and energy to meaningful work' },
+                'agility': { name: 'Agility', desc: 'Adapts quickly to changing conditions and requirements' },
+                'honesty': { name: 'Honesty', desc: 'Communicates truthfully and acts with sincerity' },
+                'teamwork': { name: 'Teamwork', desc: 'Works effectively with others to achieve shared goals' },
+                'ownership': { name: 'Ownership', desc: 'Takes full responsibility for outcomes and deliverables' },
+                'growth': { name: 'Growth', desc: 'Actively seeks development and continuous improvement' }
+            };
+            var fuzzyMap = {
+                'instesirty': 'integrity', 'integirty': 'integrity', 'intergity': 'integrity', 'integrtiy': 'integrity',
+                'responsibilty': 'responsibility', 'responsiblity': 'responsibility',
+                'creativty': 'creativity', 'cretivity': 'creativity',
+                'accountabilty': 'accountability', 'accountablity': 'accountability',
+                'transparancy': 'transparency', 'transpareny': 'transparency',
+                'collaboartion': 'collaboration', 'colaboration': 'collaboration',
+                'excellance': 'excellence', 'excelence': 'excellence'
+            };
+            for (var i = 0; i < lines.length; i++) {
+                var stripped = lines[i].trim();
+                if (/^values?\s*[:]/i.test(stripped)) {
+                    inValuesSection = true;
+                    var afterColon = stripped.replace(/^values?\s*[:]\s*/i, '').trim();
+                    if (afterColon.length > 2) {
+                        afterColon.split(/[,;\n]/).forEach(function(v) {
+                            var val = v.trim().toLowerCase().replace(/[^a-z\s]/g, '').trim();
+                            if (val && val.length >= 3) {
+                                var mapped = fuzzyMap[val] || val;
+                                var entry = valueDescriptions[mapped];
+                                if (entry) {
+                                    explicitValues.push({ name: entry.name, desc: entry.desc });
+                                } else {
+                                    explicitValues.push({ name: val.charAt(0).toUpperCase() + val.slice(1), desc: 'Core organizational value' });
+                                }
+                            }
+                        });
+                    }
+                    continue;
+                }
+                if (inValuesSection) {
+                    if (!stripped || /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s*:/.test(stripped) || /^(?:education|qualification|requirement|experience|responsibilit|key\s+skill|compensation|benefit)/i.test(stripped)) {
+                        inValuesSection = false;
+                        continue;
+                    }
+                    var valLine = stripped.replace(/^[\u2022\u2023\u25E6\u25AA\u25CF\u00B7\-\*\>●]\s*/, '').replace(/^\d+[\.\)]\s*/, '').trim();
+                    if (valLine.length >= 3 && valLine.length <= 60) {
+                        var valKey = valLine.toLowerCase().replace(/[^a-z\s]/g, '').trim();
+                        var mappedKey = fuzzyMap[valKey] || valKey;
+                        var valEntry = valueDescriptions[mappedKey];
+                        if (valEntry) {
+                            explicitValues.push({ name: valEntry.name, desc: valEntry.desc });
+                        } else if (valKey.length >= 3) {
+                            explicitValues.push({ name: valLine.charAt(0).toUpperCase() + valLine.slice(1).toLowerCase(), desc: 'Core organizational value' });
+                        }
+                    }
+                }
+            }
+            return explicitValues;
         }
 
         function _jdcGenerateSummary(title, company, topSkills, seniority, jdText) {
