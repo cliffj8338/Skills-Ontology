@@ -1,4 +1,4 @@
-<!-- v4.44.58 | 2026-02-26 | Admin: sidebar nav with grouped categories replacing 10-tab horizontal bar -->
+<!-- v4.44.59 | 2026-02-26 | UX: Skills→Map rename, Samples→overflow, Blueprint tab reorder -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.58 | 2026-02-26 | Admin: sidebar nav with grouped categories replacing 10-tab horizontal bar -->
+    <!-- v4.44.59 | 2026-02-26 | UX: Skills→Map rename, Samples→overflow, Blueprint tab reorder -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -657,7 +657,7 @@
         <!-- Center: Primary navigation -->
         <div class="header-center" id="mainNav" role="navigation" aria-label="Main navigation">
             <button class="nav-btn active" id="nav-skills" onclick="switchView('skills', event)">
-                <span class="nav-icon" data-icon="skills"></span> Skills</button>
+                <span class="nav-icon" data-icon="skills"></span> Map</button>
             <button class="nav-btn" id="nav-jobs" onclick="switchView('jobs', event)">
                 <span class="nav-icon" data-icon="jobs"></span> Jobs</button>
             <button class="nav-btn" id="nav-blueprint" onclick="switchView('blueprint', event)">
@@ -666,8 +666,6 @@
                 <span class="nav-icon" data-icon="reports"></span> Reports</button>
             <button class="nav-btn" id="nav-settings" onclick="switchView('settings', event)">
                 <span class="nav-icon" data-icon="settings"></span> Settings</button>
-            <button class="nav-btn" id="nav-samples" onclick="viewSampleProfile(); if(event) event.stopPropagation();">
-                <span class="nav-icon" data-icon="users"></span> Samples</button>
         </div>
 
         <!-- Right: theme toggle + profile switcher + more -->
@@ -810,7 +808,7 @@
         <div id="welcomeView" style="display:none;"></div>
         <div id="skillsPageHeader" style="display:none; max-width:1200px; margin:0 auto; padding:20px 24px 0;">
             <div class="page-header">
-                <h2 class="page-title">Skills</h2>
+                <h2 class="page-title">Map</h2>
                 <p class="page-subtitle">Your professional capabilities mapped as a living network.</p>
             </div>
         </div>
@@ -834,7 +832,7 @@
     <!-- Mobile bottom nav (hidden on desktop via CSS) -->
     <div class="mobile-nav" id="mobileNav" role="navigation" aria-label="Mobile navigation" style="display:none;">
         <button class="mobile-nav-btn active" id="mob-skills" onclick="switchView('skills',event)">
-            <span class="mobile-nav-icon" data-icon="skills"></span>Skills
+            <span class="mobile-nav-icon" data-icon="skills"></span>Map
         </button>
         <button class="mobile-nav-btn" id="mob-jobs" onclick="switchView('jobs',event)">
             <span class="mobile-nav-icon" data-icon="jobs"></span>Jobs
@@ -1500,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.58 - BUILD 20260226-admin-sidebar
-        var BP_VERSION = 'v4.44.58';
+        // BLUEPRINT v4.44.59 - BUILD 20260226-ux-nav-cleanup
+        var BP_VERSION = 'v4.44.59';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2054,7 +2052,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-admin-sidebar               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-ux-nav-cleanup              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -3456,7 +3454,7 @@
             html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">';
             
             // Views by section
-            var viewLabels = { network:'Skills', card:'Card View', opportunities:'Jobs', blueprint:'Blueprint', reports:'Reports', settings:'Settings', welcome:'Welcome', admin:'Admin' };
+            var viewLabels = { network:'Map', card:'Card View', opportunities:'Jobs', blueprint:'Blueprint', reports:'Reports', settings:'Settings', welcome:'Welcome', admin:'Admin' };
             var viewColors = { network:'#60a5fa', card:'#818cf8', opportunities:'#f59e0b', blueprint:'#10b981', reports:'#ec4899', settings:'#6b7280', welcome:'#a78bfa', admin:'#fbbf24' };
             var sortedViews = Object.entries(s.viewCounts).sort(function(a,b){return b[1]-a[1];});
             var maxView = sortedViews.length > 0 ? sortedViews[0][1] : 1;
@@ -8142,10 +8140,8 @@
             window._welcomePickerActive = true;
             switchView('welcome');
             
-            // Highlight Samples nav
             document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
-            var samplesBtn = document.getElementById('nav-samples');
-            if (samplesBtn) samplesBtn.classList.add('active');
+            document.querySelectorAll('.mobile-nav-btn').forEach(function(b) { b.classList.remove('active'); });
             
             // Show first collection
             selectShowCollection(collections[0].id);
@@ -15620,7 +15616,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             window.scrollTo(0, 0);
             
             // Announce view change to screen readers
-            var viewNames = { network: 'Skills', opportunities: 'Jobs', blueprint: 'Blueprint', reports: 'Reports', settings: 'Settings', consent: 'Settings', welcome: 'Home', admin: 'Admin' };
+            var viewNames = { network: 'Map', opportunities: 'Jobs', blueprint: 'Blueprint', reports: 'Reports', settings: 'Settings', consent: 'Settings', welcome: 'Home', admin: 'Admin' };
             var srEl = document.getElementById('srAnnounce');
             if (srEl) srEl.textContent = (viewNames[view] || view) + ' view';
             
@@ -17895,24 +17891,24 @@ body {
                             <span class="bp-tab-icon">${bpIcon('blueprint',16)}</span>
                             <span class="bp-tab-label">Dashboard</span>
                         </button>
+                        <button class="bp-tab ${blueprintTab === 'experience' ? 'active' : ''}" onclick="switchBlueprintTab('experience')">
+                            <span class="bp-tab-icon">${bpIcon('experience',16)}</span>
+                            <span class="bp-tab-label">Experience</span>
+                        </button>
                         <button class="bp-tab ${blueprintTab === 'skills' ? 'active' : ''}" onclick="switchBlueprintTab('skills')">
                             <span class="bp-tab-icon">${bpIcon('skills',16)}</span>
                             <span class="bp-tab-label">Skills</span>
                             <span class="bp-tab-count">${skillCount}</span>
                         </button>
-                        <button class="bp-tab ${blueprintTab === 'verifications' ? 'active' : ''}" onclick="switchBlueprintTab('verifications')">
-                            <span class="bp-tab-icon">${bpIcon('shield',16)}</span>
-                            <span class="bp-tab-label">Verify</span>
-                            <span class="bp-tab-count">${(userData.verifications || []).filter(v => v.status === 'confirmed').length}</span>
-                        </button>
-                        <button class="bp-tab ${blueprintTab === 'experience' ? 'active' : ''}" onclick="switchBlueprintTab('experience')">
-                            <span class="bp-tab-icon">${bpIcon('experience',16)}</span>
-                            <span class="bp-tab-label">Experience</span>
-                        </button>
                         <button class="bp-tab ${blueprintTab === 'outcomes' ? 'active' : ''}" onclick="switchBlueprintTab('outcomes')">
                             <span class="bp-tab-icon">${bpIcon('outcomes',16)}</span>
                             <span class="bp-tab-label">Outcomes</span>
                             <span class="bp-tab-count">${outcomesCount}</span>
+                        </button>
+                        <button class="bp-tab ${blueprintTab === 'verifications' ? 'active' : ''}" onclick="switchBlueprintTab('verifications')">
+                            <span class="bp-tab-icon">${bpIcon('shield',16)}</span>
+                            <span class="bp-tab-label">Verify</span>
+                            <span class="bp-tab-count">${(userData.verifications || []).filter(v => v.status === 'confirmed').length}</span>
                         </button>
                         <button class="bp-tab ${blueprintTab === 'values' ? 'active' : ''}" onclick="switchBlueprintTab('values')">
                             <span class="bp-tab-icon">${bpIcon('values',16)}</span>
@@ -33138,23 +33134,23 @@ body {
                     {
                         title: 'Your Skills, Fully Mapped',
                         desc: 'Built on <strong>ESCO</strong> and <strong>O*NET</strong> taxonomies. Each node is a skill \u2014 <strong>size</strong> = proficiency, <strong>color</strong> = role cluster.' + (skillCount > 0 ? ' This profile: <strong>' + skillCount + '</strong> mapped.' : ''),
-                        badge: 'Skills', target: '#controlsBar', spotlightPad: 6,
+                        badge: 'Map', target: '#controlsBar', spotlightPad: 6,
                         beforeShow: function() { switchView('skills'); }, delay: 600
                     },
                     {
                         title: 'Evidence, Not Buzzwords',
                         desc: 'Tap any node for proficiency level, evidence from your career, and role assignment. This is proof of capability. Drag to rearrange.',
-                        badge: 'Skills', target: null
+                        badge: 'Map', target: null
                     },
                     {
                         title: 'Network vs. Card View',
                         desc: '<strong>Network</strong> reveals relationships and clusters. <strong>Card</strong> gives you a sortable list with proficiency badges.',
-                        badge: 'Skills', target: '#skillsViewToggle', spotlightPad: 4
+                        badge: 'Map', target: '#skillsViewToggle', spotlightPad: 4
                     },
                     {
                         title: 'Overlay Modes: The X-Ray',
                         desc: 'Select a job from the Pipeline and four overlay modes appear: <strong>You</strong> \u00B7 <strong>Job</strong> \u00B7 <strong>Match</strong> \u00B7 <strong>Values</strong> \u2014 see exactly how you stack up against any role.',
-                        badge: 'Skills', target: '#matchModeToggle', spotlightPad: 6
+                        badge: 'Map', target: '#matchModeToggle', spotlightPad: 6
                     }
                 ];
             }
