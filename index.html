@@ -1,4 +1,4 @@
-<!-- v4.44.66 | 2026-02-26 | Pipeline preserves Find Jobs quickScore on add -->
+<!-- v4.44.67 | 2026-02-26 | Unified quickScore across Pipeline, rescore, and Find Jobs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.66 | 2026-02-26 | Pipeline preserves Find Jobs quickScore on add -->
+    <!-- v4.44.67 | 2026-02-26 | Unified quickScore across Pipeline, rescore, and Find Jobs -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.66 - BUILD 20260226-stable-pipeline-scores
-        var BP_VERSION = 'v4.44.66';
+        // BLUEPRINT v4.44.67 - BUILD 20260226-unified-quickscore
+        var BP_VERSION = 'v4.44.67';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2068,7 +2068,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-stable-pipeline-scores      ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-unified-quickscore           ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -25632,9 +25632,16 @@ body {
             
             var updated = 0;
             userData.savedJobs.forEach(function(job) {
-                if (!job.parsedSkills || job.parsedSkills.length === 0) return;
                 var oldScore = job.matchData ? job.matchData.score : 0;
-                job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles || [] });
+                if (job.parsedSkills && job.parsedSkills.length > 0) {
+                    job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles || [] });
+                }
+                var quick = quickScoreJob(job.title, job.rawText || '', job.parsedSkills || []);
+                if (job.matchData) {
+                    job.matchData.score = quick.score;
+                } else {
+                    job.matchData = { score: quick.score, matched: quick.matched, gaps: quick.gaps, surplus: [] };
+                }
                 if (!job.companyValues) job.companyValues = getCompanyValues(job.company, job.rawText || job.description || "");
                 if (job.matchData.score !== oldScore) updated++;
             });
@@ -25649,12 +25656,20 @@ body {
         
         function rescoreOneJob(idx) {
             var job = (userData.savedJobs || [])[idx];
-            if (!job || !job.parsedSkills || job.parsedSkills.length === 0) {
-                showToast('No parsed skills for this job. Try Re-analyze instead.', 'warning');
+            if (!job) {
+                showToast('Job not found.', 'warning');
                 return;
             }
             var oldScore = job.matchData ? job.matchData.score : 0;
-            job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles || [] });
+            if (job.parsedSkills && job.parsedSkills.length > 0) {
+                job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles || [] });
+            }
+            var quick = quickScoreJob(job.title, job.rawText || '', job.parsedSkills || []);
+            if (job.matchData) {
+                job.matchData.score = quick.score;
+            } else {
+                job.matchData = { score: quick.score, matched: quick.matched, gaps: quick.gaps, surplus: [] };
+            }
             if (!job.companyValues) job.companyValues = getCompanyValues(job.company, job.rawText || job.description || "");
             saveUserData();
             if (fbUser) debouncedSave();
