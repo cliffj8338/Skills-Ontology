@@ -1,4 +1,4 @@
-<!-- v4.44.57 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
+<!-- v4.44.58 | 2026-02-26 | Admin: sidebar nav with grouped categories replacing 10-tab horizontal bar -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.57 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
+    <!-- v4.44.58 | 2026-02-26 | Admin: sidebar nav with grouped categories replacing 10-tab horizontal bar -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -569,6 +569,19 @@
             .teaser-btn-primary, .teaser-btn-ghost { width: 100%; text-align: center; }
             .teaser-promise { padding: 14px 20px; }
             .teaser-backstory { padding: 0 20px 20px; }
+        }
+        @media (max-width: 900px) {
+            #adminLayout { flex-direction: column !important; }
+            #adminSidebar {
+                width: 100% !important;
+                position: static !important;
+                flex-direction: row !important;
+                flex-wrap: wrap !important;
+                gap: 2px !important;
+                padding: 6px !important;
+            }
+            #adminSidebar .admin-tab { flex: 0 0 auto !important; width: auto !important; padding: 7px 12px !important; font-size: 0.78em !important; }
+            #adminSidebar .admin-group-label { display: none !important; }
         }
 
 </style>
@@ -1487,8 +1500,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.57 - BUILD 20260226-jd-converter
-        var BP_VERSION = 'v4.44.57';
+        // BLUEPRINT v4.44.58 - BUILD 20260226-admin-sidebar
+        var BP_VERSION = 'v4.44.58';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2041,7 +2054,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-jd-converter               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-admin-sidebar               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -3071,45 +3084,66 @@
         function switchAdminTab(tab) {
             adminSubTab = tab;
             renderAdminTabContent();
-            // Update tab active states
             document.querySelectorAll('.admin-tab').forEach(function(t) {
                 var isActive = t.dataset.tab === tab;
                 t.style.background = isActive ? 'var(--accent)' : 'transparent';
                 t.style.color = isActive ? '#fff' : 'var(--text-secondary)';
+                t.style.fontWeight = isActive ? '700' : '500';
             });
         }
         window.switchAdminTab = switchAdminTab;
         
+        function _adminSidebarBtn(tab, icon, label) {
+            var isActive = (adminSubTab || 'overview') === tab;
+            return '<button class="admin-tab" data-tab="' + tab + '" onclick="switchAdminTab(\'' + tab + '\')" style="'
+                + 'display:flex; align-items:center; gap:8px; width:100%; padding:9px 14px; border:none; border-radius:8px;'
+                + ' cursor:pointer; font-weight:' + (isActive ? '700' : '500') + '; font-size:0.84em; white-space:nowrap;'
+                + ' background:' + (isActive ? 'var(--accent)' : 'transparent') + ';'
+                + ' color:' + (isActive ? '#fff' : 'var(--text-secondary)') + '; transition:all 0.15s; text-align:left;"'
+                + ' onmouseover="if(this.dataset.tab!==adminSubTab){this.style.background=\'var(--c-surface-5)\';}"'
+                + ' onmouseout="if(this.dataset.tab!==adminSubTab){this.style.background=\'transparent\';}"'
+                + '>' + bpIcon(icon, 14) + ' ' + label + '</button>';
+        }
+
+        function _adminSidebarGroup(title) {
+            return '<div class="admin-group-label" style="font-size:0.68em; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-muted); padding:16px 14px 6px; font-weight:600;">' + title + '</div>';
+        }
+
         function initAdminView() {
             var view = document.getElementById('adminView');
             if (!view) return;
             
             var authName = showcaseMode ? (userData.profile.name || 'Showcase Admin') : (fbUser ? (fbUser.displayName || fbUser.email) : 'Admin');
             
-            view.innerHTML = '<div style="max-width:1200px; margin:0 auto; padding:32px 24px 80px;">'
-                // Header
-                + '<div style="text-align:center; margin-bottom:32px;">'
-                + '<h1 style="font-family:Outfit,sans-serif; font-size:2em; font-weight:700; color:#fbbf24; letter-spacing:0.1em; text-transform:uppercase; margin:0;">'
-                + '<span style="display:inline-block; vertical-align:middle; margin-right:8px;">' + bpIcon('shield', 28) + '</span> Admin Dashboard</h1>'
-                + '<p style="color:var(--text-muted); margin-top:6px;">Signed in as <strong style="color:var(--text-primary);">' + authName + '</strong></p>'
+            view.innerHTML = '<div style="max-width:1400px; margin:0 auto; padding:24px 24px 80px;">'
+                + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">'
+                + '<h1 style="font-family:Outfit,sans-serif; font-size:1.6em; font-weight:700; color:#fbbf24; letter-spacing:0.08em; text-transform:uppercase; margin:0;">'
+                + bpIcon('shield', 24) + ' Admin</h1>'
+                + '<span style="font-size:0.82em; color:var(--text-muted);">' + escapeHtml(authName) + '</span>'
                 + '</div>'
-                
-                // Tabs
-                + '<div style="display:flex; gap:2px; margin-bottom:24px; background:var(--c-surface-3a); border-radius:10px; padding:4px; flex-wrap:wrap;">'
-                + '<button class="admin-tab active" data-tab="overview" onclick="switchAdminTab(\'overview\')" style="flex:1; min-width:80px; padding:10px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap; background:var(--accent); color:#fff; transition:all 0.2s;">' + bpIcon('blueprint',14) + ' Overview</button>'
-                + '<button class="admin-tab" data-tab="users" onclick="switchAdminTab(\'users\')" style="flex:1; min-width:80px; padding:10px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('users',14) + ' Users</button>'
-                + '<button class="admin-tab" data-tab="samples" onclick="switchAdminTab(\'samples\')" style="flex:1; min-width:80px; padding:10px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('skills',14) + ' Samples</button>'
-                + '<button class="admin-tab" data-tab="waitlist" onclick="switchAdminTab(\'waitlist\')" style="flex:1; min-width:80px; padding:10px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('target',14) + ' Waitlist</button>'
-                + '<button class="admin-tab" data-tab="config" onclick="switchAdminTab(\'config\')" style="flex:1; min-width:80px; padding:10px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('settings',14) + ' Config</button>'
-                + '<button class="admin-tab" data-tab="roadmap" onclick="switchAdminTab(\'roadmap\')" style="flex:1; min-width:80px; padding:10px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('target',14) + ' Roadmap</button>'
-                + '<button class="admin-tab" data-tab="costs" onclick="switchAdminTab(\'costs\')" style="flex:1; min-width:80px; padding:10px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('skills',14) + ' Costs</button>'
-                + '<button class="admin-tab" data-tab="status" onclick="switchAdminTab(\'status\')" style="flex:1; min-width:80px; padding:10px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('shield',14) + ' Status</button>'
-                + '<button class="admin-tab" data-tab="architecture" onclick="switchAdminTab(\'architecture\')" style="flex:1; min-width:80px; padding:10px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('compass',14) + ' Architecture</button>'
-                + '<button class="admin-tab" data-tab="jdconverter" onclick="switchAdminTab(\'jdconverter\')" style="flex:1; min-width:80px; padding:10px 12px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap; background:transparent; color:var(--text-secondary); transition:all 0.2s;">' + bpIcon('wand',14) + ' JD Converter</button>'
+
+                + '<div id="adminLayout" style="display:flex; gap:24px; align-items:flex-start;">'
+
+                + '<nav id="adminSidebar" style="width:200px; flex-shrink:0; position:sticky; top:80px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:8px 6px; display:flex; flex-direction:column; gap:1px;">'
+                + _adminSidebarGroup('Operations')
+                + _adminSidebarBtn('overview', 'blueprint', 'Overview')
+                + _adminSidebarBtn('users', 'users', 'Users')
+                + _adminSidebarBtn('waitlist', 'target', 'Waitlist')
+                + _adminSidebarGroup('Content')
+                + _adminSidebarBtn('samples', 'skills', 'Samples')
+                + _adminSidebarBtn('jdconverter', 'wand', 'JD Converter')
+                + _adminSidebarGroup('System')
+                + _adminSidebarBtn('config', 'settings', 'Config')
+                + _adminSidebarBtn('status', 'shield', 'Status')
+                + _adminSidebarBtn('architecture', 'compass', 'Architecture')
+                + _adminSidebarGroup('Planning')
+                + _adminSidebarBtn('roadmap', 'target', 'Roadmap')
+                + _adminSidebarBtn('costs', 'skills', 'Costs')
+                + '</nav>'
+
+                + '<div id="adminTabContent" style="flex:1; min-width:0;"></div>'
+
                 + '</div>'
-                
-                // Content area
-                + '<div id="adminTabContent"></div>'
                 + '</div>';
             
             renderAdminTabContent();

@@ -51,6 +51,7 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - Shared networkLabelLines() utility for consistent multi-line label truncation across all 4 graph views
 - Mobile network layout (v4.44.40-42): hub/name nodes positioned upper-right on mobile for all views; expanded link distances, stronger charge repulsion, larger collision radii; reduced boundary padding to 30px for full canvas use; Match view: name upper-right, job upper-left; You view: height accounts for match toggle row
 - XSS hardening (v4.44.43-47): 259 escapeHtml() call sites covering innerHTML, textarea content, and input value attributes; textarea breakout prevention; report share tokens with crypto.getRandomValues(); Firestore field-size limits (30 constraints)
+- Admin sidebar (v4.44.58): 10-tab horizontal bar replaced with grouped sidebar layout (Operations, Content, System, Planning); sticky sidebar on desktop, wrapping pill bar on mobile (<900px); group labels hidden on mobile
 
 ## Data Libraries
 - `onet-skills-library.json` — O*NET skills (13,960 skills)
