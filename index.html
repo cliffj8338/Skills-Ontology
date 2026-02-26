@@ -1,4 +1,4 @@
-<!-- v4.44.48 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
+<!-- v4.44.49 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.48 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
+    <!-- v4.44.49 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.48 - BUILD 20260226-ui-welcome-ctas
-        var BP_VERSION = 'v4.44.48';
+        // BLUEPRINT v4.44.49 - BUILD 20260226-ui-about-modal-widow
+        var BP_VERSION = 'v4.44.49';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2035,7 +2035,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-ui-welcome-ctas                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-ui-about-modal-widow                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -7131,7 +7131,7 @@
                 + '<h2 style="font-size:clamp(1.8em, 7vw, 2.6em); font-weight:700; color:var(--accent); margin-bottom:14px; line-height:1.12;">'
                 + 'The Resume <span style="white-space:nowrap;">is Dead.</span><br>Here is Your Blueprint.\u2122</h2>'
                 + '<p style="font-size:1.08em; color:var(--text-secondary); line-height:1.7; max-width:620px; margin:0 auto 28px;">'
-                + 'The system wasn\u2019t built to show your full value. So we built something that does. Blueprint gives you the complete picture \u2014 your skills, your worth, your direction \u2014 so you negotiate from strength and choose work that matters to you.</p>'
+                + 'The system wasn\u2019t built to show your full value. So we built something that does. Blueprint gives you the complete picture \u2014 your skills, your worth, your direction \u2014 so you negotiate from strength and choose work that matters\u00a0to\u00a0you.</p>'
                 + '<div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:40px;">'
                 + '<button onclick="viewSampleProfile()" style="'
                 + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; min-width:240px; text-align:center; '
@@ -31903,12 +31903,11 @@ body {
             const modal = document.getElementById('exportModal');
             const modalContent = modal.querySelector('.modal-content');
             modalContent.innerHTML = `
-                <div class="modal-header">
-                    <div class="modal-header-left">
-                        <h2 class="modal-title">The Resume is Dead. Here is Your Blueprint.\u2122</h2>
-                        <p style="color: #9ca3af; margin-top: 5px;">${BP_VERSION} \u00B7 Your career, fully represented.</p>
-                    </div>
-                    <button class="modal-close" onclick="closeExportModal()">\u00D7</button>
+                <div class="modal-header" style="flex-direction:column; align-items:center; text-align:center; padding-bottom:20px;">
+                    <button class="modal-close" onclick="closeExportModal()" style="position:absolute; top:16px; right:16px;">\u00D7</button>
+                    <h2 class="modal-title" style="text-align:center; width:100%;">The Resume is Dead.<br>Here is Your Blueprint.\u2122</h2>
+                    <p style="color: var(--text-secondary); margin-top: 8px; font-size:0.95em;">Your career, fully represented.</p>
+                    <p style="color: var(--text-muted); margin-top: 4px; font-size:0.78em;">${BP_VERSION}</p>
                 </div>
                 <div class="modal-body" style="padding: 30px;">
                     <p style="color: #d1d5db; line-height: 1.8; margin-bottom: 20px;">
