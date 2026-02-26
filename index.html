@@ -1,4 +1,4 @@
-<!-- v4.44.52 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
+<!-- v4.44.53 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.52 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
+    <!-- v4.44.53 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.52 - BUILD 20260226-completeness-shortcuts-lastsaved
-        var BP_VERSION = 'v4.44.52';
+        // BLUEPRINT v4.44.53 - BUILD 20260226-a11y-roadmap
+        var BP_VERSION = 'v4.44.53';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2035,7 +2035,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-completeness-shortcuts-lastsaved               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-a11y-roadmap               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -4490,6 +4490,20 @@
                         { id: 'e5-6', name: 'LMS integrations', status: 'planned', category: 'infrastructure', priority: 'low', notes: 'Cornerstone, Degreed, LinkedIn Learning connectors. Skill gaps identified in Blueprint → recommended learning paths in LMS. Completion feeds back into Blueprint skill profile. Referral revenue on course enrollments.' },
                         { id: 'e5-7', name: 'Skills API marketplace', status: 'planned', category: 'monetization', priority: 'low', notes: 'Third parties build on Blueprint\'s ontology and intelligence. Skill taxonomy API, evidence validation API, match scoring API. Usage-based pricing. Blueprint becomes infrastructure — the "skills layer" other platforms build on.' },
                         { id: 'e5-8', name: 'White-label for staffing firms', status: 'planned', category: 'monetization', priority: 'low', notes: 'Staffing firms embed Blueprint\'s matching + scouting into their own branded experience. Per-placement or monthly licensing. High-margin channel revenue.' }
+                    ]
+                },
+                {
+                    name: 'Accessibility (A11Y)',
+                    items: [
+                        { id: 'a11y-1', name: 'Screen reader compatibility', status: 'planned', category: 'compliance', priority: 'critical', notes: 'ARIA landmarks, roles, and labels across all views. Live regions for dynamic content (toasts, save indicators, skill additions). Focus management on view switches and modal open/close. Test with NVDA, VoiceOver, and JAWS.' },
+                        { id: 'a11y-2', name: 'WCAG 2.2 AA compliance audit', status: 'planned', category: 'compliance', priority: 'critical', notes: 'Full audit against WCAG 2.2 Level AA success criteria. Covers perceivable, operable, understandable, and robust principles. Automated scan (axe-core) plus manual testing. Document findings and remediation plan.' },
+                        { id: 'a11y-3', name: 'Keyboard navigation completeness', status: 'planned', category: 'compliance', priority: 'high', notes: 'All interactive elements reachable and operable via keyboard alone. Visible focus indicators on every focusable element. Logical tab order through all views. Skip-to-content link. No keyboard traps in modals or menus.' },
+                        { id: 'a11y-4', name: 'Color contrast and visual accessibility', status: 'planned', category: 'compliance', priority: 'high', notes: 'Minimum 4.5:1 contrast ratio for normal text, 3:1 for large text (WCAG AA). Audit both light and dark themes. No information conveyed by color alone (add icons or patterns). Ensure focus indicators meet 3:1 contrast against adjacent colors.' },
+                        { id: 'a11y-5', name: 'D3.js visualization accessibility', status: 'planned', category: 'compliance', priority: 'high', notes: 'Alt text and ARIA descriptions for skill network graph and all SVG visualizations. Keyboard-navigable nodes. Screen reader announcements for graph interactions. Accessible data table fallback for complex visualizations.' },
+                        { id: 'a11y-6', name: 'Form and input accessibility', status: 'planned', category: 'compliance', priority: 'high', notes: 'Proper label associations for all form inputs. Error messages linked via aria-describedby. Required field indicators. Autocomplete attributes where appropriate. Accessible validation feedback without relying solely on color.' },
+                        { id: 'a11y-7', name: 'Reduced motion and animation controls', status: 'planned', category: 'compliance', priority: 'medium', notes: 'Respect prefers-reduced-motion media query. Disable or minimize transitions, graph animations, and auto-scrolling for users who opt out. Ensure no content depends on animation to be understood.' },
+                        { id: 'a11y-8', name: 'Semantic HTML and document structure', status: 'planned', category: 'compliance', priority: 'medium', notes: 'Replace generic divs with semantic elements (nav, main, section, article, aside). Proper heading hierarchy (h1→h6, no skipped levels). Landmark regions for major page areas. Lang attribute on html element.' },
+                        { id: 'a11y-9', name: 'Responsive text and zoom support', status: 'planned', category: 'compliance', priority: 'medium', notes: 'Content reflows at 200% zoom without horizontal scrolling (WCAG 1.4.10). Text resizable to 200% without loss of content or function. No fixed pixel font sizes that prevent browser zoom. Touch targets minimum 44x44px on mobile.' }
                     ]
                 }
             ]
