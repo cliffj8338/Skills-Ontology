@@ -39,15 +39,15 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - Report templates hardened with escapeHtml for all user-controlled data
 - See `docs/SECURITY_AUDIT.md` for full audit details
 
-## Stability (v4.44.25)
+## Stability (v4.44.60)
 - Firestore save: 3-attempt retry with exponential backoff + localStorage backup
 - Firestore load: user-facing error toast + automatic restore from local backup
 - Global error handlers: window.onerror + unhandledrejection (log to incident system)
 - Save debouncing: debouncedSave() prevents race conditions on rapid edits
-- Job search: 35s overall timeout safety net prevents stuck loading spinners
+- Job search: 30s overall timeout safety net prevents stuck loading spinners
 - Error visibility: showToast on all critical operation failures (auth, search, reports, card view, blueprint render, skill search)
-- Null DOM guards on focus/querySelector calls inside setTimeout
-- Empty catch blocks: console.warn added to non-trivial operations (getIdToken, etc.)
+- Null DOM guards: view switching, waitlist forms, controlsBar, focus() calls inside setTimeout
+- Empty catch blocks: console.warn added to non-trivial operations (analytics, mode detection, getIdToken)
 - Shared networkLabelLines() utility for consistent multi-line label truncation across all 4 graph views
 - Mobile network layout (v4.44.40-42): hub/name nodes positioned upper-right on mobile for all views; expanded link distances, stronger charge repulsion, larger collision radii; reduced boundary padding to 30px for full canvas use; Match view: name upper-right, job upper-left; You view: height accounts for match toggle row
 - XSS hardening (v4.44.43-47): 259 escapeHtml() call sites covering innerHTML, textarea content, and input value attributes; textarea breakout prevention; report share tokens with crypto.getRandomValues(); Firestore field-size limits (30 constraints)

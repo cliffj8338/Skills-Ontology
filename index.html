@@ -1,4 +1,4 @@
-<!-- v4.44.59 | 2026-02-26 | UX: Skills→Map rename, Samples→overflow, Blueprint tab reorder -->
+<!-- v4.44.60 | 2026-02-26 | Stability: null DOM guards, empty catch logging, search timeout 30s -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.59 | 2026-02-26 | UX: Skills→Map rename, Samples→overflow, Blueprint tab reorder -->
+    <!-- v4.44.60 | 2026-02-26 | Stability: null DOM guards, empty catch logging, search timeout 30s -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.59 - BUILD 20260226-ux-nav-cleanup
-        var BP_VERSION = 'v4.44.59';
+        // BLUEPRINT v4.44.60 - BUILD 20260226-stability-guards
+        var BP_VERSION = 'v4.44.60';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2052,7 +2052,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-ux-nav-cleanup              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-stability-guards            ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -7112,7 +7112,7 @@
                     meta: meta || {},
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-            } catch(e) {}
+            } catch(e) { console.warn('Analytics event failed:', e.message); }
         }
         window.logAnalyticsEvent = logAnalyticsEvent;
 
@@ -7249,7 +7249,7 @@
                         waitlistEmail = parsed.email || null;
                         return;
                     }
-                } catch(e) {}
+                } catch(e) { console.warn('Mode detection parse error:', e.message); }
             }
             // Logged-in user viewing samples
             if (fbUser) { appMode = 'invited'; return; }
@@ -7504,13 +7504,13 @@
             
             // If already waitlisted, show confirmation view
             if (appMode === 'waitlisted') {
-                document.getElementById('waitlistFormView').style.display = 'none';
-                document.getElementById('waitlistConfirmView').style.display = 'block';
-                document.getElementById('wlPositionMsg').textContent = 'You\u2019re #' + (waitlistPosition || '?') + ' on the waitlist.';
-                document.getElementById('wlPositionBadge').textContent = '\u25C8 Position #' + (waitlistPosition || '?');
+                var _wfv = document.getElementById('waitlistFormView'); if (_wfv) _wfv.style.display = 'none';
+                var _wcv = document.getElementById('waitlistConfirmView'); if (_wcv) _wcv.style.display = 'block';
+                var _wpm = document.getElementById('wlPositionMsg'); if (_wpm) _wpm.textContent = 'You\u2019re #' + (waitlistPosition || '?') + ' on the waitlist.';
+                var _wpb = document.getElementById('wlPositionBadge'); if (_wpb) _wpb.textContent = '\u25C8 Position #' + (waitlistPosition || '?');
             } else {
-                document.getElementById('waitlistFormView').style.display = 'block';
-                document.getElementById('waitlistConfirmView').style.display = 'none';
+                var _wfv2 = document.getElementById('waitlistFormView'); if (_wfv2) _wfv2.style.display = 'block';
+                var _wcv2 = document.getElementById('waitlistConfirmView'); if (_wcv2) _wcv2.style.display = 'none';
             }
             
             overlay.classList.add('active');
@@ -7591,14 +7591,13 @@
             }));
             
             // Update UI
-            document.getElementById('waitlistFormView').style.display = 'none';
-            document.getElementById('waitlistConfirmView').style.display = 'block';
-            document.getElementById('wlPositionMsg').textContent = 'You\u2019re #' + position + ' on the waitlist. We\u2019ll notify you when it\u2019s your turn.';
-            document.getElementById('wlPositionBadge').textContent = '\u25C8 Position #' + position;
+            var _wfv3 = document.getElementById('waitlistFormView'); if (_wfv3) _wfv3.style.display = 'none';
+            var _wcv3 = document.getElementById('waitlistConfirmView'); if (_wcv3) _wcv3.style.display = 'block';
+            var _wpm2 = document.getElementById('wlPositionMsg'); if (_wpm2) _wpm2.textContent = 'You\u2019re #' + position + ' on the waitlist. We\u2019ll notify you when it\u2019s your turn.';
+            var _wpb2 = document.getElementById('wlPositionBadge'); if (_wpb2) _wpb2.textContent = '\u25C8 Position #' + position;
             
             var btn = document.getElementById('wlSubmitBtn');
-            btn.disabled = false;
-            btn.textContent = 'Join the Waitlist';
+            if (btn) { btn.disabled = false; btn.textContent = 'Join the Waitlist'; }
             
             // Update readonly banner with profile name
             var banner = document.getElementById('readonlyBanner');
@@ -15635,7 +15634,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             const controls = document.querySelector('.controls');
             
             // Hide controls bar — shown only for Skills tab
-            document.getElementById('controlsBar').style.display = 'none';
+            var _cb = document.getElementById('controlsBar'); if (_cb) _cb.style.display = 'none';
             document.querySelector('.main-content')?.classList.remove('with-filters');
             document.querySelector('.main-content')?.classList.remove('with-controls');
             // Track banner state for mobile height calc
@@ -15671,22 +15670,15 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (mobId) { const mb = document.getElementById(mobId); if (mb) { mb.classList.add('active'); mb.setAttribute('aria-current', 'page'); } }
 
             // Hide all views
-            document.getElementById('welcomeView').style.display = 'none';
-            document.getElementById('networkView').style.display = 'none';
+            var _hideViews = ['welcomeView','networkView','cardView','opportunitiesView','applicationsView','blueprintView','consentView','settingsView','reportsView'];
+            _hideViews.forEach(function(id) { var el = document.getElementById(id); if (el) el.style.display = 'none'; });
             var _sph = document.getElementById('skillsPageHeader'); if (_sph) _sph.style.display = 'none';
             var _jsel = document.getElementById('networkJobSelector'); if (_jsel) _jsel.remove();
             var _ijsel = document.getElementById('inlineJobSelector'); if (_ijsel) { _ijsel.style.display = 'none'; _ijsel.innerHTML = ''; }
             var _jdrop = document.getElementById('jobSelectorDropdown'); if (_jdrop) _jdrop.remove();
-            document.getElementById('cardView').style.display = 'none';
-            document.getElementById('opportunitiesView').style.display = 'none';
-            document.getElementById('applicationsView').style.display = 'none';
-            document.getElementById('blueprintView').style.display = 'none';
-            document.getElementById('consentView').style.display = 'none';
-            document.getElementById('settingsView').style.display = 'none';
-            document.getElementById('reportsView').style.display = 'none';
             var adminV = document.getElementById('adminView');
             if (adminV) adminV.style.display = 'none';
-            controls.style.display = 'none';
+            if (controls) controls.style.display = 'none';
             
             // Toggle readonly banner: hide on non-profile views, show on profile views when viewing a sample
             var roBanner = document.getElementById('readonlyBanner');
@@ -15707,7 +15699,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Show selected view
             if (view === 'welcome') {
                 var wv = document.getElementById('welcomeView');
-                wv.style.display = 'block';
+                if (wv) wv.style.display = 'block';
                 // Render welcome unless picker already set custom content
                 if (!window._welcomePickerActive) {
                     renderWelcomePage();
@@ -15716,14 +15708,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             } else if (view === 'network') {
                 // Skills Ontology view
                 var sph = document.getElementById('skillsPageHeader'); if (sph) sph.style.display = 'none';
-                controls.style.display = 'flex';
+                if (controls) controls.style.display = 'flex';
                 document.querySelector('.main-content')?.classList.add('with-controls');
                 // Sync toggle pills with current sub-view
                 document.querySelectorAll('#skillsViewToggle .view-pill').forEach(function(chip) {
                     chip.classList.toggle('active', chip.dataset.view === currentSkillsView);
                 });
                 if (currentSkillsView === 'network') {
-                    document.getElementById('networkView').style.display = 'block';
+                    var _nv = document.getElementById('networkView'); if (_nv) _nv.style.display = 'block';
                     // Show label toggles on desktop
                     var _lt = document.getElementById('networkLabelToggles');
                     if (_lt) _lt.style.display = window.innerWidth >= 768 ? 'flex' : 'none';
@@ -15752,7 +15744,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         }
                     }
                 } else {
-                    document.getElementById('cardView').style.display = 'block';
+                    var _cvEl = document.getElementById('cardView'); if (_cvEl) _cvEl.style.display = 'block';
                     // Hide label toggles in card view
                     var _lt2 = document.getElementById('networkLabelToggles');
                     if (_lt2) _lt2.style.display = 'none';
@@ -15774,7 +15766,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 }
                 updateStatsBar();
             } else if (view === 'opportunities') {
-                document.getElementById('opportunitiesView').style.display = 'block';
+                var _ovEl = document.getElementById('opportunitiesView'); if (_ovEl) _ovEl.style.display = 'block';
                 if (!window.opportunitiesInitialized) {
                     initOpportunities();
                     window.opportunitiesInitialized = true;
@@ -15784,35 +15776,35 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 }
                 updateStatsBar();
             } else if (view === 'applications') {
-                document.getElementById('applicationsView').style.display = 'block';
+                var _avEl = document.getElementById('applicationsView'); if (_avEl) _avEl.style.display = 'block';
                 if (!window.applicationsInitialized) {
                     initApplications();
                     window.applicationsInitialized = true;
                 }
                 updateStatsBar();
             } else if (view === 'blueprint') {
-                document.getElementById('blueprintView').style.display = 'block';
+                var _bvEl = document.getElementById('blueprintView'); if (_bvEl) _bvEl.style.display = 'block';
                 if (!window.blueprintInitialized) {
                     initBlueprint();
                     window.blueprintInitialized = true;
                 }
                 updateStatsBar();
             } else if (view === 'consent') {
-                document.getElementById('consentView').style.display = 'block';
+                var _cnvEl = document.getElementById('consentView'); if (_cnvEl) _cnvEl.style.display = 'block';
                 if (!window.consentInitialized) {
                     initConsent();
                     window.consentInitialized = true;
                 }
                 updateStatsBar();
             } else if (view === 'reports') {
-                document.getElementById('reportsView').style.display = 'block';
+                var _rpvEl = document.getElementById('reportsView'); if (_rpvEl) _rpvEl.style.display = 'block';
                 if (!window.reportsInitialized) {
                     initReports();
                     window.reportsInitialized = true;
                 }
                 updateStatsBar();
             } else if (view === 'settings') {
-                document.getElementById('settingsView').style.display = 'block';
+                var _svEl = document.getElementById('settingsView'); if (_svEl) _svEl.style.display = 'block';
                 if (!window.settingsInitialized) {
                     initSettings();
                     window.settingsInitialized = true;
@@ -26612,7 +26604,7 @@ body {
                             + '<p style="color:var(--text-muted); font-size:0.88em;">Job sources took too long to respond. Please try again.</p></div>';
                     }
                 }
-            }, 35000);
+            }, 30000);
             
             if (JOBS_PROXY_AVAILABLE !== false) {
                 searchViaProxy(keyword, location, category, remoteOnly, resultsDiv);
