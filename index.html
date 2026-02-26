@@ -1,4 +1,4 @@
-<!-- v4.44.64 | 2026-02-26 | Find Jobs: consistent quickScore display, entity decode in toast -->
+<!-- v4.44.65 | 2026-02-26 | Fix: decode named entities before numeric for double-encoded API data -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.64 | 2026-02-26 | Find Jobs: consistent quickScore display, entity decode in toast -->
+    <!-- v4.44.65 | 2026-02-26 | Fix: decode named entities before numeric for double-encoded API data -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.64 - BUILD 20260226-find-jobs-stable-scores
-        var BP_VERSION = 'v4.44.64';
+        // BLUEPRINT v4.44.65 - BUILD 20260226-entity-decode-order
+        var BP_VERSION = 'v4.44.65';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1796,8 +1796,6 @@
         function decodeHtmlEntities(str) {
             if (!str || typeof str !== 'string') return str || '';
             var decoded = str
-                .replace(/&#(\d+);/g, function(m, code) { return String.fromCharCode(parseInt(code, 10)); })
-                .replace(/&#x([0-9a-fA-F]+);/g, function(m, code) { return String.fromCharCode(parseInt(code, 16)); })
                 .replace(/&amp;/g, '&')
                 .replace(/&lt;/g, '<')
                 .replace(/&gt;/g, '>')
@@ -1805,7 +1803,9 @@
                 .replace(/&apos;/g, "'")
                 .replace(/&ndash;/g, '\u2013')
                 .replace(/&mdash;/g, '\u2014')
-                .replace(/&nbsp;/g, ' ');
+                .replace(/&nbsp;/g, ' ')
+                .replace(/&#(\d+);/g, function(m, code) { return String.fromCharCode(parseInt(code, 10)); })
+                .replace(/&#x([0-9a-fA-F]+);/g, function(m, code) { return String.fromCharCode(parseInt(code, 16)); });
             return decoded;
         }
 
@@ -2068,7 +2068,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-find-jobs-stable-scores     ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-entity-decode-order         ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
