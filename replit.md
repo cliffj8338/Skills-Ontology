@@ -50,7 +50,7 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - Custom skill addition, inline outcome editing, proficiency level adjustment
 - Reuses existing renderWorkBlueprint, exportWorkBlueprintJSON/PDF/Word, jdcSaveToRepository
 
-## Work Blueprint Converter (v4.44.79)
+## Work Blueprint Converter (v4.44.80)
 - Admin → JD Converter: paste any job description, get a structured Work Blueprint
 - Extraction pipeline: title, company, location, employment type, department, reports-to, schedule, travel, seniority, industry
 - Requirements extraction: years of experience (with area), education levels, certifications (191 known certs)
@@ -71,6 +71,7 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - Inline editing (v4.44.73): WBW Step 5 Edit button opens full field editor before save/export; Apply Edits returns to preview
 - Admin sidebar (v4.44.74): "Work Blueprint" group replaces JDC/WBW under Content; items: Converter, Wizard, Repository
 - Repository (v4.44.74): Standalone admin tab for browsing/viewing/exporting/deleting saved Work Blueprints; loads from Firestore `work_blueprints` subcollection; "Edit in Converter" loads blueprint into JDC for modification
+- UX Flow (v4.44.80): Converter defaults to edit mode after first conversion; Repository → Edit opens directly in edit mode (no extra click); "Save to Repository" shows "Save" when editing from repo; after save, navigates back to Repository tab; AI value descriptions (per-value wand button or bulk "AI Fill Descriptions" button) generate professional descriptions via Claude Haiku; `_jdcFromRepo` flag tracks source for context-aware UI
 
 ## Stability (v4.44.70)
 - Firestore save: 3-attempt retry with exponential backoff + localStorage backup

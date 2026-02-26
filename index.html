@@ -1,4 +1,4 @@
-<!-- v4.44.79 | 2026-02-26 | Values fix + skill dedup + compensation blinding + stability -->
+<!-- v4.44.80 | 2026-02-26 | UX flow: auto-edit, repo workflow, AI value descriptions -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.79 - BUILD 20260226-comp-blinding
-        var BP_VERSION = 'v4.44.79';
+        // BLUEPRINT v4.44.80 - BUILD 20260226-ux-flow
+        var BP_VERSION = 'v4.44.80';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2068,7 +2068,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-comp-blinding        ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-ux-flow               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -7138,7 +7138,7 @@
                         + (active || adminSubTab === 'wbrepo' && m.id === 'repo' ? 'background:var(--accent); color:#fff;' : 'background:transparent; color:var(--text-secondary);') + '">'
                         + bpIcon(m.icon, 14) + ' ' + m.label + '</button>';
                 } else {
-                    html += '<button onclick="_jdcInputMode=\'' + m.id + '\'; _jdcResult=null; _jdcBulkResults=[]; _jdcBulkViewIdx=-1; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="flex:1; padding:8px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; display:flex; align-items:center; justify-content:center; gap:5px; '
+                    html += '<button onclick="_jdcInputMode=\'' + m.id + '\'; _jdcResult=null; _jdcBulkResults=[]; _jdcBulkViewIdx=-1; _jdcFromRepo=false; _jdcEditMode=false; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="flex:1; padding:8px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; display:flex; align-items:center; justify-content:center; gap:5px; '
                         + (active ? 'background:var(--accent); color:#fff;' : 'background:transparent; color:var(--text-secondary);') + '">'
                         + bpIcon(m.icon, 14) + ' ' + m.label + '</button>';
                 }
@@ -7232,6 +7232,8 @@
             _jdcCompMode = 'without';
             _jdcBulkResults = [];
             _jdcBulkViewIdx = -1;
+            _jdcEditMode = true;
+            _jdcFromRepo = false;
             renderAdminJDConverter(document.getElementById('adminTabContent'));
             _jdcShowStats(_jdcResult);
         }
@@ -8592,8 +8594,9 @@
                     + '<button onclick="jdcEditBlueprint()" style="padding:8px 18px; background:#f59e0b; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
                     + bpIcon('edit',14) + ' Edit</button>';
                 if (typeof fbUser !== 'undefined' && fbUser) {
+                    var _saveLabel = _jdcFromRepo ? 'Save' : 'Save to Repository';
                     html += '<button onclick="jdcSaveToRepository()" style="padding:8px 18px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                        + bpIcon('save',14) + ' Save to Repository</button>';
+                        + bpIcon('save',14) + ' ' + _saveLabel + '</button>';
                 }
                 html += '</div>';
             }
@@ -8830,6 +8833,7 @@
         window.exportWorkBlueprintWord = exportWorkBlueprintWord;
 
         var _jdcEditMode = false;
+        var _jdcFromRepo = false;
         function jdcEditBlueprint() {
             if (!_jdcResult) return;
             if (!_jdcResult.skills) _jdcResult.skills = [];
@@ -8931,10 +8935,97 @@
         window.jdcSaveEdits = jdcSaveEdits;
 
         function jdcSaveAndRepository() {
-            jdcSaveEdits();
-            setTimeout(function() { jdcSaveToRepository(); }, 100);
+            _jdcSyncFormToState();
+            _jdcEditMode = false;
+            jdcSaveToRepository();
         }
         window.jdcSaveAndRepository = jdcSaveAndRepository;
+
+        async function jdcAIFillValueDescs() {
+            _jdcSyncFormToState();
+            if (!_jdcResult || !_jdcResult.values || _jdcResult.values.length === 0) {
+                showToast('No values to generate descriptions for.', 'warning');
+                return;
+            }
+            var missing = [];
+            _jdcResult.values.forEach(function(v, i) {
+                var name = typeof v === 'string' ? v : (v.name || '');
+                var desc = typeof v === 'object' ? (v.description || '') : '';
+                if (name && !desc.trim()) missing.push({ index: i, name: name });
+            });
+            if (missing.length === 0) {
+                showToast('All values already have descriptions.', 'info');
+                return;
+            }
+            showToast('Generating descriptions for ' + missing.length + ' value(s)...', 'info');
+            try {
+                var roleCtx = (_jdcResult.title || 'professional') + ' at ' + (_jdcResult.company || 'a company');
+                var valueNames = missing.map(function(m) { return m.name; }).join(', ');
+                var requestBody = {
+                    model: 'claude-haiku-4-5-20251001',
+                    max_tokens: 1024,
+                    messages: [{ role: 'user', content: 'For the role of "' + roleCtx + '", write a concise one-sentence professional description for each of these workplace values. Each description should explain what the value means in this professional context and how it manifests in day-to-day work. Return ONLY a JSON array of objects with "name" and "description" fields, no other text.\n\nValues: ' + valueNames }]
+                };
+                var resp = await callAnthropicAPI(requestBody, null, 'jdc-value-desc');
+                var text = (resp.content && resp.content[0] && resp.content[0].text) || '';
+                var jsonMatch = text.match(/\[[\s\S]*\]/);
+                if (!jsonMatch) throw new Error('Could not parse AI response');
+                var descs = JSON.parse(jsonMatch[0]);
+                var descMap = {};
+                descs.forEach(function(d) { descMap[d.name.toLowerCase()] = d.description; });
+                missing.forEach(function(m) {
+                    var generated = descMap[m.name.toLowerCase()];
+                    if (generated && _jdcResult.values[m.index]) {
+                        if (typeof _jdcResult.values[m.index] === 'string') {
+                            _jdcResult.values[m.index] = { name: _jdcResult.values[m.index], description: generated };
+                        } else {
+                            _jdcResult.values[m.index].description = generated;
+                        }
+                    }
+                });
+                renderAdminJDConverter(document.getElementById('adminTabContent'));
+                showToast('AI descriptions generated for ' + missing.length + ' value(s).', 'success');
+            } catch (err) {
+                console.warn('AI value description error:', err);
+                showToast('AI description failed: ' + err.message, 'error');
+            }
+        }
+        window.jdcAIFillValueDescs = jdcAIFillValueDescs;
+
+        async function jdcAIFillOneValueDesc(idx) {
+            _jdcSyncFormToState();
+            if (!_jdcResult || !_jdcResult.values || !_jdcResult.values[idx]) return;
+            var v = _jdcResult.values[idx];
+            var name = typeof v === 'string' ? v : (v.name || '');
+            if (!name.trim()) { showToast('Enter a value name first.', 'warning'); return; }
+            var descEl = document.getElementById('jdcEditValDesc' + idx);
+            if (descEl) descEl.placeholder = 'Generating...';
+            try {
+                var roleCtx = (_jdcResult.title || 'professional') + ' at ' + (_jdcResult.company || 'a company');
+                var requestBody = {
+                    model: 'claude-haiku-4-5-20251001',
+                    max_tokens: 256,
+                    messages: [{ role: 'user', content: 'For the role of "' + roleCtx + '", write a concise one-sentence professional description for this workplace value: "' + name + '". The description should explain what it means in this professional context. Return ONLY the description text, nothing else.' }]
+                };
+                var resp = await callAnthropicAPI(requestBody, null, 'jdc-value-desc-single');
+                var text = (resp.content && resp.content[0] && resp.content[0].text) || '';
+                text = text.replace(/^["'\s]+|["'\s]+$/g, '').trim();
+                if (text) {
+                    if (typeof _jdcResult.values[idx] === 'string') {
+                        _jdcResult.values[idx] = { name: _jdcResult.values[idx], description: text };
+                    } else {
+                        _jdcResult.values[idx].description = text;
+                    }
+                    if (descEl) descEl.value = text;
+                    showToast('Description generated for ' + name + '.', 'success');
+                }
+            } catch (err) {
+                console.warn('AI value description error:', err);
+                showToast('AI failed: ' + err.message, 'error');
+                if (descEl) descEl.placeholder = 'Description';
+            }
+        }
+        window.jdcAIFillOneValueDesc = jdcAIFillOneValueDesc;
 
         function jdcSearchCerts(query) {
             var dropdown = document.getElementById('jdcEditCertDropdown');
@@ -9128,6 +9219,7 @@
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                 + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">'
                 + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:var(--c-heading-bold);">' + bpIcon('star',18) + ' Values</span>'
+                + '<button onclick="jdcAIFillValueDescs()" style="padding:4px 12px; background:rgba(96,165,250,0.15); color:var(--accent); border:1px solid rgba(96,165,250,0.3); border-radius:6px; cursor:pointer; font-size:0.75em; font-weight:600;" title="Use AI to fill in missing value descriptions">' + bpIcon('wand',12) + ' AI Fill Descriptions</button>'
                 + '</div>';
             (data.values || []).forEach(function(v, vi) {
                 var valName = typeof v === 'string' ? v : (v.name || '');
@@ -9135,6 +9227,7 @@
                 html += '<div style="display:flex; gap:8px; margin-bottom:6px; align-items:center;">'
                     + '<input id="jdcEditValName' + vi + '" type="text" value="' + escapeHtml(valName) + '" placeholder="Value name" style="' + fieldStyle + ' max-width:200px; font-weight:600;" />'
                     + '<input id="jdcEditValDesc' + vi + '" type="text" value="' + escapeHtml(valDesc) + '" placeholder="Description" style="' + fieldStyle + ' flex:1;" />'
+                    + '<button onclick="jdcAIFillOneValueDesc(' + vi + ')" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size:0.9em; padding:0 3px;" title="AI generate description">' + bpIcon('wand',13) + '</button>'
                     + '<button onclick="_jdcSyncFormToState();_jdcResult.values.splice(' + vi + ',1);renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
             html += '<button onclick="_jdcSyncFormToState();_jdcResult.values=_jdcResult.values||[];_jdcResult.values.push({name:\'\',description:\'\'});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:5px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Value</button>'
@@ -9164,10 +9257,13 @@
                 html += '</div></div>';
             }
 
+            var _repoSaveLabel = _jdcFromRepo ? 'Save' : 'Save to Repository';
             html += '<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">'
-                + '<button onclick="jdcSaveEdits()" style="padding:10px 24px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' Save & Preview</button>'
-                + '<button onclick="jdcSaveAndRepository()" style="padding:10px 24px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' Save to Repository</button>'
-                + '<button onclick="jdcCancelEdit()" style="padding:10px 24px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Cancel</button>'
+                + '<button onclick="jdcSaveEdits()" style="padding:10px 24px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' Save & Preview</button>';
+            if (typeof fbUser !== 'undefined' && fbUser) {
+                html += '<button onclick="jdcSaveAndRepository()" style="padding:10px 24px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em;">' + bpIcon('save',14) + ' ' + _repoSaveLabel + '</button>';
+            }
+            html += '<button onclick="jdcCancelEdit()" style="padding:10px 24px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">Cancel</button>'
                 + '</div>';
 
             return html;
@@ -9183,9 +9279,20 @@
             _jdcResult.id = d.id;
             fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc(d.id).set(d, { merge: true })
                 .then(function() {
-                    showToast('Work Blueprint saved to repository.', 'success');
+                    showToast('Work Blueprint saved.', 'success');
                     _jdcRepoCache = null;
                     _wbRepoCache = null;
+                    if (_jdcFromRepo) {
+                        _jdcFromRepo = false;
+                        _jdcResult = null;
+                        _jdcEditMode = false;
+                        adminSubTab = 'wbrepo';
+                        renderAdminTabContent();
+                    } else {
+                        _jdcFromRepo = true;
+                        _jdcEditMode = false;
+                        renderAdminJDConverter(document.getElementById('adminTabContent'));
+                    }
                 })
                 .catch(function(err) {
                     console.warn('Save blueprint error:', err);
@@ -9206,9 +9313,16 @@
             _jdcResult = _jdcRepoCache[idx];
             _jdcCompMode = 'without';
             _jdcInputMode = 'repo';
-            _jdcEditMode = false;
+            _jdcEditMode = true;
+            _jdcFromRepo = true;
+            if (!_jdcResult.skills) _jdcResult.skills = [];
+            if (!_jdcResult.values) _jdcResult.values = [];
+            if (!_jdcResult.certifications) _jdcResult.certifications = [];
+            if (!_jdcResult.qualifications) _jdcResult.qualifications = [];
+            if (!_jdcResult.yearsRequired) _jdcResult.yearsRequired = [];
+            if (!_jdcResult.education) _jdcResult.education = [];
             renderAdminJDConverter(document.getElementById('adminTabContent'));
-            showToast('Loaded: ' + (_jdcResult.title || 'Untitled'), 'success');
+            showToast('Editing: ' + (_jdcResult.title || 'Untitled'), 'success');
         }
         window.jdcLoadFromRepo = jdcLoadFromRepo;
 
@@ -9385,10 +9499,17 @@
             _jdcResult = _wbRepoCache[idx];
             _jdcCompMode = 'without';
             _jdcInputMode = 'paste';
-            _jdcEditMode = false;
+            _jdcEditMode = true;
+            _jdcFromRepo = true;
+            if (!_jdcResult.skills) _jdcResult.skills = [];
+            if (!_jdcResult.values) _jdcResult.values = [];
+            if (!_jdcResult.certifications) _jdcResult.certifications = [];
+            if (!_jdcResult.qualifications) _jdcResult.qualifications = [];
+            if (!_jdcResult.yearsRequired) _jdcResult.yearsRequired = [];
+            if (!_jdcResult.education) _jdcResult.education = [];
             adminSubTab = 'jdconverter';
             renderAdminTabContent();
-            showToast('Loaded: ' + (_jdcResult.title || 'Untitled') + '. Click Edit to modify.', 'success');
+            showToast('Editing: ' + (_jdcResult.title || 'Untitled'), 'success');
         }
         window.wbRepoLoadInConverter = wbRepoLoadInConverter;
 
