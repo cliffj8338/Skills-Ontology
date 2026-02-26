@@ -6939,6 +6939,9 @@
                     + (_jdcCompMode === 'with' ? 'background:var(--accent); color:#fff;' : 'background:transparent; color:var(--text-secondary);') + '">'
                     + 'With Skills Comp Model</button></div>';
 
+                if (_jdcEditMode) {
+                    html += renderJDCEditForm(_jdcResult);
+                }
                 html += renderWorkBlueprint(_jdcResult, _jdcCompMode === 'with');
             }
 
