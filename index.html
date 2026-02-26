@@ -3552,7 +3552,7 @@
             html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">';
             
             // Feature usage
-            var featLabels = { resume_parse:'Resume Parse', scouting_report:'Scouting Report', export_pdf:'PDF Export', export_html:'Executive Blueprint', export_resume_html:'HTML Resume', export_json:'JSON Export', cover_letter:'Cover Letter', interview_prep:'Interview Prep', linkedin_profile:'LinkedIn Profile', job_analysis:'JD Analysis', negotiation_guide:'Negotiation Guide', scouting_report_html:'Report (HTML)', wb_created:'WB Created', wb_edited:'WB Edited', wb_deleted:'WB Deleted', wb_exported_pdf:'WB Export PDF', wb_exported_word:'WB Export Word', wb_exported_json:'WB Export JSON', wb_wizard_complete:'WB Wizard Complete', wb_converted:'WB JD Converted' };
+            var featLabels = { resume_parse:'Resume Parse', scouting_report:'Scouting Report', export_pdf:'PDF Export', export_html:'Executive Blueprint', export_resume_html:'HTML Resume', export_json:'JSON Export', cover_letter:'Cover Letter', interview_prep:'Interview Prep', linkedin_profile:'LinkedIn Profile', job_analysis:'JD Analysis', negotiation_guide:'Negotiation Guide', scouting_report_html:'Report (HTML)', wb_created:'WB Created', wb_edited:'WB Edited', wb_deleted:'WB Deleted', wb_exported_pdf:'WB Export PDF', wb_exported_word:'WB Export Word', wb_exported_json:'WB Export JSON', wb_wizard_complete:'WB Wizard Complete', wb_converted:'WB JD Converted', showcase_visit:'Showcase Visit' };
             var sortedFeats = Object.entries(s.featureCounts).sort(function(a,b){return b[1]-a[1];});
             var maxFeat = sortedFeats.length > 0 ? sortedFeats[0][1] : 1;
             
@@ -12787,6 +12787,10 @@
             // Initialize card view
             if (typeof initCardView === 'function') initCardView();
             
+            bpTracker.init();
+            bpTracker.trackFunnel('visit');
+            bpTracker.trackFeature('showcase_visit', { referrer: document.referrer || 'direct' });
+
             // Navigate to admin dashboard (showcase landing)
             switchView('admin');
             
