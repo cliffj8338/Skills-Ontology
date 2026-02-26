@@ -1,4 +1,4 @@
-<!-- v4.44.50 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
+<!-- v4.44.51 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.50 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
+    <!-- v4.44.51 | 2026-02-26 | UI: Sample Blueprints header, tour→samples, equal-width CTAs + Why Blueprint button -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1481,8 +1481,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.50 - BUILD 20260226-fix-jobs-cache-limit
-        var BP_VERSION = 'v4.44.50';
+        // BLUEPRINT v4.44.51 - BUILD 20260226-roadmap-audit-p3-2-p3-3
+        var BP_VERSION = 'v4.44.51';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2035,7 +2035,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-fix-jobs-cache-limit               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-roadmap-audit-p3-2-p3-3               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -4333,8 +4333,8 @@
                     icon: 'external',
                     items: [
                         { id: 'p3-1', name: 'ATS connector (Greenhouse/Lever)', status: 'planned', category: 'integration', priority: 'high', notes: 'ATS sends requisition → Blueprint returns matched candidates with scouting reports.' },
-                        { id: 'p3-2', name: 'Data export/portability', status: 'planned', category: 'compliance', priority: 'high', notes: 'User right to data portability. Full profile export in standard formats.' },
-                        { id: 'p3-3', name: 'Privacy controls & consent', status: 'planned', category: 'compliance', priority: 'critical', notes: 'Granular consent management. GDPR/CCPA readiness. Cookie consent if needed.' },
+                        { id: 'p3-2', name: 'Data export/portability', status: 'done', category: 'compliance', priority: 'high', notes: 'Full Firestore profile export as JSON (exportMyData), view stored data modal (viewMyData), permanent deletion with double-confirm (requestDataDeletion). All in Settings → Privacy tab.' },
+                        { id: 'p3-3', name: 'Privacy controls & consent', status: 'done', category: 'compliance', priority: 'critical', notes: 'Sharing presets (Full/Executive/Advisory/Board), GDPR/CCPA/EEOC data rights display, granular sharing controls in Settings → Privacy tab. Cookie consent not needed (no tracking cookies used).' },
                         { id: 'p3-4', name: 'Enterprise API auth & rate limiting', status: 'planned', category: 'infrastructure', priority: 'high', notes: 'API key management, rate limits, audit logging for enterprise tier.' }
                     ]
                 },
