@@ -1,4 +1,4 @@
-<!-- v4.44.67 | 2026-02-26 | Unified quickScore across Pipeline, rescore, and Find Jobs -->
+<!-- v4.44.68 | 2026-02-26 | Rebuilt JD-to-Work-Blueprint converter with full extraction pipeline -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.67 | 2026-02-26 | Unified quickScore across Pipeline, rescore, and Find Jobs -->
+    <!-- v4.44.68 | 2026-02-26 | Rebuilt JD-to-Work-Blueprint converter with full extraction pipeline -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.67 - BUILD 20260226-unified-quickscore
-        var BP_VERSION = 'v4.44.67';
+        // BLUEPRINT v4.44.68 - BUILD 20260226-wb-converter-rebuild
+        var BP_VERSION = 'v4.44.68';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -6192,37 +6192,33 @@
             _jdcResult = convertJDToBlueprint(raw.trim());
             _jdcCompMode = 'without';
             renderAdminJDConverter(document.getElementById('adminTabContent'));
-            showToast('Work Blueprint generated: ' + _jdcResult.skills.length + ' skills extracted.', 'success');
+            var statParts = [_jdcResult.skills.length + ' skills'];
+            if (_jdcResult.certifications && _jdcResult.certifications.length) statParts.push(_jdcResult.certifications.length + ' certs');
+            if (_jdcResult.education && _jdcResult.education.length) statParts.push(_jdcResult.education.length + ' edu');
+            if (_jdcResult.values && _jdcResult.values.length) statParts.push(_jdcResult.values.length + ' values');
+            showToast('Work Blueprint generated: ' + statParts.join(', ') + ' extracted.', 'success');
         }
         window.runJDConverter = runJDConverter;
         
         function convertJDToBlueprint(jdText) {
             var lines = jdText.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);
             var text = jdText.toLowerCase();
-            
-            // ── Extract title ──
-            var title = '';
-            // Try first non-empty line that looks like a title (< 80 chars, no bullet)
-            for (var li = 0; li < Math.min(5, lines.length); li++) {
-                var ln = lines[li].replace(/^[\u2022\u2023\u25E6\-\*]\s*/, '');
-                if (ln.length > 5 && ln.length < 100 && !/^\d+\./.test(ln) && !/^(about|we |our |the company|description|overview)/i.test(ln)) {
-                    title = ln; break;
-                }
-            }
-            if (!title) title = lines[0] || 'Unknown Role';
-            
-            // ── Extract company ──
-            var company = '';
-            var companyMatch = jdText.match(/(?:at|for|with|company[:\s]*|employer[:\s]*)\s+([A-Z][A-Za-z\s&\.\-]+?)(?:\s+is|\s+seeks|\s+looking|[,\.\n])/);
-            if (companyMatch) company = companyMatch[1].trim();
-            
-            // ── Extract location ──
-            var location = 'Remote';
-            var locMatch = jdText.match(/(?:location|based in|located in)[:\s]*([^\n,]{3,40})/i);
-            if (locMatch) location = locMatch[1].trim();
-            else if (/remote/i.test(jdText)) location = 'Remote';
-            
-            // ── Resolve to O*NET ──
+
+            var title = _jdcExtractTitle(lines, jdText);
+            var company = _jdcExtractCompany(lines, jdText);
+            var location = _jdcExtractLocation(jdText);
+            var employmentType = _jdcExtractEmploymentType(jdText);
+            var department = _jdcExtractDepartment(jdText);
+            var reportsTo = _jdcExtractReportsTo(jdText);
+            var schedule = _jdcExtractSchedule(jdText);
+            var travel = _jdcExtractTravel(jdText);
+
+            var seniority = _jdcDetectSeniority(title, jdText);
+
+            var yearsRequired = _jdcExtractYearsOfExperience(jdText);
+            var education = _jdcExtractEducation(jdText);
+            var certifications = _jdcExtractCertifications(jdText);
+
             var socResult = null;
             var onetSkills = [];
             if (typeof resolveTitle === 'function') {
@@ -6244,57 +6240,47 @@
                     });
                 }
             }
-            
-            // ── Extract skills from JD text (keyword scan) ──
-            var jdSkills = extractSkillsFromText(jdText);
-            
-            // ── Merge: O*NET skills + JD-extracted, deduped, sorted by importance ──
+
+            var jdSkills = _jdcExtractSkillsFromText(jdText);
+
             var seen = {};
             var merged = [];
-            // O*NET first (canonical)
             onetSkills.forEach(function(s) {
                 var key = s.name.toLowerCase().trim();
                 if (!seen[key]) {
                     seen[key] = true;
-                    // Check if JD text mentions this skill (boost if so)
                     var mentioned = text.indexOf(key) !== -1 || text.indexOf(key.replace(/ /g, '-')) !== -1;
                     merged.push({
                         name: s.name,
-                        importance: mentioned ? Math.min(100, s.importance + 10) : s.importance,
+                        importance: mentioned ? Math.min(100, s.importance + 15) : s.importance,
                         blueprintLevel: s.blueprintLevel,
                         source: mentioned ? 'onet+jd' : 'onet',
                         category: s.category
                     });
                 }
             });
-            // JD-only skills
-            jdSkills.forEach(function(name) {
-                var key = name.toLowerCase().trim();
+            jdSkills.forEach(function(s) {
+                var key = s.name.toLowerCase().trim();
                 if (!seen[key]) {
                     seen[key] = true;
-                    merged.push({ name: name, importance: 55, blueprintLevel: 'Proficient', source: 'jd', category: 'skill' });
+                    merged.push({ name: s.name, importance: s.importance || 55, blueprintLevel: 'Proficient', source: 'jd', category: 'skill' });
                 }
             });
-            
-            // Sort by importance descending, take top 12
+
             merged.sort(function(a, b) { return b.importance - a.importance; });
-            var skills = merged.slice(0, 12);
-            
-            // ── Infer proficiency from JD language ──
+            var skills = merged.slice(0, 14);
+
             skills.forEach(function(s) {
-                s.blueprintLevel = inferProficiencyFromJD(s.name, jdText);
-                s.outcome = generateOutcome(s.name, s.category);
+                s.blueprintLevel = _jdcInferProficiency(s.name, jdText, seniority);
+                s.outcome = _jdcGenerateOutcome(s.name, s.category, seniority, title);
             });
-            
-            // ── BLS Compensation ──
+
             var bls = null;
             if (typeof matchJobToBLS === 'function') {
                 bls = matchJobToBLS(title, jdText.substring(0, 1000));
             }
-            
-            // ── Per-skill comp (skills comp model) ──
+
             if (bls && bls.median) {
-                var totalImportance = skills.reduce(function(sum, s) { return sum + s.importance; }, 0);
                 var levelMultipliers = { 'Awareness': 0.6, 'Foundational': 0.75, 'Proficient': 1.0, 'Advanced': 1.2, 'Expert': 1.4, 'Mastery': 1.6 };
                 var totalWeighted = skills.reduce(function(sum, s) {
                     return sum + (s.importance * (levelMultipliers[s.blueprintLevel] || 1.0));
@@ -6304,30 +6290,28 @@
                     s.compValue = Math.round(bls.median * weight);
                 });
             }
-            
-            // ── Seniority detection ──
-            var seniority = 'mid';
-            if (/\b(senior|sr\.|lead|principal|staff)\b/i.test(title)) seniority = 'senior';
-            if (/\b(director|head of|vp |vice president)\b/i.test(title)) seniority = 'director';
-            if (/\b(chief|cto|cfo|ceo|coo|cmo|cio|svp|evp)\b/i.test(title)) seniority = 'executive';
-            if (/\b(junior|jr\.|entry|associate|intern)\b/i.test(title)) seniority = 'entry';
-            
-            // ── Extract values from JD language ──
-            var values = inferValuesFromJD(jdText);
-            
-            // ── Generate work summary ──
-            var summary = generateWorkSummary(title, company, skills.slice(0, 5), seniority);
-            
-            // ── Generate demonstrated experience ──
-            var demoExperience = generateDemonstrated(title, skills.slice(0, 6), seniority);
-            
+
+            var values = _jdcInferValues(jdText);
+            var summary = _jdcGenerateSummary(title, company, skills.slice(0, 5), seniority, jdText);
+            var demoExperience = _jdcGenerateDemonstrated(title, skills.slice(0, 6), seniority, jdText);
+            var industry = _jdcDetectIndustry(jdText);
+
             return {
                 title: title,
                 company: company,
                 location: location,
+                employmentType: employmentType,
+                department: department,
+                reportsTo: reportsTo,
+                schedule: schedule,
+                travel: travel,
                 soc: socResult ? socResult.soc : null,
                 socTitle: socResult ? socResult.title : null,
                 seniority: seniority,
+                industry: industry,
+                yearsRequired: yearsRequired,
+                education: education,
+                certifications: certifications,
                 summary: summary,
                 skills: skills,
                 bls: bls,
@@ -6336,111 +6320,505 @@
                 _rawJD: jdText
             };
         }
-        
-        function extractSkillsFromText(jdText) {
-            var text = jdText.toLowerCase();
-            var found = [];
-            // Common skill patterns from JD phrasing
-            var patterns = [
-                /(?:experience|proficiency|expertise|knowledge|skilled)\s+(?:in|with|of)\s+([A-Za-z\s\+\#\/\-]{3,40})/gi,
-                /(?:familiarity with|understanding of|ability to use)\s+([A-Za-z\s\+\#\/\-]{3,40})/gi
+
+        function _jdcExtractTitle(lines, jdText) {
+            var labelPatterns = [
+                /(?:job\s*title|position|role|title)\s*[:;\-\u2013\u2014]\s*(.{5,100})/i,
+                /^(?:job\s*title|position|role)\s*[:]\s*(.+)/im
             ];
+            for (var pi = 0; pi < labelPatterns.length; pi++) {
+                var m = jdText.match(labelPatterns[pi]);
+                if (m) {
+                    var t = m[1].trim().replace(/[,\.\;]+$/, '').trim();
+                    if (t.length >= 5 && t.length <= 120) return t;
+                }
+            }
+            var skipWords = /^(about|we |our |the company|description|overview|who we are|what you|why |join |apply|equal|eoe|disclaimer|benefits|perks|compensation|salary|requirements|responsibilities|qualifications|duties|summary|introduction|company\s)/i;
+            var bulletRx = /^[\u2022\u2023\u25E6\u25AA\u25AB\-\*\>]\s*/;
+            for (var li = 0; li < Math.min(8, lines.length); li++) {
+                var ln = lines[li].replace(bulletRx, '');
+                if (ln.length >= 5 && ln.length <= 120 && !/^\d+\./.test(ln) && !skipWords.test(ln)) {
+                    if (/[a-z]/i.test(ln) && !/^https?:/.test(ln)) return ln;
+                }
+            }
+            return lines[0] || 'Unknown Role';
+        }
+
+        function _jdcExtractCompany(lines, jdText) {
+            var patterns = [
+                /(?:company|employer|organization)\s*[:;\-\u2013\u2014]\s*([^\n,]{3,60})/i,
+                /\b(?:at|join|about)\s+([A-Z][A-Za-z0-9\s&\.\-\']{2,40}?)(?:\s*[,\.\!\n]|\s+is\b|\s+seeks\b|\s+looking\b|\s+we\b|\s+has\b|\s+offers\b)/,
+                /([A-Z][A-Za-z0-9\s&\.\-\']{2,40}?)\s+is\s+(?:seeking|hiring|looking|recruiting|a\s)/,
+                /\bwork(?:ing)?\s+(?:at|for)\s+([A-Z][A-Za-z0-9\s&\.\-\']{2,40})/
+            ];
+            for (var i = 0; i < patterns.length; i++) {
+                var m = jdText.match(patterns[i]);
+                if (m) {
+                    var c = m[1].trim().replace(/[,\.\;]+$/, '').trim();
+                    if (c.length >= 2 && c.length <= 60 && !/^(the|a|an|this|our|we|you|your)$/i.test(c)) return c;
+                }
+            }
+            return '';
+        }
+
+        function _jdcExtractLocation(jdText) {
+            var patterns = [
+                /(?:location|office|based in|located in|headquarters|hq)\s*[:;\-\u2013\u2014]?\s*([^\n,]{3,60})/i,
+                /\b((?:[A-Z][a-z]+(?:\s[A-Z][a-z]+)?),\s*(?:AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC))\b/
+            ];
+            for (var i = 0; i < patterns.length; i++) {
+                var m = jdText.match(patterns[i]);
+                if (m) {
+                    var loc = m[1].trim().replace(/[,\.\;]+$/, '').trim();
+                    if (loc.length >= 3 && loc.length <= 60) return loc;
+                }
+            }
+            var hasRemote = /\bremote\b/i.test(jdText);
+            var hasHybrid = /\bhybrid\b/i.test(jdText);
+            var hasOnsite = /\b(?:on[\-\s]?site|in[\-\s]?office|in[\-\s]?person)\b/i.test(jdText);
+            if (hasHybrid) return 'Hybrid';
+            if (hasRemote && hasOnsite) return 'Hybrid / Remote';
+            if (hasRemote) return 'Remote';
+            if (hasOnsite) return 'On-site';
+            return 'Not specified';
+        }
+
+        function _jdcExtractEmploymentType(jdText) {
+            var text = jdText.toLowerCase();
+            if (/\b(?:contract|contractor|freelance|1099|consulting\s+engagement)\b/.test(text)) return 'Contract';
+            if (/\b(?:part[\-\s]?time)\b/.test(text)) return 'Part-time';
+            if (/\b(?:intern(?:ship)?)\b/.test(text)) return 'Internship';
+            if (/\b(?:temporary|temp\s+to\s+perm|temp\b)\b/.test(text)) return 'Temporary';
+            if (/\b(?:full[\-\s]?time|permanent|salaried|FTE)\b/.test(text)) return 'Full-time';
+            return '';
+        }
+
+        function _jdcExtractDepartment(jdText) {
+            var m = jdText.match(/(?:department|team|division|group|function|org(?:anization)?)\s*[:;\-\u2013\u2014]\s*([^\n,]{3,50})/i);
+            if (m) return m[1].trim().replace(/[,\.\;]+$/, '').trim();
+            return '';
+        }
+
+        function _jdcExtractReportsTo(jdText) {
+            var patterns = [
+                /(?:reports?\s+to|reporting\s+to|report(?:s|ing)?\s+(?:directly\s+)?to)\s*[:;\-\u2013\u2014]?\s*(?:the\s+)?([^\n,\.]{3,60})/i,
+                /(?:manager|supervisor)\s*[:;\-\u2013\u2014]\s*([^\n,\.]{3,60})/i
+            ];
+            for (var i = 0; i < patterns.length; i++) {
+                var m = jdText.match(patterns[i]);
+                if (m) return m[1].trim();
+            }
+            return '';
+        }
+
+        function _jdcExtractSchedule(jdText) {
+            var text = jdText.toLowerCase();
+            if (/\b(?:shift|rotating\s+shifts|night\s+shift|swing\s+shift)\b/.test(text)) return 'Shift-based';
+            if (/\b(?:flex(?:ible)?\s+(?:hours|schedule)|flexible\s+work)\b/.test(text)) return 'Flexible';
+            if (/\b(?:9[\s\-]?(?:to|-)[\s\-]?5|standard\s+(?:business\s+)?hours|monday[\s\-]friday)\b/.test(text)) return 'Standard business hours';
+            return '';
+        }
+
+        function _jdcExtractTravel(jdText) {
+            var m = jdText.match(/(\d{1,3})\s*%?\s*(?:travel|domestic|international)/i);
+            if (m) return m[1] + '% travel';
+            var text = jdText.toLowerCase();
+            if (/\b(?:extensive|significant|frequent)\s+travel\b/.test(text)) return 'Extensive travel required';
+            if (/\b(?:some|occasional|minimal|limited)\s+travel\b/.test(text)) return 'Occasional travel';
+            if (/\bno\s+travel\b/.test(text)) return 'No travel';
+            if (/\btravel\s+required\b/.test(text)) return 'Travel required';
+            return '';
+        }
+
+        function _jdcDetectSeniority(title, jdText) {
+            var t = title.toLowerCase();
+            if (/\b(chief|c[a-z]o|svp|evp|president)\b/.test(t)) return 'executive';
+            if (/\b(director|head\s+of|vp\b|vice\s+president)\b/.test(t)) return 'director';
+            if (/\b(senior|sr\.|lead|principal|staff|architect)\b/.test(t)) return 'senior';
+            if (/\b(junior|jr\.|entry|associate|intern|trainee|apprentice)\b/.test(t)) return 'entry';
+            var text = jdText.toLowerCase();
+            var yrsMatch = text.match(/(\d{1,2})\+?\s*(?:years|yrs)/);
+            if (yrsMatch) {
+                var yrs = parseInt(yrsMatch[1]);
+                if (yrs >= 12) return 'executive';
+                if (yrs >= 8) return 'director';
+                if (yrs >= 5) return 'senior';
+                if (yrs <= 2) return 'entry';
+            }
+            return 'mid';
+        }
+
+        function _jdcExtractYearsOfExperience(jdText) {
+            var results = [];
+            var patterns = [
+                /(\d{1,2})\s*[\-\u2013]\s*(\d{1,2})\+?\s*(?:years|yrs)\s+(?:of\s+)?(?:experience|exp\.?)\s*(?:in\s+)?([^,\.\n]{3,60})?/gi,
+                /(\d{1,2})\+?\s*(?:years|yrs)\s+(?:of\s+)?(?:experience|exp\.?)\s*(?:in\s+)?([^,\.\n]{3,60})?/gi,
+                /(?:minimum|at\s+least|requires?)\s+(\d{1,2})\+?\s*(?:years|yrs)/gi
+            ];
+            var seen = {};
             patterns.forEach(function(rx) {
                 var m;
                 while ((m = rx.exec(jdText)) !== null) {
-                    var skill = m[1].trim().replace(/[,\.\;]+$/, '').trim();
-                    if (skill.length > 2 && skill.length < 40 && !/\b(and|the|our|you|your|this|that|will|must)\b/i.test(skill)) {
-                        found.push(skill.charAt(0).toUpperCase() + skill.slice(1));
+                    var full = m[0].trim();
+                    var key = full.toLowerCase().replace(/\s+/g, ' ');
+                    if (!seen[key]) {
+                        seen[key] = true;
+                        if (m[3]) {
+                            results.push({ range: (m[1] || '') + (m[2] ? '-' + m[2] : '+'), area: m[3].trim().replace(/[,\.\;]+$/, '') });
+                        } else if (m[2] && /[a-z]/i.test(m[2])) {
+                            results.push({ range: m[1] + '+', area: m[2].trim().replace(/[,\.\;]+$/, '') });
+                        } else {
+                            var yr = m[2] ? m[1] + '-' + m[2] : m[1] + '+';
+                            results.push({ range: yr, area: 'overall' });
+                        }
                     }
                 }
             });
-            return found.slice(0, 8);
+            return results.slice(0, 6);
         }
-        
-        function inferProficiencyFromJD(skillName, jdText) {
+
+        function _jdcExtractEducation(jdText) {
+            var results = [];
+            var degreePatterns = [
+                { level: "Doctorate", rx: /\b(?:ph\.?d|doctorate|doctoral)\b/gi },
+                { level: "Master's", rx: /\b(?:master'?s?\s+(?:degree|of)?|mba|m\.?s\.?\s|m\.?a\.?\s|msc)\b/gi },
+                { level: "Bachelor's", rx: /\b(?:bachelor'?s?\s+(?:degree|of)?|b\.?s\.?\s|b\.?a\.?\s|bsc|undergraduate\s+degree)\b/gi },
+                { level: "Associate's", rx: /\b(?:associate'?s?\s+degree)\b/gi }
+            ];
+            degreePatterns.forEach(function(dp) {
+                dp.rx.lastIndex = 0;
+                var degreeMatch = dp.rx.exec(jdText);
+                if (degreeMatch) {
+                    var fieldMatch = jdText.match(new RegExp(dp.rx.source + '\\s+(?:in|of)\\s+([^,\\.\\n]{3,50})', 'i'));
+                    var matchIdx = degreeMatch.index;
+                    var context = jdText.substring(Math.max(0, matchIdx - 60), Math.min(jdText.length, matchIdx + degreeMatch[0].length + 60));
+                    results.push({
+                        level: dp.level,
+                        field: fieldMatch ? fieldMatch[1].trim() : '',
+                        preferred: /\bprefer(?:red)?\b/i.test(context)
+                    });
+                }
+            });
+            return results;
+        }
+
+        function _jdcExtractCertifications(jdText) {
+            var certs = [];
+            var knownCerts = [
+                'PMP', 'CISSP', 'CISM', 'CISA', 'AWS Certified', 'Azure Certified', 'Google Cloud Certified',
+                'CPA', 'CFA', 'FRM', 'CFP', 'Series 7', 'Series 63', 'Series 66',
+                'SHRM-CP', 'SHRM-SCP', 'PHR', 'SPHR',
+                'Six Sigma', 'Lean Six Sigma', 'ITIL', 'TOGAF',
+                'Salesforce Certified', 'HubSpot Certified', 'Google Analytics',
+                'CompTIA Security\\+', 'CompTIA A\\+', 'CompTIA Network\\+',
+                'Certified Scrum Master', 'CSM', 'CSPO', 'SAFe',
+                'CCNA', 'CCNP', 'CCIE', 'MCSE',
+                'PE\\b', 'EIT\\b', 'FE\\b', 'LEED',
+                'RN\\b', 'BSN', 'NP\\b', 'PA-C',
+                'Certified Public Accountant', 'Certified Financial Planner',
+                'Board Certified Behavior Analyst', 'Licensed Clinical Social Worker'
+            ];
+            knownCerts.forEach(function(cert) {
+                var rx = new RegExp('\\b' + cert, 'i');
+                if (rx.test(jdText)) {
+                    var cleanName = cert.replace(/\\[\+\b]/g, function(m) { return m === '\\+' ? '+' : ''; });
+                    if (!certs.some(function(c) { return c.toLowerCase() === cleanName.toLowerCase(); })) {
+                        certs.push(cleanName);
+                    }
+                }
+            });
+            var certMatch = jdText.match(/(?:certification|certified|license|licensed)\s+(?:in|as|for)\s+([^,\.\n]{3,50})/gi);
+            if (certMatch) {
+                certMatch.forEach(function(cm) {
+                    var name = cm.replace(/^(?:certification|certified|license|licensed)\s+(?:in|as|for)\s+/i, '').trim();
+                    if (name.length >= 3 && !certs.some(function(c) { return c.toLowerCase() === name.toLowerCase(); })) {
+                        certs.push(name);
+                    }
+                });
+            }
+            return certs.slice(0, 8);
+        }
+
+        function _jdcExtractSkillsFromText(jdText) {
+            var text = jdText.toLowerCase();
+            var found = [];
+            var seen = {};
+            var phrasePatterns = [
+                /(?:experience|proficiency|expertise|knowledge|skilled|proficient)\s+(?:in|with|of)\s+([A-Za-z\s\+\#\/\.\-]{3,45})/gi,
+                /(?:familiarity with|understanding of|ability to use|competency in|fluency in|background in)\s+([A-Za-z\s\+\#\/\.\-]{3,45})/gi,
+                /(?:strong|demonstrated|proven|solid|deep|hands[\-\s]on)\s+(?:experience|knowledge|skills?|background|understanding)\s+(?:in|with|of)\s+([A-Za-z\s\+\#\/\.\-]{3,45})/gi,
+                /(?:must\s+(?:have|know|be\s+(?:proficient|skilled|experienced)))\s+(?:in|with)\s+([A-Za-z\s\+\#\/\.\-]{3,45})/gi
+            ];
+            var stopWords = /^(and|the|our|you|your|this|that|will|must|have|has|are|is|for|all|any|other|both|each|more|most|such|new|one|two|a|an|to|or|at|by|on|of|as|from|with|into|also|than|then|very|well|good|great|strong|key|top|the ability)$/i;
+            function addSkill(raw, importance) {
+                var skill = raw.trim().replace(/[,\.\;\:\!]+$/, '').replace(/\s+/g, ' ').trim();
+                if (skill.length < 3 || skill.length > 45) return;
+                if (stopWords.test(skill)) return;
+                var key = skill.toLowerCase();
+                if (!seen[key]) {
+                    seen[key] = true;
+                    found.push({ name: skill.charAt(0).toUpperCase() + skill.slice(1), importance: importance || 55 });
+                }
+            }
+            phrasePatterns.forEach(function(rx) {
+                var m;
+                while ((m = rx.exec(jdText)) !== null) {
+                    addSkill(m[1], 60);
+                }
+            });
+            var techTerms = [
+                'Python', 'Java', 'JavaScript', 'TypeScript', 'C\\+\\+', 'C#', 'Go', 'Rust', 'Ruby', 'PHP', 'Swift', 'Kotlin', 'Scala', 'R\\b',
+                'SQL', 'NoSQL', 'PostgreSQL', 'MySQL', 'MongoDB', 'Redis', 'Elasticsearch', 'DynamoDB', 'Cassandra',
+                'AWS', 'Azure', 'GCP', 'Google Cloud', 'Docker', 'Kubernetes', 'Terraform', 'Ansible', 'Jenkins', 'CI/CD',
+                'React', 'Angular', 'Vue', 'Node\\.js', 'Django', 'Flask', 'Spring', 'Express',
+                'Machine Learning', 'Deep Learning', 'NLP', 'Computer Vision', 'TensorFlow', 'PyTorch',
+                'Tableau', 'Power BI', 'Looker', 'Snowflake', 'Databricks', 'Spark', 'Hadoop', 'Kafka', 'Airflow',
+                'Salesforce', 'HubSpot', 'SAP', 'Oracle', 'Workday', 'ServiceNow', 'Jira', 'Confluence',
+                'Figma', 'Sketch', 'Adobe XD', 'InDesign', 'Photoshop', 'Illustrator',
+                'Excel', 'Google Sheets', 'PowerPoint', 'Google Slides',
+                'REST API', 'GraphQL', 'Microservices', 'ETL', 'Data Pipeline',
+                'Agile', 'Scrum', 'Kanban', 'Waterfall', 'DevOps', 'SRE',
+                'Git', 'Linux', 'Unix', 'Bash',
+                'SEO', 'SEM', 'Google Analytics', 'Google Ads', 'Facebook Ads',
+                'Financial Modeling', 'Forecasting', 'Budgeting', 'P&L', 'FP&A',
+                'HIPAA', 'SOX', 'GDPR', 'PCI', 'ISO 27001',
+                'Supply Chain', 'Logistics', 'Procurement', 'Inventory Management',
+                'CRM', 'ERP', 'HRIS', 'ATS', 'LMS'
+            ];
+            techTerms.forEach(function(term) {
+                var hasSpecialChars = /[\\#\+\.\&]/.test(term);
+                var rx;
+                if (hasSpecialChars) {
+                    rx = new RegExp('(?:^|[\\s,;\\(\\[])' + term + '(?:$|[\\s,;\\)\\]])', 'i');
+                } else {
+                    rx = new RegExp('\\b' + term + '\\b', 'i');
+                }
+                if (rx.test(jdText)) {
+                    var cleanTerm = term.replace(/\\\+/g, '+').replace(/\\\./g, '.').replace(/\\b/g, '');
+                    addSkill(cleanTerm, 65);
+                }
+            });
+            var bulletLines = jdText.split('\n');
+            bulletLines.forEach(function(line) {
+                var stripped = line.trim();
+                if (/^[\u2022\u2023\u25E6\u25AA\-\*\>]\s+/.test(stripped) || /^\d+[\.\)]\s+/.test(stripped)) {
+                    var content = stripped.replace(/^[\u2022\u2023\u25E6\u25AA\-\*\>]\s+/, '').replace(/^\d+[\.\)]\s+/, '');
+                    var toolMatch = content.match(/(?:tools?\s+(?:like|such as|including)|(?:e\.g\.|i\.e\.))\s*[:;]?\s*([^\.]+)/i);
+                    if (toolMatch) {
+                        toolMatch[1].split(/[,;\/]|\band\b/).forEach(function(t) {
+                            addSkill(t.trim(), 58);
+                        });
+                    }
+                }
+            });
+            return found.slice(0, 20);
+        }
+
+        function _jdcInferProficiency(skillName, jdText, seniority) {
             var text = jdText.toLowerCase();
             var sn = skillName.toLowerCase();
-            // Look for years near skill mention
             var idx = text.indexOf(sn);
-            var context = idx >= 0 ? text.substring(Math.max(0, idx - 80), Math.min(text.length, idx + 80)) : text;
-            
-            if (/(?:10|12|15|20)\+?\s*(?:years|yrs)/i.test(context)) return 'Mastery';
-            if (/(?:7|8|9)\+?\s*(?:years|yrs)/i.test(context)) return 'Expert';
-            if (/(?:5|6)\+?\s*(?:years|yrs)/i.test(context)) return 'Advanced';
-            if (/(?:3|4)\+?\s*(?:years|yrs)/i.test(context)) return 'Proficient';
-            if (/(?:1|2)\+?\s*(?:years|yrs)/i.test(context)) return 'Foundational';
-            
-            // Keyword-based
-            if (/\b(master|expert|deep expertise|authority)\b/i.test(context)) return 'Mastery';
-            if (/\b(extensive|thorough|strong expertise)\b/i.test(context)) return 'Expert';
-            if (/\b(senior|advanced|strong|demonstrated|significant)\b/i.test(context)) return 'Advanced';
-            if (/\b(solid|working knowledge|proficient|competent)\b/i.test(context)) return 'Proficient';
-            if (/\b(basic|fundamental|familiar|exposure)\b/i.test(context)) return 'Foundational';
-            
-            return 'Advanced'; // Default for JD requirements
+            var context = idx >= 0 ? text.substring(Math.max(0, idx - 100), Math.min(text.length, idx + 100)) : '';
+
+            if (context) {
+                if (/(?:10|1[1-9]|[2-9]\d)\+?\s*(?:years|yrs)/i.test(context)) return 'Mastery';
+                if (/(?:[7-9])\+?\s*(?:years|yrs)/i.test(context)) return 'Expert';
+                if (/(?:[5-6])\+?\s*(?:years|yrs)/i.test(context)) return 'Advanced';
+                if (/(?:[3-4])\+?\s*(?:years|yrs)/i.test(context)) return 'Proficient';
+                if (/(?:[1-2])\+?\s*(?:years|yrs)/i.test(context)) return 'Foundational';
+
+                if (/\b(master|authorit|world[\-\s]class|thought\s+leader)\b/i.test(context)) return 'Mastery';
+                if (/\b(expert|extensive|thorough|deep\s+expertise)\b/i.test(context)) return 'Expert';
+                if (/\b(advanced|strong|senior|significant|demonstrated)\b/i.test(context)) return 'Advanced';
+                if (/\b(solid|working\s+knowledge|proficient|competent|comfortable)\b/i.test(context)) return 'Proficient';
+                if (/\b(basic|fundament|familiar|exposure|awareness|introduct)\b/i.test(context)) return 'Foundational';
+                if (/\b(nice[\-\s]to[\-\s]have|preferred|bonus|plus|ideally)\b/i.test(context)) return 'Foundational';
+            }
+
+            var seniorityDefaults = { entry: 'Foundational', mid: 'Proficient', senior: 'Advanced', director: 'Expert', executive: 'Expert' };
+            return seniorityDefaults[seniority] || 'Proficient';
         }
-        
-        function generateOutcome(skillName, category) {
-            var outcomeTemplates = {
-                'skills': 'Applies ' + skillName + ' to deliver measurable results aligned with organizational objectives',
-                'abilities': 'Demonstrates ' + skillName + ' in complex, ambiguous situations requiring judgment',
-                'knowledge': 'Leverages ' + skillName + ' to inform decisions and guide team execution',
-                'skill': 'Uses ' + skillName + ' to produce consistent, quality work outputs'
+
+        function _jdcGenerateOutcome(skillName, category, seniority, title) {
+            var sn = skillName;
+            var senVerbs = {
+                entry: ['Assist with', 'Support', 'Contribute to', 'Learn and apply'],
+                mid: ['Execute', 'Deliver', 'Apply', 'Manage'],
+                senior: ['Lead', 'Architect', 'Drive', 'Optimize'],
+                director: ['Direct', 'Define strategy for', 'Scale', 'Transform'],
+                executive: ['Set vision for', 'Champion', 'Govern', 'Align enterprise']
             };
-            return outcomeTemplates[category] || outcomeTemplates['skill'];
+            var verbs = senVerbs[seniority] || senVerbs['mid'];
+            var verb = verbs[Math.floor(Math.random() * verbs.length)];
+
+            var outcomesByCat = {
+                'skills': [
+                    verb + ' ' + sn.toLowerCase() + ' initiatives that produce measurable business outcomes',
+                    verb + ' ' + sn.toLowerCase() + ' to meet defined quality and timeline targets',
+                    verb + ' ' + sn.toLowerCase() + ' workflows that improve team velocity and output'
+                ],
+                'abilities': [
+                    verb + ' ' + sn.toLowerCase() + ' in cross-functional settings requiring sound judgment',
+                    verb + ' ' + sn.toLowerCase() + ' to navigate complex stakeholder environments',
+                    verb + ' ' + sn.toLowerCase() + ' across ambiguous situations to drive clarity'
+                ],
+                'knowledge': [
+                    verb + ' ' + sn.toLowerCase() + ' to inform data-driven decisions and team direction',
+                    verb + ' ' + sn.toLowerCase() + ' to establish standards and best practices',
+                    verb + ' ' + sn.toLowerCase() + ' to build organizational capability and competency'
+                ],
+                'skill': [
+                    verb + ' ' + sn.toLowerCase() + ' to deliver consistent, high-quality work outputs',
+                    verb + ' ' + sn.toLowerCase() + ' to solve problems and improve operational performance',
+                    verb + ' ' + sn.toLowerCase() + ' to contribute to cross-team objectives and deliverables'
+                ]
+            };
+            var pool = outcomesByCat[category] || outcomesByCat['skill'];
+            return pool[Math.floor(Math.random() * pool.length)];
         }
-        
-        function inferValuesFromJD(jdText) {
+
+        function _jdcInferValues(jdText) {
             var text = jdText.toLowerCase();
             var values = [];
             var valuePatterns = [
-                { name: 'Integrity', desc: 'Upholds rigorous standards and ethical decision-making', patterns: /\b(integrity|ethic|trust|honest|transparent|compliance)\b/ },
-                { name: 'Curiosity', desc: 'Digs beneath surface data to uncover patterns and root causes', patterns: /\b(curious|innovate|creative|research|analytic|discover|explore|investigate)\b/ },
-                { name: 'Collaborative Impact', desc: 'Works across functions to drive outcomes as a team', patterns: /\b(collaborat|team|cross.?function|partner|stakeholder|together)\b/ },
-                { name: 'Accountability', desc: 'Owns work through to resolution and supports outcomes', patterns: /\b(accountab|ownership|responsible|reliable|deliver|results.?driven|outcome)\b/ },
-                { name: 'Resilience', desc: 'Navigates ambiguous, adversarial, and regulated environments', patterns: /\b(resilien|adapt|agile|fast.?paced|ambiguit|pressure|challenge)\b/ },
-                { name: 'Strategic Insight', desc: 'Converts findings into program-level recommendations', patterns: /\b(strateg|vision|long.?term|roadmap|thought leader|foresight|influence)\b/ },
-                { name: 'Continuous Growth', desc: 'Actively develops skills and stays current with the field', patterns: /\b(learn|develop|growth|certif|train|mentor|improv|evolve)\b/ },
-                { name: 'Precision', desc: 'Executes with attention to detail and quality standards', patterns: /\b(detail|precision|quality|thorough|meticulous|accurate|rigor)\b/ },
-                { name: 'Empathy', desc: 'Understands and responds to the needs of others with care', patterns: /\b(empathy|compassion|patient|support|listen|understand|inclusion|diverse|equity)\b/ },
-                { name: 'Autonomy', desc: 'Operates independently with sound judgment', patterns: /\b(independent|autonomy|self.?directed|initiative|proactive|self.?starter)\b/ }
+                { name: 'Integrity', desc: 'Upholds rigorous standards and ethical decision-making', patterns: /\b(integrity|ethic|trust|honest|transparent|compliance|governance)\b/, weight: 2 },
+                { name: 'Curiosity', desc: 'Digs beneath surface data to uncover patterns and root causes', patterns: /\b(curious|curios|innovate|innovation|creative|research|discover|explore|investigate|experiment)\b/, weight: 2 },
+                { name: 'Collaborative Impact', desc: 'Works across functions to drive outcomes as a team', patterns: /\b(collaborat|cross.?function|partner|stakeholder|together|teamwork|interdisciplin)\b/, weight: 2 },
+                { name: 'Accountability', desc: 'Owns work through to resolution and supports outcomes', patterns: /\b(accountab|ownership|responsible|reliable|results.?driven|outcome.?orient|deliver.?results)\b/, weight: 2 },
+                { name: 'Resilience', desc: 'Navigates ambiguous, adversarial, and regulated environments', patterns: /\b(resilien|fast.?paced|ambiguit|high.?pressure|dynamic\s+environment|uncertainty|pivoting)\b/, weight: 2 },
+                { name: 'Strategic Insight', desc: 'Converts findings into program-level recommendations', patterns: /\b(strateg|vision|long.?term|roadmap|thought\s+leader|foresight)\b/, weight: 2 },
+                { name: 'Continuous Growth', desc: 'Actively develops skills and stays current with the field', patterns: /\b(continuous.?(?:learn|improv)|professional\s+develop|certif|upskill|growth\s+mindset|stay\s+current)\b/, weight: 2 },
+                { name: 'Precision', desc: 'Executes with attention to detail and quality standards', patterns: /\b(attention\s+to\s+detail|precision|quality\s+(?:assurance|standard|control)|meticulous|accurate|rigor)\b/, weight: 2 },
+                { name: 'Empathy', desc: 'Understands and responds to the needs of others with care', patterns: /\b(empathy|empathetic|compassion|patient[\-\s](?:care|cent)|human[\-\s]center|inclusion|belonging|equity|accessibility)\b/, weight: 2 },
+                { name: 'Autonomy', desc: 'Operates independently with sound judgment', patterns: /\b(independent|autonomy|self.?directed|initiative|proactive|self.?starter|self.?motivated|minimal\s+supervision)\b/, weight: 2 }
             ];
             valuePatterns.forEach(function(v) {
-                if (v.patterns.test(text)) values.push({ name: v.name, desc: v.desc });
+                var matches = (text.match(v.patterns) || []).length;
+                if (matches > 0) values.push({ name: v.name, desc: v.desc, hits: matches });
             });
-            // Always return at least 3
+            values.sort(function(a, b) { return b.hits - a.hits; });
             if (values.length < 3) {
                 var defaults = [
-                    { name: 'Accountability', desc: 'Owns work through to resolution and supports outcomes' },
-                    { name: 'Collaborative Impact', desc: 'Works across functions to drive outcomes as a team' },
-                    { name: 'Continuous Growth', desc: 'Actively develops skills and stays current with the field' }
+                    { name: 'Accountability', desc: 'Owns work through to resolution and supports outcomes', hits: 0 },
+                    { name: 'Collaborative Impact', desc: 'Works across functions to drive outcomes as a team', hits: 0 },
+                    { name: 'Continuous Growth', desc: 'Actively develops skills and stays current with the field', hits: 0 }
                 ];
                 defaults.forEach(function(d) {
-                    if (values.length < 4 && !values.some(function(v) { return v.name === d.name; })) values.push(d);
+                    if (values.length < 3 && !values.some(function(v) { return v.name === d.name; })) values.push(d);
                 });
             }
-            return values.slice(0, 6);
+            return values.slice(0, 6).map(function(v) { return { name: v.name, desc: v.desc }; });
         }
-        
-        function generateWorkSummary(title, company, topSkills, seniority) {
+
+        function _jdcGenerateSummary(title, company, topSkills, seniority, jdText) {
             var skillNames = topSkills.map(function(s) { return s.name; });
-            var seniorityMap = { entry: 'Support', mid: 'Execute', senior: 'Lead', director: 'Direct', executive: 'Set strategy for' };
-            var verb = seniorityMap[seniority] || 'Execute';
             var companyPhrase = company ? ' at ' + company : '';
-            return verb + ' ' + (skillNames[0] || 'core functions').toLowerCase() + ' and ' + (skillNames[1] || 'cross-functional initiatives').toLowerCase() + companyPhrase + '. '
-                + 'Drive ' + (skillNames[2] || 'operational outcomes').toLowerCase() + ', ' + (skillNames[3] || 'process improvements').toLowerCase()
-                + ', and coordination across teams. Operate as both practitioner and strategic partner, combining technical execution with organizational impact.';
-        }
-        
-        function generateDemonstrated(title, topSkills, seniority) {
-            var evidence = [];
-            var quantifiers = { entry: 'Contributed to', mid: 'Successfully completed', senior: 'Led', director: 'Directed', executive: 'Set enterprise strategy for' };
-            var q = quantifiers[seniority] || 'Completed';
-            topSkills.forEach(function(s) {
-                evidence.push(q + ' initiatives requiring ' + s.name + ' with measurable impact on business outcomes.');
+            var seniorityContext = {
+                entry: { scope: 'supporting', impact: 'contributing to team deliverables' },
+                mid: { scope: 'executing', impact: 'driving measurable results' },
+                senior: { scope: 'leading', impact: 'shaping technical and operational direction' },
+                director: { scope: 'directing', impact: 'defining strategy and scaling outcomes' },
+                executive: { scope: 'setting vision for', impact: 'aligning enterprise capabilities with business objectives' }
+            };
+            var ctx = seniorityContext[seniority] || seniorityContext['mid'];
+
+            var lines = jdText.split('\n').map(function(l) { return l.trim(); }).filter(function(l) {
+                return l.length > 40 && l.length < 300 && !/^[\u2022\u2023\u25E6\-\*]/.test(l) && !/^\d+[\.\)]/.test(l);
             });
-            var artifacts = 'Relevant artifacts: project deliverables, performance metrics, stakeholder feedback, process documentation, audit trails.';
-            return { evidence: evidence, artifacts: artifacts };
+            var firstSentences = [];
+            lines.slice(0, 10).forEach(function(line) {
+                var sentences = line.match(/[^\.!\?]+[\.!\?]+/g) || [line];
+                sentences.forEach(function(s) {
+                    var trimmed = s.trim();
+                    if (trimmed.length > 30 && trimmed.length < 250 && !/^(about|we are|our company|equal|eoe|disclaimer)/i.test(trimmed)) {
+                        firstSentences.push(trimmed);
+                    }
+                });
+            });
+            if (firstSentences.length > 0) {
+                var best = firstSentences[0];
+                for (var i = 0; i < Math.min(3, firstSentences.length); i++) {
+                    var s = firstSentences[i].toLowerCase();
+                    if (s.indexOf(title.toLowerCase().split(' ')[0].toLowerCase()) !== -1 || /\brole\b|\bposition\b|\bresponsib/.test(s)) {
+                        best = firstSentences[i]; break;
+                    }
+                }
+                var coreSkills = skillNames.slice(0, 3).map(function(n) { return n.toLowerCase(); }).join(', ');
+                return best + ' Core competencies include ' + coreSkills + ', ' + ctx.impact + '.';
+            }
+
+            return 'This ' + title + ' role' + companyPhrase + ' focuses on ' + ctx.scope + ' ' + (skillNames[0] || 'core functions').toLowerCase()
+                + ' and ' + (skillNames[1] || 'cross-functional initiatives').toLowerCase()
+                + '. Key responsibilities include ' + (skillNames[2] || 'operational delivery').toLowerCase()
+                + ', ' + (skillNames[3] || 'stakeholder engagement').toLowerCase()
+                + ', and ' + ctx.impact + '.';
+        }
+
+        function _jdcGenerateDemonstrated(title, topSkills, seniority, jdText) {
+            var evidence = [];
+            var senVerbs = {
+                entry: ['Contributed to', 'Assisted in', 'Supported'],
+                mid: ['Delivered', 'Executed', 'Managed'],
+                senior: ['Led', 'Architected', 'Drove'],
+                director: ['Directed', 'Scaled', 'Transformed'],
+                executive: ['Set enterprise strategy for', 'Championed', 'Governed']
+            };
+            var verbs = senVerbs[seniority] || senVerbs['mid'];
+
+            var impactPhrases = [
+                'with documented outcomes against defined KPIs',
+                'resulting in measurable improvements to team or business performance',
+                'producing artifacts reviewed and validated by stakeholders',
+                'demonstrating progression from execution to ownership',
+                'with evidence of cross-functional collaboration and coordination',
+                'supported by quantifiable metrics and peer/manager validation'
+            ];
+
+            topSkills.forEach(function(s, i) {
+                var verb = verbs[i % verbs.length];
+                var impact = impactPhrases[i % impactPhrases.length];
+                evidence.push(verb + ' work requiring ' + s.name + ' ' + impact + '.');
+            });
+
+            var artifactsByLevel = {
+                entry: 'Relevant artifacts: completed assignments, training certifications, project contributions, mentor feedback, code samples or portfolio work.',
+                mid: 'Relevant artifacts: project deliverables, performance reviews, stakeholder feedback, process documentation, shipped products or campaigns.',
+                senior: 'Relevant artifacts: architecture decisions, team mentorship records, technical specifications, incident post-mortems, published work or conference presentations.',
+                director: 'Relevant artifacts: strategic plans, organizational design documents, board-level presentations, P&L ownership records, transformation case studies.',
+                executive: 'Relevant artifacts: enterprise strategy documents, investor presentations, organizational transformation records, industry recognition, advisory board participation.'
+            };
+
+            return {
+                evidence: evidence,
+                artifacts: artifactsByLevel[seniority] || artifactsByLevel['mid']
+            };
+        }
+
+        function _jdcDetectIndustry(jdText) {
+            var text = jdText.toLowerCase();
+            var industries = [
+                { name: 'Technology', rx: /\b(software|saas|cloud|platform|tech|startup|ai\b|machine learning|data science|devops|engineering|cybersecurity)\b/ },
+                { name: 'Healthcare', rx: /\b(health|medical|clinical|pharma|biotech|hospital|patient|hipaa|therapeutic|fda|ehr|emr)\b/ },
+                { name: 'Financial Services', rx: /\b(banking|fintech|insurance|investment|trading|hedge fund|asset management|wealth|broker|mortgage|lending)\b/ },
+                { name: 'Manufacturing', rx: /\b(manufactur|production|assembly|industrial|factory|supply chain|logistics|warehouse|procurement|lean manufacturing)\b/ },
+                { name: 'Retail & E-commerce', rx: /\b(retail|ecommerce|e-commerce|merchandise|store|consumer|shopper|omnichannel|pos|point of sale)\b/ },
+                { name: 'Education', rx: /\b(education|university|college|school|academic|student|curriculum|edtech|lms|k-12|higher ed)\b/ },
+                { name: 'Government & Public Sector', rx: /\b(government|federal|state agency|public sector|municipal|clearance|gsa|dod|dhs)\b/ },
+                { name: 'Consulting & Professional Services', rx: /\b(consulting|advisory|professional services|big four|engagement manager|client delivery)\b/ },
+                { name: 'Media & Entertainment', rx: /\b(media|entertainment|broadcast|streaming|content|publishing|news|gaming|studio)\b/ },
+                { name: 'Energy & Utilities', rx: /\b(energy|oil|gas|renewable|solar|wind|utility|power|grid|sustainability)\b/ },
+                { name: 'Nonprofit', rx: /\b(nonprofit|non-profit|foundation|charity|ngo|philanthrop|social impact|mission-driven)\b/ },
+                { name: 'Legal', rx: /\b(legal|law firm|attorney|paralegal|litigation|compliance|regulatory|contract|ip|patent)\b/ },
+                { name: 'Real Estate & Construction', rx: /\b(real estate|property|construction|architect|building|commercial real estate|reit|development)\b/ },
+                { name: 'Telecommunications', rx: /\b(telecom|wireless|network|5g|fiber|broadband|carrier|iot)\b/ }
+            ];
+            var best = null;
+            var bestCount = 0;
+            industries.forEach(function(ind) {
+                var matches = (text.match(ind.rx) || []).length;
+                if (matches > bestCount) { best = ind.name; bestCount = matches; }
+            });
+            return best || '';
         }
         
         function renderWorkBlueprint(data, showComp) {
@@ -6450,17 +6828,35 @@
             var headingColor = 'var(--c-heading-bold)';
             var mutedColor = 'var(--c-muted)';
             var accentColor = '#60a5fa';
-            
-            // ── Blueprint header ──
+
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                 + '<div style="font-size:0.78em; text-transform:uppercase; letter-spacing:1.5px; color:' + accentColor + '; margin-bottom:6px; font-weight:600;">Work Blueprint' + (showComp ? ' (With Skills Comp Model)' : '') + '</div>'
-                + '<div style="font-family:Outfit,sans-serif; font-size:1.4em; font-weight:700; color:' + headingColor + '; margin-bottom:4px;">' + escapeHtml(data.title) + '</div>'
-                + (data.company ? '<div style="font-size:0.9em; color:' + mutedColor + ';">' + escapeHtml(data.company) + ' \u00B7 ' + escapeHtml(data.location) + '</div>' : '<div style="font-size:0.9em; color:' + mutedColor + ';">' + escapeHtml(data.location) + '</div>')
-                + (data.soc ? '<div style="font-size:0.75em; color:var(--c-faint); margin-top:4px;">O*NET: ' + escapeHtml(data.socTitle || data.soc) + ' (' + escapeHtml(data.soc) + ')</div>' : '')
-                + '<div style="margin-top:14px; font-size:0.9em; color:var(--text-secondary); line-height:1.7;"><strong style="color:' + headingColor + ';">Work Summary:</strong> ' + escapeHtml(data.summary) + '</div>'
+                + '<div style="font-family:Outfit,sans-serif; font-size:1.4em; font-weight:700; color:' + headingColor + '; margin-bottom:4px;">' + escapeHtml(data.title) + '</div>';
+            var subtitle = [];
+            if (data.company) subtitle.push(escapeHtml(data.company));
+            subtitle.push(escapeHtml(data.location));
+            if (data.employmentType) subtitle.push(escapeHtml(data.employmentType));
+            html += '<div style="font-size:0.9em; color:' + mutedColor + ';">' + subtitle.join(' \u00B7 ') + '</div>';
+            if (data.soc) html += '<div style="font-size:0.75em; color:var(--c-faint); margin-top:4px;">O*NET: ' + escapeHtml(data.socTitle || data.soc) + ' (' + escapeHtml(data.soc) + ')' + (data.industry ? ' \u00B7 Industry: ' + escapeHtml(data.industry) : '') + '</div>';
+            else if (data.industry) html += '<div style="font-size:0.75em; color:var(--c-faint); margin-top:4px;">Industry: ' + escapeHtml(data.industry) + '</div>';
+
+            var logistics = [];
+            if (data.department) logistics.push({ label: 'Department', value: data.department });
+            if (data.reportsTo) logistics.push({ label: 'Reports To', value: data.reportsTo });
+            if (data.schedule) logistics.push({ label: 'Schedule', value: data.schedule });
+            if (data.travel) logistics.push({ label: 'Travel', value: data.travel });
+            if (data.seniority) logistics.push({ label: 'Level', value: data.seniority.charAt(0).toUpperCase() + data.seniority.slice(1) });
+            if (logistics.length > 0) {
+                html += '<div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;">';
+                logistics.forEach(function(l) {
+                    html += '<span style="font-size:0.78em; padding:4px 10px; border-radius:6px; background:var(--c-surface-2); color:' + mutedColor + ';"><strong style="color:' + headingColor + ';">' + escapeHtml(l.label) + ':</strong> ' + escapeHtml(l.value) + '</span>';
+                });
+                html += '</div>';
+            }
+
+            html += '<div style="margin-top:14px; font-size:0.9em; color:var(--text-secondary); line-height:1.7;"><strong style="color:' + headingColor + ';">Work Summary:</strong> ' + escapeHtml(data.summary) + '</div>'
                 + '</div>';
-            
-            // ── Section 1: Skills / Outcomes / Proficiency ──
+
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                 + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">'
                 + '<span style="color:' + accentColor + ';">' + bpIcon('skills',18) + '</span>'
@@ -6469,19 +6865,23 @@
                 + '<table style="width:100%; border-collapse:collapse; font-size:0.85em;">'
                 + '<thead><tr style="border-bottom:2px solid ' + borderColor + ';">'
                 + '<th style="text-align:left; padding:8px 10px; color:' + accentColor + '; font-weight:700;">Skill</th>'
+                + '<th style="text-align:center; padding:8px 10px; color:' + accentColor + '; font-weight:700; width:70px;">Source</th>'
                 + '<th style="text-align:left; padding:8px 10px; color:' + accentColor + '; font-weight:700;">Expected Outcome</th>'
                 + '<th style="text-align:center; padding:8px 10px; color:' + accentColor + '; font-weight:700;">Proficiency</th>'
                 + (showComp ? '<th style="text-align:right; padding:8px 10px; color:' + accentColor + '; font-weight:700;">Comp Value (USD)</th>' : '')
                 + '</tr></thead><tbody>';
-            
+
             var totalComp = 0;
             data.skills.forEach(function(s, i) {
                 var bg = i % 2 === 0 ? 'transparent' : 'var(--c-surface-2)';
                 var levelColors = { 'Mastery': '#10b981', 'Expert': '#8b5cf6', 'Advanced': '#3b82f6', 'Proficient': '#f59e0b', 'Foundational': '#6b7280', 'Awareness': '#9ca3af' };
                 var lc = levelColors[s.blueprintLevel] || '#6b7280';
                 totalComp += (s.compValue || 0);
+                var sourceLabel = s.source === 'onet+jd' ? 'O*NET + JD' : s.source === 'onet' ? 'O*NET' : 'JD';
+                var sourceColor = s.source === 'onet+jd' ? '#10b981' : s.source === 'onet' ? '#60a5fa' : '#f59e0b';
                 html += '<tr style="background:' + bg + '; border-bottom:1px solid ' + borderColor + ';">'
                     + '<td style="padding:10px; font-weight:600; color:' + headingColor + '; white-space:nowrap;">' + escapeHtml(s.name) + '</td>'
+                    + '<td style="padding:10px; text-align:center;"><span style="font-size:0.72em; padding:2px 6px; border-radius:4px; background:' + sourceColor + '18; color:' + sourceColor + '; font-weight:600;">' + sourceLabel + '</span></td>'
                     + '<td style="padding:10px; color:var(--text-secondary); line-height:1.5;">' + escapeHtml(s.outcome || '') + '</td>'
                     + '<td style="padding:10px; text-align:center;"><span style="padding:3px 10px; border-radius:12px; font-size:0.82em; font-weight:600; background:' + lc + '22; color:' + lc + '; border:1px solid ' + lc + '44;">' + escapeHtml(s.blueprintLevel) + '</span></td>'
                     + (showComp ? '<td style="padding:10px; text-align:right; font-weight:700; color:#10b981;">$' + (s.compValue || 0).toLocaleString() + '</td>' : '')
@@ -6489,17 +6889,58 @@
             });
             if (showComp) {
                 html += '<tr style="border-top:2px solid ' + borderColor + '; background:rgba(16,185,129,0.06);">'
-                    + '<td colspan="3" style="padding:10px; font-weight:700; text-align:right; color:' + headingColor + ';">Total Estimated Compensation</td>'
+                    + '<td colspan="4" style="padding:10px; font-weight:700; text-align:right; color:' + headingColor + ';">Total Estimated Compensation</td>'
                     + '<td style="padding:10px; text-align:right; font-weight:800; color:#10b981; font-size:1.05em;">$' + totalComp.toLocaleString() + '</td></tr>';
             }
             html += '</tbody></table></div></div>';
-            
-            // ── Section 2: Regional Compensation Overview ──
+
+            var hasReqs = (data.yearsRequired && data.yearsRequired.length > 0) || (data.education && data.education.length > 0) || (data.certifications && data.certifications.length > 0);
+            if (hasReqs) {
+                html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
+                    + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">'
+                    + '<span style="color:#f59e0b;">' + bpIcon('check',18) + '</span>'
+                    + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">2) Requirements</span></div>'
+                    + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">';
+
+                if (data.yearsRequired && data.yearsRequired.length > 0) {
+                    html += '<div><div style="font-size:0.82em; font-weight:600; color:' + accentColor + '; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Experience</div>';
+                    data.yearsRequired.forEach(function(yr) {
+                        html += '<div style="display:flex; gap:8px; align-items:center; padding:6px 10px; background:var(--c-surface-2); border-radius:6px; margin-bottom:4px;">'
+                            + '<span style="font-weight:700; color:#f59e0b; font-size:0.9em; min-width:40px;">' + escapeHtml(yr.range) + ' yr</span>'
+                            + '<span style="font-size:0.85em; color:var(--text-secondary);">' + escapeHtml(yr.area) + '</span></div>';
+                    });
+                    html += '</div>';
+                }
+
+                if (data.education && data.education.length > 0) {
+                    html += '<div><div style="font-size:0.82em; font-weight:600; color:' + accentColor + '; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Education</div>';
+                    data.education.forEach(function(ed) {
+                        html += '<div style="display:flex; gap:8px; align-items:center; padding:6px 10px; background:var(--c-surface-2); border-radius:6px; margin-bottom:4px;">'
+                            + '<span style="font-weight:600; color:' + headingColor + '; font-size:0.88em;">' + escapeHtml(ed.level) + '</span>'
+                            + (ed.field ? '<span style="font-size:0.85em; color:var(--text-secondary);">in ' + escapeHtml(ed.field) + '</span>' : '')
+                            + (ed.preferred ? '<span style="font-size:0.72em; padding:2px 6px; border-radius:4px; background:#f59e0b22; color:#f59e0b; font-weight:600;">Preferred</span>' : '')
+                            + '</div>';
+                    });
+                    html += '</div>';
+                }
+
+                if (data.certifications && data.certifications.length > 0) {
+                    html += '<div><div style="font-size:0.82em; font-weight:600; color:' + accentColor + '; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Certifications</div>'
+                        + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+                    data.certifications.forEach(function(cert) {
+                        html += '<span style="font-size:0.82em; padding:4px 10px; border-radius:6px; background:var(--c-surface-2); color:' + headingColor + '; font-weight:500;">' + escapeHtml(cert) + '</span>';
+                    });
+                    html += '</div></div>';
+                }
+
+                html += '</div></div>';
+            }
+
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                 + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">'
                 + '<span style="color:#10b981;">' + bpIcon('money',18) + '</span>'
-                + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">2) Regional Compensation Overview</span></div>';
-            
+                + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">3) Regional Compensation Overview</span></div>';
+
             if (data.bls) {
                 html += '<table style="width:100%; border-collapse:collapse; font-size:0.85em; max-width:700px;">'
                     + '<thead><tr style="border-bottom:2px solid ' + borderColor + ';">'
@@ -6528,12 +6969,11 @@
                 html += '<div style="color:' + mutedColor + '; font-size:0.9em;">No BLS wage data matched for this title. Try a more standard job title.</div>';
             }
             html += '</div>';
-            
-            // ── Section 3: Demonstrated Experience ──
+
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                 + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">'
                 + '<span style="color:#8b5cf6;">' + bpIcon('check',18) + '</span>'
-                + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">3) Demonstrated Experience</span></div>'
+                + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">4) Demonstrated Experience</span></div>'
                 + '<div style="font-size:0.88em; color:var(--text-secondary); margin-bottom:14px; line-height:1.6;">'
                 + 'A <strong>' + escapeHtml(data.title) + '</strong> does more than fill a role. Evidence of mastery should include:</div>'
                 + '<div style="display:grid; gap:8px;">';
@@ -6545,12 +6985,11 @@
             html += '</div>'
                 + '<div style="margin-top:14px; padding:10px 14px; background:rgba(139,92,246,0.06); border:1px solid rgba(139,92,246,0.15); border-radius:8px; font-size:0.82em; color:' + mutedColor + '; line-height:1.5;">'
                 + '<strong style="color:#8b5cf6;">Artifacts:</strong> ' + escapeHtml(data.demonstrated.artifacts) + '</div></div>';
-            
-            // ── Section 4: Values & Purpose ──
+
             html += '<div style="background:' + cardBg + '; border:1px solid ' + borderColor + '; border-radius:12px; padding:24px; margin-bottom:20px;">'
                 + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">'
                 + '<span style="color:#fbbf24;">' + bpIcon('values',18) + '</span>'
-                + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">4) Values & Purpose</span></div>'
+                + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">5) Values & Purpose</span></div>'
                 + '<div style="display:grid; gap:10px;">';
             (data.values || []).forEach(function(v) {
                 html += '<div style="display:flex; gap:10px; align-items:flex-start; padding:10px 14px; background:var(--c-surface-2); border-radius:8px;">'
@@ -6559,9 +6998,46 @@
                     + '<span style="color:' + mutedColor + '; font-size:0.85em;"> \u2014 ' + escapeHtml(v.desc) + '</span></div></div>';
             });
             html += '</div></div>';
-            
+
+            html += '<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">'
+                + '<button onclick="exportWorkBlueprintJSON()" style="padding:8px 18px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
+                + bpIcon('download',14) + ' Export JSON</button>'
+                + '<button onclick="copyWorkBlueprintJSON()" style="padding:8px 18px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
+                + bpIcon('share',14) + ' Copy JSON</button>'
+                + '</div>';
+
             return html;
         }
+
+        function exportWorkBlueprintJSON() {
+            if (!_jdcResult) { showToast('No Work Blueprint to export.', 'warning'); return; }
+            var exportData = Object.assign({}, _jdcResult);
+            delete exportData._rawJD;
+            exportData.generatedAt = new Date().toISOString();
+            exportData.generatedBy = 'Blueprint Work Blueprint Converter';
+            var blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'work-blueprint-' + (exportData.title || 'export').replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase() + '.json';
+            a.click();
+            URL.revokeObjectURL(a.href);
+            showToast('Work Blueprint exported as JSON.', 'success');
+        }
+        window.exportWorkBlueprintJSON = exportWorkBlueprintJSON;
+
+        function copyWorkBlueprintJSON() {
+            if (!_jdcResult) { showToast('No Work Blueprint to copy.', 'warning'); return; }
+            var exportData = Object.assign({}, _jdcResult);
+            delete exportData._rawJD;
+            exportData.generatedAt = new Date().toISOString();
+            exportData.generatedBy = 'Blueprint Work Blueprint Converter';
+            navigator.clipboard.writeText(JSON.stringify(exportData, null, 2)).then(function() {
+                showToast('Work Blueprint JSON copied to clipboard.', 'success');
+            }).catch(function() {
+                showToast('Failed to copy to clipboard.', 'error');
+            });
+        }
+        window.copyWorkBlueprintJSON = copyWorkBlueprintJSON;
         
         
         // ===== ADMIN COSTS DASHBOARD =====

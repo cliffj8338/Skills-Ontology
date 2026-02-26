@@ -39,6 +39,19 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - Report templates hardened with escapeHtml for all user-controlled data
 - See `docs/SECURITY_AUDIT.md` for full audit details
 
+## Work Blueprint Converter (v4.44.68)
+- Admin → JD Converter: paste any job description, get a structured Work Blueprint
+- Extraction pipeline: title, company, location, employment type, department, reports-to, schedule, travel, seniority, industry
+- Requirements extraction: years of experience (with area), education levels, certifications (191 known certs)
+- Skill extraction: O*NET crosswalk (canonical) + JD text parsing (phrase patterns + 100+ tech terms + bullet scanning)
+- Proficiency inference: years-based + keyword-based + seniority-aware defaults (no more flat "Advanced" default)
+- Outcome generation: seniority-aware verbs with varied templates per skill category
+- Summary generation: extracts actual JD sentences when available, falls back to structured template
+- Values: pattern-matched from JD text, sorted by hit count, tighter patterns to reduce false positives
+- Compensation: BLS wage data + per-skill comp model (importance × proficiency weighting)
+- Export: JSON download + clipboard copy
+- Section order: Header/Logistics → Skills/Outcomes/Proficiency → Requirements → Compensation → Demonstrated Experience → Values
+
 ## Stability (v4.44.60)
 - Firestore save: 3-attempt retry with exponential backoff + localStorage backup
 - Firestore load: user-facing error toast + automatic restore from local backup
