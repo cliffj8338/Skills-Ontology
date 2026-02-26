@@ -64,6 +64,9 @@ Blueprint is a single-page career intelligence web application. It visualizes sk
 - Input modes: Paste (single JD), URL fetch (via /api/api-job-proxy?source=page&url=...), Bulk (--- separated or file upload)
 - Bulk: supports .txt (--- separated), .json (array of strings or objects with description), .csv (auto-detects description column)
 - Section order: Header/Logistics → Skills/Outcomes/Proficiency → Requirements → Compensation → Demonstrated Experience → Values
+- Edit form (v4.44.73): Full field editing — compensation, years of experience, education (with "Other"), certifications (searchable from 191-entry library + custom freeform), qualifications
+- JDC extraction (v4.44.73): Compensation range/bonus from JD text, qualifications section, "Industry:" / "Travel:" label parsing, High School + Other education levels
+- WBW Wizard (v4.44.73): Step 1 adds Travel, Industry, Compensation fields; Step 3 adds searchable certification picker (from certification_library.json, 191 entries, Enter to add custom), qualifications field with add/remove
 
 ## Stability (v4.44.70)
 - Firestore save: 3-attempt retry with exponential backoff + localStorage backup

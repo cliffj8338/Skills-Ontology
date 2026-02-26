@@ -1,4 +1,4 @@
-<!-- v4.44.72 | 2026-02-26 | Stability: error toasts, null DOM guards, empty-catch logging -->
+<!-- v4.44.73 | 2026-02-26 | Complete fields: compensation, qualifications, cert search, education Other -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.72 | 2026-02-26 | Stability: error toasts, null DOM guards -->
+    <!-- v4.44.73 | 2026-02-26 | Complete fields: compensation, qualifications, cert search -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.72 - BUILD 20260226-stability
-        var BP_VERSION = 'v4.44.72';
+        // BLUEPRINT v4.44.73 - BUILD 20260226-fields
+        var BP_VERSION = 'v4.44.73';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -6150,7 +6150,7 @@
         var _jdcBulkResults = [];
         var _jdcBulkViewIdx = -1;
 
-        var _wbw = { step: 1, company: '', title: '', seniority: 'mid', location: '', department: '', reportsTo: '', employmentType: 'Full-time', schedule: '', travel: '', industry: '', companyResearch: null, researchLoading: false, socResult: null, skills: [], bls: null, yearsRequired: [], education: [], certifications: [], selectedValues: [], summary: '', keyResponsibilities: [], demonstrated: null };
+        var _wbw = { step: 1, company: '', title: '', seniority: 'mid', location: '', department: '', reportsTo: '', employmentType: 'Full-time', schedule: '', travel: '', industry: '', compensationRange: '', companyResearch: null, researchLoading: false, socResult: null, skills: [], bls: null, yearsRequired: [], education: [], certifications: [], qualifications: [], selectedValues: [], summary: '', keyResponsibilities: [], demonstrated: null };
 
         function renderWBWizard(el) {
             var s = _wbw;
@@ -6221,6 +6221,12 @@
             html += '</select></div>';
             html += '<div><label style="' + _wbwLabelStyle + '">Schedule</label>'
                 + '<input id="wbwSchedule" type="text" value="' + escapeHtml(s.schedule) + '" placeholder="e.g. Monday-Friday" style="' + _wbwFieldStyle + '" /></div>';
+            html += '<div><label style="' + _wbwLabelStyle + '">Travel</label>'
+                + '<input id="wbwTravel" type="text" value="' + escapeHtml(s.travel || '') + '" placeholder="e.g. Up to 25%" style="' + _wbwFieldStyle + '" /></div>';
+            html += '<div><label style="' + _wbwLabelStyle + '">Industry</label>'
+                + '<input id="wbwIndustry" type="text" value="' + escapeHtml(s.industry || '') + '" placeholder="e.g. Human Resources Technology" style="' + _wbwFieldStyle + '" /></div>';
+            html += '<div style="grid-column:1/-1;"><label style="' + _wbwLabelStyle + '">Compensation (optional)</label>'
+                + '<input id="wbwCompensation" type="text" value="' + escapeHtml(s.compensationRange || '') + '" placeholder="e.g. $100,000 - $120,000 plus bonus" style="' + _wbwFieldStyle + '" /></div>';
             html += '</div>';
 
             html += '<div style="display:flex; gap:10px; align-items:center; margin-top:8px;">'
@@ -6278,6 +6284,9 @@
             _wbw.employmentType = ((document.getElementById('wbwEmploymentType') || {}).value || 'Full-time');
             _wbw.seniority = ((document.getElementById('wbwSeniority') || {}).value || 'mid');
             _wbw.schedule = ((document.getElementById('wbwSchedule') || {}).value || '').trim();
+            _wbw.travel = ((document.getElementById('wbwTravel') || {}).value || '').trim();
+            _wbw.industry = ((document.getElementById('wbwIndustry') || {}).value || '').trim();
+            _wbw.compensationRange = ((document.getElementById('wbwCompensation') || {}).value || '').trim();
 
             _wbw.researchLoading = true;
             renderWBWizard(document.getElementById('adminTabContent'));
@@ -6590,7 +6599,7 @@
             s.education.forEach(function(ed, i) {
                 html += '<div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">'
                     + '<select id="wbwEdLevel' + i + '" style="' + _wbwFieldStyle + ' max-width:180px;">';
-                ["High School", "Associate's", "Bachelor's", "Master's", "Master's/MBA", "Doctorate", "Professional"].forEach(function(lv) {
+                ["High School", "Associate's", "Bachelor's", "Master's", "Master's/MBA", "Doctorate", "Professional", "Other"].forEach(function(lv) {
                     html += '<option' + (ed.level === lv ? ' selected' : '') + '>' + lv + '</option>';
                 });
                 html += '</select>'
@@ -6603,14 +6612,104 @@
 
             html += '<div style="margin-bottom:18px;">'
                 + '<label style="' + _wbwLabelStyle + '">Certifications (optional)</label>'
-                + '<input id="wbwCerts" type="text" value="' + escapeHtml(s.certifications.join(', ')) + '" placeholder="e.g. PMP, Six Sigma, CFA" style="' + _wbwFieldStyle + '" />'
-                + '<div style="font-size:0.75em; color:var(--c-muted); margin-top:4px;">Comma-separated</div>'
-                + '</div>';
+                + '<div style="position:relative;">'
+                + '<input id="wbwCertSearch" type="text" placeholder="Search certifications or type to add..." style="' + _wbwFieldStyle + '" oninput="wbwSearchCerts(this.value)" onkeydown="if(event.key===\'Enter\'){event.preventDefault();var v=this.value.trim();if(v)wbwAddCert(v);}" autocomplete="off" />'
+                + '<div id="wbwCertDropdown" style="display:none; position:absolute; top:100%; left:0; right:0; max-height:200px; overflow-y:auto; background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:0 0 8px 8px; z-index:10; box-shadow:0 4px 12px rgba(0,0,0,0.3);"></div>'
+                + '</div>'
+                + '<div id="wbwCertTags" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">';
+            s.certifications.forEach(function(cert, ci) {
+                html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; background:var(--c-surface-2); color:var(--c-heading); font-size:0.82em; font-weight:500;">'
+                    + escapeHtml(cert)
+                    + '<button onclick="wbwRemoveCert(' + ci + ')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.1em; padding:0 2px; line-height:1;">&times;</button>'
+                    + '</span>';
+            });
+            html += '</div></div>';
+
+            html += '<div style="margin-bottom:18px;">'
+                + '<label style="' + _wbwLabelStyle + '">Qualifications</label>'
+                + '<div style="font-size:0.75em; color:var(--c-muted); margin-bottom:6px;">Key qualifications beyond skills (e.g., "Proven track record of managing customer relationships")</div>';
+            s.qualifications.forEach(function(q, qi) {
+                html += '<div style="display:flex; gap:8px; margin-bottom:6px;">'
+                    + '<input id="wbwQual' + qi + '" type="text" value="' + escapeHtml(q) + '" style="' + _wbwFieldStyle + ' flex:1;" />'
+                    + '<button onclick="wbwRemoveQual(' + qi + ')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button>'
+                    + '</div>';
+            });
+            html += '<button onclick="wbwAddQual()" style="padding:4px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button>';
+            html += '</div>';
 
             html += '</div>';
             html += _wbwNavButtons(2, 3);
             return html;
         }
+
+        function wbwAddQual() {
+            _wbwSaveCurrentStep();
+            _wbw.qualifications.push('');
+            renderWBWizard(document.getElementById('adminTabContent'));
+        }
+        window.wbwAddQual = wbwAddQual;
+
+        function wbwRemoveQual(idx) {
+            _wbwSaveCurrentStep();
+            _wbw.qualifications.splice(idx, 1);
+            renderWBWizard(document.getElementById('adminTabContent'));
+        }
+        window.wbwRemoveQual = wbwRemoveQual;
+
+        var _wbwCertLibrary = null;
+        function _wbwLoadCertLibrary() {
+            if (_wbwCertLibrary) return Promise.resolve(_wbwCertLibrary);
+            return fetch('certification_library.json').then(function(r) { return r.json(); }).then(function(data) {
+                _wbwCertLibrary = (data.credentials || []).map(function(c) { return { name: c.name, abbr: c.abbr || '', category: c.category || '', type: c.type || '' }; });
+                return _wbwCertLibrary;
+            }).catch(function() { _wbwCertLibrary = []; return []; });
+        }
+        _wbwLoadCertLibrary();
+
+        function wbwSearchCerts(query) {
+            var dropdown = document.getElementById('wbwCertDropdown');
+            if (!dropdown) return;
+            if (!query || query.length < 2) { dropdown.style.display = 'none'; return; }
+            var q = query.toLowerCase();
+            var lib = _wbwCertLibrary || [];
+            var matches = lib.filter(function(c) {
+                return c.name.toLowerCase().indexOf(q) !== -1 || (c.abbr && c.abbr.toLowerCase().indexOf(q) !== -1) || (c.category && c.category.toLowerCase().indexOf(q) !== -1);
+            }).slice(0, 12);
+            var existing = _wbw.certifications.map(function(c) { return c.toLowerCase(); });
+            matches = matches.filter(function(c) { return existing.indexOf(c.name.toLowerCase()) === -1; });
+            var html = '';
+            matches.forEach(function(c) {
+                var displayName = escapeHtml(c.name) + (c.abbr ? ' <span style="color:var(--c-muted); font-size:0.85em;">(' + escapeHtml(c.abbr) + ')</span>' : '');
+                html += '<div onclick="wbwAddCert(\'' + escapeHtml(c.name).replace(/'/g, "\\'") + '\')" style="padding:8px 12px; cursor:pointer; font-size:0.88em; border-bottom:1px solid var(--c-surface-3); color:var(--c-heading);" onmouseover="this.style.background=\'var(--c-surface-3)\'" onmouseout="this.style.background=\'transparent\'">'
+                    + displayName + '<span style="float:right; font-size:0.75em; color:var(--c-muted);">' + escapeHtml(c.category) + '</span></div>';
+            });
+            if (matches.length === 0 && query.length >= 2) {
+                html += '<div onclick="wbwAddCert(\'' + escapeHtml(query).replace(/'/g, "\\'") + '\')" style="padding:8px 12px; cursor:pointer; font-size:0.88em; color:var(--accent);" onmouseover="this.style.background=\'var(--c-surface-3)\'" onmouseout="this.style.background=\'transparent\'">'
+                    + bpIcon('plus',12) + ' Add "' + escapeHtml(query) + '" as custom certification</div>';
+            }
+            dropdown.innerHTML = html;
+            dropdown.style.display = html ? 'block' : 'none';
+        }
+        window.wbwSearchCerts = wbwSearchCerts;
+
+        function wbwAddCert(name) {
+            if (!name) return;
+            if (_wbw.certifications.indexOf(name) === -1) {
+                _wbw.certifications.push(name);
+            }
+            var input = document.getElementById('wbwCertSearch');
+            if (input) input.value = '';
+            var dropdown = document.getElementById('wbwCertDropdown');
+            if (dropdown) dropdown.style.display = 'none';
+            renderWBWizard(document.getElementById('adminTabContent'));
+        }
+        window.wbwAddCert = wbwAddCert;
+
+        function wbwRemoveCert(idx) {
+            _wbw.certifications.splice(idx, 1);
+            renderWBWizard(document.getElementById('adminTabContent'));
+        }
+        window.wbwRemoveCert = wbwRemoveCert;
 
         function wbwAddYears() {
             _wbw.yearsRequired.push({ range: '', area: '' });
@@ -6770,9 +6869,11 @@
                 socTitle: s.socResult ? s.socResult.title : null,
                 seniority: s.seniority,
                 industry: s.industry,
+                compensationRange: s.compensationRange || '',
                 yearsRequired: s.yearsRequired,
                 education: s.education,
                 certifications: s.certifications,
+                qualifications: s.qualifications || [],
                 summary: s.summary,
                 keyResponsibilities: s.keyResponsibilities,
                 skills: selectedSkills,
@@ -6797,7 +6898,7 @@
 
         function wbwReset() {
             if (!confirm('Start over? All wizard data will be cleared.')) return;
-            _wbw = { step: 1, company: '', title: '', seniority: 'mid', location: '', department: '', reportsTo: '', employmentType: 'Full-time', schedule: '', travel: '', industry: '', companyResearch: null, researchLoading: false, socResult: null, skills: [], bls: null, yearsRequired: [], education: [], certifications: [], selectedValues: [], summary: '', keyResponsibilities: [], demonstrated: null };
+            _wbw = { step: 1, company: '', title: '', seniority: 'mid', location: '', department: '', reportsTo: '', employmentType: 'Full-time', schedule: '', travel: '', industry: '', compensationRange: '', companyResearch: null, researchLoading: false, socResult: null, skills: [], bls: null, yearsRequired: [], education: [], certifications: [], qualifications: [], selectedValues: [], summary: '', keyResponsibilities: [], demonstrated: null };
             renderWBWizard(document.getElementById('adminTabContent'));
         }
         window.wbwReset = wbwReset;
@@ -6825,8 +6926,11 @@
                     var pref = (document.getElementById('wbwEdPref' + j) || {}).checked;
                     if (lv) s.education.push({ level: lv, field: (fld || '').trim(), preferred: pref || false });
                 }
-                var certsVal = (document.getElementById('wbwCerts') || {}).value || '';
-                s.certifications = certsVal.split(',').map(function(c) { return c.trim(); }).filter(Boolean);
+                s.qualifications = [];
+                for (var qi = 0; qi < 20; qi++) {
+                    var qv = (document.getElementById('wbwQual' + qi) || {}).value;
+                    if (qv && qv.trim()) s.qualifications.push(qv.trim());
+                }
             }
         }
 
@@ -7149,6 +7253,8 @@
             var yearsRequired = _jdcExtractYearsOfExperience(jdText);
             var education = _jdcExtractEducation(jdText);
             var certifications = _jdcExtractCertifications(jdText);
+            var compensation = _jdcExtractCompensation(jdText);
+            var qualifications = _jdcExtractQualifications(jdText);
 
             var socResult = null;
             var onetSkills = [];
@@ -7244,6 +7350,8 @@
                 yearsRequired: yearsRequired,
                 education: education,
                 certifications: certifications,
+                compensation: compensation,
+                qualifications: qualifications,
                 summary: summary,
                 keyResponsibilities: keyResponsibilities,
                 skills: skills,
@@ -7353,8 +7461,10 @@
         }
 
         function _jdcExtractTravel(jdText) {
-            var m = jdText.match(/(\d{1,3})\s*%?\s*(?:travel|domestic|international)/i);
-            if (m) return m[1] + '% travel';
+            var labelMatch = jdText.match(/travel\s*[:;\-\u2013\u2014]\s*([^\n]{3,60})/i);
+            if (labelMatch) return labelMatch[1].trim().replace(/[,\.\;]+$/, '');
+            var m = jdText.match(/(?:up\s+to\s+)?(\d{1,3})\s*%\s*travel/i);
+            if (m) return 'Up to ' + m[1] + '%';
             var text = jdText.toLowerCase();
             if (/\b(?:extensive|significant|frequent)\s+travel\b/.test(text)) return 'Extensive travel required';
             if (/\b(?:some|occasional|minimal|limited)\s+travel\b/.test(text)) return 'Occasional travel';
@@ -7416,7 +7526,9 @@
                 { level: "Doctorate", rx: /\b(?:ph\.?d|doctorate|doctoral)\b/gi },
                 { level: "Master's", rx: /\b(?:master'?s?\s+(?:degree|of)?|mba|m\.?s\.?\s|m\.?a\.?\s|msc)\b/gi },
                 { level: "Bachelor's", rx: /\b(?:bachelor'?s?\s+(?:degree|of)?|b\.?s\.?\s|b\.?a\.?\s|bsc|undergraduate\s+degree)\b/gi },
-                { level: "Associate's", rx: /\b(?:associate'?s?\s+degree)\b/gi }
+                { level: "Associate's", rx: /\b(?:associate'?s?\s+degree)\b/gi },
+                { level: "High School", rx: /\b(?:high\s+school\s+(?:diploma|graduate|degree)|ged|hse|h\.?s\.?\s+diploma)\b/gi },
+                { level: "Other", rx: /\b(?:training|certification|coursework|certificate\s+program)\s+(?:in|for)\b/gi }
             ];
             degreePatterns.forEach(function(dp) {
                 dp.rx.lastIndex = 0;
@@ -7470,6 +7582,41 @@
                 });
             }
             return certs.slice(0, 8);
+        }
+
+        function _jdcExtractCompensation(jdText) {
+            var comp = { range: '', bonus: '', notes: '' };
+            var rangeMatch = jdText.match(/(?:compensation|salary|pay\s+range|base\s+(?:salary|pay))\s*[:;\-\u2013\u2014]?\s*\$?([\d,]+(?:\.\d{2})?)\s*[-\u2013\u2014to]+\s*\$?([\d,]+(?:\.\d{2})?)/i);
+            if (rangeMatch) {
+                comp.range = '$' + rangeMatch[1].replace(/,/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' - $' + rangeMatch[2].replace(/,/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            } else {
+                var singleMatch = jdText.match(/(?:compensation|salary|pay\s+range|base\s+(?:salary|pay))\s*[:;\-\u2013\u2014]?\s*\$?([\d,]+(?:\.\d{2})?)/i);
+                if (singleMatch) comp.range = '$' + singleMatch[1].replace(/,/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            }
+            var bonusMatch = jdText.match(/(?:plus|with|includes?|and)\s+(bonus|commission|incentive|variable\s+(?:pay|comp))[^.]{0,60}/i);
+            if (bonusMatch) comp.bonus = bonusMatch[0].trim();
+            if (!comp.range && !comp.bonus) return null;
+            return comp;
+        }
+
+        function _jdcExtractQualifications(jdText) {
+            var quals = [];
+            var section = '';
+            var inSection = false;
+            var lines = jdText.split('\n');
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (/^(?:qualifications|requirements|what\s+you.*(?:need|bring)|who\s+you\s+are|minimum\s+qualifications)/i.test(line)) {
+                    inSection = true;
+                    continue;
+                }
+                if (inSection && /^(?:key\s+(?:skills|responsibilities)|education|benefits|compensation|about\s+(?:us|the)|equal\s+opportunity|values)/i.test(line)) break;
+                if (inSection && line.length > 5) {
+                    var cleaned = line.replace(/^[\u25CF\u2022\u25E6\u2023\u25AA\u25AB\u2043○●◦•‣⁃–—\-\*\d+[\.\)]\s*]+/, '').trim();
+                    if (cleaned.length > 5) quals.push(cleaned);
+                }
+            }
+            return quals.slice(0, 15);
         }
 
         function _jdcExtractSkillsFromText(jdText) {
@@ -7807,9 +7954,11 @@
         }
 
         function _jdcDetectIndustry(jdText) {
+            var labelMatch = jdText.match(/industry\s*[:;\-\u2013\u2014]\s*([^\n]{3,60})/i);
+            if (labelMatch) return labelMatch[1].trim().replace(/[,\.\;]+$/, '');
             var text = jdText.toLowerCase();
             var industries = [
-                { name: 'Technology', rx: /\b(software|saas|cloud|platform|tech|startup|ai\b|machine learning|data science|devops|engineering|cybersecurity)\b/ },
+                { name: 'Technology', rx: /\b(software|saas|cloud|platform|tech|startup|ai\b|machine learning|data science|devops|engineering|cybersecurity|human resources technology|hr tech|hrtech)\b/ },
                 { name: 'Healthcare', rx: /\b(health|medical|clinical|pharma|biotech|hospital|patient|hipaa|therapeutic|fda|ehr|emr)\b/ },
                 { name: 'Financial Services', rx: /\b(banking|fintech|insurance|investment|trading|hedge fund|asset management|wealth|broker|mortgage|lending)\b/ },
                 { name: 'Manufacturing', rx: /\b(manufactur|production|assembly|industrial|factory|supply chain|logistics|warehouse|procurement|lean manufacturing)\b/ },
@@ -7859,6 +8008,8 @@
             if (data.schedule) logistics.push({ label: 'Schedule', value: data.schedule });
             if (data.travel) logistics.push({ label: 'Travel', value: data.travel });
             if (data.seniority) logistics.push({ label: 'Level', value: data.seniority.charAt(0).toUpperCase() + data.seniority.slice(1) });
+            var compDisplay = (data.compensation && data.compensation.range) ? data.compensation.range : (data.compensationRange || '');
+            if (compDisplay) logistics.push({ label: 'Compensation', value: compDisplay });
             if (logistics.length > 0) {
                 html += '<div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;">';
                 logistics.forEach(function(l) {
@@ -7944,6 +8095,15 @@
                         html += '<span style="font-size:0.82em; padding:4px 10px; border-radius:6px; background:var(--c-surface-2); color:' + headingColor + '; font-weight:500;">' + escapeHtml(cert) + '</span>';
                     });
                     html += '</div></div>';
+                }
+
+                if (data.qualifications && data.qualifications.length > 0) {
+                    html += '<div style="grid-column:1/-1;"><div style="font-size:0.82em; font-weight:600; color:' + accentColor + '; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Qualifications</div>'
+                        + '<ul style="margin:0; padding-left:18px;">';
+                    data.qualifications.forEach(function(q) {
+                        html += '<li style="font-size:0.85em; color:var(--text-secondary); margin-bottom:4px; line-height:1.5;">' + escapeHtml(q) + '</li>';
+                    });
+                    html += '</ul></div>';
                 }
 
                 html += '</div></div>';
@@ -8288,11 +8448,72 @@
             d.industry = g('jdcEditIndustry');
             d.summary = g('jdcEditSummary') || d.summary;
             d.seniority = g('jdcEditSeniority') || d.seniority;
+            var compRange = g('jdcEditCompensation');
+            if (compRange) {
+                if (!d.compensation) d.compensation = {};
+                d.compensation.range = compRange;
+            }
+            d.yearsRequired = [];
+            for (var yi = 0; yi < 10; yi++) {
+                var yr = g('jdcEditYearsRange' + yi);
+                var ya = g('jdcEditYearsArea' + yi);
+                if (yr) d.yearsRequired.push({ range: yr.trim(), area: (ya || '').trim() });
+            }
+            d.education = [];
+            for (var ei = 0; ei < 10; ei++) {
+                var elv = g('jdcEditEdLevel' + ei);
+                var efld = g('jdcEditEdField' + ei);
+                var epref = (document.getElementById('jdcEditEdPref' + ei) || {}).checked || false;
+                if (elv) d.education.push({ level: elv, field: (efld || '').trim(), preferred: epref });
+            }
+            d.qualifications = [];
+            for (var qi = 0; qi < 20; qi++) {
+                var qv = g('jdcEditQual' + qi);
+                if (qv && qv.trim()) d.qualifications.push(qv.trim());
+            }
             _jdcEditMode = false;
             renderAdminJDConverter(document.getElementById('adminTabContent'));
             showToast('Blueprint edits saved.', 'success');
         }
         window.jdcSaveEdits = jdcSaveEdits;
+
+        function jdcSearchCerts(query) {
+            var dropdown = document.getElementById('jdcEditCertDropdown');
+            if (!dropdown) return;
+            if (!query || query.length < 2) { dropdown.style.display = 'none'; return; }
+            var q = query.toLowerCase();
+            var lib = _wbwCertLibrary || [];
+            var existing = (_jdcResult && _jdcResult.certifications || []).map(function(c) { return c.toLowerCase(); });
+            var matches = lib.filter(function(c) {
+                return (c.name.toLowerCase().indexOf(q) !== -1 || (c.abbr && c.abbr.toLowerCase().indexOf(q) !== -1))
+                    && existing.indexOf(c.name.toLowerCase()) === -1;
+            }).slice(0, 12);
+            var html = '';
+            matches.forEach(function(c) {
+                var displayName = escapeHtml(c.name) + (c.abbr ? ' <span style="color:var(--c-muted); font-size:0.85em;">(' + escapeHtml(c.abbr) + ')</span>' : '');
+                html += '<div onclick="jdcAddCert(\'' + escapeHtml(c.name).replace(/'/g, "\\'") + '\')" style="padding:8px 12px; cursor:pointer; font-size:0.88em; border-bottom:1px solid var(--c-surface-3); color:var(--c-heading);" onmouseover="this.style.background=\'var(--c-surface-3)\'" onmouseout="this.style.background=\'transparent\'">'
+                    + displayName + '<span style="float:right; font-size:0.75em; color:var(--c-muted);">' + escapeHtml(c.category) + '</span></div>';
+            });
+            if (matches.length === 0 && query.length >= 2) {
+                html += '<div onclick="jdcAddCert(\'' + escapeHtml(query).replace(/'/g, "\\'") + '\')" style="padding:8px 12px; cursor:pointer; font-size:0.88em; color:var(--accent);" onmouseover="this.style.background=\'var(--c-surface-3)\'" onmouseout="this.style.background=\'transparent\'">'
+                    + bpIcon('plus',12) + ' Add "' + escapeHtml(query) + '" as custom</div>';
+            }
+            dropdown.innerHTML = html;
+            dropdown.style.display = html ? 'block' : 'none';
+        }
+        window.jdcSearchCerts = jdcSearchCerts;
+
+        function jdcAddCert(name) {
+            if (!_jdcResult) return;
+            if (!_jdcResult.certifications) _jdcResult.certifications = [];
+            if (_jdcResult.certifications.indexOf(name) === -1) _jdcResult.certifications.push(name);
+            var input = document.getElementById('jdcEditCertSearch');
+            if (input) input.value = '';
+            var dropdown = document.getElementById('jdcEditCertDropdown');
+            if (dropdown) dropdown.style.display = 'none';
+            renderAdminJDConverter(document.getElementById('adminTabContent'));
+        }
+        window.jdcAddCert = jdcAddCert;
 
         function jdcCancelEdit() {
             _jdcEditMode = false;
@@ -8337,10 +8558,59 @@
             ['entry', 'mid', 'senior', 'director', 'executive'].forEach(function(lvl) {
                 html += '<option value="' + lvl + '"' + (data.seniority === lvl ? ' selected' : '') + '>' + lvl.charAt(0).toUpperCase() + lvl.slice(1) + '</option>';
             });
-            html += '</select></div></div>';
+            html += '</select></div>';
+            var compVal = (data.compensation && data.compensation.range) ? data.compensation.range : (data.compensationRange || '');
+            html += '<div><label style="' + labelStyle + '">Compensation</label>'
+                + '<input id="jdcEditCompensation" type="text" value="' + escapeHtml(compVal) + '" placeholder="e.g. $100,000 - $120,000" style="' + fieldStyle + '" /></div>';
+            html += '</div>';
 
             html += '<div style="margin-bottom:16px;"><label style="' + labelStyle + '">Work Summary</label>'
                 + '<textarea id="jdcEditSummary" style="' + fieldStyle + ' min-height:120px; resize:vertical; line-height:1.6;">' + escapeHtml(data.summary || '') + '</textarea></div>';
+
+            html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px;">';
+
+            html += '<div><label style="' + labelStyle + '">Years of Experience</label>';
+            (data.yearsRequired || []).forEach(function(yr, i) {
+                html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
+                    + '<input id="jdcEditYearsRange' + i + '" type="text" value="' + escapeHtml(yr.range) + '" placeholder="3-5" style="' + fieldStyle + ' max-width:80px;" />'
+                    + '<input id="jdcEditYearsArea' + i + '" type="text" value="' + escapeHtml(yr.area) + '" placeholder="Area" style="' + fieldStyle + '" />'
+                    + '</div>';
+            });
+            html += '<button onclick="_jdcResult.yearsRequired=_jdcResult.yearsRequired||[];_jdcResult.yearsRequired.push({range:\'\',area:\'\'});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
+
+            html += '<div><label style="' + labelStyle + '">Education</label>';
+            (data.education || []).forEach(function(ed, i) {
+                html += '<div style="display:flex; gap:8px; align-items:center; margin-bottom:4px;">'
+                    + '<select id="jdcEditEdLevel' + i + '" style="' + fieldStyle + ' max-width:160px;">';
+                ["High School", "Associate's", "Bachelor's", "Master's", "Master's/MBA", "Doctorate", "Professional", "Other"].forEach(function(lv) {
+                    html += '<option' + (ed.level === lv ? ' selected' : '') + '>' + lv + '</option>';
+                });
+                html += '</select>'
+                    + '<input id="jdcEditEdField' + i + '" type="text" value="' + escapeHtml(ed.field) + '" placeholder="Field" style="' + fieldStyle + '" />'
+                    + '<label style="display:flex; align-items:center; gap:3px; font-size:0.75em; color:var(--c-muted); white-space:nowrap;"><input type="checkbox" id="jdcEditEdPref' + i + '"' + (ed.preferred ? ' checked' : '') + ' /> Pref</label></div>';
+            });
+            html += '<button onclick="_jdcResult.education=_jdcResult.education||[];_jdcResult.education.push({level:\'Bachelor\\\'s\',field:\'\',preferred:false});renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
+            html += '</div>';
+
+            html += '<div style="margin-bottom:16px;"><label style="' + labelStyle + '">Certifications</label>'
+                + '<div style="position:relative;">'
+                + '<input id="jdcEditCertSearch" type="text" placeholder="Search or type certification..." style="' + fieldStyle + '" oninput="jdcSearchCerts(this.value)" onkeydown="if(event.key===\'Enter\'){event.preventDefault();var v=this.value.trim();if(v)jdcAddCert(v);}" autocomplete="off" />'
+                + '<div id="jdcEditCertDropdown" style="display:none; position:absolute; top:100%; left:0; right:0; max-height:200px; overflow-y:auto; background:var(--c-surface-1); border:1px solid ' + borderColor + '; border-radius:0 0 8px 8px; z-index:10; box-shadow:0 4px 12px rgba(0,0,0,0.3);"></div></div>'
+                + '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">';
+            (data.certifications || []).forEach(function(cert, ci) {
+                html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; background:var(--c-surface-2); color:var(--c-heading); font-size:0.82em; font-weight:500;">'
+                    + escapeHtml(cert)
+                    + '<button onclick="_jdcResult.certifications.splice(' + ci + ',1);renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.1em; padding:0 2px; line-height:1;">&times;</button></span>';
+            });
+            html += '</div></div>';
+
+            html += '<div style="margin-bottom:16px;"><label style="' + labelStyle + '">Qualifications</label>';
+            (data.qualifications || []).forEach(function(q, qi) {
+                html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
+                    + '<input id="jdcEditQual' + qi + '" type="text" value="' + escapeHtml(q) + '" style="' + fieldStyle + ' flex:1;" />'
+                    + '<button onclick="_jdcResult.qualifications.splice(' + qi + ',1);renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
+            });
+            html += '<button onclick="_jdcResult.qualifications=_jdcResult.qualifications||[];_jdcResult.qualifications.push(\'\');renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
 
             html += '</div>';
             return html;
