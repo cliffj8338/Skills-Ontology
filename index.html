@@ -9136,17 +9136,27 @@
             if (!fbDb) { showToast('Database not available. Try refreshing.', 'error'); return; }
             if (!confirm('Delete this Work Blueprint from your repository? This cannot be undone.')) return;
             showToast('Deleting blueprint...', 'info', 2000);
-            fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc(id).delete()
-                .then(function() {
-                    showToast('Blueprint deleted successfully.', 'success');
-                    _wbRepoCache = null;
-                    _wbRepoViewIdx = -1;
-                    renderAdminWBRepo(document.getElementById('adminTabContent'));
-                })
-                .catch(function(err) {
-                    console.error('WB Repository delete error:', err);
-                    showToast('Delete failed: ' + (err.message || 'Unknown error. Check your connection.'), 'error', 6000);
-                });
+            try {
+                fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc(id).delete()
+                    .then(function() {
+                        showToast('Blueprint deleted successfully.', 'success');
+                        _wbRepoCache = null;
+                        _wbRepoViewIdx = -1;
+                        renderAdminWBRepo(document.getElementById('adminTabContent'));
+                    })
+                    .catch(function(err) {
+                        console.error('WB Repository delete error:', err);
+                        var msg = err.message || '';
+                        if (err.code === 'permission-denied' || msg.indexOf('permission') !== -1 || msg.indexOf('PERMISSION_DENIED') !== -1) {
+                            showToast('Permission denied. Firestore rules may need to be deployed. Contact admin.', 'error', 8000);
+                        } else {
+                            showToast('Delete failed: ' + (msg || 'Unknown error. Check your connection.'), 'error', 6000);
+                        }
+                    });
+            } catch(e) {
+                console.error('WB delete exception:', e);
+                showToast('Delete error: ' + e.message, 'error', 6000);
+            }
         }
         window.wbRepoDelete = wbRepoDelete;
 
