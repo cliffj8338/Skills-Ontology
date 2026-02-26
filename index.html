@@ -1,4 +1,4 @@
-<!-- v4.44.90 | 2026-02-26 | UX: inline edit panel replaces overlay modal, value desc fallback, comp blinding, job graph offset -->
+<!-- v4.44.91 | 2026-02-26 | Analytics: wb_converted tracking for URL/bulk/file paths, remove unused wb-jd-convert AI tag -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.90 - BUILD 20260226-inline-edit
-        var BP_VERSION = 'v4.44.90';
+        // BLUEPRINT v4.44.91 - BUILD 20260226-wb-analytics
+        var BP_VERSION = 'v4.44.91';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -1646,8 +1646,7 @@
             'purpose-regen':    { name: 'Purpose Statement',  inputTokens: 600,  outputTokens: 250,  desc: 'Regenerations' },
             'wb-company-research': { name: 'WB Company Research', inputTokens: 1500, outputTokens: 2000, desc: 'Per wizard run' },
             'wb-value-desc':    { name: 'WB Value Description', inputTokens: 400,  outputTokens: 200,  desc: 'Per value AI fill' },
-            'wb-value-desc-bulk': { name: 'WB Value Desc Bulk', inputTokens: 800,  outputTokens: 1500, desc: 'Bulk value fill' },
-            'wb-jd-convert':    { name: 'WB JD Conversion',  inputTokens: 2500, outputTokens: 3000, desc: 'Per JD conversion' }
+            'wb-value-desc-bulk': { name: 'WB Value Desc Bulk', inputTokens: 800,  outputTokens: 1500, desc: 'Bulk value fill' }
         };
         
         // External API cost tracking (non-AI)
@@ -7533,6 +7532,7 @@
                     var text = _jdcExtractTextFromHTML(html);
                     if (text.length < 50) throw new Error('Could not extract meaningful text from the page.');
                     _jdcResult = convertJDToBlueprint(text);
+                    logAnalyticsEvent('wb_converted', { title: _jdcResult.title || '', company: _jdcResult.company || '', source: 'url' });
                     _jdcCompMode = 'without';
                     _jdcBulkResults = [];
                     _jdcBulkViewIdx = -1;
@@ -7582,6 +7582,7 @@
             if (_jdcBulkResults.length > 0) {
                 _jdcResult = _jdcBulkResults[0];
                 _jdcCompMode = 'without';
+                logAnalyticsEvent('wb_converted', { count: _jdcBulkResults.length, source: 'bulk_paste' });
             }
             renderAdminJDConverter(document.getElementById('adminTabContent'));
             showToast('Bulk conversion complete: ' + _jdcBulkResults.length + ' of ' + jds.length + ' job descriptions converted.', 'success');
@@ -7647,6 +7648,7 @@
                 if (_jdcBulkResults.length > 0) {
                     _jdcResult = _jdcBulkResults[0];
                     _jdcCompMode = 'without';
+                    logAnalyticsEvent('wb_converted', { count: _jdcBulkResults.length, source: 'file_upload' });
                 }
                 renderAdminJDConverter(document.getElementById('adminTabContent'));
                 showToast('File processed: ' + _jdcBulkResults.length + ' blueprints from ' + jds.length + ' descriptions.', 'success');
