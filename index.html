@@ -1,4 +1,4 @@
-<!-- v4.44.76 | 2026-02-26 | Edit auto-save, AI skill extraction + suggestions, delete improvements, stability -->
+<!-- v4.44.77 | 2026-02-26 | Fix delete onclick quoting bug, stability -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.76 | 2026-02-26 | Edit auto-save, AI skills, delete improvements, stability -->
+    <!-- v4.44.77 | 2026-02-26 | Fix delete onclick quoting bug -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.76 - BUILD 20260226-stability
-        var BP_VERSION = 'v4.44.76';
+        // BLUEPRINT v4.44.77 - BUILD 20260226-delete-onclick-fix
+        var BP_VERSION = 'v4.44.77';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2068,7 +2068,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-delete-fix          ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-delete-onclick-fix  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -9083,7 +9083,7 @@
                     + '<div style="flex:1; min-width:0;">'
                     + '<div style="font-weight:600; font-size:0.95em; color:var(--c-heading-bold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(bp.title || 'Untitled') + '</div>'
                     + '<div style="font-size:0.8em; color:var(--c-muted); margin-top:3px;">' + escapeHtml(bp.company || '') + (bp.location ? ' \u00B7 ' + escapeHtml(bp.location) : '') + ' \u00B7 ' + (bp.skills ? bp.skills.length : 0) + ' skills' + (savedDate ? ' \u00B7 ' + savedDate : '') + '</div></div>'
-                    + '<button onclick="event.stopPropagation(); wbRepoDelete(' + JSON.stringify(bp.id) + ')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:6px 10px; font-size:0.85em; opacity:0.8; border-radius:6px; transition:opacity 0.15s, background 0.15s;" onmouseover="this.style.opacity=\'1\'; this.style.background=\'rgba(239,68,68,0.1)\';" onmouseout="this.style.opacity=\'0.8\'; this.style.background=\'none\';" title="Delete">' + bpIcon('trash',16) + '</button>'
+                    + '<button onclick="event.stopPropagation(); wbRepoDelete(\'' + (bp.id || '').replace(/'/g, "\\'") + '\')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:6px 10px; font-size:0.85em; opacity:0.8; border-radius:6px; transition:opacity 0.15s, background 0.15s;" onmouseover="this.style.opacity=\'1\'; this.style.background=\'rgba(239,68,68,0.1)\';" onmouseout="this.style.opacity=\'0.8\'; this.style.background=\'none\';" title="Delete">' + bpIcon('trash',16) + '</button>'
                     + '</div>';
             });
             html += '</div>';
@@ -9095,7 +9095,7 @@
                     + '<button onclick="wbRepoExport(\'pdf\')" style="padding:8px 16px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('download',14) + ' Export PDF</button>'
                     + '<button onclick="wbRepoExport(\'word\')" style="padding:8px 16px; background:#2563eb; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('download',14) + ' Export Word</button>'
                     + '<button onclick="wbRepoLoadInConverter(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('edit',14) + ' Edit in Converter</button>'
-                    + '<button onclick="wbRepoDelete(' + JSON.stringify(viewBp.id) + ')" style="padding:8px 16px; background:none; color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('trash',14) + ' Delete</button>'
+                    + '<button onclick="wbRepoDelete(\'' + (viewBp.id || '').replace(/'/g, "\\'") + '\')" style="padding:8px 16px; background:none; color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('trash',14) + ' Delete</button>'
                     + '</div>';
                 html += renderWorkBlueprint(viewBp, false, { hideButtons: true });
             }
