@@ -1,4 +1,4 @@
-<!-- v4.44.91 | 2026-02-26 | Analytics: wb_converted tracking for URL/bulk/file paths, remove unused wb-jd-convert AI tag -->
+<!-- v4.44.92 | 2026-02-26 | Fix: wbRepoEditCancel called nonexistent renderAdminWBRepository, double _jdcSyncFormToState on skill delete -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.91 - BUILD 20260226-wb-analytics
-        var BP_VERSION = 'v4.44.91';
+        // BLUEPRINT v4.44.92 - BUILD 20260226-edit-fix
+        var BP_VERSION = 'v4.44.92';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -9897,7 +9897,6 @@
         }
 
         function _wbRepoModalRefresh() {
-            _jdcSyncFormToState();
             _wbRepoRenderEditModal();
         }
         window._wbRepoModalRefresh = _wbRepoModalRefresh;
@@ -9933,7 +9932,7 @@
             _jdcResult = null;
             _wbRepoEditIdx = -1;
             var container = document.getElementById('adminTabContent');
-            if (container) renderAdminWBRepository(container);
+            if (container) renderAdminWBRepo(container);
         }
         window.wbRepoEditCancel = wbRepoEditCancel;
 
