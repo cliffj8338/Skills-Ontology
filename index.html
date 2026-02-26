@@ -1,4 +1,4 @@
-<!-- v4.44.82 | 2026-02-26 | Wizard: parity with Converter fields, custom fields, value descriptions + AI -->
+<!-- v4.44.83 | 2026-02-26 | Fix: Repository PDF/Word export function name mismatch -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.82 - BUILD 20260226-wizard-parity
-        var BP_VERSION = 'v4.44.82';
+        // BLUEPRINT v4.44.83 - BUILD 20260226-repo-export-fix
+        var BP_VERSION = 'v4.44.83';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2068,7 +2068,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-wizard-parity               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-repo-export-fix               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -9711,12 +9711,12 @@
                 a.href = url; a.download = (bp.title || 'work-blueprint').replace(/[^a-zA-Z0-9]+/g, '-') + '.json';
                 document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
                 showToast('JSON exported.', 'success');
-            } else if (mode === 'pdf' && typeof jdcExportPDF === 'function') {
+            } else if (mode === 'pdf' && typeof exportWorkBlueprintPDF === 'function') {
                 _jdcResult = bp;
-                jdcExportPDF();
-            } else if (mode === 'word' && typeof jdcExportWord === 'function') {
+                exportWorkBlueprintPDF();
+            } else if (mode === 'word' && typeof exportWorkBlueprintWord === 'function') {
                 _jdcResult = bp;
-                jdcExportWord();
+                exportWorkBlueprintWord();
             } else {
                 showToast('Export not available for this format.', 'warning');
             }
