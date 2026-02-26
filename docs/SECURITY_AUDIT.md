@@ -1,5 +1,5 @@
 # Blueprint Security Hardening Audit
-## Updated: 2026-02-26 | Codebase: v4.44.79
+## Updated: 2026-02-26 | Codebase: v4.44.80
 ## Original Audit: 2026-02-23 | Codebase: v4.37.13.0
 
 ---
@@ -77,6 +77,51 @@ Files updated: `reports/view.html`, `reports/templates/base.html`, `reports/demo
 
 ---
 
+## NEW: v4.44.80 Audit — Security, Stability & Performance (2026-02-26)
+
+### Security Findings
+
+| Severity | Finding | Status | Details |
+|----------|---------|--------|---------|
+| LOW | AI prompt injection via value names | MITIGATED | Value names are user-controlled and included in prompts to Claude Haiku. Server-side proxy enforces model/token limits. AI responses parsed as JSON and rendered through escapeHtml(). No code execution path. Prompt output cannot escalate privileges. |
+| LOW | AI-generated descriptions XSS | SAFE | AI text stored in `_jdcResult.values[].description`, rendered via `escapeHtml(valDesc)` (line 9228). Single-value AI sets `.value` on input element (safe DOM API). Bulk AI triggers full re-render through escapeHtml. |
+| LOW | Google Fonts without SRI | ACCEPTABLE | Two Google Fonts CSS links (lines 165, 167) lack SRI. Google Fonts dynamically generates CSS per user-agent, making SRI impractical. CSP restricts font sources to fonts.gstatic.com. |
+| NONE | onclick handlers in new code | SAFE | New AI buttons use integer indices (`jdcAIFillOneValueDesc(0)`) or no parameters (`jdcAIFillValueDescs()`). No user-controlled strings in onclick attributes. |
+| NONE | CSP coverage | VERIFIED | CSP meta tag covers all current script/connect sources including API proxy path. |
+| NONE | SRI coverage | VERIFIED | All 7 CDN scripts (D3, jsPDF, Firebase×3, JSZip, PapaParse) have SHA-384 integrity hashes. |
+
+### Stability Findings
+
+| Severity | Finding | Status | Details |
+|----------|---------|--------|---------|
+| LOW | Empty catch blocks (12 remaining) | ACCEPTABLE | All 12 are intentional: localStorage ops in private browsing (×5), error body JSON parsing (×3), analytics fire-and-forget (×1), localStorage preference reads (×3). Non-trivial operations have console.warn. |
+| LOW | State flag consistency | VERIFIED | `_jdcFromRepo`, `_jdcEditMode`, `_jdcResult` reset correctly on: tab switch (line 7144), new conversion (line 7239), repo load (line 9393), save success (line 9288). Save behavior is conditional on `_jdcFromRepo`. |
+| LOW | No double-click protection on save | FIXED | Added `_jdcSaving` flag guard. Prevents duplicate Firestore writes on rapid clicks. Flag reset on success and error. |
+| NONE | AI call error handling | VERIFIED | Both `jdcAIFillValueDescs` and `jdcAIFillOneValueDesc` have try/catch with showToast on failure. |
+| NONE | Null guards | VERIFIED | New code uses `if (descEl)` guard before `.value` and `.placeholder` access. Existing WBW form uses `|| {}` pattern for getElementById fallback. |
+
+### Performance Findings
+
+| Severity | Finding | Status | Details |
+|----------|---------|--------|---------|
+| MEDIUM | Full DOM replacement on each edit action | KNOWN | `renderAdminJDConverter` (29 call sites) replaces entire innerHTML on every add/remove/edit action. For small forms this is acceptable; for 18+ skills with values it may cause input focus loss. Long-term: consider virtual DOM or targeted updates. |
+| LOW | index.html size (2.3MB, 36K lines) | KNOWN | Single-file architecture. All JS inline. Loads in ~200ms on broadband. Gzip reduces to ~350KB. Long-term: split into modules. |
+| LOW | 3 setInterval timers | VERIFIED | Analytics heartbeat (30s), save display update (30s), one more. All are lightweight DOM updates or batch flushes. No memory growth observed. |
+| NONE | Static JSON caching | VERIFIED | Browser returns 304 for all data files (skills, O*NET, BLS). Profile manifest uses cache-busting query param. |
+| NONE | Firestore queries | VERIFIED | Work blueprints query scoped to `users/{uid}/work_blueprints` — max ~50 docs per user. No unbounded collection reads. |
+
+### Firestore Rules Verification
+
+| Collection | Access Control | Field Limits | Status |
+|------------|---------------|-------------|--------|
+| users/{userId} | Owner + admin read. Owner write. Role escalation blocked. | skills≤500, savedJobs≤200, purpose≤5000 chars, etc. | VERIFIED |
+| users/{userId}/work_blueprints/{id} | Owner only. | keys≤30, title≤300 chars | VERIFIED |
+| reports/{reportId} | Token-gated get. Owner/admin list. | uid required on create | VERIFIED |
+| analytics_events | Auth required. | type≤50 chars | VERIFIED |
+| Default catch-all | Deny all | — | VERIFIED |
+
+---
+
 ## REMAINING OPEN ITEMS
 
 ### Medium Priority
@@ -129,7 +174,7 @@ Files updated: `reports/view.html`, `reports/templates/base.html`, `reports/demo
 1. **CSP** - Blocks loading of unauthorized external scripts and data exfiltration
 2. **SRI** - All 7 CDN scripts verified with SHA-384 integrity hashes
 3. **Security headers** - HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, X-XSS-Protection
-4. **HTML escaping** - `escapeHtml()` used in 121+ innerHTML assignments
+4. **HTML escaping** - `escapeHtml()` used in 364 call sites across innerHTML assignments
 5. **URL sanitization** - `sanitizeUrl()` validates protocols on all user-provided URLs
 6. **Import validation** - `sanitizeImport()` whitelists allowed fields, strips privileged fields
 7. **Firestore rules** - Owner-only access, role escalation prevention, field validation
@@ -144,3 +189,5 @@ Files updated: `reports/view.html`, `reports/templates/base.html`, `reports/demo
 - **Low risk** for demo/beta with gated access
 - **Medium risk** items are architectural and don't represent immediate attack vectors
 - No known exploitable XSS vectors remain in current codebase
+- AI features (value descriptions) use server-side proxy with auth, rate limiting, and model enforcement
+- AI-generated content is escaped on render; no direct innerHTML insertion of AI text

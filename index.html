@@ -9269,9 +9269,12 @@
             return html;
         }
 
+        var _jdcSaving = false;
         function jdcSaveToRepository() {
             if (!_jdcResult) { showToast('No blueprint to save.', 'warning'); return; }
             if (!fbUser) { showToast('Sign in to save blueprints.', 'warning'); return; }
+            if (_jdcSaving) { return; }
+            _jdcSaving = true;
             var d = _jdcPrepareExport();
             d.savedAt = firebase.firestore.FieldValue.serverTimestamp();
             d.savedBy = fbUser.uid;
@@ -9279,6 +9282,7 @@
             _jdcResult.id = d.id;
             fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc(d.id).set(d, { merge: true })
                 .then(function() {
+                    _jdcSaving = false;
                     showToast('Work Blueprint saved.', 'success');
                     _jdcRepoCache = null;
                     _wbRepoCache = null;
@@ -9295,6 +9299,7 @@
                     }
                 })
                 .catch(function(err) {
+                    _jdcSaving = false;
                     console.warn('Save blueprint error:', err);
                     showToast('Failed to save: ' + err.message, 'error');
                 });
