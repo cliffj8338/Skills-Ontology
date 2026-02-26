@@ -1,4 +1,4 @@
-<!-- v4.44.60 | 2026-02-26 | Stability: null DOM guards, empty catch logging, search timeout 30s -->
+<!-- v4.44.61 | 2026-02-26 | Find Jobs: unified search, live-first, simplified UI -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,7 @@
     }
     </script>
 
-    <!-- v4.44.60 | 2026-02-26 | Stability: null DOM guards, empty catch logging, search timeout 30s -->
+    <!-- v4.44.61 | 2026-02-26 | Find Jobs: unified search, live-first, simplified UI -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.60 - BUILD 20260226-stability-guards
-        var BP_VERSION = 'v4.44.60';
+        // BLUEPRINT v4.44.61 - BUILD 20260226-find-jobs-redesign
+        var BP_VERSION = 'v4.44.61';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2052,7 +2052,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260226-stability-guards            ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260226-find-jobs-redesign          ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -5256,7 +5256,7 @@
                   detail: { desc: 'Pipeline (saved jobs + match analysis), Tracker (application stages), Find Jobs (multi-API search with quickScore).',
                     functions: ['initOpportunities()', 'renderPipelineTab()', 'renderFindJobs()', 'quickScoreJob()', 'matchJobToProfile()'], lines: '~22000-24000', route: '#opportunities',
                     inputs: ['Job search APIs', 'skillsData', 'savedJobs'], outputs: ['Saved jobs', 'Match scores', 'Scouting reports'],
-                    deps: ['Jobs proxy API', 'skillsData', 'Match engine'], debt: 'quickScore vs pipeline % gap still visible. Find Jobs count includes all cached.' }},
+                    deps: ['Jobs proxy API', 'skillsData', 'Match engine'], debt: 'quickScore vs pipeline % gap still visible.' }},
                 { id: 'blueprint', name: 'Blueprint View', layer: 'frontend', col: 5,
                   color: '#8b5cf6', icon: 'blueprint',
                   detail: { desc: 'Career dashboard. Compensation, skill distribution, purpose statement, values, outcomes, skills management, export.',
@@ -5309,7 +5309,7 @@
                     deps: ['O*NET crosswalk', 'Skill libraries'], debt: 'Fuzzy matching could use Levenshtein distance' }},
                 { id: 'match-engine', name: 'Match Scoring', layer: 'runtime', col: 4,
                   color: '#f59e0b', icon: 'target',
-                  detail: { desc: 'Two tiers: quickScoreJob (Find Jobs keyword scan, capped 90%) and matchJobToProfile (Pipeline, AI-parsed skill comparison).',
+                  detail: { desc: 'Two tiers: quickScoreJob (Find Jobs keyword scan, capped 90%) and matchJobToProfile (Pipeline, AI-parsed skill comparison). Find Jobs uses live API search by default.',
                     functions: ['quickScoreJob()', 'matchJobToProfile()', 'rescoreAllJobs()'], lines: '~22400-23700',
                     inputs: ['skillsData', 'Job description text or parsed skills'], outputs: ['Match %', 'Matched/gap/surplus arrays', 'BLS salary'],
                     deps: ['skillsData', 'BLS wage data', 'O*NET crosswalk'], debt: 'quickScore and pipeline scores diverge. Ideal: single engine.' }},
@@ -23662,7 +23662,6 @@ body {
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'tracker' ? 'active' : '') + '" onclick="switchJobsSubTab(\'tracker\')">' + bpIcon('tracker',14) + ' Tracker' + (appCount > 0 ? ' (' + appCount + ')' : '') + '</button>'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'find-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'find-jobs\')">' + bpIcon('search',14) + ' Find Jobs' + (opportunitiesData.length > 0 ? ' (' + opportunitiesData.length + ')' : '') + '</button>'
                 + '</div>'
-                + '<div id="jobsDbBadge"></div>'
                 + '</div>'
                 + '<div id="jobsSubTabContent"></div>'
                 + '</div>';
@@ -23688,15 +23687,15 @@ body {
                 el.innerHTML = renderTrackerInJobs();
             } else {
                 el.innerHTML = renderFindJobs();
-                // Load from cache on first visit
-                if (!jobsCacheLoaded) {
-                    loadJobsFromCache();
-                } else if (opportunitiesData && opportunitiesData.length > 0) {
+                if (opportunitiesData && opportunitiesData.length > 0) {
                     renderOpportunities();
-                } else if (jobsCacheData.length > 0) {
-                    scoreAndDisplayCachedJobs();
+                } else {
+                    var rd = document.getElementById('opportunitiesResults');
+                    if (rd) rd.innerHTML = '<div style="text-align:center; padding:48px 20px;">'
+                        + '<div style="margin-bottom:16px; opacity:0.3;">' + bpIcon('search',48) + '</div>'
+                        + '<p style="font-size:1.05em; color:var(--text-secondary); margin-bottom:6px;">Search for jobs across 8 sources</p>'
+                        + '<p style="font-size:0.85em; color:var(--text-muted);">Enter a keyword and hit Search to find matching roles.</p></div>';
                 }
-                updateSyncStatusDisplay();
             }
         }
         
@@ -23884,22 +23883,22 @@ body {
             
             return ''
                 
-                // Search bar row 1: keyword + location
                 + '<div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">'
-                + '<input id="findJobsKeyword" type="text" placeholder="Role, skill, or keyword..." '
+                + '<input id="findJobsKeyword" type="text" placeholder="Job title, skill, or keyword..." '
                 + 'value="' + escapeHtml(window._lastJobSearch || '') + '" '
                 + 'onkeydown="if(event.key===\'Enter\') searchOpportunities();" '
                 + 'style="flex:2; min-width:180px; padding:10px 14px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.92em;" />'
-                
                 + '<input id="findJobsLocation" type="text" placeholder="City, state, or remote..." '
                 + 'value="' + escapeHtml(window._lastJobLocation || '') + '" '
                 + 'onkeydown="if(event.key===\'Enter\') searchOpportunities();" '
                 + 'style="flex:1; min-width:140px; padding:10px 14px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.92em;" />'
+                + '<button onclick="searchOpportunities()" style="padding:10px 20px; background:var(--accent); '
+                + 'color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em; '
+                + 'display:flex; align-items:center; gap:6px; white-space:nowrap;">'
+                + bpIcon('search',14) + ' Search</button>'
                 + '</div>'
-                
-                // Search bar row 2: category + remote toggle + clear + search
                 + '<div style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; align-items:center;">'
                 
                 + '<select id="findJobsCategory" style="padding:10px 14px; background:var(--c-input-bg); '
@@ -23923,52 +23922,20 @@ body {
                 + '<input type="checkbox" id="findJobsRemote" ' + (window._lastJobRemote ? 'checked' : '') + ' style="accent-color:var(--accent);"> Remote only</label>'
                 
                 + '<button onclick="clearJobSearch();" '
-                + 'style="padding:10px 12px; background:none; border:1px solid var(--border); border-radius:8px; '
-                + 'color:var(--text-muted); cursor:pointer;" title="Clear search">' + bpIcon('x',14) + '</button>'
-                
-                + '<button onclick="searchOpportunities()" style="padding:10px 20px; background:var(--accent); '
-                + 'color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em; '
-                + 'display:flex; align-items:center; gap:6px; white-space:nowrap;">'
-                + bpIcon('search',14) + ' Search</button>'
-                
-                + '<button onclick="searchLiveFromAPIs()" style="padding:10px 14px; background:none; '
-                + 'border:1px solid var(--border); border-radius:8px; cursor:pointer; font-size:0.78em; '
-                + 'color:var(--text-muted); white-space:nowrap;" title="Search APIs directly for fresh results">'
-                + '\uD83D\uDD04 Live</button>'
-                + '</div>'
-                
-                // Sync status
-                + '<div id="jobsSyncStatus" style="margin-bottom:12px;"></div>'
-                
-                // Quick role chips
-                + (roleSuggestions ? '<div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">'
-                + '<span style="font-size:0.78em; color:var(--text-muted); padding:4px 0;">Your roles:</span>'
-                + roleSuggestions + '</div>' : '')
-                
-                // Source indicators
-                + '<div style="display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; align-items:center;">'
-                + '<span style="font-size:0.72em; color:var(--text-muted);">Sources:</span>'
-                + '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; font-weight:600; background:rgba(96,165,250,0.15); color:#60a5fa;">JSearch</span>'
-                + '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; font-weight:600; background:rgba(16,185,129,0.15); color:#10b981;">Remotive</span>'
-                + '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; font-weight:600; background:rgba(139,92,246,0.15); color:#8b5cf6;">USAJobs</span>'
-                + '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; font-weight:600; background:rgba(245,158,11,0.15); color:#f59e0b;">Himalayas</span>'
-                + '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; font-weight:600; background:rgba(236,72,153,0.15); color:#ec4899;">Jobicy</span>'
-                + '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; font-weight:600; background:rgba(239,68,68,0.15); color:#ef4444;">Adzuna</span>'
-                + '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; font-weight:600; background:rgba(6,182,212,0.15); color:#06b6d4;">The Muse</span>'
-                + '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; font-weight:600; background:rgba(217,70,239,0.15); color:#d946ef;">Jooble</span>'
-                + '</div>'
-                
-                // Match threshold
-                + '<div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; padding:10px 14px; '
-                + 'border-radius:8px; background:var(--c-accent-bg-1); border:1px solid var(--c-accent-bg-4a);">'
+                + 'style="padding:8px 12px; background:none; border:1px solid var(--border); border-radius:8px; '
+                + 'color:var(--text-muted); cursor:pointer; font-size:0.78em;">Clear</button>'
+                + '<div style="display:flex; align-items:center; gap:8px; margin-left:auto;">'
                 + '<span style="font-size:0.82em; color:var(--text-muted); white-space:nowrap;">Min match:</span>'
                 + '<input type="range" min="0" max="80" value="' + currentMatchThreshold + '" '
-                + 'oninput="updateMatchThreshold(this.value)" '
-                + 'style="flex:1; accent-color:var(--accent);" />'
-                + '<span id="matchValue" style="font-weight:600; color:var(--accent); min-width:40px; text-align:right;">' + currentMatchThreshold + '%</span>'
+                + 'oninput="updateMatchThreshold(this.value)" style="width:100px; accent-color:var(--accent);" />'
+                + '<span id="matchValue" style="font-weight:600; color:var(--accent); font-size:0.85em; min-width:30px;">' + currentMatchThreshold + '%</span>'
+                + '</div>'
                 + '</div>'
                 
-                // Results container
+                + (roleSuggestions ? '<div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">'
+                + '<span style="font-size:0.78em; color:var(--text-muted); padding:4px 0;">Quick search:</span>'
+                + roleSuggestions + '</div>' : '')
+                
                 + '<div id="opportunitiesResults"></div>';
         }
         
@@ -26225,14 +26192,12 @@ body {
             var hasMore = filtered.length > pageSize;
             
             // Summary bar
-            var sourceBreak = getJobsSourceBreakdown();
             var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:8px 0; flex-wrap:wrap; gap:8px;">'
                 + '<span style="font-size:0.88em; color:var(--text-secondary);">'
-                + '<strong>' + filtered.length + '</strong> jobs' + (filtered.length < opportunitiesData.length ? ' (of ' + opportunitiesData.length + ' returned)' : '')
-                + ' above ' + currentMatchThreshold + '% match'
-                + (jobsSyncMeta && jobsSyncMeta.totalJobs > 0 ? ' <span style="color:var(--text-muted); font-size:0.85em;">\u00B7 ' + jobsSyncMeta.totalJobs.toLocaleString() + ' in database</span>' : '')
+                + '<strong>' + filtered.length + '</strong> jobs'
+                + (filtered.length < opportunitiesData.length ? ' (of ' + opportunitiesData.length + ' total)' : '')
+                + (currentMatchThreshold > 0 ? ' above ' + currentMatchThreshold + '% match' : '')
                 + '</span>'
-                + (window._findJobsSources ? '<span style="font-size:0.72em; color:var(--text-muted);">' + window._findJobsSources + '</span>' : '')
                 + '</div>';
             
             // Pipeline IDs for dedup check + score lookup
@@ -26545,23 +26510,16 @@ body {
             if (demoGate('Find Jobs')) return;
             var keyword = (document.getElementById('findJobsKeyword') || {}).value || '';
             keyword = keyword.trim();
+            if (!keyword) { showToast('Enter a keyword to search.', 'info'); return; }
             window._lastJobSearch = keyword;
             
             var location = (document.getElementById('findJobsLocation') || {}).value || '';
             location = location.trim();
             window._lastJobLocation = location;
             
-            var category = (document.getElementById('findJobsCategory') || {}).value || '';
             var remoteOnly = (document.getElementById('findJobsRemote') || {}).checked || false;
             window._lastJobRemote = remoteOnly;
             
-            // Cache-first: filter cached results (instant)
-            if (jobsCacheLoaded && jobsCacheData.length > 0) {
-                scoreAndDisplayCachedJobs(keyword, location, remoteOnly);
-                return;
-            }
-            
-            // Fallback: live search
             searchLiveFromAPIs();
         }
         
@@ -26585,8 +26543,8 @@ body {
             
             resultsDiv.innerHTML = '<div style="text-align:center; padding:40px;">'
                 + '<div class="loading-spinner" style="width:32px; height:32px; border-width:3px; margin:0 auto 12px;"></div>'
-                + '<p style="font-size:1em; color:var(--text-secondary);">Searching 8 job sources live...</p>'
-                + '<p style="font-size:0.82em; color:var(--text-muted); margin-top:6px;">JSearch \u00B7 Remotive \u00B7 USAJobs \u00B7 Himalayas \u00B7 Jobicy \u00B7 Adzuna \u00B7 The Muse \u00B7 Jooble</p>'
+                + '<p style="font-size:1em; color:var(--text-secondary);">Searching job sources...</p>'
+                + '<p style="font-size:0.82em; color:var(--text-muted); margin-top:6px;">Aggregating results from multiple job boards</p>'
                 + '</div>';
             
             var searchId = Date.now();
