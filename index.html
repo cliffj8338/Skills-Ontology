@@ -10609,7 +10609,7 @@
                 + bpIcon('blueprint', 22) + ' Blueprint Advantage\u2122</div>'
                 + '<div style="font-size:0.88em; color:var(--c-muted); line-height:1.5;">Same role. Same candidate. <strong>Dramatically different intelligence.</strong></div>'
                 + '<div style="font-size:0.82em; color:var(--c-muted); margin-top:6px;">Candidate: <strong>' + escapeHtml(cp.name || 'Demo Candidate') + '</strong> \u2014 ' + escapeHtml(cp.currentTitle || '')
-                + ' \u00B7 ' + (candidate.skills || []).length + ' skills \u00B7 ' + (candidate.values || []).filter(function(v){return v.selected;}).length + ' values</div>';
+                + ' \u00B7 ' + ((candidate && candidate.skills) || []).length + ' skills \u00B7 ' + ((candidate && candidate.values) || []).filter(function(v){return v.selected;}).length + ' values</div>';
             if (rawResult.parsedTitle) {
                 html += '<div style="font-size:0.78em; color:var(--c-muted); margin-top:2px;">Role: <strong>' + escapeHtml(wb.title || rawResult.parsedTitle) + '</strong>'
                     + (wb.company ? ' at ' + escapeHtml(wb.company) : '') + '</div>';
@@ -11087,6 +11087,15 @@
             var rawResult = _wbCompWizData.rawResult;
             var structResult = _wbCompWizData.structResult;
             var candidate = _wbCompWizData.candidate;
+
+            if (!rawResult || !structResult) {
+                body.innerHTML = '<div style="text-align:center; padding:50px;">'
+                    + '<div class="loading-spinner" style="width:32px; height:32px; border-width:3px; margin:0 auto 16px;"></div>'
+                    + '<div style="font-family:Outfit,sans-serif; font-weight:600; color:var(--c-heading);">Running live comparison...</div>'
+                    + '<div style="font-size:0.84em; color:var(--c-muted); margin-top:6px;">Matching candidate against both traditional JD and structured Work Blueprint.</div>'
+                    + '</div>';
+                return;
+            }
 
             var html = '<div style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">'
                 + '<div style="font-size:0.84em; color:var(--c-muted);">'
