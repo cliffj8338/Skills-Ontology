@@ -1,4 +1,4 @@
-<!-- v4.45.13 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
+<!-- v4.45.14 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.13 - BUILD 20260227-skill-quality-tighten
-        var BP_VERSION = 'v4.45.13';
+        // BLUEPRINT v4.45.14 - BUILD 20260227-skill-quality-tighten
+        var BP_VERSION = 'v4.45.14';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -10362,6 +10362,7 @@
 
             var aligned = [], yourPriority = [], theirPriority = [];
             var matchedCompany = new Set();
+            var companyMatchScores = {}; // track best match score per company value
 
             userSelected.forEach(function(uv) {
                 var bestScore = 0, bestMatch = '';
@@ -10372,6 +10373,10 @@
                 if (bestScore >= 0.4) {
                     aligned.push({ name: uv, strength: companyPrimary.has(bestMatch) ? 'primary' : 'secondary', score: bestScore });
                     matchedCompany.add(bestMatch);
+                    // Track best score per company value (multiple candidates can match same company value)
+                    if (!companyMatchScores[bestMatch] || bestScore > companyMatchScores[bestMatch]) {
+                        companyMatchScores[bestMatch] = bestScore;
+                    }
                 } else {
                     yourPriority.push({ name: uv });
                 }
@@ -10383,11 +10388,16 @@
                 }
             });
 
-            var maxScore = userSelected.length * 20;
+            // Score based on company values coverage (not candidate count)
+            // How well does this candidate cover what the company cares about?
+            var maxScore = 0;
+            companyLower.forEach(function(cv) {
+                maxScore += companyPrimary.has(cv) ? 20 : 10;
+            });
             var rawScore = 0;
-            aligned.forEach(function(a) {
-                var pts = a.strength === 'primary' ? 20 : 10;
-                rawScore += pts * (a.score || 1);
+            Object.keys(companyMatchScores).forEach(function(cv) {
+                var weight = companyPrimary.has(cv) ? 20 : 10;
+                rawScore += weight * (companyMatchScores[cv] || 1);
             });
             var score = maxScore > 0 ? Math.max(0, Math.min(100, Math.round((rawScore / maxScore) * 100))) : 0;
 
@@ -10967,19 +10977,25 @@
                 
                 // Score methodology — full transparency
                 var totalCandidateValues = aligned.length + yourPriority.length;
-                var maxPoints = totalCandidateValues * 20;
-                var earnedPoints = maxPoints > 0 ? Math.round(score / 100 * maxPoints) : 0;
+                var companyCount = allCompany.length;
+                var matchedCompanyCount = Object.keys(alignedByCompany).length;
+                var maxPts = 0;
+                allCompany.forEach(function(cv) {
+                    maxPts += (compVals.primary || []).indexOf(cv) !== -1 ? 20 : 10;
+                });
+                var earnedPts = Math.round(score / 100 * maxPts);
                 var synonymCount = aligned.filter(function(a) { return (a.score || 0) >= 0.80 && (a.score || 0) < 1.0; }).length;
                 var exactCount = aligned.filter(function(a) { return (a.score || 0) >= 0.95; }).length;
                 
                 html += '<div style="padding:10px 12px; background:var(--c-surface-3); border-radius:8px; font-size:0.72em; color:var(--c-muted); line-height:1.6;">'
                     + '<strong style="color:var(--c-heading);">Scoring Methodology:</strong> '
-                    + totalCandidateValues + ' candidate values evaluated against ' + allCompany.length + ' company values. '
+                    + 'Measures how well this candidate covers the company\'s ' + companyCount + ' values. '
+                    + matchedCompanyCount + ' of ' + companyCount + ' company values matched by ' + aligned.length + ' candidate values. '
                     + (exactCount > 0 ? exactCount + ' exact match' + (exactCount > 1 ? 'es' : '') + '. ' : '')
                     + (synonymCount > 0 ? synonymCount + ' synonym/semantic match' + (synonymCount > 1 ? 'es' : '') + '. ' : '')
-                    + 'Core value match = 20 pts, secondary = 10 pts. '
-                    + 'Earned ' + earnedPoints + ' of ' + maxPoints + ' possible points. '
-                    + 'No subjective weighting. Every mapping shown above.'
+                    + 'Core value = 20 pts, secondary = 10 pts, adjusted by match quality. '
+                    + 'Earned ' + earnedPts + ' of ' + maxPts + ' possible. '
+                    + 'Candidate\'s ' + yourPriority.length + ' independent values are noted but do not reduce the score.'
                     + '</div>';
             }
             
