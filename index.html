@@ -1,4 +1,4 @@
-<!-- v4.45.31 | 2026-02-27 | Lightcast certs expanded to 1,583 credentials across 19 categories -->
+<!-- v4.45.32 | 2026-02-27 | Lightcast certs expanded to 1,583 credentials across 19 categories -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.31 - BUILD 20260227-lightcast-certs
-        var BP_VERSION = 'v4.45.31';
+        // BLUEPRINT v4.45.32 - BUILD 20260227-lightcast-certs
+        var BP_VERSION = 'v4.45.32';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -20043,7 +20043,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             svg.selectAll("*").remove();
             if (simulation) simulation.stop();
             
-            var centerX = isMobile ? width * 0.68 : width * 0.18;
+            var centerX = isMobile ? width * 0.68 : width * 0.35;
             var centerY = isMobile ? height * 0.18 : height * 0.22;
             var maxTitleLen = isMobile ? 20 : 30;
             var truncTitle = (job.title || "Job").length > maxTitleLen ? (job.title || "Job").substring(0, maxTitleLen - 2) + '\u2026' : (job.title || "Job");
@@ -30695,9 +30695,23 @@ body {
             var allSkills = skillsData.skills || [];
             
             // First pass: match user's own skill names in JD text
+            var searchTextNormUser = ' ' + text.replace(/[^a-z0-9\s\+\#\.]/g, ' ').replace(/\s+/g, ' ') + ' ';
             allSkills.forEach(function(skill) {
-                var skillLower = skill.name.toLowerCase();
-                if (skillLower.length > 3 && text.indexOf(skillLower) !== -1 && !seen.has(skillLower)) {
+                var skillLower = skill.name.toLowerCase().trim();
+                if (skillLower.length < 3 || seen.has(skillLower)) return;
+                
+                var found = false;
+                if (skillLower.length <= 5) {
+                    // Short terms: require word boundaries to avoid "plan" matching "planning"
+                    found = searchTextNormUser.indexOf(' ' + skillLower + ' ') !== -1
+                         || searchTextNormUser.indexOf(' ' + skillLower + ',') !== -1
+                         || searchTextNormUser.indexOf(' ' + skillLower + '.') !== -1
+                         || searchTextNormUser.indexOf(' ' + skillLower + '/') !== -1;
+                } else {
+                    found = text.indexOf(skillLower) !== -1;
+                }
+                
+                if (found) {
                     seen.add(skillLower);
                     skillMatches.push({
                         name: skill.name,
@@ -30708,11 +30722,27 @@ body {
                 }
             });
             
-            // Second pass: check the full O*NET library if loaded
+            // Second pass: check the full skill library if loaded (43K+ skills)
             if (skillLibraryIndex && skillLibraryIndex.index) {
+                // Build a word-boundary-safe search text for short skill names
+                var searchTextNorm = ' ' + text.replace(/[^a-z0-9\s\+\#\.]/g, ' ').replace(/\s+/g, ' ') + ' ';
+                
                 skillLibraryIndex.index.forEach(function(libSkill) {
-                    var n = (libSkill.n || libSkill.name || '').toLowerCase();
-                    if (n.length > 3 && text.indexOf(n) !== -1 && !seen.has(n)) {
+                    var n = (libSkill.n || libSkill.name || '').toLowerCase().trim();
+                    if (n.length < 2 || seen.has(n)) return;
+                    
+                    var found = false;
+                    if (n.length <= 4) {
+                        // Short terms (SQL, CRM, SAS, R, C#): require word boundaries
+                        found = searchTextNorm.indexOf(' ' + n + ' ') !== -1
+                             || searchTextNorm.indexOf(' ' + n + ',') !== -1
+                             || searchTextNorm.indexOf(' ' + n + '.') !== -1
+                             || searchTextNorm.indexOf(' ' + n + '/') !== -1;
+                    } else {
+                        found = text.indexOf(n) !== -1;
+                    }
+                    
+                    if (found) {
                         seen.add(n);
                         skillMatches.push({
                             name: libSkill.n || libSkill.name,
@@ -30720,6 +30750,26 @@ body {
                             proficiency: inferJobProficiency(text, n, seniority),
                             category: libSkill.c || libSkill.category || 'General'
                         });
+                    }
+                });
+            }
+            
+            // Synonym pass: check runtime synonym lookup for additional matches
+            if (typeof _synonymLookup === 'object') {
+                Object.keys(_synonymLookup).forEach(function(canonical) {
+                    if (seen.has(canonical)) return;
+                    var syns = _synonymLookup[canonical];
+                    for (var si = 0; si < syns.length; si++) {
+                        if (syns[si].length > 3 && text.indexOf(syns[si]) !== -1) {
+                            seen.add(canonical);
+                            skillMatches.push({
+                                name: canonical.replace(/\b\w/g, function(c) { return c.toUpperCase(); }),
+                                requirement: classifyRequirementLevel(text, syns[si]),
+                                proficiency: inferJobProficiency(text, syns[si], seniority),
+                                category: 'General'
+                            });
+                            break;
+                        }
                     }
                 });
             }
