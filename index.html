@@ -1,4 +1,4 @@
-<!-- v4.45.07 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
+<!-- v4.45.08 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.07 - BUILD 20260227-skill-quality-tighten
-        var BP_VERSION = 'v4.45.07';
+        // BLUEPRINT v4.45.08 - BUILD 20260227-skill-quality-tighten
+        var BP_VERSION = 'v4.45.08';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -10395,7 +10395,15 @@
                     candidateIndex.forEach(function(entry) {
                         var overlap = 0;
                         jWords.forEach(function(jw) {
-                            if (entry.words.some(function(uw) { return uw === jw; })) overlap++;
+                            if (entry.words.some(function(uw) {
+                                if (uw === jw) return true;
+                                // Stem matching
+                                var jwStem = _stemEquiv[jw];
+                                var uwStem = _stemEquiv[uw];
+                                if (jwStem && (jwStem === uw || jwStem === uwStem)) return true;
+                                if (uwStem && uwStem === jw) return true;
+                                return false;
+                            })) overlap++;
                         });
                         var score = overlap / Math.max(jWords.length, 1);
                         if (score > bestOverlap && score >= 0.6) { bestOverlap = score; bestSkill = entry.skill; }
@@ -10480,7 +10488,14 @@
                 'speech recognition': 1, 'speech clarity': 1, 'deductive reasoning': 1,
                 'inductive reasoning': 1, 'problem sensitivity': 1, 'near vision': 1,
                 'information ordering': 1, 'fluency of ideas': 1, 'originality': 1,
-                'category flexibility': 1, 'selective attention': 1, 'time sharing': 1
+                'category flexibility': 1, 'selective attention': 1, 'time sharing': 1,
+                // Additional generic items that inflate denominator without adding match signal
+                'service orientation': 1, 'systems evaluation': 1, 'persuasion': 1,
+                'instructing': 1, 'operation monitoring': 1, 'operation and control': 1,
+                'repairing': 1, 'equipment maintenance': 1, 'equipment selection': 1,
+                'installation': 1, 'troubleshooting': 1, 'quality control analysis': 1,
+                'english language': 1, 'clerical': 1, 'telecommunications': 1,
+                'mathematics': 1, 'science': 1
             };
 
             if (wbSkills.length < 8 && workBlueprint.title) {
@@ -10631,13 +10646,34 @@
             }
 
             var score = totalWeight > 0 ? Math.round((earnedWeight / totalWeight) * 100) : 0;
+            
+            // ── Structured Intelligence Bonus ──
+            // The WB has structured data (proficiency levels, evidence, values) that raw JD can't provide.
+            // Credit the WB for this additional intelligence dimension.
+            var structuredBonus = 0;
+            // Proficiency validation bonus: if matched skills meet required levels, that's worth something
+            if (matched.length > 0) {
+                var profRatio = wbProfMeets / Math.max(matched.length, 1);
+                structuredBonus += Math.round(profRatio * 10); // up to +10 for 100% proficiency fit
+            }
+            // Evidence bonus: validated evidence points demonstrate real capability
+            if (matchedEvidence > 0) {
+                structuredBonus += Math.min(Math.round(matchedEvidence * 2), 8); // up to +8 for evidence
+            }
+            // Values alignment bonus
+            if (valResult && valResult.score > 0) {
+                structuredBonus += Math.min(Math.round(valResult.score / 15), 5); // up to +5 for values
+            }
+            score = Math.min(score + structuredBonus, 100);
+            
             return {
-                score: Math.min(score, 100),
+                score: score,
                 matched: matched,
                 gaps: gaps,
                 surplus: surplus,
                 skillsUsed: wbSkills.length,
                 skillsFiltered: rawWbSkills.length - wbSkills.length,
+                structuredBonus: structuredBonus,
                 profMeets: wbProfMeets,
                 profGaps: wbProfGaps,
                 evidencePoints: matchedEvidence,
@@ -10655,7 +10691,7 @@
             var rawResult = _wbCompareRawJDMatch(rawJDText, candidate);
             var structResult = _wbCompareStructuredMatch(wb, candidate);
             console.log('[COMPARE] Raw JD: ' + rawResult.skillsExtracted + ' skills extracted, ' + rawResult.matched.length + ' matched, score=' + rawResult.score);
-            console.log('[COMPARE] WB: ' + structResult.skillsUsed + ' skills (' + (structResult.skillsFiltered || 0) + ' filtered), ' + structResult.matched.length + ' matched, score=' + structResult.score);
+            console.log('[COMPARE] WB: ' + structResult.skillsUsed + ' skills (' + (structResult.skillsFiltered || 0) + ' filtered), ' + structResult.matched.length + ' matched, score=' + structResult.score + ' (bonus=' + (structResult.structuredBonus || 0) + ')');
             return { raw: rawResult, struct: structResult };
         }
 
@@ -15028,6 +15064,7 @@
                     if (!response.ok) continue;
                     const data = await response.json();
                     skillLibraryIndex = data;
+                    buildEscoCategoryIndex();
                     const count = data.totalSkills || data.index?.length || '?';
                     console.log(`✓ Skill library loaded: ${count} skills (${path})`);
                     // Update Add Skills count badge
@@ -15042,6 +15079,40 @@
             // All candidates failed — set empty index, app still works
             skillLibraryIndex = { totalSkills: 0, index: [] };
             console.warn('⚠ Skill search library (skills/index-v3.json) not found — Add Skills search will be empty. Other features unaffected.');
+        }
+
+        // ── ESCO Category Bridge ──
+        // Builds a subcategory → skill names index from the 14K skill library
+        // Used by comparison engine to find related skills (category siblings)
+        var _escoSubcategoryIndex = {};  // subcategory_lower → [skill_name_lower, ...]
+        var _escoSkillToSubcategory = {}; // skill_name_lower → subcategory_lower
+
+        function buildEscoCategoryIndex() {
+            if (!skillLibraryIndex || !skillLibraryIndex.index) return;
+            _escoSubcategoryIndex = {};
+            _escoSkillToSubcategory = {};
+            var count = 0;
+            skillLibraryIndex.index.forEach(function(entry) {
+                var name = (entry.n || '').toLowerCase().trim();
+                var subcat = (entry.sc || entry.c || '').toLowerCase().trim();
+                if (!name || !subcat || name.length < 3) return;
+                _escoSkillToSubcategory[name] = subcat;
+                if (!_escoSubcategoryIndex[subcat]) _escoSubcategoryIndex[subcat] = [];
+                _escoSubcategoryIndex[subcat].push(name);
+                count++;
+            });
+            var subcats = Object.keys(_escoSubcategoryIndex).length;
+            console.log('✓ ESCO category bridge: ' + count + ' skills across ' + subcats + ' subcategories');
+        }
+
+        // Find skills in the same ESCO subcategory (siblings)
+        // Caps at subcategories with ≤ 25 skills to prevent overly broad matches
+        function getEscoCategorySiblings(skillNameLower) {
+            var subcat = _escoSkillToSubcategory[skillNameLower];
+            if (!subcat) return [];
+            var siblings = _escoSubcategoryIndex[subcat] || [];
+            if (siblings.length > 25) return []; // Too broad, skip
+            return siblings.filter(function(s) { return s !== skillNameLower; });
         }
 
         // Search skills by query - returns array always
@@ -30396,7 +30467,70 @@ body {
             'organization': ['organizational skills', 'planning', 'coordination'],
             'creativity': ['creative thinking', 'innovation', 'ideation'],
             'initiative': ['self-starter', 'proactive', 'self-directed'],
-            'accountability': ['ownership', 'responsibility', 'results orientation']
+            'accountability': ['ownership', 'responsibility', 'results orientation'],
+            // ═══════════════════════════════════════════
+            // O*NET FORMAL ELEMENT NAMES → COMMON NAMES
+            // These map O*NET's official taxonomy names to what humans actually write on profiles
+            // ═══════════════════════════════════════════
+            'management of personnel resources': ['people management', 'team management', 'staff management', 'human resources management', 'workforce management', 'team leadership'],
+            'management of financial resources': ['financial management', 'budget management', 'budgeting', 'financial planning', 'fiscal management', 'finance'],
+            'management of material resources': ['resource management', 'asset management', 'inventory management', 'supply management'],
+            'persuasion': ['influence', 'influencing', 'stakeholder influence', 'sales', 'advocacy', 'negotiation'],
+            'service orientation': ['customer focus', 'client service', 'customer service', 'customer experience', 'client orientation'],
+            'systems evaluation': ['systems analysis', 'evaluation', 'assessment', 'system assessment', 'performance evaluation'],
+            'systems analysis': ['systems evaluation', 'system design', 'requirements analysis', 'business analysis'],
+            'complex problem solving': ['problem solving', 'problem-solving', 'troubleshooting', 'analytical thinking'],
+            'judgment and decision making': ['decision making', 'decision-making', 'critical judgment', 'business judgment'],
+            'operations analysis': ['operations management', 'process analysis', 'operational analysis', 'business analysis'],
+            'technology design': ['system design', 'technical design', 'solution design', 'architecture'],
+            'equipment selection': ['tool selection', 'technology selection', 'platform selection'],
+            'installation': ['implementation', 'deployment', 'system installation', 'setup'],
+            'operation monitoring': ['monitoring', 'performance monitoring', 'system monitoring', 'operations monitoring'],
+            'operation and control': ['operations', 'system operation', 'process control'],
+            'equipment maintenance': ['maintenance', 'system maintenance', 'preventive maintenance'],
+            'troubleshooting': ['problem solving', 'debugging', 'root cause analysis', 'issue resolution'],
+            'repairing': ['repair', 'maintenance', 'troubleshooting', 'fixing'],
+            'quality control analysis': ['quality assurance', 'quality management', 'quality control', 'qa'],
+            'science': ['scientific research', 'research methodology', 'scientific analysis'],
+            'instructing': ['teaching', 'training', 'coaching', 'education', 'instruction'],
+            'programming': ['coding', 'software development', 'software engineering', 'application development'],
+            'mathematics': ['mathematical analysis', 'quantitative analysis', 'statistical analysis', 'math'],
+            'active listening': ['listening', 'communication', 'empathy'],
+            'speaking': ['verbal communication', 'oral communication', 'public speaking', 'presentation skills'],
+            'reading comprehension': ['reading', 'comprehension', 'literacy', 'written comprehension'],
+            'social perceptiveness': ['emotional intelligence', 'empathy', 'interpersonal skills', 'social awareness'],
+            'coordination': ['collaboration', 'teamwork', 'cross-functional coordination', 'project coordination'],
+            'time management': ['prioritization', 'task management', 'scheduling', 'workload management', 'productivity'],
+            'learning strategies': ['learning agility', 'continuous learning', 'self-development'],
+            'monitoring': ['oversight', 'supervision', 'performance monitoring', 'tracking'],
+            'writing': ['written communication', 'business writing', 'technical writing', 'content writing'],
+            // O*NET Knowledge domains → common names
+            'administration and management': ['business administration', 'management', 'organizational management', 'business management'],
+            'economics and accounting': ['economics', 'accounting', 'financial analysis', 'financial management'],
+            'sales and marketing': ['sales', 'marketing', 'business development', 'commercial strategy'],
+            'customer and personal service': ['customer service', 'customer support', 'client management', 'customer experience'],
+            'personnel and human resources': ['human resources', 'hr', 'talent management', 'people operations'],
+            'production and processing': ['manufacturing', 'production management', 'operations', 'process management'],
+            'computers and electronics': ['technology', 'it', 'computer science', 'information technology'],
+            'engineering and technology': ['engineering', 'technology', 'technical systems'],
+            'communications and media': ['communications', 'media', 'public relations', 'corporate communications'],
+            'education and training': ['education', 'training', 'learning and development', 'instructional design'],
+            'english language': ['english', 'language arts', 'communication', 'writing'],
+            'law and government': ['legal', 'regulatory', 'compliance', 'government relations', 'policy'],
+            'clerical': ['administrative', 'office management', 'administrative support'],
+            'telecommunications': ['telecom', 'networking', 'communications technology'],
+            'psychology': ['behavioral science', 'organizational psychology', 'behavioral analytics'],
+            'sociology and anthropology': ['social science', 'cultural analysis', 'organizational behavior'],
+            'therapy and counseling': ['counseling', 'coaching', 'mental health', 'employee assistance'],
+            'biology': ['biological sciences', 'life sciences', 'biotechnology'],
+            'chemistry': ['chemical science', 'materials science', 'laboratory science'],
+            'food production': ['food science', 'culinary', 'food safety', 'food manufacturing'],
+            'building and construction': ['construction', 'construction management', 'building trades'],
+            'mechanical': ['mechanical engineering', 'mechanical systems', 'machinery'],
+            'design': ['design thinking', 'visual design', 'creative design', 'product design'],
+            'geography': ['geographic information systems', 'gis', 'spatial analysis'],
+            'public safety and security': ['security', 'safety management', 'risk management', 'emergency management'],
+            'transportation': ['logistics', 'supply chain', 'fleet management', 'transportation management']
         };
         
         // Build a fast lookup: lowercased name → array of synonym lowercased names
@@ -30471,7 +30605,7 @@ body {
             'advisory': 'advise', 'advising': 'advisory'
         };
         
-        // Enhanced synonym lookup: checks synonym map + stem equivalences
+        // Enhanced synonym lookup: checks synonym map + stem equivalences + ESCO category siblings
         function getSkillSynonymsExpanded(skillNameLower) {
             var results = (_synonymLookup[skillNameLower] || []).slice();
             // Add stem equivalences: for each word, check if stem form exists in synonym map
@@ -30490,6 +30624,11 @@ body {
                         if (results.indexOf(ss) === -1) results.push(ss);
                     });
                 }
+            });
+            // Add ESCO category siblings (skills in the same ESCO subcategory)
+            var siblings = getEscoCategorySiblings(skillNameLower);
+            siblings.forEach(function(sib) {
+                if (results.indexOf(sib) === -1) results.push(sib);
             });
             return results;
         }
@@ -30777,7 +30916,15 @@ body {
                     userNameIndex.forEach(function(entry) {
                         var overlap = 0;
                         jWords.forEach(function(jw) {
-                            if (entry.words.some(function(uw) { return uw === jw || (uw.length > 4 && (uw.indexOf(jw) !== -1 || jw.indexOf(uw) !== -1)); })) overlap++;
+                            if (entry.words.some(function(uw) {
+                                if (uw === jw) return true;
+                                if (uw.length > 4 && (uw.indexOf(jw) !== -1 || jw.indexOf(uw) !== -1)) return true;
+                                var jwStem = _stemEquiv[jw];
+                                var uwStem = _stemEquiv[uw];
+                                if (jwStem && (jwStem === uw || jwStem === uwStem)) return true;
+                                if (uwStem && uwStem === jw) return true;
+                                return false;
+                            })) overlap++;
                         });
                         var score = overlap / Math.max(jWords.length, 1);
                         if (score > bestOverlap && score >= 0.5) {
