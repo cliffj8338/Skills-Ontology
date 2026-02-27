@@ -1,4 +1,4 @@
-<!-- v4.45.08 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
+<!-- v4.45.09 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.08 - BUILD 20260227-skill-quality-tighten
-        var BP_VERSION = 'v4.45.08';
+        // BLUEPRINT v4.45.09 - BUILD 20260227-skill-quality-tighten
+        var BP_VERSION = 'v4.45.09';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -10458,6 +10458,22 @@
 
         function _wbSkillQualityFilter(skills) {
             var sentenceIndicators = /\b(the ability to|ability to|and the|or the|within a|such as|in order to|responsible for|as well as|including but|with a focus|ensure that|across the|deliver on|drive the|build and|lead and|manage and|develop and|partner with|work with|collaborate with|delivering|articulate|leverage)\b/i;
+            // Common English words that leak through JD parsing but aren't skills
+            var commonWordBlocklist = {
+                'plan': 1, 'plans': 1, 'planning': 1, 'sing': 1, 'less': 1, 'more': 1,
+                'work': 1, 'working': 1, 'make': 1, 'making': 1, 'use': 1, 'using': 1,
+                'build': 1, 'building': 1, 'create': 1, 'creating': 1, 'drive': 1, 'driving': 1,
+                'lead': 1, 'leading': 1, 'manage': 1, 'managing': 1, 'develop': 1, 'developing': 1,
+                'support': 1, 'ensure': 1, 'provide': 1, 'focus': 1, 'help': 1, 'grow': 1,
+                'growth': 1, 'role': 1, 'team': 1, 'teams': 1, 'business': 1, 'will': 1,
+                'strong': 1, 'key': 1, 'new': 1, 'high': 1, 'level': 1, 'well': 1,
+                'best': 1, 'good': 1, 'great': 1, 'able': 1, 'also': 1, 'must': 1,
+                'need': 1, 'year': 1, 'years': 1, 'time': 1, 'full': 1, 'part': 1,
+                'long': 1, 'term': 1, 'range': 1, 'apply': 1, 'share': 1, 'open': 1,
+                'join': 1, 'save': 1, 'post': 1, 'posted': 1, 'date': 1, 'yes': 1,
+                'content': 1, 'click': 1, 'accept': 1, 'skip': 1, 'main': 1, 'only': 1,
+                'training': 1, 'modeling': 1, 'economics': 1
+            };
             return skills.filter(function(s) {
                 var name = (s.name || '').trim();
                 if (name.length < 2 || name.length > 35) return false;
@@ -10465,6 +10481,11 @@
                 if (wordCount > 5) return false;
                 if (sentenceIndicators.test(name)) return false;
                 if (/^(the|a|an|to|in|on|at|by|for|or|and|of)\s/i.test(name)) return false;
+                // Single words: must be at least 5 chars and not in common word blocklist
+                if (wordCount === 1) {
+                    if (name.length < 5) return false;
+                    if (commonWordBlocklist[name.toLowerCase()]) return false;
+                }
                 return true;
             });
         }
@@ -10508,7 +10529,7 @@
                         var seniority = workBlueprint.seniority || 'mid';
                         var seniorityDefaults = { entry: 'Foundational', mid: 'Proficient', senior: 'Advanced', director: 'Expert', executive: 'Expert' };
                         var defaultLevel = seniorityDefaults[seniority] || 'Proficient';
-                        ['skills', 'knowledge', 'abilities'].forEach(function(type) {
+                        ['skills'].forEach(function(type) {
                             (occData[type] || []).forEach(function(oSkill) {
                                 if (wbSkills.length >= 12) return;
                                 var oName = oSkill.name;
