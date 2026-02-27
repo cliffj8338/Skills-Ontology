@@ -2,20 +2,20 @@
   "templateId": "comparison-candidate",
   "profile": {
     "name": "Alex Morgan",
-    "currentTitle": "Senior Product Strategy Manager",
-    "location": "Austin, TX",
-    "roleLevel": "Senior",
+    "currentTitle": "VP of Business Strategy & Planning",
+    "location": "San Francisco, CA",
+    "roleLevel": "Director",
     "email": "",
     "phone": "",
     "linkedinUrl": "",
-    "summary": "Senior product strategy professional with 8+ years driving go-to-market execution, cross-functional alignment, and data-driven decision making across SaaS, HR Tech, and enterprise software. Proven track record of launching products that achieve market fit, scaling operations from startup to growth stage, and building high-performing teams. Passionate about connecting people to meaningful work through technology."
+    "summary": "Senior business strategy executive with 12+ years leading planning, analysis, and revenue strategy across enterprise SaaS and cloud technology. Track record of building strategic planning functions, driving pricing and packaging optimization, and delivering long-range planning that accelerates revenue growth. Combines deep financial acumen with cross-functional leadership to shape business models, monetization strategy, and go-to-market execution at scale."
   },
   "roles": [
-    { "id": "product-strategy", "name": "Product Strategy", "color": "#3B82F6" },
-    { "id": "operations", "name": "Operations & Execution", "color": "#10B981" },
-    { "id": "analytics", "name": "Analytics & Intelligence", "color": "#8B5CF6" },
-    { "id": "leadership", "name": "Team Leadership", "color": "#F59E0B" },
-    { "id": "gtm", "name": "Go-to-Market", "color": "#EF4444" }
+    { "id": "strategy", "name": "Business Strategy", "color": "#3B82F6" },
+    { "id": "planning", "name": "Planning & Analysis", "color": "#10B981" },
+    { "id": "revenue", "name": "Revenue & Monetization", "color": "#8B5CF6" },
+    { "id": "leadership", "name": "Executive Leadership", "color": "#F59E0B" },
+    { "id": "operations", "name": "Operations", "color": "#EF4444" }
   ],
   "skills": [
     {
@@ -23,32 +23,54 @@
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["product-strategy"],
+      "roles": ["strategy"],
       "evidence": [
-        { "outcome": "Developed 3-year product roadmap that captured $12M in new ARR across 3 market segments", "description": "" },
-        { "outcome": "Led strategic planning workshops for cross-functional teams of 25+ stakeholders quarterly", "description": "" }
+        { "outcome": "Built and led enterprise strategic planning function serving $4B business unit with 3-year rolling plans", "description": "" },
+        { "outcome": "Developed long-range planning (LRP) framework adopted across 5 business units, improving forecast accuracy by 28%", "description": "" }
       ]
     },
     {
-      "name": "Product Management",
+      "name": "Business Planning",
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["product-strategy"],
+      "roles": ["planning"],
       "evidence": [
-        { "outcome": "Launched 4 major product features achieving 85%+ adoption within first quarter", "description": "" },
-        { "outcome": "Managed product lifecycle from concept through GA for enterprise SaaS platform serving 200+ clients", "description": "" }
+        { "outcome": "Led annual business planning cycle for $2.1B cloud division, aligning 12 product lines to corporate growth targets", "description": "" },
+        { "outcome": "Created quarterly business review framework tracking 25 KPIs across revenue, margin, and operational efficiency", "description": "" }
+      ]
+    },
+    {
+      "name": "Financial Modeling",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["planning", "revenue"],
+      "evidence": [
+        { "outcome": "Built scenario planning models evaluating $500M+ investment decisions with sensitivity analysis across 12 variables", "description": "" },
+        { "outcome": "Developed pricing elasticity models that informed 15% ARPU increase without material churn impact", "description": "" }
+      ]
+    },
+    {
+      "name": "Revenue Strategy",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["revenue"],
+      "evidence": [
+        { "outcome": "Designed cloud monetization strategy that accelerated subscription revenue growth from 18% to 34% YoY", "description": "" },
+        { "outcome": "Led pricing and packaging transformation across enterprise product portfolio, contributing $180M incremental ARR", "description": "" }
       ]
     },
     {
       "name": "Data Analysis",
-      "level": "Advanced",
+      "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["analytics"],
+      "roles": ["planning"],
       "evidence": [
-        { "outcome": "Built analytics dashboards tracking 15 KPIs that drove 22% improvement in conversion rates", "description": "" },
-        { "outcome": "Designed A/B testing framework that reduced feature validation time by 40%", "description": "" }
+        { "outcome": "Built executive analytics dashboards tracking 30+ KPIs powering real-time decision-making for C-suite", "description": "" },
+        { "outcome": "Led market sizing and TAM analysis for 3 new product categories totaling $8B addressable market", "description": "" }
       ]
     },
     {
@@ -58,18 +80,8 @@
       "key": true,
       "roles": ["leadership"],
       "evidence": [
-        { "outcome": "Led cross-functional team of 18 across engineering, design, marketing, and sales", "description": "" },
-        { "outcome": "Facilitated alignment between product and engineering reducing sprint scope creep by 35%", "description": "" }
-      ]
-    },
-    {
-      "name": "Market Research",
-      "level": "Advanced",
-      "category": "skill",
-      "key": false,
-      "roles": ["product-strategy", "gtm"],
-      "evidence": [
-        { "outcome": "Conducted competitive analysis across 12 vendors informing pricing strategy and feature prioritization", "description": "" }
+        { "outcome": "Led cross-functional team of 40+ across finance, product, engineering, and sales for annual planning cycle", "description": "" },
+        { "outcome": "Facilitated executive alignment on $300M investment portfolio across competing business unit priorities", "description": "" }
       ]
     },
     {
@@ -79,7 +91,39 @@
       "key": true,
       "roles": ["leadership"],
       "evidence": [
-        { "outcome": "Managed relationships with C-suite executives, presenting quarterly business reviews to CEO and board", "description": "" }
+        { "outcome": "Regular presenter to CEO and CFO on business performance, strategic initiatives, and investment recommendations", "description": "" },
+        { "outcome": "Managed board-level reporting on strategic initiatives with quarterly cadence", "description": "" }
+      ]
+    },
+    {
+      "name": "Pricing Strategy",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["revenue"],
+      "evidence": [
+        { "outcome": "Led cloud pricing transformation from perpetual license to consumption-based model across 8 product SKUs", "description": "" },
+        { "outcome": "Developed competitive pricing intelligence program tracking 15 competitors across 4 market segments", "description": "" }
+      ]
+    },
+    {
+      "name": "Market Research",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": ["strategy"],
+      "evidence": [
+        { "outcome": "Conducted comprehensive competitive landscape analysis across 20 vendors informing M&A strategy", "description": "" }
+      ]
+    },
+    {
+      "name": "Go-to-Market Strategy",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["revenue", "strategy"],
+      "evidence": [
+        { "outcome": "Designed and executed GTM strategy for new cloud product achieving 200% of first-year revenue target ($45M)", "description": "" }
       ]
     },
     {
@@ -89,37 +133,7 @@
       "key": false,
       "roles": ["operations"],
       "evidence": [
-        { "outcome": "Delivered 12 projects on time and within budget using Agile methodology across distributed teams", "description": "" }
-      ]
-    },
-    {
-      "name": "Business Development",
-      "level": "Proficient",
-      "category": "skill",
-      "key": false,
-      "roles": ["gtm"],
-      "evidence": [
-        { "outcome": "Identified and closed 3 strategic partnership deals generating $2.5M in pipeline", "description": "" }
-      ]
-    },
-    {
-      "name": "Team Building",
-      "level": "Advanced",
-      "category": "skill",
-      "key": false,
-      "roles": ["leadership"],
-      "evidence": [
-        { "outcome": "Built product strategy team from 2 to 8 members with 95% retention rate over 3 years", "description": "" }
-      ]
-    },
-    {
-      "name": "Financial Analysis",
-      "level": "Proficient",
-      "category": "skill",
-      "key": false,
-      "roles": ["analytics"],
-      "evidence": [
-        { "outcome": "Created ROI models for product investments that secured $4M in development funding", "description": "" }
+        { "outcome": "Delivered 15+ cross-functional strategic initiatives on time and within budget over 3 years", "description": "" }
       ]
     },
     {
@@ -127,60 +141,41 @@
       "level": "Expert",
       "category": "ability",
       "key": true,
-      "roles": ["leadership", "gtm"],
+      "roles": ["leadership"],
       "evidence": [
-        { "outcome": "Presented product vision to audiences of 500+ at 3 industry conferences", "description": "" },
-        { "outcome": "Authored thought leadership content generating 50K+ views and 200+ qualified leads", "description": "" }
+        { "outcome": "Presented strategic recommendations to audiences of 500+ at Dreamforce and industry conferences", "description": "" },
+        { "outcome": "Authored executive briefings and investment memos for C-suite decision-making", "description": "" }
       ]
     },
     {
-      "name": "Problem Solving",
-      "level": "Expert",
-      "category": "ability",
-      "key": true,
-      "roles": ["product-strategy", "analytics"],
-      "evidence": [
-        { "outcome": "Resolved critical platform scalability issue that was blocking $3M enterprise deal", "description": "" }
-      ]
-    },
-    {
-      "name": "Customer Success",
-      "level": "Advanced",
-      "category": "skill",
-      "key": false,
-      "roles": ["operations", "gtm"],
-      "evidence": [
-        { "outcome": "Improved NPS from 32 to 58 by implementing structured feedback loops with top 50 accounts", "description": "" }
-      ]
-    },
-    {
-      "name": "Agile Methodologies",
-      "level": "Advanced",
-      "category": "skill",
-      "key": false,
-      "roles": ["operations"],
-      "evidence": [
-        { "outcome": "Certified Scrum Product Owner; led 6 concurrent Agile teams through SAFe framework", "description": "" }
-      ]
-    },
-    {
-      "name": "Go-to-Market Strategy",
+      "name": "Team Building",
       "level": "Expert",
       "category": "skill",
       "key": true,
-      "roles": ["gtm"],
+      "roles": ["leadership"],
       "evidence": [
-        { "outcome": "Designed and executed GTM strategy for new product line achieving 140% of first-year revenue target", "description": "" }
+        { "outcome": "Built strategy and planning team from 3 to 15 members across 3 offices with 92% retention", "description": "" }
       ]
     },
     {
-      "name": "Talent Acquisition",
-      "level": "Proficient",
+      "name": "Business Development",
+      "level": "Advanced",
       "category": "skill",
       "key": false,
-      "roles": ["operations"],
+      "roles": ["revenue"],
       "evidence": [
-        { "outcome": "Collaborated with HR to redesign hiring process reducing time-to-fill by 25%", "description": "" }
+        { "outcome": "Identified and structured 4 strategic partnership deals generating $50M in combined pipeline", "description": "" }
+      ]
+    },
+    {
+      "name": "Financial Analysis",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["planning"],
+      "evidence": [
+        { "outcome": "Led P&L analysis across 8 product lines identifying $40M in margin improvement opportunities", "description": "" },
+        { "outcome": "Built ROI frameworks for strategic investments that secured $200M+ in board-approved funding", "description": "" }
       ]
     },
     {
@@ -190,7 +185,7 @@
       "key": false,
       "roles": ["leadership", "operations"],
       "evidence": [
-        { "outcome": "Led organizational restructuring affecting 60+ employees with zero unplanned attrition", "description": "" }
+        { "outcome": "Led pricing model transition from perpetual to subscription affecting 2,000+ enterprise accounts", "description": "" }
       ]
     },
     {
@@ -198,9 +193,49 @@
       "level": "Advanced",
       "category": "ability",
       "key": false,
-      "roles": ["gtm", "leadership"],
+      "roles": ["revenue", "leadership"],
       "evidence": [
-        { "outcome": "Negotiated vendor contracts saving $1.2M annually across 5 technology partnerships", "description": "" }
+        { "outcome": "Negotiated enterprise contracts totaling $75M+ with Fortune 500 clients", "description": "" }
+      ]
+    },
+    {
+      "name": "Problem Solving",
+      "level": "Expert",
+      "category": "ability",
+      "key": true,
+      "roles": ["strategy", "planning"],
+      "evidence": [
+        { "outcome": "Identified revenue leakage of $12M annually and designed remediation plan recovering 85% within 2 quarters", "description": "" }
+      ]
+    },
+    {
+      "name": "Presentation Skills",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": ["leadership"],
+      "evidence": [
+        { "outcome": "Delivered board presentations that secured approval for 5 strategic initiatives totaling $150M investment", "description": "" }
+      ]
+    },
+    {
+      "name": "Budget Management",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["operations", "planning"],
+      "evidence": [
+        { "outcome": "Managed $25M annual operating budget with consistent under-budget delivery (avg 3% savings)", "description": "" }
+      ]
+    },
+    {
+      "name": "Revenue Operations",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": ["operations", "revenue"],
+      "evidence": [
+        { "outcome": "Implemented RevOps framework aligning sales, marketing, and CS metrics to unified revenue dashboard", "description": "" }
       ]
     },
     {
@@ -210,27 +245,7 @@
       "key": false,
       "roles": ["operations"],
       "evidence": [
-        { "outcome": "Redesigned product development lifecycle reducing cycle time from 16 weeks to 10 weeks", "description": "" }
-      ]
-    },
-    {
-      "name": "User Experience",
-      "level": "Proficient",
-      "category": "skill",
-      "key": false,
-      "roles": ["product-strategy"],
-      "evidence": [
-        { "outcome": "Led user research program interviewing 100+ customers informing UX redesign that improved task completion by 30%", "description": "" }
-      ]
-    },
-    {
-      "name": "Revenue Operations",
-      "level": "Proficient",
-      "category": "skill",
-      "key": false,
-      "roles": ["operations", "gtm"],
-      "evidence": [
-        { "outcome": "Implemented RevOps framework aligning sales, marketing, and CS metrics to single revenue dashboard", "description": "" }
+        { "outcome": "Redesigned strategic planning cycle reducing timeline from 16 weeks to 8 weeks while improving quality", "description": "" }
       ]
     },
     {
@@ -238,29 +253,79 @@
       "level": "Expert",
       "category": "ability",
       "key": true,
-      "roles": ["product-strategy", "analytics"],
+      "roles": ["strategy", "planning"],
       "evidence": [
-        { "outcome": "Identified market timing risk that prevented $5M investment in declining product category", "description": "" }
+        { "outcome": "Identified market timing risk that prevented $50M investment in declining product category, redirecting to cloud-first strategy", "description": "" }
       ]
     },
     {
-      "name": "Presentation Skills",
-      "level": "Expert",
-      "category": "ability",
-      "key": false,
-      "roles": ["leadership", "gtm"],
-      "evidence": [
-        { "outcome": "Delivered executive presentations that secured board approval for 3 strategic initiatives", "description": "" }
-      ]
-    },
-    {
-      "name": "Budget Management",
+      "name": "Cloud Computing",
       "level": "Advanced",
       "category": "skill",
       "key": false,
-      "roles": ["operations"],
+      "roles": ["strategy"],
       "evidence": [
-        { "outcome": "Managed $8M annual product budget with consistent under-budget delivery (avg 4% savings)", "description": "" }
+        { "outcome": "Led cloud migration strategy for enterprise product suite, growing cloud revenue from 25% to 60% of total", "description": "" }
+      ]
+    },
+    {
+      "name": "Product Management",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": ["strategy"],
+      "evidence": [
+        { "outcome": "Managed product portfolio of 6 enterprise cloud products with combined $800M ARR", "description": "" }
+      ]
+    },
+    {
+      "name": "Competitive Analysis",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["strategy"],
+      "evidence": [
+        { "outcome": "Built competitive intelligence program tracking 20 vendors across 4 market categories with monthly executive briefs", "description": "" }
+      ]
+    },
+    {
+      "name": "Executive Reporting",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["planning", "leadership"],
+      "evidence": [
+        { "outcome": "Designed and delivered monthly executive business reviews for CEO, CFO, and 8 SVPs covering $4B portfolio", "description": "" }
+      ]
+    },
+    {
+      "name": "Forecasting",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["planning"],
+      "evidence": [
+        { "outcome": "Developed revenue forecasting models achieving 95%+ accuracy across quarterly and annual horizons", "description": "" }
+      ]
+    },
+    {
+      "name": "Monetization Strategy",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["revenue"],
+      "evidence": [
+        { "outcome": "Designed consumption-based pricing model for platform products, increasing expansion revenue by 45%", "description": "" }
+      ]
+    },
+    {
+      "name": "Strategic Partnerships",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": ["revenue", "strategy"],
+      "evidence": [
+        { "outcome": "Established ISV partner program generating $30M in indirect revenue through 25 technology partnerships", "description": "" }
       ]
     }
   ],
@@ -279,51 +344,64 @@
     { "name": "Strategic Foresight", "selected": true },
     { "name": "Authentic Leadership", "selected": true },
     { "name": "Data-Driven Decision Making", "selected": true },
-    { "name": "Customer First", "selected": true }
+    { "name": "Customer First", "selected": true },
+    { "name": "Trust", "selected": true },
+    { "name": "Equality", "selected": true },
+    { "name": "Sustainability", "selected": true }
   ],
   "workHistory": [
     {
-      "title": "Senior Product Strategy Manager",
-      "company": "TalentFlow (HR Tech SaaS)",
-      "startDate": "2022-03",
+      "title": "VP, Business Strategy & Planning",
+      "company": "CloudScale Technologies (Enterprise SaaS)",
+      "startDate": "2021-06",
       "endDate": "",
       "current": true,
-      "description": "Lead product strategy for AI-powered talent matching platform. Own roadmap, GTM execution, and cross-functional alignment across 40-person product org."
+      "description": "Lead business strategy and long-range planning for $4B cloud platform division. Own pricing strategy, monetization framework, and strategic planning cycle. Manage team of 15 across strategy, analytics, and competitive intelligence. Regular presenter to CEO and board on strategic initiatives and investment recommendations."
     },
     {
-      "title": "Product Manager",
-      "company": "DataBridge Analytics",
-      "startDate": "2019-06",
-      "endDate": "2022-02",
+      "title": "Senior Director, Revenue Strategy & Planning",
+      "company": "DataForge Inc. (Cloud Analytics)",
+      "startDate": "2018-03",
+      "endDate": "2021-05",
       "current": false,
-      "description": "Managed enterprise analytics product from MVP through Series B growth. Drove product-led growth initiatives that tripled user base."
+      "description": "Led revenue strategy and business planning for cloud analytics platform. Drove pricing transformation from perpetual to subscription model. Built planning function from scratch, delivering quarterly business reviews and annual strategic plans for C-suite."
     },
     {
-      "title": "Associate Product Manager",
-      "company": "CloudFirst Solutions",
-      "startDate": "2017-01",
-      "endDate": "2019-05",
+      "title": "Director, Strategic Planning & Analysis",
+      "company": "TechVantage Solutions",
+      "startDate": "2015-01",
+      "endDate": "2018-02",
       "current": false,
-      "description": "Supported product development for cloud infrastructure platform. Led customer discovery, feature prioritization, and sprint planning."
+      "description": "Led strategic planning and financial analysis for enterprise software division. Developed scenario planning models, managed $25M operating budget, and drove cross-functional alignment on product investment priorities."
+    },
+    {
+      "title": "Senior Strategy Analyst",
+      "company": "Deloitte Consulting",
+      "startDate": "2012-08",
+      "endDate": "2014-12",
+      "current": false,
+      "description": "Strategy consulting focused on technology and SaaS clients. Led market sizing, competitive analysis, and growth strategy engagements for Fortune 500 technology companies."
     }
   ],
   "education": [
     {
+      "institution": "Stanford Graduate School of Business",
       "degree": "MBA",
-      "institution": "University of Texas at Austin - McCombs School of Business",
-      "year": "2020",
-      "field": "Strategy & Innovation"
+      "field": "Strategy & Finance",
+      "year": "2012"
     },
     {
-      "degree": "BS",
-      "institution": "Georgia Institute of Technology",
-      "year": "2016",
-      "field": "Industrial Engineering"
+      "institution": "University of California, Berkeley",
+      "degree": "Bachelor of Science",
+      "field": "Economics",
+      "year": "2008"
     }
   ],
   "certifications": [
-    "Certified Scrum Product Owner (CSPO)",
-    "SAFe Product Owner/Product Manager",
-    "Google Analytics Certified"
+    {
+      "name": "Certified Strategy Professional (CSP)",
+      "issuer": "Association for Strategic Planning",
+      "year": "2019"
+    }
   ]
 }

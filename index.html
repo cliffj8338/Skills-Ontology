@@ -10264,7 +10264,7 @@
         var _wbCompareCandidate = null;
         function _wbLoadCompareCandidate() {
             if (_wbCompareCandidate) return Promise.resolve(_wbCompareCandidate);
-            return fetch('profiles/demo/comparison-candidate.json').then(function(r) { return r.json(); }).then(function(data) {
+            return fetch('profiles/demo/comparison-candidate.json?v=' + Date.now()).then(function(r) { return r.json(); }).then(function(data) {
                 _wbCompareCandidate = data;
                 return data;
             });
