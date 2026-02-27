@@ -1,4 +1,4 @@
-<!-- v4.45.21 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
+<!-- v4.45.22 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.21 - BUILD 20260227-skill-quality-tighten
-        var BP_VERSION = 'v4.45.21';
+        // BLUEPRINT v4.45.22 - BUILD 20260227-skill-quality-tighten
+        var BP_VERSION = 'v4.45.22';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -12037,146 +12037,139 @@
         window._wbCompExportPDFFromSaved = _wbCompExportPDFFromSaved;
         
         function _wbCompBuildPDF(wb, rawResult, structResult, candidate) {
-            showToast('Generating PDF...', 'info', 3000);
-            // Load jspdf if not already present
-            if (typeof window.jspdf === 'undefined') {
-                var script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-                script.onload = function() { _wbCompRenderPDF(wb, rawResult, structResult, candidate); };
-                script.onerror = function() { showToast('Failed to load PDF library.', 'error'); };
-                document.head.appendChild(script);
-            } else {
+            showToast('Generating PDF...', 'info', 5000);
+            
+            // Load html2canvas if not present
+            var needsH2C = typeof html2canvas === 'undefined';
+            var needsJsPDF = typeof window.jspdf === 'undefined';
+            var loaded = 0;
+            var total = (needsH2C ? 1 : 0) + (needsJsPDF ? 1 : 0);
+            
+            function tryRender() {
+                loaded++;
+                if (loaded >= total) _wbCompRenderPDF(wb, rawResult, structResult, candidate);
+            }
+            
+            if (total === 0) {
                 _wbCompRenderPDF(wb, rawResult, structResult, candidate);
+                return;
+            }
+            
+            if (needsH2C) {
+                var s1 = document.createElement('script');
+                s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                s1.onload = tryRender;
+                s1.onerror = function() { showToast('Failed to load PDF library.', 'error'); };
+                document.head.appendChild(s1);
+            }
+            if (needsJsPDF) {
+                var s2 = document.createElement('script');
+                s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                s2.onload = tryRender;
+                s2.onerror = function() { showToast('Failed to load PDF library.', 'error'); };
+                document.head.appendChild(s2);
             }
         }
         
         function _wbCompRenderPDF(wb, rawResult, structResult, candidate) {
-            var jsPDF = window.jspdf.jsPDF;
-            var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-            var W = 210, margin = 15, col = W - 2 * margin;
-            var y = margin;
             var cName = ((candidate || {}).profile || {}).name || 'Candidate';
-            var cTitle = ((candidate || {}).profile || {}).title || '';
             
-            function addText(text, x, yy, size, color, style) {
-                doc.setFontSize(size || 10);
-                doc.setTextColor.apply(doc, color || [51, 51, 51]);
-                doc.setFont('helvetica', style || 'normal');
-                var lines = doc.splitTextToSize(text, col - (x - margin));
-                doc.text(lines, x, yy);
-                return yy + lines.length * (size || 10) * 0.45;
-            }
-            function checkPage(need) { if (y + need > 280) { doc.addPage(); y = margin; } }
-            function drawLine(yy) { doc.setDrawColor(200); doc.line(margin, yy, W - margin, yy); return yy + 3; }
+            // 1. Create off-screen container that inherits page CSS
+            var container = document.createElement('div');
+            container.id = 'pdfRenderTarget';
+            container.style.cssText = 'position:fixed; left:-9999px; top:0; width:900px; padding:24px; background:#0f172a; color:#e2e8f0; z-index:-1; font-family:Inter,system-ui,sans-serif; font-size:14px;';
             
-            // Header
-            doc.setFillColor(15, 23, 42);
-            doc.rect(0, 0, W, 32, 'F');
-            doc.setFontSize(16); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold');
-            doc.text('Blueprint Advantage\u2122 Comparison', margin, 14);
-            doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(180, 190, 200);
-            doc.text('Generated ' + new Date().toLocaleDateString() + ' \u00B7 Blueprint v4.45.21', margin, 22);
-            doc.text(cName + ' \u00B7 ' + (wb.title || 'Untitled') + (wb.company ? ' at ' + wb.company : ''), margin, 28);
-            y = 40;
-            
-            // Score Summary
-            doc.setFillColor(240, 253, 244);
-            doc.roundedRect(margin, y, col / 2 - 3, 28, 3, 3, 'F');
-            doc.setFillColor(249, 250, 251);
-            doc.roundedRect(margin + col / 2 + 3, y, col / 2 - 3, 28, 3, 3, 'F');
-            
-            doc.setFontSize(8); doc.setTextColor(107, 114, 128); doc.setFont('helvetica', 'bold');
-            doc.text('WORK BLUEPRINT\u2122', margin + 4, y + 6);
-            doc.text('TRADITIONAL JD', margin + col / 2 + 7, y + 6);
-            
-            doc.setFontSize(22); doc.setTextColor(16, 185, 129); doc.setFont('helvetica', 'bold');
-            doc.text(structResult.score + '%', margin + 4, y + 20);
-            doc.setFontSize(22); doc.setTextColor(107, 114, 128);
-            doc.text(rawResult.score + '%', margin + col / 2 + 7, y + 20);
-            
-            doc.setFontSize(8); doc.setTextColor(107, 114, 128); doc.setFont('helvetica', 'normal');
-            doc.text(structResult.matched.length + '/' + structResult.skillsUsed + ' skills \u00B7 ' + (structResult.valuesScore || 0) + '% values \u00B7 ' + (structResult.evidencePoints || 0) + ' evidence', margin + 4, y + 25);
-            doc.text(rawResult.matched.length + '/' + rawResult.skillsExtracted + ' skills \u00B7 No proficiency \u00B7 No evidence', margin + col / 2 + 7, y + 25);
-            y += 35;
-            
-            // Skills Detail
-            y = drawLine(y);
-            y = addText('STRUCTURED SKILL MATCHING', margin, y, 10, [16, 185, 129], 'bold');
-            y += 2;
-            
-            // Matched skills
-            (structResult.matched || []).forEach(function(m) {
-                checkPage(6);
-                var quality = Math.round(m.nameMatch * m.profMatch * 100);
-                var levelInfo = m.userLevel ? ' (' + m.userLevel + ')' : '';
-                doc.setFillColor(240, 253, 244);
-                doc.roundedRect(margin, y - 3, col, 6, 1, 1, 'F');
-                y = addText('\u2713 ' + m.jobSkill + ' \u2192 ' + m.userSkill + levelInfo, margin + 2, y, 9, [30, 30, 30]);
-                doc.setFontSize(8); doc.setTextColor(16, 185, 129);
-                doc.text(quality + '%', W - margin - 10, y - 3);
+            // Copy CSS variables from the page
+            var computedStyle = getComputedStyle(document.documentElement);
+            var cssVars = ['--c-bg','--c-surface-2','--c-surface-3','--c-surface-5','--c-heading','--c-heading-bold','--c-body','--c-muted','--accent'];
+            cssVars.forEach(function(v) {
+                var val = computedStyle.getPropertyValue(v);
+                if (val) container.style.setProperty(v, val);
             });
             
-            // Gaps
-            (structResult.gaps || []).forEach(function(g) {
-                checkPage(6);
-                doc.setFillColor(254, 243, 199);
-                doc.roundedRect(margin, y - 3, col, 6, 1, 1, 'F');
-                y = addText('\u2717 ' + g.name, margin + 2, y, 9, [107, 114, 128]);
-                doc.setFontSize(8); doc.setTextColor(239, 68, 68);
-                doc.text((g.requirement || 'Required') + ' \u00B7 ' + (g.proficiency || 'Proficient'), W - margin - 35, y - 3);
-            });
-            y += 4;
+            // 2. Render the comparison HTML
+            var compHtml = _wbRenderComparison(wb, rawResult, structResult, candidate);
             
-            // Values
-            var compVals = structResult.companyValues;
-            if (compVals && (compVals.primary || []).length > 0) {
-                checkPage(20);
-                y = drawLine(y);
-                y = addText('VALUES ALIGNMENT (' + (structResult.valuesScore || 0) + '%)', margin, y, 10, [16, 185, 129], 'bold');
-                y += 1;
-                y = addText('Company values: ' + (compVals.primary || []).concat(compVals.secondary || []).join(', '), margin, y, 8, [107, 114, 128]);
-                y += 2;
-                var valDetail = structResult.valuesDetail;
-                if (valDetail) {
-                    (valDetail.aligned || []).forEach(function(a) {
-                        checkPage(5);
-                        y = addText('\u2713 ' + a.name.charAt(0).toUpperCase() + a.name.slice(1) + ' (' + (Math.round((a.score || 0.5) * 100) >= 95 ? 'exact' : 'synonym') + ')', margin + 2, y, 8, [30, 30, 30]);
-                    });
-                    (valDetail.theirPriority || []).forEach(function(v) {
-                        checkPage(5);
-                        y = addText('\u2717 ' + v.name.charAt(0).toUpperCase() + v.name.slice(1) + ' (unmatched ' + v.strength + ')', margin + 2, y, 8, [239, 68, 68]);
-                    });
-                }
-                y += 3;
-            }
+            // Add a branded header
+            var headerHtml = '<div style="text-align:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.1);">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:800; font-size:1.3em; color:#f1f5f9; letter-spacing:0.04em;">BLUEPRINT ADVANTAGE\u2122 COMPARISON</div>'
+                + '<div style="font-size:0.82em; color:#94a3b8; margin-top:4px;">Generated ' + new Date().toLocaleDateString() + ' \u00B7 This analysis reflects data-driven pattern matching, not a hiring recommendation.</div>'
+                + '</div>';
             
-            // Development Areas
-            var gaps = structResult.gaps || [];
-            if (gaps.length > 0) {
-                checkPage(15);
-                y = drawLine(y);
-                y = addText('DEVELOPMENT FOCUS AREAS', margin, y, 10, [239, 68, 68], 'bold');
-                y += 2;
-                gaps.forEach(function(g) {
-                    checkPage(10);
-                    var recText = _wbGapRecommendation(g.name, g.proficiency || 'Proficient');
-                    y = addText(g.name + ' (' + (g.proficiency || 'Proficient') + ' required)', margin + 2, y, 9, [30, 30, 30], 'bold');
-                    y = addText(recText, margin + 2, y, 8, [107, 114, 128]);
-                    y += 2;
+            // Add a footer
+            var footerHtml = '<div style="text-align:center; margin-top:20px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.1); font-size:0.72em; color:#64748b;">'
+                + 'Blueprint\u2122 v' + (window.BP_VERSION || '4.45.21') + ' \u00B7 Powered by structured intelligence'
+                + '</div>';
+            
+            container.innerHTML = headerHtml + compHtml + footerHtml;
+            document.body.appendChild(container);
+            
+            // 3. Wait for render, then capture
+            setTimeout(function() {
+                html2canvas(container, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#0f172a',
+                    width: 900,
+                    windowWidth: 900,
+                    logging: false
+                }).then(function(canvas) {
+                    // 4. Paginate into A4 PDF
+                    var jsPDF = window.jspdf.jsPDF;
+                    var imgWidth = 210; // A4 width in mm
+                    var pageHeight = 297; // A4 height in mm
+                    var margin = 5;
+                    var usableWidth = imgWidth - 2 * margin;
+                    var usableHeight = pageHeight - 2 * margin;
+                    
+                    var canvasWidth = canvas.width;
+                    var canvasHeight = canvas.height;
+                    var ratio = usableWidth / (canvasWidth / 2); // /2 because scale:2
+                    var scaledHeight = (canvasHeight / 2) * ratio;
+                    
+                    var doc = new jsPDF('portrait', 'mm', 'a4');
+                    
+                    if (scaledHeight <= usableHeight) {
+                        // Fits on one page
+                        var imgData = canvas.toDataURL('image/png');
+                        doc.addImage(imgData, 'PNG', margin, margin, usableWidth, scaledHeight);
+                    } else {
+                        // Multi-page: slice the canvas
+                        var pageCanvasHeight = Math.floor(canvasHeight * (usableHeight / scaledHeight));
+                        var totalPages = Math.ceil(canvasHeight / pageCanvasHeight);
+                        
+                        for (var p = 0; p < totalPages; p++) {
+                            if (p > 0) doc.addPage();
+                            
+                            var srcY = p * pageCanvasHeight;
+                            var srcH = Math.min(pageCanvasHeight, canvasHeight - srcY);
+                            var destH = usableHeight * (srcH / pageCanvasHeight);
+                            
+                            // Create a slice canvas
+                            var sliceCanvas = document.createElement('canvas');
+                            sliceCanvas.width = canvasWidth;
+                            sliceCanvas.height = srcH;
+                            var ctx = sliceCanvas.getContext('2d');
+                            ctx.drawImage(canvas, 0, srcY, canvasWidth, srcH, 0, 0, canvasWidth, srcH);
+                            
+                            var sliceData = sliceCanvas.toDataURL('image/png');
+                            doc.addImage(sliceData, 'PNG', margin, margin, usableWidth, destH);
+                        }
+                    }
+                    
+                    // 5. Save and clean up
+                    var filename = (cName + '-' + (wb.title || 'comparison')).replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase() + '.pdf';
+                    doc.save(filename);
+                    showToast('PDF exported: ' + filename, 'success');
+                    
+                    // Clean up
+                    container.remove();
+                }).catch(function(err) {
+                    console.error('[PDF] html2canvas error:', err);
+                    showToast('PDF generation failed. Try again.', 'error');
+                    container.remove();
                 });
-            }
-            
-            // Footer
-            checkPage(15);
-            y = drawLine(y + 3);
-            doc.setFontSize(7); doc.setTextColor(160, 160, 160);
-            doc.text('Blueprint\u2122 Intelligence Comparison \u00B7 This analysis reflects data-driven pattern matching, not a hiring recommendation.', margin, y + 2);
-            doc.text('Generated by Blueprint v4.45.21 \u00B7 ' + new Date().toISOString(), margin, y + 6);
-            
-            // Download
-            var filename = (cName + '-' + (wb.title || 'comparison')).replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase() + '.pdf';
-            doc.save(filename);
-            showToast('PDF exported: ' + filename, 'success');
+            }, 300); // Brief delay for CSS/fonts to render
         }
 
         function wbRepoExport(mode) {
