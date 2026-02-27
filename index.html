@@ -1,4 +1,4 @@
-<!-- v4.45.04 | 2026-02-27 | Blueprint Advantage: parseJobLocally-based comparison, structured WB matching, clone feature, redesigned comparison UI -->
+<!-- v4.45.05 | 2026-02-27 | Skill quality filtering: reject sentence fragments in converter + comparison, O*NET enrichment for sparse WBs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.04 - BUILD 20260227-blueprint-advantage-v5
-        var BP_VERSION = 'v4.45.04';
+        // BLUEPRINT v4.45.05 - BUILD 20260227-skill-quality-filter
+        var BP_VERSION = 'v4.45.05';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -8111,10 +8111,15 @@
                 /(?:must\s+(?:have|know|be\s+(?:proficient|skilled|experienced)))\s+(?:in|with)\s+([A-Za-z\s\+\#\/\.\-]{3,45})/gi
             ];
             var stopWords = /^(and|the|our|you|your|this|that|will|must|have|has|are|is|for|all|any|other|both|each|more|most|such|new|one|two|a|an|to|or|at|by|on|of|as|from|with|into|also|than|then|very|well|good|great|strong|key|top|the ability)$/i;
+            var sentenceIndicators = /\b(the ability to|ability to|and the|or the|within a|such as|in order to|responsible for|as well as|including but|with a focus|ensure that|across the|deliver on|drive the|build and|lead and|manage and|develop and|partner with|work with|collaborate with)\b/i;
             function addSkill(raw, importance) {
                 var skill = raw.trim().replace(/[,\.\;\:\!]+$/, '').replace(/\s+/g, ' ').trim();
                 if (skill.length < 3 || skill.length > 45) return;
                 if (stopWords.test(skill)) return;
+                var wordCount = skill.split(/\s+/).length;
+                if (wordCount > 6) return;
+                if (sentenceIndicators.test(skill)) return;
+                if (/^(the|a|an|to|in|on|at|by|for|or|and|of)\s/i.test(skill)) return;
                 var key = skill.toLowerCase();
                 if (!seen[key]) {
                     seen[key] = true;
@@ -8214,10 +8219,16 @@
                 }
                 if (/^[\u2022\u2023\u25E6\u25AA\u25CF\u00B7\-\*\>●]\s+/.test(stripped) || /^\d+[\.\)]\s+/.test(stripped)) {
                     var content = stripped.replace(/^[\u2022\u2023\u25E6\u25AA\u25CF\u00B7\-\*\>●]\s+/, '').replace(/^\d+[\.\)]\s+/, '');
-                    if (inSkillsSection && content.length >= 3 && content.length <= 80) {
-                        var cleanContent = content.replace(/[,\.\;\:\!]+$/, '').trim();
-                        if (cleanContent.length >= 3 && !stopWords.test(cleanContent)) {
-                            addSkill(cleanContent, 62);
+                    if (inSkillsSection && content.length >= 3) {
+                        if (/[,;]/.test(content)) {
+                            var bulletSkills = content.split(/[,;\/]/);
+                            bulletSkills.forEach(function(bs) {
+                                var cleanBs = bs.trim().replace(/[,\.\;\:\!]+$/, '').trim();
+                                if (cleanBs.length >= 3) addSkill(cleanBs, 62);
+                            });
+                        } else {
+                            var cleanContent = content.replace(/[,\.\;\:\!]+$/, '').trim();
+                            if (cleanContent.length >= 3) addSkill(cleanContent, 62);
                         }
                     }
                     var toolMatch = content.match(/(?:tools?\s+(?:like|such as|including)|(?:e\.g\.|i\.e\.))\s*[:;]?\s*([^\.]+)/i);
@@ -10434,12 +10445,56 @@
             };
         }
 
+        function _wbSkillQualityFilter(skills) {
+            var sentenceIndicators = /\b(the ability to|ability to|and the|or the|within a|such as|in order to|responsible for|as well as|including but|with a focus|ensure that|across the|deliver on|drive the|build and|lead and|manage and|develop and|partner with|work with|collaborate with)\b/i;
+            return skills.filter(function(s) {
+                var name = (s.name || '').trim();
+                if (name.length < 2) return false;
+                var wordCount = name.split(/\s+/).length;
+                if (wordCount > 6) return false;
+                if (sentenceIndicators.test(name)) return false;
+                if (/^(the|a|an|to|in|on|at|by|for|or|and|of)\s/i.test(name)) return false;
+                return true;
+            });
+        }
+
         function _wbCompareStructuredMatch(workBlueprint, candidateProfile) {
             var candidateSkills = JSON.parse(JSON.stringify(candidateProfile.skills || []));
-            var wbSkills = (workBlueprint.skills || []).map(function(s) {
+            var rawWbSkills = (workBlueprint.skills || []).map(function(s) {
                 var bl = s.blueprintLevel || s.level || 'Proficient';
                 return { name: s.name, requirement: s.requirement || 'Required', proficiency: bl, category: s.category || 'General' };
             });
+            var wbSkills = _wbSkillQualityFilter(rawWbSkills);
+
+            if (wbSkills.length < 5 && workBlueprint.title) {
+                var socResult = typeof resolveTitle === 'function' ? resolveTitle(workBlueprint.title) : null;
+                if (socResult && window.onetCrosswalk) {
+                    var occData = window.onetCrosswalk.occupations[socResult.soc];
+                    if (occData) {
+                        var existingNames = {};
+                        wbSkills.forEach(function(s) { existingNames[s.name.toLowerCase()] = true; });
+                        var seniority = workBlueprint.seniority || 'mid';
+                        var seniorityDefaults = { entry: 'Foundational', mid: 'Proficient', senior: 'Advanced', director: 'Expert', executive: 'Expert' };
+                        var defaultLevel = seniorityDefaults[seniority] || 'Proficient';
+                        ['skills', 'knowledge', 'abilities'].forEach(function(type) {
+                            (occData[type] || []).forEach(function(oSkill) {
+                                if (wbSkills.length >= 12) return;
+                                var oName = oSkill.name;
+                                if (!existingNames[oName.toLowerCase()]) {
+                                    existingNames[oName.toLowerCase()] = true;
+                                    wbSkills.push({
+                                        name: oName,
+                                        requirement: (oSkill.importance || 50) >= 60 ? 'Required' : 'Preferred',
+                                        proficiency: oSkill.blueprintLevel || defaultLevel,
+                                        category: type,
+                                        source: 'onet-enriched'
+                                    });
+                                }
+                            });
+                        });
+                    }
+                }
+            }
 
             var candidateMap = {};
             var candidateIndex = [];
@@ -10553,6 +10608,7 @@
                 gaps: gaps,
                 surplus: surplus,
                 skillsUsed: wbSkills.length,
+                skillsFiltered: rawWbSkills.length - wbSkills.length,
                 profMeets: wbProfMeets,
                 profGaps: wbProfGaps,
                 evidencePoints: matchedEvidence,
@@ -10570,7 +10626,7 @@
             var rawResult = _wbCompareRawJDMatch(rawJDText, candidate);
             var structResult = _wbCompareStructuredMatch(wb, candidate);
             console.log('[COMPARE] Raw JD: ' + rawResult.skillsExtracted + ' skills extracted, ' + rawResult.matched.length + ' matched, score=' + rawResult.score);
-            console.log('[COMPARE] WB: ' + structResult.skillsUsed + ' skills defined, ' + structResult.matched.length + ' matched, score=' + structResult.score);
+            console.log('[COMPARE] WB: ' + structResult.skillsUsed + ' skills (' + (structResult.skillsFiltered || 0) + ' filtered), ' + structResult.matched.length + ' matched, score=' + structResult.score);
             return { raw: rawResult, struct: structResult };
         }
 
