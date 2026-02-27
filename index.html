@@ -1,4 +1,4 @@
-<!-- v4.45.10 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
+<!-- v4.45.11 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.10 - BUILD 20260227-skill-quality-tighten
-        var BP_VERSION = 'v4.45.10';
+        // BLUEPRINT v4.45.11 - BUILD 20260227-skill-quality-tighten
+        var BP_VERSION = 'v4.45.11';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -10290,10 +10290,67 @@
             var companyPrimary = new Set((companyValObj.primary || []).map(function(v) { return v.toLowerCase().trim(); }));
             var companyLower = companyAll.map(function(v) { return v.toLowerCase().trim(); });
 
+            // Value synonym clusters — maps conceptually equivalent values
+            var VALUE_SYNONYMS = {
+                'trust': ['integrity', 'honesty', 'transparency', 'ethics', 'reliability', 'trustworthiness', 'ethical behavior'],
+                'integrity': ['trust', 'honesty', 'transparency', 'ethics', 'ethical behavior', 'trustworthiness'],
+                'transparency': ['trust', 'honesty', 'openness', 'integrity', 'candor'],
+                'honesty': ['trust', 'integrity', 'transparency', 'ethics', 'candor'],
+                'customer success': ['customer focus', 'customer first', 'client focus', 'customer obsession', 'customer satisfaction', 'customer centricity', 'service excellence'],
+                'customer focus': ['customer success', 'customer first', 'client focus', 'customer obsession', 'customer centricity'],
+                'customer obsession': ['customer focus', 'customer success', 'customer first'],
+                'innovation': ['creativity', 'continuous improvement', 'ingenuity', 'inventiveness', 'forward thinking', 'bold thinking', 'experimentation'],
+                'creativity': ['innovation', 'creative thinking', 'ingenuity', 'inventiveness'],
+                'continuous improvement': ['innovation', 'kaizen', 'growth mindset', 'learning'],
+                'equality': ['diversity', 'inclusion', 'equity', 'fairness', 'belonging', 'equal opportunity', 'diversity and inclusion', 'deib'],
+                'diversity': ['equality', 'inclusion', 'equity', 'belonging', 'diversity and inclusion'],
+                'inclusion': ['equality', 'diversity', 'belonging', 'equity', 'accessibility'],
+                'equity': ['equality', 'fairness', 'inclusion', 'diversity'],
+                'sustainability': ['social responsibility', 'environmental responsibility', 'corporate responsibility', 'stewardship', 'impact', 'giving back', 'community'],
+                'social responsibility': ['sustainability', 'community', 'giving back', 'corporate responsibility', 'impact'],
+                'community': ['sustainability', 'social responsibility', 'giving back', 'belonging'],
+                'collaboration': ['teamwork', 'partnership', 'together', 'team spirit', 'ohana', 'family'],
+                'teamwork': ['collaboration', 'partnership', 'together', 'cooperation'],
+                'excellence': ['quality', 'high standards', 'best in class', 'world class', 'mastery'],
+                'quality': ['excellence', 'high standards', 'craftsmanship', 'precision'],
+                'accountability': ['ownership', 'responsibility', 'reliability', 'dependability'],
+                'ownership': ['accountability', 'responsibility', 'empowerment', 'initiative'],
+                'respect': ['dignity', 'empathy', 'compassion', 'kindness', 'humanity'],
+                'empathy': ['respect', 'compassion', 'understanding', 'humanity', 'kindness'],
+                'courage': ['boldness', 'bravery', 'risk-taking', 'fearlessness', 'bold thinking'],
+                'growth': ['learning', 'development', 'growth mindset', 'continuous learning', 'self-improvement'],
+                'learning': ['growth', 'curiosity', 'continuous learning', 'development', 'growth mindset'],
+                'passion': ['enthusiasm', 'drive', 'dedication', 'commitment', 'energy'],
+                'work-life balance': ['wellbeing', 'wellness', 'balance', 'flexibility', 'health'],
+                'wellbeing': ['work-life balance', 'wellness', 'health', 'balance'],
+                'autonomy': ['independence', 'freedom', 'empowerment', 'self-direction'],
+                'empowerment': ['autonomy', 'ownership', 'trust', 'independence'],
+                'impact': ['making a difference', 'purpose', 'meaningful work', 'social responsibility'],
+                'purpose': ['impact', 'meaning', 'mission', 'making a difference'],
+                'agility': ['adaptability', 'flexibility', 'speed', 'nimbleness', 'responsiveness'],
+                'adaptability': ['agility', 'flexibility', 'resilience', 'change readiness']
+            };
+
+            function getValueSynonyms(valLower) {
+                return VALUE_SYNONYMS[valLower] || [];
+            }
+
             function wordsOf(s) { return s.replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(function(w) { return w.length > 2; }); }
+            
             function fuzzyMatch(a, b) {
                 if (a === b) return 1.0;
+                // Synonym match
+                var aSyns = getValueSynonyms(a);
+                if (aSyns.indexOf(b) !== -1) return 0.90;
+                var bSyns = getValueSynonyms(b);
+                if (bSyns.indexOf(a) !== -1) return 0.90;
+                // Cross-synonym: check if any synonym of a matches any synonym of b
+                for (var i = 0; i < aSyns.length; i++) {
+                    if (bSyns.indexOf(aSyns[i]) !== -1) return 0.80;
+                }
+                // Substring containment
                 if (a.indexOf(b) >= 0 || b.indexOf(a) >= 0) return 0.85;
+                // Word overlap
                 var wa = wordsOf(a), wb = wordsOf(b);
                 if (wa.length === 0 || wb.length === 0) return 0;
                 var shared = 0;
@@ -10657,14 +10714,32 @@
             var wbValues = (workBlueprint.values || []).map(function(v) {
                 return { name: v.name || v, desc: v.desc || v.description || '' };
             });
-            var companyValObj = {
-                primary: wbValues.slice(0, Math.ceil(wbValues.length / 2)).map(function(v) { return v.name; }),
-                secondary: wbValues.slice(Math.ceil(wbValues.length / 2)).map(function(v) { return v.name; }),
-                tensions: [], story: '', inferred: false
-            };
+            
+            // ── Company Values Lookup ──
+            // If the WB has a company field, look up real company values from the database
+            // This overrides or supplements the WB's stored values with verified company data
+            var companyValObj = null;
+            if (workBlueprint.company && window.companyDataLoaded) {
+                var lookedUp = getCompanyValues(workBlueprint.company, '');
+                if (lookedUp && !lookedUp.inferred && lookedUp.primary && lookedUp.primary.length > 0) {
+                    companyValObj = lookedUp;
+                    console.log('[COMPARE] Company values from DB: ' + workBlueprint.company + ' → ' + (lookedUp.primary || []).join(', '));
+                }
+            }
+            // Fallback: construct from WB stored values
+            if (!companyValObj) {
+                companyValObj = {
+                    primary: wbValues.slice(0, Math.ceil(wbValues.length / 2)).map(function(v) { return v.name; }),
+                    secondary: wbValues.slice(Math.ceil(wbValues.length / 2)).map(function(v) { return v.name; }),
+                    tensions: [], story: '', inferred: false
+                };
+            }
             var valResult = null;
             if (wbValues.length > 0 && candidateProfile.values) {
                 valResult = _wbCompareFuzzyValues(candidateProfile.values, companyValObj);
+                if (valResult) {
+                    console.log('[COMPARE] Values: company=' + (companyValObj.primary || []).join(', ') + ' | aligned=' + (valResult.aligned || []).map(function(a) { return a.name; }).join(', ') + ' | score=' + valResult.score + '%');
+                }
             }
 
             var score = totalWeight > 0 ? Math.round((earnedWeight / totalWeight) * 100) : 0;
@@ -22771,28 +22846,53 @@ body {
         }
 
         // Get company values \u2014 curated first, JD inference fallback
+        // Known company values — fallback for major companies if not in companies.json
+        var KNOWN_COMPANY_VALUES = {
+            'salesforce': { primary: ['Trust', 'Customer Success', 'Innovation', 'Equality', 'Sustainability'], secondary: ['Ohana', 'Giving Back'], tensions: [], story: 'Salesforce\'s Ohana culture emphasizes family spirit, with five core values guiding all business decisions and a 1-1-1 philanthropic model.' },
+            'google': { primary: ['Focus on the User', 'Innovation', 'Speed', 'Openness'], secondary: ['Don\'t Be Evil', 'Data-Driven'], tensions: [], story: '' },
+            'alphabet': { primary: ['Focus on the User', 'Innovation', 'Speed', 'Openness'], secondary: ['Data-Driven'], tensions: [], story: '' },
+            'microsoft': { primary: ['Innovation', 'Inclusion', 'Corporate Responsibility', 'Trustworthy Computing'], secondary: ['Growth Mindset', 'Customer Obsession'], tensions: [], story: '' },
+            'amazon': { primary: ['Customer Obsession', 'Ownership', 'Invent and Simplify', 'Bias for Action'], secondary: ['Earn Trust', 'Deliver Results', 'Frugality'], tensions: ['Work-Life Balance'], story: '' },
+            'apple': { primary: ['Innovation', 'Quality', 'Simplicity', 'Privacy'], secondary: ['Accessibility', 'Education', 'Environment'], tensions: [], story: '' },
+            'meta': { primary: ['Move Fast', 'Focus on Impact', 'Build Awesome Things', 'Be Open'], secondary: ['Live in the Future'], tensions: ['Privacy'], story: '' },
+            'netflix': { primary: ['Freedom and Responsibility', 'Innovation', 'Inclusion', 'Courage'], secondary: ['Impact', 'Curiosity'], tensions: [], story: '' },
+            'anthropic': { primary: ['Safety', 'Responsibility', 'Research Excellence', 'Honesty'], secondary: ['Collaboration', 'Impact'], tensions: [], story: '' }
+        };
+
         function getCompanyValues(companyName, rawText) {
             var source = window.companyDataLoaded || {};
             if (companyName) {
-                // Exact match first
+                var searchName = companyName.trim().toLowerCase();
+                // Check companies.json first (exact)
                 if (source[companyName]) {
                     var cv = source[companyName].values || source[companyName];
-                    return { primary: cv.primary, secondary: cv.secondary, tensions: cv.tensions, story: cv.story, inferred: false };
+                    if (cv.primary && cv.primary.length > 0) return { primary: cv.primary, secondary: cv.secondary, tensions: cv.tensions, story: cv.story, inferred: false };
                 }
-                // Case-insensitive / trimmed fallback
-                var searchName = companyName.trim().toLowerCase();
+                // Case-insensitive
                 var keys = Object.keys(source);
                 for (var k = 0; k < keys.length; k++) {
                     if (keys[k].toLowerCase() === searchName) {
                         var cv2 = source[keys[k]].values || source[keys[k]];
-                        return { primary: cv2.primary, secondary: cv2.secondary, tensions: cv2.tensions, story: cv2.story, inferred: false };
+                        if (cv2.primary && cv2.primary.length > 0) return { primary: cv2.primary, secondary: cv2.secondary, tensions: cv2.tensions, story: cv2.story, inferred: false };
                     }
                 }
-                // Partial match (e.g. "Amazon Security" matches "Amazon")
+                // Partial match
                 for (var k2 = 0; k2 < keys.length; k2++) {
                     if (searchName.indexOf(keys[k2].toLowerCase()) === 0 || keys[k2].toLowerCase().indexOf(searchName) === 0) {
                         var cv3 = source[keys[k2]].values || source[keys[k2]];
-                        return { primary: cv3.primary, secondary: cv3.secondary, tensions: cv3.tensions, story: cv3.story, inferred: false };
+                        if (cv3.primary && cv3.primary.length > 0) return { primary: cv3.primary, secondary: cv3.secondary, tensions: cv3.tensions, story: cv3.story, inferred: false };
+                    }
+                }
+                // Known company fallback
+                if (KNOWN_COMPANY_VALUES[searchName]) {
+                    var kv = KNOWN_COMPANY_VALUES[searchName];
+                    return { primary: kv.primary, secondary: kv.secondary, tensions: kv.tensions || [], story: kv.story || '', inferred: false };
+                }
+                // Partial known match
+                for (var knownKey in KNOWN_COMPANY_VALUES) {
+                    if (searchName.indexOf(knownKey) !== -1 || knownKey.indexOf(searchName) !== -1) {
+                        var kv2 = KNOWN_COMPANY_VALUES[knownKey];
+                        return { primary: kv2.primary, secondary: kv2.secondary, tensions: kv2.tensions || [], story: kv2.story || '', inferred: false };
                     }
                 }
             }
