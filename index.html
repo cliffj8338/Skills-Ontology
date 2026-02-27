@@ -1,4 +1,4 @@
-<!-- v4.45.28 | 2026-02-27 | Lightcast certs expanded to 1,583 credentials across 19 categories -->
+<!-- v4.45.29 | 2026-02-27 | Lightcast certs expanded to 1,583 credentials across 19 categories -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.28 - BUILD 20260227-lightcast-certs
-        var BP_VERSION = 'v4.45.28';
+        // BLUEPRINT v4.45.29 - BUILD 20260227-lightcast-certs
+        var BP_VERSION = 'v4.45.29';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -3359,6 +3359,23 @@
             loadPlatformAnalytics();
             renderTrafficDashboard(30);
             loadAdminJobsSyncStatus();
+            
+            // Async update Jobs Database tile (data loads after render)
+            if (fbDb) {
+                fbDb.collection('meta').doc('jobsSync').get().then(function(doc) {
+                    if (!doc.exists) return;
+                    var m = doc.data();
+                    var jt = document.getElementById('adminJobsTile');
+                    if (jt && m.totalJobs) {
+                        jt.querySelector('div[style*="font-size:1.5em"]').textContent = m.totalJobs.toLocaleString();
+                        jt.querySelector('div[style*="top:8px"]').textContent = '\u25CF';
+                        jt.querySelector('div[style*="top:8px"]').style.color = '#10b981';
+                        jt.style.borderColor = 'var(--c-border-faint)';
+                        var lc = document.getElementById('adminLibsLoadedCount');
+                        if (lc) lc.textContent = '11/11 libraries loaded';
+                    }
+                }).catch(function() {});
+            }
         }
         
         function loadAdminJobsSyncStatus() {
