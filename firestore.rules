@@ -1,3 +1,11 @@
+// Blueprint™ Firestore Rules v1.4 | 2026-02-27
+// Changelog:
+//   v1.0 | 2026-01-15 | Initial rules: users, reports, waitlist, jobs, meta
+//   v1.1 | 2026-02-01 | Added work_blueprints subcollection (30-key limit)
+//   v1.2 | 2026-02-10 | Added analytics_events, site_analytics, report_views
+//   v1.3 | 2026-02-18 | Split report read into get/list, share token validation
+//   v1.4 | 2026-02-27 | Raised work_blueprints key limit from 30 → 50
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
