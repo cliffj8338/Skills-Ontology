@@ -1,4 +1,4 @@
-<!-- v4.45.09 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
+<!-- v4.45.10 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.09 - BUILD 20260227-skill-quality-tighten
-        var BP_VERSION = 'v4.45.09';
+        // BLUEPRINT v4.45.10 - BUILD 20260227-skill-quality-tighten
+        var BP_VERSION = 'v4.45.10';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -10472,7 +10472,8 @@
                 'long': 1, 'term': 1, 'range': 1, 'apply': 1, 'share': 1, 'open': 1,
                 'join': 1, 'save': 1, 'post': 1, 'posted': 1, 'date': 1, 'yes': 1,
                 'content': 1, 'click': 1, 'accept': 1, 'skip': 1, 'main': 1, 'only': 1,
-                'training': 1, 'modeling': 1, 'economics': 1
+                'training': 1, 'modeling': 1, 'economics': 1, 'accounting': 1,
+                'compensation': 1, 'adaptability': 1
             };
             return skills.filter(function(s) {
                 var name = (s.name || '').trim();
@@ -10716,6 +10717,227 @@
             return { raw: rawResult, struct: structResult };
         }
 
+        // ── Recommendations Engine ──
+        // Generates actionable hiring and development recommendations from comparison data
+        function _wbCompareRecommendations(rawResult, structResult) {
+            if (!structResult) return '';
+            
+            var recs = [];
+            var candidateStrengths = [];
+            var devAreas = [];
+            var hiringInsights = [];
+
+            // 1. Analyze matched skills for strengths
+            (structResult.matched || []).forEach(function(m) {
+                var quality = m.nameMatch * m.profMatch;
+                if (quality >= 0.95 && !m.profGap) {
+                    candidateStrengths.push(m.userSkill + (m.userLevel ? ' (' + m.userLevel + ')' : ''));
+                } else if (m.profGap) {
+                    devAreas.push({
+                        skill: m.jobSkill,
+                        has: m.userLevel || 'Unknown',
+                        needs: m.jobProficiency || 'Proficient',
+                        type: 'proficiency'
+                    });
+                } else if (quality < 0.6) {
+                    devAreas.push({
+                        skill: m.jobSkill + ' (matched to ' + m.userSkill + ')',
+                        has: 'Related',
+                        needs: 'Direct experience',
+                        type: 'adjacent'
+                    });
+                }
+            });
+
+            // 2. Classify gaps by actionability
+            var criticalGaps = [];
+            var developmentGaps = [];
+            (structResult.gaps || []).forEach(function(g) {
+                if (g.requirement === 'Required') {
+                    criticalGaps.push(g);
+                } else {
+                    developmentGaps.push(g);
+                }
+            });
+
+            // 3. JD vs WB intelligence delta analysis
+            var jdOnly = (rawResult.matched || []).filter(function(rm) {
+                return !(structResult.matched || []).some(function(sm) {
+                    return sm.userSkill.toLowerCase() === rm.userSkill.toLowerCase();
+                });
+            });
+            var wbOnly = (structResult.matched || []).filter(function(sm) {
+                return !(rawResult.matched || []).some(function(rm) {
+                    return rm.userSkill.toLowerCase() === sm.userSkill.toLowerCase();
+                });
+            });
+
+            // Build HTML
+            var html = '<div style="margin-top:24px; padding:20px; background:var(--c-surface-2); border-radius:12px; border:1px solid var(--c-surface-3);">';
+            html += '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1em; color:var(--c-heading); margin-bottom:16px;">'
+                + bpIcon('lightbulb', 16) + ' Blueprint Intelligence\u2122 Recommendations</div>';
+
+            // Section: Hiring Recommendation
+            var overallRec = '';
+            var recColor = '';
+            var matchRatio = (structResult.matched || []).length / Math.max(structResult.skillsUsed || 1, 1);
+            var profFit = structResult.profMeets / Math.max((structResult.matched || []).length, 1);
+
+            if (matchRatio >= 0.7 && profFit >= 0.8 && criticalGaps.length <= 1) {
+                overallRec = 'Strong Candidate';
+                recColor = '#10b981';
+                hiringInsights.push('This candidate matches the majority of structured requirements with validated proficiency levels.');
+                if (criticalGaps.length === 1) {
+                    hiringInsights.push('One required skill gap (' + criticalGaps[0].name + ') may be addressable through onboarding or training.');
+                }
+                if (candidateStrengths.length > 0) {
+                    hiringInsights.push('Core strengths in ' + candidateStrengths.slice(0, 3).join(', ') + ' align directly with role demands.');
+                }
+            } else if (matchRatio >= 0.5 && criticalGaps.length <= 2) {
+                overallRec = 'Viable Candidate \u2014 Development Needed';
+                recColor = '#f59e0b';
+                hiringInsights.push('Candidate demonstrates foundational alignment but has ' + criticalGaps.length + ' required skill gap' + (criticalGaps.length !== 1 ? 's' : '') + ' that need addressing.');
+                if (profFit >= 0.8) {
+                    hiringInsights.push('Where skills do match, proficiency levels meet or exceed requirements \u2014 this suggests strong learning trajectory.');
+                }
+            } else {
+                overallRec = 'Significant Gaps \u2014 Proceed with Caution';
+                recColor = '#ef4444';
+                hiringInsights.push('Multiple required skills are unmatched. Consider whether gaps are trainable within the role\u2019s ramp timeline.');
+            }
+
+            html += '<div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; padding:12px; background:var(--c-surface-3); border-radius:8px; border-left:3px solid ' + recColor + ';">'
+                + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.08em; color:' + recColor + '; font-weight:700;">Hiring Recommendation</div>'
+                + '<div style="font-size:0.92em; font-weight:700; color:' + recColor + ';">' + overallRec + '</div>'
+                + '</div>';
+
+            hiringInsights.forEach(function(insight) {
+                html += '<div style="font-size:0.8em; color:var(--c-body); padding:2px 0 2px 14px; line-height:1.5; border-left:2px solid var(--c-surface-3);">' + insight + '</div>';
+            });
+
+            // Section: Intelligence Delta (what WB found that JD missed)
+            if (wbOnly.length > 0 || jdOnly.length > 0) {
+                html += '<div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--c-surface-3);">'
+                    + '<div style="font-size:0.78em; font-weight:700; color:var(--c-heading); margin-bottom:8px;">'
+                    + bpIcon('search', 14) + ' Intelligence Delta \u2014 What the Blueprint Found That the JD Missed</div>';
+
+                if (wbOnly.length > 0) {
+                    html += '<div style="font-size:0.78em; color:var(--c-body); padding:4px 0; line-height:1.6;">'
+                        + '<span style="color:#10b981; font-weight:600;">WB-only matches:</span> ';
+                    wbOnly.forEach(function(m, i) {
+                        html += '<span style="background:rgba(16,185,129,0.1); padding:2px 6px; border-radius:4px; margin:1px; display:inline-block;">'
+                            + escapeHtml(m.jobSkill) + ' \u2192 ' + escapeHtml(m.userSkill) + '</span>';
+                        if (i < wbOnly.length - 1) html += ' ';
+                    });
+                    html += '</div>';
+                    html += '<div style="font-size:0.72em; color:var(--c-muted); padding-left:4px;">These matches are invisible to ATS keyword scanning because they require ontology-aware matching.</div>';
+                }
+
+                if (jdOnly.length > 0) {
+                    html += '<div style="font-size:0.78em; color:var(--c-body); padding:4px 0; margin-top:4px; line-height:1.6;">'
+                        + '<span style="color:' + (rawResult.score > 0 ? '#f59e0b' : 'var(--c-muted)') + '; font-weight:600;">JD-only matches:</span> ';
+                    jdOnly.forEach(function(m, i) {
+                        html += '<span style="background:rgba(245,158,11,0.1); padding:2px 6px; border-radius:4px; margin:1px; display:inline-block;">'
+                            + escapeHtml(m.jobSkill) + ' \u2192 ' + escapeHtml(m.userSkill) + '</span>';
+                        if (i < jdOnly.length - 1) html += ' ';
+                    });
+                    html += '</div>';
+                }
+                html += '</div>';
+            }
+
+            // Section: Development Plan (if gaps exist)
+            if (criticalGaps.length > 0 || devAreas.length > 0) {
+                html += '<div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--c-surface-3);">'
+                    + '<div style="font-size:0.78em; font-weight:700; color:var(--c-heading); margin-bottom:8px;">'
+                    + bpIcon('trending-up', 14) + ' Recommended Development Plan</div>';
+
+                if (criticalGaps.length > 0) {
+                    html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#ef4444; font-weight:600; margin-bottom:4px;">Required \u2014 Address Before or During Onboarding</div>';
+                    criticalGaps.forEach(function(g) {
+                        var recText = _wbGapRecommendation(g.name, g.proficiency || 'Proficient');
+                        html += '<div style="padding:6px 10px; margin-bottom:4px; background:rgba(239,68,68,0.06); border-radius:6px; border-left:2px solid #ef4444;">'
+                            + '<div style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(g.name) + ' <span style="font-weight:400; color:var(--c-muted);">(' + (g.proficiency || 'Proficient') + ' required)</span></div>'
+                            + '<div style="font-size:0.75em; color:var(--c-body); margin-top:2px;">' + recText + '</div>'
+                            + '</div>';
+                    });
+                }
+
+                if (developmentGaps.length > 0) {
+                    html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#f59e0b; font-weight:600; margin:8px 0 4px;">Preferred \u2014 Develop Over First 6\u201312 Months</div>';
+                    developmentGaps.forEach(function(g) {
+                        var recText = _wbGapRecommendation(g.name, g.proficiency || 'Proficient');
+                        html += '<div style="padding:6px 10px; margin-bottom:4px; background:rgba(245,158,11,0.05); border-radius:6px; border-left:2px solid #f59e0b;">'
+                            + '<div style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(g.name) + ' <span style="font-weight:400; color:var(--c-muted);">(' + (g.proficiency || 'Proficient') + ' preferred)</span></div>'
+                            + '<div style="font-size:0.75em; color:var(--c-body); margin-top:2px;">' + recText + '</div>'
+                            + '</div>';
+                    });
+                }
+
+                if (devAreas.length > 0) {
+                    html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#60a5fa; font-weight:600; margin:8px 0 4px;">Proficiency Growth \u2014 Level Up Existing Skills</div>';
+                    devAreas.forEach(function(d) {
+                        html += '<div style="padding:4px 10px; font-size:0.78em; color:var(--c-body); border-left:2px solid #60a5fa;">'
+                            + escapeHtml(d.skill) + ': '
+                            + (d.type === 'proficiency' ? 'Currently ' + d.has + ', role requires ' + d.needs + '. Target structured practice or project ownership.' : 'Adjacent skill detected. Recommend direct exposure through project assignment.')
+                            + '</div>';
+                    });
+                }
+
+                html += '</div>';
+            }
+
+            // Section: Candidate Strengths
+            if (candidateStrengths.length > 0) {
+                html += '<div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--c-surface-3);">'
+                    + '<div style="font-size:0.78em; font-weight:700; color:var(--c-heading); margin-bottom:6px;">'
+                    + bpIcon('check-circle', 14) + ' Confirmed Strengths</div>'
+                    + '<div style="display:flex; flex-wrap:wrap; gap:4px;">';
+                candidateStrengths.forEach(function(s) {
+                    html += '<span style="font-size:0.75em; background:rgba(16,185,129,0.1); color:#10b981; padding:3px 8px; border-radius:12px; font-weight:500;">' + escapeHtml(s) + '</span>';
+                });
+                html += '</div></div>';
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        // Gap-specific recommendation generator
+        function _wbGapRecommendation(skillName, requiredLevel) {
+            var lower = skillName.toLowerCase();
+            var recs = {
+                'ai agents': 'Emerging capability. Recommend structured AI/ML onboarding program, hands-on agentic framework projects (LangChain, CrewAI), and internal AI literacy certification.',
+                'salesforce': 'Platform-specific. Recommend Salesforce Trailhead certification path (Admin or Business Analyst track). Typically 40\u201360 hours to base proficiency.',
+                'management of personnel resources': 'Leadership competency. Look for evidence of direct report management, team building, or mentoring in interview. May be present but unlisted.',
+                'financial modeling': 'Technical skill. Recommend Wall Street Prep or CFI courses for structured learning. Assess depth needed \u2014 strategic-level modeling vs. analyst-level detail.',
+                'data analysis': 'Foundational skill. Recommend Google Data Analytics Certificate or internal analytics bootcamp.',
+                'strategic planning': 'Core to role. Assess via case study interview. Consider Harvard Business School Online \u201cStrategy\u201d course.',
+                'project management': 'Process skill. PMP or Agile certification path. Internal shadowing of experienced PMs.',
+                'python': 'Technical skill. Recommend DataCamp or Codecademy Python track. 20\u201340 hours to working proficiency.',
+                'leadership': 'Behavioral competency. Assess via structured behavioral interview. Consider executive coaching investment.',
+                'change management': 'Process and behavioral. Prosci certification is industry standard. Consider Kotter\u2019s 8-step framework training.',
+                'stakeholder management': 'Interpersonal skill. Typically developed through experience. Recommend assigning cross-functional project ownership.',
+                'negotiation': 'Core business skill. Recommend Harvard PON or Scotwork training. High-impact investment.'
+            };
+            
+            // Check for exact match
+            if (recs[lower]) return recs[lower];
+            
+            // Check for partial match
+            for (var key in recs) {
+                if (lower.indexOf(key) !== -1 || key.indexOf(lower) !== -1) return recs[key];
+            }
+
+            // Generic recommendation based on level
+            if (requiredLevel === 'Expert' || requiredLevel === 'Mastery') {
+                return 'Advanced competency required. Recommend identifying internal subject matter experts for mentoring, targeted external training, and project-based development. Typical ramp: 6\u201312 months.';
+            } else if (requiredLevel === 'Advanced') {
+                return 'Intermediate-to-advanced competency needed. Recommend structured training program and progressive project assignments. Typical ramp: 3\u20136 months.';
+            }
+            return 'Foundational competency needed. Self-directed learning combined with on-the-job application. Typical ramp: 1\u20133 months.';
+        }
+
         function _wbCompareGauge(score, label, color, sublabel) {
             var radius = 54, stroke = 10, circ = 2 * Math.PI * radius;
             var pct = Math.max(0, Math.min(100, score));
@@ -10895,6 +11117,9 @@
                 });
                 html += '</div>';
             }
+
+            // ── Recommendations Engine ──
+            html += _wbCompareRecommendations(rawResult, structResult);
 
             html += '<div style="text-align:center; font-size:0.75em; color:var(--c-muted); line-height:1.5; padding-top:12px; border-top:1px solid var(--c-surface-3);">'
                 + 'Live comparison powered by Blueprint\u2122\u2019s matching engine \u2014 real data, real algorithms, no simulations.'
@@ -30527,7 +30752,7 @@ body {
             'writing': ['written communication', 'business writing', 'technical writing', 'content writing'],
             // O*NET Knowledge domains → common names
             'administration and management': ['business administration', 'management', 'organizational management', 'business management'],
-            'economics and accounting': ['economics', 'accounting', 'financial analysis', 'financial management'],
+            'economics and accounting': ['economics', 'accounting', 'finance', 'fiscal management'],
             'sales and marketing': ['sales', 'marketing', 'business development', 'commercial strategy'],
             'customer and personal service': ['customer service', 'customer support', 'client management', 'customer experience'],
             'personnel and human resources': ['human resources', 'hr', 'talent management', 'people operations'],
