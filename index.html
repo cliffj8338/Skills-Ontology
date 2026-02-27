@@ -1,4 +1,4 @@
-<!-- v4.45.23 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
+<!-- v4.45.24 | 2026-02-27 | Skills library v4: 43K skills (ESCO + Lightcast + O*NET), external synonym layer -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.23 - BUILD 20260227-skill-quality-tighten
-        var BP_VERSION = 'v4.45.23';
+        // BLUEPRINT v4.45.24 - BUILD 20260227-skills-library-v4
+        var BP_VERSION = 'v4.45.24';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -16042,9 +16042,8 @@
         let skillLibraryIndex = null;
 
         async function loadSkillLibraryIndex() {
-            // Try v3 (current), gracefully degrade if missing — never block the app
-            const cacheBuster = '?v=20260218-2100';
-            const candidates = ['skills/index-v3.json', 'skills/index-v4.json'];
+            const cacheBuster = '?v=20260227-v4';
+            const candidates = ['skills/index-v4.json', 'skills/index-v3.json'];
             
             for (const path of candidates) {
                 try {
@@ -16053,9 +16052,12 @@
                     const data = await response.json();
                     skillLibraryIndex = data;
                     buildEscoCategoryIndex();
-                    const count = data.totalSkills || data.index?.length || '?';
-                    console.log(`✓ Skill library loaded: ${count} skills (${path})`);
-                    // Update Add Skills count badge
+                    const count = data.count || data.totalSkills || data.index?.length || '?';
+                    const src = data.source || path;
+                    console.log(`✓ Skill library loaded: ${Number(count).toLocaleString()} skills (${path})`);
+                    if (data.sources) {
+                        Object.entries(data.sources).forEach(function(e) { console.log('  ' + e[0] + ': ' + e[1].count + ' skills (v' + e[1].version + ')'); });
+                    }
                     const badge = document.getElementById('availableSkillsCount');
                     if (badge && count !== '?') badge.textContent = Number(count).toLocaleString();
                     return;
@@ -16064,9 +16066,34 @@
                 }
             }
             
-            // All candidates failed — set empty index, app still works
             skillLibraryIndex = { totalSkills: 0, index: [] };
-            console.warn('⚠ Skill search library (skills/index-v3.json) not found — Add Skills search will be empty. Other features unaffected.');
+            console.warn('⚠ Skill library not found — Add Skills search will be empty. Other features unaffected.');
+        }
+
+        async function loadExternalSynonyms() {
+            try {
+                const response = await fetch('skills/synonyms.json?v=20260227');
+                if (!response.ok) return;
+                const data = await response.json();
+                const map = data.map || {};
+                var added = 0;
+                Object.keys(map).forEach(function(key) {
+                    var lower = key.toLowerCase();
+                    if (!_synonymLookup[lower]) _synonymLookup[lower] = [];
+                    map[key].forEach(function(syn) {
+                        var synLower = syn.toLowerCase();
+                        if (_synonymLookup[lower].indexOf(synLower) === -1) {
+                            _synonymLookup[lower].push(synLower);
+                            added++;
+                        }
+                        if (!_synonymLookup[synLower]) _synonymLookup[synLower] = [];
+                        if (_synonymLookup[synLower].indexOf(lower) === -1) _synonymLookup[synLower].push(lower);
+                    });
+                });
+                console.log('✓ Extended synonyms loaded: ' + added + ' new mappings from ' + Object.keys(map).length + ' entries');
+            } catch (e) {
+                // External synonyms optional — hardcoded SKILL_SYNONYMS still work
+            }
         }
 
         // ── ESCO Category Bridge ──
@@ -16160,6 +16187,7 @@
         // Load library on page load
         window.addEventListener('DOMContentLoaded', () => {
             loadSkillLibraryIndex();
+            loadExternalSynonyms();
             var cy = document.getElementById('copyrightYear');
             if (cy) cy.textContent = new Date().getFullYear();
         });
