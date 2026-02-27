@@ -1,4 +1,4 @@
-<!-- v4.44.97 | 2026-02-27 | WB Clone, Blueprint Advantage comparison, sourceJD preservation -->
+<!-- v4.44.98 | 2026-02-27 | Compare Wizard: multi-step WB vs JD comparison with any demo candidate -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.97 - BUILD 20260227-compare
-        var BP_VERSION = 'v4.44.97';
+        // BLUEPRINT v4.44.98 - BUILD 20260227-compare-wizard
+        var BP_VERSION = 'v4.44.98';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -3182,6 +3182,7 @@
                 + _adminSidebarBtn('jdconverter', 'wand', 'Converter')
                 + _adminSidebarBtn('wbwizard', 'blueprint', 'Wizard')
                 + _adminSidebarBtn('wbrepo', 'folder', 'Repository')
+                + _adminSidebarBtn('wbcompare', 'trending-up', 'Compare')
                 + _adminSidebarGroup('System')
                 + _adminSidebarBtn('config', 'settings', 'Config')
                 + _adminSidebarBtn('status', 'shield', 'Status')
@@ -3216,6 +3217,7 @@
             else if (adminSubTab === 'jdconverter') renderAdminJDConverter(el);
             else if (adminSubTab === 'wbwizard') renderWBWizard(el);
             else if (adminSubTab === 'wbrepo') renderAdminWBRepo(el);
+            else if (adminSubTab === 'wbcompare') renderWBCompareWizard(el);
         }
         
         function renderAdminOverview(el) {
@@ -10545,6 +10547,318 @@
             }
         }
         window.wbRepoCompare = wbRepoCompare;
+
+        var _wbCompWizStep = 1;
+        var _wbCompWizData = { wb: null, rawJD: '', candidateId: '', candidate: null };
+
+        function renderWBCompareWizard(el) {
+            var html = '<div style="max-width:900px;">'
+                + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">'
+                + '<div>'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.3em; color:var(--c-heading-bold);">'
+                + bpIcon('trending-up',22) + ' Blueprint Advantage\u2122 Compare</div>'
+                + '<div style="font-size:0.85em; color:var(--c-muted); margin-top:4px;">See the difference structured intelligence makes \u2014 live matching, real data.</div>'
+                + '</div>'
+                + '</div>';
+
+            var steps = ['Select Blueprint', 'Add Traditional JD', 'Select Candidate', 'Results'];
+            html += '<div style="display:flex; gap:4px; margin-bottom:24px;">';
+            steps.forEach(function(s, i) {
+                var n = i + 1;
+                var active = n === _wbCompWizStep;
+                var done = n < _wbCompWizStep;
+                var bg = active ? 'var(--accent)' : done ? 'rgba(16,185,129,0.2)' : 'var(--c-surface-3)';
+                var col = active ? '#fff' : done ? '#10b981' : 'var(--c-muted)';
+                html += '<div style="flex:1; text-align:center; padding:10px 6px; background:' + bg + '; border-radius:8px; font-size:0.78em; font-weight:' + (active ? '700' : '500') + '; color:' + col + ';">'
+                    + '<span style="display:inline-block; width:18px; height:18px; line-height:18px; border-radius:50%; background:' + (active ? '#fff' : done ? '#10b981' : 'var(--c-surface-5)') + '; color:' + (active ? 'var(--accent)' : done ? '#fff' : 'var(--c-muted)') + '; font-size:0.8em; font-weight:700; margin-right:4px;">' + (done ? '\u2713' : n) + '</span>'
+                    + s + '</div>';
+            });
+            html += '</div>';
+
+            html += '<div id="wbCompWizBody"></div>';
+            html += '</div>';
+            el.innerHTML = html;
+            _wbCompWizRenderStep();
+        }
+
+        function _wbCompWizRenderStep() {
+            var body = document.getElementById('wbCompWizBody');
+            if (!body) return;
+            if (_wbCompWizStep === 1) _wbCompWizStep1(body);
+            else if (_wbCompWizStep === 2) _wbCompWizStep2(body);
+            else if (_wbCompWizStep === 3) _wbCompWizStep3(body);
+            else if (_wbCompWizStep === 4) _wbCompWizStep4(body);
+        }
+
+        function _wbCompWizStep1(body) {
+            var html = '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:24px;">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:var(--c-heading-bold); margin-bottom:4px;">'
+                + bpIcon('blueprint',18) + ' Select a Work Blueprint</div>'
+                + '<div style="font-size:0.84em; color:var(--c-muted); margin-bottom:16px;">Choose a blueprint from your repository to use as the structured comparison.</div>';
+
+            if (!fbUser) {
+                html += '<div style="text-align:center; padding:30px; color:var(--c-muted);">' + bpIcon('shield',28) + '<p style="margin-top:8px;">Sign in to access your blueprints.</p></div></div>';
+                body.innerHTML = html;
+                return;
+            }
+
+            if (_wbRepoCache === null) {
+                html += '<div style="text-align:center; padding:30px;">'
+                    + '<div class="loading-spinner" style="width:24px; height:24px; border-width:3px; margin:0 auto 10px;"></div>'
+                    + '<p style="font-size:0.85em; color:var(--c-muted);">Loading blueprints...</p></div></div>';
+                body.innerHTML = html;
+                fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').orderBy('savedAt', 'desc').get()
+                    .then(function(snapshot) {
+                        _wbRepoCache = [];
+                        snapshot.forEach(function(doc) { var d = doc.data(); d.id = doc.id; _wbRepoCache.push(d); });
+                        _wbCompWizRenderStep();
+                    })
+                    .catch(function(err) {
+                        console.warn('Load blueprints error:', err);
+                        _wbRepoCache = [];
+                        _wbCompWizRenderStep();
+                    });
+                return;
+            }
+
+            if (_wbRepoCache.length === 0) {
+                html += '<div style="text-align:center; padding:30px; color:var(--c-muted);">'
+                    + '<p>No blueprints found. Create one with the <strong>Converter</strong> or <strong>Wizard</strong> first.</p></div></div>';
+                body.innerHTML = html;
+                return;
+            }
+
+            html += '<div style="display:flex; flex-direction:column; gap:6px; max-height:400px; overflow-y:auto;">';
+            _wbRepoCache.forEach(function(bp, idx) {
+                var selected = _wbCompWizData.wb && _wbCompWizData.wb._idx === idx;
+                var border = selected ? '2px solid var(--accent)' : '1px solid var(--c-surface-5)';
+                var bg = selected ? 'rgba(16,185,129,0.08)' : 'var(--c-surface-1)';
+                html += '<div onclick="_wbCompWizSelectWB(' + idx + ')" style="background:' + bg + '; border:' + border + '; border-radius:10px; padding:12px 16px; cursor:pointer; transition:border-color 0.15s;">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                    + '<div>'
+                    + '<div style="font-weight:600; color:var(--c-heading); font-size:0.92em;">' + escapeHtml(bp.title || 'Untitled') + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-muted);">'
+                    + escapeHtml(bp.company || '') + (bp.industry ? ' \u00B7 ' + bp.industry : '') + (bp.seniority ? ' \u00B7 ' + bp.seniority : '')
+                    + ' \u00B7 ' + (bp.skills || []).length + ' skills'
+                    + '</div></div>'
+                    + (selected ? '<span style="color:var(--accent); font-weight:700;">\u2713</span>' : '')
+                    + '</div></div>';
+            });
+            html += '</div></div>';
+
+            html += '<div style="display:flex; justify-content:flex-end; margin-top:16px;">'
+                + '<button onclick="_wbCompWizNext()" ' + (_wbCompWizData.wb ? '' : 'disabled') + ' style="padding:10px 24px; background:' + (_wbCompWizData.wb ? 'var(--accent)' : 'var(--c-surface-3)') + '; color:' + (_wbCompWizData.wb ? '#fff' : 'var(--c-muted)') + '; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">Next \u2192</button>'
+                + '</div>';
+            body.innerHTML = html;
+        }
+
+        function _wbCompWizSelectWB(idx) {
+            var bp = _wbRepoCache[idx];
+            bp._idx = idx;
+            _wbCompWizData.wb = bp;
+            if (bp.sourceJD || bp._rawJD) {
+                _wbCompWizData.rawJD = bp.sourceJD || bp._rawJD;
+            }
+            _wbCompWizRenderStep();
+        }
+        window._wbCompWizSelectWB = _wbCompWizSelectWB;
+
+        function _wbCompWizStep2(body) {
+            var html = '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:24px;">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:var(--c-heading-bold); margin-bottom:4px;">'
+                + bpIcon('file',18) + ' Add Traditional Job Description</div>'
+                + '<div style="font-size:0.84em; color:var(--c-muted); margin-bottom:16px;">This raw JD text will be matched using keyword scanning \u2014 the way most ATS systems work today.</div>';
+
+            if (_wbCompWizData.rawJD) {
+                html += '<div style="margin-bottom:12px; padding:8px 12px; background:rgba(16,185,129,0.08); border-radius:8px; font-size:0.82em; color:#10b981;">'
+                    + bpIcon('check',14) + ' JD text loaded (' + _wbCompWizData.rawJD.split(/\s+/).length + ' words). You can edit below or replace.</div>';
+            }
+
+            html += '<div style="display:flex; gap:8px; margin-bottom:12px;">'
+                + '<input id="wbCompJDUrl" type="text" placeholder="Paste a job posting URL to fetch..." style="flex:1; padding:10px 14px; background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:8px; color:var(--c-heading); font-size:0.88em;" />'
+                + '<button onclick="_wbCompWizFetchURL()" style="padding:10px 18px; background:#3b82f6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em; white-space:nowrap;">' + bpIcon('link',14) + ' Fetch</button>'
+                + '</div>'
+                + '<div id="wbCompFetchStatus" style="display:none; font-size:0.82em; color:var(--c-muted); margin-bottom:8px;"></div>'
+                + '<textarea id="wbCompJDText" rows="12" placeholder="Or paste the full job description text here..." style="width:100%; padding:14px; background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:8px; color:var(--c-heading); font-size:0.85em; line-height:1.5; resize:vertical; font-family:inherit;">' + escapeHtml(_wbCompWizData.rawJD || '') + '</textarea>';
+
+            html += '</div>';
+
+            html += '<div style="display:flex; justify-content:space-between; margin-top:16px;">'
+                + '<button onclick="_wbCompWizBack()" style="padding:10px 20px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">\u2190 Back</button>'
+                + '<button onclick="_wbCompWizSaveJD()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">Next \u2192</button>'
+                + '</div>';
+            body.innerHTML = html;
+        }
+
+        async function _wbCompWizFetchURL() {
+            var urlInput = document.getElementById('wbCompJDUrl');
+            var statusEl = document.getElementById('wbCompFetchStatus');
+            if (!urlInput || !urlInput.value.trim()) {
+                showToast('Enter a URL first.', 'warning');
+                return;
+            }
+            var url = urlInput.value.trim();
+            if (!url.match(/^https?:\/\//i)) url = 'https://' + url;
+            statusEl.style.display = 'block';
+            statusEl.innerHTML = '<div class="loading-spinner" style="width:14px; height:14px; border-width:2px; display:inline-block; vertical-align:middle; margin-right:6px;"></div> Fetching job posting...';
+            try {
+                var controller = new AbortController();
+                var timeout = setTimeout(function() { controller.abort(); }, 15000);
+                var resp = await fetch('/api/api-job-proxy?source=page&url=' + encodeURIComponent(url), { signal: controller.signal });
+                clearTimeout(timeout);
+                if (!resp.ok) throw new Error('Fetch failed (' + resp.status + ')');
+                var html = await resp.text();
+                var text = _jdcExtractTextFromHTML(html);
+                if (text.length < 50) throw new Error('Could not extract enough text from page.');
+                var ta = document.getElementById('wbCompJDText');
+                if (ta) ta.value = text;
+                statusEl.innerHTML = '<span style="color:#10b981;">' + bpIcon('check',14) + ' Fetched ' + text.split(/\s+/).length + ' words from URL.</span>';
+                showToast('JD text fetched successfully!', 'success');
+            } catch (err) {
+                statusEl.innerHTML = '<span style="color:#ef4444;">' + bpIcon('alert',14) + ' ' + escapeHtml(err.message) + '</span>';
+                showToast('URL fetch failed. Try pasting the text directly.', 'warning');
+            }
+        }
+        window._wbCompWizFetchURL = _wbCompWizFetchURL;
+
+        function _wbCompWizSaveJD() {
+            var ta = document.getElementById('wbCompJDText');
+            var text = ta ? ta.value.trim() : '';
+            if (text.length < 30) {
+                showToast('Please paste or fetch a job description (at least 30 characters).', 'warning');
+                return;
+            }
+            _wbCompWizData.rawJD = text;
+            _wbCompWizStep = 3;
+            renderWBCompareWizard(document.getElementById('adminTabContent'));
+        }
+        window._wbCompWizSaveJD = _wbCompWizSaveJD;
+
+        function _wbCompWizStep3(body) {
+            var manifest = window.profilesManifest;
+            var profiles = (manifest && manifest.profiles) ? manifest.profiles.filter(function(p) { return p.enabled; }) : [];
+
+            var html = '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:24px;">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:var(--c-heading-bold); margin-bottom:4px;">'
+                + bpIcon('users',18) + ' Select a Candidate Profile</div>'
+                + '<div style="font-size:0.84em; color:var(--c-muted); margin-bottom:16px;">Choose a demo profile to match against both the traditional JD and the structured blueprint.</div>';
+
+            var allProfiles = [{ id: 'comparison-candidate', name: 'Alex Morgan', title: 'Senior Product Strategy Manager', path: 'profiles/demo/comparison-candidate.json', special: true }];
+            profiles.forEach(function(p) { allProfiles.push(p); });
+
+            html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:8px; max-height:420px; overflow-y:auto;">';
+            allProfiles.forEach(function(p) {
+                var selected = _wbCompWizData.candidateId === p.id;
+                var border = selected ? '2px solid var(--accent)' : '1px solid var(--c-surface-5)';
+                var bg = selected ? 'rgba(16,185,129,0.08)' : 'var(--c-surface-1)';
+                html += '<div onclick="_wbCompWizSelectCandidate(\'' + escapeHtml(p.id) + '\', \'' + escapeHtml(p.path) + '\')" style="background:' + bg + '; border:' + border + '; border-radius:10px; padding:12px 16px; cursor:pointer; transition:border-color 0.15s;">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                    + '<div>'
+                    + '<div style="font-weight:600; color:var(--c-heading); font-size:0.92em;">' + escapeHtml(p.name) + (p.special ? ' <span style="font-size:0.7em; background:var(--accent); color:#fff; padding:1px 6px; border-radius:4px; font-weight:500;">DEFAULT</span>' : '') + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-muted);">' + escapeHtml(p.title || '') + '</div>'
+                    + '</div>'
+                    + (selected ? '<span style="color:var(--accent); font-weight:700;">\u2713</span>' : '')
+                    + '</div></div>';
+            });
+            html += '</div></div>';
+
+            html += '<div style="display:flex; justify-content:space-between; margin-top:16px;">'
+                + '<button onclick="_wbCompWizBack()" style="padding:10px 20px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">\u2190 Back</button>'
+                + '<button onclick="_wbCompWizRun()" ' + (_wbCompWizData.candidateId ? '' : 'disabled') + ' style="padding:10px 24px; background:' + (_wbCompWizData.candidateId ? 'var(--accent)' : 'var(--c-surface-3)') + '; color:' + (_wbCompWizData.candidateId ? '#fff' : 'var(--c-muted)') + '; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">' + bpIcon('trending-up',14) + ' Run Comparison \u2192</button>'
+                + '</div>';
+            body.innerHTML = html;
+        }
+
+        function _wbCompWizSelectCandidate(id, path) {
+            _wbCompWizData.candidateId = id;
+            _wbCompWizData.candidatePath = path;
+            _wbCompWizRenderStep();
+        }
+        window._wbCompWizSelectCandidate = _wbCompWizSelectCandidate;
+
+        async function _wbCompWizRun() {
+            if (!_wbCompWizData.candidateId || !_wbCompWizData.wb || !_wbCompWizData.rawJD) {
+                showToast('Missing data. Complete all steps first.', 'warning');
+                return;
+            }
+            _wbCompWizStep = 4;
+            renderWBCompareWizard(document.getElementById('adminTabContent'));
+            var body = document.getElementById('wbCompWizBody');
+            if (body) {
+                body.innerHTML = '<div style="text-align:center; padding:50px;">'
+                    + '<div class="loading-spinner" style="width:32px; height:32px; border-width:3px; margin:0 auto 16px;"></div>'
+                    + '<div style="font-family:Outfit,sans-serif; font-weight:600; color:var(--c-heading);">Running live comparison...</div>'
+                    + '<div style="font-size:0.84em; color:var(--c-muted); margin-top:6px;">Matching candidate against both traditional JD and structured Work Blueprint.</div>'
+                    + '</div>';
+            }
+
+            try {
+                var candidate;
+                if (_wbCompWizData.candidateId === 'comparison-candidate') {
+                    candidate = await _wbLoadCompareCandidate();
+                } else {
+                    var resp = await fetch(_wbCompWizData.candidatePath + '?v=' + Date.now());
+                    candidate = await resp.json();
+                }
+                _wbCompWizData.candidate = candidate;
+
+                var rawResult = _wbCompareRawJDMatch(_wbCompWizData.rawJD, candidate);
+                var structResult = _wbCompareStructuredMatch(_wbCompWizData.wb, candidate);
+                _wbCompWizData.rawResult = rawResult;
+                _wbCompWizData.structResult = structResult;
+
+                _wbCompWizStep4(body);
+                showToast('Comparison complete!', 'success');
+            } catch (err) {
+                console.warn('Compare wizard error:', err);
+                if (body) {
+                    body.innerHTML = '<div style="text-align:center; padding:40px; color:#ef4444;">'
+                        + bpIcon('alert',28) + '<p style="margin-top:12px;">Comparison failed: ' + escapeHtml(err.message) + '</p>'
+                        + '<button onclick="_wbCompWizStep=3; _wbCompWizRenderStep();" style="margin-top:12px; padding:8px 20px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer;">\u2190 Go Back</button>'
+                        + '</div>';
+                }
+                showToast('Comparison failed: ' + err.message, 'error');
+            }
+        }
+        window._wbCompWizRun = _wbCompWizRun;
+
+        function _wbCompWizStep4(body) {
+            if (!body) body = document.getElementById('wbCompWizBody');
+            if (!body) return;
+
+            var wb = _wbCompWizData.wb;
+            var rawResult = _wbCompWizData.rawResult;
+            var structResult = _wbCompWizData.structResult;
+            var candidate = _wbCompWizData.candidate;
+
+            var html = '<div style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">'
+                + '<div style="font-size:0.84em; color:var(--c-muted);">'
+                + '<strong>Blueprint:</strong> ' + escapeHtml((wb || {}).title || 'Untitled')
+                + ' &nbsp;\u00B7&nbsp; <strong>Candidate:</strong> ' + escapeHtml(((candidate || {}).profile || {}).name || _wbCompWizData.candidateId)
+                + '</div>'
+                + '<div style="display:flex; gap:8px;">'
+                + '<button onclick="_wbCompWizStep=1; _wbCompWizData={wb:null,rawJD:\'\',candidateId:\'\',candidate:null}; renderWBCompareWizard(document.getElementById(\'adminTabContent\'));" style="padding:6px 14px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.8em;">' + bpIcon('refresh',12) + ' New Comparison</button>'
+                + '</div></div>';
+
+            html += _wbRenderComparison(wb, rawResult, structResult, candidate);
+            body.innerHTML = html;
+        }
+
+        function _wbCompWizNext() {
+            if (_wbCompWizStep === 1 && _wbCompWizData.wb) {
+                _wbCompWizStep = 2;
+                renderWBCompareWizard(document.getElementById('adminTabContent'));
+            }
+        }
+        window._wbCompWizNext = _wbCompWizNext;
+
+        function _wbCompWizBack() {
+            if (_wbCompWizStep > 1) {
+                _wbCompWizStep -= 1;
+                renderWBCompareWizard(document.getElementById('adminTabContent'));
+            }
+        }
+        window._wbCompWizBack = _wbCompWizBack;
 
         function wbRepoExport(mode) {
             if (_wbRepoViewIdx < 0 || !_wbRepoCache[_wbRepoViewIdx]) return;
