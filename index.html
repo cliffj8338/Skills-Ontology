@@ -1,4 +1,4 @@
-<!-- v4.45.15 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
+<!-- v4.45.16 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.15 - BUILD 20260227-skill-quality-tighten
-        var BP_VERSION = 'v4.45.15';
+        // BLUEPRINT v4.45.16 - BUILD 20260227-skill-quality-tighten
+        var BP_VERSION = 'v4.45.16';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -10830,7 +10830,7 @@
             
             // Company Values Source
             var allCompany = (compVals.primary || []).concat(compVals.secondary || []);
-            var sourceLabel = compVals._source === 'ai-discovered' ? 'AI-verified' : compVals.inferred ? 'Inferred from JD' : 'Verified database';
+            var sourceLabel = compVals._source === 'ai-discovered' ? 'AI-sourced' : compVals.inferred ? 'Inferred from JD' : 'Company database';
             var sourceIcon = compVals.inferred ? '\u26A0' : '\u2713';
             var sourceColor2 = compVals.inferred ? '#f59e0b' : '#10b981';
             
@@ -11155,11 +11155,17 @@
                 html += '</div>';
             }
 
-            // Section: Confirmed Strengths
+            // Section: Signal Strength
             if (candidateStrengths.length > 0) {
+                var strengthLevel = candidateStrengths.length >= 4 ? 'High' : candidateStrengths.length >= 2 ? 'Medium' : 'Low';
+                var strengthColor = strengthLevel === 'High' ? '#10b981' : strengthLevel === 'Medium' ? '#f59e0b' : '#ef4444';
                 html += '<div style="padding-top:14px; border-top:1px solid var(--c-surface-3);">'
-                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:var(--c-heading); margin-bottom:8px;">'
-                    + bpIcon('check-circle', 14) + ' Confirmed Strengths</div>'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
+                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:var(--c-heading);">'
+                    + bpIcon('activity', 14) + ' Signal Strength</div>'
+                    + '<span style="font-size:0.78em; font-weight:700; color:' + strengthColor + '; padding:3px 12px; border-radius:12px; background:' + strengthColor + '18; border:1px solid ' + strengthColor + '30;">' + strengthLevel + '</span>'
+                    + '</div>'
+                    + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:8px;">Skills where this candidate\'s profile data closely aligns with role requirements.</div>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 candidateStrengths.forEach(function(s) {
                     html += '<span style="font-size:0.78em; background:rgba(16,185,129,0.08); color:#10b981; padding:5px 12px; border-radius:16px; font-weight:500; border:1px solid rgba(16,185,129,0.15);">' + escapeHtml(s) + '</span>';
@@ -11306,8 +11312,8 @@
                 + '<div style="font-size:0.7em; color:var(--c-muted);">Evidence</div></div>'
                 + '</div>'
                 + '<div style="margin-top:10px; font-size:0.75em; color:var(--c-muted); line-height:1.4; padding:8px; background:rgba(16,185,129,0.04); border-radius:6px;">'
-                + structResult.skillsUsed + ' curated skills with proficiency levels. ' + (structResult.valuesTotal || 0) + ' explicit values. '
-                + 'Synonym + ontology matching. ' + evidencePoints + ' evidence points validated.'
+                + structResult.skillsUsed + ' structured skills with proficiency levels. ' + (structResult.valuesTotal || 0) + ' values mapped. '
+                + 'Synonym + ontology matching. ' + evidencePoints + ' supporting data points.'
                 + '</div>'
                 + '</div>';
 
@@ -11318,11 +11324,11 @@
                 + bpIcon('trending-up',18) + ' Intelligence Comparison</div>';
 
             var intelligenceItems = [
-                { label: 'Skill Discovery', ats: rawResult.skillsExtracted + ' extracted via text parsing', wb: structResult.skillsUsed + ' curated skills with requirement levels' },
+                { label: 'Skill Discovery', ats: rawResult.skillsExtracted + ' extracted via text parsing', wb: structResult.skillsUsed + ' structured skills with requirement levels' },
                 { label: 'Matching', ats: rawResult.matched.length + ' matched (keyword heuristics)', wb: structResult.matched.length + ' matched, ' + (structResult.gaps || []).length + ' gaps of ' + structResult.skillsUsed + ' total' },
                 { label: 'Proficiency', ats: 'Not available \u2014 all levels treated equally', wb: profTotal > 0 ? profMeets + '/' + profTotal + ' meet required level (' + profPct + '%)' : 'Proficiency levels defined per skill' },
-                { label: 'Values', ats: rawResult.valuesInferred > 0 ? rawResult.valuesInferred + ' inferred from text (' + (rawResult.valuesScore || 0) + '% match)' : 'Guessed from text keywords', wb: structResult.valuesScore > 0 ? structResult.valuesAligned + ' aligned (' + structResult.valuesScore + '% match)' : (structResult.valuesTotal || 0) + ' explicit values defined' },
-                { label: 'Evidence', ats: 'Claims taken at face value', wb: evidencePoints > 0 ? evidencePoints + ' evidence points with measurable outcomes' : 'Structured evidence framework' },
+                { label: 'Values', ats: rawResult.valuesInferred > 0 ? rawResult.valuesInferred + ' inferred from text (' + (rawResult.valuesScore || 0) + '% match)' : 'Guessed from text keywords', wb: structResult.valuesScore > 0 ? structResult.valuesAligned + ' aligned (' + structResult.valuesScore + '% match)' : (structResult.valuesTotal || 0) + ' values mapped' },
+                { label: 'Evidence', ats: 'Claims taken at face value', wb: evidencePoints > 0 ? evidencePoints + ' supporting data points' : 'Evidence tracking available' },
                 { label: 'Gaps', ats: rawResult.gaps.length > 0 ? rawResult.gaps.length + ' gaps (text-derived)' : 'Limited gap visibility', wb: structResult.gaps.length + ' of ' + structResult.skillsUsed + ' required skills unmatched' }
             ];
 
@@ -11485,9 +11491,21 @@
             html += '</div>';
 
             html += '<div id="wbCompWizBody"></div>';
+            
+            // Saved Comparisons Repository
+            html += '<div style="margin-top:32px; padding-top:20px; border-top:1px solid var(--c-surface-3);">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:var(--c-heading-bold); margin-bottom:12px;">'
+                + bpIcon('archive', 18) + ' Saved Comparisons</div>'
+                + '<div id="wbCompRepoContainer"></div>'
+                + '</div>';
+            
             html += '</div>';
             el.innerHTML = html;
             _wbCompWizRenderStep();
+            
+            // Render repository
+            var repoEl = document.getElementById('wbCompRepoContainer');
+            if (repoEl) _wbCompRenderRepo(repoEl);
         }
 
         function _wbCompWizRenderStep() {
@@ -11770,6 +11788,8 @@
                 + ' &nbsp;\u00B7&nbsp; <strong>Candidate:</strong> ' + escapeHtml(((candidate || {}).profile || {}).name || _wbCompWizData.candidateId)
                 + '</div>'
                 + '<div style="display:flex; gap:8px;">'
+                + '<button onclick="_wbCompSaveCurrent()" style="padding:6px 14px; background:linear-gradient(135deg, #10b981, #3b82f6); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('save',12) + ' Save</button>'
+                + '<button onclick="_wbCompExportPDF()" style="padding:6px 14px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.8em;">' + bpIcon('file-text',12) + ' PDF</button>'
                 + '<button onclick="_wbCompWizStep=1; _wbCompWizData={wb:null,rawJD:\'\',candidateId:\'\',candidate:null}; renderWBCompareWizard(document.getElementById(\'adminTabContent\'));" style="padding:6px 14px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.8em;">' + bpIcon('refresh',12) + ' New Comparison</button>'
                 + '</div></div>';
 
@@ -11792,6 +11812,303 @@
             }
         }
         window._wbCompWizBack = _wbCompWizBack;
+
+        // ── Comparison Save/Load Infrastructure ──
+        function _wbCompGetSaved() {
+            return safeParse(safeGet('bpSavedComparisons'), []);
+        }
+        function _wbCompSetSaved(arr) {
+            safeSet('bpSavedComparisons', JSON.stringify(arr));
+        }
+        
+        function _wbCompSaveCurrent() {
+            var d = _wbCompWizData;
+            if (!d.wb || !d.rawResult || !d.structResult) { showToast('No comparison to save.', 'warning'); return; }
+            var saved = _wbCompGetSaved();
+            var entry = {
+                id: 'comp-' + Date.now(),
+                savedAt: new Date().toISOString(),
+                blueprintTitle: d.wb.title || 'Untitled',
+                company: d.wb.company || '',
+                candidateName: ((d.candidate || {}).profile || {}).name || d.candidateId || 'Unknown',
+                candidateTitle: ((d.candidate || {}).profile || {}).title || '',
+                jdScore: d.rawResult.score || 0,
+                wbScore: d.structResult.score || 0,
+                matched: (d.structResult.matched || []).length,
+                total: d.structResult.skillsUsed || 0,
+                gaps: (d.structResult.gaps || []).length,
+                valuesScore: d.structResult.valuesScore || 0,
+                profPct: d.structResult.profMeets > 0 ? Math.round(d.structResult.profMeets / (d.structResult.profMeets + (d.structResult.profGaps || 0)) * 100) : 0,
+                // Store full data for modal replay
+                wb: d.wb,
+                rawJD: d.rawJD,
+                rawResult: d.rawResult,
+                structResult: d.structResult,
+                candidate: d.candidate
+            };
+            saved.unshift(entry);
+            if (saved.length > 50) saved = saved.slice(0, 50);
+            _wbCompSetSaved(saved);
+            showToast('Comparison saved!', 'success');
+            // Re-render to show updated repo
+            var el = document.getElementById('wbCompRepoContainer');
+            if (el) _wbCompRenderRepo(el);
+        }
+        window._wbCompSaveCurrent = _wbCompSaveCurrent;
+
+        function _wbCompDeleteSaved(id) {
+            var saved = _wbCompGetSaved();
+            saved = saved.filter(function(s) { return s.id !== id; });
+            _wbCompSetSaved(saved);
+            showToast('Comparison removed.', 'info');
+            var el = document.getElementById('wbCompRepoContainer');
+            if (el) _wbCompRenderRepo(el);
+        }
+        window._wbCompDeleteSaved = _wbCompDeleteSaved;
+        
+        // ── Comparison Repository ──
+        function _wbCompRenderRepo(container) {
+            var saved = _wbCompGetSaved();
+            if (saved.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--c-muted); font-size:0.85em;">'
+                    + bpIcon('archive', 24) + '<div style="margin-top:8px;">No saved comparisons yet. Run a comparison and click Save.</div></div>';
+                return;
+            }
+            var html = '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:12px;">';
+            saved.forEach(function(s, idx) {
+                var date = new Date(s.savedAt);
+                var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                var delta = s.wbScore - s.jdScore;
+                var deltaColor = delta > 0 ? '#10b981' : delta < 0 ? '#ef4444' : 'var(--c-muted)';
+                html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-3); border-radius:10px; padding:14px; cursor:pointer; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'#10b981\'" onmouseout="this.style.borderColor=\'var(--c-surface-3)\'" onclick="_wbCompOpenModal(\'' + s.id + '\')">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">'
+                    + '<div>'
+                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:var(--c-heading);">' + escapeHtml(s.candidateName) + '</div>'
+                    + '<div style="font-size:0.75em; color:var(--c-muted);">' + escapeHtml(s.candidateTitle) + '</div>'
+                    + '</div>'
+                    + '<button onclick="event.stopPropagation(); _wbCompDeleteSaved(\'' + s.id + '\')" style="background:none; border:none; color:var(--c-muted); cursor:pointer; padding:4px;" title="Remove">' + bpIcon('x',14) + '</button>'
+                    + '</div>'
+                    + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:8px;">' + escapeHtml(s.blueprintTitle) + (s.company ? ' at ' + escapeHtml(s.company) : '') + '</div>'
+                    + '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:8px;">'
+                    + '<div style="text-align:center; padding:6px; background:var(--c-surface-3); border-radius:6px;">'
+                    + '<div style="font-size:1em; font-weight:700; color:#10b981;">' + s.wbScore + '%</div>'
+                    + '<div style="font-size:0.65em; color:var(--c-muted);">WB Score</div></div>'
+                    + '<div style="text-align:center; padding:6px; background:var(--c-surface-3); border-radius:6px;">'
+                    + '<div style="font-size:1em; font-weight:700; color:var(--c-muted);">' + s.jdScore + '%</div>'
+                    + '<div style="font-size:0.65em; color:var(--c-muted);">JD Score</div></div>'
+                    + '<div style="text-align:center; padding:6px; background:var(--c-surface-3); border-radius:6px;">'
+                    + '<div style="font-size:1em; font-weight:700; color:' + deltaColor + ';">' + (delta > 0 ? '+' : '') + delta + '</div>'
+                    + '<div style="font-size:0.65em; color:var(--c-muted);">Delta</div></div>'
+                    + '</div>'
+                    + '<div style="display:flex; justify-content:space-between; font-size:0.7em; color:var(--c-muted);">'
+                    + '<span>' + s.matched + '/' + s.total + ' skills \u00B7 ' + s.gaps + ' gaps \u00B7 ' + s.valuesScore + '% values</span>'
+                    + '<span>' + dateStr + '</span>'
+                    + '</div>'
+                    + '</div>';
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // ── Comparison Modal ──
+        function _wbCompOpenModal(id) {
+            var saved = _wbCompGetSaved();
+            var entry = saved.find(function(s) { return s.id === id; });
+            if (!entry || !entry.wb || !entry.rawResult || !entry.structResult) {
+                showToast('Comparison data not available.', 'warning');
+                return;
+            }
+            // Create modal overlay
+            var overlay = document.createElement('div');
+            overlay.id = 'wbCompModal';
+            overlay.style.cssText = 'position:fixed; top:0; left:0; right:0; bottom:0; z-index:9999; background:var(--c-bg); overflow-y:auto; padding:20px;';
+            
+            var closeBar = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:10px 16px; background:var(--c-surface-2); border-radius:10px; border:1px solid var(--c-surface-3); position:sticky; top:0; z-index:10;">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:var(--c-heading);">'
+                + bpIcon('trending-up', 16) + ' Saved Comparison \u2014 ' + escapeHtml(entry.candidateName) + '</div>'
+                + '<div style="display:flex; gap:8px;">'
+                + '<button onclick="_wbCompExportPDFFromSaved(\'' + id + '\')" style="padding:6px 14px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.8em;">' + bpIcon('file-text',12) + ' PDF</button>'
+                + '<button onclick="_wbCompCloseModal()" style="padding:6px 14px; background:#ef4444; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('x',12) + ' Close</button>'
+                + '</div></div>';
+            
+            var content = _wbRenderComparison(entry.wb, entry.rawResult, entry.structResult, entry.candidate);
+            overlay.innerHTML = '<div style="max-width:960px; margin:0 auto;">' + closeBar + content + '</div>';
+            
+            // Hide page content
+            var main = document.getElementById('appMain') || document.querySelector('main') || document.body.children[0];
+            if (main) main.style.display = 'none';
+            document.body.appendChild(overlay);
+            document.body.style.overflow = 'hidden';
+        }
+        window._wbCompOpenModal = _wbCompOpenModal;
+        
+        function _wbCompCloseModal() {
+            var modal = document.getElementById('wbCompModal');
+            if (modal) modal.remove();
+            var main = document.getElementById('appMain') || document.querySelector('main') || document.body.children[0];
+            if (main) main.style.display = '';
+            document.body.style.overflow = '';
+        }
+        window._wbCompCloseModal = _wbCompCloseModal;
+
+        // ── PDF Export ──
+        function _wbCompExportPDF() {
+            var d = _wbCompWizData;
+            if (!d.wb || !d.rawResult || !d.structResult) { showToast('No comparison to export.', 'warning'); return; }
+            _wbCompBuildPDF(d.wb, d.rawResult, d.structResult, d.candidate);
+        }
+        window._wbCompExportPDF = _wbCompExportPDF;
+        
+        function _wbCompExportPDFFromSaved(id) {
+            var saved = _wbCompGetSaved();
+            var entry = saved.find(function(s) { return s.id === id; });
+            if (!entry) { showToast('Comparison not found.', 'warning'); return; }
+            _wbCompBuildPDF(entry.wb, entry.rawResult, entry.structResult, entry.candidate);
+        }
+        window._wbCompExportPDFFromSaved = _wbCompExportPDFFromSaved;
+        
+        function _wbCompBuildPDF(wb, rawResult, structResult, candidate) {
+            showToast('Generating PDF...', 'info', 3000);
+            // Load jspdf if not already present
+            if (typeof window.jspdf === 'undefined') {
+                var script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                script.onload = function() { _wbCompRenderPDF(wb, rawResult, structResult, candidate); };
+                script.onerror = function() { showToast('Failed to load PDF library.', 'error'); };
+                document.head.appendChild(script);
+            } else {
+                _wbCompRenderPDF(wb, rawResult, structResult, candidate);
+            }
+        }
+        
+        function _wbCompRenderPDF(wb, rawResult, structResult, candidate) {
+            var jsPDF = window.jspdf.jsPDF;
+            var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+            var W = 210, margin = 15, col = W - 2 * margin;
+            var y = margin;
+            var cName = ((candidate || {}).profile || {}).name || 'Candidate';
+            var cTitle = ((candidate || {}).profile || {}).title || '';
+            
+            function addText(text, x, yy, size, color, style) {
+                doc.setFontSize(size || 10);
+                doc.setTextColor.apply(doc, color || [51, 51, 51]);
+                doc.setFont('helvetica', style || 'normal');
+                var lines = doc.splitTextToSize(text, col - (x - margin));
+                doc.text(lines, x, yy);
+                return yy + lines.length * (size || 10) * 0.45;
+            }
+            function checkPage(need) { if (y + need > 280) { doc.addPage(); y = margin; } }
+            function drawLine(yy) { doc.setDrawColor(200); doc.line(margin, yy, W - margin, yy); return yy + 3; }
+            
+            // Header
+            doc.setFillColor(15, 23, 42);
+            doc.rect(0, 0, W, 32, 'F');
+            doc.setFontSize(16); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold');
+            doc.text('Blueprint Advantage\u2122 Comparison', margin, 14);
+            doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(180, 190, 200);
+            doc.text('Generated ' + new Date().toLocaleDateString() + ' \u00B7 Blueprint v4.45.16', margin, 22);
+            doc.text(cName + ' \u00B7 ' + (wb.title || 'Untitled') + (wb.company ? ' at ' + wb.company : ''), margin, 28);
+            y = 40;
+            
+            // Score Summary
+            doc.setFillColor(240, 253, 244);
+            doc.roundedRect(margin, y, col / 2 - 3, 28, 3, 3, 'F');
+            doc.setFillColor(249, 250, 251);
+            doc.roundedRect(margin + col / 2 + 3, y, col / 2 - 3, 28, 3, 3, 'F');
+            
+            doc.setFontSize(8); doc.setTextColor(107, 114, 128); doc.setFont('helvetica', 'bold');
+            doc.text('WORK BLUEPRINT\u2122', margin + 4, y + 6);
+            doc.text('TRADITIONAL JD', margin + col / 2 + 7, y + 6);
+            
+            doc.setFontSize(22); doc.setTextColor(16, 185, 129); doc.setFont('helvetica', 'bold');
+            doc.text(structResult.score + '%', margin + 4, y + 20);
+            doc.setFontSize(22); doc.setTextColor(107, 114, 128);
+            doc.text(rawResult.score + '%', margin + col / 2 + 7, y + 20);
+            
+            doc.setFontSize(8); doc.setTextColor(107, 114, 128); doc.setFont('helvetica', 'normal');
+            doc.text(structResult.matched.length + '/' + structResult.skillsUsed + ' skills \u00B7 ' + (structResult.valuesScore || 0) + '% values \u00B7 ' + (structResult.evidencePoints || 0) + ' evidence', margin + 4, y + 25);
+            doc.text(rawResult.matched.length + '/' + rawResult.skillsExtracted + ' skills \u00B7 No proficiency \u00B7 No evidence', margin + col / 2 + 7, y + 25);
+            y += 35;
+            
+            // Skills Detail
+            y = drawLine(y);
+            y = addText('STRUCTURED SKILL MATCHING', margin, y, 10, [16, 185, 129], 'bold');
+            y += 2;
+            
+            // Matched skills
+            (structResult.matched || []).forEach(function(m) {
+                checkPage(6);
+                var quality = Math.round(m.nameMatch * m.profMatch * 100);
+                var levelInfo = m.userLevel ? ' (' + m.userLevel + ')' : '';
+                doc.setFillColor(240, 253, 244);
+                doc.roundedRect(margin, y - 3, col, 6, 1, 1, 'F');
+                y = addText('\u2713 ' + m.jobSkill + ' \u2192 ' + m.userSkill + levelInfo, margin + 2, y, 9, [30, 30, 30]);
+                doc.setFontSize(8); doc.setTextColor(16, 185, 129);
+                doc.text(quality + '%', W - margin - 10, y - 3);
+            });
+            
+            // Gaps
+            (structResult.gaps || []).forEach(function(g) {
+                checkPage(6);
+                doc.setFillColor(254, 243, 199);
+                doc.roundedRect(margin, y - 3, col, 6, 1, 1, 'F');
+                y = addText('\u2717 ' + g.name, margin + 2, y, 9, [107, 114, 128]);
+                doc.setFontSize(8); doc.setTextColor(239, 68, 68);
+                doc.text((g.requirement || 'Required') + ' \u00B7 ' + (g.proficiency || 'Proficient'), W - margin - 35, y - 3);
+            });
+            y += 4;
+            
+            // Values
+            var compVals = structResult.companyValues;
+            if (compVals && (compVals.primary || []).length > 0) {
+                checkPage(20);
+                y = drawLine(y);
+                y = addText('VALUES ALIGNMENT (' + (structResult.valuesScore || 0) + '%)', margin, y, 10, [16, 185, 129], 'bold');
+                y += 1;
+                y = addText('Company values: ' + (compVals.primary || []).concat(compVals.secondary || []).join(', '), margin, y, 8, [107, 114, 128]);
+                y += 2;
+                var valDetail = structResult.valuesDetail;
+                if (valDetail) {
+                    (valDetail.aligned || []).forEach(function(a) {
+                        checkPage(5);
+                        y = addText('\u2713 ' + a.name.charAt(0).toUpperCase() + a.name.slice(1) + ' (' + (Math.round((a.score || 0.5) * 100) >= 95 ? 'exact' : 'synonym') + ')', margin + 2, y, 8, [30, 30, 30]);
+                    });
+                    (valDetail.theirPriority || []).forEach(function(v) {
+                        checkPage(5);
+                        y = addText('\u2717 ' + v.name.charAt(0).toUpperCase() + v.name.slice(1) + ' (unmatched ' + v.strength + ')', margin + 2, y, 8, [239, 68, 68]);
+                    });
+                }
+                y += 3;
+            }
+            
+            // Development Areas
+            var gaps = structResult.gaps || [];
+            if (gaps.length > 0) {
+                checkPage(15);
+                y = drawLine(y);
+                y = addText('DEVELOPMENT FOCUS AREAS', margin, y, 10, [239, 68, 68], 'bold');
+                y += 2;
+                gaps.forEach(function(g) {
+                    checkPage(10);
+                    var recText = _wbGapRecommendation(g.name, g.proficiency || 'Proficient');
+                    y = addText(g.name + ' (' + (g.proficiency || 'Proficient') + ' required)', margin + 2, y, 9, [30, 30, 30], 'bold');
+                    y = addText(recText, margin + 2, y, 8, [107, 114, 128]);
+                    y += 2;
+                });
+            }
+            
+            // Footer
+            checkPage(15);
+            y = drawLine(y + 3);
+            doc.setFontSize(7); doc.setTextColor(160, 160, 160);
+            doc.text('Blueprint\u2122 Intelligence Comparison \u00B7 This analysis reflects data-driven pattern matching, not a hiring recommendation.', margin, y + 2);
+            doc.text('Generated by Blueprint v4.45.16 \u00B7 ' + new Date().toISOString(), margin, y + 6);
+            
+            // Download
+            var filename = (cName + '-' + (wb.title || 'comparison')).replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase() + '.pdf';
+            doc.save(filename);
+            showToast('PDF exported: ' + filename, 'success');
+        }
 
         function wbRepoExport(mode) {
             if (_wbRepoViewIdx < 0 || !_wbRepoCache[_wbRepoViewIdx]) return;
