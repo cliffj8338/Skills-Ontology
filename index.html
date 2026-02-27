@@ -10378,6 +10378,19 @@
                     };
                 });
                 var matchResult = matchJobToProfile({ skills: jobSkills, roles: [] });
+
+                var nameOnlyScore = 0;
+                var profMeets = 0, profGaps = 0;
+                if (matchResult.matched && matchResult.matched.length > 0) {
+                    var totalW = jobSkills.length * 3;
+                    var earnedW = 0;
+                    matchResult.matched.forEach(function(m) {
+                        earnedW += 3 * (m.nameMatch || 0.5);
+                        if (m.profGap) profGaps++; else profMeets++;
+                    });
+                    nameOnlyScore = totalW > 0 ? Math.round((earnedW / totalW) * 100) : 0;
+                }
+
                 var wbValues = (wb.values || []).map(function(v) {
                     return { name: v.name || v, desc: v.desc || v.description || '' };
                 });
@@ -10393,12 +10406,15 @@
                     valResult = _wbCompareFuzzyValues(candidate.values, companyValObj);
                 }
                 return {
-                    score: matchResult.score,
+                    score: nameOnlyScore,
+                    weightedScore: matchResult.score,
                     matched: matchResult.matched || [],
                     gaps: matchResult.gaps || [],
                     surplus: matchResult.surplus || [],
                     totalJobSkills: matchResult.totalJobSkills || 0,
                     skillsUsed: jobSkills.length,
+                    profMeets: profMeets,
+                    profGaps: profGaps,
                     valuesScore: valResult ? valResult.score : 0,
                     valuesAligned: valResult ? (valResult.aligned || []).length : 0,
                     valuesDetail: valResult,
@@ -10467,6 +10483,11 @@
                 + '</div>'
                 + '</div>';
 
+            var profMeets = structResult.profMeets || 0;
+            var profGaps = structResult.profGaps || 0;
+            var profTotal = profMeets + profGaps;
+            var profPct = profTotal > 0 ? Math.round((profMeets / profTotal) * 100) : 0;
+
             html += '<div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); border-radius:12px; padding:20px;">'
                 + '<div style="text-align:center; font-family:Outfit,sans-serif; font-weight:700; font-size:1em; color:' + afterColor + '; margin-bottom:16px; text-transform:uppercase; letter-spacing:1px;">'
                 + bpIcon('blueprint',16) + ' Work Blueprint\u2122</div>'
@@ -10485,6 +10506,9 @@
                 + '<div style="font-size:1.4em; font-weight:700; color:' + afterColor + ';">' + structResult.valuesScore + '%</div>'
                 + '<div style="font-size:0.72em; color:var(--c-muted);">Values Fit</div></div>'
                 + '</div>'
+                + (profTotal > 0 ? '<div style="margin-top:10px; background:var(--c-surface-2); border-radius:8px; padding:10px; text-align:center;">'
+                + '<div style="font-size:1.1em; font-weight:700; color:' + afterColor + ';">' + profMeets + '/' + profTotal + ' (' + profPct + '%)</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted);">Meet Proficiency Level</div></div>' : '')
                 + '<div style="margin-top:12px; font-size:0.78em; color:var(--c-muted); line-height:1.5;">'
                 + '<div style="font-weight:600; margin-bottom:4px; color:' + afterColor + ';">How it works:</div>'
                 + 'Structured skills with proficiency levels. Seniority-weighted requirements. Explicit values alignment. Industry-contextualized intelligence.'
@@ -10497,19 +10521,30 @@
             var matchDelta = structResult.matched.length - rawResult.matched.length;
             var valDelta = structResult.valuesScore - rawResult.valuesScore;
 
+            var jdQualitySum = 0;
+            rawResult.matched.forEach(function(m) { jdQualitySum += (m.nameMatch || 0.5); });
+            var jdAvgQuality = rawResult.matched.length > 0 ? Math.round((jdQualitySum / rawResult.matched.length) * 100) : 0;
+            var wbQualitySum = 0;
+            structResult.matched.forEach(function(m) { wbQualitySum += (m.nameMatch || 0.5); });
+            var wbAvgQuality = structResult.matched.length > 0 ? Math.round((wbQualitySum / structResult.matched.length) * 100) : 0;
+            var qualityDelta = wbAvgQuality - jdAvgQuality;
+
             html += '<div style="background:linear-gradient(135deg, rgba(16,185,129,0.08), rgba(59,130,246,0.08)); border:1px solid rgba(16,185,129,0.2); border-radius:12px; padding:20px; margin-bottom:20px;">'
                 + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:var(--c-heading-bold); margin-bottom:12px;">'
                 + bpIcon('trending-up',18) + ' The Blueprint Advantage</div>'
-                + '<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-bottom:14px;">'
+                + '<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:14px;">'
                 + '<div style="text-align:center; padding:12px; background:var(--c-surface-1); border-radius:10px;">'
-                + '<div style="font-size:1.6em; font-weight:800; color:' + (scoreDelta > 0 ? '#10b981' : 'var(--c-heading)') + ';">+' + Math.max(0, scoreDelta) + '%</div>'
-                + '<div style="font-size:0.75em; color:var(--c-muted);">Match Accuracy</div></div>'
+                + '<div style="font-size:1.5em; font-weight:800; color:' + (scoreDelta > 0 ? '#10b981' : scoreDelta === 0 ? 'var(--c-heading)' : '#f59e0b') + ';">' + (scoreDelta >= 0 ? '+' : '') + scoreDelta + '%</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted);">Match Accuracy</div></div>'
                 + '<div style="text-align:center; padding:12px; background:var(--c-surface-1); border-radius:10px;">'
-                + '<div style="font-size:1.6em; font-weight:800; color:' + (matchDelta > 0 ? '#10b981' : 'var(--c-heading)') + ';">+' + Math.max(0, matchDelta) + '</div>'
-                + '<div style="font-size:0.75em; color:var(--c-muted);">More Skills Matched</div></div>'
+                + '<div style="font-size:1.5em; font-weight:800; color:' + (matchDelta > 0 ? '#10b981' : matchDelta === 0 ? 'var(--c-heading)' : '#f59e0b') + ';">' + (matchDelta >= 0 ? '+' : '') + matchDelta + '</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted);">More Skills Matched</div></div>'
                 + '<div style="text-align:center; padding:12px; background:var(--c-surface-1); border-radius:10px;">'
-                + '<div style="font-size:1.6em; font-weight:800; color:' + (valDelta > 0 ? '#10b981' : 'var(--c-heading)') + ';">+' + Math.max(0, valDelta) + '%</div>'
-                + '<div style="font-size:0.75em; color:var(--c-muted);">Values Precision</div></div>'
+                + '<div style="font-size:1.5em; font-weight:800; color:' + (qualityDelta > 0 ? '#10b981' : 'var(--c-heading)') + ';">' + (qualityDelta >= 0 ? '+' : '') + qualityDelta + '%</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted);">Match Quality</div></div>'
+                + '<div style="text-align:center; padding:12px; background:var(--c-surface-1); border-radius:10px;">'
+                + '<div style="font-size:1.5em; font-weight:800; color:' + (valDelta > 0 ? '#10b981' : valDelta === 0 ? 'var(--c-heading)' : '#f59e0b') + ';">' + (valDelta >= 0 ? '+' : '') + valDelta + '%</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted);">Values Precision</div></div>'
                 + '</div></div>';
 
             html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">';
