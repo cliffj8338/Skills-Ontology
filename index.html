@@ -1,4 +1,4 @@
-<!-- v4.45.14 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
+<!-- v4.45.15 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.14 - BUILD 20260227-skill-quality-tighten
-        var BP_VERSION = 'v4.45.14';
+        // BLUEPRINT v4.45.15 - BUILD 20260227-skill-quality-tighten
+        var BP_VERSION = 'v4.45.15';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -11319,11 +11319,11 @@
 
             var intelligenceItems = [
                 { label: 'Skill Discovery', ats: rawResult.skillsExtracted + ' extracted via text parsing', wb: structResult.skillsUsed + ' curated skills with requirement levels' },
-                { label: 'Matching', ats: rawResult.matched.length + ' matched (keyword heuristics)', wb: structResult.matched.length + ' matched (synonym + ontology engine)' },
+                { label: 'Matching', ats: rawResult.matched.length + ' matched (keyword heuristics)', wb: structResult.matched.length + ' matched, ' + (structResult.gaps || []).length + ' gaps of ' + structResult.skillsUsed + ' total' },
                 { label: 'Proficiency', ats: 'Not available \u2014 all levels treated equally', wb: profTotal > 0 ? profMeets + '/' + profTotal + ' meet required level (' + profPct + '%)' : 'Proficiency levels defined per skill' },
                 { label: 'Values', ats: rawResult.valuesInferred > 0 ? rawResult.valuesInferred + ' inferred from text (' + (rawResult.valuesScore || 0) + '% match)' : 'Guessed from text keywords', wb: structResult.valuesScore > 0 ? structResult.valuesAligned + ' aligned (' + structResult.valuesScore + '% match)' : (structResult.valuesTotal || 0) + ' explicit values defined' },
                 { label: 'Evidence', ats: 'Claims taken at face value', wb: evidencePoints > 0 ? evidencePoints + ' evidence points with measurable outcomes' : 'Structured evidence framework' },
-                { label: 'Gaps', ats: rawResult.gaps.length > 0 ? rawResult.gaps.length + ' gaps (text-derived)' : 'Limited gap visibility', wb: structResult.gaps.length + ' precise gaps identified for development' }
+                { label: 'Gaps', ats: rawResult.gaps.length > 0 ? rawResult.gaps.length + ' gaps (text-derived)' : 'Limited gap visibility', wb: structResult.gaps.length + ' of ' + structResult.skillsUsed + ' required skills unmatched' }
             ];
 
             intelligenceItems.forEach(function(item) {
@@ -11356,35 +11356,39 @@
             }
             html += '</div>';
 
+            // WB column: show ALL skills (matched + gaps) so the math is traceable
+            var wbMatched = structResult.matched || [];
+            var wbGaps = structResult.gaps || [];
+            var wbTotal = structResult.skillsUsed || (wbMatched.length + wbGaps.length);
             html += '<div>'
-                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:' + afterColor + '; margin-bottom:8px;">WB Structured Matches (' + structResult.matched.length + '/' + structResult.skillsUsed + ')</div>';
-            if (structResult.matched.length === 0) {
-                html += '<div style="font-size:0.82em; color:var(--c-muted); padding:8px;">No skill matches found.</div>';
-            } else {
-                structResult.matched.slice(0, 12).forEach(function(m) {
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:' + afterColor + '; margin-bottom:4px;">WB Structured Skills (' + wbTotal + ' total)</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:8px;">'
+                + '<span style="color:#10b981; font-weight:600;">' + wbMatched.length + ' matched</span>'
+                + ' + <span style="color:#f59e0b; font-weight:600;">' + wbGaps.length + ' gaps</span>'
+                + ' = ' + wbTotal + ' skills evaluated</div>';
+            
+            // Matched skills
+            if (wbMatched.length > 0) {
+                wbMatched.slice(0, 12).forEach(function(m) {
                     var quality = Math.round(m.nameMatch * m.profMatch * 100);
                     var profLabel = m.profGap ? ' \u26A0' : '';
                     var levelInfo = m.userLevel ? ' (' + m.userLevel + ')' : '';
-                    html += '<div style="display:flex; justify-content:space-between; padding:3px 8px; font-size:0.78em; border-bottom:1px solid var(--c-surface-3);">'
+                    html += '<div style="display:flex; justify-content:space-between; padding:4px 8px; font-size:0.78em; border-bottom:1px solid var(--c-surface-3); background:rgba(16,185,129,0.03);">'
                         + '<span style="color:var(--c-heading);">' + escapeHtml(m.jobSkill) + ' \u2192 ' + escapeHtml(m.userSkill) + levelInfo + '</span>'
                         + '<span style="color:' + afterColor + ';">' + quality + '%' + profLabel + '</span></div>';
                 });
             }
-            html += '</div>';
-            html += '</div>';
-
-            if (structResult.gaps && structResult.gaps.length > 0) {
-                html += '<div style="margin-bottom:20px;">'
-                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:#f59e0b; margin-bottom:6px;">'
-                    + bpIcon('alert-triangle',14) + ' Gaps Identified by Blueprint (' + structResult.gaps.length + ')</div>'
-                    + '<div style="font-size:0.75em; color:var(--c-muted); margin-bottom:6px;">Skills the role requires that this candidate lacks \u2014 invisible to text-based parsing.</div>';
-                structResult.gaps.slice(0, 10).forEach(function(g) {
-                    html += '<div style="display:flex; justify-content:space-between; padding:3px 8px; font-size:0.78em; border-bottom:1px solid var(--c-surface-3);">'
-                        + '<span style="color:var(--c-heading);">' + escapeHtml(g.name) + '</span>'
-                        + '<span style="color:#f59e0b;">' + (g.requirement || 'Required') + ' \u2022 ' + (g.proficiency || 'Proficient') + '</span></div>';
+            
+            // Gaps inline (same column, visually distinct)
+            if (wbGaps.length > 0) {
+                wbGaps.slice(0, 10).forEach(function(g) {
+                    html += '<div style="display:flex; justify-content:space-between; padding:4px 8px; font-size:0.78em; border-bottom:1px solid var(--c-surface-3); background:rgba(245,158,11,0.04);">'
+                        + '<span style="color:var(--c-muted);">' + escapeHtml(g.name) + '</span>'
+                        + '<span style="color:#f59e0b; font-size:0.9em;">' + (g.requirement || 'Required') + ' \u2022 ' + (g.proficiency || 'Proficient') + '</span></div>';
                 });
-                html += '</div>';
             }
+            html += '</div>';
+            html += '</div>';
 
             // ── Values Detail Section ──
             html += _wbCompareValuesDetail(structResult);
