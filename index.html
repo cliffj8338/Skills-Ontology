@@ -1,4 +1,4 @@
-<!-- v4.45.06 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
+<!-- v4.45.07 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.06 - BUILD 20260227-skill-quality-tighten
-        var BP_VERSION = 'v4.45.06';
+        // BLUEPRINT v4.45.07 - BUILD 20260227-skill-quality-tighten
+        var BP_VERSION = 'v4.45.07';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -10351,6 +10351,9 @@
                 if (typeof s === 'string') return { name: s, requirement: 'Required', proficiency: 'Proficient' };
                 return s;
             }).filter(function(s) { return s && s.name; });
+            
+            // Apply quality filter to raw JD extraction (same filter as WB skills)
+            extractedSkills = _wbSkillQualityFilter(extractedSkills);
 
             var candidateMap = {};
             var candidateIndex = [];
@@ -10466,6 +10469,20 @@
             });
             var wbSkills = _wbSkillQualityFilter(rawWbSkills);
 
+            // O*NET enrichment blocklist — these generic abilities appear on 90%+ of occupations
+            // and never appear as explicit candidate skills, so they inflate the denominator with zero upside
+            var ENRICHMENT_BLOCKLIST = {
+                'active listening': 1, 'reading comprehension': 1, 'speaking': 1, 'writing': 1,
+                'monitoring': 1, 'social perceptiveness': 1, 'coordination': 1, 'time management': 1,
+                'critical thinking': 1, 'judgment and decision making': 1, 'complex problem solving': 1,
+                'active learning': 1, 'learning strategies': 1, 'oral comprehension': 1,
+                'oral expression': 1, 'written comprehension': 1, 'written expression': 1,
+                'speech recognition': 1, 'speech clarity': 1, 'deductive reasoning': 1,
+                'inductive reasoning': 1, 'problem sensitivity': 1, 'near vision': 1,
+                'information ordering': 1, 'fluency of ideas': 1, 'originality': 1,
+                'category flexibility': 1, 'selective attention': 1, 'time sharing': 1
+            };
+
             if (wbSkills.length < 8 && workBlueprint.title) {
                 var socResult = typeof resolveTitle === 'function' ? resolveTitle(workBlueprint.title) : null;
                 if (socResult && window.onetCrosswalk) {
@@ -10480,8 +10497,11 @@
                             (occData[type] || []).forEach(function(oSkill) {
                                 if (wbSkills.length >= 12) return;
                                 var oName = oSkill.name;
-                                if (!existingNames[oName.toLowerCase()]) {
-                                    existingNames[oName.toLowerCase()] = true;
+                                var oLower = oName.toLowerCase();
+                                // Skip generic abilities that match everything
+                                if (ENRICHMENT_BLOCKLIST[oLower]) return;
+                                if (!existingNames[oLower]) {
+                                    existingNames[oLower] = true;
                                     wbSkills.push({
                                         name: oName,
                                         requirement: (oSkill.importance || 50) >= 60 ? 'Required' : 'Preferred',
@@ -10540,7 +10560,16 @@
                     candidateIndex.forEach(function(entry) {
                         var overlap = 0;
                         jWords.forEach(function(jw) {
-                            if (entry.words.some(function(uw) { return uw === jw || (uw.length > 4 && (uw.indexOf(jw) !== -1 || jw.indexOf(uw) !== -1)); })) overlap++;
+                            if (entry.words.some(function(uw) {
+                                if (uw === jw) return true;
+                                if (uw.length > 4 && (uw.indexOf(jw) !== -1 || jw.indexOf(uw) !== -1)) return true;
+                                // Stem matching: planning↔plan, strategic↔strategy, etc.
+                                var jwStem = _stemEquiv[jw];
+                                var uwStem = _stemEquiv[uw];
+                                if (jwStem && (jwStem === uw || jwStem === uwStem)) return true;
+                                if (uwStem && uwStem === jw) return true;
+                                return false;
+                            })) overlap++;
                         });
                         var score = overlap / Math.max(jWords.length, 1);
                         if (score > bestOverlap && score >= 0.35) { bestOverlap = score; bestSkill = entry.skill; }
@@ -29979,96 +30008,395 @@ body {
         // ===== COMPREHENSIVE SKILL SYNONYMS =====
         // Bidirectional: abbreviation ↔ full name, plus common variants
         var SKILL_SYNONYMS = {
-            // Recruiting & HR
+            // ═══════════════════════════════════════════
+            // ABBREVIATIONS & ACRONYMS
+            // ═══════════════════════════════════════════
             'ats': ['applicant tracking system', 'applicant tracking systems', 'applicant tracking'],
-            'applicant tracking system': ['ats'],
-            'hris': ['human resources information system', 'hr information system', 'hcm'],
-            'hcm': ['human capital management', 'hris'],
-            'deib': ['diversity equity inclusion belonging', 'dei', 'diversity recruiting'],
-            'dei': ['diversity equity inclusion', 'deib', 'diversity recruiting'],
-            // Business & Strategy
-            'crm': ['customer relationship management', 'salesforce', 'hubspot crm'],
-            'erp': ['enterprise resource planning', 'sap', 'oracle erp'],
-            'kpi': ['key performance indicator', 'key performance indicators', 'metrics'],
-            'kpis': ['key performance indicators', 'kpi', 'metrics'],
-            'roi': ['return on investment'],
-            'p&l': ['profit and loss', 'p&l management', 'financial management'],
-            'gtm': ['go-to-market', 'go to market', 'gtm strategy'],
-            'go-to-market': ['gtm', 'gtm strategy'],
-            'okr': ['objectives and key results', 'okrs'],
-            'okrs': ['objectives and key results', 'okr'],
-            'b2b': ['business-to-business', 'business to business'],
-            'b2c': ['business-to-consumer', 'business to consumer'],
-            'saas': ['software as a service', 'cloud software'],
-            // Technical & AI
-            'ml': ['machine learning'],
-            'ai': ['artificial intelligence'],
-            'nlp': ['natural language processing'],
-            'llm': ['large language model', 'large language models'],
-            'genai': ['generative ai', 'generative artificial intelligence'],
-            'generative ai': ['genai', 'gen ai', 'generative artificial intelligence'],
-            'agentic ai': ['ai agents', 'autonomous ai', 'agent-based ai'],
-            'ai agents': ['agentic ai', 'autonomous agents', 'intelligent agents'],
-            'prompt engineering': ['prompt design', 'prompt crafting', 'prompt optimization'],
+            'hris': ['human resources information system', 'hr information system', 'hcm', 'workday', 'successfactors'],
+            'hcm': ['human capital management', 'hris', 'hr technology'],
+            'crm': ['customer relationship management', 'salesforce crm', 'hubspot crm'],
+            'erp': ['enterprise resource planning', 'sap', 'oracle erp', 'netsuite'],
+            'kpi': ['key performance indicator', 'key performance indicators', 'metrics', 'kpis'],
+            'roi': ['return on investment', 'investment return'],
+            'p&l': ['profit and loss', 'p&l management', 'income statement', 'financial performance'],
+            'gtm': ['go-to-market', 'go to market', 'gtm strategy', 'market entry'],
+            'okr': ['objectives and key results', 'okrs', 'goal setting framework'],
+            'b2b': ['business-to-business', 'business to business', 'enterprise sales'],
+            'b2c': ['business-to-consumer', 'business to consumer', 'consumer sales'],
+            'saas': ['software as a service', 'cloud software', 'subscription software'],
+            'deib': ['diversity equity inclusion belonging', 'dei', 'diversity recruiting', 'inclusion'],
+            'dei': ['diversity equity inclusion', 'deib', 'diversity and inclusion', 'd&i'],
+            'ml': ['machine learning', 'statistical learning'],
+            'ai': ['artificial intelligence', 'machine intelligence'],
+            'nlp': ['natural language processing', 'text analytics', 'computational linguistics'],
+            'llm': ['large language model', 'large language models', 'foundation model'],
+            'genai': ['generative ai', 'generative artificial intelligence', 'gen ai'],
             'rag': ['retrieval augmented generation', 'retrieval-augmented generation'],
-            'mlops': ['ml operations', 'machine learning operations'],
-            'rpa': ['robotic process automation', 'intelligent automation'],
-            'ai strategy': ['ai adoption', 'ai transformation', 'ai implementation'],
-            'ai governance': ['responsible ai', 'ai ethics', 'ai compliance'],
-            'ai fluency': ['ai literacy', 'ai proficiency', 'ai competency'],
-            'ci/cd': ['continuous integration', 'continuous deployment', 'continuous integration/continuous deployment'],
-            'devops': ['development operations', 'dev ops'],
-            'seo': ['search engine optimization'],
-            'sem': ['search engine marketing', 'paid search'],
-            'ux': ['user experience', 'ux design'],
-            'ui': ['user interface', 'ui design'],
-            'qa': ['quality assurance', 'testing'],
-            'api': ['application programming interface', 'api design', 'api development'],
-            'sdk': ['software development kit'],
-            'sql': ['structured query language', 'database querying'],
-            'aws': ['amazon web services'],
-            'gcp': ['google cloud platform'],
-            // Project Management
-            'pmp': ['project management professional', 'project management'],
-            'scrum': ['scrum methodology', 'agile scrum'],
-            'jira': ['jira project management', 'atlassian jira'],
-            // Communication & Leadership
-            'executive presence': ['leadership presence', 'gravitas'],
-            'storytelling': ['narrative', 'business storytelling', 'data storytelling'],
-            'stakeholder management': ['stakeholder engagement', 'stakeholder relations'],
-            'change management': ['organizational change', 'change leadership', 'transformation'],
-            'cross-functional collaboration': ['cross functional collaboration', 'cross-team collaboration', 'interdepartmental collaboration'],
-            // Common variations (singular/plural, hyphenation)
-            'problem solving': ['problem-solving'],
-            'decision making': ['decision-making'],
-            'team leadership': ['team management', 'people management', 'people leadership'],
-            'people management': ['team management', 'team leadership', 'direct reports management'],
-            'data analysis': ['data analytics', 'analytics', 'data-driven decision making'],
-            'strategic planning': ['strategy development', 'strategic thinking', 'business strategy'],
-            'talent acquisition': ['recruiting', 'recruitment', 'talent management'],
+            'rpa': ['robotic process automation', 'intelligent automation', 'process automation'],
+            'ci/cd': ['continuous integration', 'continuous deployment', 'cicd', 'build pipeline'],
+            'devops': ['development operations', 'dev ops', 'site reliability'],
+            'seo': ['search engine optimization', 'organic search', 'search optimization'],
+            'sem': ['search engine marketing', 'paid search', 'ppc', 'pay per click'],
+            'ux': ['user experience', 'ux design', 'experience design'],
+            'ui': ['user interface', 'ui design', 'interface design'],
+            'qa': ['quality assurance', 'testing', 'test engineering'],
+            'api': ['application programming interface', 'api design', 'api development', 'web services'],
+            'sql': ['structured query language', 'database querying', 'relational databases'],
+            'aws': ['amazon web services', 'cloud infrastructure'],
+            'gcp': ['google cloud platform', 'google cloud'],
+            'pmp': ['project management professional', 'project management certification'],
+            'cpa': ['certified public accountant', 'public accounting'],
+            'cfa': ['chartered financial analyst', 'investment analysis'],
+            'phr': ['professional in human resources', 'hr certification'],
+            'shrm': ['shrm-cp', 'shrm-scp', 'hr certification'],
+            'sdk': ['software development kit', 'development toolkit'],
+            'etl': ['extract transform load', 'data pipeline', 'data integration'],
+            'bi': ['business intelligence', 'reporting', 'dashboards'],
+
+            // ═══════════════════════════════════════════
+            // STRATEGY & BUSINESS
+            // ═══════════════════════════════════════════
+            'strategic planning': ['strategy development', 'strategic thinking', 'business strategy', 'corporate strategy', 'strategy', 'strategic direction', 'long-range planning', 'strategic management'],
+            'business strategy': ['corporate strategy', 'strategic planning', 'strategy', 'business planning', 'strategic direction'],
+            'strategy': ['strategic planning', 'business strategy', 'strategic thinking', 'strategic direction'],
+            'strategic thinking': ['strategic mindset', 'strategic vision', 'strategic planning', 'systems thinking'],
+            'business planning': ['business strategy', 'strategic planning', 'corporate planning', 'annual planning', 'business plan development'],
+            'long-range planning': ['strategic planning', 'long-term planning', 'multi-year planning', 'corporate planning'],
+            'business acumen': ['commercial acumen', 'business savvy', 'business insight', 'commercial awareness', 'business judgment'],
+            'commercial acumen': ['business acumen', 'commercial awareness', 'market awareness'],
+            'competitive analysis': ['competitive intelligence', 'competitor analysis', 'market intelligence', 'competitive landscape'],
+            'market analysis': ['market research', 'market assessment', 'market intelligence', 'market sizing'],
+            'market research': ['market analysis', 'competitive intelligence', 'market intelligence', 'consumer research'],
+            'business development': ['biz dev', 'business growth', 'partnership development', 'revenue development', 'new business'],
+            'revenue growth': ['revenue generation', 'top-line growth', 'revenue expansion', 'revenue acceleration'],
+            'revenue operations': ['revops', 'revenue management', 'go-to-market operations'],
+            'go-to-market': ['gtm', 'gtm strategy', 'market entry', 'product launch strategy'],
+            'pricing strategy': ['pricing', 'pricing optimization', 'monetization strategy', 'pricing models'],
+            'monetization': ['revenue model', 'pricing strategy', 'business model'],
+            'business model': ['business model innovation', 'revenue model', 'operating model'],
+            'operating model': ['business model', 'organizational design', 'operating structure'],
+            'mergers and acquisitions': ['m&a', 'corporate development', 'acquisitions', 'deal making'],
+            'm&a': ['mergers and acquisitions', 'corporate development', 'acquisitions'],
+            'due diligence': ['investment analysis', 'deal evaluation', 'risk assessment'],
+            'corporate development': ['m&a', 'mergers and acquisitions', 'strategic partnerships'],
+            'partnership development': ['strategic partnerships', 'alliances', 'business development', 'partner management'],
+            'strategic partnerships': ['partnership development', 'alliances', 'joint ventures', 'ecosystem partnerships'],
+            'innovation': ['innovation management', 'product innovation', 'business innovation', 'disruptive innovation'],
+            'innovation management': ['innovation', 'r&d management', 'new product development'],
+            'thought leadership': ['industry expertise', 'subject matter expertise', 'domain expertise', 'industry influence'],
+            'industry expertise': ['domain knowledge', 'domain expertise', 'subject matter expertise', 'thought leadership'],
+
+            // ═══════════════════════════════════════════
+            // FINANCE & ACCOUNTING
+            // ═══════════════════════════════════════════
+            'financial analysis': ['financial modeling', 'financial planning', 'fp&a', 'finance', 'financial assessment'],
+            'financial modeling': ['financial analysis', 'financial models', 'forecasting models', 'scenario modeling', 'financial projections'],
+            'financial planning': ['fp&a', 'financial planning and analysis', 'budget planning', 'financial strategy'],
+            'fp&a': ['financial planning and analysis', 'financial analysis', 'financial planning'],
+            'finance': ['financial management', 'financial analysis', 'corporate finance'],
+            'budgeting': ['budget management', 'budget planning', 'financial planning', 'cost management'],
+            'budget management': ['budgeting', 'financial management', 'cost control', 'expense management'],
+            'forecasting': ['financial forecasting', 'demand forecasting', 'business forecasting', 'predictive analytics'],
+            'financial forecasting': ['forecasting', 'revenue forecasting', 'financial projections'],
+            'accounting': ['financial accounting', 'management accounting', 'bookkeeping', 'general ledger'],
+            'auditing': ['internal audit', 'financial audit', 'compliance audit', 'audit management'],
+            'tax': ['tax planning', 'tax strategy', 'tax compliance', 'taxation'],
+            'treasury': ['treasury management', 'cash management', 'liquidity management'],
+            'revenue management': ['revenue optimization', 'yield management', 'pricing optimization'],
+            'cost optimization': ['cost reduction', 'cost management', 'expense optimization', 'efficiency'],
+            'financial reporting': ['financial statements', 'sec reporting', 'regulatory reporting', 'management reporting'],
+            'investor relations': ['shareholder relations', 'capital markets', 'ir'],
+            'capital allocation': ['investment strategy', 'portfolio management', 'resource allocation'],
+            'risk management': ['enterprise risk', 'risk assessment', 'risk mitigation', 'risk analysis'],
+            'compliance': ['regulatory compliance', 'legal compliance', 'governance', 'risk and compliance'],
+            'governance': ['corporate governance', 'compliance', 'risk governance', 'policy management'],
+
+            // ═══════════════════════════════════════════
+            // LEADERSHIP & MANAGEMENT
+            // ═══════════════════════════════════════════
+            'leadership': ['team leadership', 'people leadership', 'management', 'organizational leadership'],
+            'team leadership': ['team management', 'people management', 'people leadership', 'staff management'],
+            'people management': ['team management', 'team leadership', 'direct reports management', 'staff management', 'personnel management'],
+            'executive leadership': ['c-suite leadership', 'senior leadership', 'organizational leadership', 'enterprise leadership'],
+            'executive presence': ['leadership presence', 'gravitas', 'senior stakeholder management'],
+            'change management': ['organizational change', 'change leadership', 'transformation management', 'transition management'],
+            'organizational development': ['org development', 'od', 'organizational design', 'organizational effectiveness'],
+            'organizational design': ['org design', 'organizational structure', 'operating model'],
+            'coaching': ['executive coaching', 'leadership coaching', 'performance coaching', 'mentoring'],
+            'mentoring': ['coaching', 'talent development', 'career development support'],
+            'conflict resolution': ['mediation', 'dispute resolution', 'negotiation'],
+            'decision making': ['decision-making', 'judgment', 'critical judgment', 'executive decision making'],
+            'problem solving': ['problem-solving', 'troubleshooting', 'analytical thinking', 'root cause analysis'],
+            'critical thinking': ['analytical thinking', 'analytical reasoning', 'logical reasoning', 'critical analysis', 'critical reasoning'],
+            'analytical thinking': ['critical thinking', 'analysis', 'analytical reasoning', 'analytical skills'],
+            'systems thinking': ['systems analysis', 'holistic thinking', 'complexity management', 'strategic thinking'],
+            'delegation': ['task delegation', 'workload management', 'team empowerment'],
+            'influence': ['influencing', 'persuasion', 'stakeholder influence', 'organizational influence'],
+            'negotiation': ['deal negotiation', 'contract negotiation', 'business negotiation'],
+            'cross-functional collaboration': ['cross functional collaboration', 'cross-team collaboration', 'interdepartmental collaboration', 'matrixed collaboration'],
+            'cross-functional leadership': ['matrixed leadership', 'cross-team leadership', 'enterprise leadership'],
+            'stakeholder management': ['stakeholder engagement', 'stakeholder relations', 'stakeholder communication'],
+            'stakeholder engagement': ['stakeholder management', 'stakeholder relations', 'partner engagement'],
+            'program management': ['program leadership', 'portfolio management', 'multi-project management'],
+            'project management': ['project leadership', 'project execution', 'program management'],
+            'board management': ['board relations', 'board reporting', 'board governance'],
+
+            // ═══════════════════════════════════════════
+            // COMMUNICATION & PRESENTATION
+            // ═══════════════════════════════════════════
+            'communication': ['communications', 'written communication', 'verbal communication', 'business communication'],
+            'written communication': ['business writing', 'technical writing', 'copywriting', 'writing'],
+            'verbal communication': ['oral communication', 'public speaking', 'presentation skills'],
+            'presentation skills': ['public speaking', 'storytelling', 'executive presentations', 'pitching'],
+            'storytelling': ['narrative', 'business storytelling', 'data storytelling', 'strategic storytelling'],
+            'public speaking': ['keynote speaking', 'conference speaking', 'presentation skills', 'verbal communication'],
+            'technical writing': ['documentation', 'written communication', 'content development'],
+            'copywriting': ['content writing', 'marketing copy', 'creative writing'],
+            'editing': ['proofreading', 'content editing', 'copy editing'],
+            'facilitation': ['meeting facilitation', 'workshop facilitation', 'group facilitation'],
+
+            // ═══════════════════════════════════════════
+            // RECRUITING & TALENT ACQUISITION
+            // ═══════════════════════════════════════════
+            'talent acquisition': ['recruiting', 'recruitment', 'hiring', 'talent management'],
+            'recruiting': ['recruitment', 'talent acquisition', 'hiring', 'staffing'],
             'full-cycle recruiting': ['full cycle recruiting', 'full lifecycle recruiting', 'end-to-end recruiting'],
-            'boolean search': ['boolean sourcing', 'advanced sourcing', 'sourcing techniques'],
-            'sourcing': ['talent sourcing', 'candidate sourcing'],
-            'offer negotiation': ['compensation negotiation', 'salary negotiation'],
-            'employer branding': ['employer brand', 'employment branding', 'talent branding'],
-            'workforce planning': ['headcount planning', 'capacity planning', 'workforce strategy'],
-            'employee engagement': ['engagement strategy', 'employee experience'],
-            'performance management': ['performance review', 'performance evaluation', 'performance coaching'],
-            'succession planning': ['talent pipeline planning', 'leadership pipeline'],
-            'compensation': ['compensation and benefits', 'total rewards', 'comp and ben'],
-            'vendor management': ['vendor relations', 'supplier management', 'third-party management'],
-            'process improvement': ['continuous improvement', 'lean', 'six sigma', 'process optimization'],
-            'digital transformation': ['digital strategy', 'digitalization'],
-            'market research': ['market analysis', 'competitive intelligence', 'market intelligence'],
-            'business development': ['biz dev', 'business growth', 'partnership development'],
-            'account management': ['account management', 'client management', 'key account management'],
-            'financial analysis': ['financial modeling', 'financial planning', 'fp&a'],
-            'fp&a': ['financial planning and analysis', 'financial analysis'],
-            'content marketing': ['content strategy', 'content creation'],
-            'demand generation': ['demand gen', 'lead generation', 'pipeline generation'],
-            'marketing automation': ['martech', 'marketing technology'],
-            'product management': ['product strategy', 'product development', 'product ownership'],
-            'user research': ['ux research', 'customer research', 'user testing']
+            'boolean search': ['boolean sourcing', 'advanced sourcing', 'sourcing techniques', 'x-ray search'],
+            'sourcing': ['talent sourcing', 'candidate sourcing', 'passive candidate sourcing'],
+            'candidate experience': ['candidate engagement', 'candidate journey', 'hiring experience'],
+            'offer negotiation': ['compensation negotiation', 'salary negotiation', 'offer management'],
+            'employer branding': ['employer brand', 'employment branding', 'talent branding', 'evp'],
+            'workforce planning': ['headcount planning', 'capacity planning', 'workforce strategy', 'talent planning'],
+            'succession planning': ['talent pipeline planning', 'leadership pipeline', 'leadership succession'],
+            'talent management': ['talent development', 'talent strategy', 'talent optimization'],
+            'talent development': ['learning and development', 'employee development', 'professional development'],
+            'onboarding': ['new hire onboarding', 'employee onboarding', 'orientation'],
+            'screening': ['candidate screening', 'resume screening', 'background check'],
+            'interviewing': ['behavioral interviewing', 'structured interviewing', 'interview techniques'],
+            'campus recruiting': ['university recruiting', 'college recruiting', 'early career'],
+            'executive search': ['headhunting', 'retained search', 'executive recruiting'],
+            'diversity recruiting': ['inclusive hiring', 'dei recruiting', 'equitable hiring'],
+            'recruitment marketing': ['talent marketing', 'employer marketing', 'job advertising'],
+
+            // ═══════════════════════════════════════════
+            // HR & PEOPLE OPERATIONS
+            // ═══════════════════════════════════════════
+            'human resources': ['hr', 'people operations', 'people ops', 'hr management'],
+            'employee relations': ['labor relations', 'er', 'workplace relations', 'employee advocacy'],
+            'performance management': ['performance review', 'performance evaluation', 'performance coaching', 'performance appraisal'],
+            'compensation': ['compensation and benefits', 'total rewards', 'comp and ben', 'pay', 'salary administration'],
+            'benefits administration': ['benefits management', 'employee benefits', 'health benefits'],
+            'employee engagement': ['engagement strategy', 'employee experience', 'employee satisfaction', 'culture'],
+            'retention': ['employee retention', 'talent retention', 'attrition management'],
+            'learning and development': ['l&d', 'training and development', 'talent development', 'corporate training'],
+            'training': ['training and development', 'learning and development', 'corporate training', 'skills training'],
+            'labor relations': ['employee relations', 'union relations', 'collective bargaining'],
+            'hr analytics': ['people analytics', 'workforce analytics', 'hr data analysis'],
+            'people analytics': ['hr analytics', 'workforce analytics', 'talent analytics'],
+            'organizational culture': ['culture', 'company culture', 'cultural transformation'],
+
+            // ═══════════════════════════════════════════
+            // DATA & ANALYTICS
+            // ═══════════════════════════════════════════
+            'data analysis': ['data analytics', 'analytics', 'data-driven decision making', 'data examination'],
+            'data analytics': ['data analysis', 'analytics', 'business analytics', 'data science'],
+            'analytics': ['data analytics', 'data analysis', 'business analytics', 'reporting'],
+            'data science': ['data analytics', 'machine learning', 'predictive analytics', 'statistical analysis'],
+            'statistical analysis': ['statistics', 'statistical modeling', 'quantitative analysis', 'data science'],
+            'predictive analytics': ['forecasting', 'predictive modeling', 'machine learning', 'data science'],
+            'business intelligence': ['bi', 'reporting', 'dashboards', 'data visualization'],
+            'data visualization': ['data viz', 'dashboard design', 'visual analytics', 'tableau', 'power bi'],
+            'tableau': ['data visualization', 'visual analytics', 'bi tool'],
+            'power bi': ['data visualization', 'microsoft bi', 'bi tool', 'business intelligence'],
+            'excel': ['microsoft excel', 'spreadsheets', 'advanced excel', 'data manipulation'],
+            'data engineering': ['data pipeline', 'etl', 'data infrastructure', 'data architecture'],
+            'data architecture': ['data modeling', 'database design', 'data engineering'],
+            'data governance': ['data management', 'data quality', 'master data management', 'data stewardship'],
+            'data management': ['data governance', 'data operations', 'data quality'],
+            'reporting': ['business reporting', 'management reporting', 'analytics', 'dashboards'],
+
+            // ═══════════════════════════════════════════
+            // MARKETING
+            // ═══════════════════════════════════════════
+            'marketing': ['marketing management', 'marketing strategy', 'brand marketing'],
+            'marketing strategy': ['marketing planning', 'marketing management', 'strategic marketing'],
+            'digital marketing': ['online marketing', 'internet marketing', 'digital advertising'],
+            'content marketing': ['content strategy', 'content creation', 'content management'],
+            'content strategy': ['content marketing', 'content planning', 'editorial strategy'],
+            'brand management': ['brand strategy', 'branding', 'brand development', 'brand marketing'],
+            'branding': ['brand management', 'brand strategy', 'brand identity', 'brand development'],
+            'demand generation': ['demand gen', 'lead generation', 'pipeline generation', 'inbound marketing'],
+            'lead generation': ['demand generation', 'pipeline generation', 'prospecting', 'lead management'],
+            'marketing automation': ['martech', 'marketing technology', 'marketing ops'],
+            'email marketing': ['email campaigns', 'email automation', 'crm marketing'],
+            'social media marketing': ['social media', 'social media management', 'social strategy'],
+            'social media': ['social media marketing', 'social media management', 'social platforms'],
+            'product marketing': ['product positioning', 'product messaging', 'go-to-market'],
+            'market segmentation': ['customer segmentation', 'audience segmentation', 'targeting'],
+            'customer acquisition': ['customer growth', 'new customer acquisition', 'growth marketing'],
+            'growth marketing': ['growth hacking', 'customer acquisition', 'performance marketing'],
+            'performance marketing': ['paid media', 'digital advertising', 'paid acquisition'],
+            'public relations': ['pr', 'media relations', 'communications', 'press relations'],
+            'event management': ['event planning', 'conference management', 'event marketing'],
+            'market positioning': ['competitive positioning', 'brand positioning', 'product positioning'],
+
+            // ═══════════════════════════════════════════
+            // SALES
+            // ═══════════════════════════════════════════
+            'sales': ['selling', 'sales management', 'revenue generation'],
+            'sales strategy': ['sales planning', 'revenue strategy', 'go-to-market strategy'],
+            'account management': ['client management', 'key account management', 'customer management'],
+            'account executive': ['sales representative', 'sales professional', 'account manager'],
+            'customer success': ['client success', 'customer retention', 'customer satisfaction'],
+            'customer relationship': ['client relationship', 'customer management', 'relationship management'],
+            'relationship management': ['client management', 'customer relationship', 'partner management'],
+            'pipeline management': ['sales pipeline', 'opportunity management', 'deal management'],
+            'sales forecasting': ['revenue forecasting', 'pipeline forecasting', 'quota planning'],
+            'contract negotiation': ['deal negotiation', 'commercial negotiation', 'pricing negotiation'],
+            'enterprise sales': ['b2b sales', 'complex sales', 'solution selling'],
+            'solution selling': ['consultative selling', 'value selling', 'enterprise sales'],
+            'consultative selling': ['solution selling', 'advisory selling', 'value-based selling'],
+            'sales operations': ['sales ops', 'revenue operations', 'sales enablement'],
+            'sales enablement': ['sales training', 'sales readiness', 'sales operations'],
+            'territory management': ['territory planning', 'geographic management'],
+            'quota attainment': ['quota management', 'target achievement', 'sales performance'],
+            'customer retention': ['retention management', 'churn reduction', 'customer loyalty'],
+            'upselling': ['cross-selling', 'expansion revenue', 'account expansion'],
+
+            // ═══════════════════════════════════════════
+            // TECHNOLOGY & ENGINEERING
+            // ═══════════════════════════════════════════
+            'software development': ['software engineering', 'programming', 'coding', 'application development'],
+            'software engineering': ['software development', 'engineering', 'application development'],
+            'programming': ['coding', 'software development', 'application development'],
+            'system design': ['systems architecture', 'software architecture', 'technical design'],
+            'software architecture': ['system design', 'solution architecture', 'technical architecture'],
+            'cloud computing': ['cloud infrastructure', 'cloud services', 'cloud architecture', 'aws', 'azure', 'gcp'],
+            'cloud architecture': ['cloud infrastructure', 'cloud design', 'cloud engineering'],
+            'cybersecurity': ['information security', 'infosec', 'security', 'cyber security'],
+            'information security': ['cybersecurity', 'data security', 'it security'],
+            'machine learning': ['ml', 'statistical learning', 'deep learning', 'ai'],
+            'deep learning': ['neural networks', 'machine learning', 'ai'],
+            'agentic ai': ['ai agents', 'autonomous ai', 'agent-based ai', 'ai automation'],
+            'ai strategy': ['ai adoption', 'ai transformation', 'ai implementation', 'ai roadmap'],
+            'ai governance': ['responsible ai', 'ai ethics', 'ai compliance', 'ai risk'],
+            'ai fluency': ['ai literacy', 'ai proficiency', 'ai competency'],
+            'prompt engineering': ['prompt design', 'prompt crafting', 'prompt optimization'],
+            'mlops': ['ml operations', 'machine learning operations', 'model deployment'],
+            'generative ai': ['genai', 'gen ai', 'generative artificial intelligence'],
+            'full-stack development': ['full stack', 'full-stack engineering', 'frontend and backend'],
+            'frontend development': ['front-end', 'ui development', 'client-side development', 'react', 'angular', 'vue'],
+            'backend development': ['back-end', 'server-side', 'api development', 'microservices'],
+            'microservices': ['microservice architecture', 'distributed systems', 'service-oriented'],
+            'agile': ['agile methodology', 'agile development', 'scrum', 'kanban'],
+            'scrum': ['scrum methodology', 'agile scrum', 'sprint planning'],
+            'kanban': ['kanban methodology', 'lean development', 'workflow management'],
+            'git': ['version control', 'github', 'gitlab', 'source control'],
+            'code review': ['peer review', 'code quality', 'pull request review'],
+            'testing': ['software testing', 'quality assurance', 'test automation', 'qa'],
+            'test automation': ['automated testing', 'selenium', 'cypress', 'test engineering'],
+            'database management': ['dba', 'database administration', 'data management'],
+            'networking': ['network engineering', 'network administration', 'tcp/ip'],
+            'infrastructure': ['it infrastructure', 'systems administration', 'platform engineering'],
+            'site reliability': ['sre', 'site reliability engineering', 'devops', 'platform engineering'],
+            'technical leadership': ['tech lead', 'engineering leadership', 'technical management'],
+            'solution architecture': ['solutions architect', 'enterprise architecture', 'technical architecture'],
+
+            // ═══════════════════════════════════════════
+            // OPERATIONS & SUPPLY CHAIN
+            // ═══════════════════════════════════════════
+            'operations': ['operations management', 'business operations', 'operational excellence'],
+            'operations management': ['operations', 'operational leadership', 'business operations'],
+            'process improvement': ['continuous improvement', 'lean', 'six sigma', 'process optimization', 'kaizen'],
+            'lean': ['lean manufacturing', 'lean management', 'lean methodology', 'process improvement'],
+            'six sigma': ['lean six sigma', 'process improvement', 'quality management'],
+            'supply chain': ['supply chain management', 'scm', 'logistics', 'procurement'],
+            'logistics': ['supply chain', 'distribution', 'transportation', 'warehousing'],
+            'procurement': ['purchasing', 'sourcing', 'vendor management', 'supply chain'],
+            'vendor management': ['vendor relations', 'supplier management', 'third-party management', 'procurement'],
+            'quality management': ['quality control', 'quality assurance', 'tqm', 'quality improvement'],
+            'inventory management': ['inventory control', 'stock management', 'warehouse management'],
+            'manufacturing': ['production', 'manufacturing operations', 'production management'],
+            'digital transformation': ['digital strategy', 'digitalization', 'technology transformation'],
+            'automation': ['process automation', 'workflow automation', 'intelligent automation'],
+
+            // ═══════════════════════════════════════════
+            // PRODUCT MANAGEMENT
+            // ═══════════════════════════════════════════
+            'product management': ['product strategy', 'product development', 'product ownership', 'product leadership'],
+            'product strategy': ['product vision', 'product roadmap', 'product management'],
+            'product development': ['new product development', 'product management', 'product innovation'],
+            'roadmap': ['product roadmap', 'technology roadmap', 'strategic roadmap'],
+            'user research': ['ux research', 'customer research', 'user testing', 'usability research'],
+            'user experience': ['ux', 'ux design', 'experience design', 'usability'],
+            'product design': ['ux design', 'product ux', 'design thinking'],
+            'design thinking': ['human-centered design', 'product design', 'innovation methodology'],
+            'a/b testing': ['experimentation', 'split testing', 'conversion optimization'],
+            'feature prioritization': ['backlog management', 'product prioritization', 'requirements management'],
+            'customer discovery': ['market validation', 'user research', 'customer development'],
+            'product analytics': ['product metrics', 'usage analytics', 'product intelligence'],
+            'product-market fit': ['pmf', 'market fit', 'product validation'],
+
+            // ═══════════════════════════════════════════
+            // CUSTOMER & SERVICE
+            // ═══════════════════════════════════════════
+            'customer service': ['customer support', 'client service', 'customer care'],
+            'customer experience': ['cx', 'customer journey', 'customer satisfaction'],
+            'client management': ['account management', 'client relations', 'relationship management'],
+            'customer insights': ['voice of customer', 'customer feedback', 'customer analytics'],
+            'service delivery': ['service management', 'service operations', 'itil'],
+
+            // ═══════════════════════════════════════════
+            // LEGAL & REGULATORY
+            // ═══════════════════════════════════════════
+            'legal': ['legal affairs', 'legal management', 'general counsel'],
+            'contracts': ['contract management', 'contract negotiation', 'contract law'],
+            'intellectual property': ['ip', 'patent', 'trademark', 'ip management'],
+            'regulatory affairs': ['regulatory compliance', 'government relations', 'policy'],
+            'privacy': ['data privacy', 'gdpr', 'privacy compliance', 'information privacy'],
+            'litigation': ['dispute resolution', 'legal proceedings', 'trial advocacy'],
+
+            // ═══════════════════════════════════════════
+            // HEALTHCARE & LIFE SCIENCES
+            // ═══════════════════════════════════════════
+            'clinical research': ['clinical trials', 'clinical studies', 'clinical development'],
+            'patient care': ['clinical care', 'patient management', 'healthcare delivery'],
+            'healthcare management': ['health administration', 'hospital management', 'health systems'],
+            'pharmacy': ['pharmaceutical', 'pharmacology', 'drug development'],
+            'medical devices': ['medtech', 'medical technology', 'biomedical engineering'],
+            'public health': ['population health', 'epidemiology', 'health policy'],
+            'hipaa': ['hipaa compliance', 'health data privacy', 'healthcare compliance'],
+
+            // ═══════════════════════════════════════════
+            // EDUCATION & TRAINING
+            // ═══════════════════════════════════════════
+            'curriculum development': ['instructional design', 'course development', 'program design'],
+            'instructional design': ['curriculum development', 'learning design', 'e-learning design'],
+            'teaching': ['instruction', 'education', 'pedagogy', 'classroom instruction'],
+            'e-learning': ['online learning', 'digital learning', 'lms', 'virtual training'],
+            'assessment': ['evaluation', 'testing', 'student assessment', 'competency assessment'],
+
+            // ═══════════════════════════════════════════
+            // GENERAL PROFESSIONAL SKILLS
+            // ═══════════════════════════════════════════
+            'communication': ['communications', 'written communication', 'verbal communication', 'business communication'],
+            'collaboration': ['teamwork', 'team collaboration', 'cooperative work'],
+            'teamwork': ['collaboration', 'team collaboration', 'cooperative work', 'team player'],
+            'time management': ['time management skills', 'prioritization', 'scheduling', 'productivity'],
+            'prioritization': ['time management', 'task prioritization', 'workload management'],
+            'adaptability': ['flexibility', 'agility', 'resilience', 'change readiness'],
+            'resilience': ['adaptability', 'stress management', 'perseverance'],
+            'attention to detail': ['detail-oriented', 'meticulousness', 'quality focus', 'precision'],
+            'multitasking': ['multi-tasking', 'task management', 'workload management'],
+            'emotional intelligence': ['eq', 'empathy', 'interpersonal skills', 'self-awareness'],
+            'interpersonal skills': ['people skills', 'relationship building', 'social skills'],
+            'research': ['research and analysis', 'research skills', 'investigation'],
+            'writing': ['written communication', 'business writing', 'content writing'],
+            'presentation': ['presentation skills', 'public speaking', 'pitching'],
+            'organization': ['organizational skills', 'planning', 'coordination'],
+            'creativity': ['creative thinking', 'innovation', 'ideation'],
+            'initiative': ['self-starter', 'proactive', 'self-directed'],
+            'accountability': ['ownership', 'responsibility', 'results orientation']
         };
         
         // Build a fast lookup: lowercased name → array of synonym lowercased names
@@ -30085,9 +30413,85 @@ body {
             });
         });
         
-        // Get all known synonyms for a skill name (lowercased)
+        // Get all known synonyms for a skill name (lowercased) — now includes stem matching
         function getSkillSynonyms(skillNameLower) {
-            return _synonymLookup[skillNameLower] || [];
+            return getSkillSynonymsExpanded(skillNameLower);
+        }
+
+        // ── Stem matching utility ──
+        // Maps common suffixes to stems so "planning" matches "plan", "strategic" matches "strategy", etc.
+        var _stemPairs = [
+            [/ing$/, ''], [/tion$/, 'te'], [/ment$/, ''], [/ness$/, ''],
+            [/ity$/, ''], [/ive$/, ''], [/ous$/, ''], [/al$/, ''],
+            [/ful$/, ''], [/ance$/, ''], [/ence$/, ''], [/ical$/, 'ic'],
+            [/ies$/, 'y'], [/ying$/, 'y'], [/ating$/, 'ate'],
+            [/izing$/, 'ize'], [/ising$/, 'ise']
+        ];
+        // Explicit stem equivalences for common business/strategy terms
+        var _stemEquiv = {
+            'planning': 'plan', 'plan': 'planning',
+            'strategic': 'strategy', 'strategy': 'strategic',
+            'management': 'manage', 'manage': 'management', 'managing': 'management',
+            'development': 'develop', 'develop': 'development', 'developing': 'development',
+            'analysis': 'analyze', 'analyze': 'analysis', 'analyzing': 'analysis', 'analytical': 'analysis',
+            'leadership': 'lead', 'lead': 'leadership', 'leading': 'leadership',
+            'communication': 'communicate', 'communicate': 'communication',
+            'implementation': 'implement', 'implement': 'implementation', 'implementing': 'implementation',
+            'optimization': 'optimize', 'optimize': 'optimization', 'optimizing': 'optimization',
+            'transformation': 'transform', 'transform': 'transformation',
+            'operations': 'operate', 'operate': 'operations', 'operational': 'operations',
+            'consulting': 'consultant', 'consultant': 'consulting', 'consultative': 'consulting',
+            'negotiation': 'negotiate', 'negotiate': 'negotiation', 'negotiating': 'negotiation',
+            'presentation': 'present', 'presenting': 'presentation',
+            'collaboration': 'collaborate', 'collaborate': 'collaboration', 'collaborative': 'collaboration',
+            'administration': 'administer', 'administrative': 'administration',
+            'engineering': 'engineer', 'engineer': 'engineering',
+            'acquisition': 'acquire', 'acquiring': 'acquisition',
+            'execution': 'execute', 'executing': 'execution',
+            'innovation': 'innovate', 'innovating': 'innovation', 'innovative': 'innovation',
+            'automation': 'automate', 'automating': 'automation',
+            'integration': 'integrate', 'integrating': 'integration',
+            'architecture': 'architect', 'architecting': 'architecture',
+            'forecasting': 'forecast', 'forecast': 'forecasting',
+            'budgeting': 'budget', 'budget': 'budgeting',
+            'modeling': 'model', 'model': 'modeling',
+            'reporting': 'report', 'report': 'reporting',
+            'recruiting': 'recruit', 'recruitment': 'recruiting', 'recruiter': 'recruiting',
+            'sourcing': 'source', 'source': 'sourcing',
+            'coaching': 'coach', 'coach': 'coaching',
+            'mentoring': 'mentor', 'mentor': 'mentoring',
+            'auditing': 'audit', 'audit': 'auditing',
+            'training': 'train', 'train': 'training',
+            'designing': 'design', 'design': 'designing',
+            'testing': 'test', 'test': 'testing',
+            'selling': 'sales', 'sales': 'selling',
+            'marketing': 'market', 'market': 'marketing',
+            'compliance': 'comply', 'regulatory': 'regulation',
+            'governance': 'govern', 'governing': 'governance',
+            'advisory': 'advise', 'advising': 'advisory'
+        };
+        
+        // Enhanced synonym lookup: checks synonym map + stem equivalences
+        function getSkillSynonymsExpanded(skillNameLower) {
+            var results = (_synonymLookup[skillNameLower] || []).slice();
+            // Add stem equivalences: for each word, check if stem form exists in synonym map
+            var words = skillNameLower.split(/[\s\-\/&]+/);
+            words.forEach(function(w) {
+                var stem = _stemEquiv[w];
+                if (stem) {
+                    // Try replacing the word with its stem equivalent in the full skill name
+                    var variant = skillNameLower.replace(w, stem);
+                    if (variant !== skillNameLower && results.indexOf(variant) === -1) {
+                        results.push(variant);
+                    }
+                    // Also check if the stem variant has synonyms
+                    var stemSyns = _synonymLookup[variant] || [];
+                    stemSyns.forEach(function(ss) {
+                        if (results.indexOf(ss) === -1) results.push(ss);
+                    });
+                }
+            });
+            return results;
         }
         
         // ===== ROLE-TO-SKILL MAPPING =====
