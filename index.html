@@ -8105,19 +8105,19 @@
             var found = [];
             var seen = {};
             var phrasePatterns = [
-                /(?:experience|proficiency|expertise|knowledge|skilled|proficient)\s+(?:in|with|of)\s+([A-Za-z\s\+\#\/\.\-]{3,45})/gi,
-                /(?:familiarity with|understanding of|ability to use|competency in|fluency in|background in)\s+([A-Za-z\s\+\#\/\.\-]{3,45})/gi,
-                /(?:strong|demonstrated|proven|solid|deep|hands[\-\s]on)\s+(?:experience|knowledge|skills?|background|understanding)\s+(?:in|with|of)\s+([A-Za-z\s\+\#\/\.\-]{3,45})/gi,
-                /(?:must\s+(?:have|know|be\s+(?:proficient|skilled|experienced)))\s+(?:in|with)\s+([A-Za-z\s\+\#\/\.\-]{3,45})/gi
+                /(?:experience|proficiency|expertise|knowledge|skilled|proficient)\s+(?:in|with|of)\s+([A-Za-z\s\+\#\/\.\-]{3,35})/gi,
+                /(?:familiarity with|understanding of|ability to use|competency in|fluency in|background in)\s+([A-Za-z\s\+\#\/\.\-]{3,35})/gi,
+                /(?:strong|demonstrated|proven|solid|deep|hands[\-\s]on)\s+(?:experience|knowledge|skills?|background|understanding)\s+(?:in|with|of)\s+([A-Za-z\s\+\#\/\.\-]{3,35})/gi,
+                /(?:must\s+(?:have|know|be\s+(?:proficient|skilled|experienced)))\s+(?:in|with)\s+([A-Za-z\s\+\#\/\.\-]{3,35})/gi
             ];
             var stopWords = /^(and|the|our|you|your|this|that|will|must|have|has|are|is|for|all|any|other|both|each|more|most|such|new|one|two|a|an|to|or|at|by|on|of|as|from|with|into|also|than|then|very|well|good|great|strong|key|top|the ability)$/i;
             var sentenceIndicators = /\b(the ability to|ability to|and the|or the|within a|such as|in order to|responsible for|as well as|including but|with a focus|ensure that|across the|deliver on|drive the|build and|lead and|manage and|develop and|partner with|work with|collaborate with)\b/i;
             function addSkill(raw, importance) {
                 var skill = raw.trim().replace(/[,\.\;\:\!]+$/, '').replace(/\s+/g, ' ').trim();
-                if (skill.length < 3 || skill.length > 45) return;
+                if (skill.length < 3 || skill.length > 35) return;
                 if (stopWords.test(skill)) return;
                 var wordCount = skill.split(/\s+/).length;
-                if (wordCount > 6) return;
+                if (wordCount > 5) return;
                 if (sentenceIndicators.test(skill)) return;
                 if (/^(the|a|an|to|in|on|at|by|for|or|and|of)\s/i.test(skill)) return;
                 var key = skill.toLowerCase();
@@ -10446,12 +10446,12 @@
         }
 
         function _wbSkillQualityFilter(skills) {
-            var sentenceIndicators = /\b(the ability to|ability to|and the|or the|within a|such as|in order to|responsible for|as well as|including but|with a focus|ensure that|across the|deliver on|drive the|build and|lead and|manage and|develop and|partner with|work with|collaborate with)\b/i;
+            var sentenceIndicators = /\b(the ability to|ability to|and the|or the|within a|such as|in order to|responsible for|as well as|including but|with a focus|ensure that|across the|deliver on|drive the|build and|lead and|manage and|develop and|partner with|work with|collaborate with|delivering|articulate|leverage)\b/i;
             return skills.filter(function(s) {
                 var name = (s.name || '').trim();
-                if (name.length < 2) return false;
+                if (name.length < 2 || name.length > 35) return false;
                 var wordCount = name.split(/\s+/).length;
-                if (wordCount > 6) return false;
+                if (wordCount > 5) return false;
                 if (sentenceIndicators.test(name)) return false;
                 if (/^(the|a|an|to|in|on|at|by|for|or|and|of)\s/i.test(name)) return false;
                 return true;
@@ -10466,7 +10466,7 @@
             });
             var wbSkills = _wbSkillQualityFilter(rawWbSkills);
 
-            if (wbSkills.length < 5 && workBlueprint.title) {
+            if (wbSkills.length < 8 && workBlueprint.title) {
                 var socResult = typeof resolveTitle === 'function' ? resolveTitle(workBlueprint.title) : null;
                 if (socResult && window.onetCrosswalk) {
                     var occData = window.onetCrosswalk.occupations[socResult.soc];
