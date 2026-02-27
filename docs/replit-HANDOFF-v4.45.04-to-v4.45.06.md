@@ -1,4 +1,4 @@
-# Blueprint™ Handoff: v4.45.04 → v4.45.06
+# Replit — Blueprint™ Handoff: v4.45.04 → v4.45.06
 
 **Date**: February 27, 2026  
 **Scope**: Comparison engine stability, skill quality filtering, O*NET enrichment  
