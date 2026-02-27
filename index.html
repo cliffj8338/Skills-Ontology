@@ -1,4 +1,4 @@
-<!-- v4.45.24 | 2026-02-27 | Skills library v4: 43K skills (ESCO + Lightcast + O*NET), external synonym layer -->
+<!-- v4.45.25 | 2026-02-27 | Skills library v4: 43K skills (ESCO + Lightcast + O*NET), external synonym layer -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.24 - BUILD 20260227-skills-library-v4
-        var BP_VERSION = 'v4.45.24';
+        // BLUEPRINT v4.45.25 - BUILD 20260227-skills-library-v4
+        var BP_VERSION = 'v4.45.25';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -15649,6 +15649,28 @@
             .then(function(data) {
                 certLibrary = data;
                 console.log('\u2705 Certification library loaded: ' + data.totalCredentials + ' credentials');
+                // Chain: load Lightcast certifications if available
+                return fetch('certifications/lightcast-certs.json').then(function(r2) { return r2.json(); }).then(function(lcData) {
+                    if (lcData && lcData.credentials && lcData.credentials.length > 0) {
+                        // Deduplicate: only add certs not already in the base library
+                        var existingNames = new Set(certLibrary.credentials.map(function(c) { return c.name.toLowerCase(); }));
+                        var existingAbbrs = new Set(certLibrary.credentials.map(function(c) { return (c.abbr || '').toLowerCase(); }));
+                        var added = 0;
+                        lcData.credentials.forEach(function(lc) {
+                            var lcName = (lc.name || '').toLowerCase();
+                            var lcAbbr = (lc.abbr || '').toLowerCase();
+                            if (!existingNames.has(lcName) && (!lcAbbr || !existingAbbrs.has(lcAbbr))) {
+                                lc.source = lc.source || 'lightcast';
+                                certLibrary.credentials.push(lc);
+                                existingNames.add(lcName);
+                                if (lcAbbr) existingAbbrs.add(lcAbbr);
+                                added++;
+                            }
+                        });
+                        certLibrary.totalCredentials = certLibrary.credentials.length;
+                        if (added > 0) console.log('\u2705 Lightcast certifications merged: +' + added + ' new (' + certLibrary.credentials.length + ' total)');
+                    }
+                }).catch(function() { /* Lightcast certs file not deployed yet — base library still works */ });
             })
             .catch(function(e) { console.warn('\u26A0\uFE0F Could not load certification library:', e); });
         
@@ -16051,6 +16073,7 @@
                     if (!response.ok) continue;
                     const data = await response.json();
                     skillLibraryIndex = data;
+                    recategorizeLightcastSkills();
                     buildEscoCategoryIndex();
                     const count = data.count || data.totalSkills || data.index?.length || '?';
                     const src = data.source || path;
@@ -16096,7 +16119,129 @@
             }
         }
 
-        // ── ESCO Category Bridge ──
+        // ── Lightcast Skill Recategorization ──
+        // Reassigns 28K+ Lightcast skills from "General Professional" to ESCO-style categories
+        // Runs once after skill library load, before category bridge build
+        function recategorizeLightcastSkills() {
+            if (!skillLibraryIndex || !skillLibraryIndex.index) return;
+            
+            // Category rules: array of [regex, category, subcategory]
+            // Order matters — first match wins. Most specific patterns first.
+            var rules = [
+                // Technology — Programming & Software
+                [/\b(java(?:script)?|python|ruby|php|c\+\+|c#|swift|kotlin|golang|go lang|rust|scala|perl|typescript|\.net|vb\.net|objective.c|dart|lua|haskell|erlang|clojure|fortran|cobol|assembly|bash|shell|powershell)\b/i, 'Technology', 'Programming Languages'],
+                [/\b(react|angular|vue|svelte|next\.?js|nuxt|ember|backbone|jquery|bootstrap|tailwind|sass|less|webpack|vite|node\.?js|express|django|flask|spring|laravel|rails|asp\.net|fastapi)\b/i, 'Technology', 'Web Frameworks'],
+                [/\b(html|css|dom|web develop|front.?end|back.?end|full.?stack|responsive design|web design|rest api|graphql|websocket|microservice)\b/i, 'Technology', 'Web Development'],
+                [/\b(sql|mysql|postgresql|oracle|mongodb|redis|elasticsearch|cassandra|dynamodb|firebase|neo4j|sqlite|mariadb|database|data model|data warehouse|etl|data pipeline|data lake|snowflake|bigquery|redshift)\b/i, 'Technology', 'Data & Databases'],
+                [/\b(aws|amazon web|azure|google cloud|gcp|cloud comput|cloud architect|cloud engineer|docker|kubernetes|k8s|terraform|ansible|puppet|chef|jenkins|ci.?cd|devops|infrastructure as code|serverless|lambda|cloudformation)\b/i, 'Technology', 'Cloud & DevOps'],
+                [/\b(machine learn|deep learn|neural network|nlp|natural language|computer vision|tensorflow|pytorch|keras|scikit|reinforcement learn|generative ai|llm|large language|gpt|transformer|bert|diffusion|embedding|fine.?tun|prompt engineer|rag|retrieval augment)\b/i, 'Technology', 'AI & Machine Learning'],
+                [/\b(data analy|data scien|data visual|tableau|power bi|looker|qlik|sas|spss|r programming|stata|pandas|numpy|matplotlib|statistical|regression|hypothesis|a.b test|analytics)\b/i, 'Technology', 'Data Science & Analytics'],
+                [/\b(cyber.?secur|information secur|network secur|penetration test|ethical hack|firewall|encryption|soc analyst|incident response|vulnerability|malware|threat|siem|compliance.*security|iam|identity.*access)\b/i, 'Technology', 'Cybersecurity'],
+                [/\b(ios|android|mobile develop|react native|flutter|xamarin|swiftui|app develop|mobile app)\b/i, 'Technology', 'Mobile Development'],
+                [/\b(git|github|gitlab|bitbucket|version control|agile|scrum|kanban|jira|confluence|trello|product manag|sprint|backlog|user stor)\b/i, 'Technology', 'Software Development Practices'],
+                [/\b(linux|unix|windows server|vmware|virtualization|active directory|system admin|network admin|tcp.?ip|dns|dhcp|load balanc|nginx|apache|it support|help desk|troubleshoot|hardware)\b/i, 'Technology', 'IT & Systems Administration'],
+                [/\b(blockchain|cryptocurrency|smart contract|web3|defi|nft|solidity|ethereum)\b/i, 'Technology', 'Blockchain & Web3'],
+                [/\b(iot|internet of things|embedded|arduino|raspberry pi|firmware|fpga|plc|scada|sensor)\b/i, 'Technology', 'IoT & Embedded Systems'],
+                [/\b(api|sdk|integration|middleware|soap|webhook|microservice|service.?orient|event.?driven)\b/i, 'Technology', 'Software Architecture'],
+                [/\b(test.*automat|quality assur|qa |selenium|cypress|jest|unit test|integration test|load test|regression test|bug track|defect)\b/i, 'Technology', 'Quality Assurance & Testing'],
+                [/\b(erp|sap|oracle.*cloud|workday|servicenow|salesforce.*admin|crm.*admin|dynamics 365|netsuite)\b/i, 'Technology', 'Enterprise Software'],
+                [/\b(robotic process|rpa|uipath|automation anywhere|blue prism|business process automat)\b/i, 'Technology', 'Process Automation'],
+                
+                // Business & Management
+                [/\b(project manag|program manag|pmp|prince2|pmbok|waterfall|stakeholder manag|change manag|risk manag|portfolio manag)\b/i, 'Business & Management', 'Project Management'],
+                [/\b(strategic plan|business strateg|corporate strateg|competitive analysis|swot|market analysis|business develop|growth strateg)\b/i, 'Business & Management', 'Strategy'],
+                [/\b(leadership|team lead|people manag|team manag|executive|c.?suite|director|vp of|chief.*officer|management develop|succession plan)\b/i, 'Business & Management', 'Leadership & Management'],
+                [/\b(operations manag|supply chain|logistics|procurement|inventory|lean|six sigma|process improve|kaizen|quality manag|iso 9001)\b/i, 'Business & Management', 'Operations & Supply Chain'],
+                [/\b(consult|advisory|client manag|engagement manag|professional servic|management consult|business consult)\b/i, 'Business & Management', 'Consulting'],
+                [/\b(entrepreneur|startup|venture|business plan|pitch deck|fundrais|incubat|acceler)\b/i, 'Business & Management', 'Entrepreneurship'],
+                [/\b(negotiat|conflict resolut|mediati|facilitat|stakeholder|vendor manag|contract negoti)\b/i, 'Business & Management', 'Negotiation & Facilitation'],
+                [/\b(presentation|public speak|communicat|storytell|executive communicat|technical writ|report writ|business writ)\b/i, 'Business & Management', 'Communication'],
+                
+                // Finance & Accounting
+                [/\b(account|bookkeep|gaap|ifrs|general ledger|accounts payable|accounts receivable|journal entr|trial balance|chart of account|cpa|audit)\b/i, 'Finance & Accounting', 'Accounting'],
+                [/\b(financial analy|financial model|valuation|dcf|discounted cash|investment bank|equity research|m&a|merger|acquisition|ipo|due diligence)\b/i, 'Finance & Accounting', 'Financial Analysis & Investment'],
+                [/\b(budget|forecast|financial plan|treasury|cash flow|capital|portfolio manag.*financ|asset manag|wealth manag|cfp|cfa)\b/i, 'Finance & Accounting', 'Financial Planning'],
+                [/\b(tax|taxation|irs|revenue|income tax|corporate tax|sales tax|transfer pric|tax plan|enrolled agent)\b/i, 'Finance & Accounting', 'Tax'],
+                [/\b(banking|loan|credit|mortgage|underwriting|fintech|payment|insurance|actuari|risk.*financ|compliance.*financ)\b/i, 'Finance & Accounting', 'Banking & Insurance'],
+                [/\b(payroll|compensat|benefit|total reward|401k|pension|equity comp)\b/i, 'Finance & Accounting', 'Payroll & Compensation'],
+                
+                // Marketing & Sales
+                [/\b(digital market|seo|sem|ppc|google ads|facebook ads|social media market|content market|email market|marketing automat|hubspot|marketo|mailchimp)\b/i, 'Marketing & Sales', 'Digital Marketing'],
+                [/\b(brand|branding|brand strateg|brand manag|brand identity|positioning|messaging|go.?to.?market)\b/i, 'Marketing & Sales', 'Brand Management'],
+                [/\b(sales|selling|cold call|prospecting|business develop|account execut|quota|pipeline|crm|salesforce|lead generat|revenue|closing|upsell|cross.?sell)\b/i, 'Marketing & Sales', 'Sales'],
+                [/\b(market research|consumer insight|focus group|survey|competitive intel|market segment|persona|buyer journ)\b/i, 'Marketing & Sales', 'Market Research'],
+                [/\b(advertising|ad campaign|media buy|media plan|rtb|programmatic|display ad|native ad|affiliate)\b/i, 'Marketing & Sales', 'Advertising'],
+                [/\b(public relat|pr |press release|media relat|crisis communicat|reputation|influencer|earned media|thought leadership)\b/i, 'Marketing & Sales', 'Public Relations'],
+                [/\b(customer success|customer experience|cx|customer service|customer support|retention|nps|csat|churn|onboarding.*customer)\b/i, 'Marketing & Sales', 'Customer Experience'],
+                [/\b(e.?commerce|shopify|magento|woocommerce|amazon seller|marketplace|conversion.*rate|cart|checkout)\b/i, 'Marketing & Sales', 'E-Commerce'],
+                
+                // Human Resources
+                [/\b(recruiting|talent acquis|sourcing|ats|applicant track|hiring|interview|onboard|job post|employer brand|recruiter|headhunt)\b/i, 'Human Resources', 'Talent Acquisition'],
+                [/\b(hris|human resource|hr manag|people operation|workforce plan|org design|organizational develop|culture|employee engag|employee relat)\b/i, 'Human Resources', 'HR Management'],
+                [/\b(training|learning.*develop|l&d|instructional design|lms|elearning|e.learning|curriculum|professional develop|coaching|mentoring)\b/i, 'Human Resources', 'Learning & Development'],
+                [/\b(diversity|equity|inclusion|dei|belonging|accessibility|ada compliance|equal opportunity|affirmative action)\b/i, 'Human Resources', 'DEI & Belonging'],
+                [/\b(performance manag|performance review|360 feedback|okr|kpi|goal setting|talent review|calibrat)\b/i, 'Human Resources', 'Performance Management'],
+                [/\b(labor relat|union|collective bargain|employment law|worker.*comp|osha|workplace safety|grievanc)\b/i, 'Human Resources', 'Labor Relations & Compliance'],
+                
+                // Healthcare & Medical
+                [/\b(nursing|rn |lpn|nurse practition|clinical|patient care|hospital|medical|physician|doctor|surgeon|diagnos|treatment|emr|ehr|epic|cerner|hipaa|healthcare)\b/i, 'Healthcare & Medical', 'Clinical & Patient Care'],
+                [/\b(pharma|drug|fda|clinical trial|gmp|regulatory.*pharma|biotech|biolog|molecular|genomic|dna|rna|crispr|stem cell|lab tech|patholog)\b/i, 'Healthcare & Medical', 'Pharmaceutical & Biotech'],
+                [/\b(mental health|psychology|psychiatr|therapy|therapist|counseling|social work|behavioral health|substance|addiction)\b/i, 'Healthcare & Medical', 'Mental Health & Social Work'],
+                [/\b(dental|vision|optometr|physical therap|occupational therap|speech therap|rehabilit|chiropract)\b/i, 'Healthcare & Medical', 'Allied Health'],
+                [/\b(public health|epidemiol|preventive|vaccination|disease control|community health|health education|global health)\b/i, 'Healthcare & Medical', 'Public Health'],
+                
+                // Engineering & Manufacturing
+                [/\b(mechanical engineer|thermal|fluid|cad|solidworks|autocad|catia|3d model|structural|civil engineer|geotechnical|environmental engineer)\b/i, 'Engineering & Manufacturing', 'Mechanical & Civil Engineering'],
+                [/\b(electrical engineer|electronics|circuit|pcb|power system|signal process|control system|instrumentation)\b/i, 'Engineering & Manufacturing', 'Electrical & Electronics'],
+                [/\b(chemical engineer|process engineer|refinery|petroleum|oil.*gas|pipeline|drilling|reservoir|mining)\b/i, 'Engineering & Manufacturing', 'Chemical & Process Engineering'],
+                [/\b(manufactur|cnc|machining|welding|fabricat|assembly line|production|industrial engineer|plant manag|maintenance|reliability)\b/i, 'Engineering & Manufacturing', 'Manufacturing & Production'],
+                [/\b(automotive|aerospace|aviat|vehicle|engine design|propulsion|aerodynamic)\b/i, 'Engineering & Manufacturing', 'Automotive & Aerospace'],
+                [/\b(construction|building|architect.*engineer|surveying|blueprint.*build|roofing|plumbing|hvac|electrical.*trade)\b/i, 'Engineering & Manufacturing', 'Construction & Trades'],
+                [/\b(materials science|metallurg|polymer|ceramic|composit|nanotechnol|3d print|additive manuf)\b/i, 'Engineering & Manufacturing', 'Materials Science'],
+                
+                // Legal & Compliance
+                [/\b(legal|attorney|lawyer|litigation|contract.*law|corporate law|intellectual property|patent|trademark|copyright)\b/i, 'Legal & Compliance', 'Legal Practice'],
+                [/\b(compliance|regulatory|gdpr|sox|aml|kyc|anti.?money|sanctions|risk.*compliance|governance)\b/i, 'Legal & Compliance', 'Compliance & Regulatory'],
+                [/\b(paralegal|legal research|westlaw|lexis|case manag|court|deposition|discovery|legal writ)\b/i, 'Legal & Compliance', 'Legal Operations'],
+                [/\b(privacy|data protect|ccpa|data governance|information governance|records manag)\b/i, 'Legal & Compliance', 'Data Privacy & Governance'],
+                
+                // Creative & Design
+                [/\b(graphic design|visual design|photoshop|illustrator|indesign|figma|sketch|ui design|ux design|user experience|user interface|wireframe|prototype|usability|interaction design)\b/i, 'Creative & Design', 'Design & UX'],
+                [/\b(video|film|edit.*video|premiere|final cut|after effects|motion graphic|animation|3d animation|cinema 4d|blender|maya|vfx)\b/i, 'Creative & Design', 'Video & Animation'],
+                [/\b(photo|camera|lightroom|portrait|landscape|studio|visual storytell|image edit)\b/i, 'Creative & Design', 'Photography & Visual'],
+                [/\b(copywriting|content creat|content strateg|blog|editorial|journalism|editor|proofread|creative writ|script)\b/i, 'Creative & Design', 'Content & Writing'],
+                [/\b(music|audio|sound|podcast|voice|recording|mixing|mastering|acoustic)\b/i, 'Creative & Design', 'Audio & Music'],
+                [/\b(interior design|industrial design|fashion|textile|product design|packaging design|exhibit|display)\b/i, 'Creative & Design', 'Industrial & Spatial Design'],
+                [/\b(game design|game develop|unity|unreal|godot|level design|game art)\b/i, 'Creative & Design', 'Game Design']
+            ];
+            
+            var recategorized = 0;
+            var catCounts = {};
+            
+            skillLibraryIndex.index.forEach(function(entry) {
+                var cat = (entry.c || '').trim();
+                // Only recategorize "General Professional" skills
+                if (cat !== 'General Professional') return;
+                
+                var name = entry.n || '';
+                for (var i = 0; i < rules.length; i++) {
+                    if (rules[i][0].test(name)) {
+                        entry.c = rules[i][1];
+                        entry.sc = rules[i][2];
+                        recategorized++;
+                        catCounts[rules[i][1]] = (catCounts[rules[i][1]] || 0) + 1;
+                        break;
+                    }
+                }
+            });
+            
+            if (recategorized > 0) {
+                var breakdown = Object.entries(catCounts).sort(function(a, b) { return b[1] - a[1]; })
+                    .map(function(e) { return e[0] + ': ' + e[1]; }).join(', ');
+                console.log('\u2713 Recategorized ' + recategorized + ' skills from General Professional (' + breakdown + ')');
+            }
+        }
+
         // Builds a subcategory → skill names index from the 14K skill library
         // Used by comparison engine to find related skills (category siblings)
         var _escoSubcategoryIndex = {};  // subcategory_lower → [skill_name_lower, ...]
@@ -23662,12 +23807,30 @@ body {
         }
         
         function _persistCompanyValues(companyName, values) {
-            // Save to Firestore companies collection for cross-session persistence
+            // Save to localStorage immediately (always works)
+            try {
+                var localCache = safeParse(safeGet('bpCompanyValuesCache'), {});
+                var cacheKey = companyName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+                localCache[cacheKey] = {
+                    name: companyName,
+                    primary: values.primary || [],
+                    secondary: values.secondary || [],
+                    tensions: values.tensions || [],
+                    story: values.story || '',
+                    industry: values._industry || '',
+                    source: 'ai-discovered',
+                    cachedAt: new Date().toISOString()
+                };
+                safeSet('bpCompanyValuesCache', JSON.stringify(localCache));
+            } catch (e) { /* localStorage full or unavailable */ }
+            
+            // Save to Firestore under user path (avoids top-level permission issues)
             if (typeof firebase === 'undefined' || !firebase.firestore || !fbUser) return;
             try {
                 var db = firebase.firestore();
                 var docId = companyName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
-                db.collection('companies').doc(docId).set({
+                // Use user-scoped path: users/{uid}/companyValues/{docId}
+                db.collection('users').doc(fbUser.uid).collection('companyValues').doc(docId).set({
                     name: companyName,
                     values: {
                         primary: values.primary || [],
@@ -23677,15 +23840,14 @@ body {
                     },
                     industry: values._industry || '',
                     source: 'ai-discovered',
-                    discoveredBy: fbUser.uid,
                     discoveredAt: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true }).then(function() {
                     console.log('[VALUES] Persisted to Firestore: ' + companyName);
                 }).catch(function(err) {
-                    console.warn('[VALUES] Firestore persist failed:', err.message);
+                    console.log('[VALUES] Firestore unavailable, using localStorage cache: ' + companyName);
                 });
             } catch (e) {
-                console.warn('[VALUES] Firestore persist error:', e.message);
+                console.log('[VALUES] Using localStorage cache for: ' + companyName);
             }
         }
 
@@ -23725,6 +23887,15 @@ body {
                         return { primary: kv2.primary, secondary: kv2.secondary, tensions: kv2.tensions || [], story: kv2.story || '', inferred: false };
                     }
                 }
+                // Check localStorage cache (AI-discovered values from previous sessions)
+                try {
+                    var localCache = safeParse(safeGet('bpCompanyValuesCache'), {});
+                    var cacheKey = searchName.replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+                    if (localCache[cacheKey] && localCache[cacheKey].primary && localCache[cacheKey].primary.length > 0) {
+                        var cached = localCache[cacheKey];
+                        return { primary: cached.primary, secondary: cached.secondary || [], tensions: cached.tensions || [], story: cached.story || '', inferred: false, _source: 'cached' };
+                    }
+                } catch (e) { /* localStorage unavailable */ }
             }
             return inferCompanyValuesFromJD(rawText || '');
         }
