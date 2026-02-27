@@ -1,4 +1,4 @@
-<!-- v4.45.27 | 2026-02-27 | Lightcast certs expanded to 1,583 credentials across 19 categories -->
+<!-- v4.45.28 | 2026-02-27 | Lightcast certs expanded to 1,583 credentials across 19 categories -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.27 - BUILD 20260227-lightcast-certs
-        var BP_VERSION = 'v4.45.27';
+        // BLUEPRINT v4.45.28 - BUILD 20260227-lightcast-certs
+        var BP_VERSION = 'v4.45.28';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -3302,13 +3302,13 @@
                 { name: 'Values', count: valuesCount, source: 'Blueprint', color: '#10b981', loaded: valuesCount > 0 },
                 { name: 'BLS Wages', count: blsWageCount ? blsWageCount.toLocaleString() : 0, source: 'Bureau of Labor Statistics', color: '#f97316', loaded: blsWageCount > 0 },
                 { name: 'Custom Skills', count: '\u221E', source: 'User-defined', color: '#fbbf24', loaded: true },
-                { name: 'Jobs Database', count: jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : jobsCacheData.length, source: 'Firestore cache \u00B7 8 sources, A/B sync every 6h', color: '#ec4899', loaded: jobsCacheLoaded || (jobsSyncMeta && jobsSyncMeta.totalJobs > 0) }
+                { name: 'Jobs Database', count: jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : jobsCacheData.length, source: 'Firestore cache \u00B7 8 sources, A/B sync every 6h', color: '#ec4899', loaded: jobsCacheLoaded || (jobsSyncMeta && jobsSyncMeta.totalJobs > 0), id: 'adminJobsTile' }
             ];
             
             var totalLoaded = tiles.filter(function(t) { return t.loaded; }).length;
             
             tiles.forEach(function(t) {
-                html += '<div style="padding:14px; background:var(--c-surface-4b); '
+                html += '<div ' + (t.id ? 'id="' + t.id + '" ' : '') + 'style="padding:14px; background:var(--c-surface-4b); '
                     + 'border:1px solid ' + (t.loaded ? 'var(--c-border-faint)' : 'rgba(239,68,68,0.3)') + '; '
                     + 'border-radius:10px; text-align:center; position:relative;">'
                     + '<div style="position:absolute; top:8px; right:10px; font-size:0.65em; color:' + (t.loaded ? '#10b981' : '#ef4444') + ';">' + (t.loaded ? '\u25CF' : '\u25CB') + '</div>'
@@ -3319,7 +3319,7 @@
             });
             
             html += '</div>'
-                + '<div style="margin-top:10px; font-size:0.78em; color:var(--text-muted);">' + totalLoaded + '/' + tiles.length + ' libraries loaded</div>'
+                + '<div id="adminLibsLoadedCount" style="margin-top:10px; font-size:0.78em; color:var(--text-muted);">' + totalLoaded + '/' + tiles.length + ' libraries loaded</div>'
                 + '</div>';
             
             // ===== JOBS SYNC STATUS =====
@@ -33156,6 +33156,17 @@ body {
                 if (doc.exists) {
                     jobsSyncMeta = doc.data();
                     updateSyncStatusDisplay();
+                    // Update admin Data Libraries tile if visible
+                    var jt = document.getElementById('adminJobsTile');
+                    if (jt) {
+                        var count = jobsSyncMeta.totalJobs || 0;
+                        jt.querySelector('div[style*="font-size:1.5em"]').textContent = count.toLocaleString();
+                        jt.querySelector('div[style*="top:8px"]').textContent = '\u25CF';
+                        jt.querySelector('div[style*="top:8px"]').style.color = '#10b981';
+                        jt.style.borderColor = 'var(--c-border-faint)';
+                        var lc = document.getElementById('adminLibsLoadedCount');
+                        if (lc) lc.textContent = '11/11 libraries loaded';
+                    }
                 }
             }).catch(function(e) { console.warn('Sync meta load failed:', e.message); });
             
