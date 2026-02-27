@@ -1,4 +1,4 @@
-<!-- v4.45.01 | 2026-02-27 | Fixed comparison engine: JD side now uses parseJobLocally instead of WB skill list -->
+<!-- v4.45.02 | 2026-02-27 | Comparison engine v3: self-contained matching, no global state, fair JD parsing -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.01 - BUILD 20260227-comparison-architecture-fix
-        var BP_VERSION = 'v4.45.01';
+        // BLUEPRINT v4.45.02 - BUILD 20260227-comparison-v3
+        var BP_VERSION = 'v4.45.02';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -10333,38 +10333,105 @@
             };
         }
 
+        function _wbCompareMatchSkills(jobSkills, candidateSkills) {
+            var candidateMap = {};
+            var candidateIndex = [];
+            candidateSkills.forEach(function(s) {
+                var lower = s.name.toLowerCase();
+                candidateMap[lower] = s;
+                candidateIndex.push({ lower: lower, skill: s, words: lower.split(/[\s\-\/&]+/).filter(function(w) { return w.length > 2; }) });
+                var simplified = lower.replace(/\s*&\s*/g, ' ').replace(/\s+/g, ' ').trim();
+                if (simplified !== lower) candidateMap[simplified] = s;
+                var synonyms = getSkillSynonyms(lower);
+                synonyms.forEach(function(syn) { if (!candidateMap[syn]) candidateMap[syn] = s; });
+            });
+
+            var matched = [], gaps = [];
+            var matchedCandidateSkills = new Set();
+            var totalWeight = 0, earnedWeight = 0;
+
+            jobSkills.forEach(function(jobSkill) {
+                var requirement = jobSkill.requirement || 'Required';
+                var reqWeight = requirement === 'Required' ? 3 : requirement === 'Preferred' ? 2 : 1;
+                totalWeight += reqWeight;
+                var jobProf = proficiencyValue(jobSkill.proficiency || 'Proficient');
+                var jLower = jobSkill.name.toLowerCase();
+                var jWords = jLower.split(/[\s\-\/&]+/).filter(function(w) { return w.length > 2; });
+                var found = null, nameMatchQuality = 0;
+
+                if (candidateMap[jLower]) {
+                    found = candidateMap[jLower]; nameMatchQuality = 1.0;
+                }
+                if (!found) {
+                    var jobSynonyms = getSkillSynonyms(jLower);
+                    for (var si = 0; si < jobSynonyms.length; si++) {
+                        if (candidateMap[jobSynonyms[si]]) { found = candidateMap[jobSynonyms[si]]; nameMatchQuality = 0.95; break; }
+                    }
+                }
+                if (!found) {
+                    for (var key in candidateMap) {
+                        if (key.length > 3 && (jLower.indexOf(key) !== -1 || key.indexOf(jLower) !== -1)) {
+                            found = candidateMap[key]; nameMatchQuality = 0.85; break;
+                        }
+                    }
+                }
+                if (!found && jWords.length > 0) {
+                    var bestOverlap = 0, bestSkill = null;
+                    candidateIndex.forEach(function(entry) {
+                        var overlap = 0;
+                        jWords.forEach(function(jw) {
+                            if (entry.words.some(function(uw) { return uw === jw || (uw.length > 4 && (uw.indexOf(jw) !== -1 || jw.indexOf(uw) !== -1)); })) overlap++;
+                        });
+                        var score = overlap / Math.max(jWords.length, 1);
+                        if (score > bestOverlap && score >= 0.4) { bestOverlap = score; bestSkill = entry.skill; }
+                    });
+                    if (bestSkill) { found = bestSkill; nameMatchQuality = bestOverlap * 0.75; }
+                }
+
+                if (found) {
+                    var userProf = proficiencyValue(found.level);
+                    var profMatch = userProf >= jobProf ? 1.0 : userProf / jobProf;
+                    earnedWeight += reqWeight * nameMatchQuality * profMatch;
+                    matched.push({
+                        jobSkill: jobSkill.name, userSkill: found.name, userLevel: found.level,
+                        jobProficiency: jobSkill.proficiency || 'Proficient', requirement: requirement,
+                        nameMatch: nameMatchQuality, profMatch: profMatch, profGap: userProf < jobProf
+                    });
+                    matchedCandidateSkills.add(found.name.toLowerCase());
+                } else {
+                    gaps.push({ name: jobSkill.name, requirement: requirement, proficiency: jobSkill.proficiency || 'Proficient' });
+                }
+            });
+
+            var surplus = [];
+            candidateSkills.forEach(function(s) {
+                if (!matchedCandidateSkills.has(s.name.toLowerCase())) {
+                    surplus.push({ name: s.name, level: s.level, category: s.category });
+                }
+            });
+
+            var score = totalWeight > 0 ? Math.round((earnedWeight / totalWeight) * 100) : 0;
+            return { score: Math.min(score, 100), matched: matched, gaps: gaps, surplus: surplus };
+        }
+
         function _wbCompareRunBoth(rawJDText, wb, candidate) {
             var origSkills = window.skillsData ? JSON.parse(JSON.stringify(window.skillsData.skills || [])) : [];
             window.skillsData = window.skillsData || {};
             try {
-                window.skillsData.skills = JSON.parse(JSON.stringify(candidate.skills || []));
+                var jdParsed = parseJobLocally(rawJDText);
+                var jdSkills = (jdParsed.skills || []).map(function(s) {
+                    if (typeof s === 'string') return { name: s, requirement: 'Required', proficiency: 'Proficient' };
+                    return { name: s.name || s, requirement: s.requirement || 'Required', proficiency: s.proficiency || 'Proficient', category: s.category || 'General' };
+                });
 
                 var wbSkills = (wb.skills || []).map(function(s) {
                     var bl = s.blueprintLevel || s.level || 'Proficient';
-                    return {
-                        name: s.name,
-                        requirement: s.requirement || 'Required',
-                        proficiency: bl,
-                        category: s.category || 'General'
-                    };
+                    return { name: s.name, requirement: s.requirement || 'Required', proficiency: bl, category: s.category || 'General' };
                 });
 
-                var jdParsed = parseJobLocally(rawJDText);
-                var jdSkills = (jdParsed.skills || jdParsed.parsedSkills || []).map(function(s) {
-                    if (typeof s === 'string') return { name: s, requirement: 'Required', proficiency: 'Proficient' };
-                    return {
-                        name: s.name || s,
-                        requirement: s.requirement || 'Required',
-                        proficiency: s.proficiency || 'Proficient',
-                        category: s.category || 'General'
-                    };
-                });
-
-                var jdResult = matchJobToProfile({ skills: jdSkills, roles: [] });
-                var jdScore = jdResult.score || 0;
-
-                var wbResult = matchJobToProfile({ skills: wbSkills, roles: [] });
-                var wbScore = wbResult.score || 0;
+                var candidateSkills = JSON.parse(JSON.stringify(candidate.skills || []));
+                var jdResult = _wbCompareMatchSkills(jdSkills, candidateSkills);
+                var wbResult = _wbCompareMatchSkills(wbSkills, candidateSkills);
 
                 var wbProfMeets = 0, wbProfGaps = 0;
                 (wbResult.matched || []).forEach(function(m) { if (m.profGap) wbProfGaps++; else wbProfMeets++; });
@@ -10389,7 +10456,7 @@
                 }
 
                 var rawResultOut = {
-                    score: jdScore,
+                    score: jdResult.score,
                     matched: jdResult.matched || [],
                     gaps: jdResult.gaps || [],
                     surplus: jdResult.surplus || [],
@@ -10404,8 +10471,7 @@
                 };
 
                 var structResultOut = {
-                    score: wbScore,
-                    weightedScore: wbResult.score,
+                    score: wbResult.score,
                     matched: wbResult.matched || [],
                     gaps: wbResult.gaps || [],
                     surplus: wbResult.surplus || [],
