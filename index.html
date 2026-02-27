@@ -1,4 +1,4 @@
-<!-- v4.45.16 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
+<!-- v4.45.17 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.16 - BUILD 20260227-skill-quality-tighten
-        var BP_VERSION = 'v4.45.16';
+        // BLUEPRINT v4.45.17 - BUILD 20260227-skill-quality-tighten
+        var BP_VERSION = 'v4.45.17';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -11343,56 +11343,91 @@
 
             html += '</div>';
 
-            html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">';
-            html += '<div>'
-                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:' + beforeColor + '; margin-bottom:8px;">JD Skills Extracted (' + rawResult.skillsExtracted + ')</div>';
+            html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px;">';
+            
+            // ── JD Skills Tile ──
+            html += '<div style="padding:16px; background:rgba(107,114,128,0.04); border:1px solid var(--c-surface-3); border-radius:10px;">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:' + beforeColor + '; margin-bottom:4px;">'
+                + bpIcon('file-text', 14) + ' JD Text Parsing</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:10px;">'
+                + rawResult.skillsExtracted + ' skills extracted \u00B7 ' + rawResult.matched.length + ' matched to candidate</div>';
             if (rawResult.matched.length === 0 && rawResult.gaps.length === 0) {
-                html += '<div style="font-size:0.82em; color:var(--c-muted); padding:8px;">No skills extracted from JD text.</div>';
+                html += '<div style="font-size:0.82em; color:var(--c-muted); padding:12px; text-align:center;">No skills extracted from JD text.</div>';
             } else {
                 rawResult.matched.slice(0, 12).forEach(function(m) {
-                    html += '<div style="display:flex; justify-content:space-between; padding:3px 8px; font-size:0.78em; border-bottom:1px solid var(--c-surface-3);">'
-                        + '<span style="color:var(--c-heading);">' + escapeHtml(m.jobSkill) + (m.userSkill !== m.jobSkill ? ' \u2192 ' + escapeHtml(m.userSkill) : '') + '</span>'
-                        + '<span style="color:' + beforeColor + ';">\u2713</span></div>';
+                    html += '<div style="padding:8px 10px; margin-bottom:4px; background:rgba(107,114,128,0.06); border-radius:6px; border-left:3px solid ' + beforeColor + ';">'
+                        + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                        + '<span style="font-size:0.82em; color:var(--c-heading);">' + escapeHtml(m.jobSkill) + '</span>'
+                        + '<span style="font-size:0.7em; color:' + beforeColor + '; font-weight:500;">\u2713 matched</span>'
+                        + '</div>';
+                    if (m.userSkill !== m.jobSkill) {
+                        html += '<div style="font-size:0.72em; color:var(--c-muted); margin-top:2px;">\u2192 ' + escapeHtml(m.userSkill) + '</div>';
+                    }
+                    html += '</div>';
                 });
                 rawResult.gaps.slice(0, 5).forEach(function(g) {
-                    html += '<div style="display:flex; justify-content:space-between; padding:3px 8px; font-size:0.78em; border-bottom:1px solid var(--c-surface-3);">'
-                        + '<span style="color:var(--c-muted);">' + escapeHtml(g.name) + '</span>'
-                        + '<span style="color:#ef4444;">\u2717</span></div>';
+                    html += '<div style="padding:8px 10px; margin-bottom:4px; background:rgba(239,68,68,0.04); border-radius:6px; border-left:3px solid rgba(239,68,68,0.3);">'
+                        + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                        + '<span style="font-size:0.82em; color:var(--c-muted);">' + escapeHtml(g.name) + '</span>'
+                        + '<span style="font-size:0.7em; color:#ef4444;">\u2717 no match</span>'
+                        + '</div></div>';
                 });
+                html += '<div style="font-size:0.7em; color:var(--c-muted); margin-top:8px; padding:4px 0; border-top:1px solid var(--c-surface-3);">Keyword extraction only. No proficiency data, no evidence validation.</div>';
             }
             html += '</div>';
 
-            // WB column: show ALL skills (matched + gaps) so the math is traceable
+            // ── WB Structured Skills Tile ──
             var wbMatched = structResult.matched || [];
             var wbGaps = structResult.gaps || [];
             var wbTotal = structResult.skillsUsed || (wbMatched.length + wbGaps.length);
-            html += '<div>'
-                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:' + afterColor + '; margin-bottom:4px;">WB Structured Skills (' + wbTotal + ' total)</div>'
-                + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:8px;">'
+            html += '<div style="padding:16px; background:rgba(16,185,129,0.04); border:1px solid rgba(16,185,129,0.15); border-radius:10px;">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:' + afterColor + '; margin-bottom:4px;">'
+                + bpIcon('blueprint', 14) + ' Blueprint Structured Matching</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:10px;">'
                 + '<span style="color:#10b981; font-weight:600;">' + wbMatched.length + ' matched</span>'
                 + ' + <span style="color:#f59e0b; font-weight:600;">' + wbGaps.length + ' gaps</span>'
                 + ' = ' + wbTotal + ' skills evaluated</div>';
             
-            // Matched skills
+            // Matched skills as cards
             if (wbMatched.length > 0) {
                 wbMatched.slice(0, 12).forEach(function(m) {
                     var quality = Math.round(m.nameMatch * m.profMatch * 100);
-                    var profLabel = m.profGap ? ' \u26A0' : '';
-                    var levelInfo = m.userLevel ? ' (' + m.userLevel + ')' : '';
-                    html += '<div style="display:flex; justify-content:space-between; padding:4px 8px; font-size:0.78em; border-bottom:1px solid var(--c-surface-3); background:rgba(16,185,129,0.03);">'
-                        + '<span style="color:var(--c-heading);">' + escapeHtml(m.jobSkill) + ' \u2192 ' + escapeHtml(m.userSkill) + levelInfo + '</span>'
-                        + '<span style="color:' + afterColor + ';">' + quality + '%' + profLabel + '</span></div>';
+                    var qualityColor = quality >= 90 ? '#10b981' : quality >= 60 ? '#f59e0b' : '#ef4444';
+                    var levelInfo = m.userLevel ? m.userLevel : '';
+                    html += '<div style="padding:8px 10px; margin-bottom:4px; background:rgba(16,185,129,0.06); border-radius:6px; border-left:3px solid ' + qualityColor + ';">'
+                        + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                        + '<span style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(m.jobSkill) + '</span>'
+                        + '<span style="font-size:0.78em; font-weight:700; color:' + qualityColor + ';">' + quality + '%</span>'
+                        + '</div>'
+                        + '<div style="display:flex; justify-content:space-between; align-items:center; margin-top:3px;">'
+                        + '<span style="font-size:0.72em; color:var(--c-muted);">\u2192 ' + escapeHtml(m.userSkill) + '</span>';
+                    if (levelInfo) {
+                        html += '<span style="font-size:0.68em; padding:1px 8px; border-radius:8px; background:rgba(16,185,129,0.1); color:#10b981; font-weight:500;">' + levelInfo + '</span>';
+                    }
+                    html += '</div>';
+                    if (m.profGap) {
+                        html += '<div style="font-size:0.68em; color:#f59e0b; margin-top:2px;">\u26A0 Proficiency gap: has ' + (m.userLevel || '?') + ', needs ' + (m.jobProficiency || '?') + '</div>';
+                    }
+                    html += '</div>';
                 });
             }
             
-            // Gaps inline (same column, visually distinct)
+            // Gap skills as cards
             if (wbGaps.length > 0) {
+                html += '<div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(245,158,11,0.3);">';
                 wbGaps.slice(0, 10).forEach(function(g) {
-                    html += '<div style="display:flex; justify-content:space-between; padding:4px 8px; font-size:0.78em; border-bottom:1px solid var(--c-surface-3); background:rgba(245,158,11,0.04);">'
-                        + '<span style="color:var(--c-muted);">' + escapeHtml(g.name) + '</span>'
-                        + '<span style="color:#f59e0b; font-size:0.9em;">' + (g.requirement || 'Required') + ' \u2022 ' + (g.proficiency || 'Proficient') + '</span></div>';
+                    html += '<div style="padding:8px 10px; margin-bottom:4px; background:rgba(245,158,11,0.04); border-radius:6px; border-left:3px solid #f59e0b;">'
+                        + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                        + '<span style="font-size:0.82em; color:var(--c-heading);">' + escapeHtml(g.name) + '</span>'
+                        + '<span style="font-size:0.68em; padding:2px 8px; border-radius:8px; background:rgba(245,158,11,0.1); color:#f59e0b; font-weight:500;">' + (g.requirement || 'Required') + ' \u00B7 ' + (g.proficiency || 'Proficient') + '</span>'
+                        + '</div>'
+                        + '<div style="font-size:0.7em; color:var(--c-muted); margin-top:2px;">Not found in candidate profile</div>'
+                        + '</div>';
                 });
+                html += '</div>';
             }
+            
+            html += '<div style="font-size:0.7em; color:var(--c-muted); margin-top:8px; padding:4px 0; border-top:1px solid rgba(16,185,129,0.1);">Synonym + ontology matching with proficiency validation and evidence tracking.</div>';
             html += '</div>';
             html += '</div>';
 
@@ -12006,7 +12041,7 @@
             doc.setFontSize(16); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold');
             doc.text('Blueprint Advantage\u2122 Comparison', margin, 14);
             doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(180, 190, 200);
-            doc.text('Generated ' + new Date().toLocaleDateString() + ' \u00B7 Blueprint v4.45.16', margin, 22);
+            doc.text('Generated ' + new Date().toLocaleDateString() + ' \u00B7 Blueprint v4.45.17', margin, 22);
             doc.text(cName + ' \u00B7 ' + (wb.title || 'Untitled') + (wb.company ? ' at ' + wb.company : ''), margin, 28);
             y = 40;
             
@@ -12102,7 +12137,7 @@
             y = drawLine(y + 3);
             doc.setFontSize(7); doc.setTextColor(160, 160, 160);
             doc.text('Blueprint\u2122 Intelligence Comparison \u00B7 This analysis reflects data-driven pattern matching, not a hiring recommendation.', margin, y + 2);
-            doc.text('Generated by Blueprint v4.45.16 \u00B7 ' + new Date().toISOString(), margin, y + 6);
+            doc.text('Generated by Blueprint v4.45.17 \u00B7 ' + new Date().toISOString(), margin, y + 6);
             
             // Download
             var filename = (cName + '-' + (wb.title || 'comparison')).replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase() + '.pdf';
