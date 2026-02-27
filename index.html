@@ -1,4 +1,4 @@
-<!-- v4.45.00 | 2026-02-27 | Realistic demo candidate (Alex Morgan VP Strategy), cache-busting candidate load -->
+<!-- v4.45.01 | 2026-02-27 | Fixed comparison engine: JD side now uses parseJobLocally instead of WB skill list -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.00 - BUILD 20260227-realistic-candidate
-        var BP_VERSION = 'v4.45.00';
+        // BLUEPRINT v4.45.01 - BUILD 20260227-comparison-architecture-fix
+        var BP_VERSION = 'v4.45.01';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -10349,60 +10349,25 @@
                     };
                 });
 
-                var jdText = rawJDText.toLowerCase();
-                var jdMatched = [], jdGaps = [];
-                wbSkills.forEach(function(ws) {
-                    var sName = ws.name.toLowerCase();
-                    var words = sName.split(/[\s\-\/&]+/).filter(function(w) { return w.length > 2; });
-                    var found = jdText.indexOf(sName) >= 0;
-                    if (!found && words.length > 1) {
-                        var hits = 0;
-                        words.forEach(function(w) { if (jdText.indexOf(w) >= 0) hits++; });
-                        found = hits / words.length >= 0.5;
-                    }
-                    if (!found && words.length === 1 && words[0].length > 4) {
-                        found = jdText.indexOf(words[0]) >= 0;
-                    }
-
-                    if (found) {
-                        var userSkill = null, nameQ = 0;
-                        var candidateSkills = candidate.skills || [];
-                        for (var ci = 0; ci < candidateSkills.length; ci++) {
-                            var cLower = candidateSkills[ci].name.toLowerCase();
-                            if (cLower === sName) { userSkill = candidateSkills[ci]; nameQ = 1.0; break; }
-                            if (cLower.indexOf(sName) >= 0 || sName.indexOf(cLower) >= 0) { userSkill = candidateSkills[ci]; nameQ = 0.85; break; }
-                            var cWords = cLower.split(/[\s\-\/&]+/).filter(function(w) { return w.length > 2; });
-                            var overlap = 0;
-                            words.forEach(function(w) { if (cWords.indexOf(w) >= 0) overlap++; });
-                            var oScore = overlap / Math.max(words.length, cWords.length);
-                            if (oScore >= 0.5 && oScore > nameQ) { userSkill = candidateSkills[ci]; nameQ = oScore * 0.75; }
-                        }
-                        jdMatched.push({
-                            jobSkill: ws.name,
-                            userSkill: userSkill ? userSkill.name : '(keyword found)',
-                            nameMatch: userSkill ? nameQ : 0,
-                            profMatch: 1.0,
-                            profGap: false,
-                            hasCandidate: !!userSkill
-                        });
-                    } else {
-                        jdGaps.push({ name: ws.name, requirement: ws.requirement, proficiency: ws.proficiency });
-                    }
+                var jdParsed = parseJobLocally(rawJDText);
+                var jdSkills = (jdParsed.skills || jdParsed.parsedSkills || []).map(function(s) {
+                    if (typeof s === 'string') return { name: s, requirement: 'Required', proficiency: 'Proficient' };
+                    return {
+                        name: s.name || s,
+                        requirement: s.requirement || 'Required',
+                        proficiency: s.proficiency || 'Proficient',
+                        category: s.category || 'General'
+                    };
                 });
 
-                var jdCandidateMatches = jdMatched.filter(function(m) { return m.hasCandidate; });
-                var jdTotalW = wbSkills.length * 3;
-                var jdEarnedW = 0;
-                jdCandidateMatches.forEach(function(m) { jdEarnedW += 3 * m.nameMatch; });
-                var jdScore = jdTotalW > 0 ? Math.round((jdEarnedW / jdTotalW) * 100) : 0;
+                var jdResult = matchJobToProfile({ skills: jdSkills, roles: [] });
+                var jdScore = jdResult.score || 0;
 
                 var wbResult = matchJobToProfile({ skills: wbSkills, roles: [] });
+                var wbScore = wbResult.score || 0;
+
                 var wbProfMeets = 0, wbProfGaps = 0;
                 (wbResult.matched || []).forEach(function(m) { if (m.profGap) wbProfGaps++; else wbProfMeets++; });
-                var wbTotalW = wbSkills.length * 3;
-                var wbEarnedW = 0;
-                (wbResult.matched || []).forEach(function(m) { wbEarnedW += 3 * (m.nameMatch || 0.5); });
-                var wbScore = wbTotalW > 0 ? Math.round((wbEarnedW / wbTotalW) * 100) : 0;
 
                 var companyVals = inferCompanyValuesFromJD(rawJDText);
                 var jdValResult = null;
@@ -10425,13 +10390,13 @@
 
                 var rawResultOut = {
                     score: jdScore,
-                    matched: jdCandidateMatches,
-                    gaps: jdGaps,
-                    surplus: [],
-                    totalJobSkills: wbSkills.length,
-                    skillsExtracted: wbSkills.length,
-                    skillsInJD: jdMatched.length,
-                    parsedTitle: '',
+                    matched: jdResult.matched || [],
+                    gaps: jdResult.gaps || [],
+                    surplus: jdResult.surplus || [],
+                    totalJobSkills: jdSkills.length,
+                    skillsExtracted: jdSkills.length,
+                    skillsInJD: jdSkills.length,
+                    parsedTitle: jdParsed.title || '',
                     valuesScore: jdValResult ? jdValResult.score : 0,
                     valuesAligned: jdValResult ? (jdValResult.aligned || []).length : 0,
                     valuesDetail: jdValResult,
@@ -10494,16 +10459,14 @@
             var beforeColor = '#6b7280';
             var afterColor = '#10b981';
 
-            var jdSkillsInText = rawResult.skillsInJD || rawResult.matched.length;
-
             html += '<div style="background:rgba(107,114,128,0.06); border:1px solid rgba(107,114,128,0.2); border-radius:12px; padding:20px;">'
                 + '<div style="text-align:center; font-family:Outfit,sans-serif; font-weight:700; font-size:1em; color:' + beforeColor + '; margin-bottom:16px; text-transform:uppercase; letter-spacing:1px;">'
                 + bpIcon('file',16) + ' Traditional JD</div>'
                 + _wbCompareGauge(rawResult.score, 'Match Score', beforeColor, true)
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px;">'
                 + '<div style="background:var(--c-surface-2); border-radius:8px; padding:10px; text-align:center;">'
-                + '<div style="font-size:1.4em; font-weight:700; color:' + beforeColor + ';">' + jdSkillsInText + '/' + rawResult.skillsExtracted + '</div>'
-                + '<div style="font-size:0.72em; color:var(--c-muted);">Keywords Found</div></div>'
+                + '<div style="font-size:1.4em; font-weight:700; color:' + beforeColor + ';">' + rawResult.skillsExtracted + '</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted);">Skills Parsed from Text</div></div>'
                 + '<div style="background:var(--c-surface-2); border-radius:8px; padding:10px; text-align:center;">'
                 + '<div style="font-size:1.4em; font-weight:700; color:' + beforeColor + ';">' + rawResult.matched.length + '</div>'
                 + '<div style="font-size:0.72em; color:var(--c-muted);">Candidate Matches</div></div>'
@@ -10516,7 +10479,7 @@
                 + '</div>'
                 + '<div style="margin-top:12px; font-size:0.78em; color:var(--c-muted); line-height:1.5;">'
                 + '<div style="font-weight:600; margin-bottom:4px; color:' + beforeColor + ';">How it works:</div>'
-                + 'Keyword scanning of unstructured text. No proficiency context. No seniority weighting. Values guessed from word frequency.'
+                + 'Skills extracted by keyword scanning unstructured text. No proficiency requirements defined. No seniority weighting. Values guessed from word frequency.'
                 + '</div>'
                 + '</div>';
 
@@ -10586,15 +10549,15 @@
 
             html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">';
             html += '<div>'
-                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.9em; color:' + beforeColor + '; margin-bottom:8px;">JD Matched Skills (' + rawResult.matched.length + ')</div>';
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.9em; color:' + beforeColor + '; margin-bottom:8px;">JD Parsed Skills (' + rawResult.skillsExtracted + ' extracted, ' + rawResult.matched.length + ' matched)</div>';
             if (rawResult.matched.length === 0) {
-                html += '<div style="font-size:0.82em; color:var(--c-muted); padding:8px;">No skill matches found via keyword scan.</div>';
+                html += '<div style="font-size:0.82em; color:var(--c-muted); padding:8px;">No skill matches found via text parsing.</div>';
             } else {
-                rawResult.matched.slice(0, 12).forEach(function(m) {
-                    var quality = Math.round(m.nameMatch * 100);
+                rawResult.matched.slice(0, 15).forEach(function(m) {
+                    var quality = Math.round((m.nameMatch || 0.5) * (m.profMatch || 1) * 100);
                     html += '<div style="display:flex; justify-content:space-between; padding:4px 8px; font-size:0.8em; border-bottom:1px solid var(--c-surface-3);">'
-                        + '<span style="color:var(--c-heading);">' + escapeHtml(m.jobSkill) + '</span>'
-                        + '<span style="color:' + beforeColor + ';">' + quality + '% match</span></div>';
+                        + '<span style="color:var(--c-heading);">' + escapeHtml(m.jobSkill) + ' \u2192 ' + escapeHtml(m.userSkill || '?') + '</span>'
+                        + '<span style="color:' + beforeColor + ';">' + quality + '%</span></div>';
                 });
             }
             html += '</div>';
