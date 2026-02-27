@@ -1,4 +1,4 @@
-<!-- v4.45.22 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
+<!-- v4.45.23 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.22 - BUILD 20260227-skill-quality-tighten
-        var BP_VERSION = 'v4.45.22';
+        // BLUEPRINT v4.45.23 - BUILD 20260227-skill-quality-tighten
+        var BP_VERSION = 'v4.45.23';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -12024,7 +12024,9 @@
         function _wbCompExportPDF() {
             var d = _wbCompWizData;
             if (!d.wb || !d.rawResult || !d.structResult) { showToast('No comparison to export.', 'warning'); return; }
-            _wbCompBuildPDF(d.wb, d.rawResult, d.structResult, d.candidate);
+            _wbCompPDFThemeChoice(function(theme) {
+                _wbCompBuildPDF(d.wb, d.rawResult, d.structResult, d.candidate, theme);
+            });
         }
         window._wbCompExportPDF = _wbCompExportPDF;
         
@@ -12032,11 +12034,57 @@
             var saved = _wbCompGetSaved();
             var entry = saved.find(function(s) { return s.id === id; });
             if (!entry) { showToast('Comparison not found.', 'warning'); return; }
-            _wbCompBuildPDF(entry.wb, entry.rawResult, entry.structResult, entry.candidate);
+            _wbCompPDFThemeChoice(function(theme) {
+                _wbCompBuildPDF(entry.wb, entry.rawResult, entry.structResult, entry.candidate, theme);
+            });
         }
         window._wbCompExportPDFFromSaved = _wbCompExportPDFFromSaved;
         
-        function _wbCompBuildPDF(wb, rawResult, structResult, candidate) {
+        function _wbCompPDFThemeChoice(callback) {
+            var existing = document.getElementById('pdfThemeChooser');
+            if (existing) existing.remove();
+            
+            var popup = document.createElement('div');
+            popup.id = 'pdfThemeChooser';
+            popup.style.cssText = 'position:fixed; top:0; left:0; right:0; bottom:0; z-index:999999; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px);';
+            popup.onclick = function(e) { if (e.target === popup) popup.remove(); };
+            
+            popup.innerHTML = '<div style="background:#1e293b; border:1px solid #334155; border-radius:14px; padding:24px 28px; max-width:380px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.5);">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:#f1f5f9; margin-bottom:4px;">' + bpIcon('file-text', 16) + ' Export PDF</div>'
+                + '<div style="font-size:0.78em; color:#94a3b8; margin-bottom:16px;">Choose a theme for your export.</div>'
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">'
+                // Light option
+                + '<div id="pdfThemeLight" style="cursor:pointer; border-radius:10px; border:2px solid #334155; padding:14px; text-align:center; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'#10b981\'" onmouseout="this.style.borderColor=\'#334155\'">'
+                + '<div style="width:100%; height:48px; background:#f8fafc; border-radius:6px; margin-bottom:8px; display:flex; align-items:center; justify-content:center;">'
+                + '<div style="width:30px; height:6px; background:#10b981; border-radius:3px; margin:2px;"></div>'
+                + '<div style="width:20px; height:6px; background:#94a3b8; border-radius:3px; margin:2px;"></div>'
+                + '</div>'
+                + '<div style="font-size:0.82em; font-weight:600; color:#f1f5f9;">Light</div>'
+                + '<div style="font-size:0.68em; color:#64748b;">Best for print & email</div>'
+                + '</div>'
+                // Dark option
+                + '<div id="pdfThemeDark" style="cursor:pointer; border-radius:10px; border:2px solid #334155; padding:14px; text-align:center; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'#10b981\'" onmouseout="this.style.borderColor=\'#334155\'">'
+                + '<div style="width:100%; height:48px; background:#0f172a; border-radius:6px; margin-bottom:8px; border:1px solid #1e293b; display:flex; align-items:center; justify-content:center;">'
+                + '<div style="width:30px; height:6px; background:#10b981; border-radius:3px; margin:2px;"></div>'
+                + '<div style="width:20px; height:6px; background:#475569; border-radius:3px; margin:2px;"></div>'
+                + '</div>'
+                + '<div style="font-size:0.82em; font-weight:600; color:#f1f5f9;">Dark</div>'
+                + '<div style="font-size:0.68em; color:#64748b;">Matches app theme</div>'
+                + '</div>'
+                + '</div>'
+                + '<div style="text-align:center; margin-top:12px;">'
+                + '<button id="pdfThemeCancel" style="padding:6px 16px; background:none; color:#64748b; border:none; cursor:pointer; font-size:0.78em;">Cancel</button>'
+                + '</div>'
+                + '</div>';
+            
+            document.body.appendChild(popup);
+            
+            document.getElementById('pdfThemeLight').onclick = function() { popup.remove(); callback('light'); };
+            document.getElementById('pdfThemeDark').onclick = function() { popup.remove(); callback('dark'); };
+            document.getElementById('pdfThemeCancel').onclick = function() { popup.remove(); };
+        }
+        
+        function _wbCompBuildPDF(wb, rawResult, structResult, candidate, theme) {
             showToast('Generating PDF...', 'info', 5000);
             
             // Load html2canvas if not present
@@ -12047,11 +12095,11 @@
             
             function tryRender() {
                 loaded++;
-                if (loaded >= total) _wbCompRenderPDF(wb, rawResult, structResult, candidate);
+                if (loaded >= total) _wbCompRenderPDF(wb, rawResult, structResult, candidate, theme);
             }
             
             if (total === 0) {
-                _wbCompRenderPDF(wb, rawResult, structResult, candidate);
+                _wbCompRenderPDF(wb, rawResult, structResult, candidate, theme);
                 return;
             }
             
@@ -12071,34 +12119,49 @@
             }
         }
         
-        function _wbCompRenderPDF(wb, rawResult, structResult, candidate) {
+        function _wbCompRenderPDF(wb, rawResult, structResult, candidate, theme) {
             var cName = ((candidate || {}).profile || {}).name || 'Candidate';
+            var isLight = theme === 'light';
             
-            // 1. Create off-screen container that inherits page CSS
+            // Theme colors
+            var bg = isLight ? '#ffffff' : '#0f172a';
+            var surface2 = isLight ? '#f1f5f9' : '#1e293b';
+            var surface3 = isLight ? '#e2e8f0' : '#334155';
+            var surface5 = isLight ? '#cbd5e1' : '#475569';
+            var heading = isLight ? '#0f172a' : '#f1f5f9';
+            var headingBold = isLight ? '#0f172a' : '#ffffff';
+            var body = isLight ? '#334155' : '#cbd5e1';
+            var muted = isLight ? '#64748b' : '#94a3b8';
+            var accent = '#10b981';
+            
+            // 1. Create off-screen container
             var container = document.createElement('div');
             container.id = 'pdfRenderTarget';
-            container.style.cssText = 'position:fixed; left:-9999px; top:0; width:900px; padding:24px; background:#0f172a; color:#e2e8f0; z-index:-1; font-family:Inter,system-ui,sans-serif; font-size:14px;';
+            container.style.cssText = 'position:fixed; left:-9999px; top:0; width:900px; padding:24px; background:' + bg + '; color:' + body + '; z-index:-1; font-family:Inter,system-ui,sans-serif; font-size:14px;';
             
-            // Copy CSS variables from the page
-            var computedStyle = getComputedStyle(document.documentElement);
-            var cssVars = ['--c-bg','--c-surface-2','--c-surface-3','--c-surface-5','--c-heading','--c-heading-bold','--c-body','--c-muted','--accent'];
-            cssVars.forEach(function(v) {
-                var val = computedStyle.getPropertyValue(v);
-                if (val) container.style.setProperty(v, val);
-            });
+            // Set CSS variables for the rendered HTML
+            container.style.setProperty('--c-bg', bg);
+            container.style.setProperty('--c-surface-2', surface2);
+            container.style.setProperty('--c-surface-3', surface3);
+            container.style.setProperty('--c-surface-5', surface5);
+            container.style.setProperty('--c-heading', heading);
+            container.style.setProperty('--c-heading-bold', headingBold);
+            container.style.setProperty('--c-body', body);
+            container.style.setProperty('--c-muted', muted);
+            container.style.setProperty('--accent', accent);
             
             // 2. Render the comparison HTML
             var compHtml = _wbRenderComparison(wb, rawResult, structResult, candidate);
             
             // Add a branded header
-            var headerHtml = '<div style="text-align:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.1);">'
-                + '<div style="font-family:Outfit,sans-serif; font-weight:800; font-size:1.3em; color:#f1f5f9; letter-spacing:0.04em;">BLUEPRINT ADVANTAGE\u2122 COMPARISON</div>'
-                + '<div style="font-size:0.82em; color:#94a3b8; margin-top:4px;">Generated ' + new Date().toLocaleDateString() + ' \u00B7 This analysis reflects data-driven pattern matching, not a hiring recommendation.</div>'
+            var headerHtml = '<div style="text-align:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid ' + (isLight ? '#e2e8f0' : 'rgba(255,255,255,0.1)') + ';">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:800; font-size:1.3em; color:' + headingBold + '; letter-spacing:0.04em;">BLUEPRINT ADVANTAGE\u2122 COMPARISON</div>'
+                + '<div style="font-size:0.82em; color:' + muted + '; margin-top:4px;">Generated ' + new Date().toLocaleDateString() + ' \u00B7 This analysis reflects data-driven pattern matching, not a hiring recommendation.</div>'
                 + '</div>';
             
             // Add a footer
-            var footerHtml = '<div style="text-align:center; margin-top:20px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.1); font-size:0.72em; color:#64748b;">'
-                + 'Blueprint\u2122 v' + (window.BP_VERSION || '4.45.21') + ' \u00B7 Powered by structured intelligence'
+            var footerHtml = '<div style="text-align:center; margin-top:20px; padding-top:12px; border-top:1px solid ' + (isLight ? '#e2e8f0' : 'rgba(255,255,255,0.1)') + '; font-size:0.72em; color:' + muted + ';">'
+                + 'Blueprint\u2122 v' + (window.BP_VERSION || '4.45.22') + ' \u00B7 Powered by structured intelligence'
                 + '</div>';
             
             container.innerHTML = headerHtml + compHtml + footerHtml;
@@ -12109,7 +12172,7 @@
                 html2canvas(container, {
                     scale: 2,
                     useCORS: true,
-                    backgroundColor: '#0f172a',
+                    backgroundColor: bg,
                     width: 900,
                     windowWidth: 900,
                     logging: false
