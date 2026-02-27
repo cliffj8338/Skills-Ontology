@@ -82,11 +82,11 @@ service cloud.firestore {
       match /work_blueprints/{blueprintId} {
         allow read: if isOwner(userId);
         allow create: if isOwner(userId)
-          && request.resource.data.keys().size() <= 30
+          && request.resource.data.keys().size() <= 50
           && request.resource.data.title is string
           && request.resource.data.title.size() <= 300;
         allow update: if isOwner(userId)
-          && request.resource.data.keys().size() <= 30;
+          && request.resource.data.keys().size() <= 50;
         allow delete: if isOwner(userId);
       }
     }

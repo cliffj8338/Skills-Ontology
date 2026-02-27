@@ -6844,12 +6844,14 @@
         window.wbwRemoveCustomField = wbwRemoveCustomField;
 
         function wbwAddYears() {
+            _wbwSaveCurrentStep();
             _wbw.yearsRequired.push({ range: '', area: '' });
             renderWBWizard(document.getElementById('adminTabContent'));
         }
         window.wbwAddYears = wbwAddYears;
 
         function wbwAddEducation() {
+            _wbwSaveCurrentStep();
             _wbw.education.push({ level: "Bachelor's", field: '', preferred: false });
             renderWBWizard(document.getElementById('adminTabContent'));
         }
