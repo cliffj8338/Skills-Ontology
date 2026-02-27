@@ -1,4 +1,4 @@
-<!-- v4.45.12 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
+<!-- v4.45.13 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.12 - BUILD 20260227-skill-quality-tighten
-        var BP_VERSION = 'v4.45.12';
+        // BLUEPRINT v4.45.13 - BUILD 20260227-skill-quality-tighten
+        var BP_VERSION = 'v4.45.13';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -10992,10 +10992,8 @@
         function _wbCompareRecommendations(rawResult, structResult) {
             if (!structResult) return '';
             
-            var recs = [];
             var candidateStrengths = [];
             var devAreas = [];
-            var hiringInsights = [];
 
             // 1. Analyze matched skills for strengths
             (structResult.matched || []).forEach(function(m) {
@@ -11045,126 +11043,110 @@
             // Build HTML
             var html = '<div style="margin-top:24px; padding:20px; background:var(--c-surface-2); border-radius:12px; border:1px solid var(--c-surface-3);">';
             html += '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1em; color:var(--c-heading); margin-bottom:16px;">'
-                + bpIcon('lightbulb', 16) + ' Blueprint Intelligence\u2122 Recommendations</div>';
+                + bpIcon('lightbulb', 16) + ' Blueprint Intelligence\u2122 Analysis</div>';
 
-            // Section: Hiring Recommendation
-            var overallRec = '';
-            var recColor = '';
-            var matchRatio = (structResult.matched || []).length / Math.max(structResult.skillsUsed || 1, 1);
-            var profFit = structResult.profMeets / Math.max((structResult.matched || []).length, 1);
-
-            if (matchRatio >= 0.7 && profFit >= 0.8 && criticalGaps.length <= 1) {
-                overallRec = 'Strong Candidate';
-                recColor = '#10b981';
-                hiringInsights.push('This candidate matches the majority of structured requirements with validated proficiency levels.');
-                if (criticalGaps.length === 1) {
-                    hiringInsights.push('One required skill gap (' + criticalGaps[0].name + ') may be addressable through onboarding or training.');
-                }
-                if (candidateStrengths.length > 0) {
-                    hiringInsights.push('Core strengths in ' + candidateStrengths.slice(0, 3).join(', ') + ' align directly with role demands.');
-                }
-            } else if (matchRatio >= 0.5 && criticalGaps.length <= 2) {
-                overallRec = 'Viable Candidate \u2014 Development Needed';
-                recColor = '#f59e0b';
-                hiringInsights.push('Candidate demonstrates foundational alignment but has ' + criticalGaps.length + ' required skill gap' + (criticalGaps.length !== 1 ? 's' : '') + ' that need addressing.');
-                if (profFit >= 0.8) {
-                    hiringInsights.push('Where skills do match, proficiency levels meet or exceed requirements \u2014 this suggests strong learning trajectory.');
-                }
-            } else {
-                overallRec = 'Significant Gaps \u2014 Proceed with Caution';
-                recColor = '#ef4444';
-                hiringInsights.push('Multiple required skills are unmatched. Consider whether gaps are trainable within the role\u2019s ramp timeline.');
-            }
-
-            html += '<div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; padding:12px; background:var(--c-surface-3); border-radius:8px; border-left:3px solid ' + recColor + ';">'
-                + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.08em; color:' + recColor + '; font-weight:700;">Hiring Recommendation</div>'
-                + '<div style="font-size:0.92em; font-weight:700; color:' + recColor + ';">' + overallRec + '</div>'
-                + '</div>';
-
-            hiringInsights.forEach(function(insight) {
-                html += '<div style="font-size:0.8em; color:var(--c-body); padding:2px 0 2px 14px; line-height:1.5; border-left:2px solid var(--c-surface-3);">' + insight + '</div>';
-            });
-
-            // Section: Intelligence Delta (what WB found that JD missed)
+            // Section: Intelligence Delta (structured as side-by-side tiles)
             if (wbOnly.length > 0 || jdOnly.length > 0) {
-                html += '<div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--c-surface-3);">'
-                    + '<div style="font-size:0.78em; font-weight:700; color:var(--c-heading); margin-bottom:8px;">'
-                    + bpIcon('search', 14) + ' Intelligence Delta \u2014 What the Blueprint Found That the JD Missed</div>';
+                html += '<div style="margin-bottom:16px;">'
+                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:var(--c-heading); margin-bottom:10px;">'
+                    + bpIcon('search', 14) + ' Intelligence Delta</div>'
+                    + '<div style="font-size:0.75em; color:var(--c-muted); margin-bottom:10px;">Skills discovered by one method but not the other. Differences reveal what each approach can and cannot see.</div>'
+                    + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">';
 
+                // WB-only tile
+                html += '<div style="padding:14px; background:rgba(16,185,129,0.04); border:1px solid rgba(16,185,129,0.15); border-radius:10px;">'
+                    + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#10b981; font-weight:700; margin-bottom:8px;">'
+                    + '\u2728 Discovered by Blueprint Only (' + wbOnly.length + ')</div>';
                 if (wbOnly.length > 0) {
-                    html += '<div style="font-size:0.78em; color:var(--c-body); padding:4px 0; line-height:1.6;">'
-                        + '<span style="color:#10b981; font-weight:600;">WB-only matches:</span> ';
-                    wbOnly.forEach(function(m, i) {
-                        html += '<span style="background:rgba(16,185,129,0.1); padding:2px 6px; border-radius:4px; margin:1px; display:inline-block;">'
-                            + escapeHtml(m.jobSkill) + ' \u2192 ' + escapeHtml(m.userSkill) + '</span>';
-                        if (i < wbOnly.length - 1) html += ' ';
+                    wbOnly.forEach(function(m) {
+                        var quality = Math.round(m.nameMatch * m.profMatch * 100);
+                        html += '<div style="padding:6px 10px; margin-bottom:4px; background:rgba(16,185,129,0.06); border-radius:6px; border-left:2px solid #10b981;">'
+                            + '<div style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(m.jobSkill) + '</div>'
+                            + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:2px;">\u2192 ' + escapeHtml(m.userSkill) + (m.userLevel ? ' (' + m.userLevel + ')' : '') + ' <span style="color:#10b981;">' + quality + '%</span></div>'
+                            + '</div>';
                     });
-                    html += '</div>';
-                    html += '<div style="font-size:0.72em; color:var(--c-muted); padding-left:4px;">These matches are invisible to ATS keyword scanning because they require ontology-aware matching.</div>';
-                }
-
-                if (jdOnly.length > 0) {
-                    html += '<div style="font-size:0.78em; color:var(--c-body); padding:4px 0; margin-top:4px; line-height:1.6;">'
-                        + '<span style="color:' + (rawResult.score > 0 ? '#f59e0b' : 'var(--c-muted)') + '; font-weight:600;">JD-only matches:</span> ';
-                    jdOnly.forEach(function(m, i) {
-                        html += '<span style="background:rgba(245,158,11,0.1); padding:2px 6px; border-radius:4px; margin:1px; display:inline-block;">'
-                            + escapeHtml(m.jobSkill) + ' \u2192 ' + escapeHtml(m.userSkill) + '</span>';
-                        if (i < jdOnly.length - 1) html += ' ';
-                    });
-                    html += '</div>';
+                    html += '<div style="font-size:0.7em; color:var(--c-muted); margin-top:6px; padding:4px 0; border-top:1px solid rgba(16,185,129,0.1); line-height:1.4;">Invisible to ATS keyword scanning. Requires synonym and ontology-aware matching.</div>';
+                } else {
+                    html += '<div style="font-size:0.78em; color:var(--c-muted); padding:8px 0;">No additional matches beyond JD.</div>';
                 }
                 html += '</div>';
+
+                // JD-only tile
+                html += '<div style="padding:14px; background:rgba(245,158,11,0.04); border:1px solid rgba(245,158,11,0.12); border-radius:10px;">'
+                    + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#f59e0b; font-weight:700; margin-bottom:8px;">'
+                    + '\uD83D\uDCC4 Discovered by JD Parsing Only (' + jdOnly.length + ')</div>';
+                if (jdOnly.length > 0) {
+                    jdOnly.forEach(function(m) {
+                        html += '<div style="padding:6px 10px; margin-bottom:4px; background:rgba(245,158,11,0.04); border-radius:6px; border-left:2px solid #f59e0b;">'
+                            + '<div style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(m.jobSkill) + '</div>'
+                            + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:2px;">\u2192 ' + escapeHtml(m.userSkill) + ' <span style="color:#f59e0b;">keyword match</span></div>'
+                            + '</div>';
+                    });
+                    html += '<div style="font-size:0.7em; color:var(--c-muted); margin-top:6px; padding:4px 0; border-top:1px solid rgba(245,158,11,0.1); line-height:1.4;">Keyword-based extraction. No proficiency validation or evidence.</div>';
+                } else {
+                    html += '<div style="font-size:0.78em; color:var(--c-muted); padding:8px 0;">No matches the Blueprint missed.</div>';
+                }
+                html += '</div>';
+
+                html += '</div></div>';
             }
 
-            // Section: Development Plan (if gaps exist)
-            if (criticalGaps.length > 0 || devAreas.length > 0) {
-                html += '<div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--c-surface-3);">'
-                    + '<div style="font-size:0.78em; font-weight:700; color:var(--c-heading); margin-bottom:8px;">'
-                    + bpIcon('trending-up', 14) + ' Recommended Development Plan</div>';
+            // Section: Development Focus Areas (if gaps exist)
+            if (criticalGaps.length > 0 || developmentGaps.length > 0 || devAreas.length > 0) {
+                html += '<div style="margin-bottom:16px; padding-top:14px; border-top:1px solid var(--c-surface-3);">'
+                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:var(--c-heading); margin-bottom:10px;">'
+                    + bpIcon('trending-up', 14) + ' Development Focus Areas</div>';
 
                 if (criticalGaps.length > 0) {
-                    html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#ef4444; font-weight:600; margin-bottom:4px;">Required \u2014 Address Before or During Onboarding</div>';
+                    html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#ef4444; font-weight:600; margin-bottom:6px;">Required Skills \u2014 Not Currently Matched</div>';
                     criticalGaps.forEach(function(g) {
                         var recText = _wbGapRecommendation(g.name, g.proficiency || 'Proficient');
-                        html += '<div style="padding:6px 10px; margin-bottom:4px; background:rgba(239,68,68,0.06); border-radius:6px; border-left:2px solid #ef4444;">'
-                            + '<div style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(g.name) + ' <span style="font-weight:400; color:var(--c-muted);">(' + (g.proficiency || 'Proficient') + ' required)</span></div>'
-                            + '<div style="font-size:0.75em; color:var(--c-body); margin-top:2px;">' + recText + '</div>'
+                        html += '<div style="padding:10px 12px; margin-bottom:6px; background:rgba(239,68,68,0.04); border-radius:8px; border-left:3px solid #ef4444;">'
+                            + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                            + '<span style="font-size:0.85em; font-weight:600; color:var(--c-heading);">' + escapeHtml(g.name) + '</span>'
+                            + '<span style="font-size:0.7em; color:#ef4444; font-weight:500;">' + (g.proficiency || 'Proficient') + ' required</span>'
+                            + '</div>'
+                            + '<div style="font-size:0.75em; color:var(--c-body); margin-top:4px; line-height:1.5;">' + recText + '</div>'
                             + '</div>';
                     });
                 }
 
                 if (developmentGaps.length > 0) {
-                    html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#f59e0b; font-weight:600; margin:8px 0 4px;">Preferred \u2014 Develop Over First 6\u201312 Months</div>';
+                    html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#f59e0b; font-weight:600; margin:10px 0 6px;">Preferred Skills \u2014 Growth Opportunities</div>';
                     developmentGaps.forEach(function(g) {
                         var recText = _wbGapRecommendation(g.name, g.proficiency || 'Proficient');
-                        html += '<div style="padding:6px 10px; margin-bottom:4px; background:rgba(245,158,11,0.05); border-radius:6px; border-left:2px solid #f59e0b;">'
-                            + '<div style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(g.name) + ' <span style="font-weight:400; color:var(--c-muted);">(' + (g.proficiency || 'Proficient') + ' preferred)</span></div>'
-                            + '<div style="font-size:0.75em; color:var(--c-body); margin-top:2px;">' + recText + '</div>'
+                        html += '<div style="padding:10px 12px; margin-bottom:6px; background:rgba(245,158,11,0.04); border-radius:8px; border-left:3px solid #f59e0b;">'
+                            + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                            + '<span style="font-size:0.85em; font-weight:600; color:var(--c-heading);">' + escapeHtml(g.name) + '</span>'
+                            + '<span style="font-size:0.7em; color:#f59e0b; font-weight:500;">' + (g.proficiency || 'Proficient') + ' preferred</span>'
+                            + '</div>'
+                            + '<div style="font-size:0.75em; color:var(--c-body); margin-top:4px; line-height:1.5;">' + recText + '</div>'
                             + '</div>';
                     });
                 }
 
                 if (devAreas.length > 0) {
-                    html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#60a5fa; font-weight:600; margin:8px 0 4px;">Proficiency Growth \u2014 Level Up Existing Skills</div>';
+                    html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#60a5fa; font-weight:600; margin:10px 0 6px;">Adjacent Skills \u2014 Strengthen Existing Capabilities</div>';
                     devAreas.forEach(function(d) {
-                        html += '<div style="padding:4px 10px; font-size:0.78em; color:var(--c-body); border-left:2px solid #60a5fa;">'
-                            + escapeHtml(d.skill) + ': '
-                            + (d.type === 'proficiency' ? 'Currently ' + d.has + ', role requires ' + d.needs + '. Target structured practice or project ownership.' : 'Adjacent skill detected. Recommend direct exposure through project assignment.')
-                            + '</div>';
+                        html += '<div style="padding:8px 12px; margin-bottom:4px; background:rgba(96,165,250,0.04); border-radius:8px; border-left:3px solid #60a5fa;">'
+                            + '<div style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(d.skill) + '</div>'
+                            + '<div style="font-size:0.75em; color:var(--c-body); margin-top:2px;">'
+                            + (d.type === 'proficiency' ? 'Current: ' + d.has + ' \u2192 Needed: ' + d.needs : 'Related skill present. Direct experience recommended.')
+                            + '</div></div>';
                     });
                 }
 
                 html += '</div>';
             }
 
-            // Section: Candidate Strengths
+            // Section: Confirmed Strengths
             if (candidateStrengths.length > 0) {
-                html += '<div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--c-surface-3);">'
-                    + '<div style="font-size:0.78em; font-weight:700; color:var(--c-heading); margin-bottom:6px;">'
+                html += '<div style="padding-top:14px; border-top:1px solid var(--c-surface-3);">'
+                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:var(--c-heading); margin-bottom:8px;">'
                     + bpIcon('check-circle', 14) + ' Confirmed Strengths</div>'
-                    + '<div style="display:flex; flex-wrap:wrap; gap:4px;">';
+                    + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 candidateStrengths.forEach(function(s) {
-                    html += '<span style="font-size:0.75em; background:rgba(16,185,129,0.1); color:#10b981; padding:3px 8px; border-radius:12px; font-weight:500;">' + escapeHtml(s) + '</span>';
+                    html += '<span style="font-size:0.78em; background:rgba(16,185,129,0.08); color:#10b981; padding:5px 12px; border-radius:16px; font-weight:500; border:1px solid rgba(16,185,129,0.15);">' + escapeHtml(s) + '</span>';
                 });
                 html += '</div></div>';
             }
