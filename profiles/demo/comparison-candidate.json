@@ -269,9 +269,17 @@
     { "name": "Continuous Improvement", "selected": true },
     { "name": "Collaboration", "selected": true },
     { "name": "Integrity", "selected": true },
-    { "name": "Customer Focus", "selected": true },
+    { "name": "Customer Obsession", "selected": true },
     { "name": "Deliver Results", "selected": true },
-    { "name": "Think Big", "selected": true }
+    { "name": "Think Big", "selected": true },
+    { "name": "Excellence", "selected": true },
+    { "name": "Accountability", "selected": true },
+    { "name": "Ownership", "selected": true },
+    { "name": "Bias for Action", "selected": true },
+    { "name": "Strategic Foresight", "selected": true },
+    { "name": "Authentic Leadership", "selected": true },
+    { "name": "Data-Driven Decision Making", "selected": true },
+    { "name": "Customer First", "selected": true }
   ],
   "workHistory": [
     {

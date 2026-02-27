@@ -10317,8 +10317,8 @@
                     return { name: v.name || v, desc: v.desc || v.description || '' };
                 });
                 var companyValObj = {
-                    primary: wbValues.slice(0, 3).map(function(v) { return v.name; }),
-                    secondary: wbValues.slice(3, 6).map(function(v) { return v.name; }),
+                    primary: wbValues.slice(0, Math.ceil(wbValues.length / 2)).map(function(v) { return v.name; }),
+                    secondary: wbValues.slice(Math.ceil(wbValues.length / 2)).map(function(v) { return v.name; }),
                     tensions: [],
                     story: '',
                     inferred: false
