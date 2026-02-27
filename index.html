@@ -1,4 +1,4 @@
-<!-- v4.45.18 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
+<!-- v4.45.19 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.18 - BUILD 20260227-skill-quality-tighten
-        var BP_VERSION = 'v4.45.18';
+        // BLUEPRINT v4.45.19 - BUILD 20260227-skill-quality-tighten
+        var BP_VERSION = 'v4.45.19';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -11392,23 +11392,30 @@
             if (wbMatched.length > 0) {
                 wbMatched.slice(0, 12).forEach(function(m) {
                     var quality = Math.round(m.nameMatch * m.profMatch * 100);
+                    var nameQ = Math.round((m.nameMatch || 0) * 100);
                     var qualityColor = quality >= 90 ? '#10b981' : quality >= 60 ? '#f59e0b' : '#ef4444';
-                    var levelInfo = m.userLevel ? m.userLevel : '';
-                    html += '<div style="padding:8px 10px; margin-bottom:4px; background:rgba(16,185,129,0.06); border-radius:6px; border-left:3px solid ' + qualityColor + ';">'
+                    var candidateLevel = m.userLevel || '';
+                    var requiredLevel = m.jobProficiency || '';
+                    var profOk = !m.profGap;
+                    html += '<div style="padding:10px 12px; margin-bottom:5px; background:rgba(16,185,129,0.05); border-radius:8px; border-left:3px solid ' + qualityColor + ';">'
+                        // Row 1: Job skill → Candidate skill
                         + '<div style="display:flex; justify-content:space-between; align-items:center;">'
-                        + '<span style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(m.jobSkill) + '</span>'
-                        + '<span style="font-size:0.78em; font-weight:700; color:' + qualityColor + ';">' + quality + '%</span>'
+                        + '<div style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(m.jobSkill) + '</div>'
+                        + '<div style="font-size:0.72em; font-weight:700; color:' + qualityColor + '; padding:2px 8px; border-radius:6px; background:' + qualityColor + '15;">Match: ' + quality + '%</div>'
                         + '</div>'
-                        + '<div style="display:flex; justify-content:space-between; align-items:center; margin-top:3px;">'
-                        + '<span style="font-size:0.72em; color:var(--c-muted);">\u2192 ' + escapeHtml(m.userSkill) + '</span>';
-                    if (levelInfo) {
-                        html += '<span style="font-size:0.68em; padding:1px 8px; border-radius:8px; background:rgba(16,185,129,0.1); color:#10b981; font-weight:500;">' + levelInfo + '</span>';
+                        + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:2px;">\u2192 ' + escapeHtml(m.userSkill) + '</div>'
+                        // Row 2: Proficiency detail
+                        + '<div style="display:flex; gap:8px; margin-top:5px; font-size:0.68em;">';
+                    if (candidateLevel) {
+                        html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(16,185,129,0.1); color:#10b981; font-weight:500;">Candidate: ' + candidateLevel + '</span>';
                     }
-                    html += '</div>';
+                    if (requiredLevel) {
+                        html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(99,102,241,0.1); color:#818cf8; font-weight:500;">Required: ' + requiredLevel + '</span>';
+                    }
                     if (m.profGap) {
-                        html += '<div style="font-size:0.68em; color:#f59e0b; margin-top:2px;">\u26A0 Proficiency gap: has ' + (m.userLevel || '?') + ', needs ' + (m.jobProficiency || '?') + '</div>';
+                        html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(245,158,11,0.1); color:#f59e0b; font-weight:500;">\u26A0 Gap</span>';
                     }
-                    html += '</div>';
+                    html += '</div></div>';
                 });
             }
             
@@ -11828,6 +11835,7 @@
                 + '<button onclick="_wbCompSaveCurrent()" style="padding:6px 14px; background:linear-gradient(135deg, #10b981, #3b82f6); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('save',12) + ' Save</button>'
                 + '<button onclick="_wbCompExportPDF()" style="padding:6px 14px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.8em;">' + bpIcon('file-text',12) + ' PDF</button>'
                 + '<button onclick="_wbCompWizStep=1; _wbCompWizData={wb:null,rawJD:\'\',candidateId:\'\',candidate:null}; renderWBCompareWizard(document.getElementById(\'adminTabContent\'));" style="padding:6px 14px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.8em;">' + bpIcon('refresh',12) + ' New Comparison</button>'
+                + '<button onclick="_wbCompWizStep=1; renderWBCompareWizard(document.getElementById(\'adminTabContent\'));" style="padding:6px 14px; background:#ef4444; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('x',12) + ' Close</button>'
                 + '</div></div>';
 
             html += _wbRenderComparison(wb, rawResult, structResult, candidate);
@@ -12049,7 +12057,7 @@
             doc.setFontSize(16); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold');
             doc.text('Blueprint Advantage\u2122 Comparison', margin, 14);
             doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(180, 190, 200);
-            doc.text('Generated ' + new Date().toLocaleDateString() + ' \u00B7 Blueprint v4.45.18', margin, 22);
+            doc.text('Generated ' + new Date().toLocaleDateString() + ' \u00B7 Blueprint v4.45.19', margin, 22);
             doc.text(cName + ' \u00B7 ' + (wb.title || 'Untitled') + (wb.company ? ' at ' + wb.company : ''), margin, 28);
             y = 40;
             
@@ -12145,7 +12153,7 @@
             y = drawLine(y + 3);
             doc.setFontSize(7); doc.setTextColor(160, 160, 160);
             doc.text('Blueprint\u2122 Intelligence Comparison \u00B7 This analysis reflects data-driven pattern matching, not a hiring recommendation.', margin, y + 2);
-            doc.text('Generated by Blueprint v4.45.18 \u00B7 ' + new Date().toISOString(), margin, y + 6);
+            doc.text('Generated by Blueprint v4.45.19 \u00B7 ' + new Date().toISOString(), margin, y + 6);
             
             // Download
             var filename = (cName + '-' + (wb.title || 'comparison')).replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase() + '.pdf';
