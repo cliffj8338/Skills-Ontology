@@ -1,4 +1,4 @@
-<!-- v4.45.32 | 2026-02-27 | Lightcast certs expanded to 1,583 credentials across 19 categories -->
+<!-- v4.45.33 | 2026-02-27 | Lightcast certs expanded to 1,583 credentials across 19 categories -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.32 - BUILD 20260227-lightcast-certs
-        var BP_VERSION = 'v4.45.32';
+        // BLUEPRINT v4.45.33 - BUILD 20260227-lightcast-certs
+        var BP_VERSION = 'v4.45.33';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -30861,6 +30861,87 @@ body {
                 });
             });
             
+            // ===== SKILL VALIDATION & CLEANING =====
+            // Filter out garbage: fragments, common words, values, duplicates
+            
+            // Blocklist: common English words and fragments that aren't real skills
+            var SKILL_BLOCKLIST = new Set([
+                // Common word fragments that substring-match from JD text
+                'sing', 'plan', 'lead', 'test', 'design', 'build', 'drive', 'track',
+                'focus', 'scale', 'model', 'train', 'support', 'process', 'review',
+                'manage', 'create', 'develop', 'deliver', 'ensure', 'maintain',
+                'history', 'experience', 'ability', 'knowledge', 'understanding',
+                'passion', 'commitment', 'desire', 'willingness', 'enthusiasm',
+                'environment', 'organization', 'industry', 'company', 'team',
+                'candidate', 'role', 'position', 'opportunity', 'benefit',
+                'salary', 'compensation', 'bonus', 'equity', 'package',
+                'location', 'remote', 'hybrid', 'onsite', 'office',
+                'monday', 'tuesday', 'wednesday', 'thursday', 'friday',
+                'january', 'february', 'march', 'april', 'june', 'july',
+                'august', 'september', 'october', 'november', 'december',
+                'years', 'months', 'days', 'hours', 'weeks',
+                'bachelor', 'master', 'degree', 'mba', 'phd',
+                'minimum', 'maximum', 'required', 'preferred', 'plus',
+                'strong', 'excellent', 'proven', 'demonstrated',
+                'economy', 'agriculture', 'manufacturing', 'retail',
+                'monit', 'tform', 'staf', 'less', 'tic', 'tic',
+                'able', 'well', 'high', 'best', 'good', 'great', 'fast',
+                'also', 'must', 'will', 'work', 'time', 'make', 'take',
+                'come', 'give', 'find', 'help', 'show', 'tell', 'keep',
+                'long', 'term', 'full', 'part', 'base', 'core', 'open',
+                'across', 'including', 'related', 'based', 'level',
+                'equal', 'other', 'various', 'multiple', 'several'
+            ]);
+            
+            // Values that aren't skills
+            var VALUES_BLOCKLIST = new Set([
+                'curiosity', 'integrity', 'honesty', 'respect', 'trust',
+                'accountability', 'transparency', 'empathy', 'humility',
+                'courage', 'excellence', 'reliability', 'loyalty',
+                'fairness', 'diversity', 'inclusion', 'belonging',
+                'sustainability', 'responsibility', 'stewardship',
+                'customer obsession', 'ownership', 'bias for action',
+                'earn trust', 'think big', 'insist on the highest standards'
+            ]);
+            
+            var cleanedSkills = [];
+            var seenNorm = new Set();
+            
+            skillMatches.forEach(function(skill) {
+                var name = (skill.name || '').trim();
+                var lower = name.toLowerCase();
+                
+                // Skip empty or too short
+                if (name.length < 3) return;
+                
+                // Skip single common words (< 2 words and in blocklist)
+                var wordCount = name.split(/\s+/).length;
+                if (wordCount === 1 && SKILL_BLOCKLIST.has(lower)) return;
+                
+                // Skip values
+                if (VALUES_BLOCKLIST.has(lower)) return;
+                
+                // Skip if looks like a word fragment (no vowels, or all caps < 4 chars that aren't known acronyms)
+                var knownAcronyms = new Set(['sql', 'crm', 'erp', 'sap', 'aws', 'gcp', 'api', 'css', 'html', 'xml', 'json', 'rest', 'saas', 'paas', 'iot', 'etl', 'rpa', 'nlp', 'llm', 'gpu', 'vpc', 'cdn', 'dns', 'tcp', 'udp', 'ssh', 'ssl', 'tls', 'vpn', 'seo', 'sem', 'ppc', 'roi', 'kpi', 'okr', 'cad', 'bim', 'plc', 'hmi']);
+                if (name.length <= 4 && !/[aeiou]/i.test(name) && !knownAcronyms.has(lower)) return;
+                
+                // Deduplicate by normalized key (strip parentheticals, lowercase, collapse spaces)
+                var normKey = lower.replace(/\s*\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
+                if (seenNorm.has(normKey)) return;
+                
+                // Also check without "and" / "&" differences
+                var altKey = normKey.replace(/\s*&\s*/g, ' and ').replace(/\s+/g, ' ');
+                var altKey2 = normKey.replace(/\s+and\s+/g, ' & ');
+                if (seenNorm.has(altKey) || seenNorm.has(altKey2)) return;
+                
+                seenNorm.add(normKey);
+                seenNorm.add(altKey);
+                seenNorm.add(altKey2);
+                cleanedSkills.push(skill);
+            });
+            
+            skillMatches = cleanedSkills;
+            
             // Extract roles/departments
             var roles = [];
             var rolePatterns = { 'Engineering': /engineer|develop|software|technical/i, 'Product': /product|ux|design/i,
@@ -32495,7 +32576,8 @@ body {
                         category: jobSkill.category,
                         nameMatch: nameMatchQuality,
                         profMatch: profMatch,
-                        profGap: profGap
+                        profGap: profGap,
+                        _credit: reqWeight * nameMatchQuality * profMatch
                     });
                     matchedUserSkills.add(found.name.toLowerCase());
                 } else {
@@ -32506,6 +32588,29 @@ body {
                         category: jobSkill.category
                     });
                 }
+            });
+            
+            // Deduplicate matched: if same user skill matched multiple JD skills, keep best
+            var matchByUser = {};
+            matched.forEach(function(m) {
+                var key = m.userSkill.toLowerCase();
+                if (!matchByUser[key] || m._credit > matchByUser[key]._credit) {
+                    matchByUser[key] = m;
+                }
+            });
+            matched = Object.values(matchByUser);
+            
+            // Recalculate earnedWeight from deduped matches
+            earnedWeight = 0;
+            matched.forEach(function(m) { earnedWeight += m._credit; });
+            
+            // Deduplicate gaps by normalized name
+            var gapSeen = new Set();
+            gaps = gaps.filter(function(g) {
+                var norm = g.name.toLowerCase().replace(/\s*\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
+                if (gapSeen.has(norm)) return false;
+                gapSeen.add(norm);
+                return true;
             });
             
             // Surplus: user skills not needed by job
