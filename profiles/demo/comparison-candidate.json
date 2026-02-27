@@ -1,0 +1,321 @@
+{
+  "templateId": "comparison-candidate",
+  "profile": {
+    "name": "Alex Morgan",
+    "currentTitle": "Senior Product Strategy Manager",
+    "location": "Austin, TX",
+    "roleLevel": "Senior",
+    "email": "",
+    "phone": "",
+    "linkedinUrl": "",
+    "summary": "Senior product strategy professional with 8+ years driving go-to-market execution, cross-functional alignment, and data-driven decision making across SaaS, HR Tech, and enterprise software. Proven track record of launching products that achieve market fit, scaling operations from startup to growth stage, and building high-performing teams. Passionate about connecting people to meaningful work through technology."
+  },
+  "roles": [
+    { "id": "product-strategy", "name": "Product Strategy", "color": "#3B82F6" },
+    { "id": "operations", "name": "Operations & Execution", "color": "#10B981" },
+    { "id": "analytics", "name": "Analytics & Intelligence", "color": "#8B5CF6" },
+    { "id": "leadership", "name": "Team Leadership", "color": "#F59E0B" },
+    { "id": "gtm", "name": "Go-to-Market", "color": "#EF4444" }
+  ],
+  "skills": [
+    {
+      "name": "Strategic Planning",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["product-strategy"],
+      "evidence": [
+        { "outcome": "Developed 3-year product roadmap that captured $12M in new ARR across 3 market segments", "description": "" },
+        { "outcome": "Led strategic planning workshops for cross-functional teams of 25+ stakeholders quarterly", "description": "" }
+      ]
+    },
+    {
+      "name": "Product Management",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["product-strategy"],
+      "evidence": [
+        { "outcome": "Launched 4 major product features achieving 85%+ adoption within first quarter", "description": "" },
+        { "outcome": "Managed product lifecycle from concept through GA for enterprise SaaS platform serving 200+ clients", "description": "" }
+      ]
+    },
+    {
+      "name": "Data Analysis",
+      "level": "Advanced",
+      "category": "skill",
+      "key": true,
+      "roles": ["analytics"],
+      "evidence": [
+        { "outcome": "Built analytics dashboards tracking 15 KPIs that drove 22% improvement in conversion rates", "description": "" },
+        { "outcome": "Designed A/B testing framework that reduced feature validation time by 40%", "description": "" }
+      ]
+    },
+    {
+      "name": "Cross-functional Leadership",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["leadership"],
+      "evidence": [
+        { "outcome": "Led cross-functional team of 18 across engineering, design, marketing, and sales", "description": "" },
+        { "outcome": "Facilitated alignment between product and engineering reducing sprint scope creep by 35%", "description": "" }
+      ]
+    },
+    {
+      "name": "Market Research",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": ["product-strategy", "gtm"],
+      "evidence": [
+        { "outcome": "Conducted competitive analysis across 12 vendors informing pricing strategy and feature prioritization", "description": "" }
+      ]
+    },
+    {
+      "name": "Stakeholder Management",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["leadership"],
+      "evidence": [
+        { "outcome": "Managed relationships with C-suite executives, presenting quarterly business reviews to CEO and board", "description": "" }
+      ]
+    },
+    {
+      "name": "Project Management",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": ["operations"],
+      "evidence": [
+        { "outcome": "Delivered 12 projects on time and within budget using Agile methodology across distributed teams", "description": "" }
+      ]
+    },
+    {
+      "name": "Business Development",
+      "level": "Proficient",
+      "category": "skill",
+      "key": false,
+      "roles": ["gtm"],
+      "evidence": [
+        { "outcome": "Identified and closed 3 strategic partnership deals generating $2.5M in pipeline", "description": "" }
+      ]
+    },
+    {
+      "name": "Team Building",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": ["leadership"],
+      "evidence": [
+        { "outcome": "Built product strategy team from 2 to 8 members with 95% retention rate over 3 years", "description": "" }
+      ]
+    },
+    {
+      "name": "Financial Analysis",
+      "level": "Proficient",
+      "category": "skill",
+      "key": false,
+      "roles": ["analytics"],
+      "evidence": [
+        { "outcome": "Created ROI models for product investments that secured $4M in development funding", "description": "" }
+      ]
+    },
+    {
+      "name": "Communication",
+      "level": "Expert",
+      "category": "ability",
+      "key": true,
+      "roles": ["leadership", "gtm"],
+      "evidence": [
+        { "outcome": "Presented product vision to audiences of 500+ at 3 industry conferences", "description": "" },
+        { "outcome": "Authored thought leadership content generating 50K+ views and 200+ qualified leads", "description": "" }
+      ]
+    },
+    {
+      "name": "Problem Solving",
+      "level": "Expert",
+      "category": "ability",
+      "key": true,
+      "roles": ["product-strategy", "analytics"],
+      "evidence": [
+        { "outcome": "Resolved critical platform scalability issue that was blocking $3M enterprise deal", "description": "" }
+      ]
+    },
+    {
+      "name": "Customer Success",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": ["operations", "gtm"],
+      "evidence": [
+        { "outcome": "Improved NPS from 32 to 58 by implementing structured feedback loops with top 50 accounts", "description": "" }
+      ]
+    },
+    {
+      "name": "Agile Methodologies",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": ["operations"],
+      "evidence": [
+        { "outcome": "Certified Scrum Product Owner; led 6 concurrent Agile teams through SAFe framework", "description": "" }
+      ]
+    },
+    {
+      "name": "Go-to-Market Strategy",
+      "level": "Expert",
+      "category": "skill",
+      "key": true,
+      "roles": ["gtm"],
+      "evidence": [
+        { "outcome": "Designed and executed GTM strategy for new product line achieving 140% of first-year revenue target", "description": "" }
+      ]
+    },
+    {
+      "name": "Talent Acquisition",
+      "level": "Proficient",
+      "category": "skill",
+      "key": false,
+      "roles": ["operations"],
+      "evidence": [
+        { "outcome": "Collaborated with HR to redesign hiring process reducing time-to-fill by 25%", "description": "" }
+      ]
+    },
+    {
+      "name": "Change Management",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": ["leadership", "operations"],
+      "evidence": [
+        { "outcome": "Led organizational restructuring affecting 60+ employees with zero unplanned attrition", "description": "" }
+      ]
+    },
+    {
+      "name": "Negotiation",
+      "level": "Advanced",
+      "category": "ability",
+      "key": false,
+      "roles": ["gtm", "leadership"],
+      "evidence": [
+        { "outcome": "Negotiated vendor contracts saving $1.2M annually across 5 technology partnerships", "description": "" }
+      ]
+    },
+    {
+      "name": "Process Improvement",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": ["operations"],
+      "evidence": [
+        { "outcome": "Redesigned product development lifecycle reducing cycle time from 16 weeks to 10 weeks", "description": "" }
+      ]
+    },
+    {
+      "name": "User Experience",
+      "level": "Proficient",
+      "category": "skill",
+      "key": false,
+      "roles": ["product-strategy"],
+      "evidence": [
+        { "outcome": "Led user research program interviewing 100+ customers informing UX redesign that improved task completion by 30%", "description": "" }
+      ]
+    },
+    {
+      "name": "Revenue Operations",
+      "level": "Proficient",
+      "category": "skill",
+      "key": false,
+      "roles": ["operations", "gtm"],
+      "evidence": [
+        { "outcome": "Implemented RevOps framework aligning sales, marketing, and CS metrics to single revenue dashboard", "description": "" }
+      ]
+    },
+    {
+      "name": "Critical Thinking",
+      "level": "Expert",
+      "category": "ability",
+      "key": true,
+      "roles": ["product-strategy", "analytics"],
+      "evidence": [
+        { "outcome": "Identified market timing risk that prevented $5M investment in declining product category", "description": "" }
+      ]
+    },
+    {
+      "name": "Presentation Skills",
+      "level": "Expert",
+      "category": "ability",
+      "key": false,
+      "roles": ["leadership", "gtm"],
+      "evidence": [
+        { "outcome": "Delivered executive presentations that secured board approval for 3 strategic initiatives", "description": "" }
+      ]
+    },
+    {
+      "name": "Budget Management",
+      "level": "Advanced",
+      "category": "skill",
+      "key": false,
+      "roles": ["operations"],
+      "evidence": [
+        { "outcome": "Managed $8M annual product budget with consistent under-budget delivery (avg 4% savings)", "description": "" }
+      ]
+    }
+  ],
+  "values": [
+    { "name": "Innovation", "selected": true },
+    { "name": "Continuous Improvement", "selected": true },
+    { "name": "Collaboration", "selected": true },
+    { "name": "Integrity", "selected": true },
+    { "name": "Customer Focus", "selected": true },
+    { "name": "Deliver Results", "selected": true },
+    { "name": "Think Big", "selected": true }
+  ],
+  "workHistory": [
+    {
+      "title": "Senior Product Strategy Manager",
+      "company": "TalentFlow (HR Tech SaaS)",
+      "startDate": "2022-03",
+      "endDate": "",
+      "current": true,
+      "description": "Lead product strategy for AI-powered talent matching platform. Own roadmap, GTM execution, and cross-functional alignment across 40-person product org."
+    },
+    {
+      "title": "Product Manager",
+      "company": "DataBridge Analytics",
+      "startDate": "2019-06",
+      "endDate": "2022-02",
+      "current": false,
+      "description": "Managed enterprise analytics product from MVP through Series B growth. Drove product-led growth initiatives that tripled user base."
+    },
+    {
+      "title": "Associate Product Manager",
+      "company": "CloudFirst Solutions",
+      "startDate": "2017-01",
+      "endDate": "2019-05",
+      "current": false,
+      "description": "Supported product development for cloud infrastructure platform. Led customer discovery, feature prioritization, and sprint planning."
+    }
+  ],
+  "education": [
+    {
+      "degree": "MBA",
+      "institution": "University of Texas at Austin - McCombs School of Business",
+      "year": "2020",
+      "field": "Strategy & Innovation"
+    },
+    {
+      "degree": "BS",
+      "institution": "Georgia Institute of Technology",
+      "year": "2016",
+      "field": "Industrial Engineering"
+    }
+  ],
+  "certifications": [
+    "Certified Scrum Product Owner (CSPO)",
+    "SAFe Product Owner/Product Manager",
+    "Google Analytics Certified"
+  ]
+}

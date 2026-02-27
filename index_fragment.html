@@ -1,0 +1,1001 @@
+        function initCardView() {
+            const cardView = document.getElementById('cardView');
+            
+            // Safety: if no skills data, show empty state
+            if (!skillsData || !skillsData.skills || skillsData.skills.length === 0) {
+                cardView.innerHTML = '<div style="text-align:center; padding:60px 20px; color:var(--text-muted);">'
+                    + '<div style="font-size:2em; margin-bottom:12px;">🎯</div>'
+                    + '<div style="font-size:1.05em; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">No skills to display</div>'
+                    + '<div style="font-size:0.88em; line-height:1.6;">Switch to the Network view or select a sample profile to explore skills.</div>'
+                    + '</div>';
+                return;
+            }
+            
+            try {
+
+            // ── Dynamic domain grouping — works for ANY profile ──────────────
+            // Strategy: group by role first (uses the profile's own role names),
+            // then fall back to O*NET category, then "Other Skills" catch-all.
+
+            const roleIconMap = {
+                // Common role name patterns → SVG icon name
+                'strategy': 'target', 'vp': 'target', 'director': 'target', 'executive': 'target', 'chief': 'target',
+                'technology': 'tool', 'engineer': 'tool', 'developer': 'tool', 'tech': 'tool', 'software': 'tool',
+                'product': 'layers', 'manager': 'layers',
+                'data': 'database', 'analyst': 'database', 'research': 'database', 'science': 'database',
+                'design': 'compass', 'creative': 'compass', 'ux': 'compass', 'artist': 'compass',
+                'marketing': 'send', 'communication': 'send', 'sales': 'send', 'content': 'send',
+                'hr': 'users', 'talent': 'users', 'people': 'users', 'recruiting': 'users',
+                'finance': 'dollar', 'accounting': 'dollar', 'operations': 'dollar',
+                'pilot': 'compass', 'aviation': 'compass', 'flight': 'compass',
+                'music': 'heart', 'musician': 'heart', 'performer': 'heart',
+                'advocate': 'heart', 'nonprofit': 'heart', 'community': 'heart',
+                'futurist': 'zap', 'innovation': 'zap', 'evangelist': 'zap',
+                'entrepreneur': 'trending-up', 'founder': 'trending-up', 'startup': 'trending-up',
+                'consultant': 'briefcase', 'advisor': 'briefcase',
+            };
+
+            const categoryMeta = {
+                'skill':      { label: 'Skills',       iconName: 'compass' },
+                'ability':    { label: 'Abilities',     iconName: 'zap' },
+                'workstyle':  { label: 'Work Style',    iconName: 'flag' },
+                'unique':     { label: 'Unique Strengths', iconName: 'star' },
+            };
+
+            function getRoleIcon(roleName) {
+                const lower = (roleName || '').toLowerCase();
+                for (const [keyword, iconName] of Object.entries(roleIconMap)) {
+                    if (lower.includes(keyword)) return bpIcon(iconName, 20);
+                }
+                return bpIcon('briefcase', 20);
+            }
+
+            const domains = {};
+
+            // Build role-based domains from the profile's actual roles
+            const profileRoles = skillsData.roles || userData.roles || [];
+            profileRoles.forEach(role => {
+                domains[role.id] = {
+                    label: role.name,
+                    icon: getRoleIcon(role.name),
+                    color: role.color,
+                    skills: []
+                };
+            });
+
+            // Catch-all domains for skills without a role or for category fallback
+            const uncategorized = { label: 'Other Skills', icon: bpIcon('compass', 20), skills: [] };
+
+            // Level priority for sorting within domains
+            const levelPriority = { Mastery: 5, Expert: 4, Advanced: 3, Proficient: 2, Novice: 1 };
+
+            // Assign each skill to its primary role domain, or uncategorized
+            skillsData.skills.forEach(skill => {
+                const skillRoles = skill.roles || (skill.role ? [skill.role] : []);
+                // Try to find a matching domain by ID or name
+                var assigned = false;
+                for (var ri = 0; ri < skillRoles.length && !assigned; ri++) {
+                    var ref = skillRoles[ri];
+                    // Match by direct ID
+                    if (domains[ref]) {
+                        domains[ref].skills.push(skill);
+                        assigned = true;
+                    } else {
+                        // Match by role name
+                        var matchKey = Object.keys(domains).find(function(k) { return domains[k].label === ref; });
+                        if (matchKey) {
+                            domains[matchKey].skills.push(skill);
+                            assigned = true;
+                        }
+                    }
+                }
+                if (!assigned) {
+                    uncategorized.skills.push(skill);
+                }
+            });
+
+            // Decide grouping strategy
+            const totalInRoles = Object.values(domains).reduce((n, d) => n + d.skills.length, 0);
+            const totalSkills = skillsData.skills.length;
+            const finalDomains = {};
+
+            if (totalSkills === 0) {
+                // No skills — nothing to show
+            } else if (totalInRoles >= totalSkills * 0.5) {
+                // Good role coverage (50%+) — use role-based grouping
+                Object.entries(domains).forEach(([id, d]) => {
+                    if (d.skills.length > 0) finalDomains[id] = d;
+                });
+                // Add any uncategorized skills under their category
+                if (uncategorized.skills.length > 0) {
+                    // Sub-bucket uncategorized by O*NET category rather than one big pile
+                    uncategorized.skills.forEach(skill => {
+                        const cat = skill.category || 'skill';
+                        const meta = categoryMeta[cat] || categoryMeta['skill'];
+                        const key = '__cat_' + cat;
+                        if (!finalDomains[key]) {
+                            finalDomains[key] = { label: meta.label, icon: bpIcon(meta.iconName || 'compass', 20), skills: [] };
+                        }
+                        finalDomains[key].skills.push(skill);
+                    });
+                }
+            } else {
+                // Poor role coverage — group everything by O*NET category
+                // This handles profiles where skills lack role assignments
+                skillsData.skills.forEach(skill => {
+                    const cat = skill.category || 'skill';
+                    const meta = categoryMeta[cat] || categoryMeta['skill'];
+                    if (!finalDomains[cat]) {
+                        finalDomains[cat] = { label: meta.label, icon: bpIcon(meta.iconName || 'compass', 20), skills: [] };
+                    }
+                    finalDomains[cat].skills.push(skill);
+                });
+            }
+            
+            // Sort skills within each domain: key/core first, then by level
+            Object.values(finalDomains).forEach(d => {
+                d.skills.sort((a, b) => {
+                    if (a.key && !b.key) return -1;
+                    if (!a.key && b.key) return 1;
+                    return (levelPriority[b.level] || 0) - (levelPriority[a.level] || 0);
+                });
+            });
+
+            let html = '<div class="cards-grid">';
+            
+            Object.entries(finalDomains).forEach(([domainKey, data]) => {
+                if (data.skills.length === 0) return;
+                const domainTitle = data.label || domainKey;
+                
+                html += `
+                    <div class="domain-card">
+                        <div class="domain-header">
+                            <span class="domain-icon">${data.icon}</span>
+                            <span class="domain-title">${escapeHtml(domainTitle)}</span>
+                        </div>
+                        <div class="skills-list">
+                `;
+                
+                data.skills.forEach(skill => {
+                    const levelClass = String(skill.level || 'proficient').toLowerCase();
+                    const keyBadge = skill.key ? '<span class="skill-badge">CORE</span>' : '';
+                    const rolesList = (skill.roles || []).map(roleId => {
+                        const role = skillsData.roles.find(r => r.id === roleId);
+                        return role ? role.name : roleId;
+                    }).join(', ');
+                    
+                    // Get years of experience from skillDetails
+                    const details = skillsData.skillDetails && skillsData.skillDetails[skill.name];
+                    const years = details && details.years ? details.years + ' yrs' : '';
+                    const yearsBadge = years ? `<span class="skill-years">${years}</span>` : '';
+                    
+                    // Get market impact rating (instead of dollar value)
+                    const skillImpact = calculateSkillValue(skill);
+                    const impactColor = getImpactColor(skillImpact.level);
+                    const impactBadge = `<span class="skill-impact-badge" style="background: rgba(${impactColor === '#ef4444' ? '239, 68, 68' : impactColor === '#f59e0b' ? '245, 158, 11' : impactColor === '#3b82f6' ? '59, 130, 246' : '107, 114, 128'}, 0.2); color: ${impactColor}; font-size: 0.7em; padding: 3px 8px; border-radius: 3px; font-weight: 600; white-space: nowrap;">${skillImpact.icon} ${skillImpact.label.toUpperCase()}</span>`;
+                    
+                    // Category badge for all O*NET types + Unique
+                    let categoryBadge = '';
+                    if (skill.category === 'skill') {
+                        categoryBadge = '<span class="skill-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; font-size: 0.7em; padding: 2px 6px; border-radius: 3px; margin-left: 6px;">SKILL</span>';
+                    } else if (skill.category === 'ability') {
+                        categoryBadge = '<span class="skill-badge" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; font-size: 0.7em; padding: 2px 6px; border-radius: 3px; margin-left: 6px;">ABILITY</span>';
+                    } else if (skill.category === 'workstyle') {
+                        categoryBadge = '<span class="skill-badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; font-size: 0.7em; padding: 2px 6px; border-radius: 3px; margin-left: 6px;">WORK STYLE</span>';
+                    } else if (skill.category === 'unique') {
+                        categoryBadge = '<span class="skill-badge" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24; font-size: 0.7em; padding: 2px 6px; border-radius: 3px; margin-left: 6px;">UNIQUE</span>';
+                    }
+                    
+                    // Evidence indicator (v4.16.1)
+                    let evidenceBadge = '';
+                    if (typeof getEvidenceSummary === 'function') {
+                        const evs = getEvidenceSummary(skill);
+                        if (evs.hasGap) {
+                            evidenceBadge = '<span style="font-size:0.65em; color:#fbbf24; margin-left:4px;" title="Evidence gap: claimed ' + evs.claimedLevel + ', evidence supports ' + evs.effectiveLevel + '">\u26A0</span>';
+                        } else if (evs.evidenceCount > 0) {
+                            evidenceBadge = '<span style="font-size:0.65em; color:#10b981; margin-left:4px;" title="' + evs.points + ' evidence pts, ' + evs.evidenceCount + ' outcomes">\u2713</span>';
+                        }
+                        if (evs.verifiedCount > 0) {
+                            evidenceBadge += '<span style="font-size:0.6em; padding:1px 5px; border-radius:6px; background:rgba(16,185,129,0.15); color:#10b981; margin-left:3px; font-weight:600;" title="Verified by ' + evs.verifiedCount + '">\u2713 Verified</span>';
+                        }
+                    }
+                    
+                    html += `
+                        <div class="skill-item ${levelClass}" title="${escapeHtml(rolesList)}" onclick='openSkillModalFromCard("${escapeHtml(skill.name).replace(/'/g, "\\'")}")' style="cursor: pointer;">
+                            <div class="skill-dot" style="background: ${levelColors[skill.level] || '#6b7280'}"></div>
+                            <span class="skill-name">${escapeHtml(skill.name)}</span>
+                            ${categoryBadge}
+                            ${yearsBadge}
+                            ${keyBadge}
+                            ${impactBadge}
+                            ${evidenceBadge}
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            // Role-based skill suggestions
+            var suggestions = getRoleSuggestions();
+            if (suggestions.length > 0) {
+                html += '<div style="margin-top:20px; padding:20px; border-radius:12px; '
+                    + 'background:linear-gradient(135deg, rgba(96,165,250,0.06), rgba(139,92,246,0.04)); '
+                    + 'border:1px solid rgba(96,165,250,0.15);">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
+                    + '<h3 style="font-size:0.92em; font-weight:700; color:var(--accent); margin:0;">'
+                    + bpIcon('lightbulb',16) + ' Suggested Skills for Your Roles</h3>'
+                    + '<span style="font-size:0.72em; color:var(--text-muted);">Based on industry standards</span></div>'
+                    + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+                suggestions.slice(0, 20).forEach(function(s) {
+                    html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:16px; '
+                        + 'font-size:0.82em; cursor:pointer; transition:all 0.15s; '
+                        + 'background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); color:var(--text-secondary);" '
+                        + 'onclick="quickAddSuggested(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\', \'' + escapeHtml(s.level) + '\', \'' + escapeHtml(s.roleId) + '\')" '
+                        + 'title="Expected for ' + escapeHtml(s.reason) + ' (' + escapeHtml(s.level) + ') — click to add">'
+                        + '<span style="font-size:0.9em;">+</span> ' + escapeHtml(s.name)
+                        + '<span style="font-size:0.7em; opacity:0.5;">' + escapeHtml(s.reason) + '</span></span>';
+                });
+                if (suggestions.length > 20) {
+                    html += '<span style="font-size:0.78em; color:var(--text-muted); padding:5px 8px;">+' + (suggestions.length - 20) + ' more</span>';
+                }
+                html += '</div></div>';
+            }
+            
+            cardView.innerHTML = html;
+            } catch (err) {
+                console.error('initCardView error:', err);
+                showToast('Card view failed to load: ' + err.message, 'error');
+                cardView.innerHTML = '<div style="text-align:center; padding:60px 20px; color:var(--text-muted);">'
+                    + '<div style="font-size:2em; margin-bottom:12px;">⚠️</div>'
+                    + '<div style="font-size:1.05em; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">Card view error</div>'
+                    + '<div style="font-size:0.88em; line-height:1.6;">' + escapeHtml(err.message) + '</div>'
+                    + '</div>';
+            }
+        }
+
+        var opportunitiesData = [];
+        var currentMatchThreshold = 20;
+        let currentSkillsView = 'network'; // Track whether showing network or card within Skills Ontology
+        
+        // Initialize user interface on load
+        document.addEventListener('DOMContentLoaded', async () => {
+            // v4.44.35: Check if this is a verification landing page URL
+            if (checkVerificationLandingPage()) return; // Skip normal app init
+            
+            // v4.44.36: Check for showcase mode
+            if (checkShowcaseMode()) return; // Showcase handles its own init
+            
+            // v4.0: Check for magic link sign-in first
+            checkMagicLinkSignIn();
+            
+            // Wait for auth state to resolve
+            await authReadyPromise;
+            
+            // Initialize app and get target view
+            var targetView = await initializeApp();
+            
+            // Initialize site analytics tracker
+            bpTracker.init();
+            bpTracker.trackFunnel('visit');
+            
+            // Detect app mode (demo/waitlisted/invited/active)
+            detectAppMode();
+            checkWaitlistInviteStatus();
+            updateWaitlistCounter();
+            console.log('\uD83C\uDFAF App mode:', appMode, waitlistPosition ? '(#' + waitlistPosition + ')' : '');
+            
+            // If user has profile, set up UI
+            if (userData.initialized) {
+                // Expire stale pending verifications
+                expireStalePendingVerifications();
+                
+                // Update profile chip — signed-in users always show their auth name
+                if (fbUser) {
+                    var authName = fbUser.displayName || fbUser.email.split('@')[0];
+                    updateProfileChip(authName);
+                } else if (userData.profile.name) {
+                    updateProfileChip(userData.profile.name);
+                }
+                
+                // Pre-initialize card view data (doesn't display it)
+                initCardView();
+                
+                // Auto-save every 60 seconds (Firestore + localStorage)
+                setInterval(() => {
+                    saveUserData();
+                    if (fbUser && fbDb) debouncedSave(500);
+                }, 60000);
+            }
+            
+            // Navigate to the target view
+            if (targetView === 'welcome') {
+                switchView('welcome');
+            } else if (targetView === 'admin') {
+                switchView('admin');
+            } else if (targetView === 'blueprint') {
+                switchView('blueprint');
+            } else {
+                // Default: show skills (lazy-init handles network rendering)
+                const isMobile = window.innerWidth <= 768;
+                if (isMobile) {
+                    currentSkillsView = 'card';
+                }
+                switchView('network');
+            }
+            
+            // Final deferred dropdown rebuild - guarantees manifest + auth are both resolved
+            setTimeout(function() { rebuildProfileDropdown(); }, 500);
+            
+            // Dismiss splash screen
+            var splash = document.getElementById('appSplash');
+            if (splash) {
+                var sp2 = document.getElementById('splashProgress');
+                if (sp2) sp2.style.width = '100%';
+                setTimeout(function() {
+                    splash.style.opacity = '0';
+                    setTimeout(function() { splash.remove(); }, 400);
+                }, 300);
+            }
+            
+            // First-visit teaser modal (after splash clears)
+            setTimeout(function() {
+                if (!safeGet('bp_teaser_seen')) {
+                    showTeaserModal();
+                }
+            }, 900);
+        }); // Close DOMContentLoaded
+        
+        var _skipHistoryPush = false;
+
+        // ╔══════════════════════════════════════════════════════════════════╗
+        // ║          REPORTS DASHBOARD — Scouting Report Control Plane       ║
+        // ╚══════════════════════════════════════════════════════════════════╝
+        
+        function initReports() {
+            var el = document.getElementById('reportsView');
+            var demoProfiles = [
+                { name: 'Tyrion Lannister', show: 'Game of Thrones', role: 'Chief of Staff', company: 'United Nations', match: 75, file: 'reports/demos/tyrion-lannister.html', emoji: '🍷', date: 'Feb 22, 2026' },
+                { name: 'Walter White', show: 'Breaking Bad', role: 'Chief Science Officer', company: 'Gray Matter Technologies', match: 82, file: 'reports/demos/walter-white.html', emoji: '⚗️', date: 'Feb 22, 2026' },
+                { name: 'Jim Hopper', show: 'Stranger Things', role: 'Dir. National Crisis Response', company: 'Dept. of Homeland Security', match: 78, file: 'reports/demos/jim-hopper.html', emoji: '🏚️', date: 'Feb 22, 2026' },
+                { name: 'Kendall Roy', show: 'Succession', role: 'Chief Executive Officer', company: 'Waystar Royco', match: 71, file: 'reports/demos/kendall-roy.html', emoji: '👔', date: 'Feb 22, 2026' }
+            ];
+            
+            // Mock analytics data
+            var mockAnalytics = {
+                totalViews: 847,
+                uniqueViewers: 312,
+                shortlisted: 23,
+                notesReceived: 8,
+                avgTimeOnPage: '4m 32s',
+                viewsByDay: [12, 28, 45, 67, 89, 102, 95, 78, 112, 134, 85],
+                sectionHeatmap: [
+                    { name: 'Skills Network', pct: 94 },
+                    { name: 'Gap Analysis', pct: 82 },
+                    { name: 'Values Alignment', pct: 76 },
+                    { name: 'Outcomes', pct: 71 },
+                    { name: 'Credentials', pct: 63 },
+                    { name: 'Competency Domains', pct: 48 },
+                    { name: 'Compensation', pct: 41 }
+                ]
+            };
+            
+            // Saved reports from actual pipeline jobs
+            var savedReports = (userData.savedJobs || []).filter(function(j) { return j && j.title && j.matchData; }).map(function(j, i) {
+                var score = (j.matchData && j.matchData.score) || 0;
+                var addedDate = j.addedAt ? new Date(j.addedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown';
+                return { title: j.title, company: j.company || 'Unknown', match: score, date: addedDate };
+            });
+            
+            var scoreColor = function(s) { return s >= 70 ? 'var(--c-success, #10b981)' : s >= 50 ? 'var(--c-warning, #f59e0b)' : 'var(--c-danger, #ef4444)'; };
+            
+            // ── Build dashboard HTML ────────────────────────────
+            var html = '';
+            html += '<div class="blueprint-container">';
+            
+            // Header
+            html += ''
+                + '<div style="text-align:center; margin-bottom:20px;">'
+                + '<button onclick="showScoutingReportPicker()" style="padding:10px 20px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-size:0.9em; white-space:nowrap;">'
+                + bpIcon('plus', 16) + ' New Report</button>'
+                + '</div>';
+            
+            // ── Analytics Overview Cards ────────────────────────
+            html += '<div style="position:relative;">'
+                + '<div style="position:absolute; top:8px; right:12px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); font-weight:600;">PREVIEW — sample data</div>'
+                + '<div class="rpt-metrics">'
+                + '<div class="rpt-metric-card">'
+                + '<div class="rpt-metric-n">' + mockAnalytics.totalViews.toLocaleString() + '</div>'
+                + '<div class="rpt-metric-l">' + bpIcon('eye', 14) + ' Total Views</div>'
+                + '<div class="rpt-metric-sub">' + mockAnalytics.uniqueViewers + ' unique viewers</div></div>'
+                + '<div class="rpt-metric-card">'
+                + '<div class="rpt-metric-n" style="color:var(--c-success, #10b981);">' + mockAnalytics.shortlisted + '</div>'
+                + '<div class="rpt-metric-l">' + bpIcon('star', 14) + ' Shortlisted</div>'
+                + '<div class="rpt-metric-sub">by recruiters</div></div>'
+                + '<div class="rpt-metric-card">'
+                + '<div class="rpt-metric-n" style="color:var(--accent);">' + mockAnalytics.notesReceived + '</div>'
+                + '<div class="rpt-metric-l">' + bpIcon('message', 14) + ' Notes Received</div>'
+                + '<div class="rpt-metric-sub">from hiring teams</div></div>'
+                + '<div class="rpt-metric-card">'
+                + '<div class="rpt-metric-n">' + mockAnalytics.avgTimeOnPage + '</div>'
+                + '<div class="rpt-metric-l">' + bpIcon('clock', 14) + ' Avg. Time on Page</div>'
+                + '<div class="rpt-metric-sub">across all reports</div></div>'
+                + '</div>';
+            
+            // ── Section Heatmap ─────────────────────────────────
+            html += '<div class="rpt-card" style="margin-bottom:20px; position:relative;">'
+                + '<div style="position:absolute; top:12px; right:14px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); font-weight:600;">PREVIEW — sample data</div>'
+                + '<div class="rpt-card-h">' + bpIcon('bar-chart', 16) + ' Section Engagement Heatmap</div>'
+                + '<div class="rpt-card-sub">Which sections recruiters spend the most time on</div>'
+                + '<div style="margin-top:16px;">';
+            mockAnalytics.sectionHeatmap.forEach(function(s) {
+                var hue = s.pct > 80 ? 'var(--c-success, #10b981)' : s.pct > 60 ? 'var(--accent, #3b82f6)' : 'var(--text-muted, #64748b)';
+                html += '<div class="rpt-heatmap-row">'
+                    + '<div class="rpt-heatmap-label">' + s.name + '</div>'
+                    + '<div class="rpt-heatmap-track"><div class="rpt-heatmap-fill" style="width:' + s.pct + '%; background:' + hue + ';"></div></div>'
+                    + '<div class="rpt-heatmap-val">' + s.pct + '%</div></div>';
+            });
+            html += '</div></div>';
+            
+            // ── Blind Mode Defaults ─────────────────────────────
+            html += '<div class="rpt-card" style="margin-bottom:20px;">'
+                + '<div class="rpt-card-h">' + bpIcon('privacy', 16) + ' Blind Mode Defaults</div>'
+                + '<div class="rpt-card-sub">Set your default anonymization preferences. Can be overridden per report.</div>'
+                + '<div class="rpt-blind-grid">';
+            var blindToggles = [
+                { id: 'rptBlindIdentity', label: 'Identity (name, photo)', desc: 'Blur name and avatar' },
+                { id: 'rptBlindLocation', label: 'Location', desc: 'Hide geographic details' },
+                { id: 'rptBlindEmployer', label: 'Employer names', desc: 'Blur company references' },
+                { id: 'rptBlindInstitution', label: 'Institution names', desc: 'Blur school and org names' },
+                { id: 'rptBlindOutcomes', label: 'Outcome details', desc: 'Swap to abstracted text' }
+            ];
+            blindToggles.forEach(function(t) {
+                html += '<div class="rpt-blind-row">'
+                    + '<div><div class="rpt-blind-label">' + t.label + '</div>'
+                    + '<div class="rpt-blind-desc">' + t.desc + '</div></div>'
+                    + '<div class="rpt-toggle" id="' + t.id + '" onclick="this.classList.toggle(\'on\')"></div>'
+                    + '</div>';
+            });
+            html += '</div></div>';
+            
+            // ── Share Link Management ───────────────────────────
+            html += '<div class="rpt-card" style="margin-bottom:20px; position:relative;">'
+                + '<div style="position:absolute; top:12px; right:14px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); font-weight:600;">PREVIEW — sample data</div>'
+                + '<div class="rpt-card-h">' + bpIcon('external', 16) + ' Share Link Management</div>'
+                + '<div class="rpt-card-sub">Create, expire, and revoke share links for your reports.</div>'
+                + '<div style="margin-top:16px;">'
+                + '<table class="rpt-table"><thead><tr><th>Report</th><th>Link</th><th>Created</th><th>Status</th><th></th></tr></thead><tbody>'
+                + '<tr><td style="font-weight:600;">CSO — Gray Matter</td><td style="font-family:monospace; font-size:0.82em; color:var(--accent);">bp.link/s/a7b3f2</td><td>Feb 20</td>'
+                + '<td><span class="rpt-status rpt-status-active">Active</span></td>'
+                + '<td><button class="rpt-action-btn" title="Revoke">' + bpIcon('x', 14) + '</button></td></tr>'
+                + '<tr><td style="font-weight:600;">Dir. Crisis Response — DHS</td><td style="font-family:monospace; font-size:0.82em; color:var(--text-muted);">bp.link/s/c9d1e4</td><td>Feb 18</td>'
+                + '<td><span class="rpt-status rpt-status-expired">Expired</span></td>'
+                + '<td><button class="rpt-action-btn" title="Renew">' + bpIcon('clock', 14) + '</button></td></tr>'
+                + '</tbody></table></div></div>';
+            
+            // ── My Reports ──────────────────────────────────────
+            html += '<div class="rpt-card" style="margin-bottom:20px;">'
+                + '<div class="rpt-card-h">' + bpIcon('file-text', 16) + ' My Reports</div>'
+                + '<div class="rpt-card-sub">Generated scouting reports for your job matches.</div>';
+            
+            if (savedReports.length > 0) {
+                html += '<div class="rpt-report-list">';
+                savedReports.forEach(function(r) {
+                    html += '<div class="rpt-report-row">'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="font-weight:600; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + r.title + '</div>'
+                        + '<div style="font-size:0.82em; color:var(--text-secondary);">' + r.company + ' · ' + r.date + '</div></div>'
+                        + '<div style="display:flex; align-items:center; gap:14px;">'
+                        + '<div style="text-align:center; min-width:42px;"><div style="font-weight:800; color:' + scoreColor(r.match) + ';">' + r.match + '%</div><div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase;">Match</div></div>'
+                        + '</div></div>';
+                });
+                html += '</div>';
+            } else {
+                html += '<div style="padding:32px; text-align:center; color:var(--text-muted);">'
+                    + '<div style="font-size:2em; margin-bottom:12px; opacity:0.4;">' + bpIcon('file-text', 40) + '</div>'
+                    + '<div style="font-weight:600; margin-bottom:6px;">No reports yet</div>'
+                    + '<div style="font-size:0.88em; line-height:1.5; margin-bottom:16px;">Save a job from the Jobs tab, then generate a targeted scouting report.</div>'
+                    + '<button onclick="switchView(\'jobs\')" style="padding:8px 18px; border-radius:8px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer;">Go to Jobs</button>'
+                    + '</div>';
+            }
+            html += '</div>';
+            
+            // ── Demo Profiles ───────────────────────────────────
+            html += '<div class="rpt-card" style="margin-bottom:20px;">'
+                + '<div class="rpt-card-h">' + bpIcon('users', 16) + ' Demo Profiles</div>'
+                + '<div class="rpt-card-sub">Preview scouting reports with TV character data to see how the format works.</div>'
+                + '<div class="rpt-demo-grid">';
+            demoProfiles.forEach(function(p) {
+                html += '<div class="rpt-demo-card" onclick="openDemoScoutingReport(\'' + escapeHtml(p.file) + '\', \'' + escapeHtml(p.name).replace(/'/g, "\\'") + '\')">'
+                    + '<div class="rpt-demo-emoji">' + p.emoji + '</div>'
+                    + '<div style="flex:1; min-width:0;">'
+                    + '<div style="font-weight:700; margin-bottom:2px;">' + escapeHtml(p.name) + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--text-muted); margin-bottom:4px;">' + escapeHtml(p.show) + '</div>'
+                    + '<div style="font-size:0.82em; color:var(--text-secondary);">' + escapeHtml(p.role) + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--text-muted);">' + escapeHtml(p.company) + '</div></div>'
+                    + '<div style="text-align:center; min-width:48px;">'
+                    + '<div style="font-size:1.3em; font-weight:800; color:' + scoreColor(p.match) + ';">' + p.match + '%</div>'
+                    + '<div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Match</div></div>'
+                    + '</div>';
+            });
+            html += '</div></div>';
+            
+            // ── Credential Vault (Teaser) ───────────────────────
+            html += '<div class="rpt-card" style="margin-bottom:20px;">'
+                + '<div class="rpt-card-h">' + bpIcon('award', 16) + ' Credential Vault</div>'
+                + '<div class="rpt-card-sub">Manage education, certifications, and verification documents.</div>'
+                + '<div style="padding:28px; text-align:center;">'
+                + '<div style="font-size:1.6em; margin-bottom:10px; opacity:0.35;">🔒</div>'
+                + '<div style="font-weight:600; color:var(--text-secondary); margin-bottom:4px;">Coming Soon</div>'
+                + '<div style="font-size:0.82em; color:var(--text-muted); line-height:1.5;">Upload and manage verified credentials that auto-populate across all scouting reports.</div>'
+                + '</div></div>';
+            
+            // ── Profile Completeness ────────────────────────────
+            var completeness = { outcomes: 0, values: 0, purpose: 0, credentials: 0 };
+            if (window.blueprintData) {
+                completeness.outcomes = (blueprintData.outcomes || []).filter(function(o) { return o.shared; }).length > 0 ? 100 : 0;
+                completeness.values = (blueprintData.values || []).filter(function(v) { return v.selected; }).length > 0 ? 100 : 0;
+                completeness.purpose = blueprintData.purpose ? 100 : 0;
+            }
+            var totalPct = Math.round((completeness.outcomes + completeness.values + completeness.purpose + completeness.credentials) / 4);
+            
+            html += '<div class="rpt-card" style="margin-bottom:32px;">'
+                + '<div class="rpt-card-h">' + bpIcon('target', 16) + ' Profile Completeness</div>'
+                + '<div style="margin-top:14px; display:flex; align-items:center; gap:16px;">'
+                + '<div style="width:64px; height:64px; border-radius:50%; border:4px solid var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.2em; font-weight:800; flex-shrink:0;">' + totalPct + '%</div>'
+                + '<div style="flex:1;">';
+            var sections = [
+                { name: 'Outcomes', pct: completeness.outcomes },
+                { name: 'Values', pct: completeness.values },
+                { name: 'Purpose Statement', pct: completeness.purpose },
+                { name: 'Credentials', pct: completeness.credentials }
+            ];
+            sections.forEach(function(s) {
+                var col = s.pct === 100 ? 'var(--c-success, #10b981)' : 'var(--text-muted)';
+                html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">'
+                    + '<div style="font-size:0.82em; width:120px; color:' + (s.pct === 100 ? 'var(--text-primary)' : 'var(--text-muted)') + ';">' + s.name + '</div>'
+                    + '<div style="flex:1; height:4px; background:var(--c-surface-5, rgba(255,255,255,0.06)); border-radius:2px; overflow:hidden;">'
+                    + '<div style="height:100%; width:' + s.pct + '%; background:' + col + '; border-radius:2px;"></div></div>'
+                    + '<div style="font-size:0.72em; color:' + col + '; min-width:28px; text-align:right;">' + (s.pct === 100 ? '✓' : '—') + '</div></div>';
+            });
+            html += '</div></div></div>';
+            
+            html += '</div>'; // close blueprint-container
+            
+            el.innerHTML = html;
+        }
+        window.initReports = initReports;
+        
+        // Open any demo scouting report in iframe overlay
+        function openDemoScoutingReport(filePath, name, isMismatch) {
+            var existing = document.getElementById('scoutReportOverlay');
+            if (existing) existing.remove();
+            
+            var overlay = document.createElement('div');
+            overlay.id = 'scoutReportOverlay';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px;';
+            
+            var container = document.createElement('div');
+            container.style.cssText = 'width:100%;max-width:1200px;height:90vh;background:var(--bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.5);display:flex;flex-direction:column;';
+            
+            var header = document.createElement('div');
+            header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--elev-1);flex-shrink:0;';
+            header.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="color:var(--accent);">' + bpIcon('target',18) + '</span><span style="font-weight:600;font-size:0.92em;">' + escapeHtml(name || 'Scouting Report') + '</span><span style="font-size:0.72em;padding:2px 8px;border-radius:10px;background:rgba(245,158,11,0.1);color:#f59e0b;font-weight:600;">DEMO</span></div>'
+                + '<button onclick="document.getElementById(\'scoutReportOverlay\').remove()" style="background:none;border:none;color:var(--text-muted);font-size:1.3em;cursor:pointer;padding:4px 8px;border-radius:6px;transition:all 0.2s;" onmouseover="this.style.color=\'var(--accent)\'" onmouseout="this.style.color=\'var(--text-muted)\'">✕</button>';
+            
+            // Context banner for mismatched or generic demo viewing
+            var contextBanner = document.createElement('div');
+            var currentProfileName = (userData.profile && userData.profile.name) || '';
+            var reportCharName = (name || '').split(' \u2192')[0].trim();
+            var showMismatch = isMismatch || (currentProfileName && reportCharName && currentProfileName !== reportCharName);
+            
+            if (showMismatch) {
+                contextBanner.style.cssText = 'padding:10px 20px;background:rgba(245,158,11,0.06);border-bottom:1px solid rgba(245,158,11,0.15);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;';
+                contextBanner.innerHTML = '<div style="font-size:0.8em;color:#d4a017;line-height:1.5;">'
+                    + '<strong>Sample Report:</strong> You\u2019re viewing ' + reportCharName + '\u2019s scouting report. '
+                    + 'During the preview, sample reports are available for select characters. When you build your own Blueprint, reports are generated from your actual skills and job matches.'
+                    + '</div>'
+                    + '<button onclick="sendFeedback(\'report-viewer\')" style="white-space:nowrap;padding:5px 12px;border-radius:6px;border:1px solid rgba(245,158,11,0.2);background:rgba(245,158,11,0.08);color:#fbbf24;font-size:0.72em;font-weight:600;cursor:pointer;">Feedback</button>';
+            } else {
+                contextBanner.style.cssText = 'padding:10px 20px;background:rgba(96,165,250,0.05);border-bottom:1px solid rgba(96,165,250,0.12);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;';
+                contextBanner.innerHTML = '<div style="font-size:0.8em;color:#64748b;line-height:1.5;">'
+                    + 'This is a sample Scouting Report showing how Blueprint builds targeted career intelligence for a specific job. When you build your own Blueprint, these are generated from your actual data.'
+                    + '</div>'
+                    + '<button onclick="sendFeedback(\'report-viewer\')" style="white-space:nowrap;padding:5px 12px;border-radius:6px;border:1px solid rgba(96,165,250,0.2);background:rgba(96,165,250,0.06);color:#60a5fa;font-size:0.72em;font-weight:600;cursor:pointer;">Feedback</button>';
+            }
+            
+            var iframe = document.createElement('iframe');
+            iframe.src = filePath;
+            iframe.style.cssText = 'flex:1;width:100%;border:none;background:var(--bg);';
+            
+            container.appendChild(header);
+            container.appendChild(contextBanner);
+            container.appendChild(iframe);
+            overlay.appendChild(container);
+            document.body.appendChild(overlay);
+            
+            overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+            var escHandler = function(e) { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler); }};
+            document.addEventListener('keydown', escHandler);
+        }
+        window.openDemoScoutingReport = openDemoScoutingReport;
+        
+        // Demo sample report viewer — maps current profile to one of the 4 sample HTML reports
+        function viewDemoSampleReport(format) {
+            closeExportModal();
+            
+            // Map template IDs to available sample reports
+            var sampleReports = {
+                'game-of-thrones': { file: 'reports/demos/tyrion-lannister.html', name: 'Tyrion Lannister \u2192 UN Chief of Staff' },
+                'breaking-bad': { file: 'reports/demos/walter-white.html', name: 'Walter White \u2192 Gray Matter CSO' },
+                'stranger-things': { file: 'reports/demos/jim-hopper.html', name: 'Jim Hopper \u2192 DHS Crisis Response' },
+                'succession': { file: 'reports/demos/kendall-roy.html', name: 'Kendall Roy \u2192 Waystar CEO' }
+            };
+            
+            // Also map individual character IDs to their show's sample
+            var characterToShow = {
+                'tyrion-lannister': 'game-of-thrones', 'cersei-lannister': 'game-of-thrones',
+                'tywin-lannister': 'game-of-thrones', 'petyr-baelish': 'game-of-thrones',
+                'daenerys-targaryen': 'game-of-thrones', 'jon-snow': 'game-of-thrones',
+                'walter-white': 'breaking-bad', 'jesse-pinkman': 'breaking-bad',
+                'gus-fring': 'breaking-bad', 'hank-schrader': 'breaking-bad',
+                'saul-goodman': 'breaking-bad', 'tuco-salamanca': 'breaking-bad',
+                'jim-hopper': 'stranger-things', 'joyce-byers': 'stranger-things',
+                'dustin-henderson': 'stranger-things', 'eleven': 'stranger-things',
+                'steve-harrington': 'stranger-things', 'murray-bauman': 'stranger-things',
+                'kendall-roy': 'succession', 'logan-roy': 'succession',
+                'shiv-roy': 'succession', 'roman-roy': 'succession',
+                'tom-wambsgans': 'succession', 'gerri-kellman': 'succession'
+            };
+            
+            var tid = userData.templateId || '';
+            var showKey = characterToShow[tid] || tid;
+            var sample = sampleReports[showKey];
+            var isMismatch = false;
+            
+            // If current profile doesn't have a matching sample, pick one at random
+            if (!sample) {
+                var keys = Object.keys(sampleReports);
+                sample = sampleReports[keys[Math.floor(Math.random() * keys.length)]];
+                isMismatch = true;
+            }
+            
+            // Check if the sample character matches the current profile
+            var sampleCharName = sample.name.split(' \u2192')[0].trim().toLowerCase();
+            var currentName = ((userData.profile && userData.profile.name) || '').toLowerCase();
+            if (currentName && sampleCharName && currentName !== sampleCharName) {
+                isMismatch = true;
+            }
+            
+            if (format === 'pdf') {
+                showToast('PDF sample preview opening as interactive report. Full PDF generation available with your own profile.', 'info', 3000);
+            }
+            
+            // Open in the existing iframe overlay with a demo explanation banner
+            openDemoScoutingReport(sample.file, sample.name, isMismatch);
+        }
+        window.viewDemoSampleReport = viewDemoSampleReport;
+
+
+        function switchView(view, event) {
+            // Map new view names to existing views
+            if (view === 'skills') view = 'network';
+            if (view === 'jobs') view = 'opportunities';
+            if (view === 'applications') { view = 'opportunities'; jobsSubTab = 'tracker'; }
+            
+            // Track view navigation
+            if (typeof bpTracker !== 'undefined' && bpTracker.sid) bpTracker.trackView(view);
+            
+            // Nav gate removed — all viewers can browse all views.
+            // Mutations are blocked by readOnlyGuard() on each edit action.
+            
+            currentView = view;
+            window.scrollTo(0, 0);
+            
+            // Announce view change to screen readers
+            var viewNames = { network: 'Map', opportunities: 'Jobs', blueprint: 'Blueprint', reports: 'Reports', settings: 'Settings', consent: 'Settings', welcome: 'Home', admin: 'Admin' };
+            var srEl = document.getElementById('srAnnounce');
+            if (srEl) srEl.textContent = (viewNames[view] || view) + ' view';
+            
+            // Push browser history (skip if triggered by popstate)
+            if (!_skipHistoryPush) {
+                history.pushState({ view: view }, '', '#' + view);
+            }
+            // Update nav button active state
+            document.querySelectorAll('.nav-btn').forEach(btn => { btn.classList.remove('active'); btn.removeAttribute('aria-current'); });
+            const navMap = { network: 'nav-skills', skills: 'nav-skills', opportunities: 'nav-jobs', jobs: 'nav-jobs', applications: 'nav-jobs', blueprint: 'nav-blueprint', reports: 'nav-reports', settings: 'nav-settings', consent: 'nav-settings' };
+            const navId = navMap[view] || navMap[currentView];
+            if (navId) { const nb = document.getElementById(navId); if (nb) { nb.classList.add('active'); nb.setAttribute('aria-current', 'page'); } }
+            
+            const networkControls = document.getElementById('networkControls');
+            const skillsViewToggle = document.getElementById('skillsViewToggle');
+            const controls = document.querySelector('.controls');
+            
+            // Hide controls bar — shown only for Skills tab
+            var _cb = document.getElementById('controlsBar'); if (_cb) _cb.style.display = 'none';
+            document.querySelector('.main-content')?.classList.remove('with-filters');
+            document.querySelector('.main-content')?.classList.remove('with-controls');
+            // Track banner state for mobile height calc
+            var hasBanner = document.getElementById('readonlyBanner')?.style.display !== 'none' && document.getElementById('readonlyBanner') !== null;
+            var mc = document.querySelector('.main-content');
+            if (mc) {
+                if (hasBanner) mc.classList.add('with-banner');
+                else mc.classList.remove('with-banner');
+            }
+            
+            // Hide match overlay UI when leaving network view
+            if (view !== 'network') {
+                var mt = document.getElementById('matchModeToggle');
+                var mb = document.getElementById('matchActiveBadge');
+                var ml = document.getElementById('matchLegend');
+                var jt = document.getElementById('jobInfoTile');
+                var ric = document.getElementById('roleInfoCard');
+                var vap = document.getElementById('valuesAlignmentPanel');
+                if (mt) mt.style.display = 'none';
+                if (mb) mb.style.display = 'none';
+                if (ml) ml.remove();
+                if (jt) jt.remove();
+                if (ric) ric.style.display = 'none';
+                if (vap) vap.remove();
+                var mnb = document.getElementById('mobileNetworkBadge');
+                if (mnb) mnb.remove();
+            }
+
+            // Update mobile nav
+            document.querySelectorAll('.mobile-nav-btn').forEach(b => { b.classList.remove('active'); b.removeAttribute('aria-current'); });
+            const mobMap = { network: 'mob-skills', opportunities: 'mob-jobs', applications: 'mob-jobs', blueprint: 'mob-blueprint', reports: 'mob-reports', settings: 'mob-settings', consent: 'mob-settings' };
+            const mobId = mobMap[view];
+            if (mobId) { const mb = document.getElementById(mobId); if (mb) { mb.classList.add('active'); mb.setAttribute('aria-current', 'page'); } }
+
+            // Hide all views
+            var _hideViews = ['welcomeView','networkView','cardView','opportunitiesView','applicationsView','blueprintView','consentView','settingsView','reportsView'];
+            _hideViews.forEach(function(id) { var el = document.getElementById(id); if (el) el.style.display = 'none'; });
+            var _sph = document.getElementById('skillsPageHeader'); if (_sph) _sph.style.display = 'none';
+            var _jsel = document.getElementById('networkJobSelector'); if (_jsel) _jsel.remove();
+            var _ijsel = document.getElementById('inlineJobSelector'); if (_ijsel) { _ijsel.style.display = 'none'; _ijsel.innerHTML = ''; }
+            var _jdrop = document.getElementById('jobSelectorDropdown'); if (_jdrop) _jdrop.remove();
+            var adminV = document.getElementById('adminView');
+            if (adminV) adminV.style.display = 'none';
+            if (controls) controls.style.display = 'none';
+            
+            // Toggle readonly banner: hide on non-profile views, show on profile views when viewing a sample
+            var roBanner = document.getElementById('readonlyBanner');
+            if (roBanner) {
+                if (view === 'welcome' || view === 'consent' || view === 'admin') {
+                    roBanner.style.display = 'none';
+                } else if (isReadOnlyProfile) {
+                    roBanner.style.cssText = 'display:block !important; text-align:center; padding:10px 16px; font-size:0.88em; word-spacing:normal; white-space:normal;';
+                }
+            }
+            
+            // Hide app footer on welcome view (welcome has its own disclaimer)
+            var appFooter = document.getElementById('appFooter');
+            if (appFooter) {
+                appFooter.style.display = (view === 'welcome' || view === 'admin') ? 'none' : 'block';
+            }
+            
+            // Show selected view
+            if (view === 'welcome') {
+                var wv = document.getElementById('welcomeView');
+                if (wv) wv.style.display = 'block';
+                // Render welcome unless picker already set custom content
+                if (!window._welcomePickerActive) {
+                    renderWelcomePage();
+                }
+                window._welcomePickerActive = false;
+            } else if (view === 'network') {
+                // Skills Ontology view
+                var sph = document.getElementById('skillsPageHeader'); if (sph) sph.style.display = 'none';
+                if (controls) controls.style.display = 'flex';
+                document.querySelector('.main-content')?.classList.add('with-controls');
+                // Sync toggle pills with current sub-view
+                document.querySelectorAll('#skillsViewToggle .view-pill').forEach(function(chip) {
+                    chip.classList.toggle('active', chip.dataset.view === currentSkillsView);
+                });
+                if (currentSkillsView === 'network') {
+                    var _nv = document.getElementById('networkView'); if (_nv) _nv.style.display = 'block';
+                    // Show label toggles on desktop
+                    var _lt = document.getElementById('networkLabelToggles');
+                    if (_lt) _lt.style.display = window.innerWidth >= 768 ? 'flex' : 'none';
+                    // networkControls visibility managed by parent controls bar
+                    // Hide filter button in network view (filtering via node clicks)
+                    var fBtn = document.getElementById('filterToggleBtn');
+                    var fPnl = document.getElementById('filterPanel');
+                    if (fBtn) fBtn.style.display = 'none';
+                    if (fPnl) fPnl.classList.remove('open');
+                    // Show network filter pill if role active
+                    var nfp = document.getElementById('networkFilterPill');
+                    if (nfp) nfp.style.display = (activeRole && activeRole !== 'all') ? 'flex' : 'none';
+                    // Lazy-init network SVG on first visit
+                    if (!window.networkInitialized) {
+                        initNetwork();
+                        window.networkInitialized = true;
+                    }
+                    // Always render job selector when entering network view
+                    setTimeout(function() { renderJobSelectorWidget(); }, 100);
+                    // Restore match overlay UI if a job is active
+                    if (activeJobForNetwork) {
+                        updateMatchOverlayUI();
+                        // Re-render the match/job network since overlays were removed on view exit
+                        if (networkMatchMode !== 'you') {
+                            setNetworkMatchMode(networkMatchMode);
+                        }
+                    }
+                } else {
+                    var _cvEl = document.getElementById('cardView'); if (_cvEl) _cvEl.style.display = 'block';
+                    // Hide label toggles in card view
+                    var _lt2 = document.getElementById('networkLabelToggles');
+                    if (_lt2) _lt2.style.display = 'none';
+                    // networkControls visibility managed by parent controls bar
+                    // Render job selector for card view too
+                    setTimeout(function() { renderJobSelectorWidget(); }, 100);
+                    // Hide filter button in card view (removed for cleaner UX)
+                    var fBtn2 = document.getElementById('filterToggleBtn');
+                    if (fBtn2) fBtn2.style.display = 'none';
+                    var fPnl3 = document.getElementById('filterPanel');
+                    if (fPnl3) { fPnl3.classList.remove('open'); fPnl3.style.display = 'none'; }
+                    // Hide network filter pill
+                    var nfp2 = document.getElementById('networkFilterPill');
+                    if (nfp2) nfp2.style.display = 'none';
+                    if (!window.cardViewInitialized) {
+                        initCardView();
+                        window.cardViewInitialized = true;
+                    }
+                }
+                updateStatsBar();
+            } else if (view === 'opportunities') {
+                var _ovEl = document.getElementById('opportunitiesView'); if (_ovEl) _ovEl.style.display = 'block';
+                if (!window.opportunitiesInitialized) {
+                    initOpportunities();
+                    window.opportunitiesInitialized = true;
+                } else {
+                    // Re-render to reflect current sub-tab (e.g. tracker from applications redirect)
+                    initOpportunities();
+                }
+                updateStatsBar();
+            } else if (view === 'applications') {
+                var _avEl = document.getElementById('applicationsView'); if (_avEl) _avEl.style.display = 'block';
+                if (!window.applicationsInitialized) {
+                    initApplications();
+                    window.applicationsInitialized = true;
+                }
+                updateStatsBar();
+            } else if (view === 'blueprint') {
+                var _bvEl = document.getElementById('blueprintView'); if (_bvEl) _bvEl.style.display = 'block';
+                if (!window.blueprintInitialized) {
+                    initBlueprint();
+                    window.blueprintInitialized = true;
+                }
+                updateStatsBar();
+            } else if (view === 'consent') {
+                var _cnvEl = document.getElementById('consentView'); if (_cnvEl) _cnvEl.style.display = 'block';
+                if (!window.consentInitialized) {
+                    initConsent();
+                    window.consentInitialized = true;
+                }
+                updateStatsBar();
+            } else if (view === 'reports') {
+                var _rpvEl = document.getElementById('reportsView'); if (_rpvEl) _rpvEl.style.display = 'block';
+                if (!window.reportsInitialized) {
+                    initReports();
+                    window.reportsInitialized = true;
+                }
+                updateStatsBar();
+            } else if (view === 'settings') {
+                var _svEl = document.getElementById('settingsView'); if (_svEl) _svEl.style.display = 'block';
+                if (!window.settingsInitialized) {
+                    initSettings();
+                    window.settingsInitialized = true;
+                }
+                updateStatsBar();
+            } else if (view === 'admin') {
+                var av = document.getElementById('adminView');
+                if (av) {
+                    av.style.display = 'block';
+                    initAdminView();
+                }
+            }
+        }
+        
+        function toggleSkillsView(view) {
+            currentSkillsView = view;
+            document.querySelectorAll('#skillsViewToggle .view-pill').forEach(chip => {
+                chip.classList.toggle('active', chip.dataset.view === view);
+            });
+            
+            const networkControls = document.getElementById('networkControls');
+            var matchToggle = document.getElementById('matchModeToggle');
+            var matchBadge = document.getElementById('matchActiveBadge');
+            
+            if (view === 'network') {
+                var nv = document.getElementById('networkView');
+                var cv = document.getElementById('cardView');
+                if (nv) nv.style.display = 'block';
+                if (cv) cv.style.display = 'none';
+                // networkControls visibility managed by parent controls bar
+                // Show label toggles on desktop
+                var labelToggles = document.getElementById('networkLabelToggles');
+                if (labelToggles) labelToggles.style.display = window.innerWidth >= 768 ? 'flex' : 'none';
+                // Lazy-init network if needed (e.g. after profile switch)
+                if (!window.networkInitialized) {
+                    initNetwork();
+                    window.networkInitialized = true;
+                }
+                // Hide filter button/panel in network view (filtering via node clicks)
+                var filterBtn = document.getElementById('filterToggleBtn');
+                var filterPnl = document.getElementById('filterPanel');
+                if (filterBtn) filterBtn.style.display = 'none';
+                if (filterPnl) filterPnl.classList.remove('open');
+                // Show network filter pill if a role is active
+                var nfPill = document.getElementById('networkFilterPill');
+                if (nfPill) nfPill.style.display = (activeRole && activeRole !== 'all') ? 'flex' : 'none';
+                // Show match UI if a job is active
+                if (activeJobForNetwork) {
+                    if (matchToggle) matchToggle.style.display = 'inline-flex';
+                    // Update badge title (was stuck on "Loading..." default)
+                    var badgeTitle = document.getElementById('matchActiveTitle');
+                    if (badgeTitle) badgeTitle.textContent = activeJobForNetwork.title || 'Job Match';
+                    if (matchBadge) matchBadge.style.display = 'inline-flex';
+                    // Re-render the appropriate overlay network
+                    if (networkMatchMode === 'match') {
+                        initMatchNetwork(activeJobForNetwork);
+                    } else if (networkMatchMode === 'values') {
+                        initValuesNetwork(activeJobForNetwork);
+                    } else if (networkMatchMode === 'job') {
+                        initJobNetwork(activeJobForNetwork);
+                    } else {
+                        // 'you' mode — standard network
+                        window.networkInitialized = false;
+                        initNetwork();
+                        window.networkInitialized = true;
+                    }
+                }
+            } else {
+                var nv2 = document.getElementById('networkView');
+                var cv2 = document.getElementById('cardView');
+                if (nv2) nv2.style.display = 'none';
+                if (cv2) cv2.style.display = 'block';
+                // networkControls visibility managed by parent controls bar
+                var labelToggles2 = document.getElementById('networkLabelToggles');
+                if (labelToggles2) labelToggles2.style.display = 'none';
+                // Lazy-init card view if needed (e.g. after profile switch)
+                if (!window.cardViewInitialized) {
+                    initCardView();
+                    window.cardViewInitialized = true;
+                }
+                // Hide filter button/panel in card view (removed for cleaner UX)
+                var filterBtn2 = document.getElementById('filterToggleBtn');
+                if (filterBtn2) filterBtn2.style.display = 'none';
+                var filterPnl2 = document.getElementById('filterPanel');
+                if (filterPnl2) { filterPnl2.classList.remove('open'); filterPnl2.style.display = 'none'; }
+                // Hide network filter pill in card view
+                var nfPill2 = document.getElementById('networkFilterPill');
+                if (nfPill2) nfPill2.style.display = 'none';
+                // Hide match UI on card view
+                if (matchToggle) matchToggle.style.display = 'none';
+                if (matchBadge) matchBadge.style.display = 'none';
+            }
+        }
+        
+        function updateStatsBar() {
+            const statsBar = document.getElementById('statsBar');
+            if (currentView === 'network') {
+                // Calculate total market value
+                const totalValue = getEffectiveComp();
+                const valueFormatted = totalValue.displayComp > 0 ? formatCompValue(totalValue.displayComp) : '';
+                const valueDisplay = valueFormatted ? ` • <span style="color: #10b981; font-weight: 700;">${totalValue.compLabel}: ${valueFormatted}/yr</span>` : '';
+                
+                // Dynamic counts by category
+                const skillCount = userData.skills?.length || 0;
+                const roleCount = userData.roles?.length || 0;
+                const onetSkillsCount = userData.skills?.filter(s => s.category === 'skill').length || 0;
+                const abilitiesCount = userData.skills?.filter(s => s.category === 'ability').length || 0;
+                const workStylesCount = userData.skills?.filter(s => s.category === 'workstyle').length || 0;
+                const uniqueCount = userData.skills?.filter(s => s.category === 'unique').length || 0;
+                
+                // Show detailed breakdown for v2.0.6 comprehensive model

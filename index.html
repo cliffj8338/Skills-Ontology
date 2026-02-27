@@ -1,4 +1,4 @@
-<!-- v4.44.96 | 2026-02-27 | WBW Step 3 add-button fix, Firestore WB key limit raised to 50 -->
+<!-- v4.44.97 | 2026-02-27 | WB Clone, Blueprint Advantage comparison, sourceJD preservation -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.44.96 - BUILD 20260227-step3-fix
-        var BP_VERSION = 'v4.44.96';
+        // BLUEPRINT v4.44.97 - BUILD 20260227-compare
+        var BP_VERSION = 'v4.44.97';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2100,7 +2100,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260227-step3-fix                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260227-compare                      ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -7666,7 +7666,7 @@
             if (!_jdcBulkResults.length) { showToast('No bulk results to export.', 'warning'); return; }
             var exportData = _jdcBulkResults.map(function(bp) {
                 var copy = Object.assign({}, bp);
-                delete copy._rawJD;
+                if (copy._rawJD) { copy.sourceJD = copy._rawJD; delete copy._rawJD; }
                 return copy;
             });
             var blob = new Blob([JSON.stringify({ blueprints: exportData, count: exportData.length, generatedAt: new Date().toISOString(), generatedBy: 'Blueprint Work Blueprint Converter' }, null, 2)], { type: 'application/json' });
@@ -8885,7 +8885,7 @@
 
         function _jdcPrepareExport(result) {
             var d = Object.assign({}, result || _jdcResult);
-            delete d._rawJD;
+            if (d._rawJD) { d.sourceJD = d._rawJD; delete d._rawJD; }
             d.generatedAt = d.generatedAt || new Date().toISOString();
             d.generatedBy = 'Blueprint\u2122 \u00B7 myblueprint.work';
             return d;
@@ -10141,6 +10141,7 @@
                     + '<div style="flex:1; min-width:0;">'
                     + '<div style="font-weight:600; font-size:0.95em; color:var(--c-heading-bold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(bp.title || 'Untitled') + '</div>'
                     + '<div style="font-size:0.8em; color:var(--c-muted); margin-top:3px;">' + escapeHtml(bp.company || '') + (bp.location ? ' \u00B7 ' + escapeHtml(bp.location) : '') + ' \u00B7 ' + (bp.skills ? bp.skills.length : 0) + ' skills' + (savedDate ? ' \u00B7 ' + savedDate : '') + '</div></div>'
+                    + '<button onclick="event.stopPropagation(); wbRepoClone(' + idx + ')" style="background:none; border:none; color:var(--accent, #60a5fa); cursor:pointer; padding:6px 10px; font-size:0.85em; opacity:0.8; border-radius:6px; transition:opacity 0.15s, background 0.15s;" onmouseover="this.style.opacity=\'1\'; this.style.background=\'rgba(96,165,250,0.1)\';" onmouseout="this.style.opacity=\'0.8\'; this.style.background=\'none\';" title="Clone">' + bpIcon('copy',16) + '</button>'
                     + '<button onclick="event.stopPropagation(); wbRepoDelete(\'' + (bp.id || '').replace(/'/g, "\\'") + '\')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:6px 10px; font-size:0.85em; opacity:0.8; border-radius:6px; transition:opacity 0.15s, background 0.15s;" onmouseover="this.style.opacity=\'1\'; this.style.background=\'rgba(239,68,68,0.1)\';" onmouseout="this.style.opacity=\'0.8\'; this.style.background=\'none\';" title="Delete">' + bpIcon('trash',16) + '</button>'
                     + '</div>';
             });
@@ -10153,9 +10154,12 @@
                     + '<button onclick="wbRepoExport(\'pdf\')" style="padding:8px 16px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('download',14) + ' Export PDF</button>'
                     + '<button onclick="wbRepoExport(\'word\')" style="padding:8px 16px; background:#2563eb; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('download',14) + ' Export Word</button>'
                     + '<button onclick="wbRepoEditModal(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('edit',14) + ' Edit</button>'
+                    + '<button onclick="wbRepoClone(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:var(--c-surface-3); color:var(--accent, #60a5fa); border:1px solid rgba(96,165,250,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('copy',14) + ' Clone</button>'
+                    + '<button onclick="wbRepoCompare(' + _wbRepoViewIdx + ')" style="padding:8px 16px; background:linear-gradient(135deg, #10b981, #3b82f6); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.85em; box-shadow:0 2px 8px rgba(16,185,129,0.3);">' + bpIcon('trending-up',14) + ' Compare</button>'
                     + '<button onclick="wbRepoDelete(\'' + (viewBp.id || '').replace(/'/g, "\\'") + '\')" style="padding:8px 16px; background:none; color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">' + bpIcon('trash',14) + ' Delete</button>'
                     + '</div>';
                 html += renderWorkBlueprint(viewBp, false, { hideButtons: true });
+                html += '<div id="wbCompareContainer"></div>';
             }
 
             html += '</div>';
@@ -10218,6 +10222,329 @@
             }
         }
         window.wbRepoDelete = wbRepoDelete;
+
+        function wbRepoClone(idx) {
+            if (!fbUser) { showToast('You must be signed in to clone blueprints.', 'warning'); return; }
+            if (!fbDb) { showToast('Database not available. Try refreshing.', 'error'); return; }
+            if (!_wbRepoCache || !_wbRepoCache[idx]) { showToast('Blueprint not found.', 'error'); return; }
+            var src = _wbRepoCache[idx];
+            var clone = JSON.parse(JSON.stringify(src));
+            delete clone.id;
+            clone.title = (clone.title || 'Untitled') + ' (Copy)';
+            clone.createdAt = new Date().toISOString();
+            clone.clonedFrom = src.id || null;
+            showToast('Cloning blueprint...', 'info', 2000);
+            try {
+                fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').add(Object.assign({}, clone, { savedAt: firebase.firestore.FieldValue.serverTimestamp() }))
+                    .then(function(docRef) {
+                        showToast('Blueprint cloned successfully.', 'success');
+                        logAnalyticsEvent('wb_cloned', { sourceId: src.id || '', newId: docRef.id, title: clone.title });
+                        _wbRepoCache = null;
+                        _wbRepoViewIdx = -1;
+                        renderAdminWBRepo(document.getElementById('adminTabContent'));
+                    })
+                    .catch(function(err) {
+                        console.error('WB Repository clone error:', err);
+                        var msg = err.message || '';
+                        if (err.code === 'permission-denied' || msg.indexOf('permission') !== -1 || msg.indexOf('PERMISSION_DENIED') !== -1) {
+                            showToast('Permission denied. Firestore rules may need to be deployed. Contact admin.', 'error', 8000);
+                        } else {
+                            showToast('Clone failed: ' + (msg || 'Unknown error. Check your connection.'), 'error', 6000);
+                        }
+                    });
+            } catch(e) {
+                console.error('WB clone exception:', e);
+                showToast('Clone error: ' + e.message, 'error', 6000);
+            }
+        }
+        window.wbRepoClone = wbRepoClone;
+
+        var _wbCompareCandidate = null;
+        function _wbLoadCompareCandidate() {
+            if (_wbCompareCandidate) return Promise.resolve(_wbCompareCandidate);
+            return fetch('profiles/demo/comparison-candidate.json').then(function(r) { return r.json(); }).then(function(data) {
+                _wbCompareCandidate = data;
+                return data;
+            });
+        }
+
+        function _wbCompareRawJDMatch(rawJDText, candidate) {
+            var origSkills = window.skillsData ? JSON.parse(JSON.stringify(window.skillsData.skills || [])) : [];
+            window.skillsData = window.skillsData || {};
+            try {
+                window.skillsData.skills = JSON.parse(JSON.stringify(candidate.skills || []));
+                var parsed = parseJobLocally(rawJDText);
+                var matchResult = matchJobToProfile(parsed);
+                var companyVals = inferCompanyValuesFromJD(rawJDText);
+                var valResult = null;
+                if (companyVals && candidate.values) {
+                    valResult = computeValuesAlignment(candidate.values, companyVals);
+                }
+                return {
+                    score: matchResult.score,
+                    matched: matchResult.matched || [],
+                    gaps: matchResult.gaps || [],
+                    surplus: matchResult.surplus || [],
+                    totalJobSkills: matchResult.totalJobSkills || 0,
+                    skillsExtracted: (parsed.skills || []).length,
+                    parsedTitle: parsed.title || '',
+                    valuesScore: valResult ? valResult.score : 0,
+                    valuesAligned: valResult ? (valResult.aligned || []).length : 0,
+                    valuesDetail: valResult,
+                    companyValues: companyVals
+                };
+            } finally {
+                window.skillsData.skills = origSkills;
+            }
+        }
+
+        function _wbCompareStructuredMatch(wb, candidate) {
+            var origSkills = window.skillsData ? JSON.parse(JSON.stringify(window.skillsData.skills || [])) : [];
+            window.skillsData = window.skillsData || {};
+            try {
+                window.skillsData.skills = JSON.parse(JSON.stringify(candidate.skills || []));
+                var jobSkills = (wb.skills || []).map(function(s) {
+                    var bl = s.blueprintLevel || s.level || 'Proficient';
+                    return {
+                        name: s.name,
+                        requirement: 'Required',
+                        proficiency: bl,
+                        category: s.category || 'General'
+                    };
+                });
+                var matchResult = matchJobToProfile({ skills: jobSkills, roles: [] });
+                var wbValues = (wb.values || []).map(function(v) {
+                    return { name: v.name || v, desc: v.desc || v.description || '' };
+                });
+                var companyValObj = {
+                    primary: wbValues.slice(0, 3).map(function(v) { return v.name; }),
+                    secondary: wbValues.slice(3, 6).map(function(v) { return v.name; }),
+                    tensions: [],
+                    story: '',
+                    inferred: false
+                };
+                var valResult = null;
+                if (wbValues.length > 0 && candidate.values) {
+                    valResult = computeValuesAlignment(candidate.values, companyValObj);
+                }
+                return {
+                    score: matchResult.score,
+                    matched: matchResult.matched || [],
+                    gaps: matchResult.gaps || [],
+                    surplus: matchResult.surplus || [],
+                    totalJobSkills: matchResult.totalJobSkills || 0,
+                    skillsUsed: jobSkills.length,
+                    valuesScore: valResult ? valResult.score : 0,
+                    valuesAligned: valResult ? (valResult.aligned || []).length : 0,
+                    valuesDetail: valResult,
+                    companyValues: companyValObj,
+                    wbValues: wbValues
+                };
+            } finally {
+                window.skillsData.skills = origSkills;
+            }
+        }
+
+        function _wbCompareGauge(score, label, color, muted) {
+            var radius = 54, stroke = 10, circ = 2 * Math.PI * radius;
+            var pct = Math.max(0, Math.min(100, score));
+            var offset = circ - (pct / 100) * circ;
+            var bgColor = muted ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.08)';
+            return '<div style="text-align:center;">'
+                + '<svg width="130" height="130" viewBox="0 0 130 130">'
+                + '<circle cx="65" cy="65" r="' + radius + '" fill="none" stroke="' + bgColor + '" stroke-width="' + stroke + '" />'
+                + '<circle cx="65" cy="65" r="' + radius + '" fill="none" stroke="' + color + '" stroke-width="' + stroke + '" '
+                + 'stroke-dasharray="' + circ + '" stroke-dashoffset="' + offset + '" stroke-linecap="round" '
+                + 'transform="rotate(-90 65 65)" style="transition: stroke-dashoffset 1s ease;" />'
+                + '<text x="65" y="62" text-anchor="middle" fill="' + color + '" font-size="28" font-weight="700" font-family="Outfit,sans-serif">' + pct + '%</text>'
+                + '<text x="65" y="82" text-anchor="middle" fill="var(--c-muted)" font-size="11">' + label + '</text>'
+                + '</svg></div>';
+        }
+
+        function _wbRenderComparison(wb, rawResult, structResult, candidate) {
+            var cp = (candidate && candidate.profile) || {};
+            rawResult = rawResult || { score: 0, matched: [], gaps: [], skillsExtracted: 0, valuesScore: 0 };
+            structResult = structResult || { score: 0, matched: [], gaps: [], skillsUsed: 0, valuesScore: 0 };
+            var html = '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:14px; padding:28px; margin-top:20px;">';
+            html += '<div style="text-align:center; margin-bottom:24px;">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:800; font-size:1.4em; color:var(--c-heading-bold); margin-bottom:6px;">'
+                + bpIcon('blueprint', 22) + ' Blueprint Advantage\u2122</div>'
+                + '<div style="font-size:0.88em; color:var(--c-muted); line-height:1.5;">Same role. Same candidate. <strong>Dramatically different intelligence.</strong></div>'
+                + '<div style="font-size:0.8em; color:var(--c-muted); margin-top:4px;">Candidate: <strong>' + escapeHtml(cp.name || 'Demo Candidate') + '</strong> \u2014 ' + escapeHtml(cp.currentTitle || '') + '</div>'
+                + '</div>';
+
+            html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px;">';
+
+            var beforeColor = '#6b7280';
+            var afterColor = '#10b981';
+
+            html += '<div style="background:rgba(107,114,128,0.06); border:1px solid rgba(107,114,128,0.2); border-radius:12px; padding:20px;">'
+                + '<div style="text-align:center; font-family:Outfit,sans-serif; font-weight:700; font-size:1em; color:' + beforeColor + '; margin-bottom:16px; text-transform:uppercase; letter-spacing:1px;">'
+                + bpIcon('file',16) + ' Traditional JD</div>'
+                + _wbCompareGauge(rawResult.score, 'Match Score', beforeColor, true)
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px;">'
+                + '<div style="background:var(--c-surface-2); border-radius:8px; padding:10px; text-align:center;">'
+                + '<div style="font-size:1.4em; font-weight:700; color:' + beforeColor + ';">' + rawResult.skillsExtracted + '</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted);">Skills Found</div></div>'
+                + '<div style="background:var(--c-surface-2); border-radius:8px; padding:10px; text-align:center;">'
+                + '<div style="font-size:1.4em; font-weight:700; color:' + beforeColor + ';">' + rawResult.matched.length + '</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted);">Skills Matched</div></div>'
+                + '<div style="background:var(--c-surface-2); border-radius:8px; padding:10px; text-align:center;">'
+                + '<div style="font-size:1.4em; font-weight:700; color:' + beforeColor + ';">' + rawResult.gaps.length + '</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted);">Gaps Found</div></div>'
+                + '<div style="background:var(--c-surface-2); border-radius:8px; padding:10px; text-align:center;">'
+                + '<div style="font-size:1.4em; font-weight:700; color:' + beforeColor + ';">' + rawResult.valuesScore + '%</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted);">Values Fit</div></div>'
+                + '</div>'
+                + '<div style="margin-top:12px; font-size:0.78em; color:var(--c-muted); line-height:1.5;">'
+                + '<div style="font-weight:600; margin-bottom:4px; color:' + beforeColor + ';">How it works:</div>'
+                + 'Keyword scanning of unstructured text. No proficiency context. No seniority weighting. Values guessed from word frequency.'
+                + '</div>'
+                + '</div>';
+
+            html += '<div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); border-radius:12px; padding:20px;">'
+                + '<div style="text-align:center; font-family:Outfit,sans-serif; font-weight:700; font-size:1em; color:' + afterColor + '; margin-bottom:16px; text-transform:uppercase; letter-spacing:1px;">'
+                + bpIcon('blueprint',16) + ' Work Blueprint\u2122</div>'
+                + _wbCompareGauge(structResult.score, 'Match Score', afterColor, false)
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px;">'
+                + '<div style="background:var(--c-surface-2); border-radius:8px; padding:10px; text-align:center;">'
+                + '<div style="font-size:1.4em; font-weight:700; color:' + afterColor + ';">' + structResult.skillsUsed + '</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted);">Structured Skills</div></div>'
+                + '<div style="background:var(--c-surface-2); border-radius:8px; padding:10px; text-align:center;">'
+                + '<div style="font-size:1.4em; font-weight:700; color:' + afterColor + ';">' + structResult.matched.length + '</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted);">Skills Matched</div></div>'
+                + '<div style="background:var(--c-surface-2); border-radius:8px; padding:10px; text-align:center;">'
+                + '<div style="font-size:1.4em; font-weight:700; color:' + afterColor + ';">' + structResult.gaps.length + '</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted);">Gaps Found</div></div>'
+                + '<div style="background:var(--c-surface-2); border-radius:8px; padding:10px; text-align:center;">'
+                + '<div style="font-size:1.4em; font-weight:700; color:' + afterColor + ';">' + structResult.valuesScore + '%</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted);">Values Fit</div></div>'
+                + '</div>'
+                + '<div style="margin-top:12px; font-size:0.78em; color:var(--c-muted); line-height:1.5;">'
+                + '<div style="font-weight:600; margin-bottom:4px; color:' + afterColor + ';">How it works:</div>'
+                + 'Structured skills with proficiency levels. Seniority-weighted requirements. Explicit values alignment. Industry-contextualized intelligence.'
+                + '</div>'
+                + '</div>';
+
+            html += '</div>';
+
+            var scoreDelta = structResult.score - rawResult.score;
+            var matchDelta = structResult.matched.length - rawResult.matched.length;
+            var valDelta = structResult.valuesScore - rawResult.valuesScore;
+
+            html += '<div style="background:linear-gradient(135deg, rgba(16,185,129,0.08), rgba(59,130,246,0.08)); border:1px solid rgba(16,185,129,0.2); border-radius:12px; padding:20px; margin-bottom:20px;">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:var(--c-heading-bold); margin-bottom:12px;">'
+                + bpIcon('trending-up',18) + ' The Blueprint Advantage</div>'
+                + '<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-bottom:14px;">'
+                + '<div style="text-align:center; padding:12px; background:var(--c-surface-1); border-radius:10px;">'
+                + '<div style="font-size:1.6em; font-weight:800; color:' + (scoreDelta > 0 ? '#10b981' : 'var(--c-heading)') + ';">+' + Math.max(0, scoreDelta) + '%</div>'
+                + '<div style="font-size:0.75em; color:var(--c-muted);">Match Accuracy</div></div>'
+                + '<div style="text-align:center; padding:12px; background:var(--c-surface-1); border-radius:10px;">'
+                + '<div style="font-size:1.6em; font-weight:800; color:' + (matchDelta > 0 ? '#10b981' : 'var(--c-heading)') + ';">+' + Math.max(0, matchDelta) + '</div>'
+                + '<div style="font-size:0.75em; color:var(--c-muted);">More Skills Matched</div></div>'
+                + '<div style="text-align:center; padding:12px; background:var(--c-surface-1); border-radius:10px;">'
+                + '<div style="font-size:1.6em; font-weight:800; color:' + (valDelta > 0 ? '#10b981' : 'var(--c-heading)') + ';">+' + Math.max(0, valDelta) + '%</div>'
+                + '<div style="font-size:0.75em; color:var(--c-muted);">Values Precision</div></div>'
+                + '</div></div>';
+
+            html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">';
+            html += '<div>'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.9em; color:' + beforeColor + '; margin-bottom:8px;">JD Matched Skills (' + rawResult.matched.length + ')</div>';
+            if (rawResult.matched.length === 0) {
+                html += '<div style="font-size:0.82em; color:var(--c-muted); padding:8px;">No skill matches found via keyword scan.</div>';
+            } else {
+                rawResult.matched.slice(0, 12).forEach(function(m) {
+                    var quality = Math.round(m.nameMatch * 100);
+                    html += '<div style="display:flex; justify-content:space-between; padding:4px 8px; font-size:0.8em; border-bottom:1px solid var(--c-surface-3);">'
+                        + '<span style="color:var(--c-heading);">' + escapeHtml(m.jobSkill) + '</span>'
+                        + '<span style="color:' + beforeColor + ';">' + quality + '% match</span></div>';
+                });
+            }
+            html += '</div>';
+
+            html += '<div>'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.9em; color:' + afterColor + '; margin-bottom:8px;">WB Matched Skills (' + structResult.matched.length + ')</div>';
+            if (structResult.matched.length === 0) {
+                html += '<div style="font-size:0.82em; color:var(--c-muted); padding:8px;">No skill matches found.</div>';
+            } else {
+                structResult.matched.slice(0, 12).forEach(function(m) {
+                    var quality = Math.round(m.nameMatch * m.profMatch * 100);
+                    var profLabel = m.profGap ? ' \u26A0\uFE0F' : ' \u2713';
+                    html += '<div style="display:flex; justify-content:space-between; padding:4px 8px; font-size:0.8em; border-bottom:1px solid var(--c-surface-3);">'
+                        + '<span style="color:var(--c-heading);">' + escapeHtml(m.jobSkill) + ' \u2192 ' + escapeHtml(m.userSkill) + '</span>'
+                        + '<span style="color:' + afterColor + ';">' + quality + '%' + profLabel + '</span></div>';
+                });
+            }
+            html += '</div>';
+            html += '</div>';
+
+            html += '<div style="background:var(--c-surface-2); border-radius:10px; padding:16px; margin-bottom:16px;">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.9em; color:var(--c-heading-bold); margin-bottom:10px;">'
+                + bpIcon('star',16) + ' What Work Blueprints Unlock</div>'
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:0.82em;">';
+            var advantages = [
+                ['Proficiency-level matching', 'Knows if candidate meets, exceeds, or falls short of each skill requirement'],
+                ['Seniority-appropriate scoring', 'Entry vs. Senior vs. Executive expectations calibrated automatically'],
+                ['Explicit values alignment', 'Culture fit scored against declared values, not keyword guessing'],
+                ['Industry verticalization', 'Skills contextualized to specific industry, not generic descriptions'],
+                ['Compensation benchmarking', 'BLS market data attached to role for informed negotiation'],
+                ['Demonstrated evidence', 'Structured proof points validate claims with measurable outcomes']
+            ];
+            advantages.forEach(function(a) {
+                html += '<div style="padding:6px 10px; background:var(--c-surface-1); border-radius:6px; border-left:3px solid ' + afterColor + ';">'
+                    + '<div style="font-weight:600; color:var(--c-heading);">' + a[0] + '</div>'
+                    + '<div style="font-size:0.88em; color:var(--c-muted);">' + a[1] + '</div></div>';
+            });
+            html += '</div></div>';
+
+            html += '<div style="text-align:center; font-size:0.78em; color:var(--c-muted); line-height:1.5;">'
+                + 'This comparison uses Blueprint\u2122\u2019s live matching engine \u2014 no simulations, no canned data. '
+                + 'The same intelligence that powers real candidate-job connections.</div>';
+
+            html += '</div>';
+            return html;
+        }
+
+        var _wbCompareViewIdx = -1;
+        async function wbRepoCompare(idx) {
+            if (!_wbRepoCache || !_wbRepoCache[idx]) return;
+            var wb = _wbRepoCache[idx];
+            var rawJD = wb.sourceJD || wb._rawJD || '';
+
+            if (!rawJD) {
+                var pastePrompt = prompt('This blueprint has no source JD text.\nPaste the original job description to compare:');
+                if (!pastePrompt || !pastePrompt.trim()) {
+                    showToast('Comparison requires a job description to compare against.', 'warning');
+                    return;
+                }
+                rawJD = pastePrompt.trim();
+            }
+
+            showToast('Running live comparison...', 'info', 4000);
+            try {
+                var candidate = await _wbLoadCompareCandidate();
+                var rawResult = _wbCompareRawJDMatch(rawJD, candidate);
+                var structResult = _wbCompareStructuredMatch(wb, candidate);
+                _wbCompareViewIdx = idx;
+                var compHtml = _wbRenderComparison(wb, rawResult, structResult, candidate);
+                var container = document.getElementById('wbCompareContainer');
+                if (container) {
+                    container.innerHTML = compHtml;
+                    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    var el = document.getElementById('adminTabContent');
+                    if (el) {
+                        el.insertAdjacentHTML('beforeend', '<div id="wbCompareContainer">' + compHtml + '</div>');
+                        document.getElementById('wbCompareContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+                showToast('Comparison complete!', 'success');
+            } catch (err) {
+                console.warn('Comparison error:', err);
+                showToast('Comparison failed: ' + err.message, 'error');
+            }
+        }
+        window.wbRepoCompare = wbRepoCompare;
 
         function wbRepoExport(mode) {
             if (_wbRepoViewIdx < 0 || !_wbRepoCache[_wbRepoViewIdx]) return;
