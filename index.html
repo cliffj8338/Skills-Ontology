@@ -1,4 +1,4 @@
-<!-- v4.45.30 | 2026-02-27 | Lightcast certs expanded to 1,583 credentials across 19 categories -->
+<!-- v4.45.31 | 2026-02-27 | Lightcast certs expanded to 1,583 credentials across 19 categories -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.30 - BUILD 20260227-lightcast-certs
-        var BP_VERSION = 'v4.45.30';
+        // BLUEPRINT v4.45.31 - BUILD 20260227-lightcast-certs
+        var BP_VERSION = 'v4.45.31';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -14303,6 +14303,12 @@
                 }
             }
             
+            // User override (from BLS category edit)
+            var autoDetected = detectedFunction;
+            if ((userData.preferences || {}).blsFunctionOverride) {
+                detectedFunction = userData.preferences.blsFunctionOverride;
+            }
+            
             // ---- STEP 2: Detect seniority from title keywords + experience ----
             var seniorityLevel = 0; // 0=entry, 1=mid, 2=senior, 3=director, 4=vp
             
@@ -14515,6 +14521,7 @@
                 salaryCapApplied: salaryCapApplied,
                 rawCalculatedValue: totalValue,
                 detectedFunction: detectedFunction,
+                autoDetectedFunction: autoDetected,
                 seniorityIndex: seniorityLevel,
                 
                 breakdown: {
@@ -14526,6 +14533,87 @@
                 }
             };
         }
+        
+        var BLS_FUNCTION_LABELS = {
+            education: 'Education & Training',
+            engineering: 'Engineering & Manufacturing',
+            finance: 'Finance & Accounting',
+            general: 'General / Cross-functional',
+            healthcare: 'Healthcare & Medical',
+            hr: 'Human Resources',
+            legal: 'Legal & Compliance',
+            marketing: 'Marketing & Communications',
+            operations: 'Operations & Supply Chain',
+            recruiting: 'Recruiting & Talent Acquisition',
+            retail: 'Retail & Customer Service',
+            sales: 'Sales & Business Development',
+            strategy: 'Strategy & Consulting',
+            technology: 'Technology & Software',
+            trades: 'Trades & Skilled Labor'
+        };
+        
+        function showBlsCategoryEditor() {
+            var tv = calculateTotalMarketValue();
+            var current = tv.detectedFunction || 'general';
+            var auto = tv.autoDetectedFunction || 'general';
+            var isOverride = (userData.preferences || {}).blsFunctionOverride ? true : false;
+            
+            var options = Object.keys(BLS_FUNCTION_LABELS).sort(function(a, b) {
+                return BLS_FUNCTION_LABELS[a].localeCompare(BLS_FUNCTION_LABELS[b]);
+            }).map(function(key) {
+                return '<option value="' + key + '"' + (key === current ? ' selected' : '') + '>' + BLS_FUNCTION_LABELS[key] + '</option>';
+            }).join('');
+            
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content');
+            mc.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">' + bpIcon('bar-chart', 18) + ' BLS Compensation Category</h2>'
+                + '<p style="color:#9ca3af; margin-top:5px;">This determines your market benchmark</p>'
+                + '</div>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:30px;">'
+                + '<div style="margin-bottom:20px; padding:16px; background:rgba(96,165,250,0.1); border-radius:8px;">'
+                + '<div style="font-size:0.82em; color:#9ca3af; margin-bottom:4px;">Auto-detected from your title, roles, and skills:</div>'
+                + '<div style="font-weight:600; color:var(--c-text);">' + BLS_FUNCTION_LABELS[auto] + '</div>'
+                + (isOverride ? '<div style="font-size:0.78em; color:#fbbf24; margin-top:4px;">Currently overridden to: ' + BLS_FUNCTION_LABELS[current] + '</div>' : '')
+                + '</div>'
+                + '<div style="margin-bottom:20px;">'
+                + '<label style="display:block; font-size:0.85em; font-weight:600; color:var(--c-text); margin-bottom:8px;">Select your BLS category:</label>'
+                + '<select id="blsCategorySelect" class="settings-select" style="width:100%;">' + options + '</select>'
+                + '<div style="font-size:0.78em; color:var(--c-muted); margin-top:6px;">BLS categories determine the salary bands used for your market benchmark. Pick the one closest to your actual role.</div>'
+                + '</div>'
+                + '<div style="display:flex; gap:10px; justify-content:flex-end;">'
+                + (isOverride ? '<button onclick="clearBlsCategoryOverride()" style="padding:8px 16px; background:transparent; border:1px solid rgba(239,68,68,0.4); color:#ef4444; border-radius:6px; cursor:pointer; font-size:0.85em;">Reset to Auto</button>' : '')
+                + '<button onclick="saveBlsCategoryOverride()" style="padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85em;">Save Category</button>'
+                + '</div>'
+                + '</div>';
+            modal.style.display = 'flex';
+        }
+        window.showBlsCategoryEditor = showBlsCategoryEditor;
+        
+        function saveBlsCategoryOverride() {
+            var sel = document.getElementById('blsCategorySelect');
+            if (!sel) return;
+            if (!userData.preferences) userData.preferences = {};
+            userData.preferences.blsFunctionOverride = sel.value;
+            saveUserData();
+            closeExportModal();
+            showToast('BLS category updated to ' + BLS_FUNCTION_LABELS[sel.value] + '. Compensation recalculated.', 'success');
+            if (typeof initBlueprint === 'function') initBlueprint();
+        }
+        window.saveBlsCategoryOverride = saveBlsCategoryOverride;
+        
+        function clearBlsCategoryOverride() {
+            if (!userData.preferences) userData.preferences = {};
+            delete userData.preferences.blsFunctionOverride;
+            saveUserData();
+            closeExportModal();
+            showToast('BLS category reset to auto-detection.', 'info');
+            if (typeof initBlueprint === 'function') initBlueprint();
+        }
+        window.clearBlsCategoryOverride = clearBlsCategoryOverride;
         
         function setValuationMode(mode) {
             valuationMode = mode;
@@ -24582,7 +24670,8 @@ body {
                 
                 if (hasCuratedComp && totalValue.algorithmEstimate > 0) {
                     // Show algorithm benchmark below for context
-                    html += '<div style="font-size:0.82em; color:var(--c-muted);">BLS Benchmark: ' + formatCompValue(totalValue.algorithmEstimate) + '/yr</div>';
+                    var fnLabelHeader = BLS_FUNCTION_LABELS[totalValue.detectedFunction] || totalValue.detectedFunction;
+                    html += '<div style="font-size:0.82em; color:var(--c-muted);">BLS Benchmark: ' + formatCompValue(totalValue.algorithmEstimate) + '/yr (' + escapeHtml(fnLabelHeader) + ')</div>';
                 } else {
                     html += '<div style="font-size:0.82em; color:var(--c-muted);">Offers: $' + totalValue.conservativeOffer.toLocaleString() + ' \u2013 $' + totalValue.competitiveOffer.toLocaleString() + '</div>';
                 }
@@ -24615,6 +24704,17 @@ body {
                     }
                     
                     // Top skills still valuable context
+                    var fnLabel = BLS_FUNCTION_LABELS[totalValue.detectedFunction] || totalValue.detectedFunction;
+                    var isOverride = (userData.preferences || {}).blsFunctionOverride ? true : false;
+                    html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--c-surface-1); border-radius:6px; margin-bottom:14px; font-size:0.8em;">'
+                        + '<div style="color:var(--c-muted);">'
+                        + bpIcon('target',12) + ' BLS Category: <span style="color:var(--c-text); font-weight:600;">' + escapeHtml(fnLabel) + '</span>'
+                        + ' \u00B7 ' + escapeHtml(totalValue.roleLevel)
+                        + (isOverride ? ' <span style="color:#fbbf24; font-size:0.85em;">(manual)</span>' : '')
+                        + '</div>'
+                        + '<a href="#" onclick="showBlsCategoryEditor(); return false;" style="color:var(--accent); text-decoration:none; font-weight:600;">Change</a>'
+                        + '</div>';
+                    
                     html += '<div style="font-size:0.82em; font-weight:600; color:#60a5fa; margin-bottom:8px;">' + bpIcon('flame',12) + ' Top Skills Driving Value</div>'
                         + '<div style="display:grid; gap:4px; margin-bottom:14px;">';
                     (totalValue.top10Skills || []).slice(0, 5).forEach(function(skill, idx) {
@@ -24677,6 +24777,17 @@ body {
                     + '</div>';
                 
                 // Top skills (compact)
+                var fnLabel2 = BLS_FUNCTION_LABELS[totalValue.detectedFunction] || totalValue.detectedFunction;
+                var isOverride2 = (userData.preferences || {}).blsFunctionOverride ? true : false;
+                html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--c-surface-1); border-radius:6px; margin-bottom:14px; font-size:0.8em;">'
+                    + '<div style="color:var(--c-muted);">'
+                    + bpIcon('target',12) + ' BLS Category: <span style="color:var(--c-text); font-weight:600;">' + escapeHtml(fnLabel2) + '</span>'
+                    + ' \u00B7 ' + escapeHtml(totalValue.roleLevel)
+                    + (isOverride2 ? ' <span style="color:#fbbf24; font-size:0.85em;">(manual)</span>' : '')
+                    + '</div>'
+                    + '<a href="#" onclick="showBlsCategoryEditor(); return false;" style="color:var(--accent); text-decoration:none; font-weight:600;">Change</a>'
+                    + '</div>';
+                
                 html += '<div style="font-size:0.82em; font-weight:600; color:#60a5fa; margin-bottom:8px;">' + bpIcon('flame',12) + ' Top Skills Driving Value</div>'
                     + '<div style="display:grid; gap:4px; margin-bottom:14px;">';
                 (totalValue.top10Skills || []).slice(0, 5).forEach(function(skill, idx) {
@@ -36635,7 +36746,7 @@ body {
                             <strong>When they give a low offer ($${totalValue.conservativeOffer.toLocaleString()}):</strong>
                             <br><br>
                             <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 6px; margin: 10px 0; font-style: italic;">
-                            "I appreciate the offer. Based on market data for ${totalValue.roleLevel} roles with my skill set—particularly my ${totalValue.top10Skills[0].skill} expertise—the range is typically closer to $${totalValue.standardOffer.toLocaleString()}-$${totalValue.competitiveOffer.toLocaleString()}. Can we explore options in that range?"
+                            "I appreciate the offer. Based on market data for ${totalValue.roleLevel} roles with my skill set${totalValue.top10Skills.length > 0 ? '—particularly my ' + totalValue.top10Skills[0].skill + ' expertise' : ''}—the range is typically closer to $${totalValue.standardOffer.toLocaleString()}-$${totalValue.competitiveOffer.toLocaleString()}. Can we explore options in that range?"
                             </div>
                         </div>
                     </div>
