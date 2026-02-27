@@ -1,4 +1,4 @@
-<!-- v4.45.19 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
+<!-- v4.45.20 | 2026-02-27 | Tighter skill quality: 35-char max, 5-word max, raised O*NET enrichment threshold to <8 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.19 - BUILD 20260227-skill-quality-tighten
-        var BP_VERSION = 'v4.45.19';
+        // BLUEPRINT v4.45.20 - BUILD 20260227-skill-quality-tighten
+        var BP_VERSION = 'v4.45.20';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2226,6 +2226,9 @@
                 'flame':        '<svg ' + s + '><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
                 'diamond':      '<svg ' + s + '><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M10 3l-2 6 4 12 4-12-2-6"/></svg>',
                 'money':        '<svg ' + s + '><rect x="1" y="4" width="22" height="16" rx="2"/><circle cx="12" cy="12" r="4"/><path d="M1 8h2M21 8h2M1 16h2M21 16h2"/></svg>',
+                'archive':      '<svg ' + s + '><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>',
+                'folder':       '<svg ' + s + '><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
+                'activity':     '<svg ' + s + '><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
             };
             return icons[name] || '<svg ' + s + '><circle cx="12" cy="12" r="1"/></svg>';
         }
@@ -6223,7 +6226,7 @@
         function renderWBWizard(el) {
             var s = _wbw;
             var html = '<div style="margin-bottom:24px;">'
-                + '<div style="font-family:Outfit,sans-serif; font-weight:800; font-size:1.4em; color:var(--c-heading-bold); margin-bottom:6px;">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:800; font-size:1.4em; color:var(--c-heading-bold); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">'
                 + bpIcon('blueprint',22) + ' Work Blueprint Wizard</div>'
                 + '<div style="font-size:0.9em; color:var(--c-muted); line-height:1.6;">Create a Work Blueprint from scratch in under 3 minutes. Curate from data — don\'t create from zero.</div></div>';
 
@@ -10107,7 +10110,7 @@
             var html = '<div style="max-width:1000px;">'
                 + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">'
                 + '<div>'
-                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.3em; color:var(--c-heading-bold);">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.3em; color:var(--c-heading-bold); text-transform:uppercase; letter-spacing:0.04em;">'
                 + bpIcon('folder',22) + ' Work Blueprint Repository</div>'
                 + '<div style="font-size:0.85em; color:var(--c-muted); margin-top:4px;">Your saved Work Blueprints from the Converter and Wizard.</div>'
                 + '</div>'
@@ -11398,22 +11401,26 @@
                     var requiredLevel = m.jobProficiency || '';
                     var profOk = !m.profGap;
                     html += '<div style="padding:10px 12px; margin-bottom:5px; background:rgba(16,185,129,0.05); border-radius:8px; border-left:3px solid ' + qualityColor + ';">'
-                        // Row 1: Job skill → Candidate skill
+                        // Row 1: Job skill name + similarity score
                         + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                         + '<div style="font-size:0.82em; font-weight:600; color:var(--c-heading);">' + escapeHtml(m.jobSkill) + '</div>'
-                        + '<div style="font-size:0.72em; font-weight:700; color:' + qualityColor + '; padding:2px 8px; border-radius:6px; background:' + qualityColor + '15;">Match: ' + quality + '%</div>'
+                        + '<div style="font-size:0.72em; font-weight:700; color:' + qualityColor + '; padding:2px 8px; border-radius:6px; background:' + qualityColor + '15;">Similarity: ' + nameQ + '%</div>'
                         + '</div>'
-                        + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:2px;">\u2192 ' + escapeHtml(m.userSkill) + '</div>'
-                        // Row 2: Proficiency detail
-                        + '<div style="display:flex; gap:8px; margin-top:5px; font-size:0.68em;">';
-                    if (candidateLevel) {
+                        // Row 2: Mapped candidate skill
+                        + '<div style="font-size:0.72em; color:var(--c-muted); margin-top:2px;">\u2192 Mapped to: ' + escapeHtml(m.userSkill) + '</div>'
+                        // Row 3: Proficiency comparison
+                        + '<div style="display:flex; gap:8px; align-items:center; margin-top:5px; font-size:0.68em;">';
+                    if (candidateLevel && requiredLevel) {
+                        html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(99,102,241,0.1); color:#818cf8; font-weight:500;">Required: ' + requiredLevel + '</span>'
+                            + '<span style="color:var(--c-muted);">\u2192</span>'
+                            + '<span style="padding:2px 8px; border-radius:6px; background:rgba(16,185,129,0.1); color:#10b981; font-weight:500;">Has: ' + candidateLevel + '</span>';
+                        if (profOk) {
+                            html += '<span style="color:#10b981; font-weight:600;">\u2713 Met</span>';
+                        } else {
+                            html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(245,158,11,0.1); color:#f59e0b; font-weight:500;">\u26A0 Below required</span>';
+                        }
+                    } else if (candidateLevel) {
                         html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(16,185,129,0.1); color:#10b981; font-weight:500;">Candidate: ' + candidateLevel + '</span>';
-                    }
-                    if (requiredLevel) {
-                        html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(99,102,241,0.1); color:#818cf8; font-weight:500;">Required: ' + requiredLevel + '</span>';
-                    }
-                    if (m.profGap) {
-                        html += '<span style="padding:2px 8px; border-radius:6px; background:rgba(245,158,11,0.1); color:#f59e0b; font-weight:500;">\u26A0 Gap</span>';
                     }
                     html += '</div></div>';
                 });
@@ -11512,7 +11519,7 @@
             var html = '<div style="max-width:900px;">'
                 + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">'
                 + '<div>'
-                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.3em; color:var(--c-heading-bold);">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.3em; color:var(--c-heading-bold); text-transform:uppercase; letter-spacing:0.04em;">'
                 + bpIcon('trending-up',22) + ' Blueprint Advantage\u2122 Compare</div>'
                 + '<div style="font-size:0.85em; color:var(--c-muted); margin-top:4px;">See the difference structured intelligence makes \u2014 live matching, real data.</div>'
                 + '</div>'
@@ -11537,7 +11544,7 @@
             // Saved Comparisons Repository (hide when viewing live results)
             if (_wbCompWizStep !== 4) {
                 html += '<div style="margin-top:32px; padding-top:20px; border-top:1px solid var(--c-surface-3);">'
-                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:var(--c-heading-bold); margin-bottom:12px;">'
+                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:var(--c-heading-bold); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.04em;">'
                     + bpIcon('archive', 18) + ' Saved Comparisons</div>'
                     + '<div id="wbCompRepoContainer"></div>'
                     + '</div>';
@@ -12057,7 +12064,7 @@
             doc.setFontSize(16); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold');
             doc.text('Blueprint Advantage\u2122 Comparison', margin, 14);
             doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(180, 190, 200);
-            doc.text('Generated ' + new Date().toLocaleDateString() + ' \u00B7 Blueprint v4.45.19', margin, 22);
+            doc.text('Generated ' + new Date().toLocaleDateString() + ' \u00B7 Blueprint v4.45.20', margin, 22);
             doc.text(cName + ' \u00B7 ' + (wb.title || 'Untitled') + (wb.company ? ' at ' + wb.company : ''), margin, 28);
             y = 40;
             
@@ -12153,7 +12160,7 @@
             y = drawLine(y + 3);
             doc.setFontSize(7); doc.setTextColor(160, 160, 160);
             doc.text('Blueprint\u2122 Intelligence Comparison \u00B7 This analysis reflects data-driven pattern matching, not a hiring recommendation.', margin, y + 2);
-            doc.text('Generated by Blueprint v4.45.19 \u00B7 ' + new Date().toISOString(), margin, y + 6);
+            doc.text('Generated by Blueprint v4.45.20 \u00B7 ' + new Date().toISOString(), margin, y + 6);
             
             // Download
             var filename = (cName + '-' + (wb.title || 'comparison')).replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase() + '.pdf';
