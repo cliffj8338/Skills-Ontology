@@ -10270,6 +10270,69 @@
             });
         }
 
+        function _wbCompareFuzzyValues(candidateValues, companyValObj) {
+            if (!companyValObj || !candidateValues || candidateValues.length === 0) return null;
+            var userSelected = candidateValues.filter(function(v) { return v && v.selected; }).map(function(v) { return (v.name || '').toLowerCase().trim(); });
+            if (userSelected.length === 0) return null;
+            var companyAll = (companyValObj.primary || []).concat(companyValObj.secondary || []);
+            if (companyAll.length === 0) return null;
+            var companyPrimary = new Set((companyValObj.primary || []).map(function(v) { return v.toLowerCase().trim(); }));
+            var companyLower = companyAll.map(function(v) { return v.toLowerCase().trim(); });
+
+            function wordsOf(s) { return s.replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(function(w) { return w.length > 2; }); }
+            function fuzzyMatch(a, b) {
+                if (a === b) return 1.0;
+                if (a.indexOf(b) >= 0 || b.indexOf(a) >= 0) return 0.85;
+                var wa = wordsOf(a), wb = wordsOf(b);
+                if (wa.length === 0 || wb.length === 0) return 0;
+                var shared = 0;
+                wa.forEach(function(w) { if (wb.indexOf(w) >= 0) shared++; });
+                var overlap = shared / Math.max(wa.length, wb.length);
+                return overlap >= 0.5 ? overlap * 0.8 : 0;
+            }
+
+            var aligned = [], yourPriority = [], theirPriority = [];
+            var matchedCompany = new Set();
+
+            userSelected.forEach(function(uv) {
+                var bestScore = 0, bestMatch = '';
+                companyLower.forEach(function(cv) {
+                    var sc = fuzzyMatch(uv, cv);
+                    if (sc > bestScore) { bestScore = sc; bestMatch = cv; }
+                });
+                if (bestScore >= 0.4) {
+                    aligned.push({ name: uv, strength: companyPrimary.has(bestMatch) ? 'primary' : 'secondary', score: bestScore });
+                    matchedCompany.add(bestMatch);
+                } else {
+                    yourPriority.push({ name: uv });
+                }
+            });
+
+            companyLower.forEach(function(cv) {
+                if (!matchedCompany.has(cv)) {
+                    theirPriority.push({ name: cv, strength: companyPrimary.has(cv) ? 'primary' : 'secondary' });
+                }
+            });
+
+            var maxScore = userSelected.length * 20;
+            var rawScore = 0;
+            aligned.forEach(function(a) {
+                var pts = a.strength === 'primary' ? 20 : 10;
+                rawScore += pts * (a.score || 1);
+            });
+            var score = maxScore > 0 ? Math.max(0, Math.min(100, Math.round((rawScore / maxScore) * 100))) : 0;
+
+            return {
+                score: score,
+                aligned: aligned,
+                yourPriority: yourPriority,
+                theirPriority: theirPriority,
+                tensionRisk: [],
+                companyStory: companyValObj.story || '',
+                isInferred: companyValObj.inferred || false
+            };
+        }
+
         function _wbCompareRawJDMatch(rawJDText, candidate) {
             var origSkills = window.skillsData ? JSON.parse(JSON.stringify(window.skillsData.skills || [])) : [];
             window.skillsData = window.skillsData || {};
@@ -10280,7 +10343,7 @@
                 var companyVals = inferCompanyValuesFromJD(rawJDText);
                 var valResult = null;
                 if (companyVals && candidate.values) {
-                    valResult = computeValuesAlignment(candidate.values, companyVals);
+                    valResult = _wbCompareFuzzyValues(candidate.values, companyVals);
                 }
                 return {
                     score: matchResult.score,
@@ -10327,7 +10390,7 @@
                 };
                 var valResult = null;
                 if (wbValues.length > 0 && candidate.values) {
-                    valResult = computeValuesAlignment(candidate.values, companyValObj);
+                    valResult = _wbCompareFuzzyValues(candidate.values, companyValObj);
                 }
                 return {
                     score: matchResult.score,
