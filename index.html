@@ -1645,6 +1645,7 @@
             'linkedin-skill-infer': { name: 'LinkedIn Skill Inference', inputTokens: 3000, outputTokens: 3000, desc: 'Per LinkedIn import' },
             'purpose-regen':    { name: 'Purpose Statement',  inputTokens: 600,  outputTokens: 250,  desc: 'Regenerations' },
             'wb-company-research': { name: 'WB Company Research', inputTokens: 1500, outputTokens: 2000, desc: 'Per wizard run' },
+            'company-values-lookup': { name: 'Company Values Lookup', inputTokens: 300, outputTokens: 512, desc: 'Per unknown company in Compare' },
             'wb-value-desc':    { name: 'WB Value Description', inputTokens: 400,  outputTokens: 200,  desc: 'Per value AI fill' },
             'wb-value-desc-bulk': { name: 'WB Value Desc Bulk', inputTokens: 800,  outputTokens: 1500, desc: 'Bulk value fill' },
             'wb-skill-outcome':  { name: 'WB Skill Outcome',  inputTokens: 600,  outputTokens: 50,   desc: 'Per skill outcome fill' },
@@ -10716,10 +10717,12 @@
             });
             
             // ── Company Values Lookup ──
-            // If the WB has a company field, look up real company values from the database
-            // This overrides or supplements the WB's stored values with verified company data
+            // Priority: pre-resolved from ensureCompanyValues() → DB lookup → WB stored values
             var companyValObj = null;
-            if (workBlueprint.company && window.companyDataLoaded) {
+            if (workBlueprint._resolvedCompanyValues) {
+                companyValObj = workBlueprint._resolvedCompanyValues;
+                console.log('[COMPARE] Company values (pre-resolved): ' + (companyValObj.primary || []).join(', '));
+            } else if (workBlueprint.company && window.companyDataLoaded) {
                 var lookedUp = getCompanyValues(workBlueprint.company, '');
                 if (lookedUp && !lookedUp.inferred && lookedUp.primary && lookedUp.primary.length > 0) {
                     companyValObj = lookedUp;
@@ -11222,6 +11225,17 @@
             showToast('Running live comparison...', 'info', 4000);
             try {
                 var candidate = await _wbLoadCompareCandidate();
+                
+                // Resolve company values before comparison
+                if (wb.company) {
+                    try {
+                        var resolvedVals = await ensureCompanyValues(wb.company);
+                        if (resolvedVals && resolvedVals.primary && resolvedVals.primary.length > 0) {
+                            wb._resolvedCompanyValues = resolvedVals;
+                        }
+                    } catch (valErr) { console.warn('[VALUES] Repo compare lookup failed:', valErr.message); }
+                }
+                
                 var both = _wbCompareRunBoth(rawJD, wb, candidate);
                 var rawResult = both.raw;
                 var structResult = both.struct;
@@ -11500,7 +11514,21 @@
                 }
                 _wbCompWizData.candidate = candidate;
 
-                var both = _wbCompareRunBoth(_wbCompWizData.rawJD, _wbCompWizData.wb, candidate);
+                // Ensure company values are resolved (DB → API fallback) before comparison
+                var wb = _wbCompWizData.wb;
+                if (wb && wb.company) {
+                    try {
+                        var resolvedValues = await ensureCompanyValues(wb.company);
+                        if (resolvedValues && resolvedValues.primary && resolvedValues.primary.length > 0) {
+                            // Store resolved values on the WB so comparison engine picks them up
+                            wb._resolvedCompanyValues = resolvedValues;
+                        }
+                    } catch (valErr) {
+                        console.warn('[VALUES] ensureCompanyValues failed:', valErr.message);
+                    }
+                }
+
+                var both = _wbCompareRunBoth(_wbCompWizData.rawJD, wb, candidate);
                 var rawResult = both.raw;
                 var structResult = both.struct;
                 _wbCompWizData.rawResult = rawResult;
@@ -22858,6 +22886,141 @@ body {
             'netflix': { primary: ['Freedom and Responsibility', 'Innovation', 'Inclusion', 'Courage'], secondary: ['Impact', 'Curiosity'], tensions: [], story: '' },
             'anthropic': { primary: ['Safety', 'Responsibility', 'Research Excellence', 'Honesty'], secondary: ['Collaboration', 'Impact'], tensions: [], story: '' }
         };
+        
+        // ── Intelligent Company Values Resolver ──
+        // 1. Check companyDataLoaded (58-company JSON DB)
+        // 2. Check KNOWN_COMPANY_VALUES (hardcoded fallback for major companies)
+        // 3. If not found → Claude API call → cache result in companyDataLoaded
+        // 4. Save newly discovered companies to Firestore for persistence
+        var _companyValuesCache = {}; // session cache for API-resolved companies
+        var _companyValuesInFlight = {}; // prevent duplicate API calls
+        
+        async function ensureCompanyValues(companyName) {
+            if (!companyName) return null;
+            var searchName = companyName.trim();
+            var searchLower = searchName.toLowerCase();
+            
+            // Step 1: Check existing companyDataLoaded (JSON DB)
+            var existing = getCompanyValues(searchName, '');
+            if (existing && !existing.inferred && existing.primary && existing.primary.length > 0) {
+                console.log('[VALUES] DB hit: ' + searchName + ' → ' + existing.primary.join(', '));
+                return existing;
+            }
+            
+            // Step 2: Check session cache (already resolved via API this session)
+            if (_companyValuesCache[searchLower]) {
+                console.log('[VALUES] Cache hit: ' + searchName);
+                return _companyValuesCache[searchLower];
+            }
+            
+            // Step 3: Deduplicate in-flight requests
+            if (_companyValuesInFlight[searchLower]) {
+                console.log('[VALUES] Waiting for in-flight request: ' + searchName);
+                return _companyValuesInFlight[searchLower];
+            }
+            
+            // Step 4: Call Claude API to discover company values
+            console.log('[VALUES] API lookup: ' + searchName + ' (not in DB or known list)');
+            var promise = _fetchCompanyValuesFromAI(searchName);
+            _companyValuesInFlight[searchLower] = promise;
+            
+            try {
+                var result = await promise;
+                delete _companyValuesInFlight[searchLower];
+                
+                if (result && result.primary && result.primary.length > 0) {
+                    // Cache in session
+                    _companyValuesCache[searchLower] = result;
+                    
+                    // Merge into companyDataLoaded so getCompanyValues() finds it next time
+                    if (!window.companyDataLoaded) window.companyDataLoaded = {};
+                    window.companyDataLoaded[searchName] = { values: result, industry: result._industry || '', source: 'ai-discovered' };
+                    
+                    // Persist to Firestore if available
+                    _persistCompanyValues(searchName, result);
+                    
+                    console.log('[VALUES] API resolved: ' + searchName + ' → ' + result.primary.join(', '));
+                    return result;
+                }
+            } catch (err) {
+                delete _companyValuesInFlight[searchLower];
+                console.warn('[VALUES] API lookup failed for ' + searchName + ':', err.message);
+            }
+            
+            // Step 5: Final fallback — infer from JD text
+            return null;
+        }
+        
+        async function _fetchCompanyValuesFromAI(companyName) {
+            var prompt = 'You are a company culture research specialist. Provide the core values and culture information for this company.\n\n'
+                + 'Company: ' + companyName + '\n\n'
+                + 'Return ONLY a JSON object (no markdown, no backticks, just raw JSON) with these fields:\n'
+                + '{\n'
+                + '  "primary": ["value1", "value2", "value3", "value4", "value5"],\n'
+                + '  "secondary": ["value6", "value7"],\n'
+                + '  "tensions": ["any known cultural tensions or challenges"],\n'
+                + '  "story": "2-3 sentence description of the company\'s culture and how these values manifest",\n'
+                + '  "industry": "Primary industry"\n'
+                + '}\n\n'
+                + 'Rules:\n'
+                + '- primary: The company\'s 3-5 officially stated or widely recognized core values\n'
+                + '- secondary: 1-3 additional cultural themes that define the company\n'
+                + '- tensions: Any known cultural tensions or areas where values conflict with practice (empty array if none)\n'
+                + '- Use the company\'s actual stated values where possible, not generic ones\n'
+                + '- If you don\'t know the company, return primary: ["Innovation", "Integrity", "Collaboration", "Excellence", "Customer Focus"] as reasonable defaults and note in story that values are estimated';
+            
+            var aiRes = await callAnthropicAPI({
+                model: 'claude-haiku-4-5-20251001',
+                max_tokens: 512,
+                messages: [{ role: 'user', content: prompt }]
+            }, null, 'company-values-lookup');
+            
+            var text = aiRes.content[0].text;
+            var jsonMatch = text.match(/\{[\s\S]*\}/);
+            if (!jsonMatch) throw new Error('No JSON in AI response');
+            var parsed = JSON.parse(jsonMatch[0]);
+            
+            var result = {
+                primary: parsed.primary || [],
+                secondary: parsed.secondary || [],
+                tensions: parsed.tensions || [],
+                story: parsed.story || '',
+                inferred: false,
+                _industry: parsed.industry || '',
+                _source: 'ai-discovered',
+                _discoveredAt: new Date().toISOString()
+            };
+            
+            return result;
+        }
+        
+        function _persistCompanyValues(companyName, values) {
+            // Save to Firestore companies collection for cross-session persistence
+            if (typeof firebase === 'undefined' || !firebase.firestore || !fbUser) return;
+            try {
+                var db = firebase.firestore();
+                var docId = companyName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+                db.collection('companies').doc(docId).set({
+                    name: companyName,
+                    values: {
+                        primary: values.primary || [],
+                        secondary: values.secondary || [],
+                        tensions: values.tensions || [],
+                        story: values.story || ''
+                    },
+                    industry: values._industry || '',
+                    source: 'ai-discovered',
+                    discoveredBy: fbUser.uid,
+                    discoveredAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true }).then(function() {
+                    console.log('[VALUES] Persisted to Firestore: ' + companyName);
+                }).catch(function(err) {
+                    console.warn('[VALUES] Firestore persist failed:', err.message);
+                });
+            } catch (e) {
+                console.warn('[VALUES] Firestore persist error:', e.message);
+            }
+        }
 
         function getCompanyValues(companyName, rawText) {
             var source = window.companyDataLoaded || {};
