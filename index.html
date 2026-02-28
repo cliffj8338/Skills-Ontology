@@ -1,4 +1,4 @@
-<!-- v4.45.33 | 2026-02-27 | Lightcast certs expanded to 1,583 credentials across 19 categories -->
+<!-- v4.45.34 | 2026-02-27 | Lightcast certs expanded to 1,583 credentials across 19 categories -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.33 - BUILD 20260227-lightcast-certs
-        var BP_VERSION = 'v4.45.33';
+        // BLUEPRINT v4.45.34 - BUILD 20260227-lightcast-certs
+        var BP_VERSION = 'v4.45.34';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -16375,6 +16375,27 @@
                 _escoSubcategoryIndex[subcat].push(name);
                 count++;
             });
+            
+            // Also index user's own skills for reverse lookup
+            if (skillsData && skillsData.skills) {
+                skillsData.skills.forEach(function(s) {
+                    var name = (s.name || '').toLowerCase().trim();
+                    if (!name || name.length < 3 || _escoSkillToSubcategory[name]) return;
+                    // Try to find subcategory from a library match
+                    var libMatch = skillLibraryIndex.index.find(function(e) {
+                        var ln = (e.n || '').toLowerCase();
+                        return ln === name || (ln.length > 5 && (ln.indexOf(name) !== -1 || name.indexOf(ln) !== -1));
+                    });
+                    if (libMatch) {
+                        var subcat = (libMatch.sc || libMatch.c || '').toLowerCase().trim();
+                        if (subcat) {
+                            _escoSkillToSubcategory[name] = subcat;
+                            if (_escoSubcategoryIndex[subcat]) _escoSubcategoryIndex[subcat].push(name);
+                        }
+                    }
+                });
+            }
+            
             var subcats = Object.keys(_escoSubcategoryIndex).length;
             console.log('✓ ESCO category bridge: ' + count + ' skills across ' + subcats + ' subcategories');
         }
@@ -30884,7 +30905,8 @@ body {
                 'minimum', 'maximum', 'required', 'preferred', 'plus',
                 'strong', 'excellent', 'proven', 'demonstrated',
                 'economy', 'agriculture', 'manufacturing', 'retail',
-                'monit', 'tform', 'staf', 'less', 'tic', 'tic',
+                'monit', 'tform', 'staf', 'less', 'tic', 'hypot', 'analy',
+                'tic', 'forma', 'techni', 'specif', 'improv', 'effici',
                 'able', 'well', 'high', 'best', 'good', 'great', 'fast',
                 'also', 'must', 'will', 'work', 'time', 'make', 'take',
                 'come', 'give', 'find', 'help', 'show', 'tell', 'keep',
@@ -30924,6 +30946,13 @@ body {
                 // Skip if looks like a word fragment (no vowels, or all caps < 4 chars that aren't known acronyms)
                 var knownAcronyms = new Set(['sql', 'crm', 'erp', 'sap', 'aws', 'gcp', 'api', 'css', 'html', 'xml', 'json', 'rest', 'saas', 'paas', 'iot', 'etl', 'rpa', 'nlp', 'llm', 'gpu', 'vpc', 'cdn', 'dns', 'tcp', 'udp', 'ssh', 'ssl', 'tls', 'vpn', 'seo', 'sem', 'ppc', 'roi', 'kpi', 'okr', 'cad', 'bim', 'plc', 'hmi']);
                 if (name.length <= 4 && !/[aeiou]/i.test(name) && !knownAcronyms.has(lower)) return;
+                
+                // Single words ≤ 6 chars that aren't known acronyms: verify against skill library
+                if (wordCount === 1 && name.length <= 6 && !knownAcronyms.has(lower)) {
+                    var inLibrary = skillLibraryIndex && skillLibraryIndex.index && 
+                        skillLibraryIndex.index.some(function(e) { return (e.n || '').toLowerCase() === lower; });
+                    if (!inLibrary) return;
+                }
                 
                 // Deduplicate by normalized key (strip parentheticals, lowercase, collapse spaces)
                 var normKey = lower.replace(/\s*\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
@@ -32494,6 +32523,7 @@ body {
                 var jWords = jLower.split(/[\s\-\/&]+/).filter(function(w) { return w.length > 2; });
                 var found = null;
                 var nameMatchQuality = 0;
+                var matchType = 'exact';
                 
                 // 1. Exact match
                 if (userMap[jLower]) {
@@ -32553,6 +32583,45 @@ body {
                     }
                 }
                 
+                // 4. ESCO category sibling: user has a related skill at Advanced+ in same subcategory
+                if (!found && typeof getEscoCategorySiblings === 'function') {
+                    var siblings = getEscoCategorySiblings(jLower);
+                    
+                    // If exact name not in bridge, try fuzzy subcategory resolution
+                    if (siblings.length === 0 && _escoSkillToSubcategory) {
+                        var keys = Object.keys(_escoSkillToSubcategory);
+                        for (var ki = 0; ki < keys.length; ki++) {
+                            if (keys[ki].length > 5 && (jLower.indexOf(keys[ki]) !== -1 || keys[ki].indexOf(jLower) !== -1)) {
+                                siblings = getEscoCategorySiblings(keys[ki]);
+                                if (siblings.length > 0) break;
+                            }
+                        }
+                    }
+                    if (siblings.length > 0) {
+                        var siblingSet = new Set(siblings);
+                        var bestSibling = null;
+                        var bestSibLevel = 0;
+                        userSkills.forEach(function(us) {
+                            var usLower = us.name.toLowerCase();
+                            if (siblingSet.has(usLower) || siblings.some(function(sib) {
+                                return usLower.indexOf(sib) !== -1 || sib.indexOf(usLower) !== -1;
+                            })) {
+                                var usProf = proficiencyValue(us.level);
+                                // Only count Advanced+ as a sibling coverage
+                                if (usProf >= 3 && usProf > bestSibLevel) {
+                                    bestSibling = us;
+                                    bestSibLevel = usProf;
+                                }
+                            }
+                        });
+                        if (bestSibling) {
+                            found = bestSibling;
+                            nameMatchQuality = 0.55; // Related but not identical
+                            matchType = 'sibling';
+                        }
+                    }
+                }
+                
                 if (found) {
                     // Proficiency comparison
                     var userProf = proficiencyValue(found.level);
@@ -32577,6 +32646,7 @@ body {
                         nameMatch: nameMatchQuality,
                         profMatch: profMatch,
                         profGap: profGap,
+                        matchType: matchType,
                         _credit: reqWeight * nameMatchQuality * profMatch
                     });
                     matchedUserSkills.add(found.name.toLowerCase());
