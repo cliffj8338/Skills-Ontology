@@ -1,4 +1,4 @@
-<!-- v4.45.43 | 2026-02-28 | Fix quickScoreJob overwriting matchJobToProfile scores -->
+<!-- v4.45.44 | 2026-02-28 | Clear job overlay on profile switch -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1502,8 +1502,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.43 - BUILD 20260228-score-fix
-        var BP_VERSION = 'v4.45.43';
+        // BLUEPRINT v4.45.44 - BUILD 20260228-profile-switch-cleanup
+        var BP_VERSION = 'v4.45.44';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2105,7 +2105,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260228-score-fix               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260228-profile-switch-cleanup               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -4538,6 +4538,7 @@
                         { id: 'p2-5q', name: 'Invite email deep link + UX gating', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.41: Email invite links now include ?invite=<docId> for instant invite detection on fresh browsers. detectAppMode() checks URL param, verifies against Firestore, sets appMode before UI renders. Teaser modal and auto-tour suppressed for invited/active users. Cloud Function updated to generate invite URLs.' },
                         { id: 'p2-5r', name: 'Invited user welcome experience', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.42: renderWelcomePage() branches for invited/active users into dedicated welcome page. Clean \"You\'re In\" badge, feature highlights (Skills Architecture, Market Valuation, Job Intelligence), prominent Get Started CTA with glow, and demo fallback. Public landing page never shown to invited users.' },
                         { id: 'p2-5s', name: 'Match score override fix', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.45.43: rescoreAllJobs() and rescoreOneJob() were overwriting matchJobToProfile 6-pass scores with quickScoreJob text-search scores. After v4.45.39 unified quickScoreJob with parseJobLocally (43K skills), gap count exploded, dropping all pipeline scores to 0-15%. Fix: matchJobToProfile is now authoritative for jobs with parsedSkills; quickScoreJob only used for raw-text-only Find Jobs results.' },
+                        { id: 'p2-5t', name: 'Clear job overlay on profile switch', status: 'done', category: 'bugfix', priority: 'medium', notes: 'v4.45.44: Job match overlay from previous profile persisted on network when switching demo profiles. Added clearJobOverlay() to enterDemoMode(), switchDemoProfile(), and exitDemoMode().' },
                         { id: 'p2-6a', name: 'Work Blueprint function refinement', status: 'planned', category: 'feature', priority: 'high', notes: 'Ongoing improvements to WB ecosystem. Includes: Firestore-backed comparison persistence (replace localStorage), comparison sharing via URL tokens, batch comparison mode (multiple candidates against one WB), WB template library (common roles pre-built), WB diff view (compare two WBs side-by-side), improved gap recommendation engine with learning resource links, WB versioning/history, and WB-to-scouting-report pipeline integration.' }
                     ]
                 },
@@ -13163,7 +13164,7 @@
                 appMode = 'active';
                 return;
             }
-            // v4.45.43: Check URL invite param (from email CTA)
+            // v4.45.44: Check URL invite param (from email CTA)
             try {
                 var urlParams = new URLSearchParams(window.location.search);
                 var inviteDocId = urlParams.get('invite');
@@ -13306,6 +13307,7 @@
             checkReadOnly();
             updateDemoToggleUI();
             updateProfileChip(userData.profile.name || 'Demo Profile');
+            clearJobOverlay();
             
             // Navigate to skills view
             switchView('network');
@@ -13365,6 +13367,7 @@
             checkReadOnly();
             updateDemoToggleUI();
             updateProfileChip(userData.profile.name || 'My Profile');
+            clearJobOverlay();
             
             // Return to user's profile
             switchView('blueprint');
@@ -13412,6 +13415,7 @@
             
             checkReadOnly();
             updateProfileChip(userData.profile.name || templateId);
+            clearJobOverlay();
             switchView('network');
         }
         window.switchDemoProfile = switchDemoProfile;
