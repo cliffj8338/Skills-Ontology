@@ -1,4 +1,4 @@
-<!-- v4.45.35 | 2026-02-27 | Lightcast certs expanded to 1,583 credentials across 19 categories -->
+<!-- v4.45.37 | 2026-02-27 | Lightcast certs expanded to 1,583 credentials across 19 categories -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.35 - BUILD 20260227-lightcast-certs
-        var BP_VERSION = 'v4.45.35';
+        // BLUEPRINT v4.45.37 - BUILD 20260227-lightcast-certs
+        var BP_VERSION = 'v4.45.37';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -10587,8 +10587,18 @@
                 'join': 1, 'save': 1, 'post': 1, 'posted': 1, 'date': 1, 'yes': 1,
                 'content': 1, 'click': 1, 'accept': 1, 'skip': 1, 'main': 1, 'only': 1,
                 'training': 1, 'modeling': 1, 'economics': 1, 'accounting': 1,
-                'compensation': 1, 'adaptability': 1
+                'compensation': 1, 'adaptability': 1,
+                // Personality traits / values, not skills
+                'composure': 1, 'curiosity': 1, 'integrity': 1, 'empathy': 1,
+                'humility': 1, 'courage': 1, 'patience': 1, 'resilience': 1,
+                'grit': 1, 'tenacity': 1, 'passion': 1, 'enthusiasm': 1,
+                // Fragment leaks
+                'ashing': 1, 'tform': 1, 'monit': 1, 'staf': 1, 'hypot': 1,
+                'analy': 1, 'forma': 1, 'techni': 1, 'specif': 1
             };
+            // Terms that look like skills but are actually financial/business metrics
+            var metricBlocklist = /^(gross margin|net margin|ebitda|revenue|profit|margin|quota|target|headcount|turnover|attrition|run rate|burn rate|cagr|arpu|arr|mrr|nps|csat|ltv|cac|roi)$/i;
+            
             return skills.filter(function(s) {
                 var name = (s.name || '').trim();
                 if (name.length < 2 || name.length > 35) return false;
@@ -10596,6 +10606,10 @@
                 if (wordCount > 5) return false;
                 if (sentenceIndicators.test(name)) return false;
                 if (/^(the|a|an|to|in|on|at|by|for|or|and|of)\s/i.test(name)) return false;
+                // Admin blocklist
+                if (typeof isSkillBlocklisted === 'function' && isSkillBlocklisted(name)) return false;
+                // Metrics, not skills
+                if (metricBlocklist.test(name)) return false;
                 // Single words: must be at least 5 chars and not in common word blocklist
                 if (wordCount === 1) {
                     if (name.length < 5) return false;
@@ -31016,6 +31030,8 @@ body {
                 'economy', 'agriculture', 'manufacturing', 'retail',
                 'monit', 'tform', 'staf', 'less', 'tic', 'hypot', 'analy',
                 'tic', 'forma', 'techni', 'specif', 'improv', 'effici',
+                'ashing', 'composure', 'patience', 'resilience', 'grit',
+                'tenacity', 'passion', 'enthusiasm', 'diligence',
                 'able', 'well', 'high', 'best', 'good', 'great', 'fast',
                 'also', 'must', 'will', 'work', 'time', 'make', 'take',
                 'come', 'give', 'find', 'help', 'show', 'tell', 'keep',
@@ -31051,6 +31067,9 @@ body {
                 
                 // Skip values
                 if (VALUES_BLOCKLIST.has(lower)) return;
+                
+                // Skip financial metrics / KPIs (not skills)
+                if (/^(gross margin|net margin|ebitda|revenue target|profit margin|burn rate|run rate|headcount|turnover rate|attrition rate|quota attainment|market share|cagr|arpu|arr|mrr|nps score|csat|ltv|cac)$/i.test(name)) return;
                 
                 // Skip if looks like a word fragment (no vowels, or all caps < 4 chars that aren't known acronyms)
                 var knownAcronyms = new Set(['sql', 'crm', 'erp', 'sap', 'aws', 'gcp', 'api', 'css', 'html', 'xml', 'json', 'rest', 'saas', 'paas', 'iot', 'etl', 'rpa', 'nlp', 'llm', 'gpu', 'vpc', 'cdn', 'dns', 'tcp', 'udp', 'ssh', 'ssl', 'tls', 'vpn', 'seo', 'sem', 'ppc', 'roi', 'kpi', 'okr', 'cad', 'bim', 'plc', 'hmi']);
@@ -32734,6 +32753,146 @@ body {
                             found = bestSibling;
                             nameMatchQuality = 0.55; // Related but not identical
                             matchType = 'sibling';
+                        }
+                    }
+                }
+                
+                // 5. Concept-root matching: decompose gap skill into stems, find user skills sharing roots
+                if (!found && jWords.length > 0) {
+                    // Get stem roots for the job skill words
+                    var jRoots = jWords.map(function(w) { return _stemEquiv[w] || w; });
+                    // Also add the raw words as roots
+                    jWords.forEach(function(w) { if (jRoots.indexOf(w) === -1) jRoots.push(w); });
+                    
+                    var bestRootMatch = null;
+                    var bestRootScore = 0;
+                    
+                    userSkills.forEach(function(us) {
+                        var usProf = proficiencyValue(us.level);
+                        if (usProf < 3) return; // Only Advanced+ can cover via concept roots
+                        
+                        var usLower = us.name.toLowerCase();
+                        var usWords = usLower.split(/[\s\-\/&]+/).filter(function(w) { return w.length > 2; });
+                        var usRoots = usWords.map(function(w) { return _stemEquiv[w] || w; });
+                        usWords.forEach(function(w) { if (usRoots.indexOf(w) === -1) usRoots.push(w); });
+                        
+                        // Count how many job skill roots appear in user skill roots
+                        var rootHits = 0;
+                        jRoots.forEach(function(jr) {
+                            if (usRoots.some(function(ur) {
+                                if (ur === jr) return true;
+                                // Partial stem overlap for longer words (e.g., "analyt" in "analysis")
+                                if (ur.length >= 5 && jr.length >= 5) {
+                                    var shorter = ur.length < jr.length ? ur : jr;
+                                    var longer = ur.length >= jr.length ? ur : jr;
+                                    if (shorter.length >= 5 && longer.indexOf(shorter.substring(0, 5)) === 0) return true;
+                                }
+                                return false;
+                            })) rootHits++;
+                        });
+                        
+                        var rootScore = jRoots.length > 0 ? rootHits / jRoots.length : 0;
+                        // Need at least one significant root match, and score > 0.4 for multi-word
+                        var threshold = jRoots.length === 1 ? 1.0 : 0.4;
+                        if (rootHits > 0 && rootScore >= threshold && rootScore > bestRootScore) {
+                            // Prefer higher proficiency user skills
+                            if (!bestRootMatch || usProf > proficiencyValue(bestRootMatch.level)) {
+                                bestRootMatch = us;
+                                bestRootScore = rootScore;
+                            }
+                        }
+                    });
+                    
+                    if (bestRootMatch) {
+                        found = bestRootMatch;
+                        nameMatchQuality = 0.45 * bestRootScore; // Concept-root: lower credit
+                        matchType = 'concept';
+                    }
+                }
+                
+                // 6. Seniority implication: Executive/Senior with domain expertise implies operational skills
+                if (!found) {
+                    var userSeniority = '';
+                    var userRoles = (userData.roles || []);
+                    if (userRoles.some(function(r) { return /vp|vice|chief|president|executive|director|founder|ceo|cto|cfo|coo|gm|general manager/i.test(r.name); })) {
+                        userSeniority = 'Executive';
+                    } else if (userRoles.some(function(r) { return /senior|principal|lead|head/i.test(r.name); })) {
+                        userSeniority = 'Senior';
+                    }
+                    
+                    if (userSeniority === 'Executive' || userSeniority === 'Senior') {
+                        // Infer broad domain of gap skill from ESCO bridge or keywords
+                        var gapDomain = '';
+                        if (_escoSkillToSubcategory && _escoSkillToSubcategory[jLower]) {
+                            gapDomain = (_escoSkillToSubcategory[jLower] || '').split(/[\/\-:]/)[0].trim().toLowerCase();
+                        }
+                        
+                        // Keyword-based domain inference when bridge doesn't have it
+                        if (!gapDomain) {
+                            var domainKeywords = {
+                                'business': /\b(business|commercial|market|revenue|growth|profit|acumen|awareness|development|venture)\b/i,
+                                'finance': /\b(financ|budget|cost|pricing|revenue|p&l|accounting|treasury|audit|due diligence|valuation)\b/i,
+                                'analytics': /\b(analy|report|metric|data|benchmark|dashboard|insight|forecast|model|statistic)\b/i,
+                                'strategy': /\b(strateg|planning|roadmap|vision|transformation|innovation|consulting)\b/i,
+                                'management': /\b(manag|leadership|coordination|administration|governance|operations|oversight)\b/i,
+                                'hr': /\b(talent|recruit|career|workforce|employee|personnel|succession|retention|onboard)\b/i,
+                                'technology': /\b(software|engineer|architect|devops|cloud|infrastructure|security|system)\b/i,
+                                'marketing': /\b(marketing|brand|content|campaign|digital|seo|social media|advertising|creative)\b/i
+                            };
+                            var skillText = jobSkill.name;
+                            Object.keys(domainKeywords).forEach(function(domain) {
+                                if (!gapDomain && domainKeywords[domain].test(skillText)) {
+                                    gapDomain = domain;
+                                }
+                            });
+                        }
+                        
+                        if (gapDomain) {
+                            var bestImplied = null;
+                            var bestImpliedProf = 0;
+                            var minProf = userSeniority === 'Executive' ? 4 : 5; // Expert for Exec, Mastery for Senior
+                            
+                            userSkills.forEach(function(us) {
+                                var usProf = proficiencyValue(us.level);
+                                if (usProf < minProf) return;
+                                
+                                var usLower = us.name.toLowerCase();
+                                
+                                // Check if user skill is in same domain via ESCO bridge
+                                var usDomain = '';
+                                if (_escoSkillToSubcategory && _escoSkillToSubcategory[usLower]) {
+                                    usDomain = (_escoSkillToSubcategory[usLower] || '').split(/[\/\-:]/)[0].trim().toLowerCase();
+                                }
+                                // Also check via keyword inference on user skill name
+                                if (!usDomain) {
+                                    var domainKeywords2 = {
+                                        'business': /\b(business|commercial|market|revenue|growth|profit|strategy|competitive)\b/i,
+                                        'finance': /\b(financ|budget|cost|pricing|p&l|accounting|treasury|audit)\b/i,
+                                        'analytics': /\b(analy|report|metric|data|benchmark|evaluat|assessment|research)\b/i,
+                                        'strategy': /\b(strateg|planning|roadmap|vision|go.to.market|transformation|innovation)\b/i,
+                                        'management': /\b(manag|leadership|coordination|administration|governance|operations)\b/i,
+                                        'hr': /\b(talent|recruit|career|workforce|employee|personnel|training|human)\b/i,
+                                        'technology': /\b(software|engineer|architect|devops|cloud|infrastructure|security)\b/i,
+                                        'marketing': /\b(marketing|brand|content|campaign|digital|seo|creative|design)\b/i
+                                    };
+                                    Object.keys(domainKeywords2).forEach(function(domain) {
+                                        if (!usDomain && domainKeywords2[domain].test(us.name)) {
+                                            usDomain = domain;
+                                        }
+                                    });
+                                }
+                                
+                                if (usDomain && usDomain === gapDomain && usProf > bestImpliedProf) {
+                                    bestImplied = us;
+                                    bestImpliedProf = usProf;
+                                }
+                            });
+                            
+                            if (bestImplied) {
+                                found = bestImplied;
+                                nameMatchQuality = 0.40; // Seniority-implied: lowest credit
+                                matchType = 'implied';
+                            }
                         }
                     }
                 }
