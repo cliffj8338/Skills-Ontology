@@ -1,4 +1,4 @@
-<!-- v4.45.42 | 2026-02-28 | Invited user welcome experience -->
+<!-- v4.45.43 | 2026-02-28 | Fix quickScoreJob overwriting matchJobToProfile scores -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1502,8 +1502,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.42 - BUILD 20260228-invited-welcome
-        var BP_VERSION = 'v4.45.42';
+        // BLUEPRINT v4.45.43 - BUILD 20260228-score-fix
+        var BP_VERSION = 'v4.45.43';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2105,7 +2105,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260228-invited-welcome               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260228-score-fix               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -4537,6 +4537,7 @@
                         { id: 'p2-5p', name: 'Invite CTA flow fix', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.45.40: Build My Blueprint button now checks Firestore invite status dynamically on click. Waitlisted users who have been invited get detected and routed to onboarding instead of waitlist modal. Landing page re-renders on invite detection.' },
                         { id: 'p2-5q', name: 'Invite email deep link + UX gating', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.41: Email invite links now include ?invite=<docId> for instant invite detection on fresh browsers. detectAppMode() checks URL param, verifies against Firestore, sets appMode before UI renders. Teaser modal and auto-tour suppressed for invited/active users. Cloud Function updated to generate invite URLs.' },
                         { id: 'p2-5r', name: 'Invited user welcome experience', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.42: renderWelcomePage() branches for invited/active users into dedicated welcome page. Clean \"You\'re In\" badge, feature highlights (Skills Architecture, Market Valuation, Job Intelligence), prominent Get Started CTA with glow, and demo fallback. Public landing page never shown to invited users.' },
+                        { id: 'p2-5s', name: 'Match score override fix', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.45.43: rescoreAllJobs() and rescoreOneJob() were overwriting matchJobToProfile 6-pass scores with quickScoreJob text-search scores. After v4.45.39 unified quickScoreJob with parseJobLocally (43K skills), gap count exploded, dropping all pipeline scores to 0-15%. Fix: matchJobToProfile is now authoritative for jobs with parsedSkills; quickScoreJob only used for raw-text-only Find Jobs results.' },
                         { id: 'p2-6a', name: 'Work Blueprint function refinement', status: 'planned', category: 'feature', priority: 'high', notes: 'Ongoing improvements to WB ecosystem. Includes: Firestore-backed comparison persistence (replace localStorage), comparison sharing via URL tokens, batch comparison mode (multiple candidates against one WB), WB template library (common roles pre-built), WB diff view (compare two WBs side-by-side), improved gap recommendation engine with learning resource links, WB versioning/history, and WB-to-scouting-report pipeline integration.' }
                     ]
                 },
@@ -13162,7 +13163,7 @@
                 appMode = 'active';
                 return;
             }
-            // v4.45.42: Check URL invite param (from email CTA)
+            // v4.45.43: Check URL invite param (from email CTA)
             try {
                 var urlParams = new URLSearchParams(window.location.search);
                 var inviteDocId = urlParams.get('invite');
@@ -33136,12 +33137,11 @@ body {
             userData.savedJobs.forEach(function(job) {
                 var oldScore = job.matchData ? job.matchData.score : 0;
                 if (job.parsedSkills && job.parsedSkills.length > 0) {
+                    // Jobs with structured parsedSkills: use the 6-pass matcher (authoritative)
                     job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles || [] });
-                }
-                var quick = quickScoreJob(job.title, job.rawText || '', job.parsedSkills || []);
-                if (job.matchData) {
-                    job.matchData.score = quick.score;
                 } else {
+                    // Jobs with only raw text: fall back to quick text-search scorer
+                    var quick = quickScoreJob(job.title, job.rawText || '', job.parsedSkills || []);
                     job.matchData = { score: quick.score, matched: quick.matched, gaps: quick.gaps, surplus: [] };
                 }
                 if (!job.companyValues) job.companyValues = getCompanyValues(job.company, job.rawText || job.description || "");
@@ -33164,12 +33164,11 @@ body {
             }
             var oldScore = job.matchData ? job.matchData.score : 0;
             if (job.parsedSkills && job.parsedSkills.length > 0) {
+                // Jobs with structured parsedSkills: use the 6-pass matcher (authoritative)
                 job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles || [] });
-            }
-            var quick = quickScoreJob(job.title, job.rawText || '', job.parsedSkills || []);
-            if (job.matchData) {
-                job.matchData.score = quick.score;
             } else {
+                // Jobs with only raw text: fall back to quick text-search scorer
+                var quick = quickScoreJob(job.title, job.rawText || '', job.parsedSkills || []);
                 job.matchData = { score: quick.score, matched: quick.matched, gaps: quick.gaps, surplus: [] };
             }
             if (!job.companyValues) job.companyValues = getCompanyValues(job.company, job.rawText || job.description || "");
