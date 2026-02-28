@@ -1,4 +1,4 @@
-<!-- v4.45.34 | 2026-02-27 | Lightcast certs expanded to 1,583 credentials across 19 categories -->
+<!-- v4.45.35 | 2026-02-27 | Lightcast certs expanded to 1,583 credentials across 19 categories -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1498,8 +1498,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.34 - BUILD 20260227-lightcast-certs
-        var BP_VERSION = 'v4.45.34';
+        // BLUEPRINT v4.45.35 - BUILD 20260227-lightcast-certs
+        var BP_VERSION = 'v4.45.35';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2323,6 +2323,9 @@
                     console.log('🔐 Signed in:', user.email);
                     checkAdminRole(user.uid).then(function(isAdmin) {
                         fbIsAdmin = isAdmin;
+                        if (typeof loadAdminSkillBlocklist === 'function') {
+                            loadAdminSkillBlocklist();
+                        }
                         detectAppMode();
                         updateAuthUI();
                         rebuildProfileDropdown();
@@ -4373,6 +4376,9 @@
                 + '<button onclick="saveJobSourceKeys()" style="padding:10px 20px; background:linear-gradient(135deg,#3b82f6,#2563eb); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">'
                 + bpIcon('save',14) + ' Save API Keys</button>'
                 + '</div>';
+            
+            // Skill Blocklist
+            html += '<div id="adminBlocklistContainer">' + renderAdminBlocklistPanel() + '</div>';
             
             el.innerHTML = html;
         }
@@ -16409,6 +16415,109 @@
             if (siblings.length > 25) return []; // Too broad, skip
             return siblings.filter(function(s) { return s !== skillNameLower; });
         }
+
+        // ===== ADMIN SKILL BLOCKLIST =====
+        // Firestore-backed list of skill names to exclude from JD parsing results
+        var _adminSkillBlocklist = new Set();
+        var _adminSkillBlocklistLoaded = false;
+        
+        function loadAdminSkillBlocklist() {
+            if (!fbDb) return;
+            fbDb.collection('meta').doc('skillBlocklist').get().then(function(doc) {
+                if (doc.exists) {
+                    var data = doc.data();
+                    var skills = data.skills || [];
+                    _adminSkillBlocklist = new Set(skills.map(function(s) { return s.toLowerCase().trim(); }));
+                    console.log('\u2713 Admin skill blocklist loaded: ' + _adminSkillBlocklist.size + ' entries');
+                }
+                _adminSkillBlocklistLoaded = true;
+            }).catch(function(e) {
+                console.warn('Skill blocklist load failed:', e.message);
+                _adminSkillBlocklistLoaded = true;
+            });
+        }
+        
+        function saveAdminSkillBlocklist() {
+            if (!fbDb) return;
+            var arr = Array.from(_adminSkillBlocklist).sort();
+            fbDb.collection('meta').doc('skillBlocklist').set({ skills: arr, updatedAt: new Date().toISOString() })
+                .then(function() { console.log('Skill blocklist saved: ' + arr.length + ' entries'); })
+                .catch(function(e) { console.warn('Skill blocklist save failed:', e.message); });
+        }
+        
+        function isSkillBlocklisted(name) {
+            return _adminSkillBlocklist.has((name || '').toLowerCase().trim());
+        }
+        
+        function adminBlockSkill(name, jobIdx) {
+            if (readOnlyGuard()) return;
+            var lower = (name || '').toLowerCase().trim();
+            if (!lower) return;
+            _adminSkillBlocklist.add(lower);
+            saveAdminSkillBlocklist();
+            showToast('Blocked: "' + name + '" — will be filtered from all future parses.', 'info', 3000);
+            // Re-render current job if viewing one
+            if (typeof jobIdx === 'number' && jobIdx >= 0) {
+                var jobs = userData.savedJobs || [];
+                if (jobs[jobIdx] && jobs[jobIdx].matchData) {
+                    jobs[jobIdx].matchData.gaps = (jobs[jobIdx].matchData.gaps || []).filter(function(g) {
+                        return !isSkillBlocklisted(g.name);
+                    });
+                    showJobDetail(jobIdx);
+                }
+            }
+        }
+        window.adminBlockSkill = adminBlockSkill;
+        
+        function adminUnblockSkill(name) {
+            _adminSkillBlocklist.delete((name || '').toLowerCase().trim());
+            saveAdminSkillBlocklist();
+            showToast('Unblocked: "' + name + '"', 'info', 2000);
+        }
+        window.adminUnblockSkill = adminUnblockSkill;
+        
+        function renderAdminBlocklistPanel() {
+            var sorted = Array.from(_adminSkillBlocklist).sort();
+            var html = '<div class="blueprint-section">'
+                + '<div class="blueprint-section-header">'
+                + '<div class="blueprint-section-title">'
+                + '<span class="section-icon">' + bpIcon('cancel', 20) + '</span>'
+                + '<span>Skill Blocklist (' + sorted.length + ')</span>'
+                + '</div>'
+                + '</div>'
+                + '<p style="font-size:0.82em; color:var(--text-muted); margin-bottom:16px;">Skills on this list are filtered from all JD parsing results. Block garbage, fragments, and non-skills that leak through the extraction engine.</p>'
+                + '<div style="margin-bottom:16px; display:flex; gap:8px;">'
+                + '<input type="text" id="blocklistAddInput" class="settings-input" placeholder="Add a skill to block..." style="flex:1;" onkeydown="if(event.key===\'Enter\'){adminBlockSkillFromInput()}">'
+                + '<button onclick="adminBlockSkillFromInput()" style="padding:6px 16px; background:var(--accent); color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85em;">Block</button>'
+                + '</div>';
+            
+            if (sorted.length === 0) {
+                html += '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85em;">No blocked skills yet. Block skills from gap chips in job details, or add them here.</div>';
+            } else {
+                html += '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+                sorted.forEach(function(skill) {
+                    html += '<span style="display:inline-flex; align-items:center; gap:6px; padding:4px 10px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:5px; font-size:0.82em; color:#ef4444;">'
+                        + escapeHtml(skill)
+                        + '<span onclick="adminUnblockSkill(\'' + escapeHtml(skill).replace(/'/g, "\\'") + '\'); renderAdminBlocklistPanel();" style="cursor:pointer; opacity:0.6; font-size:1.1em;" title="Unblock">\u00D7</span>'
+                        + '</span>';
+                });
+                html += '</div>';
+            }
+            html += '</div>';
+            return html;
+        }
+        window.renderAdminBlocklistPanel = renderAdminBlocklistPanel;
+        
+        function adminBlockSkillFromInput() {
+            var inp = document.getElementById('blocklistAddInput');
+            if (!inp || !inp.value.trim()) return;
+            adminBlockSkill(inp.value.trim(), -1);
+            inp.value = '';
+            // Re-render panel
+            var container = document.getElementById('adminBlocklistContainer');
+            if (container) container.innerHTML = renderAdminBlocklistPanel();
+        }
+        window.adminBlockSkillFromInput = adminBlockSkillFromInput;
 
         // Search skills by query - returns array always
         function searchSkills(query) {
@@ -30971,6 +31080,13 @@ body {
             
             skillMatches = cleanedSkills;
             
+            // Admin blocklist filter
+            if (_adminSkillBlocklist.size > 0) {
+                skillMatches = skillMatches.filter(function(s) {
+                    return !isSkillBlocklisted(s.name);
+                });
+            }
+            
             // Extract roles/departments
             var roles = [];
             var rolePatterns = { 'Engineering': /engineer|develop|software|technical/i, 'Product': /product|ux|design/i,
@@ -32677,6 +32793,8 @@ body {
             // Deduplicate gaps by normalized name
             var gapSeen = new Set();
             gaps = gaps.filter(function(g) {
+                // Admin blocklist
+                if (isSkillBlocklisted(g.name)) return false;
                 var norm = g.name.toLowerCase().replace(/\s*\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
                 if (gapSeen.has(norm)) return false;
                 gapSeen.add(norm);
@@ -33037,10 +33155,15 @@ body {
                 gaps.forEach(function(g, gi) {
                     var reqBadge = g.requirement === 'Required' ? ' \u2605' : '';
                     var profLabel = g.proficiency ? ' (' + g.proficiency + ')' : '';
-                    html += '<span class="jd-skill-chip jd-chip-gap" style="cursor:pointer;" '
+                    html += '<span class="jd-skill-chip jd-chip-gap" style="cursor:pointer; display:inline-flex; align-items:center; gap:4px;" '
                         + 'onclick="quickAddGapSkill(\'' + escapeHtml(g.name).replace(/'/g, "\\'") + '\', \'' + escapeHtml(g.proficiency || 'Proficient') + '\', ' + idx + ')" '
                         + 'title="Click to add to your profile">'
-                        + escapeHtml(g.name) + '<span style="font-size:0.72em; opacity:0.6;">' + escapeHtml(profLabel) + '</span>' + reqBadge + '</span>';
+                        + escapeHtml(g.name) + '<span style="font-size:0.72em; opacity:0.6;">' + escapeHtml(profLabel) + '</span>' + reqBadge;
+                    if (fbIsAdmin) {
+                        html += '<span onclick="event.stopPropagation(); adminBlockSkill(\'' + escapeHtml(g.name).replace(/'/g, "\\'") + '\', ' + idx + ');" '
+                            + 'style="margin-left:2px; opacity:0.4; font-size:0.9em; cursor:pointer;" title="Block this skill (admin)">\u2715</span>';
+                    }
+                    html += '</span>';
                 });
                 html += '</div>'
                     + '<div style="margin-top:8px; font-size:0.75em; color:var(--text-muted);">\u2605 = Required by employer</div>'
