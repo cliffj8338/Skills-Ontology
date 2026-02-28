@@ -1,4 +1,4 @@
-<!-- v4.45.37 | 2026-02-27 | Lightcast certs expanded to 1,583 credentials across 19 categories -->
+<!-- v4.45.40 | 2026-02-28 | Invite CTA flow fix -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -331,6 +331,10 @@
         @keyframes demoPulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.4; }
+        }
+        @keyframes ctaGlow {
+            0%, 100% { box-shadow: 0 0 8px rgba(96,165,250,0.3), 0 0 20px rgba(96,165,250,0.1); }
+            50% { box-shadow: 0 0 16px rgba(96,165,250,0.6), 0 0 40px rgba(96,165,250,0.25); }
         }
         .demo-exit-btn {
             background: none;
@@ -1498,8 +1502,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.37 - BUILD 20260227-lightcast-certs
-        var BP_VERSION = 'v4.45.37';
+        // BLUEPRINT v4.45.40 - BUILD 20260228-invite-flow-fix
+        var BP_VERSION = 'v4.45.40';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2101,7 +2105,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260227-lightcast-certs               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260228-invite-flow-fix               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -4528,6 +4532,9 @@
                         { id: 'p2-5k', name: 'Admin skill blocklist', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.35: Firestore-backed admin tool (meta/skillBlocklist) for manually curating JD extraction noise. Inline \u2715 buttons on gap chips (admin-only). Admin Config panel with full management UI. Integrates into parseJobLocally(), matchJobToProfile(), and _wbSkillQualityFilter(). Loads for all users on auth.' },
                         { id: 'p2-5l', name: 'Compare engine filter unification', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.45.37: _wbSkillQualityFilter() upgraded with admin blocklist integration, personality trait filtering, fragment detection, and financial metrics regex. Prevents "Ashing", "Composure", "Gross Margin" etc from appearing in Compare results.' },
                         { id: 'p2-5m', name: 'Job network graph centering fix', status: 'done', category: 'bugfix', priority: 'medium', notes: 'v4.45.32: Job view centerX was 0.18 (left-justified). Changed to 0.35 for balanced centering with job info tile offset.' },
+                        { id: 'p2-5n', name: 'Landing page CTA glow + copy cleanup', status: 'done', category: 'ui', priority: 'medium', notes: 'v4.45.38: Pulsating glow animation on See It In Action button. Removed em-dash from hero copy.' },
+                        { id: 'p2-5o', name: 'quickScoreJob pipeline unification', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.45.39: Replaced hardcoded 28-term commonSkillTerms with parseJobLocally() pipeline for gap detection. Find Jobs now uses full 43K skill library, admin blocklist, validation layer, and fragment filtering for gaps.' },
+                        { id: 'p2-5p', name: 'Invite CTA flow fix', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.45.40: Build My Blueprint button now checks Firestore invite status dynamically on click. Waitlisted users who have been invited get detected and routed to onboarding instead of waitlist modal. Landing page re-renders on invite detection.' },
                         { id: 'p2-6a', name: 'Work Blueprint function refinement', status: 'planned', category: 'feature', priority: 'high', notes: 'Ongoing improvements to WB ecosystem. Includes: Firestore-backed comparison persistence (replace localStorage), comparison sharing via URL tokens, batch comparison mode (multiple candidates against one WB), WB template library (common roles pre-built), WB diff view (compare two WBs side-by-side), improved gap recommendation engine with learning resource links, WB versioning/history, and WB-to-scouting-report pipeline integration.' }
                     ]
                 },
@@ -5445,7 +5452,7 @@
                     deps: ['O*NET crosswalk', 'Skill libraries'], debt: 'Fuzzy matching could use Levenshtein distance' }},
                 { id: 'match-engine', name: 'Match Scoring', layer: 'runtime', col: 4,
                   color: '#f59e0b', icon: 'target',
-                  detail: { desc: 'Two tiers: quickScoreJob (Find Jobs keyword scan, capped 90%) and matchJobToProfile (Pipeline, AI-parsed skill comparison). Find Jobs uses live API search by default.',
+                  detail: { desc: 'Two tiers: quickScoreJob (Find Jobs, uses parseJobLocally pipeline for gap detection, capped 90%) and matchJobToProfile (Pipeline, 6-pass ontology matching). Find Jobs uses live API search by default.',
                     functions: ['quickScoreJob()', 'matchJobToProfile()', 'rescoreAllJobs()'], lines: '~22400-23700',
                     inputs: ['skillsData', 'Job description text or parsed skills'], outputs: ['Match %', 'Matched/gap/surplus arrays', 'BLS salary'],
                     deps: ['skillsData', 'BLS wage data', 'O*NET crosswalk'], debt: 'quickScore and pipeline scores diverge. Ideal: single engine.' }},
@@ -13531,9 +13538,6 @@
         function checkWaitlistInviteStatus() {
             if (appMode !== 'waitlisted' || !waitlistEmail || !fbDb) return;
             
-            // Only attempt if user is authenticated (signed in)
-            if (!firebase.auth().currentUser) return;
-            
             var docId = waitlistEmail.toLowerCase().replace(/[^a-z0-9]/g, '_');
             fbDb.collection('waitlist').doc(docId).get().then(function(doc) {
                 if (doc.exists) {
@@ -13550,6 +13554,7 @@
                         showToast('You\u2019ve been invited! Full access is now unlocked.', 'success');
                         var banner = document.getElementById('readonlyBanner');
                         if (banner) banner.style.display = 'none';
+                        renderWelcomePage();
                     }
                 }
             }).catch(function(e) { /* Expected for non-admin users */ });
@@ -13560,6 +13565,38 @@
             // Waitlist reads require admin — skip for public users
             // Admin dashboard shows real counts
         }
+
+        // ===== BUILD MY BLUEPRINT CTA HANDLER =====
+        function handleBuildMyBlueprint() {
+            if (appMode === 'active' || appMode === 'invited') {
+                showOnboardingWizard();
+                return;
+            }
+            // For waitlisted users, check Firestore for invite status before gating
+            if (appMode === 'waitlisted' && waitlistEmail && fbDb) {
+                var docId = waitlistEmail.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                fbDb.collection('waitlist').doc(docId).get().then(function(doc) {
+                    if (doc.exists && doc.data().status === 'invited') {
+                        appMode = 'invited';
+                        safeSet('blueprint_waitlist', JSON.stringify({
+                            name: doc.data().name,
+                            email: doc.data().email,
+                            status: 'invited',
+                            position: doc.data().position
+                        }));
+                        showToast('You\u2019ve been invited! Full access is now unlocked.', 'success');
+                        showOnboardingWizard();
+                    } else {
+                        showWaitlist();
+                    }
+                }).catch(function(e) {
+                    showWaitlist();
+                });
+                return;
+            }
+            showWaitlist();
+        }
+        window.handleBuildMyBlueprint = handleBuildMyBlueprint;
 
         // ===== WELCOME / LANDING PAGE =====
         function renderWelcomePage() {
@@ -13576,13 +13613,13 @@
                 + '<h2 style="font-size:clamp(1.8em, 7vw, 2.6em); font-weight:700; color:var(--accent); margin-bottom:14px; line-height:1.12;">'
                 + 'The Resume <span style="white-space:nowrap;">is Dead.</span><br>Here is Your Blueprint.<span style="font-size:0.45em; font-weight:400; vertical-align:super;">\u2122</span></h2>'
                 + '<p style="font-size:1.08em; color:var(--text-secondary); line-height:1.7; max-width:620px; margin:0 auto 28px;">'
-                + 'The resume is a relic of a broken system. It\u2019s a static record of where you\u2019ve been, not a projection of what you can do. We built Blueprint to dismantle that limitation. It maps your actual capabilities, calculates your market worth, and defines your trajectory. Stop guessing your value and start negotiating with data. This isn\u2019t a profile\u2014it\u2019s your\u00a0leverage.</p>'
+                + 'The resume is a relic of a broken system. It\u2019s a static record of where you\u2019ve been, not a projection of what you can do. We built Blueprint to dismantle that limitation. It maps your actual capabilities, calculates your market worth, and defines your trajectory. Stop guessing your value and start negotiating with data. This isn\u2019t a profile. It\u2019s your\u00a0leverage.</p>'
                 + '<div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:40px;">'
                 + '<button onclick="viewSampleProfile()" style="'
                 + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; min-width:240px; text-align:center; '
-                + 'background:transparent; color:var(--accent); border:2px solid var(--accent); transition:all 0.2s;'
+                + 'background:transparent; color:var(--accent); border:2px solid var(--accent); transition:all 0.2s; animation:ctaGlow 2.5s ease-in-out infinite;'
                 + '">' + bpIcon('users',16) + ' See It In Action</button>'
-                + '<button onclick="' + (appMode === 'active' || appMode === 'invited' ? 'showOnboardingWizard()' : 'showWaitlist()') + '" style="'
+                + '<button onclick="handleBuildMyBlueprint()" style="'
                 + 'padding:14px 28px; border-radius:10px; font-size:0.95em; font-weight:600; cursor:pointer; min-width:240px; text-align:center; '
                 + 'background:var(--accent); color:#fff; border:2px solid var(--accent); transition:all 0.2s;'
                 + '">' + bpIcon('zap',16) + ' Build My Blueprint</button>'
@@ -16212,8 +16249,6 @@
                     if (!response.ok) continue;
                     const data = await response.json();
                     skillLibraryIndex = data;
-                    window._skillNameSet = new Set();
-                    if (data.index) { data.index.forEach(function(e) { window._skillNameSet.add((e.name || e.n || '').toLowerCase()); }); }
                     recategorizeLightcastSkills();
                     buildEscoCategoryIndex();
                     const count = data.count || data.totalSkills || data.index?.length || '?';
@@ -16405,14 +16440,14 @@
             
             // Also index user's own skills for reverse lookup
             if (skillsData && skillsData.skills) {
-                if (!window._skillLibNameMap) {
-                    window._skillLibNameMap = new Map();
-                    skillLibraryIndex.index.forEach(function(e) { var ln = (e.n || '').toLowerCase(); if (ln) window._skillLibNameMap.set(ln, e); });
-                }
                 skillsData.skills.forEach(function(s) {
                     var name = (s.name || '').toLowerCase().trim();
                     if (!name || name.length < 3 || _escoSkillToSubcategory[name]) return;
-                    var libMatch = window._skillLibNameMap.get(name) || null;
+                    // Try to find subcategory from a library match
+                    var libMatch = skillLibraryIndex.index.find(function(e) {
+                        var ln = (e.n || '').toLowerCase();
+                        return ln === name || (ln.length > 5 && (ln.indexOf(name) !== -1 || name.indexOf(ln) !== -1));
+                    });
                     if (libMatch) {
                         var subcat = (libMatch.sc || libMatch.c || '').toLowerCase().trim();
                         if (subcat) {
@@ -31084,8 +31119,8 @@ body {
                 
                 // Single words ≤ 6 chars that aren't known acronyms: verify against skill library
                 if (wordCount === 1 && name.length <= 6 && !knownAcronyms.has(lower)) {
-                    var inLibrary = window._skillNameSet ? window._skillNameSet.has(lower) :
-                        (skillLibraryIndex && skillLibraryIndex.index && skillLibraryIndex.index.some(function(e) { return (e.n || '').toLowerCase() === lower; }));
+                    var inLibrary = skillLibraryIndex && skillLibraryIndex.index && 
+                        skillLibraryIndex.index.some(function(e) { return (e.n || '').toLowerCase() === lower; });
                     if (!inLibrary) return;
                 }
                 
@@ -31851,11 +31886,11 @@ body {
             if (!skillLibraryIndex) return;
             if (!skillLibraryIndex.index) skillLibraryIndex.index = [];
             var lower = skillName.toLowerCase();
-            var exists = window._skillNameSet ? window._skillNameSet.has(lower) :
-                skillLibraryIndex.index.some(function(s) { return (s.n || s.name || '').toLowerCase() === lower; });
+            var exists = skillLibraryIndex.index.some(function(s) {
+                return (s.n || s.name || '').toLowerCase() === lower;
+            });
             if (!exists) {
                 skillLibraryIndex.index.push({ n: skillName, c: category || 'Custom', source: 'custom' });
-                if (window._skillNameSet) window._skillNameSet.add(lower);
                 if (skillLibraryIndex.totalSkills) skillLibraryIndex.totalSkills++;
                 console.log('📚 Registered in skill library:', skillName);
             }
@@ -34280,18 +34315,21 @@ body {
                 }
             });
             
-            // Extract gap skills (keywords in JD not in user profile)
+            // Extract gap skills via parseJobLocally pipeline (43K library + all blocklists)
             var gapSkills = [];
-            var commonSkillTerms = ['project management', 'data analysis', 'machine learning', 'product management',
-                'strategic planning', 'business development', 'change management', 'stakeholder management',
-                'agile', 'scrum', 'python', 'javascript', 'sql', 'excel', 'powerpoint', 'salesforce',
-                'leadership', 'communication', 'negotiation', 'presentation', 'analytics', 'budgeting',
-                'forecasting', 'customer success', 'account management', 'marketing strategy'];
-            commonSkillTerms.forEach(function(term) {
-                if (searchText.indexOf(term) !== -1 && !seen[term]) {
-                    gapSkills.push(term.replace(/\b\w/g, function(c) { return c.toUpperCase(); }));
-                }
-            });
+            try {
+                var jdText = (title || '') + '\n' + (description || '') + '\n' + (tags || []).join(' ');
+                var parsed = parseJobLocally(jdText);
+                var parsedSkills = parsed.skills || [];
+                parsedSkills.forEach(function(ps) {
+                    var psLower = ps.name.toLowerCase().trim();
+                    if (!seen[psLower]) {
+                        gapSkills.push(ps.name);
+                    }
+                });
+            } catch(e) {
+                console.warn('quickScoreJob: parseJobLocally fallback', e.message);
+            }
             
             // Scoring: weighted approach
             // Total possible weight = userSkills count * avg weight (~2) - we approximate expected JD requirements
