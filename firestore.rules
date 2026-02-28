@@ -1,10 +1,11 @@
-// Blueprint™ Firestore Rules v1.4 | 2026-02-27
+// Blueprint™ Firestore Rules v1.5 | 2026-02-28
 // Changelog:
 //   v1.0 | 2026-01-15 | Initial rules: users, reports, waitlist, jobs, meta
 //   v1.1 | 2026-02-01 | Added work_blueprints subcollection (30-key limit)
 //   v1.2 | 2026-02-10 | Added analytics_events, site_analytics, report_views
 //   v1.3 | 2026-02-18 | Split report read into get/list, share token validation
 //   v1.4 | 2026-02-27 | Raised work_blueprints key limit from 30 → 50
+//   v1.5 | 2026-02-28 | Security hardening: meta admin-write, analytics owner-scoped reads
 
 rules_version = '2';
 service cloud.firestore {
@@ -159,7 +160,8 @@ service cloud.firestore {
         && request.resource.data.reportId.size() <= 100
         && request.resource.data.viewedAt is timestamp
         && request.resource.data.keys().size() <= 6;
-      allow read: if isAuth();
+      allow read: if isAdmin()
+        || (isAuth() && resource.data.viewedBy == request.auth.uid);
       allow update, delete: if false;
     }
 
@@ -170,7 +172,8 @@ service cloud.firestore {
         && request.resource.data.type.size() <= 50
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.keys().size() <= 10;
-      allow read: if isAuth();
+      allow read: if isAdmin()
+        || (isAuth() && resource.data.uid == request.auth.uid);
       allow update, delete: if false;
     }
 
@@ -206,10 +209,11 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // ── META (serverless write only) ────────────────
+    // ── META ──────────────────────────────────────────
     match /meta/{docId} {
       allow read: if isAuth();
-      allow write: if false;
+      allow write: if isAdmin()
+        && request.resource.data.keys().size() <= 10;
     }
   }
 }

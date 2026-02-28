@@ -39,12 +39,12 @@
             var roleSuggestions = '';
             if (userData.roles && userData.roles.length > 0) {
                 roleSuggestions = userData.roles.map(function(r) {
-                    return '<button onclick="document.getElementById(\'findJobsKeyword\').value=\'' + r.name.replace(/'/g, "\\'") + '\'; searchOpportunities();" '
+                    return '<button onclick="document.getElementById(\'findJobsKeyword\').value=\'' + escapeHtml(r.name).replace(/'/g, "&#39;") + '\'; searchOpportunities();" '
                         + 'style="padding:4px 12px; border-radius:14px; border:1px solid var(--border); background:none; '
                         + 'color:var(--text-secondary); cursor:pointer; font-size:0.82em; transition:all 0.15s;" '
                         + 'onmouseover="this.style.borderColor=\'var(--accent)\'; this.style.color=\'var(--accent)\'" '
                         + 'onmouseout="this.style.borderColor=\'var(--border)\'; this.style.color=\'var(--text-secondary)\'">'
-                        + r.name + '</button>';
+                        + escapeHtml(r.name) + '</button>';
                 }).join('');
             }
             
@@ -123,7 +123,7 @@
             if (readOnlyGuard()) return;
             var modal = document.getElementById('exportModal');
             var mc = modal.querySelector('.modal-content');
-            var savedKey = safeGet('wbAnthropicKey') || '';
+            var savedKey = (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('wbAnthropicKey') : null) || safeGet('wbAnthropicKey') || '';
             
             mc.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left">'
@@ -275,8 +275,10 @@
             var sourceNote = (document.getElementById('jdSourceNote').value || '').trim();
             var apiKey = (document.getElementById('jdApiKey').value || '').trim();
             
-            // Save API key for reuse
-            if (apiKey) localStorage.setItem('wbAnthropicKey', apiKey);
+            if (apiKey) {
+                try { sessionStorage.setItem('wbAnthropicKey', apiKey); } catch(e) {}
+                try { localStorage.removeItem('wbAnthropicKey'); } catch(e) {}
+            }
             
             // Show progress
             var statusEl = document.getElementById('jdParsingStatus');

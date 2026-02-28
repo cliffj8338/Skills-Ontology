@@ -16212,6 +16212,8 @@
                     if (!response.ok) continue;
                     const data = await response.json();
                     skillLibraryIndex = data;
+                    window._skillNameSet = new Set();
+                    if (data.index) { data.index.forEach(function(e) { window._skillNameSet.add((e.name || e.n || '').toLowerCase()); }); }
                     recategorizeLightcastSkills();
                     buildEscoCategoryIndex();
                     const count = data.count || data.totalSkills || data.index?.length || '?';
@@ -16403,14 +16405,14 @@
             
             // Also index user's own skills for reverse lookup
             if (skillsData && skillsData.skills) {
+                if (!window._skillLibNameMap) {
+                    window._skillLibNameMap = new Map();
+                    skillLibraryIndex.index.forEach(function(e) { var ln = (e.n || '').toLowerCase(); if (ln) window._skillLibNameMap.set(ln, e); });
+                }
                 skillsData.skills.forEach(function(s) {
                     var name = (s.name || '').toLowerCase().trim();
                     if (!name || name.length < 3 || _escoSkillToSubcategory[name]) return;
-                    // Try to find subcategory from a library match
-                    var libMatch = skillLibraryIndex.index.find(function(e) {
-                        var ln = (e.n || '').toLowerCase();
-                        return ln === name || (ln.length > 5 && (ln.indexOf(name) !== -1 || name.indexOf(ln) !== -1));
-                    });
+                    var libMatch = window._skillLibNameMap.get(name) || null;
                     if (libMatch) {
                         var subcat = (libMatch.sc || libMatch.c || '').toLowerCase().trim();
                         if (subcat) {
@@ -31082,8 +31084,8 @@ body {
                 
                 // Single words ≤ 6 chars that aren't known acronyms: verify against skill library
                 if (wordCount === 1 && name.length <= 6 && !knownAcronyms.has(lower)) {
-                    var inLibrary = skillLibraryIndex && skillLibraryIndex.index && 
-                        skillLibraryIndex.index.some(function(e) { return (e.n || '').toLowerCase() === lower; });
+                    var inLibrary = window._skillNameSet ? window._skillNameSet.has(lower) :
+                        (skillLibraryIndex && skillLibraryIndex.index && skillLibraryIndex.index.some(function(e) { return (e.n || '').toLowerCase() === lower; }));
                     if (!inLibrary) return;
                 }
                 
@@ -31849,11 +31851,11 @@ body {
             if (!skillLibraryIndex) return;
             if (!skillLibraryIndex.index) skillLibraryIndex.index = [];
             var lower = skillName.toLowerCase();
-            var exists = skillLibraryIndex.index.some(function(s) {
-                return (s.n || s.name || '').toLowerCase() === lower;
-            });
+            var exists = window._skillNameSet ? window._skillNameSet.has(lower) :
+                skillLibraryIndex.index.some(function(s) { return (s.n || s.name || '').toLowerCase() === lower; });
             if (!exists) {
                 skillLibraryIndex.index.push({ n: skillName, c: category || 'Custom', source: 'custom' });
+                if (window._skillNameSet) window._skillNameSet.add(lower);
                 if (skillLibraryIndex.totalSkills) skillLibraryIndex.totalSkills++;
                 console.log('📚 Registered in skill library:', skillName);
             }
