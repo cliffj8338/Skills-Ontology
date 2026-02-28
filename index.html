@@ -1,4 +1,4 @@
-<!-- v4.45.44 | 2026-02-28 | Clear job overlay on profile switch -->
+<!-- v | 2026-02-28 | BLS alias + keyword expansion -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1502,8 +1502,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.44 - BUILD 20260228-profile-switch-cleanup
-        var BP_VERSION = 'v4.45.44';
+        // BLUEPRINT v4.45.45 - BUILD 20260228-bls-expansion
+        var BP_VERSION = 'v4.45.45';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2105,7 +2105,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260228-profile-switch-cleanup               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260228-bls-expansion               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -4539,6 +4539,7 @@
                         { id: 'p2-5r', name: 'Invited user welcome experience', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.42: renderWelcomePage() branches for invited/active users into dedicated welcome page. Clean \"You\'re In\" badge, feature highlights (Skills Architecture, Market Valuation, Job Intelligence), prominent Get Started CTA with glow, and demo fallback. Public landing page never shown to invited users.' },
                         { id: 'p2-5s', name: 'Match score override fix', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.45.43: rescoreAllJobs() and rescoreOneJob() were overwriting matchJobToProfile 6-pass scores with quickScoreJob text-search scores. After v4.45.39 unified quickScoreJob with parseJobLocally (43K skills), gap count exploded, dropping all pipeline scores to 0-15%. Fix: matchJobToProfile is now authoritative for jobs with parsedSkills; quickScoreJob only used for raw-text-only Find Jobs results.' },
                         { id: 'p2-5t', name: 'Clear job overlay on profile switch', status: 'done', category: 'bugfix', priority: 'medium', notes: 'v4.45.44: Job match overlay from previous profile persisted on network when switching demo profiles. Added clearJobOverlay() to enterDemoMode(), switchDemoProfile(), and exitDemoMode().' },
+                        { id: 'p2-5u', name: 'BLS salary alias + keyword expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.45: bls-wages.json expanded from 170 to 265 aliases and 67 new keywords across 15 occupations. Fixes mismatches where \"Senior Research Chemist\" hit Computer/Info Research Scientists (wrong), \"Director of Chemistry Education\" hit Computer/IS Managers (wrong), and dozens of other common titles. Chemistry, science, manufacturing, operations, supply chain, education, and C-suite aliases all expanded.' },
                         { id: 'p2-6a', name: 'Work Blueprint function refinement', status: 'planned', category: 'feature', priority: 'high', notes: 'Ongoing improvements to WB ecosystem. Includes: Firestore-backed comparison persistence (replace localStorage), comparison sharing via URL tokens, batch comparison mode (multiple candidates against one WB), WB template library (common roles pre-built), WB diff view (compare two WBs side-by-side), improved gap recommendation engine with learning resource links, WB versioning/history, and WB-to-scouting-report pipeline integration.' }
                     ]
                 },
@@ -13164,7 +13165,7 @@
                 appMode = 'active';
                 return;
             }
-            // v4.45.44: Check URL invite param (from email CTA)
+            // v4.45.45: Check URL invite param (from email CTA)
             try {
                 var urlParams = new URLSearchParams(window.location.search);
                 var inviteDocId = urlParams.get('invite');
