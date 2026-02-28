@@ -1,4 +1,4 @@
-<!-- v4.45.40 | 2026-02-28 | Invite CTA flow fix -->
+<!-- v4.45.41 | 2026-02-28 | Invite email deep link + UX gating -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1502,8 +1502,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.40 - BUILD 20260228-invite-flow-fix
-        var BP_VERSION = 'v4.45.40';
+        // BLUEPRINT v4.45.41 - BUILD 20260228-invite-email-flow
+        var BP_VERSION = 'v4.45.41';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2105,7 +2105,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260228-invite-flow-fix               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260228-invite-email-flow               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -4535,6 +4535,7 @@
                         { id: 'p2-5n', name: 'Landing page CTA glow + copy cleanup', status: 'done', category: 'ui', priority: 'medium', notes: 'v4.45.38: Pulsating glow animation on See It In Action button. Removed em-dash from hero copy.' },
                         { id: 'p2-5o', name: 'quickScoreJob pipeline unification', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.45.39: Replaced hardcoded 28-term commonSkillTerms with parseJobLocally() pipeline for gap detection. Find Jobs now uses full 43K skill library, admin blocklist, validation layer, and fragment filtering for gaps.' },
                         { id: 'p2-5p', name: 'Invite CTA flow fix', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.45.40: Build My Blueprint button now checks Firestore invite status dynamically on click. Waitlisted users who have been invited get detected and routed to onboarding instead of waitlist modal. Landing page re-renders on invite detection.' },
+                        { id: 'p2-5q', name: 'Invite email deep link + UX gating', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.41: Email invite links now include ?invite=<docId> for instant invite detection on fresh browsers. detectAppMode() checks URL param, verifies against Firestore, sets appMode before UI renders. Teaser modal and auto-tour suppressed for invited/active users. Cloud Function updated to generate invite URLs.' },
                         { id: 'p2-6a', name: 'Work Blueprint function refinement', status: 'planned', category: 'feature', priority: 'high', notes: 'Ongoing improvements to WB ecosystem. Includes: Firestore-backed comparison persistence (replace localStorage), comparison sharing via URL tokens, batch comparison mode (multiple candidates against one WB), WB template library (common roles pre-built), WB diff view (compare two WBs side-by-side), improved gap recommendation engine with learning resource links, WB versioning/history, and WB-to-scouting-report pipeline integration.' }
                     ]
                 },
@@ -13160,6 +13161,35 @@
                 appMode = 'active';
                 return;
             }
+            // v4.45.41: Check URL invite param (from email CTA)
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var inviteDocId = urlParams.get('invite');
+                if (inviteDocId && fbDb) {
+                    appMode = 'invited';
+                    // Verify against Firestore async, revert if invalid
+                    fbDb.collection('waitlist').doc(inviteDocId).get().then(function(doc) {
+                        if (doc.exists && doc.data().status === 'invited') {
+                            safeSet('blueprint_waitlist', JSON.stringify({
+                                name: doc.data().name,
+                                email: doc.data().email,
+                                status: 'invited',
+                                position: doc.data().position
+                            }));
+                            waitlistEmail = doc.data().email;
+                            // Clean URL param
+                            if (window.history && window.history.replaceState) {
+                                var cleanUrl = window.location.pathname + window.location.hash;
+                                window.history.replaceState(null, '', cleanUrl);
+                            }
+                        } else {
+                            // Invalid invite token, revert
+                            appMode = 'demo';
+                        }
+                    }).catch(function() { /* leave as invited for now, will gate on auth */ });
+                    return;
+                }
+            } catch(e) { /* URLSearchParams not supported or other error */ }
             // Check localStorage for waitlist status
             var wlData = safeGet('blueprint_waitlist');
             if (wlData) {
@@ -21636,9 +21666,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 }, 300);
             }
             
-            // First-visit teaser modal (after splash clears)
+            // First-visit teaser modal (after splash clears) — skip for invited/active users
             setTimeout(function() {
-                if (!safeGet('bp_teaser_seen')) {
+                if (!safeGet('bp_teaser_seen') && appMode !== 'invited' && appMode !== 'active') {
                     showTeaserModal();
                 }
             }, 900);
@@ -40702,6 +40732,8 @@ body {
                 try {
                     if (localStorage.getItem(TOUR_SEEN_WELCOME) === 'true') return;
                 } catch(e) {}
+                // Skip for invited/active users — they'll get onboarding wizard instead
+                if (appMode === 'invited' || appMode === 'active') return;
                 if (document.querySelector('.onboarding-wizard.active')) return;
                 if (document.querySelector('.onboarding-overlay')) return;
                 // Wait for teaser modal to be dismissed first
