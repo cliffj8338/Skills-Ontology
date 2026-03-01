@@ -236,18 +236,28 @@
 
         /* ── Page Header (consistent across all views) ────── */
         .cards-grid {
-            max-width: 1400px;
+            max-width: 100%;
             margin: 0 auto;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 16px;
-            padding: 0 16px;
+            padding: 16px 24px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        #cardView {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box;
+        }
+        @media (min-width: 1600px) {
+            .cards-grid { grid-template-columns: repeat(4, 1fr); }
         }
         @media (max-width: 1100px) {
             .cards-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 700px) {
-            .cards-grid { grid-template-columns: 1fr; }
+            .cards-grid { grid-template-columns: 1fr; padding: 12px 12px; }
         }
         .domain-card {
             background: var(--c-surface-2, rgba(255,255,255,0.03));
@@ -881,7 +891,7 @@
             </div>
         </div>
         <svg id="networkView" style="display:none; overflow:visible;"></svg>
-        <div id="cardView" style="display:none;"></div>
+        <div id="cardView" style="display:none; width:100%;"></div>
         <div id="opportunitiesView" style="display:none;"></div>
         <div id="applicationsView" style="display:none;"></div>
         <div id="blueprintView" style="display:none;"></div>
