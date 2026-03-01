@@ -1,4 +1,4 @@
-<!-- v4.45.49 | 2026-02-28 | Education modal redesign + architecture updates -->
+<!-- v4.45.50 | 2026-02-28 | Education modal redesign + architecture updates -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1502,8 +1502,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.49 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.49';
+        // BLUEPRINT v4.45.50 - BUILD 20260228-bls-expansion
+        var BP_VERSION = 'v4.45.50';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2719,7 +2719,11 @@
             var data = {
                 profile: userData.profile || {},
                 skills: (skillsData && skillsData.skills) ? skillsData.skills.map(function(s) {
-                    return { name: s.name || '', level: s.level || 1, category: s.category || '', key: s.key || s.name || '', roles: s.roles || [], evidence: s.evidence || [] };
+                    var mapped = { name: s.name || '', level: s.level || 1, category: s.category || '', key: s.key || s.name || '', roles: s.roles || [], evidence: s.evidence || [] };
+                    if (s.endorsements) mapped.endorsements = s.endorsements;
+                    if (s.endorsementBoosted) mapped.endorsementBoosted = true;
+                    if (s.source) mapped.source = s.source;
+                    return mapped;
                 }) : [],
                 roles: (skillsData && skillsData.roles) || [],
                 values: blueprintData.values || [],
@@ -2739,6 +2743,12 @@
                 }),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
+            // LinkedIn-derived content & metadata
+            if (userData.linkedinContent) data.linkedinContent = userData.linkedinContent;
+            if (userData.contentVisibility) data.contentVisibility = userData.contentVisibility;
+            if (userData.companyTenures) data.companyTenures = userData.companyTenures;
+            if (userData.importStats) data.importStats = userData.importStats;
+            
             data = sanitizeForFirestore(data);
             data.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
             delete data.role;
@@ -2912,6 +2922,10 @@
                     userData.education = data.education || [];
                     userData.certifications = data.certifications || [];
                     userData.verifications = data.verifications || [];
+                    userData.linkedinContent = data.linkedinContent || {};
+                    userData.contentVisibility = data.contentVisibility || {};
+                    userData.companyTenures = data.companyTenures || [];
+                    userData.importStats = data.importStats || {};
                     userData.templateId = 'firestore-' + uid;
                     
                     // Populate skillsData
@@ -4532,7 +4546,7 @@
                         { id: 'p2-3n', name: 'Unified skill editor + UX fixes', status: 'done', category: 'ux', priority: 'high', notes: 'Single modal combining level/roles/assess/core. Network name label offset. quickScore v3 (word-boundary + level weighting). Alphabetical skill sorting. BLS Potential tile always shown. bpIcon assess bug.' },
                         { id: 'p2-3o', name: 'Wizard Step 9 save+download UX', status: 'done', category: 'ux', priority: 'medium', notes: 'Single Save button with pre-checked download checkbox. Replaces two separate buttons.' },
                         { id: 'p2-3p', name: 'Architecture map v2 — layered diagram', status: 'done', category: 'admin', priority: 'medium', notes: 'Replaced force-directed graph with structured swim-lane layout. 4 layers: Frontend→Runtime→Backend→External. Rich detail panels with function names, line ranges, data flows, dependencies, tech debt. Engineer-grade onboarding tool.' },
-                        { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'in-progress', category: 'process', priority: 'medium', notes: 'v4.45.49: Updated wizard, userData, skill engine, Firestore component details for LinkedIn deep extraction. Firebase Blaze plan reflected. Line count updated to ~41K. Pricing reference corrected (Sonnet 4: $3/$15). Still needs automated generation from code comments.' },
+                        { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'in-progress', category: 'process', priority: 'medium', notes: 'v4.45.50: Updated wizard, userData, skill engine, Firestore component details for LinkedIn deep extraction. Firebase Blaze plan reflected. Line count updated to ~41K. Pricing reference corrected (Sonnet 4: $3/$15). Still needs automated generation from code comments.' },
                         { id: 'p2-3r', name: 'Skill editor outcomes + reports cleanup + network v3', status: 'done', category: 'ux', priority: 'high', notes: 'Unified editor: wider padding, linked outcomes section. Reports: PREVIEW labels on analytics/heatmap/share links, removed fake views/status from My Reports. Network: center node at width*0.18, role label truncation 24 chars.' },
                         { id: 'p2-3s', name: 'JD → Work Blueprint converter', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.06+: Full AI-powered converter. Paste JD text or upload PDF, AI extracts Skills/Outcomes/Proficiency, experience requirements, values & purpose signals, regional compensation via BLS. Outputs structured Work Blueprint saved to Firestore repository. Includes Work Blueprint Wizard for manual creation, repository with card grid, and full CRUD.' },
                         { id: 'p2-3t', name: 'SEO + Generative Engine Optimization', status: 'active', category: 'infrastructure', priority: 'high', notes: 'Full metadata suite: title, description, Open Graph, Twitter Cards, canonical URL, favicon, JSON-LD structured data (WebApplication + Organization), robots, theme-color. Generative engine optimization: semantic HTML, descriptive headings, FAQ schema, HowTo schema, speakable metadata, citation-friendly content structure. Goal: discoverable by both traditional search and AI-powered answer engines (Google SGE, Perplexity, ChatGPT Browse).' },
@@ -4567,12 +4581,13 @@
                         { id: 'p2-5u', name: 'BLS salary alias + keyword expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.45: bls-wages.json aliases expanded from 170 to 4,228 via four strategies: BLS title decomposition (singular forms, split compounds), seniority prefix generation (VP/Director/Senior/Lead variants), abbreviation patterns (mgr/dir/admin/rep), and 300+ hand-curated industry titles (tech, data, sales, marketing, HR, finance, legal, healthcare, education, trades, retail, consulting). Keywords expanded across 15 thin occupations. Fixes dozens of mismatches across demo profiles.' },
                         { id: 'p2-5v', name: 'O*NET Alternate Titles import (30K+)', status: 'planned', category: 'data', priority: 'high', notes: 'O*NET publishes ~30,000 alternate job titles pre-mapped to SOC codes (Alternate Titles file at onetonline.org/help/onet/titles). Download or API-fetch the dataset, normalize to lowercase, deduplicate against existing aliases, and merge into bls-wages.json. Would give near-universal coverage of real-world job titles. May need periodic refresh as O*NET updates quarterly. Consider build-time pipeline vs. runtime fetch.' },
                         { id: 'p2-5w', name: 'Jobs Sync panel redesign', status: 'done', category: 'ui', priority: 'low', notes: 'v4.45.47: Sources list replaced with horizontal bar chart visualization (sorted by count, gradient fills, proportional widths). CRON badge styled as pill. Errors section redesigned with dot indicator, monospace font, subtle background. Library count updated to 12/12 for BLS Aliases tile.' },
-                        { id: 'p2-5x', name: 'LinkedIn deep extraction (18 file types)', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.49: Expanded LinkedIn zip parser from 8 to 18 CSV file types. Now extracts: Endorsements (peer validation with skill-level boosting), Recommendations (qualitative evidence), Rich Media (posts/thought leadership), Articles (HTML parsing from Articles/ subfolder), LinkedIn Learning (completed courses), Volunteering, Honors, Causes, Organizations, Company Follows, Connections (network size). All stored in userData.linkedinContent for downstream use in scouting reports, document repository, and skill evidence. Import summary screen shows extraction stats before wizard continues.' },
-                        { id: 'p2-5y', name: 'Career progression grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.49: Positions at the same company are now grouped by normalized company name (strips LLC/Inc/People suffixes). Multi-position groups display as visual career timelines with left-border accent, timeline dots, tenure calculation, and ascending role labels. Single positions render normally. Progression badge shows role count. Roles carry progression arrays and totalYears for downstream scouting report use.' },
+                        { id: 'p2-5x', name: 'LinkedIn deep extraction (18 file types)', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.50: Expanded LinkedIn zip parser from 8 to 18 CSV file types. Now extracts: Endorsements (peer validation with skill-level boosting), Recommendations (qualitative evidence), Rich Media (posts/thought leadership), Articles (HTML parsing from Articles/ subfolder), LinkedIn Learning (completed courses), Volunteering, Honors, Causes, Organizations, Company Follows, Connections (network size). All stored in userData.linkedinContent for downstream use in scouting reports, document repository, and skill evidence. Import summary screen shows extraction stats before wizard continues.' },
+                        { id: 'p2-5y', name: 'Career progression grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.50: Positions at the same company are now grouped by normalized company name (strips LLC/Inc/People suffixes). Multi-position groups display as visual career timelines with left-border accent, timeline dots, tenure calculation, and ascending role labels. Single positions render normally. Progression badge shows role count. Roles carry progression arrays and totalYears for downstream scouting report use.' },
                         { id: 'p2-5z', name: 'Endorsement-boosted skill levels', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.45.48: After deterministic skill inference, endorsement counts from LinkedIn are matched to skills (case-insensitive partial match). 10+ endorsements boost level by 1, 25+ by 2 (capped at Mastery). Boosted skills flagged with endorsementBoosted:true. Skills carry endorsement count in persisted data.' },
-                        { id: 'p2-6a', name: 'Education modal redesign (non-traditional learning)', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.49: Replaced rigid School/Degree/Field/Year form with adaptive education modal. Six type pills (Degree, Certificate, Trade, Bootcamp, Prof Dev, Military) dynamically adjust labels, placeholders, and visible fields. Start/End year for duration programs. Issuing Authority field for licenses/certificates. Collapsible description. Credential linking: dropdown links education entries to existing certifications (e.g. TNT Air flight school → Private Pilot Certificate). Type badges in list view. Fully backward compatible with existing education data.' },
-                        { id: 'p2-6b', name: 'Architecture & cost updates', status: 'done', category: 'admin', priority: 'medium', notes: 'v4.45.49: Firebase Spark→Blaze ($25/mo budget). Sonnet 4 output pricing corrected ($3→$15/1M). Architecture header updated to ~41K lines. Component details updated: wizard (18 file types), userData (linkedinContent), skill engine (endorsement boost), Firestore (Blaze, new fields). Last-updated note refreshed.' },
-                        { id: 'p2-6c', name: 'LinkedIn merge import (append to existing profile)', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.49: Standalone parseLinkedInZipContents() parser reusable by both wizard and merge. mergeLinkedInToProfile() adds new positions/education/certs/skills without overwriting existing data (dedup by company+title+startDate, school+degree, cert name, skill name). Endorsement boost applied to all skills. linkedinContent replaced wholesale (latest snapshot). UI in Experience tab: LinkedIn-branded card with Upload .zip button, progress status, detailed result summary. Last merge timestamp tracked. Analytics event logged.' },
+                        { id: 'p2-6a', name: 'Education modal redesign (non-traditional learning)', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.50: Replaced rigid School/Degree/Field/Year form with adaptive education modal. Six type pills (Degree, Certificate, Trade, Bootcamp, Prof Dev, Military) dynamically adjust labels, placeholders, and visible fields. Start/End year for duration programs. Issuing Authority field for licenses/certificates. Collapsible description. Credential linking: dropdown links education entries to existing certifications (e.g. TNT Air flight school → Private Pilot Certificate). Type badges in list view. Fully backward compatible with existing education data.' },
+                        { id: 'p2-6b', name: 'Architecture & cost updates', status: 'done', category: 'admin', priority: 'medium', notes: 'v4.45.50: Firebase Spark→Blaze ($25/mo budget). Sonnet 4 output pricing corrected ($3→$15/1M). Architecture header updated to ~41K lines. Component details updated: wizard (18 file types), userData (linkedinContent), skill engine (endorsement boost), Firestore (Blaze, new fields). Last-updated note refreshed.' },
+                        { id: 'p2-6c', name: 'LinkedIn merge import (append to existing profile)', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.50: Standalone parseLinkedInZipContents() parser reusable by both wizard and merge. mergeLinkedInToProfile() adds new positions/education/certs/skills without overwriting existing data (dedup by company+title+startDate, school+degree, cert name, skill name). Endorsement boost applied to all skills. linkedinContent replaced wholesale (latest snapshot). UI in Experience tab: LinkedIn-branded card with Upload .zip button, progress status, detailed result summary. Last merge timestamp tracked. Analytics event logged.' },
+                        { id: 'p2-6d', name: 'Content & Evidence tab', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.50: New Blueprint tab surfaces all LinkedIn-extracted content: Recommendations (toggleable, with preview), Articles (title, date, word count, preview), Posts (substantial only), Endorsements (grouped by skill with boost indicators), Volunteering (toggleable cards), Honors, Causes (pill chips), Organizations, Learning (grouped by type, summary view), Network size. Per-item toggle switches control scouting report inclusion via userData.contentVisibility. Import stats bar shows last merge date, endorsement count, network size, courses. Empty state directs to Experience tab for import.' },
                         { id: 'p2-6a', name: 'Work Blueprint function refinement', status: 'planned', category: 'feature', priority: 'high', notes: 'Ongoing improvements to WB ecosystem. Includes: Firestore-backed comparison persistence (replace localStorage), comparison sharing via URL tokens, batch comparison mode (multiple candidates against one WB), WB template library (common roles pre-built), WB diff view (compare two WBs side-by-side), improved gap recommendation engine with learning resource links, WB versioning/history, and WB-to-scouting-report pipeline integration.' }
                     ]
                 },
@@ -5713,7 +5728,7 @@
             
             // Note
             html += '<div style="font-size:0.75em; color:var(--text-muted); margin-bottom:16px; padding:8px 12px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px;">'
-                + '' + bpIcon('warning', 12) + ' <strong>Last updated:</strong> v4.45.49 \u2014 LinkedIn deep extraction (18 file types), career progression grouping, endorsement-boosted skill levels, Firebase Blaze plan. 38+ components, 35+ data flows. See roadmap items p2-5x/y/z.'
+                + '' + bpIcon('warning', 12) + ' <strong>Last updated:</strong> v4.45.50 \u2014 LinkedIn deep extraction (18 file types), career progression grouping, endorsement-boosted skill levels, Firebase Blaze plan. 38+ components, 35+ data flows. See roadmap items p2-5x/y/z.'
                 + '</div>';
             
             // === TILES VIEW ===
@@ -13198,7 +13213,7 @@
                 appMode = 'active';
                 return;
             }
-            // v4.45.49: Check URL invite param (from email CTA)
+            // v4.45.50: Check URL invite param (from email CTA)
             try {
                 var urlParams = new URLSearchParams(window.location.search);
                 var inviteDocId = urlParams.get('invite');
@@ -25358,6 +25373,11 @@ body {
                             <span class="bp-tab-label">Values</span>
                             <span class="bp-tab-count">${valuesCount}</span>
                         </button>
+                        <button class="bp-tab ${blueprintTab === 'content' ? 'active' : ''}" onclick="switchBlueprintTab('content')">
+                            <span class="bp-tab-icon">${bpIcon('clipboard',16)}</span>
+                            <span class="bp-tab-label">Content</span>
+                            <span class="bp-tab-count">${_countContentItems()}</span>
+                        </button>
                         <button class="bp-tab ${blueprintTab === 'export' ? 'active' : ''}" onclick="switchBlueprintTab('export')">
                             <span class="bp-tab-icon">${bpIcon('export',16)}</span>
                             <span class="bp-tab-label">Export</span>
@@ -25401,6 +25421,7 @@ body {
             if (blueprintTab === 'purpose')  return renderDashboardTab(); // redirect legacy
             if (blueprintTab === 'export')   return renderExportSection();
             if (blueprintTab === 'verifications') return renderVerificationsTab();
+            if (blueprintTab === 'content') return renderContentEvidenceTab();
             return renderDashboardTab();
         }
 
@@ -26323,6 +26344,303 @@ body {
                 + '</span>'
                 + '</div>';
             
+            return html;
+        }
+        
+        // ═══════════════════════════════════════════════════════════
+        // CONTENT & EVIDENCE TAB
+        // ═══════════════════════════════════════════════════════════
+        
+        function _countContentItems() {
+            var lc = userData.linkedinContent || {};
+            return (lc.recommendations || []).length
+                + (lc.articles || []).length
+                + (lc.posts || []).length
+                + (lc.volunteering || []).length
+                + (lc.honors || []).length
+                + (lc.causes || []).length
+                + (lc.organizations || []).length
+                + Object.keys(lc.endorsements || {}).length;
+        }
+        
+        function _getContentVis(section, idx) {
+            var cv = userData.contentVisibility || {};
+            var key = section + ':' + idx;
+            return cv[key] !== false; // default on
+        }
+        
+        function toggleContentVis(section, idx) {
+            if (readOnlyGuard()) return;
+            if (!userData.contentVisibility) userData.contentVisibility = {};
+            var key = section + ':' + idx;
+            userData.contentVisibility[key] = !_getContentVis(section, idx);
+            saveAll();
+            if (fbUser) debouncedSave();
+            // Update just the toggle UI
+            var toggle = document.getElementById('cv-' + section + '-' + idx);
+            var on = _getContentVis(section, idx);
+            if (toggle) {
+                toggle.style.background = on ? 'var(--accent)' : 'var(--c-surface-5)';
+                toggle.querySelector('span').style.transform = on ? 'translateX(16px)' : 'translateX(1px)';
+            }
+            var card = document.getElementById('cc-' + section + '-' + idx);
+            if (card) card.style.opacity = on ? '1' : '0.5';
+        }
+        window.toggleContentVis = toggleContentVis;
+        
+        function _toggleSwitch(section, idx) {
+            var on = _getContentVis(section, idx);
+            return '<div id="cv-' + section + '-' + idx + '" onclick="toggleContentVis(\'' + section + '\',' + idx + ')" '
+                + 'style="width:36px; height:20px; border-radius:10px; cursor:pointer; position:relative; flex-shrink:0; transition:background 0.2s; '
+                + 'background:' + (on ? 'var(--accent)' : 'var(--c-surface-5)') + ';">'
+                + '<span style="position:absolute; top:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:transform 0.2s; '
+                + 'transform:' + (on ? 'translateX(16px)' : 'translateX(1px)') + '; box-shadow:0 1px 3px rgba(0,0,0,0.2);"></span></div>';
+        }
+        
+        function _contentCard(section, idx, icon, title, subtitle, body, extra) {
+            var on = _getContentVis(section, idx);
+            return '<div id="cc-' + section + '-' + idx + '" style="padding:12px 14px; background:var(--c-surface-1); '
+                + 'border:1px solid var(--c-surface-5b); border-radius:8px; margin-bottom:8px; opacity:' + (on ? '1' : '0.5') + '; transition:opacity 0.2s;">'
+                + '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">'
+                + '<div style="flex:1; min-width:0;">'
+                + '<div style="display:flex; align-items:center; gap:6px;">'
+                + '<span style="font-size:0.9em;">' + icon + '</span>'
+                + '<span style="font-weight:600; color:var(--c-text-alt); font-size:0.88em;">' + escapeHtml(title) + '</span>'
+                + '</div>'
+                + (subtitle ? '<div style="font-size:0.78em; color:var(--c-muted); margin-top:2px;">' + escapeHtml(subtitle) + '</div>' : '')
+                + (body ? '<div style="font-size:0.8em; color:var(--text-secondary); margin-top:6px; line-height:1.5;">' + body + '</div>' : '')
+                + (extra || '')
+                + '</div>'
+                + _toggleSwitch(section, idx)
+                + '</div></div>';
+        }
+        
+        function _sectionHeader(icon, title, count, desc) {
+            return '<div style="margin-top:24px; margin-bottom:10px;">'
+                + '<div style="display:flex; align-items:center; gap:8px;">'
+                + '<span style="font-size:1em;">' + icon + '</span>'
+                + '<span style="font-weight:700; color:var(--text-primary); font-size:0.92em;">' + title + '</span>'
+                + '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-surface-4a); color:var(--c-muted); font-weight:600;">' + count + '</span>'
+                + '</div>'
+                + (desc ? '<div style="font-size:0.78em; color:var(--c-muted); margin-top:4px; margin-left:28px;">' + desc + '</div>' : '')
+                + '</div>';
+        }
+        
+        function renderContentEvidenceTab() {
+            var lc = userData.linkedinContent || {};
+            var stats = userData.importStats || {};
+            var html = '';
+            
+            // Header
+            html += '<div class="blueprint-section">'
+                + '<div class="blueprint-section-header">'
+                + '<div class="blueprint-section-title">'
+                + '<span class="section-icon">' + bpIcon('clipboard', 20) + '</span>'
+                + '<span>Content & Evidence</span>'
+                + '</div></div>'
+                + '<p style="color:var(--text-muted); font-size:0.85em; margin-bottom:4px; line-height:1.5;">'
+                + 'Everything extracted from your LinkedIn data export. Toggle items on or off to control what appears in scouting reports and exports. '
+                + 'Your core profile data (positions, skills, education) lives in Experience and Skills.'
+                + '</p>';
+            
+            // Import status bar
+            if (stats.lastMerge) {
+                var totalItems = _countContentItems();
+                var activeItems = 0;
+                var cv = userData.contentVisibility || {};
+                Object.keys(cv).forEach(function(k) { if (cv[k] !== false) activeItems++; });
+                // If no visibility set yet, all items are active
+                if (Object.keys(cv).length === 0) activeItems = totalItems;
+                
+                html += '<div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px; padding:12px 14px; '
+                    + 'background:linear-gradient(135deg, rgba(96,165,250,0.05), rgba(139,92,246,0.05)); border:1px solid var(--border); border-radius:8px;">';
+                
+                var statPills = [
+                    { label: 'Last Import', value: new Date(stats.lastMerge).toLocaleDateString(), color: 'var(--accent)' },
+                    { label: 'Endorsements', value: (stats.endorsements || 0).toLocaleString(), color: '#f59e0b' },
+                    { label: 'Network', value: (stats.network || 0).toLocaleString(), color: '#8b5cf6' },
+                    { label: 'Courses', value: (stats.learningCompleted || 0) + '/' + (stats.learning || 0), color: '#06b6d4' }
+                ];
+                statPills.forEach(function(p) {
+                    html += '<div style="text-align:center; min-width:80px;">'
+                        + '<div style="font-size:1.1em; font-weight:800; color:' + p.color + ';">' + p.value + '</div>'
+                        + '<div style="font-size:0.65em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.05em;">' + p.label + '</div></div>';
+                });
+                html += '</div>';
+            }
+            
+            // Empty state
+            if (_countContentItems() === 0) {
+                html += '<div style="text-align:center; padding:60px 20px;">'
+                    + '<div style="font-size:2em; margin-bottom:12px; opacity:0.3;">' + bpIcon('clipboard', 48) + '</div>'
+                    + '<div style="font-weight:600; color:var(--text-primary); margin-bottom:8px;">No content imported yet</div>'
+                    + '<div style="color:var(--text-muted); max-width:400px; margin:0 auto 20px; line-height:1.6; font-size:0.9em;">'
+                    + 'Upload your LinkedIn data export in the Experience tab to populate endorsements, recommendations, articles, volunteering, and more.</div>'
+                    + '<button onclick="switchBlueprintTab(\'experience\')" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">'
+                    + bpIcon('experience', 14) + ' Go to Experience</button>'
+                    + '</div></div>';
+                return html;
+            }
+            
+            // ── RECOMMENDATIONS ──
+            var recs = lc.recommendations || [];
+            if (recs.length > 0) {
+                html += _sectionHeader('\uD83D\uDCDD', 'Recommendations', recs.length, 'Peer testimonials. High-impact evidence for scouting reports.');
+                recs.forEach(function(rec, i) {
+                    var preview = (rec.text || '').substring(0, 200) + (rec.text.length > 200 ? '...' : '');
+                    html += _contentCard('rec', i, '\u201C',
+                        rec.from || 'Anonymous',
+                        (rec.title ? rec.title : '') + (rec.company ? ' at ' + rec.company : '') + (rec.date ? ' \u00B7 ' + rec.date : ''),
+                        '<div style="font-style:italic; color:var(--text-secondary);">\u201C' + escapeHtml(preview) + '\u201D</div>'
+                    );
+                });
+            }
+            
+            // ── ARTICLES ──
+            var articles = lc.articles || [];
+            if (articles.length > 0) {
+                html += _sectionHeader('\uD83D\uDCF0', 'Articles', articles.length, 'Published thought leadership. Signals expertise and communication ability.');
+                articles.forEach(function(art, i) {
+                    var preview = (art.text || '').substring(0, 180) + (art.text && art.text.length > 180 ? '...' : '');
+                    html += _contentCard('art', i, '\uD83D\uDCDD',
+                        art.title || 'Untitled',
+                        (art.created || '') + (art.wordCount ? ' \u00B7 ' + art.wordCount.toLocaleString() + ' words' : ''),
+                        preview ? '<div style="color:var(--text-muted);">' + escapeHtml(preview) + '</div>' : ''
+                    );
+                });
+            }
+            
+            // ── POSTS ──
+            var posts = lc.posts || [];
+            if (posts.length > 0) {
+                html += _sectionHeader('\uD83D\uDCAC', 'Posts', posts.length, 'Substantial LinkedIn posts (100+ characters). Thought leadership evidence.');
+                posts.forEach(function(post, i) {
+                    var preview = (post.content || '').substring(0, 200) + (post.content.length > 200 ? '...' : '');
+                    html += _contentCard('post', i, '\uD83D\uDDE8\uFE0F',
+                        post.date || 'Post',
+                        '',
+                        '<div style="color:var(--text-muted);">' + escapeHtml(preview) + '</div>'
+                    );
+                });
+            }
+            
+            // ── ENDORSEMENTS (summary view, not individual toggles) ──
+            var endorsements = lc.endorsements || {};
+            var endorseKeys = Object.keys(endorsements).sort(function(a,b) { return endorsements[b] - endorsements[a]; });
+            if (endorseKeys.length > 0) {
+                var totalEndorsements = endorseKeys.reduce(function(s, k) { return s + endorsements[k]; }, 0);
+                html += _sectionHeader('\uD83D\uDC4D', 'Endorsements', totalEndorsements + ' across ' + endorseKeys.length + ' skills',
+                    'Peer validation counts. Skills with 10+ endorsements get a level boost, 25+ get two.');
+                
+                html += '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px;">';
+                endorseKeys.forEach(function(skill) {
+                    var count = endorsements[skill];
+                    var isHigh = count >= 25;
+                    var isMed = count >= 10;
+                    var bg = isHigh ? 'rgba(245,158,11,0.12)' : isMed ? 'rgba(96,165,250,0.1)' : 'var(--c-surface-4a)';
+                    var color = isHigh ? '#f59e0b' : isMed ? '#60a5fa' : 'var(--c-muted)';
+                    var boost = isHigh ? ' (+2)' : isMed ? ' (+1)' : '';
+                    html += '<span style="padding:4px 10px; border-radius:12px; font-size:0.78em; font-weight:600; '
+                        + 'background:' + bg + '; color:' + color + ';">'
+                        + escapeHtml(skill) + ' <span style="opacity:0.7;">' + count + '</span>'
+                        + (boost ? '<span style="font-size:0.85em;">' + boost + '</span>' : '')
+                        + '</span>';
+                });
+                html += '</div>';
+            }
+            
+            // ── VOLUNTEERING ──
+            var vol = lc.volunteering || [];
+            if (vol.length > 0) {
+                html += _sectionHeader('\uD83E\uDD1D', 'Volunteering', vol.length, 'Community involvement. Character evidence for scouting reports.');
+                vol.forEach(function(v, i) {
+                    html += _contentCard('vol', i, '\u2764\uFE0F',
+                        v.role || v.company || 'Volunteer',
+                        (v.company && v.role ? v.company : '') + (v.cause ? ' \u00B7 ' + v.cause : '')
+                            + (v.startDate ? ' \u00B7 ' + v.startDate + (v.endDate ? ' \u2013 ' + v.endDate : '') : ''),
+                        v.description ? '<div style="color:var(--text-muted);">' + escapeHtml(v.description.substring(0, 200)) + '</div>' : ''
+                    );
+                });
+            }
+            
+            // ── HONORS ──
+            var honors = lc.honors || [];
+            if (honors.length > 0) {
+                html += _sectionHeader('\uD83C\uDFC6', 'Honors & Awards', honors.length, 'Recognition and achievements.');
+                honors.forEach(function(h, i) {
+                    html += _contentCard('honor', i, '\uD83C\uDF1F',
+                        h.title,
+                        h.date || '',
+                        h.description ? '<div style="color:var(--text-muted);">' + escapeHtml(h.description.substring(0, 200)) + '</div>' : ''
+                    );
+                });
+            }
+            
+            // ── CAUSES ──
+            var causes = lc.causes || [];
+            if (causes.length > 0) {
+                html += _sectionHeader('\uD83C\uDF0D', 'Causes', causes.length, 'Values alignment signal. Maps to culture fit in job matching.');
+                html += '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px;">';
+                causes.forEach(function(c) {
+                    html += '<span style="padding:5px 12px; border-radius:14px; font-size:0.82em; font-weight:600; '
+                        + 'background:rgba(16,185,129,0.08); color:#10b981; border:1px solid rgba(16,185,129,0.15);">'
+                        + '\uD83C\uDF0D ' + escapeHtml(c) + '</span>';
+                });
+                html += '</div>';
+            }
+            
+            // ── ORGANIZATIONS ──
+            var orgs = lc.organizations || [];
+            if (orgs.length > 0) {
+                html += _sectionHeader('\uD83C\uDFE2', 'Organizations', orgs.length, 'Professional affiliations and memberships.');
+                orgs.forEach(function(o, i) {
+                    html += _contentCard('org', i, '\uD83C\uDFE2',
+                        o.name,
+                        o.position || '',
+                        o.description ? '<div style="color:var(--text-muted);">' + escapeHtml(o.description.substring(0, 200)) + '</div>' : ''
+                    );
+                });
+            }
+            
+            // ── LEARNING (summary, not individual items) ──
+            var learning = lc.learning || [];
+            if (learning.length > 0) {
+                html += _sectionHeader('\uD83D\uDCDA', 'Learning', learning.length + ' completed', 'LinkedIn Learning courses. Growth signal, not individually weighted.');
+                
+                // Group by type
+                var byType = {};
+                learning.forEach(function(l) {
+                    var t = l.type || 'Course';
+                    if (!byType[t]) byType[t] = [];
+                    byType[t].push(l);
+                });
+                
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:8px; margin-bottom:16px;">';
+                Object.keys(byType).forEach(function(type) {
+                    var items = byType[type];
+                    html += '<div style="padding:10px 14px; background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:8px;">'
+                        + '<div style="font-weight:700; color:var(--accent); font-size:1.1em;">' + items.length + '</div>'
+                        + '<div style="font-size:0.78em; color:var(--c-muted); font-weight:600;">' + escapeHtml(type) + 's completed</div>'
+                        + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:4px;">'
+                        + items.slice(0, 3).map(function(l) { return escapeHtml(l.title); }).join(', ')
+                        + (items.length > 3 ? ', +' + (items.length - 3) + ' more' : '')
+                        + '</div></div>';
+                });
+                html += '</div>';
+            }
+            
+            // ── NETWORK ──
+            var netSize = lc.networkSize || 0;
+            if (netSize > 0) {
+                html += '<div style="margin-top:20px; padding:14px; background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:8px; '
+                    + 'display:flex; align-items:center; gap:12px;">'
+                    + '<div style="width:40px; height:40px; border-radius:10px; background:rgba(139,92,246,0.1); display:flex; align-items:center; justify-content:center;">'
+                    + bpIcon('users', 20) + '</div>'
+                    + '<div><div style="font-weight:700; color:var(--text-primary); font-size:1em;">' + netSize.toLocaleString() + ' connections</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-muted);">Professional network size. Context signal for scouting reports.</div></div></div>';
+            }
+            
+            html += '</div>';
             return html;
         }
         
