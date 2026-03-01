@@ -1,4 +1,4 @@
-<!-- v4.45.72 | 2026-03-01 | Match score recalibration: nameMatchQuality floors, credit floor, Feature Usage bars -->
+<!-- v4.45.73 | 2026-03-01 | Skill dedup, cap system (50/20), scouting report D3 color injection -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1506,13 +1506,22 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.45.63 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.72';
+        var BP_VERSION = 'v4.45.73';
+        
+        // ===== SKILL CAP CONSTANTS =====
+        // Research basis: LinkedIn allows 50, O*NET maps ~35/occupation, Fortune 500
+        // competency frameworks use 12-25, resume best practice is 5-10 core competencies.
+        // Blueprint needs broader coverage for multi-job matching across diverse roles.
+        // 50 balances signal-to-noise: ~5 mastery + ~10 expert + ~15 advanced + ~20 foundational.
+        var PROFILE_SKILL_CAP = 50;       // Max skills on personal profile
+        var WB_SKILL_CAP = 20;            // Max skills per Work Blueprint
+        var SKILL_CAP_WARN = 45;          // Show warning at this threshold
         
         // ===== DEV VELOCITY TRACKING =====
         window._blueprintDevStats = {
             firstCommit: '2025-12-28',
-            lineCount: 43531,
-            sessionsAI: 48,
+            lineCount: 43846,
+            sessionsAI: 49,
             avgSessionHrs: 3.5,
             aiSubscriptionMonthly: 200,
             hostingMonthly: 25
@@ -2954,6 +2963,12 @@
                         skillsData.roles = data.roles || [];
                     }
                     
+                    // Deduplicate skills on load
+                    if (typeof deduplicateSkills === 'function') {
+                        var dupes = deduplicateSkills();
+                        if (dupes > 0) { saveUserData(); if (fbUser) debouncedSave(); }
+                    }
+                    
                     // GUARD: Detect demo data contamination
                     // If Firestore has roles from demo templates, clear them for signed-in users
                     var demoRoleNames = [
@@ -3439,8 +3454,8 @@
             // ===== DEV TIME COMPARISON (v4.45.65) =====
             var devStats = window._blueprintDevStats || {
                 firstCommit: '2025-12-28',
-                lineCount: 43311,
-                sessionsAI: 48,
+                lineCount: 43846,
+                sessionsAI: 49,
                 avgSessionHrs: 3.5,
                 // Costs
                 aiSubscriptionMonthly: 200,
@@ -4817,7 +4832,8 @@
                         { id: 'p2-6n', name: 'Job parsing skill library await gate', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.70: parseJobLocally() second pass (43K skill library) was silently skipped when library had not loaded yet. Added ensureSkillLibrary() async gate with 8s timeout. All parse entry points (analyzeJob, reanalyzeJob, addRemoteJobToPipeline) now await library before parsing. Stored _skillLibraryPromise at both DOMContentLoaded and retry call sites.' },
                         { id: 'p2-6o', name: 'Job match blocklist transparency', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.70: matchJobToProfile() now returns blocklistedCount, totalParsedGaps, and libraryAvailable in matchData. showJobDetail() renders diagnostic warnings when: (a) blocklist filtered gaps, (b) library was unavailable during analysis, (c) fewer than 8 skills extracted. Added showAdminBlocklistInContext() overlay showing which blocked skills affect a specific job with per-skill unblock buttons and re-analyze CTA.' },
                         { id: 'p2-6p', name: 'Match score recalibration', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.45.72: nameMatchQuality penalties in 6-pass matcher were catastrophically harsh — substring 0.85, word overlap 0.3-0.45, sibling 0.55, concept 0.2-0.3, implied 0.40. Combined with proficiency penalties via multiplication, 20/22 skills matched still scored 50%. Fix: raised floors (substring 0.92, word overlap min 0.82, sibling 0.78, concept min 0.70, implied 0.62) and added 65% minimum credit floor for any confirmed match. A matched skill IS matched.' },
-                        { id: 'p2-6q', name: 'Scouting report D3 network styling', status: 'planned', category: 'visual', priority: 'high', notes: 'Report template (reports/templates/base.html) has independent D3 force simulation with category-based coloring that does not match main network aesthetic. Job Match and Candidate Skills tabs need to use main network color scheme (green nodes, white role nodes, dark background). Requires template file modification, not just injection.' }
+                        { id: 'p2-6q', name: 'Scouting report D3 network styling', status: 'in-progress', category: 'visual', priority: 'high', notes: 'v4.45.73: Injecting CSS overrides (dark background, font family) and JS monkey-patches (getCategoryColor, getColor) into report blob to match main network color scheme. Full template rewrite still needed for complete parity, but injection handles backgrounds and color function overrides. Template file: reports/templates/base.html.' },
+                        { id: 'p2-6r', name: 'Skill deduplication and cap system', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.73: Root cause of duplicates: 3 unguarded push paths (confirmQuickAddGapSkill, addSelectedONETSkills, manual add had case-sensitive check). Fix: dedup guards on all 8 userData.skills.push paths, case-insensitive. Startup deduplicateSkills() runs on Firestore load, auto-removes dupes (prefers verified > evidence > higher proficiency). Profile cap: 50 skills (PROFILE_SKILL_CAP), WB cap: 20 (WB_SKILL_CAP). Warning at 45. Over-cap banner on Blueprint view with research-backed rationale. canAddSkill() central guard.' }
                     ]
                 },
                 {
@@ -7006,6 +7022,10 @@
             if (!input) return;
             var name = input.value.trim();
             if (!name) return;
+            if ((_wbw.skills || []).filter(function(s) { return s.selected; }).length >= WB_SKILL_CAP) {
+                showToast('Work Blueprint skill cap reached (' + WB_SKILL_CAP + '). Remove or deselect a skill first.', 'warning');
+                return;
+            }
             var level = _wbwAdjustProficiency('Proficient', _wbw.seniority);
             _wbw.skills.push({
                 name: name,
@@ -10954,7 +10974,7 @@
                         var defaultLevel = seniorityDefaults[seniority] || 'Proficient';
                         ['skills'].forEach(function(type) {
                             (occData[type] || []).forEach(function(oSkill) {
-                                if (wbSkills.length >= 12) return;
+                                if (wbSkills.length >= WB_SKILL_CAP) return;
                                 var oName = oSkill.name;
                                 var oLower = oName.toLowerCase();
                                 // Skip generic abilities that match everything
@@ -17279,6 +17299,60 @@
                 s.name.toLowerCase() === skillName.toLowerCase()
             );
         }
+        
+        // Dedup: remove duplicate skills from both userData and skillsData
+        // Keeps the first occurrence (or the one with more evidence/verification)
+        function deduplicateSkills() {
+            if (!userData.skills || userData.skills.length === 0) return 0;
+            var seen = new Map(); // lowercase name → index of keeper
+            var dupeIndices = new Set();
+            
+            userData.skills.forEach(function(skill, idx) {
+                var key = skill.name.toLowerCase().trim();
+                if (seen.has(key)) {
+                    var keeperIdx = seen.get(key);
+                    var keeper = userData.skills[keeperIdx];
+                    // Prefer the one with: verification > evidence > higher proficiency > earlier position
+                    var keeperScore = (keeper.verified ? 100 : 0) + ((keeper.evidence || []).length * 10) + (PROFICIENCY_SCALE[keeper.level] || 0);
+                    var dupeScore = (skill.verified ? 100 : 0) + ((skill.evidence || []).length * 10) + (PROFICIENCY_SCALE[skill.level] || 0);
+                    if (dupeScore > keeperScore) {
+                        // This one is better, swap
+                        dupeIndices.add(keeperIdx);
+                        seen.set(key, idx);
+                    } else {
+                        dupeIndices.add(idx);
+                    }
+                } else {
+                    seen.set(key, idx);
+                }
+            });
+            
+            if (dupeIndices.size === 0) return 0;
+            
+            var removed = dupeIndices.size;
+            userData.skills = userData.skills.filter(function(_, idx) { return !dupeIndices.has(idx); });
+            skillsData.skills = userData.skills;
+            console.log('\u2713 Deduplicated skills: removed ' + removed + ' duplicate' + (removed !== 1 ? 's' : '') + ' (' + userData.skills.length + ' remaining)');
+            return removed;
+        }
+        window.deduplicateSkills = deduplicateSkills;
+        
+        // Skill cap enforcement: returns true if skill can be added, false if at cap
+        function canAddSkill(showWarning) {
+            var count = (userData.skills || []).length;
+            if (count >= PROFILE_SKILL_CAP) {
+                if (showWarning !== false) {
+                    showToast('Profile skill cap reached (' + PROFILE_SKILL_CAP + '). Remove a skill before adding new ones.', 'warning', 5000);
+                }
+                return false;
+            }
+            if (count >= SKILL_CAP_WARN && showWarning !== false) {
+                var remaining = PROFILE_SKILL_CAP - count;
+                showToast(remaining + ' skill slot' + (remaining !== 1 ? 's' : '') + ' remaining (cap: ' + PROFILE_SKILL_CAP + ').', 'info', 3000);
+            }
+            return true;
+        }
+        window.canAddSkill = canAddSkill;
 
         // Load library on page load
         window.addEventListener('DOMContentLoaded', () => {
@@ -26884,8 +26958,24 @@ body {
                         + '</div>';
                 }
             });
-            html += '<div style="font-size:0.85em; color:var(--c-faint); margin-left:auto;">' + skills.length + ' total \u00B7 ' + roles.length + ' domains</div>';
+            html += '<div style="font-size:0.85em; color:var(--c-faint); margin-left:auto;">' + skills.length + '/' + PROFILE_SKILL_CAP + ' skills \u00B7 ' + roles.length + ' domains</div>';
             html += '</div>';
+            
+            // Over-cap warning
+            if (skills.length > PROFILE_SKILL_CAP && !isReadOnlyProfile) {
+                var excess = skills.length - PROFILE_SKILL_CAP;
+                html += '<div style="padding:12px 16px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:10px; margin-bottom:16px; display:flex; align-items:center; gap:10px;">'
+                    + '<span style="color:#ef4444; font-size:1.1em;">\u26A0</span>'
+                    + '<div><div style="font-weight:700; font-size:0.88em; color:#ef4444;">Over skill cap by ' + excess + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">Profile cap is ' + PROFILE_SKILL_CAP + ' skills. Remove ' + excess + ' skill' + (excess !== 1 ? 's' : '') + ' to unlock adding new ones. Research shows 5\u201310 core competencies per role, with 30\u201350 total covering multi-job career matching effectively.</div>'
+                    + '</div></div>';
+            } else if (skills.length >= SKILL_CAP_WARN && !isReadOnlyProfile) {
+                var remaining = PROFILE_SKILL_CAP - skills.length;
+                html += '<div style="padding:10px 16px; background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.2); border-radius:10px; margin-bottom:16px; display:flex; align-items:center; gap:10px;">'
+                    + '<span style="color:#f59e0b; font-size:0.95em;">\u25CF</span>'
+                    + '<div style="font-size:0.82em; color:var(--text-muted);">' + remaining + ' skill slot' + (remaining !== 1 ? 's' : '') + ' remaining (cap: ' + PROFILE_SKILL_CAP + ')</div>'
+                    + '</div>';
+            }
             
             // Group skills by role
             var skillsByRole = {};
@@ -28907,8 +28997,54 @@ body {
                         + 'REPORT_DATA.totalSkillCount=REPORT_DATA.totalSkillCount||REPORT_DATA._allSkills.length;'
                         + '}'
                         + '<\/script>';
-                    // Insert patch right after the REPORT_DATA script block
-                    injected = injected.replace('</head>', patchScript + '</head>');
+                    
+                    // Inject CSS overrides for D3 networks to match main app aesthetic
+                    var patchCSS = '<style>'
+                        + '.network-container, .skills-network, .job-match-network, .candidate-network, [id*="network"], [id*="skills-map"], [id*="skillsMap"], [class*="network"] {'
+                        + '  background: #0a0e1a !important;'
+                        + '  border-radius: 12px !important;'
+                        + '}'
+                        + 'svg text { font-family: "Inter", "Outfit", system-ui, sans-serif !important; }'
+                        + '</style>';
+                    
+                    // Inject JS to override category color palette in the template
+                    var patchColors = '<script>'
+                        + 'window._bpCategoryColors = {'
+                        + '  skill:"#60a5fa", ability:"#a78bfa", workstyle:"#f59e0b",'
+                        + '  knowledge:"#10b981", workactivity:"#ec4899",'
+                        + '  unique:"#fbbf24", trade:"#f97316",'
+                        + '  "General Professional":"#60a5fa", "Technology":"#818cf8",'
+                        + '  "Business & Management":"#f59e0b", "Marketing & Sales":"#ec4899",'
+                        + '  "Finance & Accounting":"#10b981", "HR & Talent":"#a78bfa",'
+                        + '  "Healthcare":"#06b6d4", "Engineering":"#8b5cf6",'
+                        + '  "Legal":"#f97316", "Creative & Design":"#f472b6",'
+                        + '  "Transversal":"#94a3b8", "default":"#60a5fa"'
+                        + '};'
+                        + 'window._bpGetCategoryColor = function(cat) {'
+                        + '  if (!cat) return "#60a5fa";'
+                        + '  var c = window._bpCategoryColors;'
+                        + '  return c[cat] || c[cat.toLowerCase()] || c["default"];'
+                        + '};'
+                        // Override getCategoryColor if template defines it
+                        + 'document.addEventListener("DOMContentLoaded", function() {'
+                        + '  if (typeof getCategoryColor === "function") {'
+                        + '    var _orig = getCategoryColor;'
+                        + '    window.getCategoryColor = function(cat) { return window._bpGetCategoryColor(cat) || _orig(cat); };'
+                        + '  }'
+                        // Also override getColor/getNodeColor
+                        + '  if (typeof getColor === "function") {'
+                        + '    var _origC = getColor;'
+                        + '    window.getColor = function(d) {'
+                        + '      var cat = d && (d.category || d.cat || d.type);'
+                        + '      if (cat && window._bpCategoryColors[cat]) return window._bpCategoryColors[cat];'
+                        + '      return _origC(d);'
+                        + '    };'
+                        + '  }'
+                        + '});'
+                        + '<\/script>';
+                    
+                    // Insert patches before </head>
+                    injected = injected.replace('</head>', patchCSS + patchScript + patchColors + '</head>');
                     // Also patch stats display: replace .skills.length with totalSkillCount where it appears
                     injected = injected.replace(/\.skills\.length/g, '.totalSkillCount');
                     var blob = new Blob([injected], { type: 'text/html; charset=utf-8' });
@@ -35360,6 +35496,19 @@ body {
         
         function confirmQuickAddGapSkill(skillName, jobIdx) {
             if (readOnlyGuard()) return;
+            
+            // Dedup check
+            if (userData.skills.some(function(s) { return s.name.toLowerCase() === skillName.toLowerCase(); })) {
+                showToast('"' + skillName + '" is already in your profile.', 'info');
+                closeExportModal();
+                rescoreAllJobs();
+                showJobDetail(jobIdx);
+                return;
+            }
+            
+            // Skill cap check
+            if (!canAddSkill()) { closeExportModal(); return; }
+            
             var level = 'Proficient';
             var checked = document.querySelector('input[name="gapSkillLevel"]:checked');
             if (checked) level = checked.value;
@@ -35397,6 +35546,7 @@ body {
                 showToast('"' + skillName + '" is already in your profile.', 'info');
                 return;
             }
+            if (!canAddSkill()) return;
             var newSkill = { name: skillName, category: 'unique', level: level, roles: [roleId], key: false, addedFrom: 'role-suggestion' };
             userData.skills.push(newSkill);
             skillsData.skills.push(newSkill);
@@ -40656,7 +40806,14 @@ body {
         function addSelectedONETSkills() {
             if (onetSelectedSkills.length === 0) return;
             
+            var existingNames = new Set((userData.skills || []).map(function(s) { return s.name.toLowerCase(); }));
+            var added = 0, skipped = 0;
+            
             onetSelectedSkills.forEach(selectedSkill => {
+                if (existingNames.has(selectedSkill.name.toLowerCase())) { skipped++; return; }
+                if ((userData.skills || []).length >= PROFILE_SKILL_CAP) { skipped++; return; }
+                existingNames.add(selectedSkill.name.toLowerCase());
+                
                 // Create skill object
                 const newSkill = {
                     name: selectedSkill.name,
@@ -40670,6 +40827,7 @@ body {
                 // Add to userData
                 userData.skills.push(newSkill);
                 skillsData.skills.push(newSkill);
+                added++;
             });
             
             // Save and refresh
@@ -40680,7 +40838,10 @@ body {
             closeONETPicker();
             
             // Show success message
-            showToast(`Added ${onetSelectedSkills.length} skill${onetSelectedSkills.length > 1 ? 's' : ''}.`, 'success');
+            var msg = 'Added ' + added + ' skill' + (added !== 1 ? 's' : '') + '.';
+            if (skipped > 0) msg += ' ' + skipped + ' skipped (duplicates or cap reached).';
+            if ((userData.skills || []).length >= PROFILE_SKILL_CAP) msg += ' Profile skill cap (' + PROFILE_SKILL_CAP + ') reached.';
+            showToast(msg, added > 0 ? 'success' : 'warning');
         }
         
         
@@ -40708,11 +40869,14 @@ body {
                 roles = (userData.roles || []).map(function(r) { return r.id; });
             }
             
-            // Check for duplicates
-            if (userData.skills.some(s => s.name === name)) {
+            // Check for duplicates (case-insensitive)
+            if (userData.skills.some(s => s.name.toLowerCase() === name.toLowerCase())) {
                 showToast('A skill with this name already exists.', 'warning');
                 return;
             }
+            
+            // Skill cap check
+            if (!canAddSkill()) return;
             
             // Create skill
             const newSkill = {
@@ -42431,6 +42595,7 @@ body {
             
             if (!skillName) { console.warn('Skill not found for id:', skillId); return; }
             if (isSkillAlreadyAdded(skillName)) return;
+            if (!canAddSkill()) return;
             
             const newSkill = {
                 name: skillName,
