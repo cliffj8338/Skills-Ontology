@@ -1,4 +1,4 @@
-<!-- v4.45.75 | 2026-03-01 | Dashboard reorder, inline negotiation guide, purpose→content tab, scouting report fix -->
+<!-- v4.45.76 | 2026-03-01 | Fix mastery count in negotiation guide, scouting report job match D3 filtering, candidate skills layout, card view grid -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1585,7 +1585,7 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.45.63 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.75';
+        var BP_VERSION = 'v4.45.76';
         
         // ===== SKILL CAP CONSTANTS =====
         // Research basis: LinkedIn allows 50, O*NET maps ~35/occupation, Fortune 500
@@ -29257,35 +29257,51 @@ body {
                         + '      if (b.classList && b.classList.contains("active") && /job\\s*match/i.test(b.textContent)) isJobMatch = true;'
                         + '    });'
                         + '    var R = typeof REPORT_DATA !== "undefined" ? REPORT_DATA : null;'
-                        + '    if (!R || !R.jobMatchSkills) return;'
+                        + '    if (!R) return;'
                         + '    var matchedNames = {};'
-                        + '    R.jobMatchSkills.forEach(function(s) { matchedNames[s.n.toLowerCase()] = true; });'
-                        + '    (R.gaps || []).forEach(function(g) { matchedNames[g.n.toLowerCase()] = true; });'
+                        + '    (R.jobMatchSkills || []).forEach(function(s) { var nm = (s.n || s.name || "").toLowerCase(); if(nm) matchedNames[nm] = true; });'
+                        + '    (R.gaps || []).forEach(function(g) { var nm = (g.n || g.name || "").toLowerCase(); if(nm) matchedNames[nm] = true; });'
                         + '    (R.jobRequired || []).forEach(function(j) { matchedNames[j.toLowerCase()] = true; });'
-                        + '    document.querySelectorAll("svg g.node, svg g[class*=node], svg g").forEach(function(g) {'
+                        // Also include skills with k=1 flag from the full skills array
+                        + '    ((R._allSkills || R.skills || []).concat(R.networkSkills || [])).forEach(function(s) { if(s.k) { var nm = (s.n || s.name || "").toLowerCase(); if(nm) matchedNames[nm] = true; } });'
+                        + '    var hiddenIds = {};'
+                        + '    document.querySelectorAll("svg g").forEach(function(g) {'
                         + '      var d = g.__data__;'
-                        + '      if (!d || !d.name) return;'
-                        + '      if (d.isCenter || d.isRole || d.type === "role" || d.type === "center" || d.type === "job") return;'
-                        + '      var nm = d.name.toLowerCase();'
-                        + '      if (isJobMatch && !matchedNames[nm] && d.type !== "gap") {'
-                        + '        g.style.display = "none";'
+                        + '      if (!d) return;'
+                        + '      var nm = (d.name || d.n || d.label || "").toLowerCase();'
+                        + '      if (!nm) return;'
+                        + '      if (d.isCenter || d.isRole || d.type === "role" || d.type === "center" || d.type === "job" || d.nodeType === "role" || d.nodeType === "center") return;'
+                        + '      if (isJobMatch && !matchedNames[nm] && d.type !== "gap" && d.matchColor !== "gap" && d.matchColor !== "matched") {'
+                        + '        g.style.opacity = "0"; g.style.pointerEvents = "none";'
+                        + '        if (d.id) hiddenIds[d.id] = true;'
+                        + '        if (d.index !== undefined) hiddenIds[d.index] = true;'
                         + '      } else {'
-                        + '        g.style.display = "";'
+                        + '        g.style.opacity = ""; g.style.pointerEvents = "";'
                         + '      }'
                         + '    });'
-                        // Also hide orphan links pointing to hidden nodes
+                        // Hide links connected to hidden nodes
+                        + '    document.querySelectorAll("svg line, svg path.link").forEach(function(l) {'
+                        + '      var s = l.__data__;'
+                        + '      if (!s) { if(isJobMatch) { l.style.opacity = "0.03"; } else { l.style.opacity = ""; } return; }'
+                        + '      var sId = s.source && (s.source.id !== undefined ? s.source.id : (s.source.index !== undefined ? s.source.index : s.source));'
+                        + '      var tId = s.target && (s.target.id !== undefined ? s.target.id : (s.target.index !== undefined ? s.target.index : s.target));'
+                        + '      var sName = (s.source && (s.source.name || s.source.n || s.source.label) || "").toLowerCase();'
+                        + '      var tName = (s.target && (s.target.name || s.target.n || s.target.label) || "").toLowerCase();'
+                        + '      var sHidden = hiddenIds[sId] || (sName && !matchedNames[sName] && !/role|center|job/.test(s.source && s.source.type || ""));'
+                        + '      var tHidden = hiddenIds[tId] || (tName && !matchedNames[tName] && !/role|center|job/.test(s.target && s.target.type || ""));'
+                        + '      if (isJobMatch && (sHidden || tHidden)) {'
+                        + '        l.style.opacity = "0"; l.style.pointerEvents = "none";'
+                        + '      } else {'
+                        + '        l.style.opacity = ""; l.style.pointerEvents = "";'
+                        + '      }'
+                        + '    });'
+                        // Try to restart simulation so visible nodes reflow
                         + '    if (isJobMatch) {'
-                        + '      document.querySelectorAll("svg line").forEach(function(l) {'
-                        + '        var s = l.__data__;'
-                        + '        if (!s) return;'
-                        + '        var sName = (s.source && s.source.name) ? s.source.name.toLowerCase() : "";'
-                        + '        var tName = (s.target && s.target.name) ? s.target.name.toLowerCase() : "";'
-                        + '        if ((sName && !matchedNames[sName]) || (tName && !matchedNames[tName])) {'
-                        + '          l.style.display = "none";'
-                        + '        } else { l.style.display = ""; }'
-                        + '      });'
-                        + '    } else {'
-                        + '      document.querySelectorAll("svg line").forEach(function(l) { l.style.display = ""; });'
+                        + '      try {'
+                        + '        var sim = window.simulation || window.sim || window._simulation;'
+                        + '        if (!sim) { for (var k in window) { try { if (window[k] && typeof window[k].alpha === "function" && typeof window[k].restart === "function") { sim = window[k]; break; } } catch(e){} } }'
+                        + '        if (sim) { sim.alpha(0.3).restart(); }'
+                        + '      } catch(e) {}'
                         + '    }'
                         + '  }'
                         + '  var n = 0;'
