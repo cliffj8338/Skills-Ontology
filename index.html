@@ -1,4 +1,4 @@
-<!-- v4.45.68 | 2026-02-28 | getVisibleRoles excludes orphan roles -->
+<!-- v4.45.69 | 2026-02-28 | Filter unconnected skills from all visualizations -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1506,7 +1506,7 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.45.63 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.68';
+        var BP_VERSION = 'v4.45.69';
         
         // ===== DEV VELOCITY TRACKING =====
         window._blueprintDevStats = {
@@ -21542,11 +21542,17 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             });
 
             // Add skill nodes — on mobile, only key/top skills to reduce clutter
-            var skillsToShow = skillsData.skills;
+            // On all devices, only show skills connected to at least one visible role
+            var visibleRoleIds = new Set();
+            visibleRoles.forEach(function(r) { visibleRoleIds.add(r.id || r.name); visibleRoleIds.add(r.name); });
+            var connectedSkills = skillsData.skills.filter(function(s) {
+                return (s.roles || []).some(function(rid) { return visibleRoleIds.has(rid); });
+            });
+            var skillsToShow = connectedSkills;
             if (isMobile) {
                 var levelPri = { 'mastery': 5, 'expert': 4, 'advanced': 3, 'proficient': 2, 'novice': 1 };
-                var keySkills = skillsData.skills.filter(function(s) { return s.key; });
-                var topLevelSkills = skillsData.skills.filter(function(s) {
+                var keySkills = connectedSkills.filter(function(s) { return s.key; });
+                var topLevelSkills = connectedSkills.filter(function(s) {
                     var lvl = String(s.level || '').toLowerCase();
                     return lvl === 'mastery' || lvl === 'expert';
                 });
@@ -21561,19 +21567,19 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 });
                 // If still under 30, backfill with Advanced
                 if (skillsToShow.length < 30) {
-                    skillsData.skills.filter(function(s) { return String(s.level || '').toLowerCase() === 'advanced' && !seen.has(s.name); })
+                    connectedSkills.filter(function(s) { return String(s.level || '').toLowerCase() === 'advanced' && !seen.has(s.name); })
                         .slice(0, 30 - skillsToShow.length)
                         .forEach(function(s) { skillsToShow.push(s); seen.add(s.name); });
                 }
                 // If still under 30, backfill with Proficient
                 if (skillsToShow.length < 30) {
-                    skillsData.skills.filter(function(s) { return String(s.level || '').toLowerCase() === 'proficient' && !seen.has(s.name); })
+                    connectedSkills.filter(function(s) { return String(s.level || '').toLowerCase() === 'proficient' && !seen.has(s.name); })
                         .slice(0, 30 - skillsToShow.length)
                         .forEach(function(s) { skillsToShow.push(s); seen.add(s.name); });
                 }
                 // FALLBACK: if level-based filters found nothing, take any skills sorted by level priority
-                if (skillsToShow.length === 0 && skillsData.skills.length > 0) {
-                    var sorted = skillsData.skills.slice().sort(function(a, b) {
+                if (skillsToShow.length === 0 && connectedSkills.length > 0) {
+                    var sorted = connectedSkills.slice().sort(function(a, b) {
                         return (levelPri[String(b.level || '').toLowerCase()] || 0) - (levelPri[String(a.level || '').toLowerCase()] || 0);
                     });
                     sorted.slice(0, 30).forEach(function(s) { skillsToShow.push(s); });
@@ -28676,22 +28682,22 @@ body {
             // Build set of valid role IDs for filtering skill→role references
             var validRoleIds = new Set(roles.map(function(r) { return r.id; }));
             
-            // Filter skills: exclude any skill whose ONLY roles are hidden
-            // Keep skills with no roles (standalone), keep skills with at least one visible role
-            var visibleSkills = allSkills.filter(function(s) {
+            // Filter skills for visualization: only include skills connected to a visible role
+            // Unconnected skills (no role assignments) become floaters in D3 graphs
+            var connectedSkills = allSkills.filter(function(s) {
                 var skillRoles = s.roles || [];
-                if (skillRoles.length === 0) return true; // standalone skill, keep it
                 return skillRoles.some(function(rid) { return validRoleIds.has(rid); });
             });
             
-            // Skills
+            // Skills — use ALL skills for counts/stats, connected only for network rendering
             var jobRequiredNames = (job.parsedSkills || []).filter(function(s) {
                 var req = (typeof s === 'string') ? 'Required' : (s.requirement || 'Required');
                 return req === 'Required';
             }).map(function(s) { return typeof s === 'string' ? s : s.name; });
             var jobRequiredSet = new Set(jobRequiredNames.map(function(n) { return n.toLowerCase(); }));
             
-            var reportSkills = visibleSkills.map(function(s) {
+            // Build full skill set (for stats) and network skill set (for D3)
+            var reportSkills = allSkills.map(function(s) {
                 var sk = { n: s.name, l: s.level || 'Proficient', r: (s.roles || []).filter(function(rid) { return validRoleIds.has(rid); }) };
                 // Mark as matched (green) if skill appears in matchData.matched OR in job's required skills
                 var isMatched = matched.some(function(m) {
@@ -28714,7 +28720,7 @@ body {
             
             // Gaps
             var reportGaps = gaps.map(function(g) {
-                var adjacentSkills = visibleSkills.filter(function(s) {
+                var adjacentSkills = connectedSkills.filter(function(s) {
                     var words = g.name.toLowerCase().split(/[\s\-\/&]+/).filter(function(w) { return w.length > 3; });
                     return words.some(function(w) { return s.name.toLowerCase().indexOf(w) !== -1; });
                 }).slice(0, 3).map(function(s) { return s.name; });
@@ -28755,15 +28761,15 @@ body {
             if (gaps.length > 0) narrative += ' with ' + gaps.length + ' gap' + (gaps.length !== 1 ? 's' : '') + ' identified in areas where adjacent skills suggest a bridgeable trajectory.';
             else narrative += ' with no significant gaps identified.';
             
-            // Domains
+            // Domains (based on connected skills only — these drive the visualization)
             var reportDomains = roles.map(function(role) {
-                var c = visibleSkills.filter(function(s) { return (s.roles || []).indexOf(role.id) !== -1; }).length;
-                return { n: role.name, c: c, m: visibleSkills.length, cl: role.color };
+                var c = connectedSkills.filter(function(s) { return (s.roles || []).indexOf(role.id) !== -1; }).length;
+                return { n: role.name, c: c, m: connectedSkills.length, cl: role.color };
             }).filter(function(d) { return d.c > 0; });
             
-            // Proficiency
+            // Proficiency (full portfolio — all skills regardless of role connection)
             var proficiency = { Mastery: 0, Expert: 0, Advanced: 0, Proficient: 0, Novice: 0 };
-            visibleSkills.forEach(function(s) { var lv = s.level || 'Proficient'; if (proficiency.hasOwnProperty(lv)) proficiency[lv]++; });
+            allSkills.forEach(function(s) { var lv = s.level || 'Proficient'; if (proficiency.hasOwnProperty(lv)) proficiency[lv]++; });
             
             return {
                 candidate: {
@@ -28790,6 +28796,8 @@ body {
                 match: { percentage: matchData.score || 0, narrative: narrative },
                 roles: roles,
                 skills: reportSkills,
+                networkSkills: reportSkills.filter(function(sk) { return sk.r && sk.r.length > 0; }),
+                totalSkillCount: allSkills.length,
                 jobRequired: jobRequiredNames,
                 gaps: reportGaps,
                 values: { score: valAlign ? valAlign.score : 0, narrative: 'Cultural Fit Signal — ' + ((valAlign ? (valAlign.aligned || []).length : 0) + ' shared values identified.'), candidate: candidateValues, company: companyValuesList },
@@ -28816,6 +28824,20 @@ body {
                 .then(function(template) {
                     var safeDataStr = encodeURIComponent(JSON.stringify(reportData));
                     var injected = template.replace(/const REPORT_DATA = \{[\s\S]*?\n\};/, 'const REPORT_DATA = JSON.parse(decodeURIComponent("' + safeDataStr + '"));');
+                    
+                    // Patch template: swap skills→networkSkills for D3 visualization
+                    // but preserve totalSkillCount for overview stats display
+                    var patchScript = '<script>'
+                        + 'if(typeof REPORT_DATA!=="undefined"&&REPORT_DATA.networkSkills){'
+                        + 'REPORT_DATA._allSkills=REPORT_DATA.skills;'
+                        + 'REPORT_DATA.skills=REPORT_DATA.networkSkills;'
+                        + 'REPORT_DATA.totalSkillCount=REPORT_DATA.totalSkillCount||REPORT_DATA._allSkills.length;'
+                        + '}'
+                        + '<\/script>';
+                    // Insert patch right after the REPORT_DATA script block
+                    injected = injected.replace('</head>', patchScript + '</head>');
+                    // Also patch stats display: replace .skills.length with totalSkillCount where it appears
+                    injected = injected.replace(/\.skills\.length/g, '.totalSkillCount');
                     var blob = new Blob([injected], { type: 'text/html; charset=utf-8' });
                     var blobUrl = URL.createObjectURL(blob);
                     
@@ -28992,11 +29014,12 @@ body {
             var firstName = name.split(' ')[0];
             var dateLine = R.job.date || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
             var allSkills = R.skills || [];
+            var totalSkillCount = R.totalSkillCount || allSkills.length;
             var matchPct = R.match.percentage || 0;
             var gaps = R.gaps || [];
             var roles = R.roles || [];
             var matched = allSkills.filter(function(s) { return s.k; });
-            var surplus = allSkills.length - matched.length - gaps.length;
+            var surplus = totalSkillCount - matched.length - gaps.length;
             
             // ── Colors — match HTML CSS variables exactly ──
             var C = {
@@ -29158,7 +29181,7 @@ body {
             // Stats on right of target card
             var tsX = W - M - 6;
             var tStats = [
-                { n: String(allSkills.length), l: 'Skills', c: C.a },
+                { n: String(totalSkillCount), l: 'Skills', c: C.a },
                 { n: String(matched.length), l: 'Matched', c: C.g },
                 { n: String(gaps.length), l: 'Gaps', c: C.r },
                 { n: String(Math.max(0, surplus)), l: 'Surplus', c: C.tm }
