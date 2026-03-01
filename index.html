@@ -1,4 +1,4 @@
-<!-- v4.45.74 | 2026-03-01 | Hard skill cap enforcement, AI synonym expansion, D3 post-render recoloring -->
+<!-- v4.45.75 | 2026-03-01 | Dashboard reorder, inline negotiation guide, purpose→content tab, scouting report fix -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1506,7 +1506,7 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.45.63 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.74';
+        var BP_VERSION = 'v4.45.75';
         
         // ===== SKILL CAP CONSTANTS =====
         // Research basis: LinkedIn allows 50, O*NET maps ~35/occupation, Fortune 500
@@ -1520,7 +1520,7 @@
         // ===== DEV VELOCITY TRACKING =====
         window._blueprintDevStats = {
             firstCommit: '2025-12-28',
-            lineCount: 43846,
+            lineCount: 44041,
             sessionsAI: 49,
             avgSessionHrs: 3.5,
             aiSubscriptionMonthly: 200,
@@ -3459,7 +3459,7 @@
             // ===== DEV TIME COMPARISON (v4.45.65) =====
             var devStats = window._blueprintDevStats || {
                 firstCommit: '2025-12-28',
-                lineCount: 43846,
+                lineCount: 44041,
                 sessionsAI: 49,
                 avgSessionHrs: 3.5,
                 // Costs
@@ -4839,7 +4839,8 @@
                         { id: 'p2-6p', name: 'Match score recalibration', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.45.72: nameMatchQuality penalties in 6-pass matcher were catastrophically harsh — substring 0.85, word overlap 0.3-0.45, sibling 0.55, concept 0.2-0.3, implied 0.40. Combined with proficiency penalties via multiplication, 20/22 skills matched still scored 50%. Fix: raised floors (substring 0.92, word overlap min 0.82, sibling 0.78, concept min 0.70, implied 0.62) and added 65% minimum credit floor for any confirmed match. A matched skill IS matched.' },
                         { id: 'p2-6q', name: 'Scouting report D3 network styling', status: 'in-progress', category: 'visual', priority: 'high', notes: 'v4.45.74: Switched from monkey-patching getCategoryColor/getColor (template uses inline colors, not named functions) to post-render SVG recoloring. Polls SVG circles every 400ms for 10s, reads __data__.category from D3 bound data, applies main app color palette. Also recolors links (subtle white) and text. CSS override for dark network backgrounds. Template file still needs native color update for full parity.' },
                         { id: 'p2-6r', name: 'Skill deduplication and cap system', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.73-74: Dedup guards on all 8 push paths. Startup deduplicateSkills(). Hard cap: PROFILE_SKILL_CAP=50, WB_SKILL_CAP=20. canAddSkill() central guard. Over-cap triage overlay (showSkillCapTriage) auto-triggers on load if over 50 after dedup. Scores skills by verification/evidence/proficiency, pre-selects lowest for removal. Over-cap banner with Manage button on Blueprint view. Prevent philosophy: never allow over-cap, force triage.' },
-                        { id: 'p2-6s', name: 'AI skill synonym expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.74: GenAI/LLM/AI/NLP/Applied AI now cross-reference bidirectionally in SKILL_SYNONYMS. GenAI implies LLM knowledge (and vice versa) via synonym pass 1b at 0.95 quality. Also added prompt engineering→genai, artificial intelligence (ai)→applied ai→genai chain. Fixes false gaps where JD requires LLM but user has GenAI.' }
+                        { id: 'p2-6s', name: 'AI skill synonym expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.74: GenAI/LLM/AI/NLP/Applied AI now cross-reference bidirectionally in SKILL_SYNONYMS. GenAI implies LLM knowledge (and vice versa) via synonym pass 1b at 0.95 quality. Also added prompt engineering→genai, artificial intelligence (ai)→applied ai→genai chain. Fixes false gaps where JD requires LLM but user has GenAI.' },
+                        { id: 'p2-6t', name: 'Blueprint dashboard reorder + inline negotiation', status: 'done', category: 'ux', priority: 'high', notes: 'v4.45.75: Dashboard reordered by importance/uniqueness: Market Position (comp + top skills + inline negotiation) → Career Readiness → Top Job Match → Skill Distribution → Quick Actions (compact). Purpose Statement moved to Content & Evidence tab. Negotiation Guide now renders inline with expandable toggle instead of modal. renderInlineNegotiation() generates offer ranges, negotiation gap, talking points, scripts. Scouting report fix: removed aggressive .skills.length global replacement that broke template JS.' }
                     ]
                 },
                 {
@@ -26707,175 +26708,7 @@ body {
                 + '</div>';
             
             html += '</div>'; // end stats grid
-            
-            // ── CAREER READINESS SCORE ──
-            (function() {
-                var ringSize = 64;
-                var strokeWidth = 5;
-                var radius = (ringSize - strokeWidth) / 2;
-                var circumference = 2 * Math.PI * radius;
-                var offset = circumference - (readinessPct / 100) * circumference;
-                var ringColor = readinessPct >= 100 ? '#10b981' : readinessPct >= 60 ? '#3b82f6' : '#f59e0b';
-                var readinessLabel = readinessPct >= 100 ? 'Profile Complete' : readinessPct >= 80 ? 'Almost There' : readinessPct >= 60 ? 'Good Progress' : 'Getting Started';
-                
-                if (readinessPct < 100) {
-                    html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px 18px; margin-bottom:16px; display:flex; align-items:center; gap:18px;">';
-                    
-                    // SVG score ring
-                    html += '<div style="flex-shrink:0;">'
-                        + '<svg width="' + ringSize + '" height="' + ringSize + '" viewBox="0 0 ' + ringSize + ' ' + ringSize + '" style="transform:rotate(-90deg);">'
-                        + '<circle cx="' + (ringSize/2) + '" cy="' + (ringSize/2) + '" r="' + radius + '" fill="none" stroke="var(--c-surface-4)" stroke-width="' + strokeWidth + '"/>'
-                        + '<circle cx="' + (ringSize/2) + '" cy="' + (ringSize/2) + '" r="' + radius + '" fill="none" stroke="' + ringColor + '" stroke-width="' + strokeWidth + '" stroke-linecap="round" stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '" style="transition:stroke-dashoffset 0.5s ease;"/>'
-                        + '</svg>'
-                        + '<div style="position:relative; top:-' + (ringSize * 0.72) + 'px; text-align:center; font-weight:800; font-size:0.95em; color:' + ringColor + '; line-height:1;">' + readinessPct + '%</div>'
-                        + '</div>';
-                    
-                    // Label + incomplete items
-                    html += '<div style="flex:1; min-width:0;">'
-                        + '<div style="font-size:0.82em; font-weight:700; color:var(--c-heading-bold); margin-bottom:2px;">' + readinessLabel + '</div>'
-                        + '<div style="font-size:0.75em; color:var(--c-faint); margin-bottom:8px;">Complete all steps to unlock your full career intelligence profile.</div>'
-                        + '<div style="display:flex; gap:6px; flex-wrap:wrap;">';
-                    completeness.forEach(function(c) {
-                        if (!c.done) {
-                            html += '<button onclick="' + c.action + '" style="font-size:0.72em; padding:3px 10px; border-radius:12px; border:1px solid var(--c-accent-border-3b); background:var(--c-accent-bg-3b); color:#60a5fa; cursor:pointer; white-space:nowrap;">' + bpIcon('plus',10) + ' ' + c.label + '</button>';
-                        }
-                    });
-                    html += '</div></div></div>';
-                } else {
-                    // Compact complete badge
-                    html += '<div style="display:flex; align-items:center; gap:8px; padding:10px 16px; margin-bottom:16px; background:var(--c-green-bg-1b); border:1px solid var(--c-green-bg-6); border-radius:10px;">'
-                        + '<span style="color:#10b981;">' + bpIcon('check',16) + '</span>'
-                        + '<span style="font-size:0.82em; font-weight:600; color:#10b981;">Blueprint Complete</span>'
-                        + '<span style="font-size:0.72em; color:var(--c-faint); margin-left:auto;">' + skills.length + ' skills \u00B7 ' + outcomes.length + ' outcomes \u00B7 ' + values.length + ' values</span>'
-                        + '</div>';
-                }
-            })();
-            
-            // ── SKILL DISTRIBUTION BAR ──
-            if (skills.length > 0) {
-                var profLevels = [
-                    { key: 'Mastery', color: '#ef4444', label: 'Mastery' },
-                    { key: 'Expert', color: '#f97316', label: 'Expert' },
-                    { key: 'Advanced', color: '#f59e0b', label: 'Advanced' },
-                    { key: 'Proficient', color: '#10b981', label: 'Proficient' },
-                    { key: 'Novice', color: '#6b7280', label: 'Novice' }
-                ];
-                var profCounts = {};
-                profLevels.forEach(function(p) { profCounts[p.key] = 0; });
-                skills.forEach(function(s) {
-                    var lv = s.level || 'Novice';
-                    if (profCounts[lv] !== undefined) profCounts[lv]++;
-                    else profCounts['Novice']++;
-                });
-                var total = skills.length;
-                
-                html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4c); border-radius:10px; padding:14px 16px; margin-bottom:16px;">'
-                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
-                    + '<div style="font-size:0.75em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--c-faint);">Skill Distribution</div>'
-                    + '<div style="display:flex; align-items:center; gap:12px;">'
-                    + '<span style="font-size:0.72em; color:var(--c-faint);">' + roles.length + ' domains</span>'
-                    + '<button onclick="switchBlueprintTab(\'skills\')" style="font-size:0.72em; color:#60a5fa; background:none; border:none; cursor:pointer; font-weight:600;">Manage Skills \u2192</button>'
-                    + '</div></div>';
-                
-                // Stacked bar
-                html += '<div style="display:flex; height:10px; border-radius:5px; overflow:hidden; background:var(--c-surface-2b); margin-bottom:10px;">';
-                profLevels.forEach(function(p) {
-                    var pct = total > 0 ? (profCounts[p.key] / total * 100) : 0;
-                    if (pct > 0) {
-                        html += '<div title="' + p.label + ': ' + profCounts[p.key] + '" style="width:' + pct + '%; background:' + p.color + '; transition:width 0.3s;"></div>';
-                    }
-                });
-                html += '</div>';
-                
-                // Legend row
-                html += '<div style="display:flex; gap:14px; flex-wrap:wrap;">';
-                profLevels.forEach(function(p) {
-                    if (profCounts[p.key] > 0) {
-                        html += '<div style="display:flex; align-items:center; gap:5px; font-size:0.75em;">'
-                            + '<div style="width:8px; height:8px; border-radius:2px; background:' + p.color + ';"></div>'
-                            + '<span style="color:var(--c-muted);">' + p.label + '</span>'
-                            + '<span style="font-weight:700; color:var(--c-heading);">' + profCounts[p.key] + '</span>'
-                            + '</div>';
-                    }
-                });
-                html += '</div></div>';
-            }
-            
-            // ── PURPOSE (inline, editable) ──
-            html += '<div style="background:var(--c-accent-bg-2b); border:1px solid var(--c-accent-bg-6b); border-radius:12px; padding:20px; margin-bottom:20px;">'
-                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
-                + '<div style="font-size:0.82em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--c-accent); display:flex; align-items:center; gap:6px;">'
-                + bpIcon('purpose',14) + ' Purpose Statement</div>'
-                + '<button onclick="var ta=document.getElementById(\'dashPurposeEdit\'); if(ta.readOnly){ta.readOnly=false; ta.focus(); ta.style.background=\'var(--c-input-bg)\'; this.textContent=\'Save\';} else {ta.readOnly=true; ta.style.background=\'transparent\'; updatePurpose(ta.value); this.textContent=\'Edit\';}" '
-                + 'style="font-size:0.78em; padding:4px 12px; border-radius:6px; border:1px solid var(--c-accent-border-2); background:transparent; color:#60a5fa; cursor:pointer;">'
-                + 'Edit</button></div>'
-                + '<textarea id="dashPurposeEdit" readonly onchange="updatePurpose(this.value)" style="'
-                + 'width:100%; min-height:48px; background:transparent; border:none; color:var(--c-heading); '
-                + 'font-size:0.95em; line-height:1.6; resize:vertical; outline:none; font-style:italic;">'
-                + escapeHtml(purpose || 'No purpose statement yet. Click Edit to add yours.')
-                + '</textarea></div>';
-            
-            // ── QUICK ACTIONS ──
-            html += '<div style="margin-bottom:20px;">'
-                + '<div style="font-size:0.78em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--c-faint); margin-bottom:10px;">Quick Actions</div>'
-                + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px;">';
-            
-            // Manage Skills
-            html += '<button onclick="switchBlueprintTab(\'skills\')" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--c-green-bg-2b); border:1px solid var(--c-green-border-1); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
-                + '<span style="color:#10b981;">' + bpIcon('skills',18) + '</span>'
-                + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.9em;">Manage Skills</div>'
-                + '<div style="font-size:0.75em; color:var(--c-muted);">Add, edit, organize</div></div>'
-                + '</button>';
-            
-            // Scouting Report
-            html += '<button onclick="showScoutingReportPicker()" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--c-accent-bg-3c); border:1px solid var(--c-accent-border-3c); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
-                + '<span style="color:#60a5fa;">' + bpIcon('target',18) + '</span>'
-                + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.9em;">\u25C8 Scouting Report</div>'
-                + '<div style="font-size:0.75em; color:var(--c-muted);">Targeted job analysis</div></div>'
-                + '</button>';
-            
-            // PDF Summary
-            if (!isReadOnlyProfile) {
-            html += '<button onclick="exportBlueprint(\'pdf\')" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
-                + '<span style="color:var(--c-label);">' + bpIcon('pdf',18) + '</span>'
-                + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.9em;">PDF Summary</div>'
-                + '<div style="font-size:0.75em; color:var(--c-muted);">Full career report</div></div>'
-                + '</button>';
-            
-            // Executive Blueprint
-            html += '<button onclick="exportBlueprint(\'html\')" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
-                + '<span style="color:var(--c-label);">' + bpIcon('export',18) + '</span>'
-                + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.9em;">Executive Blueprint</div>'
-                + '<div style="font-size:0.75em; color:var(--c-muted);">HTML for email</div></div>'
-                + '</button>';
-            }
-            
-            // Negotiation Guide
-            if (hasValuation && !isReadOnlyProfile) {
-                html += '<button onclick="showNegotiationGuide()" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--c-amber-bg-2a); border:1px solid var(--c-amber-border-1); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
-                    + '<span style="color:#fbbf24;">' + bpIcon('dollar',18) + '</span>'
-                    + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.9em;">Negotiation Guide</div>'
-                    + '<div style="font-size:0.75em; color:var(--c-muted);">Salary strategy</div></div>'
-                    + '</button>';
-            }
-            
-            html += '</div></div>'; // end quick actions
-            
-            // ── TOP JOB MATCH (if jobs saved) ──
-            if (topMatch && topMatchScore > 0) {
-                var tmColor = topMatchScore >= 70 ? '#10b981' : topMatchScore >= 50 ? '#f59e0b' : '#ef4444';
-                html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="switchView(\'jobs\')">'
-                    + '<div>'
-                    + '<div style="font-size:0.75em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Best Job Match</div>'
-                    + '<div style="font-weight:600; color:var(--c-text);">' + topMatch.title + '</div>'
-                    + '<div style="font-size:0.82em; color:var(--c-muted);">' + (topMatch.company || '') + ' \u00B7 ' + savedJobs.length + ' jobs tracked</div>'
-                    + '</div>'
-                    + '<div style="text-align:center;">'
-                    + '<div style="font-size:1.6em; font-weight:800; color:' + tmColor + ';">' + topMatchScore + '%</div>'
-                    + '<div style="font-size:0.65em; color:var(--c-muted); text-transform:uppercase;">Match</div>'
-                    + '</div></div>';
-            }
-            
+
             // ── MARKET POSITION ──
             if (hasValuation || hasCuratedComp) {
                 var displayCompFormatted = formatCompValue(totalValue.displayComp);
@@ -26947,9 +26780,9 @@ body {
                     });
                     html += '</div>';
                     
-                    html += '<div style="display:flex; gap:8px;">'
-                        + '<button onclick="showNegotiationGuide()" style="flex:1; padding:8px 14px; background:transparent; border:1px solid var(--c-amber-border-1); border-radius:6px; color:#fbbf24; cursor:pointer; font-size:0.82em;">'
-                        + bpIcon('dollar',12) + ' Negotiation Guide</button>'
+                    html += '<div style="margin-top:10px;"><button onclick="var el=document.getElementById(\'negGuideInline\'); if(el.style.display===\'none\'){el.style.display=\'block\'; this.textContent=\'\\u25BC Negotiation Guide\';} else {el.style.display=\'none\'; this.textContent=\'\\u25B6 Negotiation Guide\';}" style="padding:8px 14px; background:transparent; border:1px solid var(--c-amber-border-1); border-radius:6px; color:#fbbf24; cursor:pointer; font-size:0.82em; width:100%;">\\u25B6 Negotiation Guide</button></div>'
+                        + '<div id="negGuideInline" style="display:none; margin-top:12px;">'
+                        + renderInlineNegotiation(totalValue)
                         + '</div>';
                     
                     html += '</div></div>'; // close detail + container
@@ -27021,18 +26854,168 @@ body {
                 html += '</div>';
                 
                 // View all + methodology link
-                html += '<div style="display:flex; gap:8px;">'
+                html += '<div style="display:flex; gap:8px; margin-bottom:10px;">'
                     + '<button onclick="showValuationBreakdown()" style="flex:1; padding:8px 14px; background:transparent; border:1px solid var(--c-border-subtle); border-radius:6px; color:var(--c-label); cursor:pointer; font-size:0.82em;">'
                     + bpIcon('bar-chart',12) + ' View All ' + skills.length + ' Skills</button>'
-                    + '<button onclick="showNegotiationGuide()" style="flex:1; padding:8px 14px; background:transparent; border:1px solid var(--c-amber-border-1); border-radius:6px; color:#fbbf24; cursor:pointer; font-size:0.82em;">'
-                    + bpIcon('dollar',12) + ' Negotiation Guide</button>'
+                    + '</div>';
+                
+                // Inline Negotiation Guide (expandable)
+                html += '<div style="margin-top:4px;"><button onclick="var el=document.getElementById(\'negGuideInline2\'); if(el.style.display===\'none\'){el.style.display=\'block\'; this.textContent=\'\\u25BC Negotiation Guide\';} else {el.style.display=\'none\'; this.textContent=\'\\u25B6 Negotiation Guide\';}" style="padding:8px 14px; background:transparent; border:1px solid var(--c-amber-border-1); border-radius:6px; color:#fbbf24; cursor:pointer; font-size:0.82em; width:100%;">\\u25B6 Negotiation Guide</button></div>'
+                    + '<div id="negGuideInline2" style="display:none; margin-top:12px;">'
+                    + renderInlineNegotiation(totalValue)
                     + '</div>';
                 
                 html += '</div></div>'; // close detail + container
                 } // end algorithm-only else block
             }
             
+
+            // ── CAREER READINESS SCORE ──
+            (function() {
+                var ringSize = 64;
+                var strokeWidth = 5;
+                var radius = (ringSize - strokeWidth) / 2;
+                var circumference = 2 * Math.PI * radius;
+                var offset = circumference - (readinessPct / 100) * circumference;
+                var ringColor = readinessPct >= 100 ? '#10b981' : readinessPct >= 60 ? '#3b82f6' : '#f59e0b';
+                var readinessLabel = readinessPct >= 100 ? 'Profile Complete' : readinessPct >= 80 ? 'Almost There' : readinessPct >= 60 ? 'Good Progress' : 'Getting Started';
+                
+                if (readinessPct < 100) {
+                    html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px 18px; margin-bottom:16px; display:flex; align-items:center; gap:18px;">';
+                    
+                    // SVG score ring
+                    html += '<div style="flex-shrink:0;">'
+                        + '<svg width="' + ringSize + '" height="' + ringSize + '" viewBox="0 0 ' + ringSize + ' ' + ringSize + '" style="transform:rotate(-90deg);">'
+                        + '<circle cx="' + (ringSize/2) + '" cy="' + (ringSize/2) + '" r="' + radius + '" fill="none" stroke="var(--c-surface-4)" stroke-width="' + strokeWidth + '"/>'
+                        + '<circle cx="' + (ringSize/2) + '" cy="' + (ringSize/2) + '" r="' + radius + '" fill="none" stroke="' + ringColor + '" stroke-width="' + strokeWidth + '" stroke-linecap="round" stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '" style="transition:stroke-dashoffset 0.5s ease;"/>'
+                        + '</svg>'
+                        + '<div style="position:relative; top:-' + (ringSize * 0.72) + 'px; text-align:center; font-weight:800; font-size:0.95em; color:' + ringColor + '; line-height:1;">' + readinessPct + '%</div>'
+                        + '</div>';
+                    
+                    // Label + incomplete items
+                    html += '<div style="flex:1; min-width:0;">'
+                        + '<div style="font-size:0.82em; font-weight:700; color:var(--c-heading-bold); margin-bottom:2px;">' + readinessLabel + '</div>'
+                        + '<div style="font-size:0.75em; color:var(--c-faint); margin-bottom:8px;">Complete all steps to unlock your full career intelligence profile.</div>'
+                        + '<div style="display:flex; gap:6px; flex-wrap:wrap;">';
+                    completeness.forEach(function(c) {
+                        if (!c.done) {
+                            html += '<button onclick="' + c.action + '" style="font-size:0.72em; padding:3px 10px; border-radius:12px; border:1px solid var(--c-accent-border-3b); background:var(--c-accent-bg-3b); color:#60a5fa; cursor:pointer; white-space:nowrap;">' + bpIcon('plus',10) + ' ' + c.label + '</button>';
+                        }
+                    });
+                    html += '</div></div></div>';
+                } else {
+                    // Compact complete badge
+                    html += '<div style="display:flex; align-items:center; gap:8px; padding:10px 16px; margin-bottom:16px; background:var(--c-green-bg-1b); border:1px solid var(--c-green-bg-6); border-radius:10px;">'
+                        + '<span style="color:#10b981;">' + bpIcon('check',16) + '</span>'
+                        + '<span style="font-size:0.82em; font-weight:600; color:#10b981;">Blueprint Complete</span>'
+                        + '<span style="font-size:0.72em; color:var(--c-faint); margin-left:auto;">' + skills.length + ' skills \u00B7 ' + outcomes.length + ' outcomes \u00B7 ' + values.length + ' values</span>'
+                        + '</div>';
+                }
+            })();
             
+            // ── TOP JOB MATCH (if jobs saved) ──
+            if (topMatch && topMatchScore > 0) {
+                var tmColor = topMatchScore >= 70 ? '#10b981' : topMatchScore >= 50 ? '#f59e0b' : '#ef4444';
+                html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="switchView(\'jobs\')">'
+                    + '<div>'
+                    + '<div style="font-size:0.75em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Best Job Match</div>'
+                    + '<div style="font-weight:600; color:var(--c-text);">' + topMatch.title + '</div>'
+                    + '<div style="font-size:0.82em; color:var(--c-muted);">' + (topMatch.company || '') + ' \u00B7 ' + savedJobs.length + ' jobs tracked</div>'
+                    + '</div>'
+                    + '<div style="text-align:center;">'
+                    + '<div style="font-size:1.6em; font-weight:800; color:' + tmColor + ';">' + topMatchScore + '%</div>'
+                    + '<div style="font-size:0.65em; color:var(--c-muted); text-transform:uppercase;">Match</div>'
+                    + '</div></div>';
+            }
+            
+            // ── SKILL DISTRIBUTION BAR ──
+            if (skills.length > 0) {
+                var profLevels = [
+                    { key: 'Mastery', color: '#ef4444', label: 'Mastery' },
+                    { key: 'Expert', color: '#f97316', label: 'Expert' },
+                    { key: 'Advanced', color: '#f59e0b', label: 'Advanced' },
+                    { key: 'Proficient', color: '#10b981', label: 'Proficient' },
+                    { key: 'Novice', color: '#6b7280', label: 'Novice' }
+                ];
+                var profCounts = {};
+                profLevels.forEach(function(p) { profCounts[p.key] = 0; });
+                skills.forEach(function(s) {
+                    var lv = s.level || 'Novice';
+                    if (profCounts[lv] !== undefined) profCounts[lv]++;
+                    else profCounts['Novice']++;
+                });
+                var total = skills.length;
+                
+                html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4c); border-radius:10px; padding:14px 16px; margin-bottom:16px;">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
+                    + '<div style="font-size:0.75em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--c-faint);">Skill Distribution</div>'
+                    + '<div style="display:flex; align-items:center; gap:12px;">'
+                    + '<span style="font-size:0.72em; color:var(--c-faint);">' + roles.length + ' domains</span>'
+                    + '<button onclick="switchBlueprintTab(\'skills\')" style="font-size:0.72em; color:#60a5fa; background:none; border:none; cursor:pointer; font-weight:600;">Manage Skills \u2192</button>'
+                    + '</div></div>';
+                
+                // Stacked bar
+                html += '<div style="display:flex; height:10px; border-radius:5px; overflow:hidden; background:var(--c-surface-2b); margin-bottom:10px;">';
+                profLevels.forEach(function(p) {
+                    var pct = total > 0 ? (profCounts[p.key] / total * 100) : 0;
+                    if (pct > 0) {
+                        html += '<div title="' + p.label + ': ' + profCounts[p.key] + '" style="width:' + pct + '%; background:' + p.color + '; transition:width 0.3s;"></div>';
+                    }
+                });
+                html += '</div>';
+                
+                // Legend row
+                html += '<div style="display:flex; gap:14px; flex-wrap:wrap;">';
+                profLevels.forEach(function(p) {
+                    if (profCounts[p.key] > 0) {
+                        html += '<div style="display:flex; align-items:center; gap:5px; font-size:0.75em;">'
+                            + '<div style="width:8px; height:8px; border-radius:2px; background:' + p.color + ';"></div>'
+                            + '<span style="color:var(--c-muted);">' + p.label + '</span>'
+                            + '<span style="font-weight:700; color:var(--c-heading);">' + profCounts[p.key] + '</span>'
+                            + '</div>';
+                    }
+                });
+                html += '</div></div>';
+            }
+            
+            // ── QUICK ACTIONS ──
+            html += '<div style="margin-bottom:20px;">'
+                + '<div style="font-size:0.78em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--c-faint); margin-bottom:10px;">Quick Actions</div>'
+                + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px;">';
+            
+            // Manage Skills
+            html += '<button onclick="switchBlueprintTab(\'skills\')" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--c-green-bg-2b); border:1px solid var(--c-green-border-1); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
+                + '<span style="color:#10b981;">' + bpIcon('skills',18) + '</span>'
+                + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.9em;">Manage Skills</div>'
+                + '<div style="font-size:0.75em; color:var(--c-muted);">Add, edit, organize</div></div>'
+                + '</button>';
+            
+            // Scouting Report
+            html += '<button onclick="showScoutingReportPicker()" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--c-accent-bg-3c); border:1px solid var(--c-accent-border-3c); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
+                + '<span style="color:#60a5fa;">' + bpIcon('target',18) + '</span>'
+                + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.9em;">\u25C8 Scouting Report</div>'
+                + '<div style="font-size:0.75em; color:var(--c-muted);">Targeted job analysis</div></div>'
+                + '</button>';
+            
+            // PDF Summary
+            if (!isReadOnlyProfile) {
+            html += '<button onclick="exportBlueprint(\'pdf\')" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
+                + '<span style="color:var(--c-label);">' + bpIcon('pdf',18) + '</span>'
+                + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.9em;">PDF Summary</div>'
+                + '<div style="font-size:0.75em; color:var(--c-muted);">Full career report</div></div>'
+                + '</button>';
+            
+            // Executive Blueprint
+            html += '<button onclick="exportBlueprint(\'html\')" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
+                + '<span style="color:var(--c-label);">' + bpIcon('export',18) + '</span>'
+                + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.9em;">Executive Blueprint</div>'
+                + '<div style="font-size:0.75em; color:var(--c-muted);">HTML for email</div></div>'
+                + '</button>';
+            }
+            
+            html += '</div></div>'; // end quick actions
+            
+
             return html;
         }
         
@@ -27611,6 +27594,24 @@ body {
                 + 'Everything extracted from your LinkedIn data export. Toggle items on or off to control what appears in scouting reports and exports. '
                 + 'Your core profile data (positions, skills, education) lives in Experience and Skills.'
                 + '</p>';
+            
+            // Purpose Statement (moved from dashboard for better context with content)
+            var purpose = blueprintData.purpose || '';
+            html += '<div style="background:var(--c-accent-bg-2b); border:1px solid var(--c-accent-bg-6b); border-radius:12px; padding:18px; margin-bottom:20px;">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
+                + '<div style="font-size:0.78em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--c-accent); display:flex; align-items:center; gap:6px;">'
+                + bpIcon('purpose',14) + ' Purpose Statement</div>';
+            if (!isReadOnlyProfile) {
+                html += '<button onclick="var ta=document.getElementById(\'contentPurposeEdit\'); if(ta.readOnly){ta.readOnly=false; ta.focus(); ta.style.background=\'var(--c-input-bg)\'; this.textContent=\'Save\';} else {ta.readOnly=true; ta.style.background=\'transparent\'; updatePurpose(ta.value); this.textContent=\'Edit\';}" '
+                    + 'style="font-size:0.78em; padding:4px 12px; border-radius:6px; border:1px solid var(--c-accent-border-2); background:transparent; color:#60a5fa; cursor:pointer;">'
+                    + 'Edit</button>';
+            }
+            html += '</div>'
+                + '<textarea id="contentPurposeEdit" readonly style="'
+                + 'width:100%; min-height:48px; background:transparent; border:none; color:var(--c-heading); '
+                + 'font-size:0.92em; line-height:1.6; resize:vertical; outline:none; font-style:italic;">'
+                + escapeHtml(purpose || 'No purpose statement yet. Switch to the Content tab and click Edit to add yours.')
+                + '</textarea></div>';
             
             // Import status bar
             if (stats.lastMerge) {
@@ -29173,12 +29174,10 @@ body {
                         + '    [800,1500,2500,4000].forEach(function(ms) { setTimeout(recolorNetwork, ms); });'
                         + '  });'
                         + '})();'
-                        + '<\\/script>';
+                        + '<\/script>';
                     
                     // Insert patches before </head>
                     injected = injected.replace('</head>', patchCSS + patchScript + patchColors + '</head>');
-                    // Also patch stats display: replace .skills.length with totalSkillCount where it appears
-                    injected = injected.replace(/\.skills\.length/g, '.totalSkillCount');
                     var blob = new Blob([injected], { type: 'text/html; charset=utf-8' });
                     var blobUrl = URL.createObjectURL(blob);
                     
@@ -40364,6 +40363,67 @@ body {
             
             history.pushState({ modal: true }, ''); modal.classList.add('active');
         }
+        
+        // Inline negotiation guide content (rendered in dashboard, not modal)
+        function renderInlineNegotiation(tv) {
+            if (!tv || !tv.total) return '';
+            var html = '';
+            
+            // Offer ranges
+            html += '<div style="display:grid; gap:6px; margin-bottom:14px;">';
+            var offers = [
+                { label: 'Conservative (75%)', val: tv.conservativeOffer, desc: 'Budget-constrained', color: '#9ca3af' },
+                { label: 'Standard (85%)', val: tv.standardOffer, desc: 'Most common initial', color: '#60a5fa' },
+                { label: 'Competitive (95%)', val: tv.competitiveOffer, desc: 'Strong employers', color: '#10b981' }
+            ];
+            offers.forEach(function(o) {
+                html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:rgba(255,255,255,0.03); border-radius:6px; border-left:3px solid ' + o.color + ';">'
+                    + '<div><div style="color:' + o.color + '; font-weight:600; font-size:0.82em;">' + o.label + '</div>'
+                    + '<div style="color:var(--c-muted); font-size:0.72em;">' + o.desc + '</div></div>'
+                    + '<div style="font-weight:700; color:var(--c-text);">$' + o.val.toLocaleString() + '</div></div>';
+            });
+            html += '</div>';
+            
+            // Negotiation gap
+            var gap = tv.yourWorth - tv.standardOffer;
+            html += '<div style="padding:10px 12px; background:rgba(251,191,36,0.06); border-radius:8px; margin-bottom:14px;">'
+                + '<div style="color:#fbbf24; font-weight:600; font-size:0.82em; margin-bottom:4px;">' + bpIcon('lightbulb',12) + ' Negotiation Gap: $' + gap.toLocaleString() + '</div>'
+                + '<div style="font-size:0.78em; color:var(--c-muted); line-height:1.5;">'
+                + 'Start at $' + tv.yourWorth.toLocaleString() + ', negotiate to $' + tv.competitiveOffer.toLocaleString() + '+.</div></div>';
+            
+            // Talking points
+            html += '<div style="font-size:0.78em; font-weight:700; color:#fbbf24; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Talking Points</div>'
+                + '<div style="display:grid; gap:6px; margin-bottom:14px;">';
+            
+            var masteryCount = tv.top10Skills ? tv.top10Skills.filter(function(s) { return s.level === 'Mastery'; }).length : 0;
+            var topNames = tv.top10Skills ? tv.top10Skills.slice(0, 3).map(function(s) { return s.skill; }).join(', ') : '';
+            var premPct = tv.marketRate > 0 ? Math.round(((tv.yourWorth - tv.marketRate) / tv.marketRate) * 100) : 0;
+            
+            var points = [
+                { title: 'Lead with Worth', text: '"My value is $' + Math.round(tv.yourWorth * 0.95 / 1000) * 1000 + '\u2013$' + Math.round(tv.yourWorth * 1.05 / 1000) * 1000 + ' for ' + (tv.roleLevel || '') + ' roles."' },
+                { title: 'Skills Premium', text: masteryCount + ' mastery-level skills including ' + topNames + ' command market premiums.' },
+                { title: 'Market Data', text: 'Market rate: $' + tv.marketRate.toLocaleString() + '. My skills justify a ' + premPct + '% premium.' }
+            ];
+            points.forEach(function(p) {
+                html += '<div style="padding:8px 12px; background:rgba(255,255,255,0.02); border-radius:6px; font-size:0.82em; color:var(--c-muted); line-height:1.5;">'
+                    + '<strong style="color:var(--c-text);">' + p.title + ':</strong> ' + p.text + '</div>';
+            });
+            html += '</div>';
+            
+            // Script for salary expectations
+            html += '<div style="font-size:0.78em; font-weight:700; color:#60a5fa; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">When Asked for Expectations</div>'
+                + '<div style="padding:10px 12px; background:rgba(255,255,255,0.02); border-radius:8px; font-size:0.82em; color:var(--c-muted); font-style:italic; line-height:1.6; margin-bottom:10px;">'
+                + '"Based on my skill profile and market analysis, I\'m targeting $' + Math.round(tv.competitiveOffer / 1000) * 1000 + '\u2013$' + Math.round(tv.yourWorth / 1000) * 1000 + '. Flexible on total package structure."</div>';
+            
+            // Best practices
+            html += '<div style="font-size:0.78em; font-weight:700; color:#60a5fa; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Best Practices</div>'
+                + '<div style="font-size:0.78em; color:var(--c-muted); line-height:1.6;">'
+                + 'Never share salary history. Name your range first (anchoring). Get the full offer in writing before negotiating. Ask about equity, signing bonus, PTO separately. Express enthusiasm before countering.'
+                + '</div>';
+            
+            return html;
+        }
+        window.renderInlineNegotiation = renderInlineNegotiation;
         
         function showNegotiationGuide() {
             if (isReadOnlyProfile) { demoGate('use the negotiation guide'); return; }
