@@ -1,4 +1,4 @@
-<!-- v4.45.73 | 2026-03-01 | Skill dedup, cap system (50/20), scouting report D3 color injection -->
+<!-- v4.45.74 | 2026-03-01 | Hard skill cap enforcement, AI synonym expansion, D3 post-render recoloring -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1506,7 +1506,7 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.45.63 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.73';
+        var BP_VERSION = 'v4.45.74';
         
         // ===== SKILL CAP CONSTANTS =====
         // Research basis: LinkedIn allows 50, O*NET maps ~35/occupation, Fortune 500
@@ -2967,6 +2967,11 @@
                     if (typeof deduplicateSkills === 'function') {
                         var dupes = deduplicateSkills();
                         if (dupes > 0) { saveUserData(); if (fbUser) debouncedSave(); }
+                    }
+                    
+                    // Skill cap triage: if still over cap after dedup, queue triage overlay
+                    if ((userData.skills || []).length > PROFILE_SKILL_CAP && typeof showSkillCapTriage === 'function') {
+                        setTimeout(function() { showSkillCapTriage(); }, 1500);
                     }
                     
                     // GUARD: Detect demo data contamination
@@ -4832,8 +4837,9 @@
                         { id: 'p2-6n', name: 'Job parsing skill library await gate', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.70: parseJobLocally() second pass (43K skill library) was silently skipped when library had not loaded yet. Added ensureSkillLibrary() async gate with 8s timeout. All parse entry points (analyzeJob, reanalyzeJob, addRemoteJobToPipeline) now await library before parsing. Stored _skillLibraryPromise at both DOMContentLoaded and retry call sites.' },
                         { id: 'p2-6o', name: 'Job match blocklist transparency', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.70: matchJobToProfile() now returns blocklistedCount, totalParsedGaps, and libraryAvailable in matchData. showJobDetail() renders diagnostic warnings when: (a) blocklist filtered gaps, (b) library was unavailable during analysis, (c) fewer than 8 skills extracted. Added showAdminBlocklistInContext() overlay showing which blocked skills affect a specific job with per-skill unblock buttons and re-analyze CTA.' },
                         { id: 'p2-6p', name: 'Match score recalibration', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.45.72: nameMatchQuality penalties in 6-pass matcher were catastrophically harsh — substring 0.85, word overlap 0.3-0.45, sibling 0.55, concept 0.2-0.3, implied 0.40. Combined with proficiency penalties via multiplication, 20/22 skills matched still scored 50%. Fix: raised floors (substring 0.92, word overlap min 0.82, sibling 0.78, concept min 0.70, implied 0.62) and added 65% minimum credit floor for any confirmed match. A matched skill IS matched.' },
-                        { id: 'p2-6q', name: 'Scouting report D3 network styling', status: 'in-progress', category: 'visual', priority: 'high', notes: 'v4.45.73: Injecting CSS overrides (dark background, font family) and JS monkey-patches (getCategoryColor, getColor) into report blob to match main network color scheme. Full template rewrite still needed for complete parity, but injection handles backgrounds and color function overrides. Template file: reports/templates/base.html.' },
-                        { id: 'p2-6r', name: 'Skill deduplication and cap system', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.73: Root cause of duplicates: 3 unguarded push paths (confirmQuickAddGapSkill, addSelectedONETSkills, manual add had case-sensitive check). Fix: dedup guards on all 8 userData.skills.push paths, case-insensitive. Startup deduplicateSkills() runs on Firestore load, auto-removes dupes (prefers verified > evidence > higher proficiency). Profile cap: 50 skills (PROFILE_SKILL_CAP), WB cap: 20 (WB_SKILL_CAP). Warning at 45. Over-cap banner on Blueprint view with research-backed rationale. canAddSkill() central guard.' }
+                        { id: 'p2-6q', name: 'Scouting report D3 network styling', status: 'in-progress', category: 'visual', priority: 'high', notes: 'v4.45.74: Switched from monkey-patching getCategoryColor/getColor (template uses inline colors, not named functions) to post-render SVG recoloring. Polls SVG circles every 400ms for 10s, reads __data__.category from D3 bound data, applies main app color palette. Also recolors links (subtle white) and text. CSS override for dark network backgrounds. Template file still needs native color update for full parity.' },
+                        { id: 'p2-6r', name: 'Skill deduplication and cap system', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.73-74: Dedup guards on all 8 push paths. Startup deduplicateSkills(). Hard cap: PROFILE_SKILL_CAP=50, WB_SKILL_CAP=20. canAddSkill() central guard. Over-cap triage overlay (showSkillCapTriage) auto-triggers on load if over 50 after dedup. Scores skills by verification/evidence/proficiency, pre-selects lowest for removal. Over-cap banner with Manage button on Blueprint view. Prevent philosophy: never allow over-cap, force triage.' },
+                        { id: 'p2-6s', name: 'AI skill synonym expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.74: GenAI/LLM/AI/NLP/Applied AI now cross-reference bidirectionally in SKILL_SYNONYMS. GenAI implies LLM knowledge (and vice versa) via synonym pass 1b at 0.95 quality. Also added prompt engineering→genai, artificial intelligence (ai)→applied ai→genai chain. Fixes false gaps where JD requires LLM but user has GenAI.' }
                     ]
                 },
                 {
@@ -17353,6 +17359,120 @@
             return true;
         }
         window.canAddSkill = canAddSkill;
+        
+        // Over-cap triage: forces user to remove skills until at/below PROFILE_SKILL_CAP
+        function showSkillCapTriage() {
+            var skills = userData.skills || [];
+            if (skills.length <= PROFILE_SKILL_CAP) return;
+            
+            var excess = skills.length - PROFILE_SKILL_CAP;
+            
+            // Score each skill for removal suggestion (lower = more likely to suggest removal)
+            var scored = skills.map(function(s, idx) {
+                var score = 0;
+                score += (s.verified ? 50 : 0);
+                score += ((s.evidence || []).length * 15);
+                score += (s.key ? 20 : 0);
+                var profScores = { 'Mastery': 25, 'Expert': 20, 'Advanced': 15, 'Proficient': 10, 'Competent': 5, 'Novice': 2 };
+                score += (profScores[s.level] || 10);
+                // Penalize generic/soft skills that overlap with many others
+                var generic = /^(communication|teamwork|problem solving|time management|organization|adaptability|creativity|critical thinking|attention to detail|work ethic|writing|leadership)$/i;
+                if (generic.test(s.name)) score -= 15;
+                return { skill: s, idx: idx, score: score };
+            });
+            
+            // Sort: lowest score first (best candidates for removal)
+            scored.sort(function(a, b) { return a.score - b.score; });
+            
+            // Pre-select the bottom N for removal
+            var toRemove = new Set();
+            scored.slice(0, excess).forEach(function(s) { toRemove.add(s.idx); });
+            
+            var modal = document.getElementById('exportModal');
+            if (!modal) return;
+            var mc = modal.querySelector('.modal-content');
+            
+            var html = '<div class="modal-header">'
+                + '<div class="modal-header-left"><h2 class="modal-title">\u26A0 Skill Cap Reached</h2></div>'
+                + '<div style="font-size:0.82em; color:var(--text-muted);">Must remove ' + excess + ' to continue</div>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:20px; max-height:70vh; overflow-y:auto;">'
+                + '<div style="padding:12px 16px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:10px; margin-bottom:16px;">'
+                + '<div style="font-weight:700; color:#ef4444; margin-bottom:4px;">Profile has ' + skills.length + ' skills (cap: ' + PROFILE_SKILL_CAP + ')</div>'
+                + '<div style="font-size:0.82em; color:var(--text-muted); line-height:1.5;">Select at least ' + excess + ' skill' + (excess !== 1 ? 's' : '') + ' to remove. '
+                + 'Skills with low proficiency and no evidence are pre-selected. Verified and key skills are preserved.</div>'
+                + '</div>'
+                + '<div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">'
+                + '<span id="triageCount" style="font-size:0.88em; font-weight:600; color:#ef4444;">' + toRemove.size + ' selected for removal</span>'
+                + '<span style="font-size:0.78em; color:var(--text-muted);">Need: ' + excess + '+</span>'
+                + '</div>';
+            
+            scored.forEach(function(item) {
+                var s = item.skill;
+                var checked = toRemove.has(item.idx);
+                var levelColors = { 'Mastery': '#ef4444', 'Expert': '#f97316', 'Advanced': '#f59e0b', 'Proficient': '#10b981', 'Novice': '#6b7280' };
+                var badges = '';
+                if (s.verified) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(16,185,129,0.15); color:#10b981;">\u2713 Verified</span> ';
+                if (s.key) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(245,158,11,0.15); color:#f59e0b;">\u2605 Key</span> ';
+                if ((s.evidence || []).length > 0) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(96,165,250,0.15); color:#60a5fa;">' + s.evidence.length + ' evidence</span>';
+                
+                html += '<label style="display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:8px; cursor:pointer; transition:background 0.15s; border:1px solid ' + (checked ? 'rgba(239,68,68,0.3)' : 'transparent') + '; background:' + (checked ? 'rgba(239,68,68,0.05)' : 'transparent') + ';"'
+                    + ' onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'' + (checked ? 'rgba(239,68,68,0.05)' : 'transparent') + '\'">'
+                    + '<input type="checkbox" data-triage-idx="' + item.idx + '" ' + (checked ? 'checked' : '') + ' onchange="updateTriageCount()" style="accent-color:#ef4444; flex-shrink:0;">'
+                    + '<div style="flex:1; min-width:0;">'
+                    + '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">'
+                    + '<span style="font-weight:600; font-size:0.88em; color:var(--text-primary);">' + escapeHtml(s.name) + '</span>'
+                    + '<span style="font-size:0.72em; padding:1px 8px; border-radius:8px; background:' + (levelColors[s.level] || '#6b7280') + '22; color:' + (levelColors[s.level] || '#6b7280') + '; font-weight:600;">' + (s.level || 'Proficient') + '</span>'
+                    + badges
+                    + '</div></div></label>';
+            });
+            
+            html += '</div>'
+                + '<div style="padding:16px 20px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:10px;">'
+                + '<button id="triageConfirmBtn" onclick="confirmSkillCapTriage()" style="padding:10px 24px; background:#ef4444; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.92em;">'
+                + 'Remove Selected (' + excess + '+)</button></div>';
+            
+            mc.innerHTML = html;
+            history.pushState({ modal: true }, '');
+            modal.classList.add('active');
+        }
+        window.showSkillCapTriage = showSkillCapTriage;
+        
+        function updateTriageCount() {
+            var checks = document.querySelectorAll('[data-triage-idx]:checked');
+            var countEl = document.getElementById('triageCount');
+            var btn = document.getElementById('triageConfirmBtn');
+            var excess = (userData.skills || []).length - PROFILE_SKILL_CAP;
+            if (countEl) countEl.textContent = checks.length + ' selected for removal';
+            if (btn) {
+                btn.disabled = checks.length < excess;
+                btn.style.opacity = checks.length < excess ? '0.4' : '1';
+            }
+        }
+        window.updateTriageCount = updateTriageCount;
+        
+        function confirmSkillCapTriage() {
+            var checks = document.querySelectorAll('[data-triage-idx]:checked');
+            var excess = (userData.skills || []).length - PROFILE_SKILL_CAP;
+            if (checks.length < excess) {
+                showToast('Select at least ' + excess + ' skills to remove.', 'warning');
+                return;
+            }
+            var removeIndices = new Set();
+            checks.forEach(function(cb) { removeIndices.add(parseInt(cb.getAttribute('data-triage-idx'))); });
+            
+            userData.skills = userData.skills.filter(function(_, idx) { return !removeIndices.has(idx); });
+            skillsData.skills = userData.skills;
+            
+            saveUserData();
+            if (typeof debouncedSave === 'function' && fbUser) debouncedSave();
+            if (typeof rescoreAllJobs === 'function') rescoreAllJobs();
+            if (typeof refreshAllViews === 'function') refreshAllViews();
+            
+            closeExportModal();
+            showToast('Removed ' + removeIndices.size + ' skills. Profile now has ' + userData.skills.length + ' skills.', 'success', 5000);
+        }
+        window.confirmSkillCapTriage = confirmSkillCapTriage;
 
         // Load library on page load
         window.addEventListener('DOMContentLoaded', () => {
@@ -26966,9 +27086,11 @@ body {
                 var excess = skills.length - PROFILE_SKILL_CAP;
                 html += '<div style="padding:12px 16px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:10px; margin-bottom:16px; display:flex; align-items:center; gap:10px;">'
                     + '<span style="color:#ef4444; font-size:1.1em;">\u26A0</span>'
-                    + '<div><div style="font-weight:700; font-size:0.88em; color:#ef4444;">Over skill cap by ' + excess + '</div>'
-                    + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">Profile cap is ' + PROFILE_SKILL_CAP + ' skills. Remove ' + excess + ' skill' + (excess !== 1 ? 's' : '') + ' to unlock adding new ones. Research shows 5\u201310 core competencies per role, with 30\u201350 total covering multi-job career matching effectively.</div>'
-                    + '</div></div>';
+                    + '<div style="flex:1;"><div style="font-weight:700; font-size:0.88em; color:#ef4444;">Over skill cap by ' + excess + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--text-muted); line-height:1.4;">Remove ' + excess + ' skill' + (excess !== 1 ? 's' : '') + ' to unlock adding new ones. System will not allow new skills until at or below ' + PROFILE_SKILL_CAP + '.</div>'
+                    + '</div>'
+                    + '<button onclick="showSkillCapTriage()" style="padding:8px 16px; background:#ef4444; color:#fff; border:none; border-radius:8px; font-weight:600; font-size:0.82em; cursor:pointer; white-space:nowrap;">Manage \u2192</button>'
+                    + '</div>';
             } else if (skills.length >= SKILL_CAP_WARN && !isReadOnlyProfile) {
                 var remaining = PROFILE_SKILL_CAP - skills.length;
                 html += '<div style="padding:10px 16px; background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.2); border-radius:10px; margin-bottom:16px; display:flex; align-items:center; gap:10px;">'
@@ -29007,41 +29129,51 @@ body {
                         + 'svg text { font-family: "Inter", "Outfit", system-ui, sans-serif !important; }'
                         + '</style>';
                     
-                    // Inject JS to override category color palette in the template
+                    // Inject JS to recolor D3 network nodes after rendering
+                    // Post-render approach: polls SVG circles and recolors by __data__ category
                     var patchColors = '<script>'
-                        + 'window._bpCategoryColors = {'
-                        + '  skill:"#60a5fa", ability:"#a78bfa", workstyle:"#f59e0b",'
-                        + '  knowledge:"#10b981", workactivity:"#ec4899",'
-                        + '  unique:"#fbbf24", trade:"#f97316",'
-                        + '  "General Professional":"#60a5fa", "Technology":"#818cf8",'
-                        + '  "Business & Management":"#f59e0b", "Marketing & Sales":"#ec4899",'
-                        + '  "Finance & Accounting":"#10b981", "HR & Talent":"#a78bfa",'
-                        + '  "Healthcare":"#06b6d4", "Engineering":"#8b5cf6",'
-                        + '  "Legal":"#f97316", "Creative & Design":"#f472b6",'
-                        + '  "Transversal":"#94a3b8", "default":"#60a5fa"'
-                        + '};'
-                        + 'window._bpGetCategoryColor = function(cat) {'
-                        + '  if (!cat) return "#60a5fa";'
-                        + '  var c = window._bpCategoryColors;'
-                        + '  return c[cat] || c[cat.toLowerCase()] || c["default"];'
-                        + '};'
-                        // Override getCategoryColor if template defines it
-                        + 'document.addEventListener("DOMContentLoaded", function() {'
-                        + '  if (typeof getCategoryColor === "function") {'
-                        + '    var _orig = getCategoryColor;'
-                        + '    window.getCategoryColor = function(cat) { return window._bpGetCategoryColor(cat) || _orig(cat); };'
+                        + '(function() {'
+                        + '  var bpColors = {'
+                        + '    skill:"#60a5fa", ability:"#a78bfa", workstyle:"#f59e0b",'
+                        + '    knowledge:"#10b981", workactivity:"#ec4899",'
+                        + '    unique:"#fbbf24", trade:"#f97316",'
+                        + '    "General Professional":"#60a5fa", Technology:"#818cf8",'
+                        + '    "Business & Management":"#f59e0b", "Marketing & Sales":"#ec4899",'
+                        + '    "Finance & Accounting":"#10b981", "HR & Talent":"#a78bfa",'
+                        + '    "Healthcare":"#06b6d4", Engineering:"#8b5cf6",'
+                        + '    Legal:"#f97316", "Creative & Design":"#f472b6",'
+                        + '    Transversal:"#94a3b8"'
+                        + '  };'
+                        + '  function recolorNetwork() {'
+                        + '    document.querySelectorAll("svg circle").forEach(function(c) {'
+                        + '      var d = c.__data__;'
+                        + '      if (!d) return;'
+                        + '      var cat = d.category || d.cat || d.type || d.group || "";'
+                        + '      var color = bpColors[cat] || (cat.toLowerCase ? bpColors[cat.toLowerCase()] : null);'
+                        + '      if (color) { c.setAttribute("fill", color); c.style.fill = color; }'
+                        + '      if (d.isRole || d.type === "role" || d.nodeType === "role") {'
+                        + '        c.setAttribute("fill", "rgba(255,255,255,0.06)");'
+                        + '        c.setAttribute("stroke", "rgba(255,255,255,0.2)");'
+                        + '        c.setAttribute("stroke-width", "1.5");'
+                        + '      }'
+                        + '      if (d.isCenter || d.nodeType === "center" || d.id === "center") {'
+                        + '        c.setAttribute("fill", "#a5d8ff");'
+                        + '      }'
+                        + '    });'
+                        + '    document.querySelectorAll("svg line").forEach(function(l) {'
+                        + '      l.setAttribute("stroke", "rgba(255,255,255,0.06)");'
+                        + '    });'
                         + '  }'
-                        // Also override getColor/getNodeColor
-                        + '  if (typeof getColor === "function") {'
-                        + '    var _origC = getColor;'
-                        + '    window.getColor = function(d) {'
-                        + '      var cat = d && (d.category || d.cat || d.type);'
-                        + '      if (cat && window._bpCategoryColors[cat]) return window._bpCategoryColors[cat];'
-                        + '      return _origC(d);'
-                        + '    };'
-                        + '  }'
-                        + '});'
-                        + '<\/script>';
+                        + '  var n = 0;'
+                        + '  var iv = setInterval(function() {'
+                        + '    recolorNetwork();'
+                        + '    if (++n > 25) clearInterval(iv);'
+                        + '  }, 400);'
+                        + '  document.addEventListener("DOMContentLoaded", function() {'
+                        + '    [800,1500,2500,4000].forEach(function(ms) { setTimeout(recolorNetwork, ms); });'
+                        + '  });'
+                        + '})();'
+                        + '<\\/script>';
                     
                     // Insert patches before </head>
                     injected = injected.replace('</head>', patchCSS + patchScript + patchColors + '</head>');
@@ -34262,12 +34394,17 @@ body {
             'saas': ['software as a service', 'cloud software', 'subscription software'],
             'deib': ['diversity equity inclusion belonging', 'dei', 'diversity recruiting', 'inclusion'],
             'dei': ['diversity equity inclusion', 'deib', 'diversity and inclusion', 'd&i'],
-            'ml': ['machine learning', 'statistical learning'],
-            'ai': ['artificial intelligence', 'machine intelligence'],
-            'nlp': ['natural language processing', 'text analytics', 'computational linguistics'],
-            'llm': ['large language model', 'large language models', 'foundation model'],
-            'genai': ['generative ai', 'generative artificial intelligence', 'gen ai'],
-            'rag': ['retrieval augmented generation', 'retrieval-augmented generation'],
+            'ml': ['machine learning', 'statistical learning', 'deep learning'],
+            'ai': ['artificial intelligence', 'machine intelligence', 'applied ai'],
+            'nlp': ['natural language processing', 'text analytics', 'computational linguistics', 'large language models'],
+            'llm': ['large language model', 'large language models', 'foundation model', 'generative ai', 'genai', 'gpt', 'language model'],
+            'genai': ['generative ai', 'generative artificial intelligence', 'gen ai', 'large language models', 'llm', 'foundation model', 'applied ai'],
+            'generative ai': ['genai', 'gen ai', 'large language models', 'llm', 'generative artificial intelligence', 'foundation model', 'applied ai'],
+            'large language models': ['llm', 'generative ai', 'genai', 'foundation model', 'language model', 'gpt'],
+            'applied ai': ['artificial intelligence', 'ai', 'machine learning', 'genai', 'generative ai'],
+            'artificial intelligence (ai)': ['ai', 'artificial intelligence', 'machine learning', 'applied ai', 'genai'],
+            'prompt engineering': ['ai prompting', 'llm prompting', 'prompt design', 'genai'],
+            'rag': ['retrieval augmented generation', 'retrieval-augmented generation', 'llm'],
             'rpa': ['robotic process automation', 'intelligent automation', 'process automation'],
             'ci/cd': ['continuous integration', 'continuous deployment', 'cicd', 'build pipeline'],
             'devops': ['development operations', 'dev ops', 'site reliability'],
