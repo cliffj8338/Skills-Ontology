@@ -1,4 +1,4 @@
-<!-- v4.45.64 | 2026-02-28 | Scouting report fix + orphan role cleanup + role card z-index -->
+<!-- v4.45.65 | 2026-02-28 | Dev velocity tile + scouting report fix + orphan role cleanup -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1505,7 +1505,17 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.45.63 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.64';
+        var BP_VERSION = 'v4.45.65';
+        
+        // ===== DEV VELOCITY TRACKING =====
+        window._blueprintDevStats = {
+            firstCommit: '2025-12-28',
+            lineCount: 43522,
+            sessionsAI: 48,
+            avgSessionHrs: 3.5,
+            aiSubscriptionMonthly: 200,
+            hostingMonthly: 25
+        };
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2750,6 +2760,8 @@
             if (userData.contentVisibility) data.contentVisibility = userData.contentVisibility;
             if (userData.companyTenures) data.companyTenures = userData.companyTenures;
             if (userData.importStats) data.importStats = userData.importStats;
+            // Dev velocity stats (admin)
+            if (window._blueprintDevStats) data.devStats = window._blueprintDevStats;
             
             data = sanitizeForFirestore(data);
             data.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
@@ -2929,6 +2941,11 @@
                     userData.companyTenures = data.companyTenures || [];
                     userData.importStats = data.importStats || {};
                     userData.templateId = 'firestore-' + uid;
+                    
+                    // Load dev velocity stats if present
+                    if (data.devStats) {
+                        Object.assign(window._blueprintDevStats, data.devStats);
+                    }
                     
                     // Populate skillsData
                     if (typeof skillsData !== 'undefined') {
@@ -3415,6 +3432,134 @@
                 + '<div style="text-align:center; padding:20px; color:var(--text-muted);">Loading analytics from Firestore...</div>'
                 + '</div>';
             
+            // ===== DEV TIME COMPARISON (v4.45.65) =====
+            var devStats = window._blueprintDevStats || {
+                firstCommit: '2025-12-28',
+                lineCount: 43311,
+                sessionsAI: 48,
+                avgSessionHrs: 3.5,
+                // Costs
+                aiSubscriptionMonthly: 200,
+                hostingMonthly: 25
+            };
+            // Compute dynamic stats
+            var doneFeatures = 0;
+            var totalRoadmapItems = 0;
+            var roadmapPhases = typeof roadmapData !== 'undefined' ? (roadmapData.phases || []) : [];
+            roadmapPhases.forEach(function(phase) {
+                (phase.items || []).forEach(function(item) {
+                    totalRoadmapItems++;
+                    if (item.status === 'done') doneFeatures++;
+                });
+            });
+            // Parse version for total deploys estimate
+            var vParts = BP_VERSION.replace('v','').split('.');
+            var totalDeploys = parseInt(vParts[2] || 0);
+            if (parseInt(vParts[1] || 0) >= 45) totalDeploys += 79; // v4.44.xx series
+            
+            var aiHoursTotal = devStats.sessionsAI * devStats.avgSessionHrs;
+            var aiDays = Math.round(aiHoursTotal / 8 * 10) / 10;
+            var aiWeeks = Math.round(aiDays / 5 * 10) / 10;
+            
+            // Traditional dev estimates (industry benchmarks for complex SPA)
+            // Complex app with D3, Firebase, jsPDF, AI API, auth, real-time sync
+            // Conservative: 80 LOC/day, Moderate: 120 LOC/day for senior full-stack
+            var tradLocPerDay = 100; // lines of production code per day, senior dev
+            var tradDays = Math.round(devStats.lineCount / tradLocPerDay);
+            var tradMonths = Math.round(tradDays / 22 * 10) / 10; // 22 working days/month
+            var tradWeeks = Math.round(tradDays / 5 * 10) / 10;
+            
+            // Cost comparison
+            var monthsElapsed = Math.max(1, Math.round((new Date() - new Date(devStats.firstCommit)) / (1000 * 60 * 60 * 24 * 30.44)));
+            var aiTotalCost = (devStats.aiSubscriptionMonthly * monthsElapsed) + (devStats.hostingMonthly * monthsElapsed);
+            var tradSeniorMonthly = 14583; // ~$175K/yr fully loaded
+            var tradTotalCost = Math.round(tradMonths * tradSeniorMonthly);
+            
+            var speedMultiplier = Math.round(tradDays / Math.max(1, aiDays) * 10) / 10;
+            var costMultiplier = Math.round(tradTotalCost / Math.max(1, aiTotalCost) * 10) / 10;
+            
+            // Progress bar helper
+            function devBar(label, value, max, color, suffix) {
+                var pct = Math.min(100, Math.round(value / max * 100));
+                return '<div style="margin-bottom:10px;">'
+                    + '<div style="display:flex; justify-content:space-between; font-size:0.78em; margin-bottom:3px;">'
+                    + '<span style="color:var(--text-secondary);">' + label + '</span>'
+                    + '<span style="font-weight:700; color:' + color + ';">' + value + (suffix || '') + '</span></div>'
+                    + '<div style="height:6px; background:var(--c-surface-4b); border-radius:3px; overflow:hidden;">'
+                    + '<div style="width:' + pct + '%; height:100%; background:' + color + '; border-radius:3px; transition:width 0.6s ease;"></div>'
+                    + '</div></div>';
+            }
+            
+            html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:20px;">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">'
+                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">' + bpIcon('trending-up',16) + ' Dev Velocity</h3>'
+                + '<span style="font-size:0.68em; padding:3px 10px; border-radius:8px; background:rgba(16,185,129,0.1); color:#10b981; font-weight:700;">' + speedMultiplier + 'x FASTER</span>'
+                + '</div>';
+            
+            // Top stats grid
+            html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-bottom:20px;">';
+            var devTiles = [
+                { label: 'Lines of Code', value: devStats.lineCount.toLocaleString(), color: '#60a5fa', icon: 'file-text' },
+                { label: 'Features Shipped', value: doneFeatures, color: '#10b981', icon: 'check' },
+                { label: 'Deploys', value: totalDeploys + '+', color: '#a855f7', icon: 'layers' },
+                { label: 'AI Sessions', value: devStats.sessionsAI, color: '#f59e0b', icon: 'wand' },
+                { label: 'AI Hours', value: Math.round(aiHoursTotal), color: '#06b6d4', icon: 'clock' },
+                { label: 'First Commit', value: devStats.firstCommit.replace('2025-','').replace('-','/'), color: '#6b7280', icon: 'calendar' }
+            ];
+            devTiles.forEach(function(t) {
+                html += '<div style="padding:12px; background:var(--c-surface-4b); border:1px solid var(--c-border-faint); border-radius:8px; text-align:center;">'
+                    + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:3px; display:flex; align-items:center; justify-content:center; gap:4px;">' + bpIcon(t.icon, 10) + ' ' + t.label + '</div>'
+                    + '<div style="font-size:1.3em; font-weight:700; color:' + t.color + ';">' + t.value + '</div></div>';
+            });
+            html += '</div>';
+            
+            // Side-by-side comparison
+            html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px;">';
+            
+            // AI column
+            html += '<div style="padding:16px; background:linear-gradient(135deg, rgba(6,182,212,0.06), rgba(16,185,129,0.06)); border:1px solid rgba(6,182,212,0.2); border-radius:10px;">'
+                + '<div style="font-size:0.78em; font-weight:700; color:#06b6d4; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px; display:flex; align-items:center; gap:6px;">' + bpIcon('wand',14) + ' AI Vibe-Coding</div>'
+                + devBar('Calendar Time', monthsElapsed + ' mo', Math.max(monthsElapsed, tradMonths), '#06b6d4')
+                + devBar('Work Hours', Math.round(aiHoursTotal), Math.max(aiHoursTotal, tradDays * 8), '#10b981')
+                + devBar('Work Days', aiDays, Math.max(aiDays, tradDays), '#06b6d4')
+                + devBar('Total Cost', '$' + aiTotalCost.toLocaleString(), Math.max(aiTotalCost, tradTotalCost), '#10b981')
+                + '<div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(6,182,212,0.15); font-size:0.72em; color:var(--text-muted);">'
+                + 'Claude Pro: $' + devStats.aiSubscriptionMonthly + '/mo &middot; Hosting: $' + devStats.hostingMonthly + '/mo</div>'
+                + '</div>';
+            
+            // Traditional column
+            html += '<div style="padding:16px; background:linear-gradient(135deg, rgba(239,68,68,0.04), rgba(249,115,22,0.04)); border:1px solid rgba(239,68,68,0.15); border-radius:10px;">'
+                + '<div style="font-size:0.78em; font-weight:700; color:#ef4444; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px; display:flex; align-items:center; gap:6px;">' + bpIcon('users',14) + ' Traditional Solo Dev</div>'
+                + devBar('Calendar Time', tradMonths + ' mo', Math.max(monthsElapsed, tradMonths), '#ef4444')
+                + devBar('Work Hours', (tradDays * 8).toLocaleString(), Math.max(aiHoursTotal, tradDays * 8), '#f97316')
+                + devBar('Work Days', tradDays, Math.max(aiDays, tradDays), '#ef4444')
+                + devBar('Total Cost', '$' + tradTotalCost.toLocaleString(), Math.max(aiTotalCost, tradTotalCost), '#ef4444')
+                + '<div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(239,68,68,0.1); font-size:0.72em; color:var(--text-muted);">'
+                + 'Sr. Full-Stack: ~$175K/yr loaded &middot; ' + tradLocPerDay + ' LOC/day</div>'
+                + '</div>';
+            
+            html += '</div>';
+            
+            // Bottom summary bar
+            html += '<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">';
+            [
+                { label: 'Speed', value: speedMultiplier + 'x', sub: 'faster delivery', color: '#10b981' },
+                { label: 'Cost', value: costMultiplier + 'x', sub: 'less expensive', color: '#06b6d4' },
+                { label: 'Efficiency', value: Math.round(devStats.lineCount / Math.max(1, aiHoursTotal)) + ' LOC/hr', sub: 'AI-assisted output', color: '#a855f7' }
+            ].forEach(function(s) {
+                html += '<div style="text-align:center; padding:14px; background:var(--c-surface-4b); border-radius:8px; border:1px solid var(--c-border-faint);">'
+                    + '<div style="font-size:1.4em; font-weight:800; color:' + s.color + ';">' + s.value + '</div>'
+                    + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:2px;">' + s.label + ': ' + s.sub + '</div></div>';
+            });
+            html += '</div>';
+            
+            // Edit button
+            html += '<div style="margin-top:12px; text-align:right;">'
+                + '<button onclick="editDevStats()" style="font-size:0.75em; padding:5px 14px; background:transparent; border:1px solid var(--c-surface-5); color:var(--text-muted); border-radius:6px; cursor:pointer;">' + bpIcon('edit',11) + ' Edit Stats</button>'
+                + '</div>';
+            
+            html += '</div>';
+
             // ===== MAINTENANCE =====
             var orphanRoleCount = 0;
             var whTitles = new Set();
@@ -4658,7 +4803,7 @@
                         { id: 'p2-6f', name: 'Work Blueprint function refinement', status: 'planned', category: 'feature', priority: 'high', notes: 'Ongoing improvements to WB ecosystem. Includes: Firestore-backed comparison persistence (replace localStorage), comparison sharing via URL tokens, batch comparison mode (multiple candidates against one WB), WB template library (common roles pre-built), WB diff view (compare two WBs side-by-side), improved gap recommendation engine with learning resource links, WB versioning/history, and WB-to-scouting-report pipeline integration.' },
                         { id: 'p2-6i', name: 'User Flows tracker', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.45.63: Admin → System → User Flows. 12 workflow categories mapped with step-by-step function chains: Onboarding, LinkedIn Merge, Skill Mgmt, Work History, Job Pipeline, Network Viz, Reports, Values/Outcomes, Content/Evidence, Settings, Education/Certs, Auth/Persistence. Clickable tiles open horizontal flow diagrams. Each step shows function name, description, downstream connections. Phase 2: export flows as PNG/PDF/mermaid.' },
                         { id: 'p2-6j', name: 'User Flows export (phase 2)', status: 'planned', category: 'feature', priority: 'low', notes: 'Export user flow diagrams as PNG, PDF, or Mermaid markdown. Add print stylesheet for flow diagrams. Consider SVG export for vector quality.' },
-                        { id: 'p2-6k', name: 'Dev time comparison tile', status: 'planned', category: 'feature', priority: 'low', notes: 'Admin Overview tile showing estimated development time: AI vibe-coding vs traditional dev. Track session count, features shipped, lines of code, estimated equivalent dev-months. Fun metric for demonstrating AI-augmented development velocity.' },
+                        { id: 'p2-6k', name: 'Dev time comparison tile', status: 'done', category: 'feature', priority: 'low', notes: 'v4.45.65: Admin Overview tile comparing AI vibe-coding velocity vs traditional solo dev. Computes: speed multiplier, cost multiplier, LOC/hr efficiency. Stats grid shows lines of code, features shipped, deploys, AI sessions, hours, first commit date. Side-by-side comparison with progress bars for calendar time, work hours, work days, total cost. Editable stats modal with Firestore persistence. Traditional dev baseline: $175K/yr loaded, 100 LOC/day for complex SPA.' },
                         { id: 'p2-6l', name: 'Scouting report HTML fix', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.64: Narrative and outcomes in buildReportData() contained raw HTML tags (<strong>, <span>) that the report template rendered as literal text. Stripped all HTML markup from narrative and outcomes data. Also filtered skill→role references to only include valid (visible) role IDs, preventing orphan D3 links that crashed the Skills Map visualization.' },
                         { id: 'p2-6m', name: 'Orphan role cleanup', status: 'done', category: 'bug', priority: 'high', notes: 'v4.45.64: Added cleanOrphanRoles() admin function and maintenance section in Admin Overview. Detects roles in skillsData.roles with no matching workHistory entry, removes them and cleans all skill references. Also updated hideRoleFromNetwork() to handle orphan roles directly (removes from roles array instead of failing silently). Role info card z-index bumped from 500 to 9000.' }
                     ]
@@ -37603,6 +37748,72 @@ body {
             }
         }
         window.cleanOrphanRoles = cleanOrphanRoles;
+        
+        // ── Dev Velocity Stats Editor ─────────────────────────────
+        function editDevStats() {
+            var ds = window._blueprintDevStats;
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content');
+            mc.innerHTML = '<div class="modal-header">'
+                + '<div class="modal-header-left"><h2 class="modal-title">' + bpIcon('trending-up',20) + ' Dev Velocity Stats</h2>'
+                + '<div class="modal-subtitle">Update your AI development tracking metrics</div></div>'
+                + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button></div>'
+                + '<div style="padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
+                + _devStatsField('devstat-firstCommit', 'First Commit Date', ds.firstCommit, 'date', '2025-12-28')
+                + _devStatsField('devstat-lineCount', 'Lines of Code', ds.lineCount, 'number', '43000')
+                + _devStatsField('devstat-sessionsAI', 'AI Sessions', ds.sessionsAI, 'number', '48')
+                + _devStatsField('devstat-avgSessionHrs', 'Avg Session (hrs)', ds.avgSessionHrs, 'number', '3.5')
+                + _devStatsField('devstat-aiSubscriptionMonthly', 'AI Sub ($/mo)', ds.aiSubscriptionMonthly, 'number', '200')
+                + _devStatsField('devstat-hostingMonthly', 'Hosting ($/mo)', ds.hostingMonthly, 'number', '25')
+                + '</div>'
+                + '<div style="padding:14px 20px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">'
+                + '<span style="font-size:0.75em; color:var(--text-muted);">Saved to Firestore with your profile</span>'
+                + '<div style="display:flex; gap:8px;">'
+                + '<button onclick="closeExportModal()" style="padding:8px 18px; background:transparent; border:1px solid var(--border); color:var(--text-secondary); border-radius:8px; cursor:pointer; font-size:0.88em;">Cancel</button>'
+                + '<button onclick="saveDevStats()" style="padding:8px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('check',14) + ' Save</button>'
+                + '</div></div>';
+            modal.classList.add('open');
+        }
+        window.editDevStats = editDevStats;
+        
+        function _devStatsField(id, label, value, type, placeholder) {
+            var inputType = type === 'date' ? 'date' : 'number';
+            var step = type === 'number' && String(value).indexOf('.') !== -1 ? ' step="0.1"' : '';
+            return '<div>'
+                + '<label style="font-size:0.78em; color:var(--text-muted); display:block; margin-bottom:4px;">' + label + '</label>'
+                + '<input id="' + id + '" type="' + inputType + '" value="' + escapeHtml(String(value)) + '" placeholder="' + placeholder + '"' + step
+                + ' class="settings-input" style="width:100%; font-size:0.92em;">'
+                + '</div>';
+        }
+        
+        function saveDevStats() {
+            var ds = window._blueprintDevStats;
+            var fc = document.getElementById('devstat-firstCommit');
+            var lc = document.getElementById('devstat-lineCount');
+            var sa = document.getElementById('devstat-sessionsAI');
+            var ah = document.getElementById('devstat-avgSessionHrs');
+            var ai = document.getElementById('devstat-aiSubscriptionMonthly');
+            var ho = document.getElementById('devstat-hostingMonthly');
+            if (fc) ds.firstCommit = fc.value || ds.firstCommit;
+            if (lc) ds.lineCount = parseInt(lc.value) || ds.lineCount;
+            if (sa) ds.sessionsAI = parseInt(sa.value) || ds.sessionsAI;
+            if (ah) ds.avgSessionHrs = parseFloat(ah.value) || ds.avgSessionHrs;
+            if (ai) ds.aiSubscriptionMonthly = parseInt(ai.value) || ds.aiSubscriptionMonthly;
+            if (ho) ds.hostingMonthly = parseInt(ho.value) || ds.hostingMonthly;
+            // Persist to Firestore
+            if (fbUser && fbDb) {
+                fbDb.collection('users').doc(fbUser.uid).set({ devStats: ds }, { merge: true })
+                    .then(function() { showToast('Dev stats saved.', 'success'); })
+                    .catch(function(e) { showToast('Save failed: ' + e.message, 'error'); });
+            } else {
+                showToast('Dev stats updated (not signed in, will not persist).', 'info');
+            }
+            closeExportModal();
+            // Refresh admin overview
+            var adminEl = document.getElementById('adminTabContent');
+            if (adminEl && adminSubTab === 'overview') renderAdminOverview(adminEl);
+        }
+        window.saveDevStats = saveDevStats;
         
         function openWorkHistoryModal(idx) {
             var job = idx >= 0 ? userData.workHistory[idx] : { title:'', company:'', location:'', startDate:'', endDate:'', current:false, description:'', achievements:[] };
