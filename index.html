@@ -236,8 +236,87 @@
 
         /* ── Page Header (consistent across all views) ────── */
         .cards-grid {
-            max-width: 900px;
+            max-width: 1400px;
             margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            padding: 0 16px;
+        }
+        @media (max-width: 1100px) {
+            .cards-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 700px) {
+            .cards-grid { grid-template-columns: 1fr; }
+        }
+        .domain-card {
+            background: var(--c-surface-2, rgba(255,255,255,0.03));
+            border: 1px solid var(--c-surface-5, rgba(255,255,255,0.08));
+            border-radius: 14px;
+            padding: 20px;
+            break-inside: avoid;
+        }
+        .domain-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .domain-icon {
+            color: var(--accent, #60a5fa);
+            flex-shrink: 0;
+        }
+        .domain-title {
+            font-family: Outfit, sans-serif;
+            font-weight: 700;
+            font-size: 1.05em;
+            color: var(--text-primary, #e0e7ef);
+            line-height: 1.3;
+        }
+        .skills-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .skill-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.02);
+            transition: background 0.15s;
+            flex-wrap: wrap;
+        }
+        .skill-item:hover {
+            background: rgba(255,255,255,0.06);
+        }
+        .skill-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .skill-name {
+            font-weight: 600;
+            font-size: 0.88em;
+            color: var(--text-primary, #e0e7ef);
+        }
+        .skill-badge {
+            font-size: 0.65em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .skill-years {
+            font-size: 0.7em;
+            color: var(--text-muted, #6b7280);
         }
         .page-header {
             padding: 24px 0 18px;
@@ -26780,8 +26859,10 @@ body {
                     });
                     html += '</div>';
                     
-                    html += '<div style="margin-top:10px;"><button onclick="var el=document.getElementById(\'negGuideInline\'); if(el.style.display===\'none\'){el.style.display=\'block\'; this.textContent=\'\\u25BC Negotiation Guide\';} else {el.style.display=\'none\'; this.textContent=\'\\u25B6 Negotiation Guide\';}" style="padding:8px 14px; background:transparent; border:1px solid var(--c-amber-border-1); border-radius:6px; color:#fbbf24; cursor:pointer; font-size:0.82em; width:100%;">\\u25B6 Negotiation Guide</button></div>'
-                        + '<div id="negGuideInline" style="display:none; margin-top:12px;">'
+                    html += '<div style="margin-top:14px; border-top:1px solid rgba(251,191,36,0.12); padding-top:14px;">'
+                        + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">'
+                        + '<span style="color:#fbbf24;">' + bpIcon('dollar',16) + '</span>'
+                        + '<span style="font-weight:700; color:#fbbf24; font-size:0.92em;">Negotiation Guide</span></div>'
                         + renderInlineNegotiation(totalValue)
                         + '</div>';
                     
@@ -26859,9 +26940,11 @@ body {
                     + bpIcon('bar-chart',12) + ' View All ' + skills.length + ' Skills</button>'
                     + '</div>';
                 
-                // Inline Negotiation Guide (expandable)
-                html += '<div style="margin-top:4px;"><button onclick="var el=document.getElementById(\'negGuideInline2\'); if(el.style.display===\'none\'){el.style.display=\'block\'; this.textContent=\'\\u25BC Negotiation Guide\';} else {el.style.display=\'none\'; this.textContent=\'\\u25B6 Negotiation Guide\';}" style="padding:8px 14px; background:transparent; border:1px solid var(--c-amber-border-1); border-radius:6px; color:#fbbf24; cursor:pointer; font-size:0.82em; width:100%;">\\u25B6 Negotiation Guide</button></div>'
-                    + '<div id="negGuideInline2" style="display:none; margin-top:12px;">'
+                // Inline Negotiation Guide (always visible)
+                html += '<div style="margin-top:14px; border-top:1px solid rgba(251,191,36,0.12); padding-top:14px;">'
+                    + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">'
+                    + '<span style="color:#fbbf24;">' + bpIcon('dollar',16) + '</span>'
+                    + '<span style="font-weight:700; color:#fbbf24; font-size:0.92em;">Negotiation Guide</span></div>'
                     + renderInlineNegotiation(totalValue)
                     + '</div>';
                 
@@ -29082,7 +29165,8 @@ body {
                 match: { percentage: matchData.score || 0, narrative: narrative },
                 roles: roles,
                 skills: reportSkills,
-                networkSkills: reportSkills.filter(function(sk) { return sk.r && sk.r.length > 0; }),
+                networkSkills: reportSkills.filter(function(sk) { return (sk.r && sk.r.length > 0) || sk.k === 1; }),
+                jobMatchSkills: reportSkills.filter(function(sk) { return sk.k === 1; }),
                 totalSkillCount: allSkills.length,
                 jobRequired: jobRequiredNames,
                 gaps: reportGaps,
@@ -29118,6 +29202,7 @@ body {
                         + 'REPORT_DATA._allSkills=REPORT_DATA.skills;'
                         + 'REPORT_DATA.skills=REPORT_DATA.networkSkills;'
                         + 'REPORT_DATA.totalSkillCount=REPORT_DATA.totalSkillCount||REPORT_DATA._allSkills.length;'
+                        + 'REPORT_DATA.jobMatchSkills=REPORT_DATA.jobMatchSkills||REPORT_DATA.skills.filter(function(s){return s.k===1;});'
                         + '}'
                         + '<\/script>';
                     
@@ -29165,13 +29250,59 @@ body {
                         + '      l.setAttribute("stroke", "rgba(255,255,255,0.06)");'
                         + '    });'
                         + '  }'
+                        // Hide surplus (non-matched, non-gap) nodes in Job Match view
+                        + '  function filterJobMatch() {'
+                        + '    var isJobMatch = false;'
+                        + '    document.querySelectorAll("button, [role=tab], .tab, .toggle-btn").forEach(function(b) {'
+                        + '      if (b.classList && b.classList.contains("active") && /job\\s*match/i.test(b.textContent)) isJobMatch = true;'
+                        + '    });'
+                        + '    var R = typeof REPORT_DATA !== "undefined" ? REPORT_DATA : null;'
+                        + '    if (!R || !R.jobMatchSkills) return;'
+                        + '    var matchedNames = {};'
+                        + '    R.jobMatchSkills.forEach(function(s) { matchedNames[s.n.toLowerCase()] = true; });'
+                        + '    (R.gaps || []).forEach(function(g) { matchedNames[g.n.toLowerCase()] = true; });'
+                        + '    (R.jobRequired || []).forEach(function(j) { matchedNames[j.toLowerCase()] = true; });'
+                        + '    document.querySelectorAll("svg g.node, svg g[class*=node], svg g").forEach(function(g) {'
+                        + '      var d = g.__data__;'
+                        + '      if (!d || !d.name) return;'
+                        + '      if (d.isCenter || d.isRole || d.type === "role" || d.type === "center" || d.type === "job") return;'
+                        + '      var nm = d.name.toLowerCase();'
+                        + '      if (isJobMatch && !matchedNames[nm] && d.type !== "gap") {'
+                        + '        g.style.display = "none";'
+                        + '      } else {'
+                        + '        g.style.display = "";'
+                        + '      }'
+                        + '    });'
+                        // Also hide orphan links pointing to hidden nodes
+                        + '    if (isJobMatch) {'
+                        + '      document.querySelectorAll("svg line").forEach(function(l) {'
+                        + '        var s = l.__data__;'
+                        + '        if (!s) return;'
+                        + '        var sName = (s.source && s.source.name) ? s.source.name.toLowerCase() : "";'
+                        + '        var tName = (s.target && s.target.name) ? s.target.name.toLowerCase() : "";'
+                        + '        if ((sName && !matchedNames[sName]) || (tName && !matchedNames[tName])) {'
+                        + '          l.style.display = "none";'
+                        + '        } else { l.style.display = ""; }'
+                        + '      });'
+                        + '    } else {'
+                        + '      document.querySelectorAll("svg line").forEach(function(l) { l.style.display = ""; });'
+                        + '    }'
+                        + '  }'
                         + '  var n = 0;'
                         + '  var iv = setInterval(function() {'
                         + '    recolorNetwork();'
+                        + '    filterJobMatch();'
                         + '    if (++n > 25) clearInterval(iv);'
                         + '  }, 400);'
                         + '  document.addEventListener("DOMContentLoaded", function() {'
-                        + '    [800,1500,2500,4000].forEach(function(ms) { setTimeout(recolorNetwork, ms); });'
+                        + '    [800,1500,2500,4000].forEach(function(ms) { setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, ms); });'
+                        // Re-filter when tabs are clicked
+                        + '    document.addEventListener("click", function(e) {'
+                        + '      if (e.target && (e.target.matches("button, [role=tab], .tab, .toggle-btn") || e.target.closest("button, [role=tab]"))) {'
+                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 300);'
+                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 800);'
+                        + '      }'
+                        + '    });'
                         + '  });'
                         + '})();'
                         + '<\/script>';
@@ -40395,13 +40526,19 @@ body {
             html += '<div style="font-size:0.78em; font-weight:700; color:#fbbf24; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Talking Points</div>'
                 + '<div style="display:grid; gap:6px; margin-bottom:14px;">';
             
-            var masteryCount = tv.top10Skills ? tv.top10Skills.filter(function(s) { return s.level === 'Mastery'; }).length : 0;
-            var topNames = tv.top10Skills ? tv.top10Skills.slice(0, 3).map(function(s) { return s.skill; }).join(', ') : '';
+            var allSkills = (userData && userData.skills && userData.skills.length > 0) ? userData.skills : ((skillsData && skillsData.skills) || []);
+            var masterySkills = allSkills.filter(function(s) { return (s.level || '').toLowerCase() === 'mastery'; });
+            var expertSkills = allSkills.filter(function(s) { return (s.level || '').toLowerCase() === 'expert'; });
+            var masteryNames = masterySkills.slice(0, 4).map(function(s) { return s.name; }).join(', ');
             var premPct = tv.marketRate > 0 ? Math.round(((tv.yourWorth - tv.marketRate) / tv.marketRate) * 100) : 0;
+            
+            var skillsPremiumText = masterySkills.length > 0
+                ? masterySkills.length + ' mastery-level skill' + (masterySkills.length !== 1 ? 's' : '') + ' (' + masteryNames + ')' + (expertSkills.length > 0 ? ' plus ' + expertSkills.length + ' at expert level' : '') + ' command market premiums.'
+                : expertSkills.length + ' expert-level skills command market premiums.';
             
             var points = [
                 { title: 'Lead with Worth', text: '"My value is $' + Math.round(tv.yourWorth * 0.95 / 1000) * 1000 + '\u2013$' + Math.round(tv.yourWorth * 1.05 / 1000) * 1000 + ' for ' + (tv.roleLevel || '') + ' roles."' },
-                { title: 'Skills Premium', text: masteryCount + ' mastery-level skills including ' + topNames + ' command market premiums.' },
+                { title: 'Skills Premium', text: skillsPremiumText },
                 { title: 'Market Data', text: 'Market rate: $' + tv.marketRate.toLocaleString() + '. My skills justify a ' + premPct + '% premium.' }
             ];
             points.forEach(function(p) {
@@ -40524,7 +40661,7 @@ body {
                             </p>
                             <p style="margin-bottom: 15px;">
                                 <strong style="color: #fbbf24;">2. Reference Your Top 10 Skills:</strong><br>
-                                "I bring ${totalValue.top10Skills.filter(s => s.level === 'Mastery').length} mastery-level skills including ${totalValue.top10Skills.slice(0, 3).map(s => s.skill).join(', ')}. These command premiums in the current market."
+                                "I bring ${((userData && userData.skills) || []).filter(s => (s.level || '').toLowerCase() === 'mastery').length} mastery-level skills including ${((userData && userData.skills) || []).filter(s => (s.level || '').toLowerCase() === 'mastery').slice(0, 3).map(s => s.name).join(', ')}. These command premiums in the current market."
                             </p>
                             <p style="margin-bottom: 15px;">
                                 <strong style="color: #fbbf24;">3. Show the Data:</strong><br>
