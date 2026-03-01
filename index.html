@@ -1,4 +1,4 @@
-<!-- v4.45.70 | 2026-02-28 | Job parsing: skill library await gate, blocklist transparency, diagnostics -->
+<!-- v4.45.71 | 2026-03-01 | First Commit date format, O*NET Crosswalk tile in Data Libraries -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1506,7 +1506,7 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.45.63 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.70';
+        var BP_VERSION = 'v4.45.71';
         
         // ===== DEV VELOCITY TRACKING =====
         window._blueprintDevStats = {
@@ -3374,6 +3374,8 @@
             var escoCount = (typeof skillLibraryIndex !== 'undefined' && skillLibraryIndex) ? (skillLibraryIndex.totalSkills || (skillLibraryIndex.index ? skillLibraryIndex.index.length : 0)) : 0;
             var blsWageCount = window.blsWages ? window.blsWages.count : 0;
             var blsAliasCount = window.blsWages && window.blsWages.aliases ? Object.keys(window.blsWages.aliases).length : 0;
+            var cwOccCount = window.onetCrosswalk ? Object.keys(window.onetCrosswalk.occupations || {}).length : 0;
+            var cwAliasCount = window.onetCrosswalk ? Object.keys(window.onetCrosswalk.aliases || {}).length : 0;
             
             html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:20px;">'
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 16px; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">Data Libraries</h3>'
@@ -3386,10 +3388,11 @@
                 { name: 'Work Styles', count: wsCount, source: 'O*NET', color: '#60a5fa', loaded: wsCount > 0 },
                 { name: 'Knowledge', count: knowledgeCount, source: 'O*NET', color: '#60a5fa', loaded: knowledgeCount > 0 },
                 { name: 'Work Activities', count: activitiesCount, source: 'O*NET', color: '#60a5fa', loaded: activitiesCount > 0 },
+                { name: 'O*NET Crosswalk', count: cwOccCount, source: cwAliasCount.toLocaleString() + ' title aliases', color: '#38bdf8', loaded: cwOccCount > 0 },
                 { name: 'Trades & Creative', count: tradesCount, source: 'Custom', color: '#f59e0b', loaded: tradesCount > 0 },
                 { name: 'Values', count: valuesCount, source: 'Blueprint', color: '#10b981', loaded: valuesCount > 0 },
                 { name: 'BLS Wages', count: blsWageCount ? blsWageCount.toLocaleString() : 0, source: 'Bureau of Labor Statistics', color: '#f97316', loaded: blsWageCount > 0 },
-                { name: 'BLS Aliases', count: blsAliasCount ? blsAliasCount.toLocaleString() : 0, source: 'Title → SOC mappings', color: '#f97316', loaded: blsAliasCount > 0 },
+                { name: 'BLS Aliases', count: blsAliasCount ? blsAliasCount.toLocaleString() : 0, source: 'Title \u2192 SOC salary mappings', color: '#f97316', loaded: blsAliasCount > 0 },
                 { name: 'Custom Skills', count: '\u221E', source: 'User-defined', color: '#fbbf24', loaded: true },
                 { name: 'Jobs Database', count: jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : jobsCacheData.length, source: 'Firestore cache \u00B7 8 sources, A/B sync every 6h', color: '#ec4899', loaded: jobsCacheLoaded || (jobsSyncMeta && jobsSyncMeta.totalJobs > 0), id: 'adminJobsTile' }
             ];
@@ -3505,7 +3508,7 @@
                 { label: 'Deploys', value: totalDeploys + '+', color: '#a855f7', icon: 'layers' },
                 { label: 'AI Sessions', value: devStats.sessionsAI, color: '#f59e0b', icon: 'wand' },
                 { label: 'AI Hours', value: Math.round(aiHoursTotal), color: '#06b6d4', icon: 'clock' },
-                { label: 'First Commit', value: devStats.firstCommit.replace('2025-','').replace('-','/'), color: '#6b7280', icon: 'clock' }
+                { label: 'First Commit', value: (function() { var d = new Date(devStats.firstCommit + 'T00:00:00'); var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return months[d.getMonth()] + ' ' + d.getDate(); })(), color: '#6b7280', icon: 'clock' }
             ];
             devTiles.forEach(function(t) {
                 html += '<div style="padding:12px; background:var(--c-surface-4b); border:1px solid var(--c-border-faint); border-radius:8px; text-align:center;">'
