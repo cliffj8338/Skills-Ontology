@@ -4572,6 +4572,7 @@
                         { id: 'p2-5z', name: 'Endorsement-boosted skill levels', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.45.48: After deterministic skill inference, endorsement counts from LinkedIn are matched to skills (case-insensitive partial match). 10+ endorsements boost level by 1, 25+ by 2 (capped at Mastery). Boosted skills flagged with endorsementBoosted:true. Skills carry endorsement count in persisted data.' },
                         { id: 'p2-6a', name: 'Education modal redesign (non-traditional learning)', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.49: Replaced rigid School/Degree/Field/Year form with adaptive education modal. Six type pills (Degree, Certificate, Trade, Bootcamp, Prof Dev, Military) dynamically adjust labels, placeholders, and visible fields. Start/End year for duration programs. Issuing Authority field for licenses/certificates. Collapsible description. Credential linking: dropdown links education entries to existing certifications (e.g. TNT Air flight school → Private Pilot Certificate). Type badges in list view. Fully backward compatible with existing education data.' },
                         { id: 'p2-6b', name: 'Architecture & cost updates', status: 'done', category: 'admin', priority: 'medium', notes: 'v4.45.49: Firebase Spark→Blaze ($25/mo budget). Sonnet 4 output pricing corrected ($3→$15/1M). Architecture header updated to ~41K lines. Component details updated: wizard (18 file types), userData (linkedinContent), skill engine (endorsement boost), Firestore (Blaze, new fields). Last-updated note refreshed.' },
+                        { id: 'p2-6c', name: 'LinkedIn merge import (append to existing profile)', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.49: Standalone parseLinkedInZipContents() parser reusable by both wizard and merge. mergeLinkedInToProfile() adds new positions/education/certs/skills without overwriting existing data (dedup by company+title+startDate, school+degree, cert name, skill name). Endorsement boost applied to all skills. linkedinContent replaced wholesale (latest snapshot). UI in Experience tab: LinkedIn-branded card with Upload .zip button, progress status, detailed result summary. Last merge timestamp tracked. Analytics event logged.' },
                         { id: 'p2-6a', name: 'Work Blueprint function refinement', status: 'planned', category: 'feature', priority: 'high', notes: 'Ongoing improvements to WB ecosystem. Includes: Firestore-backed comparison persistence (replace localStorage), comparison sharing via URL tokens, batch comparison mode (multiple candidates against one WB), WB template library (common roles pre-built), WB diff view (compare two WBs side-by-side), improved gap recommendation engine with learning resource links, WB versioning/history, and WB-to-scouting-report pipeline integration.' }
                     ]
                 },
@@ -17865,6 +17866,394 @@
                         ${label}
                     </button>`;
         }
+
+        // ═══════════════════════════════════════════════════════════
+        // LINKEDIN ZIP PARSER (standalone, reusable)
+        // ═══════════════════════════════════════════════════════════
+        
+        async function parseLinkedInZipContents(file) {
+            if (typeof JSZip === 'undefined') throw new Error('JSZip library not loaded.');
+            if (typeof Papa === 'undefined') throw new Error('PapaParse library not loaded.');
+            
+            var zip = await JSZip.loadAsync(file);
+            var csvFiles = {};
+            
+            var targetFiles = ['Profile.csv', 'Positions.csv', 'Skills.csv', 'Education.csv',
+                'Certifications.csv', 'Languages.csv', 'Projects.csv', 'Email Addresses.csv',
+                'Endorsement_Received_Info.csv', 'Recommendations_Received.csv',
+                'Volunteering.csv', 'Honors.csv', 'Causes You Care About.csv',
+                'Rich_Media.csv', 'Learning.csv', 'Organizations.csv',
+                'Connections.csv', 'Company_Follows.csv'];
+            
+            var headerMap = {
+                'first name': 'First Name', 'first_name': 'First Name', 'firstname': 'First Name',
+                'last name': 'Last Name', 'last_name': 'Last Name', 'lastname': 'Last Name',
+                'headline': 'Headline', 'summary': 'Summary', 'about': 'Summary',
+                'geo location': 'Geo Location', 'geolocation': 'Geo Location', 'industry': 'Industry',
+                'company name': 'Company Name', 'company': 'Company Name', 'organization name': 'Company Name',
+                'title': 'Title', 'position': 'Title', 'job title': 'Job Title',
+                'description': 'Description', 'location': 'Location',
+                'started on': 'Started On', 'start date': 'Started On',
+                'finished on': 'Finished On', 'end date': 'Finished On',
+                'name': 'Name', 'skill': 'Name', 'skill name': 'Skill Name',
+                'school name': 'School Name', 'school': 'School Name', 'institution': 'School Name',
+                'degree name': 'Degree Name', 'degree': 'Degree Name',
+                'notes': 'Notes', 'field of study': 'Field Of Study',
+                'activities': 'Activities', 'activities and societies': 'Activities',
+                'authority': 'Authority', 'issuing organization': 'Authority',
+                'license number': 'License Number', 'credential id': 'License Number',
+                'url': 'Url', 'credential url': 'Url',
+                'email address': 'Email Address', 'email': 'Email Address',
+                'endorsement date': 'Endorsement Date',
+                'endorser first name': 'Endorser First Name', 'endorser last name': 'Endorser Last Name',
+                'endorsement status': 'Endorsement Status',
+                'text': 'Text', 'creation date': 'Creation Date', 'status': 'Status',
+                'role': 'Role', 'cause': 'Cause', 'issued on': 'Issued On',
+                'content title': 'Content Title', 'content type': 'Content Type',
+                'content completed at (if completed)': 'Content Completed At',
+                'media description': 'Media Description', 'media link': 'Media Link',
+                'date/time': 'Date/Time', 'supported cause': 'Supported Cause'
+            };
+            
+            function normalizeRow(row) {
+                var n = {};
+                Object.keys(row).forEach(function(key) {
+                    var t = key.trim().replace(/^\uFEFF/, '');
+                    var c = headerMap[t.toLowerCase()] || t;
+                    if (!(c in n)) n[c] = row[key];
+                });
+                return n;
+            }
+            
+            for (var ti = 0; ti < targetFiles.length; ti++) {
+                var targetName = targetFiles[ti];
+                var found = null;
+                zip.forEach(function(path, entry) {
+                    if (!entry.dir && path.endsWith(targetName)) found = entry;
+                });
+                if (found) {
+                    var text = await found.async('text');
+                    var result = Papa.parse(text, { header: true, skipEmptyLines: true });
+                    csvFiles[targetName] = result.data.map(normalizeRow);
+                }
+            }
+            
+            var parsed = {};
+            
+            // Profile
+            var pRow = (csvFiles['Profile.csv'] || [])[0] || {};
+            parsed.profile = {
+                name: [pRow['First Name'], pRow['Last Name']].filter(Boolean).join(' '),
+                linkedinHeadline: pRow['Headline'] || '',
+                location: pRow['Geo Location'] || pRow['Location'] || '',
+                summary: pRow['Summary'] || ''
+            };
+            var emailRows = csvFiles['Email Addresses.csv'] || [];
+            if (emailRows.length > 0) parsed.profile.email = emailRows[0]['Email Address'] || '';
+            
+            // Positions
+            parsed.workHistory = (csvFiles['Positions.csv'] || []).map(function(row) {
+                return { title: row['Title'] || '', company: row['Company Name'] || '',
+                    location: row['Location'] || '', description: row['Description'] || '',
+                    startDate: row['Started On'] || '', endDate: row['Finished On'] || 'Present' };
+            }).filter(function(w) { return w.title || w.company; });
+            
+            // Skills
+            parsed.rawSkills = (csvFiles['Skills.csv'] || []).map(function(row) {
+                return (row['Name'] || row['Skill'] || Object.values(row)[0] || '').trim();
+            }).filter(Boolean);
+            
+            // Education
+            parsed.education = (csvFiles['Education.csv'] || []).map(function(row) {
+                return { school: row['School Name'] || '', degree: row['Degree Name'] || '',
+                    field: row['Field Of Study'] || row['Notes'] || '',
+                    startDate: row['Start Date'] || row['Started On'] || '',
+                    endDate: row['End Date'] || row['Finished On'] || '', activities: row['Activities'] || '' };
+            }).filter(function(e) { return e.school; });
+            
+            // Certifications
+            parsed.certifications = (csvFiles['Certifications.csv'] || []).map(function(row) {
+                return { name: row['Name'] || '', authority: row['Authority'] || '',
+                    licenseNumber: row['License Number'] || '', url: row['Url'] || '',
+                    startDate: row['Started On'] || '', endDate: row['Finished On'] || '' };
+            }).filter(function(c) { return c.name; });
+            
+            // Endorsements
+            parsed.endorsements = {};
+            (csvFiles['Endorsement_Received_Info.csv'] || []).forEach(function(row) {
+                var skill = (row['Skill Name'] || '').trim();
+                if (skill) parsed.endorsements[skill] = (parsed.endorsements[skill] || 0) + 1;
+            });
+            
+            // Recommendations
+            parsed.recommendations = (csvFiles['Recommendations_Received.csv'] || []).filter(function(row) {
+                return (row['Status'] || '').toUpperCase() === 'VISIBLE' && (row['Text'] || '').length > 20;
+            }).map(function(row) {
+                return { from: [row['First Name'], row['Last Name']].filter(Boolean).join(' '),
+                    company: row['Company'] || '', title: row['Job Title'] || '',
+                    text: row['Text'] || '', date: row['Creation Date'] || '' };
+            });
+            
+            // Volunteering, Honors, Causes, Organizations
+            parsed.volunteering = (csvFiles['Volunteering.csv'] || []).map(function(r) {
+                return { company: r['Company Name'] || '', role: r['Role'] || '', cause: r['Cause'] || '',
+                    description: r['Description'] || '', startDate: r['Started On'] || '', endDate: r['Finished On'] || '' };
+            }).filter(function(v) { return v.company || v.role; });
+            
+            parsed.honors = (csvFiles['Honors.csv'] || []).map(function(r) {
+                return { title: r['Title'] || r['Name'] || '', description: r['Description'] || '', date: r['Issued On'] || '' };
+            }).filter(function(h) { return h.title; });
+            
+            parsed.causes = (csvFiles['Causes You Care About.csv'] || []).map(function(r) {
+                return r['Supported Cause'] || Object.values(r)[0] || '';
+            }).filter(Boolean);
+            
+            parsed.organizations = (csvFiles['Organizations.csv'] || []).map(function(r) {
+                return { name: r['Name'] || '', position: r['Position'] || '', description: r['Description'] || '' };
+            }).filter(function(o) { return o.name; });
+            
+            // Learning
+            var learningRows = csvFiles['Learning.csv'] || [];
+            parsed.learning = learningRows.filter(function(r) {
+                return (r['Content Completed At'] || '') !== '' && r['Content Completed At'] !== 'N/A';
+            }).map(function(r) {
+                return { title: r['Content Title'] || '', type: r['Content Type'] || '', completedAt: r['Content Completed At'] || '' };
+            });
+            parsed.learningTotal = learningRows.length;
+            
+            // Rich Media
+            parsed.richMedia = (csvFiles['Rich_Media.csv'] || []).filter(function(r) {
+                return (r['Media Description'] || '').length > 100;
+            }).map(function(r) {
+                return { date: r['Date/Time'] || '', content: r['Media Description'] || '', link: r['Media Link'] || '' };
+            });
+            
+            // Articles from HTML
+            parsed.articles = [];
+            var articleEntries = [];
+            zip.forEach(function(path, entry) {
+                if (!entry.dir && path.toLowerCase().includes('article') && path.endsWith('.html')) articleEntries.push(entry);
+            });
+            for (var ai = 0; ai < articleEntries.length; ai++) {
+                try {
+                    var aHtml = await articleEntries[ai].async('text');
+                    var titleM = aHtml.match(/<title>(.*?)<\/title>/i);
+                    var createdM = aHtml.match(/Created on ([\d-]+)/);
+                    var bodyM = aHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+                    var bodyText = (bodyM ? bodyM[1] : aHtml).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+                    parsed.articles.push({ title: titleM ? titleM[1].trim() : 'Untitled',
+                        created: createdM ? createdM[1] : '', wordCount: bodyText.split(/\s+/).length,
+                        text: bodyText.substring(0, 2000) });
+                } catch(e) { /* skip */ }
+            }
+            
+            parsed.networkSize = (csvFiles['Connections.csv'] || []).length;
+            return parsed;
+        }
+        
+        // ═══════════════════════════════════════════════════════════
+        // LINKEDIN MERGE — Append/update existing profile from .zip
+        // ═══════════════════════════════════════════════════════════
+        
+        async function mergeLinkedInToProfile(file) {
+            var statusEl = document.getElementById('liMergeStatus');
+            var setStatus = function(msg) { if (statusEl) statusEl.textContent = msg; };
+            
+            try {
+                setStatus('Reading LinkedIn archive...');
+                var parsed = await parseLinkedInZipContents(file);
+                var stats = { added: {}, updated: {}, skipped: {} };
+                
+                // ── Merge Work History ──
+                setStatus('Merging work history...');
+                var existingJobs = userData.workHistory || [];
+                var newJobs = 0;
+                parsed.workHistory.forEach(function(liJob) {
+                    var key = (liJob.company + '|' + liJob.title + '|' + liJob.startDate).toLowerCase().trim();
+                    var exists = existingJobs.some(function(ej) {
+                        return (ej.company + '|' + ej.title + '|' + ej.startDate).toLowerCase().trim() === key;
+                    });
+                    if (!exists) { existingJobs.push(liJob); newJobs++; }
+                });
+                userData.workHistory = existingJobs;
+                stats.added.positions = newJobs;
+                stats.skipped.positions = parsed.workHistory.length - newJobs;
+                
+                // Rebuild company tenures
+                var companyGroups = {};
+                userData.workHistory.forEach(function(job) {
+                    var normCo = (job.company || '').trim().replace(/,?\s*(LLC|Inc\.?|Corp\.?|Ltd\.?|Co\.?|People|Group|Holdings)\.?\s*$/i, '').trim().toLowerCase();
+                    if (!normCo) return;
+                    if (!companyGroups[normCo]) companyGroups[normCo] = { name: job.company, positions: [] };
+                    companyGroups[normCo].positions.push(job);
+                });
+                Object.values(companyGroups).forEach(function(g) {
+                    g.name = g.positions[g.positions.length - 1].company;
+                    g.isProgression = g.positions.length > 1;
+                });
+                userData.companyTenures = Object.values(companyGroups);
+                
+                // ── Merge Education ──
+                setStatus('Merging education...');
+                var existingEd = userData.education || [];
+                var newEd = 0;
+                parsed.education.forEach(function(liEd) {
+                    var key = (liEd.school + '|' + liEd.degree).toLowerCase().trim();
+                    var exists = existingEd.some(function(e) {
+                        return (e.school + '|' + (e.degree || '')).toLowerCase().trim() === key;
+                    });
+                    if (!exists) {
+                        existingEd.push({
+                            id: 'ed-li-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
+                            type: 'degree', school: liEd.school, degree: liEd.degree, field: liEd.field,
+                            year: liEd.endDate || '', startYear: liEd.startDate || '', endYear: liEd.endDate || ''
+                        });
+                        newEd++;
+                    }
+                });
+                userData.education = existingEd;
+                stats.added.education = newEd;
+                
+                // ── Merge Certifications ──
+                setStatus('Merging certifications...');
+                var existingCerts = userData.certifications || [];
+                var newCerts = 0;
+                parsed.certifications.forEach(function(liCert) {
+                    var key = liCert.name.toLowerCase().trim();
+                    var exists = existingCerts.some(function(c) { return (c.name || '').toLowerCase().trim() === key; });
+                    if (!exists) {
+                        existingCerts.push({ name: liCert.name, issuer: liCert.authority, abbr: '',
+                            year: liCert.endDate || liCert.startDate || '', type: 'Certification', tier: 1, linkedSkills: [] });
+                        newCerts++;
+                    }
+                });
+                userData.certifications = existingCerts;
+                stats.added.certifications = newCerts;
+                
+                // ── Merge Skills ──
+                setStatus('Merging skills...');
+                var existingSkillNames = (skillsData.skills || []).map(function(s) { return s.name.toLowerCase(); });
+                var newSkills = 0;
+                parsed.rawSkills.forEach(function(sn) {
+                    if (existingSkillNames.indexOf(sn.toLowerCase()) < 0) {
+                        skillsData.skills.push({ name: sn, level: 'Proficient', category: 'skill',
+                            key: false, roles: [], evidence: [], source: 'linkedin-merge' });
+                        existingSkillNames.push(sn.toLowerCase());
+                        newSkills++;
+                    }
+                });
+                stats.added.skills = newSkills;
+                
+                // ── Endorsement Boost ──
+                setStatus('Applying endorsements...');
+                var endorsementCounts = parsed.endorsements || {};
+                var boosted = 0;
+                if (Object.keys(endorsementCounts).length > 0) {
+                    var lvlOrder = ['Novice', 'Proficient', 'Advanced', 'Expert', 'Mastery'];
+                    (skillsData.skills || []).forEach(function(skill) {
+                        var sLow = skill.name.toLowerCase();
+                        var eCount = 0;
+                        Object.keys(endorsementCounts).forEach(function(en) {
+                            if (en.toLowerCase() === sLow || sLow.indexOf(en.toLowerCase()) >= 0 || en.toLowerCase().indexOf(sLow) >= 0)
+                                eCount += endorsementCounts[en];
+                        });
+                        if (eCount > 0) {
+                            skill.endorsements = eCount;
+                            var ci = lvlOrder.indexOf(skill.level);
+                            if (ci >= 0) {
+                                var b = eCount >= 25 ? 2 : eCount >= 10 ? 1 : 0;
+                                var ni = Math.min(ci + b, lvlOrder.length - 1);
+                                if (ni > ci) { skill.level = lvlOrder[ni]; skill.endorsementBoosted = true; boosted++; }
+                            }
+                        }
+                    });
+                }
+                stats.updated = { endorsementBoosted: boosted,
+                    totalEndorsements: Object.values(endorsementCounts).reduce(function(s,v) { return s+v; }, 0) };
+                
+                // ── Replace linkedinContent ──
+                setStatus('Updating content repository...');
+                userData.linkedinContent = {
+                    endorsements: parsed.endorsements, recommendations: parsed.recommendations,
+                    volunteering: parsed.volunteering, honors: parsed.honors, causes: parsed.causes,
+                    organizations: parsed.organizations,
+                    articles: parsed.articles.map(function(a) { return { title: a.title, created: a.created, wordCount: a.wordCount, text: a.text }; }),
+                    posts: parsed.richMedia.map(function(p) { return { date: p.date, content: p.content.substring(0, 1500) }; }),
+                    learning: parsed.learning, networkSize: parsed.networkSize
+                };
+                
+                userData.importStats = { lastMerge: new Date().toISOString(), positions: parsed.workHistory.length,
+                    skills: parsed.rawSkills.length, endorsements: stats.updated.totalEndorsements,
+                    recommendations: parsed.recommendations.length, articles: parsed.articles.length,
+                    posts: parsed.richMedia.length, learning: parsed.learningTotal,
+                    learningCompleted: parsed.learning.length, volunteering: parsed.volunteering.length,
+                    honors: parsed.honors.length, causes: parsed.causes.length, network: parsed.networkSize };
+                
+                // Save
+                setStatus('Saving...');
+                userData.skills = skillsData.skills;
+                saveAll();
+                if (fbUser) debouncedSave();
+                logAnalyticsEvent('linkedin_merge', { newPositions: newJobs, newSkills: newSkills, boosted: boosted });
+                
+                return stats;
+            } catch(err) {
+                console.error('LinkedIn merge error:', err);
+                logIncident('critical', 'linkedin-merge', 'LinkedIn merge failed: ' + err.message);
+                throw err;
+            }
+        }
+        
+        // UI handler
+        async function handleLinkedInMerge(input) {
+            if (!input || !input.files || !input.files[0]) return;
+            var file = input.files[0];
+            if (!file.name.endsWith('.zip')) { showToast('Please upload a LinkedIn .zip archive.', 'warning'); return; }
+            
+            var btn = document.getElementById('liMergeBtn');
+            var statusEl = document.getElementById('liMergeStatus');
+            var resultEl = document.getElementById('liMergeResult');
+            if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
+            if (statusEl) statusEl.style.display = 'block';
+            if (resultEl) resultEl.style.display = 'none';
+            
+            try {
+                var stats = await mergeLinkedInToProfile(file);
+                var lines = [];
+                if (stats.added.positions > 0) lines.push(stats.added.positions + ' new position' + (stats.added.positions > 1 ? 's' : ''));
+                if (stats.skipped.positions > 0) lines.push(stats.skipped.positions + ' existing position' + (stats.skipped.positions > 1 ? 's' : '') + ' kept');
+                if (stats.added.education > 0) lines.push(stats.added.education + ' education entr' + (stats.added.education > 1 ? 'ies' : 'y'));
+                if (stats.added.certifications > 0) lines.push(stats.added.certifications + ' certification' + (stats.added.certifications > 1 ? 's' : ''));
+                if (stats.added.skills > 0) lines.push(stats.added.skills + ' new skill' + (stats.added.skills > 1 ? 's' : ''));
+                if (stats.updated.endorsementBoosted > 0) lines.push(stats.updated.endorsementBoosted + ' skill' + (stats.updated.endorsementBoosted > 1 ? 's' : '') + ' boosted');
+                if (stats.updated.totalEndorsements > 0) lines.push(stats.updated.totalEndorsements + ' endorsements applied');
+                var lc = userData.linkedinContent || {};
+                if ((lc.recommendations || []).length > 0) lines.push(lc.recommendations.length + ' recommendations');
+                if ((lc.articles || []).length > 0) lines.push(lc.articles.length + ' articles');
+                if ((lc.learning || []).length > 0) lines.push(lc.learning.length + ' courses');
+                if (lc.networkSize > 0) lines.push(lc.networkSize.toLocaleString() + ' connections');
+                
+                if (resultEl) {
+                    resultEl.innerHTML = '<div style="font-weight:600; color:#10b981; margin-bottom:8px;">'
+                        + bpIcon('check', 14) + ' Merge Complete</div>'
+                        + lines.map(function(l) {
+                            return '<div style="font-size:0.8em; color:var(--text-secondary); display:flex; align-items:center; gap:6px;">'
+                                + '<span style="width:4px; height:4px; border-radius:50%; background:var(--accent); flex-shrink:0;"></span>' + l + '</div>';
+                        }).join('');
+                    resultEl.style.display = 'block';
+                }
+                if (statusEl) statusEl.style.display = 'none';
+                showToast('LinkedIn data merged successfully.', 'success', 5000);
+                refreshExperienceContent();
+            } catch(err) {
+                showToast('Merge failed: ' + err.message, 'error', 6000);
+                if (statusEl) statusEl.textContent = 'Failed: ' + err.message;
+            } finally {
+                if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+                input.value = '';
+            }
+        }
+        window.handleLinkedInMerge = handleLinkedInMerge;
 
         // ── STEP 1: Entry point ───────────────────────────────────────────────
 
@@ -35552,6 +35941,34 @@ body {
             var certItems = userData.certifications || [];
             
             var html = '';
+            
+            // ── LinkedIn Merge Import ──
+            var lastMerge = (userData.importStats || {}).lastMerge;
+            var lastMergeStr = lastMerge ? new Date(lastMerge).toLocaleDateString() : null;
+            
+            html += '<div style="padding:16px; margin-bottom:20px; background:linear-gradient(135deg, rgba(10,102,194,0.06), rgba(10,102,194,0.02)); '
+                + 'border:1px solid rgba(10,102,194,0.2); border-radius:10px;">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">'
+                + '<div style="flex:1; min-width:200px;">'
+                + '<div style="font-weight:700; color:var(--text-primary); font-size:0.9em; display:flex; align-items:center; gap:6px;">'
+                + '<svg width="16" height="16" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>'
+                + ' Update from LinkedIn</div>'
+                + '<div style="font-size:0.78em; color:var(--text-muted); margin-top:4px; line-height:1.4;">'
+                + 'Upload your LinkedIn data export to merge new positions, skills, endorsements, recommendations, articles, and more into your existing profile. Nothing you\'ve built will be overwritten.'
+                + (lastMergeStr ? ' <span style="color:var(--accent);">Last updated: ' + lastMergeStr + '</span>' : '')
+                + '</div></div>'
+                + '<div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">'
+                + '<label id="liMergeBtn" style="padding:8px 18px; background:#0a66c2; color:#fff; border-radius:8px; cursor:pointer; '
+                + 'font-weight:600; font-size:0.82em; display:inline-flex; align-items:center; gap:6px; transition:opacity 0.2s;">'
+                + bpIcon('network', 14) + ' Upload .zip'
+                + '<input type="file" accept=".zip" onchange="handleLinkedInMerge(this)" style="display:none;">'
+                + '</label>'
+                + '</div></div>'
+                + '<div id="liMergeStatus" style="display:none; font-size:0.8em; color:var(--accent); margin-top:10px; padding:8px 12px; '
+                + 'background:var(--c-surface-2); border-radius:6px;">' + bpIcon('settings', 12) + ' Processing...</div>'
+                + '<div id="liMergeResult" style="display:none; margin-top:10px; padding:10px 12px; '
+                + 'background:var(--c-surface-2); border-radius:6px;"></div>'
+                + '</div>';
             
             // --- Work History ---
             // Build company groups for progression display
