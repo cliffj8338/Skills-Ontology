@@ -1,4 +1,4 @@
-<!-- v4.45.65 | 2026-02-28 | Dev velocity tile + scouting report fix + orphan role cleanup -->
+<!-- v4.45.66 | 2026-02-28 | Role card body-level fix + report skill visibility filter -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -789,23 +789,6 @@
             </div>
         </div>
         
-        <!-- Role Info Card (appears when role node clicked in network) -->
-        <div id="roleInfoCard" style="display:none; position:fixed; top:108px; left:16px;
-            z-index:9000; background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px;
-            padding:16px 18px; font-family:'Outfit',sans-serif; min-width:220px; max-width:280px;
-            backdrop-filter:blur(16px); box-shadow:0 8px 32px rgba(0,0,0,0.3); cursor:default; pointer-events:auto;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <span id="roleInfoDot" style="width:10px; height:10px; border-radius:50%; flex-shrink:0;"></span>
-                    <span id="roleInfoName" style="font-weight:700; font-size:0.95em; color:var(--text-primary);"></span>
-                </div>
-                <button onclick="document.getElementById('roleInfoCard').style.display='none'; filterByRole('all');" style="background:none; border:none; color:var(--text-muted);
-                    cursor:pointer; font-size:1.2em; padding:8px; margin:-8px -8px -8px 0; line-height:1;"
-                    onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'">&times;</button>
-            </div>
-            <div id="roleInfoStats" style="font-size:0.82em; color:var(--text-secondary); line-height:1.6;"></div>
-            <div id="roleInfoActions" style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border); display:flex; gap:6px;"></div>
-        </div>
         <!-- Legacy pill reference kept for compat -->
         <div id="networkFilterPill" style="display:none;"><span id="networkFilterPillDot"></span><span id="networkFilterPillText"></span></div>
     </div>
@@ -858,6 +841,24 @@
     </div>
 
     <div class="tooltip" id="tooltip"></div>
+    
+    <!-- Role Info Card (body-level for z-index stacking) -->
+    <div id="roleInfoCard" style="display:none; position:fixed; top:108px; left:16px;
+        z-index:9000; background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px;
+        padding:16px 18px; font-family:'Outfit',sans-serif; min-width:220px; max-width:280px;
+        backdrop-filter:blur(16px); box-shadow:0 8px 32px rgba(0,0,0,0.3); cursor:default; pointer-events:auto;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span id="roleInfoDot" style="width:10px; height:10px; border-radius:50%; flex-shrink:0;"></span>
+                <span id="roleInfoName" style="font-weight:700; font-size:0.95em; color:var(--text-primary);"></span>
+            </div>
+            <button onclick="document.getElementById('roleInfoCard').style.display='none'; filterByRole('all');" style="background:none; border:none; color:var(--text-muted);
+                cursor:pointer; font-size:1.2em; padding:8px; margin:-8px -8px -8px 0; line-height:1;"
+                onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'">&times;</button>
+        </div>
+        <div id="roleInfoStats" style="font-size:0.82em; color:var(--text-secondary); line-height:1.6;"></div>
+        <div id="roleInfoActions" style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border); display:flex; gap:6px;"></div>
+    </div>
     
     <!-- Skill Detail Modal -->
     <div class="modal" id="skillModal" role="dialog" aria-modal="true" aria-label="Skill details">
@@ -1505,12 +1506,12 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.45.63 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.65';
+        var BP_VERSION = 'v4.45.66';
         
         // ===== DEV VELOCITY TRACKING =====
         window._blueprintDevStats = {
             firstCommit: '2025-12-28',
-            lineCount: 43522,
+            lineCount: 43531,
             sessionsAI: 48,
             avgSessionHrs: 3.5,
             aiSubscriptionMonthly: 200,
@@ -4804,8 +4805,8 @@
                         { id: 'p2-6i', name: 'User Flows tracker', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.45.63: Admin → System → User Flows. 12 workflow categories mapped with step-by-step function chains: Onboarding, LinkedIn Merge, Skill Mgmt, Work History, Job Pipeline, Network Viz, Reports, Values/Outcomes, Content/Evidence, Settings, Education/Certs, Auth/Persistence. Clickable tiles open horizontal flow diagrams. Each step shows function name, description, downstream connections. Phase 2: export flows as PNG/PDF/mermaid.' },
                         { id: 'p2-6j', name: 'User Flows export (phase 2)', status: 'planned', category: 'feature', priority: 'low', notes: 'Export user flow diagrams as PNG, PDF, or Mermaid markdown. Add print stylesheet for flow diagrams. Consider SVG export for vector quality.' },
                         { id: 'p2-6k', name: 'Dev time comparison tile', status: 'done', category: 'feature', priority: 'low', notes: 'v4.45.65: Admin Overview tile comparing AI vibe-coding velocity vs traditional solo dev. Computes: speed multiplier, cost multiplier, LOC/hr efficiency. Stats grid shows lines of code, features shipped, deploys, AI sessions, hours, first commit date. Side-by-side comparison with progress bars for calendar time, work hours, work days, total cost. Editable stats modal with Firestore persistence. Traditional dev baseline: $175K/yr loaded, 100 LOC/day for complex SPA.' },
-                        { id: 'p2-6l', name: 'Scouting report HTML fix', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.64: Narrative and outcomes in buildReportData() contained raw HTML tags (<strong>, <span>) that the report template rendered as literal text. Stripped all HTML markup from narrative and outcomes data. Also filtered skill→role references to only include valid (visible) role IDs, preventing orphan D3 links that crashed the Skills Map visualization.' },
-                        { id: 'p2-6m', name: 'Orphan role cleanup', status: 'done', category: 'bug', priority: 'high', notes: 'v4.45.64: Added cleanOrphanRoles() admin function and maintenance section in Admin Overview. Detects roles in skillsData.roles with no matching workHistory entry, removes them and cleans all skill references. Also updated hideRoleFromNetwork() to handle orphan roles directly (removes from roles array instead of failing silently). Role info card z-index bumped from 500 to 9000.' }
+                        { id: 'p2-6l', name: 'Scouting report HTML fix', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.64: Narrative and outcomes in buildReportData() contained raw HTML tags (<strong>, <span>) that the report template rendered as literal text. Stripped all HTML markup from narrative and outcomes data. v4.45.66: Filtered allSkills→visibleSkills to exclude skills whose only roles are hidden. Report now shows correct skill count, domain distribution, proficiency breakdown, and network graph reflecting only visible positions.' },
+                        { id: 'p2-6m', name: 'Orphan role cleanup', status: 'done', category: 'bug', priority: 'high', notes: 'v4.45.64: Added cleanOrphanRoles() admin function and maintenance section in Admin Overview. hideRoleFromNetwork() handles orphan roles directly. v4.45.66: Moved roleInfoCard from controlsBar to body level to fix z-index stacking — card was trapped in parent stacking context, making × close and Hide Role buttons unclickable. Now renders above SVG network correctly.' }
                     ]
                 },
                 {
@@ -28675,6 +28676,14 @@ body {
             // Build set of valid role IDs for filtering skill→role references
             var validRoleIds = new Set(roles.map(function(r) { return r.id; }));
             
+            // Filter skills: exclude any skill whose ONLY roles are hidden
+            // Keep skills with no roles (standalone), keep skills with at least one visible role
+            var visibleSkills = allSkills.filter(function(s) {
+                var skillRoles = s.roles || [];
+                if (skillRoles.length === 0) return true; // standalone skill, keep it
+                return skillRoles.some(function(rid) { return validRoleIds.has(rid); });
+            });
+            
             // Skills
             var jobRequiredNames = (job.parsedSkills || []).filter(function(s) {
                 var req = (typeof s === 'string') ? 'Required' : (s.requirement || 'Required');
@@ -28682,7 +28691,7 @@ body {
             }).map(function(s) { return typeof s === 'string' ? s : s.name; });
             var jobRequiredSet = new Set(jobRequiredNames.map(function(n) { return n.toLowerCase(); }));
             
-            var reportSkills = allSkills.map(function(s) {
+            var reportSkills = visibleSkills.map(function(s) {
                 var sk = { n: s.name, l: s.level || 'Proficient', r: (s.roles || []).filter(function(rid) { return validRoleIds.has(rid); }) };
                 // Mark as matched (green) if skill appears in matchData.matched OR in job's required skills
                 var isMatched = matched.some(function(m) {
@@ -28705,7 +28714,7 @@ body {
             
             // Gaps
             var reportGaps = gaps.map(function(g) {
-                var adjacentSkills = allSkills.filter(function(s) {
+                var adjacentSkills = visibleSkills.filter(function(s) {
                     var words = g.name.toLowerCase().split(/[\s\-\/&]+/).filter(function(w) { return w.length > 3; });
                     return words.some(function(w) { return s.name.toLowerCase().indexOf(w) !== -1; });
                 }).slice(0, 3).map(function(s) { return s.name; });
@@ -28748,13 +28757,13 @@ body {
             
             // Domains
             var reportDomains = roles.map(function(role) {
-                var c = allSkills.filter(function(s) { return (s.roles || []).indexOf(role.id) !== -1; }).length;
-                return { n: role.name, c: c, m: allSkills.length, cl: role.color };
+                var c = visibleSkills.filter(function(s) { return (s.roles || []).indexOf(role.id) !== -1; }).length;
+                return { n: role.name, c: c, m: visibleSkills.length, cl: role.color };
             }).filter(function(d) { return d.c > 0; });
             
             // Proficiency
             var proficiency = { Mastery: 0, Expert: 0, Advanced: 0, Proficient: 0, Novice: 0 };
-            allSkills.forEach(function(s) { var lv = s.level || 'Proficient'; if (proficiency.hasOwnProperty(lv)) proficiency[lv]++; });
+            visibleSkills.forEach(function(s) { var lv = s.level || 'Proficient'; if (proficiency.hasOwnProperty(lv)) proficiency[lv]++; });
             
             return {
                 candidate: {
