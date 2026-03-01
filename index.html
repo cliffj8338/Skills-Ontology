@@ -1,4 +1,4 @@
-<!-- v4.45.69 | 2026-02-28 | Filter unconnected skills from all visualizations -->
+<!-- v4.45.70 | 2026-02-28 | Job parsing: skill library await gate, blocklist transparency, diagnostics -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1506,7 +1506,7 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.45.63 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.69';
+        var BP_VERSION = 'v4.45.70';
         
         // ===== DEV VELOCITY TRACKING =====
         window._blueprintDevStats = {
@@ -4806,7 +4806,9 @@
                         { id: 'p2-6j', name: 'User Flows export (phase 2)', status: 'planned', category: 'feature', priority: 'low', notes: 'Export user flow diagrams as PNG, PDF, or Mermaid markdown. Add print stylesheet for flow diagrams. Consider SVG export for vector quality.' },
                         { id: 'p2-6k', name: 'Dev time comparison tile', status: 'done', category: 'feature', priority: 'low', notes: 'v4.45.65: Admin Overview tile comparing AI vibe-coding velocity vs traditional solo dev. Computes: speed multiplier, cost multiplier, LOC/hr efficiency. Stats grid shows lines of code, features shipped, deploys, AI sessions, hours, first commit date. Side-by-side comparison with progress bars for calendar time, work hours, work days, total cost. Editable stats modal with Firestore persistence. Traditional dev baseline: $175K/yr loaded, 100 LOC/day for complex SPA.' },
                         { id: 'p2-6l', name: 'Scouting report HTML fix', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.64: Narrative and outcomes in buildReportData() contained raw HTML tags (<strong>, <span>) that the report template rendered as literal text. Stripped all HTML markup from narrative and outcomes data. v4.45.66: Filtered allSkills→visibleSkills to exclude skills whose only roles are hidden. Report now shows correct skill count, domain distribution, proficiency breakdown, and network graph reflecting only visible positions.' },
-                        { id: 'p2-6m', name: 'Orphan role cleanup', status: 'done', category: 'bug', priority: 'high', notes: 'v4.45.64: Added cleanOrphanRoles() admin function and maintenance section in Admin Overview. hideRoleFromNetwork() handles orphan roles directly. v4.45.66: Moved roleInfoCard from controlsBar to body level to fix z-index stacking — card was trapped in parent stacking context, making × close and Hide Role buttons unclickable. Now renders above SVG network correctly.' }
+                        { id: 'p2-6m', name: 'Orphan role cleanup', status: 'done', category: 'bug', priority: 'high', notes: 'v4.45.64: Added cleanOrphanRoles() admin function and maintenance section in Admin Overview. hideRoleFromNetwork() handles orphan roles directly. v4.45.66: Moved roleInfoCard from controlsBar to body level to fix z-index stacking — card was trapped in parent stacking context, making × close and Hide Role buttons unclickable. Now renders above SVG network correctly.' },
+                        { id: 'p2-6n', name: 'Job parsing skill library await gate', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.70: parseJobLocally() second pass (43K skill library) was silently skipped when library had not loaded yet. Added ensureSkillLibrary() async gate with 8s timeout. All parse entry points (analyzeJob, reanalyzeJob, addRemoteJobToPipeline) now await library before parsing. Stored _skillLibraryPromise at both DOMContentLoaded and retry call sites.' },
+                        { id: 'p2-6o', name: 'Job match blocklist transparency', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.70: matchJobToProfile() now returns blocklistedCount, totalParsedGaps, and libraryAvailable in matchData. showJobDetail() renders diagnostic warnings when: (a) blocklist filtered gaps, (b) library was unavailable during analysis, (c) fewer than 8 skills extracted. Added showAdminBlocklistInContext() overlay showing which blocked skills affect a specific job with per-skill unblock buttons and re-analyze CTA.' }
                     ]
                 },
                 {
@@ -16816,6 +16818,7 @@
         
         // ===== SKILL LIBRARY SYSTEM (v2.3.0) =====
         let skillLibraryIndex = null;
+        let _skillLibraryPromise = null; // resolves when library is loaded or failed
 
         async function loadSkillLibraryIndex() {
             const cacheBuster = '?v=20260227-v4';
@@ -16845,6 +16848,17 @@
             
             skillLibraryIndex = { totalSkills: 0, index: [] };
             console.warn('⚠ Skill library not found — Add Skills search will be empty. Other features unaffected.');
+        }
+        
+        // Gate: ensures skill library is loaded before job parsing
+        // Returns immediately if already loaded, otherwise waits up to 8s
+        async function ensureSkillLibrary() {
+            if (skillLibraryIndex && skillLibraryIndex.index && skillLibraryIndex.index.length > 0) return true;
+            if (_skillLibraryPromise) {
+                try { await Promise.race([_skillLibraryPromise, new Promise(function(_, rej) { setTimeout(function() { rej('timeout'); }, 8000); })]); }
+                catch(e) { console.warn('ensureSkillLibrary: ' + e); }
+            }
+            return !!(skillLibraryIndex && skillLibraryIndex.index && skillLibraryIndex.index.length > 0);
         }
 
         async function loadExternalSynonyms() {
@@ -17110,6 +17124,56 @@
         }
         window.adminUnblockSkill = adminUnblockSkill;
         
+        // Show blocklist entries that affect a specific job's gaps
+        function showAdminBlocklistInContext(jobIdx) {
+            var job = (userData.savedJobs || [])[jobIdx];
+            if (!job || !job.parsedSkills) return;
+            
+            // Re-run matching to identify which gaps hit the blocklist
+            var parsed = { skills: job.parsedSkills, roles: job.parsedRoles || [] };
+            var userSkills = skillsData.skills || [];
+            var userMap = {};
+            userSkills.forEach(function(s) { userMap[s.name.toLowerCase()] = true; });
+            
+            var blockedForThisJob = [];
+            (job.parsedSkills || []).forEach(function(ps) {
+                var name = typeof ps === 'string' ? ps : ps.name;
+                if (!name) return;
+                var lower = name.toLowerCase().trim();
+                if (!userMap[lower] && isSkillBlocklisted(name)) {
+                    blockedForThisJob.push(name);
+                }
+            });
+            
+            if (blockedForThisJob.length === 0) {
+                showToast('No blocklist entries affect this job.', 'info');
+                return;
+            }
+            
+            var overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;';
+            overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+            
+            var card = document.createElement('div');
+            card.style.cssText = 'background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:480px;width:100%;max-height:70vh;overflow-y:auto;';
+            card.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
+                + '<h3 style="margin:0;font-size:1.05em;color:var(--text-primary);">Blocked Gap Skills for This Job</h3>'
+                + '<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="background:none;border:none;color:var(--text-muted);font-size:1.3em;cursor:pointer;">✕</button></div>'
+                + '<p style="font-size:0.82em;color:var(--text-muted);margin-bottom:16px;">' + blockedForThisJob.length + ' skill' + (blockedForThisJob.length !== 1 ? 's' : '') + ' from this JD are on your admin blocklist and were hidden from gap analysis.</p>'
+                + blockedForThisJob.map(function(name) {
+                    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin-bottom:4px;border-radius:8px;background:var(--elev-1);border:1px solid var(--border);">'
+                        + '<span style="font-size:0.88em;color:var(--text-primary);">' + escapeHtml(name) + '</span>'
+                        + '<button onclick="adminUnblockSkill(\'' + escapeHtml(name).replace(/'/g, "\\'") + '\');this.parentElement.style.opacity=0.3;this.disabled=true;showToast(\'Unblocked: ' + escapeHtml(name).replace(/'/g, "\\'") + '. Re-analyze to update.\',\'success\')" '
+                        + 'style="background:none;border:1px solid rgba(16,185,129,0.3);color:#10b981;padding:3px 10px;border-radius:5px;cursor:pointer;font-size:0.78em;">Unblock</button></div>';
+                }).join('')
+                + '<div style="margin-top:16px;text-align:right;">'
+                + '<button onclick="this.closest(\'div[style*=fixed]\').remove();reanalyzeJob(' + jobIdx + ')" style="padding:8px 20px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.88em;">Unblock & Re-analyze</button></div>';
+            
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+        }
+        window.showAdminBlocklistInContext = showAdminBlocklistInContext;
+        
         function renderAdminBlocklistPanel() {
             var sorted = Array.from(_adminSkillBlocklist).sort();
             var html = '<div class="blueprint-section">'
@@ -17209,7 +17273,7 @@
 
         // Load library on page load
         window.addEventListener('DOMContentLoaded', () => {
-            loadSkillLibraryIndex();
+            _skillLibraryPromise = loadSkillLibraryIndex();
             loadExternalSynonyms();
             var cy = document.getElementById('copyrightYear');
             if (cy) cy.textContent = new Date().getFullYear();
@@ -32844,6 +32908,10 @@ body {
             btn.style.opacity = '0.5';
             
             try {
+                // Ensure skill library is loaded before parsing
+                var libReady = await ensureSkillLibrary();
+                if (!libReady) console.warn('⚠ Skill library not available — parsing with user skills + dictionary only');
+                
                 var parsed;
                 if (apiKey) {
                     parsed = await parseJobWithAPI(jdText, apiKey);
@@ -35122,9 +35190,11 @@ body {
             
             // Deduplicate gaps by normalized name
             var gapSeen = new Set();
+            var blocklistedCount = 0;
+            var totalParsedGaps = gaps.length;
             gaps = gaps.filter(function(g) {
                 // Admin blocklist
-                if (isSkillBlocklisted(g.name)) return false;
+                if (isSkillBlocklisted(g.name)) { blocklistedCount++; return false; }
                 var norm = g.name.toLowerCase().replace(/\s*\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
                 if (gapSeen.has(norm)) return false;
                 gapSeen.add(norm);
@@ -35147,7 +35217,10 @@ body {
                 gaps: gaps,
                 surplus: surplus,
                 totalJobSkills: jobSkills.length,
-                totalUserSkills: userSkills.length
+                totalUserSkills: userSkills.length,
+                blocklistedCount: blocklistedCount,
+                totalParsedGaps: totalParsedGaps,
+                libraryAvailable: !!(skillLibraryIndex && skillLibraryIndex.index && skillLibraryIndex.index.length > 100)
             };
         }
         
@@ -35395,7 +35468,28 @@ body {
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Your Surplus</div></div>'
                 + '</div>';
             
-            // Values alignment badge
+            // Diagnostic warnings: blocklist impact and library status (admin only or always subtle)
+            var diagnosticWarnings = [];
+            if (match.blocklistedCount > 0) {
+                diagnosticWarnings.push(bpIcon('alert-triangle',14) + ' ' + match.blocklistedCount + ' gap skill' + (match.blocklistedCount !== 1 ? 's' : '') + ' filtered by admin blocklist'
+                    + ' <button onclick="showAdminBlocklistInContext(' + idx + ')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.82em;text-decoration:underline;padding:0;">Review</button>');
+            }
+            if (match.libraryAvailable === false) {
+                diagnosticWarnings.push(bpIcon('alert-triangle',14) + ' Skill library was not loaded during analysis. <button onclick="reanalyzeJob(' + idx + ')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.82em;text-decoration:underline;padding:0;">Re-analyze now</button> for better results.');
+            }
+            var parsedSkillCount = (job.parsedSkills || []).length;
+            if (parsedSkillCount > 0 && parsedSkillCount < 8) {
+                diagnosticWarnings.push(bpIcon('info',14) + ' Only ' + parsedSkillCount + ' skill' + (parsedSkillCount !== 1 ? 's' : '') + ' extracted from JD. <button onclick="reanalyzeJob(' + idx + ')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.82em;text-decoration:underline;padding:0;">Re-analyze</button> may find more.');
+            }
+            if (diagnosticWarnings.length > 0) {
+                html += '<div style="margin-bottom:16px; display:flex; flex-direction:column; gap:6px;">';
+                diagnosticWarnings.forEach(function(w) {
+                    html += '<div style="display:flex; align-items:center; gap:8px; padding:8px 14px; border-radius:8px; '
+                        + 'background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.15); font-size:0.82em; color:#f59e0b;">'
+                        + w + '</div>';
+                });
+                html += '</div>';
+            }
             var jobCV = job.companyValues || getCompanyValues(job.company, job.rawText || job.description || "");
             var userVals = (blueprintData && blueprintData.values) || [];
             var valAlign = jobCV ? computeValuesAlignment(userVals, jobCV) : null;
@@ -35688,6 +35782,7 @@ body {
             
             (async function() {
                 try {
+                    await ensureSkillLibrary();
                     var parsed;
                     if (apiKey) {
                         parsed = await parseJobWithAPI(job.rawText, apiKey);
@@ -36912,7 +37007,7 @@ body {
         }
         
         // === ADD REMOTE JOB TO PIPELINE ===
-        function addRemoteJobToPipeline(idx) {
+        async function addRemoteJobToPipeline(idx) {
             var job = (window._displayedJobs || opportunitiesData)[idx];
             if (!job) { showToast('Job not found.', 'warning'); return; }
             
@@ -36929,6 +37024,7 @@ body {
             });
             if (exists) { showToast('Already in your pipeline.', 'warning'); return; }
             
+            await ensureSkillLibrary();
             var parsed = parseJobLocally(job.description || job.title);
             parsed.title = job.title;
             parsed.company = job.company;
@@ -41997,7 +42093,7 @@ body {
                         </div>
                     `;
                     // Force reload
-                    loadSkillLibraryIndex().then(() => {
+                    _skillLibraryPromise = loadSkillLibraryIndex().then(() => {
                         console.log('Library loaded, retrying search');
                         handleAddSkillsSearch();
                     });
