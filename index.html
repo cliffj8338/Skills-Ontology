@@ -1,4 +1,4 @@
-<!-- v4.45.45 | 2026-02-28 | BLS alias + keyword expansion -->
+<!-- v4.45.46 | 2026-02-28 | BLS alias expansion + data library tile -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1502,8 +1502,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.45 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.45';
+        // BLUEPRINT v4.45.46 - BUILD 20260228-bls-expansion
+        var BP_VERSION = 'v4.45.46';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -3293,6 +3293,7 @@
             var valuesCount = (typeof valuesLibrary !== 'undefined') ? valuesLibrary.length : 0;
             var escoCount = (typeof skillLibraryIndex !== 'undefined' && skillLibraryIndex) ? (skillLibraryIndex.totalSkills || (skillLibraryIndex.index ? skillLibraryIndex.index.length : 0)) : 0;
             var blsWageCount = window.blsWages ? window.blsWages.count : 0;
+            var blsAliasCount = window.blsWages && window.blsWages.aliases ? Object.keys(window.blsWages.aliases).length : 0;
             
             html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:20px;">'
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 16px; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">Data Libraries</h3>'
@@ -3308,6 +3309,7 @@
                 { name: 'Trades & Creative', count: tradesCount, source: 'Custom', color: '#f59e0b', loaded: tradesCount > 0 },
                 { name: 'Values', count: valuesCount, source: 'Blueprint', color: '#10b981', loaded: valuesCount > 0 },
                 { name: 'BLS Wages', count: blsWageCount ? blsWageCount.toLocaleString() : 0, source: 'Bureau of Labor Statistics', color: '#f97316', loaded: blsWageCount > 0 },
+                { name: 'BLS Aliases', count: blsAliasCount ? blsAliasCount.toLocaleString() : 0, source: 'Title → SOC mappings', color: '#f97316', loaded: blsAliasCount > 0 },
                 { name: 'Custom Skills', count: '\u221E', source: 'User-defined', color: '#fbbf24', loaded: true },
                 { name: 'Jobs Database', count: jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : jobsCacheData.length, source: 'Firestore cache \u00B7 8 sources, A/B sync every 6h', color: '#ec4899', loaded: jobsCacheLoaded || (jobsSyncMeta && jobsSyncMeta.totalJobs > 0), id: 'adminJobsTile' }
             ];
@@ -4540,6 +4542,7 @@
                         { id: 'p2-5s', name: 'Match score override fix', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.45.43: rescoreAllJobs() and rescoreOneJob() were overwriting matchJobToProfile 6-pass scores with quickScoreJob text-search scores. After v4.45.39 unified quickScoreJob with parseJobLocally (43K skills), gap count exploded, dropping all pipeline scores to 0-15%. Fix: matchJobToProfile is now authoritative for jobs with parsedSkills; quickScoreJob only used for raw-text-only Find Jobs results.' },
                         { id: 'p2-5t', name: 'Clear job overlay on profile switch', status: 'done', category: 'bugfix', priority: 'medium', notes: 'v4.45.44: Job match overlay from previous profile persisted on network when switching demo profiles. Added clearJobOverlay() to enterDemoMode(), switchDemoProfile(), and exitDemoMode().' },
                         { id: 'p2-5u', name: 'BLS salary alias + keyword expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.45: bls-wages.json aliases expanded from 170 to 4,228 via four strategies: BLS title decomposition (singular forms, split compounds), seniority prefix generation (VP/Director/Senior/Lead variants), abbreviation patterns (mgr/dir/admin/rep), and 300+ hand-curated industry titles (tech, data, sales, marketing, HR, finance, legal, healthcare, education, trades, retail, consulting). Keywords expanded across 15 thin occupations. Fixes dozens of mismatches across demo profiles.' },
+                        { id: 'p2-5v', name: 'O*NET Alternate Titles import (30K+)', status: 'planned', category: 'data', priority: 'high', notes: 'O*NET publishes ~30,000 alternate job titles pre-mapped to SOC codes (Alternate Titles file at onetonline.org/help/onet/titles). Download or API-fetch the dataset, normalize to lowercase, deduplicate against existing aliases, and merge into bls-wages.json. Would give near-universal coverage of real-world job titles. May need periodic refresh as O*NET updates quarterly. Consider build-time pipeline vs. runtime fetch.' },
                         { id: 'p2-6a', name: 'Work Blueprint function refinement', status: 'planned', category: 'feature', priority: 'high', notes: 'Ongoing improvements to WB ecosystem. Includes: Firestore-backed comparison persistence (replace localStorage), comparison sharing via URL tokens, batch comparison mode (multiple candidates against one WB), WB template library (common roles pre-built), WB diff view (compare two WBs side-by-side), improved gap recommendation engine with learning resource links, WB versioning/history, and WB-to-scouting-report pipeline integration.' }
                     ]
                 },
@@ -13165,7 +13168,7 @@
                 appMode = 'active';
                 return;
             }
-            // v4.45.45: Check URL invite param (from email CTA)
+            // v4.45.46: Check URL invite param (from email CTA)
             try {
                 var urlParams = new URLSearchParams(window.location.search);
                 var inviteDocId = urlParams.get('invite');
