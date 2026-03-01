@@ -29069,20 +29069,34 @@ body {
             });
             
             // Skills — use ALL skills for counts/stats, connected only for network rendering
+            // Build set of ALL job skill names (Required + Preferred + Nice-to-have) for safety net matching
+            var jobAllNames = (job.parsedSkills || []).map(function(s) { return typeof s === 'string' ? s : s.name; });
+            var jobAllSet = new Set(jobAllNames.map(function(n) { return n.toLowerCase(); }));
             var jobRequiredNames = (job.parsedSkills || []).filter(function(s) {
                 var req = (typeof s === 'string') ? 'Required' : (s.requirement || 'Required');
                 return req === 'Required';
             }).map(function(s) { return typeof s === 'string' ? s : s.name; });
             var jobRequiredSet = new Set(jobRequiredNames.map(function(n) { return n.toLowerCase(); }));
             
+            // Build matched user skill names set — handle BOTH formats:
+            // matchJobToProfile returns [{userSkill:"...", jobSkill:"...",...}]
+            // quickScoreJob returns ["skill name 1", "skill name 2",...]
+            var matchedUserNames = new Set();
+            matched.forEach(function(m) {
+                if (typeof m === 'string') {
+                    matchedUserNames.add(m.toLowerCase());
+                } else if (m && m.userSkill) {
+                    matchedUserNames.add(m.userSkill.toLowerCase());
+                }
+            });
+            
             // Build full skill set (for stats) and network skill set (for D3)
             var reportSkills = allSkills.map(function(s) {
                 var sk = { n: s.name, l: s.level || 'Proficient', r: (s.roles || []).filter(function(rid) { return validRoleIds.has(rid); }) };
-                // Mark as matched (green) if skill appears in matchData.matched OR in job's required skills
-                var isMatched = matched.some(function(m) {
-                    return m.userSkill.toLowerCase() === s.name.toLowerCase();
-                });
-                var isRequired = jobRequiredSet.has(s.name.toLowerCase()) || isMatched;
+                // Mark as matched (green) if skill appears in matchData.matched OR in any job skill name
+                var isMatched = matchedUserNames.has(s.name.toLowerCase());
+                // Safety net: also check if user skill name matches ANY job skill name exactly (Required, Preferred, or Nice-to-have)
+                var isRequired = jobAllSet.has(s.name.toLowerCase()) || isMatched;
                 if (isRequired) sk.k = 1;
                 var ev = (s.evidence || []).map(function(e) {
                     if (typeof e === 'string') return e;
@@ -29097,13 +29111,16 @@ body {
                 return sk;
             });
             
-            // Gaps
+            // Gaps — handle both formats: matchJobToProfile returns [{name:"...", requirement:"..."}],
+            // quickScoreJob returns ["gap name 1", "gap name 2",...]
             var reportGaps = gaps.map(function(g) {
+                var gapName = (typeof g === 'string') ? g : g.name;
+                var gapReq = (typeof g === 'string') ? 'Required' : (g.requirement || 'Required');
                 var adjacentSkills = connectedSkills.filter(function(s) {
-                    var words = g.name.toLowerCase().split(/[\s\-\/&]+/).filter(function(w) { return w.length > 3; });
+                    var words = gapName.toLowerCase().split(/[\s\-\/&]+/).filter(function(w) { return w.length > 3; });
                     return words.some(function(w) { return s.name.toLowerCase().indexOf(w) !== -1; });
                 }).slice(0, 3).map(function(s) { return s.name; });
-                return { n: g.name, rq: g.requirement || 'Required', br: adjacentSkills.length > 0
+                return { n: gapName, rq: gapReq, br: adjacentSkills.length > 0
                     ? 'Adjacent skills (' + adjacentSkills.join(', ') + ') suggest a bridgeable gap with targeted development.'
                     : 'No directly adjacent skills identified. Targeted upskilling recommended.', adj: adjacentSkills };
             });
@@ -29131,9 +29148,15 @@ body {
                 return { text: text, blind: text.replace(/[\w]+\s+(Inc|Corp|LLC|Ltd|Co)\.?/gi, '[Company]') };
             });
             
-            // Narrative
-            var topMatched = matched.filter(function(m) { return m.requirement === 'Required'; }).slice(0, 3);
-            var topSkillNames = topMatched.map(function(m) { return m.userSkill; }).join(', ');
+            // Narrative — handle both matched formats (objects from matchJobToProfile, strings from quickScoreJob)
+            var topMatched = matched.filter(function(m) {
+                if (typeof m === 'string') return true; // quickScoreJob: all are effectively "required"
+                return m.requirement === 'Required';
+            }).slice(0, 3);
+            var topSkillNames = topMatched.map(function(m) {
+                if (typeof m === 'string') return m;
+                return m.userSkill || m.jobSkill || '';
+            }).filter(Boolean).join(', ');
             var narrative = (profile.name || 'This candidate') + ' brings ';
             if (topSkillNames) narrative += 'demonstrated expertise in ' + topSkillNames + ' \u2014 ';
             narrative += matched.length + ' of ' + (matched.length + gaps.length) + ' required competencies are matched';
@@ -29323,22 +29346,32 @@ body {
                         + '    });'
                         + '    var R = typeof REPORT_DATA !== "undefined" ? REPORT_DATA : null;'
                         + '    if (!R) return;'
+                        // Build name-based fallback lookup (secondary signal for gap nodes and edge cases)
                         + '    var matchedNames = {};'
                         + '    (R.jobMatchSkills || []).forEach(function(s) { var nm = (s.n || s.name || "").toLowerCase(); if(nm) matchedNames[nm] = true; });'
                         + '    (R.gaps || []).forEach(function(g) { var nm = (g.n || g.name || "").toLowerCase(); if(nm) matchedNames[nm] = true; });'
                         + '    (R.jobRequired || []).forEach(function(j) { matchedNames[j.toLowerCase()] = true; });'
-                        // Also include skills with k=1 flag from the full skills array
                         + '    ((R._allSkills || R.skills || []).concat(R.networkSkills || [])).forEach(function(s) { if(s.k) { var nm = (s.n || s.name || "").toLowerCase(); if(nm) matchedNames[nm] = true; } });'
                         + '    var hiddenIds = {};'
                         + '    document.querySelectorAll("svg g").forEach(function(g) {'
                         + '      var d = g.__data__;'
                         + '      if (!d) return;'
-                        + '      var nm = (d.name || d.n || d.label || "").toLowerCase();'
-                        + '      if (!nm) return;'
+                        // Structural nodes always visible
                         + '      if (d.isCenter || d.isRole || d.type === "role" || d.type === "center" || d.type === "job" || d.nodeType === "role" || d.nodeType === "center") return;'
-                        + '      if (isJobMatch && !matchedNames[nm] && d.type !== "gap" && d.matchColor !== "gap" && d.matchColor !== "matched") {'
+                        // Primary signal: d.k === 1 from reportSkills (set in buildReportData, survives template binding)
+                        + '      var isMatch = d.k === 1;'
+                        // Also check gap-type nodes
+                        + '      if (!isMatch) isMatch = d.type === "gap" || d.matchColor === "gap" || d.matchColor === "matched";'
+                        // Secondary signal: name lookup (handles template-created gap nodes or edge cases)
+                        + '      if (!isMatch) {'
+                        + '        var nm = (d.name || d.n || d.label || d.id || "");'
+                        + '        if (typeof nm === "string") nm = nm.toLowerCase();'
+                        + '        else nm = "";'
+                        + '        if (nm && matchedNames[nm]) isMatch = true;'
+                        + '      }'
+                        + '      if (isJobMatch && !isMatch) {'
                         + '        g.style.opacity = "0"; g.style.pointerEvents = "none";'
-                        + '        if (d.id) hiddenIds[d.id] = true;'
+                        + '        if (d.id !== undefined) hiddenIds[d.id] = true;'
                         + '        if (d.index !== undefined) hiddenIds[d.index] = true;'
                         + '      } else {'
                         + '        g.style.opacity = ""; g.style.pointerEvents = "";'
@@ -29346,21 +29379,20 @@ body {
                         + '    });'
                         // Hide links connected to hidden nodes
                         + '    document.querySelectorAll("svg line, svg path.link").forEach(function(l) {'
-                        + '      var s = l.__data__;'
-                        + '      if (!s) { if(isJobMatch) { l.style.opacity = "0.03"; } else { l.style.opacity = ""; } return; }'
-                        + '      var sId = s.source && (s.source.id !== undefined ? s.source.id : (s.source.index !== undefined ? s.source.index : s.source));'
-                        + '      var tId = s.target && (s.target.id !== undefined ? s.target.id : (s.target.index !== undefined ? s.target.index : s.target));'
-                        + '      var sName = (s.source && (s.source.name || s.source.n || s.source.label) || "").toLowerCase();'
-                        + '      var tName = (s.target && (s.target.name || s.target.n || s.target.label) || "").toLowerCase();'
-                        + '      var sHidden = hiddenIds[sId] || (sName && !matchedNames[sName] && !/role|center|job/.test(s.source && s.source.type || ""));'
-                        + '      var tHidden = hiddenIds[tId] || (tName && !matchedNames[tName] && !/role|center|job/.test(s.target && s.target.type || ""));'
+                        + '      var ld = l.__data__;'
+                        + '      if (!ld) { if(isJobMatch) { l.style.opacity = "0.03"; } else { l.style.opacity = ""; } return; }'
+                        + '      var src = ld.source || {}; var tgt = ld.target || {};'
+                        + '      var sId = src.id !== undefined ? src.id : (src.index !== undefined ? src.index : null);'
+                        + '      var tId = tgt.id !== undefined ? tgt.id : (tgt.index !== undefined ? tgt.index : null);'
+                        + '      var sHidden = sId !== null && hiddenIds[sId];'
+                        + '      var tHidden = tId !== null && hiddenIds[tId];'
                         + '      if (isJobMatch && (sHidden || tHidden)) {'
                         + '        l.style.opacity = "0"; l.style.pointerEvents = "none";'
                         + '      } else {'
                         + '        l.style.opacity = ""; l.style.pointerEvents = "";'
                         + '      }'
                         + '    });'
-                        // Try to restart simulation so visible nodes reflow
+                        // Restart simulation so visible nodes reflow
                         + '    if (isJobMatch) {'
                         + '      try {'
                         + '        var sim = window.simulation || window.sim || window._simulation;'
@@ -30767,7 +30799,7 @@ body {
             doc.text(advLines, M + 8, y + 21);
             
             // Key strengths and concerns
-            var keyStrengths = matched.filter(function(m) { return m.requirement === 'Required'; }).slice(0, 3).map(function(m) { return m.userSkill; });
+            var keyStrengths = matched.slice(0, 3).map(function(m) { return m.n || ''; }).filter(Boolean);
             if (keyStrengths.length > 0) {
                 doc.setFontSize(5.5); doc.setFont(undefined, 'bold'); sc(C.g);
                 doc.text('KEY STRENGTHS: ', M + 8, y + 32);
