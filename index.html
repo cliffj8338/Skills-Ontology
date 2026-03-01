@@ -1,4 +1,4 @@
-<!-- v4.45.71 | 2026-03-01 | First Commit date format, O*NET Crosswalk tile in Data Libraries -->
+<!-- v4.45.72 | 2026-03-01 | Match score recalibration: nameMatchQuality floors, credit floor, Feature Usage bars -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1506,7 +1506,7 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.45.63 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.71';
+        var BP_VERSION = 'v4.45.72';
         
         // ===== DEV VELOCITY TRACKING =====
         window._blueprintDevStats = {
@@ -3508,7 +3508,7 @@
                 { label: 'Deploys', value: totalDeploys + '+', color: '#a855f7', icon: 'layers' },
                 { label: 'AI Sessions', value: devStats.sessionsAI, color: '#f59e0b', icon: 'wand' },
                 { label: 'AI Hours', value: Math.round(aiHoursTotal), color: '#06b6d4', icon: 'clock' },
-                { label: 'First Commit', value: (function() { var d = new Date(devStats.firstCommit + 'T00:00:00'); var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return months[d.getMonth()] + ' ' + d.getDate(); })(), color: '#6b7280', icon: 'clock' }
+                { label: 'Project Start', value: (function() { var d = new Date(devStats.firstCommit + 'T00:00:00'); var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear(); })(), color: '#6b7280', icon: 'clock' }
             ];
             devTiles.forEach(function(t) {
                 html += '<div style="padding:12px; background:var(--c-surface-4b); border:1px solid var(--c-border-faint); border-radius:8px; text-align:center;">'
@@ -3847,7 +3847,7 @@
             html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">';
             
             // Feature usage
-            var featLabels = { resume_parse:'Resume Parse', scouting_report:'Scouting Report', export_pdf:'PDF Export', export_html:'Executive Blueprint', export_resume_html:'HTML Resume', export_json:'JSON Export', cover_letter:'Cover Letter', interview_prep:'Interview Prep', linkedin_profile:'LinkedIn Profile', job_analysis:'JD Analysis', negotiation_guide:'Negotiation Guide', scouting_report_html:'Report (HTML)', wb_created:'WB Created', wb_edited:'WB Edited', wb_deleted:'WB Deleted', wb_exported_pdf:'WB Export PDF', wb_exported_word:'WB Export Word', wb_exported_json:'WB Export JSON', wb_wizard_complete:'WB Wizard Complete', wb_converted:'WB JD Converted', showcase_visit:'Showcase Visit' };
+            var featLabels = { resume_parse:'Resume Parse', scouting_report:'Scouting Report', export_pdf:'PDF Export', export_html:'Executive Blueprint', export_resume_html:'HTML Resume', export_json:'JSON Export', cover_letter:'Cover Letter', interview_prep:'Interview Prep', linkedin_profile:'LinkedIn Profile', job_analysis:'JD Analysis', negotiation_guide:'Negotiation Guide', scouting_report_html:'Report (HTML)', wb_created:'WB Created', wb_edited:'WB Edited', wb_deleted:'WB Deleted', wb_exported_pdf:'WB Export PDF', wb_exported_word:'WB Export Word', wb_exported_json:'WB Export JSON', wb_wizard_complete:'WB Wizard Complete', wb_converted:'WB JD Converted', showcase_visit:'Showcase Visit', linkedin_zip_import:'LinkedIn ZIP Import', linkedin_merge:'LinkedIn Merge', wb_cloned:'WB Cloned' };
             var sortedFeats = Object.entries(s.featureCounts).sort(function(a,b){return b[1]-a[1];});
             var maxFeat = sortedFeats.length > 0 ? sortedFeats[0][1] : 1;
             
@@ -3856,10 +3856,14 @@
             if (sortedFeats.length === 0) { html += '<div style="font-size:0.82em; color:var(--text-muted);">No feature usage yet</div>'; }
             sortedFeats.slice(0, 12).forEach(function(entry) {
                 var feat = entry[0], count = entry[1];
-                var pct = Math.max((count / maxFeat) * 100, 2);
-                html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0; font-size:0.78em;">'
+                var pct = Math.max(Math.round((count / maxFeat) * 100), 6);
+                html += '<div style="margin-bottom:8px;">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.78em; margin-bottom:3px;">'
                     + '<span style="color:var(--text-secondary);">' + (featLabels[feat] || feat) + '</span>'
-                    + '<span style="font-weight:700; color:var(--accent);">' + count + '</span></div>';
+                    + '<span style="font-weight:700; color:var(--accent); min-width:24px; text-align:right;">' + count + '</span></div>'
+                    + '<div style="height:10px; border-radius:5px; background:rgba(255,255,255,0.04); overflow:hidden; border:1px solid rgba(255,255,255,0.03);">'
+                    + '<div style="width:' + pct + '%; height:100%; border-radius:5px; background:linear-gradient(90deg, rgba(96,165,250,0.5), rgba(96,165,250,0.85));"></div>'
+                    + '</div></div>';
             });
             html += '</div>';
             
@@ -4811,7 +4815,9 @@
                         { id: 'p2-6l', name: 'Scouting report HTML fix', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.64: Narrative and outcomes in buildReportData() contained raw HTML tags (<strong>, <span>) that the report template rendered as literal text. Stripped all HTML markup from narrative and outcomes data. v4.45.66: Filtered allSkills→visibleSkills to exclude skills whose only roles are hidden. Report now shows correct skill count, domain distribution, proficiency breakdown, and network graph reflecting only visible positions.' },
                         { id: 'p2-6m', name: 'Orphan role cleanup', status: 'done', category: 'bug', priority: 'high', notes: 'v4.45.64: Added cleanOrphanRoles() admin function and maintenance section in Admin Overview. hideRoleFromNetwork() handles orphan roles directly. v4.45.66: Moved roleInfoCard from controlsBar to body level to fix z-index stacking — card was trapped in parent stacking context, making × close and Hide Role buttons unclickable. Now renders above SVG network correctly.' },
                         { id: 'p2-6n', name: 'Job parsing skill library await gate', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.70: parseJobLocally() second pass (43K skill library) was silently skipped when library had not loaded yet. Added ensureSkillLibrary() async gate with 8s timeout. All parse entry points (analyzeJob, reanalyzeJob, addRemoteJobToPipeline) now await library before parsing. Stored _skillLibraryPromise at both DOMContentLoaded and retry call sites.' },
-                        { id: 'p2-6o', name: 'Job match blocklist transparency', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.70: matchJobToProfile() now returns blocklistedCount, totalParsedGaps, and libraryAvailable in matchData. showJobDetail() renders diagnostic warnings when: (a) blocklist filtered gaps, (b) library was unavailable during analysis, (c) fewer than 8 skills extracted. Added showAdminBlocklistInContext() overlay showing which blocked skills affect a specific job with per-skill unblock buttons and re-analyze CTA.' }
+                        { id: 'p2-6o', name: 'Job match blocklist transparency', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.70: matchJobToProfile() now returns blocklistedCount, totalParsedGaps, and libraryAvailable in matchData. showJobDetail() renders diagnostic warnings when: (a) blocklist filtered gaps, (b) library was unavailable during analysis, (c) fewer than 8 skills extracted. Added showAdminBlocklistInContext() overlay showing which blocked skills affect a specific job with per-skill unblock buttons and re-analyze CTA.' },
+                        { id: 'p2-6p', name: 'Match score recalibration', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.45.72: nameMatchQuality penalties in 6-pass matcher were catastrophically harsh — substring 0.85, word overlap 0.3-0.45, sibling 0.55, concept 0.2-0.3, implied 0.40. Combined with proficiency penalties via multiplication, 20/22 skills matched still scored 50%. Fix: raised floors (substring 0.92, word overlap min 0.82, sibling 0.78, concept min 0.70, implied 0.62) and added 65% minimum credit floor for any confirmed match. A matched skill IS matched.' },
+                        { id: 'p2-6q', name: 'Scouting report D3 network styling', status: 'planned', category: 'visual', priority: 'high', notes: 'Report template (reports/templates/base.html) has independent D3 force simulation with category-based coloring that does not match main network aesthetic. Job Match and Candidate Skills tabs need to use main network color scheme (green nodes, white role nodes, dark background). Requires template file modification, not just injection.' }
                     ]
                 },
                 {
@@ -33384,8 +33390,10 @@ body {
             var context = idx >= 0 ? text.substring(Math.max(0, idx - 150), Math.min(text.length, idx + 150)) : '';
             
             // Context clues for specific proficiency
-            if (/master|authority|world.class|industry.leading|thought leader|deep expertise/i.test(context)) return 'Mastery';
-            if (/expert|extensive|advanced|senior|deep|strong|proven track/i.test(context)) return 'Expert';
+            // "master" requires word boundary to avoid matching "master's degree"
+            if (/\bmastery\b|authority|world.class|industry.leading|thought leader|deep expertise/i.test(context)) return 'Mastery';
+            // Removed "senior", "strong", "deep" — too common in JD boilerplate; inflated requirements
+            if (/\bexpert\b|extensive experience|proven track record/i.test(context)) return 'Expert';
             if (/proficien|solid|experienced|demonstrated|working knowledge/i.test(context)) return 'Proficient';
             if (/familiar|basic|exposure|awareness|entry|junior/i.test(context)) return 'Competent';
             
@@ -34925,7 +34933,7 @@ body {
                     for (var key in userMap) {
                         if (key.length > 3 && (jLower.indexOf(key) !== -1 || key.indexOf(jLower) !== -1)) {
                             found = userMap[key];
-                            nameMatchQuality = 0.85;
+                            nameMatchQuality = 0.92;
                             break;
                         }
                     }
@@ -34956,7 +34964,7 @@ body {
                     });
                     if (bestSkill) {
                         found = bestSkill;
-                        nameMatchQuality = bestOverlap * 0.75;
+                        nameMatchQuality = Math.max(0.82, bestOverlap * 0.88);
                     }
                 }
                 
@@ -34993,7 +35001,7 @@ body {
                         });
                         if (bestSibling) {
                             found = bestSibling;
-                            nameMatchQuality = 0.55; // Related but not identical
+                            nameMatchQuality = 0.78; // Related skill in same ESCO subcategory
                             matchType = 'sibling';
                         }
                     }
@@ -35047,7 +35055,7 @@ body {
                     
                     if (bestRootMatch) {
                         found = bestRootMatch;
-                        nameMatchQuality = 0.45 * bestRootScore; // Concept-root: lower credit
+                        nameMatchQuality = Math.max(0.70, 0.75 * bestRootScore); // Concept-root: moderate credit
                         matchType = 'concept';
                     }
                 }
@@ -35132,7 +35140,7 @@ body {
                             
                             if (bestImplied) {
                                 found = bestImplied;
-                                nameMatchQuality = 0.40; // Seniority-implied: lowest credit
+                                nameMatchQuality = 0.62; // Seniority-implied: moderate credit
                                 matchType = 'implied';
                             }
                         }
@@ -35149,7 +35157,11 @@ body {
                         profMatch = userProf / jobProf; // Partial credit (e.g., Competent/Expert = 0.5)
                     }
                     
-                    var skillCredit = reqWeight * nameMatchQuality * profMatch;
+                    // Credit = weight * name quality * proficiency quality
+                    // Floor: any confirmed match gets at least 65% of its max possible credit
+                    var rawCredit = reqWeight * nameMatchQuality * profMatch;
+                    var minCredit = reqWeight * 0.65;
+                    var skillCredit = Math.max(minCredit, rawCredit);
                     earnedWeight += skillCredit;
                     
                     var profGap = userProf < jobProf;
@@ -35187,9 +35199,17 @@ body {
             });
             matched = Object.values(matchByUser);
             
-            // Recalculate earnedWeight from deduped matches
+            // Recalculate earnedWeight AND totalWeight from deduped matches + gaps
+            // Before dedup, totalWeight included weight for EVERY job skill.
+            // After dedup, dropped duplicates inflate the denominator unfairly.
+            // Fix: totalWeight = weight of (deduped matches + gaps) only.
             earnedWeight = 0;
-            matched.forEach(function(m) { earnedWeight += m._credit; });
+            totalWeight = 0;
+            matched.forEach(function(m) { 
+                earnedWeight += m._credit;
+                var rw = m.requirement === 'Required' ? 3 : m.requirement === 'Preferred' ? 2 : 1;
+                totalWeight += rw;
+            });
             
             // Deduplicate gaps by normalized name
             var gapSeen = new Set();
@@ -35202,6 +35222,12 @@ body {
                 if (gapSeen.has(norm)) return false;
                 gapSeen.add(norm);
                 return true;
+            });
+            
+            // Add gap weights to totalWeight (after gap dedup/blocklist)
+            gaps.forEach(function(g) {
+                var rw = g.requirement === 'Required' ? 3 : g.requirement === 'Preferred' ? 2 : 1;
+                totalWeight += rw;
             });
             
             // Surplus: user skills not needed by job
@@ -37891,7 +37917,7 @@ body {
                 + '<div class="modal-subtitle">Update your AI development tracking metrics</div></div>'
                 + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button></div>'
                 + '<div style="padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
-                + _devStatsField('devstat-firstCommit', 'First Commit Date', ds.firstCommit, 'date', '2025-12-28')
+                + _devStatsField('devstat-firstCommit', 'Project Start Date', ds.firstCommit, 'date', '2025-12-28')
                 + _devStatsField('devstat-lineCount', 'Lines of Code', ds.lineCount, 'number', '43000')
                 + _devStatsField('devstat-sessionsAI', 'AI Sessions', ds.sessionsAI, 'number', '48')
                 + _devStatsField('devstat-avgSessionHrs', 'Avg Session (hrs)', ds.avgSessionHrs, 'number', '3.5')
