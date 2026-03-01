@@ -1,4 +1,4 @@
-<!-- v4.45.50 | 2026-02-28 | Education modal redesign + architecture updates -->
+<!-- v4.45.51 | 2026-02-28 | Education modal redesign + architecture updates -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1502,8 +1502,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.50 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.50';
+        // BLUEPRINT v4.45.51 - BUILD 20260228-bls-expansion
+        var BP_VERSION = 'v4.45.51';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -4546,7 +4546,7 @@
                         { id: 'p2-3n', name: 'Unified skill editor + UX fixes', status: 'done', category: 'ux', priority: 'high', notes: 'Single modal combining level/roles/assess/core. Network name label offset. quickScore v3 (word-boundary + level weighting). Alphabetical skill sorting. BLS Potential tile always shown. bpIcon assess bug.' },
                         { id: 'p2-3o', name: 'Wizard Step 9 save+download UX', status: 'done', category: 'ux', priority: 'medium', notes: 'Single Save button with pre-checked download checkbox. Replaces two separate buttons.' },
                         { id: 'p2-3p', name: 'Architecture map v2 — layered diagram', status: 'done', category: 'admin', priority: 'medium', notes: 'Replaced force-directed graph with structured swim-lane layout. 4 layers: Frontend→Runtime→Backend→External. Rich detail panels with function names, line ranges, data flows, dependencies, tech debt. Engineer-grade onboarding tool.' },
-                        { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'in-progress', category: 'process', priority: 'medium', notes: 'v4.45.50: Updated wizard, userData, skill engine, Firestore component details for LinkedIn deep extraction and Content & Evidence tab. Firebase Blaze plan reflected. Pricing reference corrected. Line count updated to ~42K. Duplicate roadmap ID p2-6a fixed. Still needs automated generation from code comments.' },
+                        { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'in-progress', category: 'process', priority: 'medium', notes: 'v4.45.51: Updated wizard, userData, skill engine, Firestore component details for LinkedIn deep extraction and Content & Evidence tab. Firebase Blaze plan reflected. Pricing reference corrected. Line count updated to ~42K. Duplicate roadmap ID p2-6a fixed. Still needs automated generation from code comments.' },
                         { id: 'p2-3r', name: 'Skill editor outcomes + reports cleanup + network v3', status: 'done', category: 'ux', priority: 'high', notes: 'Unified editor: wider padding, linked outcomes section. Reports: PREVIEW labels on analytics/heatmap/share links, removed fake views/status from My Reports. Network: center node at width*0.18, role label truncation 24 chars.' },
                         { id: 'p2-3s', name: 'JD → Work Blueprint converter', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.06+: Full AI-powered converter. Paste JD text or upload PDF, AI extracts Skills/Outcomes/Proficiency, experience requirements, values & purpose signals, regional compensation via BLS. Outputs structured Work Blueprint saved to Firestore repository. Includes Work Blueprint Wizard for manual creation, repository with card grid, and full CRUD.' },
                         { id: 'p2-3t', name: 'SEO + Generative Engine Optimization', status: 'active', category: 'infrastructure', priority: 'high', notes: 'Full metadata suite: title, description, Open Graph, Twitter Cards, canonical URL, favicon, JSON-LD structured data (WebApplication + Organization), robots, theme-color. Generative engine optimization: semantic HTML, descriptive headings, FAQ schema, HowTo schema, speakable metadata, citation-friendly content structure. Goal: discoverable by both traditional search and AI-powered answer engines (Google SGE, Perplexity, ChatGPT Browse).' },
@@ -4581,14 +4581,14 @@
                         { id: 'p2-5u', name: 'BLS salary alias + keyword expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.45: bls-wages.json aliases expanded from 170 to 4,228 via four strategies: BLS title decomposition (singular forms, split compounds), seniority prefix generation (VP/Director/Senior/Lead variants), abbreviation patterns (mgr/dir/admin/rep), and 300+ hand-curated industry titles (tech, data, sales, marketing, HR, finance, legal, healthcare, education, trades, retail, consulting). Keywords expanded across 15 thin occupations. Fixes dozens of mismatches across demo profiles.' },
                         { id: 'p2-5v', name: 'O*NET Alternate Titles import (30K+)', status: 'planned', category: 'data', priority: 'high', notes: 'O*NET publishes ~30,000 alternate job titles pre-mapped to SOC codes (Alternate Titles file at onetonline.org/help/onet/titles). Download or API-fetch the dataset, normalize to lowercase, deduplicate against existing aliases, and merge into bls-wages.json. Would give near-universal coverage of real-world job titles. May need periodic refresh as O*NET updates quarterly. Consider build-time pipeline vs. runtime fetch.' },
                         { id: 'p2-5w', name: 'Jobs Sync panel redesign', status: 'done', category: 'ui', priority: 'low', notes: 'v4.45.47: Sources list replaced with horizontal bar chart visualization (sorted by count, gradient fills, proportional widths). CRON badge styled as pill. Errors section redesigned with dot indicator, monospace font, subtle background. Library count updated to 12/12 for BLS Aliases tile.' },
-                        { id: 'p2-5x', name: 'LinkedIn deep extraction (18 file types)', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.50: Expanded LinkedIn zip parser from 8 to 18 CSV file types. Now extracts: Endorsements (peer validation with skill-level boosting), Recommendations (qualitative evidence), Rich Media (posts/thought leadership), Articles (HTML parsing from Articles/ subfolder), LinkedIn Learning (completed courses), Volunteering, Honors, Causes, Organizations, Company Follows, Connections (network size). All stored in userData.linkedinContent for downstream use in scouting reports, document repository, and skill evidence. Import summary screen shows extraction stats before wizard continues.' },
-                        { id: 'p2-5y', name: 'Career progression grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.50: Positions at the same company are now grouped by normalized company name (strips LLC/Inc/People suffixes). Multi-position groups display as visual career timelines with left-border accent, timeline dots, tenure calculation, and ascending role labels. Single positions render normally. Progression badge shows role count. Roles carry progression arrays and totalYears for downstream scouting report use.' },
+                        { id: 'p2-5x', name: 'LinkedIn deep extraction (18 file types)', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.51: Expanded LinkedIn zip parser from 8 to 18 CSV file types. Now extracts: Endorsements (peer validation with skill-level boosting), Recommendations (qualitative evidence), Rich Media (posts/thought leadership), Articles (HTML parsing from Articles/ subfolder), LinkedIn Learning (completed courses), Volunteering, Honors, Causes, Organizations, Company Follows, Connections (network size). All stored in userData.linkedinContent for downstream use in scouting reports, document repository, and skill evidence. Import summary screen shows extraction stats before wizard continues.' },
+                        { id: 'p2-5y', name: 'Career progression grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.51: Positions at the same company are now grouped by normalized company name (strips LLC/Inc/People suffixes). Multi-position groups display as visual career timelines with left-border accent, timeline dots, tenure calculation, and ascending role labels. Single positions render normally. Progression badge shows role count. Roles carry progression arrays and totalYears for downstream scouting report use.' },
                         { id: 'p2-5z', name: 'Endorsement-boosted skill levels', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.45.48: After deterministic skill inference, endorsement counts from LinkedIn are matched to skills (case-insensitive partial match). 10+ endorsements boost level by 1, 25+ by 2 (capped at Mastery). Boosted skills flagged with endorsementBoosted:true. Skills carry endorsement count in persisted data.' },
-                        { id: 'p2-6a', name: 'Education modal redesign (non-traditional learning)', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.50: Replaced rigid School/Degree/Field/Year form with adaptive education modal. Six type pills (Degree, Certificate, Trade, Bootcamp, Prof Dev, Military) dynamically adjust labels, placeholders, and visible fields. Start/End year for duration programs. Issuing Authority field for licenses/certificates. Collapsible description. Credential linking: dropdown links education entries to existing certifications (e.g. TNT Air flight school → Private Pilot Certificate). Type badges in list view. Fully backward compatible with existing education data.' },
-                        { id: 'p2-6b', name: 'Architecture & cost updates', status: 'done', category: 'admin', priority: 'medium', notes: 'v4.45.50: Firebase Spark→Blaze ($25/mo budget). Sonnet 4 output pricing corrected ($3→$15/1M). Architecture header updated to ~42K lines. Component details updated: wizard (18 file types), userData (linkedinContent), skill engine (endorsement boost), Firestore (Blaze, new fields). Last-updated note refreshed.' },
-                        { id: 'p2-6c', name: 'LinkedIn merge import (append to existing profile)', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.50: Standalone parseLinkedInZipContents() parser reusable by both wizard and merge. mergeLinkedInToProfile() adds new positions/education/certs/skills without overwriting existing data (dedup by company+title+startDate, school+degree, cert name, skill name). Endorsement boost applied to all skills. linkedinContent replaced wholesale (latest snapshot). UI in Experience tab: LinkedIn-branded card with Upload .zip button, progress status, detailed result summary. Last merge timestamp tracked. Analytics event logged.' },
-                        { id: 'p2-6d', name: 'Content & Evidence tab', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.50: New Blueprint tab surfaces all LinkedIn-extracted content: Recommendations (toggleable, with preview), Articles (title, date, word count, preview), Posts (substantial only), Endorsements (grouped by skill with boost indicators), Volunteering (toggleable cards), Honors, Causes (pill chips), Organizations, Learning (grouped by type, summary view), Network size. Per-item toggle switches control scouting report inclusion via userData.contentVisibility. Import stats bar shows last merge date, endorsement count, network size, courses. Empty state directs to Experience tab for import.' },
-                        { id: 'p2-6e', name: 'Firestore data pipeline fix (new field persistence)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.50: _buildFirestoreData() whitelist was silently dropping all LinkedIn-derived fields. Added linkedinContent, contentVisibility, companyTenures, importStats to save builder. Added endorsements count and endorsementBoosted flag to skill serializer. Added all four fields to Firestore load path. Without this fix, merge data would not survive page refresh.' },
+                        { id: 'p2-6a', name: 'Education modal redesign (non-traditional learning)', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.51: Replaced rigid School/Degree/Field/Year form with adaptive education modal. Six type pills (Degree, Certificate, Trade, Bootcamp, Prof Dev, Military) dynamically adjust labels, placeholders, and visible fields. Start/End year for duration programs. Issuing Authority field for licenses/certificates. Collapsible description. Credential linking: dropdown links education entries to existing certifications (e.g. TNT Air flight school → Private Pilot Certificate). Type badges in list view. Fully backward compatible with existing education data.' },
+                        { id: 'p2-6b', name: 'Architecture & cost updates', status: 'done', category: 'admin', priority: 'medium', notes: 'v4.45.51: Firebase Spark→Blaze ($25/mo budget). Sonnet 4 output pricing corrected ($3→$15/1M). Architecture header updated to ~42K lines. Component details updated: wizard (18 file types), userData (linkedinContent), skill engine (endorsement boost), Firestore (Blaze, new fields). Last-updated note refreshed.' },
+                        { id: 'p2-6c', name: 'LinkedIn merge import (compare-and-select)', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.51: Completely rebuilt from auto-merge to compare-and-select flow. Upload triggers parseLinkedInZipContents() then opens full-screen comparison modal showing: every position, education, cert, and skill from the zip, each flagged as NEW (green, pre-checked) or EXISTING (greyed, checkmark). User unchecks anything they don\'t want. Skills shown as compact chips. Endorsements (always applied) and Content & Evidence (always updated) shown as informational panels. Select-all toggles per section. Summary bar shows total new items. Merge Selected button applies only checked items, rebuilds company tenures, applies endorsement boosts, updates linkedinContent wholesale. Nothing touches profile until user confirms.' },
+                        { id: 'p2-6d', name: 'Content & Evidence tab', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.51: New Blueprint tab surfaces all LinkedIn-extracted content: Recommendations (toggleable, with preview), Articles (title, date, word count, preview), Posts (substantial only), Endorsements (grouped by skill with boost indicators), Volunteering (toggleable cards), Honors, Causes (pill chips), Organizations, Learning (grouped by type, summary view), Network size. Per-item toggle switches control scouting report inclusion via userData.contentVisibility. Import stats bar shows last merge date, endorsement count, network size, courses. Empty state directs to Experience tab for import.' },
+                        { id: 'p2-6e', name: 'Firestore data pipeline fix (new field persistence)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.51: _buildFirestoreData() whitelist was silently dropping all LinkedIn-derived fields. Added linkedinContent, contentVisibility, companyTenures, importStats to save builder. Added endorsements count and endorsementBoosted flag to skill serializer. Added all four fields to Firestore load path. Without this fix, merge data would not survive page refresh.' },
                         { id: 'p2-6f', name: 'Work Blueprint function refinement', status: 'planned', category: 'feature', priority: 'high', notes: 'Ongoing improvements to WB ecosystem. Includes: Firestore-backed comparison persistence (replace localStorage), comparison sharing via URL tokens, batch comparison mode (multiple candidates against one WB), WB template library (common roles pre-built), WB diff view (compare two WBs side-by-side), improved gap recommendation engine with learning resource links, WB versioning/history, and WB-to-scouting-report pipeline integration.' }
                     ]
                 },
@@ -5729,7 +5729,7 @@
             
             // Note
             html += '<div style="font-size:0.75em; color:var(--text-muted); margin-bottom:16px; padding:8px 12px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px;">'
-                + '' + bpIcon('warning', 12) + ' <strong>Last updated:</strong> v4.45.50 \u2014 LinkedIn deep extraction (18 file types), career progression grouping, endorsement-boosted skill levels, Content & Evidence tab, education modal redesign, LinkedIn merge import, Firestore pipeline fix, Firebase Blaze plan. 38+ components, 35+ data flows. See roadmap items p2-5x through p2-6e.'
+                + '' + bpIcon('warning', 12) + ' <strong>Last updated:</strong> v4.45.51 \u2014 LinkedIn deep extraction (18 file types), career progression grouping, endorsement-boosted skill levels, Content & Evidence tab, education modal redesign, LinkedIn merge import, Firestore pipeline fix, Firebase Blaze plan. 38+ components, 35+ data flows. See roadmap items p2-5x through p2-6e.'
                 + '</div>';
             
             // === TILES VIEW ===
@@ -13214,7 +13214,7 @@
                 appMode = 'active';
                 return;
             }
-            // v4.45.50: Check URL invite param (from email CTA)
+            // v4.45.51: Check URL invite param (from email CTA)
             try {
                 var urlParams = new URLSearchParams(window.location.search);
                 var inviteDocId = urlParams.get('invite');
@@ -18068,208 +18068,394 @@
         }
         
         // ═══════════════════════════════════════════════════════════
-        // LINKEDIN MERGE — Append/update existing profile from .zip
+        // LINKEDIN MERGE — Parse → Compare → User Selects → Apply
         // ═══════════════════════════════════════════════════════════
         
-        async function mergeLinkedInToProfile(file) {
-            var statusEl = document.getElementById('liMergeStatus');
-            var setStatus = function(msg) { if (statusEl) statusEl.textContent = msg; };
-            
-            try {
-                setStatus('Reading LinkedIn archive...');
-                var parsed = await parseLinkedInZipContents(file);
-                var stats = { added: {}, updated: {}, skipped: {} };
-                
-                // ── Merge Work History ──
-                setStatus('Merging work history...');
-                var existingJobs = userData.workHistory || [];
-                var newJobs = 0;
-                parsed.workHistory.forEach(function(liJob) {
-                    var key = (liJob.company + '|' + liJob.title + '|' + liJob.startDate).toLowerCase().trim();
-                    var exists = existingJobs.some(function(ej) {
-                        return (ej.company + '|' + ej.title + '|' + ej.startDate).toLowerCase().trim() === key;
-                    });
-                    if (!exists) { existingJobs.push(liJob); newJobs++; }
-                });
-                userData.workHistory = existingJobs;
-                stats.added.positions = newJobs;
-                stats.skipped.positions = parsed.workHistory.length - newJobs;
-                
-                // Rebuild company tenures
-                var companyGroups = {};
-                userData.workHistory.forEach(function(job) {
-                    var normCo = (job.company || '').trim().replace(/,?\s*(LLC|Inc\.?|Corp\.?|Ltd\.?|Co\.?|People|Group|Holdings)\.?\s*$/i, '').trim().toLowerCase();
-                    if (!normCo) return;
-                    if (!companyGroups[normCo]) companyGroups[normCo] = { name: job.company, positions: [] };
-                    companyGroups[normCo].positions.push(job);
-                });
-                Object.values(companyGroups).forEach(function(g) {
-                    g.name = g.positions[g.positions.length - 1].company;
-                    g.isProgression = g.positions.length > 1;
-                });
-                userData.companyTenures = Object.values(companyGroups);
-                
-                // ── Merge Education ──
-                setStatus('Merging education...');
-                var existingEd = userData.education || [];
-                var newEd = 0;
-                parsed.education.forEach(function(liEd) {
-                    var key = (liEd.school + '|' + liEd.degree).toLowerCase().trim();
-                    var exists = existingEd.some(function(e) {
-                        return (e.school + '|' + (e.degree || '')).toLowerCase().trim() === key;
-                    });
-                    if (!exists) {
-                        existingEd.push({
-                            id: 'ed-li-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
-                            type: 'degree', school: liEd.school, degree: liEd.degree, field: liEd.field,
-                            year: liEd.endDate || '', startYear: liEd.startDate || '', endYear: liEd.endDate || ''
-                        });
-                        newEd++;
-                    }
-                });
-                userData.education = existingEd;
-                stats.added.education = newEd;
-                
-                // ── Merge Certifications ──
-                setStatus('Merging certifications...');
-                var existingCerts = userData.certifications || [];
-                var newCerts = 0;
-                parsed.certifications.forEach(function(liCert) {
-                    var key = liCert.name.toLowerCase().trim();
-                    var exists = existingCerts.some(function(c) { return (c.name || '').toLowerCase().trim() === key; });
-                    if (!exists) {
-                        existingCerts.push({ name: liCert.name, issuer: liCert.authority, abbr: '',
-                            year: liCert.endDate || liCert.startDate || '', type: 'Certification', tier: 1, linkedSkills: [] });
-                        newCerts++;
-                    }
-                });
-                userData.certifications = existingCerts;
-                stats.added.certifications = newCerts;
-                
-                // ── Merge Skills ──
-                setStatus('Merging skills...');
-                var existingSkillNames = (skillsData.skills || []).map(function(s) { return s.name.toLowerCase(); });
-                var newSkills = 0;
-                parsed.rawSkills.forEach(function(sn) {
-                    if (existingSkillNames.indexOf(sn.toLowerCase()) < 0) {
-                        skillsData.skills.push({ name: sn, level: 'Proficient', category: 'skill',
-                            key: false, roles: [], evidence: [], source: 'linkedin-merge' });
-                        existingSkillNames.push(sn.toLowerCase());
-                        newSkills++;
-                    }
-                });
-                stats.added.skills = newSkills;
-                
-                // ── Endorsement Boost ──
-                setStatus('Applying endorsements...');
-                var endorsementCounts = parsed.endorsements || {};
-                var boosted = 0;
-                if (Object.keys(endorsementCounts).length > 0) {
-                    var lvlOrder = ['Novice', 'Proficient', 'Advanced', 'Expert', 'Mastery'];
-                    (skillsData.skills || []).forEach(function(skill) {
-                        var sLow = skill.name.toLowerCase();
-                        var eCount = 0;
-                        Object.keys(endorsementCounts).forEach(function(en) {
-                            if (en.toLowerCase() === sLow || sLow.indexOf(en.toLowerCase()) >= 0 || en.toLowerCase().indexOf(sLow) >= 0)
-                                eCount += endorsementCounts[en];
-                        });
-                        if (eCount > 0) {
-                            skill.endorsements = eCount;
-                            var ci = lvlOrder.indexOf(skill.level);
-                            if (ci >= 0) {
-                                var b = eCount >= 25 ? 2 : eCount >= 10 ? 1 : 0;
-                                var ni = Math.min(ci + b, lvlOrder.length - 1);
-                                if (ni > ci) { skill.level = lvlOrder[ni]; skill.endorsementBoosted = true; boosted++; }
-                            }
-                        }
-                    });
-                }
-                stats.updated = { endorsementBoosted: boosted,
-                    totalEndorsements: Object.values(endorsementCounts).reduce(function(s,v) { return s+v; }, 0) };
-                
-                // ── Replace linkedinContent ──
-                setStatus('Updating content repository...');
-                userData.linkedinContent = {
-                    endorsements: parsed.endorsements, recommendations: parsed.recommendations,
-                    volunteering: parsed.volunteering, honors: parsed.honors, causes: parsed.causes,
-                    organizations: parsed.organizations,
-                    articles: parsed.articles.map(function(a) { return { title: a.title, created: a.created, wordCount: a.wordCount, text: a.text }; }),
-                    posts: parsed.richMedia.map(function(p) { return { date: p.date, content: p.content.substring(0, 1500) }; }),
-                    learning: parsed.learning, networkSize: parsed.networkSize
-                };
-                
-                userData.importStats = { lastMerge: new Date().toISOString(), positions: parsed.workHistory.length,
-                    skills: parsed.rawSkills.length, endorsements: stats.updated.totalEndorsements,
-                    recommendations: parsed.recommendations.length, articles: parsed.articles.length,
-                    posts: parsed.richMedia.length, learning: parsed.learningTotal,
-                    learningCompleted: parsed.learning.length, volunteering: parsed.volunteering.length,
-                    honors: parsed.honors.length, causes: parsed.causes.length, network: parsed.networkSize };
-                
-                // Save
-                setStatus('Saving...');
-                userData.skills = skillsData.skills;
-                saveAll();
-                if (fbUser) debouncedSave();
-                logAnalyticsEvent('linkedin_merge', { newPositions: newJobs, newSkills: newSkills, boosted: boosted });
-                
-                return stats;
-            } catch(err) {
-                console.error('LinkedIn merge error:', err);
-                logIncident('critical', 'linkedin-merge', 'LinkedIn merge failed: ' + err.message);
-                throw err;
-            }
-        }
-        
-        // UI handler
         async function handleLinkedInMerge(input) {
             if (!input || !input.files || !input.files[0]) return;
             var file = input.files[0];
             if (!file.name.endsWith('.zip')) { showToast('Please upload a LinkedIn .zip archive.', 'warning'); return; }
             
-            var btn = document.getElementById('liMergeBtn');
             var statusEl = document.getElementById('liMergeStatus');
-            var resultEl = document.getElementById('liMergeResult');
-            if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
-            if (statusEl) statusEl.style.display = 'block';
-            if (resultEl) resultEl.style.display = 'none';
+            if (statusEl) { statusEl.style.display = 'block'; statusEl.textContent = bpIcon('settings', 12) + ' Reading LinkedIn archive...'; }
             
             try {
-                var stats = await mergeLinkedInToProfile(file);
-                var lines = [];
-                if (stats.added.positions > 0) lines.push(stats.added.positions + ' new position' + (stats.added.positions > 1 ? 's' : ''));
-                if (stats.skipped.positions > 0) lines.push(stats.skipped.positions + ' existing position' + (stats.skipped.positions > 1 ? 's' : '') + ' kept');
-                if (stats.added.education > 0) lines.push(stats.added.education + ' education entr' + (stats.added.education > 1 ? 'ies' : 'y'));
-                if (stats.added.certifications > 0) lines.push(stats.added.certifications + ' certification' + (stats.added.certifications > 1 ? 's' : ''));
-                if (stats.added.skills > 0) lines.push(stats.added.skills + ' new skill' + (stats.added.skills > 1 ? 's' : ''));
-                if (stats.updated.endorsementBoosted > 0) lines.push(stats.updated.endorsementBoosted + ' skill' + (stats.updated.endorsementBoosted > 1 ? 's' : '') + ' boosted');
-                if (stats.updated.totalEndorsements > 0) lines.push(stats.updated.totalEndorsements + ' endorsements applied');
-                var lc = userData.linkedinContent || {};
-                if ((lc.recommendations || []).length > 0) lines.push(lc.recommendations.length + ' recommendations');
-                if ((lc.articles || []).length > 0) lines.push(lc.articles.length + ' articles');
-                if ((lc.learning || []).length > 0) lines.push(lc.learning.length + ' courses');
-                if (lc.networkSize > 0) lines.push(lc.networkSize.toLocaleString() + ' connections');
-                
-                if (resultEl) {
-                    resultEl.innerHTML = '<div style="font-weight:600; color:#10b981; margin-bottom:8px;">'
-                        + bpIcon('check', 14) + ' Merge Complete</div>'
-                        + lines.map(function(l) {
-                            return '<div style="font-size:0.8em; color:var(--text-secondary); display:flex; align-items:center; gap:6px;">'
-                                + '<span style="width:4px; height:4px; border-radius:50%; background:var(--accent); flex-shrink:0;"></span>' + l + '</div>';
-                        }).join('');
-                    resultEl.style.display = 'block';
-                }
+                var parsed = await parseLinkedInZipContents(file);
                 if (statusEl) statusEl.style.display = 'none';
-                showToast('LinkedIn data merged successfully.', 'success', 5000);
-                refreshExperienceContent();
+                openMergeComparisonModal(parsed);
             } catch(err) {
-                showToast('Merge failed: ' + err.message, 'error', 6000);
-                if (statusEl) statusEl.textContent = 'Failed: ' + err.message;
-            } finally {
-                if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
-                input.value = '';
+                showToast('Failed to read zip: ' + err.message, 'error', 6000);
+                if (statusEl) { statusEl.textContent = 'Failed: ' + err.message; }
             }
+            input.value = '';
         }
         window.handleLinkedInMerge = handleLinkedInMerge;
+        
+        function openMergeComparisonModal(parsed) {
+            var modal = document.getElementById('exportModal');
+            var mc = modal.querySelector('.modal-content');
+            
+            // ── Build diff ──
+            var existingJobs = userData.workHistory || [];
+            var existingEd = userData.education || [];
+            var existingCerts = userData.certifications || [];
+            var existingSkillNames = (skillsData.skills || []).map(function(s) { return s.name.toLowerCase(); });
+            
+            // Positions diff
+            var posItems = parsed.workHistory.map(function(li) {
+                var key = (li.company + '|' + li.title + '|' + li.startDate).toLowerCase().trim();
+                var exists = existingJobs.some(function(ej) {
+                    return (ej.company + '|' + ej.title + '|' + ej.startDate).toLowerCase().trim() === key;
+                });
+                return { data: li, exists: exists, label: li.title + (li.company ? ' at ' + li.company : ''),
+                    sub: (li.startDate || '') + (li.endDate ? ' \u2013 ' + li.endDate : '') };
+            });
+            
+            // Education diff
+            var edItems = parsed.education.map(function(li) {
+                var key = (li.school + '|' + li.degree).toLowerCase().trim();
+                var exists = existingEd.some(function(e) {
+                    return (e.school + '|' + (e.degree || '')).toLowerCase().trim() === key;
+                });
+                return { data: li, exists: exists, label: (li.degree || '') + (li.field ? ' in ' + li.field : ''),
+                    sub: li.school + (li.endDate ? ' \u00B7 ' + li.endDate : '') };
+            });
+            
+            // Certifications diff
+            var certItems = parsed.certifications.map(function(li) {
+                var key = li.name.toLowerCase().trim();
+                var exists = existingCerts.some(function(c) { return (c.name || '').toLowerCase().trim() === key; });
+                return { data: li, exists: exists, label: li.name, sub: li.authority || '' };
+            });
+            
+            // Skills diff
+            var skillItems = parsed.rawSkills.map(function(sn) {
+                var exists = existingSkillNames.indexOf(sn.toLowerCase()) >= 0;
+                return { data: sn, exists: exists, label: sn, sub: exists ? 'Already in profile' : 'New skill' };
+            });
+            
+            // Endorsement summary
+            var endorseKeys = Object.keys(parsed.endorsements || {});
+            var totalEndorsements = endorseKeys.reduce(function(s, k) { return s + parsed.endorsements[k]; }, 0);
+            
+            // Content summary
+            var contentCounts = {
+                recommendations: (parsed.recommendations || []).length,
+                articles: (parsed.articles || []).length,
+                posts: (parsed.richMedia || []).length,
+                volunteering: (parsed.volunteering || []).length,
+                honors: (parsed.honors || []).length,
+                causes: (parsed.causes || []).length,
+                organizations: (parsed.organizations || []).length,
+                learning: (parsed.learning || []).length,
+                learningTotal: parsed.learningTotal || 0,
+                network: parsed.networkSize || 0
+            };
+            
+            // Store parsed for apply
+            window._mergeParsed = parsed;
+            window._mergeDiff = { posItems: posItems, edItems: edItems, certItems: certItems, skillItems: skillItems };
+            
+            // ── Count new items ──
+            var newPos = posItems.filter(function(i) { return !i.exists; }).length;
+            var newEd = edItems.filter(function(i) { return !i.exists; }).length;
+            var newCerts = certItems.filter(function(i) { return !i.exists; }).length;
+            var newSkills = skillItems.filter(function(i) { return !i.exists; }).length;
+            
+            // ── Build modal HTML ──
+            var html = '<div class="modal-header">'
+                + '<div class="modal-header-left">'
+                + '<h2 class="modal-title">' + bpIcon('network', 20) + ' LinkedIn Import Review</h2>'
+                + '<p style="color:var(--c-muted); margin-top:4px; font-size:0.85em;">Review what\'s new, select what to add. Nothing is changed until you confirm.</p>'
+                + '</div>'
+                + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
+                + '</div>'
+                + '<div class="modal-body" style="padding:20px; max-height:75vh; overflow-y:auto;">';
+            
+            // Helper to build a section
+            function section(title, icon, items, sectionKey, allNew, allExisting) {
+                if (items.length === 0) return '';
+                var newCount = items.filter(function(i) { return !i.exists; }).length;
+                var existCount = items.length - newCount;
+                
+                var s = '<div style="margin-bottom:20px;">'
+                    + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">'
+                    + '<div style="display:flex; align-items:center; gap:8px;">'
+                    + '<span style="font-size:1em;">' + icon + '</span>'
+                    + '<span style="font-weight:700; color:var(--text-primary); font-size:0.92em;">' + title + '</span>'
+                    + (newCount > 0 ? '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(16,185,129,0.12); color:#10b981; font-weight:700;">+' + newCount + ' new</span>' : '')
+                    + (existCount > 0 ? '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-surface-4a); color:var(--c-muted); font-weight:600;">' + existCount + ' existing</span>' : '')
+                    + '</div>';
+                
+                if (newCount > 1) {
+                    s += '<label style="font-size:0.75em; color:var(--accent); cursor:pointer; display:flex; align-items:center; gap:4px;">'
+                        + '<input type="checkbox" checked onchange="mergeToggleAll(\'' + sectionKey + '\', this.checked)" style="accent-color:var(--accent);"> Select all new</label>';
+                }
+                s += '</div>';
+                
+                items.forEach(function(item, idx) {
+                    var cbId = 'merge-' + sectionKey + '-' + idx;
+                    if (item.exists) {
+                        s += '<div style="padding:8px 12px; margin-bottom:4px; opacity:0.45; border-radius:6px; display:flex; align-items:center; gap:10px;">'
+                            + '<span style="width:18px; height:18px; border-radius:4px; background:var(--c-surface-5); display:flex; align-items:center; justify-content:center; font-size:0.7em; color:var(--c-muted); flex-shrink:0;">\u2713</span>'
+                            + '<div style="flex:1; min-width:0;">'
+                            + '<div style="font-size:0.85em; color:var(--c-muted);">' + escapeHtml(item.label) + '</div>'
+                            + (item.sub ? '<div style="font-size:0.72em; color:var(--c-faint);">' + escapeHtml(item.sub) + ' \u2014 already in profile</div>' : '')
+                            + '</div></div>';
+                    } else {
+                        s += '<div style="padding:8px 12px; margin-bottom:4px; background:rgba(16,185,129,0.04); border:1px solid rgba(16,185,129,0.12); border-radius:6px; display:flex; align-items:center; gap:10px;">'
+                            + '<input type="checkbox" id="' + cbId + '" data-merge-section="' + sectionKey + '" checked style="accent-color:#10b981; flex-shrink:0; width:16px; height:16px; cursor:pointer;">'
+                            + '<div style="flex:1; min-width:0;">'
+                            + '<div style="font-size:0.85em; font-weight:600; color:var(--c-text-alt);">' + escapeHtml(item.label) + '</div>'
+                            + (item.sub ? '<div style="font-size:0.72em; color:var(--c-muted);">' + escapeHtml(item.sub) + '</div>' : '')
+                            + '</div>'
+                            + '<span style="font-size:0.68em; padding:2px 6px; border-radius:6px; background:rgba(16,185,129,0.12); color:#10b981; font-weight:700; flex-shrink:0;">NEW</span>'
+                            + '</div>';
+                    }
+                });
+                
+                s += '</div>';
+                return s;
+            }
+            
+            html += section('Positions', '\uD83D\uDCBC', posItems, 'pos');
+            html += section('Education', '\uD83C\uDF93', edItems, 'ed');
+            html += section('Certifications', '\uD83D\uDCDC', certItems, 'cert');
+            
+            // Skills — compact chips instead of full rows
+            if (skillItems.length > 0) {
+                var newSkillItems = skillItems.filter(function(i) { return !i.exists; });
+                var existSkillItems = skillItems.filter(function(i) { return i.exists; });
+                
+                html += '<div style="margin-bottom:20px;">'
+                    + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">'
+                    + '<span style="font-size:1em;">\u2B50</span>'
+                    + '<span style="font-weight:700; color:var(--text-primary); font-size:0.92em;">Skills</span>'
+                    + (newSkillItems.length > 0 ? '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(16,185,129,0.12); color:#10b981; font-weight:700;">+' + newSkillItems.length + ' new</span>' : '')
+                    + (existSkillItems.length > 0 ? '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:var(--c-surface-4a); color:var(--c-muted); font-weight:600;">' + existSkillItems.length + ' existing</span>' : '')
+                    + '</div>';
+                
+                if (newSkillItems.length > 0) {
+                    html += '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;">';
+                    skillItems.forEach(function(item, idx) {
+                        if (item.exists) return;
+                        var cbId = 'merge-skill-' + idx;
+                        html += '<label for="' + cbId + '" style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; '
+                            + 'border-radius:14px; font-size:0.78em; font-weight:600; cursor:pointer; '
+                            + 'background:rgba(16,185,129,0.08); color:#10b981; border:1px solid rgba(16,185,129,0.15);">'
+                            + '<input type="checkbox" id="' + cbId + '" data-merge-section="skill" checked style="accent-color:#10b981; width:12px; height:12px;">'
+                            + escapeHtml(item.label) + '</label>';
+                    });
+                    html += '</div>';
+                }
+                if (existSkillItems.length > 0) {
+                    html += '<div style="display:flex; flex-wrap:wrap; gap:4px;">';
+                    existSkillItems.forEach(function(item) {
+                        html += '<span style="padding:3px 8px; border-radius:10px; font-size:0.72em; background:var(--c-surface-4a); color:var(--c-muted);">' + escapeHtml(item.label) + '</span>';
+                    });
+                    html += '</div>';
+                }
+                html += '</div>';
+            }
+            
+            // ── Endorsements (always applied, informational) ──
+            if (totalEndorsements > 0) {
+                html += '<div style="margin-bottom:20px; padding:12px; background:rgba(245,158,11,0.05); border:1px solid rgba(245,158,11,0.15); border-radius:8px;">'
+                    + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">'
+                    + '<span style="font-size:1em;">\uD83D\uDC4D</span>'
+                    + '<span style="font-weight:700; color:var(--text-primary); font-size:0.92em;">Endorsements</span>'
+                    + '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(245,158,11,0.12); color:#f59e0b; font-weight:700;">' + totalEndorsements + ' across ' + endorseKeys.length + ' skills</span>'
+                    + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-muted);">Endorsement counts will be applied to matching skills. Skills with 10+ endorsements get +1 level boost, 25+ get +2.</div>'
+                    + '</div>';
+            }
+            
+            // ── Content (always updated, informational) ──
+            var contentLines = [];
+            if (contentCounts.recommendations > 0) contentLines.push(contentCounts.recommendations + ' recommendations');
+            if (contentCounts.articles > 0) contentLines.push(contentCounts.articles + ' articles');
+            if (contentCounts.posts > 0) contentLines.push(contentCounts.posts + ' posts');
+            if (contentCounts.volunteering > 0) contentLines.push(contentCounts.volunteering + ' volunteering roles');
+            if (contentCounts.honors > 0) contentLines.push(contentCounts.honors + ' honors');
+            if (contentCounts.causes > 0) contentLines.push(contentCounts.causes + ' causes');
+            if (contentCounts.learning > 0) contentLines.push(contentCounts.learning + ' completed courses (of ' + contentCounts.learningTotal + ')');
+            if (contentCounts.network > 0) contentLines.push(contentCounts.network.toLocaleString() + ' connections');
+            
+            if (contentLines.length > 0) {
+                html += '<div style="margin-bottom:20px; padding:12px; background:rgba(96,165,250,0.05); border:1px solid rgba(96,165,250,0.15); border-radius:8px;">'
+                    + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">'
+                    + '<span style="font-size:1em;">\uD83D\uDCCB</span>'
+                    + '<span style="font-weight:700; color:var(--text-primary); font-size:0.92em;">Content & Evidence</span>'
+                    + '</div>'
+                    + '<div style="font-size:0.78em; color:var(--c-muted); margin-bottom:6px;">These will update your Content & Evidence tab (visible in Blueprint view).</div>'
+                    + '<div style="display:flex; flex-wrap:wrap; gap:6px;">'
+                    + contentLines.map(function(l) {
+                        return '<span style="font-size:0.75em; padding:3px 10px; border-radius:10px; background:var(--c-surface-4a); color:var(--text-secondary);">' + l + '</span>';
+                    }).join('')
+                    + '</div></div>';
+            }
+            
+            // ── Summary bar + action buttons ──
+            var totalNew = newPos + newEd + newCerts + newSkills;
+            html += '<div style="padding:14px; background:var(--c-surface-2); border-radius:8px; margin-bottom:16px;">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center;">'
+                + '<div>'
+                + '<span style="font-weight:700; color:var(--text-primary);">' + totalNew + ' new item' + (totalNew !== 1 ? 's' : '') + ' to add</span>'
+                + '<span style="font-size:0.82em; color:var(--c-muted);"> \u00B7 ' + (posItems.length + edItems.length + certItems.length + skillItems.length - totalNew) + ' already in your profile</span>'
+                + '</div></div></div>';
+            
+            html += '<div style="display:flex; gap:10px;">'
+                + '<button onclick="applyMergeSelections()" style="padding:12px 28px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.95em;">'
+                + bpIcon('check', 14) + ' Merge Selected</button>'
+                + '<button onclick="closeExportModal()" style="padding:12px 20px; background:transparent; color:var(--c-muted); border:1px solid var(--c-border-solid); border-radius:8px; cursor:pointer;">Cancel</button>'
+                + '</div>';
+            
+            html += '</div>';
+            mc.innerHTML = html;
+            modal.style.display = 'flex';
+        }
+        
+        function mergeToggleAll(sectionKey, checked) {
+            document.querySelectorAll('[data-merge-section="' + sectionKey + '"]').forEach(function(cb) {
+                cb.checked = checked;
+            });
+        }
+        window.mergeToggleAll = mergeToggleAll;
+        
+        function applyMergeSelections() {
+            var parsed = window._mergeParsed;
+            var diff = window._mergeDiff;
+            if (!parsed || !diff) { showToast('No merge data found.', 'error'); return; }
+            
+            var added = { positions: 0, education: 0, certifications: 0, skills: 0 };
+            
+            // ── Apply selected positions ──
+            diff.posItems.forEach(function(item, idx) {
+                if (item.exists) return;
+                var cb = document.getElementById('merge-pos-' + idx);
+                if (cb && cb.checked) {
+                    userData.workHistory.push(item.data);
+                    added.positions++;
+                }
+            });
+            
+            // Rebuild company tenures
+            var companyGroups = {};
+            (userData.workHistory || []).forEach(function(job) {
+                var normCo = (job.company || '').trim().replace(/,?\s*(LLC|Inc\.?|Corp\.?|Ltd\.?|Co\.?|People|Group|Holdings)\.?\s*$/i, '').trim().toLowerCase();
+                if (!normCo) return;
+                if (!companyGroups[normCo]) companyGroups[normCo] = { name: job.company, positions: [] };
+                companyGroups[normCo].positions.push(job);
+            });
+            Object.values(companyGroups).forEach(function(g) {
+                g.name = g.positions[g.positions.length - 1].company;
+                g.isProgression = g.positions.length > 1;
+            });
+            userData.companyTenures = Object.values(companyGroups);
+            
+            // ── Apply selected education ──
+            diff.edItems.forEach(function(item, idx) {
+                if (item.exists) return;
+                var cb = document.getElementById('merge-ed-' + idx);
+                if (cb && cb.checked) {
+                    userData.education.push({
+                        id: 'ed-li-' + Date.now() + '-' + Math.random().toString(36).substr(2,4),
+                        type: 'degree', school: item.data.school, degree: item.data.degree, field: item.data.field,
+                        year: item.data.endDate || '', startYear: item.data.startDate || '', endYear: item.data.endDate || ''
+                    });
+                    added.education++;
+                }
+            });
+            
+            // ── Apply selected certifications ──
+            diff.certItems.forEach(function(item, idx) {
+                if (item.exists) return;
+                var cb = document.getElementById('merge-cert-' + idx);
+                if (cb && cb.checked) {
+                    userData.certifications.push({ name: item.data.name, issuer: item.data.authority, abbr: '',
+                        year: item.data.endDate || item.data.startDate || '', type: 'Certification', tier: 1, linkedSkills: [] });
+                    added.certifications++;
+                }
+            });
+            
+            // ── Apply selected skills ──
+            var existingSkillNames = (skillsData.skills || []).map(function(s) { return s.name.toLowerCase(); });
+            diff.skillItems.forEach(function(item, idx) {
+                if (item.exists) return;
+                var cb = document.getElementById('merge-skill-' + idx);
+                if (cb && cb.checked && existingSkillNames.indexOf(item.data.toLowerCase()) < 0) {
+                    skillsData.skills.push({ name: item.data, level: 'Proficient', category: 'skill',
+                        key: false, roles: [], evidence: [], source: 'linkedin-merge' });
+                    existingSkillNames.push(item.data.toLowerCase());
+                    added.skills++;
+                }
+            });
+            
+            // ── Always apply endorsements ──
+            var endorsementCounts = parsed.endorsements || {};
+            var boosted = 0;
+            if (Object.keys(endorsementCounts).length > 0) {
+                var lvlOrder = ['Novice', 'Proficient', 'Advanced', 'Expert', 'Mastery'];
+                (skillsData.skills || []).forEach(function(skill) {
+                    var sLow = skill.name.toLowerCase();
+                    var eCount = 0;
+                    Object.keys(endorsementCounts).forEach(function(en) {
+                        if (en.toLowerCase() === sLow || sLow.indexOf(en.toLowerCase()) >= 0 || en.toLowerCase().indexOf(sLow) >= 0)
+                            eCount += endorsementCounts[en];
+                    });
+                    if (eCount > 0) {
+                        skill.endorsements = eCount;
+                        var ci = lvlOrder.indexOf(skill.level);
+                        if (ci >= 0) {
+                            var b = eCount >= 25 ? 2 : eCount >= 10 ? 1 : 0;
+                            var ni = Math.min(ci + b, lvlOrder.length - 1);
+                            if (ni > ci) { skill.level = lvlOrder[ni]; skill.endorsementBoosted = true; boosted++; }
+                        }
+                    }
+                });
+            }
+            
+            // ── Always update linkedinContent ──
+            userData.linkedinContent = {
+                endorsements: parsed.endorsements, recommendations: parsed.recommendations,
+                volunteering: parsed.volunteering, honors: parsed.honors, causes: parsed.causes,
+                organizations: parsed.organizations,
+                articles: parsed.articles.map(function(a) { return { title: a.title, created: a.created, wordCount: a.wordCount, text: a.text }; }),
+                posts: parsed.richMedia.map(function(p) { return { date: p.date, content: p.content.substring(0, 1500) }; }),
+                learning: parsed.learning, networkSize: parsed.networkSize
+            };
+            
+            userData.importStats = { lastMerge: new Date().toISOString(), positions: parsed.workHistory.length,
+                skills: parsed.rawSkills.length,
+                endorsements: Object.values(endorsementCounts).reduce(function(s,v) { return s+v; }, 0),
+                recommendations: (parsed.recommendations || []).length, articles: (parsed.articles || []).length,
+                posts: (parsed.richMedia || []).length, learning: parsed.learningTotal || 0,
+                learningCompleted: (parsed.learning || []).length, volunteering: (parsed.volunteering || []).length,
+                honors: (parsed.honors || []).length, causes: (parsed.causes || []).length, network: parsed.networkSize || 0 };
+            
+            // Save
+            userData.skills = skillsData.skills;
+            saveAll();
+            if (fbUser) debouncedSave();
+            logAnalyticsEvent('linkedin_merge', { positions: added.positions, skills: added.skills, boosted: boosted });
+            
+            // Clean up
+            delete window._mergeParsed;
+            delete window._mergeDiff;
+            
+            closeExportModal();
+            
+            var summary = [];
+            if (added.positions > 0) summary.push(added.positions + ' position' + (added.positions > 1 ? 's' : ''));
+            if (added.education > 0) summary.push(added.education + ' education');
+            if (added.certifications > 0) summary.push(added.certifications + ' cert' + (added.certifications > 1 ? 's' : ''));
+            if (added.skills > 0) summary.push(added.skills + ' skill' + (added.skills > 1 ? 's' : ''));
+            if (boosted > 0) summary.push(boosted + ' skill' + (boosted > 1 ? 's' : '') + ' boosted');
+            
+            showToast('Merged: ' + (summary.length > 0 ? summary.join(', ') : 'content updated') + '.', 'success', 5000);
+            refreshExperienceContent();
+        }
+        window.applyMergeSelections = applyMergeSelections;
 
         // ── STEP 1: Entry point ───────────────────────────────────────────────
 
