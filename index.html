@@ -1,4 +1,4 @@
-<!-- v4.45.51 | 2026-02-28 | Education modal redesign + architecture updates -->
+<!-- v4.45.52 | 2026-02-28 | Education modal redesign + architecture updates -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1502,8 +1502,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.51 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.51';
+        // BLUEPRINT v4.45.52 - BUILD 20260228-bls-expansion
+        var BP_VERSION = 'v4.45.52';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -4546,7 +4546,7 @@
                         { id: 'p2-3n', name: 'Unified skill editor + UX fixes', status: 'done', category: 'ux', priority: 'high', notes: 'Single modal combining level/roles/assess/core. Network name label offset. quickScore v3 (word-boundary + level weighting). Alphabetical skill sorting. BLS Potential tile always shown. bpIcon assess bug.' },
                         { id: 'p2-3o', name: 'Wizard Step 9 save+download UX', status: 'done', category: 'ux', priority: 'medium', notes: 'Single Save button with pre-checked download checkbox. Replaces two separate buttons.' },
                         { id: 'p2-3p', name: 'Architecture map v2 — layered diagram', status: 'done', category: 'admin', priority: 'medium', notes: 'Replaced force-directed graph with structured swim-lane layout. 4 layers: Frontend→Runtime→Backend→External. Rich detail panels with function names, line ranges, data flows, dependencies, tech debt. Engineer-grade onboarding tool.' },
-                        { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'in-progress', category: 'process', priority: 'medium', notes: 'v4.45.51: Updated wizard, userData, skill engine, Firestore component details for LinkedIn deep extraction and Content & Evidence tab. Firebase Blaze plan reflected. Pricing reference corrected. Line count updated to ~42K. Duplicate roadmap ID p2-6a fixed. Still needs automated generation from code comments.' },
+                        { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'in-progress', category: 'process', priority: 'medium', notes: 'v4.45.52: Updated wizard, userData, skill engine, Firestore component details for LinkedIn deep extraction and Content & Evidence tab. Firebase Blaze plan reflected. Pricing reference corrected. Line count updated to ~42K. Duplicate roadmap ID p2-6a fixed. Still needs automated generation from code comments.' },
                         { id: 'p2-3r', name: 'Skill editor outcomes + reports cleanup + network v3', status: 'done', category: 'ux', priority: 'high', notes: 'Unified editor: wider padding, linked outcomes section. Reports: PREVIEW labels on analytics/heatmap/share links, removed fake views/status from My Reports. Network: center node at width*0.18, role label truncation 24 chars.' },
                         { id: 'p2-3s', name: 'JD → Work Blueprint converter', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.06+: Full AI-powered converter. Paste JD text or upload PDF, AI extracts Skills/Outcomes/Proficiency, experience requirements, values & purpose signals, regional compensation via BLS. Outputs structured Work Blueprint saved to Firestore repository. Includes Work Blueprint Wizard for manual creation, repository with card grid, and full CRUD.' },
                         { id: 'p2-3t', name: 'SEO + Generative Engine Optimization', status: 'active', category: 'infrastructure', priority: 'high', notes: 'Full metadata suite: title, description, Open Graph, Twitter Cards, canonical URL, favicon, JSON-LD structured data (WebApplication + Organization), robots, theme-color. Generative engine optimization: semantic HTML, descriptive headings, FAQ schema, HowTo schema, speakable metadata, citation-friendly content structure. Goal: discoverable by both traditional search and AI-powered answer engines (Google SGE, Perplexity, ChatGPT Browse).' },
@@ -4581,14 +4581,14 @@
                         { id: 'p2-5u', name: 'BLS salary alias + keyword expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.45: bls-wages.json aliases expanded from 170 to 4,228 via four strategies: BLS title decomposition (singular forms, split compounds), seniority prefix generation (VP/Director/Senior/Lead variants), abbreviation patterns (mgr/dir/admin/rep), and 300+ hand-curated industry titles (tech, data, sales, marketing, HR, finance, legal, healthcare, education, trades, retail, consulting). Keywords expanded across 15 thin occupations. Fixes dozens of mismatches across demo profiles.' },
                         { id: 'p2-5v', name: 'O*NET Alternate Titles import (30K+)', status: 'planned', category: 'data', priority: 'high', notes: 'O*NET publishes ~30,000 alternate job titles pre-mapped to SOC codes (Alternate Titles file at onetonline.org/help/onet/titles). Download or API-fetch the dataset, normalize to lowercase, deduplicate against existing aliases, and merge into bls-wages.json. Would give near-universal coverage of real-world job titles. May need periodic refresh as O*NET updates quarterly. Consider build-time pipeline vs. runtime fetch.' },
                         { id: 'p2-5w', name: 'Jobs Sync panel redesign', status: 'done', category: 'ui', priority: 'low', notes: 'v4.45.47: Sources list replaced with horizontal bar chart visualization (sorted by count, gradient fills, proportional widths). CRON badge styled as pill. Errors section redesigned with dot indicator, monospace font, subtle background. Library count updated to 12/12 for BLS Aliases tile.' },
-                        { id: 'p2-5x', name: 'LinkedIn deep extraction (18 file types)', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.51: Expanded LinkedIn zip parser from 8 to 18 CSV file types. Now extracts: Endorsements (peer validation with skill-level boosting), Recommendations (qualitative evidence), Rich Media (posts/thought leadership), Articles (HTML parsing from Articles/ subfolder), LinkedIn Learning (completed courses), Volunteering, Honors, Causes, Organizations, Company Follows, Connections (network size). All stored in userData.linkedinContent for downstream use in scouting reports, document repository, and skill evidence. Import summary screen shows extraction stats before wizard continues.' },
-                        { id: 'p2-5y', name: 'Career progression grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.51: Positions at the same company are now grouped by normalized company name (strips LLC/Inc/People suffixes). Multi-position groups display as visual career timelines with left-border accent, timeline dots, tenure calculation, and ascending role labels. Single positions render normally. Progression badge shows role count. Roles carry progression arrays and totalYears for downstream scouting report use.' },
+                        { id: 'p2-5x', name: 'LinkedIn deep extraction (18 file types)', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.52: Expanded LinkedIn zip parser from 8 to 18 CSV file types. Now extracts: Endorsements (peer validation with skill-level boosting), Recommendations (qualitative evidence), Rich Media (posts/thought leadership), Articles (HTML parsing from Articles/ subfolder), LinkedIn Learning (completed courses), Volunteering, Honors, Causes, Organizations, Company Follows, Connections (network size). All stored in userData.linkedinContent for downstream use in scouting reports, document repository, and skill evidence. Import summary screen shows extraction stats before wizard continues.' },
+                        { id: 'p2-5y', name: 'Career progression grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.52: Positions at the same company are now grouped by normalized company name (strips LLC/Inc/People suffixes). Multi-position groups display as visual career timelines with left-border accent, timeline dots, tenure calculation, and ascending role labels. Single positions render normally. Progression badge shows role count. Roles carry progression arrays and totalYears for downstream scouting report use.' },
                         { id: 'p2-5z', name: 'Endorsement-boosted skill levels', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.45.48: After deterministic skill inference, endorsement counts from LinkedIn are matched to skills (case-insensitive partial match). 10+ endorsements boost level by 1, 25+ by 2 (capped at Mastery). Boosted skills flagged with endorsementBoosted:true. Skills carry endorsement count in persisted data.' },
-                        { id: 'p2-6a', name: 'Education modal redesign (non-traditional learning)', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.51: Replaced rigid School/Degree/Field/Year form with adaptive education modal. Six type pills (Degree, Certificate, Trade, Bootcamp, Prof Dev, Military) dynamically adjust labels, placeholders, and visible fields. Start/End year for duration programs. Issuing Authority field for licenses/certificates. Collapsible description. Credential linking: dropdown links education entries to existing certifications (e.g. TNT Air flight school → Private Pilot Certificate). Type badges in list view. Fully backward compatible with existing education data.' },
-                        { id: 'p2-6b', name: 'Architecture & cost updates', status: 'done', category: 'admin', priority: 'medium', notes: 'v4.45.51: Firebase Spark→Blaze ($25/mo budget). Sonnet 4 output pricing corrected ($3→$15/1M). Architecture header updated to ~42K lines. Component details updated: wizard (18 file types), userData (linkedinContent), skill engine (endorsement boost), Firestore (Blaze, new fields). Last-updated note refreshed.' },
-                        { id: 'p2-6c', name: 'LinkedIn merge import (compare-and-select)', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.51: Completely rebuilt from auto-merge to compare-and-select flow. Upload triggers parseLinkedInZipContents() then opens full-screen comparison modal showing: every position, education, cert, and skill from the zip, each flagged as NEW (green, pre-checked) or EXISTING (greyed, checkmark). User unchecks anything they don\'t want. Skills shown as compact chips. Endorsements (always applied) and Content & Evidence (always updated) shown as informational panels. Select-all toggles per section. Summary bar shows total new items. Merge Selected button applies only checked items, rebuilds company tenures, applies endorsement boosts, updates linkedinContent wholesale. Nothing touches profile until user confirms.' },
-                        { id: 'p2-6d', name: 'Content & Evidence tab', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.51: New Blueprint tab surfaces all LinkedIn-extracted content: Recommendations (toggleable, with preview), Articles (title, date, word count, preview), Posts (substantial only), Endorsements (grouped by skill with boost indicators), Volunteering (toggleable cards), Honors, Causes (pill chips), Organizations, Learning (grouped by type, summary view), Network size. Per-item toggle switches control scouting report inclusion via userData.contentVisibility. Import stats bar shows last merge date, endorsement count, network size, courses. Empty state directs to Experience tab for import.' },
-                        { id: 'p2-6e', name: 'Firestore data pipeline fix (new field persistence)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.51: _buildFirestoreData() whitelist was silently dropping all LinkedIn-derived fields. Added linkedinContent, contentVisibility, companyTenures, importStats to save builder. Added endorsements count and endorsementBoosted flag to skill serializer. Added all four fields to Firestore load path. Without this fix, merge data would not survive page refresh.' },
+                        { id: 'p2-6a', name: 'Education modal redesign (non-traditional learning)', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.52: Replaced rigid School/Degree/Field/Year form with adaptive education modal. Six type pills (Degree, Certificate, Trade, Bootcamp, Prof Dev, Military) dynamically adjust labels, placeholders, and visible fields. Start/End year for duration programs. Issuing Authority field for licenses/certificates. Collapsible description. Credential linking: dropdown links education entries to existing certifications (e.g. TNT Air flight school → Private Pilot Certificate). Type badges in list view. Fully backward compatible with existing education data.' },
+                        { id: 'p2-6b', name: 'Architecture & cost updates', status: 'done', category: 'admin', priority: 'medium', notes: 'v4.45.52: Firebase Spark→Blaze ($25/mo budget). Sonnet 4 output pricing corrected ($3→$15/1M). Architecture header updated to ~42K lines. Component details updated: wizard (18 file types), userData (linkedinContent), skill engine (endorsement boost), Firestore (Blaze, new fields). Last-updated note refreshed.' },
+                        { id: 'p2-6c', name: 'LinkedIn merge import (compare-and-select)', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.52: Completely rebuilt from auto-merge to compare-and-select flow. Upload triggers parseLinkedInZipContents() then opens full-screen comparison modal showing every position, education, cert, and skill flagged NEW (green, pre-checked) or EXISTING (greyed). User unchecks what they don\'t want. Skills as compact chips. Endorsements/Content always applied (info panels). Summary bar, select-all toggles. Three entry points: (1) Blueprint Dashboard banner with last-merge timestamp, (2) Wizard Step 1 "Update Existing Blueprint" tile (conditional, only if profile has data), (3) Experience tab LinkedIn card. Wizard tile closes wizard on upload.' },
+                        { id: 'p2-6d', name: 'Content & Evidence tab', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.52: New Blueprint tab surfaces all LinkedIn-extracted content: Recommendations (toggleable, with preview), Articles (title, date, word count, preview), Posts (substantial only), Endorsements (grouped by skill with boost indicators), Volunteering (toggleable cards), Honors, Causes (pill chips), Organizations, Learning (grouped by type, summary view), Network size. Per-item toggle switches control scouting report inclusion via userData.contentVisibility. Import stats bar shows last merge date, endorsement count, network size, courses. Empty state directs to Experience tab for import.' },
+                        { id: 'p2-6e', name: 'Firestore data pipeline fix (new field persistence)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.52: _buildFirestoreData() whitelist was silently dropping all LinkedIn-derived fields. Added linkedinContent, contentVisibility, companyTenures, importStats to save builder. Added endorsements count and endorsementBoosted flag to skill serializer. Added all four fields to Firestore load path. Without this fix, merge data would not survive page refresh.' },
                         { id: 'p2-6f', name: 'Work Blueprint function refinement', status: 'planned', category: 'feature', priority: 'high', notes: 'Ongoing improvements to WB ecosystem. Includes: Firestore-backed comparison persistence (replace localStorage), comparison sharing via URL tokens, batch comparison mode (multiple candidates against one WB), WB template library (common roles pre-built), WB diff view (compare two WBs side-by-side), improved gap recommendation engine with learning resource links, WB versioning/history, and WB-to-scouting-report pipeline integration.' }
                     ]
                 },
@@ -5729,7 +5729,7 @@
             
             // Note
             html += '<div style="font-size:0.75em; color:var(--text-muted); margin-bottom:16px; padding:8px 12px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px;">'
-                + '' + bpIcon('warning', 12) + ' <strong>Last updated:</strong> v4.45.51 \u2014 LinkedIn deep extraction (18 file types), career progression grouping, endorsement-boosted skill levels, Content & Evidence tab, education modal redesign, LinkedIn merge import, Firestore pipeline fix, Firebase Blaze plan. 38+ components, 35+ data flows. See roadmap items p2-5x through p2-6e.'
+                + '' + bpIcon('warning', 12) + ' <strong>Last updated:</strong> v4.45.52 \u2014 LinkedIn deep extraction (18 file types), career progression grouping, endorsement-boosted skill levels, Content & Evidence tab, education modal redesign, LinkedIn merge import, Firestore pipeline fix, Firebase Blaze plan. 38+ components, 35+ data flows. See roadmap items p2-5x through p2-6e.'
                 + '</div>';
             
             // === TILES VIEW ===
@@ -13214,7 +13214,7 @@
                 appMode = 'active';
                 return;
             }
-            // v4.45.51: Check URL invite param (from email CTA)
+            // v4.45.52: Check URL invite param (from email CTA)
             try {
                 var urlParams = new URLSearchParams(window.location.search);
                 var inviteDocId = urlParams.get('invite');
@@ -18460,9 +18460,34 @@
         // ── STEP 1: Entry point ───────────────────────────────────────────────
 
         function renderWizardStep1(el) {
+            var hasExistingProfile = (skillsData.skills || []).length > 0 || (userData.workHistory || []).length > 0;
+            
             el.innerHTML = `
                 ${wizardHeading(bpIcon('blueprint',22), 'Build Your Blueprint',
                     'Most people undersell themselves when applying for work \u2014 not because they lack ability, but because they\u2019ve never had the right tool to articulate it. This changes that.')}
+
+                ${hasExistingProfile ? `
+                <div style="padding:14px 18px; margin-bottom:20px; background:linear-gradient(135deg, rgba(10,102,194,0.08), rgba(10,102,194,0.02));
+                    border:2px solid rgba(10,102,194,0.25); border-radius:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                        <div>
+                            <div style="font-weight:700; color:var(--text-primary); font-size:0.95em;">Update Existing Blueprint</div>
+                            <div style="font-size:0.82em; color:var(--text-secondary); line-height:1.4;">
+                                You already have a profile with ${(skillsData.skills || []).length} skills and ${(userData.workHistory || []).length} positions.
+                                Upload a LinkedIn .zip to merge in new data without losing anything.
+                            </div>
+                        </div>
+                    </div>
+                    <label style="padding:10px 20px; background:#0a66c2; color:#fff; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.88em; display:inline-flex; align-items:center; gap:6px; white-space:nowrap;">
+                        ${bpIcon('network', 14)} Upload LinkedIn .zip
+                        <input type="file" accept=".zip" onchange="handleLinkedInMerge(this); closeWizard();" style="display:none;">
+                    </label>
+                </div>
+                <div style="text-align:center; color:var(--c-muted); font-size:0.78em; margin-bottom:16px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em;">
+                    \u2014 or start fresh \u2014
+                </div>
+                ` : ''}
 
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin-bottom:24px;">
                     <div onclick="wizardChooseUpload()" id="card-upload"
@@ -25683,6 +25708,24 @@ body {
             var readinessPct = Math.round((doneCount / completeness.length) * 100);
             
             var html = '';
+            
+            // ── LINKEDIN UPDATE CTA (signed-in users with profile data) ──
+            if (fbUser && !isReadOnlyProfile && skills.length > 0) {
+                var lastMerge = (userData.importStats || {}).lastMerge;
+                var mergeStr = lastMerge ? 'Last updated ' + new Date(lastMerge).toLocaleDateString() : 'Keep your Blueprint current';
+                html += '<div style="padding:12px 16px; margin-bottom:14px; background:linear-gradient(135deg, rgba(10,102,194,0.06), rgba(10,102,194,0.02)); '
+                    + 'border:1px solid rgba(10,102,194,0.18); border-radius:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">'
+                    + '<div style="display:flex; align-items:center; gap:10px;">'
+                    + '<svg width="18" height="18" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>'
+                    + '<div>'
+                    + '<div style="font-weight:600; color:var(--text-primary); font-size:0.85em;">Update from LinkedIn</div>'
+                    + '<div style="font-size:0.72em; color:var(--c-muted);">' + mergeStr + '</div>'
+                    + '</div></div>'
+                    + '<label style="padding:6px 14px; background:#0a66c2; color:#fff; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.78em; display:inline-flex; align-items:center; gap:5px;">'
+                    + bpIcon('network', 12) + ' Upload .zip'
+                    + '<input type="file" accept=".zip" onchange="handleLinkedInMerge(this)" style="display:none;">'
+                    + '</label></div>';
+            }
             
             // ── CURATED/REPORTED COMP BANNER (prominent, above stat cards) ──
             if (hasCuratedComp) {
