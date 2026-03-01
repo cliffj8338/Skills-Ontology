@@ -1,4 +1,4 @@
-<!-- v4.45.47 | 2026-02-28 | Jobs Sync panel redesign -->
+<!-- v4.45.48 | 2026-02-28 | LinkedIn deep extraction + career progression -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1502,8 +1502,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.47 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.47';
+        // BLUEPRINT v4.45.48 - BUILD 20260228-bls-expansion
+        var BP_VERSION = 'v4.45.48';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -4567,6 +4567,9 @@
                         { id: 'p2-5u', name: 'BLS salary alias + keyword expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.45: bls-wages.json aliases expanded from 170 to 4,228 via four strategies: BLS title decomposition (singular forms, split compounds), seniority prefix generation (VP/Director/Senior/Lead variants), abbreviation patterns (mgr/dir/admin/rep), and 300+ hand-curated industry titles (tech, data, sales, marketing, HR, finance, legal, healthcare, education, trades, retail, consulting). Keywords expanded across 15 thin occupations. Fixes dozens of mismatches across demo profiles.' },
                         { id: 'p2-5v', name: 'O*NET Alternate Titles import (30K+)', status: 'planned', category: 'data', priority: 'high', notes: 'O*NET publishes ~30,000 alternate job titles pre-mapped to SOC codes (Alternate Titles file at onetonline.org/help/onet/titles). Download or API-fetch the dataset, normalize to lowercase, deduplicate against existing aliases, and merge into bls-wages.json. Would give near-universal coverage of real-world job titles. May need periodic refresh as O*NET updates quarterly. Consider build-time pipeline vs. runtime fetch.' },
                         { id: 'p2-5w', name: 'Jobs Sync panel redesign', status: 'done', category: 'ui', priority: 'low', notes: 'v4.45.47: Sources list replaced with horizontal bar chart visualization (sorted by count, gradient fills, proportional widths). CRON badge styled as pill. Errors section redesigned with dot indicator, monospace font, subtle background. Library count updated to 12/12 for BLS Aliases tile.' },
+                        { id: 'p2-5x', name: 'LinkedIn deep extraction (18 file types)', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.48: Expanded LinkedIn zip parser from 8 to 18 CSV file types. Now extracts: Endorsements (peer validation with skill-level boosting), Recommendations (qualitative evidence), Rich Media (posts/thought leadership), Articles (HTML parsing from Articles/ subfolder), LinkedIn Learning (completed courses), Volunteering, Honors, Causes, Organizations, Company Follows, Connections (network size). All stored in userData.linkedinContent for downstream use in scouting reports, document repository, and skill evidence. Import summary screen shows extraction stats before wizard continues.' },
+                        { id: 'p2-5y', name: 'Career progression grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.48: Positions at the same company are now grouped by normalized company name (strips LLC/Inc/People suffixes). Multi-position groups display as visual career timelines with left-border accent, timeline dots, tenure calculation, and ascending role labels. Single positions render normally. Progression badge shows role count. Roles carry progression arrays and totalYears for downstream scouting report use.' },
+                        { id: 'p2-5z', name: 'Endorsement-boosted skill levels', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.45.48: After deterministic skill inference, endorsement counts from LinkedIn are matched to skills (case-insensitive partial match). 10+ endorsements boost level by 1, 25+ by 2 (capped at Mastery). Boosted skills flagged with endorsementBoosted:true. Skills carry endorsement count in persisted data.' },
                         { id: 'p2-6a', name: 'Work Blueprint function refinement', status: 'planned', category: 'feature', priority: 'high', notes: 'Ongoing improvements to WB ecosystem. Includes: Firestore-backed comparison persistence (replace localStorage), comparison sharing via URL tokens, batch comparison mode (multiple candidates against one WB), WB template library (common roles pre-built), WB diff view (compare two WBs side-by-side), improved gap recommendation engine with learning resource links, WB versioning/history, and WB-to-scouting-report pipeline integration.' }
                     ]
                 },
@@ -13192,7 +13195,7 @@
                 appMode = 'active';
                 return;
             }
-            // v4.45.47: Check URL invite param (from email CTA)
+            // v4.45.48: Check URL invite param (from email CTA)
             try {
                 var urlParams = new URLSearchParams(window.location.search);
                 var inviteDocId = urlParams.get('invite');
@@ -18259,7 +18262,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                                 <li>Go to <strong>LinkedIn.com</strong> \u2192 click your profile photo \u2192 <strong>Settings & Privacy</strong></li>
                                 <li>Select <strong>Data Privacy</strong> tab \u2192 <strong>Get a copy of your data</strong></li>
                                 <li>Choose <strong>"Want something in particular?"</strong> and select these items:<br>
-                                    <span style="color:var(--text-primary); font-weight:500;">Profile, Positions, Skills, Education, Certifications</span></li>
+                                    <span style="color:var(--text-primary); font-weight:500;">Profile, Positions, Skills, Education, Certifications, Endorsements, Recommendations, Articles, Posts, Learning, Volunteering, Honors, Causes</span></li>
                                 <li>Click <strong>Request archive</strong> \u2014 LinkedIn emails you the download link in ~15 minutes</li>
                                 <li>Download the .zip file and upload it here</li>
                             </ol>
@@ -18327,7 +18330,11 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                 // Parse each CSV file we care about
                 const csvFiles = {};
                 const targetFiles = ['Profile.csv', 'Positions.csv', 'Skills.csv', 'Education.csv',
-                                     'Certifications.csv', 'Languages.csv', 'Projects.csv', 'Email Addresses.csv'];
+                                     'Certifications.csv', 'Languages.csv', 'Projects.csv', 'Email Addresses.csv',
+                                     'Endorsement_Received_Info.csv', 'Recommendations_Received.csv',
+                                     'Volunteering.csv', 'Honors.csv', 'Causes You Care About.csv',
+                                     'Rich_Media.csv', 'Learning.csv', 'Organizations.csv',
+                                     'Connections.csv', 'Company_Follows.csv'];
 
                 // Header normalization map: lowercase variant -> canonical name
                 // Handles LinkedIn format changes across regions and export versions
@@ -18358,7 +18365,27 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                     'license number': 'License Number', 'credential id': 'License Number',
                     'url': 'Url', 'credential url': 'Url',
                     // Email
-                    'email address': 'Email Address', 'email': 'Email Address'
+                    'email address': 'Email Address', 'email': 'Email Address',
+                    // Endorsement_Received_Info.csv
+                    'endorsement date': 'Endorsement Date', 'skill name': 'Skill Name',
+                    'endorser first name': 'Endorser First Name', 'endorser last name': 'Endorser Last Name',
+                    'endorsement status': 'Endorsement Status',
+                    // Recommendations_Received.csv
+                    'first name': 'First Name', 'last name': 'Last Name',
+                    'company': 'Company', 'job title': 'Job Title', 'text': 'Text',
+                    'creation date': 'Creation Date', 'status': 'Status',
+                    // Volunteering.csv
+                    'role': 'Role', 'cause': 'Cause',
+                    // Honors.csv
+                    'issued on': 'Issued On',
+                    // Learning.csv
+                    'content title': 'Content Title', 'content type': 'Content Type',
+                    'content completed at (if completed)': 'Content Completed At',
+                    // Rich_Media.csv
+                    'media description': 'Media Description', 'media link': 'Media Link',
+                    'date/time': 'Date/Time',
+                    // Causes
+                    'supported cause': 'Supported Cause'
                 };
 
                 function normalizeLinkedInRow(row) {
@@ -18423,54 +18450,282 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                     wizardState.profile.email = emailRows[0]['Email Address'] || emailRows[0]['email'] || '';
                 }
 
-                // ── Map Positions.csv ──
+                // ── Map Positions.csv (with multi-position career progression) ──
                 const positionRows = csvFiles['Positions.csv'] || [];
-                wizardState.workHistory = positionRows.map(function(row) {
+                
+                // Normalize company names for grouping (e.g. "Phenom People" → "Phenom")
+                function normalizeCompanyName(name) {
+                    if (!name) return '';
+                    var n = name.trim();
+                    // Common suffixes/variants to strip for matching
+                    var stripped = n.replace(/,?\s*(LLC|Inc\.?|Corp\.?|Ltd\.?|Co\.?|People|Group|Holdings)\.?\s*$/i, '').trim();
+                    return stripped || n;
+                }
+                
+                var rawPositions = positionRows.map(function(row) {
+                    var startStr = row['Started On'] || '';
+                    var endStr = row['Finished On'] || '';
+                    // Parse year from "Jan 2024" or "2004"
+                    var startYear = parseInt(startStr.split(' ').pop()) || parseInt(startStr) || 0;
+                    var endYear = endStr ? (parseInt(endStr.split(' ').pop()) || parseInt(endStr) || 0) : new Date().getFullYear();
                     return {
                         title: row['Title'] || '',
                         company: row['Company Name'] || '',
+                        companyNorm: normalizeCompanyName(row['Company Name'] || ''),
                         location: row['Location'] || '',
                         description: row['Description'] || '',
-                        startDate: row['Started On'] || '',
-                        endDate: row['Finished On'] || 'Present'
+                        startDate: startStr,
+                        endDate: endStr || 'Present',
+                        startYear: startYear,
+                        endYear: endYear
                     };
                 }).filter(function(w) { return w.title || w.company; });
+                
+                // Group positions by normalized company name
+                var companyGroups = {};
+                rawPositions.forEach(function(pos) {
+                    var key = pos.companyNorm.toLowerCase();
+                    if (!companyGroups[key]) companyGroups[key] = { name: pos.company, positions: [] };
+                    companyGroups[key].positions.push(pos);
+                });
+                
+                // Sort positions within each company by start year (earliest first)
+                Object.values(companyGroups).forEach(function(group) {
+                    group.positions.sort(function(a, b) { return a.startYear - b.startYear; });
+                    // Use the most common/recent company name variant
+                    group.name = group.positions[group.positions.length - 1].company;
+                    // Calculate total tenure
+                    var earliest = group.positions[0].startYear;
+                    var latest = Math.max.apply(null, group.positions.map(function(p) { return p.endYear; }));
+                    group.totalYears = latest - earliest;
+                    group.startYear = earliest;
+                    group.endYear = latest;
+                    group.isProgression = group.positions.length > 1;
+                });
+                
+                // Build flat work history (for existing consumers) and enriched company tenures
+                wizardState.workHistory = rawPositions.map(function(pos) {
+                    return {
+                        title: pos.title,
+                        company: pos.company,
+                        location: pos.location,
+                        description: pos.description,
+                        startDate: pos.startDate,
+                        endDate: pos.endDate
+                    };
+                });
+                
+                // Store company tenures for career progression display
+                wizardState.companyTenures = Object.values(companyGroups).sort(function(a, b) {
+                    return b.endYear - a.endYear;  // Most recent first
+                });
 
                 // Infer years of experience from earliest position
                 if (wizardState.workHistory.length > 0) {
-                    // Set current title from most recent position (first in list)
                     var mostRecent = wizardState.workHistory[0];
                     wizardState.profile.currentTitle = mostRecent.title || wizardState.profile.linkedinHeadline || '';
                     
-                    var earliest = wizardState.workHistory.reduce(function(min, w) {
-                        var y = parseInt((w.startDate || '').split(' ').pop()) || parseInt(w.startDate) || 9999;
-                        return y < min ? y : min;
+                    var earliest = rawPositions.reduce(function(min, w) {
+                        return w.startYear > 0 && w.startYear < min ? w.startYear : min;
                     }, 9999);
                     if (earliest < 9999) {
                         wizardState.profile.yearsExperience = new Date().getFullYear() - earliest;
                     }
                 } else {
-                    // No positions — fall back to LinkedIn headline as title
                     wizardState.profile.currentTitle = wizardState.profile.linkedinHeadline || '';
                 }
 
-                // Build roles from unique positions
+                // Build roles — for multi-position companies, create unified role with progression note
                 var roleMap = {};
                 var roleColors = ['#3b82f6','#ef4444','#10b981','#f59e0b','#a855f7','#ec4899','#06b6d4','#84cc16'];
-                wizardState.workHistory.forEach(function(w, i) {
-                    var key = w.title.toLowerCase().trim();
-                    if (key && !roleMap[key]) {
-                        var id = 'role' + (Object.keys(roleMap).length + 1);
-                        roleMap[key] = {
-                            id: id,
-                            name: w.title,
-                            company: w.company,
-                            years: w.startDate + (w.endDate !== 'Present' ? ' - ' + w.endDate : ' - Present'),
-                            color: roleColors[Object.keys(roleMap).length % roleColors.length]
-                        };
+                var roleIdx = 0;
+                
+                // Process company groups: multi-position companies get a single role with latest title
+                wizardState.companyTenures.forEach(function(group) {
+                    if (group.isProgression) {
+                        // Multi-position: use latest title, note the progression
+                        var latest = group.positions[group.positions.length - 1];
+                        var key = (latest.title + '@' + group.name).toLowerCase();
+                        if (!roleMap[key]) {
+                            var progression = group.positions.map(function(p) { return p.title; });
+                            roleMap[key] = {
+                                id: 'role' + (++roleIdx),
+                                name: latest.title,
+                                company: group.name,
+                                years: group.positions[0].startDate + ' - ' + (latest.endDate || 'Present'),
+                                color: roleColors[(roleIdx - 1) % roleColors.length],
+                                progression: progression,
+                                totalYears: group.totalYears,
+                                descriptions: group.positions.map(function(p) { return p.description; }).filter(Boolean)
+                            };
+                        }
+                    } else {
+                        // Single position at this company
+                        var pos = group.positions[0];
+                        var key = (pos.title + '@' + pos.company).toLowerCase();
+                        if (!roleMap[key]) {
+                            roleMap[key] = {
+                                id: 'role' + (++roleIdx),
+                                name: pos.title,
+                                company: pos.company,
+                                years: pos.startDate + (pos.endDate !== 'Present' ? ' - ' + pos.endDate : ' - Present'),
+                                color: roleColors[(roleIdx - 1) % roleColors.length],
+                                descriptions: pos.description ? [pos.description] : []
+                            };
+                        }
                     }
                 });
                 var parsedRoles = Object.values(roleMap).slice(0, 8);
+
+                // ── Map Endorsements (peer validation scores) ──
+                var endorsementRows = csvFiles['Endorsement_Received_Info.csv'] || [];
+                var endorsementCounts = {};
+                endorsementRows.forEach(function(row) {
+                    var skill = (row['Skill Name'] || '').trim();
+                    if (skill) endorsementCounts[skill] = (endorsementCounts[skill] || 0) + 1;
+                });
+                wizardState.endorsements = endorsementCounts;
+                var totalEndorsements = Object.values(endorsementCounts).reduce(function(s, v) { return s + v; }, 0);
+                console.log('\u2713 LinkedIn endorsements:', totalEndorsements, 'across', Object.keys(endorsementCounts).length, 'skills');
+                
+                // ── Map Recommendations Received ──
+                var recRows = csvFiles['Recommendations_Received.csv'] || [];
+                wizardState.recommendations = recRows.filter(function(row) {
+                    return (row['Status'] || '').toUpperCase() === 'VISIBLE' && (row['Text'] || '').length > 20;
+                }).map(function(row) {
+                    return {
+                        from: [row['First Name'], row['Last Name']].filter(Boolean).join(' '),
+                        company: row['Company'] || '',
+                        title: row['Job Title'] || '',
+                        text: row['Text'] || '',
+                        date: row['Creation Date'] || ''
+                    };
+                });
+                console.log('\u2713 LinkedIn recommendations:', wizardState.recommendations.length);
+                
+                // ── Map Volunteering ──
+                var volRows = csvFiles['Volunteering.csv'] || [];
+                wizardState.volunteering = volRows.map(function(row) {
+                    return {
+                        company: row['Company Name'] || '',
+                        role: row['Role'] || '',
+                        cause: row['Cause'] || '',
+                        description: row['Description'] || '',
+                        startDate: row['Started On'] || '',
+                        endDate: row['Finished On'] || ''
+                    };
+                }).filter(function(v) { return v.company || v.role; });
+                
+                // ── Map Honors ──
+                var honorsRows = csvFiles['Honors.csv'] || [];
+                wizardState.honors = honorsRows.map(function(row) {
+                    return {
+                        title: row['Title'] || row['Name'] || '',
+                        description: row['Description'] || '',
+                        date: row['Issued On'] || ''
+                    };
+                }).filter(function(h) { return h.title; });
+                
+                // ── Map Causes ──
+                var causesRows = csvFiles['Causes You Care About.csv'] || [];
+                wizardState.causes = causesRows.map(function(row) {
+                    return row['Supported Cause'] || Object.values(row)[0] || '';
+                }).filter(Boolean);
+                
+                // ── Map Organizations ──
+                var orgRows = csvFiles['Organizations.csv'] || [];
+                wizardState.organizations = orgRows.map(function(row) {
+                    return {
+                        name: row['Name'] || '',
+                        position: row['Position'] || '',
+                        description: row['Description'] || ''
+                    };
+                }).filter(function(o) { return o.name; });
+                
+                // ── Map LinkedIn Learning (completed courses) ──
+                var learningRows = csvFiles['Learning.csv'] || [];
+                wizardState.learning = learningRows.filter(function(row) {
+                    var completed = row['Content Completed At'] || '';
+                    return completed && completed !== 'N/A';
+                }).map(function(row) {
+                    return {
+                        title: row['Content Title'] || '',
+                        type: row['Content Type'] || '',
+                        completedAt: row['Content Completed At'] || ''
+                    };
+                });
+                var totalLearning = learningRows.length;
+                var completedLearning = wizardState.learning.length;
+                console.log('\u2713 LinkedIn Learning:', completedLearning, 'completed /', totalLearning, 'total courses');
+                
+                // ── Map Rich Media (posts/content) ──
+                var mediaRows = csvFiles['Rich_Media.csv'] || [];
+                wizardState.richMedia = mediaRows.filter(function(row) {
+                    var desc = row['Media Description'] || '';
+                    return desc.length > 100;  // Only substantial posts
+                }).map(function(row) {
+                    return {
+                        date: row['Date/Time'] || '',
+                        content: row['Media Description'] || '',
+                        link: row['Media Link'] || ''
+                    };
+                });
+                console.log('\u2713 LinkedIn posts:', wizardState.richMedia.length, 'substantial');
+                
+                // ── Extract Articles from .html files in Articles/ folder ──
+                wizardState.articles = [];
+                zip.forEach(function(path, entry) {
+                    if (!entry.dir && path.toLowerCase().includes('article') && path.endsWith('.html')) {
+                        wizardState._articleEntries = wizardState._articleEntries || [];
+                        wizardState._articleEntries.push(entry);
+                    }
+                });
+                if (wizardState._articleEntries && wizardState._articleEntries.length > 0) {
+                    for (var ae of wizardState._articleEntries) {
+                        try {
+                            var artHtml = await ae.async('text');
+                            var titleMatch = artHtml.match(/<title>(.*?)<\/title>/i);
+                            var createdMatch = artHtml.match(/Created on ([\d-]+)/);
+                            // Strip HTML to get plain text
+                            var artText = artHtml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+                            // Extract body content only (between <body> and </body>)
+                            var bodyMatch = artHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+                            var bodyText = bodyMatch ? bodyMatch[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : artText;
+                            
+                            wizardState.articles.push({
+                                title: titleMatch ? titleMatch[1].trim() : 'Untitled',
+                                created: createdMatch ? createdMatch[1] : '',
+                                wordCount: bodyText.split(/\s+/).length,
+                                text: bodyText.substring(0, 2000)  // First 2000 chars for analysis
+                            });
+                        } catch(e) { /* skip unparseable articles */ }
+                    }
+                    delete wizardState._articleEntries;
+                    console.log('\u2713 LinkedIn articles:', wizardState.articles.length);
+                }
+                
+                // ── Network size ──
+                var connRows = csvFiles['Connections.csv'] || [];
+                wizardState.networkSize = connRows.length;
+                
+                // ── Summary stats for import report ──
+                wizardState.importStats = {
+                    positions: rawPositions.length,
+                    companies: Object.keys(companyGroups).length,
+                    progressions: Object.values(companyGroups).filter(function(g) { return g.isProgression; }).length,
+                    skills: (csvFiles['Skills.csv'] || []).length,
+                    endorsements: totalEndorsements,
+                    endorsedSkills: Object.keys(endorsementCounts).length,
+                    recommendations: wizardState.recommendations.length,
+                    articles: wizardState.articles ? wizardState.articles.length : 0,
+                    posts: wizardState.richMedia ? wizardState.richMedia.length : 0,
+                    learning: totalLearning,
+                    learningCompleted: completedLearning,
+                    volunteering: wizardState.volunteering ? wizardState.volunteering.length : 0,
+                    honors: wizardState.honors ? wizardState.honors.length : 0,
+                    causes: wizardState.causes ? wizardState.causes.length : 0,
+                    network: wizardState.networkSize
+                };
 
                 // ── Map Skills.csv ──
                 const skillRows = csvFiles['Skills.csv'] || [];
@@ -18509,6 +18764,38 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                 // ── Deterministic skill inference via O*NET crosswalk ──
                 var SKILL_CAP = 30;
                 var inferredSkills = inferSkillsDeterministic(rawSkills, wizardState.workHistory, parsedRoles, SKILL_CAP);
+                
+                // ── Boost skill levels using endorsement peer validation ──
+                if (Object.keys(endorsementCounts).length > 0) {
+                    var levelOrder = ['Novice', 'Proficient', 'Advanced', 'Expert', 'Mastery'];
+                    inferredSkills.forEach(function(skill) {
+                        // Find endorsements matching this skill (case-insensitive partial match)
+                        var skillLower = skill.name.toLowerCase();
+                        var endorseCount = 0;
+                        Object.keys(endorsementCounts).forEach(function(eName) {
+                            if (eName.toLowerCase() === skillLower || 
+                                skillLower.indexOf(eName.toLowerCase()) >= 0 ||
+                                eName.toLowerCase().indexOf(skillLower) >= 0) {
+                                endorseCount += endorsementCounts[eName];
+                            }
+                        });
+                        if (endorseCount > 0) {
+                            skill.endorsements = endorseCount;
+                            // Boost: 10+ endorsements = +1 level, 25+ = +2 levels (capped at Mastery)
+                            var currentIdx = levelOrder.indexOf(skill.level);
+                            if (currentIdx >= 0) {
+                                var boost = endorseCount >= 25 ? 2 : endorseCount >= 10 ? 1 : 0;
+                                var newIdx = Math.min(currentIdx + boost, levelOrder.length - 1);
+                                if (newIdx > currentIdx) {
+                                    skill.level = levelOrder[newIdx];
+                                    skill.endorsementBoosted = true;
+                                }
+                            }
+                        }
+                    });
+                    var boosted = inferredSkills.filter(function(s) { return s.endorsementBoosted; }).length;
+                    if (boosted > 0) console.log('\u2713 Endorsement-boosted skills:', boosted);
+                }
 
                 wizardState.skills = inferredSkills;
                 wizardState.parsedData = {
@@ -18516,15 +18803,56 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
                     roles: parsedRoles,
                     skills: inferredSkills,
                     values: [],
-                    purpose: ''
+                    purpose: '',
+                    companyTenures: wizardState.companyTenures || [],
+                    endorsements: wizardState.endorsements || {},
+                    recommendations: wizardState.recommendations || [],
+                    volunteering: wizardState.volunteering || [],
+                    honors: wizardState.honors || [],
+                    causes: wizardState.causes || [],
+                    organizations: wizardState.organizations || [],
+                    articles: wizardState.articles || [],
+                    richMedia: wizardState.richMedia || [],
+                    learning: wizardState.learning || [],
+                    networkSize: wizardState.networkSize || 0,
+                    importStats: wizardState.importStats || {}
                 };
 
                 setMsg('Done! \u2713');
                 await new Promise(function(r) { setTimeout(r, 400); });
 
-                // Skip to profile review (step 4)
-                wizardState.step = 4;
-                renderWizardStep();
+                // Show import summary before proceeding
+                var stats = wizardState.importStats;
+                var summaryLines = [];
+                summaryLines.push(stats.positions + ' positions across ' + stats.companies + ' companies');
+                if (stats.progressions > 0) summaryLines.push(stats.progressions + ' career progression' + (stats.progressions > 1 ? 's' : '') + ' detected');
+                if (stats.endorsements > 0) summaryLines.push(stats.endorsements + ' endorsements across ' + stats.endorsedSkills + ' skills');
+                if (stats.recommendations > 0) summaryLines.push(stats.recommendations + ' recommendations');
+                if (stats.articles > 0) summaryLines.push(stats.articles + ' published articles');
+                if (stats.posts > 0) summaryLines.push(stats.posts + ' LinkedIn posts');
+                if (stats.learning > 0) summaryLines.push(stats.learningCompleted + '/' + stats.learning + ' courses completed');
+                if (stats.volunteering > 0) summaryLines.push(stats.volunteering + ' volunteer roles');
+                if (stats.honors > 0) summaryLines.push(stats.honors + ' honor' + (stats.honors > 1 ? 's' : ''));
+                if (stats.causes > 0) summaryLines.push(stats.causes + ' causes');
+                if (stats.network > 0) summaryLines.push(stats.network.toLocaleString() + ' connections');
+                
+                if (status) {
+                    status.innerHTML = '<div style="text-align:left; max-width:400px; margin:0 auto;">'
+                        + '<div style="font-size:1.1em; font-weight:700; color:var(--text-primary); margin-bottom:12px;">'
+                        + bpIcon('check', 18) + ' Import Complete</div>'
+                        + '<div style="display:flex; flex-direction:column; gap:4px;">'
+                        + summaryLines.map(function(line) {
+                            return '<div style="font-size:0.82em; color:var(--text-secondary); display:flex; align-items:center; gap:6px;">'
+                                + '<span style="width:5px; height:5px; border-radius:50%; background:var(--accent); flex-shrink:0;"></span>' + line + '</div>';
+                        }).join('')
+                        + '</div>'
+                        + '<button onclick="wizardState.step=4; renderWizardStep();" style="margin-top:16px; padding:10px 24px; '
+                        + 'background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; '
+                        + 'font-weight:600; font-size:0.9em; width:100%;">Continue to Profile Review →</button>'
+                        + '</div>';
+                }
+                
+                return;  // Don't auto-advance; let user click through after seeing summary
 
             } catch(err) {
                 console.error('LinkedIn .zip parse error:', err);
@@ -19438,19 +19766,44 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     ...s,
                     roles: s.roles || [],
                     key: s.key || false,
-                    onetId: s.onetId || null
+                    onetId: s.onetId || null,
+                    endorsements: s.endorsements || 0,
+                    endorsementBoosted: s.endorsementBoosted || false
                 })),
                 roles: (wizardState.parsedData?.roles || []).map((r, i) => ({
                     id: r.id || `role${i+1}`,
                     name: r.name || r.company || `Role ${i+1}`,
+                    company: r.company || '',
+                    years: r.years || '',
+                    progression: r.progression || null,
+                    totalYears: r.totalYears || null,
                     color: ['#ef4444','#f97316','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899'][i % 7]
                 })),
                 values: wizardState.values,
                 purpose: wizardState.purpose,
                 workHistory: wizardState.workHistory || [],
+                companyTenures: wizardState.companyTenures || [],
                 education: wizardState.education || [],
                 certifications: wizardState.certifications || [],
                 verifications: [],
+                // LinkedIn content repository
+                linkedinContent: {
+                    endorsements: wizardState.endorsements || {},
+                    recommendations: wizardState.recommendations || [],
+                    volunteering: wizardState.volunteering || [],
+                    honors: wizardState.honors || [],
+                    causes: wizardState.causes || [],
+                    organizations: wizardState.organizations || [],
+                    articles: (wizardState.articles || []).map(function(a) {
+                        return { title: a.title, created: a.created, wordCount: a.wordCount, text: a.text };
+                    }),
+                    posts: (wizardState.richMedia || []).map(function(p) {
+                        return { date: p.date, content: p.content.substring(0, 1500) };
+                    }),
+                    learning: wizardState.learning || [],
+                    networkSize: wizardState.networkSize || 0
+                },
+                importStats: wizardState.importStats || {},
                 preferences: { seniorityLevel: 'Senior', minimumMatchScore: 60, minimumSkillMatches: 3 },
                 applications: []
             };
@@ -35199,6 +35552,29 @@ body {
             var html = '';
             
             // --- Work History ---
+            // Build company groups for progression display
+            var companyGroups = {};
+            whItems.forEach(function(job, idx) {
+                var normCo = (job.company || '').trim().replace(/,?\s*(LLC|Inc\.?|Corp\.?|Ltd\.?|Co\.?|People|Group|Holdings)\.?\s*$/i, '').trim().toLowerCase();
+                if (!normCo) normCo = '_ungrouped_' + idx;
+                if (!companyGroups[normCo]) companyGroups[normCo] = [];
+                companyGroups[normCo].push({ job: job, idx: idx });
+            });
+            
+            // Sort groups: multi-position first, then by most recent start date
+            var groupArr = Object.values(companyGroups).sort(function(a, b) {
+                // Most recent position in each group
+                var aRecent = a.reduce(function(max, e) {
+                    var y = parseInt((e.job.startDate || '').split(' ').pop()) || parseInt(e.job.startDate) || 0;
+                    return y > max ? y : max;
+                }, 0);
+                var bRecent = b.reduce(function(max, e) {
+                    var y = parseInt((e.job.startDate || '').split(' ').pop()) || parseInt(e.job.startDate) || 0;
+                    return y > max ? y : max;
+                }, 0);
+                return bRecent - aRecent;
+            });
+            
             html += '<div class="blueprint-section">'
                 + '<div class="blueprint-section-header">'
                 + '<div class="blueprint-section-title">'
@@ -35208,44 +35584,125 @@ body {
                 + '</div>'
                 + '</div>'
                 + '<div class="coaching-tip">'
-                + '<div class="coaching-tip-title">' + bpIcon('lightbulb',14) + ' BUILD YOUR CAREER TIMELINE</div>'
+                + '<div class="coaching-tip-title">' + bpIcon('lightbulb',14) + ' CAREER PROGRESSION</div>'
                 + '<div class="coaching-tip-content">'
-                + 'Add your work history in reverse chronological order. Achievements here will appear in resume exports. '
-                + 'For best results, include 2-4 quantified accomplishments per role.'
+                + 'Positions at the same company are grouped to show your career trajectory. Multiple roles demonstrate growth, expanding scope, and increasing responsibility.'
                 + '</div>'
                 + '</div>';
             
             if (whItems.length > 0) {
-                whItems.forEach(function(job, idx) {
-                    var dateRange = formatWorkDate(job.startDate || '?') + ' \u2013 ' + (job.current ? 'Present' : formatWorkDate(job.endDate || '?'));
-                    html += '<div style="padding:16px; margin-bottom:12px; background:var(--c-surface-1); '
-                        + 'border:1px solid var(--c-surface-5b); border-radius:10px; position:relative;">';
+                groupArr.forEach(function(group) {
+                    var isProgression = group.length > 1;
                     
-                    // Controls
-                    html += '<div style="position:absolute; top:10px; right:10px; display:flex; gap:6px;">'
-                        + '<button onclick="editWorkHistoryItem(' + idx + ')" title="Edit" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:var(--c-accent);">\u270E</button>'
-                        + '<button onclick="removeWorkHistoryItem(' + idx + ')" title="Remove" style="background:none; border:none; cursor:pointer; font-size:0.9em; color:var(--c-danger);">\u00D7</button>'
-                        + '</div>';
+                    // Sort positions within group by start date (earliest first for progression display)
+                    group.sort(function(a, b) {
+                        var aY = parseInt((a.job.startDate || '').split(' ').pop()) || parseInt(a.job.startDate) || 0;
+                        var bY = parseInt((b.job.startDate || '').split(' ').pop()) || parseInt(b.job.startDate) || 0;
+                        return aY - bY;
+                    });
                     
-                    html += '<div style="font-weight:700; color:var(--c-text-alt); font-size:0.95em;">' + escapeHtml(job.title || 'Untitled Role') + '</div>'
-                        + '<div style="color:var(--c-accent); font-size:0.88em; margin-top:2px;">' + escapeHtml(job.company || '') + (job.location ? ' \u00B7 ' + escapeHtml(job.location) : '') + '</div>'
-                        + '<div style="color:var(--c-muted); font-size:0.82em; margin-top:2px;">' + dateRange + '</div>';
-                    
-                    if (job.description) {
-                        html += '<div style="color:var(--c-heading); font-size:0.85em; margin-top:8px; line-height:1.5;">' + escapeHtml(job.description) + '</div>';
-                    }
-                    
-                    if (job.achievements && job.achievements.length > 0) {
-                        html += '<div style="margin-top:8px;">';
-                        job.achievements.forEach(function(ach) {
-                            html += '<div style="font-size:0.83em; color:var(--c-heading); padding:3px 0 3px 14px; position:relative; line-height:1.45;">'
-                                + '<span style="position:absolute; left:0; color:var(--c-success);">\u25B8</span>'
-                                + escapeHtml(ach) + '</div>';
+                    if (isProgression) {
+                        var coName = group[0].job.company || 'Company';
+                        var firstStart = group[0].job.startDate || '?';
+                        var lastEnd = group[group.length - 1].job.endDate || group[group.length - 1].job.current ? 'Present' : '?';
+                        
+                        // Calculate total tenure
+                        var firstYear = parseInt((firstStart || '').split(' ').pop()) || parseInt(firstStart) || 0;
+                        var lastYear = lastEnd === 'Present' ? new Date().getFullYear() : (parseInt((lastEnd || '').split(' ').pop()) || parseInt(lastEnd) || 0);
+                        var tenure = lastYear - firstYear;
+                        
+                        html += '<div style="padding:16px; margin-bottom:12px; background:var(--c-surface-1); '
+                            + 'border:1px solid var(--c-surface-5b); border-radius:10px; border-left:3px solid var(--c-accent);">';
+                        
+                        // Company header with progression badge
+                        html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
+                            + '<div>'
+                            + '<div style="font-weight:700; color:var(--c-accent); font-size:0.95em;">' + escapeHtml(coName) + '</div>'
+                            + '<div style="color:var(--c-muted); font-size:0.78em;">' + formatWorkDate(firstStart) + ' \u2013 ' + (lastEnd === 'Present' ? 'Present' : formatWorkDate(lastEnd))
+                            + (tenure > 0 ? ' \u00B7 ' + tenure + ' year' + (tenure !== 1 ? 's' : '') : '') + '</div>'
+                            + '</div>'
+                            + '<span style="font-size:0.68em; padding:3px 8px; border-radius:4px; '
+                            + 'background:rgba(96,165,250,0.1); color:#60a5fa; font-weight:600; letter-spacing:0.03em;">'
+                            + '\u2191 ' + group.length + ' ROLES</span>'
+                            + '</div>';
+                        
+                        // Progression timeline (most recent on top)
+                        var reversedGroup = group.slice().reverse();
+                        reversedGroup.forEach(function(entry, gIdx) {
+                            var job = entry.job;
+                            var idx = entry.idx;
+                            var isLatest = gIdx === 0;
+                            var dateRange = formatWorkDate(job.startDate || '?') + ' \u2013 ' + (job.current ? 'Present' : formatWorkDate(job.endDate || '?'));
+                            
+                            html += '<div style="padding:10px 12px; margin-left:12px; border-left:2px solid '
+                                + (isLatest ? 'var(--c-accent)' : 'var(--c-surface-5b)') + '; position:relative;">';
+                            
+                            // Timeline dot
+                            html += '<div style="position:absolute; left:-5px; top:14px; width:8px; height:8px; border-radius:50%; '
+                                + 'background:' + (isLatest ? 'var(--c-accent)' : 'var(--c-surface-5b)') + ';"></div>';
+                            
+                            // Controls
+                            html += '<div style="position:absolute; top:6px; right:4px; display:flex; gap:6px;">'
+                                + '<button onclick="editWorkHistoryItem(' + idx + ')" title="Edit" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:var(--c-accent);">\u270E</button>'
+                                + '<button onclick="removeWorkHistoryItem(' + idx + ')" title="Remove" style="background:none; border:none; cursor:pointer; font-size:0.9em; color:var(--c-danger);">\u00D7</button>'
+                                + '</div>';
+                            
+                            html += '<div style="font-weight:' + (isLatest ? '700' : '600') + '; color:var(--c-text-alt); font-size:0.9em;">' + escapeHtml(job.title || 'Untitled') + '</div>'
+                                + '<div style="color:var(--c-muted); font-size:0.78em; margin-top:1px;">' + dateRange + '</div>';
+                            
+                            if (job.description && isLatest) {
+                                html += '<div style="color:var(--c-heading); font-size:0.82em; margin-top:6px; line-height:1.5;">' + escapeHtml(job.description.substring(0, 300)) + (job.description.length > 300 ? '...' : '') + '</div>';
+                            }
+                            
+                            if (job.achievements && job.achievements.length > 0 && isLatest) {
+                                html += '<div style="margin-top:6px;">';
+                                job.achievements.forEach(function(ach) {
+                                    html += '<div style="font-size:0.8em; color:var(--c-heading); padding:2px 0 2px 14px; position:relative; line-height:1.45;">'
+                                        + '<span style="position:absolute; left:0; color:var(--c-success);">\u25B8</span>'
+                                        + escapeHtml(ach) + '</div>';
+                                });
+                                html += '</div>';
+                            }
+                            
+                            html += '</div>';
                         });
+                        
+                        html += '</div>';
+                    } else {
+                        // Single position — render normally
+                        var entry = group[0];
+                        var job = entry.job;
+                        var idx = entry.idx;
+                        var dateRange = formatWorkDate(job.startDate || '?') + ' \u2013 ' + (job.current ? 'Present' : formatWorkDate(job.endDate || '?'));
+                        
+                        html += '<div style="padding:16px; margin-bottom:12px; background:var(--c-surface-1); '
+                            + 'border:1px solid var(--c-surface-5b); border-radius:10px; position:relative;">';
+                        
+                        html += '<div style="position:absolute; top:10px; right:10px; display:flex; gap:6px;">'
+                            + '<button onclick="editWorkHistoryItem(' + idx + ')" title="Edit" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:var(--c-accent);">\u270E</button>'
+                            + '<button onclick="removeWorkHistoryItem(' + idx + ')" title="Remove" style="background:none; border:none; cursor:pointer; font-size:0.9em; color:var(--c-danger);">\u00D7</button>'
+                            + '</div>';
+                        
+                        html += '<div style="font-weight:700; color:var(--c-text-alt); font-size:0.95em;">' + escapeHtml(job.title || 'Untitled Role') + '</div>'
+                            + '<div style="color:var(--c-accent); font-size:0.88em; margin-top:2px;">' + escapeHtml(job.company || '') + (job.location ? ' \u00B7 ' + escapeHtml(job.location) : '') + '</div>'
+                            + '<div style="color:var(--c-muted); font-size:0.82em; margin-top:2px;">' + dateRange + '</div>';
+                        
+                        if (job.description) {
+                            html += '<div style="color:var(--c-heading); font-size:0.85em; margin-top:8px; line-height:1.5;">' + escapeHtml(job.description) + '</div>';
+                        }
+                        
+                        if (job.achievements && job.achievements.length > 0) {
+                            html += '<div style="margin-top:8px;">';
+                            job.achievements.forEach(function(ach) {
+                                html += '<div style="font-size:0.83em; color:var(--c-heading); padding:3px 0 3px 14px; position:relative; line-height:1.45;">'
+                                    + '<span style="position:absolute; left:0; color:var(--c-success);">\u25B8</span>'
+                                    + escapeHtml(ach) + '</div>';
+                            });
+                            html += '</div>';
+                        }
+                        
                         html += '</div>';
                     }
-                    
-                    html += '</div>';
                 });
             } else {
                 html += '<div style="text-align:center; padding:24px; color:var(--c-faint); font-size:0.9em;">'
