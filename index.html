@@ -1,4 +1,4 @@
-<!-- v4.45.66 | 2026-02-28 | Role card body-level fix + report skill visibility filter -->
+<!-- v4.45.67 | 2026-02-28 | Dev velocity tile fixes -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1506,7 +1506,7 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.45.63 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.66';
+        var BP_VERSION = 'v4.45.67';
         
         // ===== DEV VELOCITY TRACKING =====
         window._blueprintDevStats = {
@@ -3446,7 +3446,7 @@
             // Compute dynamic stats
             var doneFeatures = 0;
             var totalRoadmapItems = 0;
-            var roadmapPhases = typeof roadmapData !== 'undefined' ? (roadmapData.phases || []) : [];
+            var roadmapPhases = typeof ROADMAP_DATA !== 'undefined' ? (ROADMAP_DATA.phases || []) : [];
             roadmapPhases.forEach(function(phase) {
                 (phase.items || []).forEach(function(item) {
                     totalRoadmapItems++;
@@ -3505,7 +3505,7 @@
                 { label: 'Deploys', value: totalDeploys + '+', color: '#a855f7', icon: 'layers' },
                 { label: 'AI Sessions', value: devStats.sessionsAI, color: '#f59e0b', icon: 'wand' },
                 { label: 'AI Hours', value: Math.round(aiHoursTotal), color: '#06b6d4', icon: 'clock' },
-                { label: 'First Commit', value: devStats.firstCommit.replace('2025-','').replace('-','/'), color: '#6b7280', icon: 'calendar' }
+                { label: 'First Commit', value: devStats.firstCommit.replace('2025-','').replace('-','/'), color: '#6b7280', icon: 'clock' }
             ];
             devTiles.forEach(function(t) {
                 html += '<div style="padding:12px; background:var(--c-surface-4b); border:1px solid var(--c-border-faint); border-radius:8px; text-align:center;">'
