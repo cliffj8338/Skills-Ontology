@@ -1,4 +1,4 @@
-<!-- v4.45.48 | 2026-02-28 | LinkedIn deep extraction + career progression -->
+<!-- v4.45.49 | 2026-02-28 | Education modal redesign + architecture updates -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1502,8 +1502,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.48 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.48';
+        // BLUEPRINT v4.45.49 - BUILD 20260228-bls-expansion
+        var BP_VERSION = 'v4.45.49';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -4532,7 +4532,7 @@
                         { id: 'p2-3n', name: 'Unified skill editor + UX fixes', status: 'done', category: 'ux', priority: 'high', notes: 'Single modal combining level/roles/assess/core. Network name label offset. quickScore v3 (word-boundary + level weighting). Alphabetical skill sorting. BLS Potential tile always shown. bpIcon assess bug.' },
                         { id: 'p2-3o', name: 'Wizard Step 9 save+download UX', status: 'done', category: 'ux', priority: 'medium', notes: 'Single Save button with pre-checked download checkbox. Replaces two separate buttons.' },
                         { id: 'p2-3p', name: 'Architecture map v2 — layered diagram', status: 'done', category: 'admin', priority: 'medium', notes: 'Replaced force-directed graph with structured swim-lane layout. 4 layers: Frontend→Runtime→Backend→External. Rich detail panels with function names, line ranges, data flows, dependencies, tech debt. Engineer-grade onboarding tool.' },
-                        { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'in-progress', category: 'process', priority: 'medium', notes: 'v4.45.48: Updated wizard, userData, skill engine, Firestore component details for LinkedIn deep extraction. Firebase Blaze plan reflected. Line count updated to ~41K. Pricing reference corrected (Sonnet 4: $3/$15). Still needs automated generation from code comments.' },
+                        { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'in-progress', category: 'process', priority: 'medium', notes: 'v4.45.49: Updated wizard, userData, skill engine, Firestore component details for LinkedIn deep extraction. Firebase Blaze plan reflected. Line count updated to ~41K. Pricing reference corrected (Sonnet 4: $3/$15). Still needs automated generation from code comments.' },
                         { id: 'p2-3r', name: 'Skill editor outcomes + reports cleanup + network v3', status: 'done', category: 'ux', priority: 'high', notes: 'Unified editor: wider padding, linked outcomes section. Reports: PREVIEW labels on analytics/heatmap/share links, removed fake views/status from My Reports. Network: center node at width*0.18, role label truncation 24 chars.' },
                         { id: 'p2-3s', name: 'JD → Work Blueprint converter', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.06+: Full AI-powered converter. Paste JD text or upload PDF, AI extracts Skills/Outcomes/Proficiency, experience requirements, values & purpose signals, regional compensation via BLS. Outputs structured Work Blueprint saved to Firestore repository. Includes Work Blueprint Wizard for manual creation, repository with card grid, and full CRUD.' },
                         { id: 'p2-3t', name: 'SEO + Generative Engine Optimization', status: 'active', category: 'infrastructure', priority: 'high', notes: 'Full metadata suite: title, description, Open Graph, Twitter Cards, canonical URL, favicon, JSON-LD structured data (WebApplication + Organization), robots, theme-color. Generative engine optimization: semantic HTML, descriptive headings, FAQ schema, HowTo schema, speakable metadata, citation-friendly content structure. Goal: discoverable by both traditional search and AI-powered answer engines (Google SGE, Perplexity, ChatGPT Browse).' },
@@ -4567,9 +4567,11 @@
                         { id: 'p2-5u', name: 'BLS salary alias + keyword expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.45: bls-wages.json aliases expanded from 170 to 4,228 via four strategies: BLS title decomposition (singular forms, split compounds), seniority prefix generation (VP/Director/Senior/Lead variants), abbreviation patterns (mgr/dir/admin/rep), and 300+ hand-curated industry titles (tech, data, sales, marketing, HR, finance, legal, healthcare, education, trades, retail, consulting). Keywords expanded across 15 thin occupations. Fixes dozens of mismatches across demo profiles.' },
                         { id: 'p2-5v', name: 'O*NET Alternate Titles import (30K+)', status: 'planned', category: 'data', priority: 'high', notes: 'O*NET publishes ~30,000 alternate job titles pre-mapped to SOC codes (Alternate Titles file at onetonline.org/help/onet/titles). Download or API-fetch the dataset, normalize to lowercase, deduplicate against existing aliases, and merge into bls-wages.json. Would give near-universal coverage of real-world job titles. May need periodic refresh as O*NET updates quarterly. Consider build-time pipeline vs. runtime fetch.' },
                         { id: 'p2-5w', name: 'Jobs Sync panel redesign', status: 'done', category: 'ui', priority: 'low', notes: 'v4.45.47: Sources list replaced with horizontal bar chart visualization (sorted by count, gradient fills, proportional widths). CRON badge styled as pill. Errors section redesigned with dot indicator, monospace font, subtle background. Library count updated to 12/12 for BLS Aliases tile.' },
-                        { id: 'p2-5x', name: 'LinkedIn deep extraction (18 file types)', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.48: Expanded LinkedIn zip parser from 8 to 18 CSV file types. Now extracts: Endorsements (peer validation with skill-level boosting), Recommendations (qualitative evidence), Rich Media (posts/thought leadership), Articles (HTML parsing from Articles/ subfolder), LinkedIn Learning (completed courses), Volunteering, Honors, Causes, Organizations, Company Follows, Connections (network size). All stored in userData.linkedinContent for downstream use in scouting reports, document repository, and skill evidence. Import summary screen shows extraction stats before wizard continues.' },
-                        { id: 'p2-5y', name: 'Career progression grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.48: Positions at the same company are now grouped by normalized company name (strips LLC/Inc/People suffixes). Multi-position groups display as visual career timelines with left-border accent, timeline dots, tenure calculation, and ascending role labels. Single positions render normally. Progression badge shows role count. Roles carry progression arrays and totalYears for downstream scouting report use.' },
+                        { id: 'p2-5x', name: 'LinkedIn deep extraction (18 file types)', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.49: Expanded LinkedIn zip parser from 8 to 18 CSV file types. Now extracts: Endorsements (peer validation with skill-level boosting), Recommendations (qualitative evidence), Rich Media (posts/thought leadership), Articles (HTML parsing from Articles/ subfolder), LinkedIn Learning (completed courses), Volunteering, Honors, Causes, Organizations, Company Follows, Connections (network size). All stored in userData.linkedinContent for downstream use in scouting reports, document repository, and skill evidence. Import summary screen shows extraction stats before wizard continues.' },
+                        { id: 'p2-5y', name: 'Career progression grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.49: Positions at the same company are now grouped by normalized company name (strips LLC/Inc/People suffixes). Multi-position groups display as visual career timelines with left-border accent, timeline dots, tenure calculation, and ascending role labels. Single positions render normally. Progression badge shows role count. Roles carry progression arrays and totalYears for downstream scouting report use.' },
                         { id: 'p2-5z', name: 'Endorsement-boosted skill levels', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.45.48: After deterministic skill inference, endorsement counts from LinkedIn are matched to skills (case-insensitive partial match). 10+ endorsements boost level by 1, 25+ by 2 (capped at Mastery). Boosted skills flagged with endorsementBoosted:true. Skills carry endorsement count in persisted data.' },
+                        { id: 'p2-6a', name: 'Education modal redesign (non-traditional learning)', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.49: Replaced rigid School/Degree/Field/Year form with adaptive education modal. Six type pills (Degree, Certificate, Trade, Bootcamp, Prof Dev, Military) dynamically adjust labels, placeholders, and visible fields. Start/End year for duration programs. Issuing Authority field for licenses/certificates. Collapsible description. Credential linking: dropdown links education entries to existing certifications (e.g. TNT Air flight school → Private Pilot Certificate). Type badges in list view. Fully backward compatible with existing education data.' },
+                        { id: 'p2-6b', name: 'Architecture & cost updates', status: 'done', category: 'admin', priority: 'medium', notes: 'v4.45.49: Firebase Spark→Blaze ($25/mo budget). Sonnet 4 output pricing corrected ($3→$15/1M). Architecture header updated to ~41K lines. Component details updated: wizard (18 file types), userData (linkedinContent), skill engine (endorsement boost), Firestore (Blaze, new fields). Last-updated note refreshed.' },
                         { id: 'p2-6a', name: 'Work Blueprint function refinement', status: 'planned', category: 'feature', priority: 'high', notes: 'Ongoing improvements to WB ecosystem. Includes: Firestore-backed comparison persistence (replace localStorage), comparison sharing via URL tokens, batch comparison mode (multiple candidates against one WB), WB template library (common roles pre-built), WB diff view (compare two WBs side-by-side), improved gap recommendation engine with learning resource links, WB versioning/history, and WB-to-scouting-report pipeline integration.' }
                     ]
                 },
@@ -5710,7 +5712,7 @@
             
             // Note
             html += '<div style="font-size:0.75em; color:var(--text-muted); margin-bottom:16px; padding:8px 12px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px;">'
-                + '' + bpIcon('warning', 12) + ' <strong>Last updated:</strong> v4.45.48 \u2014 LinkedIn deep extraction (18 file types), career progression grouping, endorsement-boosted skill levels, Firebase Blaze plan. 38+ components, 35+ data flows. See roadmap items p2-5x/y/z.'
+                + '' + bpIcon('warning', 12) + ' <strong>Last updated:</strong> v4.45.49 \u2014 LinkedIn deep extraction (18 file types), career progression grouping, endorsement-boosted skill levels, Firebase Blaze plan. 38+ components, 35+ data flows. See roadmap items p2-5x/y/z.'
                 + '</div>';
             
             // === TILES VIEW ===
@@ -13195,7 +13197,7 @@
                 appMode = 'active';
                 return;
             }
-            // v4.45.48: Check URL invite param (from email CTA)
+            // v4.45.49: Check URL invite param (from email CTA)
             try {
                 var urlParams = new URLSearchParams(window.location.search);
                 var inviteDocId = urlParams.get('invite');
@@ -35729,20 +35731,62 @@ body {
                 + '</div>';
             
             if (edItems.length > 0) {
+                var edTypeIcons = { degree:'🎓', cert:'📜', trade:'🔧', bootcamp:'⚡', profdev:'📊', military:'🎖️' };
+                var edTypeLabels = { degree:'Degree', cert:'Certificate', trade:'Trade', bootcamp:'Bootcamp', profdev:'Prof Dev', military:'Military' };
+                
                 edItems.forEach(function(ed, idx) {
+                    var edType = ed.type || 'degree';
+                    var icon = edTypeIcons[edType] || '🎓';
+                    var typeLabel = edTypeLabels[edType] || 'Degree';
+                    var hasLinkedCreds = ed.linkedCredentials && ed.linkedCredentials.length > 0;
+                    
+                    // Build date display
+                    var dateStr = '';
+                    if (ed.startYear && ed.endYear) {
+                        dateStr = ed.startYear + ' \u2013 ' + (ed.currentlyEnrolled ? 'Present' : ed.endYear);
+                    } else if (ed.startYear && ed.currentlyEnrolled) {
+                        dateStr = ed.startYear + ' \u2013 Present';
+                    } else if (ed.year) {
+                        dateStr = ed.year;
+                    }
+                    
                     html += '<div style="padding:12px 16px; margin-bottom:8px; background:var(--c-surface-1); '
-                        + 'border:1px solid var(--c-surface-5b); border-radius:8px; '
-                        + 'display:flex; justify-content:space-between; align-items:center;">'
-                        + '<div>'
-                        + '<div style="font-weight:600; color:var(--c-text-alt); font-size:0.9em;">'
-                        + (ed.degree || '') + (ed.field ? ' in ' + ed.field : '') + '</div>'
-                        + '<div style="color:var(--c-muted); font-size:0.82em;">'
-                        + (ed.school || '') + (ed.year ? ' \u00B7 ' + ed.year : '') + '</div>'
+                        + 'border:1px solid var(--c-surface-5b); border-radius:8px;">'
+                        + '<div style="display:flex; justify-content:space-between; align-items:flex-start;">'
+                        + '<div style="flex:1; min-width:0;">'
+                        
+                        // Type badge + credential
+                        + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;">'
+                        + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:var(--c-surface-4a); color:var(--c-muted); font-weight:600; white-space:nowrap;">'
+                        + icon + ' ' + typeLabel + '</span>'
                         + '</div>'
-                        + '<div style="display:flex; gap:6px;">'
+                        
+                        // Main line: degree/credential + field
+                        + '<div style="font-weight:600; color:var(--c-text-alt); font-size:0.9em; margin-top:4px;">'
+                        + (ed.degree || '') + (ed.field ? ' in ' + ed.field : '') + '</div>'
+                        
+                        // Institution + dates
+                        + '<div style="color:var(--c-muted); font-size:0.82em; margin-top:2px;">'
+                        + (ed.school || '') 
+                        + (ed.issuingAuthority ? ' \u00B7 Issued by ' + ed.issuingAuthority : '')
+                        + (dateStr ? ' \u00B7 ' + dateStr : '') + '</div>'
+                        
+                        // Linked credentials
+                        + (hasLinkedCreds ? '<div style="margin-top:6px;">' + ed.linkedCredentials.map(function(ci) {
+                            var cert = userData.certifications[ci];
+                            if (!cert) return '';
+                            return '<span style="font-size:0.72em; padding:2px 8px; border-radius:8px; background:var(--c-accent-bg-5a); color:var(--c-accent-deep); font-weight:600;">'
+                                + '\uD83D\uDD17 ' + escapeHtml(cert.name + (cert.abbr ? ' (' + cert.abbr + ')' : '')) + '</span> ';
+                        }).join('') + '</div>' : '')
+                        
+                        // Description preview
+                        + (ed.description ? '<div style="color:var(--c-heading); font-size:0.78em; margin-top:4px; line-height:1.4; opacity:0.8;">' + escapeHtml(ed.description.substring(0, 120)) + (ed.description.length > 120 ? '...' : '') + '</div>' : '')
+                        
+                        + '</div>'
+                        + '<div style="display:flex; gap:6px; flex-shrink:0;">'
                         + '<button onclick="editEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:var(--c-accent);">\u270E</button>'
                         + '<button onclick="removeEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.9em; color:var(--c-danger);">\u00D7</button>'
-                        + '</div></div>';
+                        + '</div></div></div>';
                 });
             } else {
                 html += '<div style="text-align:center; padding:16px; color:var(--c-faint); font-size:0.88em;">'
@@ -35969,28 +36013,110 @@ body {
         }
         
         function openEducationModal(idx) {
-            var ed = idx >= 0 ? userData.education[idx] : { school:'', degree:'', field:'', year:'' };
+            var ed = idx >= 0 ? userData.education[idx] : { school:'', degree:'', field:'', year:'', type:'degree', startYear:'', endYear:'', description:'', issuingAuthority:'', linkedCredentials:[], currentlyEnrolled:false };
             var isEdit = idx >= 0;
             var modal = document.getElementById('exportModal');
             var mc = modal.querySelector('.modal-content');
             
+            // Education type configurations
+            var edTypes = {
+                degree:   { label:'Degree',         icon:'🎓', instLabel:'School / University',    credLabel:'Degree',           credPlaceholder:'B.S., M.B.A., Ph.D.', fieldLabel:'Field of Study',  fieldPlaceholder:'Business Administration', showAuthority:false, showDuration:true,  showEnrolled:true  },
+                cert:     { label:'Certificate',     icon:'📜', instLabel:'Issuing Org / School',   credLabel:'Certificate / License', credPlaceholder:'Private Pilot, CDL-A', fieldLabel:'Specialization',  fieldPlaceholder:'Aviation, Cybersecurity', showAuthority:true,  showDuration:true,  showEnrolled:false },
+                trade:    { label:'Trade / Vocational', icon:'🔧', instLabel:'School / Program',    credLabel:'Credential',       credPlaceholder:'Journeyman, Certification', fieldLabel:'Trade / Focus', fieldPlaceholder:'Welding, Electrical, HVAC', showAuthority:false, showDuration:true,  showEnrolled:true  },
+                bootcamp: { label:'Bootcamp',        icon:'⚡', instLabel:'Program / Provider',     credLabel:'Certificate',      credPlaceholder:'Certificate of Completion', fieldLabel:'Focus Area',      fieldPlaceholder:'Full-Stack Development',   showAuthority:false, showDuration:true,  showEnrolled:true  },
+                profdev:  { label:'Professional Dev', icon:'📊', instLabel:'Organization',           credLabel:'Completion',       credPlaceholder:'Executive Certificate',     fieldLabel:'Focus Area',      fieldPlaceholder:'Leadership, Finance',      showAuthority:false, showDuration:false, showEnrolled:false },
+                military: { label:'Military',        icon:'🎖️', instLabel:'Branch / School',        credLabel:'Qualification',    credPlaceholder:'MOS, Rating, NEC',          fieldLabel:'Specialty',        fieldPlaceholder:'Infantry, Aviation, Intel', showAuthority:false, showDuration:true,  showEnrolled:true  }
+            };
+            
+            var currentType = ed.type || 'degree';
+            
+            // Build type pills
+            var pillsHtml = '<div id="edTypePills" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px;">';
+            Object.keys(edTypes).forEach(function(key) {
+                var t = edTypes[key];
+                var isActive = key === currentType;
+                pillsHtml += '<button onclick="edSwitchType(\'' + key + '\')" data-ed-type="' + key + '" '
+                    + 'style="padding:6px 14px; border-radius:20px; font-size:0.78em; font-weight:600; cursor:pointer; transition:all 0.15s; '
+                    + 'border:1px solid ' + (isActive ? 'var(--accent)' : 'var(--c-border-solid)') + '; '
+                    + 'background:' + (isActive ? 'var(--accent)' : 'transparent') + '; '
+                    + 'color:' + (isActive ? '#fff' : 'var(--c-muted)') + ';">'
+                    + t.icon + ' ' + t.label + '</button>';
+            });
+            pillsHtml += '</div>';
+            
+            var cfg = edTypes[currentType];
+            
+            // Build credential link options from existing certifications
+            var certOptions = '<option value="">— None —</option>';
+            (userData.certifications || []).forEach(function(c, ci) {
+                var name = c.name + (c.abbr ? ' (' + c.abbr + ')' : '');
+                var isLinked = (ed.linkedCredentials || []).indexOf(ci) >= 0 || (ed.linkedCredentials || []).indexOf(c.name) >= 0;
+                certOptions += '<option value="' + ci + '"' + (isLinked ? ' selected' : '') + '>' + escapeHtml(name) + '</option>';
+            });
+            
             mc.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left">'
                 + '<h2 class="modal-title">' + (isEdit ? 'Edit Education' : 'Add Education') + '</h2>'
+                + '<p style="color:var(--c-muted); margin-top:4px; font-size:0.85em;">All learning counts — degrees, licenses, trades, bootcamps, military</p>'
                 + '</div>'
                 + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
-                + '<div class="modal-body" style="padding:24px;">'
+                + '<div class="modal-body" style="padding:24px; max-height:75vh; overflow-y:auto;">'
+                
+                // Type pills
+                + pillsHtml
+                
+                // Row 1: Institution + Credential
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
-                + '<div class="settings-group"><label class="settings-label">School / University</label>'
-                + '<input type="text" class="settings-input" id="edSchool" value="' + escapeHtml(ed.school||'') + '" placeholder="University of Pennsylvania"></div>'
-                + '<div class="settings-group"><label class="settings-label">Degree</label>'
-                + '<input type="text" class="settings-input" id="edDegree" value="' + escapeHtml(ed.degree||'') + '" placeholder="B.S., M.B.A., etc."></div>'
-                + '<div class="settings-group"><label class="settings-label">Field of Study</label>'
-                + '<input type="text" class="settings-input" id="edField" value="' + escapeHtml(ed.field||'') + '" placeholder="Business Administration"></div>'
-                + '<div class="settings-group"><label class="settings-label">Year</label>'
-                + '<input type="text" class="settings-input" id="edYear" value="' + escapeHtml(ed.year||'') + '" placeholder="2012"></div>'
+                + '<div class="settings-group"><label class="settings-label" id="edInstLabel">' + cfg.instLabel + '</label>'
+                + '<input type="text" class="settings-input" id="edSchool" value="' + escapeHtml(ed.school||'') + '" placeholder=""></div>'
+                + '<div class="settings-group"><label class="settings-label" id="edCredLabel">' + cfg.credLabel + '</label>'
+                + '<input type="text" class="settings-input" id="edDegree" value="' + escapeHtml(ed.degree||'') + '" placeholder="' + cfg.credPlaceholder + '"></div>'
                 + '</div>'
+                
+                // Row 2: Field + Authority (conditional)
+                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px;">'
+                + '<div class="settings-group"><label class="settings-label" id="edFieldLabel">' + cfg.fieldLabel + '</label>'
+                + '<input type="text" class="settings-input" id="edField" value="' + escapeHtml(ed.field||'') + '" placeholder="' + cfg.fieldPlaceholder + '"></div>'
+                + '<div class="settings-group" id="edAuthorityGroup" style="' + (cfg.showAuthority ? '' : 'display:none;') + '">'
+                + '<label class="settings-label">Issuing Authority</label>'
+                + '<input type="text" class="settings-input" id="edAuthority" value="' + escapeHtml(ed.issuingAuthority||'') + '" placeholder="FAA, State Board, etc."></div>'
+                + '<div class="settings-group" id="edYearSingleGroup" style="' + (cfg.showAuthority ? 'display:none;' : '') + '">'
+                + '<label class="settings-label">Year</label>'
+                + '<input type="text" class="settings-input" id="edYearSingle" value="' + escapeHtml(ed.year||ed.endYear||'') + '" placeholder="2024"></div>'
+                + '</div>'
+                
+                // Row 3: Duration (conditional)
+                + '<div id="edDurationRow" style="display:' + (cfg.showDuration ? 'grid' : 'none') + '; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-top:14px;">'
+                + '<div class="settings-group"><label class="settings-label">Start Year</label>'
+                + '<input type="text" class="settings-input" id="edStartYear" value="' + escapeHtml(ed.startYear||'') + '" placeholder="2004"></div>'
+                + '<div class="settings-group"><label class="settings-label">End Year</label>'
+                + '<input type="text" class="settings-input" id="edEndYear" value="' + escapeHtml(ed.endYear||ed.year||'') + '" placeholder="2006"></div>'
+                + '<div class="settings-group" style="display:flex; align-items:flex-end;">'
+                + '<label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.82em; color:var(--c-muted); padding-bottom:10px;" id="edEnrolledLabel">'
+                + '<input type="checkbox" id="edEnrolled" ' + (ed.currentlyEnrolled ? 'checked' : '') + ' style="accent-color:var(--accent);"> Currently enrolled</label></div>'
+                + '</div>'
+                
+                // Row 4: Description (optional, collapsible)
+                + '<div style="margin-top:14px;">'
+                + '<button onclick="var d=document.getElementById(\'edDescGroup\'); d.style.display=d.style.display===\'none\'?\'block\':\'none\';" '
+                + 'style="background:none; border:none; color:var(--c-accent); font-size:0.82em; cursor:pointer; padding:0;">'
+                + '+ Add description or notes</button>'
+                + '<div id="edDescGroup" class="settings-group" style="display:' + (ed.description ? 'block' : 'none') + '; margin-top:8px;">'
+                + '<textarea class="settings-input" id="edDescription" rows="2" style="resize:vertical; min-height:50px;" placeholder="Key outcomes, honors, relevant details...">' + escapeHtml(ed.description||'') + '</textarea>'
+                + '</div></div>'
+                
+                // Row 5: Linked credentials
+                + '<div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--c-border-faint);">'
+                + '<label class="settings-label" style="margin-bottom:6px;">Resulted in Credential <span style="font-weight:400; color:var(--c-faint); font-size:0.88em;">(optional)</span></label>'
+                + '<div style="display:flex; gap:8px; align-items:center;">'
+                + '<select class="settings-select" id="edLinkedCred" style="flex:1; font-size:0.85em;">' + certOptions + '</select>'
+                + '<button onclick="edAddNewCred()" style="padding:6px 12px; background:var(--c-accent-bg-5a); color:var(--c-accent-deep); border:1px solid var(--c-accent-border-4); border-radius:6px; cursor:pointer; font-size:0.78em; white-space:nowrap;">+ New</button>'
+                + '</div>'
+                + '<div id="edLinkedCredTags" style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px;"></div>'
+                + '</div>'
+                
+                // Save/Cancel
                 + '<div style="display:flex; gap:10px; margin-top:20px;">'
                 + '<button onclick="saveEducationFromModal(' + idx + ')" style="background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:8px; cursor:pointer; font-weight:600;">'
                 + (isEdit ? 'Save' : 'Add') + '</button>'
@@ -35998,18 +36124,113 @@ body {
                 + '</div></div>';
             
             modal.style.display = 'flex';
+            
+            // Store type state for switch function
+            window._edCurrentType = currentType;
+            window._edTypeConfigs = edTypes;
+            window._edLinkedCreds = (ed.linkedCredentials || []).slice();
+            edRenderLinkedCredTags();
         }
+        
+        function edSwitchType(newType) {
+            window._edCurrentType = newType;
+            var cfg = window._edTypeConfigs[newType];
+            if (!cfg) return;
+            
+            // Update pill styling
+            document.querySelectorAll('#edTypePills button').forEach(function(btn) {
+                var isActive = btn.getAttribute('data-ed-type') === newType;
+                btn.style.background = isActive ? 'var(--accent)' : 'transparent';
+                btn.style.color = isActive ? '#fff' : 'var(--c-muted)';
+                btn.style.borderColor = isActive ? 'var(--accent)' : 'var(--c-border-solid)';
+            });
+            
+            // Update labels
+            var instLabel = document.getElementById('edInstLabel');
+            var credLabel = document.getElementById('edCredLabel');
+            var fieldLabel = document.getElementById('edFieldLabel');
+            if (instLabel) instLabel.textContent = cfg.instLabel;
+            if (credLabel) credLabel.textContent = cfg.credLabel;
+            if (fieldLabel) fieldLabel.textContent = cfg.fieldLabel;
+            
+            // Update placeholders
+            var degreeInput = document.getElementById('edDegree');
+            var fieldInput = document.getElementById('edField');
+            if (degreeInput) degreeInput.placeholder = cfg.credPlaceholder;
+            if (fieldInput) fieldInput.placeholder = cfg.fieldPlaceholder;
+            
+            // Show/hide authority vs year-single
+            var authGroup = document.getElementById('edAuthorityGroup');
+            var yearSingle = document.getElementById('edYearSingleGroup');
+            if (authGroup) authGroup.style.display = cfg.showAuthority ? '' : 'none';
+            if (yearSingle) yearSingle.style.display = cfg.showAuthority ? 'none' : '';
+            
+            // Show/hide duration row
+            var durRow = document.getElementById('edDurationRow');
+            if (durRow) durRow.style.display = cfg.showDuration ? 'grid' : 'none';
+        }
+        window.edSwitchType = edSwitchType;
+        
+        function edAddNewCred() {
+            // Close education modal, open cert modal, with note to come back
+            closeExportModal();
+            showToast('Add the credential first, then return to link it to this education entry.', 'info', 5000);
+            addCertItem();
+        }
+        window.edAddNewCred = edAddNewCred;
+        
+        function edRenderLinkedCredTags() {
+            var container = document.getElementById('edLinkedCredTags');
+            if (!container) return;
+            var creds = window._edLinkedCreds || [];
+            if (creds.length === 0) { container.innerHTML = ''; return; }
+            container.innerHTML = creds.map(function(ci, i) {
+                var cert = userData.certifications[ci];
+                var name = cert ? (cert.name + (cert.abbr ? ' (' + cert.abbr + ')' : '')) : 'Credential #' + ci;
+                return '<span style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; background:var(--c-accent-bg-5a); '
+                    + 'color:var(--c-accent-deep); border-radius:12px; font-size:0.78em; font-weight:600;">'
+                    + '\uD83D\uDD17 ' + escapeHtml(name)
+                    + ' <button onclick="edRemoveLinkedCred(' + i + ')" style="background:none; border:none; cursor:pointer; color:inherit; font-size:1em; padding:0 2px;">\u00D7</button></span>';
+            }).join('');
+        }
+        window.edRenderLinkedCredTags = edRenderLinkedCredTags;
+        
+        function edRemoveLinkedCred(i) {
+            (window._edLinkedCreds || []).splice(i, 1);
+            edRenderLinkedCredTags();
+        }
+        window.edRemoveLinkedCred = edRemoveLinkedCred;
         
         function saveEducationFromModal(idx) {
             if (readOnlyGuard()) return;
+            
+            // Collect linked credential from dropdown if selected
+            var linkedCreds = (window._edLinkedCreds || []).slice();
+            var credSelect = document.getElementById('edLinkedCred');
+            if (credSelect && credSelect.value !== '') {
+                var ci = parseInt(credSelect.value);
+                if (!isNaN(ci) && linkedCreds.indexOf(ci) < 0) linkedCreds.push(ci);
+            }
+            
+            var edType = window._edCurrentType || 'degree';
+            var cfg = (window._edTypeConfigs || {})[edType] || {};
+            
             var entry = {
                 id: idx >= 0 ? (userData.education[idx].id || 'ed-' + Date.now()) : 'ed-' + Date.now(),
-                school: document.getElementById('edSchool').value.trim(),
-                degree: document.getElementById('edDegree').value.trim(),
-                field: document.getElementById('edField').value.trim(),
-                year: document.getElementById('edYear').value.trim()
+                type: edType,
+                school: (document.getElementById('edSchool')?.value || '').trim(),
+                degree: (document.getElementById('edDegree')?.value || '').trim(),
+                field: (document.getElementById('edField')?.value || '').trim(),
+                // Year: prefer endYear for backward compat, fallback to single year
+                year: (document.getElementById('edEndYear')?.value || document.getElementById('edYearSingle')?.value || '').trim(),
+                startYear: (document.getElementById('edStartYear')?.value || '').trim(),
+                endYear: (document.getElementById('edEndYear')?.value || document.getElementById('edYearSingle')?.value || '').trim(),
+                description: (document.getElementById('edDescription')?.value || '').trim(),
+                issuingAuthority: cfg.showAuthority ? (document.getElementById('edAuthority')?.value || '').trim() : '',
+                currentlyEnrolled: document.getElementById('edEnrolled')?.checked || false,
+                linkedCredentials: linkedCreds
             };
-            if (!entry.school && !entry.degree) { showToast('Add at least a school or degree.', 'warning'); return; }
+            if (!entry.school && !entry.degree) { showToast('Add at least an institution or credential.', 'warning'); return; }
             
             if (idx >= 0) { userData.education[idx] = entry; }
             else { userData.education.push(entry); }
