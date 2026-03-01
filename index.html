@@ -1,4 +1,4 @@
-<!-- v4.45.46 | 2026-02-28 | BLS alias expansion + data library tile -->
+<!-- v4.45.47 | 2026-02-28 | Jobs Sync panel redesign -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1502,8 +1502,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.46 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.46';
+        // BLUEPRINT v4.45.47 - BUILD 20260228-bls-expansion
+        var BP_VERSION = 'v4.45.47';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -3335,8 +3335,9 @@
             html += '<div id="adminJobsSync" style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:20px;">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">'
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">' + bpIcon('tool', 16) + ' Jobs Sync</h3>'
-                + '<span style="font-size:0.72em; color:var(--text-muted);">Cron: every 6 hours</span>'
-                + '<button onclick="purgeJobDuplicates()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(245,158,11,0.3); background:rgba(245,158,11,0.08); color:#f59e0b; cursor:pointer; font-weight:600;">Purge Dupes</button></div>'
+                + '<div style="display:flex; align-items:center; gap:10px;">'
+                + '<span style="font-size:0.68em; padding:3px 8px; border-radius:4px; background:rgba(96,165,250,0.1); color:#60a5fa; font-weight:600; letter-spacing:0.03em;">CRON · 6h</span>'
+                + '<button onclick="purgeJobDuplicates()" style="font-size:0.72em; padding:4px 10px; border-radius:6px; border:1px solid rgba(245,158,11,0.3); background:rgba(245,158,11,0.08); color:#f59e0b; cursor:pointer; font-weight:600;">Purge Dupes</button></div></div>'
                 + '<div id="adminJobsSyncContent" style="color:var(--text-muted); font-size:0.85em;">Loading sync status...</div></div>';
             
             // ===== SITE TRAFFIC & ANALYTICS =====
@@ -3381,7 +3382,7 @@
                         jt.querySelector('div[style*="top:8px"]').style.color = '#10b981';
                         jt.style.borderColor = 'var(--c-border-faint)';
                         var lc = document.getElementById('adminLibsLoadedCount');
-                        if (lc) lc.textContent = '11/11 libraries loaded';
+                        if (lc) lc.textContent = '12/12 libraries loaded';
                     }
                 }).catch(function() {});
             }
@@ -3399,33 +3400,55 @@
                 var m = doc.data();
                 var ago = formatTimeAgo(m.lastSync);
                 var src = m.sourceCounts || {};
-                var srcHtml = Object.keys(src).map(function(k) {
-                    var color = k === 'jsearch' ? '#60a5fa' : k === 'remotive' ? '#10b981' : k === 'usajobs' ? '#8b5cf6' : k === 'himalayas' ? '#f59e0b' : k === 'adzuna' ? '#ef4444' : k === 'themuse' ? '#06b6d4' : k === 'jooble' ? '#d946ef' : '#ec4899';
-                    return '<div style="display:flex; justify-content:space-between; padding:4px 0;">'
-                        + '<span style="color:var(--text-secondary);">' + k + '</span>'
-                        + '<span style="font-weight:600; color:' + color + ';">' + (src[k] || 0) + '</span></div>';
+                
+                // Sort sources by count descending
+                var srcEntries = Object.keys(src).map(function(k) { return { name: k, count: src[k] || 0 }; });
+                srcEntries.sort(function(a, b) { return b.count - a.count; });
+                var maxCount = srcEntries.length > 0 ? srcEntries[0].count : 1;
+                
+                var sourceColors = {
+                    jsearch: '#60a5fa', remotive: '#10b981', usajobs: '#8b5cf6',
+                    himalayas: '#f59e0b', adzuna: '#ef4444', themuse: '#06b6d4',
+                    jooble: '#d946ef', jobicy: '#ec4899'
+                };
+                
+                var srcHtml = srcEntries.map(function(entry) {
+                    var color = sourceColors[entry.name] || '#94a3b8';
+                    var pct = maxCount > 0 ? Math.max((entry.count / maxCount) * 100, 2) : 0;
+                    var isZero = entry.count === 0;
+                    return '<div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">'
+                        + '<div style="width:72px; font-size:0.78em; color:' + (isZero ? 'var(--text-muted)' : 'var(--text-secondary)') + '; font-weight:500; text-align:right; flex-shrink:0;">' + entry.name + '</div>'
+                        + '<div style="flex:1; height:22px; background:var(--c-surface-4b); border-radius:4px; overflow:hidden; position:relative;">'
+                        + '<div style="height:100%; width:' + pct + '%; background:' + (isZero ? 'transparent' : 'linear-gradient(90deg, ' + color + '22, ' + color + '66)') + '; border-radius:4px; transition:width 0.3s;"></div>'
+                        + '</div>'
+                        + '<div style="width:48px; font-size:0.82em; font-weight:700; color:' + (isZero ? 'var(--text-muted)' : color) + '; text-align:right; flex-shrink:0;">' + entry.count.toLocaleString() + '</div>'
+                        + '</div>';
                 }).join('');
                 
-                var errHtml = (m.errors || []).length > 0
-                    ? '<details style="margin-top:10px;"><summary style="font-size:0.78em; color:var(--text-muted); cursor:pointer;">' + m.errors.length + ' errors</summary>'
-                    + '<div style="font-size:0.72em; color:#ef4444; margin-top:6px; max-height:100px; overflow-y:auto;">'
-                    + m.errors.map(function(e) { return '<div>' + escapeHtml(e) + '</div>'; }).join('') + '</div></details>' : '';
+                var errCount = (m.errors || []).length;
+                var errHtml = errCount > 0
+                    ? '<details style="margin-top:12px;">'
+                    + '<summary style="font-size:0.75em; color:var(--text-muted); cursor:pointer; display:inline-flex; align-items:center; gap:4px;">'
+                    + '<span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#ef4444;"></span> '
+                    + errCount + ' error' + (errCount > 1 ? 's' : '') + '</summary>'
+                    + '<div style="font-size:0.72em; color:#ef4444; margin-top:8px; padding:8px; background:rgba(239,68,68,0.06); border-radius:6px; max-height:120px; overflow-y:auto; font-family:monospace;">'
+                    + m.errors.map(function(e) { return '<div style="padding:2px 0; border-bottom:1px solid rgba(239,68,68,0.1);">' + escapeHtml(e) + '</div>'; }).join('') + '</div></details>' : '';
                 
-                el.innerHTML = '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px; margin-bottom:14px;">'
+                el.innerHTML = '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px; margin-bottom:18px;">'
                     + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
                     + '<div style="font-size:1.4em; font-weight:800; color:var(--accent);">' + (m.totalJobs || 0).toLocaleString() + '</div>'
-                    + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase;">Total Jobs</div></div>'
+                    + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Total Jobs</div></div>'
                     + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
                     + '<div style="font-size:1.4em; font-weight:800; color:#10b981;">' + (m.jobsSynced || 0).toLocaleString() + '</div>'
-                    + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase;">Last Sync</div></div>'
+                    + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Last Sync</div></div>'
                     + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
                     + '<div style="font-size:1.4em; font-weight:800; color:var(--text-primary);">' + ago + '</div>'
-                    + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase;">Synced</div></div>'
+                    + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Synced</div></div>'
                     + '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
                     + '<div style="font-size:1.4em; font-weight:800; color:var(--text-muted);">' + ((m.duration || 0) / 1000).toFixed(1) + 's</div>'
-                    + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase;">Duration</div></div>'
+                    + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Duration</div></div>'
                     + '</div>'
-                    + '<div style="font-size:0.82em; font-weight:600; color:var(--text-secondary); margin-bottom:6px;">Sources</div>'
+                    + '<div style="font-size:0.72em; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Sources</div>'
                     + srcHtml
                     + errHtml;
             }).catch(function(e) {
@@ -4543,6 +4566,7 @@
                         { id: 'p2-5t', name: 'Clear job overlay on profile switch', status: 'done', category: 'bugfix', priority: 'medium', notes: 'v4.45.44: Job match overlay from previous profile persisted on network when switching demo profiles. Added clearJobOverlay() to enterDemoMode(), switchDemoProfile(), and exitDemoMode().' },
                         { id: 'p2-5u', name: 'BLS salary alias + keyword expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.45: bls-wages.json aliases expanded from 170 to 4,228 via four strategies: BLS title decomposition (singular forms, split compounds), seniority prefix generation (VP/Director/Senior/Lead variants), abbreviation patterns (mgr/dir/admin/rep), and 300+ hand-curated industry titles (tech, data, sales, marketing, HR, finance, legal, healthcare, education, trades, retail, consulting). Keywords expanded across 15 thin occupations. Fixes dozens of mismatches across demo profiles.' },
                         { id: 'p2-5v', name: 'O*NET Alternate Titles import (30K+)', status: 'planned', category: 'data', priority: 'high', notes: 'O*NET publishes ~30,000 alternate job titles pre-mapped to SOC codes (Alternate Titles file at onetonline.org/help/onet/titles). Download or API-fetch the dataset, normalize to lowercase, deduplicate against existing aliases, and merge into bls-wages.json. Would give near-universal coverage of real-world job titles. May need periodic refresh as O*NET updates quarterly. Consider build-time pipeline vs. runtime fetch.' },
+                        { id: 'p2-5w', name: 'Jobs Sync panel redesign', status: 'done', category: 'ui', priority: 'low', notes: 'v4.45.47: Sources list replaced with horizontal bar chart visualization (sorted by count, gradient fills, proportional widths). CRON badge styled as pill. Errors section redesigned with dot indicator, monospace font, subtle background. Library count updated to 12/12 for BLS Aliases tile.' },
                         { id: 'p2-6a', name: 'Work Blueprint function refinement', status: 'planned', category: 'feature', priority: 'high', notes: 'Ongoing improvements to WB ecosystem. Includes: Firestore-backed comparison persistence (replace localStorage), comparison sharing via URL tokens, batch comparison mode (multiple candidates against one WB), WB template library (common roles pre-built), WB diff view (compare two WBs side-by-side), improved gap recommendation engine with learning resource links, WB versioning/history, and WB-to-scouting-report pipeline integration.' }
                     ]
                 },
@@ -13168,7 +13192,7 @@
                 appMode = 'active';
                 return;
             }
-            // v4.45.46: Check URL invite param (from email CTA)
+            // v4.45.47: Check URL invite param (from email CTA)
             try {
                 var urlParams = new URLSearchParams(window.location.search);
                 var inviteDocId = urlParams.get('invite');
@@ -33954,7 +33978,7 @@ body {
                         jt.querySelector('div[style*="top:8px"]').style.color = '#10b981';
                         jt.style.borderColor = 'var(--c-border-faint)';
                         var lc = document.getElementById('adminLibsLoadedCount');
-                        if (lc) lc.textContent = '11/11 libraries loaded';
+                        if (lc) lc.textContent = '12/12 libraries loaded';
                     }
                 }
             }).catch(function(e) { console.warn('Sync meta load failed:', e.message); });
