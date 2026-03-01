@@ -4532,7 +4532,7 @@
                         { id: 'p2-3n', name: 'Unified skill editor + UX fixes', status: 'done', category: 'ux', priority: 'high', notes: 'Single modal combining level/roles/assess/core. Network name label offset. quickScore v3 (word-boundary + level weighting). Alphabetical skill sorting. BLS Potential tile always shown. bpIcon assess bug.' },
                         { id: 'p2-3o', name: 'Wizard Step 9 save+download UX', status: 'done', category: 'ux', priority: 'medium', notes: 'Single Save button with pre-checked download checkbox. Replaces two separate buttons.' },
                         { id: 'p2-3p', name: 'Architecture map v2 — layered diagram', status: 'done', category: 'admin', priority: 'medium', notes: 'Replaced force-directed graph with structured swim-lane layout. 4 layers: Frontend→Runtime→Backend→External. Rich detail panels with function names, line ranges, data flows, dependencies, tech debt. Engineer-grade onboarding tool.' },
-                        { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'in-progress', category: 'process', priority: 'medium', notes: 'v4.44.56: Added accessibility layer component (a11y), updated welcome landing detail, added 4 a11y flows. 38 components, 35 data flows. Still needs automated generation from code comments.' },
+                        { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'in-progress', category: 'process', priority: 'medium', notes: 'v4.45.48: Updated wizard, userData, skill engine, Firestore component details for LinkedIn deep extraction. Firebase Blaze plan reflected. Line count updated to ~41K. Pricing reference corrected (Sonnet 4: $3/$15). Still needs automated generation from code comments.' },
                         { id: 'p2-3r', name: 'Skill editor outcomes + reports cleanup + network v3', status: 'done', category: 'ux', priority: 'high', notes: 'Unified editor: wider padding, linked outcomes section. Reports: PREVIEW labels on analytics/heatmap/share links, removed fake views/status from My Reports. Network: center node at width*0.18, role label truncation 24 chars.' },
                         { id: 'p2-3s', name: 'JD → Work Blueprint converter', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.06+: Full AI-powered converter. Paste JD text or upload PDF, AI extracts Skills/Outcomes/Proficiency, experience requirements, values & purpose signals, regional compensation via BLS. Outputs structured Work Blueprint saved to Firestore repository. Includes Work Blueprint Wizard for manual creation, repository with card grid, and full CRUD.' },
                         { id: 'p2-3t', name: 'SEO + Generative Engine Optimization', status: 'active', category: 'infrastructure', priority: 'high', notes: 'Full metadata suite: title, description, Open Graph, Twitter Cards, canonical URL, favicon, JSON-LD structured data (WebApplication + Organization), robots, theme-color. Generative engine optimization: semantic HTML, descriptive headings, FAQ schema, HowTo schema, speakable metadata, citation-friendly content structure. Goal: discoverable by both traditional search and AI-powered answer engines (Google SGE, Perplexity, ChatGPT Browse).' },
@@ -5413,10 +5413,10 @@
                     deps: ['Firebase Auth', 'appMode state'], debt: 'Hero canvas animation could lazy-load' }},
                 { id: 'wizard', name: 'Onboarding Wizard', layer: 'frontend', col: 1,
                   color: '#8b5cf6', icon: 'compass',
-                  detail: { desc: '9-step guided profile builder. Resume upload, LinkedIn CSV, manual entry. Skill enrichment via O*NET crosswalk.',
-                    functions: ['renderWizardStep1-9()', 'wizardApplyAndLaunch()', 'wizardBuildUserData()', 'inferSkillsDeterministic()'], lines: '~8200-10500', route: '#blueprint (modal)',
-                    inputs: ['Resume file', 'LinkedIn CSVs', 'Manual input'], outputs: ['userData object', 'Firestore save', 'JSON backup'],
-                    deps: ['Anthropic API (resume parse)', 'O*NET Crosswalk', 'Firebase Auth', 'Firestore'], debt: 'Values UI CSS conflict persists on some browsers' }},
+                  detail: { desc: '9-step guided profile builder. Resume upload, LinkedIn zip (18 CSV file types + HTML articles), manual entry. Skill enrichment via O*NET crosswalk. Career progression grouping for multi-position companies. Endorsement-boosted skill levels.',
+                    functions: ['renderWizardStep1-9()', 'wizardApplyAndLaunch()', 'wizardBuildUserData()', 'inferSkillsDeterministic()', 'normalizeCompanyName()'], lines: '~8200-10500', route: '#blueprint (modal)',
+                    inputs: ['Resume file', 'LinkedIn .zip (18 CSVs + Articles/ HTML)', 'Manual input'], outputs: ['userData object', 'linkedinContent repository', 'companyTenures[]', 'Firestore save', 'JSON backup'],
+                    deps: ['Anthropic API (resume parse)', 'O*NET Crosswalk', 'Firebase Auth', 'Firestore', 'JSZip', 'PapaParse'], debt: 'Values UI CSS conflict persists on some browsers. Article text capped at 2000 chars.' }},
                 { id: 'network', name: 'Skills Network', layer: 'frontend', col: 2,
                   color: '#8b5cf6', icon: 'skills',
                   detail: { desc: 'D3 force-directed graph. Role clusters, skill nodes sized by level. Job match overlay with gap/surplus colors.',
@@ -5463,7 +5463,7 @@
                 // ── LAYER 2: RUNTIME STATE & ENGINES ──
                 { id: 'userdata', name: 'userData', layer: 'runtime', col: 0,
                   color: '#06b6d4', icon: 'users',
-                  detail: { desc: 'Primary in-memory state object. Profile, skills, roles, values, work history, saved jobs, preferences, education, certs.',
+                  detail: { desc: 'Primary in-memory state object. Profile, skills, roles, values, work history, saved jobs, preferences, education, certs, companyTenures, linkedinContent (endorsements, recommendations, articles, posts, learning, volunteering, honors, causes, organizations, networkSize).',
                     functions: ['userData (global var)', 'saveUserData()', 'loadUserData()'], lines: 'Global ~1200',
                     inputs: ['Firestore load', 'Wizard build', 'Profile import'], outputs: ['All views read from this', 'Firestore save'],
                     deps: ['None (root state)'], debt: 'userData vs skillsData vs blueprintData split causes sync bugs. Unification planned.' }},
@@ -5481,10 +5481,10 @@
                     deps: ['userData'], debt: 'Same dual-write issue as skillsData' }},
                 { id: 'skill-engine', name: 'Deterministic Skill Engine', layer: 'runtime', col: 3,
                   color: '#f59e0b', icon: 'compass',
-                  detail: { desc: 'Replaces AI skill inference. Title→SOC→skills pool→fuzzy match→level adjust by seniority+years. Zero API cost.',
-                    functions: ['inferSkillsDeterministic()', 'detectSeniority()', 'adjustLevel()'], lines: '~8000-8200',
-                    inputs: ['LinkedIn skills[]', 'Work history[]', 'Parsed roles[]'], outputs: ['Enriched skills with levels, evidence, categories'],
-                    deps: ['O*NET crosswalk', 'Skill libraries'], debt: 'Fuzzy matching could use Levenshtein distance' }},
+                  detail: { desc: 'Replaces AI skill inference. Title→SOC→skills pool→fuzzy match→level adjust by seniority+years. Endorsement boost pass: 10+ endorsements = +1 level, 25+ = +2 (capped at Mastery). Zero API cost.',
+                    functions: ['inferSkillsDeterministic()', 'detectSeniority()', 'adjustLevel()', 'endorsement boost loop'], lines: '~8000-8200',
+                    inputs: ['LinkedIn skills[]', 'Work history[]', 'Parsed roles[]', 'Endorsement counts{}'], outputs: ['Enriched skills with levels, evidence, categories, endorsement flags'],
+                    deps: ['O*NET crosswalk', 'Skill libraries', 'LinkedIn endorsements'], debt: 'Fuzzy matching could use Levenshtein distance' }},
                 { id: 'match-engine', name: 'Match Scoring', layer: 'runtime', col: 4,
                   color: '#f59e0b', icon: 'target',
                   detail: { desc: 'Two tiers: quickScoreJob (Find Jobs, uses parseJobLocally pipeline for gap detection, capped 90%) and matchJobToProfile (Pipeline, 6-pass ontology matching). Find Jobs uses live API search by default.',
@@ -5531,10 +5531,10 @@
                 // ── LAYER 3: BACKEND SERVICES & PERSISTENCE ──
                 { id: 'firestore', name: 'Firestore Database', layer: 'backend', col: 0,
                   color: '#10b981', icon: 'save',
-                  detail: { desc: 'Primary persistence. Collections: users/{uid}, reports/{reportId}. Server-side rules enforce 30 field-size limits, hasOnly field whitelisting, 1-write/sec rate limiting, and read/list split for report enumeration prevention. Share tokens (128-bit) gate report access.',
+                  detail: { desc: 'Primary persistence (Blaze plan, $25/mo budget). Collections: users/{uid}, reports/{reportId}. User docs now include linkedinContent (endorsements, recommendations, articles, posts, learning, volunteering, honors, causes, organizations), companyTenures[], and importStats. Server-side rules enforce 30 field-size limits, hasOnly field whitelisting, 1-write/sec rate limiting, and read/list split for report enumeration prevention. Share tokens (128-bit) gate report access.',
                     functions: ['saveToFirestore()', 'loadFromFirestore()', 'fbDb.collection("users")', 'fbDb.collection("reports")'], lines: '~2215-2350 + firestore.rules',
                     inputs: ['userData on save', 'Firebase Auth uid', 'Report data with shareToken'], outputs: ['Full user profile on load', 'Shared reports via token'],
-                    deps: ['Firebase SDK', 'Firebase Auth', 'firestore.rules (deployed separately)'], debt: 'Rules must deploy via Firebase Console, not Vercel. No offline sync. No automated rules deployment pipeline.' }},
+                    deps: ['Firebase SDK', 'Firebase Auth', 'firestore.rules (deployed separately)'], debt: 'Rules must deploy via Firebase Console, not Vercel. No offline sync. linkedinContent may push document size toward 1MB limit for power users. Field whitelist in rules needs updating for new fields.' }},
                 { id: 'firebase-auth', name: 'Firebase Auth', layer: 'backend', col: 1,
                   color: '#10b981', icon: 'lock',
                   detail: { desc: 'Google sign-in provider. Token-based auth for API proxy. Provides uid, displayName, photoURL, email.',
@@ -5698,7 +5698,7 @@
             // Header with view toggle and export
             html += '<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;">'
                 + '<div style="font-size:1.1em; font-weight:700; color:var(--text-primary);">'
-                + bpIcon('compass',18) + ' Platform Architecture <span style="font-size:0.7em; font-weight:400; color:var(--text-muted);">' + BP_VERSION + ' \u00B7 ~33K lines \u00B7 ' + components.length + ' components</span></div>'
+                + bpIcon('compass',18) + ' Platform Architecture <span style="font-size:0.7em; font-weight:400; color:var(--text-muted);">' + BP_VERSION + ' \u00B7 ~41K lines \u00B7 ' + components.length + ' components</span></div>'
                 + '<div style="display:flex; gap:6px; flex-wrap:wrap;">'
                 + '<div style="display:inline-flex; border:1px solid var(--border); border-radius:6px; overflow:hidden;">'
                 + '<button onclick="archSetView(\'tiles\')" id="archViewTiles" style="padding:4px 12px; font-size:0.75em; cursor:pointer; border:none; background:var(--accent); color:#fff;">Tiles</button>'
@@ -5710,7 +5710,7 @@
             
             // Note
             html += '<div style="font-size:0.75em; color:var(--text-muted); margin-bottom:16px; padding:8px 12px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px;">'
-                + '' + bpIcon('warning', 12) + ' <strong>Last updated:</strong> v4.44.56 \u2014 Added accessibility layer, updated welcome landing, 4 new a11y flows. 38 components, 35 data flows. See roadmap item p2-3q.'
+                + '' + bpIcon('warning', 12) + ' <strong>Last updated:</strong> v4.45.48 \u2014 LinkedIn deep extraction (18 file types), career progression grouping, endorsement-boosted skill levels, Firebase Blaze plan. 38+ components, 35+ data flows. See roadmap items p2-5x/y/z.'
                 + '</div>';
             
             // === TILES VIEW ===
@@ -12776,7 +12776,7 @@
                   { name: 'Vercel Pro', key: 'vercel', provider: 'Vercel', cost: 20.00, cycle: 'monthly', category: 'hosting', notes: 'Hosting, serverless functions, edge network', manageUrl: 'https://vercel.com/cliffj8338s-projects/blueprint/settings', icon: 'layers' },
                   { name: 'Cloudflare', key: 'cloudflare', provider: 'Cloudflare', cost: 0, cycle: 'monthly', category: 'domain', notes: 'DNS, CDN, SSL, DDoS protection (free tier)', manageUrl: 'https://dash.cloudflare.com', icon: 'shield' },
                   { name: 'Domain (myblueprint.work)', key: 'domain', provider: 'Cloudflare', cost: 10.00, cycle: 'yearly', category: 'domain', notes: '~$10/yr, prorated to ~$0.83/mo', manageUrl: 'https://dash.cloudflare.com', icon: 'compass' },
-                  { name: 'Firebase', key: 'firebase', provider: 'Google', cost: 0, cycle: 'monthly', category: 'database', notes: 'Spark plan (free). Auth, Firestore, hosting', manageUrl: 'https://console.firebase.google.com', icon: 'database' },
+                  { name: 'Firebase', key: 'firebase', provider: 'Google', cost: 25, cycle: 'monthly', category: 'database', notes: 'Blaze plan ($25/mo budget). Auth, Firestore, Cloud Functions, hosting. Pay-as-you-go with spend cap.', manageUrl: 'https://console.firebase.google.com', icon: 'database' },
                   { name: 'GitHub', key: 'github', provider: 'GitHub', cost: 0, cycle: 'monthly', category: 'devops', notes: 'Free tier. Source control, CI/CD', manageUrl: 'https://github.com/settings/billing', icon: 'tool' },
                   { name: 'Remotive API', key: 'remotive', provider: 'Remotive', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, no auth. Remote jobs feed', manageUrl: 'https://remotive.com/api/remote-jobs', icon: 'briefcase' },
                   { name: 'USAJobs API', key: 'usajobs', provider: 'USAJobs', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free. Government jobs', manageUrl: 'https://developer.usajobs.gov', icon: 'award' },
@@ -12932,7 +12932,7 @@
                 + '<div style="font-weight:600; color:var(--text-secondary); margin-bottom:6px;">Pricing Reference (Claude Sonnet 4)</div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">'
                 + '<div>Input: <strong style="color:var(--text-primary);">$3.00</strong> / 1M tokens</div>'
-                + '<div>Output: <strong style="color:var(--text-primary);">$3.00</strong> / 1M tokens</div></div>'
+                + '<div>Output: <strong style="color:var(--text-primary);">$15.00</strong> / 1M tokens</div></div>'
                 + '<div style="margin-top:8px; font-size:0.92em;">Token estimates per feature are approximations based on typical prompt + response sizes. '
                 + 'Actual costs may vary. Add new features to the <code style="background:var(--c-surface-5); padding:1px 5px; border-radius:3px;">AI_FEATURES</code> registry to track them automatically.</div></div>';
             
