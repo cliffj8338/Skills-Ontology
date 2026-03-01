@@ -1,4 +1,4 @@
-<!-- v4.45.63 | 2026-02-28 | Education modal redesign + architecture updates -->
+<!-- v4.45.64 | 2026-02-28 | Scouting report fix + orphan role cleanup + role card z-index -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -791,7 +791,7 @@
         
         <!-- Role Info Card (appears when role node clicked in network) -->
         <div id="roleInfoCard" style="display:none; position:fixed; top:108px; left:16px;
-            z-index:500; background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px;
+            z-index:9000; background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px;
             padding:16px 18px; font-family:'Outfit',sans-serif; min-width:220px; max-width:280px;
             backdrop-filter:blur(16px); box-shadow:0 8px 32px rgba(0,0,0,0.3); cursor:default; pointer-events:auto;">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
@@ -1505,7 +1505,7 @@
     <script>
         // ============================================================
         // BLUEPRINT v4.45.63 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.63';
+        var BP_VERSION = 'v4.45.64';
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -3415,6 +3415,22 @@
                 + '<div style="text-align:center; padding:20px; color:var(--text-muted);">Loading analytics from Firestore...</div>'
                 + '</div>';
             
+            // ===== MAINTENANCE =====
+            var orphanRoleCount = 0;
+            var whTitles = new Set();
+            (userData.workHistory || []).forEach(function(j) { whTitles.add((j.title || '').toLowerCase().trim()); });
+            (skillsData.roles || []).forEach(function(r) {
+                var rn = (r.name || '').toLowerCase().trim();
+                var ri = (r.id || '').toLowerCase().trim();
+                if (!whTitles.has(rn) && !whTitles.has(ri)) orphanRoleCount++;
+            });
+            html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:20px;">'
+                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 16px; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">' + bpIcon('tool',16) + ' Maintenance</h3>'
+                + '<div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">'
+                + '<button onclick="cleanOrphanRoles()" style="padding:10px 20px; background:' + (orphanRoleCount > 0 ? 'rgba(245,158,11,0.15)' : 'var(--c-surface-4b)') + '; color:' + (orphanRoleCount > 0 ? '#f59e0b' : 'var(--text-muted)') + '; border:1px solid ' + (orphanRoleCount > 0 ? 'rgba(245,158,11,0.3)' : 'var(--c-surface-5)') + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('trash',14) + ' Clean Orphan Roles (' + orphanRoleCount + ')</button>'
+                + '<span style="font-size:0.78em; color:var(--text-muted);">Removes roles from skillsData that have no matching work history entry</span>'
+                + '</div></div>';
+
             // ===== QUICK ACTIONS =====
             html += '<div style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px;">'
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 16px; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">Quick Actions</h3>'
@@ -4642,7 +4658,9 @@
                         { id: 'p2-6f', name: 'Work Blueprint function refinement', status: 'planned', category: 'feature', priority: 'high', notes: 'Ongoing improvements to WB ecosystem. Includes: Firestore-backed comparison persistence (replace localStorage), comparison sharing via URL tokens, batch comparison mode (multiple candidates against one WB), WB template library (common roles pre-built), WB diff view (compare two WBs side-by-side), improved gap recommendation engine with learning resource links, WB versioning/history, and WB-to-scouting-report pipeline integration.' },
                         { id: 'p2-6i', name: 'User Flows tracker', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.45.63: Admin → System → User Flows. 12 workflow categories mapped with step-by-step function chains: Onboarding, LinkedIn Merge, Skill Mgmt, Work History, Job Pipeline, Network Viz, Reports, Values/Outcomes, Content/Evidence, Settings, Education/Certs, Auth/Persistence. Clickable tiles open horizontal flow diagrams. Each step shows function name, description, downstream connections. Phase 2: export flows as PNG/PDF/mermaid.' },
                         { id: 'p2-6j', name: 'User Flows export (phase 2)', status: 'planned', category: 'feature', priority: 'low', notes: 'Export user flow diagrams as PNG, PDF, or Mermaid markdown. Add print stylesheet for flow diagrams. Consider SVG export for vector quality.' },
-                        { id: 'p2-6k', name: 'Dev time comparison tile', status: 'planned', category: 'feature', priority: 'low', notes: 'Admin Overview tile showing estimated development time: AI vibe-coding vs traditional dev. Track session count, features shipped, lines of code, estimated equivalent dev-months. Fun metric for demonstrating AI-augmented development velocity.' }
+                        { id: 'p2-6k', name: 'Dev time comparison tile', status: 'planned', category: 'feature', priority: 'low', notes: 'Admin Overview tile showing estimated development time: AI vibe-coding vs traditional dev. Track session count, features shipped, lines of code, estimated equivalent dev-months. Fun metric for demonstrating AI-augmented development velocity.' },
+                        { id: 'p2-6l', name: 'Scouting report HTML fix', status: 'done', category: 'bug', priority: 'critical', notes: 'v4.45.64: Narrative and outcomes in buildReportData() contained raw HTML tags (<strong>, <span>) that the report template rendered as literal text. Stripped all HTML markup from narrative and outcomes data. Also filtered skill→role references to only include valid (visible) role IDs, preventing orphan D3 links that crashed the Skills Map visualization.' },
+                        { id: 'p2-6m', name: 'Orphan role cleanup', status: 'done', category: 'bug', priority: 'high', notes: 'v4.45.64: Added cleanOrphanRoles() admin function and maintenance section in Admin Overview. Detects roles in skillsData.roles with no matching workHistory entry, removes them and cleans all skill references. Also updated hideRoleFromNetwork() to handle orphan roles directly (removes from roles array instead of failing silently). Role info card z-index bumped from 500 to 9000.' }
                     ]
                 },
                 {
@@ -28509,6 +28527,8 @@ body {
             var roles = allRoles.filter(function(r) { return activeRoleIds.has(r.id); }).map(function(r, i) {
                 return { id: r.id, name: r.name, color: r.color || roleColors[i % roleColors.length] };
             });
+            // Build set of valid role IDs for filtering skill→role references
+            var validRoleIds = new Set(roles.map(function(r) { return r.id; }));
             
             // Skills
             var jobRequiredNames = (job.parsedSkills || []).filter(function(s) {
@@ -28518,7 +28538,7 @@ body {
             var jobRequiredSet = new Set(jobRequiredNames.map(function(n) { return n.toLowerCase(); }));
             
             var reportSkills = allSkills.map(function(s) {
-                var sk = { n: s.name, l: s.level || 'Proficient', r: s.roles || [] };
+                var sk = { n: s.name, l: s.level || 'Proficient', r: (s.roles || []).filter(function(rid) { return validRoleIds.has(rid); }) };
                 // Mark as matched (green) if skill appears in matchData.matched OR in job's required skills
                 var isMatched = matched.some(function(m) {
                     return m.userSkill.toLowerCase() === s.name.toLowerCase();
@@ -28568,15 +28588,15 @@ body {
             
             // Outcomes
             var reportOutcomes = userOutcomes.filter(function(o) { return o.shared !== false; }).slice(0, 6).map(function(o) {
-                var text = (o.text || o.outcome || '').replace(/(\$[\d,]+[MBK]?|\d+%|\d+x)/g, '<span class="outc-m">$1</span>');
+                var text = (o.text || o.outcome || '');
                 return { text: text, blind: text.replace(/[\w]+\s+(Inc|Corp|LLC|Ltd|Co)\.?/gi, '[Company]') };
             });
             
             // Narrative
             var topMatched = matched.filter(function(m) { return m.requirement === 'Required'; }).slice(0, 3);
-            var topSkillNames = topMatched.map(function(m) { return '<strong>' + m.userSkill + '</strong>'; }).join(', ');
-            var narrative = '<strong>' + (profile.name || 'This candidate') + '</strong> brings ';
-            if (topSkillNames) narrative += 'demonstrated expertise in ' + topSkillNames + ' — ';
+            var topSkillNames = topMatched.map(function(m) { return m.userSkill; }).join(', ');
+            var narrative = (profile.name || 'This candidate') + ' brings ';
+            if (topSkillNames) narrative += 'demonstrated expertise in ' + topSkillNames + ' \u2014 ';
             narrative += matched.length + ' of ' + (matched.length + gaps.length) + ' required competencies are matched';
             if (gaps.length > 0) narrative += ' with ' + gaps.length + ' gap' + (gaps.length !== 1 ? 's' : '') + ' identified in areas where adjacent skills suggest a bridgeable trajectory.';
             else narrative += ' with no significant gaps identified.';
@@ -28647,7 +28667,7 @@ body {
                     
                     var overlay = document.createElement('div');
                     overlay.id = 'scoutReportOverlay';
-                    overlay.style.cssText = 'position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px;';
+                    overlay.style.cssText = 'position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px;';
                     // Store data on overlay for share function
                     overlay._reportData = reportData;
                     overlay._jobIdx = jobIdx;
@@ -37499,10 +37519,90 @@ body {
                 }
                 showToast('Role hidden from Blueprint. Unhide it in Experience tab.', 'info', 3500);
             } else {
-                showToast('Could not find matching position to hide.', 'warning');
+                // Orphan role: exists in skillsData.roles but has no matching workHistory entry.
+                // Remove it directly from roles and clean skill references.
+                var orphanIdx = (skillsData.roles || []).findIndex(function(r) {
+                    return matchNames.has((r.name || '').toLowerCase().trim()) || matchNames.has((r.id || '').toLowerCase().trim());
+                });
+                if (orphanIdx !== -1) {
+                    var orphanRole = skillsData.roles[orphanIdx];
+                    var orphanId = orphanRole.id;
+                    var orphanName = orphanRole.name;
+                    skillsData.roles.splice(orphanIdx, 1);
+                    // Also remove from userData.roles if present
+                    if (userData.roles) {
+                        userData.roles = userData.roles.filter(function(r) {
+                            return (r.name || '').toLowerCase().trim() !== (orphanName || '').toLowerCase().trim()
+                                && (r.id || '').toLowerCase().trim() !== (orphanId || '').toLowerCase().trim();
+                        });
+                    }
+                    // Clean role references from skills
+                    (skillsData.skills || []).forEach(function(s) {
+                        if (s.roles) {
+                            s.roles = s.roles.filter(function(rid) { return rid !== orphanId && rid !== orphanName; });
+                        }
+                    });
+                    saveAll();
+                    if (fbUser) debouncedSave();
+                    networkInitialized = false;
+                    var ric2 = document.getElementById('roleInfoCard');
+                    if (ric2) ric2.style.display = 'none';
+                    filterByRole('all');
+                    if (typeof setNetworkMatchMode === 'function') {
+                        setNetworkMatchMode(networkMatchMode || 'you');
+                    }
+                    showToast('Orphan role "' + (orphanName || roleName) + '" removed from Blueprint.', 'info', 3500);
+                } else {
+                    showToast('Could not find matching position to hide.', 'warning');
+                }
             }
         }
         window.hideRoleFromNetwork = hideRoleFromNetwork;
+        
+        function cleanOrphanRoles() {
+            if (readOnlyGuard()) return;
+            var whTitles = new Set();
+            (userData.workHistory || []).forEach(function(j) { whTitles.add((j.title || '').toLowerCase().trim()); });
+            var orphans = [];
+            (skillsData.roles || []).forEach(function(r) {
+                var rn = (r.name || '').toLowerCase().trim();
+                var ri = (r.id || '').toLowerCase().trim();
+                if (!whTitles.has(rn) && !whTitles.has(ri)) orphans.push(r);
+            });
+            if (orphans.length === 0) {
+                showToast('No orphan roles found.', 'info');
+                return;
+            }
+            orphans.forEach(function(orphan) {
+                var oid = orphan.id;
+                var oname = orphan.name;
+                // Remove from skillsData.roles
+                skillsData.roles = (skillsData.roles || []).filter(function(r) { return r !== orphan; });
+                // Remove from userData.roles
+                if (userData.roles) {
+                    userData.roles = userData.roles.filter(function(r) {
+                        return (r.name || '').toLowerCase().trim() !== (oname || '').toLowerCase().trim()
+                            && (r.id || '').toLowerCase().trim() !== (oid || '').toLowerCase().trim();
+                    });
+                }
+                // Clean role references from skills
+                (skillsData.skills || []).forEach(function(s) {
+                    if (s.roles) {
+                        s.roles = s.roles.filter(function(rid) { return rid !== oid && rid !== oname; });
+                    }
+                });
+            });
+            saveAll();
+            if (fbUser) debouncedSave();
+            networkInitialized = false;
+            showToast(orphans.length + ' orphan role' + (orphans.length !== 1 ? 's' : '') + ' cleaned: ' + orphans.map(function(o) { return o.name; }).join(', '), 'success', 4000);
+            // Refresh admin view
+            if (typeof renderAdminOverview === 'function') {
+                var adminEl = document.getElementById('adminTabContent');
+                if (adminEl && adminSubTab === 'overview') renderAdminOverview(adminEl);
+            }
+        }
+        window.cleanOrphanRoles = cleanOrphanRoles;
         
         function openWorkHistoryModal(idx) {
             var job = idx >= 0 ? userData.workHistory[idx] : { title:'', company:'', location:'', startDate:'', endDate:'', current:false, description:'', achievements:[] };
