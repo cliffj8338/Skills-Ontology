@@ -153,7 +153,7 @@
                         "@type": "HowToStep",
                         "position": 4,
                         "name": "Match to jobs and generate scouting reports",
-                        "text": "Search 39,000+ jobs from 8 sources, see AI match scores, identify skill gaps, and generate shareable scouting reports for recruiters."
+                        "text": "Search 39,000+ jobs from 7 sources, see AI match scores, identify skill gaps, and generate shareable scouting reports for recruiters."
                     }
                 ]
             }
@@ -3505,7 +3505,7 @@
                 { name: 'BLS Wages', count: blsWageCount ? blsWageCount.toLocaleString() : 0, source: 'Bureau of Labor Statistics', color: '#f97316', loaded: blsWageCount > 0 },
                 { name: 'BLS Aliases', count: blsAliasCount ? blsAliasCount.toLocaleString() : 0, source: 'Title \u2192 SOC salary mappings', color: '#f97316', loaded: blsAliasCount > 0 },
                 { name: 'Custom Skills', count: '\u221E', source: 'User-defined', color: '#fbbf24', loaded: true },
-                { name: 'Jobs Database', count: jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : jobsCacheData.length, source: 'Firestore cache \u00B7 8 sources, A/B sync every 6h', color: '#ec4899', loaded: jobsCacheLoaded || (jobsSyncMeta && jobsSyncMeta.totalJobs > 0), id: 'adminJobsTile' }
+                { name: 'Jobs Database', count: jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : jobsCacheData.length, source: 'Firestore cache \u00B7 7 sources, A/B sync every 6h', color: '#ec4899', loaded: jobsCacheLoaded || (jobsSyncMeta && jobsSyncMeta.totalJobs > 0), id: 'adminJobsTile' }
             ];
             
             var totalLoaded = tiles.filter(function(t) { return t.loaded; }).length;
@@ -3740,7 +3740,7 @@
                 var src = m.sourceCounts || {};
                 
                 // Sort sources by count descending
-                var srcEntries = Object.keys(src).map(function(k) { return { name: k, count: src[k] || 0 }; });
+                var srcEntries = Object.keys(src).filter(function(k) { return k !== 'jooble'; }).map(function(k) { return { name: k, count: src[k] || 0 }; });
                 srcEntries.sort(function(a, b) { return b.count - a.count; });
                 var maxCount = srcEntries.length > 0 ? srcEntries[0].count : 1;
                 
@@ -4831,7 +4831,7 @@
                     items: [
                         { id: 'p1-1', name: 'Anthropic API proxy (serverless)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'Client-side helper callAnthropicAPI(). Serverless function at /api/ai.js. Firebase token validation, rate limiting, cost tracking. Deployed.' },
                         { id: 'p1-2', name: 'Report access control (share tokens)', status: 'done', category: 'security', priority: 'high', notes: 'v4.44.45: Crypto 128-bit shareToken generated on report creation. Share URL includes token param. Firestore rules split read→get/list: get allows active+token reports (single doc by ID), list restricted to auth+owner/admin (blocks enumeration). Field-size limits on report creation (jobTitle 300, company 200, createdByName 200, max 15 keys).' },
-                        { id: 'p1-3', name: 'CORS proxy via serverless', status: 'done', category: 'infrastructure', priority: 'medium', notes: 'Vercel serverless at /api/api-job-proxy. Allowlist: remotive.com, himalayas.app, jobicy.com, adzuna.com, themuse.com, jsearch, usajobs. All 8 sources use proxy+fallback pattern.' },
+                        { id: 'p1-3', name: 'CORS proxy via serverless', status: 'done', category: 'infrastructure', priority: 'medium', notes: 'Vercel serverless at /api/api-job-proxy. Allowlist: remotive.com, himalayas.app, jobicy.com, adzuna.com, themuse.com, jsearch, usajobs. All 7 sources use proxy+fallback pattern.' },
                         { id: 'p1-4', name: 'Admin roadmap tracker', status: 'done', category: 'feature', priority: 'medium', notes: 'Roadmap tab in admin panel. Tracks all strategy items, features, and tasks.' },
                         { id: 'p1-6', name: 'AI cost tracking dashboard', status: 'done', category: 'feature', priority: 'medium', notes: 'Costs tab in admin. Tracks all API calls by feature tag, shows real usage, estimated costs, sparkline, and scale projection calculator. AI_FEATURES registry auto-picks up new features.' },
                         { id: 'p1-7', name: 'Network job selector widget', status: 'done', category: 'feature', priority: 'medium', notes: 'Floating widget on network view. Select saved jobs to overlay match/gap/values analysis directly on the skill graph.' },
@@ -33490,7 +33490,7 @@ body {
                     var rd = document.getElementById('opportunitiesResults');
                     if (rd) rd.innerHTML = '<div style="text-align:center; padding:48px 20px;">'
                         + '<div style="margin-bottom:16px; opacity:0.3;">' + bpIcon('search',48) + '</div>'
-                        + '<p style="font-size:1.05em; color:var(--text-secondary); margin-bottom:6px;">Search for jobs across 8 sources</p>'
+                        + '<p style="font-size:1.05em; color:var(--text-secondary); margin-bottom:6px;">Search for jobs across 7 sources</p>'
                         + '<p style="font-size:0.85em; color:var(--text-muted);">Enter a keyword and hit Search to find matching roles.</p></div>';
                 }
             }
@@ -38664,7 +38664,7 @@ body {
             var ago = formatTimeAgo(jobsSyncMeta.lastSync);
             var total = (jobsSyncMeta.totalJobs || 0).toLocaleString();
             var src = jobsSyncMeta.sourceCounts || {};
-            var srcParts = Object.keys(src).filter(function(k) { return src[k] > 0; }).map(function(k) {
+            var srcParts = Object.keys(src).filter(function(k) { return src[k] > 0 && k !== 'jooble'; }).map(function(k) {
                 return k + ': ' + src[k];
             });
             var groupLabel = jobsSyncMeta.syncGroup ? ' (group ' + jobsSyncMeta.syncGroup + ')' : '';
