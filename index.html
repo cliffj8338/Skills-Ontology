@@ -1,4 +1,4 @@
-<!-- v4.45.76 | 2026-03-01 | Fix mastery count in negotiation guide, scouting report job match D3 filtering, candidate skills layout, card view grid -->
+<!-- v4.45.77 | 2026-03-01 | Structured Job Schema v2.0, standards-aligned job matching architecture -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -236,28 +236,18 @@
 
         /* ── Page Header (consistent across all views) ────── */
         .cards-grid {
-            max-width: 100%;
+            max-width: 1400px;
             margin: 0 auto;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 16px;
-            padding: 16px 24px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        #cardView {
-            width: 100% !important;
-            max-width: 100% !important;
-            box-sizing: border-box;
-        }
-        @media (min-width: 1600px) {
-            .cards-grid { grid-template-columns: repeat(4, 1fr); }
+            padding: 0 16px;
         }
         @media (max-width: 1100px) {
             .cards-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 700px) {
-            .cards-grid { grid-template-columns: 1fr; padding: 12px 12px; }
+            .cards-grid { grid-template-columns: 1fr; }
         }
         .domain-card {
             background: var(--c-surface-2, rgba(255,255,255,0.03));
@@ -891,7 +881,7 @@
             </div>
         </div>
         <svg id="networkView" style="display:none; overflow:visible;"></svg>
-        <div id="cardView" style="display:none; width:100%;"></div>
+        <div id="cardView" style="display:none;"></div>
         <div id="opportunitiesView" style="display:none;"></div>
         <div id="applicationsView" style="display:none;"></div>
         <div id="blueprintView" style="display:none;"></div>
@@ -1594,8 +1584,14 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.63 - BUILD 20260228-bls-expansion
-        var BP_VERSION = 'v4.45.76';
+        // BLUEPRINT v4.45.77 - BUILD 20260301-job-schema-v2
+        var BP_VERSION = 'v4.45.77';
+        
+        // ===== JOB SCHEMA VERSION =====
+        // Schema.org + JDX JobSchema+ aligned structured job format
+        // See blueprint-job-schema-v2.md for full specification
+        var JOB_SCHEMA_VERSION = '2.0';
+        var JOB_SKILLS_CAP = 50;          // Max skills per job (diminishing returns above this)
         
         // ===== SKILL CAP CONSTANTS =====
         // Research basis: LinkedIn allows 50, O*NET maps ~35/occupation, Fortune 500
@@ -3056,6 +3052,12 @@
                     if (typeof deduplicateSkills === 'function') {
                         var dupes = deduplicateSkills();
                         if (dupes > 0) { saveUserData(); if (fbUser) debouncedSave(); }
+                    }
+                    
+                    // Migrate saved jobs to v2 schema (Schema.org + JDX aligned)
+                    if (typeof migrateAllJobsToV2 === 'function') {
+                        var jobsMigrated = migrateAllJobsToV2();
+                        if (jobsMigrated > 0) { saveUserData(); if (fbUser) debouncedSave(); }
                     }
                     
                     // Skill cap triage: if still over cap after dedup, queue triage overlay
@@ -4929,7 +4931,8 @@
                         { id: 'p2-6q', name: 'Scouting report D3 network styling', status: 'in-progress', category: 'visual', priority: 'high', notes: 'v4.45.74: Switched from monkey-patching getCategoryColor/getColor (template uses inline colors, not named functions) to post-render SVG recoloring. Polls SVG circles every 400ms for 10s, reads __data__.category from D3 bound data, applies main app color palette. Also recolors links (subtle white) and text. CSS override for dark network backgrounds. Template file still needs native color update for full parity.' },
                         { id: 'p2-6r', name: 'Skill deduplication and cap system', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.73-74: Dedup guards on all 8 push paths. Startup deduplicateSkills(). Hard cap: PROFILE_SKILL_CAP=50, WB_SKILL_CAP=20. canAddSkill() central guard. Over-cap triage overlay (showSkillCapTriage) auto-triggers on load if over 50 after dedup. Scores skills by verification/evidence/proficiency, pre-selects lowest for removal. Over-cap banner with Manage button on Blueprint view. Prevent philosophy: never allow over-cap, force triage.' },
                         { id: 'p2-6s', name: 'AI skill synonym expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.74: GenAI/LLM/AI/NLP/Applied AI now cross-reference bidirectionally in SKILL_SYNONYMS. GenAI implies LLM knowledge (and vice versa) via synonym pass 1b at 0.95 quality. Also added prompt engineering→genai, artificial intelligence (ai)→applied ai→genai chain. Fixes false gaps where JD requires LLM but user has GenAI.' },
-                        { id: 'p2-6t', name: 'Blueprint dashboard reorder + inline negotiation', status: 'done', category: 'ux', priority: 'high', notes: 'v4.45.75: Dashboard reordered by importance/uniqueness: Market Position (comp + top skills + inline negotiation) → Career Readiness → Top Job Match → Skill Distribution → Quick Actions (compact). Purpose Statement moved to Content & Evidence tab. Negotiation Guide now renders inline with expandable toggle instead of modal. renderInlineNegotiation() generates offer ranges, negotiation gap, talking points, scripts. Scouting report fix: removed aggressive .skills.length global replacement that broke template JS.' }
+                        { id: 'p2-6t', name: 'Blueprint dashboard reorder + inline negotiation', status: 'done', category: 'ux', priority: 'high', notes: 'v4.45.75: Dashboard reordered by importance/uniqueness: Market Position (comp + top skills + inline negotiation) → Career Readiness → Top Job Match → Skill Distribution → Quick Actions (compact). Purpose Statement moved to Content & Evidence tab. Negotiation Guide now renders inline with expandable toggle instead of modal. renderInlineNegotiation() generates offer ranges, negotiation gap, talking points, scripts. Scouting report fix: removed aggressive .skills.length global replacement that broke template JS.' },
+                        { id: 'p2-6u', name: 'Structured Job Schema v2.0 (Phase 1)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.77: Standards-aligned job schema: Schema.org JobPosting properties (hiringOrganization, occupationalCategory, baseSalary/MonetaryAmount), JDX JobSchema+ competency model (tier/proficiency/category/source/confidence/frameworkRef), O*NET-SOC crosswalk readiness. migrateJobToV2() converts legacy parsedSkills[] to requirements.skills[] on load. getJobSkills() abstraction layer so all callers (matcher, rescore, scouting report, D3, blocklist) read from v2 structure transparently. New jobs created with full v2 schema + legacy compat fields. CRITICAL FIX: blocklisted gaps now stay in match denominator (kills score inflation bug where 2/2=100% when 3 gaps were blocklisted). Phase 2 (API ingest prompt) and Phase 3 (local parser improvements) pending.' }
                     ]
                 },
                 {
@@ -17252,16 +17255,16 @@
         // Show blocklist entries that affect a specific job's gaps
         function showAdminBlocklistInContext(jobIdx) {
             var job = (userData.savedJobs || [])[jobIdx];
-            if (!job || !job.parsedSkills) return;
+            if (!job || !getJobSkills(job).length) return;
             
             // Re-run matching to identify which gaps hit the blocklist
-            var parsed = { skills: job.parsedSkills, roles: job.parsedRoles || [] };
+            var jobSkillsArr = getJobSkills(job);
             var userSkills = skillsData.skills || [];
             var userMap = {};
             userSkills.forEach(function(s) { userMap[s.name.toLowerCase()] = true; });
             
             var blockedForThisJob = [];
-            (job.parsedSkills || []).forEach(function(ps) {
+            jobSkillsArr.forEach(function(ps) {
                 var name = typeof ps === 'string' ? ps : ps.name;
                 if (!name) return;
                 var lower = name.toLowerCase().trim();
@@ -18126,8 +18129,8 @@
             var nonUserCatVals = allCatNames.filter(function(v) { return userCatVals.indexOf(v) === -1; });
             
             jobs.forEach(function(job) {
-                job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles });
-                job.blsSalary = matchJobToBLS(job.title, job.rawText);
+                job.matchData = matchJobToProfile(getJobSkills(job));
+                job.blsSalary = matchJobToBLS(job.title, job.rawText || (job.raw && job.raw.text) || '');
                 
                 if (characterJobs[templateId] && userCatVals.length >= 3) {
                     // Curated company values for character demo jobs
@@ -22298,7 +22301,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         // ===== JOB-ONLY NETWORK =====
         
         function initJobNetwork(job) {
-            if (!job || !job.parsedSkills) return;
+            var jobSkillsArr = getJobSkills(job);
+            if (!job || !jobSkillsArr.length) return;
             
             var width = window.innerWidth;
             var height = window.innerHeight - 100;
@@ -22323,7 +22327,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Group job skills by category into roles
             var categoryMap = {};
             var roleColors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#a855f7', '#ec4899', '#06b6d4', '#84cc16'];
-            job.parsedSkills.forEach(function(s) {
+            jobSkillsArr.forEach(function(s) {
                 var cat = s.category || 'General';
                 if (!categoryMap[cat]) categoryMap[cat] = [];
                 categoryMap[cat].push(s);
@@ -29069,34 +29073,20 @@ body {
             });
             
             // Skills — use ALL skills for counts/stats, connected only for network rendering
-            // Build set of ALL job skill names (Required + Preferred + Nice-to-have) for safety net matching
-            var jobAllNames = (job.parsedSkills || []).map(function(s) { return typeof s === 'string' ? s : s.name; });
-            var jobAllSet = new Set(jobAllNames.map(function(n) { return n.toLowerCase(); }));
-            var jobRequiredNames = (job.parsedSkills || []).filter(function(s) {
-                var req = (typeof s === 'string') ? 'Required' : (s.requirement || 'Required');
-                return req === 'Required';
+            var jobRequiredNames = getJobSkills(job).filter(function(s) {
+                var req = (typeof s === 'string') ? 'Required' : (s.tier || s.requirement || 'Required');
+                return req === 'Required' || req === 'required';
             }).map(function(s) { return typeof s === 'string' ? s : s.name; });
             var jobRequiredSet = new Set(jobRequiredNames.map(function(n) { return n.toLowerCase(); }));
-            
-            // Build matched user skill names set — handle BOTH formats:
-            // matchJobToProfile returns [{userSkill:"...", jobSkill:"...",...}]
-            // quickScoreJob returns ["skill name 1", "skill name 2",...]
-            var matchedUserNames = new Set();
-            matched.forEach(function(m) {
-                if (typeof m === 'string') {
-                    matchedUserNames.add(m.toLowerCase());
-                } else if (m && m.userSkill) {
-                    matchedUserNames.add(m.userSkill.toLowerCase());
-                }
-            });
             
             // Build full skill set (for stats) and network skill set (for D3)
             var reportSkills = allSkills.map(function(s) {
                 var sk = { n: s.name, l: s.level || 'Proficient', r: (s.roles || []).filter(function(rid) { return validRoleIds.has(rid); }) };
-                // Mark as matched (green) if skill appears in matchData.matched OR in any job skill name
-                var isMatched = matchedUserNames.has(s.name.toLowerCase());
-                // Safety net: also check if user skill name matches ANY job skill name exactly (Required, Preferred, or Nice-to-have)
-                var isRequired = jobAllSet.has(s.name.toLowerCase()) || isMatched;
+                // Mark as matched (green) if skill appears in matchData.matched OR in job's required skills
+                var isMatched = matched.some(function(m) {
+                    return m.userSkill.toLowerCase() === s.name.toLowerCase();
+                });
+                var isRequired = jobRequiredSet.has(s.name.toLowerCase()) || isMatched;
                 if (isRequired) sk.k = 1;
                 var ev = (s.evidence || []).map(function(e) {
                     if (typeof e === 'string') return e;
@@ -29111,16 +29101,13 @@ body {
                 return sk;
             });
             
-            // Gaps — handle both formats: matchJobToProfile returns [{name:"...", requirement:"..."}],
-            // quickScoreJob returns ["gap name 1", "gap name 2",...]
+            // Gaps
             var reportGaps = gaps.map(function(g) {
-                var gapName = (typeof g === 'string') ? g : g.name;
-                var gapReq = (typeof g === 'string') ? 'Required' : (g.requirement || 'Required');
                 var adjacentSkills = connectedSkills.filter(function(s) {
-                    var words = gapName.toLowerCase().split(/[\s\-\/&]+/).filter(function(w) { return w.length > 3; });
+                    var words = g.name.toLowerCase().split(/[\s\-\/&]+/).filter(function(w) { return w.length > 3; });
                     return words.some(function(w) { return s.name.toLowerCase().indexOf(w) !== -1; });
                 }).slice(0, 3).map(function(s) { return s.name; });
-                return { n: gapName, rq: gapReq, br: adjacentSkills.length > 0
+                return { n: g.name, rq: g.requirement || 'Required', br: adjacentSkills.length > 0
                     ? 'Adjacent skills (' + adjacentSkills.join(', ') + ') suggest a bridgeable gap with targeted development.'
                     : 'No directly adjacent skills identified. Targeted upskilling recommended.', adj: adjacentSkills };
             });
@@ -29148,15 +29135,9 @@ body {
                 return { text: text, blind: text.replace(/[\w]+\s+(Inc|Corp|LLC|Ltd|Co)\.?/gi, '[Company]') };
             });
             
-            // Narrative — handle both matched formats (objects from matchJobToProfile, strings from quickScoreJob)
-            var topMatched = matched.filter(function(m) {
-                if (typeof m === 'string') return true; // quickScoreJob: all are effectively "required"
-                return m.requirement === 'Required';
-            }).slice(0, 3);
-            var topSkillNames = topMatched.map(function(m) {
-                if (typeof m === 'string') return m;
-                return m.userSkill || m.jobSkill || '';
-            }).filter(Boolean).join(', ');
+            // Narrative
+            var topMatched = matched.filter(function(m) { return m.requirement === 'Required'; }).slice(0, 3);
+            var topSkillNames = topMatched.map(function(m) { return m.userSkill; }).join(', ');
             var narrative = (profile.name || 'This candidate') + ' brings ';
             if (topSkillNames) narrative += 'demonstrated expertise in ' + topSkillNames + ' \u2014 ';
             narrative += matched.length + ' of ' + (matched.length + gaps.length) + ' required competencies are matched';
@@ -29283,61 +29264,6 @@ body {
                         + '      l.setAttribute("stroke", "rgba(255,255,255,0.06)");'
                         + '    });'
                         + '  }'
-                        // Retune D3 force simulation for tighter clustering
-                        + '  var simTuned = false;'
-                        + '  function tuneSimulation() {'
-                        + '    if (simTuned) return;'
-                        + '    var sim = window.simulation || window.sim || window._simulation;'
-                        + '    if (!sim) {'
-                        + '      for (var k in window) {'
-                        + '        try { if (window[k] && typeof window[k].alpha === "function" && typeof window[k].restart === "function" && typeof window[k].force === "function") { sim = window[k]; break; } } catch(e) {}'
-                        + '      }'
-                        + '    }'
-                        + '    if (!sim) return;'
-                        + '    simTuned = true;'
-                        // Get SVG dimensions for center force
-                        + '    var svg = document.querySelector("svg");'
-                        + '    var w = svg ? (svg.getAttribute("width") || svg.clientWidth || 800) : 800;'
-                        + '    var h = svg ? (svg.getAttribute("height") || svg.clientHeight || 600) : 600;'
-                        + '    w = parseFloat(w); h = parseFloat(h);'
-                        + '    var cx = w / 2, cy = h / 2;'
-                        // Stronger charge to pull nodes inward, but not so strong they overlap
-                        + '    try { sim.force("charge", d3.forceManyBody().strength(function(d) {'
-                        + '      if (d.fx !== undefined) return 0;'
-                        + '      if (d.isRole || d.type === "role" || d.nodeType === "role") return -300;'
-                        + '      if (d.isCenter || d.type === "center" || d.nodeType === "center") return 0;'
-                        + '      return -120;'
-                        + '    })); } catch(e) {}'
-                        // Center gravity
-                        + '    try { sim.force("center", d3.forceCenter(cx, cy)); } catch(e) {}'
-                        // X/Y gravity to prevent edge drift
-                        + '    try { sim.force("x", d3.forceX(cx).strength(0.07)); } catch(e) {}'
-                        + '    try { sim.force("y", d3.forceY(cy).strength(0.07)); } catch(e) {}'
-                        // Collision to prevent overlap
-                        + '    try { sim.force("collision", d3.forceCollide().radius(function(d) {'
-                        + '      if (d.isCenter || d.type === "center" || d.nodeType === "center") return 50;'
-                        + '      if (d.isRole || d.type === "role" || d.nodeType === "role") return 45;'
-                        + '      var r = d.r || d.radius || 20;'
-                        + '      return r + 8;'
-                        + '    }).strength(0.8).iterations(2)); } catch(e) {}'
-                        // Radial force to keep skills in a band around center
-                        + '    try { sim.force("radial", d3.forceRadial(function(d) {'
-                        + '      if (d.isCenter || d.type === "center" || d.nodeType === "center") return 0;'
-                        + '      if (d.isRole || d.type === "role" || d.nodeType === "role") return Math.min(w, h) * 0.3;'
-                        + '      return Math.min(w, h) * 0.25;'
-                        + '    }, cx, cy).strength(function(d) {'
-                        + '      if (d.isCenter || d.type === "center") return 0;'
-                        + '      if (d.isRole || d.type === "role") return 0.05;'
-                        + '      return 0.08;'
-                        + '    })); } catch(e) {}'
-                        // Retune link distances if possible
-                        + '    try { var lf = sim.force("link"); if (lf && lf.distance) { lf.distance(function(d) {'
-                        + '      if (d.type === "hub" || d.type === "role") return Math.min(w, h) * 0.28;'
-                        + '      return Math.min(w, h) * 0.18;'
-                        + '    }); } } catch(e) {}'
-                        // Restart with high alpha
-                        + '    sim.alpha(0.8).alphaDecay(0.02).restart();'
-                        + '  }'
                         // Hide surplus (non-matched, non-gap) nodes in Job Match view
                         + '  function filterJobMatch() {'
                         + '    var isJobMatch = false;'
@@ -29345,77 +29271,50 @@ body {
                         + '      if (b.classList && b.classList.contains("active") && /job\\s*match/i.test(b.textContent)) isJobMatch = true;'
                         + '    });'
                         + '    var R = typeof REPORT_DATA !== "undefined" ? REPORT_DATA : null;'
-                        + '    if (!R) return;'
-                        // Build name-based fallback lookup (secondary signal for gap nodes and edge cases)
+                        + '    if (!R || !R.jobMatchSkills) return;'
                         + '    var matchedNames = {};'
-                        + '    (R.jobMatchSkills || []).forEach(function(s) { var nm = (s.n || s.name || "").toLowerCase(); if(nm) matchedNames[nm] = true; });'
-                        + '    (R.gaps || []).forEach(function(g) { var nm = (g.n || g.name || "").toLowerCase(); if(nm) matchedNames[nm] = true; });'
+                        + '    R.jobMatchSkills.forEach(function(s) { matchedNames[s.n.toLowerCase()] = true; });'
+                        + '    (R.gaps || []).forEach(function(g) { matchedNames[g.n.toLowerCase()] = true; });'
                         + '    (R.jobRequired || []).forEach(function(j) { matchedNames[j.toLowerCase()] = true; });'
-                        + '    ((R._allSkills || R.skills || []).concat(R.networkSkills || [])).forEach(function(s) { if(s.k) { var nm = (s.n || s.name || "").toLowerCase(); if(nm) matchedNames[nm] = true; } });'
-                        + '    var hiddenIds = {};'
-                        + '    document.querySelectorAll("svg g").forEach(function(g) {'
+                        + '    document.querySelectorAll("svg g.node, svg g[class*=node], svg g").forEach(function(g) {'
                         + '      var d = g.__data__;'
-                        + '      if (!d) return;'
-                        // Structural nodes always visible
-                        + '      if (d.isCenter || d.isRole || d.type === "role" || d.type === "center" || d.type === "job" || d.nodeType === "role" || d.nodeType === "center") return;'
-                        // Primary signal: d.k === 1 from reportSkills (set in buildReportData, survives template binding)
-                        + '      var isMatch = d.k === 1;'
-                        // Also check gap-type nodes
-                        + '      if (!isMatch) isMatch = d.type === "gap" || d.matchColor === "gap" || d.matchColor === "matched";'
-                        // Secondary signal: name lookup (handles template-created gap nodes or edge cases)
-                        + '      if (!isMatch) {'
-                        + '        var nm = (d.name || d.n || d.label || d.id || "");'
-                        + '        if (typeof nm === "string") nm = nm.toLowerCase();'
-                        + '        else nm = "";'
-                        + '        if (nm && matchedNames[nm]) isMatch = true;'
-                        + '      }'
-                        + '      if (isJobMatch && !isMatch) {'
-                        + '        g.style.opacity = "0"; g.style.pointerEvents = "none";'
-                        + '        if (d.id !== undefined) hiddenIds[d.id] = true;'
-                        + '        if (d.index !== undefined) hiddenIds[d.index] = true;'
+                        + '      if (!d || !d.name) return;'
+                        + '      if (d.isCenter || d.isRole || d.type === "role" || d.type === "center" || d.type === "job") return;'
+                        + '      var nm = d.name.toLowerCase();'
+                        + '      if (isJobMatch && !matchedNames[nm] && d.type !== "gap") {'
+                        + '        g.style.display = "none";'
                         + '      } else {'
-                        + '        g.style.opacity = ""; g.style.pointerEvents = "";'
+                        + '        g.style.display = "";'
                         + '      }'
                         + '    });'
-                        // Hide links connected to hidden nodes
-                        + '    document.querySelectorAll("svg line, svg path.link").forEach(function(l) {'
-                        + '      var ld = l.__data__;'
-                        + '      if (!ld) { if(isJobMatch) { l.style.opacity = "0.03"; } else { l.style.opacity = ""; } return; }'
-                        + '      var src = ld.source || {}; var tgt = ld.target || {};'
-                        + '      var sId = src.id !== undefined ? src.id : (src.index !== undefined ? src.index : null);'
-                        + '      var tId = tgt.id !== undefined ? tgt.id : (tgt.index !== undefined ? tgt.index : null);'
-                        + '      var sHidden = sId !== null && hiddenIds[sId];'
-                        + '      var tHidden = tId !== null && hiddenIds[tId];'
-                        + '      if (isJobMatch && (sHidden || tHidden)) {'
-                        + '        l.style.opacity = "0"; l.style.pointerEvents = "none";'
-                        + '      } else {'
-                        + '        l.style.opacity = ""; l.style.pointerEvents = "";'
-                        + '      }'
-                        + '    });'
-                        // Restart simulation so visible nodes reflow
+                        // Also hide orphan links pointing to hidden nodes
                         + '    if (isJobMatch) {'
-                        + '      try {'
-                        + '        var sim = window.simulation || window.sim || window._simulation;'
-                        + '        if (!sim) { for (var k in window) { try { if (window[k] && typeof window[k].alpha === "function" && typeof window[k].restart === "function") { sim = window[k]; break; } } catch(e){} } }'
-                        + '        if (sim) { sim.alpha(0.3).restart(); }'
-                        + '      } catch(e) {}'
+                        + '      document.querySelectorAll("svg line").forEach(function(l) {'
+                        + '        var s = l.__data__;'
+                        + '        if (!s) return;'
+                        + '        var sName = (s.source && s.source.name) ? s.source.name.toLowerCase() : "";'
+                        + '        var tName = (s.target && s.target.name) ? s.target.name.toLowerCase() : "";'
+                        + '        if ((sName && !matchedNames[sName]) || (tName && !matchedNames[tName])) {'
+                        + '          l.style.display = "none";'
+                        + '        } else { l.style.display = ""; }'
+                        + '      });'
+                        + '    } else {'
+                        + '      document.querySelectorAll("svg line").forEach(function(l) { l.style.display = ""; });'
                         + '    }'
                         + '  }'
                         + '  var n = 0;'
                         + '  var iv = setInterval(function() {'
                         + '    recolorNetwork();'
-                        + '    tuneSimulation();'
                         + '    filterJobMatch();'
                         + '    if (++n > 25) clearInterval(iv);'
                         + '  }, 400);'
                         + '  document.addEventListener("DOMContentLoaded", function() {'
-                        + '    [800,1500,2500,4000].forEach(function(ms) { setTimeout(function(){ recolorNetwork(); tuneSimulation(); filterJobMatch(); }, ms); });'
+                        + '    [800,1500,2500,4000].forEach(function(ms) { setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, ms); });'
                         // Re-filter when tabs are clicked
                         + '    document.addEventListener("click", function(e) {'
                         + '      if (e.target && (e.target.matches("button, [role=tab], .tab, .toggle-btn") || e.target.closest("button, [role=tab]"))) {'
-                        + '        simTuned = false;'
-                        + '        setTimeout(function(){ recolorNetwork(); tuneSimulation(); filterJobMatch(); }, 300);'
-                        + '        setTimeout(function(){ recolorNetwork(); tuneSimulation(); filterJobMatch(); }, 800);'
+                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 300);'
+                        + '        setTimeout(function(){ recolorNetwork(); filterJobMatch(); }, 800);'
                         + '      }'
                         + '    });'
                         + '  });'
@@ -30799,7 +30698,7 @@ body {
             doc.text(advLines, M + 8, y + 21);
             
             // Key strengths and concerns
-            var keyStrengths = matched.slice(0, 3).map(function(m) { return m.n || ''; }).filter(Boolean);
+            var keyStrengths = matched.filter(function(m) { return m.requirement === 'Required'; }).slice(0, 3).map(function(m) { return m.userSkill; });
             if (keyStrengths.length > 0) {
                 doc.setFontSize(5.5); doc.setFont(undefined, 'bold'); sc(C.g);
                 doc.text('KEY STRENGTHS: ', M + 8, y + 32);
@@ -33442,23 +33341,107 @@ body {
                 }
                 
                 // Calculate match against user's skills
-                var matchData = matchJobToProfile(parsed);
+                // Convert parsed skills to v2 format for matching
+                var ingestMethod = apiKey ? 'api' : 'local';
+                var defaultConfidence = apiKey ? 0.85 : 0.5;
+                var v2Skills = (parsed.skills || []).map(function(s) {
+                    var name = typeof s === 'string' ? s : (s.name || '');
+                    if (!name) return null;
+                    var isObj = typeof s === 'object' && s !== null;
+                    var legacyReq = isObj ? (s.requirement || s.level || '') : '';
+                    return {
+                        name: name,
+                        canonical: name.toLowerCase().replace(/\s+/g, ' ').trim(),
+                        abbreviation: null,
+                        tier: normalizeTier(legacyReq),
+                        proficiency: (isObj && s.proficiency) || 'Proficient',
+                        category: (isObj && s.category) || 'technical',
+                        section: null,
+                        context: null,
+                        source: 'extracted',
+                        confidence: defaultConfidence,
+                        frameworkRef: null
+                    };
+                }).filter(Boolean).slice(0, JOB_SKILLS_CAP);
                 
-                // Build the job object
+                var matchData = matchJobToProfile(v2Skills);
+                
+                // Build v2 job object
                 var blsSalary = matchJobToBLS(parsed.title, jdText);
+                var now = new Date().toISOString();
                 var job = {
-                    id: 'job-' + Date.now(),
+                    // v2 schema
+                    schemaVersion: JOB_SCHEMA_VERSION,
+                    id: 'job_' + Date.now(),
                     title: parsed.title || 'Untitled Position',
+                    hiringOrganization: {
+                        name: parsed.company || '',
+                        sameAs: null,
+                        industry: '',
+                        size: ''
+                    },
+                    titleRole: null,
+                    titleLevel: (parsed.seniority || '').toLowerCase() || null,
+                    occupationalCategory: null,
+                    jobLocation: {
+                        primary: '',
+                        address: { locality: null, region: null, country: null },
+                        locationType: null,
+                        remote: null,
+                        remoteDetail: ''
+                    },
+                    employmentType: null,
+                    department: null,
+                    postingMeta: {
+                        sourceUrl: sourceUrl,
+                        sourceNote: sourceNote,
+                        datePosted: null,
+                        validThrough: null,
+                        externalId: '',
+                        ingestedAt: now,
+                        ingestMethod: ingestMethod,
+                        rawTextHash: null
+                    },
+                    requirements: {
+                        skills: v2Skills,
+                        qualifications: [],
+                        responsibilities: []
+                    },
+                    compensation: {
+                        baseSalary: { currency: 'USD', value: { minValue: null, maxValue: null, unitText: 'YEAR' } },
+                        estimatedSalary: blsSalary ? blsSalary.median : null,
+                        incentiveCompensation: null,
+                        equity: null,
+                        jobBenefits: [],
+                        source: blsSalary ? 'estimated' : null
+                    },
+                    companyContext: {
+                        values: { primary: [], secondary: [], source: 'jd' },
+                        culture: [],
+                        employerOverview: null
+                    },
+                    raw: {
+                        text: jdText.substring(0, 8000),
+                        sections: []
+                    },
+                    pipeline: {
+                        status: 'active',
+                        addedAt: now,
+                        appliedAt: null,
+                        notes: '',
+                        tags: []
+                    },
+                    // Legacy fields preserved for backward compatibility
                     company: parsed.company || '',
                     sourceUrl: sourceUrl,
                     sourceNote: sourceNote,
-                    rawText: jdText.substring(0, 5000), // Cap storage
+                    rawText: jdText.substring(0, 5000),
                     parsedSkills: parsed.skills || [],
                     parsedRoles: parsed.roles || [],
                     seniority: parsed.seniority || '',
                     matchData: matchData,
                     blsSalary: blsSalary,
-                    addedAt: new Date().toISOString()
+                    addedAt: now
                 };
                 
                 // Save
@@ -35378,13 +35361,194 @@ body {
             return suggestions;
         }
         
+        // ===== JOB SCHEMA v2.0 — MIGRATION & VALIDATION =====
+        // Standards-aligned: Schema.org JobPosting + JDX JobSchema+ + O*NET-SOC
+        
+        function isJobV2(job) {
+            return job && job.schemaVersion === JOB_SCHEMA_VERSION && job.requirements && Array.isArray(job.requirements.skills);
+        }
+        
+        // Get the matchable skills array from any job format (v2 or legacy)
+        function getJobSkills(job) {
+            if (isJobV2(job)) return job.requirements.skills;
+            return job.parsedSkills || [];
+        }
+        
+        // Get roles from any job format
+        function getJobRoles(job) {
+            if (isJobV2(job)) return []; // v2 uses titleRole/occupationalCategory instead
+            return job.parsedRoles || [];
+        }
+        
+        // Normalize tier values from various legacy formats to v2 canonical
+        function normalizeTier(val) {
+            if (!val) return 'required';
+            var v = val.toLowerCase().trim();
+            if (v === 'required' || v === 'must have' || v === 'essential' || v === 'mandatory') return 'required';
+            if (v === 'preferred' || v === 'desired' || v === 'recommended' || v === 'strongly preferred') return 'preferred';
+            if (v === 'nice-to-have' || v === 'nice to have' || v === 'plus' || v === 'bonus') return 'nice-to-have';
+            return 'required'; // default
+        }
+        
+        // Map v2 tier to matcher weight
+        function tierWeight(tier) {
+            if (tier === 'required' || tier === 'Required') return 3;
+            if (tier === 'preferred' || tier === 'Preferred') return 2;
+            return 1; // nice-to-have, Nice-to-have, or fallback
+        }
+        
+        // Migrate a legacy job to v2 schema. Non-destructive: preserves old fields.
+        function migrateJobToV2(oldJob) {
+            if (isJobV2(oldJob)) return oldJob; // Already v2
+            
+            // Build v2 skill objects from legacy parsedSkills
+            var v2Skills = (oldJob.parsedSkills || []).map(function(s) {
+                var name = typeof s === 'string' ? s : (s.name || s.skill || '');
+                if (!name) return null;
+                var isObj = typeof s === 'object' && s !== null;
+                
+                // Map legacy requirement/level → v2 tier
+                var legacyReq = isObj ? (s.requirement || s.level || '') : '';
+                var tier = normalizeTier(legacyReq);
+                
+                return {
+                    name: name,
+                    canonical: name.toLowerCase().replace(/\s+/g, ' ').trim(),
+                    abbreviation: null,
+                    tier: tier,
+                    proficiency: (isObj && s.proficiency) || 'Proficient',
+                    category: (isObj && s.category) || 'technical',
+                    section: null,
+                    context: null,
+                    source: 'extracted',
+                    confidence: 0.4,  // Legacy local parse = low confidence
+                    frameworkRef: null
+                };
+            }).filter(Boolean);
+            
+            // Build compensation from BLS data
+            var comp = {
+                baseSalary: { currency: 'USD', value: { minValue: null, maxValue: null, unitText: 'YEAR' } },
+                estimatedSalary: null,
+                incentiveCompensation: null,
+                equity: null,
+                jobBenefits: [],
+                source: null
+            };
+            if (oldJob.blsSalary && oldJob.blsSalary.median) {
+                comp.baseSalary.value.minValue = oldJob.blsSalary.pct25 || oldJob.blsSalary.pct10 || null;
+                comp.baseSalary.value.maxValue = oldJob.blsSalary.pct75 || oldJob.blsSalary.pct90 || null;
+                comp.estimatedSalary = oldJob.blsSalary.median;
+                comp.source = 'estimated';
+            }
+            
+            // Merge v2 structure onto the existing job object (preserves legacy fields for safety)
+            oldJob.schemaVersion = JOB_SCHEMA_VERSION;
+            oldJob.hiringOrganization = oldJob.hiringOrganization || {
+                name: oldJob.company || '',
+                sameAs: null,
+                industry: '',
+                size: ''
+            };
+            oldJob.titleRole = null;
+            oldJob.titleLevel = oldJob.seniority ? oldJob.seniority.toLowerCase() : null;
+            oldJob.occupationalCategory = null;
+            oldJob.jobLocation = oldJob.jobLocation || {
+                primary: oldJob.location || '',
+                address: { locality: null, region: null, country: null },
+                locationType: null,
+                remote: oldJob.remote || null,
+                remoteDetail: ''
+            };
+            oldJob.employmentType = oldJob.employmentType || null;
+            oldJob.department = null;
+            if (!oldJob.postingMeta) {
+                oldJob.postingMeta = {
+                    sourceUrl: oldJob.sourceUrl || oldJob.url || '',
+                    sourceNote: oldJob.sourceNote || '',
+                    datePosted: null,
+                    validThrough: null,
+                    externalId: '',
+                    ingestedAt: oldJob.addedAt || oldJob.savedAt || new Date().toISOString(),
+                    ingestMethod: 'local',
+                    rawTextHash: null
+                };
+            }
+            oldJob.requirements = oldJob.requirements || {
+                skills: v2Skills,
+                qualifications: [],
+                responsibilities: []
+            };
+            oldJob.compensation = oldJob.compensation || comp;
+            oldJob.companyContext = oldJob.companyContext || {
+                values: { primary: [], secondary: [], source: 'jd' },
+                culture: [],
+                employerOverview: null
+            };
+            oldJob.raw = oldJob.raw || {
+                text: (oldJob.rawText || '').substring(0, 8000),
+                sections: []
+            };
+            if (!oldJob.pipeline) {
+                oldJob.pipeline = {
+                    status: oldJob.status || 'active',
+                    addedAt: oldJob.addedAt || oldJob.savedAt || new Date().toISOString(),
+                    appliedAt: null,
+                    notes: oldJob.notes || '',
+                    tags: oldJob.tags || []
+                };
+            }
+            
+            return oldJob;
+        }
+        
+        // Migrate all saved jobs on load. Returns count of jobs migrated.
+        function migrateAllJobsToV2() {
+            var jobs = userData.savedJobs || [];
+            var migrated = 0;
+            for (var i = 0; i < jobs.length; i++) {
+                if (!isJobV2(jobs[i])) {
+                    jobs[i] = migrateJobToV2(jobs[i]);
+                    migrated++;
+                }
+            }
+            if (migrated > 0) {
+                console.log('[JOB SCHEMA] Migrated ' + migrated + ' job(s) to v2.0');
+            }
+            return migrated;
+        }
+        
+        // Validate v2 job schema (runtime shape check, not strict validation)
+        function validateJobSchema(job) {
+            var issues = [];
+            if (!job) { issues.push('Job is null/undefined'); return issues; }
+            if (job.schemaVersion !== JOB_SCHEMA_VERSION) issues.push('schemaVersion mismatch: ' + (job.schemaVersion || 'missing'));
+            if (!job.title) issues.push('Missing title');
+            if (!job.requirements) issues.push('Missing requirements section');
+            if (job.requirements && !Array.isArray(job.requirements.skills)) issues.push('requirements.skills is not an array');
+            if (job.requirements && job.requirements.skills) {
+                job.requirements.skills.forEach(function(s, i) {
+                    if (!s.name) issues.push('Skill [' + i + '] missing name');
+                    if (!s.canonical) issues.push('Skill [' + i + '] missing canonical');
+                    if (!s.tier) issues.push('Skill [' + i + '] missing tier');
+                });
+            }
+            return issues;
+        }
+        
         // ===== MATCH CALCULATION =====
         
         function matchJobToProfile(parsed) {
-            var rawSkills = parsed.skills || [];
-            // Normalize: support both string arrays and object arrays
+            // v2 support: accept either { skills: [...] } or a raw skills array
+            var rawSkills = Array.isArray(parsed) ? parsed : (parsed.skills || []);
+            // Normalize: support string arrays, legacy objects, and v2 objects
             var jobSkills = rawSkills.map(function(s) {
-                if (typeof s === 'string') return { name: s, requirement: 'Required' };
+                if (typeof s === 'string') return { name: s, requirement: 'Required', tier: 'required' };
+                // Ensure both .requirement (legacy renderer) and .tier (v2) exist
+                if (s.tier && !s.requirement) s.requirement = s.tier === 'required' ? 'Required' : s.tier === 'preferred' ? 'Preferred' : 'Nice-to-have';
+                if (s.requirement && !s.tier) s.tier = normalizeTier(s.requirement);
+                if (!s.tier) s.tier = 'required';
+                if (!s.requirement) s.requirement = 'Required';
                 return s;
             }).filter(function(s) { return s && s.name; });
             var userSkills = skillsData.skills || [];
@@ -35414,9 +35578,9 @@ body {
             var earnedWeight = 0;
             
             jobSkills.forEach(function(jobSkill) {
-                // Backward compat: support old 'level' field as 'requirement'
+                // v2: use tier for weight; legacy: use requirement/level
                 var requirement = jobSkill.requirement || jobSkill.level || 'Required';
-                var reqWeight = requirement === 'Required' ? 3 : requirement === 'Preferred' ? 2 : 1;
+                var reqWeight = tierWeight(jobSkill.tier || requirement);
                 totalWeight += reqWeight;
                 
                 // Job's demanded proficiency (default Proficient if not specified)
@@ -35689,6 +35853,7 @@ body {
                         userLevel: found.level,
                         jobProficiency: jobSkill.proficiency || 'Proficient',
                         requirement: requirement,
+                        tier: jobSkill.tier || normalizeTier(requirement),
                         category: jobSkill.category,
                         nameMatch: nameMatchQuality,
                         profMatch: profMatch,
@@ -35701,6 +35866,7 @@ body {
                     gaps.push({
                         name: jobSkill.name,
                         requirement: requirement,
+                        tier: jobSkill.tier || normalizeTier(requirement),
                         proficiency: jobSkill.proficiency || 'Proficient',
                         category: jobSkill.category
                     });
@@ -35725,28 +35891,36 @@ body {
             totalWeight = 0;
             matched.forEach(function(m) { 
                 earnedWeight += m._credit;
-                var rw = m.requirement === 'Required' ? 3 : m.requirement === 'Preferred' ? 2 : 1;
-                totalWeight += rw;
+                totalWeight += tierWeight(m.tier || m.requirement);
             });
             
             // Deduplicate gaps by normalized name
+            // CRITICAL FIX (v4.45.77): blocklisted gaps still count in totalWeight.
+            // Removing them from BOTH display AND denominator caused score inflation
+            // (e.g., 2 matched / 2 total = 100% when 3 gaps were blocklisted).
             var gapSeen = new Set();
             var blocklistedCount = 0;
+            var blocklistedWeight = 0;
             var totalParsedGaps = gaps.length;
             gaps = gaps.filter(function(g) {
-                // Admin blocklist
-                if (isSkillBlocklisted(g.name)) { blocklistedCount++; return false; }
+                var gw = tierWeight(g.tier || g.requirement);
+                // Admin blocklist: remove from display but KEEP weight in denominator
+                if (isSkillBlocklisted(g.name)) { 
+                    blocklistedCount++; 
+                    blocklistedWeight += gw;
+                    return false; 
+                }
                 var norm = g.name.toLowerCase().replace(/\s*\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
                 if (gapSeen.has(norm)) return false;
                 gapSeen.add(norm);
                 return true;
             });
             
-            // Add gap weights to totalWeight (after gap dedup/blocklist)
+            // Add ALL gap weights to totalWeight: visible gaps + blocklisted gaps
             gaps.forEach(function(g) {
-                var rw = g.requirement === 'Required' ? 3 : g.requirement === 'Preferred' ? 2 : 1;
-                totalWeight += rw;
+                totalWeight += tierWeight(g.tier || g.requirement);
             });
+            totalWeight += blocklistedWeight; // Blocklisted gaps stay in denominator
             
             // Surplus: user skills not needed by job
             var surplus = [];
@@ -35779,15 +35953,18 @@ body {
             var updated = 0;
             userData.savedJobs.forEach(function(job) {
                 var oldScore = job.matchData ? job.matchData.score : 0;
-                if (job.parsedSkills && job.parsedSkills.length > 0) {
-                    // Jobs with structured parsedSkills: use the 6-pass matcher (authoritative)
-                    job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles || [] });
+                var skills = getJobSkills(job);
+                if (skills.length > 0) {
+                    // v2 or legacy with parsed skills: use the 6-pass matcher
+                    job.matchData = matchJobToProfile(skills);
                 } else {
                     // Jobs with only raw text: fall back to quick text-search scorer
-                    var quick = quickScoreJob(job.title, job.rawText || '', job.parsedSkills || []);
+                    var quick = quickScoreJob(job.title, job.rawText || (job.raw && job.raw.text) || '', []);
                     job.matchData = { score: quick.score, matched: quick.matched, gaps: quick.gaps, surplus: [] };
                 }
-                if (!job.companyValues) job.companyValues = getCompanyValues(job.company, job.rawText || job.description || "");
+                var companyName = (job.hiringOrganization && job.hiringOrganization.name) || job.company || '';
+                var rawText = (job.raw && job.raw.text) || job.rawText || job.description || '';
+                if (!job.companyValues) job.companyValues = getCompanyValues(companyName, rawText);
                 if (job.matchData.score !== oldScore) updated++;
             });
             
@@ -35806,15 +35983,16 @@ body {
                 return;
             }
             var oldScore = job.matchData ? job.matchData.score : 0;
-            if (job.parsedSkills && job.parsedSkills.length > 0) {
-                // Jobs with structured parsedSkills: use the 6-pass matcher (authoritative)
-                job.matchData = matchJobToProfile({ skills: job.parsedSkills, roles: job.parsedRoles || [] });
+            var skills = getJobSkills(job);
+            if (skills.length > 0) {
+                job.matchData = matchJobToProfile(skills);
             } else {
-                // Jobs with only raw text: fall back to quick text-search scorer
-                var quick = quickScoreJob(job.title, job.rawText || '', job.parsedSkills || []);
+                var quick = quickScoreJob(job.title, job.rawText || (job.raw && job.raw.text) || '', []);
                 job.matchData = { score: quick.score, matched: quick.matched, gaps: quick.gaps, surplus: [] };
             }
-            if (!job.companyValues) job.companyValues = getCompanyValues(job.company, job.rawText || job.description || "");
+            var companyName = (job.hiringOrganization && job.hiringOrganization.name) || job.company || '';
+            var rawText = (job.raw && job.raw.text) || job.rawText || job.description || '';
+            if (!job.companyValues) job.companyValues = getCompanyValues(companyName, rawText);
             saveUserData();
             if (fbUser) debouncedSave();
             showJobDetail(idx);
@@ -36038,7 +36216,7 @@ body {
             if (match.libraryAvailable === false) {
                 diagnosticWarnings.push(bpIcon('alert-triangle',14) + ' Skill library was not loaded during analysis. <button onclick="reanalyzeJob(' + idx + ')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.82em;text-decoration:underline;padding:0;">Re-analyze now</button> for better results.');
             }
-            var parsedSkillCount = (job.parsedSkills || []).length;
+            var parsedSkillCount = getJobSkills(job).length;
             if (parsedSkillCount > 0 && parsedSkillCount < 8) {
                 diagnosticWarnings.push(bpIcon('info',14) + ' Only ' + parsedSkillCount + ' skill' + (parsedSkillCount !== 1 ? 's' : '') + ' extracted from JD. <button onclick="reanalyzeJob(' + idx + ')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.82em;text-decoration:underline;padding:0;">Re-analyze</button> may find more.');
             }
@@ -36327,11 +36505,12 @@ body {
         function reanalyzeJob(idx) {
             var job = (userData.savedJobs || [])[idx];
             if (job && job.sample && !fbIsAdmin) { showToast('Demo jobs cannot be re-analyzed.', 'warning'); return; }
-            if (!job || !job.rawText) {
+            if (!job || (!job.rawText && !(job.raw && job.raw.text))) {
                 showToast('No raw JD text saved for this job.', 'warning');
                 return;
             }
             
+            var jobRawText = job.rawText || (job.raw && job.raw.text) || '';
             var apiKey = safeGet('wbAnthropicKey') || '';
             
             // Re-parse
@@ -36346,20 +36525,51 @@ body {
                     await ensureSkillLibrary();
                     var parsed;
                     if (apiKey) {
-                        parsed = await parseJobWithAPI(job.rawText, apiKey);
+                        parsed = await parseJobWithAPI(jobRawText, apiKey);
                     } else {
-                        parsed = parseJobLocally(job.rawText);
+                        parsed = parseJobLocally(jobRawText);
                     }
                     
-                    var matchData = matchJobToProfile(parsed);
+                    // Convert parsed skills to v2 format
+                    var reIngestMethod = apiKey ? 'api' : 'local';
+                    var reConfidence = apiKey ? 0.85 : 0.5;
+                    var v2Skills = (parsed.skills || []).map(function(s) {
+                        var name = typeof s === 'string' ? s : (s.name || '');
+                        if (!name) return null;
+                        var isObj = typeof s === 'object' && s !== null;
+                        return {
+                            name: name,
+                            canonical: name.toLowerCase().replace(/\s+/g, ' ').trim(),
+                            abbreviation: null,
+                            tier: normalizeTier(isObj ? (s.requirement || s.level || '') : ''),
+                            proficiency: (isObj && s.proficiency) || 'Proficient',
+                            category: (isObj && s.category) || 'technical',
+                            section: null,
+                            context: null,
+                            source: 'extracted',
+                            confidence: reConfidence,
+                            frameworkRef: null
+                        };
+                    }).filter(Boolean).slice(0, JOB_SKILLS_CAP);
                     
-                    // Update job
+                    var matchData = matchJobToProfile(v2Skills);
+                    
+                    // Update v2 structure
+                    if (!job.requirements) job.requirements = { skills: [], qualifications: [], responsibilities: [] };
+                    job.requirements.skills = v2Skills;
+                    job.schemaVersion = JOB_SCHEMA_VERSION;
+                    if (job.postingMeta) job.postingMeta.ingestMethod = reIngestMethod;
+                    
+                    // Update legacy fields for backward compat
                     job.parsedSkills = parsed.skills || [];
                     job.parsedRoles = parsed.roles || [];
                     job.matchData = matchData;
-                    job.blsSalary = matchJobToBLS(job.title, job.rawText);
+                    job.blsSalary = matchJobToBLS(job.title, job.rawText || (job.raw && job.raw.text) || '');
                     if (parsed.title && parsed.title !== 'Untitled Position') job.title = parsed.title;
-                    if (parsed.company) job.company = parsed.company;
+                    if (parsed.company) {
+                        job.company = parsed.company;
+                        if (job.hiringOrganization) job.hiringOrganization.name = parsed.company;
+                    }
                     
                     saveUserData();
                     if (fbUser) debouncedSave();
@@ -37589,13 +37799,65 @@ body {
             var parsed = parseJobLocally(job.description || job.title);
             parsed.title = job.title;
             parsed.company = job.company;
-            var matchData = matchJobToProfile(parsed);
+            
+            // Convert to v2 skills
+            var v2Skills = (parsed.skills || []).map(function(s) {
+                var name = typeof s === 'string' ? s : (s.name || '');
+                if (!name) return null;
+                var isObj = typeof s === 'object' && s !== null;
+                return {
+                    name: name,
+                    canonical: name.toLowerCase().replace(/\s+/g, ' ').trim(),
+                    abbreviation: null,
+                    tier: normalizeTier(isObj ? (s.requirement || s.level || '') : ''),
+                    proficiency: (isObj && s.proficiency) || 'Proficient',
+                    category: (isObj && s.category) || 'technical',
+                    section: null,
+                    context: null,
+                    source: 'extracted',
+                    confidence: 0.5,
+                    frameworkRef: null
+                };
+            }).filter(Boolean).slice(0, JOB_SKILLS_CAP);
+            
+            var matchData = matchJobToProfile(v2Skills);
             matchData.score = job.matchScore || matchData.score;
             var blsSalary = matchJobToBLS(job.title, job.description || '');
+            var now = new Date().toISOString();
             
             var pipelineJob = {
-                id: 'job-' + Date.now(),
+                // v2 schema
+                schemaVersion: JOB_SCHEMA_VERSION,
+                id: 'job_' + Date.now(),
                 title: job.title,
+                hiringOrganization: { name: job.company || '', sameAs: null, industry: '', size: '' },
+                titleRole: null,
+                titleLevel: (parsed.seniority || '').toLowerCase() || null,
+                occupationalCategory: null,
+                jobLocation: { primary: '', address: { locality: null, region: null, country: null }, locationType: null, remote: null, remoteDetail: '' },
+                employmentType: null,
+                department: null,
+                postingMeta: {
+                    sourceUrl: job.url || '',
+                    sourceNote: 'Found via ' + job.source,
+                    datePosted: null,
+                    validThrough: null,
+                    externalId: '',
+                    ingestedAt: now,
+                    ingestMethod: 'local',
+                    rawTextHash: null
+                },
+                requirements: { skills: v2Skills, qualifications: [], responsibilities: [] },
+                compensation: {
+                    baseSalary: { currency: 'USD', value: { minValue: null, maxValue: null, unitText: 'YEAR' } },
+                    estimatedSalary: blsSalary ? blsSalary.median : null,
+                    incentiveCompensation: null, equity: null, jobBenefits: [],
+                    source: blsSalary ? 'estimated' : null
+                },
+                companyContext: { values: { primary: [], secondary: [], source: 'jd' }, culture: [], employerOverview: null },
+                raw: { text: (job.description || '').substring(0, 8000), sections: [] },
+                pipeline: { status: 'active', addedAt: now, appliedAt: null, notes: '', tags: [] },
+                // Legacy compat
                 company: job.company,
                 sourceUrl: job.url,
                 sourceNote: 'Found via ' + job.source,
@@ -37605,7 +37867,7 @@ body {
                 seniority: parsed.seniority || '',
                 matchData: matchData,
                 blsSalary: blsSalary,
-                addedAt: new Date().toISOString()
+                addedAt: now
             };
             
             userData.savedJobs.unshift(pipelineJob);
@@ -40641,7 +40903,7 @@ body {
             html += '<div style="font-size:0.78em; font-weight:700; color:#fbbf24; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Talking Points</div>'
                 + '<div style="display:grid; gap:6px; margin-bottom:14px;">';
             
-            var allSkills = (userData && userData.skills && userData.skills.length > 0) ? userData.skills : ((skillsData && skillsData.skills) || []);
+            var allSkills = (skillsData && skillsData.skills) || (userData && userData.skills) || [];
             var masterySkills = allSkills.filter(function(s) { return (s.level || '').toLowerCase() === 'mastery'; });
             var expertSkills = allSkills.filter(function(s) { return (s.level || '').toLowerCase() === 'expert'; });
             var masteryNames = masterySkills.slice(0, 4).map(function(s) { return s.name; }).join(', ');
@@ -40776,7 +41038,7 @@ body {
                             </p>
                             <p style="margin-bottom: 15px;">
                                 <strong style="color: #fbbf24;">2. Reference Your Top 10 Skills:</strong><br>
-                                "I bring ${((userData && userData.skills) || []).filter(s => (s.level || '').toLowerCase() === 'mastery').length} mastery-level skills including ${((userData && userData.skills) || []).filter(s => (s.level || '').toLowerCase() === 'mastery').slice(0, 3).map(s => s.name).join(', ')}. These command premiums in the current market."
+                                "I bring ${totalValue.top10Skills.filter(s => s.level === 'Mastery').length} mastery-level skills including ${totalValue.top10Skills.slice(0, 3).map(s => s.skill).join(', ')}. These command premiums in the current market."
                             </p>
                             <p style="margin-bottom: 15px;">
                                 <strong style="color: #fbbf24;">3. Show the Data:</strong><br>
