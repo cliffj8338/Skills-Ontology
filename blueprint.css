@@ -3632,38 +3632,95 @@
             }
         }
         
-        /* Catch-all for JS-rendered inline grids inside main content */
+        /* Admin/content grids — comprehensive mobile overrides */
+        @media (max-width: 768px) {
+            #adminTabContent {
+                padding: 0 !important;
+                overflow-x: hidden !important;
+            }
+            #adminTabContent > div {
+                max-width: 100vw !important;
+                overflow-x: hidden !important;
+            }
+            #adminTabContent [style*="padding:20px"],
+            #adminTabContent [style*="padding: 20px"] {
+                padding: 12px !important;
+            }
+            #adminTabContent [style*="padding:24px"],
+            #adminTabContent [style*="padding: 24px"],
+            #adminTabContent [style*="padding:28px"],
+            #adminTabContent [style*="padding: 28px"],
+            #adminTabContent [style*="padding:32px"],
+            #adminTabContent [style*="padding: 32px"] {
+                padding: 14px !important;
+            }
+            #adminTabContent [style*="gap:24px"],
+            #adminTabContent [style*="gap: 24px"] {
+                gap: 12px !important;
+            }
+            #adminTabContent [style*="font-size:1.4em"],
+            #adminTabContent [style*="font-size: 1.4em"],
+            #adminTabContent [style*="font-size:1.3em"],
+            #adminTabContent [style*="font-size: 1.3em"] {
+                font-size: 1.1em !important;
+            }
+            #adminLayout {
+                gap: 12px !important;
+            }
+        }
         @media (max-width: 600px) {
             .blueprint-container [style*="grid-template-columns: repeat(3"],
             .blueprint-container [style*="grid-template-columns:repeat(3"],
             #adminTabContent [style*="grid-template-columns: repeat(3"],
             #adminTabContent [style*="grid-template-columns:repeat(3"],
             #settingsTabContent [style*="grid-template-columns: repeat(3"],
-            #settingsTabContent [style*="grid-template-columns:repeat(3"] {
-                grid-template-columns: 1fr 1fr !important;
-            }
+            #settingsTabContent [style*="grid-template-columns:repeat(3"],
             .blueprint-container [style*="grid-template-columns: 1fr 1fr 1fr"],
             .blueprint-container [style*="grid-template-columns:1fr 1fr 1fr"],
             #adminTabContent [style*="grid-template-columns: 1fr 1fr 1fr"],
             #adminTabContent [style*="grid-template-columns:1fr 1fr 1fr"],
             #settingsTabContent [style*="grid-template-columns: 1fr 1fr 1fr"],
             #settingsTabContent [style*="grid-template-columns:1fr 1fr 1fr"] {
-                grid-template-columns: 1fr 1fr !important;
+                grid-template-columns: 1fr !important;
             }
-        }
-        @media (max-width: 420px) {
-            .blueprint-container [style*="grid-template-columns: repeat(3"],
-            .blueprint-container [style*="grid-template-columns:repeat(3"],
-            #adminTabContent [style*="grid-template-columns: repeat(3"],
-            #adminTabContent [style*="grid-template-columns:repeat(3"],
-            #settingsTabContent [style*="grid-template-columns: repeat(3"],
-            #settingsTabContent [style*="grid-template-columns:repeat(3"],
             .blueprint-container [style*="grid-template-columns: 1fr 1fr"],
             .blueprint-container [style*="grid-template-columns:1fr 1fr"],
             #adminTabContent [style*="grid-template-columns: 1fr 1fr"],
             #adminTabContent [style*="grid-template-columns:1fr 1fr"],
             #settingsTabContent [style*="grid-template-columns: 1fr 1fr"],
             #settingsTabContent [style*="grid-template-columns:1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+            #adminTabContent [style*="minmax(180px"],
+            #adminTabContent [style*="minmax(130px"] {
+                grid-template-columns: 1fr 1fr !important;
+            }
+            #adminTabContent [style*="padding:16px"],
+            #adminTabContent [style*="padding: 16px"] {
+                padding: 10px !important;
+            }
+            #adminTabContent code[style*="min-width:200px"],
+            #adminTabContent code[style*="min-width: 200px"] {
+                min-width: 0 !important;
+                font-size: 0.72em !important;
+            }
+            #adminSidebar {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+                flex-wrap: nowrap !important;
+                scrollbar-width: none;
+            }
+            #adminSidebar::-webkit-scrollbar {
+                display: none;
+            }
+            #adminSidebar .admin-group-items {
+                flex-wrap: nowrap !important;
+            }
+        }
+        @media (max-width: 420px) {
+            #adminTabContent [style*="minmax(180px"],
+            #adminTabContent [style*="minmax(130px"],
+            #adminTabContent [style*="minmax(120px"] {
                 grid-template-columns: 1fr !important;
             }
         }
