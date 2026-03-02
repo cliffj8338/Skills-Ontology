@@ -317,42 +317,6 @@ async function fetchMuse(query, category) {
   }
 }
 
-// === JOOBLE (free, requires API key — meta-aggregator) ===
-async function fetchJooble(query, location) {
-  const apiKey = process.env.JOOBLE_API_KEY;
-  if (!apiKey) return { jobs: [], source: 'jooble', error: 'JOOBLE_API_KEY not configured' };
-
-  try {
-    const res = await fetch('https://jooble.org/api/' + apiKey, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ keywords: query || '', location: location || 'United States' }),
-      signal: AbortSignal.timeout(12000)
-    });
-    if (!res.ok) return { jobs: [], source: 'jooble', error: 'HTTP ' + res.status };
-    const data = await res.json();
-
-    const jobs = (data.jobs || []).slice(0, 50).map(j => ({
-      id: 'jooble-' + (j.id || Date.now() + Math.random()),
-      title: j.title || 'Untitled',
-      company: j.company || '',
-      companyLogo: '',
-      location: j.location || '',
-      type: j.type || 'Full-time',
-      url: j.link || '',
-      salary: j.salary || '',
-      description: (j.snippet || '').substring(0, 3000),
-      tags: [],
-      source: 'Jooble',
-      pubDate: j.updated || '',
-      remote: (j.location || '').toLowerCase().includes('remote')
-    }));
-    return { jobs, source: 'jooble', count: jobs.length };
-  } catch (e) {
-    return { jobs: [], source: 'jooble', error: e.message };
-  }
-}
-
 // === ADZUNA (free API key) ===
 async function fetchAdzunaLive(query, location) {
   const appId = process.env.ADZUNA_APP_ID;
@@ -427,39 +391,6 @@ async function fetchMuseLive(query, category) {
   }
 }
 
-// === JOOBLE (free API key, meta-aggregator) ===
-async function fetchJoobleLive(query, location) {
-  const apiKey = process.env.JOOBLE_API_KEY;
-  if (!apiKey) return { jobs: [], source: 'jooble', error: 'JOOBLE_API_KEY not configured' };
-  try {
-    const res = await fetch(`https://jooble.org/api/${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ keywords: query || '', location: location || 'United States' }),
-      signal: AbortSignal.timeout(12000)
-    });
-    if (!res.ok) return { jobs: [], source: 'jooble', error: 'HTTP ' + res.status };
-    const data = await res.json();
-    const jobs = (data.jobs || []).slice(0, 50).map(j => ({
-      id: 'jooble-' + (j.id || Date.now() + Math.random()),
-      title: j.title || 'Untitled',
-      company: j.company || '',
-      location: j.location || '',
-      type: j.type || 'Full Time',
-      url: j.link || '',
-      salary: j.salary || '',
-      description: (j.snippet || '').substring(0, 3000),
-      tags: [],
-      source: 'Jooble',
-      pubDate: j.updated || '',
-      remote: (j.title || '').toLowerCase().includes('remote') || (j.location || '').toLowerCase().includes('remote')
-    }));
-    return { jobs, source: 'jooble', count: jobs.length };
-  } catch (e) {
-    return { jobs: [], source: 'jooble', error: e.message };
-  }
-}
-
 // === MAIN HANDLER ===
 module.exports = async function handler(req, res) {
   const origin = req.headers.origin || '';
@@ -492,7 +423,7 @@ module.exports = async function handler(req, res) {
   }
 
   const wantedSources = sourcesParam === 'all'
-    ? ['jsearch', 'remotive', 'usajobs', 'himalayas', 'jobicy', 'adzuna', 'themuse', 'jooble']
+    ? ['jsearch', 'remotive', 'usajobs', 'himalayas', 'jobicy', 'adzuna', 'themuse']
     : sourcesParam.split(',');
 
   // Run all requested sources in parallel
@@ -504,7 +435,6 @@ module.exports = async function handler(req, res) {
   if (wantedSources.includes('jobicy')) fetchers.push(fetchJobicy(query, category));
   if (wantedSources.includes('adzuna')) fetchers.push(fetchAdzunaLive(query, location));
   if (wantedSources.includes('themuse')) fetchers.push(fetchMuseLive(query, category));
-  if (wantedSources.includes('jooble')) fetchers.push(fetchJoobleLive(query, location));
 
   const results = await Promise.all(fetchers);
 

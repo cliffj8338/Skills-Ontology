@@ -64,19 +64,6 @@ const SOURCE_CONFIG = {
             return url;
         }
     },
-    jooble: {
-        base: 'https://jooble.org/api/',
-        method: 'POST',
-        buildUrl: (params) => {
-            return 'https://jooble.org/api/' + encodeURIComponent(params.api_key || '');
-        },
-        buildBody: (params) => {
-            return JSON.stringify({
-                keywords: params.q || '',
-                location: params.location || 'United States'
-            });
-        }
-    },
     jsearch: {
         base: 'https://jsearch.p.rapidapi.com/search',
         method: 'GET',

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.gstatic.com https://cdnjs.cloudflare.com https://api.anthropic.com https://*.rapidapi.com https://remotive.com https://himalayas.app https://jobicy.com https://data.usajobs.gov https://api.adzuna.com https://www.themuse.com https://jooble.org; img-src 'self' data: blob: https://*.googleusercontent.com; frame-src blob:; object-src 'none'; base-uri 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.gstatic.com https://cdnjs.cloudflare.com https://api.anthropic.com https://*.rapidapi.com https://remotive.com https://himalayas.app https://jobicy.com https://data.usajobs.gov https://api.adzuna.com https://www.themuse.com; img-src 'self' data: blob: https://*.googleusercontent.com; frame-src blob:; object-src 'none'; base-uri 'self';">
     <title>Blueprint™</title>
     <!-- v4.44.6 | 20260224 | Slider re-render fix (page limit 100), aggressive sync, emoji→SVG icon cleanup, auto health check -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1240,7 +1240,6 @@
             'jobicy':           { name: 'Jobicy', icon: 'clipboard', category: 'jobs', manageUrl: 'https://jobicy.com/api/v2/remote-jobs', critical: false },
             'adzuna':           { name: 'Adzuna', icon: 'compass', category: 'jobs', manageUrl: 'https://developer.adzuna.com', critical: false },
             'themuse':          { name: 'The Muse', icon: 'star', category: 'jobs', manageUrl: 'https://www.themuse.com/developers/api/v2', critical: false },
-            'jooble':           { name: 'Jooble', icon: 'search', category: 'jobs', manageUrl: 'https://jooble.org/api/about', critical: false },
             'onet-crosswalk':   { name: 'O*NET Crosswalk', icon: 'target', category: 'data', manageUrl: null, critical: false }
         };
         
@@ -1348,7 +1347,6 @@
             'jobicy':    { name: 'Jobicy',             costPer: 0,      desc: 'Free remote jobs API', unit: 'request', monthlyLimit: null, monthlyCost: 0, plan: 'Free', manageUrl: 'https://jobicy.com/api/v2/remote-jobs' },
             'adzuna':    { name: 'Adzuna',             costPer: 0,      desc: 'Free job aggregator API (US)', unit: 'request', monthlyLimit: null, monthlyCost: 0, plan: 'Free', manageUrl: 'https://developer.adzuna.com' },
             'themuse':   { name: 'The Muse',           costPer: 0,      desc: 'Free jobs + company API', unit: 'request', monthlyLimit: 3600, monthlyCost: 0, plan: 'Free (3600/hr)', manageUrl: 'https://www.themuse.com/developers/api/v2' },
-            'jooble':    { name: 'Jooble',             costPer: 0,      desc: 'Free meta-aggregator (Indeed, LinkedIn, etc.)', unit: 'request', monthlyLimit: null, monthlyCost: 0, plan: 'Free', manageUrl: 'https://jooble.org/api/about' }
         };
         
         function getAPIUsageLog() {
@@ -2857,7 +2855,6 @@
                 var ago = formatTimeAgo(m.lastSync);
                 var src = m.sourceCounts || {};
                 var srcHtml = Object.keys(src).map(function(k) {
-                    var color = k === 'jsearch' ? '#60a5fa' : k === 'remotive' ? '#10b981' : k === 'usajobs' ? '#8b5cf6' : k === 'himalayas' ? '#f59e0b' : k === 'adzuna' ? '#ef4444' : k === 'themuse' ? '#06b6d4' : k === 'jooble' ? '#d946ef' : '#ec4899';
                     return '<div style="display:flex; justify-content:space-between; padding:4px 0;">'
                         + '<span style="color:var(--text-secondary);">' + k + '</span>'
                         + '<span style="font-weight:600; color:' + color + ';">' + (src[k] || 0) + '</span></div>';
@@ -3623,7 +3620,6 @@
             // Job Source API Keys
             var _adzId = safeGet('bpAdzunaAppId') || '';
             var _adzKey = safeGet('bpAdzunaAppKey') || '';
-            var _jooKey = safeGet('bpJoobleApiKey') || '';
             var _musKey = safeGet('bpMuseApiKey') || '';
             function _maskKey(k) { return k.length > 6 ? k.slice(0,3) + '\u2022\u2022\u2022' + k.slice(-3) : k ? '\u2022\u2022\u2022\u2022\u2022' : ''; }
             function _keyBadge(hasKey, label) {
@@ -3636,9 +3632,7 @@
                 + 'border:1px solid var(--c-surface-5); border-radius:10px; margin-top:20px;">'
                 + '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">'
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em;">' + bpIcon('search',16) + ' Job Source API Keys</h3>'
-                + '<div style="display:flex; gap:6px;">' + _keyBadge(_adzId && _adzKey, 'Adzuna') + _keyBadge(_jooKey, 'Jooble') + _keyBadge(_musKey, 'Muse') + '</div>'
                 + '</div>'
-                + '<p style="font-size:0.78em; color:var(--text-muted); margin:0 0 16px;">Add free API keys to unlock additional job sources. Adzuna adds ~3-4M US jobs. Jooble aggregates from Indeed, LinkedIn, and Glassdoor.</p>'
                 
                 // Adzuna
                 + '<div style="margin-bottom:14px;">'
@@ -3656,13 +3650,7 @@
                 + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid ' + (_adzKey ? '#10b981' : 'var(--c-border-strong)') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
                 + '</div>'
                 
-                // Jooble
                 + '<div style="margin-bottom:14px;">'
-                + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px;">Jooble API Key'
-                + (_jooKey ? ' <span style="color:#10b981; font-weight:400;">(\u2713 ' + escapeHtml(_maskKey(_jooKey)) + ')</span>' : '') + '</label>'
-                + '<input type="password" id="cfgJoobleApiKey" value="' + escapeHtml(_jooKey) + '" placeholder="Register at jooble.org/api/about" '
-                + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid ' + (_jooKey ? '#10b981' : 'var(--c-border-strong)') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
-                + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;"><a href="https://jooble.org/api/about" target="_blank" rel="noopener" style="color:var(--accent);">Get free Jooble API key \u2192</a></div>'
                 + '</div>'
                 
                 // The Muse
@@ -3679,7 +3667,6 @@
                 + '<strong>Proxy sources:</strong> JSearch \u00B7 Remotive \u00B7 USAJobs \u00B7 Himalayas \u00B7 Jobicy (via /api/jobs)<br>'
                 + '<strong>Direct sources:</strong> '
                 + (_adzId && _adzKey ? '<span style="color:#10b981;">\u2713 Adzuna</span>' : '<span style="color:#ef4444;">\u2717 Adzuna (needs keys)</span>') + ' \u00B7 '
-                + (_jooKey ? '<span style="color:#10b981;">\u2713 Jooble</span>' : '<span style="color:#ef4444;">\u2717 Jooble (needs key)</span>') + ' \u00B7 '
                 + '<span style="color:#10b981;">\u2713 The Muse' + (_musKey ? ' (keyed)' : ' (unkeyed)') + '</span>'
                 + '</div>'
                 
@@ -3731,17 +3718,13 @@
         function saveJobSourceKeys() {
             var adzAppId = (document.getElementById('cfgAdzunaAppId') || {}).value || '';
             var adzAppKey = (document.getElementById('cfgAdzunaAppKey') || {}).value || '';
-            var joobleKey = (document.getElementById('cfgJoobleApiKey') || {}).value || '';
             var museKey = (document.getElementById('cfgMuseApiKey') || {}).value || '';
             safeSet('bpAdzunaAppId', adzAppId.trim());
             safeSet('bpAdzunaAppKey', adzAppKey.trim());
-            safeSet('bpJoobleApiKey', joobleKey.trim());
             safeSet('bpMuseApiKey', museKey.trim());
             ADZUNA_APP_ID = adzAppId.trim();
             ADZUNA_APP_KEY = adzAppKey.trim();
-            JOOBLE_API_KEY = joobleKey.trim();
             
-            var count = (adzAppId ? 1 : 0) + (joobleKey ? 1 : 0) + (museKey ? 1 : 0);
             showToast('Job source API keys saved. ' + (count > 0 ? count + ' keyed source' + (count > 1 ? 's' : '') + ' enabled.' : 'No keyed sources configured.'), count > 0 ? 'success' : 'info');
             
             // Re-render to update status indicators
@@ -3785,7 +3768,6 @@
                         { id: 'p1-6', name: 'AI cost tracking dashboard', status: 'done', category: 'feature', priority: 'medium', notes: 'Costs tab in admin. Tracks all API calls by feature tag, shows real usage, estimated costs, sparkline, and scale projection calculator. AI_FEATURES registry auto-picks up new features.' },
                         { id: 'p1-7', name: 'Network job selector widget', status: 'done', category: 'feature', priority: 'medium', notes: 'Floating widget on network view. Select saved jobs to overlay match/gap/values analysis directly on the skill graph.' },
                         { id: 'p1-8', name: 'Site traffic analytics dashboard', status: 'done', category: 'feature', priority: 'high', notes: 'Full traffic dashboard in admin overview. Sessions, page views, bounce rate, avg session time, views/time per section, feature usage, device split, dark/light mode, screen sizes, conversion funnel. Local + Firestore dual storage.' },
-                        { id: 'p1-9', name: 'Multi-source job search API', status: 'done', category: 'feature', priority: 'critical', notes: 'Serverless proxy at /api/jobs aggregating 8 sources: JSearch (RapidAPI), Remotive, USAJobs, Himalayas, Jobicy, Adzuna, The Muse, Jooble. Location search, remote filter, source badges, skill matching, API cost tracking. Fallback to direct fetch if proxy unavailable.' },
                         { id: 'p1-10', name: 'Infrastructure costs dashboard', status: 'done', category: 'admin', priority: 'high', notes: 'Full infrastructure registry (Claude, JSearch, Vercel, Cloudflare, Firebase, GitHub, all job APIs). Categorized by type with manage links. Monthly Cost Snapshot with gradient total, breakdown bars, fixed/AI/API split tiles, annual projection.' },
                         { id: 'p2-1', name: 'Jobs database + caching layer', status: 'done', category: 'architecture', priority: 'high', notes: 'Firestore-backed job cache. Source-aware sync: JSearch A/B query groups (18 queries × 5 pages, alternating), free sources with broad queries, Himalayas single-fetch. Cache-first client (5k limit). Upsert accumulation, 30-day cleanup. Budget: ~5,400 JSearch calls/month of 10k Pro plan.' },
                         { id: 'p1-5', name: 'Demo profile polish', status: 'in-progress', category: 'feature', priority: 'medium', notes: '24 TV character profiles with 99 evidence outcomes added. Ongoing refinement.' },
@@ -4443,24 +4425,15 @@
                 else recordApiHealth('themuse', 'degraded', 'Status ' + museRes.status);
             } catch(e) { recordApiHealth('themuse', 'down', e.message); }
             
-            // Jooble (needs key)
-            if (JOOBLE_API_KEY) {
                 try {
-                    var jooRes;
                     if (JOB_PROXY_AVAILABLE !== false) {
-                        jooRes = await fetch(JOB_PROXY_URL + '?source=jooble&api_key=' + encodeURIComponent(JOOBLE_API_KEY) + '&q=test', { signal: AbortSignal.timeout(8000) });
                     } else {
-                        jooRes = await fetch('https://jooble.org/api/' + encodeURIComponent(JOOBLE_API_KEY), {
                             method: 'POST', headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ keywords: 'test', location: 'United States' }),
                             signal: AbortSignal.timeout(8000)
                         });
                     }
-                    if (jooRes.ok) recordApiHealth('jooble', 'ok', 'Operational');
-                    else recordApiHealth('jooble', jooRes.status === 403 ? 'down' : 'degraded', 'Status ' + jooRes.status);
-                } catch(e) { recordApiHealth('jooble', 'down', e.message); }
             } else {
-                recordApiHealth('jooble', 'unknown', 'No API key configured');
             }
             
             // Remotive (free, no auth)
@@ -4646,10 +4619,8 @@
                     deps: ['Vercel', 'Anthropic API key', 'Firebase Admin SDK'], debt: 'Rate limit is per-user but not enforced server-side. $0.07/resume parse.' }},
                 { id: 'job-proxy', name: 'Jobs Proxy /api/jobs', layer: 'backend', col: 4,
                   color: '#ef4444', icon: 'external',
-                  detail: { desc: 'Vercel serverless aggregator. Merges JSearch, Remotive, USAJobs, Himalayas, Jobicy, Adzuna, The Muse, Jooble. Location + remote filters. Firestore cache.',
                     functions: ['/api/jobs.js (serverless)', 'fetchCachedJobs()', 'loadJobsFromFirestore()'], lines: 'Serverless + ~22000-22300',
                     inputs: ['Search keywords', 'Category', 'Location'], outputs: ['Normalized job listings[]'],
-                    deps: ['Vercel', 'JSearch API key', 'USAJobs email', 'Firestore job cache', 'Adzuna keys', 'Jooble key'], debt: 'JSearch costs ~$30/mo at Pro. Free APIs have limited coverage. Adzuna + Jooble dramatically increase volume.' }},
                 { id: 'health-monitor', name: 'Health Monitor', layer: 'backend', col: 5,
                   color: '#6366f1', icon: 'shield',
                   detail: { desc: 'Passive tracking from all API calls via recordApiHealth(). Active health check button. Per-service TTL staleness.',
@@ -4714,10 +4685,7 @@
                     deps: ['CORS proxy for some', 'USAJobs requires email header'], debt: 'Coverage is spotty. Remotive only remote tech. USAJobs only federal.' }},
                 { id: 'keyed-apis', name: 'Keyed Job APIs', layer: 'external', col: 6,
                   color: '#d946ef', icon: 'external',
-                  detail: { desc: 'Adzuna (~3-4M US jobs, free API key), The Muse (~10-20K professional jobs, no key needed), Jooble (meta-aggregator: Indeed/LinkedIn/Glassdoor, free API key). Major volume play.',
-                    functions: ['fetchAdzunaJobs()', 'fetchMuseJobs()', 'fetchJoobleJobs()', 'syncAdzunaJobs()', 'syncMuseJobs()', 'syncJoobleJobs()'], lines: '~24400-24700 + serverless',
                     inputs: ['Keywords', 'Location', 'Category', 'Page'], outputs: ['Job listings (normalized)'],
-                    deps: ['Adzuna app_id + app_key', 'Jooble API key', 'Muse API key (optional)'], debt: 'Keys required for Adzuna + Jooble. Jooble rate limits unclear. The Muse inventory smaller than others.' }},
                 { id: 'firebase-sdk', name: 'Firebase SDK', layer: 'external', col: 7,
                   color: '#10b981', icon: 'external',
                   detail: { desc: 'Firebase JS SDK v9 compat. Auth, Firestore, Analytics. CDN-loaded. Project: blueprint-career.',
@@ -5431,7 +5399,6 @@
                 { name: 'Jobicy API', provider: 'Jobicy', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, no auth. Remote jobs', manageUrl: 'https://jobicy.com/api/v2/remote-jobs', icon: 'clipboard' },
                 { name: 'Adzuna API', provider: 'Adzuna', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free with registration. ~3-4M US jobs. app_id + app_key', manageUrl: 'https://developer.adzuna.com', icon: 'compass' },
                 { name: 'The Muse API', provider: 'The Muse', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free, 3600 req/hr with API key. Professional jobs + company profiles', manageUrl: 'https://www.themuse.com/developers/api/v2', icon: 'star' },
-                { name: 'Jooble API', provider: 'Jooble', cost: 0, cycle: 'monthly', category: 'api', notes: 'Free with registration. Meta-aggregator: Indeed, LinkedIn, Glassdoor', manageUrl: 'https://jooble.org/api/about', icon: 'search' }
             ];
             
             // Compute monthly costs
@@ -21563,7 +21530,6 @@ body {
                 + '<div>'
                 + '<h2 style="font-family:Outfit,sans-serif; font-size:1.3em; font-weight:700; color:var(--text-primary); margin:0 0 4px 0; letter-spacing:0.08em; text-transform:uppercase;">'
                 + bpIcon('search',20) + ' Find Jobs</h2>'
-                + '<p style="color:var(--text-muted); font-size:0.88em; margin:0;">Search across 8 sources including Adzuna, Jooble, JSearch, and more. Results scored against your skills.</p>'
                 + '</div>'
                 + '<div id="jobsDbBadge"></div>'
                 + '</div>'
@@ -21640,7 +21606,6 @@ body {
                 + '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; font-weight:600; background:rgba(236,72,153,0.15); color:#ec4899;">Jobicy</span>'
                 + '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; font-weight:600; background:rgba(239,68,68,0.15); color:#ef4444;">Adzuna</span>'
                 + '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; font-weight:600; background:rgba(6,182,212,0.15); color:#06b6d4;">The Muse</span>'
-                + '<span style="padding:3px 8px; border-radius:10px; font-size:0.7em; font-weight:600; background:rgba(217,70,239,0.15); color:#d946ef;">Jooble</span>'
                 + '</div>'
                 
                 // Match threshold
@@ -23960,7 +23925,6 @@ body {
                     + '<div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px; font-size:0.82em; color:var(--text-muted);">'
                     + (job.type ? '<span>' + bpIcon('briefcase',12) + ' ' + job.type + '</span>' : '')
                     + (salary ? '<span>' + bpIcon('dollar',12) + ' ' + salary + '</span>' : '')
-                    + '<span style="color:' + ({JSearch:'#60a5fa', Remotive:'#10b981', USAJobs:'#8b5cf6', Himalayas:'#f59e0b', Jobicy:'#ec4899', Adzuna:'#ef4444', 'The Muse':'#06b6d4', Jooble:'#d946ef'}[job.source] || '#3b82f6') + ';">'
                     + bpIcon('external',12) + ' ' + (job.source || 'Remote') + '</span>'
                     + '</div>'
                     
@@ -24057,7 +24021,6 @@ body {
         }
         
         function getJobsSourceBreakdown() {
-            var labels = { jsearch: 'JSearch', remotive: 'Remotive', usajobs: 'USAJobs', himalayas: 'Himalayas', jobicy: 'Jobicy', adzuna: 'Adzuna', themuse: 'The Muse', jooble: 'Jooble' };
             return Object.keys(jobsSourceCounts).map(function(src) {
                 return (labels[src] || src) + ': ' + (jobsSourceCounts[src] || 0).toLocaleString();
             }).join(' \u00B7 ');
@@ -24257,7 +24220,6 @@ body {
             resultsDiv.innerHTML = '<div style="text-align:center; padding:40px;">'
                 + '<div class="loading-spinner" style="width:32px; height:32px; border-width:3px; margin:0 auto 12px;"></div>'
                 + '<p style="font-size:1em; color:var(--text-secondary);">Searching 8 job sources live...</p>'
-                + '<p style="font-size:0.82em; color:var(--text-muted); margin-top:6px;">JSearch \u00B7 Remotive \u00B7 USAJobs \u00B7 Himalayas \u00B7 Jobicy \u00B7 Adzuna \u00B7 The Muse \u00B7 Jooble</p>'
                 + '</div>';
             
             // Try proxy first, fall back to direct
@@ -24272,7 +24234,6 @@ body {
         async function searchViaProxy(keyword, location, category, remoteOnly, resultsDiv) {
             try {
                 // HYBRID MODE: Proxy handles JSearch/Remotive/USAJobs/Himalayas/Jobicy
-                // Browser directly calls Adzuna/Muse/Jooble with user-entered keys in parallel
                 var proxyPromise = (async function() {
                     var params = new URLSearchParams({ q: keyword });
                     if (location) params.set('location', location);
@@ -24293,11 +24254,7 @@ body {
                     .then(function(r) { trackAPICall('themuse'); if (r.length > 0) recordApiHealth('themuse', 'ok', r.length + ' results'); return { jobs: r, source: 'themuse', count: r.length }; })
                     .catch(function(e) { console.warn('Muse direct:', e.message); recordApiHealth('themuse', 'down', e.message); return { jobs: [], source: 'themuse', error: e.message }; });
                 
-                var jooblePromise = fetchJoobleJobs(keyword, location)
-                    .then(function(r) { trackAPICall('jooble'); if (r.length > 0) recordApiHealth('jooble', 'ok', r.length + ' results'); return { jobs: r, source: 'jooble', count: r.length }; })
-                    .catch(function(e) { console.warn('Jooble direct:', e.message); recordApiHealth('jooble', 'down', e.message); return { jobs: [], source: 'jooble', error: e.message }; });
                 
-                var results = await Promise.all([proxyPromise, adzunaPromise, musePromise, jooblePromise]);
                 var proxyData = results[0];
                 var directResults = [results[1], results[2], results[3]];
                 
@@ -24354,7 +24311,6 @@ body {
                     if (r.error) sources.push(r.source + ': \u2717');
                     else if (r.count > 0) sources.push(r.source + ': ' + r.count);
                     else if (r.source === 'adzuna' && !ADZUNA_APP_ID) sources.push('adzuna: no key');
-                    else if (r.source === 'jooble' && !JOOBLE_API_KEY) sources.push('jooble: no key');
                     else sources.push(r.source + ': 0');
                 });
                 window._findJobsSources = sources.join(' \u00B7 ');
@@ -24397,7 +24353,6 @@ body {
                 fetchJobicyJobs(keyword, category).then(function(r) { _apiStatus.jobicy = r.length; recordApiHealth('jobicy', 'ok', r.length + ' results'); return r; }).catch(function(e) { _apiFailCount++; _apiStatus.jobicy = 'failed'; recordApiHealth('jobicy', 'down', e.message); console.warn('Jobicy:', e.message); return []; }),
                 fetchAdzunaJobs(keyword, window._lastJobLocation || '').then(function(r) { _apiStatus.adzuna = r.length; if (r.length > 0) recordApiHealth('adzuna', 'ok', r.length + ' results'); return r; }).catch(function(e) { _apiStatus.adzuna = ADZUNA_APP_ID ? 'failed' : 'no key'; if (ADZUNA_APP_ID) recordApiHealth('adzuna', 'down', e.message); console.warn('Adzuna:', e.message); return []; }),
                 fetchMuseJobs(keyword, category, window._lastJobLocation || '').then(function(r) { _apiStatus.themuse = r.length; if (r.length > 0) recordApiHealth('themuse', 'ok', r.length + ' results'); return r; }).catch(function(e) { _apiFailCount++; _apiStatus.themuse = 'failed'; recordApiHealth('themuse', 'down', e.message); console.warn('TheMuse:', e.message); return []; }),
-                fetchJoobleJobs(keyword, window._lastJobLocation || '').then(function(r) { _apiStatus.jooble = r.length; if (r.length > 0) recordApiHealth('jooble', 'ok', r.length + ' results'); return r; }).catch(function(e) { _apiStatus.jooble = JOOBLE_API_KEY ? 'failed' : 'no key'; if (JOOBLE_API_KEY) recordApiHealth('jooble', 'down', e.message); console.warn('Jooble:', e.message); return []; })
             ]).then(function(results) {
                 var allJobs = results[0].concat(results[1]).concat(results[2]).concat(results[3]).concat(results[4]).concat(results[5]);
                 
@@ -24420,7 +24375,6 @@ body {
                         + (isCors
                             ? '<p style="font-size:1.05em; color:var(--text-primary); margin-bottom:8px;">Job APIs blocked by CORS</p>'
                               + '<p style="color:var(--text-muted); font-size:0.88em; line-height:1.6; max-width:480px; margin:0 auto 20px;">'
-                              + 'Deploy the /api/jobs proxy to unlock all 8 sources including JSearch, USAJobs, Adzuna, and Jooble.</p>'
                             : '<p style="font-size:1.05em; color:var(--text-primary); margin-bottom:8px;">No matching jobs found</p>'
                               + '<p style="color:var(--text-muted); font-size:0.88em;">Try different keywords or lower the match threshold.</p>')
                         + '</div>';
@@ -24851,29 +24805,21 @@ body {
             }
         }
         
-        // === JOOBLE (meta-aggregator — indexes Indeed, LinkedIn, Glassdoor, etc.) ===
-        var JOOBLE_API_KEY = safeGet('bpJoobleApiKey') || '';
         
-        async function fetchJoobleJobs(keyword, location) {
-            if (!JOOBLE_API_KEY) return [];
             
             try {
                 var data;
                 if (JOB_PROXY_AVAILABLE !== false) {
                     try {
-                        var params = new URLSearchParams({ source: 'jooble', api_key: JOOBLE_API_KEY });
                         if (keyword) params.set('q', keyword);
                         if (location) params.set('location', location);
                         var proxyRes = await fetch(JOB_PROXY_URL + '?' + params.toString(), { signal: AbortSignal.timeout(12000) });
                         if (proxyRes.ok) {
                             data = await proxyRes.json();
                             JOB_PROXY_AVAILABLE = true;
-                            console.log('Jooble: via proxy, ' + (data.jobs || []).length + ' results');
                         } else throw new Error('Proxy ' + proxyRes.status);
                     } catch(proxyErr) {
-                        console.warn('Jooble proxy failed, trying direct:', proxyErr.message);
                         // Direct fallback (likely CORS blocked)
-                        var url = 'https://jooble.org/api/' + encodeURIComponent(JOOBLE_API_KEY);
                         var body = { keywords: keyword || '', location: location || 'United States' };
                         var res = await fetch(url, {
                             method: 'POST',
@@ -24881,12 +24827,9 @@ body {
                             body: JSON.stringify(body),
                             signal: AbortSignal.timeout(12000)
                         });
-                        if (!res.ok) throw new Error('Jooble direct ' + res.status);
                         data = await res.json();
-                        console.log('Jooble: direct, ' + (data.jobs || []).length + ' results');
                     }
                 } else {
-                    var url2 = 'https://jooble.org/api/' + encodeURIComponent(JOOBLE_API_KEY);
                     var body2 = { keywords: keyword || '', location: location || 'United States' };
                     var res2 = await fetch(url2, {
                         method: 'POST',
@@ -24894,9 +24837,7 @@ body {
                         body: JSON.stringify(body2),
                         signal: AbortSignal.timeout(12000)
                     });
-                    if (!res2.ok) throw new Error('Jooble direct ' + res2.status);
                     data = await res2.json();
-                    console.log('Jooble: direct, ' + (data.jobs || []).length + ' results');
                 }
                 if (!data || !data.jobs) return [];
                 
@@ -24904,7 +24845,6 @@ body {
                     var desc = (job.snippet || '').substring(0, 2000);
                     var match = quickScoreJob(job.title, desc, []);
                     return {
-                        id: 'jooble-' + (job.id || Date.now() + Math.random()),
                         title: job.title || 'Untitled',
                         company: job.company || '',
                         location: job.location || '',
@@ -24916,12 +24856,10 @@ body {
                         matchScore: match.score,
                         matchedSkills: match.matched,
                         gapSkills: match.gaps,
-                        source: 'Jooble',
                         pubDate: job.updated || ''
                     };
                 });
             } catch(e) {
-                console.error('Jooble fetch failed:', e.message);
                 throw e;
             }
         }

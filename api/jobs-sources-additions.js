@@ -1,17 +1,15 @@
 // ============================================================
 // BLUEPRINT JOB SOURCE ADDITIONS — Add to /api/jobs.js
-// Adzuna, The Muse, Jooble integration for serverless sync
+// Adzuna, The Muse integration for serverless sync
 // ============================================================
 //
 // SETUP REQUIRED:
 // 1. Adzuna: Register at https://developer.adzuna.com → get app_id + app_key
-// 2. Jooble: Register at https://jooble.org/api/about → get API key
 // 3. The Muse: Register at https://www.themuse.com/developers/api/v2 → get api_key (optional, works without)
 //
 // Add these as Vercel environment variables:
 //   ADZUNA_APP_ID=your_app_id
 //   ADZUNA_APP_KEY=your_app_key  
-//   JOOBLE_API_KEY=your_api_key
 //   MUSE_API_KEY=your_api_key (optional)
 //
 
@@ -178,91 +176,6 @@ async function syncMuseJobs(syncGroup) {
 }
 
 
-// === JOOBLE ===
-// Volume: Aggregates from Indeed, LinkedIn, Glassdoor, ZipRecruiter, etc.
-// POST endpoint. Free API key. Up to ~500 results per query (paginated).
-// THIS IS THE BIG VOLUME PLAY — accesses jobs from boards you can't reach directly.
-
-const JOOBLE_QUERIES = [
-    // Broad role queries
-    'Software Engineer', 'Data Scientist', 'Product Manager', 'UX Designer',
-    'Marketing Manager', 'Sales Representative', 'Financial Analyst', 'HR Manager',
-    'Project Manager', 'Business Analyst', 'DevOps Engineer', 'Nurse',
-    'Account Executive', 'Customer Success', 'Operations Manager', 'Content Writer',
-    'Machine Learning', 'Cloud Architect', 'Cybersecurity', 'Full Stack Developer',
-    'React Developer', 'Python Developer', 'Java Developer', 'Data Engineer',
-    'Recruiter', 'Supply Chain', 'Healthcare', 'Manufacturing',
-    'Legal', 'Accounting', 'Teacher', 'Construction',
-    // Broader searches to catch more
-    'Manager', 'Director', 'Senior', 'Engineer', 'Analyst', 'Remote'
-];
-
-const JOOBLE_LOCATIONS = [
-    'United States', 'New York, NY', 'San Francisco, CA', 'Los Angeles, CA',
-    'Chicago, IL', 'Austin, TX', 'Seattle, WA', 'Boston, MA', 'Denver, CO',
-    'Atlanta, GA', 'Philadelphia, PA', 'Remote'
-];
-
-async function fetchJooblePage(keywords, location, page) {
-    const apiKey = process.env.JOOBLE_API_KEY;
-    if (!apiKey) return [];
-
-    const url = `https://jooble.org/api/${apiKey}`;
-    const body = {
-        keywords,
-        location: location || 'United States',
-        page: String(page || 1)
-    };
-
-    const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-    });
-    if (!res.ok) throw new Error(`Jooble ${res.status}`);
-    const data = await res.json();
-
-    return (data.jobs || []).map(job => ({
-        id: 'jooble-' + (job.id || `${Date.now()}-${Math.random().toString(36).slice(2,8)}`),
-        title: job.title || '',
-        company: job.company || '',
-        location: job.location || '',
-        type: job.type || 'Full Time',
-        url: job.link || '',
-        salary: job.salary || '',
-        description: (job.snippet || '').substring(0, 2000),
-        tags: [],
-        source: 'Jooble',
-        sourceKey: 'jooble',
-        pubDate: job.updated || ''
-    }));
-}
-
-// Sync strategy: 10 query/location combos × 2 pages = 20 calls per sync
-// Jooble returns ~20-50 per page, so ~400-1,000 per sync
-// But these are from Indeed, LinkedIn, etc. — the jobs nobody else gives you
-async function syncJoobleJobs(syncGroup) {
-    const jobs = [];
-    const queryStart = (syncGroup % Math.ceil(JOOBLE_QUERIES.length / 10)) * 10;
-    const queries = JOOBLE_QUERIES.slice(queryStart, queryStart + 10);
-    const loc = JOOBLE_LOCATIONS[syncGroup % JOOBLE_LOCATIONS.length];
-
-    for (const q of queries) {
-        for (let page = 1; page <= 2; page++) {
-            try {
-                const results = await fetchJooblePage(q, loc, page);
-                jobs.push(...results);
-                // Jooble rate limiting — be polite
-                await new Promise(r => setTimeout(r, 500));
-            } catch (e) {
-                console.warn(`Jooble "${q}"/${loc}/p${page}:`, e.message);
-            }
-        }
-    }
-    return jobs;
-}
-
-
 // ============================================================
 // INTEGRATION INTO EXISTING SYNC FUNCTION
 // ============================================================
@@ -270,7 +183,7 @@ async function syncJoobleJobs(syncGroup) {
 //
 // In the main sync function where you call JSearch, Remotive, etc:
 //
-//   const [jsearchJobs, remotiveJobs, usajobsJobs, himalayasJobs, jobicyJobs, adzunaJobs, museJobs, joobleJobs] = await Promise.all([
+//   const [jsearchJobs, remotiveJobs, usajobsJobs, himalayasJobs, jobicyJobs, adzunaJobs, museJobs] = await Promise.all([
 //       syncJSearchJobs(syncGroup).catch(e => { console.warn('JSearch sync failed:', e.message); return []; }),
 //       syncRemotiveJobs().catch(e => { console.warn('Remotive sync failed:', e.message); return []; }),
 //       syncUSAJobs(syncGroup).catch(e => { console.warn('USAJobs sync failed:', e.message); return []; }),
@@ -278,11 +191,9 @@ async function syncJoobleJobs(syncGroup) {
 //       syncJobicyJobs().catch(e => { console.warn('Jobicy sync failed:', e.message); return []; }),
 //       syncAdzunaJobs(syncGroup).catch(e => { console.warn('Adzuna sync failed:', e.message); return []; }),
 //       syncMuseJobs(syncGroup).catch(e => { console.warn('Muse sync failed:', e.message); return []; }),
-//       syncJoobleJobs(syncGroup).catch(e => { console.warn('Jooble sync failed:', e.message); return []; })
 //   ]);
 //
 //   const allJobs = [...jsearchJobs, ...remotiveJobs, ...usajobsJobs, ...himalayasJobs, 
-//                    ...jobicyJobs, ...adzunaJobs, ...museJobs, ...joobleJobs];
 //
 // Update sourceCounts in meta/jobsSync:
 //   sourceCounts: {
@@ -293,7 +204,6 @@ async function syncJoobleJobs(syncGroup) {
 //       jobicy: jobicyJobs.length,
 //       adzuna: adzunaJobs.length,
 //       themuse: museJobs.length,
-//       jooble: joobleJobs.length
 //   }
 
 // ============================================================
@@ -303,7 +213,6 @@ async function syncJoobleJobs(syncGroup) {
 //
 // ADZUNA_APP_ID     = (from developer.adzuna.com registration)
 // ADZUNA_APP_KEY    = (from developer.adzuna.com registration)
-// JOOBLE_API_KEY    = (from jooble.org/api/about registration)
 // MUSE_API_KEY      = (from themuse.com/developers registration — optional)
 
 // ============================================================
@@ -320,22 +229,17 @@ async function syncJoobleJobs(syncGroup) {
 // After (8 sources):
 //   + Adzuna: ~5,000-15,000/week (3-4M US inventory, broad queries)
 //   + The Muse: ~1,000-2,000/week (quality professional roles)
-//   + Jooble: ~3,000-8,000/week (Indeed, LinkedIn, Glassdoor meta-aggregation)
 //   TOTAL: ~15,000-30,000 unique jobs within first week
 //   TOTAL: ~40,000-60,000 within first month (with rotation)
 //
-// The big win is Jooble + Adzuna. Jooble gets you Indeed/LinkedIn jobs
 // through the back door. Adzuna has massive US inventory with good
 // filtering and salary data.
 
 module.exports = {
     syncAdzunaJobs,
     syncMuseJobs,
-    syncJoobleJobs,
     fetchAdzunaPage,
     fetchMusePage,
-    fetchJooblePage,
     ADZUNA_CATEGORIES,
-    JOOBLE_QUERIES,
     MUSE_CATEGORIES
 };

@@ -389,60 +389,6 @@ async function fetchMuse(category, page) {
     }
 }
 
-// === JOOBLE (free API key, meta-aggregator: Indeed, LinkedIn, Glassdoor) ===
-const JOOBLE_QUERIES = [
-    'Software Engineer', 'Data Scientist', 'Product Manager', 'UX Designer',
-    'Marketing Manager', 'Sales Representative', 'Financial Analyst', 'HR Manager',
-    'Project Manager', 'Business Analyst', 'DevOps Engineer', 'Nurse',
-    'Account Executive', 'Customer Success', 'Operations Manager', 'Content Writer',
-    'Machine Learning', 'Cloud Architect', 'Cybersecurity', 'Full Stack Developer',
-    'React Developer', 'Python Developer', 'Data Engineer', 'Recruiter',
-    'Supply Chain', 'Manufacturing', 'Legal', 'Accounting',
-    'Manager', 'Director', 'Senior', 'Engineer', 'Analyst', 'Remote'
-];
-
-const JOOBLE_LOCATIONS = [
-    'United States', 'New York, NY', 'San Francisco, CA', 'Los Angeles, CA',
-    'Chicago, IL', 'Austin, TX', 'Seattle, WA', 'Boston, MA', 'Denver, CO',
-    'Atlanta, GA', 'Philadelphia, PA', 'Remote'
-];
-
-async function fetchJooble(keywords, location) {
-    const apiKey = process.env.JOOBLE_API_KEY;
-    if (!apiKey) return { jobs: [], source: 'jooble', error: 'JOOBLE_API_KEY not configured' };
-    try {
-        const res = await fetch(`https://jooble.org/api/${apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ keywords, location: location || 'United States', page: '1' }),
-            signal: AbortSignal.timeout(15000)
-        });
-        if (!res.ok) return { jobs: [], source: 'jooble', error: 'HTTP ' + res.status };
-        const data = await res.json();
-        const jobs = (data.jobs || []).map(j => ({
-            id: 'jooble-' + (j.id || Date.now() + '-' + Math.random().toString(36).slice(2, 8)),
-            title: j.title || '',
-            company: j.company || '',
-            companyLogo: '',
-            location: j.location || '',
-            type: j.type || 'Full Time',
-            salary: j.salary || '',
-            remote: (j.title || '').toLowerCase().includes('remote') || (j.location || '').toLowerCase().includes('remote'),
-            source: 'jooble',
-            url: j.link || '',
-            description: (j.snippet || '').substring(0, 2000),
-            tags: [],
-            qualifications: [],
-            responsibilities: [],
-            benefits: '',
-            postedAt: j.updated || ''
-        }));
-        return { jobs, source: 'jooble', count: jobs.length, query: keywords };
-    } catch (e) {
-        return { jobs: [], source: 'jooble', error: e.message, query: keywords };
-    }
-}
-
 // Safe Firestore doc ID (no slashes, max 200 chars)
 function safeDocId(id) {
   return id.replace(/[\/\.\#\$\[\]]/g, '_').substring(0, 200);
@@ -465,7 +411,7 @@ module.exports = async function handler(req, res) {
   const startTime = Date.now();
   const allJobs = new Map();
   const errors = [];
-  const sourceCounts = { jsearch: 0, remotive: 0, usajobs: 0, himalayas: 0, jobicy: 0, adzuna: 0, themuse: 0, jooble: 0 };
+  const sourceCounts = { jsearch: 0, remotive: 0, usajobs: 0, himalayas: 0, jobicy: 0, adzuna: 0, themuse: 0 };
   let jsearchApiCalls = 0;
 
   // Determine which JSearch group to run (A or B, alternating per sync)
@@ -573,33 +519,7 @@ module.exports = async function handler(req, res) {
     console.log('[jobs-sync] Muse: ' + (sourceCounts.themuse || 0) + ' jobs (' + museCalls.length + ' API calls)');
   }
 
-  // ── Phase 5: Jooble (free API key, meta-aggregator) ───────
-  // 18 queries × 2 locations × 2 pages = 72 calls, batched 6 at a time (Jooble rate limits)
-  if (process.env.JOOBLE_API_KEY) {
-    const jooSyncNum = syncGroup === 'A' ? 0 : 1;
-    const qStart = (jooSyncNum % Math.ceil(JOOBLE_QUERIES.length / 18)) * 18;
-    const jooQueries = JOOBLE_QUERIES.slice(qStart, qStart + 18);
-    const jooLoc1 = JOOBLE_LOCATIONS[jooSyncNum % JOOBLE_LOCATIONS.length];
-    const jooLoc2 = JOOBLE_LOCATIONS[(jooSyncNum + 1) % JOOBLE_LOCATIONS.length];
-
-    const jooCalls = [];
-    for (const q of jooQueries) {
-      jooCalls.push([q, jooLoc1]);
-      jooCalls.push([q, jooLoc2]);
-    }
-    // Jooble is rate-limited — batch 6 at a time with delays
-    for (let i = 0; i < jooCalls.length; i += 6) {
-      const batch = jooCalls.slice(i, i + 6);
-      const results = await Promise.all(batch.map(c => fetchJooble(c[0], c[1])));
-      results.forEach(collectJobs);
-      await new Promise(r => setTimeout(r, 300));
-    }
-    console.log('[jobs-sync] Jooble: ' + (sourceCounts.jooble || 0) + ' jobs (' + jooCalls.length + ' API calls)');
-  } else {
-    errors.push('jooble: JOOBLE_API_KEY not configured');
-  }
-
-  console.log('[jobs-sync] Fetched ' + allJobs.size + ' unique jobs. Sources: jsearch=' + sourceCounts.jsearch + ' remotive=' + sourceCounts.remotive + ' usajobs=' + sourceCounts.usajobs + ' himalayas=' + sourceCounts.himalayas + ' jobicy=' + sourceCounts.jobicy + ' adzuna=' + sourceCounts.adzuna + ' themuse=' + sourceCounts.themuse + ' jooble=' + sourceCounts.jooble + '. Writing to Firestore...');
+  console.log('[jobs-sync] Fetched ' + allJobs.size + ' unique jobs. Sources: jsearch=' + sourceCounts.jsearch + ' remotive=' + sourceCounts.remotive + ' usajobs=' + sourceCounts.usajobs + ' himalayas=' + sourceCounts.himalayas + ' jobicy=' + sourceCounts.jobicy + ' adzuna=' + sourceCounts.adzuna + ' themuse=' + sourceCounts.themuse + '. Writing to Firestore...');
 
   // ── Phase 6: Write to Firestore (batch upsert) ────────────
   const jobEntries = Array.from(allJobs.entries());
