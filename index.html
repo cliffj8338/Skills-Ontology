@@ -1,10 +1,10 @@
-<!-- v4.45.80 | 2026-03-01 | Cloud Function URL fetcher, CSP fix, CORS proxy removal -->
+<!-- v4.45.81 | 2026-03-01 | Cloud Function URL fix for 2nd Gen Cloud Run, CSP update -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com https://apis.google.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.cloudfunctions.net https://www.gstatic.com https://cdnjs.cloudflare.com https://api.anthropic.com https://*.rapidapi.com https://remotive.com https://himalayas.app https://jobicy.com https://data.usajobs.gov https://api.adzuna.com https://www.themuse.com https://jooble.org https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; img-src 'self' data: blob: https://*.googleusercontent.com; frame-src 'self' blob: https://apis.google.com https://accounts.google.com https://*.firebaseapp.com; object-src 'none'; base-uri 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com https://apis.google.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.cloudfunctions.net https://*.run.app https://www.gstatic.com https://cdnjs.cloudflare.com https://api.anthropic.com https://*.rapidapi.com https://remotive.com https://himalayas.app https://jobicy.com https://data.usajobs.gov https://api.adzuna.com https://www.themuse.com https://jooble.org https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; img-src 'self' data: blob: https://*.googleusercontent.com; frame-src 'self' blob: https://apis.google.com https://accounts.google.com https://*.firebaseapp.com; object-src 'none'; base-uri 'self';">
     <title>Blueprint™ — See Your Career as a Living Map | Skills. Value. Direction.</title>
     <meta name="description" content="See your career as a living map — not a flat resume. Blueprint visualizes your skills, reveals your real market value, and connects you to work that actually fits who you are and what you care about.">
     <meta name="keywords" content="career intelligence, skills mapping, job matching, scouting report, career ontology, skill gap analysis, salary negotiation, professional development, AI career tools, work blueprint, talent intelligence, career planning">
@@ -1584,8 +1584,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.80 - BUILD 20260301-cloud-function-url-fetch
-        var BP_VERSION = 'v4.45.80';
+        // BLUEPRINT v4.45.81 - BUILD 20260301-cloud-run-url-fix
+        var BP_VERSION = 'v4.45.81';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -33295,7 +33295,7 @@ body {
             if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
                 try {
                     var token = await firebase.auth().currentUser.getIdToken();
-                    var fnUrl = 'https://us-central1-work-blueprint.cloudfunctions.net/fetchJobPage';
+                    var fnUrl = 'https://fetchjobpage-oiewslfoua-uc.a.run.app';
                     var fnRes = await fetch(fnUrl, {
                         method: 'POST',
                         headers: {
