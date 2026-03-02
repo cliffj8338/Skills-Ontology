@@ -1,4 +1,4 @@
-<!-- v4.45.87 | 2026-03-02 | Parser overhaul: expanded skill dictionary, stem-variant matching, contextual extraction -->
+<!-- v4.45.88 | 2026-03-02 | Match confidence: penalize low-skill-count jobs, low-confidence UI indicators -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1584,8 +1584,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.87 - BUILD 20260302-parser-overhaul
-        var BP_VERSION = 'v4.45.87';
+        // BLUEPRINT v4.45.88 - BUILD 20260302-confer-overhaul
+        var BP_VERSION = 'v4.45.88';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -33374,7 +33374,7 @@ body {
                     + (job.source ? ' \u00B7 <span style="color:var(--accent);">' + escapeHtml(job.source) + '</span>' : '') + '</div></div>'
                     + '<div style="text-align:center; min-width:56px;">'
                     + '<div style="font-size:1.4em; font-weight:700; color:' + matchColor + ';">' + score + '%</div>'
-                    + '<div style="font-size:0.68em; color:var(--text-muted);">match</div></div></div>';
+                    + '<div style="font-size:0.68em; color:' + ((job._fitMatch && job._fitMatch.lowConfidence) ? '#f59e0b' : 'var(--text-muted)') + ';">' + ((job._fitMatch && job._fitMatch.lowConfidence) ? '\u26A0 limited' : 'match') + '</div></div></div>';
 
                 html += '<div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">';
                 (job.matchedSkills || []).slice(0, 8).forEach(function(s) {
@@ -33386,7 +33386,7 @@ body {
                 html += '</div>';
 
                 html += '<div style="display:flex; gap:8px; align-items:center; font-size:0.8em;">'
-                    + '<span style="color:var(--text-muted);">' + (job._fitSkillsExtracted || 0) + ' skills parsed \u00B7 ' + matched.length + ' matched \u00B7 ' + gaps.length + ' gaps</span>'
+                    + '<span style="color:' + ((job._fitSkillsExtracted || 0) < 5 ? '#f59e0b' : 'var(--text-muted)') + ';">' + (job._fitSkillsExtracted || 0) + ' skills parsed' + ((job._fitSkillsExtracted || 0) < 5 ? ' \u26A0' : '') + ' \u00B7 ' + matched.length + ' matched \u00B7 ' + gaps.length + ' gaps</span>'
                     + '<button onclick="_fitForMeExpanded[' + idx + ']=!' + (isExpanded ? 'true' : 'false') + '; renderFitForMe(document.getElementById(\'jobsSubTabContent\'));" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size:0.9em; padding:2px 6px;">' + (isExpanded ? '\u25B2 Less' : '\u25BC Details') + '</button>';
                 if (!job._inPipeline) {
                     html += '<button onclick="_fitAddToPipeline(' + idx + ')" style="background:none; border:1px solid var(--accent); color:var(--accent); padding:3px 10px; border-radius:6px; cursor:pointer; font-size:0.85em; font-weight:600;">+ Pipeline</button>';
@@ -37591,21 +37591,31 @@ body {
             });
             
             var score = totalWeight > 0 ? Math.round((earnedWeight / totalWeight) * 100) : 0;
-            
-            return {
-                score: Math.min(score, 100),
-                matched: matched,
-                gaps: gaps,
-                surplus: surplus,
-                totalJobSkills: jobSkills.length,
-                totalUserSkills: userSkills.length,
-                blocklistedCount: blocklistedCount,
-                totalParsedGaps: totalParsedGaps,
-                libraryAvailable: !!(skillLibraryIndex && skillLibraryIndex.index && skillLibraryIndex.index.length > 100)
-            };
-        }
-        
-        // ===== RE-SCORE ALL SAVED JOBS =====
+              
+              var confidencePenalty = 0;
+              var totalSkillsConsidered = matched.length + gaps.length + blocklistedCount;
+              if (totalSkillsConsidered < 5) {
+                  var confidenceMultiplier = 0.4 + (totalSkillsConsidered * 0.12);
+                  confidencePenalty = score - Math.round(score * confidenceMultiplier);
+                  score = Math.round(score * confidenceMultiplier);
+              }
+              
+              return {
+                  score: Math.min(score, 100),
+                  matched: matched,
+                  gaps: gaps,
+                  surplus: surplus,
+                  totalJobSkills: jobSkills.length,
+                  totalUserSkills: userSkills.length,
+                  blocklistedCount: blocklistedCount,
+                  totalParsedGaps: totalParsedGaps,
+                  confidencePenalty: confidencePenalty,
+                  lowConfidence: totalSkillsConsidered < 5,
+                  libraryAvailable: !!(skillLibraryIndex && skillLibraryIndex.index && skillLibraryIndex.index.length > 100)
+              };
+          }
+          
+          // ===== RE-SCORE ALL SAVED JOBS =====
         // Called whenever profile skills change (add, edit, remove, proficiency change)
         function rescoreAllJobs() {
             if (!userData.savedJobs || userData.savedJobs.length === 0) return;

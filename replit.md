@@ -45,7 +45,8 @@ SPA extraction handles: JSON-LD JobPosting, __NEXT_DATA__ (Rippling, Greenhouse)
 - Work Blueprint Wizard (JD → structured WB conversion)
 - WB Repository (CRUD, Clone, Compare)
 - Blueprint Advantage™ Compare (structured WB vs raw JD matching)
-- 6-pass ontology matching engine
+- 6-pass ontology matching engine with confidence penalty (jobs with <5 skills parsed get score discount)
+- Low-confidence indicators on Fit For Me results (⚠ limited data label)
 - 43K skill library with category bridging
 - Admin skill blocklist (Firestore-backed)
 - AI content generation with full role context
