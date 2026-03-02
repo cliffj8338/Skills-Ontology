@@ -1,4 +1,4 @@
-<!-- v4.45.78 | 2026-03-01 | v2 API extraction prompt, section-aware skills, identity metadata, extraction quality UI -->
+<!-- v4.45.79 | 2026-03-01 | Prompt fixes: title extraction guard, skill exclusion rules, gap noise filter -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1584,8 +1584,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.78 - BUILD 20260301-job-schema-v2-api-ingest
-        var BP_VERSION = 'v4.45.78';
+        // BLUEPRINT v4.45.79 - BUILD 20260301-prompt-quality-fixes
+        var BP_VERSION = 'v4.45.79';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -33163,40 +33163,57 @@ body {
             var modal = document.getElementById('exportModal');
             var mc = modal.querySelector('.modal-content');
             var savedKey = safeGet('wbAnthropicKey') || '';
+            var hasProxy = !!(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser);
+            var hasAI = hasProxy || !!savedKey;
             
             mc.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left">'
                 + '<h2 class="modal-title">Add a Job</h2>'
-                + '<p style="color:var(--text-muted); margin-top:5px;">Paste a job description to analyze your fit</p>'
+                + '<p style="color:var(--text-muted); margin-top:5px;">Paste a URL or job description text</p>'
                 + '</div>'
                 + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
                 + '</div>'
                 + '<div class="modal-body" style="padding:24px;">'
                 
-                // JD paste area
-                + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;">Job Description *</label>'
+                // URL input (primary path)
+                + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;">Job Posting URL</label>'
+                + '<div style="display:flex; gap:8px;">'
+                + '<input id="jdUrlInput" type="url" placeholder="https://careers.example.com/job/12345" style="'
+                + 'flex:1; padding:10px 12px; background:var(--c-input-bg); '
+                + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
+                + '<button id="fetchUrlBtn" onclick="fetchAndAnalyzeUrl()" style="'
+                + 'background:var(--accent); color:#fff; border:none; padding:10px 18px; border-radius:6px; '
+                + 'cursor:pointer; font-weight:600; font-size:0.88em; white-space:nowrap;">\uD83D\uDD0D Fetch & Analyze</button>'
+                + '</div>'
+                + '<div style="font-size:0.75em; color:var(--text-muted); margin-top:4px;">Works with most ATS pages (Greenhouse, Lever, Rippling, Workday, LinkedIn, etc.)</div>'
+                
+                // Divider
+                + '<div style="display:flex; align-items:center; gap:12px; margin:18px 0;">'
+                + '<div style="flex:1; height:1px; background:var(--border);"></div>'
+                + '<span style="font-size:0.78em; color:var(--text-muted);">or paste text directly</span>'
+                + '<div style="flex:1; height:1px; background:var(--border);"></div>'
+                + '</div>'
+                
+                // JD paste area (fallback)
+                + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;">Job Description Text</label>'
                 + '<textarea id="jdTextInput" placeholder="Paste the full job description here..." style="'
-                + 'width:100%; min-height:180px; padding:14px; background:var(--c-input-bg); '
+                + 'width:100%; min-height:140px; padding:14px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); '
                 + 'font-size:0.92em; line-height:1.6; font-family:inherit; resize:vertical;"></textarea>'
                 
-                // Source URL
-                + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px;">'
-                + '<div>'
-                + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Source URL</label>'
-                + '<input id="jdSourceUrl" placeholder="https://..." style="'
-                + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
-                + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
-                + '</div>'
-                + '<div>'
-                + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Source Note</label>'
+                // Source note
+                + '<div style="margin-top:12px;">'
+                + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Source Note (optional)</label>'
                 + '<input id="jdSourceNote" placeholder="e.g., Recruiter email, LinkedIn" style="'
                 + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
-                + '</div></div>'
+                + '</div>'
                 
-                // API key (collapsible)
-                + '<details style="margin-top:16px;">'
+                // Hidden fields populated by URL fetch
+                + '<input id="jdSourceUrl" type="hidden" />'
+                
+                // API key (collapsible, only shown if no proxy)
+                + (hasProxy ? '' : '<details style="margin-top:16px;">'
                 + '<summary style="cursor:pointer; font-size:0.82em; color:var(--text-muted);">'
                 + '\u26A1 AI-powered analysis (optional, requires API key)</summary>'
                 + '<div style="margin-top:8px; padding:12px; background:var(--c-surface-1); '
@@ -33205,9 +33222,8 @@ body {
                 + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.88em; font-family:monospace;" />'
                 + '<div style="font-size:0.75em; color:var(--text-muted); margin-top:6px; line-height:1.5;">'
-                + '⚠ Security: This key is stored in your browser\u2019s localStorage and is accessible to browser extensions. Clear it when done. Get a key at <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">console.anthropic.com</a>. '
-                + 'Signed-in users get AI features automatically. Without sign-in or a key, analysis uses local skill matching (still good, but less nuanced).'
-                + '</div></div></details>'
+                + 'Get a key at <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">console.anthropic.com</a>.'
+                + '</div></div></details>')
                 
                 + '<div id="jdParsingStatus" style="display:none; margin-top:16px; padding:16px; border-radius:8px; text-align:center;"></div>'
                 
@@ -33218,13 +33234,151 @@ body {
                 + 'padding:10px 20px; border-radius:8px; cursor:pointer; font-size:0.9em;">Cancel</button>'
                 + '<button id="analyzeJobBtn" onclick="analyzeJob()" style="'
                 + 'background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:8px; '
-                + 'cursor:pointer; font-weight:600; font-size:0.9em;">\uD83D\uDD0D Analyze Fit</button>'
+                + 'cursor:pointer; font-weight:600; font-size:0.9em;">\uD83D\uDD0D Analyze Text</button>'
                 + '</div></div>';
             
             history.pushState({ modal: true }, ''); modal.classList.add('active');
-            setTimeout(function() { var el = document.getElementById('jdTextInput'); if (el) el.focus(); }, 100);
+            setTimeout(function() { var el = document.getElementById('jdUrlInput'); if (el) el.focus(); }, 100);
         }
         window.showAddJobModal = showAddJobModal;
+        
+        // ===== URL FETCH & AUTO-ANALYZE =====
+        
+        async function fetchAndAnalyzeUrl() {
+            var urlInput = document.getElementById('jdUrlInput');
+            var url = (urlInput ? urlInput.value : '').trim();
+            if (!url || !url.match(/^https?:\/\/.+/)) {
+                showToast('Enter a valid job posting URL.', 'warning');
+                return;
+            }
+            
+            var fetchBtn = document.getElementById('fetchUrlBtn');
+            var statusEl = document.getElementById('jdParsingStatus');
+            fetchBtn.disabled = true;
+            fetchBtn.textContent = 'Fetching...';
+            statusEl.style.display = 'block';
+            statusEl.style.background = 'var(--c-accent-bg-3a)';
+            statusEl.innerHTML = '<div class="loading-spinner" style="width:24px; height:24px; border-width:2px; margin:0 auto 8px;"></div>'
+                + '<div style="color:var(--text-secondary); font-size:0.88em;">Fetching job posting...</div>';
+            
+            try {
+                var pageText = await fetchJobPageText(url);
+                if (!pageText || pageText.length < 100) {
+                    throw new Error('Could not extract enough text from that page. Try pasting the job description directly.');
+                }
+                
+                // Populate the textarea and source URL
+                var textarea = document.getElementById('jdTextInput');
+                if (textarea) textarea.value = pageText;
+                var srcUrl = document.getElementById('jdSourceUrl');
+                if (srcUrl) srcUrl.value = url;
+                
+                statusEl.innerHTML = '<div style="color:#10b981; font-size:0.88em;">\u2713 Fetched ' + pageText.length + ' characters. Analyzing...</div>';
+                
+                // Auto-trigger analysis
+                await analyzeJob();
+                
+            } catch (err) {
+                console.error('URL fetch error:', err);
+                statusEl.style.background = 'var(--c-red-bg-2b)';
+                statusEl.innerHTML = '<div style="color:#ef4444; font-size:0.88em;">\u26A0 ' + escapeHtml(err.message || 'Fetch failed') + '</div>'
+                    + '<div style="color:var(--text-muted); font-size:0.78em; margin-top:6px;">Tip: Copy the job description text and paste it in the field below.</div>';
+            } finally {
+                fetchBtn.disabled = false;
+                fetchBtn.textContent = '\uD83D\uDD0D Fetch & Analyze';
+            }
+        }
+        window.fetchAndAnalyzeUrl = fetchAndAnalyzeUrl;
+        
+        async function fetchJobPageText(url) {
+            // Try multiple CORS proxy strategies
+            var proxies = [
+                function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); },
+                function(u) { return 'https://corsproxy.io/?' + encodeURIComponent(u); }
+            ];
+            
+            var html = null;
+            for (var pi = 0; pi < proxies.length; pi++) {
+                try {
+                    var proxyUrl = proxies[pi](url);
+                    var res = await fetch(proxyUrl, { 
+                        headers: { 'Accept': 'text/html,application/xhtml+xml' },
+                        signal: AbortSignal.timeout ? AbortSignal.timeout(15000) : undefined
+                    });
+                    if (res.ok) {
+                        html = await res.text();
+                        if (html && html.length > 200) break;
+                    }
+                } catch (e) {
+                    console.warn('CORS proxy ' + pi + ' failed:', e.message);
+                }
+            }
+            
+            if (!html) {
+                // Last resort: try direct fetch (works for some sites with permissive CORS)
+                try {
+                    var directRes = await fetch(url, { 
+                        mode: 'cors',
+                        headers: { 'Accept': 'text/html' },
+                        signal: AbortSignal.timeout ? AbortSignal.timeout(10000) : undefined
+                    });
+                    if (directRes.ok) html = await directRes.text();
+                } catch (e) { /* expected to fail for most sites */ }
+            }
+            
+            if (!html) throw new Error('Could not fetch page. The site may block automated access.');
+            
+            // Parse HTML to extract text content
+            return extractTextFromHtml(html);
+        }
+        
+        function extractTextFromHtml(html) {
+            // Create a temporary DOM to parse the HTML
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(html, 'text/html');
+            
+            // Remove scripts, styles, nav, footer, header elements
+            var removeSelectors = ['script', 'style', 'nav', 'footer', 'header', 'noscript', 'svg', 'iframe',
+                '[role="navigation"]', '[role="banner"]', '[role="contentinfo"]', '.cookie-banner', '.footer'];
+            removeSelectors.forEach(function(sel) {
+                doc.querySelectorAll(sel).forEach(function(el) { el.remove(); });
+            });
+            
+            // Try to find the main job content area
+            var contentEl = doc.querySelector('[class*="job-description"]') 
+                || doc.querySelector('[class*="job-detail"]')
+                || doc.querySelector('[class*="posting"]')
+                || doc.querySelector('[class*="jd-"]')
+                || doc.querySelector('article')
+                || doc.querySelector('main')
+                || doc.querySelector('[role="main"]')
+                || doc.body;
+            
+            if (!contentEl) contentEl = doc.body;
+            
+            // Get text content, preserving line breaks for structure
+            var text = '';
+            var walker = doc.createTreeWalker(contentEl, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, null, false);
+            var node;
+            var blockTags = new Set(['P','DIV','H1','H2','H3','H4','H5','H6','LI','TR','BR','HR','SECTION','ARTICLE','HEADER','FOOTER','BLOCKQUOTE','DT','DD']);
+            
+            while (node = walker.nextNode()) {
+                if (node.nodeType === 3) { // Text node
+                    var t = node.textContent.replace(/\s+/g, ' ');
+                    if (t.trim()) text += t;
+                } else if (node.nodeType === 1 && blockTags.has(node.tagName)) {
+                    text += '\n';
+                }
+            }
+            
+            // Clean up: collapse multiple newlines, trim
+            text = text.replace(/\n{3,}/g, '\n\n').replace(/[ \t]+/g, ' ').trim();
+            
+            // Cap to reasonable length for AI prompt
+            if (text.length > 8000) text = text.substring(0, 8000);
+            
+            return text;
+        }
         
         // ===== JOB ANALYSIS ENGINE =====
         
@@ -33310,31 +33464,45 @@ body {
                 return;
             }
             
-            var sourceUrl = (document.getElementById('jdSourceUrl').value || '').trim();
-            var sourceNote = (document.getElementById('jdSourceNote').value || '').trim();
-            var apiKey = (document.getElementById('jdApiKey').value || '').trim();
+            var sourceUrlEl = document.getElementById('jdSourceUrl');
+            var sourceUrl = sourceUrlEl ? (sourceUrlEl.value || '').trim() : '';
+            // Also check URL input field
+            if (!sourceUrl) {
+                var urlInputEl = document.getElementById('jdUrlInput');
+                if (urlInputEl) sourceUrl = (urlInputEl.value || '').trim();
+            }
+            var sourceNote = (document.getElementById('jdSourceNote') || {}).value || '';
+            sourceNote = sourceNote.trim();
+            var apiKeyEl = document.getElementById('jdApiKey');
+            var apiKey = apiKeyEl ? (apiKeyEl.value || '').trim() : '';
             
             // Save API key for reuse
             if (apiKey) localStorage.setItem('wbAnthropicKey', apiKey);
             
+            // Determine if AI is available: signed-in proxy OR explicit API key
+            var hasProxy = !!(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser);
+            var useAI = hasProxy || !!apiKey;
+            
             // Show progress
             var statusEl = document.getElementById('jdParsingStatus');
             var btn = document.getElementById('analyzeJobBtn');
+            var fetchBtn = document.getElementById('fetchUrlBtn');
             statusEl.style.display = 'block';
             statusEl.style.background = 'var(--c-accent-bg-3a)';
             statusEl.innerHTML = '<div class="loading-spinner" style="width:24px; height:24px; border-width:2px; margin:0 auto 8px;"></div>'
                 + '<div style="color:var(--text-secondary); font-size:0.88em;">'
-                + (apiKey ? 'Analyzing with AI...' : 'Matching against skill library...') + '</div>';
+                + (useAI ? 'Analyzing with AI...' : 'Matching against skill library...') + '</div>';
             btn.disabled = true;
             btn.style.opacity = '0.5';
+            if (fetchBtn) { fetchBtn.disabled = true; }
             
             try {
                 // Ensure skill library is loaded before parsing
                 var libReady = await ensureSkillLibrary();
-                if (!libReady) console.warn('⚠ Skill library not available — parsing with user skills + dictionary only');
+                if (!libReady) console.warn('\u26A0 Skill library not available \u2014 parsing with user skills + dictionary only');
                 
                 var parsed;
-                if (apiKey) {
+                if (useAI) {
                     parsed = await parseJobWithAPI(jdText, apiKey);
                 } else {
                     parsed = parseJobLocally(jdText);
@@ -33342,8 +33510,8 @@ body {
                 
                 // Calculate match against user's skills
                 // Convert parsed skills to v2 format for matching
-                var ingestMethod = apiKey ? 'api' : 'local';
-                var defaultConfidence = apiKey ? 0.85 : 0.5;
+                var ingestMethod = useAI ? 'api' : 'local';
+                var defaultConfidence = useAI ? 0.85 : 0.5;
                 var v2Skills = (parsed.skills || []).map(function(s) {
                     var name = typeof s === 'string' ? s : (s.name || '');
                     if (!name) return null;
@@ -33391,11 +33559,16 @@ body {
                 var industry = parsed.industry || '';
                 var department = parsed.department || '';
                 
+                // Sanitize title: reject section headings that slipped through
+                var badTitles = /^(what you'?ll do|about the role|about us|qualifications|responsibilities|requirements|job description|overview|summary|working conditions|benefits|who we are|our team|the opportunity)$/i;
+                var parsedTitle = (parsed.title || '').trim();
+                if (!parsedTitle || badTitles.test(parsedTitle)) parsedTitle = 'Untitled Position';
+                
                 var job = {
                     // v2 schema
                     schemaVersion: JOB_SCHEMA_VERSION,
                     id: 'job_' + Date.now(),
-                    title: parsed.title || 'Untitled Position',
+                    title: parsedTitle,
                     hiringOrganization: {
                         name: parsed.company || '',
                         sameAs: null,
@@ -33517,7 +33690,7 @@ body {
                 + '--- JOB DESCRIPTION END ---\n\n'
                 + 'Return JSON with this EXACT structure:\n'
                 + '{\n'
-                + '  "title": "Exact job title from posting",\n'
+                + '  "title": "Exact job title from posting (the role name, NEVER a section heading like What you\'ll do or Qualifications)",\n'
                 + '  "company": "Company name or empty string",\n'
                 + '  "industry": "Primary industry (e.g., Insurance, Technology, Healthcare)",\n'
                 + '  "seniority": "Entry|Mid|Senior|Executive",\n'
@@ -33555,6 +33728,14 @@ body {
                 + '- Normalize names to match this vocabulary where possible: ' + vocabHint + '\n'
                 + '- Use FULL form of common abbreviations (e.g., "Key Performance Indicators" not "KPIs", "Applicant Tracking System" not "ATS")\n'
                 + '- For skills NOT in the above vocabulary, use standard industry terminology (O*NET, LinkedIn Skills)\n\n'
+                + 'SKILL EXCLUSIONS (do NOT extract these as skills):\n'
+                + '- Generic academic subjects used as qualification boilerplate: geometry, algebra, calculus, arithmetic, statistics coursework\n'
+                + '- Generic ability phrases: "meet deadlines", "work independently", "attention to detail", "dependability", "self-motivation"\n'
+                + '  → These are traits, not skills. Only include if the JD frames them as a named competency.\n'
+                + '- Document/media types: journals, periodicals, manuals, reports (as nouns). "Report Writing" IS a skill, "journals" is not.\n'
+                + '- Section headings or boilerplate: "What you\'ll do", "About the role", "Working conditions", "Equal opportunity"\n'
+                + '- Physical requirements: typing, sitting, lifting, vision requirements\n'
+                + '- Vague buzzwords with no operational meaning: "team player", "go-getter", "passionate"\n\n'
                 + 'TIER ASSIGNMENT:\n'
                 + '- Skills from "Required Qualifications", "What you\'ll do", "Qualifications" sections → "required"\n'
                 + '- Skills from "Preferred", "Nice to have", "Bonus" sections → "preferred"\n'
@@ -33579,7 +33760,12 @@ body {
                 + '- methodology: frameworks, methodologies (Agile, Six Sigma, ITIL)\n'
                 + '- soft: interpersonal traits explicitly required (self-motivation, problem-solving, adaptability)\n\n'
                 + 'QUALIFICATIONS: Extract every stated qualification (degrees, years of experience, certifications).\n'
-                + 'RESPONSIBILITIES: Condense each bullet to 1 sentence. Keep the action verb.\n';
+                + 'RESPONSIBILITIES: Condense each bullet to 1 sentence. Keep the action verb.\n\n'
+                + 'TITLE EXTRACTION:\n'
+                + '- The title is the role/position name (e.g., "Manager, Program Success", "Senior Software Engineer")\n'
+                + '- NEVER use a section heading (What you\'ll do, About the role, Qualifications, Responsibilities)\n'
+                + '- If the title appears multiple times, use the first/most prominent occurrence\n'
+                + '- If no clear title, use "Untitled Position"\n';
             
             var data = await callAnthropicAPI({
                     model: 'claude-sonnet-4-20250514',
