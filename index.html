@@ -1,4 +1,4 @@
-<!-- v4.45.81 | 2026-03-01 | Cloud Function URL fix for 2nd Gen Cloud Run, CSP update -->
+<!-- v4.45.82 | 2026-03-01 | Puppeteer Cloud Function for SPA rendering, 45s client timeout -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1584,8 +1584,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.81 - BUILD 20260301-cloud-run-url-fix
-        var BP_VERSION = 'v4.45.81';
+        // BLUEPRINT v4.45.82 - BUILD 20260301-puppeteer-url-fetch
+        var BP_VERSION = 'v4.45.82';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -33259,7 +33259,7 @@ body {
             statusEl.style.display = 'block';
             statusEl.style.background = 'var(--c-accent-bg-3a)';
             statusEl.innerHTML = '<div class="loading-spinner" style="width:24px; height:24px; border-width:2px; margin:0 auto 8px;"></div>'
-                + '<div style="color:var(--text-secondary); font-size:0.88em;">Fetching job posting...</div>';
+                + '<div style="color:var(--text-secondary); font-size:0.88em;">Fetching & rendering page... This may take 10-20 seconds.</div>';
             
             try {
                 var pageText = await fetchJobPageText(url);
@@ -33303,7 +33303,7 @@ body {
                             'Authorization': 'Bearer ' + token
                         },
                         body: JSON.stringify({ url: url }),
-                        signal: AbortSignal.timeout ? AbortSignal.timeout(20000) : undefined
+                        signal: AbortSignal.timeout ? AbortSignal.timeout(45000) : undefined
                     });
                     if (fnRes.ok) {
                         var fnData = await fnRes.json();
