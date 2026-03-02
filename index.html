@@ -33291,7 +33291,7 @@ body {
         window.fetchAndAnalyzeUrl = fetchAndAnalyzeUrl;
         
         async function fetchJobPageText(url) {
-            // Strategy 1: Firebase Cloud Function (authenticated, no CORS issues)
+            // Strategy 1: Firebase Cloud Function with Puppeteer (handles JS-rendered ATS pages)
             if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
                 try {
                     var token = await firebase.auth().currentUser.getIdToken();
@@ -33308,24 +33308,52 @@ body {
                     if (fnRes.ok) {
                         var fnData = await fnRes.json();
                         if (fnData.text && fnData.text.length > 100) {
-                            console.log('\u2713 Fetched via Cloud Function: ' + fnData.length + ' chars from ' + fnData.domain);
+                            console.log('\u2713 Fetched via Cloud Function: ' + fnData.text.length + ' chars from ' + (fnData.domain || url));
                             return fnData.text;
                         }
+                        console.warn('Cloud Function returned OK but insufficient text (' + (fnData.text || '').length + ' chars)');
                     } else {
                         var errData = await fnRes.json().catch(function() { return {}; });
                         console.warn('Cloud Function returned ' + fnRes.status + ':', errData.error || 'unknown');
-                        // If domain not allowed, surface that to user
                         if (fnRes.status === 403) {
                             throw new Error(errData.error || 'Domain not supported for URL fetch.');
                         }
                     }
                 } catch (e) {
                     if (e.message && e.message.indexOf('Domain not') !== -1) throw e;
-                    console.warn('Cloud Function fetch failed, trying fallback:', e.message);
+                    console.warn('Cloud Function fetch failed, trying proxy:', e.message);
                 }
             }
-            
-            // Strategy 2: Direct fetch (works for sites with permissive CORS headers)
+
+            // Strategy 2: Vercel API proxy (same-origin, no CSP/CORS issues)
+            try {
+                var proxyUrl = '/api/api-job-proxy?source=page&url=' + encodeURIComponent(url);
+                var proxyRes = await fetch(proxyUrl, {
+                    signal: AbortSignal.timeout ? AbortSignal.timeout(15000) : undefined
+                });
+                if (proxyRes.ok) {
+                    var proxyHtml = await proxyRes.text();
+                    if (proxyHtml && proxyHtml.length > 200) {
+                        console.log('\u2713 Fetched via Vercel proxy: ' + proxyHtml.length + ' chars');
+                        var extracted = extractTextFromHtml(proxyHtml);
+                        if (extracted && extracted.length > 100) {
+                            return extracted;
+                        }
+                        var spaText = extractSPAJobData(proxyHtml);
+                        if (spaText && spaText.length > 100) {
+                            console.log('\u2713 Extracted SPA job data: ' + spaText.length + ' chars');
+                            return spaText;
+                        }
+                        console.warn('Proxy returned HTML but insufficient extractable text (' + extracted.length + ' chars) — likely JS-rendered SPA');
+                    }
+                } else {
+                    console.warn('Vercel proxy returned ' + proxyRes.status);
+                }
+            } catch (e) {
+                console.warn('Vercel proxy fetch failed:', e.message);
+            }
+
+            // Strategy 3: Direct fetch (works for sites with permissive CORS headers)
             try {
                 var directRes = await fetch(url, { 
                     mode: 'cors',
@@ -33336,19 +33364,202 @@ body {
                     var directHtml = await directRes.text();
                     if (directHtml && directHtml.length > 200) {
                         console.log('\u2713 Fetched via direct CORS: ' + directHtml.length + ' chars');
-                        return extractTextFromHtml(directHtml);
+                        var directText = extractTextFromHtml(directHtml);
+                        if (directText && directText.length > 100) return directText;
+                        var spaText2 = extractSPAJobData(directHtml);
+                        if (spaText2 && spaText2.length > 100) return spaText2;
                     }
                 }
             } catch (e) {
                 console.warn('Direct fetch failed (expected):', e.message);
             }
             
-            // All strategies exhausted
             var signedIn = !!(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser);
             if (!signedIn) {
                 throw new Error('Sign in to fetch job posting URLs automatically, or paste the job description text below.');
             }
-            throw new Error('Could not fetch that page. The site may require JavaScript rendering. Try pasting the job description text below.');
+            throw new Error('Could not fetch that page. The site may require JavaScript rendering.\n\nTip: Open the job posting in your browser, select all text (Ctrl+A / Cmd+A), copy it (Ctrl+C / Cmd+C), and paste it in the text field below.');
+        }
+
+        function extractSPAJobData(html) {
+            var text = '';
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(html, 'text/html');
+
+            // 1. JSON-LD structured data (many ATS platforms embed this even in SPAs)
+            var ldScripts = doc.querySelectorAll('script[type="application/ld+json"]');
+            ldScripts.forEach(function(script) {
+                try {
+                    var ld = JSON.parse(script.textContent);
+                    var items = Array.isArray(ld) ? ld : [ld];
+                    items.forEach(function(item) {
+                        var candidates = [item];
+                        if (item['@graph'] && Array.isArray(item['@graph'])) candidates = candidates.concat(item['@graph']);
+                        candidates.forEach(function(candidate) {
+                        if (candidate['@type'] === 'JobPosting') {
+                            var jp = candidate;
+                            if (jp) {
+                                var parts = [];
+                                if (jp.title) parts.push(jp.title);
+                                if (jp.hiringOrganization) parts.push('Company: ' + (jp.hiringOrganization.name || jp.hiringOrganization));
+                                if (jp.jobLocation) {
+                                    var loc = jp.jobLocation;
+                                    if (loc.address) parts.push('Location: ' + (loc.address.addressLocality || '') + (loc.address.addressRegion ? ', ' + loc.address.addressRegion : ''));
+                                }
+                                if (jp.description) {
+                                    var descHtml = jp.description;
+                                    var tmpDiv = document.createElement('div');
+                                    tmpDiv.innerHTML = descHtml;
+                                    parts.push(tmpDiv.textContent || tmpDiv.innerText || descHtml.replace(/<[^>]+>/g, ' '));
+                                }
+                                if (jp.qualifications) parts.push('Qualifications: ' + jp.qualifications);
+                                if (jp.responsibilities) parts.push('Responsibilities: ' + jp.responsibilities);
+                                if (jp.skills) parts.push('Skills: ' + jp.skills);
+                                if (jp.employmentType) parts.push('Type: ' + jp.employmentType);
+                                if (jp.baseSalary) {
+                                    var sal = jp.baseSalary;
+                                    if (sal.value) parts.push('Salary: ' + (sal.value.minValue || '') + '-' + (sal.value.maxValue || '') + ' ' + (sal.currency || 'USD'));
+                                }
+                                text += parts.join('\n\n');
+                            }
+                        }
+                        });
+                    });
+                } catch (e) { }
+            });
+            if (text.length > 100) return text.trim();
+
+            // 2. __NEXT_DATA__ (Next.js SPAs like Greenhouse, Lever, Rippling)
+            var nextScript = doc.querySelector('script#__NEXT_DATA__');
+            if (nextScript) {
+                try {
+                    var nextData = JSON.parse(nextScript.textContent);
+                    var pp = nextData.props && nextData.props.pageProps || {};
+
+                    // Rippling ATS: apiData.jobPost.description is {company: "<html>..."}
+                    var jobPost = pp.apiData && pp.apiData.jobPost;
+                    if (jobPost) {
+                        var parts = [];
+                        if (jobPost.name) parts.push(jobPost.name);
+                        if (jobPost.companyName) parts.push('Company: ' + jobPost.companyName);
+                        if (jobPost.department) parts.push('Department: ' + (jobPost.department.name || (typeof jobPost.department === 'string' ? jobPost.department : '')));
+                        if (jobPost.employmentType) parts.push('Type: ' + (jobPost.employmentType.id || jobPost.employmentType.label || jobPost.employmentType));
+                        if (jobPost.workLocations && jobPost.workLocations.length) {
+                            parts.push('Location: ' + jobPost.workLocations.map(function(wl) { return wl.location || wl.name || ''; }).filter(Boolean).join(', '));
+                        }
+                        var descObj = jobPost.description;
+                        if (descObj) {
+                            var descHtml = '';
+                            if (typeof descObj === 'string') { descHtml = descObj; }
+                            else if (typeof descObj === 'object') {
+                                descHtml = Object.values(descObj).filter(function(v) { return typeof v === 'string' && v.length > 20; }).join('\n');
+                            }
+                            if (descHtml) {
+                                var tmpDiv2 = document.createElement('div');
+                                tmpDiv2.innerHTML = descHtml.replace(/<meta>/g, '');
+                                parts.push(tmpDiv2.textContent || tmpDiv2.innerText || '');
+                            }
+                        }
+                        if (jobPost.payRangeDetails && jobPost.payRangeDetails.length) {
+                            jobPost.payRangeDetails.forEach(function(pr) {
+                                if (pr.minimumAmount || pr.maximumAmount) parts.push('Pay: ' + (pr.minimumAmount || '') + ' - ' + (pr.maximumAmount || '') + ' ' + (pr.currency || 'USD'));
+                            });
+                        }
+                        text = parts.join('\n\n');
+                    }
+
+                    // Greenhouse / Lever / generic: look for dehydratedState queries with description fields
+                    if (text.length < 100 && pp.dehydratedState && pp.dehydratedState.queries) {
+                        pp.dehydratedState.queries.forEach(function(q) {
+                            if (text.length > 100) return;
+                            var qd = q.state && q.state.data;
+                            if (qd) {
+                                var qText = _extractDeepJobText(qd, 0);
+                                if (qText.length > text.length) text = qText;
+                            }
+                        });
+                    }
+
+                    // Generic deep extraction fallback
+                    if (text.length < 100) {
+                        text = _extractDeepJobText(nextData, 0);
+                    }
+                } catch (e) {
+                    console.warn('__NEXT_DATA__ parse error:', e.message);
+                }
+            }
+            if (text.length > 100) return text.trim();
+
+            // 3. Embedded JSON blobs in script tags (React SSR hydration)
+            var scripts = doc.querySelectorAll('script:not([src])');
+            scripts.forEach(function(s) {
+                if (text.length > 100) return;
+                var content = s.textContent || '';
+                var jsonMatch = content.match(/(?:window\.__(?:DATA|STATE|PROPS|INITIAL)__|window\.pageData|var\s+(?:data|jobData|posting))\s*=\s*(\{[\s\S]+?\});?\s*(?:<\/script>|$)/);
+                if (jsonMatch) {
+                    try {
+                        var obj = JSON.parse(jsonMatch[1]);
+                        text = _extractDeepJobText(obj, 0);
+                    } catch (e) { }
+                }
+            });
+            if (text.length > 100) return text.trim();
+
+            // 4. Meta tags fallback (og:title, og:description — often present even on SPAs)
+            var metaParts = [];
+            var ogTitle = doc.querySelector('meta[property="og:title"]');
+            var ogDesc = doc.querySelector('meta[property="og:description"]');
+            var metaDesc = doc.querySelector('meta[name="description"]');
+            var pageTitle = doc.querySelector('title');
+            if (ogTitle) metaParts.push(ogTitle.getAttribute('content'));
+            else if (pageTitle) metaParts.push(pageTitle.textContent);
+            if (ogDesc) metaParts.push(ogDesc.getAttribute('content'));
+            else if (metaDesc) metaParts.push(metaDesc.getAttribute('content'));
+            if (metaParts.join(' ').length > 80) return metaParts.join('\n\n').trim();
+
+            return text.trim();
+        }
+
+        function _extractDeepJobText(obj, depth) {
+            if (depth > 8 || !obj) return '';
+            if (typeof obj === 'string') {
+                if (obj.length > 50 && obj.length < 20000) {
+                    if (/<[a-z][\s\S]*>/i.test(obj)) {
+                        var tmpDiv = document.createElement('div');
+                        tmpDiv.innerHTML = obj;
+                        return (tmpDiv.textContent || '').trim();
+                    }
+                    if (obj.length > 100) return obj.trim();
+                }
+                return '';
+            }
+            if (Array.isArray(obj)) {
+                var results = obj.map(function(item) { return _extractDeepJobText(item, depth + 1); }).filter(Boolean);
+                return results.join('\n');
+            }
+            if (typeof obj === 'object') {
+                var jobKeys = ['description', 'content', 'body', 'jobDescription', 'job_description',
+                    'descriptionHtml', 'htmlContent', 'posting', 'details', 'requirements',
+                    'qualifications', 'responsibilities', 'aboutRole', 'roleDescription'];
+                var titleKeys = ['title', 'name', 'jobTitle', 'job_title', 'position'];
+                var parts = [];
+                titleKeys.forEach(function(k) {
+                    if (obj[k] && typeof obj[k] === 'string' && obj[k].length > 3 && obj[k].length < 200) {
+                        parts.push(obj[k]);
+                    }
+                });
+                jobKeys.forEach(function(k) {
+                    if (obj[k]) {
+                        var extracted = _extractDeepJobText(obj[k], depth + 1);
+                        if (extracted.length > 50) parts.push(extracted);
+                        else if (typeof obj[k] === 'string' && obj[k].length > 50) parts.push(obj[k]);
+                    }
+                });
+                if (parts.join(' ').length > 100) return parts.join('\n\n');
+                var subResults = Object.values(obj).map(function(v) { return _extractDeepJobText(v, depth + 1); }).filter(function(r) { return r.length > 50; });
+                return subResults.sort(function(a, b) { return b.length - a.length; })[0] || '';
+            }
+            return '';
         }
         
         function extractTextFromHtml(html) {

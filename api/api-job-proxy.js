@@ -141,14 +141,66 @@ module.exports = async function handler(req, res) {
         if (!pageUrl || !pageUrl.match(/^https?:\/\//)) {
             return res.status(400).json({ error: 'Missing or invalid url parameter' });
         }
+
+        let parsedHost;
+        try { parsedHost = new URL(pageUrl).hostname.toLowerCase(); } catch(e) {
+            return res.status(400).json({ error: 'Invalid URL' });
+        }
+
+        const ATS_DOMAINS = [
+            'ats.rippling.com', 'boards.greenhouse.io', 'jobs.greenhouse.io', 'job-boards.greenhouse.io',
+            'jobs.lever.co', 'jobs.ashbyhq.com', 'apply.workable.com',
+            'myworkdayjobs.com', 'wd1.myworkdaysite.com', 'wd3.myworkdaysite.com', 'wd5.myworkdaysite.com',
+            'careers.icims.com', 'jobs.smartrecruiters.com',
+            'linkedin.com', 'www.linkedin.com',
+            'indeed.com', 'www.indeed.com',
+            'glassdoor.com', 'www.glassdoor.com',
+            'ziprecruiter.com', 'www.ziprecruiter.com',
+            'angel.co', 'wellfound.com',
+            'builtin.com', 'www.builtin.com',
+            'dice.com', 'www.dice.com',
+            'monster.com', 'www.monster.com',
+            'simplyhired.com', 'www.simplyhired.com',
+            'usajobs.gov', 'www.usajobs.gov',
+            'careers.google.com', 'jobs.apple.com', 'amazon.jobs', 'www.amazon.jobs',
+            'careers.microsoft.com', 'jobs.netflix.com',
+            'phenom.com', 'jobs.jobvite.com',
+        ];
+        const isAllowed = ATS_DOMAINS.some(d => parsedHost === d || parsedHost.endsWith('.' + d))
+            || /\.(myworkdayjobs|myworkdaysite)\.com$/.test(parsedHost)
+            || /^[a-z0-9-]+\.greenhouse\.io$/.test(parsedHost)
+            || /^[a-z0-9-]+\.lever\.co$/.test(parsedHost)
+            || /^[a-z0-9-]+\.ashbyhq\.com$/.test(parsedHost)
+            || /^[a-z0-9-]+\.icims\.com$/.test(parsedHost)
+            || /^[a-z0-9-]+\.smartrecruiters\.com$/.test(parsedHost)
+            || /^[a-z0-9-]+\.jobvite\.com$/.test(parsedHost)
+            || /^[a-z0-9-]+\.phenom\.com$/.test(parsedHost)
+            || /^[a-z0-9-]+\.rippling\.com$/.test(parsedHost)
+            || /\.careers\.|careers\.|jobs\.|talent\.|recruiting\./.test(parsedHost);
+
+        if (!isAllowed) {
+            return res.status(403).json({ error: 'Domain not allowed for page fetching: ' + parsedHost });
+        }
+
+        if (/^(localhost|127\.|10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|169\.254\.|0\.)/.test(parsedHost) || parsedHost === '[::1]') {
+            return res.status(403).json({ error: 'Internal addresses not allowed' });
+        }
+
         try {
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 12000);
+            const timeout = setTimeout(() => controller.abort(), 20000);
             const pageRes = await fetch(pageUrl, {
                 signal: controller.signal,
+                redirect: 'follow',
                 headers: {
-                    'User-Agent': 'Mozilla/5.0 (compatible; BlueprintBot/1.0)',
-                    'Accept': 'text/html,application/xhtml+xml,*/*'
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                    'Accept-Encoding': 'identity',
+                    'Cache-Control': 'no-cache',
+                    'Sec-Fetch-Dest': 'document',
+                    'Sec-Fetch-Mode': 'navigate',
+                    'Sec-Fetch-Site': 'none'
                 }
             });
             clearTimeout(timeout);
@@ -158,7 +210,7 @@ module.exports = async function handler(req, res) {
             const html = await pageRes.text();
             res.setHeader('Content-Type', 'text/html; charset=utf-8');
             res.setHeader('Cache-Control', 'public, max-age=3600');
-            return res.status(200).send(html.substring(0, 500000));
+            return res.status(200).send(html.substring(0, 800000));
         } catch (err) {
             const status = err.name === 'AbortError' ? 504 : 502;
             return res.status(status).json({ error: 'Page fetch error', message: err.message });
