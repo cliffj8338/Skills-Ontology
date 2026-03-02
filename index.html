@@ -34880,6 +34880,85 @@ body {
                 });
             }
             
+            // Pass 2b: stem-aware library matching — builds stem index of library, extracts JD n-grams, matches via stems
+            function _miniStem(word) {
+                if (word.length < 5) return word;
+                if (word.endsWith('ization') && word.length > 9) return word.slice(0,-7);
+                if (word.endsWith('isation') && word.length > 9) return word.slice(0,-7);
+                if (word.endsWith('ation') && word.length > 7) return word.slice(0,-5);
+                if (word.endsWith('ement') && word.length > 7) return word.slice(0,-5);
+                if (word.endsWith('ment') && word.length > 6) return word.slice(0,-4);
+                if (word.endsWith('ness') && word.length > 6) return word.slice(0,-4);
+                if (word.endsWith('ance') && word.length > 6) return word.slice(0,-4);
+                if (word.endsWith('ence') && word.length > 6) return word.slice(0,-4);
+                if (word.endsWith('tion') && word.length > 6) return word.slice(0,-4);
+                if (word.endsWith('sion') && word.length > 6) return word.slice(0,-4);
+                if (word.endsWith('ible') && word.length > 6) return word.slice(0,-4);
+                if (word.endsWith('able') && word.length > 6) return word.slice(0,-4);
+                if (word.endsWith('ies')) return word.slice(0,-3) + 'y';
+                if (word.endsWith('ity') && word.length > 5) return word.slice(0,-3);
+                if (word.endsWith('ive') && word.length > 5) return word.slice(0,-3);
+                if (word.endsWith('ous') && word.length > 5) return word.slice(0,-3);
+                if (word.endsWith('ful') && word.length > 5) return word.slice(0,-3);
+                if (word.endsWith('ing') && word.length > 5) return word.slice(0,-3);
+                if (word.endsWith('ate') && word.length > 5) return word.slice(0,-3);
+                if (word.endsWith('ize') && word.length > 5) return word.slice(0,-3);
+                if (word.endsWith('ise') && word.length > 5) return word.slice(0,-3);
+                if (word.endsWith('ify') && word.length > 5) return word.slice(0,-3);
+                if (word.endsWith('ant') && word.length > 5) return word.slice(0,-3);
+                if (word.endsWith('ent') && word.length > 5) return word.slice(0,-3);
+                if (word.endsWith('egy') && word.length > 5) return word.slice(0,-3);
+                if (word.endsWith('ic') && word.length > 4) return word.slice(0,-2);
+                if (word.endsWith('al') && word.length > 5) return word.slice(0,-2);
+                if (word.endsWith('ed') && word.length > 5) return word.slice(0,-2);
+                if (word.endsWith('er') && word.length > 5) return word.slice(0,-2);
+                if (word.endsWith('ly') && word.length > 5) return word.slice(0,-2);
+                if (word.endsWith('or') && word.length > 5) return word.slice(0,-2);
+                if (word.endsWith('gy') && word.length > 5) return word.slice(0,-2);
+                if (word.endsWith('s') && !word.endsWith('ss') && word.length > 4) return word.slice(0,-1);
+                return word;
+            }
+            if (skillLibraryIndex && skillLibraryIndex.index && !window._libStemIndex) {
+                window._libStemIndex = new Map();
+                skillLibraryIndex.index.forEach(function(libSkill) {
+                    var n = (libSkill.n || libSkill.name || '').toLowerCase().trim();
+                    var wc = n.split(/\s+/).length;
+                    if (wc < 1 || wc > 4 || n.length < 4) return;
+                    var stemKey = n.split(/\s+/).map(function(w) { return _miniStem(w); }).join(' ');
+                    if (stemKey !== n && stemKey.length >= 4 && !window._libStemIndex.has(stemKey)) {
+                        window._libStemIndex.set(stemKey, libSkill);
+                    }
+                });
+            }
+            if (window._libStemIndex && window._libStemIndex.size > 0) {
+                var textWords = text.replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim().split(' ');
+                for (var wi = 0; wi < textWords.length; wi++) {
+                    for (var span = 1; span <= Math.min(4, textWords.length - wi); span++) {
+                        var ngram = textWords.slice(wi, wi + span).join(' ');
+                        var stemmed = ngram.split(' ').map(function(w) { return _miniStem(w); }).join(' ');
+                        var libMatch = window._libStemIndex.get(stemmed);
+                        if (libMatch) {
+                            var cn = (libMatch.n || libMatch.name || '').toLowerCase().trim();
+                            if (!seen.has(cn)) {
+                                seen.add(cn);
+                                var tier = classifyTierFromSection(ngram);
+                                skillMatches.push({
+                                    name: libMatch.n || libMatch.name,
+                                    canonical: cn,
+                                    tier: tier,
+                                    requirement: tier === 'required' ? 'Required' : tier === 'preferred' ? 'Preferred' : 'Nice-to-have',
+                                    proficiency: inferJobProficiency(text, ngram, seniority),
+                                    category: libMatch.c || libMatch.category || 'technical',
+                                    section: getSkillSection(ngram),
+                                    source: 'extracted',
+                                    confidence: 0.55
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            
             // Synonym pass: check runtime synonym lookup for additional matches
             if (typeof _synonymLookup === 'object') {
                 Object.keys(_synonymLookup).forEach(function(canonical) {
@@ -35295,6 +35374,8 @@ body {
                 'sing', 'plan', 'lead', 'test', 'design', 'build', 'drive', 'track',
                 'focus', 'scale', 'model', 'train', 'support', 'process', 'review',
                 'manage', 'create', 'develop', 'deliver', 'ensure', 'maintain',
+                'pregnancy', 'eviews', 'executable', 'tooling', 'improvise', 'localization',
+                'initiative', 'investments', 'market trend', 'external marketing',
                 'history', 'experience', 'ability', 'knowledge', 'understanding',
                 'passion', 'commitment', 'desire', 'willingness', 'enthusiasm',
                 'environment', 'organization', 'industry', 'company', 'team',
@@ -35354,7 +35435,7 @@ body {
                 
                 // Skip single common words (< 2 words and in blocklist)
                 var wordCount = name.split(/\s+/).length;
-                if (wordCount === 1 && SKILL_BLOCKLIST.has(lower)) return;
+                if (SKILL_BLOCKLIST.has(lower)) return;
                 
                 // Skip values
                 if (VALUES_BLOCKLIST.has(lower)) return;
