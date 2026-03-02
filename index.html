@@ -1,4 +1,4 @@
-<!-- v4.45.84 | 2026-03-02 | Job Schema v2.0 Phase 3: local parser section detection, bullet extraction, compound splitting -->
+<!-- v4.45.85 | 2026-03-02 | Title heading rejection, BLS compound title matching, noise gap filtering -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1584,8 +1584,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.84 - BUILD 20260302-local-parser-phase3
-        var BP_VERSION = 'v4.45.84';
+        // BLUEPRINT v4.45.85 - BUILD 20260302-bls-noise-title-fixes
+        var BP_VERSION = 'v4.45.85';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -33616,40 +33616,62 @@ body {
         function matchJobToBLS(titleText, descText) {
             if (!window.blsWages) return null;
             var bls = window.blsWages;
-            var text = ((titleText || '') + ' ' + (descText || '').substring(0, 500)).toLowerCase();
+            var titleLower = (titleText || '').toLowerCase();
+            var descLower = (descText || '').substring(0, 500).toLowerCase();
+            var text = titleLower + ' ' + descLower;
             var scores = {};
             
-            // Phase 1: Alias matching (strongest signal, weight 5)
+            // Phase 1: Alias matching (strongest signal)
+            // Title aliases get weight 8, description aliases get weight 4
             if (bls.aliases) {
-                // Sort aliases by length descending so longer phrases match first
                 var sortedAliases = Object.keys(bls.aliases).sort(function(a, b) { return b.length - a.length; });
                 for (var ai = 0; ai < sortedAliases.length; ai++) {
                     var alias = sortedAliases[ai];
-                    if (text.indexOf(alias) !== -1) {
-                        var soc = bls.aliases[alias];
-                        scores[soc] = (scores[soc] || 0) + 5;
+                    var soc = bls.aliases[alias];
+                    if (titleLower.indexOf(alias) !== -1) {
+                        scores[soc] = (scores[soc] || 0) + 8;
+                    } else if (descLower.indexOf(alias) !== -1) {
+                        scores[soc] = (scores[soc] || 0) + 4;
                     }
                 }
             }
             
-            // Phase 2: Title keyword matching (weight 1 per word)
-            var words = text.match(/[a-z]+/g) || [];
+            // Phase 2: Keyword matching — title words weighted 3x, desc words weighted 1x
             var skip = {and:1,or:1,the:1,of:1,for:1,all:1,other:1,except:1,a:1,an:1,in:1,to:1,with:1,by:1,is:1,are:1,was:1,will:1,this:1,that:1,you:1,our:1,your:1,we:1};
-            words = words.filter(function(w) { return !skip[w] && w.length > 2; });
+            var titleWords = (titleLower.match(/[a-z]+/g) || []).filter(function(w) { return !skip[w] && w.length > 2; });
+            var descWords = (descLower.match(/[a-z]+/g) || []).filter(function(w) { return !skip[w] && w.length > 2; });
             
             for (var oi = 0; oi < bls.occupations.length; oi++) {
                 var occ = bls.occupations[oi];
                 var occWords = (occ.keywords || []);
-                var overlap = 0;
-                for (var wi = 0; wi < words.length; wi++) {
-                    if (occWords.indexOf(words[wi]) !== -1) overlap++;
+                var titleOverlap = 0, descOverlap = 0;
+                for (var wi = 0; wi < titleWords.length; wi++) {
+                    if (occWords.indexOf(titleWords[wi]) !== -1) titleOverlap++;
                 }
-                if (overlap > 0) {
-                    scores[occ.soc] = (scores[occ.soc] || 0) + overlap;
+                for (var di = 0; di < descWords.length; di++) {
+                    if (occWords.indexOf(descWords[di]) !== -1) descOverlap++;
+                }
+                var occScore = (titleOverlap * 3) + descOverlap;
+                if (occScore > 0) {
+                    scores[occ.soc] = (scores[occ.soc] || 0) + occScore;
                 }
             }
             
-            // Find best match
+            // Phase 3: Exact occupation title containment bonus
+            for (var ei = 0; ei < bls.occupations.length; ei++) {
+                var occTitle = (bls.occupations[ei].title || '').toLowerCase();
+                if (occTitle.length > 5 && titleLower.indexOf(occTitle) !== -1) {
+                    scores[bls.occupations[ei].soc] = (scores[bls.occupations[ei].soc] || 0) + 10;
+                }
+                if (occTitle.length > 5 && titleLower.length > 3) {
+                    var titleCore = titleLower.replace(/\b(senior|junior|lead|principal|staff|chief|head|associate|intern|manager|director|vp|vice president|svp|evp)\b/g, '').replace(/[^a-z\s]/g, '').replace(/\s+/g, ' ').trim();
+                    if (titleCore.length > 4 && occTitle.indexOf(titleCore) !== -1) {
+                        scores[bls.occupations[ei].soc] = (scores[bls.occupations[ei].soc] || 0) + 6;
+                    }
+                }
+            }
+            
+            // Find best match with minimum confidence threshold
             var best = null;
             var bestScore = 0;
             for (var soc in scores) {
@@ -33659,7 +33681,7 @@ body {
                 }
             }
             
-            if (!best) return null;
+            if (!best || bestScore < 3) return null;
             
             // Look up the occupation data
             var matched = null;
@@ -34024,16 +34046,19 @@ body {
             var title = '';
             var company = '';
             var skipPatterns = /^(about|we are|our |the |at |join|summary|generated|posted|apply|location|date|salary|benefits|equal|eeo|disclaimer|copyright|\d+\s*(day|hour|week|ago))/i;
+            var sectionHeadingReject = /^(what you('ll| will)\s+(do|own|bring|need)|responsibilities|requirements?|qualifications?|preferred|nice to have|who you are|who we are|about (us|the|this)|key (duties|accountabilities)|your (impact|mission)|job (description|summary)|role (overview|summary|description)|in this role|must have|minimum qualifications?|basic qualifications?|essential (skills?|criteria)|benefits|perks|compensation|why (us|join|work here)|our (mission|team|company|culture|values)|company (overview|description)|how to apply|equal opportunity|additional information)\s*:?\s*$/i;
             var titlePatterns = /\b(manager|director|lead|head|chief|vp|vice|president|senior|junior|engineer|designer|developer|analyst|recruiter|coordinator|specialist|consultant|architect|strategist|officer|partner|associate|advisor|scientist)\b/i;
             
             for (var i = 0; i < Math.min(lines.length, 15); i++) {
                 var line = lines[i].trim();
                 if (line.length < 5 || line.length > 150) continue;
                 if (skipPatterns.test(line)) continue;
+                if (sectionHeadingReject.test(line)) continue;
                 
                 // Prefer lines that contain a role keyword
                 if (!title && titlePatterns.test(line)) {
                     title = line.replace(/^(job title|position|role|opening|title)[\s:\-]+/i, '').trim();
+                    if (sectionHeadingReject.test(title)) { title = ''; continue; }
                     continue;
                 }
                 // Otherwise take the first substantial non-meta line
@@ -34400,7 +34425,6 @@ body {
             
             // Blocklist: common English words and fragments that aren't real skills
             var SKILL_BLOCKLIST = new Set([
-                // Common word fragments that substring-match from JD text
                 'sing', 'plan', 'lead', 'test', 'design', 'build', 'drive', 'track',
                 'focus', 'scale', 'model', 'train', 'support', 'process', 'review',
                 'manage', 'create', 'develop', 'deliver', 'ensure', 'maintain',
@@ -34427,7 +34451,17 @@ body {
                 'come', 'give', 'find', 'help', 'show', 'tell', 'keep',
                 'long', 'term', 'full', 'part', 'base', 'core', 'open',
                 'across', 'including', 'related', 'based', 'level',
-                'equal', 'other', 'various', 'multiple', 'several'
+                'equal', 'other', 'various', 'multiple', 'several',
+                'geometry', 'algebra', 'calculus', 'trigonometry', 'arithmetic',
+                'journals', 'publications', 'articles', 'papers', 'manuscripts',
+                'dependability', 'punctuality', 'attendance', 'timeliness',
+                'standing', 'sitting', 'lifting', 'walking', 'bending', 'reaching',
+                'travel', 'overtime', 'shifts', 'weekends', 'holidays',
+                'clearance', 'citizenship', 'authorization', 'eligibility',
+                'valid', 'current', 'active', 'existing', 'prior',
+                'meet', 'deadlines', 'goals', 'targets', 'objectives',
+                'reading', 'hearing', 'vision',
+                'proficient', 'fluent', 'native', 'bilingual'
             ]);
             
             // Values that aren't skills
@@ -34460,6 +34494,12 @@ body {
                 
                 // Skip financial metrics / KPIs (not skills)
                 if (/^(gross margin|net margin|ebitda|revenue target|profit margin|burn rate|run rate|headcount|turnover rate|attrition rate|quota attainment|market share|cagr|arpu|arr|mrr|nps score|csat|ltv|cac)$/i.test(name)) return;
+                
+                // Skip qualification/prerequisite phrases (not skills)
+                if (/^(meet deadlines|work independently|work under pressure|fast[- ]paced|detail[- ]oriented|self[- ]starter|team player|results[- ]driven|goal[- ]oriented|highly motivated|multi[- ]?task|work ethic|can[- ]do attitude|goes? above and beyond|hit the ground running|wear many hats|roll up.+sleeves|hands[- ]on|big[- ]picture|out of the box|think outside|paradigm|synerg|leverage|utilize|passion for|must be able|able to travel|willing to|expected to|responsible for|tasked with|charged with|accountable for)$/i.test(name)) return;
+                
+                // Skip academic subjects that appear in prerequisite sections (not technical skills)
+                if (/^(geometry|algebra|trigonometry|liberal arts|social sciences|natural sciences|humanities)$/i.test(name)) return;
                 
                 // Skip if looks like a word fragment (no vowels, or all caps < 4 chars that aren't known acronyms)
                 var knownAcronyms = new Set(['sql', 'crm', 'erp', 'sap', 'aws', 'gcp', 'api', 'css', 'html', 'xml', 'json', 'rest', 'saas', 'paas', 'iot', 'etl', 'rpa', 'nlp', 'llm', 'gpu', 'vpc', 'cdn', 'dns', 'tcp', 'udp', 'ssh', 'ssl', 'tls', 'vpn', 'seo', 'sem', 'ppc', 'roi', 'kpi', 'okr', 'cad', 'bim', 'plc', 'hmi']);
