@@ -654,19 +654,31 @@
             .teaser-backstory { padding: 0 20px 20px; }
         }
         @media (max-width: 900px) {
-            #adminLayout { flex-direction: column !important; }
-            #adminSidebar {
-                width: 100% !important;
-                position: static !important;
-                flex-direction: row !important;
-                flex-wrap: wrap !important;
-                gap: 2px !important;
-                padding: 6px !important;
-            }
-            #adminSidebar .admin-tab { flex: 0 0 auto !important; width: auto !important; padding: 7px 12px !important; font-size: 0.78em !important; }
-            #adminSidebar .admin-nav-group > button { display: none !important; }
-            #adminSidebar .admin-group-items { max-height: 300px !important; flex-direction: row !important; flex-wrap: wrap !important; }
-        }
+              #adminLayout { flex-direction: column !important; }
+              #adminSidebar {
+                  width: 100% !important;
+                  position: static !important;
+                  flex-direction: row !important;
+                  flex-wrap: nowrap !important;
+                  gap: 0 !important;
+                  padding: 4px !important;
+                  overflow-x: auto !important;
+                  -webkit-overflow-scrolling: touch;
+                  scrollbar-width: none;
+              }
+              #adminSidebar::-webkit-scrollbar { display: none; }
+              #adminSidebar .admin-tab {
+                  flex: 0 0 auto !important;
+                  width: auto !important;
+                  padding: 6px 10px !important;
+                  font-size: 0.72em !important;
+                  white-space: nowrap !important;
+                  border-radius: 6px !important;
+              }
+              #adminSidebar .admin-nav-group { display: contents !important; }
+              #adminSidebar .admin-nav-group > button { display: none !important; }
+              #adminSidebar .admin-group-items { display: contents !important; }
+          }
 
 </style>
 </head>
