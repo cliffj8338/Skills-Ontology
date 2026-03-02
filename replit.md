@@ -33,6 +33,13 @@ The "Add a Job" URL fetch uses a 3-strategy cascade:
 
 SPA extraction handles: JSON-LD JobPosting, __NEXT_DATA__ (Rippling, Greenhouse), React hydration blobs, meta tag fallback.
 
+## Job Schema v2.0
+- `JOB_SCHEMA_VERSION = '2.0'`, `JOB_SKILLS_CAP = 50`
+- v2 skill objects: `{ name, canonical, tier, proficiency, category, section, source, confidence, frameworkRef }`
+- Phase 1: Schema, migration (`migrateJobToV2`), `getJobSkills()` abstraction, `tierWeight()` scoring
+- Phase 2: AI extraction prompt (10 categories, section-aware, compound splitting)
+- Phase 3 (v4.45.84): `parseJobLocally()` rewrite — section detection (Requirements/Preferred/Responsibilities/About/Benefits), bullet-aware extraction, compound term splitting ("X, Y, and Z" → individual skills), slash-separated terms, v2 schema output with section/tier/confidence, raised cap from 30 → 50
+
 ## Key Features
 - Work Blueprint Wizard (JD → structured WB conversion)
 - WB Repository (CRUD, Clone, Compare)

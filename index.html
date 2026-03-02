@@ -1,4 +1,4 @@
-<!-- v4.45.83 | 2026-03-02 | Card view grid layout fix, mobile responsive improvements -->
+<!-- v4.45.84 | 2026-03-02 | Job Schema v2.0 Phase 3: local parser section detection, bullet extraction, compound splitting -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1584,8 +1584,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.83 - BUILD 20260302-card-grid-mobile
-        var BP_VERSION = 'v4.45.83';
+        // BLUEPRINT v4.45.84 - BUILD 20260302-local-parser-phase3
+        var BP_VERSION = 'v4.45.84';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -34057,66 +34057,172 @@ body {
             else if (/\b(senior director|director|principal|senior manager)\b/i.test(jdText)) seniority = 'Senior';
             else if (/\b(junior|entry|associate|intern|coordinator)\b/i.test(jdText)) seniority = 'Entry';
             
+            // ===== SECTION DETECTION (Phase 3) =====
+            var SECTION_PATTERNS = {
+                requirements: /^(?:requirements?|qualifications?|what\s+you(?:'ll)?\s+(?:need|bring)|must\s+have|minimum\s+qualifications?|basic\s+qualifications?|who\s+you\s+are|essential\s+(?:skills?|criteria))\s*[:.]?\s*$/i,
+                preferred: /^(?:preferred|nice\s+to\s+have|bonus|desired|additional|strongly\s+preferred|preferred\s+qualifications?|ideal\s+(?:candidate|qualifications?)|what\s+sets\s+you\s+apart|it(?:'s| is)\s+a\s+(?:plus|bonus))\s*[:.]?\s*$/i,
+                responsibilities: /^(?:responsibilities|what\s+you(?:'ll)?\s+(?:do|own|work\s+on)|key\s+(?:responsibilities|duties|accountabilities)|the\s+role|about\s+(?:the\s+)?(?:role|position|opportunity)|role\s+(?:overview|summary|description)|in\s+this\s+role|job\s+(?:description|summary)|your\s+(?:impact|mission))\s*[:.]?\s*$/i,
+                about: /^(?:about\s+(?:us|the\s+company|the\s+team)|who\s+we\s+are|our\s+(?:mission|team|company|culture|values)|company\s+(?:overview|description))\s*[:.]?\s*$/i,
+                benefits: /^(?:benefits|perks|what\s+we\s+offer|compensation|why\s+(?:us|join|work\s+here))\s*[:.]?\s*$/i
+            };
+            
+            var sections = [];
+            var currentSection = { type: 'preamble', lines: [], startIdx: 0 };
+            
+            lines.forEach(function(line, idx) {
+                var trimmed = line.trim();
+                if (trimmed.length < 3) return;
+                
+                var matched = false;
+                Object.keys(SECTION_PATTERNS).forEach(function(sType) {
+                    if (matched) return;
+                    if (SECTION_PATTERNS[sType].test(trimmed)) {
+                        if (currentSection.lines.length > 0) sections.push(currentSection);
+                        currentSection = { type: sType, lines: [], startIdx: idx };
+                        matched = true;
+                    }
+                });
+                if (!matched) currentSection.lines.push({ text: line, idx: idx });
+            });
+            if (currentSection.lines.length > 0) sections.push(currentSection);
+            
+            function sectionTier(sType) {
+                if (sType === 'preferred') return 'preferred';
+                if (sType === 'requirements') return 'required';
+                if (sType === 'responsibilities') return 'required';
+                return 'required';
+            }
+            
+            function isSkillSection(sType) {
+                return sType === 'requirements' || sType === 'preferred' || sType === 'responsibilities';
+            }
+            
+            var hasStructuredSections = sections.some(function(s) { return isSkillSection(s.type); });
+            
+            // ===== BULLET LINE EXTRACTION (Phase 3) =====
+            var bulletPattern = /^\s*[\u2022\u2023\u25E6\u2043\u25AA\u25AB\u2013\u2014\-\*\u2713\u2714\u25CF\u25CB]\s+|^\s*\d+[\.\)]\s+|^\s*[a-z][\.\)]\s+/i;
+            
+            var bulletLines = [];
+            sections.forEach(function(sec) {
+                if (!isSkillSection(sec.type)) return;
+                sec.lines.forEach(function(lineObj) {
+                    if (bulletPattern.test(lineObj.text)) {
+                        bulletLines.push({ text: lineObj.text.replace(bulletPattern, '').trim(), section: sec.type, tier: sectionTier(sec.type) });
+                    }
+                });
+            });
+            
+            if (!hasStructuredSections) {
+                lines.forEach(function(line) {
+                    if (bulletPattern.test(line)) {
+                        bulletLines.push({ text: line.replace(bulletPattern, '').trim(), section: 'unknown', tier: 'required' });
+                    }
+                });
+            }
+            
+            // ===== COMPOUND TERM SPLITTING (Phase 3) =====
+            function splitCompoundTerms(phrase) {
+                var results = [];
+                var compoundPatterns = [
+                    /^(.*?)\s*(?:such as|including|e\.?g\.?|i\.?e\.?)\s+(.+)$/i,
+                    /^(?:experience\s+(?:with|in)\s+)?(.+?)$/i
+                ];
+                
+                var items = phrase.split(/\s*[,;\/]\s*/);
+                items.forEach(function(item) {
+                    item = item.replace(/^\s*(?:and|or|&)\s+/i, '').trim();
+                    if (item.length < 2 || item.length > 60) return;
+                    
+                    var andParts = item.split(/\s+(?:and|&)\s+/i);
+                    andParts.forEach(function(part) {
+                        part = part.replace(/^\s*(?:a|an|the)\s+/i, '').trim();
+                        if (part.length >= 2 && part.length <= 60) results.push(part);
+                    });
+                });
+                return results.length > 0 ? results : [phrase];
+            }
+            
             // ===== SKILL EXTRACTION =====
             var skillMatches = [];
             var seen = new Set();
             var allSkills = skillsData.skills || [];
             
-            // First pass: match user's own skill names in JD text
+            function findSkillInText(skillLower, searchText, searchTextNorm) {
+                if (skillLower.length <= 5) {
+                    return searchTextNorm.indexOf(' ' + skillLower + ' ') !== -1
+                         || searchTextNorm.indexOf(' ' + skillLower + ',') !== -1
+                         || searchTextNorm.indexOf(' ' + skillLower + '.') !== -1
+                         || searchTextNorm.indexOf(' ' + skillLower + '/') !== -1;
+                }
+                return searchText.indexOf(skillLower) !== -1;
+            }
+            
+            function getSkillSection(skillLower) {
+                if (!hasStructuredSections) return null;
+                for (var si = 0; si < sections.length; si++) {
+                    var sec = sections[si];
+                    if (!isSkillSection(sec.type)) continue;
+                    for (var li = 0; li < sec.lines.length; li++) {
+                        if (sec.lines[li].text.toLowerCase().indexOf(skillLower) !== -1) {
+                            return sec.type;
+                        }
+                    }
+                }
+                return null;
+            }
+            
+            function classifyTierFromSection(skillLower) {
+                var sec = getSkillSection(skillLower);
+                if (sec) return sectionTier(sec);
+                var req = classifyRequirementLevel(text, skillLower);
+                return normalizeTier(req);
+            }
+            
             var searchTextNormUser = ' ' + text.replace(/[^a-z0-9\s\+\#\.]/g, ' ').replace(/\s+/g, ' ') + ' ';
+            
+            // First pass: match user's own skill names in JD text
             allSkills.forEach(function(skill) {
                 var skillLower = skill.name.toLowerCase().trim();
                 if (skillLower.length < 3 || seen.has(skillLower)) return;
                 
-                var found = false;
-                if (skillLower.length <= 5) {
-                    // Short terms: require word boundaries to avoid "plan" matching "planning"
-                    found = searchTextNormUser.indexOf(' ' + skillLower + ' ') !== -1
-                         || searchTextNormUser.indexOf(' ' + skillLower + ',') !== -1
-                         || searchTextNormUser.indexOf(' ' + skillLower + '.') !== -1
-                         || searchTextNormUser.indexOf(' ' + skillLower + '/') !== -1;
-                } else {
-                    found = text.indexOf(skillLower) !== -1;
-                }
-                
-                if (found) {
+                if (findSkillInText(skillLower, text, searchTextNormUser)) {
                     seen.add(skillLower);
+                    var tier = classifyTierFromSection(skillLower);
                     skillMatches.push({
                         name: skill.name,
-                        requirement: classifyRequirementLevel(text, skillLower),
+                        canonical: skillLower.replace(/\s+/g, ' ').trim(),
+                        tier: tier,
+                        requirement: tier === 'required' ? 'Required' : tier === 'preferred' ? 'Preferred' : 'Nice-to-have',
                         proficiency: inferJobProficiency(text, skillLower, seniority),
-                        category: skill.category || 'General'
+                        category: skill.category || 'technical',
+                        section: getSkillSection(skillLower),
+                        source: 'extracted',
+                        confidence: 0.7
                     });
                 }
             });
             
             // Second pass: check the full skill library if loaded (43K+ skills)
             if (skillLibraryIndex && skillLibraryIndex.index) {
-                // Build a word-boundary-safe search text for short skill names
                 var searchTextNorm = ' ' + text.replace(/[^a-z0-9\s\+\#\.]/g, ' ').replace(/\s+/g, ' ') + ' ';
                 
                 skillLibraryIndex.index.forEach(function(libSkill) {
                     var n = (libSkill.n || libSkill.name || '').toLowerCase().trim();
                     if (n.length < 2 || seen.has(n)) return;
                     
-                    var found = false;
-                    if (n.length <= 4) {
-                        // Short terms (SQL, CRM, SAS, R, C#): require word boundaries
-                        found = searchTextNorm.indexOf(' ' + n + ' ') !== -1
-                             || searchTextNorm.indexOf(' ' + n + ',') !== -1
-                             || searchTextNorm.indexOf(' ' + n + '.') !== -1
-                             || searchTextNorm.indexOf(' ' + n + '/') !== -1;
-                    } else {
-                        found = text.indexOf(n) !== -1;
-                    }
-                    
-                    if (found) {
+                    if (findSkillInText(n, text, searchTextNorm)) {
                         seen.add(n);
+                        var tier = classifyTierFromSection(n);
                         skillMatches.push({
                             name: libSkill.n || libSkill.name,
-                            requirement: classifyRequirementLevel(text, n),
+                            canonical: n.replace(/\s+/g, ' ').trim(),
+                            tier: tier,
+                            requirement: tier === 'required' ? 'Required' : tier === 'preferred' ? 'Preferred' : 'Nice-to-have',
                             proficiency: inferJobProficiency(text, n, seniority),
-                            category: libSkill.c || libSkill.category || 'General'
+                            category: libSkill.c || libSkill.category || 'technical',
+                            section: getSkillSection(n),
+                            source: 'extracted',
+                            confidence: 0.6
                         });
                     }
                 });
@@ -34130,11 +34236,17 @@ body {
                     for (var si = 0; si < syns.length; si++) {
                         if (syns[si].length > 3 && text.indexOf(syns[si]) !== -1) {
                             seen.add(canonical);
+                            var tier = classifyTierFromSection(syns[si]);
                             skillMatches.push({
                                 name: canonical.replace(/\b\w/g, function(c) { return c.toUpperCase(); }),
-                                requirement: classifyRequirementLevel(text, syns[si]),
+                                canonical: canonical,
+                                tier: tier,
+                                requirement: tier === 'required' ? 'Required' : tier === 'preferred' ? 'Preferred' : 'Nice-to-have',
                                 proficiency: inferJobProficiency(text, syns[si], seniority),
-                                category: 'General'
+                                category: 'technical',
+                                section: getSkillSection(syns[si]),
+                                source: 'extracted',
+                                confidence: 0.55
                             });
                             break;
                         }
@@ -34144,45 +34256,34 @@ body {
             
             // Third pass: comprehensive skill keyword dictionary
             var skillDictionary = [
-                // Recruiting & Talent
                 'Talent Acquisition', 'Full-Cycle Recruiting', 'Sourcing', 'Boolean Search', 'Candidate Experience',
                 'Employer Branding', 'Applicant Tracking System', 'ATS', 'Onboarding', 'Workforce Planning',
                 'Diversity Recruiting', 'Campus Recruiting', 'Executive Search', 'Headhunting', 'Interviewing',
                 'Offer Negotiation', 'Recruitment Marketing', 'Talent Pipeline', 'Screening', 'Reference Checking',
-                // HR
                 'Human Resources', 'Employee Relations', 'Performance Management', 'Compensation', 'Benefits Administration',
                 'HRIS', 'Succession Planning', 'Organizational Development', 'Compliance', 'Labor Relations',
                 'Employee Engagement', 'Retention', 'Training and Development', 'Learning and Development',
-                // Project & Program Management
                 'Project Management', 'Program Management', 'Strategic Planning', 'Roadmap', 'Risk Management',
                 'Agile', 'Scrum', 'Kanban', 'Waterfall', 'Sprint Planning', 'JIRA', 'Confluence',
                 'Stakeholder Management', 'Change Management', 'Process Improvement', 'Continuous Improvement',
-                // Leadership
                 'Team Leadership', 'People Management', 'Cross-Functional Collaboration', 'Mentoring',
                 'Coaching', 'Executive Presence', 'Decision Making', 'Conflict Resolution', 'Delegation',
-                // Communication
                 'Communication', 'Presentation', 'Public Speaking', 'Technical Writing', 'Copywriting',
                 'Storytelling', 'Negotiation', 'Persuasion', 'Active Listening', 'Relationship Building',
-                // Technical
                 'Python', 'JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL', 'NoSQL',
                 'AWS', 'Azure', 'GCP', 'Cloud Computing', 'DevOps', 'CI/CD', 'Docker', 'Kubernetes',
                 'Machine Learning', 'Artificial Intelligence', 'Data Science', 'Data Engineering',
                 'API Design', 'Microservices', 'System Design', 'Architecture',
-                // Data & Analytics
                 'Data Analysis', 'Business Intelligence', 'Tableau', 'Power BI', 'Excel',
                 'SQL', 'Reporting', 'Dashboards', 'KPI', 'Metrics', 'Forecasting', 'Modeling',
-                // Business
                 'Business Development', 'Sales Strategy', 'Account Management', 'Pipeline Management',
                 'Revenue Growth', 'Client Relations', 'Customer Success', 'Market Research',
                 'Product Management', 'UX Design', 'User Research', 'A/B Testing', 'Go-to-Market',
                 'Budgeting', 'Financial Analysis', 'P&L Management', 'Vendor Management',
-                // Strategy
                 'Strategy', 'Innovation', 'Transformation', 'Digital Transformation', 'Thought Leadership',
                 'Competitive Analysis', 'Market Analysis', 'Business Strategy', 'GTM Strategy',
-                // Marketing
                 'Content Marketing', 'SEO', 'SEM', 'Social Media', 'Email Marketing', 'Brand Strategy',
                 'Demand Generation', 'Lead Generation', 'Marketing Automation', 'CRM',
-                // Soft Skills
                 'Problem Solving', 'Critical Thinking', 'Analytical Thinking', 'Attention to Detail',
                 'Time Management', 'Adaptability', 'Creativity', 'Emotional Intelligence',
                 'Collaboration', 'Teamwork', 'Self-Motivation', 'Results-Oriented'
@@ -34192,41 +34293,106 @@ body {
                 var lower = skill.toLowerCase();
                 if (text.indexOf(lower) !== -1 && !seen.has(lower)) {
                     seen.add(lower);
-                    skillMatches.push({ name: skill, requirement: classifyRequirementLevel(text, lower), proficiency: inferJobProficiency(text, lower, seniority), category: 'General' });
+                    var tier = classifyTierFromSection(lower);
+                    skillMatches.push({
+                        name: skill,
+                        canonical: lower,
+                        tier: tier,
+                        requirement: tier === 'required' ? 'Required' : tier === 'preferred' ? 'Preferred' : 'Nice-to-have',
+                        proficiency: inferJobProficiency(text, lower, seniority),
+                        category: 'technical',
+                        section: getSkillSection(lower),
+                        source: 'extracted',
+                        confidence: 0.5
+                    });
                 }
             });
             
-            // Fourth pass: extract phrase-level skills from requirement lines
-            // Look for bullet-pointed or numbered requirements
-            var reqLines = jdText.split('\n').filter(function(line) {
-                return /^\s*[\u2022\u2023\u25E6\u2043\-\*\u2713\u2714]\s|^\s*\d+[\.\)]\s|^\s*[a-z][\.\)]\s/i.test(line);
-            });
-            
-            // Common skill-indicator phrases in requirements
+            // Fourth pass: bullet-aware phrase extraction with compound splitting (Phase 3)
             var phrasePatterns = [
                 /(\d+)\+?\s*years?\s+(?:of\s+)?(?:experience\s+(?:in|with)\s+)?(.+?)(?:\.|,|;|$)/gi,
                 /(?:proficien|experienc|knowledge|expertise|skill|familiar)\w*\s+(?:in|with|of)\s+(.+?)(?:\.|,|;|$)/gi,
-                /(?:strong|excellent|proven|demonstrated)\s+(.+?)(?:\s+(?:skills?|abilities?|experience))(?:\.|,|;|$)/gi
+                /(?:strong|excellent|proven|demonstrated)\s+(.+?)(?:\s+(?:skills?|abilities?|experience))(?:\.|,|;|$)/gi,
+                /(?:ability|able)\s+to\s+(.+?)(?:\.|,|;|$)/gi,
+                /(?:understanding|background)\s+(?:of|in)\s+(.+?)(?:\.|,|;|$)/gi,
+                /(?:certified|certification)\s+(?:in|as)\s+(.+?)(?:\.|,|;|$)/gi
             ];
             
-            reqLines.forEach(function(line) {
+            bulletLines.forEach(function(bl) {
                 phrasePatterns.forEach(function(pat) {
                     var m;
                     pat.lastIndex = 0;
-                    while ((m = pat.exec(line)) !== null) {
+                    while ((m = pat.exec(bl.text)) !== null) {
                         var extracted = (m[2] || m[1] || '').trim();
-                        // Clean up and split on conjunctions
-                        extracted.split(/\s*(?:and|or|,)\s*/).forEach(function(phrase) {
+                        var compounds = splitCompoundTerms(extracted);
+                        compounds.forEach(function(phrase) {
                             phrase = phrase.replace(/^\s*(?:a|an|the)\s+/i, '').trim();
                             if (phrase.length > 2 && phrase.length < 50 && !seen.has(phrase.toLowerCase())) {
                                 seen.add(phrase.toLowerCase());
-                                // Capitalize first letter of each word
                                 var clean = phrase.replace(/\b\w/g, function(c) { return c.toUpperCase(); });
-                                skillMatches.push({ name: clean, requirement: classifyRequirementLevel(text, phrase.toLowerCase()), proficiency: inferJobProficiency(text, phrase.toLowerCase(), seniority), category: 'Extracted' });
+                                skillMatches.push({
+                                    name: clean,
+                                    canonical: phrase.toLowerCase().replace(/\s+/g, ' ').trim(),
+                                    tier: bl.tier,
+                                    requirement: bl.tier === 'required' ? 'Required' : bl.tier === 'preferred' ? 'Preferred' : 'Nice-to-have',
+                                    proficiency: inferJobProficiency(text, phrase.toLowerCase(), seniority),
+                                    category: 'extracted',
+                                    section: bl.section !== 'unknown' ? bl.section : null,
+                                    source: 'inferred',
+                                    confidence: 0.4
+                                });
                             }
                         });
                     }
                 });
+            });
+            
+            // Fifth pass: compound list splitting within bullet lines
+            // Catches patterns like "MS Word, Excel, PowerPoint" or "Python/R/SQL"
+            bulletLines.forEach(function(bl) {
+                var listMatch = bl.text.match(/(?:including|such as|e\.?g\.?|tools?:?|technologies?:?|platforms?:?|software:?|languages?:?)\s+(.+?)(?:\.|$)/i);
+                if (listMatch) {
+                    var compounds = splitCompoundTerms(listMatch[1]);
+                    compounds.forEach(function(term) {
+                        term = term.trim();
+                        if (term.length >= 2 && term.length <= 40 && !seen.has(term.toLowerCase())) {
+                            seen.add(term.toLowerCase());
+                            var clean = term.replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+                            skillMatches.push({
+                                name: clean,
+                                canonical: term.toLowerCase().replace(/\s+/g, ' ').trim(),
+                                tier: bl.tier,
+                                requirement: bl.tier === 'required' ? 'Required' : bl.tier === 'preferred' ? 'Preferred' : 'Nice-to-have',
+                                proficiency: inferJobProficiency(text, term.toLowerCase(), seniority),
+                                category: 'tool',
+                                section: bl.section !== 'unknown' ? bl.section : null,
+                                source: 'inferred',
+                                confidence: 0.45
+                            });
+                        }
+                    });
+                }
+                
+                var slashTerms = bl.text.match(/\b([A-Za-z\+\#]+(?:\s*\/\s*[A-Za-z\+\#]+){1,5})\b/);
+                if (slashTerms) {
+                    slashTerms[1].split(/\s*\/\s*/).forEach(function(term) {
+                        term = term.trim();
+                        if (term.length >= 2 && term.length <= 30 && !seen.has(term.toLowerCase())) {
+                            seen.add(term.toLowerCase());
+                            skillMatches.push({
+                                name: term,
+                                canonical: term.toLowerCase(),
+                                tier: bl.tier,
+                                requirement: bl.tier === 'required' ? 'Required' : bl.tier === 'preferred' ? 'Preferred' : 'Nice-to-have',
+                                proficiency: inferJobProficiency(text, term.toLowerCase(), seniority),
+                                category: 'technical',
+                                section: bl.section !== 'unknown' ? bl.section : null,
+                                source: 'inferred',
+                                confidence: 0.4
+                            });
+                        }
+                    });
+                }
             });
             
             // ===== SKILL VALIDATION & CLEANING =====
@@ -34341,12 +34507,33 @@ body {
             Object.keys(rolePatterns).forEach(function(role) { if (rolePatterns[role].test(jdText)) roles.push(role); });
             if (roles.length === 0) roles.push('General');
             
+            // ===== BUILD V2 SKILL OBJECTS (Phase 3) =====
+            var v2Skills = skillMatches.slice(0, JOB_SKILLS_CAP).map(function(s) {
+                var tier = s.tier || normalizeTier(s.requirement || 'required');
+                return {
+                    name: s.name,
+                    canonical: s.canonical || s.name.toLowerCase().replace(/\s+/g, ' ').trim(),
+                    abbreviation: null,
+                    tier: tier,
+                    requirement: tier === 'required' ? 'Required' : tier === 'preferred' ? 'Preferred' : 'Nice-to-have',
+                    proficiency: s.proficiency || 'Proficient',
+                    category: s.category || 'technical',
+                    section: s.section || null,
+                    context: null,
+                    source: s.source || 'extracted',
+                    confidence: s.confidence || 0.5,
+                    frameworkRef: null
+                };
+            });
+            
             return {
                 title: title || 'Untitled Position',
                 company: company,
                 seniority: seniority,
                 roles: roles,
-                skills: skillMatches.slice(0, 30)
+                skills: v2Skills,
+                _sectionCount: sections.filter(function(s) { return isSkillSection(s.type); }).length,
+                _bulletCount: bulletLines.length
             };
         }
         
