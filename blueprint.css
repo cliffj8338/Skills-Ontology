@@ -3519,8 +3519,240 @@
                 padding: 6px 10px;
                 white-space: nowrap;
             }
+            
+            .skill-mgmt-tab {
+                padding: 8px 12px;
+                font-size: 0.78em;
+            }
+
+            .onet-subcategory {
+                margin-left: 8px;
+            }
+            
+            .your-skill-item {
+                padding: 12px;
+            }
         }
         
+        /* ===== MOBILE-SPECIFIC OVERRIDES ===== */
+        /* Hero CTA buttons — stack on narrow screens */
+        @media (max-width: 600px) {
+            .hero-ctas {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+            .hero-ctas button {
+                min-width: 0 !important;
+                width: 100% !important;
+            }
+        }
+        
+        /* Blueprint Advantage comparison — responsive grids */
+        @media (max-width: 768px) {
+            .wb-compare-gauges {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+            }
+            .wb-compare-gauges > div:nth-child(2) {
+                flex-direction: row !important;
+                padding: 12px 0 !important;
+                min-height: auto !important;
+            }
+            .wb-compare-gauges > div:nth-child(2) .compare-arrow {
+                transform: rotate(90deg);
+            }
+            .wb-compare-intel-row {
+                grid-template-columns: 1fr !important;
+                gap: 4px !important;
+            }
+            .wb-compare-intel-row > div:first-child {
+                font-size: 0.82em !important;
+                padding-bottom: 2px !important;
+                border-bottom: 1px solid var(--c-surface-5, rgba(255,255,255,0.08));
+            }
+            .wb-compare-skills-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .wb-repo-actions {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px !important;
+            }
+            .wb-repo-actions button {
+                width: 100% !important;
+                justify-content: center;
+            }
+            .wb-comp-wiz-steps {
+                gap: 2px !important;
+            }
+            .wb-comp-wiz-steps > div {
+                padding: 8px 4px !important;
+                font-size: 0.68em !important;
+            }
+            .wb-comp-wiz-steps > div span {
+                width: 16px !important;
+                height: 16px !important;
+                line-height: 16px !important;
+                font-size: 0.75em !important;
+                margin-right: 2px !important;
+            }
+        }
+        
+        /* Blueprint subnav — smaller on mobile */
+        @media (max-width: 768px) {
+            .blueprint-subnav {
+                gap: 2px;
+                padding-bottom: 8px;
+            }
+            .bp-tab {
+                padding: 8px 10px 10px;
+                font-size: 0.72em;
+                gap: 4px;
+            }
+            .bp-tab-icon {
+                font-size: 0.95em;
+            }
+            .bp-tab-count {
+                font-size: 0.65em;
+                padding: 0 4px;
+            }
+        }
+        
+        /* Admin/settings panel grids — stack on mobile */
+        @media (max-width: 600px) {
+            .admin-stat-grid {
+                grid-template-columns: 1fr 1fr !important;
+            }
+            .admin-2col-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .admin-3col-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+        
+        /* Catch-all for JS-rendered inline grids inside main content */
+        @media (max-width: 600px) {
+            .blueprint-container [style*="grid-template-columns: repeat(3"],
+            .blueprint-container [style*="grid-template-columns:repeat(3"],
+            #adminTabContent [style*="grid-template-columns: repeat(3"],
+            #adminTabContent [style*="grid-template-columns:repeat(3"],
+            #settingsTabContent [style*="grid-template-columns: repeat(3"],
+            #settingsTabContent [style*="grid-template-columns:repeat(3"] {
+                grid-template-columns: 1fr 1fr !important;
+            }
+            .blueprint-container [style*="grid-template-columns: 1fr 1fr 1fr"],
+            .blueprint-container [style*="grid-template-columns:1fr 1fr 1fr"],
+            #adminTabContent [style*="grid-template-columns: 1fr 1fr 1fr"],
+            #adminTabContent [style*="grid-template-columns:1fr 1fr 1fr"],
+            #settingsTabContent [style*="grid-template-columns: 1fr 1fr 1fr"],
+            #settingsTabContent [style*="grid-template-columns:1fr 1fr 1fr"] {
+                grid-template-columns: 1fr 1fr !important;
+            }
+        }
+        @media (max-width: 420px) {
+            .blueprint-container [style*="grid-template-columns: repeat(3"],
+            .blueprint-container [style*="grid-template-columns:repeat(3"],
+            #adminTabContent [style*="grid-template-columns: repeat(3"],
+            #adminTabContent [style*="grid-template-columns:repeat(3"],
+            #settingsTabContent [style*="grid-template-columns: repeat(3"],
+            #settingsTabContent [style*="grid-template-columns:repeat(3"],
+            .blueprint-container [style*="grid-template-columns: 1fr 1fr"],
+            .blueprint-container [style*="grid-template-columns:1fr 1fr"],
+            #adminTabContent [style*="grid-template-columns: 1fr 1fr"],
+            #adminTabContent [style*="grid-template-columns:1fr 1fr"],
+            #settingsTabContent [style*="grid-template-columns: 1fr 1fr"],
+            #settingsTabContent [style*="grid-template-columns:1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* WB skills table — hide Outcome column on narrow screens, allow wrapping */
+        @media (max-width: 768px) {
+            .blueprint-container table th:nth-child(3),
+            .blueprint-container table td:nth-child(3),
+            #adminTabContent table th:nth-child(3),
+            #adminTabContent table td:nth-child(3) {
+                display: none;
+            }
+            .blueprint-container table td,
+            #adminTabContent table td {
+                white-space: normal !important;
+                word-break: break-word;
+            }
+            .blueprint-container table,
+            #adminTabContent table {
+                font-size: 0.78em !important;
+            }
+        }
+        
+        /* WB rendered view — tighter padding on mobile */
+        @media (max-width: 600px) {
+            .blueprint-container > div[style*="padding:24px"],
+            #adminTabContent > div > div[style*="padding:24px"],
+            #adminTabContent > div > div > div[style*="padding:24px"] {
+                padding: 14px !important;
+            }
+            .blueprint-container > div[style*="padding:28px"],
+            #adminTabContent > div > div[style*="padding:28px"] {
+                padding: 16px !important;
+            }
+        }
+        
+        /* Onboarding / auth modals — full width on small phones */
+        @media (max-width: 420px) {
+            .auth-dialog {
+                padding: 24px 18px;
+                border-radius: 12px;
+                max-width: 96vw;
+            }
+        }
+        
+        /* Onboarding wizard — tighter on mobile */
+        @media (max-width: 600px) {
+            #onboardingWizard > div:first-child {
+                padding: 0 14px !important;
+                height: 48px !important;
+            }
+            #onboardingWizard > div:first-child span[style*="margin-left:8px"] {
+                display: none !important;
+            }
+            #onboardingWizard > div:nth-child(3) {
+                padding: 10px 12px 0 !important;
+                gap: 2px !important;
+            }
+            #onboardingWizard > div:nth-child(3) > div {
+                gap: 2px !important;
+            }
+            #onboardingWizard > div:nth-child(3) > div > div:first-child {
+                width: 18px !important;
+                height: 18px !important;
+                font-size: 0.6em !important;
+            }
+            #onboardingWizard > div:nth-child(3) span[style*="font-size:0.65em"] {
+                display: none !important;
+            }
+            #onboardingWizard > div:nth-child(4) {
+                padding: 20px 16px !important;
+            }
+        }
+        
+        /* Global mobile text input overrides */
+        @media (max-width: 768px) {
+            textarea, input[type="text"], input[type="email"], input[type="password"], input[type="url"], input[type="search"] {
+                font-size: 16px !important;
+            }
+        }
+        
+        /* Prevent horizontal overflow globally */
+        @media (max-width: 768px) {
+            #welcomeView, #blueprintView, #settingsView, #reportsView,
+            #opportunitiesView, #applicationsView, #consentView {
+                max-width: 100vw;
+                overflow-x: hidden;
+            }
+        }
+
         /* Overflow Menu Styles */
         .overflow-menu {
             position: absolute;
