@@ -1,10 +1,10 @@
-<!-- v4.45.79 | 2026-03-01 | Prompt fixes: title extraction guard, skill exclusion rules, gap noise filter -->
+<!-- v4.45.80 | 2026-03-01 | Cloud Function URL fetcher, CSP fix, CORS proxy removal -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com https://apis.google.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://www.gstatic.com https://cdnjs.cloudflare.com https://api.anthropic.com https://*.rapidapi.com https://remotive.com https://himalayas.app https://jobicy.com https://data.usajobs.gov https://api.adzuna.com https://www.themuse.com https://jooble.org https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; img-src 'self' data: blob: https://*.googleusercontent.com; frame-src 'self' blob: https://apis.google.com https://accounts.google.com https://*.firebaseapp.com; object-src 'none'; base-uri 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com https://apis.google.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.cloudfunctions.net https://www.gstatic.com https://cdnjs.cloudflare.com https://api.anthropic.com https://*.rapidapi.com https://remotive.com https://himalayas.app https://jobicy.com https://data.usajobs.gov https://api.adzuna.com https://www.themuse.com https://jooble.org https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; img-src 'self' data: blob: https://*.googleusercontent.com; frame-src 'self' blob: https://apis.google.com https://accounts.google.com https://*.firebaseapp.com; object-src 'none'; base-uri 'self';">
     <title>Blueprint™ — See Your Career as a Living Map | Skills. Value. Direction.</title>
     <meta name="description" content="See your career as a living map — not a flat resume. Blueprint visualizes your skills, reveals your real market value, and connects you to work that actually fits who you are and what you care about.">
     <meta name="keywords" content="career intelligence, skills mapping, job matching, scouting report, career ontology, skill gap analysis, salary negotiation, professional development, AI career tools, work blueprint, talent intelligence, career planning">
@@ -1584,8 +1584,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.79 - BUILD 20260301-prompt-quality-fixes
-        var BP_VERSION = 'v4.45.79';
+        // BLUEPRINT v4.45.80 - BUILD 20260301-cloud-function-url-fetch
+        var BP_VERSION = 'v4.45.80';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -33291,45 +33291,64 @@ body {
         window.fetchAndAnalyzeUrl = fetchAndAnalyzeUrl;
         
         async function fetchJobPageText(url) {
-            // Try multiple CORS proxy strategies
-            var proxies = [
-                function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); },
-                function(u) { return 'https://corsproxy.io/?' + encodeURIComponent(u); }
-            ];
-            
-            var html = null;
-            for (var pi = 0; pi < proxies.length; pi++) {
+            // Strategy 1: Firebase Cloud Function (authenticated, no CORS issues)
+            if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
                 try {
-                    var proxyUrl = proxies[pi](url);
-                    var res = await fetch(proxyUrl, { 
-                        headers: { 'Accept': 'text/html,application/xhtml+xml' },
-                        signal: AbortSignal.timeout ? AbortSignal.timeout(15000) : undefined
+                    var token = await firebase.auth().currentUser.getIdToken();
+                    var fnUrl = 'https://us-central1-work-blueprint.cloudfunctions.net/fetchJobPage';
+                    var fnRes = await fetch(fnUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + token
+                        },
+                        body: JSON.stringify({ url: url }),
+                        signal: AbortSignal.timeout ? AbortSignal.timeout(20000) : undefined
                     });
-                    if (res.ok) {
-                        html = await res.text();
-                        if (html && html.length > 200) break;
+                    if (fnRes.ok) {
+                        var fnData = await fnRes.json();
+                        if (fnData.text && fnData.text.length > 100) {
+                            console.log('\u2713 Fetched via Cloud Function: ' + fnData.length + ' chars from ' + fnData.domain);
+                            return fnData.text;
+                        }
+                    } else {
+                        var errData = await fnRes.json().catch(function() { return {}; });
+                        console.warn('Cloud Function returned ' + fnRes.status + ':', errData.error || 'unknown');
+                        // If domain not allowed, surface that to user
+                        if (fnRes.status === 403) {
+                            throw new Error(errData.error || 'Domain not supported for URL fetch.');
+                        }
                     }
                 } catch (e) {
-                    console.warn('CORS proxy ' + pi + ' failed:', e.message);
+                    if (e.message && e.message.indexOf('Domain not') !== -1) throw e;
+                    console.warn('Cloud Function fetch failed, trying fallback:', e.message);
                 }
             }
             
-            if (!html) {
-                // Last resort: try direct fetch (works for some sites with permissive CORS)
-                try {
-                    var directRes = await fetch(url, { 
-                        mode: 'cors',
-                        headers: { 'Accept': 'text/html' },
-                        signal: AbortSignal.timeout ? AbortSignal.timeout(10000) : undefined
-                    });
-                    if (directRes.ok) html = await directRes.text();
-                } catch (e) { /* expected to fail for most sites */ }
+            // Strategy 2: Direct fetch (works for sites with permissive CORS headers)
+            try {
+                var directRes = await fetch(url, { 
+                    mode: 'cors',
+                    headers: { 'Accept': 'text/html,application/xhtml+xml' },
+                    signal: AbortSignal.timeout ? AbortSignal.timeout(10000) : undefined
+                });
+                if (directRes.ok) {
+                    var directHtml = await directRes.text();
+                    if (directHtml && directHtml.length > 200) {
+                        console.log('\u2713 Fetched via direct CORS: ' + directHtml.length + ' chars');
+                        return extractTextFromHtml(directHtml);
+                    }
+                }
+            } catch (e) {
+                console.warn('Direct fetch failed (expected):', e.message);
             }
             
-            if (!html) throw new Error('Could not fetch page. The site may block automated access.');
-            
-            // Parse HTML to extract text content
-            return extractTextFromHtml(html);
+            // All strategies exhausted
+            var signedIn = !!(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser);
+            if (!signedIn) {
+                throw new Error('Sign in to fetch job posting URLs automatically, or paste the job description text below.');
+            }
+            throw new Error('Could not fetch that page. The site may require JavaScript rendering. Try pasting the job description text below.');
         }
         
         function extractTextFromHtml(html) {
