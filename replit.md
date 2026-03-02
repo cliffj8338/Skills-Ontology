@@ -39,6 +39,7 @@ SPA extraction handles: JSON-LD JobPosting, __NEXT_DATA__ (Rippling, Greenhouse)
 - Phase 1: Schema, migration (`migrateJobToV2`), `getJobSkills()` abstraction, `tierWeight()` scoring
 - Phase 2: AI extraction prompt (10 categories, section-aware, compound splitting)
 - Phase 3 (v4.45.84): `parseJobLocally()` rewrite — section detection (Requirements/Preferred/Responsibilities/About/Benefits), bullet-aware extraction, compound term splitting ("X, Y, and Z" → individual skills), slash-separated terms, v2 schema output with section/tier/confidence, raised cap from 30 → 50
+- Phase 4 (v4.45.87): Parser overhaul — expanded skill dictionary (300+ terms across insurance, finance, healthcare, legal, supply chain, consulting, education, real estate, energy, government), stem-variant matching (Pass 3b: negotiate→negotiation, strategic→strategy, etc.), contextual noun-phrase extraction (Pass 3c: extracts multi-word skill phrases from sentence context, validated against skill library)
 
 ## Key Features
 - Work Blueprint Wizard (JD → structured WB conversion)

@@ -1,4 +1,4 @@
-<!-- v4.45.86 | 2026-03-02 | WB Clone, Blueprint Advantage comparison, demo candidate profile -->
+<!-- v4.45.87 | 2026-03-02 | Parser overhaul: expanded skill dictionary, stem-variant matching, contextual extraction -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1584,8 +1584,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.86 - BUILD 20260302-wb-clone-compare
-        var BP_VERSION = 'v4.45.86';
+        // BLUEPRINT v4.45.87 - BUILD 20260302-parser-overhaul
+        var BP_VERSION = 'v4.45.87';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -34938,7 +34938,95 @@ body {
                 'Demand Generation', 'Lead Generation', 'Marketing Automation', 'CRM',
                 'Problem Solving', 'Critical Thinking', 'Analytical Thinking', 'Attention to Detail',
                 'Time Management', 'Adaptability', 'Creativity', 'Emotional Intelligence',
-                'Collaboration', 'Teamwork', 'Self-Motivation', 'Results-Oriented'
+                'Collaboration', 'Teamwork', 'Self-Motivation', 'Results-Oriented',
+
+                'Underwriting', 'Insurance', 'Claims Management', 'Policy Administration', 'Loss Control',
+                'Actuarial Analysis', 'Reinsurance', 'Risk Assessment', 'Risk Mitigation', 'Risk Analysis',
+                'Portfolio Management', 'Portfolio Strategy', 'Portfolio Optimization',
+                'Pricing', 'Pricing Strategy', 'Rate Analysis', 'Premium Analysis',
+                'Regulatory Compliance', 'Regulatory Affairs', 'Regulatory Strategy',
+                'Insurance Products', 'Commercial Lines', 'General Liability', 'Excess Liability',
+                'Casualty Insurance', 'Property Insurance', 'Workers Compensation', 'Professional Liability',
+                'Product Development', 'Product Strategy', 'Product Lifecycle', 'Product Launch',
+                'Profitability Analysis', 'Profit and Loss', 'Revenue Management', 'Cost Management',
+                'Talent Development', 'Capability Development', 'Team Development', 'Leadership Development',
+                'Resource Allocation', 'Resource Planning', 'Capacity Planning',
+                'Governance', 'Corporate Governance', 'Policy Development', 'Procedures Development',
+                'Strategic Partnerships', 'Partner Management', 'Alliance Management',
+                'Market Intelligence', 'Market Trends', 'Market Strategy',
+                'Cross-Functional Leadership', 'Organizational Leadership', 'Executive Leadership',
+                'Operational Excellence', 'Operational Strategy', 'Business Operations',
+                'Contract Negotiation', 'Contract Management', 'Deal Structuring',
+                'Due Diligence', 'Audit', 'Internal Controls',
+
+                'Financial Planning', 'Financial Modeling', 'Financial Reporting', 'Treasury',
+                'Investment Management', 'Investment Analysis', 'Asset Management',
+                'Mergers and Acquisitions', 'Corporate Finance', 'Capital Markets',
+                'Credit Analysis', 'Credit Risk', 'Lending', 'Loan Origination',
+                'Banking', 'Commercial Banking', 'Retail Banking', 'Private Banking',
+                'Wealth Management', 'Portfolio Analysis', 'Fund Management',
+                'Tax Planning', 'Tax Compliance', 'Tax Strategy',
+                'Accounting', 'General Ledger', 'Accounts Payable', 'Accounts Receivable',
+                'Cost Accounting', 'Management Accounting', 'GAAP', 'IFRS',
+                'Financial Controls', 'SOX Compliance', 'Internal Audit',
+
+                'Supply Chain Management', 'Procurement', 'Sourcing Strategy', 'Vendor Selection',
+                'Inventory Management', 'Warehouse Management', 'Distribution', 'Logistics',
+                'Demand Planning', 'Supply Planning', 'S&OP', 'Lean Manufacturing',
+                'Six Sigma', 'Quality Management', 'Quality Assurance', 'Quality Control',
+                'Manufacturing', 'Production Planning', 'Process Engineering',
+                'Facilities Management', 'Fleet Management', 'Safety Management',
+
+                'Legal Research', 'Legal Writing', 'Litigation', 'Corporate Law',
+                'Intellectual Property', 'Patent Law', 'Contract Law',
+                'Employment Law', 'Labor Law', 'Regulatory Law',
+                'Data Privacy', 'GDPR', 'CCPA', 'Information Security',
+                'Cybersecurity', 'Network Security', 'Incident Response',
+                'Enterprise Architecture', 'IT Strategy', 'IT Governance',
+                'ERP', 'SAP', 'Oracle', 'Salesforce',
+                'Business Process Reengineering', 'Process Automation',
+                'Robotic Process Automation', 'Workflow Optimization',
+
+                'Patient Care', 'Clinical Operations', 'Healthcare Management',
+                'Medical Devices', 'Pharmaceuticals', 'Drug Development',
+                'Clinical Trials', 'FDA Compliance', 'HIPAA',
+                'Healthcare IT', 'Electronic Health Records',
+                'Revenue Cycle Management', 'Population Health',
+                'Care Coordination', 'Case Management',
+
+                'Real Estate', 'Property Management', 'Lease Administration',
+                'Construction Management', 'Building Codes', 'Zoning',
+                'Environmental Compliance', 'Sustainability Strategy',
+                'Energy Management', 'Renewable Energy',
+
+                'Curriculum Development', 'Instructional Design', 'E-Learning',
+                'Program Evaluation', 'Accreditation', 'Student Affairs',
+                'Academic Administration', 'Enrollment Management',
+
+                'Media Planning', 'Media Buying', 'Digital Marketing',
+                'Public Relations', 'Crisis Management', 'Reputation Management',
+                'Event Management', 'Sponsorship', 'Fundraising',
+                'Stakeholder Engagement', 'Community Relations', 'Government Relations',
+                'Lobbying', 'Policy Analysis', 'Public Policy',
+
+                'Consulting', 'Management Consulting', 'Strategy Consulting',
+                'Business Transformation', 'Organizational Design', 'Operating Model',
+                'Customer Experience', 'Customer Journey Mapping', 'Voice of Customer',
+                'Service Design', 'Design Thinking', 'Innovation Management',
+                'Portfolio Governance', 'PMO', 'Benefits Realization',
+                'Workforce Development', 'Organizational Change', 'Culture Transformation',
+                'Strategic Thinking', 'Systems Thinking', 'Analytical Skills',
+                'Communication Skills', 'Written Communication', 'Verbal Communication',
+                'Interpersonal Skills', 'Influence', 'Executive Communication',
+                'Board Reporting', 'Investor Relations', 'Annual Planning',
+                'OKR', 'Balanced Scorecard', 'Performance Metrics',
+                'Benchmarking', 'Best Practices', 'Industry Analysis',
+                'Scenario Planning', 'Contingency Planning', 'Business Continuity',
+                'Crisis Response', 'Disaster Recovery', 'Incident Management',
+                'Knowledge Management', 'Documentation', 'Standard Operating Procedures',
+                'Training Delivery', 'Facilitation', 'Workshop Design',
+                'Capability Assessment', 'Skills Gap Analysis', 'Competency Modeling',
+                'High-Performance Culture', 'Employee Development', 'Talent Strategy'
             ];
             
             skillDictionary.forEach(function(skill) {
@@ -34960,6 +35048,158 @@ body {
                 }
             });
             
+            // Pass 3b: stem-variant matching — catches inflected forms (negotiate→negotiation, etc.)
+            var _stemVariants = {
+                'negotiation': ['negotiate', 'negotiating', 'negotiated', 'negotiations'],
+                'pricing': ['price', 'priced', 'prices'],
+                'compliance': ['comply', 'compliant', 'complying'],
+                'governance': ['govern', 'governing', 'governed'],
+                'underwriting': ['underwrite', 'underwriter', 'underwritten', 'underwriters'],
+                'leadership': ['leading', 'leaders'],
+                'management': ['managing', 'managed', 'managers'],
+                'planning': ['planned', 'planner', 'planners'],
+                'assessment': ['assess', 'assessing', 'assessed', 'assessments'],
+                'development': ['developing', 'developed', 'developer'],
+                'optimization': ['optimize', 'optimizing', 'optimized'],
+                'implementation': ['implement', 'implementing', 'implemented', 'implements'],
+                'coordination': ['coordinate', 'coordinating', 'coordinated', 'coordinator'],
+                'facilitation': ['facilitate', 'facilitating', 'facilitated', 'facilitator'],
+                'acquisition': ['acquire', 'acquiring', 'acquired'],
+                'allocation': ['allocate', 'allocating', 'allocated'],
+                'evaluation': ['evaluate', 'evaluating', 'evaluated', 'evaluations'],
+                'mitigation': ['mitigate', 'mitigating', 'mitigated'],
+                'automation': ['automate', 'automating', 'automated'],
+                'transformation': ['transform', 'transforming', 'transformed'],
+                'standardization': ['standardize', 'standardizing', 'standardized'],
+                'modernization': ['modernize', 'modernizing', 'modernized'],
+                'simplification': ['simplify', 'simplifying', 'simplified'],
+                'engagement': ['engage', 'engaging', 'engaged'],
+                'alignment': ['align', 'aligning', 'aligned'],
+                'profitability': ['profitable', 'profitably'],
+                'accountability': ['accountable'],
+                'scalability': ['scalable', 'scaling'],
+                'sustainability': ['sustainable'],
+                'innovation': ['innovate', 'innovating', 'innovated', 'innovative'],
+                'collaboration': ['collaborate', 'collaborating', 'collaborated', 'collaborative'],
+                'communication': ['communicate', 'communicating', 'communicated'],
+                'presentation': ['present', 'presenting', 'presented'],
+                'investigation': ['investigate', 'investigating', 'investigated'],
+                'documentation': ['document', 'documenting', 'documented'],
+                'visualization': ['visualize', 'visualizing', 'visualized'],
+                'administration': ['administer', 'administering', 'administered', 'administrative'],
+                'forecasting': ['forecast', 'forecasted', 'forecasts'],
+                'budgeting': ['budget', 'budgets', 'budgeted'],
+                'mentoring': ['mentor', 'mentored', 'mentors'],
+                'coaching': ['coach', 'coached', 'coaches'],
+                'consulting': ['consult', 'consulted', 'consultant', 'consultants'],
+                'reporting': ['report', 'reported', 'reports'],
+                'monitoring': ['monitor', 'monitored', 'monitors'],
+                'auditing': ['audited', 'auditor', 'auditors'],
+                'recruiting': ['recruit', 'recruited', 'recruiter', 'recruiters'],
+                'sourcing': ['source', 'sourced', 'sources'],
+                'onboarding': ['onboard', 'onboarded'],
+                'training': ['trained', 'trainer', 'trainers'],
+                'analysis': ['analyze', 'analyzing', 'analyzed', 'analyses', 'analyst'],
+                'modeling': ['modeled', 'modeler', 'modelers'],
+                'strategy': ['strategic', 'strategize', 'strategizing', 'strategies', 'strategist'],
+                'insurance': ['insurer', 'insurers', 'insured', 'insuring']
+            };
+
+            skillDictionary.forEach(function(skill) {
+                var lower = skill.toLowerCase();
+                if (seen.has(lower) || text.indexOf(lower) !== -1) return;
+                var words = lower.split(/\s+/);
+                var lastWord = words[words.length - 1];
+                var variants = _stemVariants[lastWord];
+                if (!variants) return;
+                var isMultiWord = words.length > 1;
+                for (var vi = 0; vi < variants.length; vi++) {
+                    var variantPhrase = lower.replace(new RegExp(lastWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$'), variants[vi]);
+                    if (isMultiWord) {
+                        if (text.indexOf(variantPhrase) === -1) continue;
+                    } else {
+                        if (!findSkillInText(variants[vi], text, searchTextNormUser)) continue;
+                    }
+                    seen.add(lower);
+                    var tier = classifyTierFromSection(variantPhrase);
+                    skillMatches.push({
+                        name: skill,
+                        canonical: lower,
+                        tier: tier,
+                        requirement: tier === 'required' ? 'Required' : tier === 'preferred' ? 'Preferred' : 'Nice-to-have',
+                        proficiency: inferJobProficiency(text, variantPhrase, seniority),
+                        category: 'technical',
+                        section: getSkillSection(variantPhrase),
+                        source: 'extracted',
+                        confidence: 0.45
+                    });
+                    break;
+                }
+            });
+
+            // Pass 3c: contextual noun-phrase extraction from sentences (not just bullets)
+            var _contextPhrasePatterns = [
+                /\b(?:lead|drive|manage|oversee|direct|guide|shape|define|develop|build|establish|implement|deliver|support|ensure|champion|optimize|evaluate|assess|monitor|coordinate)\s+(?:the\s+)?([a-z][\w\s\-&\/]{3,35}?)(?:\s+(?:to|for|across|within|that|which|in order|by|through|and|while|ensuring)|\.|,|;|$)/gi,
+                /\b(?:responsible for|accountable for|focused on|tasked with|charged with)\s+(?:the\s+)?([a-z][\w\s\-&\/]{3,40}?)(?:\s+(?:to|for|across|within|that|which|in order|by|through)|\.|,|;|$)/gi,
+                /\b(?:expertise in|experience (?:in|with)|background in|knowledge of|proficiency in|skilled in|competence in)\s+([a-z][\w\s\-&\/]{3,40}?)(?:\.|,|;|$)/gi
+            ];
+
+            var _nounPhraseBlocklist = new Set([
+                'a team', 'the team', 'this role', 'the role', 'our team', 'the company',
+                'the organization', 'the business', 'all aspects', 'the delivery',
+                'the development', 'the implementation', 'the design', 'area of responsibility',
+                'their area', 'business unit', 'the framework', 'this position',
+                'higher management', 'potential issues', 'current and future needs',
+                'the individual', 'our customers', 'our clients', 'the future',
+                'business objectives', 'financial objectives', 'business unit needs',
+                'key role', 'key areas', 'senior level', 'best practices',
+                'day to day', 'end to end', 'cross functional', 'long term',
+                'short term', 'high level', 'full time', 'part time',
+                'business unit support', 'area of expertise', 'areas of responsibility',
+                'operating standards', 'business unit goals', 'north america',
+                'united states', 'all stakeholders', 'external market shifts',
+                'current and future', 'lines of business', 'north american portfolios',
+                'relevant experience', 'related experience', 'years of experience',
+                'strong background', 'demonstrated ability', 'proven ability',
+                'ability to work', 'ability to manage', 'ability to lead',
+                'successful candidate', 'ideal candidate', 'qualified candidate'
+            ]);
+
+            lines.forEach(function(line) {
+                _contextPhrasePatterns.forEach(function(pat) {
+                    var m; pat.lastIndex = 0;
+                    while ((m = pat.exec(line)) !== null) {
+                        var phrase = (m[1] || '').trim().toLowerCase();
+                        phrase = phrase.replace(/\s+/g, ' ').replace(/^(?:a|an|the|our|their|its|his|her)\s+/i, '').trim();
+                        if (phrase.length < 5 || phrase.length > 40) continue;
+                        if (_nounPhraseBlocklist.has(phrase)) continue;
+                        if (seen.has(phrase)) continue;
+                        if (/\b(issues?|needs?|objectives?|goals?|aspects?|areas?|things?|ways?|results?|efforts?|activities?|matters?|items?|factors?)\b/i.test(phrase)) continue;
+                        var wordCount = phrase.split(/\s+/).length;
+                        if (wordCount < 2 || wordCount > 4) continue;
+                        var isInLibrary = window._skillNameSet ? window._skillNameSet.has(phrase) :
+                            (skillLibraryIndex && skillLibraryIndex.index && skillLibraryIndex.index.some(function(e) { return (e.n || '').toLowerCase() === phrase; }));
+                        var inDict = skillDictionary.some(function(d) { return d.toLowerCase() === phrase; });
+                        if (isInLibrary || inDict) {
+                            seen.add(phrase);
+                            var clean = phrase.replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+                            var tier = classifyTierFromSection(phrase);
+                            skillMatches.push({
+                                name: clean,
+                                canonical: phrase,
+                                tier: tier,
+                                requirement: tier === 'required' ? 'Required' : tier === 'preferred' ? 'Preferred' : 'Nice-to-have',
+                                proficiency: inferJobProficiency(text, phrase, seniority),
+                                category: 'technical',
+                                section: getSkillSection(phrase),
+                                source: 'extracted',
+                                confidence: 0.45
+                            });
+                        }
+                    }
+                });
+            });
+
             // Fourth pass: bullet-aware phrase extraction with compound splitting (Phase 3)
             var phrasePatterns = [
                 /(\d+)\+?\s*years?\s+(?:of\s+)?(?:experience\s+(?:in|with)\s+)?(.+?)(?:\.|,|;|$)/gi,
