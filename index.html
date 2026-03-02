@@ -16958,6 +16958,9 @@
                     if (!response.ok) continue;
                     const data = await response.json();
                     skillLibraryIndex = data;
+                    window._skillNameSet = new Set();
+                    window._skillLibNameMap = new Map();
+                    if (data.index) { data.index.forEach(function(e) { var ln = (e.name || e.n || '').toLowerCase(); if (ln) { window._skillNameSet.add(ln); window._skillLibNameMap.set(ln, e); } }); }
                     recategorizeLightcastSkills();
                     buildEscoCategoryIndex();
                     const count = data.count || data.totalSkills || data.index?.length || '?';
@@ -17163,11 +17166,8 @@
                 skillsData.skills.forEach(function(s) {
                     var name = (s.name || '').toLowerCase().trim();
                     if (!name || name.length < 3 || _escoSkillToSubcategory[name]) return;
-                    // Try to find subcategory from a library match
-                    var libMatch = skillLibraryIndex.index.find(function(e) {
-                        var ln = (e.n || '').toLowerCase();
-                        return ln === name || (ln.length > 5 && (ln.indexOf(name) !== -1 || name.indexOf(ln) !== -1));
-                    });
+                    var libMatch = window._skillLibNameMap ? window._skillLibNameMap.get(name) || null :
+                        skillLibraryIndex.index.find(function(e) { var ln = (e.n || '').toLowerCase(); return ln === name; });
                     if (libMatch) {
                         var subcat = (libMatch.sc || libMatch.c || '').toLowerCase().trim();
                         if (subcat) {
@@ -34301,8 +34301,8 @@ body {
                 
                 // Single words ≤ 6 chars that aren't known acronyms: verify against skill library
                 if (wordCount === 1 && name.length <= 6 && !knownAcronyms.has(lower)) {
-                    var inLibrary = skillLibraryIndex && skillLibraryIndex.index && 
-                        skillLibraryIndex.index.some(function(e) { return (e.n || '').toLowerCase() === lower; });
+                    var inLibrary = window._skillNameSet ? window._skillNameSet.has(lower) :
+                        (skillLibraryIndex && skillLibraryIndex.index && skillLibraryIndex.index.some(function(e) { return (e.n || '').toLowerCase() === lower; }));
                     if (!inLibrary) return;
                 }
                 
@@ -35070,11 +35070,12 @@ body {
             if (!skillLibraryIndex) return;
             if (!skillLibraryIndex.index) skillLibraryIndex.index = [];
             var lower = skillName.toLowerCase();
-            var exists = skillLibraryIndex.index.some(function(s) {
-                return (s.n || s.name || '').toLowerCase() === lower;
-            });
+            var exists = window._skillNameSet ? window._skillNameSet.has(lower) :
+                skillLibraryIndex.index.some(function(s) { return (s.n || s.name || '').toLowerCase() === lower; });
             if (!exists) {
                 skillLibraryIndex.index.push({ n: skillName, c: category || 'Custom', source: 'custom' });
+                if (window._skillNameSet) window._skillNameSet.add(lower);
+                if (window._skillLibNameMap) window._skillLibNameMap.set(lower, { n: skillName, c: category || 'Custom', source: 'custom' });
                 if (skillLibraryIndex.totalSkills) skillLibraryIndex.totalSkills++;
                 console.log('📚 Registered in skill library:', skillName);
             }
@@ -39710,7 +39711,7 @@ body {
             var linkedHTML = linkedSkills.map(function(sn) {
                 return '<span style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; background:var(--c-purple-bg-1); '
                     + 'color:var(--c-purple-light); border-radius:12px; font-size:0.82em; margin:2px 4px 2px 0;">'
-                    + sn + ' <button onclick="removeCertLinkedSkill(this, \'' + sn.replace(/'/g,"\\'") + '\')" style="background:none; border:none; cursor:pointer; color:inherit; font-size:1em; padding:0 2px;">\u00D7</button></span>';
+                    + escapeHtml(sn) + ' <button onclick="removeCertLinkedSkill(this, \'' + escapeHtml(sn).replace(/'/g,"&#39;") + '\')" style="background:none; border:none; cursor:pointer; color:inherit; font-size:1em; padding:0 2px;">\u00D7</button></span>';
             }).join('');
             
             // Build skill suggestion datalist from profile skills
@@ -39814,7 +39815,7 @@ body {
                 var tierColor = c.tier >= 2 ? '#f59e0b' : '#10b981';
                 var tierTag = c.tier >= 2 ? 'ADV' : 'PRO';
                 
-                html += '<div onclick="selectCertFromLibrary(\'' + c.abbr.replace(/'/g,"\\'") + '\')" '
+                html += '<div onclick="selectCertFromLibrary(\'' + escapeHtml(c.abbr).replace(/'/g,"&#39;") + '\')" '
                     + 'style="padding:10px 16px; cursor:pointer; border-bottom:1px solid var(--c-surface-3a); '
                     + 'transition:background 0.1s;" '
                     + 'onmouseover="this.style.background=\'var(--c-surface-4a)\'" '
@@ -39822,8 +39823,8 @@ body {
                     + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                     + '<div>'
                     + '<div style="font-weight:600; color:var(--c-text-alt); font-size:0.88em;">'
-                    + c.name + ' <span style="color:var(--c-accent); font-size:0.85em;">(' + c.abbr + ')</span></div>'
-                    + '<div style="font-size:0.78em; color:var(--c-muted);">' + c.category + ' \u00B7 ' + c.type
+                    + escapeHtml(c.name) + ' <span style="color:var(--c-accent); font-size:0.85em;">(' + escapeHtml(c.abbr) + ')</span></div>'
+                    + '<div style="font-size:0.78em; color:var(--c-muted);">' + escapeHtml(c.category) + ' \u00B7 ' + escapeHtml(c.type)
                     + (c.skills ? ' \u00B7 ' + c.skills.length + ' skill links' : '') + '</div>'
                     + '</div>'
                     + '<span style="font-size:0.7em; padding:2px 8px; border-radius:8px; background:' + tierBg + '; color:' + tierColor + '; font-weight:700;">' + tierTag + '</span>'
