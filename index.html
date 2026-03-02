@@ -1,4 +1,4 @@
-<!-- v4.45.77 | 2026-03-01 | Structured Job Schema v2.0, standards-aligned job matching architecture -->
+<!-- v4.45.78 | 2026-03-01 | v2 API extraction prompt, section-aware skills, identity metadata, extraction quality UI -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1584,8 +1584,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.77 - BUILD 20260301-job-schema-v2
-        var BP_VERSION = 'v4.45.77';
+        // BLUEPRINT v4.45.78 - BUILD 20260301-job-schema-v2-api-ingest
+        var BP_VERSION = 'v4.45.78';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -4932,7 +4932,7 @@
                         { id: 'p2-6r', name: 'Skill deduplication and cap system', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.73-74: Dedup guards on all 8 push paths. Startup deduplicateSkills(). Hard cap: PROFILE_SKILL_CAP=50, WB_SKILL_CAP=20. canAddSkill() central guard. Over-cap triage overlay (showSkillCapTriage) auto-triggers on load if over 50 after dedup. Scores skills by verification/evidence/proficiency, pre-selects lowest for removal. Over-cap banner with Manage button on Blueprint view. Prevent philosophy: never allow over-cap, force triage.' },
                         { id: 'p2-6s', name: 'AI skill synonym expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.74: GenAI/LLM/AI/NLP/Applied AI now cross-reference bidirectionally in SKILL_SYNONYMS. GenAI implies LLM knowledge (and vice versa) via synonym pass 1b at 0.95 quality. Also added prompt engineering→genai, artificial intelligence (ai)→applied ai→genai chain. Fixes false gaps where JD requires LLM but user has GenAI.' },
                         { id: 'p2-6t', name: 'Blueprint dashboard reorder + inline negotiation', status: 'done', category: 'ux', priority: 'high', notes: 'v4.45.75: Dashboard reordered by importance/uniqueness: Market Position (comp + top skills + inline negotiation) → Career Readiness → Top Job Match → Skill Distribution → Quick Actions (compact). Purpose Statement moved to Content & Evidence tab. Negotiation Guide now renders inline with expandable toggle instead of modal. renderInlineNegotiation() generates offer ranges, negotiation gap, talking points, scripts. Scouting report fix: removed aggressive .skills.length global replacement that broke template JS.' },
-                        { id: 'p2-6u', name: 'Structured Job Schema v2.0 (Phase 1)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.77: Standards-aligned job schema: Schema.org JobPosting properties (hiringOrganization, occupationalCategory, baseSalary/MonetaryAmount), JDX JobSchema+ competency model (tier/proficiency/category/source/confidence/frameworkRef), O*NET-SOC crosswalk readiness. migrateJobToV2() converts legacy parsedSkills[] to requirements.skills[] on load. getJobSkills() abstraction layer so all callers (matcher, rescore, scouting report, D3, blocklist) read from v2 structure transparently. New jobs created with full v2 schema + legacy compat fields. CRITICAL FIX: blocklisted gaps now stay in match denominator (kills score inflation bug where 2/2=100% when 3 gaps were blocklisted). Phase 2 (API ingest prompt) and Phase 3 (local parser improvements) pending.' }
+                        { id: 'p2-6u', name: 'Structured Job Schema v2.0 (Phase 1+2)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.77-78: Phase 1 (v4.45.77): Standards-aligned job schema with Schema.org JobPosting properties, JDX JobSchema+ competency model, O*NET-SOC crosswalk readiness. migrateJobToV2(), getJobSkills() abstraction, blocklisted gap denominator fix. Phase 2 (v4.45.78): Rewrote API extraction prompt for v2-native output. 10 skill categories (technical/analytical/strategic/leadership/communication/domain/platform/tool/methodology/soft). Section-aware extraction with tier assignment from JD structure. Compound list splitting (MS Word, Excel, PowerPoint → 3 skills). Domain knowledge extraction (insurance claims, reinsurance). source: extracted|inferred with confidence differential. Identity metadata extraction (location, remote, industry, department, employmentType). Qualifications and responsibilities as structured arrays. JD cap raised to 6000 chars, max_tokens to 4000. UI: metadata badges, section tooltips, inferred indicators, extraction quality summary.' }
                     ]
                 },
                 {
@@ -33348,18 +33348,23 @@ body {
                     var name = typeof s === 'string' ? s : (s.name || '');
                     if (!name) return null;
                     var isObj = typeof s === 'object' && s !== null;
+                    // v2 API response includes tier/section/context/source directly
                     var legacyReq = isObj ? (s.requirement || s.level || '') : '';
+                    var tier = (isObj && s.tier) ? s.tier : normalizeTier(legacyReq);
+                    var source = (isObj && s.source) || 'extracted';
+                    // Inferred skills get lower confidence
+                    var conf = source === 'inferred' ? Math.min(defaultConfidence, 0.7) : defaultConfidence;
                     return {
                         name: name,
                         canonical: name.toLowerCase().replace(/\s+/g, ' ').trim(),
                         abbreviation: null,
-                        tier: normalizeTier(legacyReq),
+                        tier: tier,
                         proficiency: (isObj && s.proficiency) || 'Proficient',
-                        category: (isObj && s.category) || 'technical',
-                        section: null,
-                        context: null,
-                        source: 'extracted',
-                        confidence: defaultConfidence,
+                        category: (isObj && s.category) ? s.category.toLowerCase() : 'technical',
+                        section: (isObj && s.section) || null,
+                        context: (isObj && s.context) || null,
+                        source: source,
+                        confidence: conf,
                         frameworkRef: null
                     };
                 }).filter(Boolean).slice(0, JOB_SKILLS_CAP);
@@ -33369,6 +33374,23 @@ body {
                 // Build v2 job object
                 var blsSalary = matchJobToBLS(parsed.title, jdText);
                 var now = new Date().toISOString();
+                
+                // Extract qualifications and responsibilities from API response
+                var qualifications = (parsed.qualifications || []).map(function(q) {
+                    if (typeof q === 'string') return { text: q, type: 'other', required: true };
+                    return { text: q.text || '', type: q.type || 'other', required: q.required !== false };
+                });
+                var responsibilities = (parsed.responsibilities || []).map(function(r) {
+                    return typeof r === 'string' ? r : (r.text || r.description || '');
+                }).filter(Boolean);
+                
+                // Use enriched identity fields from API response when available
+                var locationStr = parsed.location || '';
+                var isRemote = parsed.remote;
+                var empType = parsed.employmentType || null;
+                var industry = parsed.industry || '';
+                var department = parsed.department || '';
+                
                 var job = {
                     // v2 schema
                     schemaVersion: JOB_SCHEMA_VERSION,
@@ -33377,21 +33399,21 @@ body {
                     hiringOrganization: {
                         name: parsed.company || '',
                         sameAs: null,
-                        industry: '',
+                        industry: industry,
                         size: ''
                     },
                     titleRole: null,
                     titleLevel: (parsed.seniority || '').toLowerCase() || null,
                     occupationalCategory: null,
                     jobLocation: {
-                        primary: '',
+                        primary: locationStr,
                         address: { locality: null, region: null, country: null },
                         locationType: null,
-                        remote: null,
+                        remote: isRemote,
                         remoteDetail: ''
                     },
-                    employmentType: null,
-                    department: null,
+                    employmentType: empType,
+                    department: department,
                     postingMeta: {
                         sourceUrl: sourceUrl,
                         sourceNote: sourceNote,
@@ -33404,8 +33426,8 @@ body {
                     },
                     requirements: {
                         skills: v2Skills,
-                        qualifications: [],
-                        responsibilities: []
+                        qualifications: qualifications,
+                        responsibilities: responsibilities
                     },
                     compensation: {
                         baseSalary: { currency: 'USD', value: { minValue: null, maxValue: null, unitText: 'YEAR' } },
@@ -33479,47 +33501,89 @@ body {
             logAnalyticsEvent('job_analysis', {});
             var userSkillNames = (skillsData.skills || []).map(function(s) { return s.name; });
             
-            var systemPrompt = 'You extract structured data from job descriptions. Respond ONLY with valid JSON, no markdown fences, no preamble.';
+            var systemPrompt = 'You are a precision job description parser. You extract structured, machine-readable data from job descriptions aligned with Schema.org JobPosting and JDX JobSchema+ standards. Respond ONLY with valid JSON. No markdown fences, no preamble, no commentary.';
             
             // Build vocabulary hint: user skills + canonical synonym keys
             var vocabSet = new Set();
             userSkillNames.slice(0, 60).forEach(function(n) { vocabSet.add(n); });
             Object.keys(SKILL_SYNONYMS).forEach(function(k) {
-                // Capitalize for display
                 vocabSet.add(k.replace(/\b\w/g, function(c) { return c.toUpperCase(); }));
             });
             var vocabHint = Array.from(vocabSet).slice(0, 120).join(', ');
             
-            var userPrompt = 'Extract from this job description:\n\n' + jdText.substring(0, 4000) + '\n\n'
-                + 'Return JSON with this exact structure:\n'
+            var userPrompt = 'Parse this job description into structured data.\n\n'
+                + '--- JOB DESCRIPTION START ---\n'
+                + jdText.substring(0, 6000) + '\n'
+                + '--- JOB DESCRIPTION END ---\n\n'
+                + 'Return JSON with this EXACT structure:\n'
                 + '{\n'
-                + '  "title": "Job title",\n'
+                + '  "title": "Exact job title from posting",\n'
                 + '  "company": "Company name or empty string",\n'
+                + '  "industry": "Primary industry (e.g., Insurance, Technology, Healthcare)",\n'
                 + '  "seniority": "Entry|Mid|Senior|Executive",\n'
-                + '  "roles": ["functional area 1", "functional area 2"],\n'
+                + '  "department": "Department or team if mentioned",\n'
+                + '  "location": "Location string as written (e.g., Remote (United States), New York, NY)",\n'
+                + '  "remote": true|false|null,\n'
+                + '  "employmentType": "FULL_TIME|PART_TIME|CONTRACT|INTERN|null",\n'
                 + '  "skills": [\n'
-                + '    {"name": "Skill Name", "requirement": "Required|Preferred|Nice-to-have", "proficiency": "Novice|Competent|Proficient|Expert|Mastery", "category": "Technical|Leadership|Business|Communication|Domain"}\n'
+                + '    {\n'
+                + '      "name": "Skill Name",\n'
+                + '      "tier": "required|preferred|nice-to-have",\n'
+                + '      "proficiency": "Novice|Competent|Proficient|Advanced|Expert|Mastery",\n'
+                + '      "category": "technical|analytical|strategic|leadership|communication|domain|platform|tool|methodology|soft",\n'
+                + '      "section": "JD section heading where found (e.g., Qualifications, What you\'ll do, Preferred)",\n'
+                + '      "context": "Brief original text snippet showing this skill in context",\n'
+                + '      "source": "extracted|inferred"\n'
+                + '    }\n'
+                + '  ],\n'
+                + '  "qualifications": [\n'
+                + '    {"text": "Full qualification statement", "type": "education|experience|certification|other", "required": true|false}\n'
+                + '  ],\n'
+                + '  "responsibilities": [\n'
+                + '    "Key responsibility statement (condensed)"\n'
                 + '  ]\n'
                 + '}\n\n'
-                + 'Rules:\n'
-                + '- Extract 15-30 distinct skills from explicit requirements AND implied competencies\n'
-                + '- Use professional skill names (e.g., "Strategic Planning" not "plan stuff")\n'
-                + '- CRITICAL: Normalize skill names to match this vocabulary where possible: ' + vocabHint + '\n'
-                + '- Use the FULL form of abbreviations (e.g., "Applicant Tracking System" not "ATS", "Customer Relationship Management" not "CRM") so matching works across profiles\n'
-                + '- For skills NOT in the above list, use standard industry terminology (O*NET, LinkedIn Skills, etc.)\n'
-                + '- Include both hard and soft skills\n'
-                + '- Infer skills from responsibilities even if not explicitly listed\n'
-                + '- requirement: Required for must-haves, Preferred for should-haves, Nice-to-have for bonus skills\n'
-                + '- proficiency: infer the MINIMUM proficiency the job demands for each skill based on seniority and context:\n'
-                + '  Novice = basic awareness, Competent = can do with guidance, Proficient = independent and effective,\n'
-                + '  Expert = deep mastery and can teach others, Mastery = industry-leading authority\n'
-                + '  For Executive/Senior roles, default most core skills to Expert or Mastery.\n'
-                + '  For Mid roles, default to Proficient. For Entry, default to Competent or Novice.\n'
-                + '- For common role-implied skills that are obvious but unstated (e.g., ATS for recruiters, Excel for analysts, Git for developers), include them as Preferred';
+                + '=== EXTRACTION RULES ===\n\n'
+                + 'SKILLS (target 15-35 distinct skills):\n'
+                + '- Extract EVERY skill explicitly named in qualifications, requirements, and preferred sections\n'
+                + '- Extract skills implied by specific responsibilities (source: "inferred")\n'
+                + '- SPLIT compound lists into individual skills: "MS Word, Excel, PowerPoint" = 3 separate skills\n'
+                + '- SPLIT enumerated tools: "Monday.com, Origami, JIRA" = 3 separate skills\n'
+                + '- Include domain knowledge requirements (e.g., "insurance claims", "reinsurance", "policy servicing")\n'
+                + '- Include soft skills when explicitly required (e.g., "communication skills", "self-motivation")\n'
+                + '- Use professional canonical names (e.g., "Data Analysis" not "analyze data")\n'
+                + '- Normalize names to match this vocabulary where possible: ' + vocabHint + '\n'
+                + '- Use FULL form of common abbreviations (e.g., "Key Performance Indicators" not "KPIs", "Applicant Tracking System" not "ATS")\n'
+                + '- For skills NOT in the above vocabulary, use standard industry terminology (O*NET, LinkedIn Skills)\n\n'
+                + 'TIER ASSIGNMENT:\n'
+                + '- Skills from "Required Qualifications", "What you\'ll do", "Qualifications" sections → "required"\n'
+                + '- Skills from "Preferred", "Nice to have", "Bonus" sections → "preferred"\n'
+                + '- Skills inferred from context but not explicitly listed → "nice-to-have"\n'
+                + '- When a section uses language like "must have" or "required" → "required"\n'
+                + '- When a section uses "preferred", "desired", "ideally" → "preferred"\n\n'
+                + 'PROFICIENCY (infer MINIMUM the job demands based on seniority + language):\n'
+                + '- "basic knowledge/familiarity/awareness" → Novice or Competent\n'
+                + '- "working knowledge/experience with" → Proficient\n'
+                + '- "strong/solid/demonstrated experience" → Advanced\n'
+                + '- "deep expertise/mastery/authority" → Expert or Mastery\n'
+                + '- Default by seniority: Entry→Competent, Mid→Proficient, Senior→Advanced, Executive→Expert\n\n'
+                + 'CATEGORY:\n'
+                + '- technical: programming, engineering, architecture, infrastructure\n'
+                + '- analytical: data analysis, statistics, research, KPI tracking, financial analysis\n'
+                + '- strategic: strategy, planning, market research, competitive analysis, business development\n'
+                + '- leadership: team management, mentoring, cross-functional coordination, stakeholder management\n'
+                + '- communication: writing, presentation, verbal communication, client relations\n'
+                + '- domain: industry-specific knowledge (insurance, healthcare, finance concepts)\n'
+                + '- platform: specific software platforms (Salesforce, SAP, Origami, Monday.com)\n'
+                + '- tool: general productivity tools (Excel, PowerPoint, Word, JIRA)\n'
+                + '- methodology: frameworks, methodologies (Agile, Six Sigma, ITIL)\n'
+                + '- soft: interpersonal traits explicitly required (self-motivation, problem-solving, adaptability)\n\n'
+                + 'QUALIFICATIONS: Extract every stated qualification (degrees, years of experience, certifications).\n'
+                + 'RESPONSIBILITIES: Condense each bullet to 1 sentence. Keep the action verb.\n';
             
             var data = await callAnthropicAPI({
                     model: 'claude-sonnet-4-20250514',
-                    max_tokens: 2000,
+                    max_tokens: 4000,
                     system: systemPrompt,
                     messages: [{ role: 'user', content: userPrompt }]
                 }, apiKey, 'jd-analysis');
@@ -35855,6 +35919,8 @@ body {
                         requirement: requirement,
                         tier: jobSkill.tier || normalizeTier(requirement),
                         category: jobSkill.category,
+                        section: jobSkill.section || null,
+                        source: jobSkill.source || null,
                         nameMatch: nameMatchQuality,
                         profMatch: profMatch,
                         profGap: profGap,
@@ -35868,7 +35934,9 @@ body {
                         requirement: requirement,
                         tier: jobSkill.tier || normalizeTier(requirement),
                         proficiency: jobSkill.proficiency || 'Proficient',
-                        category: jobSkill.category
+                        category: jobSkill.category,
+                        section: jobSkill.section || null,
+                        source: jobSkill.source || null
                     });
                 }
             });
@@ -36159,12 +36227,38 @@ body {
             html += '</div></div>';
             
             // Header
+            var companyName = (job.hiringOrganization && job.hiringOrganization.name) || job.company || '';
+            var jobSourceUrl = (job.postingMeta && job.postingMeta.sourceUrl) || job.sourceUrl || '';
             html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; flex-wrap:wrap; gap:16px;">'
                 + '<div>'
                 + '<h2 style="font-size:1.5em; font-weight:700; color:var(--text-primary); margin:0;">' + (job.title || 'Untitled') + '</h2>'
-                + '<div style="color:var(--text-muted); margin-top:4px;">' + (job.company || '') 
-                + (job.sourceUrl ? ' \u00B7 <a href="' + sanitizeUrl(job.sourceUrl) + '" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">View original</a>' : '') + '</div>'
-                + '</div>'
+                + '<div style="color:var(--text-muted); margin-top:4px;">' + escapeHtml(companyName) 
+                + (jobSourceUrl ? ' \u00B7 <a href="' + sanitizeUrl(jobSourceUrl) + '" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">View original</a>' : '') + '</div>';
+            
+            // v2 metadata badges (location, remote, industry, employment type)
+            var metaBadges = [];
+            var loc = (job.jobLocation && job.jobLocation.primary) || '';
+            if (loc) metaBadges.push(bpIcon('map-pin',12) + ' ' + escapeHtml(loc));
+            if (job.jobLocation && job.jobLocation.remote === true) metaBadges.push('\uD83C\uDFE0 Remote');
+            var ind = (job.hiringOrganization && job.hiringOrganization.industry) || '';
+            if (ind) metaBadges.push(escapeHtml(ind));
+            if (job.employmentType) {
+                var etMap = { FULL_TIME: 'Full-time', PART_TIME: 'Part-time', CONTRACT: 'Contract', INTERN: 'Intern' };
+                metaBadges.push(etMap[job.employmentType] || job.employmentType);
+            }
+            if (job.department) metaBadges.push(escapeHtml(job.department));
+            var ingestLabel = (job.postingMeta && job.postingMeta.ingestMethod) || '';
+            if (ingestLabel === 'api') metaBadges.push('\u2728 AI-analyzed');
+            if (metaBadges.length > 0) {
+                html += '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;">';
+                metaBadges.forEach(function(b) {
+                    html += '<span style="display:inline-flex; align-items:center; gap:3px; padding:2px 8px; border-radius:10px; '
+                        + 'font-size:0.72em; background:rgba(96,165,250,0.08); color:var(--text-muted); border:1px solid rgba(96,165,250,0.12);">'
+                        + b + '</span>';
+                });
+                html += '</div>';
+            }
+            html += '</div>'
                 + '<div style="text-align:center; padding:12px 24px; border-radius:12px; '
                 + 'background:' + matchColor + '15; border:2px solid ' + matchColor + '40;">'
                 + '<div style="font-size:2em; font-weight:700; color:' + matchColor + ';">' + matchPct + '%</div>'
@@ -36206,6 +36300,24 @@ body {
                 + '<div style="font-size:1.6em; font-weight:700; color:#6b7280;">' + surplus.length + '</div>'
                 + '<div style="font-size:0.78em; color:var(--text-muted);">Your Surplus</div></div>'
                 + '</div>';
+            
+            // v2 extraction summary (subtle line showing extraction quality)
+            var jobSkillsArr = getJobSkills(job);
+            var extractedCount = jobSkillsArr.filter(function(s) { return s.source !== 'inferred'; }).length;
+            var inferredCount = jobSkillsArr.filter(function(s) { return s.source === 'inferred'; }).length;
+            var ingestMethod = (job.postingMeta && job.postingMeta.ingestMethod) || '';
+            if (jobSkillsArr.length > 0 && (jobSkillsArr[0].section || jobSkillsArr[0].source)) {
+                var sections = {};
+                jobSkillsArr.forEach(function(s) { if (s.section) sections[s.section] = (sections[s.section] || 0) + 1; });
+                var sectionSummary = Object.keys(sections).map(function(k) { return k + ' (' + sections[k] + ')'; }).join(', ');
+                html += '<div style="margin-bottom:12px; padding:8px 14px; border-radius:8px; '
+                    + 'background:rgba(96,165,250,0.04); border:1px solid rgba(96,165,250,0.1); '
+                    + 'font-size:0.75em; color:var(--text-muted); display:flex; flex-wrap:wrap; gap:8px; align-items:center;">'
+                    + '<span>' + jobSkillsArr.length + ' skills extracted</span>'
+                    + (inferredCount > 0 ? '<span>\u00B7 ' + extractedCount + ' explicit, ' + inferredCount + ' inferred</span>' : '')
+                    + (sectionSummary ? '<span>\u00B7 Sections: ' + escapeHtml(sectionSummary) + '</span>' : '')
+                    + '</div>';
+            }
             
             // Diagnostic warnings: blocklist impact and library status (admin only or always subtle)
             var diagnosticWarnings = [];
@@ -36298,11 +36410,13 @@ body {
                 matched.forEach(function(m) {
                     var profColor = m.profGap ? '#f59e0b' : '#10b981';
                     var profLabel = m.userLevel || '';
-                    var reqLabel = m.requirement === 'Required' ? ' \u2605' : '';
+                    var tierBadge = (m.tier === 'required' || m.requirement === 'Required') ? ' \u2605' : '';
                     var profTip = m.profGap ? ' (job wants ' + (m.jobProficiency || '?') + ')' : '';
+                    var sectionTip = m.section ? ' | From: ' + m.section : '';
+                    var typeTip = m.matchType && m.matchType !== 'exact' ? ' | Via: ' + m.matchType : '';
                     html += '<span class="jd-skill-chip jd-chip-matched" style="border-color:' + profColor + '40;" '
-                        + 'title="Your level: ' + profLabel + profTip + '">'
-                        + m.userSkill + ' <span style="font-size:0.75em; opacity:0.7;">' + profLabel + '</span>' + reqLabel + '</span>';
+                        + 'title="Your level: ' + profLabel + profTip + sectionTip + typeTip + '">'
+                        + escapeHtml(m.userSkill) + ' <span style="font-size:0.75em; opacity:0.7;">' + profLabel + '</span>' + tierBadge + '</span>';
                 });
                 html += '</div></div>';
             }
@@ -36314,12 +36428,14 @@ body {
                     + '<p style="font-size:0.75em; color:var(--text-muted); margin-bottom:8px;">Click a skill to add it to your profile</p>'
                     + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 gaps.forEach(function(g, gi) {
-                    var reqBadge = g.requirement === 'Required' ? ' \u2605' : '';
+                    var tierBadge = (g.tier === 'required' || g.requirement === 'Required') ? ' \u2605' : '';
                     var profLabel = g.proficiency ? ' (' + g.proficiency + ')' : '';
+                    var sectionTip = g.section ? 'From: ' + g.section : 'Click to add to your profile';
+                    var inferBadge = g.source === 'inferred' ? '<span style="font-size:0.68em; opacity:0.5; margin-left:2px;" title="Inferred from responsibilities">\u2248</span>' : '';
                     html += '<span class="jd-skill-chip jd-chip-gap" style="cursor:pointer; display:inline-flex; align-items:center; gap:4px;" '
                         + 'onclick="quickAddGapSkill(\'' + escapeHtml(g.name).replace(/'/g, "\\'") + '\', \'' + escapeHtml(g.proficiency || 'Proficient') + '\', ' + idx + ')" '
-                        + 'title="Click to add to your profile">'
-                        + escapeHtml(g.name) + '<span style="font-size:0.72em; opacity:0.6;">' + escapeHtml(profLabel) + '</span>' + reqBadge;
+                        + 'title="' + escapeHtml(sectionTip) + '">'
+                        + escapeHtml(g.name) + '<span style="font-size:0.72em; opacity:0.6;">' + escapeHtml(profLabel) + '</span>' + tierBadge + inferBadge;
                     if (fbIsAdmin) {
                         html += '<span onclick="event.stopPropagation(); adminBlockSkill(\'' + escapeHtml(g.name).replace(/'/g, "\\'") + '\', ' + idx + ');" '
                             + 'style="margin-left:2px; opacity:0.4; font-size:0.9em; cursor:pointer;" title="Block this skill (admin)">\u2715</span>';
@@ -36327,8 +36443,9 @@ body {
                     html += '</span>';
                 });
                 html += '</div>'
-                    + '<div style="margin-top:8px; font-size:0.75em; color:var(--text-muted);">\u2605 = Required by employer</div>'
-                    + '</div>';
+                    + '<div style="margin-top:8px; font-size:0.75em; color:var(--text-muted);">\u2605 = Required by employer' 
+                    + (gaps.some(function(g) { return g.source === 'inferred'; }) ? ' \u00B7 \u2248 = Inferred from responsibilities' : '') 
+                    + '</div></div>';
             }
             
             // Proficiency gaps (matched skills where you're below the required level)
@@ -36537,17 +36654,21 @@ body {
                         var name = typeof s === 'string' ? s : (s.name || '');
                         if (!name) return null;
                         var isObj = typeof s === 'object' && s !== null;
+                        var legacyReq = isObj ? (s.requirement || s.level || '') : '';
+                        var tier = (isObj && s.tier) ? s.tier : normalizeTier(legacyReq);
+                        var source = (isObj && s.source) || 'extracted';
+                        var conf = source === 'inferred' ? Math.min(reConfidence, 0.7) : reConfidence;
                         return {
                             name: name,
                             canonical: name.toLowerCase().replace(/\s+/g, ' ').trim(),
                             abbreviation: null,
-                            tier: normalizeTier(isObj ? (s.requirement || s.level || '') : ''),
+                            tier: tier,
                             proficiency: (isObj && s.proficiency) || 'Proficient',
-                            category: (isObj && s.category) || 'technical',
-                            section: null,
-                            context: null,
-                            source: 'extracted',
-                            confidence: reConfidence,
+                            category: (isObj && s.category) ? s.category.toLowerCase() : 'technical',
+                            section: (isObj && s.section) || null,
+                            context: (isObj && s.context) || null,
+                            source: source,
+                            confidence: conf,
                             frameworkRef: null
                         };
                     }).filter(Boolean).slice(0, JOB_SKILLS_CAP);
@@ -36559,6 +36680,26 @@ body {
                     job.requirements.skills = v2Skills;
                     job.schemaVersion = JOB_SCHEMA_VERSION;
                     if (job.postingMeta) job.postingMeta.ingestMethod = reIngestMethod;
+                    
+                    // Update qualifications and responsibilities from API response
+                    if (parsed.qualifications && Array.isArray(parsed.qualifications)) {
+                        job.requirements.qualifications = parsed.qualifications.map(function(q) {
+                            if (typeof q === 'string') return { text: q, type: 'other', required: true };
+                            return { text: q.text || '', type: q.type || 'other', required: q.required !== false };
+                        });
+                    }
+                    if (parsed.responsibilities && Array.isArray(parsed.responsibilities)) {
+                        job.requirements.responsibilities = parsed.responsibilities.map(function(r) {
+                            return typeof r === 'string' ? r : (r.text || r.description || '');
+                        }).filter(Boolean);
+                    }
+                    
+                    // Update identity metadata from API response
+                    if (parsed.location && job.jobLocation) job.jobLocation.primary = parsed.location;
+                    if (parsed.remote != null && job.jobLocation) job.jobLocation.remote = parsed.remote;
+                    if (parsed.employmentType) job.employmentType = parsed.employmentType;
+                    if (parsed.department) job.department = parsed.department;
+                    if (parsed.industry && job.hiringOrganization) job.hiringOrganization.industry = parsed.industry;
                     
                     // Update legacy fields for backward compat
                     job.parsedSkills = parsed.skills || [];
