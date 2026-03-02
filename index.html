@@ -3333,7 +3333,7 @@
         var _adminGroupMap = {
             overview: 'ops', users: 'ops', waitlist: 'ops',
             samples: 'content',
-            jdconverter: 'wb', wbwizard: 'wb', wbrepo: 'wb', wbcompare: 'wb',
+            jdconverter: 'wb', wbwizard: 'wb', wbrepo: 'wb', wbcompare: 'wb', parseaudit: 'wb',
             config: 'sys', status: 'sys', architecture: 'sys', userflows: 'sys',
             roadmap: 'plan', costs: 'plan'
         };
@@ -3393,7 +3393,8 @@
                     _adminSidebarBtn('jdconverter', 'wand', 'Converter')
                     + _adminSidebarBtn('wbwizard', 'blueprint', 'Wizard')
                     + _adminSidebarBtn('wbrepo', 'folder', 'Repository')
-                    + _adminSidebarBtn('wbcompare', 'trending-up', 'Compare'))
+                    + _adminSidebarBtn('wbcompare', 'trending-up', 'Compare')
+                    + _adminSidebarBtn('parseaudit', 'activity', 'Parse Audit'))
                 + _adminSidebarGroup('sys', 'System',
                     _adminSidebarBtn('config', 'settings', 'Config')
                     + _adminSidebarBtn('status', 'shield', 'Status')
@@ -3430,6 +3431,7 @@
             else if (adminSubTab === 'wbwizard') renderWBWizard(el);
             else if (adminSubTab === 'wbrepo') renderAdminWBRepo(el);
             else if (adminSubTab === 'wbcompare') renderWBCompareWizard(el);
+            else if (adminSubTab === 'parseaudit') renderParseAudit(el);
             else if (adminSubTab === 'userflows') renderAdminUserFlows(el);
         }
         
@@ -12860,6 +12862,336 @@
         }
         window.clearAIUsageLog = clearAIUsageLog;
         
+        var _parseAuditResults = [];
+        var _parseAuditLoading = false;
+        var _parseAuditExpandedIdx = -1;
+
+        async function _parseAuditFetch() {
+            _parseAuditLoading = true;
+            _parseAuditResults = [];
+
+            var terms = [];
+            var roles = (userData.roles || []).map(function(r) { return r.name || r; });
+            roles.forEach(function(r) { terms.push(r); });
+            if (terms.length === 0) {
+                var topSkills = (skillsData.skills || []).filter(function(s) { return s.level === 'Expert' || s.level === 'Advanced'; }).slice(0, 3);
+                if (topSkills.length > 0) terms.push(topSkills.map(function(s) { return s.name; }).join(' '));
+            }
+            if (terms.length === 0) terms = ['product manager', 'software engineer', 'data analyst', 'marketing manager', 'operations manager'];
+            var extraTerms = ['senior manager', 'director operations', 'strategy analyst', 'business development', 'project manager'];
+            extraTerms.forEach(function(t) { if (terms.indexOf(t) === -1) terms.push(t); });
+            terms = terms.slice(0, 8);
+
+            var allJobs = [];
+            var seen = new Set();
+            var location = (userData.profile && userData.profile.location) || '';
+
+            var fetches = terms.map(function(term) {
+                var params = new URLSearchParams({ q: term });
+                if (location) params.set('location', location);
+                return fetch(JOBS_PROXY_URL + '?' + params.toString(), { signal: AbortSignal.timeout(20000) })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) { return (data.jobs || []).map(function(j) { j._searchTerm = term; return j; }); })
+                    .catch(function() { return []; });
+            });
+
+            var results = await Promise.all(fetches);
+            results.forEach(function(jobs) {
+                jobs.forEach(function(job) {
+                    var key = ((job.title || '') + '|' + (job.company || '')).toLowerCase();
+                    if (!seen.has(key) && job.description && job.description.length > 100) {
+                        seen.add(key);
+                        allJobs.push(job);
+                    }
+                });
+            });
+
+            allJobs.forEach(function(job) {
+                var jdText = (job.title || '') + '\n' + (job.description || '') + '\n' + (job.tags || []).join(' ');
+                var rawText = jdText.replace(/<[^>]+>/g, ' ').replace(/&[^;]+;/g, ' ');
+                var parsed = parseJobLocally(rawText);
+                var matchResult = matchJobToProfile(parsed);
+
+                var descWords = rawText.split(/\s+/).filter(function(w) { return w.length > 2; });
+                var descWordCount = descWords.length;
+
+                var skillTermsInJD = [];
+                var extractedNames = (parsed.skills || []).map(function(s) { return s.name.toLowerCase(); });
+                var rawLower = rawText.toLowerCase();
+
+                var missedCandidates = [];
+                var skillPatterns = [
+                    /(\d+)\+?\s*years?\s+(?:of\s+)?(?:experience\s+(?:in|with)\s+)?([^.,;]+)/gi,
+                    /(?:proficien|experienc|knowledge|expertise|familiar)\w*\s+(?:in|with|of)\s+([^.,;]+)/gi,
+                    /(?:strong|excellent|deep|proven|demonstrated)\s+([a-z\s&\/\-]+?)(?:\s+skills|\s+experience|\s+knowledge|\s+ability)/gi
+                ];
+                skillPatterns.forEach(function(pat) {
+                    var m; pat.lastIndex = 0;
+                    while ((m = pat.exec(rawText)) !== null) {
+                        var phrase = (m[2] || m[1] || '').trim().toLowerCase();
+                        phrase.split(/\s*(?:and|or|,)\s*/).forEach(function(p) {
+                            p = p.replace(/^\s*(?:a|an|the)\s+/i, '').trim();
+                            if (p.length > 3 && p.length < 40) skillTermsInJD.push(p);
+                        });
+                    }
+                });
+
+                var uniqueJDTerms = [];
+                var jdTermSeen = new Set();
+                skillTermsInJD.forEach(function(t) {
+                    if (!jdTermSeen.has(t)) { jdTermSeen.add(t); uniqueJDTerms.push(t); }
+                });
+                uniqueJDTerms.forEach(function(t) {
+                    var found = extractedNames.some(function(en) {
+                        return en === t || en.indexOf(t) !== -1 || t.indexOf(en) !== -1;
+                    });
+                    if (!found) missedCandidates.push(t);
+                });
+
+                var recommendedSkills = [];
+                if (typeof window.onetSkillsLibrary !== 'undefined' && window.onetSkillsLibrary.categories) {
+                    Object.keys(window.onetSkillsLibrary.categories).forEach(function(cat) {
+                        (window.onetSkillsLibrary.categories[cat] || []).forEach(function(sk) {
+                            var skLower = (sk.name || sk).toLowerCase();
+                            if (skLower.length > 4 && rawLower.indexOf(skLower) !== -1 && !extractedNames.some(function(en) { return en === skLower || en.indexOf(skLower) !== -1; })) {
+                                recommendedSkills.push(sk.name || sk);
+                            }
+                        });
+                    });
+                }
+
+                job._audit = {
+                    parsed: parsed,
+                    matchResult: matchResult,
+                    descWordCount: descWordCount,
+                    skillsExtracted: (parsed.skills || []).length,
+                    skillsMatched: (matchResult.matched || []).length,
+                    gaps: matchResult.gaps || [],
+                    surplus: matchResult.surplus || [],
+                    missedCandidates: missedCandidates.slice(0, 15),
+                    recommendedSkills: recommendedSkills.slice(0, 10),
+                    parsedTitle: parsed.title,
+                    parsedCompany: parsed.company,
+                    parsedSeniority: parsed.seniority,
+                    score: matchResult.score,
+                    coverageRatio: uniqueJDTerms.length > 0 ? Math.round(((uniqueJDTerms.length - missedCandidates.length) / uniqueJDTerms.length) * 100) : 100
+                };
+            });
+
+            _parseAuditResults = allJobs;
+            _parseAuditLoading = false;
+        }
+
+        function renderParseAudit(el) {
+            var html = '<div style="max-width:1200px;">'
+                + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.3em; color:var(--c-heading-bold); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">'
+                + bpIcon('activity',22) + ' Parse Audit</div>'
+                + '<div style="font-size:0.85em; color:var(--c-muted); margin-bottom:20px;">Bulk-test the parsing and matching engine against live job data. Fetches jobs, runs parseJobLocally() + matchJobToProfile() on each, and reports extraction quality, coverage, missed skills, and recommendations.</div>';
+
+            if (_parseAuditLoading) {
+                html += '<div style="text-align:center; padding:48px;">'
+                    + '<div class="loading-spinner" style="width:32px; height:32px; border-width:3px; margin:0 auto 12px;"></div>'
+                    + '<p style="color:var(--text-muted);">Fetching and parsing jobs... this may take 15-30 seconds.</p></div></div>';
+                el.innerHTML = html;
+                return;
+            }
+
+            html += '<div style="margin-bottom:20px;">'
+                + '<button onclick="_parseAuditRun()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9em; display:inline-flex; align-items:center; gap:8px;">'
+                + bpIcon('search',16) + ' Run Audit (' + (_parseAuditResults.length > 0 ? 'Re-run' : 'Fetch ~100 Jobs') + ')</button>'
+                + '</div>';
+
+            if (_parseAuditResults.length === 0) {
+                html += '<div style="text-align:center; padding:40px; color:var(--text-muted);">'
+                    + '<p>Click Run Audit to fetch live jobs and analyze parsing quality.</p></div></div>';
+                el.innerHTML = html;
+                return;
+            }
+
+            var totalJobs = _parseAuditResults.length;
+            var totalSkillsExtracted = 0, totalMatched = 0, totalGaps = 0, totalMissed = 0, totalRecommended = 0;
+            var coverageScores = [];
+            var matchScores = [];
+            _parseAuditResults.forEach(function(j) {
+                var a = j._audit;
+                if (!a) return;
+                totalSkillsExtracted += a.skillsExtracted;
+                totalMatched += a.skillsMatched;
+                totalGaps += a.gaps.length;
+                totalMissed += a.missedCandidates.length;
+                totalRecommended += a.recommendedSkills.length;
+                coverageScores.push(a.coverageRatio);
+                matchScores.push(a.score);
+            });
+
+            var avgCoverage = coverageScores.length > 0 ? Math.round(coverageScores.reduce(function(a, b) { return a + b; }, 0) / coverageScores.length) : 0;
+            var avgMatch = matchScores.length > 0 ? Math.round(matchScores.reduce(function(a, b) { return a + b; }, 0) / matchScores.length) : 0;
+            var avgSkillsPerJob = totalJobs > 0 ? Math.round(totalSkillsExtracted / totalJobs) : 0;
+
+            html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-bottom:24px;">';
+            [
+                { label: 'Jobs Parsed', value: totalJobs, color: '#60a5fa' },
+                { label: 'Avg Skills/Job', value: avgSkillsPerJob, color: '#10b981' },
+                { label: 'Total Extracted', value: totalSkillsExtracted, color: '#8b5cf6' },
+                { label: 'Total Matched', value: totalMatched, color: '#10b981' },
+                { label: 'Total Gaps', value: totalGaps, color: '#f59e0b' },
+                { label: 'Avg Coverage', value: avgCoverage + '%', color: avgCoverage >= 70 ? '#10b981' : '#f59e0b' },
+                { label: 'Avg Match Score', value: avgMatch + '%', color: avgMatch >= 50 ? '#10b981' : '#f59e0b' },
+                { label: 'Missed Terms', value: totalMissed, color: '#ef4444' }
+            ].forEach(function(s) {
+                html += '<div style="padding:12px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; text-align:center;">'
+                    + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:3px;">' + s.label + '</div>'
+                    + '<div style="font-size:1.3em; font-weight:700; color:' + s.color + ';">' + s.value + '</div></div>';
+            });
+            html += '</div>';
+
+            var globalMissed = {};
+            var globalRecommended = {};
+            _parseAuditResults.forEach(function(j) {
+                var a = j._audit;
+                if (!a) return;
+                a.missedCandidates.forEach(function(m) {
+                    var k = m.toLowerCase();
+                    globalMissed[k] = (globalMissed[k] || 0) + 1;
+                });
+                a.recommendedSkills.forEach(function(r) {
+                    var k = r.toLowerCase();
+                    globalRecommended[k] = (globalRecommended[k] || 0) + 1;
+                });
+            });
+            var topMissed = Object.keys(globalMissed).sort(function(a, b) { return globalMissed[b] - globalMissed[a]; }).slice(0, 20);
+            var topRec = Object.keys(globalRecommended).sort(function(a, b) { return globalRecommended[b] - globalRecommended[a]; }).slice(0, 15);
+
+            if (topMissed.length > 0 || topRec.length > 0) {
+                html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px;">';
+
+                html += '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px;">'
+                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:#ef4444; margin-bottom:10px;">'
+                    + bpIcon('search',14) + ' Most Frequently Missed Terms (' + topMissed.length + ')</div>'
+                    + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:8px;">Terms found in JD requirement phrases but not extracted by parseJobLocally(). May indicate parser gaps or intentional filtering.</div>';
+                topMissed.forEach(function(t) {
+                    html += '<div style="display:flex; justify-content:space-between; padding:4px 8px; margin-bottom:2px; background:rgba(239,68,68,0.04); border-radius:4px; font-size:0.82em;">'
+                        + '<span style="color:var(--c-heading);">' + escapeHtml(t) + '</span>'
+                        + '<span style="color:#ef4444; font-weight:600;">' + globalMissed[t] + 'x</span></div>';
+                });
+                html += '</div>';
+
+                html += '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px;">'
+                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:#10b981; margin-bottom:10px;">'
+                    + bpIcon('lightbulb',14) + ' Recommended Additions (' + topRec.length + ')</div>'
+                    + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:8px;">Skills from O*NET library found in JD text but not extracted. These may be legitimate skills the parser should capture.</div>';
+                topRec.forEach(function(t) {
+                    html += '<div style="display:flex; justify-content:space-between; padding:4px 8px; margin-bottom:2px; background:rgba(16,185,129,0.04); border-radius:4px; font-size:0.82em;">'
+                        + '<span style="color:var(--c-heading);">' + escapeHtml(t) + '</span>'
+                        + '<span style="color:#10b981; font-weight:600;">' + globalRecommended[t] + 'x</span></div>';
+                });
+                html += '</div>';
+
+                html += '</div>';
+            }
+
+            html += '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:1em; color:var(--c-heading); margin-bottom:12px;">'
+                + bpIcon('list',16) + ' Per-Job Results</div>';
+
+            _parseAuditResults.forEach(function(job, idx) {
+                var a = job._audit;
+                if (!a) return;
+                var isExpanded = _parseAuditExpandedIdx === idx;
+                var sc = a.score;
+                var scColor = sc >= 70 ? '#10b981' : sc >= 45 ? '#f59e0b' : '#6b7280';
+                var covColor = a.coverageRatio >= 80 ? '#10b981' : a.coverageRatio >= 50 ? '#f59e0b' : '#ef4444';
+
+                html += '<div style="padding:12px 16px; margin-bottom:6px; border:1px solid var(--c-surface-5); border-radius:8px; background:var(--c-surface-1); cursor:pointer;" onclick="_parseAuditExpandedIdx=' + (isExpanded ? -1 : idx) + '; renderParseAudit(document.getElementById(\'adminTabContent\'));">'
+                    + '<div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">'
+                    + '<div style="flex:1; min-width:0;">'
+                    + '<div style="font-weight:600; font-size:0.9em; color:var(--c-heading); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(job.title || a.parsedTitle || 'Untitled') + '</div>'
+                    + '<div style="font-size:0.75em; color:var(--c-muted); margin-top:2px;">' + escapeHtml(job.company || a.parsedCompany || '') + ' \u00B7 ' + (job.source || '') + ' \u00B7 Parsed: "' + escapeHtml(a.parsedTitle || '') + '" \u00B7 ' + a.parsedSeniority + '</div></div>'
+                    + '<div style="display:flex; gap:12px; align-items:center; flex-shrink:0;">'
+                    + '<div style="text-align:center;">'
+                    + '<div style="font-size:1.1em; font-weight:700; color:' + scColor + ';">' + sc + '%</div>'
+                    + '<div style="font-size:0.6em; color:var(--text-muted);">match</div></div>'
+                    + '<div style="text-align:center;">'
+                    + '<div style="font-size:1.1em; font-weight:700; color:' + covColor + ';">' + a.coverageRatio + '%</div>'
+                    + '<div style="font-size:0.6em; color:var(--text-muted);">coverage</div></div>'
+                    + '<div style="text-align:center;">'
+                    + '<div style="font-size:1.1em; font-weight:700; color:#60a5fa;">' + a.skillsExtracted + '</div>'
+                    + '<div style="font-size:0.6em; color:var(--text-muted);">skills</div></div>'
+                    + '<span style="color:var(--c-muted); font-size:0.9em;">' + (isExpanded ? '\u25B2' : '\u25BC') + '</span>'
+                    + '</div></div>';
+
+                if (isExpanded) {
+                    html += '<div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--c-surface-3);">';
+
+                    html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:6px; margin-bottom:12px;">'
+                        + '<div style="font-size:0.72em; color:var(--c-muted);"><strong>JD Length:</strong> ' + a.descWordCount + ' words</div>'
+                        + '<div style="font-size:0.72em; color:var(--c-muted);"><strong>Skills Extracted:</strong> ' + a.skillsExtracted + '</div>'
+                        + '<div style="font-size:0.72em; color:var(--c-muted);"><strong>Matched to Profile:</strong> ' + a.skillsMatched + '</div>'
+                        + '<div style="font-size:0.72em; color:var(--c-muted);"><strong>Gaps:</strong> ' + a.gaps.length + '</div>'
+                        + '<div style="font-size:0.72em; color:var(--c-muted);"><strong>Coverage:</strong> ' + a.coverageRatio + '%</div>'
+                        + '</div>';
+
+                    if ((a.parsed.skills || []).length > 0) {
+                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#10b981; font-weight:600; margin-bottom:4px;">Extracted Skills (' + a.parsed.skills.length + ')</div>'
+                            + '<div style="display:flex; flex-wrap:wrap; gap:3px; margin-bottom:10px;">';
+                        (a.parsed.skills || []).forEach(function(s) {
+                            var isMatched = (a.matchResult.matched || []).some(function(m) { return m.jobSkill === s.name; });
+                            html += '<span style="padding:2px 8px; border-radius:8px; font-size:0.75em; background:' + (isMatched ? 'rgba(16,185,129,0.1)' : 'rgba(107,114,128,0.1)') + '; color:' + (isMatched ? '#10b981' : 'var(--c-muted)') + '; border:1px solid ' + (isMatched ? 'rgba(16,185,129,0.2)' : 'var(--c-surface-5)') + ';">'
+                                + escapeHtml(s.name) + ' <span style="font-size:0.85em; opacity:0.7;">(' + (s.requirement || 'R') + '/' + (s.proficiency || '?') + ')</span></span>';
+                        });
+                        html += '</div>';
+                    }
+
+                    if (a.missedCandidates.length > 0) {
+                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#ef4444; font-weight:600; margin-bottom:4px;">Potentially Missed (' + a.missedCandidates.length + ')</div>'
+                            + '<div style="display:flex; flex-wrap:wrap; gap:3px; margin-bottom:10px;">';
+                        a.missedCandidates.forEach(function(m) {
+                            html += '<span style="padding:2px 8px; border-radius:8px; font-size:0.75em; background:rgba(239,68,68,0.06); color:#ef4444; border:1px solid rgba(239,68,68,0.12);">' + escapeHtml(m) + '</span>';
+                        });
+                        html += '</div>';
+                    }
+
+                    if (a.recommendedSkills.length > 0) {
+                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#60a5fa; font-weight:600; margin-bottom:4px;">Recommended Additions (' + a.recommendedSkills.length + ')</div>'
+                            + '<div style="display:flex; flex-wrap:wrap; gap:3px; margin-bottom:10px;">';
+                        a.recommendedSkills.forEach(function(r) {
+                            html += '<span style="padding:2px 8px; border-radius:8px; font-size:0.75em; background:rgba(96,165,250,0.06); color:#60a5fa; border:1px solid rgba(96,165,250,0.12);">' + escapeHtml(r) + '</span>';
+                        });
+                        html += '</div>';
+                    }
+
+                    if (a.gaps.length > 0) {
+                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#f59e0b; font-weight:600; margin-bottom:4px;">Profile Gaps (' + a.gaps.length + ')</div>'
+                            + '<div style="display:flex; flex-wrap:wrap; gap:3px; margin-bottom:10px;">';
+                        a.gaps.forEach(function(g) {
+                            html += '<span style="padding:2px 8px; border-radius:8px; font-size:0.75em; background:rgba(245,158,11,0.06); color:#f59e0b; border:1px solid rgba(245,158,11,0.12);">' + escapeHtml(g.name) + '</span>';
+                        });
+                        html += '</div>';
+                    }
+
+                    html += '</div>';
+                }
+                html += '</div>';
+            });
+
+            html += '</div>';
+            el.innerHTML = html;
+        }
+
+        async function _parseAuditRun() {
+            var el = document.getElementById('adminTabContent');
+            _parseAuditLoading = true;
+            renderParseAudit(el);
+            try {
+                await _parseAuditFetch();
+            } catch(e) {
+                console.warn('[AUDIT] Error:', e.message);
+                showToast('Audit failed: ' + e.message, 'error');
+            }
+            _parseAuditLoading = false;
+            renderParseAudit(el);
+        }
+        window._parseAuditRun = _parseAuditRun;
+
         function renderAdminUserFlows(el) {
             var _ufFlows = [
                 { id: 'onboarding', name: 'Onboarding Wizard', icon: 'wand', cat: 'Core',
@@ -32854,8 +33186,299 @@ body {
         // ===== OPPORTUNITIES SYSTEM =====
 
         let jobsSubTab = 'your-jobs';
-        let activeJobId = null; // Currently selected job for network overlay
-        
+        let activeJobId = null;
+
+        var _fitForMeData = [];
+        var _fitForMeLoading = false;
+        var _fitForMeLastRun = 0;
+        var _fitForMeExpanded = {};
+        var _fitForMeSort = 'score-desc';
+
+        function _fitBuildSearchTerms() {
+            var terms = [];
+            var roles = (userData.roles || []).map(function(r) { return r.name || r; });
+            roles.forEach(function(r) { terms.push(r); });
+            var keySkills = (skillsData.skills || []).filter(function(s) { return s.key; }).map(function(s) { return s.name; });
+            if (keySkills.length > 0 && roles.length > 0) {
+                terms.push(roles[0] + ' ' + keySkills.slice(0, 2).join(' '));
+            }
+            if (terms.length === 0) {
+                var topSkills = (skillsData.skills || []).filter(function(s) { return s.level === 'Expert' || s.level === 'Advanced'; }).slice(0, 3).map(function(s) { return s.name; });
+                if (topSkills.length > 0) terms.push(topSkills.join(' '));
+            }
+            if (terms.length === 0) terms.push('manager');
+            return terms.slice(0, 5);
+        }
+
+        async function _fitFetchAndScore() {
+            if (_fitForMeLoading) return;
+            _fitForMeLoading = true;
+            _fitForMeData = [];
+
+            var terms = _fitBuildSearchTerms();
+            var location = '';
+            if (userData.profile && userData.profile.location) location = userData.profile.location;
+            console.log('[FIT] Searching with terms:', terms.join(' | '), 'location:', location || '(any)');
+
+            var allJobs = [];
+            var seen = new Set();
+
+            var fetches = terms.map(function(term) {
+                var params = new URLSearchParams({ q: term });
+                if (location) params.set('location', location);
+                return fetch(JOBS_PROXY_URL + '?' + params.toString(), { signal: AbortSignal.timeout(20000) })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) { return data.jobs || []; })
+                    .catch(function(e) { console.warn('[FIT] Fetch error for "' + term + '":', e.message); return []; });
+            });
+
+            try {
+                var results = await Promise.all(fetches);
+                results.forEach(function(jobs) {
+                    jobs.forEach(function(job) {
+                        var key = ((job.title || '') + '|' + (job.company || '')).toLowerCase();
+                        if (!seen.has(key)) {
+                            seen.add(key);
+                            allJobs.push(job);
+                        }
+                    });
+                });
+            } catch(e) {
+                console.warn('[FIT] Fetch all failed:', e.message);
+            }
+
+            console.log('[FIT] Fetched ' + allJobs.length + ' unique jobs from ' + terms.length + ' queries');
+
+            allJobs.forEach(function(job) {
+                var jdText = (job.title || '') + '\n' + (job.description || '') + '\n' + (job.tags || []).join(' ');
+                try {
+                    var parsed = parseJobLocally(jdText);
+                    var matchResult = matchJobToProfile(parsed);
+                    job._fitParsed = parsed;
+                    job._fitMatch = matchResult;
+                    job.matchScore = matchResult.score;
+                    job.matchedSkills = (matchResult.matched || []).map(function(m) { return m.userSkill || m.jobSkill; });
+                    job.gapSkills = (matchResult.gaps || []).map(function(g) { return g.name; });
+                    job._fitSkillsExtracted = (parsed.skills || []).length;
+                    job._fitParsedTitle = parsed.title;
+                    job._fitSeniority = parsed.seniority;
+                } catch(e) {
+                    job.matchScore = 0;
+                    job.matchedSkills = [];
+                    job.gapSkills = [];
+                    job._fitSkillsExtracted = 0;
+                }
+            });
+
+            allJobs.sort(function(a, b) { return (b.matchScore || 0) - (a.matchScore || 0); });
+            _fitForMeData = allJobs.filter(function(j) { return j.matchScore > 0; });
+            _fitForMeLastRun = Date.now();
+            _fitForMeLoading = false;
+
+            var pipelineIds = {};
+            (userData.savedJobs || []).forEach(function(j) {
+                pipelineIds[((j.title || '') + '-' + (j.company || '')).toLowerCase()] = true;
+            });
+            _fitForMeData.forEach(function(j) {
+                j._inPipeline = !!pipelineIds[((j.title || '') + '-' + (j.company || '')).toLowerCase()];
+            });
+
+            console.log('[FIT] Scored ' + _fitForMeData.length + ' jobs with match > 0. Top score: ' + (_fitForMeData[0] ? _fitForMeData[0].matchScore : 0));
+        }
+
+        function _fitSortData() {
+            var d = _fitForMeData.slice();
+            if (_fitForMeSort === 'score-asc') d.sort(function(a, b) { return a.matchScore - b.matchScore; });
+            else if (_fitForMeSort === 'title-asc') d.sort(function(a, b) { return (a.title || '').localeCompare(b.title || ''); });
+            else if (_fitForMeSort === 'company-asc') d.sort(function(a, b) { return (a.company || '').localeCompare(b.company || ''); });
+            else d.sort(function(a, b) { return (b.matchScore || 0) - (a.matchScore || 0); });
+            return d;
+        }
+
+        async function renderFitForMe(el) {
+            if (!el) return;
+            var userSkillCount = (skillsData.skills || []).length;
+            var roleCount = (userData.roles || []).length;
+
+            if (userSkillCount === 0 && roleCount === 0) {
+                el.innerHTML = '<div style="text-align:center; padding:60px 20px;">'
+                    + '<div style="margin-bottom:16px; opacity:0.3;">' + bpIcon('activity',48) + '</div>'
+                    + '<p style="font-size:1.1em; color:var(--c-heading); margin-bottom:8px;">Build Your Profile First</p>'
+                    + '<p style="font-size:0.88em; color:var(--text-muted); max-width:400px; margin:0 auto;">Add skills and target roles to your Blueprint profile. Fit For Me uses your profile to automatically find and rank matching jobs.</p></div>';
+                return;
+            }
+
+            var staleMinutes = _fitForMeLastRun ? Math.round((Date.now() - _fitForMeLastRun) / 60000) : -1;
+            var isStale = staleMinutes < 0 || staleMinutes > 15;
+
+            if (_fitForMeData.length === 0 && !_fitForMeLoading && isStale) {
+                el.innerHTML = '<div style="text-align:center; padding:48px 20px;">'
+                    + '<div class="loading-spinner" style="width:32px; height:32px; border-width:3px; margin:0 auto 16px;"></div>'
+                    + '<p style="font-size:1em; color:var(--text-secondary);">Analyzing your profile and finding matches...</p>'
+                    + '<p style="font-size:0.82em; color:var(--text-muted); margin-top:8px;">Running full matching engine across multiple job sources</p></div>';
+                await _fitFetchAndScore();
+                renderFitForMe(el);
+                return;
+            }
+
+            if (_fitForMeLoading) {
+                el.innerHTML = '<div style="text-align:center; padding:48px 20px;">'
+                    + '<div class="loading-spinner" style="width:32px; height:32px; border-width:3px; margin:0 auto 16px;"></div>'
+                    + '<p style="color:var(--text-secondary);">Matching in progress...</p></div>';
+                return;
+            }
+
+            var sorted = _fitSortData();
+            var totalFetched = _fitForMeData.length;
+
+            var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">'
+                + '<div>'
+                + '<div style="font-size:0.95em; color:var(--text-secondary);"><strong>' + totalFetched + '</strong> jobs ranked by full matching engine</div>'
+                + (staleMinutes >= 0 ? '<div style="font-size:0.75em; color:var(--text-muted); margin-top:2px;">Updated ' + (staleMinutes < 1 ? 'just now' : staleMinutes + ' min ago') + '</div>' : '')
+                + '</div>'
+                + '<div style="display:flex; gap:8px; align-items:center;">'
+                + '<select onchange="_fitForMeSort=this.value; renderFitForMe(document.getElementById(\'jobsSubTabContent\'));" style="padding:5px 10px; border-radius:6px; border:1px solid var(--border); background:var(--c-input-bg-soft); color:var(--text-primary); font-size:0.82em;">'
+                + '<option value="score-desc"' + (_fitForMeSort === 'score-desc' ? ' selected' : '') + '>Best Match First</option>'
+                + '<option value="score-asc"' + (_fitForMeSort === 'score-asc' ? ' selected' : '') + '>Lowest Match First</option>'
+                + '<option value="title-asc"' + (_fitForMeSort === 'title-asc' ? ' selected' : '') + '>Title A\u2013Z</option>'
+                + '<option value="company-asc"' + (_fitForMeSort === 'company-asc' ? ' selected' : '') + '>Company A\u2013Z</option>'
+                + '</select>'
+                + '<button onclick="_fitForMeData=[]; _fitForMeLastRun=0; renderFitForMe(document.getElementById(\'jobsSubTabContent\'));" style="padding:6px 14px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; display:flex; align-items:center; gap:5px;">' + bpIcon('refresh',12) + ' Refresh</button>'
+                + '</div></div>';
+
+            if (sorted.length === 0) {
+                html += '<div style="text-align:center; padding:40px 20px;">'
+                    + '<div style="margin-bottom:12px; opacity:0.3;">' + bpIcon('search',48) + '</div>'
+                    + '<p style="color:var(--text-secondary);">No matching jobs found. Try refreshing or updating your profile.</p></div>';
+                el.innerHTML = html;
+                return;
+            }
+
+            html += '<div style="display:flex; flex-direction:column; gap:10px;">';
+            sorted.slice(0, 50).forEach(function(job, idx) {
+                var score = job.matchScore || 0;
+                var matchColor = score >= 70 ? '#10b981' : score >= 45 ? '#f59e0b' : '#6b7280';
+                var jobUrl = (job.url && /^https?:\/\//i.test(job.url)) ? escapeHtml(job.url) : '#';
+                var isExpanded = _fitForMeExpanded[idx];
+                var matchResult = job._fitMatch || {};
+                var matched = matchResult.matched || [];
+                var gaps = matchResult.gaps || [];
+
+                html += '<div style="padding:16px 20px; border-radius:10px; border:1px solid ' + (score >= 70 ? 'rgba(16,185,129,0.3)' : 'var(--border)') + '; background:var(--c-input-bg-soft);">';
+
+                html += '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:8px;">'
+                    + '<div style="flex:1; min-width:0;">'
+                    + '<a href="' + jobUrl + '" target="_blank" rel="noopener noreferrer" style="font-size:1.05em; font-weight:600; color:var(--text-primary); text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block;" onmouseover="this.style.color=\'var(--accent)\'" onmouseout="this.style.color=\'var(--text-primary)\'">' + escapeHtml(job.title || 'Untitled') + '</a>'
+                    + '<div style="font-size:0.85em; color:var(--text-muted); margin-top:2px;">'
+                    + escapeHtml(job.company || 'Unknown') + (job.location ? ' \u00B7 ' + escapeHtml(job.location) : '')
+                    + (job.source ? ' \u00B7 <span style="color:var(--accent);">' + escapeHtml(job.source) + '</span>' : '') + '</div></div>'
+                    + '<div style="text-align:center; min-width:56px;">'
+                    + '<div style="font-size:1.4em; font-weight:700; color:' + matchColor + ';">' + score + '%</div>'
+                    + '<div style="font-size:0.68em; color:var(--text-muted);">match</div></div></div>';
+
+                html += '<div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">';
+                (job.matchedSkills || []).slice(0, 8).forEach(function(s) {
+                    html += '<span style="padding:2px 8px; border-radius:10px; font-size:0.73em; background:rgba(16,185,129,0.1); color:#10b981; border:1px solid rgba(16,185,129,0.2);">' + escapeHtml(s) + '</span>';
+                });
+                (job.gapSkills || []).slice(0, 4).forEach(function(s) {
+                    html += '<span style="padding:2px 8px; border-radius:10px; font-size:0.73em; background:rgba(239,68,68,0.06); color:#ef4444; border:1px solid rgba(239,68,68,0.15);">' + escapeHtml(s) + '</span>';
+                });
+                html += '</div>';
+
+                html += '<div style="display:flex; gap:8px; align-items:center; font-size:0.8em;">'
+                    + '<span style="color:var(--text-muted);">' + (job._fitSkillsExtracted || 0) + ' skills parsed \u00B7 ' + matched.length + ' matched \u00B7 ' + gaps.length + ' gaps</span>'
+                    + '<button onclick="_fitForMeExpanded[' + idx + ']=!' + (isExpanded ? 'true' : 'false') + '; renderFitForMe(document.getElementById(\'jobsSubTabContent\'));" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size:0.9em; padding:2px 6px;">' + (isExpanded ? '\u25B2 Less' : '\u25BC Details') + '</button>';
+                if (!job._inPipeline) {
+                    html += '<button onclick="_fitAddToPipeline(' + idx + ')" style="background:none; border:1px solid var(--accent); color:var(--accent); padding:3px 10px; border-radius:6px; cursor:pointer; font-size:0.85em; font-weight:600;">+ Pipeline</button>';
+                } else {
+                    html += '<span style="color:#10b981; font-size:0.85em; font-weight:500;">\u2713 In Pipeline</span>';
+                }
+                html += '</div>';
+
+                if (isExpanded) {
+                    html += '<div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--c-surface-3);">';
+
+                    if (matched.length > 0) {
+                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#10b981; font-weight:600; margin-bottom:6px;">Matched Skills (' + matched.length + ')</div>'
+                            + '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:4px; margin-bottom:12px;">';
+                        matched.forEach(function(m) {
+                            var quality = Math.round((m.nameMatch || 0) * (m.profMatch || 1) * 100);
+                            var qColor = quality >= 80 ? '#10b981' : quality >= 50 ? '#f59e0b' : '#ef4444';
+                            html += '<div style="padding:6px 10px; background:rgba(16,185,129,0.04); border-radius:6px; border-left:2px solid ' + qColor + '; font-size:0.82em;">'
+                                + '<span style="font-weight:600; color:var(--c-heading);">' + escapeHtml(m.jobSkill) + '</span>'
+                                + (m.userSkill !== m.jobSkill ? ' <span style="color:var(--text-muted);">\u2192 ' + escapeHtml(m.userSkill) + '</span>' : '')
+                                + (m.userLevel ? ' <span style="color:' + qColor + '; font-size:0.9em;">(' + m.userLevel + ')</span>' : '')
+                                + '</div>';
+                        });
+                        html += '</div>';
+                    }
+
+                    if (gaps.length > 0) {
+                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#ef4444; font-weight:600; margin-bottom:6px;">Gaps (' + gaps.length + ')</div>'
+                            + '<div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:12px;">';
+                        gaps.forEach(function(g) {
+                            html += '<span style="padding:3px 10px; border-radius:10px; font-size:0.78em; background:rgba(239,68,68,0.06); color:#ef4444; border:1px solid rgba(239,68,68,0.12);">'
+                                + escapeHtml(g.name) + ' <span style="font-size:0.85em; color:var(--text-muted);">(' + (g.requirement || 'Required') + ')</span></span>';
+                        });
+                        html += '</div>';
+                    }
+
+                    var surplus = matchResult.surplus || [];
+                    if (surplus.length > 0) {
+                        html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#60a5fa; font-weight:600; margin-bottom:6px;">Your Additional Skills (' + surplus.length + ')</div>'
+                            + '<div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">';
+                        surplus.slice(0, 10).forEach(function(s) {
+                            html += '<span style="padding:2px 8px; border-radius:10px; font-size:0.73em; background:rgba(96,165,250,0.06); color:#60a5fa; border:1px solid rgba(96,165,250,0.12);">' + escapeHtml(s.name) + '</span>';
+                        });
+                        if (surplus.length > 10) html += '<span style="font-size:0.73em; color:var(--text-muted);">+' + (surplus.length - 10) + ' more</span>';
+                        html += '</div>';
+                    }
+
+                    html += '</div>';
+                }
+
+                html += '</div>';
+            });
+            html += '</div>';
+
+            if (sorted.length > 50) {
+                html += '<div style="text-align:center; padding:16px; font-size:0.85em; color:var(--text-muted);">Showing top 50 of ' + sorted.length + ' results</div>';
+            }
+
+            el.innerHTML = html;
+        }
+
+        function _fitAddToPipeline(idx) {
+            if (readOnlyGuard()) return;
+            var job = _fitForMeData[idx];
+            if (!job) return;
+            var jdText = (job.title || '') + '\n' + (job.description || '') + '\n' + (job.tags || []).join(' ');
+            var parsed = job._fitParsed || parseJobLocally(jdText);
+            var matchResult = job._fitMatch || matchJobToProfile(parsed);
+            var entry = {
+                title: job.title || parsed.title,
+                company: job.company || parsed.company,
+                location: job.location || '',
+                url: job.url || '',
+                source: job.source || '',
+                salary: job.salary || '',
+                type: job.type || '',
+                dateAdded: new Date().toISOString(),
+                matchScore: matchResult.score,
+                parsedData: parsed,
+                matchResult: matchResult,
+                addedFrom: 'fit-for-me'
+            };
+            if (!userData.savedJobs) userData.savedJobs = [];
+            userData.savedJobs.unshift(entry);
+            saveUserData();
+            job._inPipeline = true;
+            showToast('Added to Pipeline: ' + (job.title || 'Job'), 'success');
+            var el = document.getElementById('jobsSubTabContent');
+            if (el) renderFitForMe(el);
+        }
+        window._fitAddToPipeline = _fitAddToPipeline;
+
         function initOpportunities() {
             const view = document.getElementById('opportunitiesView');
             var savedCount = (userData.savedJobs || []).length;
@@ -32865,8 +33488,9 @@ body {
                 + '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px;">'
                 + '<div class="jobs-subtabs" style="margin-bottom:0;">'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'your-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'your-jobs\')">' + bpIcon('target',14) + ' Pipeline' + (savedCount > 0 ? ' (' + savedCount + ')' : '') + '</button>'
-                + '<button class="jobs-subtab ' + (jobsSubTab === 'tracker' ? 'active' : '') + '" onclick="switchJobsSubTab(\'tracker\')">' + bpIcon('tracker',14) + ' Tracker' + (appCount > 0 ? ' (' + appCount + ')' : '') + '</button>'
                 + '<button class="jobs-subtab ' + (jobsSubTab === 'find-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'find-jobs\')">' + bpIcon('search',14) + ' Find Jobs' + (opportunitiesData.length > 0 ? ' (' + opportunitiesData.length + ')' : '') + '</button>'
+                + '<button class="jobs-subtab ' + (jobsSubTab === 'fit-for-me' ? 'active' : '') + '" onclick="switchJobsSubTab(\'fit-for-me\')">' + bpIcon('activity',14) + ' Fit For Me' + (_fitForMeData.length > 0 ? ' (' + _fitForMeData.length + ')' : '') + '</button>'
+                + '<button class="jobs-subtab ' + (jobsSubTab === 'tracker' ? 'active' : '') + '" onclick="switchJobsSubTab(\'tracker\')">' + bpIcon('tracker',14) + ' Tracker' + (appCount > 0 ? ' (' + appCount + ')' : '') + '</button>'
                 + '</div>'
                 + '</div>'
                 + '<div id="jobsSubTabContent"></div>'
@@ -32889,6 +33513,9 @@ body {
             if (!el) return;
             if (jobsSubTab === 'your-jobs') {
                 el.innerHTML = renderSavedJobs();
+            } else if (jobsSubTab === 'fit-for-me') {
+                renderFitForMe(el);
+                return;
             } else if (jobsSubTab === 'tracker') {
                 el.innerHTML = renderTrackerInJobs();
             } else {
