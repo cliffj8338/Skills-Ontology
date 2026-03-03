@@ -680,6 +680,19 @@
               #adminSidebar .admin-group-items { display: contents !important; }
           }
 
+          @media (max-width: 900px) {
+              #adminSidebarWrap {
+                  width: 100% !important;
+                  position: relative !important;
+              }
+              #adminScrollLeft, #adminScrollRight {
+                  display: flex !important;
+              }
+          }
+          @media (min-width: 901px) {
+              #adminScrollLeft, #adminScrollRight { display: none !important; }
+          }
+  
 </style>
 </head>
 <body>
@@ -3327,7 +3340,18 @@
         }
         window.switchAdminTab = switchAdminTab;
         
-        function _adminSidebarBtn(tab, icon, label) {
+        function _adminUpdateScrollChevrons() {
+              var nav = document.getElementById('adminSidebar');
+              var left = document.getElementById('adminScrollLeft');
+              var right = document.getElementById('adminScrollRight');
+              if (!nav || !left || !right) return;
+              var canScrollLeft = nav.scrollLeft > 4;
+              var canScrollRight = nav.scrollLeft < (nav.scrollWidth - nav.clientWidth - 4);
+              left.style.display = canScrollLeft ? 'flex' : 'none';
+              right.style.display = canScrollRight ? 'flex' : 'none';
+          }
+          
+          function _adminSidebarBtn(tab, icon, label) {
             var isActive = (adminSubTab || 'overview') === tab;
             return '<button class="admin-tab" data-tab="' + tab + '" onclick="switchAdminTab(\'' + tab + '\')" style="'
                 + 'display:flex; align-items:center; gap:8px; width:100%; padding:8px 12px; border:none; border-radius:6px;'
@@ -3392,7 +3416,9 @@
 
                 + '<div id="adminLayout" style="display:flex; gap:24px; align-items:flex-start;">'
 
-                + '<nav id="adminSidebar" style="width:190px; flex-shrink:0; position:sticky; top:80px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:6px; display:flex; flex-direction:column; gap:2px;">'
+                + '<div id="adminSidebarWrap" style="width:190px; flex-shrink:0; position:sticky; top:80px;">'
+                  + '<div id="adminScrollLeft" onclick="document.getElementById(\'adminSidebar\').scrollBy({left:-120,behavior:\'smooth\'})" style="display:none; position:absolute; left:0; top:0; bottom:0; width:28px; z-index:2; background:linear-gradient(90deg, var(--c-surface-2) 60%, transparent); cursor:pointer; align-items:center; justify-content:center; color:var(--text-muted); font-size:1.1em; border-radius:12px 0 0 12px;">&#8249;</div>'
+                  + '<nav id="adminSidebar" style="width:100%; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:6px; display:flex; flex-direction:column; gap:2px;">'
                 + _adminSidebarGroup('ops', 'Operations',
                     _adminSidebarBtn('overview', 'blueprint', 'Overview')
                     + _adminSidebarBtn('users', 'users', 'Users')
@@ -3414,6 +3440,8 @@
                     _adminSidebarBtn('roadmap', 'target', 'Roadmap')
                     + _adminSidebarBtn('costs', 'skills', 'Costs'))
                 + '</nav>'
+                  + '<div id="adminScrollRight" onclick="document.getElementById(\'adminSidebar\').scrollBy({left:120,behavior:\'smooth\'})" style="display:none; position:absolute; right:0; top:0; bottom:0; width:28px; z-index:2; background:linear-gradient(270deg, var(--c-surface-2) 60%, transparent); cursor:pointer; align-items:center; justify-content:center; color:var(--text-muted); font-size:1.1em; border-radius:0 12px 12px 0;">&#8250;</div>'
+                  + '</div>'
 
                 + '<div id="adminTabContent" style="flex:1; min-width:0;"></div>'
 
@@ -3714,8 +3742,16 @@
                 + '</div></div>';
             
             el.innerHTML = html;
-            
-            // Async: load platform analytics from Firestore
+              
+              setTimeout(function() {
+                  var nav = document.getElementById('adminSidebar');
+                  if (nav) {
+                      nav.addEventListener('scroll', _adminUpdateScrollChevrons);
+                      _adminUpdateScrollChevrons();
+                  }
+              }, 50);
+              
+              // Async: load platform analytics from Firestore
             loadPlatformAnalytics();
             renderTrafficDashboard(30);
             loadAdminJobsSyncStatus();
