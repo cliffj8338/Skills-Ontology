@@ -1,4 +1,4 @@
-<!-- v4.45.90 | 2026-03-02 | AI purpose statement generator, Firestore purpose persistence -->
+<!-- v4.45.91 | 2026-03-03 | Skills card view rarity grouping, compensation intelligence, tier stats -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1646,8 +1646,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.90 - BUILD 20260302-purpose-ai
-        var BP_VERSION = 'v4.45.90';
+        // BLUEPRINT v4.45.91 - BUILD 20260303-skills-rarity
+        var BP_VERSION = 'v4.45.91';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -23928,183 +23928,118 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             try {
 
-            // ── Dynamic domain grouping — works for ANY profile ──────────────
-            // Strategy: group by role first (uses the profile's own role names),
-            // then fall back to O*NET category, then "Other Skills" catch-all.
-
-            const roleIconMap = {
-                // Common role name patterns → SVG icon name
-                'strategy': 'target', 'vp': 'target', 'director': 'target', 'executive': 'target', 'chief': 'target',
-                'technology': 'tool', 'engineer': 'tool', 'developer': 'tool', 'tech': 'tool', 'software': 'tool',
-                'product': 'layers', 'manager': 'layers',
-                'data': 'database', 'analyst': 'database', 'research': 'database', 'science': 'database',
-                'design': 'compass', 'creative': 'compass', 'ux': 'compass', 'artist': 'compass',
-                'marketing': 'send', 'communication': 'send', 'sales': 'send', 'content': 'send',
-                'hr': 'users', 'talent': 'users', 'people': 'users', 'recruiting': 'users',
-                'finance': 'dollar', 'accounting': 'dollar', 'operations': 'dollar',
-                'pilot': 'compass', 'aviation': 'compass', 'flight': 'compass',
-                'music': 'heart', 'musician': 'heart', 'performer': 'heart',
-                'advocate': 'heart', 'nonprofit': 'heart', 'community': 'heart',
-                'futurist': 'zap', 'innovation': 'zap', 'evangelist': 'zap',
-                'entrepreneur': 'trending-up', 'founder': 'trending-up', 'startup': 'trending-up',
-                'consultant': 'briefcase', 'advisor': 'briefcase',
-            };
-
-            const categoryMeta = {
-                'skill':      { label: 'Skills',       iconName: 'compass' },
-                'ability':    { label: 'Abilities',     iconName: 'zap' },
-                'workstyle':  { label: 'Work Style',    iconName: 'flag' },
-                'unique':     { label: 'Unique Strengths', iconName: 'star' },
-            };
-
-            function getRoleIcon(roleName) {
-                const lower = (roleName || '').toLowerCase();
-                for (const [keyword, iconName] of Object.entries(roleIconMap)) {
-                    if (lower.includes(keyword)) return bpIcon(iconName, 20);
-                }
-                return bpIcon('briefcase', 20);
-            }
-
-            const domains = {};
-
-            // Build role-based domains from the profile's visible roles
-            const profileRoles = typeof getVisibleRoles === 'function' ? getVisibleRoles() : (skillsData.roles || userData.roles || []);
-            profileRoles.forEach(role => {
-                domains[role.id] = {
-                    label: role.name,
-                    icon: getRoleIcon(role.name),
-                    color: role.color,
-                    skills: []
-                };
-            });
-
-            // Catch-all domains for skills without a role or for category fallback
-            const uncategorized = { label: 'Other Skills', icon: bpIcon('compass', 20), skills: [] };
-
-            // Level priority for sorting within domains
+            // ── Rarity-based grouping — market intelligence view ──────────────
             const levelPriority = { Mastery: 5, Expert: 4, Advanced: 3, Proficient: 2, Novice: 1 };
+            const levelColors = { Mastery: '#ef4444', Expert: '#f97316', Advanced: '#f59e0b', Proficient: '#10b981', Novice: '#6b7280' };
 
-            // Assign each skill to its primary role domain, or uncategorized
-            skillsData.skills.forEach(skill => {
-                const skillRoles = skill.roles || (skill.role ? [skill.role] : []);
-                // Try to find a matching domain by ID or name
-                var assigned = false;
-                for (var ri = 0; ri < skillRoles.length && !assigned; ri++) {
-                    var ref = skillRoles[ri];
-                    // Match by direct ID
-                    if (domains[ref]) {
-                        domains[ref].skills.push(skill);
-                        assigned = true;
-                    } else {
-                        // Match by role name
-                        var matchKey = Object.keys(domains).find(function(k) { return domains[k].label === ref; });
-                        if (matchKey) {
-                            domains[matchKey].skills.push(skill);
-                            assigned = true;
-                        }
-                    }
+            const rarityTiers = {
+                rare: {
+                    label: 'Rare', desc: 'Your market differentiators',
+                    icon: bpIcon('flame', 20),
+                    bg: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(251,191,36,0.04))',
+                    border: 'rgba(245,158,11,0.3)', accent: '#f59e0b',
+                    pillBg: 'rgba(245,158,11,0.2)', pillColor: '#f59e0b', skills: []
+                },
+                uncommon: {
+                    label: 'Uncommon', desc: 'Strong competitive advantages',
+                    icon: bpIcon('diamond', 20),
+                    bg: 'linear-gradient(135deg, rgba(96,165,250,0.06), rgba(139,92,246,0.04))',
+                    border: 'rgba(96,165,250,0.25)', accent: '#60a5fa',
+                    pillBg: 'rgba(96,165,250,0.2)', pillColor: '#60a5fa', skills: []
+                },
+                common: {
+                    label: 'Common', desc: 'Foundational capabilities',
+                    icon: bpIcon('check', 20),
+                    bg: 'var(--c-surface-2a, rgba(255,255,255,0.03))',
+                    border: 'var(--border, rgba(255,255,255,0.08))', accent: '#6b7280',
+                    pillBg: 'rgba(107,114,128,0.2)', pillColor: '#9ca3af', skills: []
                 }
-                if (!assigned) {
-                    uncategorized.skills.push(skill);
+            };
+
+            var scarcityMap = { rare: 'rare', specialized: 'rare', uncommon: 'uncommon', common: 'common', universal: 'common' };
+            skillsData.skills.forEach(function(skill) {
+                var impact = getSkillImpact(skill);
+                var rawScarcity = (impact && impact.marketScarcity) || 'common';
+                var rarity = scarcityMap[rawScarcity] || 'common';
+                if (skill.category === 'unique') {
+                    rarity = (skill.userAssessment && skill.userAssessment.rarity) || 'uncommon';
                 }
+                rarityTiers[rarity].skills.push(skill);
             });
 
-            // Decide grouping strategy
-            const totalInRoles = Object.values(domains).reduce((n, d) => n + d.skills.length, 0);
-            const totalSkills = skillsData.skills.length;
-            const finalDomains = {};
-
-            if (totalSkills === 0) {
-                // No skills — nothing to show
-            } else if (totalInRoles >= totalSkills * 0.5) {
-                // Good role coverage (50%+) — use role-based grouping
-                Object.entries(domains).forEach(([id, d]) => {
-                    if (d.skills.length > 0) finalDomains[id] = d;
-                });
-                // Add any uncategorized skills under their category
-                if (uncategorized.skills.length > 0) {
-                    // Sub-bucket uncategorized by O*NET category rather than one big pile
-                    uncategorized.skills.forEach(skill => {
-                        const cat = skill.category || 'skill';
-                        const meta = categoryMeta[cat] || categoryMeta['skill'];
-                        const key = '__cat_' + cat;
-                        if (!finalDomains[key]) {
-                            finalDomains[key] = { label: meta.label, icon: bpIcon(meta.iconName || 'compass', 20), skills: [] };
-                        }
-                        finalDomains[key].skills.push(skill);
-                    });
-                }
-            } else {
-                // Poor role coverage — group everything by O*NET category
-                // This handles profiles where skills lack role assignments
-                skillsData.skills.forEach(skill => {
-                    const cat = skill.category || 'skill';
-                    const meta = categoryMeta[cat] || categoryMeta['skill'];
-                    if (!finalDomains[cat]) {
-                        finalDomains[cat] = { label: meta.label, icon: bpIcon(meta.iconName || 'compass', 20), skills: [] };
-                    }
-                    finalDomains[cat].skills.push(skill);
-                });
-            }
-            
-            // Sort skills within each domain: key/core first, then by level
-            Object.values(finalDomains).forEach(d => {
-                d.skills.sort((a, b) => {
+            Object.values(rarityTiers).forEach(function(tier) {
+                tier.skills.sort(function(a, b) {
                     if (a.key && !b.key) return -1;
                     if (!a.key && b.key) return 1;
-                    return (levelPriority[b.level] || 0) - (levelPriority[a.level] || 0);
+                    var lvl = (levelPriority[b.level] || 0) - (levelPriority[a.level] || 0);
+                    if (lvl !== 0) return lvl;
+                    return (a.name || '').localeCompare(b.name || '');
                 });
             });
 
-            let html = '<div class="cards-grid">';
-            
-            Object.entries(finalDomains).forEach(([domainKey, data]) => {
-                if (data.skills.length === 0) return;
-                const domainTitle = data.label || domainKey;
-                
-                html += `
-                    <div class="domain-card">
-                        <div class="domain-header">
-                            <span class="domain-icon">${data.icon}</span>
-                            <span class="domain-title">${escapeHtml(domainTitle)}</span>
-                        </div>
-                        <div class="skills-list">
-                `;
-                
-                data.skills.forEach(skill => {
-                    const levelClass = String(skill.level || 'proficient').toLowerCase();
-                    const keyBadge = skill.key ? '<span class="skill-badge">CORE</span>' : '';
-                    const rolesList = (skill.roles || []).map(roleId => {
-                        const role = skillsData.roles.find(r => r.id === roleId);
-                        return role ? role.name : roleId;
-                    }).join(', ');
-                    
-                    // Get years of experience from skillDetails
-                    const details = skillsData.skillDetails && skillsData.skillDetails[skill.name];
-                    const years = details && details.years ? details.years + ' yrs' : '';
-                    const yearsBadge = years ? `<span class="skill-years">${years}</span>` : '';
-                    
-                    // Get market impact rating (instead of dollar value)
-                    const skillImpact = calculateSkillValue(skill);
-                    const impactColor = getImpactColor(skillImpact.level);
-                    const impactBadge = `<span class="skill-impact-badge" style="background: rgba(${impactColor === '#ef4444' ? '239, 68, 68' : impactColor === '#f59e0b' ? '245, 158, 11' : impactColor === '#3b82f6' ? '59, 130, 246' : '107, 114, 128'}, 0.2); color: ${impactColor}; font-size: 0.7em; padding: 3px 8px; border-radius: 3px; font-weight: 600; white-space: nowrap;">${skillImpact.icon} ${skillImpact.label.toUpperCase()}</span>`;
-                    
-                    // Category badge for all O*NET types + Unique
-                    let categoryBadge = '';
-                    if (skill.category === 'skill') {
-                        categoryBadge = '<span class="skill-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; font-size: 0.7em; padding: 2px 6px; border-radius: 3px; margin-left: 6px;">SKILL</span>';
-                    } else if (skill.category === 'ability') {
-                        categoryBadge = '<span class="skill-badge" style="background: rgba(139, 92, 246, 0.2); color: #a78bfa; font-size: 0.7em; padding: 2px 6px; border-radius: 3px; margin-left: 6px;">ABILITY</span>';
-                    } else if (skill.category === 'workstyle') {
-                        categoryBadge = '<span class="skill-badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; font-size: 0.7em; padding: 2px 6px; border-radius: 3px; margin-left: 6px;">WORK STYLE</span>';
-                    } else if (skill.category === 'unique') {
-                        categoryBadge = '<span class="skill-badge" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24; font-size: 0.7em; padding: 2px 6px; border-radius: 3px; margin-left: 6px;">UNIQUE</span>';
-                    }
-                    
-                    // Evidence indicator (v4.16.1)
-                    let evidenceBadge = '';
+            var html = '<div class="cards-grid">';
+
+            ['rare', 'uncommon', 'common'].forEach(function(tierKey) {
+                var tier = rarityTiers[tierKey];
+                if (tier.skills.length === 0) return;
+
+                var levelCounts = {};
+                var evidenceBacked = 0;
+                var verifiedTotal = 0;
+                tier.skills.forEach(function(sk) {
+                    var lv = sk.level || 'Proficient';
+                    levelCounts[lv] = (levelCounts[lv] || 0) + 1;
                     if (typeof getEvidenceSummary === 'function') {
-                        const evs = getEvidenceSummary(skill);
+                        var ev = getEvidenceSummary(sk);
+                        if (ev.evidenceCount > 0) evidenceBacked++;
+                        if (ev.verifiedCount > 0) verifiedTotal++;
+                    }
+                });
+                var levelOrder = ['Mastery', 'Expert', 'Advanced', 'Proficient', 'Novice'];
+                var levelStatsHtml = levelOrder
+                    .filter(function(lv) { return levelCounts[lv]; })
+                    .map(function(lv) { return '<span style="color:' + (levelColors[lv] || '#6b7280') + ';">' + levelCounts[lv] + ' ' + lv + '</span>'; })
+                    .join(' <span style="opacity:0.3;">\u00B7</span> ');
+                var evidenceHtml = evidenceBacked > 0 ? ' <span style="opacity:0.3;">\u00B7</span> <span style="color:#10b981;">' + evidenceBacked + '/' + tier.skills.length + ' evidence-backed</span>' : '';
+                var verifiedHtml = verifiedTotal > 0 ? ' <span style="opacity:0.3;">\u00B7</span> <span style="color:#10b981;">' + verifiedTotal + ' verified</span>' : '';
+
+                html += '<div class="domain-card" style="background:' + tier.bg + '; border-color:' + tier.border + ';">'
+                    + '<div class="domain-header">'
+                    + '<span class="domain-icon">' + tier.icon + '</span>'
+                    + '<span class="domain-title">' + tier.label + ' <span style="font-weight:400; font-size:0.85em; color:var(--text-muted);">(' + tier.skills.length + ')</span></span>'
+                    + '<span style="margin-left:auto; font-size:0.78em; color:var(--text-muted); font-weight:400;">' + tier.desc + '</span>'
+                    + '</div>'
+                    + '<div style="font-size:0.75em; padding:4px 12px 8px 12px; color:var(--text-muted); line-height:1.6;">'
+                    + levelStatsHtml + evidenceHtml + verifiedHtml
+                    + '</div>'
+                    + '<div class="skills-list">';
+
+                tier.skills.forEach(function(skill) {
+                    var levelClass = String(skill.level || 'proficient').toLowerCase();
+                    var lc = levelColors[skill.level] || '#6b7280';
+
+                    var roleNames = (skill.roles || []).map(function(roleId) {
+                        var role = (skillsData.roles || []).find(function(r) { return r.id === roleId; });
+                        return role ? role.name : '';
+                    }).filter(Boolean);
+
+                    var details = skillsData.skillDetails && skillsData.skillDetails[skill.name];
+                    var years = details && details.years ? details.years + ' yrs' : '';
+
+                    var skillImpact = calculateSkillValue(skill);
+                    var impactColor = getImpactColor(skillImpact.level);
+                    var impactRgb = impactColor === '#ef4444' ? '239,68,68' : impactColor === '#f59e0b' ? '245,158,11' : impactColor === '#3b82f6' ? '59,130,246' : '107,114,128';
+
+                    var categoryLabel = '';
+                    var catStyle = '';
+                    if (skill.category === 'skill') { categoryLabel = 'SKILL'; catStyle = 'background:rgba(59,130,246,0.2);color:#60a5fa;'; }
+                    else if (skill.category === 'ability') { categoryLabel = 'ABILITY'; catStyle = 'background:rgba(139,92,246,0.2);color:#a78bfa;'; }
+                    else if (skill.category === 'workstyle') { categoryLabel = 'WORK STYLE'; catStyle = 'background:rgba(16,185,129,0.2);color:#10b981;'; }
+                    else if (skill.category === 'unique') { categoryLabel = 'UNIQUE'; catStyle = 'background:rgba(251,191,36,0.2);color:#fbbf24;'; }
+
+                    var evidenceBadge = '';
+                    if (typeof getEvidenceSummary === 'function') {
+                        var evs = getEvidenceSummary(skill);
                         if (evs.hasGap) {
                             evidenceBadge = '<span style="font-size:0.65em; color:#fbbf24; margin-left:4px;" title="Evidence gap: claimed ' + evs.claimedLevel + ', evidence supports ' + evs.effectiveLevel + '">\u26A0</span>';
                         } else if (evs.evidenceCount > 0) {
@@ -24114,26 +24049,31 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                             evidenceBadge += '<span style="font-size:0.6em; padding:1px 5px; border-radius:6px; background:rgba(16,185,129,0.15); color:#10b981; margin-left:3px; font-weight:600;" title="Verified by ' + evs.verifiedCount + '">\u2713 Verified</span>';
                         }
                     }
-                    
-                    html += `
-                        <div class="skill-item ${levelClass}" title="${escapeHtml(rolesList)}" onclick='openSkillModalFromCard("${escapeHtml(skill.name).replace(/'/g, "\\'")}")' style="cursor: pointer;">
-                            <div class="skill-dot" style="background: ${levelColors[skill.level] || '#6b7280'}"></div>
-                            <span class="skill-name">${escapeHtml(skill.name)}</span>
-                            ${categoryBadge}
-                            ${yearsBadge}
-                            ${keyBadge}
-                            ${impactBadge}
-                            ${evidenceBadge}
-                        </div>
-                    `;
+
+                    var keyBadge = skill.key ? '<span class="skill-badge">CORE</span>' : '';
+                    var levelBadge = '<span style="font-size:0.7em; padding:2px 8px; border-radius:8px; background:' + lc + '22; color:' + lc + '; font-weight:600; white-space:nowrap;">' + escapeHtml(skill.level || 'Proficient') + '</span>';
+                    var yearsBadge = years ? '<span class="skill-years">' + years + '</span>' : '';
+
+                    var impactBadge = '<span style="font-size:0.68em; padding:2px 7px; border-radius:3px; background:rgba(' + impactRgb + ',0.2); color:' + impactColor + '; font-weight:600; white-space:nowrap;">' + skillImpact.icon + ' ' + skillImpact.label.toUpperCase() + '</span>';
+                    var rarityPill = '<span style="font-size:0.68em; padding:2px 7px; border-radius:3px; background:' + tier.pillBg + '; color:' + tier.pillColor + '; font-weight:600; white-space:nowrap;">' + tier.label.toUpperCase() + '</span>';
+                    var catBadge = categoryLabel ? '<span style="font-size:0.68em; padding:2px 6px; border-radius:3px; ' + catStyle + ' white-space:nowrap;">' + categoryLabel + '</span>' : '';
+                    var roleText = roleNames.length > 0 ? '<span style="font-size:0.72em; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;">' + roleNames.join(' \u00B7 ') + '</span>' : '';
+
+                    html += '<div class="skill-item ' + levelClass + '" onclick=\'openSkillModalFromCard("' + escapeHtml(skill.name).replace(/'/g, "\\'") + '")\' style="cursor:pointer; padding:8px 10px;">'
+                        + '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">'
+                        + '<div class="skill-dot" style="background:' + lc + '; flex-shrink:0;"></div>'
+                        + '<span class="skill-name">' + escapeHtml(skill.name) + '</span>'
+                        + levelBadge + ' ' + keyBadge + ' ' + yearsBadge + ' ' + evidenceBadge
+                        + '</div>'
+                        + '<div style="display:flex; align-items:center; gap:6px; margin-top:4px; padding-left:18px; flex-wrap:wrap;">'
+                        + impactBadge + ' ' + rarityPill + ' ' + catBadge + ' ' + roleText
+                        + '</div>'
+                        + '</div>';
                 });
-                
-                html += `
-                        </div>
-                    </div>
-                `;
+
+                html += '</div></div>';
             });
-            
+
             html += '</div>';
             
             // Role-based skill suggestions

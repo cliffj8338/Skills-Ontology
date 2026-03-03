@@ -56,3 +56,4 @@ Jooble was removed in v4.45.89 — its API only returns text snippets (not full 
 - Admin approved skills dictionary (Firestore-backed at `meta/parserApprovedSkills`) — curated terms injected into parser via word-boundary matching
 - Parse Audit skill curation — action buttons (+/x) on missed/recommended terms to approve or block directly from audit results
 - AI content generation with full role context
+- Skills Card View: rarity-based grouping (Rare/Uncommon/Common tiers from O*NET market scarcity data), two-line skill cards with level badge + impact + rarity pill + role alignment, tier summary stats (proficiency breakdown, evidence coverage, verified count)
