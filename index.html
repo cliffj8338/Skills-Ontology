@@ -24341,16 +24341,16 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             var html = '<div class="blueprint-container">';
             
-            // ── Header: New Report CTA ──────────────────────────
-            html += '<div style="text-align:center; margin-bottom:20px;">'
-                + '<button onclick="showScoutingReportPicker()" style="padding:10px 20px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-size:0.9em; white-space:nowrap;">'
-                + bpIcon('plus', 16) + ' New Report</button>'
-                + '</div>';
-            
             // ── My Reports (primary section) ────────────────────
             html += '<div class="rpt-card" style="margin-bottom:20px;">'
+                + '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;">'
+                + '<div>'
                 + '<div class="rpt-card-h">' + bpIcon('file-text', 16) + ' My Reports</div>'
-                + '<div class="rpt-card-sub">Select a job to generate a targeted scouting report for recruiters and hiring managers.</div>';
+                + '<div class="rpt-card-sub">Select a job to generate a targeted scouting report for recruiters and hiring managers.</div>'
+                + '</div>'
+                + '<button onclick="showScoutingReportPicker()" style="padding:8px 16px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-size:0.85em; white-space:nowrap; flex-shrink:0;">'
+                + bpIcon('plus', 14) + ' New Report</button>'
+                + '</div>';
             
             if (pipelineJobs.length > 0) {
                 html += '<div style="margin-top:14px; display:grid; gap:8px;">';
