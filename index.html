@@ -12963,13 +12963,17 @@
 
                 var recommendedSkills = [];
                 if (typeof window.onetSkillsLibrary !== 'undefined' && window.onetSkillsLibrary.categories) {
-                    Object.keys(window.onetSkillsLibrary.categories).forEach(function(cat) {
-                        (window.onetSkillsLibrary.categories[cat] || []).forEach(function(sk) {
-                            var skLower = (sk.name || sk).toLowerCase();
-                            if (skLower.length > 4 && rawLower.indexOf(skLower) !== -1 && !extractedNames.some(function(en) { return en === skLower || en.indexOf(skLower) !== -1; })) {
-                                recommendedSkills.push(sk.name || sk);
-                            }
-                        });
+                    Object.values(window.onetSkillsLibrary.categories).forEach(function(catObj) {
+                        if (catObj && catObj.subcategories) {
+                            Object.values(catObj.subcategories).forEach(function(sub) {
+                                (sub.skills || []).forEach(function(sk) {
+                                    var skLower = (sk.name || sk).toLowerCase();
+                                    if (skLower.length > 4 && rawLower.indexOf(skLower) !== -1 && !extractedNames.some(function(en) { return en === skLower || en.indexOf(skLower) !== -1; })) {
+                                        recommendedSkills.push(sk.name || sk);
+                                    }
+                                });
+                            });
+                        }
                     });
                 }
 
