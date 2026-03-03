@@ -1,4 +1,4 @@
-<!-- v4.45.93 | 2026-03-03 | Card/Skills/Verify tile redesign — proper card grid layout with hover effects -->
+<!-- v4.45.94 | 2026-03-03 | Fix rarity classification + unify edit screens -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1646,8 +1646,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.93 - BUILD 20260303-tile-redesign
-        var BP_VERSION = 'v4.45.93';
+        // BLUEPRINT v4.45.94 - BUILD 20260303-rarity-fix
+        var BP_VERSION = 'v4.45.94';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -24057,7 +24057,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         }
                     }
 
-                    html += '<div onclick=\'openSkillModalFromCard("' + escapedName + '")\' style="'
+                    html += '<div onclick=\'openUnifiedSkillEditor("' + escapedName + '")\' style="'
                         + 'background:var(--c-surface-1, var(--card-bg, rgba(255,255,255,0.03))); '
                         + 'border:1px solid var(--c-surface-4, rgba(255,255,255,0.06)); border-radius:10px; '
                         + 'padding:14px 16px; cursor:pointer; transition:all 0.15s;" '
@@ -27764,7 +27764,7 @@ body {
                     var years = details && details.years ? details.years : 0;
 
                     html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:10px; padding:14px; cursor:pointer; transition:border-color 0.15s, box-shadow 0.15s; position:relative;" '
-                        + 'onclick="openSkillModalFromCard(\'' + escapedName + '\')" '
+                        + 'onclick="openUnifiedSkillEditor(\'' + escapedName + '\')" '
                         + 'onmouseover="this.style.borderColor=\'' + meta.accent + '\';this.style.boxShadow=\'0 2px 12px rgba(0,0,0,0.15)\'" '
                         + 'onmouseout="this.style.borderColor=\'var(--c-surface-4)\';this.style.boxShadow=\'none\'">';
 
@@ -27774,8 +27774,7 @@ body {
                         + '<span style="font-size:0.92em; font-weight:600; color:var(--c-heading); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(s.name) + '</span>'
                         + '</div>'
                         + '<div style="display:flex; gap:4px; flex-shrink:0;" onclick="event.stopPropagation();">'
-                        + (isReadOnlyProfile ? '' : '<button onclick="openUnifiedSkillEditor(\'' + escapedName + '\')" title="Edit" style="background:none; border:none; cursor:pointer; color:#60a5fa; padding:2px; opacity:0.5;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0.5\'">' + bpIcon('edit',12) + '</button>'
-                        + '<button onclick="if(confirm(\'Remove ' + escapedName + '?\')) { removeSkillFromProfile(\'' + escapedName + '\', \'' + (s.category || 'skill') + '\'); switchBlueprintTab(\'skills\'); }" title="Remove" style="background:none; border:none; cursor:pointer; color:var(--c-faint); padding:2px; opacity:0.4;" onmouseover="this.style.opacity=\'1\';this.style.color=\'#ef4444\'" onmouseout="this.style.opacity=\'0.4\';this.style.color=\'var(--c-faint)\'">' + bpIcon('trash',12) + '</button>')
+                        + (isReadOnlyProfile ? '' : '<button onclick="if(confirm(\'Remove ' + escapedName + '?\')) { removeSkillFromProfile(\'' + escapedName + '\', \'' + (s.category || 'skill') + '\'); switchBlueprintTab(\'skills\'); }" title="Remove" style="background:none; border:none; cursor:pointer; color:var(--c-faint); padding:2px; opacity:0.4;" onmouseover="this.style.opacity=\'1\';this.style.color=\'#ef4444\'" onmouseout="this.style.opacity=\'0.4\';this.style.color=\'var(--c-faint)\'">' + bpIcon('trash',12) + '</button>')
                         + '</div></div>';
 
                     html += '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:8px;">'
@@ -28804,7 +28803,7 @@ body {
                         }
 
                         html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:10px; padding:14px; cursor:pointer; transition:all 0.15s; position:relative;" '
-                            + 'onclick="openSkillModalFromCard(\'' + (v.skillName || '').replace(/'/g, "\\'") + '\')" '
+                            + 'onclick="openUnifiedSkillEditor(\'' + (v.skillName || '').replace(/'/g, "\\'") + '\')" '
                             + 'onmouseover="this.style.borderColor=\'' + tm.accent + '40\';this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 4px 16px rgba(0,0,0,0.2)\'" '
                             + 'onmouseout="this.style.borderColor=\'var(--c-surface-4)\';this.style.transform=\'none\';this.style.boxShadow=\'none\'">';
 
@@ -43165,31 +43164,71 @@ body {
         // Load impact ratings on startup
         loadImpactRatings();
         
+        var _onetNameIndex = null;
+        function _buildOnetNameIndex() {
+            if (_onetNameIndex || !impactRatings) return;
+            _onetNameIndex = {};
+            ['skills', 'abilities', 'workstyles'].forEach(function(cat) {
+                var data = impactRatings[cat];
+                if (!data) return;
+                Object.keys(data).forEach(function(id) {
+                    var readable = id.replace(/-/g, ' ').toLowerCase();
+                    _onetNameIndex[readable] = { category: cat, id: id, data: data[id] };
+                    readable.split(' and ').forEach(function(part) {
+                        var t = part.trim();
+                        if (t.length > 3) _onetNameIndex[t] = { category: cat, id: id, data: data[id] };
+                    });
+                });
+            });
+        }
+
+        function _matchOnetByName(skillName) {
+            _buildOnetNameIndex();
+            if (!_onetNameIndex) return null;
+            var name = (skillName || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+            if (_onetNameIndex[name]) return _onetNameIndex[name];
+            var bestMatch = null;
+            var bestLen = 0;
+            Object.keys(_onetNameIndex).forEach(function(key) {
+                if (key.length > bestLen && (name.indexOf(key) !== -1 || key.indexOf(name) !== -1)) {
+                    bestMatch = _onetNameIndex[key];
+                    bestLen = key.length;
+                }
+            });
+            return bestMatch;
+        }
+
         function getSkillImpact(skill) {
             if (!impactRatings) {
                 return { level: 'moderate', label: 'Moderate Impact', icon: bpIcon('diamond',14), rationale: 'Loading ratings...' };
             }
             
-            // Handle unique skills (no O*NET match)
             if (skill.category === 'unique') {
                 return getUniqueSkillImpact(skill);
             }
             
-            // Get O*NET rating
-            const category = skill.category; // 'skill', 'ability', 'workstyle'
-            const categoryData = impactRatings[category + 's']; // 'skills', 'abilities', 'workstyles'
-            
-            if (!categoryData || !skill.onetId) {
-                return { level: 'moderate', label: 'Moderate Impact', icon: bpIcon('diamond',14), rationale: 'No rating data available' };
+            var category = skill.category;
+            var categoryData = impactRatings[category + 's'];
+            var skillRating = null;
+
+            if (categoryData && skill.onetId) {
+                skillRating = categoryData[skill.onetId];
             }
-            
-            const skillRating = categoryData[skill.onetId];
+
             if (!skillRating) {
-                return { level: 'moderate', label: 'Moderate Impact', icon: bpIcon('diamond',14), rationale: 'Skill not found in ratings' };
+                var nameMatch = _matchOnetByName(skill.name);
+                if (nameMatch) {
+                    skillRating = nameMatch.data;
+                }
+            }
+
+            if (!skillRating) {
+                var lvl = skill.level || 'Proficient';
+                var fallback = lvl === 'Mastery' ? 'high' : lvl === 'Expert' ? 'moderate' : 'standard';
+                return { level: fallback, label: getImpactLabel(fallback), icon: getImpactIcon(fallback), rationale: 'Estimated from proficiency level' };
             }
             
-            // Apply proficiency multiplier
-            const impactLevel = skillRating.proficiencyMultiplier[skill.level] || skillRating.baseImpact;
+            var impactLevel = skillRating.proficiencyMultiplier[skill.level] || skillRating.baseImpact;
             
             return {
                 level: impactLevel,
