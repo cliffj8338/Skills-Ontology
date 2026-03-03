@@ -1,4 +1,4 @@
-<!-- v4.45.95 | 2026-03-03 | Fix rarity + full-width card layout + unified edit -->
+<!-- v4.45.96 | 2026-03-03 | Icon badges with tooltips + legend, cleaner tile layout -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1640,8 +1640,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.95 - BUILD 20260303-rarity-layout-fix
-        var BP_VERSION = 'v4.45.95';
+        // BLUEPRINT v4.45.96 - BUILD 20260303-icon-badges
+        var BP_VERSION = 'v4.45.96';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -23978,7 +23978,18 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 });
             });
 
-            var html = '<div class="cards-grid">';
+            var html = '<div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:8px 16px; margin-bottom:8px; font-size:0.72em; color:var(--c-muted, var(--text-muted));">'
+                + '<span style="font-weight:600; color:var(--c-faint, var(--text-muted));">Legend:</span>'
+                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:#f59e0b;">&#9733;</span> Core</span>'
+                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:#10b981;">' + bpIcon('shield',11) + '</span> Verified</span>'
+                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:#10b981;">' + bpIcon('check',11) + '</span> Evidence</span>'
+                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:#fbbf24;">&#9888;</span> Gap</span>'
+                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:#60a5fa;">' + bpIcon('tool',11) + '</span> Skill</span>'
+                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:#a78bfa;">' + bpIcon('zap',11) + '</span> Ability</span>'
+                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:#10b981;">' + bpIcon('heart',11) + '</span> Work Style</span>'
+                + '<span style="display:inline-flex; align-items:center; gap:3px;"><span style="color:#fbbf24;">' + bpIcon('star',11) + '</span> Unique</span>'
+                + '</div>';
+            html += '<div class="cards-grid">';
 
             ['rare', 'uncommon', 'common'].forEach(function(tierKey) {
                 var tier = rarityTiers[tierKey];
@@ -24036,20 +24047,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
                     var catLabels = { skill: 'Skill', ability: 'Ability', workstyle: 'Work Style', unique: 'Unique' };
 
-                    var evidenceBadge = '';
-                    var evCount = 0;
-                    if (typeof getEvidenceSummary === 'function') {
-                        var evs = getEvidenceSummary(skill);
-                        evCount = evs.evidenceCount || 0;
-                        if (evs.hasGap) {
-                            evidenceBadge = '<span style="font-size:0.68em; color:#fbbf24;" title="Evidence gap">\u26A0</span>';
-                        } else if (evs.evidenceCount > 0) {
-                            evidenceBadge = '<span style="font-size:0.68em; color:#10b981;" title="' + evs.points + ' evidence pts">\u2713</span>';
-                        }
-                        if (evs.verifiedCount > 0) {
-                            evidenceBadge += '<span style="font-size:0.65em; padding:2px 6px; border-radius:6px; background:rgba(16,185,129,0.15); color:#10b981; font-weight:600;">\u2713 Verified</span>';
-                        }
-                    }
+                    var evs = typeof getEvidenceSummary === 'function' ? getEvidenceSummary(skill) : null;
+                    var hasEvidence = evs && evs.evidenceCount > 0;
+                    var hasGap = evs && evs.hasGap;
+                    var isVerified = evs && evs.verifiedCount > 0;
+
+                    var catIcons = { skill: bpIcon('tool',11), ability: bpIcon('zap',11), workstyle: bpIcon('heart',11), unique: bpIcon('star',11) };
+                    var catColors = { skill: '#60a5fa', ability: '#a78bfa', workstyle: '#10b981', unique: '#fbbf24' };
+                    var catTitles = { skill: 'Skill', ability: 'Ability', workstyle: 'Work Style', unique: 'Unique Skill' };
 
                     html += '<div onclick=\'openUnifiedSkillEditor("' + escapedName + '")\' style="'
                         + 'background:var(--c-surface-1, var(--card-bg, rgba(255,255,255,0.03))); '
@@ -24058,25 +24063,24 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         + 'onmouseover="this.style.borderColor=\'' + tier.accent + '40\';this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 4px 16px rgba(0,0,0,0.2)\'" '
                         + 'onmouseout="this.style.borderColor=\'var(--c-surface-4, rgba(255,255,255,0.06))\';this.style.transform=\'none\';this.style.boxShadow=\'none\'">';
 
-                    html += '<div style="display:flex; align-items:flex-start; gap:10px; margin-bottom:10px;">'
-                        + '<div style="width:10px; height:10px; border-radius:3px; background:' + lc + '; margin-top:4px; flex-shrink:0;"></div>'
-                        + '<div style="flex:1; min-width:0;">'
-                        + '<div style="font-size:0.92em; font-weight:600; color:var(--c-heading, var(--text-secondary)); line-height:1.3; margin-bottom:4px;">' + escapeHtml(skill.name) + '</div>'
-                        + '<div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">'
-                        + '<span style="font-size:0.72em; padding:2px 10px; border-radius:10px; background:' + lc + '22; color:' + lc + '; font-weight:600;">' + escapeHtml(skill.level || 'Proficient') + '</span>';
-                    if (skill.key) html += '<span style="font-size:0.65em; padding:2px 7px; border-radius:8px; background:rgba(245,158,11,0.15); color:#f59e0b; font-weight:700;">CORE</span>';
-                    if (years) html += '<span style="font-size:0.68em; color:var(--c-muted, var(--text-muted));">' + years + ' yrs</span>';
-                    html += evidenceBadge;
-                    html += '</div></div></div>';
+                    html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">'
+                        + '<div style="width:10px; height:10px; border-radius:3px; background:' + lc + '; flex-shrink:0;"></div>'
+                        + '<span style="font-size:0.92em; font-weight:600; color:var(--c-heading, var(--text-secondary)); flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(skill.name) + '</span>'
+                        + '<div style="display:flex; gap:4px; flex-shrink:0;">'
+                        + (skill.key ? '<span title="Core Skill" style="color:#f59e0b; font-size:0.85em; line-height:1;">&#9733;</span>' : '')
+                        + (isVerified ? '<span title="Verified by ' + evs.verifiedCount + '" style="color:#10b981; font-size:0.8em; line-height:1;">' + bpIcon('shield',13) + '</span>' : '')
+                        + (hasGap ? '<span title="Evidence gap: claimed ' + (evs.claimedLevel||'') + ', supports ' + (evs.effectiveLevel||'') + '" style="color:#fbbf24; font-size:0.8em; line-height:1;">&#9888;</span>' : (hasEvidence ? '<span title="' + evs.evidenceCount + ' outcomes, ' + evs.points + ' pts" style="color:#10b981; font-size:0.75em; line-height:1;">' + bpIcon('check',12) + '</span>' : ''))
+                        + '<span title="' + (catTitles[skill.category] || 'Skill') + '" style="color:' + (catColors[skill.category] || '#60a5fa') + '; font-size:0.75em; line-height:1;">' + (catIcons[skill.category] || bpIcon('tool',11)) + '</span>'
+                        + '</div></div>';
 
-                    html += '<div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap; font-size:0.68em; padding-left:20px;">'
-                        + '<span style="padding:2px 8px; border-radius:4px; background:' + impactColor + '18; color:' + impactColor + '; font-weight:600;">' + skillImpact.icon + ' ' + skillImpact.label.toUpperCase() + '</span>'
-                        + '<span style="padding:2px 8px; border-radius:4px; background:' + tier.pillBg + '; color:' + tier.pillColor + '; font-weight:600;">' + tier.label.toUpperCase() + '</span>'
-                        + '<span style="padding:2px 7px; border-radius:4px; background:rgba(255,255,255,0.04); color:var(--c-muted, var(--text-muted));">' + (catLabels[skill.category] || 'Skill') + '</span>'
+                    html += '<div style="display:flex; align-items:center; gap:6px; padding-left:18px;">'
+                        + '<span style="font-size:0.72em; padding:2px 10px; border-radius:10px; background:' + lc + '22; color:' + lc + '; font-weight:600;">' + escapeHtml(skill.level || 'Proficient') + '</span>'
+                        + '<span title="' + skillImpact.label + '" style="font-size:0.75em; color:' + impactColor + ';">' + skillImpact.icon + '</span>'
+                        + (years ? '<span style="font-size:0.68em; color:var(--c-muted, var(--text-muted));">' + years + 'y</span>' : '')
                         + '</div>';
 
                     if (roleNames.length > 0) {
-                        html += '<div style="margin-top:8px; padding-left:20px; font-size:0.7em; color:var(--c-faint, var(--text-muted)); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + roleNames.join(' \u00B7 ') + '</div>';
+                        html += '<div style="margin-top:6px; padding-left:18px; font-size:0.68em; color:var(--c-faint, var(--text-muted)); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + roleNames.join(' \u00B7 ') + '</div>';
                     }
 
                     html += '</div>';
@@ -27771,21 +27775,21 @@ body {
                         + (isReadOnlyProfile ? '' : '<button onclick="if(confirm(\'Remove ' + escapedName + '?\')) { removeSkillFromProfile(\'' + escapedName + '\', \'' + (s.category || 'skill') + '\'); switchBlueprintTab(\'skills\'); }" title="Remove" style="background:none; border:none; cursor:pointer; color:var(--c-faint); padding:2px; opacity:0.4;" onmouseover="this.style.opacity=\'1\';this.style.color=\'#ef4444\'" onmouseout="this.style.opacity=\'0.4\';this.style.color=\'var(--c-faint)\'">' + bpIcon('trash',12) + '</button>')
                         + '</div></div>';
 
-                    html += '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:8px;">'
-                        + '<span style="font-size:0.72em; padding:3px 10px; border-radius:10px; background:' + lvColor + '22; color:' + lvColor + '; font-weight:600;">' + escapeHtml(lv) + '</span>';
-                    if (s.core) html += '<span style="font-size:0.68em; padding:2px 7px; border-radius:8px; background:rgba(245,158,11,0.15); color:#f59e0b; font-weight:600;">CORE</span>';
-                    if (hasConfirmed) html += '<span style="font-size:0.68em; padding:2px 7px; border-radius:8px; background:rgba(16,185,129,0.15); color:#10b981; font-weight:600;">\u2713 Verified</span>';
-                    if (years) html += '<span style="font-size:0.68em; color:var(--c-muted);">' + years + ' yrs</span>';
-                    html += '</div>';
+                    var smCatIcons = { skill: bpIcon('tool',11), ability: bpIcon('zap',11), workstyle: bpIcon('heart',11), unique: bpIcon('star',11) };
+                    var smCatColors = { skill: '#60a5fa', ability: '#a78bfa', workstyle: '#10b981', unique: '#fbbf24' };
+                    var smCatTitles = { skill: 'Skill', ability: 'Ability', workstyle: 'Work Style', unique: 'Unique Skill' };
 
-                    html += '<div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap; font-size:0.7em;">';
-                    if (impactLabel) html += '<span style="padding:2px 7px; border-radius:4px; background:' + impactColor + '18; color:' + impactColor + '; font-weight:600;">' + impactLabel + '</span>';
-                    html += '<span style="padding:2px 7px; border-radius:4px; background:' + meta.pillBg + '; color:' + meta.accent + '; font-weight:600;">' + meta.label.toUpperCase() + '</span>';
-                    html += '<span style="padding:2px 7px; border-radius:4px; background:var(--c-surface-2); color:var(--c-muted);">' + (catLabels[s.category] || 'Skill') + '</span>';
-                    html += '</div>';
+                    html += '<div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">'
+                        + '<span style="font-size:0.72em; padding:2px 10px; border-radius:10px; background:' + lvColor + '22; color:' + lvColor + '; font-weight:600;">' + escapeHtml(lv) + '</span>'
+                        + (s.core ? '<span title="Core Skill" style="color:#f59e0b; font-size:0.85em; line-height:1;">&#9733;</span>' : '')
+                        + (hasConfirmed ? '<span title="Verified" style="color:#10b981; font-size:0.8em; line-height:1;">' + bpIcon('shield',13) + '</span>' : '')
+                        + (skillImpact ? '<span title="' + (skillImpact.label || '') + '" style="color:' + impactColor + '; font-size:0.75em; line-height:1;">' + (skillImpact.icon || '') + '</span>' : '')
+                        + '<span title="' + (smCatTitles[s.category] || 'Skill') + '" style="color:' + (smCatColors[s.category] || '#60a5fa') + '; font-size:0.75em; line-height:1;">' + (smCatIcons[s.category] || bpIcon('tool',11)) + '</span>'
+                        + (years ? '<span style="font-size:0.68em; color:var(--c-muted);">' + years + 'y</span>' : '')
+                        + '</div>';
 
                     if (roleNames.length > 0) {
-                        html += '<div style="margin-top:6px; font-size:0.7em; color:var(--c-faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + roleNames.join(' \u00B7 ') + '</div>';
+                        html += '<div style="font-size:0.68em; color:var(--c-faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + roleNames.join(' \u00B7 ') + '</div>';
                     }
 
                     html += '</div>';
