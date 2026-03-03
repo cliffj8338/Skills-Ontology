@@ -1,4 +1,4 @@
-<!-- v4.45.91 | 2026-03-03 | Skills card view rarity grouping, compensation intelligence, tier stats -->
+<!-- v4.45.92 | 2026-03-03 | Skills + Verify tabs redesigned with rarity grouping, market intelligence -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1646,8 +1646,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.91 - BUILD 20260303-skills-rarity
-        var BP_VERSION = 'v4.45.91';
+        // BLUEPRINT v4.45.92 - BUILD 20260303-skills-verify-rarity
+        var BP_VERSION = 'v4.45.92';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -27655,79 +27655,121 @@ body {
                     + '</div>';
             }
             
-            // Group skills by role
-            var skillsByRole = {};
-            var unassigned = [];
+            // Group skills by market rarity
+            var scarcityMap = { rare: 'rare', specialized: 'rare', uncommon: 'uncommon', common: 'common', universal: 'common' };
+            var tierMeta = {
+                rare: { label: 'Rare', desc: 'Market differentiators', icon: 'flame', bg: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(251,191,36,0.04))', border: 'rgba(245,158,11,0.3)', accent: '#f59e0b', pillBg: 'rgba(245,158,11,0.2)' },
+                uncommon: { label: 'Uncommon', desc: 'Competitive advantages', icon: 'diamond', bg: 'linear-gradient(135deg, rgba(96,165,250,0.06), rgba(139,92,246,0.04))', border: 'rgba(96,165,250,0.25)', accent: '#60a5fa', pillBg: 'rgba(96,165,250,0.2)' },
+                common: { label: 'Common', desc: 'Foundational capabilities', icon: 'check', bg: 'var(--c-surface-1)', border: 'var(--c-surface-4)', accent: '#6b7280', pillBg: 'rgba(107,114,128,0.2)' }
+            };
+            var tierSkills = { rare: [], uncommon: [], common: [] };
+            var levelPriority = { Mastery: 5, Expert: 4, Advanced: 3, Proficient: 2, Novice: 1 };
+
             skills.forEach(function(s) {
-                // Normalize: support both s.roles (array) and s.role (singular string)
-                var skillRoles = s.roles || (s.role ? [s.role] : []);
-                var assigned = false;
-                // Assign to FIRST matching role only (prevents duplicates across groups)
-                for (var ri = 0; ri < skillRoles.length; ri++) {
-                    var roleRef = skillRoles[ri];
-                    var role = null;
-                    // Match by index (number), id, or name
-                    if (typeof roleRef === 'number' && roles[roleRef]) {
-                        role = roles[roleRef];
-                    } else {
-                        role = roles.find(function(r) { return r.id === roleRef || r.name === roleRef; });
-                    }
-                    if (role) {
-                        var roleName = role.name;
-                        if (!skillsByRole[roleName]) skillsByRole[roleName] = [];
-                        skillsByRole[roleName].push(s);
-                        assigned = true;
-                        break; // First match only — no duplicates
-                    }
-                }
-                if (!assigned) unassigned.push(s);
+                var impact = typeof getSkillImpact === 'function' ? getSkillImpact(s) : null;
+                var rawScarcity = (impact && impact.marketScarcity) || 'common';
+                var rarity = scarcityMap[rawScarcity] || 'common';
+                if (s.category === 'unique') rarity = (s.userAssessment && s.userAssessment.rarity) || 'uncommon';
+                tierSkills[rarity].push(s);
             });
-            
-            // Render each domain
-            var domainNames = Object.keys(skillsByRole).sort();
-            if (unassigned.length > 0) domainNames.push('_unassigned');
-            
-            domainNames.forEach(function(domain) {
-                var domainSkills = domain === '_unassigned' ? unassigned : skillsByRole[domain];
-                var displayName = domain === '_unassigned' ? 'Uncategorized' : domain;
-                domainSkills.sort(function(a,b) {
+
+            ['rare', 'uncommon', 'common'].forEach(function(tierKey) {
+                var tSkills = tierSkills[tierKey];
+                if (tSkills.length === 0) return;
+                var meta = tierMeta[tierKey];
+
+                tSkills.sort(function(a, b) {
+                    if (a.core && !b.core) return -1;
+                    if (!a.core && b.core) return 1;
+                    var lvl = (levelPriority[b.level] || 0) - (levelPriority[a.level] || 0);
+                    if (lvl !== 0) return lvl;
                     return (a.name || '').localeCompare(b.name || '');
                 });
-                
-                html += '<div style="margin-bottom:16px; border:1px solid var(--c-surface-4); border-radius:10px; overflow:hidden;">';
-                
-                // Domain header
-                html += '<div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--c-surface-1); border-bottom:1px solid var(--c-surface-2b);">'
-                    + '<div style="font-weight:600; font-size:0.88em; color:var(--c-heading);">' + bpIcon('layers',14) + ' ' + displayName + '</div>'
-                    + '<span style="font-size:0.75em; color:var(--c-faint);">' + domainSkills.length + ' skills</span>'
+
+                var tierLevelCounts = {};
+                var tierEvidenceCount = 0;
+                var tierVerifiedCount = 0;
+                tSkills.forEach(function(sk) {
+                    var lv = sk.level || 'Novice';
+                    tierLevelCounts[lv] = (tierLevelCounts[lv] || 0) + 1;
+                    if (typeof getEvidenceSummary === 'function') {
+                        var ev = getEvidenceSummary(sk);
+                        if (ev.evidenceCount > 0) tierEvidenceCount++;
+                        if (ev.verifiedCount > 0) tierVerifiedCount++;
+                    }
+                });
+
+                html += '<div style="margin-bottom:16px; border:1px solid ' + meta.border + '; border-radius:10px; overflow:hidden;">';
+
+                html += '<div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:' + meta.bg + '; border-bottom:1px solid ' + meta.border + ';">'
+                    + '<div style="display:flex; align-items:center; gap:8px;">'
+                    + '<span style="color:' + meta.accent + ';">' + bpIcon(meta.icon, 16) + '</span>'
+                    + '<span style="font-weight:700; font-size:0.92em; color:var(--c-heading);">' + meta.label + '</span>'
+                    + '<span style="font-size:0.78em; color:var(--c-muted); font-weight:400;">' + meta.desc + '</span>'
+                    + '</div>'
+                    + '<span style="font-size:0.75em; color:' + meta.accent + '; font-weight:600;">' + tSkills.length + ' skills</span>'
                     + '</div>';
-                
-                // Skills list
-                domainSkills.forEach(function(s) {
+
+                var statsItems = [];
+                ['Mastery','Expert','Advanced','Proficient','Novice'].forEach(function(lv) {
+                    if (tierLevelCounts[lv]) statsItems.push('<span style="color:' + (levelColors[lv] || '#6b7280') + ';">' + tierLevelCounts[lv] + ' ' + lv + '</span>');
+                });
+                if (tierEvidenceCount > 0) statsItems.push('<span style="color:#10b981;">' + tierEvidenceCount + '/' + tSkills.length + ' evidence</span>');
+                if (tierVerifiedCount > 0) statsItems.push('<span style="color:#10b981;">' + tierVerifiedCount + ' verified</span>');
+                html += '<div style="font-size:0.72em; padding:6px 16px; color:var(--c-muted); border-bottom:1px solid var(--c-surface-1b);">' + statsItems.join(' <span style="opacity:0.3;">\u00B7</span> ') + '</div>';
+
+                tSkills.forEach(function(s) {
                     var lv = s.level || 'Novice';
                     var lvColor = levelColors[lv] || '#6b7280';
                     var escapedName = s.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                    
-                    html += '<div style="display:flex; align-items:center; gap:10px; padding:10px 16px; border-bottom:1px solid var(--c-surface-1b);">'
-                        + '<div style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.88em; color:var(--c-text); cursor:pointer;" onclick="openSkillModalFromCard(\'' + escapedName + '\')">' + escapeHtml(s.name) + '</div>'
-                        + '<span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:' + lvColor + '22; color:' + lvColor + '; font-weight:600; white-space:nowrap;">' + escapeHtml(lv) + '</span>';
-                    
-                    // Verified badge
+
+                    var rolesArr = s.roles || (s.role ? [s.role] : []);
+                    var roleNames = rolesArr.map(function(roleId) {
+                        var role = (roles || []).find(function(r) { return r.id === roleId || r.name === roleId; });
+                        return role ? role.name : '';
+                    }).filter(Boolean);
+
+                    var skillImpact = typeof calculateSkillValue === 'function' ? calculateSkillValue(s) : null;
+                    var impactLabel = skillImpact ? skillImpact.label : '';
+                    var impactColor = skillImpact ? getImpactColor(skillImpact.level) : '#6b7280';
+
+                    html += '<div style="display:flex; align-items:center; gap:8px; padding:10px 16px; border-bottom:1px solid var(--c-surface-1b); flex-wrap:wrap;">';
+
+                    html += '<div style="flex:1; min-width:0; cursor:pointer;" onclick="openSkillModalFromCard(\'' + escapedName + '\')">'
+                        + '<div style="display:flex; align-items:center; gap:6px;">'
+                        + '<span style="font-size:0.88em; color:var(--c-text); font-weight:500;">' + escapeHtml(s.name) + '</span>'
+                        + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:' + lvColor + '22; color:' + lvColor + '; font-weight:600; white-space:nowrap;">' + escapeHtml(lv) + '</span>';
+
                     var skillVerifs = getSkillVerifications(s.name);
                     var hasConfirmed = skillVerifs.some(function(v) { return v.status === 'confirmed'; });
                     if (hasConfirmed) {
-                        html += '<span title="Verified" style="font-size:0.65em; padding:2px 6px; border-radius:8px; background:rgba(16,185,129,0.15); color:#10b981; font-weight:600; white-space:nowrap;">\u2713 Verified</span>';
+                        html += '<span style="font-size:0.6em; padding:2px 6px; border-radius:8px; background:rgba(16,185,129,0.15); color:#10b981; font-weight:600;">\u2713 Verified</span>';
                     }
-                    
                     if (s.core) {
-                        html += '<span style="font-size:0.65em; padding:2px 6px; border-radius:8px; background:var(--c-orange-bg-2); color:#f59e0b; font-weight:600;">CORE</span>';
+                        html += '<span style="font-size:0.6em; padding:2px 6px; border-radius:8px; background:var(--c-orange-bg-2); color:#f59e0b; font-weight:600;">CORE</span>';
                     }
-                    
+                    html += '</div>';
+
+                    var metaItems = [];
+                    if (impactLabel) metaItems.push('<span style="padding:1px 6px; border-radius:3px; background:' + impactColor + '20; color:' + impactColor + '; font-weight:600;">' + impactLabel + '</span>');
+                    metaItems.push('<span style="padding:1px 6px; border-radius:3px; background:' + meta.pillBg + '; color:' + meta.accent + '; font-weight:600;">' + meta.label.toUpperCase() + '</span>');
+
+                    if (s.category && s.category !== 'skill') {
+                        var catColors = { ability: '#a78bfa', workstyle: '#10b981', unique: '#fbbf24' };
+                        var catLabels = { ability: 'ABILITY', workstyle: 'WORK STYLE', unique: 'UNIQUE' };
+                        var cc = catColors[s.category] || '#6b7280';
+                        metaItems.push('<span style="padding:1px 6px; border-radius:3px; background:' + cc + '20; color:' + cc + ';">' + (catLabels[s.category] || '') + '</span>');
+                    }
+                    if (roleNames.length > 0) metaItems.push('<span style="color:var(--c-faint);">' + roleNames.join(' \u00B7 ') + '</span>');
+
+                    html += '<div style="display:flex; align-items:center; gap:5px; margin-top:3px; font-size:0.68em; flex-wrap:wrap;">' + metaItems.join(' ') + '</div>';
+                    html += '</div>';
+
                     html += '<button onclick="openUnifiedSkillEditor(\'' + escapedName + '\')" title="Edit" style="background:none; border:none; cursor:pointer; color:#60a5fa; padding:4px;' + (isReadOnlyProfile ? ' display:none;' : '') + '">' + bpIcon('edit',14) + '</button>'
                         + '<button onclick="if(confirm(\'Remove skill: ' + escapedName + '?\')) { removeSkillFromProfile(\'' + escapedName + '\', \'' + (s.category || 'skill') + '\'); switchBlueprintTab(\'skills\'); }" title="Remove" style="background:none; border:none; cursor:pointer; color:var(--c-faint); padding:4px;' + (isReadOnlyProfile ? ' display:none;' : '') + '">' + bpIcon('trash',14) + '</button>'
                         + '</div>';
                 });
-                
+
                 html += '</div>';
             });
             
@@ -28675,23 +28717,51 @@ body {
                 html += '</div>';
             }
             
-            // ── VERIFIED SKILLS LIST ──
+            // ── VERIFIED SKILLS LIST (grouped by rarity) ──
             if (confirmed.length > 0) {
-                html += '<div style="margin-bottom:20px;">'
-                    + '<div style="font-weight:700; font-size:0.92em; color:var(--c-heading); margin-bottom:12px;">' + bpIcon('check',16) + ' Verified Skills (' + confirmed.length + ')</div>'
-                    + '<div style="border:1px solid var(--c-surface-4); border-radius:10px; overflow:hidden;">';
-                
-                confirmed.sort(function(a,b) { return (a.skillName || '').localeCompare(b.skillName || ''); });
+                var vScarcityMap = { rare: 'rare', specialized: 'rare', uncommon: 'uncommon', common: 'common', universal: 'common' };
+                var vTierMeta = {
+                    rare: { label: 'Rare', icon: 'flame', accent: '#f59e0b', bg: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(251,191,36,0.04))', border: 'rgba(245,158,11,0.3)' },
+                    uncommon: { label: 'Uncommon', icon: 'diamond', accent: '#60a5fa', bg: 'linear-gradient(135deg, rgba(96,165,250,0.06), rgba(139,92,246,0.04))', border: 'rgba(96,165,250,0.25)' },
+                    common: { label: 'Common', icon: 'check', accent: '#6b7280', bg: 'var(--c-surface-1)', border: 'var(--c-surface-4)' }
+                };
+                var vTierGroups = { rare: [], uncommon: [], common: [] };
                 
                 confirmed.forEach(function(v) {
                     var skill = skills.find(function(s) { return s.name === v.skillName; });
-                    var levelColors = { 'Mastery':'#ef4444','Expert':'#f97316','Advanced':'#f59e0b','Proficient':'#10b981','Novice':'#6b7280' };
+                    var impact = skill && typeof getSkillImpact === 'function' ? getSkillImpact(skill) : null;
+                    var rawScarcity = (impact && impact.marketScarcity) || 'common';
+                    var rarity = vScarcityMap[rawScarcity] || 'common';
+                    if (skill && skill.category === 'unique') rarity = 'uncommon';
+                    v._skill = skill;
+                    v._rarity = rarity;
+                    vTierGroups[rarity].push(v);
+                });
+
+                html += '<div style="margin-bottom:20px;">'
+                    + '<div style="font-weight:700; font-size:0.92em; color:var(--c-heading); margin-bottom:12px;">' + bpIcon('check',16) + ' Verified Skills (' + confirmed.length + ')</div>';
+
+                ['rare', 'uncommon', 'common'].forEach(function(tKey) {
+                    var tGroup = vTierGroups[tKey];
+                    if (tGroup.length === 0) return;
+                    var tm = vTierMeta[tKey];
+                    tGroup.sort(function(a,b) { return (a.skillName || '').localeCompare(b.skillName || ''); });
+
+                    html += '<div style="margin-bottom:12px; border:1px solid ' + tm.border + '; border-radius:10px; overflow:hidden;">'
+                        + '<div style="display:flex; align-items:center; gap:8px; padding:10px 16px; background:' + tm.bg + '; border-bottom:1px solid ' + tm.border + ';">'
+                        + '<span style="color:' + tm.accent + ';">' + bpIcon(tm.icon, 14) + '</span>'
+                        + '<span style="font-weight:600; font-size:0.82em; color:var(--c-heading);">' + tm.label + '</span>'
+                        + '<span style="font-size:0.72em; color:var(--c-muted);">' + tGroup.length + ' verified</span>'
+                        + '</div>';
+
+                    tGroup.forEach(function(v) {
+                var skill = v._skill;
+                var levelColors = { 'Mastery':'#ef4444','Expert':'#f97316','Advanced':'#f59e0b','Proficient':'#10b981','Novice':'#6b7280' };
                     var lv = skill ? skill.level : v.claimedLevel || '?';
                     var lvColor = levelColors[lv] || '#6b7280';
                     var cred = getCredibilityLabel(v.relationship || 'Other');
                     var respondedDate = v.respondedAt ? new Date(v.respondedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
                     
-                    // Suggested level badge (v4.44.44)
                     var suggestedBadge = '';
                     if (v.confirmedLevel && v.confirmedLevel !== lv) {
                         var sugColor = levelColors[v.confirmedLevel] || '#6b7280';
@@ -28719,9 +28789,11 @@ body {
                         // Revoke action
                         + (!isReadOnlyProfile ? '<button onclick="verifyTabRevoke(\'' + (v.id || '').replace(/'/g, "\\'") + '\')" title="Revoke" style="background:none; border:none; cursor:pointer; color:var(--c-faint); padding:4px; opacity:0.5;" onmouseover="this.style.opacity=\'1\';this.style.color=\'#ef4444\'" onmouseout="this.style.opacity=\'0.5\';this.style.color=\'var(--c-faint)\'">' + bpIcon('trash',14) + '</button>' : '')
                         + '</div>';
+                    });
+                    html += '</div>';
                 });
-                
-                html += '</div></div>';
+
+                html += '</div>';
             }
             
             // ── PENDING REQUESTS ──
@@ -28771,22 +28843,46 @@ body {
                 html += '</div></div>';
             }
             
-            // ── UNVERIFIED SKILLS ──
+            // ── UNVERIFIED SKILLS (grouped by rarity) ──
             if (unverifiedSkills.length > 0) {
-                html += '<div style="margin-bottom:20px;">'
-                    + '<div style="font-weight:700; font-size:0.92em; color:var(--c-faint); margin-bottom:12px;">' + bpIcon('shield',16) + ' Unverified Skills (' + unverifiedSkills.length + ')</div>'
-                    + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
-                
+                var uvScarcityMap = { rare: 'rare', specialized: 'rare', uncommon: 'uncommon', common: 'common', universal: 'common' };
+                var uvTierMeta = {
+                    rare: { label: 'Rare — verify these first', accent: '#f59e0b', bg: 'rgba(245,158,11,0.06)', border: 'rgba(245,158,11,0.25)' },
+                    uncommon: { label: 'Uncommon', accent: '#60a5fa', bg: 'rgba(96,165,250,0.04)', border: 'rgba(96,165,250,0.2)' },
+                    common: { label: 'Common', accent: '#6b7280', bg: 'transparent', border: 'var(--c-border-subtle)' }
+                };
+                var uvTiers = { rare: [], uncommon: [], common: [] };
+                var levelColors2 = { 'Mastery':'#ef4444','Expert':'#f97316','Advanced':'#f59e0b','Proficient':'#10b981','Novice':'#6b7280' };
+
                 unverifiedSkills.forEach(function(s) {
-                    var levelColors = { 'Mastery':'#ef4444','Expert':'#f97316','Advanced':'#f59e0b','Proficient':'#10b981','Novice':'#6b7280' };
-                    var c = levelColors[s.level] || '#6b7280';
-                    html += '<div style="padding:4px 10px; border-radius:8px; font-size:0.78em; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); color:var(--c-label); cursor:pointer;" '
-                        + 'onclick="requestVerification([\'' + (s.name || '').replace(/'/g, "\\'") + '\'])">'
-                        + '<span style="color:' + c + ';">\u25CF</span> ' + escapeHtml(s.name)
-                        + '</div>';
+                    var impact = typeof getSkillImpact === 'function' ? getSkillImpact(s) : null;
+                    var rawScarcity = (impact && impact.marketScarcity) || 'common';
+                    var rarity = uvScarcityMap[rawScarcity] || 'common';
+                    if (s.category === 'unique') rarity = 'uncommon';
+                    uvTiers[rarity].push(s);
                 });
-                
-                html += '</div></div>';
+
+                html += '<div style="margin-bottom:20px;">'
+                    + '<div style="font-weight:700; font-size:0.92em; color:var(--c-faint); margin-bottom:12px;">' + bpIcon('shield',16) + ' Unverified Skills (' + unverifiedSkills.length + ')</div>';
+
+                ['rare', 'uncommon', 'common'].forEach(function(tKey) {
+                    var tSkills = uvTiers[tKey];
+                    if (tSkills.length === 0) return;
+                    var tm = uvTierMeta[tKey];
+                    html += '<div style="margin-bottom:8px;">'
+                        + '<div style="font-size:0.75em; font-weight:600; color:' + tm.accent + '; margin-bottom:6px;">' + tm.label + ' (' + tSkills.length + ')</div>'
+                        + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+                    tSkills.forEach(function(s) {
+                        var c = levelColors2[s.level] || '#6b7280';
+                        html += '<div style="padding:4px 10px; border-radius:8px; font-size:0.78em; background:' + tm.bg + '; border:1px solid ' + tm.border + '; color:var(--c-label); cursor:pointer;" '
+                            + 'onclick="requestVerification([\'' + (s.name || '').replace(/'/g, "\\'") + '\'])">'
+                            + '<span style="color:' + c + ';">\u25CF</span> ' + escapeHtml(s.name)
+                            + '</div>';
+                    });
+                    html += '</div></div>';
+                });
+
+                html += '</div>';
             }
             
             // ── EMPTY STATE ──
