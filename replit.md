@@ -20,7 +20,7 @@ Career intelligence web app at myblueprint.work. Static HTML/JS frontend + Fireb
 - `vercel.json` — Vercel deployment config, CSP headers, rewrites
 
 ## Version
-Current: v4.46.1. Check `BP_VERSION` in `index.html` (line ~1647). **UNBREAKABLE RULE**: Every file change that requires a deploy MUST bump the version in ALL 3 places — even if index.html itself has no other changes: line 1 HTML comment, JS block comment, `BP_VERSION` variable.
+Current: v4.46.2. Check `BP_VERSION` in `index.html` (line ~1647). **UNBREAKABLE RULE**: Every file change that requires a deploy MUST bump the version in ALL 3 places — even if index.html itself has no other changes: line 1 HTML comment, JS block comment, `BP_VERSION` variable.
 
 ## Proficiency Color Palette (v4.45.98)
 Gradient from cool to warm to green (achievement): Novice `#94a3b8` (slate) → Proficient `#60a5fa` (blue) → Advanced `#a78bfa` (purple) → Expert `#fb923c` (orange) → Mastery `#10b981` (green). Red `#ef4444` is ONLY for errors/problems. Yellow `#fbbf24` for caution/warnings. Applied across 12+ `levelColors` definitions in index.html.

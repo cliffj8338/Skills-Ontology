@@ -1,4 +1,4 @@
-<!-- v4.46.1 | 2026-03-03 | Move match/skill filters from Settings to Find Jobs + Fit For Me tabs -->
+<!-- v4.46.2 | 2026-03-03 | Fix Pipeline 0% match: _fitAddToPipeline now saves matchData + parsedSkills correctly -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1640,8 +1640,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.1 - BUILD 20260303-inline-job-filters
-        var BP_VERSION = 'v4.46.1';
+        // BLUEPRINT v4.46.2 - BUILD 20260303-pipeline-match-fix
+        var BP_VERSION = 'v4.46.2';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -33853,9 +33853,10 @@ body {
                 salary: job.salary || '',
                 type: job.type || '',
                 dateAdded: new Date().toISOString(),
-                matchScore: matchResult.score,
-                parsedData: parsed,
-                matchResult: matchResult,
+                addedAt: new Date().toISOString(),
+                matchData: matchResult,
+                parsedSkills: parsed.skills || [],
+                rawText: jdText,
                 addedFrom: 'fit-for-me'
             };
             if (!userData.savedJobs) userData.savedJobs = [];
@@ -33970,6 +33971,17 @@ body {
         
         function renderSavedJobs() {
             var jobs = userData.savedJobs || [];
+            jobs.forEach(function(job) {
+                if (!job.matchData && job.matchResult) {
+                    job.matchData = job.matchResult;
+                    delete job.matchResult;
+                }
+                if (!job.parsedSkills && job.parsedData && job.parsedData.skills) {
+                    job.parsedSkills = job.parsedData.skills;
+                }
+                if (!job.addedAt && job.dateAdded) job.addedAt = job.dateAdded;
+                if (!job.matchData) job.matchData = { score: 0, matched: [], gaps: [], surplus: [] };
+            });
             var html = '';
             
             // Add Job button
@@ -38035,6 +38047,14 @@ body {
             
             var updated = 0;
             userData.savedJobs.forEach(function(job) {
+                if (!job.matchData && job.matchResult) {
+                    job.matchData = job.matchResult;
+                    delete job.matchResult;
+                }
+                if (!job.parsedSkills && job.parsedData && job.parsedData.skills) {
+                    job.parsedSkills = job.parsedData.skills;
+                }
+                if (!job.addedAt && job.dateAdded) job.addedAt = job.dateAdded;
                 var oldScore = job.matchData ? job.matchData.score : 0;
                 var skills = getJobSkills(job);
                 if (skills.length > 0) {
