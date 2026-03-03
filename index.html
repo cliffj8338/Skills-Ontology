@@ -22523,14 +22523,16 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 }).strength(isMobile ? 0.08 : 0.1));
 
             // Draw links
-            const link = svg.append("g")
+            const link = svg.append("g").attr("class", "link-layer")
                 .selectAll("line")
                 .data(links)
                 .join("line")
                 .attr("class", "link");
 
             // Draw nodes
-            const node = svg.append("g")
+            var nodeLayerG = svg.append("g").attr("class", "node-layer");
+            var highlightLayer = svg.append("g").attr("class", "highlight-layer");
+            const node = nodeLayerG
                 .selectAll("g")
                 .data(nodes)
                 .join("g")
