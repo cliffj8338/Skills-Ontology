@@ -1,4 +1,4 @@
-<!-- v4.45.94 | 2026-03-03 | Fix rarity classification + unify edit screens -->
+<!-- v4.45.95 | 2026-03-03 | Fix rarity + full-width card layout + unified edit -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -238,16 +238,10 @@
         .cards-grid {
             max-width: 1400px;
             margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            display: flex;
+            flex-direction: column;
             gap: 16px;
             padding: 0 16px;
-        }
-        @media (max-width: 1100px) {
-            .cards-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 700px) {
-            .cards-grid { grid-template-columns: 1fr; }
         }
         .domain-card {
             background: var(--c-surface-2, rgba(255,255,255,0.03));
@@ -1646,8 +1640,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.94 - BUILD 20260303-rarity-fix
-        var BP_VERSION = 'v4.45.94';
+        // BLUEPRINT v4.45.95 - BUILD 20260303-rarity-layout-fix
+        var BP_VERSION = 'v4.45.95';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
