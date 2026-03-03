@@ -22021,9 +22021,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         // Normalize roles: ensure every role has id, color, and skills list
         function normalizeUserRoles() {
             var roleColors = ['#3b82f6', '#fb923c', '#10b981', '#f59e0b', '#a855f7', '#ec4899', '#06b6d4', '#84cc16'];
+            var bannedReds = ['#ef4444','#f87171','#dc2626','#b91c1c','#fca5a5','#fee2e2'];
             (userData.roles || []).forEach(function(role, i) {
                 if (!role.id) role.id = role.name;
-                if (!role.color) role.color = roleColors[i % roleColors.length];
+                if (!role.color || bannedReds.indexOf(role.color) !== -1) role.color = roleColors[i % roleColors.length];
                 if (!role.skills) {
                     role.skills = [];
                     (userData.skills || []).forEach(function(s) {
