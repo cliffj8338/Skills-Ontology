@@ -1,4 +1,4 @@
-<!-- v4.46.0 | 2026-03-03 | Card view: add per-skill rarity pill on tile line 2 -->
+<!-- v4.46.1 | 2026-03-03 | Move match/skill filters from Settings to Find Jobs + Fit For Me tabs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1640,8 +1640,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.0 - BUILD 20260303-card-rarity-pill
-        var BP_VERSION = 'v4.46.0';
+        // BLUEPRINT v4.46.1 - BUILD 20260303-inline-job-filters
+        var BP_VERSION = 'v4.46.1';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -24132,7 +24132,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
 
         var opportunitiesData = [];
-        var currentMatchThreshold = 20;
+        var currentMatchThreshold = (userData.preferences && userData.preferences.minimumMatchScore) || 20;
         let currentSkillsView = 'network'; // Track whether showing network or card within Skills Ontology
         
         // Initialize user interface on load
@@ -33696,7 +33696,10 @@ body {
             var sorted = _fitSortData();
             var totalFetched = _fitForMeData.length;
 
-            var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">'
+            var fitMinMatch = userData.preferences.minimumMatchScore || 35;
+            var fitMinSkills = userData.preferences.minimumSkillMatches || 3;
+
+            var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px;">'
                 + '<div>'
                 + '<div style="font-size:0.95em; color:var(--text-secondary);"><strong>' + totalFetched + '</strong> jobs ranked by full matching engine</div>'
                 + (staleMinutes >= 0 ? '<div style="font-size:0.75em; color:var(--text-muted); margin-top:2px;">Updated ' + (staleMinutes < 1 ? 'just now' : staleMinutes + ' min ago') + '</div>' : '')
@@ -33710,6 +33713,27 @@ body {
                 + '</select>'
                 + '<button onclick="_fitForMeData=[]; _fitForMeLastRun=0; renderFitForMe(document.getElementById(\'jobsSubTabContent\'));" style="padding:6px 14px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; display:flex; align-items:center; gap:5px;">' + bpIcon('refresh',12) + ' Refresh</button>'
                 + '</div></div>';
+
+            html += '<div style="display:flex; align-items:center; gap:16px; margin-bottom:14px; padding:10px 14px; background:var(--c-input-bg-soft); border-radius:8px; border:1px solid var(--border); flex-wrap:wrap;">'
+                + '<div style="display:flex; align-items:center; gap:6px;">'
+                + '<span style="font-size:0.82em; color:var(--text-muted); white-space:nowrap;">Min match:</span>'
+                + '<input type="range" min="0" max="80" value="' + fitMinMatch + '" '
+                + 'oninput="updateFitMinMatch(this.value)" style="width:120px; accent-color:var(--accent);" />'
+                + '<span id="fitMatchValue" style="font-weight:600; color:var(--accent); font-size:0.85em; min-width:30px;">' + fitMinMatch + '%</span>'
+                + '</div>'
+                + '<div style="display:flex; align-items:center; gap:6px;">'
+                + '<span style="font-size:0.82em; color:var(--text-muted); white-space:nowrap;">Min skills:</span>'
+                + '<input type="number" id="fitMinSkillsInput" min="0" max="20" value="' + fitMinSkills + '" '
+                + 'onchange="updateFitMinSkills(this.value)" '
+                + 'style="width:48px; padding:4px 6px; background:var(--c-input-bg); border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.85em; text-align:center;" />'
+                + '</div>'
+                + '</div>';
+
+            sorted = sorted.filter(function(j) {
+                if ((j.matchScore || 0) < fitMinMatch) return false;
+                if ((j.matchedSkills || []).length < fitMinSkills) return false;
+                return true;
+            });
 
             if (sorted.length === 0) {
                 html += '<div style="text-align:center; padding:40px 20px;">'
@@ -34122,11 +34146,19 @@ body {
                 + '<button onclick="clearJobSearch();" '
                 + 'style="padding:8px 12px; background:none; border:1px solid var(--border); border-radius:8px; '
                 + 'color:var(--text-muted); cursor:pointer; font-size:0.78em;">Clear</button>'
-                + '<div style="display:flex; align-items:center; gap:8px; margin-left:auto;">'
+                + '<div style="display:flex; align-items:center; gap:12px; margin-left:auto; flex-wrap:wrap;">'
+                + '<div style="display:flex; align-items:center; gap:6px;">'
                 + '<span style="font-size:0.82em; color:var(--text-muted); white-space:nowrap;">Min match:</span>'
                 + '<input type="range" min="0" max="80" value="' + currentMatchThreshold + '" '
                 + 'oninput="updateMatchThreshold(this.value)" style="width:100px; accent-color:var(--accent);" />'
                 + '<span id="matchValue" style="font-weight:600; color:var(--accent); font-size:0.85em; min-width:30px;">' + currentMatchThreshold + '%</span>'
+                + '</div>'
+                + '<div style="display:flex; align-items:center; gap:6px;">'
+                + '<span style="font-size:0.82em; color:var(--text-muted); white-space:nowrap;">Min skills:</span>'
+                + '<input type="number" id="findJobsMinSkills" min="0" max="20" value="' + (userData.preferences.minimumSkillMatches || 3) + '" '
+                + 'onchange="updateMinSkillMatches(this.value)" '
+                + 'style="width:48px; padding:4px 6px; background:var(--c-input-bg); border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.85em; text-align:center;" />'
+                + '</div>'
                 + '</div>'
                 + '</div>'
                 
@@ -38710,11 +38742,48 @@ body {
         
         function updateMatchThreshold(value) {
             currentMatchThreshold = parseInt(value);
+            userData.preferences.minimumMatchScore = currentMatchThreshold;
             var matchEl = document.getElementById('matchValue');
-            if (matchEl) matchEl.textContent = value + '%+';
-            window._jobsPageSize = 100; // reset pagination on threshold change
+            if (matchEl) matchEl.textContent = value + '%';
+            window._jobsPageSize = 100;
             filterOpportunities();
+            _debouncedSavePrefs();
         }
+
+        function updateMinSkillMatches(value) {
+            userData.preferences.minimumSkillMatches = parseInt(value) || 0;
+            window._jobsPageSize = 100;
+            filterOpportunities();
+            _debouncedSavePrefs();
+        }
+
+        function updateFitMinMatch(value) {
+            userData.preferences.minimumMatchScore = parseInt(value);
+            var el = document.getElementById('fitMatchValue');
+            if (el) el.textContent = value + '%';
+            currentMatchThreshold = parseInt(value);
+            renderFitForMe(document.getElementById('jobsSubTabContent'));
+            _debouncedSavePrefs();
+        }
+
+        function updateFitMinSkills(value) {
+            userData.preferences.minimumSkillMatches = parseInt(value) || 0;
+            renderFitForMe(document.getElementById('jobsSubTabContent'));
+            _debouncedSavePrefs();
+        }
+
+        var _prefsSaveTimer = null;
+        function _debouncedSavePrefs() {
+            if (_prefsSaveTimer) clearTimeout(_prefsSaveTimer);
+            _prefsSaveTimer = setTimeout(function() {
+                saveUserData();
+                if (fbUser && fbDb) debouncedSave(500);
+            }, 1500);
+        }
+        window.updateMatchThreshold = updateMatchThreshold;
+        window.updateMinSkillMatches = updateMinSkillMatches;
+        window.updateFitMinMatch = updateFitMinMatch;
+        window.updateFitMinSkills = updateFitMinSkills;
         
         // [removed] extractSkillsFromJobEnhanced — dead code cleanup v4.22.0
         // [removed] loadSampleData — dead code cleanup v4.22.0
@@ -38758,7 +38827,12 @@ body {
 
         function renderOpportunities() {
             if (window._jobSearchTimeout) { clearTimeout(window._jobSearchTimeout); window._jobSearchTimeout = null; }
-            var filtered = opportunitiesData.filter(function(job) { return job.matchScore >= currentMatchThreshold; });
+            var minSkills = userData.preferences.minimumSkillMatches || 0;
+            var filtered = opportunitiesData.filter(function(job) {
+                if (job.matchScore < currentMatchThreshold) return false;
+                if (minSkills > 0 && (job.matchedSkills || []).length < minSkills) return false;
+                return true;
+            });
             var resultsDiv = document.getElementById('opportunitiesResults');
             if (!resultsDiv) return;
             
@@ -41598,22 +41672,8 @@ body {
                         </div>
                     </div>
                     
-                    <div class="settings-group">
-                        <label class="settings-label">Minimum Match Score</label>
-                        <input type="range" min="0" max="100" value="${userData.preferences.minimumMatchScore}" 
-                               class="match-slider" style="width: 100%;"
-                               oninput="document.getElementById('matchScoreValue').textContent = this.value + '%'">
-                        <div style="text-align: center; color: #fbbf24; font-weight: 600; font-size: 1.2em; margin-top: 10px;">
-                            <span id="matchScoreValue">${userData.preferences.minimumMatchScore}%</span>
-                        </div>
-                        <div class="settings-help">Only show jobs with at least this match percentage</div>
-                    </div>
-                    
-                    <div class="settings-group">
-                        <label class="settings-label">Minimum Skill Matches</label>
-                        <input type="number" min="1" max="10" class="settings-input" id="settingMinSkills"
-                               value="${userData.preferences.minimumSkillMatches}">
-                        <div class="settings-help">Jobs must match at least this many of your skills</div>
+                    <div class="settings-group" style="padding:12px 16px; background:var(--c-surface-2a); border-radius:8px; border:1px solid var(--border);">
+                        <div style="font-size:0.82em; color:var(--text-muted);">${bpIcon('info',14)} Match Score and Skill Match filters have moved to the <strong>Find Jobs</strong> and <strong>Fit For Me</strong> tabs for easier access.</div>
                     </div>
                     
                     <div class="settings-group">
@@ -42681,10 +42741,6 @@ body {
             var seniorityEl = document.getElementById('settingSeniority');
             var newSeniority = seniorityEl ? seniorityEl.value : userData.preferences.seniorityLevel;
             userData.preferences.seniorityLevel = newSeniority;
-            var matchSlider = document.querySelector('#settingsView .match-slider');
-            if (matchSlider) userData.preferences.minimumMatchScore = parseInt(matchSlider.value);
-            var minSkillsEl = document.getElementById('settingMinSkills');
-            if (minSkillsEl) userData.preferences.minimumSkillMatches = parseInt(minSkillsEl.value);
             var minSalaryEl = document.getElementById('settingMinSalary');
             if (minSalaryEl) {
                 var minSalaryInput = minSalaryEl.value;
