@@ -944,11 +944,11 @@
     <div class="tooltip" id="tooltip"></div>
     
     <!-- Role Info Card (body-level for z-index stacking) -->
-    <div id="roleInfoCard" style="display:none; position:fixed; top:108px; left:16px;
+    <div id="roleInfoCard" style="display:none; position:fixed; top:108px; right:16px;
         z-index:9000; background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px;
         padding:16px 18px; font-family:'Outfit',sans-serif; min-width:220px; max-width:280px;
-        backdrop-filter:blur(16px); box-shadow:0 8px 32px rgba(0,0,0,0.3); cursor:default; pointer-events:auto;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+        backdrop-filter:blur(16px); box-shadow:0 8px 32px rgba(0,0,0,0.3); pointer-events:auto;">
+        <div id="roleInfoDragHandle" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; cursor:grab;">
             <div style="display:flex; align-items:center; gap:8px;">
                 <span id="roleInfoDot" style="width:10px; height:10px; border-radius:50%; flex-shrink:0;"></span>
                 <span id="roleInfoName" style="font-weight:700; font-size:0.95em; color:var(--text-primary);"></span>
@@ -960,6 +960,46 @@
         <div id="roleInfoStats" style="font-size:0.82em; color:var(--text-secondary); line-height:1.6;"></div>
         <div id="roleInfoActions" style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border); display:flex; gap:6px;"></div>
     </div>
+    <script>
+    (function() {
+        var card = document.getElementById('roleInfoCard');
+        var handle = document.getElementById('roleInfoDragHandle');
+        var ox, oy, sx, sy;
+        handle.addEventListener('mousedown', function(e) {
+            if (e.target.tagName === 'BUTTON') return;
+            e.preventDefault();
+            var r = card.getBoundingClientRect();
+            ox = e.clientX - r.left; oy = e.clientY - r.top;
+            card.style.right = 'auto';
+            card.style.left = r.left + 'px';
+            card.style.top = r.top + 'px';
+            handle.style.cursor = 'grabbing';
+            function onMove(ev) {
+                card.style.left = Math.max(0, Math.min(window.innerWidth - 100, ev.clientX - ox)) + 'px';
+                card.style.top = Math.max(0, Math.min(window.innerHeight - 60, ev.clientY - oy)) + 'px';
+            }
+            function onUp() { handle.style.cursor = 'grab'; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        });
+        handle.addEventListener('touchstart', function(e) {
+            if (e.target.tagName === 'BUTTON') return;
+            var t = e.touches[0]; var r = card.getBoundingClientRect();
+            sx = t.clientX - r.left; sy = t.clientY - r.top;
+            card.style.right = 'auto';
+            card.style.left = r.left + 'px';
+            card.style.top = r.top + 'px';
+            function onTMove(ev) {
+                ev.preventDefault(); var tt = ev.touches[0];
+                card.style.left = Math.max(0, tt.clientX - sx) + 'px';
+                card.style.top = Math.max(0, tt.clientY - sy) + 'px';
+            }
+            function onTEnd() { document.removeEventListener('touchmove', onTMove); document.removeEventListener('touchend', onTEnd); }
+            document.addEventListener('touchmove', onTMove, { passive: false });
+            document.addEventListener('touchend', onTEnd);
+        }, { passive: false });
+    })();
+    </script>
     
     <!-- Skill Detail Modal -->
     <div class="modal" id="skillModal" role="dialog" aria-modal="true" aria-label="Skill details">
@@ -25060,6 +25100,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         riActions.style.display = 'none';
                     }
                     
+                    ric.style.left = 'auto';
+                    ric.style.right = '16px';
+                    ric.style.top = '108px';
                     ric.style.display = 'block';
                 }
             }
