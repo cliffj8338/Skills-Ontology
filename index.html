@@ -17602,20 +17602,43 @@
                     var skills = data.skills || [];
                     _adminSkillBlocklist = new Set(skills.map(function(s) { return s.toLowerCase().trim(); }));
                     console.log('\u2713 Admin skill blocklist loaded: ' + _adminSkillBlocklist.size + ' entries');
+                } else if (fbUser) {
+                    fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc('__skill_blocklist').get().then(function(d2) {
+                        if (d2.exists) {
+                            var s2 = (d2.data().skills || []);
+                            _adminSkillBlocklist = new Set(s2.map(function(s) { return s.toLowerCase().trim(); }));
+                            console.log('\u2713 Admin skill blocklist loaded (user fallback): ' + _adminSkillBlocklist.size + ' entries');
+                        }
+                    }).catch(function() {});
                 }
                 _adminSkillBlocklistLoaded = true;
-            }).catch(function(e) {
-                console.warn('Skill blocklist load failed:', e.message);
+            }).catch(function() {
                 _adminSkillBlocklistLoaded = true;
+                if (fbUser) {
+                    fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc('__skill_blocklist').get().then(function(d2) {
+                        if (d2.exists) {
+                            var s2 = (d2.data().skills || []);
+                            _adminSkillBlocklist = new Set(s2.map(function(s) { return s.toLowerCase().trim(); }));
+                            console.log('\u2713 Admin skill blocklist loaded (user fallback): ' + _adminSkillBlocklist.size + ' entries');
+                        }
+                    }).catch(function() {});
+                }
             });
         }
         
         function saveAdminSkillBlocklist() {
             if (!fbDb) return;
             var arr = Array.from(_adminSkillBlocklist).sort();
-            fbDb.collection('meta').doc('skillBlocklist').set({ skills: arr, updatedAt: new Date().toISOString() })
+            var payload = { skills: arr, updatedAt: new Date().toISOString() };
+            fbDb.collection('meta').doc('skillBlocklist').set(payload)
                 .then(function() { console.log('Skill blocklist saved: ' + arr.length + ' entries'); })
-                .catch(function(e) { console.warn('Skill blocklist save failed:', e.message); });
+                .catch(function() {
+                    if (fbUser) {
+                        fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc('__skill_blocklist').set(payload, { merge: true })
+                            .then(function() { console.log('Skill blocklist saved (user fallback): ' + arr.length + ' entries'); })
+                            .catch(function() {});
+                    }
+                });
         }
         
         var _adminApprovedSkills = new Set();
@@ -17627,16 +17650,41 @@
                     var skills = (doc.data().skills || []);
                     _adminApprovedSkills = new Set(skills.map(function(s) { return s.toLowerCase().trim(); }));
                     console.log('\u2713 Admin approved skills loaded: ' + _adminApprovedSkills.size + ' entries');
+                } else if (fbUser) {
+                    fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc('__approved_skills').get().then(function(d2) {
+                        if (d2.exists) {
+                            var s2 = (d2.data().skills || []);
+                            _adminApprovedSkills = new Set(s2.map(function(s) { return s.toLowerCase().trim(); }));
+                            console.log('\u2713 Admin approved skills loaded (user fallback): ' + _adminApprovedSkills.size + ' entries');
+                        }
+                    }).catch(function() {});
                 }
-            }).catch(function(e) { console.warn('Approved skills load failed:', e.message); });
+            }).catch(function() {
+                if (fbUser) {
+                    fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc('__approved_skills').get().then(function(d2) {
+                        if (d2.exists) {
+                            var s2 = (d2.data().skills || []);
+                            _adminApprovedSkills = new Set(s2.map(function(s) { return s.toLowerCase().trim(); }));
+                            console.log('\u2713 Admin approved skills loaded (user fallback): ' + _adminApprovedSkills.size + ' entries');
+                        }
+                    }).catch(function() {});
+                }
+            });
         }
 
         function saveAdminApprovedSkills() {
             if (!fbDb) return;
             var arr = Array.from(_adminApprovedSkills).sort();
-            fbDb.collection('meta').doc('parserApprovedSkills').set({ skills: arr, updatedAt: new Date().toISOString() })
+            var payload = { skills: arr, updatedAt: new Date().toISOString() };
+            fbDb.collection('meta').doc('parserApprovedSkills').set(payload)
                 .then(function() { console.log('Approved skills saved: ' + arr.length + ' entries'); })
-                .catch(function(e) { console.warn('Approved skills save failed:', e.message); });
+                .catch(function() {
+                    if (fbUser) {
+                        fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc('__approved_skills').set(payload, { merge: true })
+                            .then(function() { console.log('Approved skills saved (user fallback): ' + arr.length + ' entries'); })
+                            .catch(function() {});
+                    }
+                });
         }
 
         function adminApproveSkill(name) {
