@@ -3834,7 +3834,7 @@
                 
                 var sourceColors = {
                     jsearch: '#60a5fa', remotive: '#10b981', usajobs: '#8b5cf6',
-                    himalayas: '#f59e0b', adzuna: '#ef4444', themuse: '#06b6d4',
+                    himalayas: '#f59e0b', adzuna: '#fb923c', themuse: '#06b6d4',
                     jobicy: '#ec4899'
                 };
                 
@@ -11477,13 +11477,13 @@
                 // Company values NOT matched
                 if (theirPriority.length > 0) {
                     html += '<div style="margin-bottom:14px;">'
-                        + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.08em; color:#ef4444; font-weight:600; margin-bottom:6px;">'
+                        + '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.08em; color:#fbbf24; font-weight:600; margin-bottom:6px;">'
                         + '\u2717 Unmatched Company Values (' + theirPriority.length + ')</div>';
                     theirPriority.forEach(function(v) {
                         var isPrimary = v.strength === 'primary';
-                        html += '<div style="padding:6px 12px; margin-bottom:3px; background:rgba(239,68,68,0.04); border-radius:6px; border-left:3px solid ' + (isPrimary ? '#ef4444' : '#f59e0b') + '; display:flex; justify-content:space-between; align-items:center;">'
+                        html += '<div style="padding:6px 12px; margin-bottom:3px; background:rgba(251,191,36,0.04); border-radius:6px; border-left:3px solid ' + (isPrimary ? '#fbbf24' : '#f59e0b') + '; display:flex; justify-content:space-between; align-items:center;">'
                             + '<span style="font-size:0.82em; color:var(--c-heading);">' + escapeHtml(v.name.charAt(0).toUpperCase() + v.name.slice(1)) + '</span>'
-                            + '<span style="font-size:0.7em; color:' + (isPrimary ? '#ef4444' : '#f59e0b') + ';">' + (isPrimary ? 'core value \u2014 gap' : 'secondary \u2014 gap') + '</span>'
+                            + '<span style="font-size:0.7em; color:' + (isPrimary ? '#fbbf24' : '#f59e0b') + ';">' + (isPrimary ? 'core value \u2014 gap' : 'secondary \u2014 gap') + '</span>'
                             + '</div>';
                     });
                     html += '</div>';
@@ -11642,13 +11642,13 @@
                     + bpIcon('trending-up', 14) + ' Development Focus Areas</div>';
 
                 if (criticalGaps.length > 0) {
-                    html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#ef4444; font-weight:600; margin-bottom:6px;">Required Skills \u2014 Not Currently Matched</div>';
+                    html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#fbbf24; font-weight:600; margin-bottom:6px;">Required Skills \u2014 Not Currently Matched</div>';
                     criticalGaps.forEach(function(g) {
                         var recText = _wbGapRecommendation(g.name, g.proficiency || 'Proficient');
-                        html += '<div style="padding:10px 12px; margin-bottom:6px; background:rgba(239,68,68,0.04); border-radius:8px; border-left:3px solid #ef4444;">'
+                        html += '<div style="padding:10px 12px; margin-bottom:6px; background:rgba(251,191,36,0.04); border-radius:8px; border-left:3px solid #fbbf24;">'
                             + '<div style="display:flex; justify-content:space-between; align-items:center;">'
                             + '<span style="font-size:0.85em; font-weight:600; color:var(--c-heading);">' + escapeHtml(g.name) + '</span>'
-                            + '<span style="font-size:0.7em; color:#ef4444; font-weight:500;">' + (g.proficiency || 'Proficient') + ' required</span>'
+                            + '<span style="font-size:0.7em; color:#fbbf24; font-weight:500;">' + (g.proficiency || 'Proficient') + ' required</span>'
                             + '</div>'
                             + '<div style="font-size:0.75em; color:var(--c-body); margin-top:4px; line-height:1.5;">' + recText + '</div>'
                             + '</div>';
@@ -13094,7 +13094,7 @@
                 { label: 'Total Gaps', value: totalGaps, color: '#f59e0b' },
                 { label: 'Avg Coverage', value: avgCoverage + '%', color: avgCoverage >= 70 ? '#10b981' : '#f59e0b' },
                 { label: 'Avg Match Score', value: avgMatch + '%', color: avgMatch >= 50 ? '#10b981' : '#f59e0b' },
-                { label: 'Missed Terms', value: totalMissed, color: '#ef4444' }
+                { label: 'Missed Terms', value: totalMissed, color: '#fbbf24' }
             ].forEach(function(s) {
                 html += '<div style="padding:12px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:8px; text-align:center;">'
                     + '<div style="font-size:0.65em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:3px;">' + s.label + '</div>'
@@ -14851,7 +14851,7 @@
             var centerX = W / 2, centerY = H / 2;
             
             var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-            var colors = ['#60a5fa', '#f472b6', '#34d399', '#fbbf24', '#a78bfa', '#fb923c', '#22d3ee', '#f87171'];
+            var colors = ['#60a5fa', '#f472b6', '#34d399', '#fbbf24', '#a78bfa', '#fb923c', '#22d3ee', '#38bdf8'];
             var domainNames = ['Strategy', 'Leadership', 'Analytics', 'Innovation', 'Communication', 'Technology', 'Operations', 'Finance'];
             
             var nodes = [];
@@ -17076,7 +17076,7 @@
         // Data structure
         const skillsData = {
             roles: [
-                { id: "strategy", name: "VP Global Strategy", icon: "target", color: "#ef4444" },
+                { id: "strategy", name: "VP Global Strategy", icon: "target", color: "#fb923c" },
                 { id: "futurist", name: "Futurist & Evangelist", icon: "zap", color: "#f59e0b" },
                 { id: "pilot", name: "IFR Pilot", icon: "compass", color: "#3b82f6" },
                 { id: "musician", name: "Musician", icon: "heart", color: "#8b5cf6" },
@@ -20626,7 +20626,7 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
 
                 // Build roles — for multi-position companies, create unified role with progression note
                 var roleMap = {};
-                var roleColors = ['#3b82f6','#ef4444','#10b981','#f59e0b','#a855f7','#ec4899','#06b6d4','#84cc16'];
+                var roleColors = ['#3b82f6','#fb923c','#10b981','#f59e0b','#a855f7','#ec4899','#06b6d4','#84cc16'];
                 var roleIdx = 0;
                 
                 // Process company groups: multi-position companies get a single role with latest title
@@ -21899,7 +21899,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     years: r.years || '',
                     progression: r.progression || null,
                     totalYears: r.totalYears || null,
-                    color: ['#ef4444','#f97316','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899'][i % 7]
+                    color: ['#fb923c','#f59e0b','#a78bfa','#10b981','#3b82f6','#8b5cf6','#ec4899'][i % 7]
                 })),
                 values: wizardState.values,
                 purpose: wizardState.purpose,
@@ -22020,7 +22020,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         
         // Normalize roles: ensure every role has id, color, and skills list
         function normalizeUserRoles() {
-            var roleColors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#a855f7', '#ec4899', '#06b6d4', '#84cc16'];
+            var roleColors = ['#3b82f6', '#fb923c', '#10b981', '#f59e0b', '#a855f7', '#ec4899', '#06b6d4', '#84cc16'];
             (userData.roles || []).forEach(function(role, i) {
                 if (!role.id) role.id = role.name;
                 if (!role.color) role.color = roleColors[i % roleColors.length];
@@ -22860,7 +22860,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Group job skills by category into roles
             var categoryMap = {};
-            var roleColors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#a855f7', '#ec4899', '#06b6d4', '#84cc16'];
+            var roleColors = ['#3b82f6', '#fb923c', '#10b981', '#f59e0b', '#a855f7', '#ec4899', '#06b6d4', '#84cc16'];
             jobSkillsArr.forEach(function(s) {
                 var cat = s.category || 'General';
                 if (!categoryMap[cat]) categoryMap[cat] = [];
@@ -22939,7 +22939,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .attr("fill", function(d) {
                     if (d.type === 'center') return '#f59e0b';
                     if (d.type === 'role') return d.color;
-                    return d.required ? '#ef4444' : '#f97316';
+                    return d.required ? '#fb923c' : '#a78bfa';
                 })
                 .attr("stroke", function(d) { return d.required ? '#fff' : 'none'; })
                 .attr("stroke-width", function(d) { return d.required ? 2 : 0; })
@@ -23044,7 +23044,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Add a "job requirements" pseudo-role — pinned to RIGHT side
             nodes.push({
-                id: 'role-job-req', name: ((job.title || 'Job').length > (isMobile ? 18 : 25) ? (job.title || 'Job').substring(0, isMobile ? 16 : 23) + '\u2026' : (job.title || 'Job')) + ' Needs', type: 'role', color: '#ef4444', matchState: 'role',
+                id: 'role-job-req', name: ((job.title || 'Job').length > (isMobile ? 18 : 25) ? (job.title || 'Job').substring(0, isMobile ? 16 : 23) + '\u2026' : (job.title || 'Job')) + ' Needs', type: 'role', color: '#fbbf24', matchState: 'role',
                 x: jobX, y: jobY, fx: jobX, fy: jobY, homeX: jobX, homeY: jobY
             });
             
@@ -23104,7 +23104,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Color scheme
             var matchColors = {
                 matched: '#10b981', // green
-                gap: '#ef4444',     // red
+                gap: '#fbbf24',     // amber — attention needed
                 surplus: '#475569'  // slate grey (dimmed)
             };
             
@@ -23167,7 +23167,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .attr("fill", function(d) {
                     if (d.type === 'center') return isLt ? '#2563eb' : '#60a5fa';
                     if (d.type === 'role') {
-                        if (d.id === 'role-job-req') return isLt ? '#fecaca' : '#3b1111';
+                        if (d.id === 'role-job-req') return isLt ? '#fef3c7' : '#422006';
                         return isLt ? '#e2e8f0' : '#1e293b';
                     }
                     return matchColors[d.matchState] || '#6b7280';
@@ -23178,10 +23178,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 })
                 .attr("stroke", function(d) {
                     if (d.type === 'role') {
-                        return d.id === 'role-job-req' ? '#ef4444' : (isLt ? '#94a3b8' : '#475569');
+                        return d.id === 'role-job-req' ? '#fbbf24' : (isLt ? '#94a3b8' : '#475569');
                     }
                     if (d.matchState === 'matched') return isLt ? '#d1d5db' : '#fff';
-                    if (d.matchState === 'gap') return '#fca5a5';
+                    if (d.matchState === 'gap') return '#fde68a';
                     return 'none';
                 })
                 .attr("stroke-width", function(d) {
@@ -23222,7 +23222,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     if (d.matchState === 'matched') return matchColors.matched;
                     if (d.matchState === 'gap') return matchColors.gap;
                     if (d.matchState === 'surplus') return isLt ? '#64748b' : '#64748b';
-                    if (d.type === 'role' && d.id === 'role-job-req') return '#ef4444';
+                    if (d.type === 'role' && d.id === 'role-job-req') return '#fbbf24';
                     if (d.type === 'role') return isLt ? '#1e293b' : '#94a3b8';
                     return isLt ? '#1e293b' : undefined;
                 })
@@ -23569,7 +23569,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 aligned: '#10b981',
                 yours: '#f59e0b',
                 theirs: '#6366f1',
-                tension: '#ef4444'
+                tension: '#fbbf24'
             };
             
             // Simulation
@@ -23650,7 +23650,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 .attr("stroke", function(d) {
                     if (d.type === 'hub') return isLtV ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.3)';
                     if (d.valState === 'aligned') return isLtV ? '#d1fae5' : '#fff';
-                    if (d.valState === 'tension') return '#fca5a5';
+                    if (d.valState === 'tension') return '#fde68a';
                     return 'none';
                 })
                 .attr("stroke-width", function(d) {
@@ -29745,7 +29745,7 @@ body {
             var valAlign = computeValuesAlignment(userValues, job.companyValues);
             
             // Roles
-            var roleColors = ['#60a5fa', '#a855f7', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#ef4444', '#f97316', '#84cc16'];
+            var roleColors = ['#60a5fa', '#a855f7', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#fb923c', '#38bdf8', '#84cc16'];
             var activeRoleIds = new Set();
             // Normalize: handle both s.roles (array) and s.role (string) formats
             var roleNameToId = {};
@@ -38825,7 +38825,7 @@ body {
                     + '<div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px; font-size:0.82em; color:var(--text-muted);">'
                     + (job.type ? '<span>' + bpIcon('briefcase',12) + ' ' + job.type + '</span>' : '')
                     + (salary ? '<span>' + bpIcon('dollar',12) + ' ' + salary + '</span>' : '')
-                    + '<span style="color:' + ({JSearch:'#60a5fa', Remotive:'#10b981', USAJobs:'#8b5cf6', Himalayas:'#f59e0b', Jobicy:'#ec4899', Adzuna:'#ef4444', 'The Muse':'#06b6d4'}[job.source] || '#3b82f6') + ';">'
+                    + '<span style="color:' + ({JSearch:'#60a5fa', Remotive:'#10b981', USAJobs:'#8b5cf6', Himalayas:'#f59e0b', Jobicy:'#ec4899', Adzuna:'#fb923c', 'The Muse':'#06b6d4'}[job.source] || '#3b82f6') + ';">'
                     + bpIcon('external',12) + ' ' + (job.source || 'Remote') + '</span>'
                     + '</div>'
                     
@@ -45315,7 +45315,7 @@ body {
                     container.innerHTML = '<div style="text-align:center;padding:30px;color:#9ca3af;">Trades library not loaded yet.</div>';
                     return;
                 }
-                var catColors = {'Woodworking & Construction':'#d97706','Electrical/Plumbing/Mechanical':'#0891b2','Painting & Finishing':'#7c3aed','Culinary Arts':'#dc2626','Visual Arts':'#db2777','Fiber & Textile':'#059669','Performing Arts':'#ea580c','Outdoor & Agriculture':'#16a34a','Technology & Making':'#2563eb'};
+                var catColors = {'Woodworking & Construction':'#d97706','Electrical/Plumbing/Mechanical':'#0891b2','Painting & Finishing':'#7c3aed','Culinary Arts':'#f59e0b','Visual Arts':'#db2777','Fiber & Textile':'#059669','Performing Arts':'#ea580c','Outdoor & Agriculture':'#16a34a','Technology & Making':'#2563eb'};
                 container.innerHTML = tradeResults.map(function(skill) {
                     var isAdded = isSkillAlreadyAdded(skill.n);
                     var color = catColors[skill.c] || '#d97706';
