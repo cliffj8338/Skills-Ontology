@@ -22618,10 +22618,16 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     .attr("x2", d => d.target.x)
                     .attr("y2", d => d.target.y);
 
+                highlightLayer.selectAll("line")
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
                 node.attr("transform", d => `translate(${d.x},${d.y})`);
             });
 
-            window.networkData = { nodes, links, svg, link, node };
+            window.networkData = { nodes, links, svg, link, node, highlightLayer };
             setTimeout(applyLabelToggles, 100);
             
             // Labels always on (toggle removed in v4.27.3.3)
@@ -22880,6 +22886,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var isLtC = document.documentElement.getAttribute('data-theme') === 'light';
             var linkLayer = svg.append("g").attr("class", "link-layer");
             var nodeLayer = svg.append("g").attr("class", "node-layer");
+            var highlightLayer = svg.append("g").attr("class", "highlight-layer");
             var link = linkLayer.selectAll("line").data(links).join("line")
                 .attr("class", "link")
                 .style("stroke", isLtC ? 'rgba(100,116,139,0.25)' : undefined)
@@ -25060,7 +25067,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             if (!window.networkData) return;
 
-            const { nodes, links, node, link } = window.networkData;
+            const { nodes, links, node, link, highlightLayer } = window.networkData;
+
+            if (highlightLayer) highlightLayer.selectAll("line").remove();
 
             if (roleId === 'all') {
                 node.classed('dimmed', false).classed('highlighted', false);
@@ -25091,9 +25100,21 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 return d.source.id !== roleId && !relevantSkills.includes(d.target.id);
             });
 
-            link.classed('highlighted', d => {
-                return d.source.id === roleId && relevantSkills.includes(d.target.id);
-            });
+            link.classed('highlighted', false);
+
+            if (highlightLayer) {
+                var hlData = links.filter(function(d) {
+                    return d.source.id === roleId && relevantSkills.includes(d.target.id);
+                });
+                highlightLayer.selectAll("line").data(hlData).join("line")
+                    .attr("x1", function(d) { return d.source.x; })
+                    .attr("y1", function(d) { return d.source.y; })
+                    .attr("x2", function(d) { return d.target.x; })
+                    .attr("y2", function(d) { return d.target.y; })
+                    .style("stroke", "rgba(96,165,250,0.85)")
+                    .style("stroke-width", 2.5)
+                    .style("stroke-opacity", 1);
+            }
             
             // STORYTELLING MODE: Show only relevant labels + selected role
             node.selectAll('text').classed('hidden', function(d) {
