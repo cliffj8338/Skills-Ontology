@@ -653,8 +653,12 @@
             .teaser-promise { padding: 14px 20px; }
             .teaser-backstory { padding: 0 20px 20px; }
         }
-        @media (max-width: 900px) {
+        @media (max-width: 768px) {
               #adminLayout { flex-direction: column !important; }
+              #adminSidebarWrap {
+                  width: 100% !important;
+                  position: relative !important;
+              }
               #adminSidebar {
                   width: 100% !important;
                   position: static !important;
@@ -678,18 +682,11 @@
               #adminSidebar .admin-nav-group { display: contents !important; }
               #adminSidebar .admin-nav-group > button { display: none !important; }
               #adminSidebar .admin-group-items { display: contents !important; }
-          }
-
-          @media (max-width: 900px) {
-              #adminSidebarWrap {
-                  width: 100% !important;
-                  position: relative !important;
-              }
               #adminScrollLeft, #adminScrollRight {
                   display: flex !important;
               }
           }
-          @media (min-width: 901px) {
+          @media (min-width: 769px) {
               #adminScrollLeft, #adminScrollRight { display: none !important; }
           }
   
