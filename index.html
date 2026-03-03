@@ -1,4 +1,4 @@
-<!-- v4.46.9 | 2026-03-03 | Scouting report D3: muted links + z-order fix -->
+<!-- v4.46.10 | 2026-03-03 | Custom preset UX: actionable description + contextual hint -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1640,8 +1640,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.9 - BUILD 20260303-report-links
-        var BP_VERSION = 'v4.46.9';
+        // BLUEPRINT v4.46.10 - BUILD 20260303-custom-preset-ux
+        var BP_VERSION = 'v4.46.10';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -5024,7 +5024,8 @@
                         { id: 'p2-7a', name: 'Reports section live for users', status: 'done', category: 'feature', priority: 'high', notes: 'v4.46.4-5: Reports page now branches on isReadOnlyProfile. Logged-in users see live dashboard: My Reports with clickable pipeline jobs launching format picker (HTML/PDF), expanded Report Readiness tracker (6 dimensions: skills, work history, outcomes, values, purpose, credentials), collapsible Sample Reports section, credential vault teaser. Non-logged-in visitors see sample experience with mock analytics, heatmap, demo profiles, and sign-up CTA banner. Removed mock data from logged-in view. New Report button moved to My Reports card header.' },
                         { id: 'p2-7b', name: 'Privacy controls: blind mode defaults + audit log', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.46.6: Full privacy control system. (1) userData.blindDefaults persisted to Firestore with 6 fields: identity, location, employer, institution, outcomes, compensation. (2) Settings > Privacy tab gets live toggles that save immediately. (3) Format picker modal gets collapsible per-instance override UI with caution banner noting overrides are temporary. (4) applyBlindSettings() transforms reportData before HTML/PDF generation: anonymizes name/photo, hides location, replaces employer/institution names, abstracts outcomes, hides compensation section. (5) Privacy audit log (userData.privacyLog, capped 100 entries) records every html/pdf/share event with timestamp, job, format, blind settings used, and override flag. (6) Privacy Activity table in Settings > Privacy shows full audit trail with blind field badges and override indicators. (7) shareScoutingReport() includes blindSettings in Firestore doc. (8) Blind toggles removed from Reports dashboard (now in Settings > Privacy).' },
                         { id: 'p2-7c', name: 'Sharing presets: persistence + report filtering', status: 'done', category: 'feature', priority: 'high', notes: 'v4.46.7-8: Sharing presets fully wired. (1) currentPreset persisted to userData.preferences.sharingPreset in Firestore. (2) Restored on load so preset survives refresh. (3) buildReportData() filters skills by preset: Full=all, Executive=job-matched + top 20 by level, Advisory=core/key skills + job-matched, Board=key + mastery + job-matched. (4) Outcomes filtered by preset: Advisory keeps Strategic Foresight/Thought Leadership/Business Impact, Board keeps Business Impact/Crisis Leadership/Entrepreneurial. (5) Values filtered for Board preset. (6) sharingPreset stamped into report data object. (7) Privacy audit log records preset per event with color-coded pills in Activity table. (8) v4.46.8: Preset card descriptions now dynamic, showing actual counts and "no outcomes yet" / "no values yet" when data is empty. What You\'re Sharing cards show "None added yet" for empty data types and "of N total" when preset filters below total. Both Privacy tab and Consent view updated.' },
-                        { id: 'p2-7d', name: 'Scouting report D3 link visual fix', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.9: Scouting report HTML template D3 networks: (1) Link stroke reduced from rgba(255,255,255,0.06) to 0.025 with stroke-width 0.5 for much more muted appearance. (2) SVG DOM reorder: all <line> elements moved to beginning of parent container so they render behind <circle>/<g> nodes in painter\'s order. Applied via recolorNetwork() polling patch injected into iframe template.' }
+                        { id: 'p2-7d', name: 'Scouting report D3 link visual fix', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.9: Scouting report HTML template D3 networks: (1) Link stroke reduced from rgba(255,255,255,0.06) to 0.025 with stroke-width 0.5 for much more muted appearance. (2) SVG DOM reorder: all <line> elements moved to beginning of parent container so they render behind <circle>/<g> nodes in painter\'s order. Applied via recolorNetwork() polling patch injected into iframe template.' },
+                        { id: 'p2-7e', name: 'Custom preset UX improvements', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.10: Custom preset card description changed from passive "You choose exactly..." to actionable "Granular control. Toggle individual skills, outcomes, and values in the Blueprint tab." When Custom is selected, a blue info banner appears below the preset grid: "Custom mode active. Manage individual share toggles for outcomes and values in the Blueprint tab." with clickable link to Blueprint view. Applied to both Settings > Privacy and Consent views.' }
                     ]
                 },
                 {
@@ -42107,6 +42108,7 @@ body {
                 + '<div class="values-grid">'
                 + Object.entries(sharePresets).map(function(entry) { return renderPresetCard(entry[0], entry[1]); }).join('')
                 + '</div>'
+                + (currentPreset === 'custom' ? '<div style="margin-top:12px; padding:10px 14px; background:rgba(96,165,250,0.08); border-left:3px solid #60a5fa; border-radius:4px; font-size:0.85em; color:var(--c-heading);">' + bpIcon('info',12) + ' Custom mode active. Manage individual share toggles for outcomes and values in the <a onclick="switchView(\'blueprint\');" style="color:#60a5fa; cursor:pointer; text-decoration:underline;">Blueprint</a> tab. Skills are included based on your profile data.</div>' : '')
                 + '</div>';
             
             // --- What You're Sharing (from Consent) ---
@@ -42889,6 +42891,7 @@ body {
                     <div class="values-grid">
                         ${Object.entries(sharePresets).map(([key, preset]) => renderPresetCard(key, preset)).join('')}
                     </div>
+                    ${currentPreset === 'custom' ? '<div style="margin-top:12px; padding:10px 14px; background:rgba(96,165,250,0.08); border-left:3px solid #60a5fa; border-radius:4px; font-size:0.85em; color:var(--c-heading);">' + bpIcon('info',12) + ' Custom mode active. Manage individual share toggles for outcomes and values in the Blueprint tab. Skills are included based on your profile data.</div>' : ''}
                 </div>
             `;
         }
@@ -42914,7 +42917,7 @@ body {
                 'executive': 'Top ' + Math.min(20, skillCount) + ' skills + ' + (outcomeCount > 0 ? 'all outcomes' : 'no outcomes yet') + ', ideal for executive search',
                 'advisory': keyCount + ' strategic skill' + (keyCount !== 1 ? 's' : '') + ' + ' + (outcomeCount > 0 ? 'relevant outcomes' : 'no outcomes yet') + ', for advisory and consulting',
                 'board': boardCount + ' leadership skill' + (boardCount !== 1 ? 's' : '') + ' + ' + (outcomeCount > 0 ? 'business outcomes' : 'no outcomes yet') + ', for board positions',
-                'custom': 'You choose exactly which skills, outcomes, and values to share'
+                'custom': 'Granular control. Toggle individual skills, outcomes, and values in the Blueprint tab.'
             };
             
             return `
