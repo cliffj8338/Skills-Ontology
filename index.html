@@ -1,4 +1,4 @@
-<!-- v4.46.4 | 2026-03-03 | Reports section live for logged-in users; demo/sample for visitors -->
+<!-- v4.46.6 | 2026-03-03 | Privacy controls: blind defaults, per-report overrides, audit log, PDF/HTML blinding -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1640,8 +1640,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.4 - BUILD 20260303-reports-live
-        var BP_VERSION = 'v4.46.4';
+        // BLUEPRINT v4.46.6 - BUILD 20260303-privacy-controls
+        var BP_VERSION = 'v4.46.6';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -2918,6 +2918,9 @@
             if (userData.contentVisibility) data.contentVisibility = userData.contentVisibility;
             if (userData.companyTenures) data.companyTenures = userData.companyTenures;
             if (userData.importStats) data.importStats = userData.importStats;
+            // Privacy: blind mode defaults + audit log
+            if (userData.blindDefaults) data.blindDefaults = userData.blindDefaults;
+            if (userData.privacyLog && userData.privacyLog.length > 0) data.privacyLog = userData.privacyLog.slice(-100);
             // Dev velocity stats (admin)
             if (window._blueprintDevStats) data.devStats = window._blueprintDevStats;
             
@@ -3098,6 +3101,8 @@
                     userData.contentVisibility = data.contentVisibility || {};
                     userData.companyTenures = data.companyTenures || [];
                     userData.importStats = data.importStats || {};
+                    userData.blindDefaults = data.blindDefaults || {};
+                    userData.privacyLog = data.privacyLog || [];
                     userData.templateId = 'firestore-' + uid;
                     
                     // Load dev velocity stats if present
@@ -5012,7 +5017,8 @@
                         { id: 'p2-6x', name: 'Job match filters moved inline', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.1: Moved Min Match Score slider and Min Skill Matches input from Settings to both Find Jobs and Fit For Me tabs. Both tabs share state via currentMatchThreshold. Auto-save with 1.5s debounce to Firestore preferences. Settings page replaced with info note.' },
                         { id: 'p2-6y', name: 'Pipeline 0% match fix', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.2: Jobs added from Fit For Me showed 0% in Pipeline due to field name mismatch. _fitAddToPipeline() saved matchResult/parsedData but pipeline reads matchData/parsedSkills. Fixed save path and added legacy field migration in renderSavedJobs() and rescoreAllJobs().' },
                         { id: 'p2-6z', name: 'Pipeline rescore fix + Fit For Me persistence', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.46.3: rescoreAllJobs() now re-parses raw text through parseJobLocally() when no parsedSkills exist, always saves after rescoring, always shows toast feedback. Fit For Me results persist in memory until manual Refresh click (no auto-refresh after 15 min).' },
-                        { id: 'p2-7a', name: 'Reports section live for users', status: 'done', category: 'feature', priority: 'high', notes: 'v4.46.4: Reports page now branches on isReadOnlyProfile. Logged-in users see live dashboard: My Reports with clickable pipeline jobs launching format picker (HTML/PDF), expanded Report Readiness tracker (6 dimensions: skills, work history, outcomes, values, purpose, credentials), blind mode defaults, collapsible Sample Reports section, credential vault teaser. Non-logged-in visitors see sample experience with mock analytics, heatmap, demo profiles, and sign-up CTA banner. Removed mock data (analytics, heatmap, shared links) from logged-in view.' }
+                        { id: 'p2-7a', name: 'Reports section live for users', status: 'done', category: 'feature', priority: 'high', notes: 'v4.46.4-5: Reports page now branches on isReadOnlyProfile. Logged-in users see live dashboard: My Reports with clickable pipeline jobs launching format picker (HTML/PDF), expanded Report Readiness tracker (6 dimensions: skills, work history, outcomes, values, purpose, credentials), collapsible Sample Reports section, credential vault teaser. Non-logged-in visitors see sample experience with mock analytics, heatmap, demo profiles, and sign-up CTA banner. Removed mock data from logged-in view. New Report button moved to My Reports card header.' },
+                        { id: 'p2-7b', name: 'Privacy controls: blind mode defaults + audit log', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.46.6: Full privacy control system. (1) userData.blindDefaults persisted to Firestore with 6 fields: identity, location, employer, institution, outcomes, compensation. (2) Settings > Privacy tab gets live toggles that save immediately. (3) Format picker modal gets collapsible per-instance override UI with caution banner noting overrides are temporary. (4) applyBlindSettings() transforms reportData before HTML/PDF generation: anonymizes name/photo, hides location, replaces employer/institution names, abstracts outcomes, hides compensation section. (5) Privacy audit log (userData.privacyLog, capped 100 entries) records every html/pdf/share event with timestamp, job, format, blind settings used, and override flag. (6) Privacy Activity table in Settings > Privacy shows full audit trail with blind field badges and override indicators. (7) shareScoutingReport() includes blindSettings in Firestore doc. (8) Blind toggles removed from Reports dashboard (now in Settings > Privacy).' }
                     ]
                 },
                 {
@@ -24435,27 +24441,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             }
             html += '</div>';
             
-            // ── Blind Mode Defaults ─────────────────────────────
-            html += '<div class="rpt-card" style="margin-bottom:20px;">'
-                + '<div class="rpt-card-h">' + bpIcon('privacy', 16) + ' Blind Mode Defaults</div>'
-                + '<div class="rpt-card-sub">Set your default anonymization preferences. Can be overridden per report.</div>'
-                + '<div class="rpt-blind-grid">';
-            var blindToggles = [
-                { id: 'rptBlindIdentity', label: 'Identity (name, photo)', desc: 'Blur name and avatar' },
-                { id: 'rptBlindLocation', label: 'Location', desc: 'Hide geographic details' },
-                { id: 'rptBlindEmployer', label: 'Employer names', desc: 'Blur company references' },
-                { id: 'rptBlindInstitution', label: 'Institution names', desc: 'Blur school and org names' },
-                { id: 'rptBlindOutcomes', label: 'Outcome details', desc: 'Swap to abstracted text' }
-            ];
-            blindToggles.forEach(function(t) {
-                html += '<div class="rpt-blind-row">'
-                    + '<div><div class="rpt-blind-label">' + t.label + '</div>'
-                    + '<div class="rpt-blind-desc">' + t.desc + '</div></div>'
-                    + '<div class="rpt-toggle" id="' + t.id + '" onclick="this.classList.toggle(\'on\')"' + '></div>'
-                    + '</div>';
-            });
-            html += '</div></div>';
-            
             // ── Sample Reports (collapsible) ────────────────────
             html += '<div class="rpt-card" style="margin-bottom:20px;">'
                 + '<div onclick="var g=this.nextElementSibling; var c=this.querySelector(\'.rpt-demo-chevron\'); if(g.style.display===\'none\'){g.style.display=\'block\';c.style.transform=\'rotate(90deg)\';}else{g.style.display=\'none\';c.style.transform=\'rotate(0deg)\';}" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between;">'
@@ -29586,6 +29571,127 @@ body {
         }
         window.generatePurposeAI = generatePurposeAI;
 
+        // ═══════════════════════════════════════════════════════════
+        // BLIND MODE DEFAULTS + PRIVACY AUDIT LOG
+        // ═══════════════════════════════════════════════════════════
+        
+        var BLIND_FIELDS = [
+            { key: 'identity',     label: 'Identity (name, photo)',  desc: 'Replace name with "Candidate" and hide photo' },
+            { key: 'location',     label: 'Location',                desc: 'Hide geographic details' },
+            { key: 'employer',     label: 'Employer names',          desc: 'Replace company names with "[Company]"' },
+            { key: 'institution',  label: 'Institution names',       desc: 'Replace school and org names with "[Institution]"' },
+            { key: 'outcomes',     label: 'Outcome details',         desc: 'Swap to abstracted outcome text' },
+            { key: 'compensation', label: 'Compensation data',       desc: 'Hide salary and compensation analysis' }
+        ];
+        
+        function getBlindDefaults() {
+            var d = userData.blindDefaults || {};
+            var out = {};
+            BLIND_FIELDS.forEach(function(f) { out[f.key] = !!d[f.key]; });
+            return out;
+        }
+        
+        function setBlindDefault(key, value) {
+            if (!userData.blindDefaults) userData.blindDefaults = {};
+            userData.blindDefaults[key] = !!value;
+            saveToFirestore();
+        }
+        
+        // Temporary per-instance overrides (reset after each report generation)
+        var _blindOverrides = null;
+        
+        function getActiveBlindSettings() {
+            var defaults = getBlindDefaults();
+            if (_blindOverrides) {
+                var merged = {};
+                BLIND_FIELDS.forEach(function(f) {
+                    merged[f.key] = (_blindOverrides[f.key] !== undefined) ? !!_blindOverrides[f.key] : defaults[f.key];
+                });
+                return merged;
+            }
+            return defaults;
+        }
+        
+        function hasAnyBlinding(settings) {
+            return BLIND_FIELDS.some(function(f) { return settings[f.key]; });
+        }
+        
+        function hasOverrides() {
+            if (!_blindOverrides) return false;
+            var defaults = getBlindDefaults();
+            return BLIND_FIELDS.some(function(f) {
+                return _blindOverrides[f.key] !== undefined && !!_blindOverrides[f.key] !== defaults[f.key];
+            });
+        }
+        
+        // Apply blinding transformations to report data object
+        function applyBlindSettings(reportData, blindSettings) {
+            if (!blindSettings || !reportData) return reportData;
+            var R = reportData;
+            
+            if (blindSettings.identity) {
+                R.candidate.name = 'Anonymous Candidate';
+                R.candidate.photo = '?';
+                R.candidate.contact = 'Available upon request';
+                R.candidate.phone = '';
+                R.candidate.linkedin = '';
+            }
+            if (blindSettings.location) {
+                R.candidate.location = 'Location undisclosed';
+            }
+            if (blindSettings.employer) {
+                R.candidate.title = (R.candidate.title || '').replace(/\b[A-Z][\w&'.]+(?:\s+(?:Inc|Corp|LLC|Ltd|Co|Group|Holdings|Technologies|Solutions|Partners|Capital|Consulting|Services|Labs|Systems|Media|Digital|Global|International)\.?)*\b/g, '[Company]');
+                if (R.candidate.blindTitle) R.candidate.title = R.candidate.blindTitle;
+                (R.workHistory || []).forEach(function(w) { w.company = '[Company]'; });
+                R.job.company = R.job.company; // keep target company visible
+            }
+            if (blindSettings.institution) {
+                (R.education || []).forEach(function(e) { e.name = '[Institution]'; });
+                (R.certifications || []).forEach(function(c) { if (c.vfLabel) c.vfLabel = '[Issuer]'; });
+            }
+            if (blindSettings.outcomes) {
+                (R.outcomes || []).forEach(function(o) {
+                    if (o.blind) o.text = o.blind;
+                    else o.text = (o.text || '').replace(/\b[A-Z][\w&'.]+(?:\s+(?:Inc|Corp|LLC|Ltd|Co)\.?)*\b/g, '[Company]');
+                });
+            }
+            if (blindSettings.compensation) {
+                R._hideCompensation = true;
+            }
+            
+            R.blindSettings = blindSettings;
+            R._blindedAt = new Date().toISOString();
+            return R;
+        }
+        
+        // Write privacy audit log entry
+        function logPrivacyEvent(type, jobTitle, company, blindSettings, wasOverridden) {
+            if (!userData.privacyLog) userData.privacyLog = [];
+            var entry = {
+                ts: new Date().toISOString(),
+                type: type, // 'html', 'pdf', 'share'
+                job: (jobTitle || '').substring(0, 80),
+                company: (company || '').substring(0, 60),
+                blind: {},
+                overridden: !!wasOverridden
+            };
+            BLIND_FIELDS.forEach(function(f) {
+                if (blindSettings && blindSettings[f.key]) entry.blind[f.key] = true;
+            });
+            userData.privacyLog.push(entry);
+            // Cap at 100
+            if (userData.privacyLog.length > 100) userData.privacyLog = userData.privacyLog.slice(-100);
+            // Debounced save (don't block report generation)
+            clearTimeout(window._privLogSaveTimer);
+            window._privLogSaveTimer = setTimeout(function() { saveToFirestore(); }, 3000);
+        }
+        window.getBlindDefaults = getBlindDefaults;
+        window.setBlindDefault = setBlindDefault;
+        window.getActiveBlindSettings = getActiveBlindSettings;
+        window.applyBlindSettings = applyBlindSettings;
+        window.logPrivacyEvent = logPrivacyEvent;
+        window.BLIND_FIELDS = BLIND_FIELDS;
+
         // ===== SCOUTING REPORT JOB PICKER =====
         function showScoutingReportPicker() {
             var savedJobs = (userData.savedJobs || []).filter(function(j) { return j && j.title && j.matchData; });
@@ -29720,6 +29826,36 @@ body {
             var score = (job.matchData && job.matchData.score) || 0;
             var scoreColor = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
             
+            // Reset per-instance overrides
+            _blindOverrides = null;
+            
+            // Build blind override toggles
+            var blindDefaults = getBlindDefaults();
+            var anyBlind = hasAnyBlinding(blindDefaults);
+            var blindHTML = '<div style="margin-top:16px; border-top:1px solid var(--c-border-subtle); padding-top:14px;">'
+                + '<div onclick="var p=this.nextElementSibling; var c=this.querySelector(\'.bp-chev\'); if(p.style.display===\'none\'){p.style.display=\'block\';c.style.transform=\'rotate(90deg)\';}else{p.style.display=\'none\';c.style.transform=\'rotate(0deg)\';}" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between;">'
+                + '<div style="display:flex; align-items:center; gap:6px;">'
+                + bpIcon('privacy', 14) + '<span style="font-size:0.85em; font-weight:600;">Privacy for this report</span>'
+                + (anyBlind ? '<span style="font-size:0.68em; padding:1px 6px; border-radius:6px; background:rgba(16,185,129,0.12); color:#10b981; font-weight:600;">ON</span>' : '')
+                + '</div>'
+                + '<div class="bp-chev" style="color:var(--text-muted); transition:transform 0.2s; transform:rotate(0deg);">' + bpIcon('chevron-right', 14) + '</div>'
+                + '</div>'
+                + '<div style="display:none; margin-top:10px;">';
+            
+            BLIND_FIELDS.forEach(function(f) {
+                var isOn = blindDefaults[f.key];
+                blindHTML += '<div style="display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--c-border-subtle);">'
+                    + '<div style="flex:1; min-width:0;"><div style="font-size:0.82em; font-weight:500;">' + f.label + '</div>'
+                    + '<div style="font-size:0.68em; color:var(--text-muted);">' + f.desc + '</div></div>'
+                    + '<div class="rpt-toggle' + (isOn ? ' on' : '') + '" id="fmtBlind_' + f.key + '" onclick="this.classList.toggle(\'on\'); if(!window._blindOverrides)window._blindOverrides={}; window._blindOverrides[\'' + f.key + '\']=this.classList.contains(\'on\');" style="flex-shrink:0;"></div>'
+                    + '</div>';
+            });
+            
+            blindHTML += '<div style="margin-top:8px; padding:8px 10px; background:rgba(245,158,11,0.07); border:1px solid rgba(245,158,11,0.18); border-radius:6px;">'
+                + '<div style="font-size:0.72em; color:#f59e0b; line-height:1.5;">'
+                + bpIcon('warning', 10) + ' Overrides apply to this report only. Defaults are managed in <a onclick="closeExportModal(); switchView(\'settings\'); setTimeout(function(){ window.currentSettingsTab=\'privacy\'; initSettings(); },100);" style="color:#60a5fa; cursor:pointer; text-decoration:underline;">Settings &gt; Privacy</a>.</div></div>'
+                + '</div></div>';
+            
             modalContent.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left"><h2 class="modal-title">\u25C8 Scouting Report</h2></div>'
                 + '<button class="modal-close" aria-label="Close dialog" onclick="closeExportModal()">\u00D7</button>'
@@ -29752,6 +29888,7 @@ body {
                 + ' <span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:var(--c-amber-bg-5b, rgba(245,158,11,0.15)); color:#f59e0b; font-weight:600;">Attachment</span></div>'
                 + '</div>'
                 + '</div>'
+                + blindHTML
                 + '<div style="margin-top:14px; text-align:center;">'
                 + '<button onclick="showScoutingReportPicker()" style="background:none; border:none; color:var(--text-muted); font-size:0.82em; cursor:pointer; text-decoration:underline;">← Back to job list</button>'
                 + '</div>'
@@ -29775,6 +29912,17 @@ body {
             // Build REPORT_DATA from live app state
             var reportData = buildReportData(jobIdx);
             if (!reportData) return;
+            
+            // Apply blind settings (defaults + any per-instance overrides)
+            var blindSettings = getActiveBlindSettings();
+            var overridden = hasOverrides();
+            applyBlindSettings(reportData, blindSettings);
+            
+            // Privacy audit log
+            logPrivacyEvent('html', job.title, job.company, blindSettings, overridden);
+            
+            // Clear per-instance overrides
+            _blindOverrides = null;
             
             // Render in iframe overlay with Share button
             showReportOverlay(reportData, jobIdx);
@@ -30155,6 +30303,7 @@ body {
                 jobTitle: reportData.job.title,
                 company: reportData.job.company,
                 matchScore: reportData.match.percentage,
+                blindSettings: reportData.blindSettings || {},
                 createdBy: fbUser ? fbUser.uid : 'anonymous',
                 createdByName: (userData.profile || {}).name || '',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -30164,6 +30313,9 @@ body {
                 status: 'active',
                 shareToken: shareToken
             };
+            
+            // Privacy audit log for share event
+            logPrivacyEvent('share', reportData.job.title, reportData.job.company, reportData.blindSettings || {}, false);
             
             if (!fbDb) {
                 showToast('Firebase not available. Save the HTML file instead.', 'warning');
@@ -30235,6 +30387,18 @@ body {
             // Use buildReportData for identical data to HTML reports
             var reportData = buildReportData(jobIdx);
             if (!reportData) { showToast('Could not build report data.', 'error'); return; }
+            
+            // Apply blind settings (defaults + any per-instance overrides)
+            var blindSettings = getActiveBlindSettings();
+            var overridden = hasOverrides();
+            applyBlindSettings(reportData, blindSettings);
+            
+            // Privacy audit log
+            logPrivacyEvent('pdf', job.title, job.company, blindSettings, overridden);
+            
+            // Clear per-instance overrides
+            _blindOverrides = null;
+            
             generateScoutingReportPDF(reportData);
         }
         window.generateScoutingReport = generateScoutingReport;
@@ -31370,6 +31534,20 @@ body {
             // 10. COMPENSATION INTELLIGENCE
             // ════════════════════════════════════════════════════════
             (function drawComp() {
+                // Privacy: compensation blinding
+                if (R._hideCompensation) {
+                    check(30); if (y > 200) newPage();
+                    secHead('Compensation Intelligence', 'Market positioning & benchmarks');
+                    card(M, y, MW, 24);
+                    doc.setFontSize(14); sc(C.tm);
+                    doc.text('$', W / 2, y + 7, { align: 'center' });
+                    doc.setFontSize(8); doc.setFont(undefined, 'bold'); sc(C.t2);
+                    doc.text('Compensation Data Withheld', W / 2, y + 13, { align: 'center' });
+                    doc.setFont(undefined, 'normal'); doc.setFontSize(6.5); sc(C.tm);
+                    doc.text('Hidden per candidate privacy settings. Available upon request.', W / 2, y + 17.5, { align: 'center' });
+                    y += 28;
+                    return;
+                }
                 var comp = getEffectiveComp();
                 if (!comp || !comp.marketRate) {
                     // Teaser — matches .teaser
@@ -41904,6 +42082,93 @@ body {
             
             // --- Backup & Restore ---
             html += renderDataExport();
+            
+            // --- Blind Mode Defaults ---
+            html += '<div class="blueprint-section">'
+                + '<div class="blueprint-section-header">'
+                + '<div class="blueprint-section-title">'
+                + '<span class="section-icon">' + bpIcon('privacy',20) + '</span>'
+                + '<span>Blind Mode Defaults</span>'
+                + '</div>'
+                + '</div>'
+                + '<div style="color:' + tc + '; font-size:0.9em; line-height:1.6; margin-bottom:14px;">'
+                + 'Control what identifying information is hidden in scouting reports by default. These settings apply globally. You can override them per report at generation time.'
+                + '</div>';
+            
+            var blindDefs = getBlindDefaults();
+            BLIND_FIELDS.forEach(function(f) {
+                var isOn = blindDefs[f.key];
+                html += '<div style="display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--c-border-subtle, rgba(255,255,255,0.06));">'
+                    + '<div style="flex:1; min-width:0;">'
+                    + '<div style="font-weight:500; font-size:0.9em;">' + f.label + '</div>'
+                    + '<div style="font-size:0.75em; color:' + sc + '; margin-top:2px;">' + f.desc + '</div>'
+                    + '</div>'
+                    + '<div class="rpt-toggle' + (isOn ? ' on' : '') + '" onclick="this.classList.toggle(\'on\'); setBlindDefault(\'' + f.key + '\', this.classList.contains(\'on\'));"></div>'
+                    + '</div>';
+            });
+            html += '</div>';
+            
+            // --- Privacy Activity Log ---
+            var privLog = (userData.privacyLog || []).slice().reverse();
+            html += '<div class="blueprint-section">'
+                + '<div class="blueprint-section-header">'
+                + '<div class="blueprint-section-title">'
+                + '<span class="section-icon">' + bpIcon('clock',20) + '</span>'
+                + '<span>Privacy Activity</span>'
+                + '</div>'
+                + '</div>'
+                + '<div style="color:' + tc + '; font-size:0.88em; line-height:1.5; margin-bottom:14px;">'
+                + 'Audit trail of what privacy settings were active for each scouting report and share event.'
+                + '</div>';
+            
+            if (privLog.length > 0) {
+                html += '<div style="overflow-x:auto;">'
+                    + '<table style="width:100%; border-collapse:collapse; font-size:0.82em;">'
+                    + '<thead><tr>'
+                    + '<th style="text-align:left; padding:8px 6px; font-size:0.72em; text-transform:uppercase; letter-spacing:0.05em; color:' + sc + '; border-bottom:1px solid var(--c-border-subtle); font-weight:600;">Date</th>'
+                    + '<th style="text-align:left; padding:8px 6px; font-size:0.72em; text-transform:uppercase; letter-spacing:0.05em; color:' + sc + '; border-bottom:1px solid var(--c-border-subtle); font-weight:600;">Job</th>'
+                    + '<th style="text-align:left; padding:8px 6px; font-size:0.72em; text-transform:uppercase; letter-spacing:0.05em; color:' + sc + '; border-bottom:1px solid var(--c-border-subtle); font-weight:600;">Format</th>'
+                    + '<th style="text-align:left; padding:8px 6px; font-size:0.72em; text-transform:uppercase; letter-spacing:0.05em; color:' + sc + '; border-bottom:1px solid var(--c-border-subtle); font-weight:600;">Blinded</th>'
+                    + '<th style="text-align:center; padding:8px 6px; font-size:0.72em; text-transform:uppercase; letter-spacing:0.05em; color:' + sc + '; border-bottom:1px solid var(--c-border-subtle); font-weight:600;">Override</th>'
+                    + '</tr></thead><tbody>';
+                
+                var blindKeyLabels = { identity: 'ID', location: 'Loc', employer: 'Emp', institution: 'Inst', outcomes: 'Out', compensation: 'Comp' };
+                var fmtLabels = { html: 'HTML', pdf: 'PDF', share: 'Share' };
+                var fmtColors = { html: '#60a5fa', pdf: '#f59e0b', share: '#10b981' };
+                
+                privLog.slice(0, 50).forEach(function(entry) {
+                    var d = new Date(entry.ts);
+                    var dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    var blindPills = '';
+                    var blindKeys = entry.blind || {};
+                    Object.keys(blindKeys).forEach(function(k) {
+                        if (blindKeys[k]) {
+                            blindPills += '<span style="display:inline-block; font-size:0.7em; padding:1px 5px; border-radius:4px; background:rgba(16,185,129,0.12); color:#10b981; margin:1px 2px; font-weight:600;">' + (blindKeyLabels[k] || k) + '</span>';
+                        }
+                    });
+                    if (!blindPills) blindPills = '<span style="font-size:0.75em; color:' + sc + ';">None</span>';
+                    
+                    html += '<tr style="border-bottom:1px solid var(--c-border-subtle, rgba(255,255,255,0.04));">'
+                        + '<td style="padding:8px 6px; white-space:nowrap;">' + dateStr + '</td>'
+                        + '<td style="padding:8px 6px; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="' + escapeHtml(entry.job || '') + '">' + escapeHtml(entry.job || 'Unknown') + '</td>'
+                        + '<td style="padding:8px 6px;"><span style="font-size:0.72em; padding:2px 6px; border-radius:4px; background:' + (fmtColors[entry.type] || '#64748b') + '22; color:' + (fmtColors[entry.type] || '#64748b') + '; font-weight:600;">' + (fmtLabels[entry.type] || entry.type) + '</span></td>'
+                        + '<td style="padding:8px 6px;">' + blindPills + '</td>'
+                        + '<td style="padding:8px 6px; text-align:center;">' + (entry.overridden ? '<span style="color:#f59e0b;" title="Settings were overridden for this report">' + bpIcon('warning', 12) + '</span>' : '') + '</td>'
+                        + '</tr>';
+                });
+                
+                html += '</tbody></table></div>';
+                if (privLog.length > 50) {
+                    html += '<div style="text-align:center; padding:8px; font-size:0.78em; color:' + sc + ';">Showing 50 of ' + privLog.length + ' entries</div>';
+                }
+            } else {
+                html += '<div style="padding:24px; text-align:center; color:' + sc + ';">'
+                    + '<div style="font-size:1.4em; margin-bottom:8px; opacity:0.3;">' + bpIcon('clock', 32) + '</div>'
+                    + '<div style="font-weight:500;">No privacy events recorded yet</div>'
+                    + '<div style="font-size:0.82em; margin-top:4px;">Entries will appear here when you generate or share scouting reports.</div>'
+                    + '</div>';
+            }
+            html += '</div>';
             
             // --- Privacy & Legal (from Consent) ---
             html += '<div class="blueprint-section">'
