@@ -25108,7 +25108,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             if (roleId === 'all') {
                 node.classed('dimmed', false).classed('highlighted', false);
                 link.classed('dimmed', false).classed('highlighted', false);
-                link.style("stroke", null).style("stroke-width", null).style("stroke-opacity", null);
                 
                 // Show all labels
                 node.selectAll('text').classed('hidden', false);
@@ -25131,13 +25130,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 return relevantSkills.includes(d.id);
             });
 
-            var isHL = function(d) { return d.source.id === roleId && relevantSkills.includes(d.target.id); };
-
-            link.classed('dimmed', d => !isHL(d));
-            link.classed('highlighted', d => isHL(d));
-            link.style("stroke", d => isHL(d) ? "rgba(96,165,250,0.85)" : null);
-            link.style("stroke-width", d => isHL(d) ? 2.5 : null);
-            link.style("stroke-opacity", d => isHL(d) ? 1 : 0.05);
+            link.classed('dimmed', d => {
+                return !(d.source.id === roleId && relevantSkills.includes(d.target.id));
+            });
+            link.classed('highlighted', d => {
+                return d.source.id === roleId && relevantSkills.includes(d.target.id);
+            });
             
             // STORYTELLING MODE: Show only relevant labels + selected role
             node.selectAll('text').classed('hidden', function(d) {

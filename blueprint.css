@@ -2841,7 +2841,8 @@
         }
         
         .node.dimmed circle {
-            opacity: 0.2;
+            opacity: 1;
+            filter: saturate(0.15) brightness(0.35);
         }
         
         .node.highlighted circle {
@@ -2900,7 +2901,7 @@
         }
         
         .link.dimmed {
-            opacity: 0.1;
+            opacity: 0.05;
         }
         
         .link.highlighted {
