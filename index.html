@@ -1,4 +1,4 @@
-<!-- v4.45.89 | 2026-03-02 | Remove Jooble source (snippet-only API), match confidence penalty -->
+<!-- v4.45.90 | 2026-03-02 | AI purpose statement generator, Firestore purpose persistence -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1606,8 +1606,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.89 - BUILD 20260302-rmjber-overhaul
-        var BP_VERSION = 'v4.45.89';
+        // BLUEPRINT v4.45.90 - BUILD 20260302-purpose-ai
+        var BP_VERSION = 'v4.45.90';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -28193,9 +28193,14 @@ body {
                 + '<div style="font-size:0.78em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--c-accent); display:flex; align-items:center; gap:6px;">'
                 + bpIcon('purpose',14) + ' Purpose Statement</div>';
             if (!isReadOnlyProfile) {
-                html += '<button onclick="var ta=document.getElementById(\'contentPurposeEdit\'); if(ta.readOnly){ta.readOnly=false; ta.focus(); ta.style.background=\'var(--c-input-bg)\'; this.textContent=\'Save\';} else {ta.readOnly=true; ta.style.background=\'transparent\'; updatePurpose(ta.value); this.textContent=\'Edit\';}" '
+                html += '<div style="display:flex; gap:6px; align-items:center;">'
+                    + '<button onclick="generatePurposeAI()" id="purposeAIBtn" '
+                    + 'style="font-size:0.78em; padding:4px 12px; border-radius:6px; border:1px solid rgba(139,92,246,0.3); background:rgba(139,92,246,0.08); color:#a78bfa; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">'
+                    + bpIcon('zap',12) + ' Generate</button>'
+                    + '<button onclick="var ta=document.getElementById(\'contentPurposeEdit\'); if(ta.readOnly){ta.readOnly=false; ta.focus(); ta.style.background=\'var(--c-input-bg)\'; this.textContent=\'Save\';} else {ta.readOnly=true; ta.style.background=\'transparent\'; updatePurpose(ta.value); this.textContent=\'Edit\';}" '
                     + 'style="font-size:0.78em; padding:4px 12px; border-radius:6px; border:1px solid var(--c-accent-border-2); background:transparent; color:#60a5fa; cursor:pointer;">'
-                    + 'Edit</button>';
+                    + 'Edit</button>'
+                    + '</div>';
             }
             html += '</div>'
                 + '<textarea id="contentPurposeEdit" readonly style="'
@@ -29326,8 +29331,68 @@ body {
             if (readOnlyGuard()) return;
             blueprintData.purpose = newPurpose;
             saveValues();
+            saveToFirestore();
         }
-        
+
+        async function generatePurposeAI() {
+            if (readOnlyGuard()) return;
+            var btn = document.getElementById('purposeAIBtn');
+            if (btn) { btn.disabled = true; btn.innerHTML = bpIcon('zap',12) + ' Thinking...'; btn.style.opacity = '0.6'; }
+
+            var profile = userData.profile || {};
+            var name = profile.name || 'this person';
+            var title = profile.currentTitle || '';
+            var skills = (skillsData && skillsData.skills || []).slice(0, 15).map(function(s) { return s.name; });
+            var values = (blueprintData.values || []).filter(function(v) { return v.selected; }).map(function(v) { return v.name; });
+            var roles = (userData.workHistory || []).slice(0, 5).map(function(r) { return (r.title || '') + (r.company ? ' at ' + r.company : ''); }).filter(Boolean);
+            var recs = ((userData.linkedinContent || {}).recommendations || []).slice(0, 3).map(function(r) { return r.text || ''; }).filter(Boolean);
+
+            var context = 'Name: ' + name;
+            if (title) context += '\nCurrent role: ' + title;
+            if (roles.length) context += '\nCareer history: ' + roles.join('; ');
+            if (skills.length) context += '\nTop skills: ' + skills.join(', ');
+            if (values.length) context += '\nCore values: ' + values.join(', ');
+            if (recs.length) context += '\nWhat colleagues say: ' + recs.map(function(r) { return '"' + r.substring(0, 200) + '"'; }).join(' | ');
+
+            var prompt = 'You are writing a personal purpose statement for a professional. '
+                + 'Read everything about this person below, then distill their purpose into 1-2 sentences. '
+                + 'Write it as if you are explaining what this person does and why it matters to a classroom of 10-year-old kids. '
+                + 'Use simple, vivid language. No jargon. No buzzwords. Make it human and real. '
+                + 'Write in first person ("I..."). Just output the purpose statement, nothing else.\n\n'
+                + context;
+
+            try {
+                var resp = await callAnthropicAPI({
+                    model: 'claude-haiku-4-5-20251001',
+                    max_tokens: 200,
+                    messages: [{ role: 'user', content: prompt }]
+                }, null, 'purpose-regen');
+
+                var text = '';
+                if (resp.content && resp.content[0]) text = resp.content[0].text || '';
+                text = text.replace(/^["']|["']$/g, '').trim();
+
+                if (text) {
+                    var ta = document.getElementById('contentPurposeEdit');
+                    if (ta) {
+                        ta.value = text;
+                        ta.readOnly = false;
+                        ta.style.background = 'var(--c-input-bg)';
+                        ta.style.minHeight = '80px';
+                    }
+                    showToast('Purpose generated! Review and click Edit → Save to keep it.', 'success', 4000);
+                } else {
+                    showToast('AI returned an empty response. Try again.', 'error');
+                }
+            } catch (e) {
+                console.error('Purpose AI error:', e);
+                showToast('Could not generate purpose: ' + e.message, 'error');
+            }
+
+            if (btn) { btn.disabled = false; btn.innerHTML = bpIcon('zap',12) + ' Generate'; btn.style.opacity = '1'; }
+        }
+        window.generatePurposeAI = generatePurposeAI;
+
         // ===== SCOUTING REPORT JOB PICKER =====
         function showScoutingReportPicker() {
             var savedJobs = (userData.savedJobs || []).filter(function(j) { return j && j.title && j.matchData; });
