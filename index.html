@@ -25137,10 +25137,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 return d.source.id === roleId && relevantSkills.includes(d.target.id);
             });
             
-            // Respect label toggle state — only hide labels for dimmed nodes if toggle is on
             node.selectAll('text').classed('hidden', function(d) {
                 if (d.type === 'center') return false;
-                if (d.type === 'role') return !networkShowRoleLabels || d.id !== roleId;
+                if (d.type === 'role') return !networkShowRoleLabels;
                 if (d.type === 'skill') return !networkShowSkillLabels || !relevantSkills.includes(d.id);
                 return false;
             });
