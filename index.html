@@ -1,4 +1,4 @@
-<!-- v4.46.11 | 2026-03-03 | Unverified skills: framed card + prioritization note -->
+<!-- v4.46.12 | 2026-03-03 | Fix double scrollbar: main-content overflow override -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -335,6 +335,11 @@
         }
 
         /* ── Demo Mode Toggle ──────────────────────────────────── */
+        /* ── Double scrollbar fix ──────────────────────────────── */
+        .main-content {
+            overflow-y: visible !important;
+            height: auto !important;
+        }
         /* ── Mobile Layout Fixes ──────────────────────────────── */
         @media (max-width: 768px) {
             .main-content {
@@ -1640,8 +1645,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.11 - BUILD 20260303-unverified-frame
-        var BP_VERSION = 'v4.46.11';
+        // BLUEPRINT v4.46.12 - BUILD 20260303-double-scrollbar
+        var BP_VERSION = 'v4.46.12';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
