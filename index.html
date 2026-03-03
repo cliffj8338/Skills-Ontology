@@ -1,4 +1,4 @@
-<!-- v4.45.96 | 2026-03-03 | Icon badges with tooltips + legend, cleaner tile layout -->
+<!-- v4.45.97 | 2026-03-03 | Color palette redesign: blue→purple→orange→green proficiency gradient, red reserved for errors only -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1640,8 +1640,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.96 - BUILD 20260303-icon-badges
-        var BP_VERSION = 'v4.45.96';
+        // BLUEPRINT v4.45.97 - BUILD 20260303-color-palette
+        var BP_VERSION = 'v4.45.97';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -9222,7 +9222,7 @@
             var totalComp = 0;
             data.skills.forEach(function(s, i) {
                 var bg = i % 2 === 0 ? 'transparent' : 'var(--c-surface-2)';
-                var levelColors = { 'Mastery': '#10b981', 'Expert': '#8b5cf6', 'Advanced': '#3b82f6', 'Proficient': '#f59e0b', 'Foundational': '#6b7280', 'Awareness': '#9ca3af' };
+                var levelColors = { 'Mastery': '#10b981', 'Expert': '#fb923c', 'Advanced': '#a78bfa', 'Proficient': '#60a5fa', 'Foundational': '#94a3b8', 'Awareness': '#cbd5e1' };
                 var lc = levelColors[s.blueprintLevel] || '#6b7280';
                 totalComp += (s.compValue || 0);
                 var sourceLabel = s.source === 'onet+jd' ? 'O*NET + JD' : s.source === 'onet' ? 'O*NET' : 'JD';
@@ -18037,7 +18037,7 @@
             scored.forEach(function(item) {
                 var s = item.skill;
                 var checked = toRemove.has(item.idx);
-                var levelColors = { 'Mastery': '#ef4444', 'Expert': '#f97316', 'Advanced': '#f59e0b', 'Proficient': '#10b981', 'Novice': '#6b7280' };
+                var levelColors = { 'Mastery': '#10b981', 'Expert': '#fb923c', 'Advanced': '#a78bfa', 'Proficient': '#60a5fa', 'Novice': '#94a3b8' };
                 var badges = '';
                 if (s.verified) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(16,185,129,0.15); color:#10b981;">\u2713 Verified</span> ';
                 if (s.key) badges += '<span style="font-size:0.65em; padding:1px 6px; border-radius:8px; background:rgba(245,158,11,0.15); color:#f59e0b;">\u2605 Key</span> ';
@@ -21446,7 +21446,7 @@ Rules:
         function renderWizardStep6(el) {
             const skills = wizardState.skills;
             const isFromResume = skills.length > 0;
-            const levelColors = { Mastery:'#ef4444', Expert:'#f97316', Advanced:'#f59e0b', Proficient:'#10b981', Novice:'#6b7280' };
+            const levelColors = { Mastery:'#10b981', Expert:'#fb923c', Advanced:'#a78bfa', Proficient:'#60a5fa', Novice:'#94a3b8' };
 
             el.innerHTML = `
                 ${wizardHeading(bpIcon('compass',22),
@@ -22101,11 +22101,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             .catch(error => console.error('Error loading skill evidence:', error));
 
         const levelColors = {
-            "Mastery":    "#ef4444",
-            "Expert":     "#f97316",
-            "Advanced":   "#f59e0b",
-            "Proficient": "#10b981",
-            "Novice":     "#6b7280"
+            "Mastery":    "#10b981",
+            "Expert":     "#fb923c",
+            "Advanced":   "#a78bfa",
+            "Proficient": "#60a5fa",
+            "Novice":     "#94a3b8"
         };
 
         let currentView = 'network';
@@ -23930,7 +23930,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
             // ── Rarity-based grouping — market intelligence view ──────────────
             const levelPriority = { Mastery: 5, Expert: 4, Advanced: 3, Proficient: 2, Novice: 1 };
-            const levelColors = { Mastery: '#ef4444', Expert: '#f97316', Advanced: '#f59e0b', Proficient: '#10b981', Novice: '#6b7280' };
+            const levelColors = { Mastery: '#10b981', Expert: '#fb923c', Advanced: '#a78bfa', Proficient: '#60a5fa', Novice: '#94a3b8' };
 
             const rarityTiers = {
                 rare: {
@@ -27519,11 +27519,11 @@ body {
             // ── SKILL DISTRIBUTION BAR ──
             if (skills.length > 0) {
                 var profLevels = [
-                    { key: 'Mastery', color: '#ef4444', label: 'Mastery' },
-                    { key: 'Expert', color: '#f97316', label: 'Expert' },
-                    { key: 'Advanced', color: '#f59e0b', label: 'Advanced' },
-                    { key: 'Proficient', color: '#10b981', label: 'Proficient' },
-                    { key: 'Novice', color: '#6b7280', label: 'Novice' }
+                    { key: 'Mastery', color: '#10b981', label: 'Mastery' },
+                    { key: 'Expert', color: '#fb923c', label: 'Expert' },
+                    { key: 'Advanced', color: '#a78bfa', label: 'Advanced' },
+                    { key: 'Proficient', color: '#60a5fa', label: 'Proficient' },
+                    { key: 'Novice', color: '#94a3b8', label: 'Novice' }
                 ];
                 var profCounts = {};
                 profLevels.forEach(function(p) { profCounts[p.key] = 0; });
@@ -27636,7 +27636,7 @@ body {
             
             // Stats summary
             var levelCounts = { 'Mastery': 0, 'Expert': 0, 'Advanced': 0, 'Proficient': 0, 'Novice': 0 };
-            var levelColors = { 'Mastery': '#ef4444', 'Expert': '#f97316', 'Advanced': '#f59e0b', 'Proficient': '#10b981', 'Novice': '#6b7280' };
+            var levelColors = { 'Mastery': '#10b981', 'Expert': '#fb923c', 'Advanced': '#a78bfa', 'Proficient': '#60a5fa', 'Novice': '#94a3b8' };
             skills.forEach(function(s) { var lv = s.level || 'Novice'; if (levelCounts[lv] !== undefined) levelCounts[lv]++; else levelCounts['Novice']++; });
             
             html += '<div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:20px;">';
@@ -28785,7 +28785,7 @@ body {
                     html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; padding:12px;">';
                     tGroup.forEach(function(v) {
                         var skill = v._skill;
-                        var levelColors = { 'Mastery':'#ef4444','Expert':'#f97316','Advanced':'#f59e0b','Proficient':'#10b981','Novice':'#6b7280' };
+                        var levelColors = { 'Mastery':'#10b981','Expert':'#fb923c','Advanced':'#a78bfa','Proficient':'#60a5fa','Novice':'#94a3b8' };
                         var lv = skill ? skill.level : v.claimedLevel || '?';
                         var lvColor = levelColors[lv] || '#6b7280';
                         var cred = getCredibilityLabel(v.relationship || 'Other');
@@ -28899,7 +28899,7 @@ body {
                     common: { label: 'Common', accent: '#6b7280', bg: 'transparent', border: 'var(--c-border-subtle)' }
                 };
                 var uvTiers = { rare: [], uncommon: [], common: [] };
-                var levelColors2 = { 'Mastery':'#ef4444','Expert':'#f97316','Advanced':'#f59e0b','Proficient':'#10b981','Novice':'#6b7280' };
+                var levelColors2 = { 'Mastery':'#10b981','Expert':'#fb923c','Advanced':'#a78bfa','Proficient':'#60a5fa','Novice':'#94a3b8' };
 
                 unverifiedSkills.forEach(function(s) {
                     var impact = typeof getSkillImpact === 'function' ? getSkillImpact(s) : null;
@@ -41885,11 +41885,11 @@ body {
                     }).join(', ');
                     
                     const levelColors = {
-                        'Mastery':    '#ef4444',
-                        'Expert':     '#f97316',
-                        'Advanced':   '#f59e0b',
-                        'Proficient': '#10b981',
-                        'Novice':     '#6b7280'
+                        'Mastery':    '#10b981',
+                        'Expert':     '#fb923c',
+                        'Advanced':   '#a78bfa',
+                        'Proficient': '#60a5fa',
+                        'Novice':     '#94a3b8'
                     };
                     
                     html += `
@@ -44167,7 +44167,7 @@ body {
             
             document.getElementById('bulkManagerCount').textContent = skills.length + ' skill' + (skills.length !== 1 ? 's' : '');
             
-            var levelColors = { Novice: '#6b7280', Competent: '#22d3ee', Proficient: '#10b981', Advanced: '#3b82f6', Expert: '#f59e0b', Mastery: '#ef4444' };
+            var levelColors = { Novice: '#94a3b8', Competent: '#22d3ee', Proficient: '#60a5fa', Advanced: '#a78bfa', Expert: '#fb923c', Mastery: '#10b981' };
             
             var html = skills.map(function(skill) {
                 var lc = levelColors[skill.level] || '#6b7280';
@@ -44389,7 +44389,7 @@ body {
             currentEditingSkill = skillName;
             
             var levels = ['Novice','Competent','Proficient','Advanced','Expert','Mastery'];
-            var levelColors = { 'Novice':'#6b7280','Competent':'#3b82f6','Proficient':'#10b981','Advanced':'#f59e0b','Expert':'#f97316','Mastery':'#ef4444' };
+            var levelColors = { 'Novice':'#94a3b8','Competent':'#22d3ee','Proficient':'#60a5fa','Advanced':'#a78bfa','Expert':'#fb923c','Mastery':'#10b981' };
             var evs = (typeof getEvidenceSummary === 'function') ? getEvidenceSummary(skill) : null;
             var roles = userData.roles || [];
             var skillRoles = skill.roles || [];

@@ -20,11 +20,14 @@ Career intelligence web app at myblueprint.work. Static HTML/JS frontend + Fireb
 - `vercel.json` — Vercel deployment config, CSP headers, rewrites
 
 ## Version
-Current: v4.45.93. Check `BP_VERSION` in `index.html` (line ~1650). Bump in 3 places: line 1 HTML comment, JS block comment, `BP_VERSION` variable.
+Current: v4.45.97. Check `BP_VERSION` in `index.html` (line ~1647). Bump in 3 places: line 1 HTML comment, JS block comment, `BP_VERSION` variable.
 
-## Skills/Verify Tile Layout (v4.45.93)
+## Proficiency Color Palette (v4.45.97)
+Gradient from cool to warm to green (achievement): Novice `#94a3b8` (slate) → Proficient `#60a5fa` (blue) → Advanced `#a78bfa` (purple) → Expert `#fb923c` (orange) → Mastery `#10b981` (green). Red `#ef4444` is ONLY for errors/problems. Yellow `#fbbf24` for caution/warnings. Applied across 12+ `levelColors` definitions in index.html.
+
+## Skills/Verify Tile Layout (v4.45.96)
 All three skill views use CSS Grid card tiles instead of inline rows:
-- **Card View** (`initCardView`): Rarity-grouped tiers (Rare/Uncommon/Common) with `grid-template-columns: repeat(auto-fill, minmax(260px, 1fr))`. Each tile shows skill name, level badge, CORE/verified/evidence badges, impact+rarity+category pills, and role alignment.
+- **Card View** (`initCardView`): Rarity-grouped tiers (Rare/Uncommon/Common) with `grid-template-columns: repeat(auto-fill, minmax(260px, 1fr))`. Each tile shows skill name, level badge, icon badges (★ core, shield verified, ✓ evidence, ⚠ gap, category icons), impact indicator, and role alignment. Legend bar at top.
 - **Skills List** (`renderSkillsManagementTab`): Same rarity tiers with `minmax(280px, 1fr)` grid. Tiles include edit/remove buttons with `event.stopPropagation()`.
 - **Verify Tab** (`renderVerificationsTab`): Verified skills as card tiles with verifier avatar, credibility weight, and date. Pending requests and unverified skills also use grid layouts.
 
