@@ -1,4 +1,4 @@
-<!-- v4.46.3 | 2026-03-03 | Fix Pipeline rescore + Fit For Me results persist until manual refresh -->
+<!-- v4.46.4 | 2026-03-03 | Reports section live for logged-in users; demo/sample for visitors -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1640,8 +1640,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.3 - BUILD 20260303-rescore-persist
-        var BP_VERSION = 'v4.46.3';
+        // BLUEPRINT v4.46.4 - BUILD 20260303-reports-live
+        var BP_VERSION = 'v4.46.4';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -5006,7 +5006,13 @@
                         { id: 'p2-6r', name: 'Skill deduplication and cap system', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.73-74: Dedup guards on all 8 push paths. Startup deduplicateSkills(). Hard cap: PROFILE_SKILL_CAP=50, WB_SKILL_CAP=20. canAddSkill() central guard. Over-cap triage overlay (showSkillCapTriage) auto-triggers on load if over 50 after dedup. Scores skills by verification/evidence/proficiency, pre-selects lowest for removal. Over-cap banner with Manage button on Blueprint view. Prevent philosophy: never allow over-cap, force triage.' },
                         { id: 'p2-6s', name: 'AI skill synonym expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.74: GenAI/LLM/AI/NLP/Applied AI now cross-reference bidirectionally in SKILL_SYNONYMS. GenAI implies LLM knowledge (and vice versa) via synonym pass 1b at 0.95 quality. Also added prompt engineering→genai, artificial intelligence (ai)→applied ai→genai chain. Fixes false gaps where JD requires LLM but user has GenAI.' },
                         { id: 'p2-6t', name: 'Blueprint dashboard reorder + inline negotiation', status: 'done', category: 'ux', priority: 'high', notes: 'v4.45.75: Dashboard reordered by importance/uniqueness: Market Position (comp + top skills + inline negotiation) → Career Readiness → Top Job Match → Skill Distribution → Quick Actions (compact). Purpose Statement moved to Content & Evidence tab. Negotiation Guide now renders inline with expandable toggle instead of modal. renderInlineNegotiation() generates offer ranges, negotiation gap, talking points, scripts. Scouting report fix: removed aggressive .skills.length global replacement that broke template JS.' },
-                        { id: 'p2-6u', name: 'Structured Job Schema v2.0 (Phase 1+2)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.77-78: Phase 1 (v4.45.77): Standards-aligned job schema with Schema.org JobPosting properties, JDX JobSchema+ competency model, O*NET-SOC crosswalk readiness. migrateJobToV2(), getJobSkills() abstraction, blocklisted gap denominator fix. Phase 2 (v4.45.78): Rewrote API extraction prompt for v2-native output. 10 skill categories (technical/analytical/strategic/leadership/communication/domain/platform/tool/methodology/soft). Section-aware extraction with tier assignment from JD structure. Compound list splitting (MS Word, Excel, PowerPoint → 3 skills). Domain knowledge extraction (insurance claims, reinsurance). source: extracted|inferred with confidence differential. Identity metadata extraction (location, remote, industry, department, employmentType). Qualifications and responsibilities as structured arrays. JD cap raised to 6000 chars, max_tokens to 4000. UI: metadata badges, section tooltips, inferred indicators, extraction quality summary.' }
+                        { id: 'p2-6u', name: 'Structured Job Schema v2.0 (Phase 1+2)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.77-78: Phase 1 (v4.45.77): Standards-aligned job schema with Schema.org JobPosting properties, JDX JobSchema+ competency model, O*NET-SOC crosswalk readiness. migrateJobToV2(), getJobSkills() abstraction, blocklisted gap denominator fix. Phase 2 (v4.45.78): Rewrote API extraction prompt for v2-native output. 10 skill categories (technical/analytical/strategic/leadership/communication/domain/platform/tool/methodology/soft). Section-aware extraction with tier assignment from JD structure. Compound list splitting (MS Word, Excel, PowerPoint → 3 skills). Domain knowledge extraction (insurance claims, reinsurance). source: extracted|inferred with confidence differential. Identity metadata extraction (location, remote, industry, department, employmentType). Qualifications and responsibilities as structured arrays. JD cap raised to 6000 chars, max_tokens to 4000. UI: metadata badges, section tooltips, inferred indicators, extraction quality summary.' },
+                        { id: 'p2-6v', name: 'No-red UI policy', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.45.97-99: Eliminated red (#ef4444) from all non-error UI. Red reserved exclusively for Firebase errors, save failures, delete confirmations. 12+ levelColors definitions updated (Novice=slate, Proficient=blue, Advanced=purple, Expert=orange, Mastery=green). Network view de-reded. normalizeUserRoles() bannedReds patch auto-reassigns legacy Firestore-saved roles with red. Yellow #fbbf24 for caution/warnings.' },
+                        { id: 'p2-6w', name: 'Card View rarity grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.96-v4.46.0: Skills Card View groups by market rarity (Rare/Uncommon/Common) instead of role domain. Rarity classification via getSkillImpact() from O*NET impact ratings. Per-tier summary stats (proficiency breakdown, evidence coverage, verified count). Per-skill rarity pill on card tiles (v4.46.0). Legend bar with icon badges for Core, Verified, Evidence, Gap, Skill/Ability/WorkStyle/Unique.' },
+                        { id: 'p2-6x', name: 'Job match filters moved inline', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.1: Moved Min Match Score slider and Min Skill Matches input from Settings to both Find Jobs and Fit For Me tabs. Both tabs share state via currentMatchThreshold. Auto-save with 1.5s debounce to Firestore preferences. Settings page replaced with info note.' },
+                        { id: 'p2-6y', name: 'Pipeline 0% match fix', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.2: Jobs added from Fit For Me showed 0% in Pipeline due to field name mismatch. _fitAddToPipeline() saved matchResult/parsedData but pipeline reads matchData/parsedSkills. Fixed save path and added legacy field migration in renderSavedJobs() and rescoreAllJobs().' },
+                        { id: 'p2-6z', name: 'Pipeline rescore fix + Fit For Me persistence', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.46.3: rescoreAllJobs() now re-parses raw text through parseJobLocally() when no parsedSkills exist, always saves after rescoring, always shows toast feedback. Fit For Me results persist in memory until manual Refresh click (no auto-refresh after 15 min).' },
+                        { id: 'p2-7a', name: 'Reports section live for users', status: 'done', category: 'feature', priority: 'high', notes: 'v4.46.4: Reports page now branches on isReadOnlyProfile. Logged-in users see live dashboard: My Reports with clickable pipeline jobs launching format picker (HTML/PDF), expanded Report Readiness tracker (6 dimensions: skills, work history, outcomes, values, purpose, credentials), blind mode defaults, collapsible Sample Reports section, credential vault teaser. Non-logged-in visitors see sample experience with mock analytics, heatmap, demo profiles, and sign-up CTA banner. Removed mock data (analytics, heatmap, shared links) from logged-in view.' }
                     ]
                 },
                 {
@@ -24238,81 +24244,196 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 { name: 'Kendall Roy', show: 'Succession', role: 'Chief Executive Officer', company: 'Waystar Royco', match: 71, file: 'reports/demos/kendall-roy.html', emoji: '👔', date: 'Feb 22, 2026' }
             ];
             
-            // Mock analytics data
-            var mockAnalytics = {
-                totalViews: 847,
-                uniqueViewers: 312,
-                shortlisted: 23,
-                notesReceived: 8,
-                avgTimeOnPage: '4m 32s',
-                viewsByDay: [12, 28, 45, 67, 89, 102, 95, 78, 112, 134, 85],
-                sectionHeatmap: [
-                    { name: 'Skills Network', pct: 94 },
-                    { name: 'Gap Analysis', pct: 82 },
-                    { name: 'Values Alignment', pct: 76 },
-                    { name: 'Outcomes', pct: 71 },
-                    { name: 'Credentials', pct: 63 },
-                    { name: 'Competency Domains', pct: 48 },
-                    { name: 'Compensation', pct: 41 }
-                ]
-            };
-            
-            // Saved reports from actual pipeline jobs
-            var savedReports = (userData.savedJobs || []).filter(function(j) { return j && j.title && j.matchData; }).map(function(j, i) {
-                var score = (j.matchData && j.matchData.score) || 0;
-                var addedDate = j.addedAt ? new Date(j.addedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown';
-                return { title: j.title, company: j.company || 'Unknown', match: score, date: addedDate };
-            });
-            
             var scoreColor = function(s) { return s >= 70 ? 'var(--c-success, #10b981)' : s >= 50 ? 'var(--c-warning, #f59e0b)' : 'var(--c-danger, #ef4444)'; };
             
-            // ── Build dashboard HTML ────────────────────────────
-            var html = '';
-            html += '<div class="blueprint-container">';
+            // ══════════════════════════════════════════════════════
+            // DEMO / READ-ONLY: Show sample experience
+            // ══════════════════════════════════════════════════════
+            if (isReadOnlyProfile) {
+                var mockAnalytics = {
+                    totalViews: 847, uniqueViewers: 312, shortlisted: 23, notesReceived: 8, avgTimeOnPage: '4m 32s',
+                    sectionHeatmap: [
+                        { name: 'Skills Network', pct: 94 }, { name: 'Gap Analysis', pct: 82 },
+                        { name: 'Values Alignment', pct: 76 }, { name: 'Outcomes', pct: 71 },
+                        { name: 'Credentials', pct: 63 }, { name: 'Competency Domains', pct: 48 },
+                        { name: 'Compensation', pct: 41 }
+                    ]
+                };
+                
+                var html = '<div class="blueprint-container">';
+                
+                // Sign-up CTA banner
+                html += '<div style="padding:16px 20px; background:linear-gradient(135deg, rgba(96,165,250,0.12), rgba(167,139,250,0.08)); border:1px solid rgba(96,165,250,0.25); border-radius:12px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">'
+                    + '<div>'
+                    + '<div style="font-weight:700; font-size:0.95em; margin-bottom:2px;">Generate reports with your real career data</div>'
+                    + '<div style="font-size:0.82em; color:var(--text-secondary); line-height:1.4;">Sign up free to build your profile, match to jobs, and create targeted scouting reports.</div>'
+                    + '</div>'
+                    + '<button onclick="showAuthModal()" style="padding:10px 22px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; white-space:nowrap; font-size:0.88em;">Get Started</button>'
+                    + '</div>';
+                
+                // Analytics (sample)
+                html += '<div style="position:relative;">'
+                    + '<div style="position:absolute; top:8px; right:12px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); font-weight:600;">SAMPLE DATA</div>'
+                    + '<div class="rpt-metrics">'
+                    + '<div class="rpt-metric-card"><div class="rpt-metric-n">' + mockAnalytics.totalViews.toLocaleString() + '</div><div class="rpt-metric-l">' + bpIcon('eye', 14) + ' Total Views</div><div class="rpt-metric-sub">' + mockAnalytics.uniqueViewers + ' unique viewers</div></div>'
+                    + '<div class="rpt-metric-card"><div class="rpt-metric-n" style="color:var(--c-success, #10b981);">' + mockAnalytics.shortlisted + '</div><div class="rpt-metric-l">' + bpIcon('star', 14) + ' Shortlisted</div><div class="rpt-metric-sub">by recruiters</div></div>'
+                    + '<div class="rpt-metric-card"><div class="rpt-metric-n" style="color:var(--accent);">' + mockAnalytics.notesReceived + '</div><div class="rpt-metric-l">' + bpIcon('message', 14) + ' Notes Received</div><div class="rpt-metric-sub">from hiring teams</div></div>'
+                    + '<div class="rpt-metric-card"><div class="rpt-metric-n">' + mockAnalytics.avgTimeOnPage + '</div><div class="rpt-metric-l">' + bpIcon('clock', 14) + ' Avg. Time on Page</div><div class="rpt-metric-sub">across all reports</div></div>'
+                    + '</div>';
+                
+                // Heatmap (sample)
+                html += '<div class="rpt-card" style="margin-bottom:20px; position:relative;">'
+                    + '<div style="position:absolute; top:12px; right:14px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); font-weight:600;">SAMPLE DATA</div>'
+                    + '<div class="rpt-card-h">' + bpIcon('bar-chart', 16) + ' Section Engagement Heatmap</div>'
+                    + '<div class="rpt-card-sub">Which sections recruiters spend the most time on</div>'
+                    + '<div style="margin-top:16px;">';
+                mockAnalytics.sectionHeatmap.forEach(function(s) {
+                    var hue = s.pct > 80 ? 'var(--c-success, #10b981)' : s.pct > 60 ? 'var(--accent, #3b82f6)' : 'var(--text-muted, #64748b)';
+                    html += '<div class="rpt-heatmap-row"><div class="rpt-heatmap-label">' + s.name + '</div>'
+                        + '<div class="rpt-heatmap-track"><div class="rpt-heatmap-fill" style="width:' + s.pct + '%; background:' + hue + ';"></div></div>'
+                        + '<div class="rpt-heatmap-val">' + s.pct + '%</div></div>';
+                });
+                html += '</div></div>';
+                
+                // Demo Profiles
+                html += '<div class="rpt-card" style="margin-bottom:20px;">'
+                    + '<div class="rpt-card-h">' + bpIcon('users', 16) + ' Sample Scouting Reports</div>'
+                    + '<div class="rpt-card-sub">Preview scouting reports built from TV character profiles to see how the format works.</div>'
+                    + '<div class="rpt-demo-grid">';
+                demoProfiles.forEach(function(p) {
+                    html += '<div class="rpt-demo-card" onclick="openDemoScoutingReport(\'' + escapeHtml(p.file) + '\', \'' + escapeHtml(p.name).replace(/'/g, "\\'") + '\')">'
+                        + '<div class="rpt-demo-emoji">' + p.emoji + '</div>'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="font-weight:700; margin-bottom:2px;">' + escapeHtml(p.name) + '</div>'
+                        + '<div style="font-size:0.78em; color:var(--text-muted); margin-bottom:4px;">' + escapeHtml(p.show) + '</div>'
+                        + '<div style="font-size:0.82em; color:var(--text-secondary);">' + escapeHtml(p.role) + '</div>'
+                        + '<div style="font-size:0.78em; color:var(--text-muted);">' + escapeHtml(p.company) + '</div></div>'
+                        + '<div style="text-align:center; min-width:48px;">'
+                        + '<div style="font-size:1.3em; font-weight:800; color:' + scoreColor(p.match) + ';">' + p.match + '%</div>'
+                        + '<div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Match</div></div>'
+                        + '</div>';
+                });
+                html += '</div></div>';
+                
+                html += '</div>';
+                el.innerHTML = html;
+                return;
+            }
             
-            // Header
-            html += ''
-                + '<div style="text-align:center; margin-bottom:20px;">'
+            // ══════════════════════════════════════════════════════
+            // LOGGED-IN: Live reports dashboard
+            // ══════════════════════════════════════════════════════
+            
+            // Build saved reports with real pipeline indices for click-through
+            var allSavedJobs = userData.savedJobs || [];
+            var pipelineJobs = [];
+            allSavedJobs.forEach(function(j, realIdx) {
+                if (j && j.title && j.matchData) {
+                    var score = (j.matchData && j.matchData.score) || 0;
+                    var matchedCount = (j.matchData && j.matchData.matched) ? j.matchData.matched.length : 0;
+                    var gapCount = (j.matchData && j.matchData.gaps) ? j.matchData.gaps.length : 0;
+                    var addedDate = j.addedAt ? new Date(j.addedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                    pipelineJobs.push({ title: j.title, company: j.company || 'Unknown', match: score, matched: matchedCount, gaps: gapCount, date: addedDate, idx: realIdx });
+                }
+            });
+            // Sort by match score descending
+            pipelineJobs.sort(function(a, b) { return b.match - a.match; });
+            
+            var html = '<div class="blueprint-container">';
+            
+            // ── Header: New Report CTA ──────────────────────────
+            html += '<div style="text-align:center; margin-bottom:20px;">'
                 + '<button onclick="showScoutingReportPicker()" style="padding:10px 20px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-size:0.9em; white-space:nowrap;">'
                 + bpIcon('plus', 16) + ' New Report</button>'
                 + '</div>';
             
-            // ── Analytics Overview Cards ────────────────────────
-            html += '<div style="position:relative;">'
-                + '<div style="position:absolute; top:8px; right:12px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); font-weight:600;">PREVIEW — sample data</div>'
-                + '<div class="rpt-metrics">'
-                + '<div class="rpt-metric-card">'
-                + '<div class="rpt-metric-n">' + mockAnalytics.totalViews.toLocaleString() + '</div>'
-                + '<div class="rpt-metric-l">' + bpIcon('eye', 14) + ' Total Views</div>'
-                + '<div class="rpt-metric-sub">' + mockAnalytics.uniqueViewers + ' unique viewers</div></div>'
-                + '<div class="rpt-metric-card">'
-                + '<div class="rpt-metric-n" style="color:var(--c-success, #10b981);">' + mockAnalytics.shortlisted + '</div>'
-                + '<div class="rpt-metric-l">' + bpIcon('star', 14) + ' Shortlisted</div>'
-                + '<div class="rpt-metric-sub">by recruiters</div></div>'
-                + '<div class="rpt-metric-card">'
-                + '<div class="rpt-metric-n" style="color:var(--accent);">' + mockAnalytics.notesReceived + '</div>'
-                + '<div class="rpt-metric-l">' + bpIcon('message', 14) + ' Notes Received</div>'
-                + '<div class="rpt-metric-sub">from hiring teams</div></div>'
-                + '<div class="rpt-metric-card">'
-                + '<div class="rpt-metric-n">' + mockAnalytics.avgTimeOnPage + '</div>'
-                + '<div class="rpt-metric-l">' + bpIcon('clock', 14) + ' Avg. Time on Page</div>'
-                + '<div class="rpt-metric-sub">across all reports</div></div>'
-                + '</div>';
+            // ── My Reports (primary section) ────────────────────
+            html += '<div class="rpt-card" style="margin-bottom:20px;">'
+                + '<div class="rpt-card-h">' + bpIcon('file-text', 16) + ' My Reports</div>'
+                + '<div class="rpt-card-sub">Select a job to generate a targeted scouting report for recruiters and hiring managers.</div>';
             
-            // ── Section Heatmap ─────────────────────────────────
-            html += '<div class="rpt-card" style="margin-bottom:20px; position:relative;">'
-                + '<div style="position:absolute; top:12px; right:14px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); font-weight:600;">PREVIEW — sample data</div>'
-                + '<div class="rpt-card-h">' + bpIcon('bar-chart', 16) + ' Section Engagement Heatmap</div>'
-                + '<div class="rpt-card-sub">Which sections recruiters spend the most time on</div>'
-                + '<div style="margin-top:16px;">';
-            mockAnalytics.sectionHeatmap.forEach(function(s) {
-                var hue = s.pct > 80 ? 'var(--c-success, #10b981)' : s.pct > 60 ? 'var(--accent, #3b82f6)' : 'var(--text-muted, #64748b)';
-                html += '<div class="rpt-heatmap-row">'
-                    + '<div class="rpt-heatmap-label">' + s.name + '</div>'
-                    + '<div class="rpt-heatmap-track"><div class="rpt-heatmap-fill" style="width:' + s.pct + '%; background:' + hue + ';"></div></div>'
-                    + '<div class="rpt-heatmap-val">' + s.pct + '%</div></div>';
+            if (pipelineJobs.length > 0) {
+                html += '<div style="margin-top:14px; display:grid; gap:8px;">';
+                pipelineJobs.forEach(function(r) {
+                    html += '<div onclick="showReportFormatPicker(' + r.idx + ')" style="padding:14px 16px; background:var(--c-surface-5, rgba(255,255,255,0.02)); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; transition:border-color 0.2s; display:flex; align-items:center; justify-content:space-between; gap:12px;" '
+                        + 'onmouseover="this.style.borderColor=\'rgba(96,165,250,0.4)\'" onmouseout="this.style.borderColor=\'var(--c-border-subtle)\'">'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="font-weight:600; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(r.title) + '</div>'
+                        + '<div style="font-size:0.82em; color:var(--text-secondary);">' + escapeHtml(r.company)
+                        + (r.date ? ' · ' + r.date : '')
+                        + ' · ' + r.matched + ' matched · ' + r.gaps + ' gap' + (r.gaps !== 1 ? 's' : '') + '</div></div>'
+                        + '<div style="display:flex; align-items:center; gap:10px;">'
+                        + '<div style="text-align:center; min-width:48px;">'
+                        + '<div style="font-size:1.3em; font-weight:800; color:' + scoreColor(r.match) + ';">' + r.match + '%</div>'
+                        + '<div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase;">Match</div></div>'
+                        + '<div style="color:var(--text-muted); opacity:0.5;">' + bpIcon('chevron-right', 16) + '</div>'
+                        + '</div></div>';
+                });
+                html += '</div>';
+                
+                // General PDF option below the list
+                html += '<div style="margin-top:12px; text-align:center;">'
+                    + '<button onclick="exportBlueprint(\'pdf\')" style="padding:8px 16px; border:1px solid var(--c-border-mid); background:transparent; color:var(--text-secondary); border-radius:8px; cursor:pointer; font-size:0.82em;">'
+                    + bpIcon('pdf', 14) + ' Generate General Blueprint PDF (no job targeting)</button></div>';
+            } else {
+                html += '<div style="padding:40px 24px; text-align:center; color:var(--text-muted);">'
+                    + '<div style="font-size:2.4em; margin-bottom:14px; opacity:0.35;">' + bpIcon('target', 48) + '</div>'
+                    + '<div style="font-weight:600; margin-bottom:6px; font-size:1.05em; color:var(--text-secondary);">No jobs in your pipeline yet</div>'
+                    + '<div style="font-size:0.88em; line-height:1.6; margin-bottom:20px; max-width:380px; margin-left:auto; margin-right:auto;">'
+                    + 'Save a job from Find Jobs, paste a job description, or let Fit For Me find matches automatically. Then come back here to generate a targeted scouting report.</div>'
+                    + '<div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">'
+                    + '<button onclick="switchView(\'jobs\')" style="padding:10px 20px; border-radius:8px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer;">' + bpIcon('search', 14) + ' Find Jobs</button>'
+                    + '<button onclick="exportBlueprint(\'pdf\')" style="padding:10px 20px; border-radius:8px; border:1px solid var(--c-border-mid); background:transparent; color:var(--text-secondary); font-weight:600; cursor:pointer;">' + bpIcon('pdf', 14) + ' General PDF</button>'
+                    + '</div></div>';
+            }
+            html += '</div>';
+            
+            // ── Profile Completeness ────────────────────────────
+            var completeness = { skills: 0, outcomes: 0, values: 0, purpose: 0, workHistory: 0, credentials: 0 };
+            var allSkills = (window.blueprintData && blueprintData.skills) || [];
+            var visibleRoles = (typeof getVisibleRoles === 'function') ? getVisibleRoles() : [];
+            completeness.skills = allSkills.length >= 5 ? 100 : allSkills.length > 0 ? 50 : 0;
+            completeness.workHistory = visibleRoles.length > 0 ? 100 : 0;
+            if (window.blueprintData) {
+                completeness.outcomes = (blueprintData.outcomes || []).filter(function(o) { return o.shared; }).length > 0 ? 100 : 0;
+                completeness.values = (blueprintData.values || []).filter(function(v) { return v.selected; }).length > 0 ? 100 : 0;
+                completeness.purpose = blueprintData.purpose ? 100 : 0;
+            }
+            var userCerts = (window.blueprintData && blueprintData.certifications) || [];
+            var userEdu = (window.blueprintData && blueprintData.education) || [];
+            completeness.credentials = (userCerts.length > 0 || userEdu.length > 0) ? 100 : 0;
+            var compKeys = Object.keys(completeness);
+            var totalPct = Math.round(compKeys.reduce(function(sum, k) { return sum + completeness[k]; }, 0) / compKeys.length);
+            
+            html += '<div class="rpt-card" style="margin-bottom:20px;">'
+                + '<div class="rpt-card-h">' + bpIcon('target', 16) + ' Report Readiness</div>'
+                + '<div class="rpt-card-sub">Stronger profiles produce more compelling scouting reports. Fill gaps to maximize recruiter impact.</div>'
+                + '<div style="margin-top:14px; display:flex; align-items:center; gap:16px;">'
+                + '<div style="width:64px; height:64px; border-radius:50%; border:4px solid ' + (totalPct >= 80 ? 'var(--c-success, #10b981)' : totalPct >= 40 ? 'var(--accent)' : 'var(--text-muted)') + '; display:flex; align-items:center; justify-content:center; font-size:1.2em; font-weight:800; flex-shrink:0;">' + totalPct + '%</div>'
+                + '<div style="flex:1;">';
+            var readinessSections = [
+                { name: 'Skills (5+)', pct: completeness.skills, fix: 'blueprint' },
+                { name: 'Work History', pct: completeness.workHistory, fix: 'blueprint' },
+                { name: 'Outcomes', pct: completeness.outcomes, fix: 'blueprint' },
+                { name: 'Values', pct: completeness.values, fix: 'blueprint' },
+                { name: 'Purpose Statement', pct: completeness.purpose, fix: 'blueprint' },
+                { name: 'Credentials', pct: completeness.credentials, fix: 'blueprint' }
+            ];
+            readinessSections.forEach(function(s) {
+                var col = s.pct === 100 ? 'var(--c-success, #10b981)' : s.pct > 0 ? 'var(--c-warning, #f59e0b)' : 'var(--text-muted)';
+                var icon = s.pct === 100 ? '✓' : s.pct > 0 ? '◐' : '—';
+                html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">'
+                    + '<div style="font-size:0.82em; width:120px; color:' + (s.pct === 100 ? 'var(--text-primary)' : 'var(--text-muted)') + ';">' + s.name + '</div>'
+                    + '<div style="flex:1; height:4px; background:var(--c-surface-5, rgba(255,255,255,0.06)); border-radius:2px; overflow:hidden;">'
+                    + '<div style="height:100%; width:' + s.pct + '%; background:' + col + '; border-radius:2px;"></div></div>'
+                    + '<div style="font-size:0.72em; color:' + col + '; min-width:28px; text-align:right;">' + icon + '</div></div>';
             });
             html += '</div></div>';
+            if (totalPct < 100) {
+                html += '<div style="margin-top:10px; text-align:center;">'
+                    + '<button onclick="switchView(\'blueprint\')" style="padding:6px 16px; border-radius:8px; border:1px solid var(--c-border-mid); background:transparent; color:var(--text-secondary); font-size:0.82em; cursor:pointer;">' + bpIcon('edit', 12) + ' Complete Your Profile</button></div>';
+            }
+            html += '</div>';
             
             // ── Blind Mode Defaults ─────────────────────────────
             html += '<div class="rpt-card" style="margin-bottom:20px;">'
@@ -24330,60 +24451,24 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 html += '<div class="rpt-blind-row">'
                     + '<div><div class="rpt-blind-label">' + t.label + '</div>'
                     + '<div class="rpt-blind-desc">' + t.desc + '</div></div>'
-                    + '<div class="rpt-toggle" id="' + t.id + '" onclick="this.classList.toggle(\'on\')"></div>'
+                    + '<div class="rpt-toggle" id="' + t.id + '" onclick="this.classList.toggle(\'on\')"' + '></div>'
                     + '</div>';
             });
             html += '</div></div>';
             
-            // ── Share Link Management ───────────────────────────
-            html += '<div class="rpt-card" style="margin-bottom:20px; position:relative;">'
-                + '<div style="position:absolute; top:12px; right:14px; z-index:2; font-size:0.68em; padding:2px 10px; border-radius:8px; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); font-weight:600;">PREVIEW — sample data</div>'
-                + '<div class="rpt-card-h">' + bpIcon('external', 16) + ' Share Link Management</div>'
-                + '<div class="rpt-card-sub">Create, expire, and revoke share links for your reports.</div>'
-                + '<div style="margin-top:16px;">'
-                + '<table class="rpt-table"><thead><tr><th>Report</th><th>Link</th><th>Created</th><th>Status</th><th></th></tr></thead><tbody>'
-                + '<tr><td style="font-weight:600;">CSO — Gray Matter</td><td style="font-family:monospace; font-size:0.82em; color:var(--accent);">bp.link/s/a7b3f2</td><td>Feb 20</td>'
-                + '<td><span class="rpt-status rpt-status-active">Active</span></td>'
-                + '<td><button class="rpt-action-btn" title="Revoke">' + bpIcon('x', 14) + '</button></td></tr>'
-                + '<tr><td style="font-weight:600;">Dir. Crisis Response — DHS</td><td style="font-family:monospace; font-size:0.82em; color:var(--text-muted);">bp.link/s/c9d1e4</td><td>Feb 18</td>'
-                + '<td><span class="rpt-status rpt-status-expired">Expired</span></td>'
-                + '<td><button class="rpt-action-btn" title="Renew">' + bpIcon('clock', 14) + '</button></td></tr>'
-                + '</tbody></table></div></div>';
-            
-            // ── My Reports ──────────────────────────────────────
+            // ── Sample Reports (collapsible) ────────────────────
             html += '<div class="rpt-card" style="margin-bottom:20px;">'
-                + '<div class="rpt-card-h">' + bpIcon('file-text', 16) + ' My Reports</div>'
-                + '<div class="rpt-card-sub">Generated scouting reports for your job matches.</div>';
-            
-            if (savedReports.length > 0) {
-                html += '<div class="rpt-report-list">';
-                savedReports.forEach(function(r) {
-                    html += '<div class="rpt-report-row">'
-                        + '<div style="flex:1; min-width:0;">'
-                        + '<div style="font-weight:600; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + r.title + '</div>'
-                        + '<div style="font-size:0.82em; color:var(--text-secondary);">' + r.company + ' · ' + r.date + '</div></div>'
-                        + '<div style="display:flex; align-items:center; gap:14px;">'
-                        + '<div style="text-align:center; min-width:42px;"><div style="font-weight:800; color:' + scoreColor(r.match) + ';">' + r.match + '%</div><div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase;">Match</div></div>'
-                        + '</div></div>';
-                });
-                html += '</div>';
-            } else {
-                html += '<div style="padding:32px; text-align:center; color:var(--text-muted);">'
-                    + '<div style="font-size:2em; margin-bottom:12px; opacity:0.4;">' + bpIcon('file-text', 40) + '</div>'
-                    + '<div style="font-weight:600; margin-bottom:6px;">No reports yet</div>'
-                    + '<div style="font-size:0.88em; line-height:1.5; margin-bottom:16px;">Save a job from the Jobs tab, then generate a targeted scouting report.</div>'
-                    + '<button onclick="switchView(\'jobs\')" style="padding:8px 18px; border-radius:8px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer;">Go to Jobs</button>'
-                    + '</div>';
-            }
-            html += '</div>';
-            
-            // ── Demo Profiles ───────────────────────────────────
-            html += '<div class="rpt-card" style="margin-bottom:20px;">'
-                + '<div class="rpt-card-h">' + bpIcon('users', 16) + ' Demo Profiles</div>'
-                + '<div class="rpt-card-sub">Preview scouting reports with TV character data to see how the format works.</div>'
-                + '<div class="rpt-demo-grid">';
+                + '<div onclick="var g=this.nextElementSibling; var c=this.querySelector(\'.rpt-demo-chevron\'); if(g.style.display===\'none\'){g.style.display=\'block\';c.style.transform=\'rotate(90deg)\';}else{g.style.display=\'none\';c.style.transform=\'rotate(0deg)\';}" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between;">'
+                + '<div>'
+                + '<div class="rpt-card-h">' + bpIcon('users', 16) + ' Sample Reports</div>'
+                + '<div class="rpt-card-sub">Preview scouting reports built from TV character profiles.</div>'
+                + '</div>'
+                + '<div class="rpt-demo-chevron" style="color:var(--text-muted); transition:transform 0.2s; transform:rotate(0deg);">' + bpIcon('chevron-right', 18) + '</div>'
+                + '</div>'
+                + '<div style="display:none;">'
+                + '<div class="rpt-demo-grid" style="margin-top:14px;">';
             demoProfiles.forEach(function(p) {
-                html += '<div class="rpt-demo-card" onclick="openDemoScoutingReport(\'' + escapeHtml(p.file) + '\', \'' + escapeHtml(p.name).replace(/'/g, "\\'") + '\')">'
+                html += '<div class="rpt-demo-card" onclick="event.stopPropagation(); openDemoScoutingReport(\'' + escapeHtml(p.file) + '\', \'' + escapeHtml(p.name).replace(/'/g, "\\'") + '\')">'
                     + '<div class="rpt-demo-emoji">' + p.emoji + '</div>'
                     + '<div style="flex:1; min-width:0;">'
                     + '<div style="font-weight:700; margin-bottom:2px;">' + escapeHtml(p.name) + '</div>'
@@ -24395,10 +24480,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     + '<div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Match</div></div>'
                     + '</div>';
             });
-            html += '</div></div>';
+            html += '</div></div></div>';
             
             // ── Credential Vault (Teaser) ───────────────────────
-            html += '<div class="rpt-card" style="margin-bottom:20px;">'
+            html += '<div class="rpt-card" style="margin-bottom:32px;">'
                 + '<div class="rpt-card-h">' + bpIcon('award', 16) + ' Credential Vault</div>'
                 + '<div class="rpt-card-sub">Manage education, certifications, and verification documents.</div>'
                 + '<div style="padding:28px; text-align:center;">'
@@ -24406,36 +24491,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + '<div style="font-weight:600; color:var(--text-secondary); margin-bottom:4px;">Coming Soon</div>'
                 + '<div style="font-size:0.82em; color:var(--text-muted); line-height:1.5;">Upload and manage verified credentials that auto-populate across all scouting reports.</div>'
                 + '</div></div>';
-            
-            // ── Profile Completeness ────────────────────────────
-            var completeness = { outcomes: 0, values: 0, purpose: 0, credentials: 0 };
-            if (window.blueprintData) {
-                completeness.outcomes = (blueprintData.outcomes || []).filter(function(o) { return o.shared; }).length > 0 ? 100 : 0;
-                completeness.values = (blueprintData.values || []).filter(function(v) { return v.selected; }).length > 0 ? 100 : 0;
-                completeness.purpose = blueprintData.purpose ? 100 : 0;
-            }
-            var totalPct = Math.round((completeness.outcomes + completeness.values + completeness.purpose + completeness.credentials) / 4);
-            
-            html += '<div class="rpt-card" style="margin-bottom:32px;">'
-                + '<div class="rpt-card-h">' + bpIcon('target', 16) + ' Profile Completeness</div>'
-                + '<div style="margin-top:14px; display:flex; align-items:center; gap:16px;">'
-                + '<div style="width:64px; height:64px; border-radius:50%; border:4px solid var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.2em; font-weight:800; flex-shrink:0;">' + totalPct + '%</div>'
-                + '<div style="flex:1;">';
-            var sections = [
-                { name: 'Outcomes', pct: completeness.outcomes },
-                { name: 'Values', pct: completeness.values },
-                { name: 'Purpose Statement', pct: completeness.purpose },
-                { name: 'Credentials', pct: completeness.credentials }
-            ];
-            sections.forEach(function(s) {
-                var col = s.pct === 100 ? 'var(--c-success, #10b981)' : 'var(--text-muted)';
-                html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">'
-                    + '<div style="font-size:0.82em; width:120px; color:' + (s.pct === 100 ? 'var(--text-primary)' : 'var(--text-muted)') + ';">' + s.name + '</div>'
-                    + '<div style="flex:1; height:4px; background:var(--c-surface-5, rgba(255,255,255,0.06)); border-radius:2px; overflow:hidden;">'
-                    + '<div style="height:100%; width:' + s.pct + '%; background:' + col + '; border-radius:2px;"></div></div>'
-                    + '<div style="font-size:0.72em; color:' + col + '; min-width:28px; text-align:right;">' + (s.pct === 100 ? '✓' : '—') + '</div></div>';
-            });
-            html += '</div></div></div>';
             
             html += '</div>'; // close blueprint-container
             
