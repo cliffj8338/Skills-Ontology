@@ -1,4 +1,4 @@
-<!-- v4.45.92 | 2026-03-03 | Skills + Verify tabs redesigned with rarity grouping, market intelligence -->
+<!-- v4.45.93 | 2026-03-03 | Card/Skills/Verify tile redesign — proper card grid layout with hover effects -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1646,8 +1646,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.92 - BUILD 20260303-skills-verify-rarity
-        var BP_VERSION = 'v4.45.92';
+        // BLUEPRINT v4.45.93 - BUILD 20260303-tile-redesign
+        var BP_VERSION = 'v4.45.93';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -24010,20 +24010,24 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 var evidenceHtml = evidenceBacked > 0 ? ' <span style="opacity:0.3;">\u00B7</span> <span style="color:#10b981;">' + evidenceBacked + '/' + tier.skills.length + ' evidence-backed</span>' : '';
                 var verifiedHtml = verifiedTotal > 0 ? ' <span style="opacity:0.3;">\u00B7</span> <span style="color:#10b981;">' + verifiedTotal + ' verified</span>' : '';
 
-                html += '<div class="domain-card" style="background:' + tier.bg + '; border-color:' + tier.border + ';">'
-                    + '<div class="domain-header">'
-                    + '<span class="domain-icon">' + tier.icon + '</span>'
-                    + '<span class="domain-title">' + tier.label + ' <span style="font-weight:400; font-size:0.85em; color:var(--text-muted);">(' + tier.skills.length + ')</span></span>'
-                    + '<span style="margin-left:auto; font-size:0.78em; color:var(--text-muted); font-weight:400;">' + tier.desc + '</span>'
+                html += '<div style="margin-bottom:20px; border:1px solid ' + tier.border + '; border-radius:12px; overflow:hidden;">'
+                    + '<div style="display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background:' + tier.bg + '; border-bottom:1px solid ' + tier.border + ';">'
+                    + '<div style="display:flex; align-items:center; gap:10px;">'
+                    + '<span style="color:' + tier.accent + ';">' + tier.icon + '</span>'
+                    + '<div>'
+                    + '<div style="font-weight:700; font-size:0.95em; color:var(--c-heading, var(--text-secondary));">' + tier.label + ' <span style="font-weight:400; opacity:0.6;">(' + tier.skills.length + ')</span></div>'
+                    + '<div style="font-size:0.75em; color:var(--c-muted, var(--text-muted)); margin-top:2px;">' + tier.desc + '</div>'
+                    + '</div></div>'
                     + '</div>'
-                    + '<div style="font-size:0.75em; padding:4px 12px 8px 12px; color:var(--text-muted); line-height:1.6;">'
+                    + '<div style="font-size:0.73em; padding:8px 18px; color:var(--c-muted, var(--text-muted)); border-bottom:1px solid rgba(255,255,255,0.04);">'
                     + levelStatsHtml + evidenceHtml + verifiedHtml
-                    + '</div>'
-                    + '<div class="skills-list">';
+                    + '</div>';
+
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px; padding:14px;">';
 
                 tier.skills.forEach(function(skill) {
-                    var levelClass = String(skill.level || 'proficient').toLowerCase();
                     var lc = levelColors[skill.level] || '#6b7280';
+                    var escapedName = escapeHtml(skill.name).replace(/'/g, "\\'");
 
                     var roleNames = (skill.roles || []).map(function(roleId) {
                         var role = (skillsData.roles || []).find(function(r) { return r.id === roleId; });
@@ -24031,51 +24035,57 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     }).filter(Boolean);
 
                     var details = skillsData.skillDetails && skillsData.skillDetails[skill.name];
-                    var years = details && details.years ? details.years + ' yrs' : '';
+                    var years = details && details.years ? details.years : 0;
 
                     var skillImpact = calculateSkillValue(skill);
                     var impactColor = getImpactColor(skillImpact.level);
-                    var impactRgb = impactColor === '#ef4444' ? '239,68,68' : impactColor === '#f59e0b' ? '245,158,11' : impactColor === '#3b82f6' ? '59,130,246' : '107,114,128';
 
-                    var categoryLabel = '';
-                    var catStyle = '';
-                    if (skill.category === 'skill') { categoryLabel = 'SKILL'; catStyle = 'background:rgba(59,130,246,0.2);color:#60a5fa;'; }
-                    else if (skill.category === 'ability') { categoryLabel = 'ABILITY'; catStyle = 'background:rgba(139,92,246,0.2);color:#a78bfa;'; }
-                    else if (skill.category === 'workstyle') { categoryLabel = 'WORK STYLE'; catStyle = 'background:rgba(16,185,129,0.2);color:#10b981;'; }
-                    else if (skill.category === 'unique') { categoryLabel = 'UNIQUE'; catStyle = 'background:rgba(251,191,36,0.2);color:#fbbf24;'; }
+                    var catLabels = { skill: 'Skill', ability: 'Ability', workstyle: 'Work Style', unique: 'Unique' };
 
                     var evidenceBadge = '';
+                    var evCount = 0;
                     if (typeof getEvidenceSummary === 'function') {
                         var evs = getEvidenceSummary(skill);
+                        evCount = evs.evidenceCount || 0;
                         if (evs.hasGap) {
-                            evidenceBadge = '<span style="font-size:0.65em; color:#fbbf24; margin-left:4px;" title="Evidence gap: claimed ' + evs.claimedLevel + ', evidence supports ' + evs.effectiveLevel + '">\u26A0</span>';
+                            evidenceBadge = '<span style="font-size:0.68em; color:#fbbf24;" title="Evidence gap">\u26A0</span>';
                         } else if (evs.evidenceCount > 0) {
-                            evidenceBadge = '<span style="font-size:0.65em; color:#10b981; margin-left:4px;" title="' + evs.points + ' evidence pts, ' + evs.evidenceCount + ' outcomes">\u2713</span>';
+                            evidenceBadge = '<span style="font-size:0.68em; color:#10b981;" title="' + evs.points + ' evidence pts">\u2713</span>';
                         }
                         if (evs.verifiedCount > 0) {
-                            evidenceBadge += '<span style="font-size:0.6em; padding:1px 5px; border-radius:6px; background:rgba(16,185,129,0.15); color:#10b981; margin-left:3px; font-weight:600;" title="Verified by ' + evs.verifiedCount + '">\u2713 Verified</span>';
+                            evidenceBadge += '<span style="font-size:0.65em; padding:2px 6px; border-radius:6px; background:rgba(16,185,129,0.15); color:#10b981; font-weight:600;">\u2713 Verified</span>';
                         }
                     }
 
-                    var keyBadge = skill.key ? '<span class="skill-badge">CORE</span>' : '';
-                    var levelBadge = '<span style="font-size:0.7em; padding:2px 8px; border-radius:8px; background:' + lc + '22; color:' + lc + '; font-weight:600; white-space:nowrap;">' + escapeHtml(skill.level || 'Proficient') + '</span>';
-                    var yearsBadge = years ? '<span class="skill-years">' + years + '</span>' : '';
+                    html += '<div onclick=\'openSkillModalFromCard("' + escapedName + '")\' style="'
+                        + 'background:var(--c-surface-1, var(--card-bg, rgba(255,255,255,0.03))); '
+                        + 'border:1px solid var(--c-surface-4, rgba(255,255,255,0.06)); border-radius:10px; '
+                        + 'padding:14px 16px; cursor:pointer; transition:all 0.15s;" '
+                        + 'onmouseover="this.style.borderColor=\'' + tier.accent + '40\';this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 4px 16px rgba(0,0,0,0.2)\'" '
+                        + 'onmouseout="this.style.borderColor=\'var(--c-surface-4, rgba(255,255,255,0.06))\';this.style.transform=\'none\';this.style.boxShadow=\'none\'">';
 
-                    var impactBadge = '<span style="font-size:0.68em; padding:2px 7px; border-radius:3px; background:rgba(' + impactRgb + ',0.2); color:' + impactColor + '; font-weight:600; white-space:nowrap;">' + skillImpact.icon + ' ' + skillImpact.label.toUpperCase() + '</span>';
-                    var rarityPill = '<span style="font-size:0.68em; padding:2px 7px; border-radius:3px; background:' + tier.pillBg + '; color:' + tier.pillColor + '; font-weight:600; white-space:nowrap;">' + tier.label.toUpperCase() + '</span>';
-                    var catBadge = categoryLabel ? '<span style="font-size:0.68em; padding:2px 6px; border-radius:3px; ' + catStyle + ' white-space:nowrap;">' + categoryLabel + '</span>' : '';
-                    var roleText = roleNames.length > 0 ? '<span style="font-size:0.72em; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;">' + roleNames.join(' \u00B7 ') + '</span>' : '';
+                    html += '<div style="display:flex; align-items:flex-start; gap:10px; margin-bottom:10px;">'
+                        + '<div style="width:10px; height:10px; border-radius:3px; background:' + lc + '; margin-top:4px; flex-shrink:0;"></div>'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="font-size:0.92em; font-weight:600; color:var(--c-heading, var(--text-secondary)); line-height:1.3; margin-bottom:4px;">' + escapeHtml(skill.name) + '</div>'
+                        + '<div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">'
+                        + '<span style="font-size:0.72em; padding:2px 10px; border-radius:10px; background:' + lc + '22; color:' + lc + '; font-weight:600;">' + escapeHtml(skill.level || 'Proficient') + '</span>';
+                    if (skill.key) html += '<span style="font-size:0.65em; padding:2px 7px; border-radius:8px; background:rgba(245,158,11,0.15); color:#f59e0b; font-weight:700;">CORE</span>';
+                    if (years) html += '<span style="font-size:0.68em; color:var(--c-muted, var(--text-muted));">' + years + ' yrs</span>';
+                    html += evidenceBadge;
+                    html += '</div></div></div>';
 
-                    html += '<div class="skill-item ' + levelClass + '" onclick=\'openSkillModalFromCard("' + escapeHtml(skill.name).replace(/'/g, "\\'") + '")\' style="cursor:pointer; padding:8px 10px;">'
-                        + '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">'
-                        + '<div class="skill-dot" style="background:' + lc + '; flex-shrink:0;"></div>'
-                        + '<span class="skill-name">' + escapeHtml(skill.name) + '</span>'
-                        + levelBadge + ' ' + keyBadge + ' ' + yearsBadge + ' ' + evidenceBadge
-                        + '</div>'
-                        + '<div style="display:flex; align-items:center; gap:6px; margin-top:4px; padding-left:18px; flex-wrap:wrap;">'
-                        + impactBadge + ' ' + rarityPill + ' ' + catBadge + ' ' + roleText
-                        + '</div>'
+                    html += '<div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap; font-size:0.68em; padding-left:20px;">'
+                        + '<span style="padding:2px 8px; border-radius:4px; background:' + impactColor + '18; color:' + impactColor + '; font-weight:600;">' + skillImpact.icon + ' ' + skillImpact.label.toUpperCase() + '</span>'
+                        + '<span style="padding:2px 8px; border-radius:4px; background:' + tier.pillBg + '; color:' + tier.pillColor + '; font-weight:600;">' + tier.label.toUpperCase() + '</span>'
+                        + '<span style="padding:2px 7px; border-radius:4px; background:rgba(255,255,255,0.04); color:var(--c-muted, var(--text-muted));">' + (catLabels[skill.category] || 'Skill') + '</span>'
                         + '</div>';
+
+                    if (roleNames.length > 0) {
+                        html += '<div style="margin-top:8px; padding-left:20px; font-size:0.7em; color:var(--c-faint, var(--text-muted)); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + roleNames.join(' \u00B7 ') + '</div>';
+                    }
+
+                    html += '</div>';
                 });
 
                 html += '</div></div>';
@@ -27728,6 +27738,8 @@ body {
                 if (tierVerifiedCount > 0) statsItems.push('<span style="color:#10b981;">' + tierVerifiedCount + ' verified</span>');
                 html += '<div style="font-size:0.72em; padding:6px 16px; color:var(--c-muted); border-bottom:1px solid var(--c-surface-1b);">' + statsItems.join(' <span style="opacity:0.3;">\u00B7</span> ') + '</div>';
 
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; padding:12px;">';
+
                 tSkills.forEach(function(s) {
                     var lv = s.level || 'Novice';
                     var lvColor = levelColors[lv] || '#6b7280';
@@ -27743,44 +27755,50 @@ body {
                     var impactLabel = skillImpact ? skillImpact.label : '';
                     var impactColor = skillImpact ? getImpactColor(skillImpact.level) : '#6b7280';
 
-                    html += '<div style="display:flex; align-items:center; gap:8px; padding:10px 16px; border-bottom:1px solid var(--c-surface-1b); flex-wrap:wrap;">';
-
-                    html += '<div style="flex:1; min-width:0; cursor:pointer;" onclick="openSkillModalFromCard(\'' + escapedName + '\')">'
-                        + '<div style="display:flex; align-items:center; gap:6px;">'
-                        + '<span style="font-size:0.88em; color:var(--c-text); font-weight:500;">' + escapeHtml(s.name) + '</span>'
-                        + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:' + lvColor + '22; color:' + lvColor + '; font-weight:600; white-space:nowrap;">' + escapeHtml(lv) + '</span>';
-
                     var skillVerifs = getSkillVerifications(s.name);
                     var hasConfirmed = skillVerifs.some(function(v) { return v.status === 'confirmed'; });
-                    if (hasConfirmed) {
-                        html += '<span style="font-size:0.6em; padding:2px 6px; border-radius:8px; background:rgba(16,185,129,0.15); color:#10b981; font-weight:600;">\u2713 Verified</span>';
-                    }
-                    if (s.core) {
-                        html += '<span style="font-size:0.6em; padding:2px 6px; border-radius:8px; background:var(--c-orange-bg-2); color:#f59e0b; font-weight:600;">CORE</span>';
-                    }
+
+                    var catLabels = { skill: 'Skill', ability: 'Ability', workstyle: 'Work Style', unique: 'Unique' };
+
+                    var details = skillsData.skillDetails && skillsData.skillDetails[s.name];
+                    var years = details && details.years ? details.years : 0;
+
+                    html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:10px; padding:14px; cursor:pointer; transition:border-color 0.15s, box-shadow 0.15s; position:relative;" '
+                        + 'onclick="openSkillModalFromCard(\'' + escapedName + '\')" '
+                        + 'onmouseover="this.style.borderColor=\'' + meta.accent + '\';this.style.boxShadow=\'0 2px 12px rgba(0,0,0,0.15)\'" '
+                        + 'onmouseout="this.style.borderColor=\'var(--c-surface-4)\';this.style.boxShadow=\'none\'">';
+
+                    html += '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">'
+                        + '<div style="display:flex; align-items:center; gap:6px; flex:1; min-width:0;">'
+                        + '<div style="width:8px; height:8px; border-radius:2px; background:' + lvColor + '; flex-shrink:0;"></div>'
+                        + '<span style="font-size:0.92em; font-weight:600; color:var(--c-heading); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(s.name) + '</span>'
+                        + '</div>'
+                        + '<div style="display:flex; gap:4px; flex-shrink:0;" onclick="event.stopPropagation();">'
+                        + (isReadOnlyProfile ? '' : '<button onclick="openUnifiedSkillEditor(\'' + escapedName + '\')" title="Edit" style="background:none; border:none; cursor:pointer; color:#60a5fa; padding:2px; opacity:0.5;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0.5\'">' + bpIcon('edit',12) + '</button>'
+                        + '<button onclick="if(confirm(\'Remove ' + escapedName + '?\')) { removeSkillFromProfile(\'' + escapedName + '\', \'' + (s.category || 'skill') + '\'); switchBlueprintTab(\'skills\'); }" title="Remove" style="background:none; border:none; cursor:pointer; color:var(--c-faint); padding:2px; opacity:0.4;" onmouseover="this.style.opacity=\'1\';this.style.color=\'#ef4444\'" onmouseout="this.style.opacity=\'0.4\';this.style.color=\'var(--c-faint)\'">' + bpIcon('trash',12) + '</button>')
+                        + '</div></div>';
+
+                    html += '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:8px;">'
+                        + '<span style="font-size:0.72em; padding:3px 10px; border-radius:10px; background:' + lvColor + '22; color:' + lvColor + '; font-weight:600;">' + escapeHtml(lv) + '</span>';
+                    if (s.core) html += '<span style="font-size:0.68em; padding:2px 7px; border-radius:8px; background:rgba(245,158,11,0.15); color:#f59e0b; font-weight:600;">CORE</span>';
+                    if (hasConfirmed) html += '<span style="font-size:0.68em; padding:2px 7px; border-radius:8px; background:rgba(16,185,129,0.15); color:#10b981; font-weight:600;">\u2713 Verified</span>';
+                    if (years) html += '<span style="font-size:0.68em; color:var(--c-muted);">' + years + ' yrs</span>';
                     html += '</div>';
 
-                    var metaItems = [];
-                    if (impactLabel) metaItems.push('<span style="padding:1px 6px; border-radius:3px; background:' + impactColor + '20; color:' + impactColor + '; font-weight:600;">' + impactLabel + '</span>');
-                    metaItems.push('<span style="padding:1px 6px; border-radius:3px; background:' + meta.pillBg + '; color:' + meta.accent + '; font-weight:600;">' + meta.label.toUpperCase() + '</span>');
-
-                    if (s.category && s.category !== 'skill') {
-                        var catColors = { ability: '#a78bfa', workstyle: '#10b981', unique: '#fbbf24' };
-                        var catLabels = { ability: 'ABILITY', workstyle: 'WORK STYLE', unique: 'UNIQUE' };
-                        var cc = catColors[s.category] || '#6b7280';
-                        metaItems.push('<span style="padding:1px 6px; border-radius:3px; background:' + cc + '20; color:' + cc + ';">' + (catLabels[s.category] || '') + '</span>');
-                    }
-                    if (roleNames.length > 0) metaItems.push('<span style="color:var(--c-faint);">' + roleNames.join(' \u00B7 ') + '</span>');
-
-                    html += '<div style="display:flex; align-items:center; gap:5px; margin-top:3px; font-size:0.68em; flex-wrap:wrap;">' + metaItems.join(' ') + '</div>';
+                    html += '<div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap; font-size:0.7em;">';
+                    if (impactLabel) html += '<span style="padding:2px 7px; border-radius:4px; background:' + impactColor + '18; color:' + impactColor + '; font-weight:600;">' + impactLabel + '</span>';
+                    html += '<span style="padding:2px 7px; border-radius:4px; background:' + meta.pillBg + '; color:' + meta.accent + '; font-weight:600;">' + meta.label.toUpperCase() + '</span>';
+                    html += '<span style="padding:2px 7px; border-radius:4px; background:var(--c-surface-2); color:var(--c-muted);">' + (catLabels[s.category] || 'Skill') + '</span>';
                     html += '</div>';
 
-                    html += '<button onclick="openUnifiedSkillEditor(\'' + escapedName + '\')" title="Edit" style="background:none; border:none; cursor:pointer; color:#60a5fa; padding:4px;' + (isReadOnlyProfile ? ' display:none;' : '') + '">' + bpIcon('edit',14) + '</button>'
-                        + '<button onclick="if(confirm(\'Remove skill: ' + escapedName + '?\')) { removeSkillFromProfile(\'' + escapedName + '\', \'' + (s.category || 'skill') + '\'); switchBlueprintTab(\'skills\'); }" title="Remove" style="background:none; border:none; cursor:pointer; color:var(--c-faint); padding:4px;' + (isReadOnlyProfile ? ' display:none;' : '') + '">' + bpIcon('trash',14) + '</button>'
-                        + '</div>';
+                    if (roleNames.length > 0) {
+                        html += '<div style="margin-top:6px; font-size:0.7em; color:var(--c-faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + roleNames.join(' \u00B7 ') + '</div>';
+                    }
+
+                    html += '</div>';
                 });
 
-                html += '</div>';
+                html += '</div></div>';
             });
             
             return html;
@@ -28767,43 +28785,54 @@ body {
                         + '<span style="font-size:0.72em; color:var(--c-muted);">' + tGroup.length + ' verified</span>'
                         + '</div>';
 
+                    html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px; padding:12px;">';
                     tGroup.forEach(function(v) {
-                var skill = v._skill;
-                var levelColors = { 'Mastery':'#ef4444','Expert':'#f97316','Advanced':'#f59e0b','Proficient':'#10b981','Novice':'#6b7280' };
-                    var lv = skill ? skill.level : v.claimedLevel || '?';
-                    var lvColor = levelColors[lv] || '#6b7280';
-                    var cred = getCredibilityLabel(v.relationship || 'Other');
-                    var respondedDate = v.respondedAt ? new Date(v.respondedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-                    
-                    var suggestedBadge = '';
-                    if (v.confirmedLevel && v.confirmedLevel !== lv) {
-                        var sugColor = levelColors[v.confirmedLevel] || '#6b7280';
-                        var sugVal = proficiencyValue(v.confirmedLevel);
-                        var claimedVal = proficiencyValue(lv);
-                        var arrow = sugVal > claimedVal ? '\u2191' : '\u2193';
-                        suggestedBadge = '<span style="font-size:0.65em; padding:2px 6px; border-radius:8px; background:' + sugColor + '18; color:' + sugColor + '; font-weight:600; white-space:nowrap; margin-left:4px;" title="Verifier suggested ' + escapeHtml(v.confirmedLevel) + ' instead of ' + escapeHtml(lv) + '">' + arrow + ' ' + escapeHtml(v.confirmedLevel) + '</span>';
-                    }
-                    
-                    html += '<div style="display:flex; align-items:center; gap:10px; padding:10px 16px; border-bottom:1px solid var(--c-surface-1b); flex-wrap:wrap;">'
-                        // Skill name
-                        + '<div style="flex:1; min-width:140px; font-size:0.88em; color:var(--c-text); cursor:pointer;" onclick="openSkillModalFromCard(\'' + (v.skillName || '').replace(/'/g, "\\'") + '\')">' + escapeHtml(v.skillName) + '</div>'
-                        // Level
-                        + '<span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:' + lvColor + '22; color:' + lvColor + '; font-weight:600; white-space:nowrap;">' + escapeHtml(lv) + '</span>'
-                        + suggestedBadge
-                        // Verifier
-                        + '<div style="min-width:140px; font-size:0.82em; color:var(--c-label);">'
-                        + '<div style="font-weight:600;">' + escapeHtml(v.verifierName || 'Unknown') + '</div>'
-                        + '<div style="font-size:0.9em; color:var(--c-muted);">' + escapeHtml(v.relationship || 'Peer') + '</div>'
-                        + '</div>'
-                        // Credibility weight
-                        + '<span style="font-size:0.7em; padding:2px 8px; border-radius:10px; background:' + cred.color + '18; color:' + cred.color + '; font-weight:600; white-space:nowrap;">' + cred.weight + 'x ' + cred.label + '</span>'
-                        // Date
-                        + '<div style="font-size:0.72em; color:var(--c-faint); min-width:80px; text-align:right;">' + respondedDate + '</div>'
-                        // Revoke action
-                        + (!isReadOnlyProfile ? '<button onclick="verifyTabRevoke(\'' + (v.id || '').replace(/'/g, "\\'") + '\')" title="Revoke" style="background:none; border:none; cursor:pointer; color:var(--c-faint); padding:4px; opacity:0.5;" onmouseover="this.style.opacity=\'1\';this.style.color=\'#ef4444\'" onmouseout="this.style.opacity=\'0.5\';this.style.color=\'var(--c-faint)\'">' + bpIcon('trash',14) + '</button>' : '')
-                        + '</div>';
+                        var skill = v._skill;
+                        var levelColors = { 'Mastery':'#ef4444','Expert':'#f97316','Advanced':'#f59e0b','Proficient':'#10b981','Novice':'#6b7280' };
+                        var lv = skill ? skill.level : v.claimedLevel || '?';
+                        var lvColor = levelColors[lv] || '#6b7280';
+                        var cred = getCredibilityLabel(v.relationship || 'Other');
+                        var respondedDate = v.respondedAt ? new Date(v.respondedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+
+                        var suggestedBadge = '';
+                        if (v.confirmedLevel && v.confirmedLevel !== lv) {
+                            var sugColor = levelColors[v.confirmedLevel] || '#6b7280';
+                            var sugVal = proficiencyValue(v.confirmedLevel);
+                            var claimedVal = proficiencyValue(lv);
+                            var arrow = sugVal > claimedVal ? '\u2191' : '\u2193';
+                            suggestedBadge = '<span style="font-size:0.68em; padding:2px 7px; border-radius:8px; background:' + sugColor + '18; color:' + sugColor + '; font-weight:600;">' + arrow + ' ' + escapeHtml(v.confirmedLevel) + '</span>';
+                        }
+
+                        html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:10px; padding:14px; cursor:pointer; transition:all 0.15s; position:relative;" '
+                            + 'onclick="openSkillModalFromCard(\'' + (v.skillName || '').replace(/'/g, "\\'") + '\')" '
+                            + 'onmouseover="this.style.borderColor=\'' + tm.accent + '40\';this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 4px 16px rgba(0,0,0,0.2)\'" '
+                            + 'onmouseout="this.style.borderColor=\'var(--c-surface-4)\';this.style.transform=\'none\';this.style.boxShadow=\'none\'">';
+
+                        html += '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">'
+                            + '<div style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">'
+                            + '<div style="width:10px; height:10px; border-radius:3px; background:' + lvColor + '; flex-shrink:0;"></div>'
+                            + '<span style="font-size:0.92em; font-weight:600; color:var(--c-heading); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(v.skillName) + '</span>'
+                            + '</div>'
+                            + (!isReadOnlyProfile ? '<button onclick="event.stopPropagation(); verifyTabRevoke(\'' + (v.id || '').replace(/'/g, "\\'") + '\')" title="Revoke" style="background:none; border:none; cursor:pointer; color:var(--c-faint); padding:2px; opacity:0.4; flex-shrink:0;" onmouseover="this.style.opacity=\'1\';this.style.color=\'#ef4444\'" onmouseout="this.style.opacity=\'0.4\';this.style.color=\'var(--c-faint)\'">' + bpIcon('trash',12) + '</button>' : '')
+                            + '</div>';
+
+                        html += '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px;">'
+                            + '<span style="font-size:0.72em; padding:2px 10px; border-radius:10px; background:' + lvColor + '22; color:' + lvColor + '; font-weight:600;">' + escapeHtml(lv) + '</span>'
+                            + suggestedBadge
+                            + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:' + cred.color + '15; color:' + cred.color + '; font-weight:600;">' + cred.weight + 'x ' + cred.label + '</span>'
+                            + '</div>';
+
+                        html += '<div style="display:flex; align-items:center; gap:8px; padding-top:8px; border-top:1px solid var(--c-surface-4);">'
+                            + '<div style="width:24px; height:24px; border-radius:50%; background:rgba(16,185,129,0.15); display:flex; align-items:center; justify-content:center; flex-shrink:0;">'
+                            + '<span style="font-size:0.65em; color:#10b981; font-weight:700;">' + (escapeHtml(v.verifierName || 'U').charAt(0).toUpperCase()) + '</span></div>'
+                            + '<div style="flex:1; min-width:0;">'
+                            + '<div style="font-size:0.8em; font-weight:600; color:var(--c-label);">' + escapeHtml(v.verifierName || 'Unknown') + '</div>'
+                            + '<div style="font-size:0.7em; color:var(--c-muted);">' + escapeHtml(v.relationship || 'Peer') + (respondedDate ? ' \u00B7 ' + respondedDate : '') + '</div>'
+                            + '</div></div>';
+
+                        html += '</div>';
                     });
-                    html += '</div>';
+                    html += '</div></div>';
                 });
 
                 html += '</div>';
@@ -28813,23 +28842,31 @@ body {
             if (pending.length > 0) {
                 html += '<div style="margin-bottom:20px;">'
                     + '<div style="font-weight:700; font-size:0.92em; color:#f59e0b; margin-bottom:12px;">' + bpIcon('clock',16) + ' Pending Requests (' + pending.length + ')</div>'
-                    + '<div style="border:1px solid var(--c-surface-4); border-radius:10px; overflow:hidden;">';
+                    + '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px;">';
                 
                 pending.forEach(function(v) {
                     var requestedDate = v.requestedAt ? new Date(v.requestedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
                     var daysPending = v.requestedAt ? Math.floor((Date.now() - new Date(v.requestedAt).getTime()) / 86400000) : 0;
-                    var urgency = daysPending > 21 ? '#ef4444' : daysPending > 14 ? '#f59e0b' : 'var(--c-muted)';
+                    var urgencyColor = daysPending > 21 ? '#ef4444' : daysPending > 14 ? '#f59e0b' : '#6b7280';
                     
-                    html += '<div style="display:flex; align-items:center; gap:10px; padding:10px 16px; border-bottom:1px solid var(--c-surface-1b); flex-wrap:wrap;">'
-                        + '<div style="flex:1; min-width:140px; font-size:0.88em; color:var(--c-text);">' + escapeHtml(v.skillName) + '</div>'
-                        + '<div style="min-width:140px; font-size:0.82em; color:var(--c-label);">'
-                        + '<div>' + escapeHtml(v.verifierName || 'Unknown') + '</div>'
-                        + '<div style="font-size:0.9em; color:var(--c-muted);">' + (showcaseMode ? '••••@redacted' : escapeHtml(v.verifierEmail || '')) + '</div>'
-                        + '</div>'
-                        + '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:rgba(245,158,11,0.12); color:#f59e0b;">Pending</span>'
-                        + '<div style="font-size:0.72em; color:' + urgency + '; min-width:80px; text-align:right;">' + requestedDate + '<br>' + daysPending + ' days</div>'
-                        + (!isReadOnlyProfile ? '<button onclick="verifyTabResend(\'' + (v.skillName || '').replace(/'/g, "\\'") + '\')" title="Resend" style="background:none; border:none; cursor:pointer; color:#60a5fa; padding:4px; font-size:0.75em;">Resend</button>' : '')
+                    html += '<div style="background:var(--c-surface-1); border:1px solid rgba(245,158,11,0.2); border-radius:10px; padding:14px;">';
+                    html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">'
+                        + '<div style="width:10px; height:10px; border-radius:3px; background:#f59e0b; flex-shrink:0;"></div>'
+                        + '<span style="font-size:0.92em; font-weight:600; color:var(--c-heading); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(v.skillName) + '</span>'
+                        + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:rgba(245,158,11,0.12); color:#f59e0b; font-weight:600;">Pending</span>'
                         + '</div>';
+                    html += '<div style="display:flex; align-items:center; gap:8px; padding-top:8px; border-top:1px solid var(--c-surface-4);">'
+                        + '<div style="width:24px; height:24px; border-radius:50%; background:rgba(245,158,11,0.12); display:flex; align-items:center; justify-content:center; flex-shrink:0;">'
+                        + '<span style="font-size:0.65em; color:#f59e0b; font-weight:700;">' + (escapeHtml(v.verifierName || 'U').charAt(0).toUpperCase()) + '</span></div>'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="font-size:0.8em; font-weight:600; color:var(--c-label);">' + escapeHtml(v.verifierName || 'Unknown') + '</div>'
+                        + '<div style="font-size:0.7em; color:var(--c-muted);">' + (showcaseMode ? '••••@redacted' : escapeHtml(v.verifierEmail || '')) + '</div>'
+                        + '</div>'
+                        + '<div style="text-align:right; flex-shrink:0;">'
+                        + '<div style="font-size:0.7em; color:' + urgencyColor + ';">' + daysPending + 'd ago</div>'
+                        + (!isReadOnlyProfile ? '<button onclick="verifyTabResend(\'' + (v.skillName || '').replace(/'/g, "\\'") + '\')" style="background:none; border:none; cursor:pointer; color:#60a5fa; padding:2px; font-size:0.7em; font-weight:600;">Resend</button>' : '')
+                        + '</div></div>';
+                    html += '</div>';
                 });
                 
                 html += '</div></div>';
@@ -28885,14 +28922,22 @@ body {
                     var tSkills = uvTiers[tKey];
                     if (tSkills.length === 0) return;
                     var tm = uvTierMeta[tKey];
-                    html += '<div style="margin-bottom:8px;">'
-                        + '<div style="font-size:0.75em; font-weight:600; color:' + tm.accent + '; margin-bottom:6px;">' + tm.label + ' (' + tSkills.length + ')</div>'
-                        + '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+                    html += '<div style="margin-bottom:12px;">'
+                        + '<div style="font-size:0.78em; font-weight:600; color:' + tm.accent + '; margin-bottom:8px;">' + tm.label + ' (' + tSkills.length + ')</div>'
+                        + '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:8px;">';
                     tSkills.forEach(function(s) {
                         var c = levelColors2[s.level] || '#6b7280';
-                        html += '<div style="padding:4px 10px; border-radius:8px; font-size:0.78em; background:' + tm.bg + '; border:1px solid ' + tm.border + '; color:var(--c-label); cursor:pointer;" '
-                            + 'onclick="requestVerification([\'' + (s.name || '').replace(/'/g, "\\'") + '\'])">'
-                            + '<span style="color:' + c + ';">\u25CF</span> ' + escapeHtml(s.name)
+                        var escapedName = (s.name || '').replace(/'/g, "\\'");
+                        html += '<div style="background:var(--c-surface-1); border:1px solid ' + tm.border + '; border-radius:8px; padding:10px 12px; cursor:pointer; transition:all 0.15s;" '
+                            + 'onclick="requestVerification([\'' + escapedName + '\'])" '
+                            + 'onmouseover="this.style.borderColor=\'' + tm.accent + '\';this.style.transform=\'translateY(-1px)\'" '
+                            + 'onmouseout="this.style.borderColor=\'' + tm.border + '\';this.style.transform=\'none\'">'
+                            + '<div style="display:flex; align-items:center; gap:8px;">'
+                            + '<div style="width:8px; height:8px; border-radius:2px; background:' + c + '; flex-shrink:0;"></div>'
+                            + '<span style="font-size:0.85em; font-weight:500; color:var(--c-label); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(s.name) + '</span>'
+                            + '<span style="font-size:0.68em; padding:1px 7px; border-radius:8px; background:' + c + '22; color:' + c + '; font-weight:600;">' + escapeHtml(s.level || 'Novice') + '</span>'
+                            + '</div>'
+                            + '<div style="margin-top:5px; font-size:0.68em; color:' + tm.accent + '; padding-left:16px;">Click to request verification</div>'
                             + '</div>';
                     });
                     html += '</div></div>';

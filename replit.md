@@ -20,7 +20,13 @@ Career intelligence web app at myblueprint.work. Static HTML/JS frontend + Fireb
 - `vercel.json` — Vercel deployment config, CSP headers, rewrites
 
 ## Version
-Current: check `BP_VERSION` in `index.html` (line ~1506). Bump in 3 places: line 1 HTML comment, JS block comment, `BP_VERSION` variable.
+Current: v4.45.93. Check `BP_VERSION` in `index.html` (line ~1650). Bump in 3 places: line 1 HTML comment, JS block comment, `BP_VERSION` variable.
+
+## Skills/Verify Tile Layout (v4.45.93)
+All three skill views use CSS Grid card tiles instead of inline rows:
+- **Card View** (`initCardView`): Rarity-grouped tiers (Rare/Uncommon/Common) with `grid-template-columns: repeat(auto-fill, minmax(260px, 1fr))`. Each tile shows skill name, level badge, CORE/verified/evidence badges, impact+rarity+category pills, and role alignment.
+- **Skills List** (`renderSkillsManagementTab`): Same rarity tiers with `minmax(280px, 1fr)` grid. Tiles include edit/remove buttons with `event.stopPropagation()`.
+- **Verify Tab** (`renderVerificationsTab`): Verified skills as card tiles with verifier avatar, credibility weight, and date. Pending requests and unverified skills also use grid layouts.
 
 ## Git
 Token embedded in remote URL. Push: `git add -A && git commit -m "..." && git push origin main`
