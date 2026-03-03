@@ -2893,6 +2893,12 @@
                     if (s.endorsements) mapped.endorsements = s.endorsements;
                     if (s.endorsementBoosted) mapped.endorsementBoosted = true;
                     if (s.source) mapped.source = s.source;
+                    if (s.userAssessment) mapped.userAssessment = s.userAssessment;
+                    if (s.impactRating) mapped.impactRating = s.impactRating;
+                    if (s.impactScore) mapped.impactScore = s.impactScore;
+                    if (s.onetId) mapped.onetId = s.onetId;
+                    if (s.onetCode) mapped.onetCode = s.onetCode;
+                    if (s.core) mapped.core = s.core;
                     return mapped;
                 }) : [],
                 roles: (skillsData && skillsData.roles) || [],
@@ -23956,13 +23962,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 }
             };
 
-            var scarcityMap = { rare: 'rare', specialized: 'rare', uncommon: 'uncommon', common: 'common', universal: 'common' };
+            var impactToRarity = { critical: 'rare', high: 'rare', moderate: 'uncommon', standard: 'common', supplementary: 'common' };
             skillsData.skills.forEach(function(skill) {
                 var impact = getSkillImpact(skill);
-                var rawScarcity = (impact && impact.marketScarcity) || 'common';
-                var rarity = scarcityMap[rawScarcity] || 'common';
+                var rarity;
                 if (skill.category === 'unique') {
                     rarity = (skill.userAssessment && skill.userAssessment.rarity) || 'uncommon';
+                } else {
+                    rarity = impactToRarity[(impact && impact.level) || 'moderate'] || 'common';
                 }
                 rarityTiers[rarity].skills.push(skill);
             });
@@ -27655,8 +27662,8 @@ body {
                     + '</div>';
             }
             
-            // Group skills by market rarity
-            var scarcityMap = { rare: 'rare', specialized: 'rare', uncommon: 'uncommon', common: 'common', universal: 'common' };
+            // Group skills by impact-based rarity
+            var impactToRarity = { critical: 'rare', high: 'rare', moderate: 'uncommon', standard: 'common', supplementary: 'common' };
             var tierMeta = {
                 rare: { label: 'Rare', desc: 'Market differentiators', icon: 'flame', bg: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(251,191,36,0.04))', border: 'rgba(245,158,11,0.3)', accent: '#f59e0b', pillBg: 'rgba(245,158,11,0.2)' },
                 uncommon: { label: 'Uncommon', desc: 'Competitive advantages', icon: 'diamond', bg: 'linear-gradient(135deg, rgba(96,165,250,0.06), rgba(139,92,246,0.04))', border: 'rgba(96,165,250,0.25)', accent: '#60a5fa', pillBg: 'rgba(96,165,250,0.2)' },
@@ -27667,9 +27674,12 @@ body {
 
             skills.forEach(function(s) {
                 var impact = typeof getSkillImpact === 'function' ? getSkillImpact(s) : null;
-                var rawScarcity = (impact && impact.marketScarcity) || 'common';
-                var rarity = scarcityMap[rawScarcity] || 'common';
-                if (s.category === 'unique') rarity = (s.userAssessment && s.userAssessment.rarity) || 'uncommon';
+                var rarity;
+                if (s.category === 'unique') {
+                    rarity = (s.userAssessment && s.userAssessment.rarity) || 'uncommon';
+                } else {
+                    rarity = impactToRarity[(impact && impact.level) || 'moderate'] || 'common';
+                }
                 tierSkills[rarity].push(s);
             });
 
@@ -28719,7 +28729,7 @@ body {
             
             // ── VERIFIED SKILLS LIST (grouped by rarity) ──
             if (confirmed.length > 0) {
-                var vScarcityMap = { rare: 'rare', specialized: 'rare', uncommon: 'uncommon', common: 'common', universal: 'common' };
+                var vImpactToRarity = { critical: 'rare', high: 'rare', moderate: 'uncommon', standard: 'common', supplementary: 'common' };
                 var vTierMeta = {
                     rare: { label: 'Rare', icon: 'flame', accent: '#f59e0b', bg: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(251,191,36,0.04))', border: 'rgba(245,158,11,0.3)' },
                     uncommon: { label: 'Uncommon', icon: 'diamond', accent: '#60a5fa', bg: 'linear-gradient(135deg, rgba(96,165,250,0.06), rgba(139,92,246,0.04))', border: 'rgba(96,165,250,0.25)' },
@@ -28730,9 +28740,12 @@ body {
                 confirmed.forEach(function(v) {
                     var skill = skills.find(function(s) { return s.name === v.skillName; });
                     var impact = skill && typeof getSkillImpact === 'function' ? getSkillImpact(skill) : null;
-                    var rawScarcity = (impact && impact.marketScarcity) || 'common';
-                    var rarity = vScarcityMap[rawScarcity] || 'common';
-                    if (skill && skill.category === 'unique') rarity = 'uncommon';
+                    var rarity;
+                    if (skill && skill.category === 'unique') {
+                        rarity = (skill.userAssessment && skill.userAssessment.rarity) || 'uncommon';
+                    } else {
+                        rarity = vImpactToRarity[(impact && impact.level) || 'moderate'] || 'common';
+                    }
                     v._skill = skill;
                     v._rarity = rarity;
                     vTierGroups[rarity].push(v);
@@ -28845,7 +28858,7 @@ body {
             
             // ── UNVERIFIED SKILLS (grouped by rarity) ──
             if (unverifiedSkills.length > 0) {
-                var uvScarcityMap = { rare: 'rare', specialized: 'rare', uncommon: 'uncommon', common: 'common', universal: 'common' };
+                var uvImpactToRarity = { critical: 'rare', high: 'rare', moderate: 'uncommon', standard: 'common', supplementary: 'common' };
                 var uvTierMeta = {
                     rare: { label: 'Rare — verify these first', accent: '#f59e0b', bg: 'rgba(245,158,11,0.06)', border: 'rgba(245,158,11,0.25)' },
                     uncommon: { label: 'Uncommon', accent: '#60a5fa', bg: 'rgba(96,165,250,0.04)', border: 'rgba(96,165,250,0.2)' },
@@ -28856,9 +28869,12 @@ body {
 
                 unverifiedSkills.forEach(function(s) {
                     var impact = typeof getSkillImpact === 'function' ? getSkillImpact(s) : null;
-                    var rawScarcity = (impact && impact.marketScarcity) || 'common';
-                    var rarity = uvScarcityMap[rawScarcity] || 'common';
-                    if (s.category === 'unique') rarity = 'uncommon';
+                    var rarity;
+                    if (s.category === 'unique') {
+                        rarity = (s.userAssessment && s.userAssessment.rarity) || 'uncommon';
+                    } else {
+                        rarity = uvImpactToRarity[(impact && impact.level) || 'moderate'] || 'common';
+                    }
                     uvTiers[rarity].push(s);
                 });
 
