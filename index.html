@@ -1,4 +1,4 @@
-<!-- v4.46.12 | 2026-03-03 | Fix double scrollbar: main-content overflow override -->
+<!-- v4.46.13 | 2026-03-03 | Scouting report overlay canvas networks: heavily muted links -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1645,8 +1645,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.12 - BUILD 20260303-double-scrollbar
-        var BP_VERSION = 'v4.46.12';
+        // BLUEPRINT v4.46.13 - BUILD 20260303-canvas-links
+        var BP_VERSION = 'v4.46.13';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -5029,7 +5029,7 @@
                         { id: 'p2-7a', name: 'Reports section live for users', status: 'done', category: 'feature', priority: 'high', notes: 'v4.46.4-5: Reports page now branches on isReadOnlyProfile. Logged-in users see live dashboard: My Reports with clickable pipeline jobs launching format picker (HTML/PDF), expanded Report Readiness tracker (6 dimensions: skills, work history, outcomes, values, purpose, credentials), collapsible Sample Reports section, credential vault teaser. Non-logged-in visitors see sample experience with mock analytics, heatmap, demo profiles, and sign-up CTA banner. Removed mock data from logged-in view. New Report button moved to My Reports card header.' },
                         { id: 'p2-7b', name: 'Privacy controls: blind mode defaults + audit log', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.46.6: Full privacy control system. (1) userData.blindDefaults persisted to Firestore with 6 fields: identity, location, employer, institution, outcomes, compensation. (2) Settings > Privacy tab gets live toggles that save immediately. (3) Format picker modal gets collapsible per-instance override UI with caution banner noting overrides are temporary. (4) applyBlindSettings() transforms reportData before HTML/PDF generation: anonymizes name/photo, hides location, replaces employer/institution names, abstracts outcomes, hides compensation section. (5) Privacy audit log (userData.privacyLog, capped 100 entries) records every html/pdf/share event with timestamp, job, format, blind settings used, and override flag. (6) Privacy Activity table in Settings > Privacy shows full audit trail with blind field badges and override indicators. (7) shareScoutingReport() includes blindSettings in Firestore doc. (8) Blind toggles removed from Reports dashboard (now in Settings > Privacy).' },
                         { id: 'p2-7c', name: 'Sharing presets: persistence + report filtering', status: 'done', category: 'feature', priority: 'high', notes: 'v4.46.7-8: Sharing presets fully wired. (1) currentPreset persisted to userData.preferences.sharingPreset in Firestore. (2) Restored on load so preset survives refresh. (3) buildReportData() filters skills by preset: Full=all, Executive=job-matched + top 20 by level, Advisory=core/key skills + job-matched, Board=key + mastery + job-matched. (4) Outcomes filtered by preset: Advisory keeps Strategic Foresight/Thought Leadership/Business Impact, Board keeps Business Impact/Crisis Leadership/Entrepreneurial. (5) Values filtered for Board preset. (6) sharingPreset stamped into report data object. (7) Privacy audit log records preset per event with color-coded pills in Activity table. (8) v4.46.8: Preset card descriptions now dynamic, showing actual counts and "no outcomes yet" / "no values yet" when data is empty. What You\'re Sharing cards show "None added yet" for empty data types and "of N total" when preset filters below total. Both Privacy tab and Consent view updated.' },
-                        { id: 'p2-7d', name: 'Scouting report D3 link visual fix', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.9: Scouting report HTML template D3 networks: (1) Link stroke reduced from rgba(255,255,255,0.06) to 0.025 with stroke-width 0.5 for much more muted appearance. (2) SVG DOM reorder: all <line> elements moved to beginning of parent container so they render behind <circle>/<g> nodes in painter\'s order. Applied via recolorNetwork() polling patch injected into iframe template.' },
+                        { id: 'p2-7d', name: 'Scouting report D3 link visual fix', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.9-13: All scouting report network link rendering heavily muted across three paths: (1) HTML template iframe SVG: CSS !important rule forces stroke rgba(255,255,255,0.025) and width 0.5px, overriding D3 inline styles. JS patch also sets style properties directly for belt-and-suspenders. SVG DOM reorder pushes lines behind nodes. (2) PDF canvas Job Match: hub links 0.1 opacity/1px, gap links 0.25/1.2px dashed, skill links 0.06-0.07/0.5px. (3) PDF canvas Candidate Skills: hub links 0.1/1px, skill links 0.06/0.5px. Lines are now barely-visible connective tissue, not visual noise.' },
                         { id: 'p2-7e', name: 'Custom preset UX improvements', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.10: Custom preset card description changed from passive "You choose exactly..." to actionable "Granular control. Toggle individual skills, outcomes, and values in the Blueprint tab." When Custom is selected, a blue info banner appears below the preset grid: "Custom mode active. Manage individual share toggles for outcomes and values in the Blueprint tab." with clickable link to Blueprint view. Applied to both Settings > Privacy and Consent views.' },
                         { id: 'p2-7f', name: 'Unverified skills card frame + prioritization note', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.11: Unverified skills section in Verify tab now wrapped in a framed card matching the verified skills cards above (surface-2a background, border, 14px radius, 20px/24px padding). Added explanatory note: "These skills lack third-party verification. They are ranked by market rarity so you can prioritize which to verify first. Rare skills carry the most differentiation value."' }
                     ]
@@ -30187,6 +30187,11 @@ body {
                         + '  background: #0a0e1a !important;'
                         + '  border-radius: 12px !important;'
                         + '}'
+                        + 'svg line, svg path.link {'
+                        + '  stroke: rgba(255,255,255,0.025) !important;'
+                        + '  stroke-width: 0.5px !important;'
+                        + '  stroke-opacity: 1 !important;'
+                        + '}'
                         + 'svg text { font-family: "Inter", "Outfit", system-ui, sans-serif !important; }'
                         + '</style>';
                     
@@ -30221,9 +30226,12 @@ body {
                         + '        c.setAttribute("fill", "#a5d8ff");'
                         + '      }'
                         + '    });'
-                        + '    document.querySelectorAll("svg line").forEach(function(l) {'
+                        + '    document.querySelectorAll("svg line, svg path.link").forEach(function(l) {'
                         + '      l.setAttribute("stroke", "rgba(255,255,255,0.025)");'
                         + '      l.setAttribute("stroke-width", "0.5");'
+                        + '      l.style.stroke = "rgba(255,255,255,0.025)";'
+                        + '      l.style.strokeWidth = "0.5";'
+                        + '      l.style.strokeOpacity = "1";'
                         + '    });'
                         + '    document.querySelectorAll("svg").forEach(function(svg) {'
                         + '      var linkG = svg.querySelector("g.links, g.link-layer, g[class*=link]");'
@@ -30938,13 +30946,13 @@ body {
                     var s = lk.source, tg = lk.target;
                     ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(tg.x, tg.y);
                     if (lk.type === 'hub') {
-                        ctx.strokeStyle = 'rgba(80,100,150,0.35)'; ctx.lineWidth = 2.5;
+                        ctx.strokeStyle = 'rgba(80,100,150,0.1)'; ctx.lineWidth = 1;
                     } else if (lk.type === 'gap') {
-                        ctx.strokeStyle = 'rgba(239,68,68,0.4)'; ctx.lineWidth = 2;
+                        ctx.strokeStyle = 'rgba(239,68,68,0.25)'; ctx.lineWidth = 1.2;
                         ctx.setLineDash([8, 5]);
                     } else {
-                        ctx.strokeStyle = tg.matchColor === 'matched' ? 'rgba(16,185,129,0.2)' : 'rgba(50,65,100,0.18)';
-                        ctx.lineWidth = 1.2;
+                        ctx.strokeStyle = tg.matchColor === 'matched' ? 'rgba(16,185,129,0.07)' : 'rgba(50,65,100,0.06)';
+                        ctx.lineWidth = 0.5;
                     }
                     ctx.stroke(); ctx.setLineDash([]);
                 });
@@ -31142,8 +31150,8 @@ body {
                 d3links.forEach(function(lk) {
                     var s = lk.source, tg = lk.target;
                     ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(tg.x, tg.y);
-                    ctx.strokeStyle = lk.type === 'hub' ? 'rgba(80,100,150,0.35)' : 'rgba(50,65,100,0.18)';
-                    ctx.lineWidth = lk.type === 'hub' ? 2.5 : 1.2;
+                    ctx.strokeStyle = lk.type === 'hub' ? 'rgba(80,100,150,0.1)' : 'rgba(50,65,100,0.06)';
+                    ctx.lineWidth = lk.type === 'hub' ? 1 : 0.5;
                     ctx.stroke();
                 });
                 
