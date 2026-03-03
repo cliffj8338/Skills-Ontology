@@ -1,4 +1,4 @@
-<!-- v4.46.2 | 2026-03-03 | Fix Pipeline 0% match: _fitAddToPipeline now saves matchData + parsedSkills correctly -->
+<!-- v4.46.3 | 2026-03-03 | Fix Pipeline rescore + Fit For Me results persist until manual refresh -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1640,8 +1640,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.2 - BUILD 20260303-pipeline-match-fix
-        var BP_VERSION = 'v4.46.2';
+        // BLUEPRINT v4.46.3 - BUILD 20260303-rescore-persist
+        var BP_VERSION = 'v4.46.3';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -33674,9 +33674,8 @@ body {
             }
 
             var staleMinutes = _fitForMeLastRun ? Math.round((Date.now() - _fitForMeLastRun) / 60000) : -1;
-            var isStale = staleMinutes < 0 || staleMinutes > 15;
 
-            if (_fitForMeData.length === 0 && !_fitForMeLoading && isStale) {
+            if (_fitForMeData.length === 0 && !_fitForMeLoading && staleMinutes < 0) {
                 el.innerHTML = '<div style="text-align:center; padding:48px 20px;">'
                     + '<div class="loading-spinner" style="width:32px; height:32px; border-width:3px; margin:0 auto 16px;"></div>'
                     + '<p style="font-size:1em; color:var(--text-secondary);">Analyzing your profile and finding matches...</p>'
@@ -38043,7 +38042,10 @@ body {
           // ===== RE-SCORE ALL SAVED JOBS =====
         // Called whenever profile skills change (add, edit, remove, proficiency change)
         function rescoreAllJobs() {
-            if (!userData.savedJobs || userData.savedJobs.length === 0) return;
+            if (!userData.savedJobs || userData.savedJobs.length === 0) {
+                showToast('No jobs in pipeline to rescore.', 'info', 2000);
+                return;
+            }
             
             var updated = 0;
             userData.savedJobs.forEach(function(job) {
@@ -38055,14 +38057,27 @@ body {
                     job.parsedSkills = job.parsedData.skills;
                 }
                 if (!job.addedAt && job.dateAdded) job.addedAt = job.dateAdded;
+
                 var oldScore = job.matchData ? job.matchData.score : 0;
                 var skills = getJobSkills(job);
+
+                if (skills.length === 0) {
+                    var textToParse = job.rawText || (job.raw && job.raw.text) || job.description || '';
+                    if (textToParse.length > 20) {
+                        try {
+                            var reParsed = parseJobLocally((job.title || '') + '\n' + textToParse);
+                            if (reParsed.skills && reParsed.skills.length > 0) {
+                                job.parsedSkills = reParsed.skills;
+                                skills = reParsed.skills;
+                            }
+                        } catch(e) { console.warn('rescore re-parse failed:', e.message); }
+                    }
+                }
+
                 if (skills.length > 0) {
-                    // v2 or legacy with parsed skills: use the 6-pass matcher
                     job.matchData = matchJobToProfile(skills);
                 } else {
-                    // Jobs with only raw text: fall back to quick text-search scorer
-                    var quick = quickScoreJob(job.title, job.rawText || (job.raw && job.raw.text) || '', []);
+                    var quick = quickScoreJob(job.title || '', job.rawText || (job.raw && job.raw.text) || job.description || '', []);
                     job.matchData = { score: quick.score, matched: quick.matched, gaps: quick.gaps, surplus: [] };
                 }
                 var companyName = (job.hiringOrganization && job.hiringOrganization.name) || job.company || '';
@@ -38071,10 +38086,12 @@ body {
                 if (job.matchData.score !== oldScore) updated++;
             });
             
+            saveUserData();
+            if (fbUser) debouncedSave();
             if (updated > 0) {
-                saveUserData();
-                if (fbUser) debouncedSave();
-                showToast(updated + ' job match score' + (updated > 1 ? 's' : '') + ' updated.', 'info', 3000);
+                showToast(updated + ' job score' + (updated > 1 ? 's' : '') + ' updated.', 'success', 3000);
+            } else {
+                showToast('All ' + userData.savedJobs.length + ' job scores are current.', 'info', 2000);
             }
         }
         window.rescoreAllJobs = rescoreAllJobs;
