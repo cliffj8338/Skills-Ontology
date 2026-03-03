@@ -25137,11 +25137,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 return d.source.id === roleId && relevantSkills.includes(d.target.id);
             });
             
-            // STORYTELLING MODE: Show only relevant labels + selected role
+            // Respect label toggle state — only hide labels for dimmed nodes if toggle is on
             node.selectAll('text').classed('hidden', function(d) {
                 if (d.type === 'center') return false;
-                if (d.type === 'role') return true; // Hide ALL role labels (info card shows selected role)
-                return !relevantSkills.includes(d.id); // Hide non-relevant skill labels
+                if (d.type === 'role') return !networkShowRoleLabels || d.id !== roleId;
+                if (d.type === 'skill') return !networkShowSkillLabels || !relevantSkills.includes(d.id);
+                return false;
             });
         }
         window.filterByRole = filterByRole;
