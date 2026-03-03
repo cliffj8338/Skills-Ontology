@@ -1,4 +1,4 @@
-<!-- v4.45.99 | 2026-03-03 | Fix: replace saved red role colors at runtime via normalizeUserRoles -->
+<!-- v4.46.0 | 2026-03-03 | Card view: add per-skill rarity pill on tile line 2 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1640,8 +1640,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.45.99 - BUILD 20260303-no-red-runtime
-        var BP_VERSION = 'v4.45.99';
+        // BLUEPRINT v4.46.0 - BUILD 20260303-card-rarity-pill
+        var BP_VERSION = 'v4.46.0';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -24074,9 +24074,10 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         + '<span title="' + (catTitles[skill.category] || 'Skill') + '" style="color:' + (catColors[skill.category] || '#60a5fa') + '; font-size:0.75em; line-height:1;">' + (catIcons[skill.category] || bpIcon('tool',11)) + '</span>'
                         + '</div></div>';
 
-                    html += '<div style="display:flex; align-items:center; gap:6px; padding-left:18px;">'
+                    html += '<div style="display:flex; align-items:center; gap:6px; padding-left:18px; flex-wrap:wrap;">'
                         + '<span style="font-size:0.72em; padding:2px 10px; border-radius:10px; background:' + lc + '22; color:' + lc + '; font-weight:600;">' + escapeHtml(skill.level || 'Proficient') + '</span>'
                         + '<span title="' + skillImpact.label + '" style="font-size:0.75em; color:' + impactColor + ';">' + skillImpact.icon + '</span>'
+                        + '<span style="font-size:0.62em; padding:1px 7px; border-radius:8px; background:' + tier.pillBg + '; color:' + tier.pillColor + '; font-weight:700; letter-spacing:0.04em; text-transform:uppercase;">' + tier.label + '</span>'
                         + (years ? '<span style="font-size:0.68em; color:var(--c-muted, var(--text-muted));">' + years + 'y</span>' : '')
                         + '</div>';
 
