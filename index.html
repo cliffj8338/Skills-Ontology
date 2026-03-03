@@ -2457,6 +2457,9 @@
                         if (typeof loadAdminSkillBlocklist === 'function') {
                             loadAdminSkillBlocklist();
                         }
+                        if (typeof loadAdminApprovedSkills === 'function') {
+                            loadAdminApprovedSkills();
+                        }
                         detectAppMode();
                         updateAuthUI();
                         rebuildProfileDropdown();
@@ -13084,9 +13087,17 @@
                     + bpIcon('search',14) + ' Most Frequently Missed Terms (' + topMissed.length + ')</div>'
                     + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:8px;">Terms found in JD requirement phrases but not extracted by parseJobLocally(). May indicate parser gaps or intentional filtering.</div>';
                 topMissed.forEach(function(t) {
-                    html += '<div style="display:flex; justify-content:space-between; padding:4px 8px; margin-bottom:2px; background:rgba(239,68,68,0.04); border-radius:4px; font-size:0.82em;">'
-                        + '<span style="color:var(--c-heading);">' + escapeHtml(t) + '</span>'
-                        + '<span style="color:#ef4444; font-weight:600;">' + globalMissed[t] + 'x</span></div>';
+                    var isBlocked = isSkillBlocklisted(t);
+                    var isApproved = isSkillApproved(t);
+                    var statusLabel = isBlocked ? '<span style="color:#6b7280; font-size:0.8em; font-style:italic;">blocked</span>'
+                        : isApproved ? '<span style="color:#10b981; font-size:0.8em; font-style:italic;">approved</span>' : '';
+                    html += '<div style="display:flex; align-items:center; padding:4px 8px; margin-bottom:2px; background:rgba(239,68,68,0.04); border-radius:4px; font-size:0.82em; gap:6px;">'
+                        + '<span style="flex:1; color:var(--c-heading);">' + escapeHtml(t) + '</span>'
+                        + statusLabel
+                        + '<span style="color:#ef4444; font-weight:600; margin-right:4px;">' + globalMissed[t] + 'x</span>'
+                        + '<button data-audit-action="approve" data-skill="' + escapeHtml(t) + '" title="Add to parser dictionary" style="background:rgba(16,185,129,0.12); border:none; color:#10b981; cursor:pointer; padding:2px 6px; border-radius:4px; font-size:0.9em; font-weight:700; line-height:1;">+</button>'
+                        + '<button data-audit-action="block" data-skill="' + escapeHtml(t) + '" title="Block from parsing" style="background:rgba(239,68,68,0.12); border:none; color:#ef4444; cursor:pointer; padding:2px 6px; border-radius:4px; font-size:0.9em; font-weight:700; line-height:1;">\u2717</button>'
+                        + '</div>';
                 });
                 html += '</div>';
 
@@ -13095,9 +13106,17 @@
                     + bpIcon('lightbulb',14) + ' Recommended Additions (' + topRec.length + ')</div>'
                     + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:8px;">Skills from O*NET library found in JD text but not extracted. These may be legitimate skills the parser should capture.</div>';
                 topRec.forEach(function(t) {
-                    html += '<div style="display:flex; justify-content:space-between; padding:4px 8px; margin-bottom:2px; background:rgba(16,185,129,0.04); border-radius:4px; font-size:0.82em;">'
-                        + '<span style="color:var(--c-heading);">' + escapeHtml(t) + '</span>'
-                        + '<span style="color:#10b981; font-weight:600;">' + globalRecommended[t] + 'x</span></div>';
+                    var isApproved = isSkillApproved(t);
+                    var isBlocked = isSkillBlocklisted(t);
+                    var statusLabel = isApproved ? '<span style="color:#10b981; font-size:0.8em; font-style:italic;">approved</span>'
+                        : isBlocked ? '<span style="color:#6b7280; font-size:0.8em; font-style:italic;">blocked</span>' : '';
+                    html += '<div style="display:flex; align-items:center; padding:4px 8px; margin-bottom:2px; background:rgba(16,185,129,0.04); border-radius:4px; font-size:0.82em; gap:6px;">'
+                        + '<span style="flex:1; color:var(--c-heading);">' + escapeHtml(t) + '</span>'
+                        + statusLabel
+                        + '<span style="color:#10b981; font-weight:600; margin-right:4px;">' + globalRecommended[t] + 'x</span>'
+                        + '<button data-audit-action="approve" data-skill="' + escapeHtml(t) + '" title="Add to parser dictionary" style="background:rgba(16,185,129,0.12); border:none; color:#10b981; cursor:pointer; padding:2px 6px; border-radius:4px; font-size:0.9em; font-weight:700; line-height:1;">+</button>'
+                        + '<button data-audit-action="block" data-skill="' + escapeHtml(t) + '" title="Block from parsing" style="background:rgba(239,68,68,0.12); border:none; color:#ef4444; cursor:pointer; padding:2px 6px; border-radius:4px; font-size:0.9em; font-weight:700; line-height:1;">\u2717</button>'
+                        + '</div>';
                 });
                 html += '</div>';
 
@@ -13159,7 +13178,16 @@
                         html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#ef4444; font-weight:600; margin-bottom:4px;">Potentially Missed (' + a.missedCandidates.length + ')</div>'
                             + '<div style="display:flex; flex-wrap:wrap; gap:3px; margin-bottom:10px;">';
                         a.missedCandidates.forEach(function(m) {
-                            html += '<span style="padding:2px 8px; border-radius:8px; font-size:0.75em; background:rgba(239,68,68,0.06); color:#ef4444; border:1px solid rgba(239,68,68,0.12);">' + escapeHtml(m) + '</span>';
+                            var mBlocked = isSkillBlocklisted(m);
+                            var mApproved = isSkillApproved(m);
+                            var tagStyle = mBlocked ? 'background:rgba(107,114,128,0.08); color:#6b7280; border:1px solid rgba(107,114,128,0.15); text-decoration:line-through;'
+                                : mApproved ? 'background:rgba(16,185,129,0.08); color:#10b981; border:1px solid rgba(16,185,129,0.15);'
+                                : 'background:rgba(239,68,68,0.06); color:#ef4444; border:1px solid rgba(239,68,68,0.12);';
+                            html += '<span style="padding:2px 4px 2px 8px; border-radius:8px; font-size:0.75em; display:inline-flex; align-items:center; gap:3px; ' + tagStyle + '">'
+                                + escapeHtml(m)
+                                + '<button data-audit-action="approve" data-skill="' + escapeHtml(m) + '" title="Approve" style="background:none; border:none; color:#10b981; cursor:pointer; padding:0 2px; font-size:1.1em; font-weight:700; line-height:1;">+</button>'
+                                + '<button data-audit-action="block" data-skill="' + escapeHtml(m) + '" title="Block" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:0 2px; font-size:1em; font-weight:700; line-height:1;">\u2717</button>'
+                                + '</span>';
                         });
                         html += '</div>';
                     }
@@ -13168,7 +13196,16 @@
                         html += '<div style="font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:#60a5fa; font-weight:600; margin-bottom:4px;">Recommended Additions (' + a.recommendedSkills.length + ')</div>'
                             + '<div style="display:flex; flex-wrap:wrap; gap:3px; margin-bottom:10px;">';
                         a.recommendedSkills.forEach(function(r) {
-                            html += '<span style="padding:2px 8px; border-radius:8px; font-size:0.75em; background:rgba(96,165,250,0.06); color:#60a5fa; border:1px solid rgba(96,165,250,0.12);">' + escapeHtml(r) + '</span>';
+                            var rApproved = isSkillApproved(r);
+                            var rBlocked = isSkillBlocklisted(r);
+                            var rStyle = rApproved ? 'background:rgba(16,185,129,0.08); color:#10b981; border:1px solid rgba(16,185,129,0.15);'
+                                : rBlocked ? 'background:rgba(107,114,128,0.08); color:#6b7280; border:1px solid rgba(107,114,128,0.15); text-decoration:line-through;'
+                                : 'background:rgba(96,165,250,0.06); color:#60a5fa; border:1px solid rgba(96,165,250,0.12);';
+                            html += '<span style="padding:2px 4px 2px 8px; border-radius:8px; font-size:0.75em; display:inline-flex; align-items:center; gap:3px; ' + rStyle + '">'
+                                + escapeHtml(r)
+                                + '<button data-audit-action="approve" data-skill="' + escapeHtml(r) + '" title="Approve" style="background:none; border:none; color:#10b981; cursor:pointer; padding:0 2px; font-size:1.1em; font-weight:700; line-height:1;">+</button>'
+                                + '<button data-audit-action="block" data-skill="' + escapeHtml(r) + '" title="Block" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:0 2px; font-size:1em; font-weight:700; line-height:1;">\u2717</button>'
+                                + '</span>';
                         });
                         html += '</div>';
                     }
@@ -13189,6 +13226,21 @@
 
             html += '</div>';
             el.innerHTML = html;
+
+            el.addEventListener('click', function(e) {
+                var btn = e.target.closest('[data-audit-action]');
+                if (!btn) return;
+                e.stopPropagation();
+                var action = btn.getAttribute('data-audit-action');
+                var skill = btn.getAttribute('data-skill');
+                if (!skill) return;
+                if (action === 'approve') {
+                    adminApproveSkill(skill);
+                } else if (action === 'block') {
+                    adminBlockFromAudit(skill);
+                }
+                renderParseAudit(document.getElementById('adminTabContent'));
+            });
         }
 
         async function _parseAuditRun() {
@@ -17566,6 +17618,55 @@
                 .catch(function(e) { console.warn('Skill blocklist save failed:', e.message); });
         }
         
+        var _adminApprovedSkills = new Set();
+
+        function loadAdminApprovedSkills() {
+            if (!fbDb) return;
+            fbDb.collection('meta').doc('parserApprovedSkills').get().then(function(doc) {
+                if (doc.exists) {
+                    var skills = (doc.data().skills || []);
+                    _adminApprovedSkills = new Set(skills.map(function(s) { return s.toLowerCase().trim(); }));
+                    console.log('\u2713 Admin approved skills loaded: ' + _adminApprovedSkills.size + ' entries');
+                }
+            }).catch(function(e) { console.warn('Approved skills load failed:', e.message); });
+        }
+
+        function saveAdminApprovedSkills() {
+            if (!fbDb) return;
+            var arr = Array.from(_adminApprovedSkills).sort();
+            fbDb.collection('meta').doc('parserApprovedSkills').set({ skills: arr, updatedAt: new Date().toISOString() })
+                .then(function() { console.log('Approved skills saved: ' + arr.length + ' entries'); })
+                .catch(function(e) { console.warn('Approved skills save failed:', e.message); });
+        }
+
+        function adminApproveSkill(name) {
+            if (readOnlyGuard()) return;
+            var lower = (name || '').toLowerCase().trim();
+            if (!lower) return;
+            _adminApprovedSkills.add(lower);
+            _adminSkillBlocklist.delete(lower);
+            saveAdminApprovedSkills();
+            saveAdminSkillBlocklist();
+            showToast('Approved: \u201C' + lower + '\u201D \u2014 added to parser dictionary.', 'success', 3000);
+        }
+        window.adminApproveSkill = adminApproveSkill;
+
+        function adminBlockFromAudit(name) {
+            if (readOnlyGuard()) return;
+            var lower = (name || '').toLowerCase().trim();
+            if (!lower) return;
+            _adminSkillBlocklist.add(lower);
+            _adminApprovedSkills.delete(lower);
+            saveAdminSkillBlocklist();
+            saveAdminApprovedSkills();
+            showToast('Blocked: \u201C' + lower + '\u201D \u2014 will be excluded from parsing.', 'info', 3000);
+        }
+        window.adminBlockFromAudit = adminBlockFromAudit;
+
+        function isSkillApproved(name) {
+            return _adminApprovedSkills.has((name || '').toLowerCase().trim());
+        }
+
         function isSkillBlocklisted(name) {
             return _adminSkillBlocklist.has((name || '').toLowerCase().trim());
         }
@@ -35490,6 +35591,22 @@ body {
             
             skillMatches = cleanedSkills;
             
+            // Admin approved skills pass — inject manually approved terms (word-boundary match)
+            if (_adminApprovedSkills && _adminApprovedSkills.size > 0) {
+                var existingLower = {};
+                skillMatches.forEach(function(s) { existingLower[s.name.toLowerCase()] = true; });
+                _adminApprovedSkills.forEach(function(approved) {
+                    if (existingLower[approved]) return;
+                    try {
+                        var wbRe = new RegExp('\\b' + approved.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+                        if (wbRe.test(jdText)) {
+                            var displayName = approved.replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+                            skillMatches.push({ name: displayName, requirement: 'Required', proficiency: inferJobProficiency(approved, seniority, jdText), category: 'approved', source: 'admin-approved' });
+                        }
+                    } catch(e) {}
+                });
+            }
+
             // Admin blocklist filter
             if (_adminSkillBlocklist.size > 0) {
                 skillMatches = skillMatches.filter(function(s) {

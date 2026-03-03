@@ -52,5 +52,7 @@ Jooble was removed in v4.45.89 — its API only returns text snippets (not full 
 - 6-pass ontology matching engine with confidence penalty (jobs with <5 skills parsed get score discount)
 - Low-confidence indicators on Fit For Me results (⚠ limited data label)
 - 43K skill library with category bridging
-- Admin skill blocklist (Firestore-backed)
+- Admin skill blocklist (Firestore-backed at `meta/skillBlocklist`)
+- Admin approved skills dictionary (Firestore-backed at `meta/parserApprovedSkills`) — curated terms injected into parser via word-boundary matching
+- Parse Audit skill curation — action buttons (+/x) on missed/recommended terms to approve or block directly from audit results
 - AI content generation with full role context
