@@ -1,4 +1,4 @@
-<!-- v4.46.14 | 2026-03-03 | Fix demo profile networks: getVisibleRoles fallback -->
+<!-- v4.46.15 | 2026-03-03 | Fix overlay cleanup on Network→Card toggle + demo network fix -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1640,8 +1640,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.14 - BUILD 20260303-demo-network-fix
-        var BP_VERSION = 'v4.46.14';
+        // BLUEPRINT v4.46.15 - BUILD 20260303-card-overlay-cleanup
+        var BP_VERSION = 'v4.46.15';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -5027,7 +5027,7 @@
                         { id: 'p2-7d', name: 'Scouting report D3 link visual fix', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.9-13: All scouting report network link rendering heavily muted across three paths: (1) HTML template iframe SVG: CSS !important rule forces stroke rgba(255,255,255,0.025) and width 0.5px, overriding D3 inline styles. JS patch also sets style properties directly for belt-and-suspenders. SVG DOM reorder pushes lines behind nodes. (2) PDF canvas Job Match: hub links 0.1 opacity/1px, gap links 0.25/1.2px dashed, skill links 0.06-0.07/0.5px. (3) PDF canvas Candidate Skills: hub links 0.1/1px, skill links 0.06/0.5px. Lines are now barely-visible connective tissue, not visual noise.' },
                         { id: 'p2-7e', name: 'Custom preset UX improvements', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.10: Custom preset card description changed from passive "You choose exactly..." to actionable "Granular control. Toggle individual skills, outcomes, and values in the Blueprint tab." When Custom is selected, a blue info banner appears below the preset grid: "Custom mode active. Manage individual share toggles for outcomes and values in the Blueprint tab." with clickable link to Blueprint view. Applied to both Settings > Privacy and Consent views.' },
                         { id: 'p2-7f', name: 'Unverified skills card frame + prioritization note', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.11: Unverified skills section in Verify tab now wrapped in a framed card matching the verified skills cards above (surface-2a background, border, 14px radius, 20px/24px padding). Added explanatory note: "These skills lack third-party verification. They are ranked by market rarity so you can prioritize which to verify first. Rare skills carry the most differentiation value."' },
-                        { id: 'p2-7g', name: 'Fix demo profile networks: getVisibleRoles fallback', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.46.14: getVisibleRoles() was filtering roles against userData.workHistory titles. Demo profile templates with no workHistory (or mismatched titles) resulted in empty visible roles, causing only the center node to render. Fix: (1) If workHistory is empty, return all roles. (2) If workHistory exists but no roles match titles, return all roles as fallback. (3) Only return empty if user explicitly hid all entries.' }
+                        { id: 'p2-7g', name: 'Fix demo profile networks + overlay cleanup', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.46.14-15: (1) getVisibleRoles() was filtering roles against userData.workHistory titles. Demo templates with no workHistory returned empty roles, showing only center node. Fix: return all roles when no workHistory exists or when no roles match. (2) toggleSkillsView(card) did not clean up network overlay elements (jobInfoTile, matchLegend, valuesAlignmentPanel, roleInfoCard, mobileNetworkBadge, jobSelectorDropdown). These fixed-position elements persisted from Network view into Card view. Now removed on toggle. Also resets jobSelectorExpanded state.' }
                     ]
                 },
                 {
@@ -24897,6 +24897,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 // Hide network filter pill in card view
                 var nfPill2 = document.getElementById('networkFilterPill');
                 if (nfPill2) nfPill2.style.display = 'none';
+                // Remove network overlay elements (fixed-position tiles from job match)
+                var _jit = document.getElementById('jobInfoTile'); if (_jit) _jit.remove();
+                var _ml = document.getElementById('matchLegend'); if (_ml) _ml.remove();
+                var _vap = document.getElementById('valuesAlignmentPanel'); if (_vap) _vap.remove();
+                var _ric = document.getElementById('roleInfoCard'); if (_ric) _ric.style.display = 'none';
+                var _mnb = document.getElementById('mobileNetworkBadge'); if (_mnb) _mnb.remove();
+                var _jsd = document.getElementById('jobSelectorDropdown'); if (_jsd) _jsd.remove();
+                jobSelectorExpanded = false;
                 // Hide match UI on card view
                 if (matchToggle) matchToggle.style.display = 'none';
                 if (matchBadge) matchBadge.style.display = 'none';
