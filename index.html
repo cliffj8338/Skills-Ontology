@@ -1,4 +1,4 @@
-<!-- v4.46.15 | 2026-03-03 | Fix overlay cleanup on Network→Card toggle + demo network fix -->
+<!-- v4.46.16 | 2026-03-03 | SEO + Generative Engine Optimization complete -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,6 +12,13 @@
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <link rel="canonical" href="https://www.myblueprint.work/">
     <meta name="theme-color" content="#60a5fa">
+    <meta name="application-name" content="Blueprint™">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Blueprint™">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -69,7 +76,28 @@
                 "creator": {
                     "@type": "Organization",
                     "@id": "https://www.myblueprint.work/#org"
+                },
+                "potentialAction": {
+                    "@type": "ViewAction",
+                    "target": "https://www.myblueprint.work/",
+                    "name": "Launch Blueprint"
                 }
+            },
+            {
+                "@type": "WebPage",
+                "@id": "https://www.myblueprint.work/#webpage",
+                "url": "https://www.myblueprint.work/",
+                "name": "Blueprint™ — See Your Career as a Living Map",
+                "description": "Blueprint is a career intelligence platform that maps your professional skills into an interactive ontology, matches you to jobs using AI-powered analysis, and generates scouting reports for recruiters.",
+                "isPartOf": { "@id": "https://www.myblueprint.work/#app" },
+                "speakable": {
+                    "@type": "SpeakableSpecification",
+                    "cssSelector": [
+                        "meta[name='description']",
+                        "title"
+                    ]
+                },
+                "breadcrumb": { "@id": "https://www.myblueprint.work/#breadcrumb" }
             },
             {
                 "@type": "Organization",
@@ -77,7 +105,32 @@
                 "name": "Blueprint Career Intelligence",
                 "url": "https://www.myblueprint.work/",
                 "description": "Building career intelligence tools that put professionals in control of their own talent data.",
-                "foundingDate": "2024"
+                "foundingDate": "2024",
+                "founder": {
+                    "@type": "Person",
+                    "@id": "https://www.myblueprint.work/#founder",
+                    "name": "Cliff Jurkiewicz",
+                    "jobTitle": "Founder",
+                    "url": "https://www.linkedin.com/in/cliffjurkiewicz/",
+                    "sameAs": [
+                        "https://www.linkedin.com/in/cliffjurkiewicz/"
+                    ]
+                },
+                "sameAs": [
+                    "https://www.linkedin.com/company/blueprint-career-intelligence/"
+                ]
+            },
+            {
+                "@type": "BreadcrumbList",
+                "@id": "https://www.myblueprint.work/#breadcrumb",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Blueprint™",
+                        "item": "https://www.myblueprint.work/"
+                    }
+                ]
             },
             {
                 "@type": "FAQPage",
@@ -687,6 +740,23 @@
 </style>
 </head>
 <body>
+    <!-- Crawlable content for search engines and AI answer engines -->
+    <noscript>
+        <article itemscope itemtype="https://schema.org/WebApplication">
+            <h1 itemprop="name">Blueprint™ — Career Intelligence Platform</h1>
+            <p itemprop="description">Blueprint maps your professional skills into an interactive network, matches you to jobs with AI-powered analysis, and generates scouting reports for recruiters. Built on 14,000+ skills from O*NET and ESCO frameworks, with salary intelligence from Bureau of Labor Statistics data.</p>
+            <section>
+                <h2>How Blueprint Works</h2>
+                <p>Import your experience from LinkedIn or a resume. Blueprint's AI extracts your roles, skills, and work history, then maps them to the O*NET occupational taxonomy covering 517 occupations. Visualize your capabilities as an interactive D3.js network graph, identify skill gaps, and discover adjacent capabilities you didn't know you had.</p>
+                <h2>AI Job Matching</h2>
+                <p>Blueprint searches 39,000+ jobs from 7 sources, produces AI match scores with detailed breakdowns of matched skills, gaps, and surplus capabilities. Each match includes values alignment analysis comparing your professional values against company culture signals.</p>
+                <h2>Scouting Reports</h2>
+                <p>Generate shareable, recruiter-ready candidate assessments. Reports include match scoring, skill gap analysis, values alignment, compensation intelligence from BLS wage data, and credential verification. Optional blind mode removes identifying information to reduce hiring bias.</p>
+                <h2>Privacy-First</h2>
+                <p>You own your data. Blueprint does not sell or share user data with third parties. Export your full profile anytime. No ads, no premium tier, no paywalls.</p>
+            </section>
+        </article>
+    </noscript>
     <!-- Loading Splash -->
     <div id="appSplash" style="position:fixed; inset:0; z-index:999999; background:var(--bg, #0a0a1a); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:20px; transition:opacity 0.4s ease;">
         <div style="display:flex; align-items:center; gap:14px;">
@@ -1640,8 +1710,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.15 - BUILD 20260303-card-overlay-cleanup
-        var BP_VERSION = 'v4.46.15';
+        // BLUEPRINT v4.46.16 - BUILD 20260303-seo-geo
+        var BP_VERSION = 'v4.46.16';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -4960,7 +5030,7 @@
                         { id: 'p2-3q', name: 'Architecture map maintenance process', status: 'in-progress', category: 'process', priority: 'medium', notes: 'v4.45.63: Updated wizard, userData, skill engine, Firestore component details for LinkedIn deep extraction and Content & Evidence tab. Firebase Blaze plan reflected. Pricing reference corrected. Line count updated to ~42K. Duplicate roadmap ID p2-6a fixed. Still needs automated generation from code comments.' },
                         { id: 'p2-3r', name: 'Skill editor outcomes + reports cleanup + network v3', status: 'done', category: 'ux', priority: 'high', notes: 'Unified editor: wider padding, linked outcomes section. Reports: PREVIEW labels on analytics/heatmap/share links, removed fake views/status from My Reports. Network: center node at width*0.18, role label truncation 24 chars.' },
                         { id: 'p2-3s', name: 'JD → Work Blueprint converter', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.06+: Full AI-powered converter. Paste JD text or upload PDF, AI extracts Skills/Outcomes/Proficiency, experience requirements, values & purpose signals, regional compensation via BLS. Outputs structured Work Blueprint saved to Firestore repository. Includes Work Blueprint Wizard for manual creation, repository with card grid, and full CRUD.' },
-                        { id: 'p2-3t', name: 'SEO + Generative Engine Optimization', status: 'active', category: 'infrastructure', priority: 'high', notes: 'Full metadata suite: title, description, Open Graph, Twitter Cards, canonical URL, favicon, JSON-LD structured data (WebApplication + Organization), robots, theme-color. Generative engine optimization: semantic HTML, descriptive headings, FAQ schema, HowTo schema, speakable metadata, citation-friendly content structure. Goal: discoverable by both traditional search and AI-powered answer engines (Google SGE, Perplexity, ChatGPT Browse).' },
+                        { id: 'p2-3t', name: 'SEO + Generative Engine Optimization', status: 'done', category: 'infrastructure', priority: 'high', notes: 'v4.46.16: Complete metadata and GEO suite. Meta: title, description, keywords, author, robots (max-snippet:-1), canonical, theme-color, application-name, apple-mobile-web-app (capable, title, status-bar-style). Links: favicon.svg, favicon-32.png, apple-touch-icon. OG: type, url, title, description, site_name, locale (images ready to uncomment). Twitter: summary_large_image card, title, description. JSON-LD @graph with 6 entities: WebApplication (featureList, offers, potentialAction/ViewAction, screenshot), WebPage (speakable/cssSelector, breadcrumb ref), Organization (founder/Person, sameAs), BreadcrumbList, FAQPage (5 Q&As covering what/how/scouting/salary/pricing), HowTo (4 steps: import, enrich, explore, match). Noscript fallback: semantic article with microdata itemscope/itemprop, 4 content sections (How It Works, AI Job Matching, Scouting Reports, Privacy-First) for crawler/AI engine ingestion. Favicon.svg created (constellation network design). All JSON-LD validates.' },
                         { id: 'p2-4a', name: 'Parallel profile loading + deferred crosswalk', status: 'done', category: 'infrastructure', priority: 'high', notes: 'v4.44.39: Sequential profile loading replaced with Promise.allSettled() for all 24 demos + 9 data libraries. O*NET crosswalk (4.6MB) deferred until after initial render. Significant load time improvement.' },
                         { id: 'p2-4b', name: 'Mobile network layout optimization', status: 'done', category: 'ux', priority: 'high', notes: 'v4.44.40-42: Hub/name nodes repositioned to upper-right on mobile across all 4 views. Match view: name and job hubs fully separated (upper-right vs upper-left). You view: forces tightened, height accounts for match toggle row. Desktop unchanged.' },
                         { id: 'p2-4c', name: 'Verification API deployment', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.44.29: Serverless /api/verify.js deployed to Vercel with Firebase Admin SDK env vars. GET returns pending records, POST writes verifier response. Token-based auth, no sign-in required for verifiers.' },
