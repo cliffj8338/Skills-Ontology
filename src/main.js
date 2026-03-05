@@ -1,6 +1,6 @@
 /**
  * src/main.js — Blueprint™ App Entry Point
- * Phase 4: Core + UI + Firebase + Analytics + Engine + Nav modules live.
+ * Phase 7b: Views/reports + Views/settings live.
  */
 
 // ─── Phase 1: Core utilities ──────────────────────────────────────────────────
@@ -56,13 +56,44 @@ import {
     switchView, toggleSkillsView,
 } from './ui/nav.js';
 
-// ─── Phase 4 confirmation ─────────────────────────────────────────────────────
+// ─── Phase 7a: Reports view ───────────────────────────────────────────────────
+import {
+    initReports,
+    openDemoScoutingReport,
+    viewDemoSampleReport,
+} from './views/reports.js';
+
+// ─── Phase 7b: Settings view ──────────────────────────────────────────────────
+import {
+    initSettings, switchSettingsTab, renderSettingsTabContent,
+    renderProfileSettings, renderExperienceSettings, refreshExperienceContent,
+    renderJobPreferences, renderDataExport, renderPrivacyAndData,
+    addWorkHistoryItem, editWorkHistoryItem, removeWorkHistoryItem,
+    openWorkHistoryModal, addAchievementInput, saveWorkHistoryFromModal,
+    toggleWorkHistoryHidden, getVisibleWorkHistory, getVisibleRoles,
+    hideRoleFromNetwork, cleanOrphanRoles,
+    addEducationItem, editEducationItem, removeEducationItem,
+    openEducationModal, edSwitchType, edAddNewCred,
+    edRenderLinkedCredTags, edRemoveLinkedCred, saveEducationFromModal,
+    addCertItem, editCertItem, removeCertItem, openCertModal,
+    onCertLibrarySearch, selectCertFromLibrary,
+    addCertLinkedSkill, removeCertLinkedSkill, saveCertFromModal,
+    showCertSkillNotification, editDevStats, saveDevStats,
+    disableBulkActionsInSampleMode, renderSkillsList,
+    exportFullProfile, importFullProfile,
+} from './views/settings.js';
+
+// ─── Phase 7b confirmation ────────────────────────────────────────────────────
 console.log('%c   BLUEPRINT™ MODULE BUILD   ', 'color:#60a5fa;font-weight:bold;font-size:14px;');
-console.log('%c   ' + BP_VERSION + ' — Phase 4  ', 'color:#a78bfa;font-weight:bold;font-size:12px;');
-console.log('%c   Nav + routing live         ', 'color:#10b981;font-size:11px;');
+console.log('%c   ' + BP_VERSION + ' — Phase 7b  ', 'color:#a78bfa;font-weight:bold;font-size:12px;');
+console.log('%c   Reports + Settings views live  ', 'color:#10b981;font-size:11px;');
 
 // ─── Pending phases ───────────────────────────────────────────────────────────
-// Phase 5: admin/index.js
-// Phase 6: features (wb-wizard, scouting, resume, cover-letter)
-// Phase 7: views (welcome, network, jobs, blueprint, settings)
+// Phase 5: admin/index.js         (delivered, needs re-upload)
+// Phase 6: features/ai-generators.js (delivered, needs re-upload)
+// Phase 7c: views/network.js
+// Phase 7d: views/applications.js
+// Phase 7e: views/welcome.js
+// Phase 7f: views/jobs.js
+// Phase 7g: views/blueprint.js
 // Phase 8: remove legacy.js, wire full init()
