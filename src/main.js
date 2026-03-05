@@ -1,6 +1,6 @@
 /**
  * src/main.js — Blueprint™ App Entry Point
- * Phase 7b: Views/reports + Views/settings live.
+ * Phase 7c: Network view live.
  */
 
 // ─── Phase 1: Core utilities ──────────────────────────────────────────────────
@@ -66,7 +66,7 @@ import {
 // ─── Phase 7b: Settings view ──────────────────────────────────────────────────
 import {
     initSettings, switchSettingsTab, renderSettingsTabContent,
-    renderProfileSettings, renderExperienceSettings, refreshExperienceContent,
+    renderProfileSettings, renderExperienceSettings,
     renderJobPreferences, renderDataExport, renderPrivacyAndData,
     addWorkHistoryItem, editWorkHistoryItem, removeWorkHistoryItem,
     openWorkHistoryModal, addAchievementInput, saveWorkHistoryFromModal,
@@ -83,17 +83,30 @@ import {
     exportFullProfile, importFullProfile,
 } from './views/settings.js';
 
-// ─── Phase 7b confirmation ────────────────────────────────────────────────────
+// ─── Phase 7c: Network view ───────────────────────────────────────────────────
+import {
+    toggleJobSelector, renderJobSelectorWidget,
+    networkLabelLines, toggleNetworkLabels,
+    initNetwork, activateJobOverlay, activateValuesOverlay, clearJobOverlay,
+    updateMatchOverlayUI, setNetworkMatchMode,
+    initJobNetwork, initMatchNetwork,
+    makeTileDraggable, addJobInfoTile, addMatchLegend,
+    initValuesNetwork, addValuesAlignmentPanel,
+    toggleValuesPanel, closeValuesPanel, initPanelDrag,
+    findJobIdx, initCardView,
+} from './views/network.js';
+
+// ─── Build banner ─────────────────────────────────────────────────────────────
 console.log('%c   BLUEPRINT™ MODULE BUILD   ', 'color:#60a5fa;font-weight:bold;font-size:14px;');
-console.log('%c   ' + BP_VERSION + ' — Phase 7b  ', 'color:#a78bfa;font-weight:bold;font-size:12px;');
-console.log('%c   Reports + Settings views live  ', 'color:#10b981;font-size:11px;');
+console.log('%c   ' + BP_VERSION + ' — Phase 7c  ', 'color:#a78bfa;font-weight:bold;font-size:12px;');
+console.log('%c   Network view live  ', 'color:#10b981;font-size:11px;');
 
 // ─── Pending phases ───────────────────────────────────────────────────────────
-// Phase 5: admin/index.js         (delivered, needs re-upload)
-// Phase 6: features/ai-generators.js (delivered, needs re-upload)
-// Phase 7c: views/network.js
-// Phase 7d: views/applications.js
-// Phase 7e: views/welcome.js
-// Phase 7f: views/jobs.js
-// Phase 7g: views/blueprint.js
-// Phase 8: remove legacy.js, wire full init()
+// Phase 5: admin/index.js
+// Phase 6: features/ai-generators.js
+// Phase 7d: views/applications.js  (L42894–L46372, 3,478 lines)
+// Phase 7e: views/welcome.js       (L15032–L22481, 7,449 lines)
+// Phase 7f: views/jobs.js          (L34230–L40719, 6,489 lines)
+// Phase 7g: views/blueprint.js     (L26795–L34230, 7,435 lines)
+// Phase 7h: ui/nav-shared.js       (L24948–L26794, 1,846 lines — switchView, updateStatsBar etc.)
+// Phase 8:  remove legacy.js, wire full init()
