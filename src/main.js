@@ -1,6 +1,6 @@
 /**
  * src/main.js — Blueprint™ App Entry Point
- * Phase 3: Core + UI + Firebase + Analytics + Engine modules live.
+ * Phase 4: Core + UI + Firebase + Analytics + Engine + Nav modules live.
  */
 
 // ─── Phase 1: Core utilities ──────────────────────────────────────────────────
@@ -46,13 +46,22 @@ import {
     getEscoCategorySiblings,
 } from './engine/skill-library.js';
 
-// ─── Phase 3 confirmation ─────────────────────────────────────────────────────
+// ─── Phase 4: Navigation ──────────────────────────────────────────────────────
+import {
+    initTheme, updateProfileChip, toggleFilterPanel,
+    saveAll, saveUserData,
+    checkReadOnly, readOnlyGuard, detectAppMode,
+    demoGate, gatedPromptHTML,
+    enterDemoMode, exitDemoMode, toggleDemoMode, switchDemoProfile, updateDemoToggleUI,
+    switchView, toggleSkillsView,
+} from './ui/nav.js';
+
+// ─── Phase 4 confirmation ─────────────────────────────────────────────────────
 console.log('%c   BLUEPRINT™ MODULE BUILD   ', 'color:#60a5fa;font-weight:bold;font-size:14px;');
-console.log('%c   ' + BP_VERSION + ' — Phase 3  ', 'color:#a78bfa;font-weight:bold;font-size:12px;');
-console.log('%c   Engine layer live          ', 'color:#10b981;font-size:11px;');
+console.log('%c   ' + BP_VERSION + ' — Phase 4  ', 'color:#a78bfa;font-weight:bold;font-size:12px;');
+console.log('%c   Nav + routing live         ', 'color:#10b981;font-size:11px;');
 
 // ─── Pending phases ───────────────────────────────────────────────────────────
-// Phase 4: ui/nav.js — switchView, routing, keyboard shortcuts
 // Phase 5: admin/index.js
 // Phase 6: features (wb-wizard, scouting, resume, cover-letter)
 // Phase 7: views (welcome, network, jobs, blueprint, settings)
