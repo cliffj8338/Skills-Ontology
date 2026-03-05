@@ -116,10 +116,45 @@ import {
     handleAddSkillsSearch, addSkillFromLibrary,
 } from './views/applications.js';
 
+// ─── Phase 7e: Welcome view ───────────────────────────────────────────────────
+import {
+        renderWelcomePage, initHeroNetwork, viewSampleProfile, selectShowCollection,
+    showWelcomeView, calculateSkillValue, calculateTotalMarketValue, showBlsCategoryEditor,
+    saveBlsCategoryOverride, clearBlsCategoryOverride, setValuationMode, formatCompValue,
+    getEffectiveComp, loadEvidenceConfig, saveEvidenceConfig, scoreOutcome,
+    calculateEvidencePoints, getEffectiveLevel, getEffectiveLevelFromPoints, hasLinkedCertification,
+    getHighestCertTier, getSkillVerifications, getValuationLevel, getEvidenceSummary,
+    requestVerification, sendVerificationRequest, confirmVerification, declineVerification,
+    getVerificationStats, expireStalePendingVerifications, getCredibilityLabel, checkVerificationLandingPage,
+    checkShowcaseMode, showVerifierLandingPage, fetchVerificationData, renderVerifierForm,
+    submitVerifierResponse, addOutcomeToSkill, editSkillOutcome, removeOutcome,
+    showOutcomeForm, updateOutcomeScorePreview, saveOutcomeForm, cancelOutcomeForm,
+    getCertSkillAssociations, getFallbackSkillMatches, getCertFloorLevel, buildProfileSelector,
+    switchProfile, recategorizeLightcastSkills, buildEscoCategoryIndex, saveAdminSkillBlocklist,
+    saveAdminApprovedSkills, adminApproveSkill, adminBlockFromAudit, adminBlockSkill,
+    adminUnblockSkill, showAdminBlocklistInContext, renderAdminBlocklistPanel, adminBlockSkillFromInput,
+    getCategoryColor, isSkillAlreadyAdded, showSkillCapTriage, updateTriageCount,
+    confirmSkillCapTriage, getSampleJobsForProfile, loadTemplate, _loadCrosswalkDeferred,
+    showOnboardingWizard, closeWizard, renderWizardStep, wizardNext,
+    wizardBack, confirmExitWizard, wizardHeading, wizardBtn,
+    openMergeComparisonModal, mergeToggleAll, applyMergeSelections, renderWizardStep1,
+    wizardOverwriteGuard, wizardQuickExport, wizardChooseUpload, wizardChooseLinkedIn,
+    wizardChooseManual, wizardChooseImport, wizardImportProfile, renderWizardStep2,
+    wizardSetResumeTab, wizardHandleResumeDrop, wizardHandleResumeFile, wizardProcessResumeFile,
+    wizardClearResumeFile, wizardCheckResumeReady, wizardSkipParsing, renderWizardStep2LinkedIn,
+    wizardHandleLinkedInDrop, wizardHandleLinkedInFile, renderWizardStep3, renderWizardStep4,
+    wizardField, wizardSaveProfile, renderWizardStep5, wizardSaveEnrichment,
+    renderWizardStep6, wizardSaveSkills, renderWizardStep7, wizardToggleValue,
+    wizardEditValueDesc, wizardAddCustomValue, wizardSaveValues, renderWizardStep8,
+    wizardSavePurpose, renderWizardStep9, wizardApplyContentOpts, wizardBuildUserData,
+    wizardSaveAndGo, wizardDownloadBackup, wizardLaunchOnly, wizardApplyAndLaunch,
+    normalizeUserRoles, initializeMainApp,
+} from './views/welcome.js';
+
 // ─── Build banner ─────────────────────────────────────────────────────────────
 console.log('%c   BLUEPRINT™ MODULE BUILD   ', 'color:#60a5fa;font-weight:bold;font-size:14px;');
 console.log('%c   ' + BP_VERSION + ' — Phase 7c  ', 'color:#a78bfa;font-weight:bold;font-size:12px;');
-console.log('%c   Applications view live  ', 'color:#10b981;font-size:11px;');
+console.log('%c   Welcome view live  ', 'color:#10b981;font-size:11px;');
 
 // ─── Pending phases ───────────────────────────────────────────────────────────
 // Phase 5: admin/index.js
