@@ -7,12 +7,12 @@ import { showToast }  from '../ui/toast.js';
 
 export function initReports() {
     var el = document.getElementById('reportsView');
-    if (!window.userData || !window.userData.initialized) {
+    if (!window._userData || !window._userData.initialized) {
         if (el) el.innerHTML = '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';
         var _tries = 0;
         var _poll = setInterval(function() {
             _tries++;
-            if (window.userData && window.userData.initialized) { clearInterval(_poll); initReports(); }
+            if (window._userData && window._userData.initialized) { clearInterval(_poll); initReports(); }
             else if (_tries > 25) { clearInterval(_poll); }
         }, 200);
         return;

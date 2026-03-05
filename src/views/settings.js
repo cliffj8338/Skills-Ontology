@@ -89,8 +89,8 @@ export function renderProfileSettings() {
             <button onclick="showAuthModal('signin')" style="padding:12px 28px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.95em;">Sign In</button>
         </div>`;
     }
-    if (!window.userData || !window.userData.initialized) {
-        setTimeout(function() { if (window.userData && window.userData.initialized) window.initSettings(); }, 300);
+    if (!window._userData || !window._userData.initialized) {
+        setTimeout(function() { if (window._userData && window._userData.initialized) window.initSettings(); }, 300);
         return '<div style="text-align:center; padding:40px; color:var(--text-muted);">Loading profile data...</div>';
     }
     return `
@@ -666,14 +666,14 @@ export function toggleWorkHistoryHidden(idx) {
 }
 // Returns only non-hidden work history items — use for matching, exports, network, scouting
 export function getVisibleWorkHistory() {
-    if (!window.userData) return [];
-    return (window.userData.workHistory || []).filter(function(job) { return !job.hidden; });
+    if (!window._userData) return [];
+    return (window._userData.workHistory || []).filter(function(job) { return !job.hidden; });
 }
 // Returns roles whose corresponding workHistory position is not hidden
 // Orphan roles (no matching workHistory entry at all) are excluded
 export function getVisibleRoles() {
-    if (!window.userData || !window.skillsData) return [];
-    var wh = window.userData.workHistory || [];
+    if (!window._userData || !window.skillsData) return [];
+    var wh = window._userData.workHistory || [];
     // No work history → show all roles (nothing to hide)
     if (wh.length === 0) return (skillsData.roles || []).slice();
     var visibleTitles = new Set();
@@ -1603,7 +1603,7 @@ export function showCertSkillNotification(cert, added, bumped, floorLevel) {
 }
 // Expose experience functions to global scope
 export function renderJobPreferences() {
-    if (!window.userData || !window.userData.initialized) return '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';
+    if (!window._userData || !window._userData.initialized) return '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';
     return `
         <div class="blueprint-section">
             <div class="blueprint-section-header">
@@ -1715,7 +1715,7 @@ export function renderDataExport() {
 
 // ===== PRIVACY & DATA (v4.20.0, absorbed from Consent + Data Export) =====
 export function renderPrivacyAndData() {
-    if (!window.userData || !window.userData.initialized) return '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';
+    if (!window._userData || !window._userData.initialized) return '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';
     var tc = 'var(--c-heading)';
     var hc = 'var(--c-accent-deep)';
     var sc = 'var(--c-muted)';
