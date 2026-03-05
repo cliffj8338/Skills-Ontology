@@ -238,6 +238,15 @@ export function toggleNetworkLabels(type) {
     }
 }
 export function initNetwork() {
+    if (!window._userData || !window._userData.initialized) {
+        var _tries = 0;
+        var _poll = setInterval(function() {
+            _tries++;
+            if (window._userData && window._userData.initialized) { clearInterval(_poll); initNetwork(); }
+            else if (_tries > 25) { clearInterval(_poll); }
+        }, 200);
+        return;
+    }
     // Empty state: no skills and signed in (not viewing a sample)
     var hasSkills = _sd().skills && _sd().skills.length > 0;
     var hasRoles = _sd().roles && _sd().roles.length > 0;
