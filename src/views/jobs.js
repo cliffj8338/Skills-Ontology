@@ -5456,7 +5456,7 @@ export function renderOpportunities() {
     resultsDiv.innerHTML = html;
 }
 
-var JOBS_PROXY_URL = '/api/jobs';
+var JOBS_PROXY_URL = '/api/job-search';
 var JOBS_PROXY_AVAILABLE = null;
 var jobsDbCount = parseInt(safeGet('bpJobsDbCount') || '0');
 var jobsSourceCounts = safeParse(safeGet('bpJobsSourceCounts'), {});
@@ -5901,7 +5901,7 @@ export function searchDirect(keyword, category, resultsDiv) {
                 + (isCors
                     ? '<p style="font-size:1.05em; color:var(--text-primary); margin-bottom:8px;">Job APIs blocked by CORS</p>'
                       + '<p style="color:var(--text-muted); font-size:0.88em; line-height:1.6; max-width:480px; margin:0 auto 20px;">'
-                      + 'Deploy the /api/jobs proxy to unlock all 7 sources including JSearch, USAJobs, and Adzuna.</p>'
+                      + 'Deploy the /api/job-search proxy to unlock all 7 sources including JSearch, USAJobs, and Adzuna.</p>'
                     : '<p style="font-size:1.05em; color:var(--text-primary); margin-bottom:8px;">No matching jobs found</p>'
                       + '<p style="color:var(--text-muted); font-size:0.88em;">Try different keywords or lower the match threshold.</p>')
                 + '</div>';
