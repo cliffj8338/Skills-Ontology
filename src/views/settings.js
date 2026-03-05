@@ -108,7 +108,9 @@ window.renderSettingsTabContent = renderSettingsTabContent;
 // ─── renderProfileSettings ────────────────────────────────────────────────────
 
 export function renderProfileSettings() {
-    if (!window.fbUser || window.appContext.mode === 'demo' || window.isReadOnlyProfile) {
+    // Guard: appContext may not be ready; check carefully
+    const isDemo = window.appContext && window.appContext.mode === 'demo';
+    if (!window.fbUser || isDemo || window.isReadOnlyProfile) {
         return `<div style="text-align:center; padding:60px 20px;">
             <div style="margin-bottom:16px; opacity:0.4;">${bpIcon('profile',48)}</div>
             <div style="font-size:1.1em; font-weight:600; color:var(--text-primary); margin-bottom:8px;">Sign in to edit your profile</div>
@@ -119,6 +121,11 @@ export function renderProfileSettings() {
     }
     const ud = window.userData;
     if (!ud || !ud.profile) {
+        setTimeout(function() {
+            if (window.userData && window.userData.profile) {
+                window.initSettings();
+            }
+        }, 400);
         return '<div style="text-align:center; padding:40px; color:var(--text-muted);">Loading profile data...</div>';
     }
     return `
@@ -1156,6 +1163,7 @@ window.showCertSkillNotification = showCertSkillNotification;
 
 export function renderJobPreferences() {
     const ud = window.userData;
+    if (!ud || !ud.preferences) return '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';
     return `
         <div class="blueprint-section">
             <div class="blueprint-section-header">
@@ -1236,6 +1244,7 @@ window.renderDataExport = renderDataExport;
 // ─── renderPrivacyAndData ─────────────────────────────────────────────────────
 
 export function renderPrivacyAndData() {
+    if (!window.userData) return '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';
     var tc = 'var(--c-heading)'; var hc = 'var(--c-accent-deep)'; var sc = 'var(--c-muted)'; var bgCard = 'var(--c-surface-1)';
     var html = '';
 

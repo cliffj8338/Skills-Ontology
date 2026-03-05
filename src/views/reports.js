@@ -23,6 +23,16 @@ import { showToast }  from '../ui/toast.js';
 
 export function initReports() {
     var el = document.getElementById('reportsView');
+    if (!window.userData) {
+        if (el) el.innerHTML = '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';
+        var tries = 0;
+        var poll = setInterval(function() {
+            tries++;
+            if (window.userData) { clearInterval(poll); initReports(); }
+            else if (tries > 20) { clearInterval(poll); }
+        }, 200);
+        return;
+    }
     var demoProfiles = [
         { name: 'Tyrion Lannister', show: 'Game of Thrones', role: 'Chief of Staff', company: 'United Nations', match: 75, file: 'reports/demos/tyrion-lannister.html', emoji: '🍷', date: 'Feb 22, 2026' },
         { name: 'Walter White', show: 'Breaking Bad', role: 'Chief Science Officer', company: 'Gray Matter Technologies', match: 82, file: 'reports/demos/walter-white.html', emoji: '⚗️', date: 'Feb 22, 2026' },
