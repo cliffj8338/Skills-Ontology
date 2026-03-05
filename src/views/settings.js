@@ -46,6 +46,16 @@ import { searchCertLibrary }                   from '../engine/certifications.js
 
 export function initSettings() {
     const view = document.getElementById('settingsView');
+    if (!window.userData || !window.userData.profile) {
+        if (view) view.innerHTML = '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';
+        var tries = 0;
+        var poll = setInterval(function() {
+            tries++;
+            if (window.userData && window.userData.profile) { clearInterval(poll); initSettings(); }
+            else if (tries > 25) { clearInterval(poll); }
+        }, 200);
+        return;
+    }
     if (!window.currentSettingsTab) {
         window.currentSettingsTab = 'profile';
     }
@@ -121,11 +131,6 @@ export function renderProfileSettings() {
     }
     const ud = window.userData;
     if (!ud || !ud.profile) {
-        setTimeout(function() {
-            if (window.userData && window.userData.profile) {
-                window.initSettings();
-            }
-        }, 400);
         return '<div style="text-align:center; padding:40px; color:var(--text-muted);">Loading profile data...</div>';
     }
     return `
@@ -1163,8 +1168,7 @@ window.showCertSkillNotification = showCertSkillNotification;
 
 export function renderJobPreferences() {
     const ud = window.userData;
-    if (!ud || !ud.preferences) return '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';
-    return `
+    if (!ud || !ud.preferences) return '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';    return `
         <div class="blueprint-section">
             <div class="blueprint-section-header">
                 <div class="blueprint-section-title">
@@ -1244,7 +1248,7 @@ window.renderDataExport = renderDataExport;
 // ─── renderPrivacyAndData ─────────────────────────────────────────────────────
 
 export function renderPrivacyAndData() {
-    if (!window.userData) return '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';
+    if (!window.userData || !window.userData.profile) return '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';
     var tc = 'var(--c-heading)'; var hc = 'var(--c-accent-deep)'; var sc = 'var(--c-muted)'; var bgCard = 'var(--c-surface-1)';
     var html = '';
 

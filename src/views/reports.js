@@ -23,13 +23,13 @@ import { showToast }  from '../ui/toast.js';
 
 export function initReports() {
     var el = document.getElementById('reportsView');
-    if (!window.userData) {
+    if (!window.userData || !window.userData.profile) {
         if (el) el.innerHTML = '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';
         var tries = 0;
         var poll = setInterval(function() {
             tries++;
-            if (window.userData) { clearInterval(poll); initReports(); }
-            else if (tries > 20) { clearInterval(poll); }
+            if (window.userData && window.userData.profile) { clearInterval(poll); initReports(); }
+            else if (tries > 25) { clearInterval(poll); }
         }, 200);
         return;
     }
