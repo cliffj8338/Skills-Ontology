@@ -191,10 +191,15 @@ import {
     generateLinkedInProfile, buildTemplateLinkedIn, showLinkedInResult, copyLinkedIn,
 } from './views/blueprint.js';
 
+// ─── Phase 7h: Nav shared ─────────────────────────────────────────────────────
+import {
+    updateStatsBar, toggleLabelPill, applyLabelToggles, renderFilterChips, showTooltip, hideTooltip, dragstarted, dragged, dragended, gatherBlueprintData, extractMetric, createBlueprintHTML, downloadBlueprint, estimateSkillYears, openRelatedSkill, openSkillModalFromCard, gatherResumeData, buildResumeHTML,
+} from './ui/nav-shared.js';
+
 // ─── Build banner ─────────────────────────────────────────────────────────────
 console.log('%c   BLUEPRINT™ MODULE BUILD   ', 'color:#60a5fa;font-weight:bold;font-size:14px;');
 console.log('%c   ' + BP_VERSION + ' — Phase 7c  ', 'color:#a78bfa;font-weight:bold;font-size:12px;');
-console.log('%c   Blueprint view live  ', 'color:#10b981;font-size:11px;');
+console.log('%c   Phase 7 complete  ', 'color:#10b981;font-size:11px;');
 
 // ─── Pending phases ───────────────────────────────────────────────────────────
 // Phase 5: admin/index.js
