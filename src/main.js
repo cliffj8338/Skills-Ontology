@@ -1,85 +1,49 @@
 /**
- * src/main.js
- * Blueprint™ — App Entry Point
- *
- * Orchestrates module initialization in dependency order.
- * Replaces the monolith's inline IIFE.
- *
- * Migration status: SCAFFOLD ONLY
- * During Phase 0, this file proves the build pipeline works.
- * Modules are populated phase by phase per BLUEPRINT_REARCHITECTURE.md
- *
- * Init order (matches phase plan):
- *   1. Core utilities  (constants, security, utils)
- *   2. UI primitives   (icons, toast, theme)
- *   3. Firebase + auth
- *   4. Analytics
- *   5. Engines         (skill-library, bls, crosswalk, values, evidence, verification, match, job-analysis)
- *   6. Nav + routing   (switchView)
- *   7. Views           (welcome, network, jobs, blueprint, reports, settings, user-data)
- *   8. Features        (wb-wizard, wb-compare, scouting, resume, cover-letter, interview-prep, skills-mgmt, applications)
- *   9. Admin           (index, overview, users, costs, roadmap, architecture)
- *  10. Tour            (last — depends on everything else)
+ * src/main.js — Blueprint™ App Entry Point
+ * Phase 1: Core + UI leaf modules wired in.
+ * legacy.js still runs the full app — these modules run alongside it,
+ * exporting to window.* for compatibility during migration.
  */
 
 // ─── Phase 1: Core utilities ──────────────────────────────────────────────────
-// import { BP_VERSION } from './core/constants.js';
-// import { escapeHtml, safeGet, safeSet, safeRemove, safeParse } from './core/security.js';
-// import { formatDate, setupKeyboardShortcuts } from './core/utils.js';
+import {
+    BP_VERSION, BP_BUILD,
+    JOB_SCHEMA_VERSION, JOB_SKILLS_CAP,
+    PROFILE_SKILL_CAP, WB_SKILL_CAP, SKILL_CAP_WARN,
+    INCIDENT_MAX, AI_PROXY_URL,
+    AI_INPUT_COST_PER_M, AI_OUTPUT_COST_PER_M,
+    AI_FEATURES, API_FEATURES, API_HEALTH_SERVICES,
+    WB_INDUSTRIES, WB_TRAVEL_OPTIONS, WB_SCHEDULE_OPTIONS, WB_EMPLOYMENT_TYPES,
+    devStats,
+    logIncident, resolveIncidents, clearIncidentLog,
+    getIncidentLog, saveIncidentLog,
+    getApiHealth, saveApiHealth, recordApiHealth, getServiceStatus,
+    getAIUsageLog, saveAIUsageLog, trackAICall,
+    getAPIUsageLog, saveAPIUsageLog, trackAPICall, getMonthlyAPIUsage,
+} from './core/constants.js';
+
+import {
+    safeGet, safeSet, safeRemove,
+    safeParse,
+    escapeHtml, decodeHtmlEntities, safeSetAvatar,
+    sanitizeUrl, sanitizeImport,
+    debouncedSave,
+} from './core/security.js';
 
 // ─── Phase 1: UI primitives ───────────────────────────────────────────────────
-// import { bpIcon, hydrateIcons } from './ui/icons.js';
-// import { showToast } from './ui/toast.js';
-// import { initTheme } from './ui/theme.js';
+import { bpIcon, getRoleIconSvg, hydrateIcons } from './ui/icons.js';
+import { showToast, dismissToast }               from './ui/toast.js';
 
-// ─── Phase 2: Firebase + auth ─────────────────────────────────────────────────
-// import { initFirebase, fbDb, fbUser, authReady } from './core/firebase.js';
-// import { initAnalytics, bpTracker } from './core/analytics.js';
+// ─── Phase 1 confirmation ─────────────────────────────────────────────────────
+console.log('%c   BLUEPRINT™ MODULE BUILD   ', 'color:#60a5fa;font-weight:bold;font-size:14px;');
+console.log('%c   ' + BP_VERSION + ' — Phase 1  ', 'color:#a78bfa;font-weight:bold;font-size:12px;');
+console.log('%c   Core + UI modules live     ', 'color:#10b981;font-size:11px;');
 
-// ─── Phase 3: Engines ─────────────────────────────────────────────────────────
-// import { loadSkillLibrary } from './engine/skill-library.js';
-// import { loadBLSWages } from './engine/bls.js';
-// import { loadCrosswalk } from './engine/crosswalk.js';
-// import { loadCompanyValues } from './engine/values.js';
-// import { calculateMatch } from './engine/match.js';
-
-// ─── Phase 4: Nav ─────────────────────────────────────────────────────────────
-// import { initNav, switchView } from './ui/nav.js';
-
-// ─── Phase 5: Admin ───────────────────────────────────────────────────────────
-// import { initAdminView } from './admin/index.js';
-
-// ─── Phase 6: Features ────────────────────────────────────────────────────────
-// import { initWBWizard } from './features/wb-wizard.js';
-// import { initWBCompare } from './features/wb-compare.js';
-// import { initScouting } from './features/scouting.js';
-
-// ─── Phase 7: Views ───────────────────────────────────────────────────────────
-// import { initWelcome } from './views/welcome.js';
-// import { initNetwork } from './views/network.js';
-// import { initJobs } from './views/jobs.js';
-// import { initUserData } from './views/user-data.js';
-
-// ─── Phase 8: Tour ────────────────────────────────────────────────────────────
-// import { initTour } from './features/tour.js';
-
-// ─── SCAFFOLD INIT ────────────────────────────────────────────────────────────
-// During Phase 0, we just confirm the build pipeline is alive.
-// The monolith index.html still runs the real app.
-
-console.log('%c   BLUEPRINT™ MODULE BUILD   ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-console.log('%c   Phase 0 — Scaffold        ', 'color: #a78bfa; font-weight: bold; font-size: 12px;');
-console.log('%c   Build pipeline confirmed  ', 'color: #10b981; font-size: 11px;');
-
-// TODO: Replace with real init sequence as phases complete
-// async function init() {
-//   initTheme();
-//   bpIcon; // warm up icon system
-//   await initFirebase();
-//   initAnalytics();
-//   await Promise.all([loadSkillLibrary(), loadBLSWages(), loadCrosswalk()]);
-//   initNav();
-//   initWelcome();
-//   initTour();
-// }
-// init();
+// ─── Pending phases (uncomment as phases complete) ────────────────────────────
+// Phase 2: import { initFirebase } from './core/firebase.js';
+// Phase 3: import { loadSkillLibrary } from './engine/skill-library.js'; ...
+// Phase 4: import { initNav, switchView } from './ui/nav.js';
+// Phase 5: import { initAdminView } from './admin/index.js';
+// Phase 6: import { initWBWizard } from './features/wb-wizard.js'; ...
+// Phase 7: import { initWelcome } from './views/welcome.js'; ...
+// Phase 8: remove legacy.js, wire full init()
