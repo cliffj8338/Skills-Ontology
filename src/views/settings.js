@@ -70,7 +70,7 @@ export function initSettings() {
             </div>
         </div>
     `;
-    if (window.userData.profile && window.userData.profile.photo) {
+    if (window.userData && window.userData.profile && window.userData.profile.photo) {
         safeSetAvatar(document.getElementById('settingPhotoPreview'), window.userData.profile.photo, false);
     }
 }
@@ -82,7 +82,7 @@ export function switchSettingsTab(tab) {
     window.currentSettingsTab = tab;
     var stc = document.getElementById('settingsTabContent');
     if (stc) stc.innerHTML = renderSettingsTabContent();
-    if (tab === 'profile' && window.userData.profile && window.userData.profile.photo) {
+    if (tab === 'profile' && window.userData && window.userData.profile && window.userData.profile.photo) {
         safeSetAvatar(document.getElementById('settingPhotoPreview'), window.userData.profile.photo, false);
     }
     document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
@@ -118,6 +118,9 @@ export function renderProfileSettings() {
         </div>`;
     }
     const ud = window.userData;
+    if (!ud || !ud.profile) {
+        return '<div style="text-align:center; padding:40px; color:var(--text-muted);">Loading profile data...</div>';
+    }
     return `
         <div class="blueprint-section">
             <div class="blueprint-section-header">
