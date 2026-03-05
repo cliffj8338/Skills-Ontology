@@ -5,6 +5,21 @@ import { bpIcon }    from '../ui/icons.js';
 import { escapeHtml } from '../core/security.js';
 import { showToast }  from '../ui/toast.js';
 
+// ─── Data accessors ───────────────────────────────────────────────────────────
+function _bd() {
+    if (window._blueprintData) return window._blueprintData;
+    var ud = window._userData;
+    return {
+        values:          (ud && ud.values)          || [],
+        outcomes:        (ud && ud.outcomes)         || [],
+        purpose:         (ud && ud.purpose)          || '',
+        skills:          (ud && ud.skills)           || [],
+        certifications:  (ud && ud.certifications)   || [],
+        education:       (ud && ud.education)        || []
+    };
+}
+
+
 export function initReports() {
     var el = document.getElementById('reportsView');
     console.log('[BP DEBUG] initReports called. _userData:', window._userData, 'initialized:', window._userData && window._userData.initialized);
@@ -172,17 +187,17 @@ export function initReports() {
     
     // ── Profile Completeness ────────────────────────────
     var completeness = { skills: 0, outcomes: 0, values: 0, purpose: 0, workHistory: 0, credentials: 0 };
-    var allSkills = (window.blueprintData && window._blueprintData.skills) || [];
+    var allSkills = (_bd().skills) || [];
     var visibleRoles = (typeof getVisibleRoles === 'function') ? getVisibleRoles() : [];
     completeness.skills = allSkills.length >= 5 ? 100 : allSkills.length > 0 ? 50 : 0;
     completeness.workHistory = visibleRoles.length > 0 ? 100 : 0;
-    if (window.blueprintData) {
-        completeness.outcomes = (window._blueprintData.outcomes || []).filter(function(o) { return o.shared; }).length > 0 ? 100 : 0;
-        completeness.values = (window._blueprintData.values || []).filter(function(v) { return v.selected; }).length > 0 ? 100 : 0;
-        completeness.purpose = window._blueprintData.purpose ? 100 : 0;
+    if (_bd().skills || _bd().values) {
+        completeness.outcomes = (_bd().outcomes || []).filter(function(o) { return o.shared; }).length > 0 ? 100 : 0;
+        completeness.values = (_bd().values || []).filter(function(v) { return v.selected; }).length > 0 ? 100 : 0;
+        completeness.purpose = _bd().purpose ? 100 : 0;
     }
-    var userCerts = (window.blueprintData && window._blueprintData.certifications) || [];
-    var userEdu = (window.blueprintData && window._blueprintData.education) || [];
+    var userCerts = (_bd().certifications) || [];
+    var userEdu = (_bd().education) || [];
     completeness.credentials = (userCerts.length > 0 || userEdu.length > 0) ? 100 : 0;
     var compKeys = Object.keys(completeness);
     var totalPct = Math.round(compKeys.reduce(function(sum, k) { return sum + completeness[k]; }, 0) / compKeys.length);
