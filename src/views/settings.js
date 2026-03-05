@@ -4,7 +4,6 @@
 import { bpIcon }        from '../ui/icons.js';
 import { escapeHtml, safeSetAvatar, sanitizeImport } from '../core/security.js';
 import { showToast }     from '../ui/toast.js';
-import { searchCertLibrary } from '../engine/certifications.js';
 
 // ===== SETTINGS SYSTEM =====
 
@@ -52,8 +51,8 @@ export function initSettings() {
         </div>
     `;
     // Post-render: set profile photo via DOM API (avoids innerHTML img src issues)
-    if (userData.profile && userData.profile.photo) {
-        safeSetAvatar(document.getElementById('settingPhotoPreview'), userData.profile.photo, false);
+    if (window._userData.profile && window._userData.profile.photo) {
+        safeSetAvatar(document.getElementById('settingPhotoPreview'), window._userData.profile.photo, false);
     }
 }
 
@@ -62,8 +61,8 @@ export function switchSettingsTab(tab) {
     var stc = document.getElementById('settingsTabContent');
     if (stc) stc.innerHTML = renderSettingsTabContent();
     // Post-render: set profile photo via DOM API
-    if (tab === 'profile' && userData.profile && userData.profile.photo) {
-        safeSetAvatar(document.getElementById('settingPhotoPreview'), userData.profile.photo, false);
+    if (tab === 'profile' && window._userData.profile && window._userData.profile.photo) {
+        safeSetAvatar(document.getElementById('settingPhotoPreview'), window._userData.profile.photo, false);
     }
     
     // Update tab styling
@@ -116,7 +115,7 @@ export function renderProfileSettings() {
             <div class="settings-group">
                 <label class="settings-label">Your Name</label>
                 <input type="text" class="settings-input" id="settingName" 
-                       value="${userData.profile.name || ''}" 
+                       value="${window._userData.profile.name || ''}" 
                        placeholder="Enter your name">
                 <div class="settings-help">This appears in the header and exports</div>
             </div>
@@ -128,15 +127,15 @@ export function renderProfileSettings() {
                          style="width:64px; height:64px; border-radius:50%; background:var(--accent); color:#fff; 
                                 display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.2em;
                                 cursor:pointer; overflow:hidden; border:2px solid var(--border); flex-shrink:0;
-                                ${userData.profile.photo ? 'padding:0' : ''}">
-                        ${(userData.profile.name || 'U').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase()}
+                                ${window._userData.profile.photo ? 'padding:0' : ''}">
+                        ${(window._userData.profile.name || 'U').split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase()}
                     </div>
                     <div>
                         <button onclick="document.getElementById('settingPhotoInput').click()" 
                                 style="background:var(--accent-glow); border:1px solid var(--border); color:var(--text-primary); padding:6px 14px; border-radius:6px; cursor:pointer; font-size:0.85em;">
                             Upload Photo
                         </button>
-                        ${userData.profile.photo ? '<button onclick="removeProfilePhoto()" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:0.82em; margin-left:8px;">Remove</button>' : ''}
+                        ${window._userData.profile.photo ? '<button onclick="removeProfilePhoto()" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:0.82em; margin-left:8px;">Remove</button>' : ''}
                         <input type="file" id="settingPhotoInput" accept="image/*" onchange="handleProfilePhoto(this)" style="display:none;">
                         <div class="settings-help" style="margin-top:4px;">Max 200KB, resized to 128px</div>
                     </div>
@@ -146,7 +145,7 @@ export function renderProfileSettings() {
             <div class="settings-group">
                 <label class="settings-label">Email (Optional)</label>
                 <input type="email" class="settings-input" id="settingEmail" 
-                       value="${userData.profile.email || ''}" 
+                       value="${window._userData.profile.email || ''}" 
                        placeholder="your.email@example.com">
                 <div class="settings-help">For export contact information</div>
             </div>
@@ -154,7 +153,7 @@ export function renderProfileSettings() {
             <div class="settings-group">
                 <label class="settings-label">Phone (Optional)</label>
                 <input type="tel" class="settings-input" id="settingPhone" 
-                       value="${userData.profile.phone || ''}" 
+                       value="${window._userData.profile.phone || ''}" 
                        placeholder="(555) 123-4567">
                 <div class="settings-help">Included in resume exports</div>
             </div>
@@ -162,7 +161,7 @@ export function renderProfileSettings() {
             <div class="settings-group">
                 <label class="settings-label">LinkedIn URL (Optional)</label>
                 <input type="url" class="settings-input" id="settingLinkedIn" 
-                       value="${userData.profile.linkedinUrl || ''}" 
+                       value="${window._userData.profile.linkedinUrl || ''}" 
                        placeholder="https://linkedin.com/in/yourname">
                 <div class="settings-help">Included in resume and executive blueprint exports</div>
             </div>
@@ -170,7 +169,7 @@ export function renderProfileSettings() {
             <div class="settings-group">
                 <label class="settings-label">Location (for market valuation)</label>
                 <select class="settings-select" id="settingLocation">
-                    <option value="Philadelphia, PA" ${userData.profile.location === 'Philadelphia, PA' ? 'selected' : ''}>Philadelphia, PA</option>
+                    <option value="Philadelphia, PA" ${window._userData.profile.location === 'Philadelphia, PA' ? 'selected' : ''}>Philadelphia, PA</option>
                     <option value="San Francisco Bay Area, CA">San Francisco Bay Area, CA</option>
                     <option value="New York City, NY">New York City, NY</option>
                     <option value="Seattle, WA">Seattle, WA</option>
@@ -206,7 +205,7 @@ export function renderProfileSettings() {
                 <div style="position:relative;">
                     <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-weight:600;">$</span>
                     <input type="text" class="settings-input" id="settingComp" 
-                           value="${userData.profile.reportedComp ? Math.round(userData.profile.reportedComp).toLocaleString() : ''}" 
+                           value="${window._userData.profile.reportedComp ? Math.round(window._userData.profile.reportedComp).toLocaleString() : ''}" 
                            placeholder="e.g. 350,000"
                            style="padding-left:24px;"
                            oninput="this.value = this.value.replace(/[^0-9,]/g, '')">
@@ -234,14 +233,14 @@ function refreshExperienceContent() {
 }
 
 export function renderExperienceSettings() {
-    var whItems = userData.workHistory || [];
-    var edItems = userData.education || [];
-    var certItems = userData.certifications || [];
+    var whItems = window._userData.workHistory || [];
+    var edItems = window._userData.education || [];
+    var certItems = window._userData.certifications || [];
     
     var html = '';
     
     // ── LinkedIn Merge Import ──
-    var lastMerge = (userData.importStats || {}).lastMerge;
+    var lastMerge = (window._userData.importStats || {}).lastMerge;
     var lastMergeStr = lastMerge ? new Date(lastMerge).toLocaleDateString() : null;
     
     html += '<div style="padding:16px; margin-bottom:20px; background:linear-gradient(135deg, rgba(10,102,194,0.06), rgba(10,102,194,0.02)); '
@@ -504,7 +503,7 @@ export function renderExperienceSettings() {
                 
                 // Linked credentials
                 + (hasLinkedCreds ? '<div style="margin-top:6px;">' + ed.linkedCredentials.map(function(ci) {
-                    var cert = userData.certifications[ci];
+                    var cert = window._userData.certifications[ci];
                     if (!cert) return '';
                     return '<span style="font-size:0.72em; padding:2px 8px; border-radius:8px; background:var(--c-accent-bg-5a); color:var(--c-accent-deep); font-weight:600;">'
                         + '\uD83D\uDD17 ' + escapeHtml(cert.name + (cert.abbr ? ' (' + cert.abbr + ')' : '')) + '</span> ';
@@ -608,19 +607,19 @@ export function editWorkHistoryItem(idx) {
 export function removeWorkHistoryItem(idx) {
     if (readOnlyGuard()) return;
     if (!confirm('Remove this position?')) return;
-    var removedJob = userData.workHistory[idx];
-    userData.workHistory.splice(idx, 1);
+    var removedJob = window._userData.workHistory[idx];
+    window._userData.workHistory.splice(idx, 1);
     // Clean up orphaned role if no other position matches it
     if (removedJob) {
         var removedTitle = (removedJob.title || '').toLowerCase().trim();
-        var stillExists = userData.workHistory.some(function(j) {
+        var stillExists = window._userData.workHistory.some(function(j) {
             return (j.title || '').toLowerCase().trim() === removedTitle;
         });
         if (!stillExists && removedTitle) {
-            // Remove from skillsData.roles and userData.roles, track removed IDs
+            // Remove from skillsData.roles and window._userData.roles, track removed IDs
             var removedRoleIds = new Set();
             removedRoleIds.add(removedTitle);
-            [skillsData.roles, userData.roles].forEach(function(rolesArr) {
+            [skillsData.roles, window._userData.roles].forEach(function(rolesArr) {
                 if (!Array.isArray(rolesArr)) return;
                 for (var ri = rolesArr.length - 1; ri >= 0; ri--) {
                     var rn = (rolesArr[ri].name || '').toLowerCase().trim();
@@ -652,7 +651,7 @@ export function removeWorkHistoryItem(idx) {
 
 export function toggleWorkHistoryHidden(idx) {
     if (readOnlyGuard()) return;
-    var job = (userData.workHistory || [])[idx];
+    var job = (window._userData.workHistory || [])[idx];
     if (!job) return;
     job.hidden = !job.hidden;
     saveAll();
@@ -720,7 +719,7 @@ export function hideRoleFromNetwork(roleName) {
     
     var found = false;
     // Exact match first
-    (userData.workHistory || []).forEach(function(job) {
+    (window._userData.workHistory || []).forEach(function(job) {
         var titleLower = (job.title || '').toLowerCase().trim();
         if (!job.hidden && matchNames.has(titleLower)) {
             job.hidden = true;
@@ -729,7 +728,7 @@ export function hideRoleFromNetwork(roleName) {
     });
     // Fuzzy fallback: partial/substring match
     if (!found) {
-        (userData.workHistory || []).forEach(function(job) {
+        (window._userData.workHistory || []).forEach(function(job) {
             if (found || job.hidden) return;
             var titleLower = (job.title || '').toLowerCase().trim();
             matchNames.forEach(function(mn) {
@@ -761,9 +760,9 @@ export function hideRoleFromNetwork(roleName) {
             var orphanId = orphanRole.id;
             var orphanName = orphanRole.name;
             skillsData.roles.splice(orphanIdx, 1);
-            // Also remove from userData.roles if present
-            if (userData.roles) {
-                userData.roles = userData.roles.filter(function(r) {
+            // Also remove from window._userData.roles if present
+            if (window._userData.roles) {
+                window._userData.roles = window._userData.roles.filter(function(r) {
                     return (r.name || '').toLowerCase().trim() !== (orphanName || '').toLowerCase().trim()
                         && (r.id || '').toLowerCase().trim() !== (orphanId || '').toLowerCase().trim();
                 });
@@ -792,7 +791,7 @@ export function hideRoleFromNetwork(roleName) {
 export function cleanOrphanRoles() {
     if (readOnlyGuard()) return;
     var whTitles = new Set();
-    (userData.workHistory || []).forEach(function(j) { whTitles.add((j.title || '').toLowerCase().trim()); });
+    (window._userData.workHistory || []).forEach(function(j) { whTitles.add((j.title || '').toLowerCase().trim()); });
     var orphans = [];
     (skillsData.roles || []).forEach(function(r) {
         var rn = (r.name || '').toLowerCase().trim();
@@ -808,9 +807,9 @@ export function cleanOrphanRoles() {
         var oname = orphan.name;
         // Remove from skillsData.roles
         skillsData.roles = (skillsData.roles || []).filter(function(r) { return r !== orphan; });
-        // Remove from userData.roles
-        if (userData.roles) {
-            userData.roles = userData.roles.filter(function(r) {
+        // Remove from window._userData.roles
+        if (window._userData.roles) {
+            window._userData.roles = window._userData.roles.filter(function(r) {
                 return (r.name || '').toLowerCase().trim() !== (oname || '').toLowerCase().trim()
                     && (r.id || '').toLowerCase().trim() !== (oid || '').toLowerCase().trim();
             });
@@ -895,7 +894,7 @@ export function saveDevStats() {
     if (adminEl && adminSubTab === 'overview') renderAdminOverview(adminEl);
 }
 export function openWorkHistoryModal(idx) {
-    var job = idx >= 0 ? userData.workHistory[idx] : { title:'', company:'', location:'', startDate:'', endDate:'', current:false, description:'', achievements:[] };
+    var job = idx >= 0 ? window._userData.workHistory[idx] : { title:'', company:'', location:'', startDate:'', endDate:'', current:false, description:'', achievements:[] };
     var isEdit = idx >= 0;
     var modal = document.getElementById('exportModal');
     var mc = modal.querySelector('.modal-content');
@@ -983,7 +982,7 @@ export function saveWorkHistoryFromModal(idx) {
     });
     
     var entry = {
-        id: idx >= 0 ? (userData.workHistory[idx].id || 'wh-' + Date.now()) : 'wh-' + Date.now(),
+        id: idx >= 0 ? (window._userData.workHistory[idx].id || 'wh-' + Date.now()) : 'wh-' + Date.now(),
         title: title,
         company: company,
         location: document.getElementById('whLocation').value.trim(),
@@ -995,9 +994,9 @@ export function saveWorkHistoryFromModal(idx) {
     };
     
     if (idx >= 0) {
-        userData.workHistory[idx] = entry;
+        window._userData.workHistory[idx] = entry;
     } else {
-        userData.workHistory.unshift(entry); // newest first
+        window._userData.workHistory.unshift(entry); // newest first
     }
     
     closeExportModal();
@@ -1018,13 +1017,13 @@ export function editEducationItem(idx) {
 export function removeEducationItem(idx) {
     if (readOnlyGuard()) return;
     if (!confirm('Remove this education entry?')) return;
-    userData.education.splice(idx, 1);
+    window._userData.education.splice(idx, 1);
     saveAll();
     refreshExperienceContent();
 }
 
 export function openEducationModal(idx) {
-    var ed = idx >= 0 ? userData.education[idx] : { school:'', degree:'', field:'', year:'', type:'degree', startYear:'', endYear:'', description:'', issuingAuthority:'', linkedCredentials:[], currentlyEnrolled:false };
+    var ed = idx >= 0 ? window._userData.education[idx] : { school:'', degree:'', field:'', year:'', type:'degree', startYear:'', endYear:'', description:'', issuingAuthority:'', linkedCredentials:[], currentlyEnrolled:false };
     var isEdit = idx >= 0;
     var modal = document.getElementById('exportModal');
     var mc = modal.querySelector('.modal-content');
@@ -1059,7 +1058,7 @@ export function openEducationModal(idx) {
     
     // Build credential link options from existing certifications
     var certOptions = '<option value="">— None —</option>';
-    (userData.certifications || []).forEach(function(c, ci) {
+    (window._userData.certifications || []).forEach(function(c, ci) {
         var name = c.name + (c.abbr ? ' (' + c.abbr + ')' : '');
         var isLinked = (ed.linkedCredentials || []).indexOf(ci) >= 0 || (ed.linkedCredentials || []).indexOf(c.name) >= 0;
         certOptions += '<option value="' + ci + '"' + (isLinked ? ' selected' : '') + '>' + escapeHtml(name) + '</option>';
@@ -1192,7 +1191,7 @@ export function edRenderLinkedCredTags() {
     var creds = window._edLinkedCreds || [];
     if (creds.length === 0) { container.innerHTML = ''; return; }
     container.innerHTML = creds.map(function(ci, i) {
-        var cert = userData.certifications[ci];
+        var cert = window._userData.certifications[ci];
         var name = cert ? (cert.name + (cert.abbr ? ' (' + cert.abbr + ')' : '')) : 'Credential #' + ci;
         return '<span style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; background:var(--c-accent-bg-5a); '
             + 'color:var(--c-accent-deep); border-radius:12px; font-size:0.78em; font-weight:600;">'
@@ -1219,7 +1218,7 @@ export function saveEducationFromModal(idx) {
     var cfg = (window._edTypeConfigs || {})[edType] || {};
     
     var entry = {
-        id: idx >= 0 ? (userData.education[idx].id || 'ed-' + Date.now()) : 'ed-' + Date.now(),
+        id: idx >= 0 ? (window._userData.education[idx].id || 'ed-' + Date.now()) : 'ed-' + Date.now(),
         type: edType,
         school: (document.getElementById('edSchool')?.value || '').trim(),
         degree: (document.getElementById('edDegree')?.value || '').trim(),
@@ -1235,8 +1234,8 @@ export function saveEducationFromModal(idx) {
     };
     if (!entry.school && !entry.degree) { showToast('Add at least an institution or credential.', 'warning'); return; }
     
-    if (idx >= 0) { userData.education[idx] = entry; }
-    else { userData.education.push(entry); }
+    if (idx >= 0) { window._userData.education[idx] = entry; }
+    else { window._userData.education.push(entry); }
     
     closeExportModal();
     saveAll();
@@ -1256,13 +1255,13 @@ export function editCertItem(idx) {
 export function removeCertItem(idx) {
     if (readOnlyGuard()) return;
     if (!confirm('Remove this certification?')) return;
-    userData.certifications.splice(idx, 1);
+    window._userData.certifications.splice(idx, 1);
     saveAll();
     refreshExperienceContent();
 }
 
 export function openCertModal(idx) {
-    var cert = idx >= 0 ? userData.certifications[idx] : { name:'', abbr:'', issuer:'', year:'', type:'Certification', linkedSkills:[], tier:1, libraryMatch:null };
+    var cert = idx >= 0 ? window._userData.certifications[idx] : { name:'', abbr:'', issuer:'', year:'', type:'Certification', linkedSkills:[], tier:1, libraryMatch:null };
     var isEdit = idx >= 0;
     var modal = document.getElementById('exportModal');
     var mc = modal.querySelector('.modal-content');
@@ -1363,7 +1362,7 @@ export function onCertLibrarySearch() {
     var query = input.value.trim();
     if (query.length < 2) { results.style.display = 'none'; return; }
     
-    var matches = searchCertLibrary(query);
+    var matches = window.searchCertLibrary(query);
     if (matches.length === 0) {
         results.innerHTML = '<div style="padding:12px 16px; color:var(--c-faint); font-size:0.85em;">No matches. Enter the credential manually below.</div>';
         results.style.display = 'block';
@@ -1469,7 +1468,7 @@ export function saveCertFromModal(idx) {
     if (readOnlyGuard()) return;
     var libCert = window._selectedLibCert || null;
     var entry = {
-        id: idx >= 0 ? (userData.certifications[idx].id || 'cert-' + Date.now()) : 'cert-' + Date.now(),
+        id: idx >= 0 ? (window._userData.certifications[idx].id || 'cert-' + Date.now()) : 'cert-' + Date.now(),
         name: document.getElementById('certName').value.trim(),
         abbr: (document.getElementById('certAbbr') || {}).value ? document.getElementById('certAbbr').value.trim() : '',
         issuer: document.getElementById('certIssuer').value.trim(),
@@ -1481,8 +1480,8 @@ export function saveCertFromModal(idx) {
     };
     if (!entry.name) { showToast('Certification name is required.', 'warning'); return; }
     
-    if (idx >= 0) { userData.certifications[idx] = entry; }
-    else { userData.certifications.push(entry); }
+    if (idx >= 0) { window._userData.certifications[idx] = entry; }
+    else { window._userData.certifications.push(entry); }
     
     // Auto-add and bump skills from cert associations
     var certFloorLevel = entry.tier >= 2 ? 'Advanced' : 'Proficient';
@@ -1498,10 +1497,10 @@ export function saveCertFromModal(idx) {
     
     var added = [];
     var bumped = [];
-    var defaultRoles = (userData.roles || []).map(function(r) { return r.id; });
+    var defaultRoles = (window._userData.roles || []).map(function(r) { return r.id; });
     
     allLinkedSkills.forEach(function(skillName) {
-        var existing = userData.skills.find(function(s) { return s.name.toLowerCase() === skillName.toLowerCase(); });
+        var existing = window._userData.skills.find(function(s) { return s.name.toLowerCase() === skillName.toLowerCase(); });
         var existingSD = (skillsData.skills || []).find(function(s) { return s.name.toLowerCase() === skillName.toLowerCase(); });
         
         if (!existing) {
@@ -1515,7 +1514,7 @@ export function saveCertFromModal(idx) {
                 addedFrom: 'certification',
                 certSource: entry.name
             };
-            userData.skills.push(newSkill);
+            window._userData.skills.push(newSkill);
             skillsData.skills.push(newSkill);
             if (typeof registerInSkillLibrary === 'function') registerInSkillLibrary(skillName, 'unique');
             added.push(skillName);
@@ -1637,10 +1636,10 @@ export function renderJobPreferences() {
             <div class="settings-group">
                 <label class="settings-label">Seniority Level</label>
                 <select class="settings-select" id="settingSeniority">
-                    <option value="Entry" ${userData.preferences.seniorityLevel === 'Entry' ? 'selected' : ''}>Entry Level</option>
-                    <option value="Mid" ${userData.preferences.seniorityLevel === 'Mid' ? 'selected' : ''}>Mid Level</option>
-                    <option value="Senior" ${userData.preferences.seniorityLevel === 'Senior' ? 'selected' : ''}>Senior Level</option>
-                    <option value="Executive" ${userData.preferences.seniorityLevel === 'Executive' ? 'selected' : ''}>Executive Level</option>
+                    <option value="Entry" ${window._userData.preferences.seniorityLevel === 'Entry' ? 'selected' : ''}>Entry Level</option>
+                    <option value="Mid" ${window._userData.preferences.seniorityLevel === 'Mid' ? 'selected' : ''}>Mid Level</option>
+                    <option value="Senior" ${window._userData.preferences.seniorityLevel === 'Senior' ? 'selected' : ''}>Senior Level</option>
+                    <option value="Executive" ${window._userData.preferences.seniorityLevel === 'Executive' ? 'selected' : ''}>Executive Level</option>
                 </select>
                 <div class="settings-help">
                     <strong>Entry:</strong> Includes junior, associate roles<br>
@@ -1657,7 +1656,7 @@ export function renderJobPreferences() {
             <div class="settings-group">
                 <label class="settings-label">Minimum Salary (Optional)</label>
                 <input type="number" class="settings-input" id="settingMinSalary" 
-                       value="${userData.preferences.minSalary || ''}"
+                       value="${window._userData.preferences.minSalary || ''}"
                        placeholder="e.g., 150000">
                 <div class="settings-help">Leave blank for no minimum. Enter annual salary (USD).</div>
             </div>
@@ -1833,7 +1832,7 @@ export function renderPrivacyAndData() {
     html += '</div>';
     
     // --- Privacy Activity Log ---
-    var privLog = (userData.privacyLog || []).slice().reverse();
+    var privLog = (window._userData.privacyLog || []).slice().reverse();
     html += '<div class="blueprint-section">'
         + '<div class="blueprint-section-header">'
         + '<div class="blueprint-section-title">'
@@ -1978,7 +1977,7 @@ export function renderSkillsList() {
     const categoryFilter = document.getElementById('skillCategoryFilter')?.value || 'all';
     const searchQuery = document.getElementById('skillSearchInput')?.value.toLowerCase() || '';
     
-    let skills = userData.skills || [];
+    let skills = window._userData.skills || [];
     
     // Apply filters
     if (categoryFilter !== 'all') {
@@ -2026,7 +2025,7 @@ export function renderSkillsList() {
         
         categorySkills.forEach(skill => {
             const roleNames = skill.roles.map(roleId => {
-                const role = userData.roles.find(r => r.id === roleId);
+                const role = window._userData.roles.find(r => r.id === roleId);
                 return role ? role.name : roleId;
             }).join(', ');
             
@@ -2106,7 +2105,7 @@ export function exportFullProfile() {
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `blueprint-full-${userData.profile.name || 'profile'}-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `blueprint-full-${window._userData.profile.name || 'profile'}-${new Date().toISOString().split('T')[0]}.json`;
     link.click();
     URL.revokeObjectURL(url);
 }
