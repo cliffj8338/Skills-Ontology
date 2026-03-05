@@ -5,7 +5,9 @@
 // GET  /api/verify?token=X&uid=Y  → returns pending verification records
 // POST /api/verify                → submits verifier response
 
-import admin from 'firebase-admin';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const admin = require('firebase-admin');
 
 // Initialize Firebase Admin (reuse across invocations)
 if (!admin.apps.length) {

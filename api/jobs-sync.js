@@ -15,7 +15,9 @@
 //   - With A/B alternation: 18 queries/sync → 9 per group × 5 = 45/sync × 120 = 5,400/month ✓
 //   - Leaves ~4,600 requests/month headroom for live search
 
-import admin from 'firebase-admin';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const admin = require('firebase-admin');
 
 // Firebase Admin init (singleton)
 if (!admin.apps.length) {
