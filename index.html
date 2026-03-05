@@ -1,4 +1,4 @@
-<!-- v4.46.19 | 2026-03-04 | Comparison sharing via URL tokens (shared_comparisons collection) -->
+<!-- v4.46.20 | 2026-03-04 | Security/stability audit fixes: safeSet for API key, comp cache reset on sign-in, D3 sim stop on view change -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1710,8 +1710,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.19 - BUILD 20260304-comp-sharing
-        var BP_VERSION = 'v4.46.19';
+        // BLUEPRINT v4.46.20 - BUILD 20260304-audit-fixes
+        var BP_VERSION = 'v4.46.20';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -2336,7 +2336,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260304-comp-sharing                 ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260304-audit-fixes                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -2556,6 +2556,9 @@
                 fbUser = user;
                 if (user) {
                     console.log('🔐 Signed in:', user.email);
+                    // Reset comparison cache — ensures a new user gets their own data
+                    _wbCompCache = null;
+                    _wbCompCacheLoaded = false;
                     checkAdminRole(user.uid).then(function(isAdmin) {
                         fbIsAdmin = isAdmin;
                         if (typeof loadAdminSkillBlocklist === 'function') {
@@ -24950,6 +24953,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             currentView = view;
             window.scrollTo(0, 0);
+
+            // Stop the global D3 network simulation when leaving the map view
+            // Prevents the simulation running indefinitely on a hidden canvas
+            if (view !== 'network' && typeof simulation !== 'undefined' && simulation) {
+                try { simulation.stop(); } catch(e) {}
+            }
             
             // Announce view change to screen readers
             var viewNames = { network: 'Map', opportunities: 'Jobs', blueprint: 'Blueprint', reports: 'Reports', settings: 'Settings', consent: 'Settings', welcome: 'Home', admin: 'Admin' };
@@ -35415,7 +35424,7 @@ body {
             var apiKey = apiKeyEl ? (apiKeyEl.value || '').trim() : '';
             
             // Save API key for reuse
-            if (apiKey) localStorage.setItem('wbAnthropicKey', apiKey);
+            if (apiKey) safeSet('wbAnthropicKey', apiKey);
             
             // Determine if AI is available: signed-in proxy OR explicit API key
             var hasProxy = !!(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser);
