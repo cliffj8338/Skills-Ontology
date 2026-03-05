@@ -1,6 +1,6 @@
 /**
  * src/main.js — Blueprint™ App Entry Point
- * Phase 4: Core + UI + Firebase + Analytics + Engine + Nav modules live.
+ * Phase 7c: Network view live.
  */
 
 // ─── Phase 1: Core utilities ──────────────────────────────────────────────────
@@ -56,13 +56,77 @@ import {
     switchView, toggleSkillsView,
 } from './ui/nav.js';
 
-// ─── Phase 4 confirmation ─────────────────────────────────────────────────────
+// ─── Phase 7a: Reports view ───────────────────────────────────────────────────
+import {
+    initReports,
+    openDemoScoutingReport,
+    viewDemoSampleReport,
+} from './views/reports.js';
+
+// ─── Phase 7b: Settings view ──────────────────────────────────────────────────
+import {
+    initSettings, switchSettingsTab, renderSettingsTabContent,
+    renderProfileSettings, renderExperienceSettings,
+    renderJobPreferences, renderDataExport, renderPrivacyAndData,
+    addWorkHistoryItem, editWorkHistoryItem, removeWorkHistoryItem,
+    openWorkHistoryModal, addAchievementInput, saveWorkHistoryFromModal,
+    toggleWorkHistoryHidden, getVisibleWorkHistory, getVisibleRoles,
+    hideRoleFromNetwork, cleanOrphanRoles,
+    addEducationItem, editEducationItem, removeEducationItem,
+    openEducationModal, edSwitchType, edAddNewCred,
+    edRenderLinkedCredTags, edRemoveLinkedCred, saveEducationFromModal,
+    addCertItem, editCertItem, removeCertItem, openCertModal,
+    onCertLibrarySearch, selectCertFromLibrary,
+    addCertLinkedSkill, removeCertLinkedSkill, saveCertFromModal,
+    showCertSkillNotification, editDevStats, saveDevStats,
+    disableBulkActionsInSampleMode, renderSkillsList,
+    exportFullProfile, importFullProfile,
+} from './views/settings.js';
+
+// ─── Phase 7c: Network view ───────────────────────────────────────────────────
+import {
+    toggleJobSelector, renderJobSelectorWidget,
+    networkLabelLines, toggleNetworkLabels,
+    initNetwork, activateJobOverlay, activateValuesOverlay, clearJobOverlay,
+    updateMatchOverlayUI, setNetworkMatchMode,
+    initJobNetwork, initMatchNetwork,
+    makeTileDraggable, addJobInfoTile, addMatchLegend,
+    initValuesNetwork, addValuesAlignmentPanel,
+    toggleValuesPanel, closeValuesPanel, initPanelDrag,
+    findJobIdx, initCardView,
+} from './views/network.js';
+
+// ─── Phase 7d: Applications view ─────────────────────────────────────────────
+import {
+    initApplications, renderApplications, renderApplicationCard,
+    addApplicationModal, saveApplication, updateApplicationStatus,
+    editApplication, saveApplicationEdit, deleteApplication,
+    initConsent, renderSharePresets, renderPresetCard,
+    renderSharingStatus, renderLegalSection,
+    handleProfilePhoto, removeProfilePhoto, saveSettings, selectPreset,
+    filterSkillsView, showValuationBreakdown, renderInlineNegotiation, showNegotiationGuide,
+    getSkillImpact, getImpactLabel, getImpactIcon, getImpactColor,
+    closeONETPicker, renderONETLibrary, addSelectedONETSkills,
+    openBulkImport, closeBulkImport, executeBulkImport,
+    openBulkManager, closeBulkManager, bulkManagerSetLevel, bulkManagerRemove,
+    openEditSkillModal, closeEditSkillModal, openUnifiedSkillEditor, closeUnifiedSkillEditor,
+    saveSkillEdit, confirmDeleteSkill, deleteSkill,
+    openAssessSkillModal, closeAssessSkillModal, saveSkillAssessment,
+    refreshAllViews, renderYourSkills, filterYourSkills, removeSkillFromProfile,
+    handleAddSkillsSearch, addSkillFromLibrary,
+} from './views/applications.js';
+
+// ─── Build banner ─────────────────────────────────────────────────────────────
 console.log('%c   BLUEPRINT™ MODULE BUILD   ', 'color:#60a5fa;font-weight:bold;font-size:14px;');
-console.log('%c   ' + BP_VERSION + ' — Phase 4  ', 'color:#a78bfa;font-weight:bold;font-size:12px;');
-console.log('%c   Nav + routing live         ', 'color:#10b981;font-size:11px;');
+console.log('%c   ' + BP_VERSION + ' — Phase 7c  ', 'color:#a78bfa;font-weight:bold;font-size:12px;');
+console.log('%c   Applications view live  ', 'color:#10b981;font-size:11px;');
 
 // ─── Pending phases ───────────────────────────────────────────────────────────
 // Phase 5: admin/index.js
-// Phase 6: features (wb-wizard, scouting, resume, cover-letter)
-// Phase 7: views (welcome, network, jobs, blueprint, settings)
-// Phase 8: remove legacy.js, wire full init()
+// Phase 6: features/ai-generators.js
+// Phase 7d: views/applications.js  (L42894–L46372, 3,478 lines)
+// Phase 7e: views/welcome.js       (L15032–L22481, 7,449 lines)
+// Phase 7f: views/jobs.js          (L34230–L40719, 6,489 lines)
+// Phase 7g: views/blueprint.js     (L26795–L34230, 7,435 lines)
+// Phase 7h: ui/nav-shared.js       (L24948–L26794, 1,846 lines — switchView, updateStatsBar etc.)
+// Phase 8:  remove legacy.js, wire full init()
