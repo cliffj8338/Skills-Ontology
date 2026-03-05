@@ -1,4 +1,4 @@
-<!-- v4.46.17 | 2026-03-04 | O*NET alternate titles expansion: 53K aliases, 1,016 occupations | data library tiles updated -->
+<!-- v4.46.18 | 2026-03-04 | Firestore comparison persistence: cache, migration, offline fallback -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1710,8 +1710,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.17 - BUILD 20260304-onet-titles-expand
-        var BP_VERSION = 'v4.46.17';
+        // BLUEPRINT v4.46.18 - BUILD 20260304-fs-comparisons
+        var BP_VERSION = 'v4.46.18';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -2336,7 +2336,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260304-onet-titles-expand          ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260304-fs-comparisons               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -2751,6 +2751,9 @@
             fbAuth.signOut().then(function() {
                 fbUser = null;
                 fbIsAdmin = false;
+                // Reset comparison cache so next user gets fresh load
+                _wbCompCache = null;
+                _wbCompCacheLoaded = false;
                 
                 // SECURITY: Clear sensitive localStorage on sign-out
                 safeRemove('wbAnthropicKey');
@@ -5076,7 +5079,7 @@
                         { id: 'p2-6e', name: 'Firestore data pipeline fix (new field persistence)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.63: _buildFirestoreData() whitelist was silently dropping all LinkedIn-derived fields. Added linkedinContent, contentVisibility, companyTenures, importStats to save builder. Added endorsements count and endorsementBoosted flag to skill serializer. Added all four fields to Firestore load path. Without this fix, merge data would not survive page refresh.' },
                         { id: 'p2-6g', name: 'Wizard overwrite safety gate', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.63: wizardOverwriteGuard() intercepts all three fresh-start wizard paths (Upload Resume, LinkedIn Import, Start Fresh) when user has existing profile data. Shows warning screen with: profile inventory (skills, positions, education, certs, outcomes counts), Download Backup button (wizardQuickExport() exports full profile JSON including linkedinContent/companyTenures/contentVisibility), Update from LinkedIn redirect (merge flow instead of overwrite), Go Back button, and red "I understand, start fresh" confirmation. No data lost without explicit user consent. Import Saved Blueprint path is not gated (additive by nature).' },
                         { id: 'p2-6h', name: 'Position visibility (full ripple)', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.63: Hide/show toggles on every work history position. getVisibleRoles() filters roles by matching workHistory hidden flags. Wired to: network graph (role nodes + links), match network, card view, role filter chips, scouting reports (data + role groups), PDF exports (standalone + job), skills management, dashboard stats. Role info card has Hide Role button triggering network rebuild. toggleWorkHistoryHidden invalidates networkInitialized for lazy rebuild.' },
-                        { id: 'p2-6f', name: 'Work Blueprint function refinement', status: 'planned', category: 'feature', priority: 'high', notes: 'Ongoing improvements to WB ecosystem. Includes: Firestore-backed comparison persistence (replace localStorage), comparison sharing via URL tokens, batch comparison mode (multiple candidates against one WB), WB template library (common roles pre-built), WB diff view (compare two WBs side-by-side), improved gap recommendation engine with learning resource links, WB versioning/history, and WB-to-scouting-report pipeline integration.' },
+                        { id: 'p2-6f', name: 'Work Blueprint function refinement', status: 'in-progress', category: 'feature', priority: 'high', notes: 'v4.46.18: Firestore comparison persistence complete. Comparisons now stored at users/{uid}/comparisons/ with in-memory cache, optimistic UI, localStorage fallback for offline/unauthenticated, one-time migration of legacy localStorage comparisons, and cache reset on sign-out. Sanitizer trims matched/gap arrays to 150 to stay under Firestore 1MB limit. Synced badge in repo header. Remaining: comparison sharing via URL tokens, batch comparison mode, WB template library, WB diff view, WB versioning/history, WB-to-scouting-report pipeline.' },
                         { id: 'p2-6i', name: 'User Flows tracker', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.45.63: Admin → System → User Flows. 12 workflow categories mapped with step-by-step function chains: Onboarding, LinkedIn Merge, Skill Mgmt, Work History, Job Pipeline, Network Viz, Reports, Values/Outcomes, Content/Evidence, Settings, Education/Certs, Auth/Persistence. Clickable tiles open horizontal flow diagrams. Each step shows function name, description, downstream connections. Phase 2: export flows as PNG/PDF/mermaid.' },
                         { id: 'p2-6j', name: 'User Flows export (phase 2)', status: 'planned', category: 'feature', priority: 'low', notes: 'Export user flow diagrams as PNG, PDF, or Mermaid markdown. Add print stylesheet for flow diagrams. Consider SVG export for vector quality.' },
                         { id: 'p2-6k', name: 'Dev time comparison tile', status: 'done', category: 'feature', priority: 'low', notes: 'v4.45.65: Admin Overview tile comparing AI vibe-coding velocity vs traditional solo dev. Computes: speed multiplier, cost multiplier, LOC/hr efficiency. Stats grid shows lines of code, features shipped, deploys, AI sessions, hours, first commit date. Side-by-side comparison with progress bars for calendar time, work hours, work days, total cost. Editable stats modal with Firestore persistence. Traditional dev baseline: $175K/yr loaded, 100 LOC/day for complex SPA.' },
@@ -12485,18 +12488,85 @@
         }
         window._wbCompWizBack = _wbCompWizBack;
 
-        // ── Comparison Save/Load Infrastructure ──
-        function _wbCompGetSaved() {
-            return safeParse(safeGet('bpSavedComparisons'), []);
+        // ── Comparison Save/Load Infrastructure (Firestore-primary, localStorage fallback) ──
+
+        // In-memory cache so repo renders instantly after first load
+        var _wbCompCache = null;
+        var _wbCompCacheLoaded = false;
+
+        function _wbCompFSPath() {
+            return fbDb && fbUser ? fbDb.collection('users').doc(fbUser.uid).collection('comparisons') : null;
         }
-        function _wbCompSetSaved(arr) {
-            safeSet('bpSavedComparisons', JSON.stringify(arr));
+
+        // localStorage key kept for migration + offline fallback
+        var _wbCompLSKey = 'bpSavedComparisons';
+
+        function _wbCompGetLS() { return safeParse(safeGet(_wbCompLSKey), []); }
+
+        // Migrate any existing localStorage comparisons into Firestore (runs once)
+        function _wbCompMigrateLS() {
+            var col = _wbCompFSPath();
+            if (!col) return;
+            var legacy = _wbCompGetLS();
+            if (!legacy.length) return;
+            console.log('[Comparisons] Migrating ' + legacy.length + ' localStorage comparisons to Firestore...');
+            var batch = fbDb.batch();
+            legacy.forEach(function(entry) {
+                var safe = _wbCompSanitize(entry);
+                batch.set(col.doc(safe.id), safe);
+            });
+            batch.commit().then(function() {
+                safeRemove(_wbCompLSKey);
+                console.log('[Comparisons] Migration complete.');
+            }).catch(function(e) {
+                console.warn('[Comparisons] Migration failed:', e.message);
+            });
         }
-        
+
+        // Trim large arrays to keep docs under Firestore 1MB limit
+        function _wbCompSanitize(entry) {
+            var e = JSON.parse(JSON.stringify(entry));
+            if (e.structResult) {
+                if ((e.structResult.matched || []).length > 150) e.structResult.matched = e.structResult.matched.slice(0, 150);
+                if ((e.structResult.gaps || []).length > 150) e.structResult.gaps = e.structResult.gaps.slice(0, 150);
+            }
+            if (e.rawResult) {
+                if ((e.rawResult.matched || []).length > 150) e.rawResult.matched = e.rawResult.matched.slice(0, 150);
+                if ((e.rawResult.gaps || []).length > 150) e.rawResult.gaps = e.rawResult.gaps.slice(0, 150);
+            }
+            return e;
+        }
+
+        // Load all comparisons — returns Promise<array>
+        function _wbCompLoad() {
+            if (_wbCompCacheLoaded) return Promise.resolve(_wbCompCache || []);
+            var col = _wbCompFSPath();
+            if (!col) {
+                var ls = _wbCompGetLS();
+                _wbCompCache = ls;
+                _wbCompCacheLoaded = true;
+                return Promise.resolve(ls);
+            }
+            return col.orderBy('savedAt', 'desc').limit(50).get().then(function(snap) {
+                var arr = [];
+                snap.forEach(function(doc) { arr.push(doc.data()); });
+                _wbCompCache = arr;
+                _wbCompCacheLoaded = true;
+                // Migrate any legacy localStorage entries now that Firestore is confirmed working
+                _wbCompMigrateLS();
+                return arr;
+            }).catch(function(e) {
+                console.warn('[Comparisons] Firestore load failed, using localStorage:', e.message);
+                var ls = _wbCompGetLS();
+                _wbCompCache = ls;
+                _wbCompCacheLoaded = true;
+                return ls;
+            });
+        }
+
         function _wbCompSaveCurrent() {
             var d = _wbCompWizData;
             if (!d.wb || !d.rawResult || !d.structResult) { showToast('No comparison to save.', 'warning'); return; }
-            var saved = _wbCompGetSaved();
             var entry = {
                 id: 'comp-' + Date.now(),
                 savedAt: new Date().toISOString(),
@@ -12511,27 +12581,48 @@
                 gaps: (d.structResult.gaps || []).length,
                 valuesScore: d.structResult.valuesScore || 0,
                 profPct: d.structResult.profMeets > 0 ? Math.round(d.structResult.profMeets / (d.structResult.profMeets + (d.structResult.profGaps || 0)) * 100) : 0,
-                // Store full data for modal replay
                 wb: d.wb,
                 rawJD: d.rawJD,
                 rawResult: d.rawResult,
                 structResult: d.structResult,
                 candidate: d.candidate
             };
-            saved.unshift(entry);
-            if (saved.length > 50) saved = saved.slice(0, 50);
-            _wbCompSetSaved(saved);
-            showToast('Comparison saved!', 'success');
-            // Re-render to show updated repo
+            var safe = _wbCompSanitize(entry);
+            // Optimistic UI: update cache immediately
+            _wbCompCache = [safe].concat(_wbCompCache || []).slice(0, 50);
+            _wbCompCacheLoaded = true;
+            showToast('Saving comparison...', 'info', 2000);
+            var col = _wbCompFSPath();
+            var persist = col
+                ? col.doc(safe.id).set(safe).then(function() { showToast('Comparison saved!', 'success'); })
+                : Promise.resolve(function() {
+                    var ls = _wbCompGetLS();
+                    ls.unshift(safe);
+                    if (ls.length > 50) ls = ls.slice(0, 50);
+                    safeSet(_wbCompLSKey, JSON.stringify(ls));
+                    showToast('Comparison saved (offline).', 'success');
+                  }());
+            persist.catch(function(e) {
+                console.warn('[Comparisons] Save failed:', e.message);
+                showToast('Save failed — stored locally as fallback.', 'warning');
+                var ls = _wbCompGetLS(); ls.unshift(safe); if (ls.length > 50) ls = ls.slice(0,50);
+                safeSet(_wbCompLSKey, JSON.stringify(ls));
+            });
             var el = document.getElementById('wbCompRepoContainer');
             if (el) _wbCompRenderRepo(el);
         }
         window._wbCompSaveCurrent = _wbCompSaveCurrent;
 
         function _wbCompDeleteSaved(id) {
-            var saved = _wbCompGetSaved();
-            saved = saved.filter(function(s) { return s.id !== id; });
-            _wbCompSetSaved(saved);
+            // Remove from cache immediately
+            if (_wbCompCache) _wbCompCache = _wbCompCache.filter(function(s) { return s.id !== id; });
+            var col = _wbCompFSPath();
+            if (col) {
+                col.doc(id).delete().catch(function(e) { console.warn('[Comparisons] Delete failed:', e.message); });
+            } else {
+                var ls = _wbCompGetLS().filter(function(s) { return s.id !== id; });
+                safeSet(_wbCompLSKey, JSON.stringify(ls));
+            }
             showToast('Comparison removed.', 'info');
             var el = document.getElementById('wbCompRepoContainer');
             if (el) _wbCompRenderRepo(el);
@@ -12540,78 +12631,87 @@
         
         // ── Comparison Repository ──
         function _wbCompRenderRepo(container) {
-            var saved = _wbCompGetSaved();
-            if (saved.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--c-muted); font-size:0.85em;">'
-                    + bpIcon('archive', 24) + '<div style="margin-top:8px;">No saved comparisons yet. Run a comparison and click Save.</div></div>';
-                return;
+            if (!_wbCompCacheLoaded) {
+                container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--c-muted); font-size:0.85em;">'
+                    + bpIcon('loader', 20) + '<div style="margin-top:8px;">Loading saved comparisons...</div></div>';
             }
-            var html = '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:12px;">';
-            saved.forEach(function(s, idx) {
-                var date = new Date(s.savedAt);
-                var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-                var delta = s.wbScore - s.jdScore;
-                var deltaColor = delta > 0 ? '#10b981' : delta < 0 ? '#ef4444' : 'var(--c-muted)';
-                html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-3); border-radius:10px; padding:14px; cursor:pointer; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'#10b981\'" onmouseout="this.style.borderColor=\'var(--c-surface-3)\'" onclick="_wbCompOpenModal(\'' + s.id + '\')">'
-                    + '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">'
-                    + '<div>'
-                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:var(--c-heading);">' + escapeHtml(s.candidateName) + '</div>'
-                    + '<div style="font-size:0.75em; color:var(--c-muted);">' + escapeHtml(s.candidateTitle) + '</div>'
-                    + '</div>'
-                    + '<button onclick="event.stopPropagation(); _wbCompDeleteSaved(\'' + s.id + '\')" style="background:none; border:none; color:var(--c-muted); cursor:pointer; padding:4px;" title="Remove">' + bpIcon('x',14) + '</button>'
-                    + '</div>'
-                    + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:8px;">' + escapeHtml(s.blueprintTitle) + (s.company ? ' at ' + escapeHtml(s.company) : '') + '</div>'
-                    + '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:8px;">'
-                    + '<div style="text-align:center; padding:6px; background:var(--c-surface-3); border-radius:6px;">'
-                    + '<div style="font-size:1em; font-weight:700; color:#10b981;">' + s.wbScore + '%</div>'
-                    + '<div style="font-size:0.65em; color:var(--c-muted);">WB Score</div></div>'
-                    + '<div style="text-align:center; padding:6px; background:var(--c-surface-3); border-radius:6px;">'
-                    + '<div style="font-size:1em; font-weight:700; color:var(--c-muted);">' + s.jdScore + '%</div>'
-                    + '<div style="font-size:0.65em; color:var(--c-muted);">JD Score</div></div>'
-                    + '<div style="text-align:center; padding:6px; background:var(--c-surface-3); border-radius:6px;">'
-                    + '<div style="font-size:1em; font-weight:700; color:' + deltaColor + ';">' + (delta > 0 ? '+' : '') + delta + '</div>'
-                    + '<div style="font-size:0.65em; color:var(--c-muted);">Delta</div></div>'
-                    + '</div>'
-                    + '<div style="display:flex; justify-content:space-between; font-size:0.7em; color:var(--c-muted);">'
-                    + '<span>' + s.matched + '/' + s.total + ' skills \u00B7 ' + s.gaps + ' gaps \u00B7 ' + s.valuesScore + '% values</span>'
-                    + '<span>' + dateStr + '</span>'
-                    + '</div>'
+            _wbCompLoad().then(function(saved) {
+                if (saved.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--c-muted); font-size:0.85em;">'
+                        + bpIcon('archive', 24) + '<div style="margin-top:8px;">No saved comparisons yet. Run a comparison and click Save.</div></div>';
+                    return;
+                }
+                var syncBadge = fbUser ? '<span style="font-size:0.68em; color:#10b981; margin-left:8px; padding:2px 7px; background:rgba(16,185,129,0.1); border-radius:10px;">' + bpIcon('cloud',10) + ' Synced</span>' : '';
+                var html = '<div style="margin-bottom:10px; display:flex; align-items:center;">'
+                    + '<span style="font-size:0.75em; color:var(--c-muted);">' + saved.length + ' saved comparison' + (saved.length !== 1 ? 's' : '') + syncBadge + '</span>'
                     + '</div>';
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:12px;">';
+                saved.forEach(function(s) {
+                    var date = new Date(s.savedAt);
+                    var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                    var delta = s.wbScore - s.jdScore;
+                    var deltaColor = delta > 0 ? '#10b981' : delta < 0 ? '#ef4444' : 'var(--c-muted)';
+                    html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-3); border-radius:10px; padding:14px; cursor:pointer; transition:border-color 0.2s;" onmouseover="this.style.borderColor='#10b981'" onmouseout="this.style.borderColor='var(--c-surface-3)'" onclick="_wbCompOpenModal('' + s.id + '')">'
+                        + '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">'
+                        + '<div>'
+                        + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:var(--c-heading);">' + escapeHtml(s.candidateName) + '</div>'
+                        + '<div style="font-size:0.75em; color:var(--c-muted);">' + escapeHtml(s.candidateTitle) + '</div>'
+                        + '</div>'
+                        + '<button onclick="event.stopPropagation(); _wbCompDeleteSaved('' + s.id + '')" style="background:none; border:none; color:var(--c-muted); cursor:pointer; padding:4px;" title="Remove">' + bpIcon('x',14) + '</button>'
+                        + '</div>'
+                        + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:8px;">' + escapeHtml(s.blueprintTitle) + (s.company ? ' at ' + escapeHtml(s.company) : '') + '</div>'
+                        + '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:8px;">'
+                        + '<div style="text-align:center; padding:6px; background:var(--c-surface-3); border-radius:6px;">'
+                        + '<div style="font-size:1em; font-weight:700; color:#10b981;">' + s.wbScore + '%</div>'
+                        + '<div style="font-size:0.65em; color:var(--c-muted);">WB Score</div></div>'
+                        + '<div style="text-align:center; padding:6px; background:var(--c-surface-3); border-radius:6px;">'
+                        + '<div style="font-size:1em; font-weight:700; color:var(--c-muted);">' + s.jdScore + '%</div>'
+                        + '<div style="font-size:0.65em; color:var(--c-muted);">JD Score</div></div>'
+                        + '<div style="text-align:center; padding:6px; background:var(--c-surface-3); border-radius:6px;">'
+                        + '<div style="font-size:1em; font-weight:700; color:' + deltaColor + ';">' + (delta > 0 ? '+' : '') + delta + '</div>'
+                        + '<div style="font-size:0.65em; color:var(--c-muted);">Delta</div></div>'
+                        + '</div>'
+                        + '<div style="display:flex; justify-content:space-between; font-size:0.7em; color:var(--c-muted);">'
+                        + '<span>' + s.matched + '/' + s.total + ' skills \u00B7 ' + s.gaps + ' gaps \u00B7 ' + s.valuesScore + '% values</span>'
+                        + '<span>' + dateStr + '</span>'
+                        + '</div>'
+                        + '</div>';
+                });
+                html += '</div>';
+                container.innerHTML = html;
             });
-            html += '</div>';
-            container.innerHTML = html;
         }
 
         // ── Comparison Modal ──
         function _wbCompOpenModal(id) {
-            var saved = _wbCompGetSaved();
-            var entry = saved.find(function(s) { return s.id === id; });
-            if (!entry || !entry.wb || !entry.rawResult || !entry.structResult) {
-                showToast('Comparison data not available.', 'warning');
-                return;
-            }
-            // Remove any existing modal first
-            var existing = document.getElementById('wbCompModal');
-            if (existing) existing.remove();
-            
-            // Create fully opaque modal overlay
-            var overlay = document.createElement('div');
-            overlay.id = 'wbCompModal';
-            overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:99999; background:#0f172a; overflow-y:auto; padding:20px 20px 60px;';
-            
-            var closeBar = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:12px 16px; background:rgba(30,41,59,0.95); border-radius:10px; border:1px solid rgba(51,65,85,0.5); position:sticky; top:0; z-index:100; backdrop-filter:blur(8px);">'
-                + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:#f1f5f9;">'
-                + bpIcon('trending-up', 16) + ' Saved Comparison \u2014 ' + escapeHtml(entry.candidateName) + '</div>'
-                + '<div style="display:flex; gap:8px;">'
-                + '<button onclick="_wbCompExportPDFFromSaved(\'' + id + '\')" style="padding:8px 16px; background:rgba(51,65,85,0.8); color:#e2e8f0; border:1px solid rgba(71,85,105,0.5); border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:500;">' + bpIcon('file-text',12) + ' Export PDF</button>'
-                + '<button onclick="_wbCompCloseModal()" style="padding:8px 16px; background:#ef4444; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600;">' + bpIcon('x',12) + ' Close</button>'
-                + '</div></div>';
-            
-            var content = _wbRenderComparison(entry.wb, entry.rawResult, entry.structResult, entry.candidate);
-            overlay.innerHTML = '<div style="max-width:960px; margin:0 auto;">' + closeBar + content + '</div>';
-            
-            document.body.appendChild(overlay);
-            document.body.style.overflow = 'hidden';
+            var fromCache = (_wbCompCache || []).find(function(s) { return s.id === id; });
+            var lookup = fromCache
+                ? Promise.resolve(fromCache)
+                : (_wbCompFSPath()
+                    ? _wbCompFSPath().doc(id).get().then(function(d) { return d.exists ? d.data() : null; })
+                    : Promise.resolve(null));
+            lookup.then(function(entry) {
+                if (!entry || !entry.wb || !entry.rawResult || !entry.structResult) {
+                    showToast('Comparison data not available.', 'warning');
+                    return;
+                }
+                var existing = document.getElementById('wbCompModal');
+                if (existing) existing.remove();
+                var overlay = document.createElement('div');
+                overlay.id = 'wbCompModal';
+                overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:99999; background:#0f172a; overflow-y:auto; padding:20px 20px 60px;';
+                var closeBar = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:12px 16px; background:rgba(30,41,59,0.95); border-radius:10px; border:1px solid rgba(51,65,85,0.5); position:sticky; top:0; z-index:100; backdrop-filter:blur(8px);">'
+                    + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:#f1f5f9;">'
+                    + bpIcon('trending-up', 16) + ' Saved Comparison \u2014 ' + escapeHtml(entry.candidateName) + '</div>'
+                    + '<div style="display:flex; gap:8px;">'
+                    + '<button onclick="_wbCompExportPDFFromSaved('' + id + '')" style="padding:8px 16px; background:rgba(51,65,85,0.8); color:#e2e8f0; border:1px solid rgba(71,85,105,0.5); border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:500;">' + bpIcon('file-text',12) + ' Export PDF</button>'
+                    + '<button onclick="_wbCompCloseModal()" style="padding:8px 16px; background:#ef4444; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600;">' + bpIcon('x',12) + ' Close</button>'
+                    + '</div></div>';
+                var content = _wbRenderComparison(entry.wb, entry.rawResult, entry.structResult, entry.candidate);
+                overlay.innerHTML = '<div style="max-width:960px; margin:0 auto;">' + closeBar + content + '</div>';
+                document.body.appendChild(overlay);
+                document.body.style.overflow = 'hidden';
+            });
         }
         window._wbCompOpenModal = _wbCompOpenModal;
         
@@ -12640,11 +12740,17 @@
         window._wbCompExportPDF = _wbCompExportPDF;
         
         function _wbCompExportPDFFromSaved(id) {
-            var saved = _wbCompGetSaved();
-            var entry = saved.find(function(s) { return s.id === id; });
-            if (!entry) { showToast('Comparison not found.', 'warning'); return; }
-            _wbCompPDFThemeChoice(function(theme) {
-                _wbCompBuildPDF(entry.wb, entry.rawResult, entry.structResult, entry.candidate, theme);
+            var fromCache = (_wbCompCache || []).find(function(s) { return s.id === id; });
+            var lookup = fromCache
+                ? Promise.resolve(fromCache)
+                : (_wbCompFSPath()
+                    ? _wbCompFSPath().doc(id).get().then(function(d) { return d.exists ? d.data() : null; })
+                    : Promise.resolve(null));
+            lookup.then(function(entry) {
+                if (!entry) { showToast('Comparison not found.', 'warning'); return; }
+                _wbCompPDFThemeChoice(function(theme) {
+                    _wbCompBuildPDF(entry.wb, entry.rawResult, entry.structResult, entry.candidate, theme);
+                });
             });
         }
         window._wbCompExportPDFFromSaved = _wbCompExportPDFFromSaved;
