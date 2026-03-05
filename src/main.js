@@ -167,10 +167,34 @@ import {
     searchDirect, quickScoreJob,
 } from './views/jobs.js';
 
+// ─── Phase 7g: Blueprint view ─────────────────────────────────────────────────
+import {
+    initBlueprint, extractOutcomesFromEvidence, categorizeOutcome, isSensitiveContent, generateCoachingFor,
+    inferCompanyValuesFromJD, _persistCompanyValues, getCompanyValues, computeValuesAlignment, saveValues,
+    loadSavedValues, getEvidenceForValue, getKeywordsForValue, scoreValueByEvidence, getCatalogDescription,
+    editValueNote, saveValueNote, inferValues, renderBlueprint, switchBlueprintTab,
+    renderBlueprintTabContent, renderDashboardTab, renderSkillsManagementTab, renderExperienceTab, renderOutcomesSection,
+    renderOutcomeItem, renderValuesSection, renderSelectedValues, renderValuesPicker, _countContentItems,
+    _getContentVis, toggleContentVis, contentToggleAllSection, _toggleSwitch, _contentCard,
+    _sectionHeader, renderContentEvidenceTab, renderExportSection, renderVerificationsTab, verifyTabRequestNew,
+    verifyTabRevoke, verifyTabClearExpired, verifyTabResend, toggleOutcomeShare, deleteBlueprintOutcome,
+    editOutcome, saveOutcomeEdit, viewOutcomeEvidence, addCustomOutcome, fillOutcomeTemplate,
+    saveCustomOutcome, toggleValue, refreshValuesUI, updateValuesBadge, toggleValuesPicker,
+    pickValue, removeSelectedValue, showAddCustomValueForm, showAddValueForm, hideAddValueForm,
+    addCustomValue, moveValue, updatePurpose, getBlindDefaults, setBlindDefault,
+    getActiveBlindSettings, hasAnyBlinding, hasOverrides, applyBlindSettings, logPrivacyEvent,
+    showScoutingReportPicker, launchScoutingReport, showReportFormatPicker, generateHTMLScoutingReport, buildReportData,
+    showReportOverlay, shareScoutingReport, openSampleScoutingReport, generateScoutingReport, generateScoutingReportPDF,
+    exportBlueprint, generatePDF, copyBlueprintText, generateCoverLetter, buildCoverLetter,
+    buildTemplateCoverLetter, showCoverLetterResult, copyCoverLetter, downloadCoverLetter, generateInterviewPrep,
+    buildInterviewPrep, buildTemplateInterviewPrep, showInterviewPrepResult, copyInterviewPrep, downloadInterviewPrep,
+    generateLinkedInProfile, buildTemplateLinkedIn, showLinkedInResult, copyLinkedIn,
+} from './views/blueprint.js';
+
 // ─── Build banner ─────────────────────────────────────────────────────────────
 console.log('%c   BLUEPRINT™ MODULE BUILD   ', 'color:#60a5fa;font-weight:bold;font-size:14px;');
 console.log('%c   ' + BP_VERSION + ' — Phase 7c  ', 'color:#a78bfa;font-weight:bold;font-size:12px;');
-console.log('%c   Jobs view live  ', 'color:#10b981;font-size:11px;');
+console.log('%c   Blueprint view live  ', 'color:#10b981;font-size:11px;');
 
 // ─── Pending phases ───────────────────────────────────────────────────────────
 // Phase 5: admin/index.js
