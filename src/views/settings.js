@@ -219,6 +219,7 @@ window.refreshExperienceContent = refreshExperienceContent;
 // ─── renderExperienceSettings ─────────────────────────────────────────────────
 
 export function renderExperienceSettings() {
+    if (!window.userData) return '<div style="padding:24px; color:var(--c-muted);">Loading...</div>';
     var ud = window.userData;
     var whItems = ud.workHistory || [];
     var edItems = ud.education || [];
@@ -512,11 +513,13 @@ export function toggleWorkHistoryHidden(idx) {
 window.toggleWorkHistoryHidden = toggleWorkHistoryHidden;
 
 export function getVisibleWorkHistory() {
+    if (!window.userData) return [];
     return (window.userData.workHistory || []).filter(function(job) { return !job.hidden; });
 }
 window.getVisibleWorkHistory = getVisibleWorkHistory;
 
 export function getVisibleRoles() {
+    if (!window.userData || !window.skillsData) return [];
     var wh = window.userData.workHistory || [];
     var sd = window.skillsData;
     if (wh.length === 0) return (sd.roles || []).slice();
