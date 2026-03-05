@@ -309,7 +309,7 @@ async function fetchMuse(query, category) {
 }
 
 // === MAIN HANDLER ===
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   const origin = req.headers.origin || '';
   const headers = corsHeaders(origin);
 
@@ -392,4 +392,4 @@ module.exports = async function handler(req, res) {
 };
 
 // Vercel serverless config — extend timeout to 30s (Pro plan supports up to 60s)
-module.exports.config = { maxDuration: 30 };
+export const config = { maxDuration: 30 };
