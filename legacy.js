@@ -4811,7 +4811,7 @@
                     + '<div style="color:var(--text-muted); font-size:0.85em;">Credentials for Adzuna and The Muse are hidden in showcase mode.</div>'
                     + '</div>'
                     + '<div style="font-size:0.75em; color:var(--text-muted); padding:10px 12px; border-radius:6px; background:var(--c-accent-bg-1); border:1px solid var(--border); margin-top:14px;">'
-                    + '<strong>Proxy sources:</strong> JSearch · Remotive · USAJobs · Himalayas · Jobicy (via /api/jobs)<br>'
+                    + '<strong>Proxy sources:</strong> JSearch · Remotive · USAJobs · Himalayas · Jobicy (via /api/job-search)<br>'
                     + '<strong>Direct sources:</strong> Adzuna · The Muse'
                     + '</div></div>';
                 
@@ -4909,7 +4909,7 @@
                 
                 // Status summary
                 + '<div style="font-size:0.75em; color:var(--text-muted); padding:10px 12px; border-radius:6px; background:var(--c-accent-bg-1); border:1px solid var(--border); margin-bottom:14px;">'
-                + '<strong>Proxy sources:</strong> JSearch \u00B7 Remotive \u00B7 USAJobs \u00B7 Himalayas \u00B7 Jobicy (via /api/jobs)<br>'
+                + '<strong>Proxy sources:</strong> JSearch \u00B7 Remotive \u00B7 USAJobs \u00B7 Himalayas \u00B7 Jobicy (via /api/job-search)<br>'
                 + '<strong>Direct sources:</strong> '
                 + (_adzId && _adzKey ? '<span style="color:#10b981;">\u2713 Adzuna</span>' : '<span style="color:#ef4444;">\u2717 Adzuna (needs keys)</span>') + ' \u00B7 '
                 + '<span style="color:#10b981;">\u2713 The Muse' + (_musKey ? ' (keyed)' : ' (unkeyed)') + '</span>'
@@ -5019,7 +5019,7 @@
                         { id: 'p1-6', name: 'AI cost tracking dashboard', status: 'done', category: 'feature', priority: 'medium', notes: 'Costs tab in admin. Tracks all API calls by feature tag, shows real usage, estimated costs, sparkline, and scale projection calculator. AI_FEATURES registry auto-picks up new features.' },
                         { id: 'p1-7', name: 'Network job selector widget', status: 'done', category: 'feature', priority: 'medium', notes: 'Floating widget on network view. Select saved jobs to overlay match/gap/values analysis directly on the skill graph.' },
                         { id: 'p1-8', name: 'Site traffic analytics dashboard', status: 'done', category: 'feature', priority: 'high', notes: 'Full traffic dashboard in admin overview. Sessions, page views, bounce rate, avg session time, views/time per section, feature usage, device split, dark/light mode, screen sizes, conversion funnel. Local + Firestore dual storage.' },
-                        { id: 'p1-9', name: 'Multi-source job search API', status: 'done', category: 'feature', priority: 'critical', notes: 'Serverless proxy at /api/jobs aggregating 7 sources: JSearch (RapidAPI), Remotive, USAJobs, Himalayas, Jobicy, Adzuna, The Muse. Location search, remote filter, source badges, skill matching, API cost tracking. Fallback to direct fetch if proxy unavailable.' },
+                        { id: 'p1-9', name: 'Multi-source job search API', status: 'done', category: 'feature', priority: 'critical', notes: 'Serverless proxy at /api/job-search aggregating 7 sources: JSearch (RapidAPI), Remotive, USAJobs, Himalayas, Jobicy, Adzuna, The Muse. Location search, remote filter, source badges, skill matching, API cost tracking. Fallback to direct fetch if proxy unavailable.' },
                         { id: 'p1-10', name: 'Infrastructure costs dashboard', status: 'done', category: 'admin', priority: 'high', notes: 'Full infrastructure registry (Claude, Replit, JSearch, Vercel, Cloudflare, Firebase, GitHub, all job APIs). Categorized by type with manage links. Monthly Cost Snapshot with gradient total, breakdown bars, fixed/AI/API split tiles, annual projection.' },
                         { id: 'p2-1', name: 'Jobs database + caching layer', status: 'done', category: 'architecture', priority: 'high', notes: 'Firestore-backed job cache. Source-aware sync: JSearch A/B query groups (18 queries × 5 pages, alternating), free sources with broad queries, Himalayas single-fetch. Cache-first client (15k limit). Upsert accumulation, 90-day cleanup. Content-based dedup (title+company). Budget: ~5,400 JSearch calls/month of 10k Pro plan.' },
                         { id: 'p1-5', name: 'Demo profile polish', status: 'in-progress', category: 'feature', priority: 'medium', notes: '24 TV character profiles with 99 evidence outcomes added. Ongoing refinement.' },
@@ -6077,10 +6077,10 @@
                     functions: ['callAnthropicAPI()', '/api/ai.js (serverless)'], lines: 'Serverless + ~7000-7100',
                     inputs: ['Feature tag', 'Prompt', 'Firebase token'], outputs: ['Claude response JSON'],
                     deps: ['Vercel', 'Anthropic API key', 'Firebase Admin SDK'], debt: 'Rate limit is per-user but not enforced server-side. $0.07/resume parse.' }},
-                { id: 'job-proxy', name: 'Jobs Proxy /api/jobs', layer: 'backend', col: 4,
+                { id: 'job-proxy', name: 'Jobs Proxy /api/job-search', layer: 'backend', col: 4,
                   color: '#ef4444', icon: 'external',
                   detail: { desc: 'Vercel serverless aggregator. Merges JSearch, Remotive, USAJobs, Himalayas, Jobicy, Adzuna, The Muse. Location + remote filters. Firestore cache.',
-                    functions: ['/api/jobs.js (serverless)', 'fetchCachedJobs()', 'loadJobsFromFirestore()'], lines: 'Serverless + ~22000-22300',
+                    functions: ['/api/job-search.js (serverless)', 'fetchCachedJobs()', 'loadJobsFromFirestore()'], lines: 'Serverless + ~22000-22300',
                     inputs: ['Search keywords', 'Category', 'Location'], outputs: ['Normalized job listings[]'],
                     deps: ['Vercel', 'JSearch API key', 'USAJobs email', 'Firestore job cache', 'Adzuna keys'], debt: 'JSearch costs ~$30/mo at Pro. Free APIs have limited coverage. Adzuna dramatically increases volume.' }},
                 { id: 'health-monitor', name: 'Health Monitor', layer: 'backend', col: 5,
@@ -6136,7 +6136,7 @@
                 { id: 'jsearch', name: 'JSearch (RapidAPI)', layer: 'external', col: 5,
                   color: '#ec4899', icon: 'external',
                   detail: { desc: 'Primary job source. Aggregates LinkedIn, Indeed, Glassdoor. Pro plan: 10K calls/mo ($30/mo). A/B query rotation.',
-                    functions: ['fetchJSearchJobs()', '/api/jobs.js proxy'], lines: 'Serverless',
+                    functions: ['fetchJSearchJobs()', '/api/job-search.js proxy'], lines: 'Serverless',
                     inputs: ['Keywords', 'Location', 'Page'], outputs: ['Job listings with title, company, description, salary'],
                     deps: ['RapidAPI key', 'Jobs proxy'], debt: 'Rate limit causes 429 errors during bulk fetch. A/B rotation helps.' }},
                 { id: 'free-apis', name: 'Free Job APIs', layer: 'external', col: 6,
@@ -34247,79 +34247,9 @@ body {
         }
 
         async function _fitFetchAndScore() {
-            if (_fitForMeLoading) return;
-            _fitForMeLoading = true;
-            _fitForMeData = [];
-
-            var terms = _fitBuildSearchTerms();
-            var location = '';
-            if (userData.profile && userData.profile.location) location = userData.profile.location;
-            console.log('[FIT] Searching with terms:', terms.join(' | '), 'location:', location || '(any)');
-
-            var allJobs = [];
-            var seen = new Set();
-
-            var fetches = terms.map(function(term) {
-                var params = new URLSearchParams({ q: term });
-                if (location) params.set('location', location);
-                return fetch(JOBS_PROXY_URL + '?' + params.toString(), { signal: AbortSignal.timeout(20000) })
-                    .then(function(r) { return r.json(); })
-                    .then(function(data) { return data.jobs || []; })
-                    .catch(function(e) { console.warn('[FIT] Fetch error for "' + term + '":', e.message); return []; });
-            });
-
-            try {
-                var results = await Promise.all(fetches);
-                results.forEach(function(jobs) {
-                    jobs.forEach(function(job) {
-                        var key = ((job.title || '') + '|' + (job.company || '')).toLowerCase();
-                        if (!seen.has(key)) {
-                            seen.add(key);
-                            allJobs.push(job);
-                        }
-                    });
-                });
-            } catch(e) {
-                console.warn('[FIT] Fetch all failed:', e.message);
-            }
-
-            console.log('[FIT] Fetched ' + allJobs.length + ' unique jobs from ' + terms.length + ' queries');
-
-            allJobs.forEach(function(job) {
-                var jdText = (job.title || '') + '\n' + (job.description || '') + '\n' + (job.tags || []).join(' ');
-                try {
-                    var parsed = parseJobLocally(jdText);
-                    var matchResult = matchJobToProfile(parsed);
-                    job._fitParsed = parsed;
-                    job._fitMatch = matchResult;
-                    job.matchScore = matchResult.score;
-                    job.matchedSkills = (matchResult.matched || []).map(function(m) { return m.userSkill || m.jobSkill; });
-                    job.gapSkills = (matchResult.gaps || []).map(function(g) { return g.name; });
-                    job._fitSkillsExtracted = (parsed.skills || []).length;
-                    job._fitParsedTitle = parsed.title;
-                    job._fitSeniority = parsed.seniority;
-                } catch(e) {
-                    job.matchScore = 0;
-                    job.matchedSkills = [];
-                    job.gapSkills = [];
-                    job._fitSkillsExtracted = 0;
-                }
-            });
-
-            allJobs.sort(function(a, b) { return (b.matchScore || 0) - (a.matchScore || 0); });
-            _fitForMeData = allJobs.filter(function(j) { return j.matchScore > 0; });
-            _fitForMeLastRun = Date.now();
-            _fitForMeLoading = false;
-
-            var pipelineIds = {};
-            (userData.savedJobs || []).forEach(function(j) {
-                pipelineIds[((j.title || '') + '-' + (j.company || '')).toLowerCase()] = true;
-            });
-            _fitForMeData.forEach(function(j) {
-                j._inPipeline = !!pipelineIds[((j.title || '') + '-' + (j.company || '')).toLowerCase()];
-            });
-
-            console.log('[FIT] Scored ' + _fitForMeData.length + ' jobs with match > 0. Top score: ' + (_fitForMeData[0] ? _fitForMeData[0].matchScore : 0));
+            // Stubbed — extracted to src/views/jobs.js (Phase 7f). Module version handles all fetching.
+            // legacy.js copy retained as no-op to avoid reference errors during Phase 9 retirement.
+            return;
         }
 
         function _fitSortData() {
@@ -39658,7 +39588,7 @@ body {
             resultsDiv.innerHTML = html;
         }
         
-        var JOBS_PROXY_URL = '/api/jobs';
+        var JOBS_PROXY_URL = '/api/job-search';
         var JOBS_PROXY_AVAILABLE = null;
         var jobsDbCount = parseInt(safeGet('bpJobsDbCount') || '0');
         var jobsSourceCounts = safeParse(safeGet('bpJobsSourceCounts'), {});
@@ -40103,7 +40033,7 @@ body {
                         + (isCors
                             ? '<p style="font-size:1.05em; color:var(--text-primary); margin-bottom:8px;">Job APIs blocked by CORS</p>'
                               + '<p style="color:var(--text-muted); font-size:0.88em; line-height:1.6; max-width:480px; margin:0 auto 20px;">'
-                              + 'Deploy the /api/jobs proxy to unlock all 7 sources including JSearch, USAJobs, and Adzuna.</p>'
+                              + 'Deploy the /api/job-search proxy to unlock all 7 sources including JSearch, USAJobs, and Adzuna.</p>'
                             : '<p style="font-size:1.05em; color:var(--text-primary); margin-bottom:8px;">No matching jobs found</p>'
                               + '<p style="color:var(--text-muted); font-size:0.88em;">Try different keywords or lower the match threshold.</p>')
                         + '</div>';
