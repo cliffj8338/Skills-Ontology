@@ -148,10 +148,29 @@ import {
     wizardSaveAndGo, wizardDownloadBackup, wizardLaunchOnly, wizardApplyAndLaunch,
 } from './views/welcome.js';
 
+// ─── Phase 7f: Jobs view ──────────────────────────────────────────────────────
+import {
+    _fitBuildSearchTerms, _fitSortData, _fitAddToPipeline, initOpportunities, switchJobsSubTab,
+    renderJobsSubTab, renderTrackerInJobs, renderSavedJobs, renderFindJobs, clearJobSearch,
+    showAddJobModal, extractSPAJobData, _extractDeepJobText, extractTextFromHtml, matchJobToBLS,
+    parseJobLocally, classifyRequirementLevel, inferJobProficiency, proficiencyValue, crosswalkNormalizeTitle,
+    crosswalkDice, resolveTitle, getOccupationProfile, detectSeniority, adjustLevel,
+    inferSkillsDeterministic, suggestMissingSkills, mergeSkillSources, registerInSkillLibrary, getSkillSynonyms,
+    getSkillSynonymsExpanded, getRoleSuggestions, isJobV2, getJobSkills, getJobRoles,
+    normalizeTier, tierWeight, migrateJobToV2, migrateAllJobsToV2, validateJobSchema,
+    matchJobToProfile, rescoreAllJobs, rescoreOneJob, quickAddGapSkill, confirmQuickAddGapSkill,
+    quickAddSuggested, showJobDetail, removeJob, editJobInfo, saveJobEdit,
+    reanalyzeJob, updateMatchThreshold, updateMinSkillMatches, updateFitMinMatch, updateFitMinSkills,
+    _debouncedSavePrefs, filterOpportunities, setJobsSort, sortJobResults, renderOpportunities,
+    formatJobsCount, updateJobsDbCount, getJobsSourceBreakdown, loadJobsFromCache, scoreAndDisplayCachedJobs,
+    formatTimeAgo, updateSyncStatusDisplay, updateJobsBadge, searchOpportunities, searchLiveFromAPIs,
+    searchDirect, quickScoreJob,
+} from './views/jobs.js';
+
 // ─── Build banner ─────────────────────────────────────────────────────────────
 console.log('%c   BLUEPRINT™ MODULE BUILD   ', 'color:#60a5fa;font-weight:bold;font-size:14px;');
 console.log('%c   ' + BP_VERSION + ' — Phase 7c  ', 'color:#a78bfa;font-weight:bold;font-size:12px;');
-console.log('%c   Welcome view live  ', 'color:#10b981;font-size:11px;');
+console.log('%c   Jobs view live  ', 'color:#10b981;font-size:11px;');
 
 // ─── Pending phases ───────────────────────────────────────────────────────────
 // Phase 5: admin/index.js
