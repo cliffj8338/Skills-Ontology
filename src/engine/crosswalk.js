@@ -1,28 +1,57 @@
 /**
- * src/engine/crosswalk.js
- * O*NET crosswalk runtime — occupation matching, title aliases, SOC lookup
- *
- * STATUS: STUB — not yet migrated
- * MONOLITH LINES: 36679–36934
- *
- * Dependencies:
- *   ../core/security.js
- *
- * Exports:
- *   loadCrosswalk
- *   matchOccupation
- *   normalizeTitleAlias
- *   getSuggestedOccupations
+ * src/engine/crosswalk.js — Phase 3
+ * O*NET occupation crosswalk: deferred loader + accessor helpers.
+ * MONOLITH LINES: 19166–19248
+ * DEPENDENCIES: core/constants.js (recordApiHealth)
  */
 
-// TODO: Add imports when migrating
-// import { ... } from '../core/security.js';
+import { recordApiHealth } from '../core/constants.js';
 
-// ─── STUB EXPORTS ────────────────────────────────────────────────────────────
-// Replace each with the real implementation during migration.
-// Throwing on call ensures broken migrations surface immediately rather than silently.
+// ─── Deferred loader ──────────────────────────────────────────────────────────
+// Called once during initializeApp (100ms delay after libraries load).
+// Safe to call multiple times — guards against double-load.
 
-export function loadCrosswalk() { throw new Error('loadCrosswalk not yet migrated'); }
-export function matchOccupation() { throw new Error('matchOccupation not yet migrated'); }
-export function normalizeTitleAlias() { throw new Error('normalizeTitleAlias not yet migrated'); }
-export function getSuggestedOccupations() { throw new Error('getSuggestedOccupations not yet migrated'); }
+export function loadCrosswalkDeferred() {
+    if (window.onetCrosswalk) return;
+    fetch('onet-crosswalk.json')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            window.onetCrosswalk = data;
+            var occCount   = Object.keys(data.occupations || {}).length;
+            var aliasCount = Object.keys(data.aliases    || {}).length;
+            console.log('\u2705 O*NET Crosswalk loaded (deferred): ' + occCount + ' occupations, ' + aliasCount + ' aliases');
+            recordApiHealth('onet-crosswalk', 'ok', occCount + ' occupations, ' + aliasCount + ' aliases');
+        })
+        .catch(function(e) {
+            window.onetCrosswalk = null;
+            console.warn('\u26A0 onet-crosswalk.json failed to load:', e.message);
+            recordApiHealth('onet-crosswalk', 'down', 'Failed to load');
+        });
+}
+// Legacy alias used throughout monolith
+window._loadCrosswalkDeferred = loadCrosswalkDeferred;
+
+// ─── Accessors ────────────────────────────────────────────────────────────────
+
+/** Resolve a job title string to an O*NET occupation code (best-effort). */
+export function resolveOccupationCode(titleLower) {
+    var cw = window.onetCrosswalk;
+    if (!cw) return null;
+    // Direct alias lookup first
+    if (cw.aliases && cw.aliases[titleLower]) return cw.aliases[titleLower];
+    // Prefix scan over occupations
+    if (cw.occupations) {
+        var keys = Object.keys(cw.occupations);
+        for (var i = 0; i < keys.length; i++) {
+            if (keys[i].toLowerCase().indexOf(titleLower) !== -1) return cw.occupations[keys[i]];
+        }
+    }
+    return null;
+}
+
+/** Return the full occupation object for an O*NET code, or null. */
+export function getOccupationByCode(code) {
+    var cw = window.onetCrosswalk;
+    if (!cw || !code) return null;
+    return (cw.occupations || {})[code] || null;
+}
