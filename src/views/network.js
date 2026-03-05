@@ -25,6 +25,13 @@ function _bd() {
     };
 }
 
+// ─── Module-level state (was closure-scoped in monolith) ─────────────────────
+let currentView = 'network';
+let activeRole = 'all';
+let activeLevel = null;
+let simulation;
+let networkMatchMode = 'you';
+let activeJobForNetwork = null;
 
 // ===== NETWORK JOB SELECTOR WIDGET =====
 var jobSelectorExpanded = false;
