@@ -10,7 +10,18 @@ import { searchCertLibrary } from '../engine/certifications.js';
 
 export function initSettings() {
     const view = document.getElementById('settingsView');
-    
+    console.log('[BP DEBUG] initSettings called. _userData:', window._userData, 'initialized:', window._userData && window._userData.initialized);
+    if (!window._userData || !window._userData.initialized) {
+        if (view) view.innerHTML = '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';
+        var _tries = 0;
+        var _poll = setInterval(function() {
+            _tries++;
+            console.log('[BP DEBUG] initSettings poll #' + _tries + ' _userData:', !!window._userData, 'initialized:', window._userData && window._userData.initialized);
+            if (window._userData && window._userData.initialized) { clearInterval(_poll); initSettings(); }
+            else if (_tries > 25) { clearInterval(_poll); console.warn('[BP DEBUG] initSettings gave up polling'); }
+        }, 200);
+        return;
+    }
     // Initialize current tab if not set
     if (!window.currentSettingsTab) {
         window.currentSettingsTab = 'profile';
@@ -2180,3 +2191,22 @@ window.exportFullProfile = exportFullProfile;
 window.importFullProfile = importFullProfile;
 window.disableBulkActionsInSampleMode = disableBulkActionsInSampleMode;
 window.renderSkillsList = renderSkillsList;
+
+// ─── DEBUG HELPER (remove after stabilization) ───────────────────────────────
+export function bpDebugState() {
+    console.group('[BP DEBUG] Global State Snapshot');
+    console.log('window._userData:', window._userData);
+    console.log('window.userData:', window.userData);
+    console.log('window.fbUser:', window.fbUser);
+    console.log('window.appContext:', window.appContext);
+    console.log('window.skillsData:', window.skillsData);
+    console.log('window.blueprintData:', window.blueprintData);
+    console.log('window.reportsInitialized:', window.reportsInitialized);
+    console.log('window.settingsInitialized:', window.settingsInitialized);
+    console.log('reportsView el:', document.getElementById('reportsView'));
+    console.log('settingsView el:', document.getElementById('settingsView'));
+    console.groupEnd();
+}
+window.bpDebugState = bpDebugState;
+// Call immediately on load
+setTimeout(function() { window.bpDebugState && window.bpDebugState(); }, 3000);

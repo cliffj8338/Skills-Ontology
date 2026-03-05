@@ -7,11 +7,13 @@ import { showToast }  from '../ui/toast.js';
 
 export function initReports() {
     var el = document.getElementById('reportsView');
+    console.log('[BP DEBUG] initReports called. _userData:', window._userData, 'initialized:', window._userData && window._userData.initialized);
     if (!window._userData || !window._userData.initialized) {
         if (el) el.innerHTML = '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';
         var _tries = 0;
         var _poll = setInterval(function() {
             _tries++;
+            console.log('[BP DEBUG] initReports poll #' + _tries + ' _userData:', !!window._userData, 'initialized:', window._userData && window._userData.initialized);
             if (window._userData && window._userData.initialized) { clearInterval(_poll); initReports(); }
             else if (_tries > 25) { clearInterval(_poll); }
         }, 200);
