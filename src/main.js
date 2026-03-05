@@ -196,10 +196,32 @@ import {
     updateStatsBar, toggleLabelPill, applyLabelToggles, renderFilterChips, showTooltip, hideTooltip, dragstarted, dragged, dragended, gatherBlueprintData, extractMetric, createBlueprintHTML, downloadBlueprint, estimateSkillYears, openRelatedSkill, openSkillModalFromCard, gatherResumeData, buildResumeHTML,
 } from './ui/nav-shared.js';
 
+// ─── Phase 8a: Auth ───────────────────────────────────────────────────────────
+import {
+    authEmailSignIn, authEmailSignUp, authSendMagicLink, authSignOut,
+    checkMagicLinkSignIn, friendlyAuthError, handlePostSignIn,
+    checkAdminRole, updateAuthUI, rebuildProfileDropdown, getInitials,
+} from './core/auth.js';
+
+// ─── Phase 8b: Profile dropdown ───────────────────────────────────────────────
+import {
+    toggleProfileDropdown, closeProfileDropdown, buildProfileDropdown,
+    toggleFilterPanel, toggleOverflowMenu, closeOverflowMenu,
+    showHelp, showTeaserModal, closeTeaserModal, showAbout, sendFeedback, showLegalNotice,
+} from './ui/profile-dropdown.js';
+
+// ─── Phase 8c: Tour system ────────────────────────────────────────────────────
+import {
+    startTour, endTour, createOverlayElements, showStep, renderStep,
+    positionStep, positionTooltip, goNext, goPrev, createHelpButton,
+    toggleHelpMenu, closeHelpMenu, getWelcomeSteps, getSkillsTour,
+    getJobsTour, getBlueprintTour, getSamplesTour, maybeAutoTour, initTourSystem,
+} from './ui/tour.js';
+
 // ─── Build banner ─────────────────────────────────────────────────────────────
 console.log('%c   BLUEPRINT™ MODULE BUILD   ', 'color:#60a5fa;font-weight:bold;font-size:14px;');
 console.log('%c   ' + BP_VERSION + ' — Phase 7c  ', 'color:#a78bfa;font-weight:bold;font-size:12px;');
-console.log('%c   Phase 7 complete  ', 'color:#10b981;font-size:11px;');
+console.log('%c   Phase 8 live  ', 'color:#10b981;font-size:11px;');
 
 // ─── Pending phases ───────────────────────────────────────────────────────────
 // Phase 5: admin/index.js
