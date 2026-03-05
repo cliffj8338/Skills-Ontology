@@ -299,6 +299,17 @@
          Vite replaces this with the built bundle in production.
          In dev, Vite serves src/main.js directly with HMR.
          ═══════════════════════════════════════════════════════ -->
+    <!-- ═══════════════════════════════════════════════════════
+         LEGACY MONOLITH — temporary bridge during migration
+         Contains the full app as extracted from v4.46.21.
+         Removed module by module as phases complete.
+         Decommissioned in Phase 8.
+         ═══════════════════════════════════════════════════════ -->
+    <script src="/legacy.js"></script>
+
+    <!-- ═══════════════════════════════════════════════════════
+         APP ENTRY POINT
+         ═══════════════════════════════════════════════════════ -->
     <script type="module" src="/src/main.js"></script>
 
     <!-- Static HTML rendered outside the app bundle -->
