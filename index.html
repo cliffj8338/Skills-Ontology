@@ -270,8 +270,252 @@
         <div style="width:120px; height:2px; background:rgba(96,165,250,0.15); border-radius:2px; overflow:hidden;">
             <div id="splashProgress" style="width:0%; height:100%; background:linear-gradient(90deg,#60a5fa,#3b82f6); border-radius:2px; transition:width 0.3s ease;"></div>
         </div>
+        <script>setTimeout(function(){var s=document.getElementById('appSplash');if(s){s.style.opacity='0';setTimeout(function(){s.remove()},400)}},8000);</script>
+    </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" role="status" aria-live="polite" aria-atomic="false"></div>
+    
+    <!-- Screen reader announcements for view changes -->
+    <div id="srAnnounce" aria-live="assertive" aria-atomic="true" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;"></div>
+    
+    <!-- Skip to content (accessibility) -->
+    <a href="#mainContentArea" id="skipToContent" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:10000;padding:12px 24px;background:var(--accent);color:#fff;font-weight:700;font-size:1em;text-decoration:none;border-radius:0 0 8px 0;" onfocus="this.style.cssText='position:fixed;left:0;top:0;z-index:10000;padding:12px 24px;background:var(--accent);color:#fff;font-weight:700;font-size:1em;text-decoration:none;border-radius:0 0 8px 0;'" onblur="this.style.cssText='position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;'">Skip to content</a>
+    
+    <!-- Auth Modal -->
+    <div class="auth-overlay" id="authOverlay" role="dialog" aria-modal="true" aria-label="Sign in">
+        <div class="auth-dialog">
+            <button class="auth-close" onclick="closeAuthModal()" aria-label="Close sign in dialog">&times;</button>
+            <div id="authModalContent">
+                <!-- Populated by showAuthModal() -->
+            </div>
+        </div>
+    </div>
+    <!-- ===== NAV BAR ===== -->
+    <div class="header" role="banner">
+        <!-- Left: Logo + wordmark -->
+        <div class="header-left" style="cursor:pointer;" onclick="switchView('welcome')" role="button" tabindex="0" aria-label="Blueprint home" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchView('welcome')}">
+            <div class="header-logo"><svg width="26" height="26" viewBox="0 0 52 52" fill="none" aria-hidden="true" focusable="false">
+                <circle cx="26" cy="26" r="24" stroke="#60a5fa" stroke-width="1.5" opacity="0.22"/>
+                <line x1="26" y1="26" x2="12" y2="10" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
+                <line x1="26" y1="26" x2="42" y2="12" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
+                <line x1="26" y1="26" x2="40" y2="40" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
+                <line x1="26" y1="26" x2="10" y2="40" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
+                <line x1="12" y1="10" x2="42" y2="12" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
+                <line x1="42" y1="12" x2="40" y2="40" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
+                <line x1="10" y1="40" x2="40" y2="40" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
+                <circle cx="26" cy="26" r="4.5" fill="#60a5fa"/>
+                <circle cx="12" cy="10" r="3" fill="#93bbfc"/>
+                <circle cx="42" cy="12" r="2.5" fill="#818cf8"/>
+                <circle cx="40" cy="40" r="3" fill="#93bbfc"/>
+                <circle cx="10" cy="40" r="2.5" fill="#818cf8"/>
+            </svg></div>
+            <h1>Blueprint<span style="font-size:0.55em; vertical-align:super; letter-spacing:0; opacity:0.6;">&trade;</span></h1>
+            <span id="adminBadge" onclick="event.stopPropagation(); showAdminPanel()" style="display:none; font-size:0.55em; padding:2px 8px; border-radius:6px; background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.3); font-weight:600; cursor:pointer; letter-spacing:0.04em; margin-left:6px; white-space:nowrap;" title="Admin Dashboard">ADMIN</span>
+        </div>
+
+        <!-- Center: Primary navigation -->
+        <div class="header-center" id="mainNav" role="navigation" aria-label="Main navigation">
+            <button class="nav-btn active" id="nav-skills" onclick="switchView('skills', event)">
+                <span class="nav-icon" data-icon="skills"></span> Map</button>
+            <button class="nav-btn" id="nav-jobs" onclick="switchView('jobs', event)">
+                <span class="nav-icon" data-icon="jobs"></span> Jobs</button>
+            <button class="nav-btn" id="nav-blueprint" onclick="switchView('blueprint', event)">
+                <span class="nav-icon" data-icon="blueprint"></span> Blueprint</button>
+            <button class="nav-btn" id="nav-reports" onclick="switchView('reports', event)">
+                <span class="nav-icon" data-icon="reports"></span> Reports</button>
+            <button class="nav-btn" id="nav-settings" onclick="switchView('settings', event)">
+                <span class="nav-icon" data-icon="settings"></span> Settings</button>
+        </div>
+
+        <!-- Right: theme toggle + profile switcher + more -->
+        <div class="header-right">
+            <!-- Stats badge — visible on all tabs -->
+            <span id="statsBar" style="font-size:0.78em; color: var(--text-muted); white-space:nowrap; display:none;"></span>
+
+            <!-- Theme toggle -->
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggleBtn" title="Toggle light/dark mode" aria-label="Toggle light/dark mode">🌙</button>
+
+            <!-- Auth button (shown when not logged in) -->
+            <button class="auth-nav-btn" id="authNavBtn" onclick="showAuthModal('signin')" style="display:none;">Sign In</button>
+
+            <!-- Demo mode toggle (shown when signed in) -->
+            <button class="demo-toggle-btn" id="demoModeToggle" onclick="toggleDemoMode()" title="Explore Demo Profiles" style="display:none;">
+                <span class="demo-toggle-icon" id="demoToggleIcon">&#x25C8;</span>
+                <span class="demo-toggle-label" id="demoToggleLabel">Demo</span>
+            </button>
+            <div class="demo-mode-indicator" id="demoModeIndicator" style="display:none;">
+                <span class="demo-indicator-dot"></span>
+                <span>DEMO MODE</span>
+                <button onclick="exitDemoMode()" class="demo-exit-btn">&times;</button>
+            </div>
+
+            <!-- Profile badge (display only - shows current user when signed in) -->
+            <div class="profile-chip" id="profileChip" style="cursor:default; display:none;">
+                <div class="profile-avatar" id="profileAvatar">...</div>
+                <span class="profile-name" id="profileChipName">Loading</span>
+            </div>
+
+            <!-- Hidden select for backward-compat with switchProfile() -->
+            <select id="profileSelector" onchange="switchProfile(this.value)" style="display:none;"></select>
+
+            <!-- Save indicator -->
+            <span id="saveIndicator" style="font-size:0.72em; color:var(--text-muted); opacity:0; transition:opacity 0.3s; white-space:nowrap; margin-right:4px;"></span>
+
+            <!-- More menu -->
+            <button class="more-btn" onclick="toggleOverflowMenu(event)" id="overflowMenuBtn" title="More options" aria-label="More options" aria-haspopup="true" aria-expanded="false"><span data-icon="more" style="display:inline-flex;" aria-hidden="true"></span></button>
+            <div id="overflowMenu" class="overflow-menu" role="menu" style="display:none;">
+                <button onclick="closeOverflowMenu(); switchView('welcome');" style="color: var(--accent); font-weight: 600;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="home"></span> Home</button>
+                <button onclick="closeOverflowMenu(); viewSampleProfile();" style="color: var(--accent); font-weight: 600;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="users"></span> Sample Profiles</button>
+                <button onclick="closeOverflowMenu(); showOnboardingWizard();" style="color: var(--accent); font-weight: 600;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="wand"></span> Build My Blueprint</button>
+                <div style="height:1px; background:var(--border); margin:4px 0;"></div>
+                <button onclick="showHelp(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="help"></span> Help</button>
+                <button onclick="if(window._bpTour) window._bpTour.startWelcome(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="compass"></span> Take a Tour</button>
+                <button onclick="showAbout(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="about"></span> Why Blueprint</button>
+                <button onclick="sendFeedback('menu'); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="edit"></span> Give Feedback</button>
+                <div style="height:1px; background:var(--border); margin:4px 0;"></div>
+                <button id="overflowSignIn" onclick="showAuthModal('signin'); closeOverflowMenu();" style="color: var(--accent);" class="overflow-icon-btn"><span class="overflow-icon" data-icon="sign-in"></span> Sign In</button>
+                <button id="overflowAdmin" onclick="showAdminPanel(); closeOverflowMenu();" style="color: #fbbf24; display:none;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="shield"></span> Admin Dashboard</button>
+                <button id="overflowSignOut" onclick="authSignOut(); closeOverflowMenu();" style="color: #ef4444; display:none;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="power"></span> Sign Out</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CONTEXTUAL FILTER BAR (Skills tab only) ===== -->
+    <div class="controls" id="controlsBar" style="display:none; align-items:center; width:100%;">
+        <div class="controls-left">
+            <!-- View pills -->
+            <div class="view-pills" id="skillsViewToggle">
+                <button class="view-pill active" data-view="network" onclick="toggleSkillsView('network')">Network</button>
+                <button class="view-pill" data-view="card" onclick="toggleSkillsView('card')">Card</button>
+            </div>
+            
+            <!-- Inline job selector (populated dynamically) -->
+            <div id="inlineJobSelector" style="display:none;"></div>
+
+            <!-- Job match mode toggle (hidden until a job is activated) -->
+            <div id="matchModeToggle" style="display:none;" class="match-mode-toggle">
+                <button class="match-mode-btn active" data-mode="you" onclick="setNetworkMatchMode('you')">You</button>
+                <button class="match-mode-btn" data-mode="job" onclick="setNetworkMatchMode('job')">Job</button>
+                <button class="match-mode-btn" data-mode="match" onclick="setNetworkMatchMode('match')">Match</button>
+                <button class="match-mode-btn" data-mode="values" onclick="setNetworkMatchMode('values')">Values</button>
+            </div>
+            
+            <!-- Active job badge (hidden until a job is activated) -->
+            <div id="matchActiveBadge" style="display:none;" class="match-active-badge">
+                <span data-icon="target" class="nav-icon"></span>
+                <span id="matchActiveTitle">Loading...</span>
+                <button onclick="clearJobOverlay()" title="Clear comparison">×</button>
+            </div>
+
+            <!-- Search and Filter removed from network toolbar — nodes are interactive -->
+            <input type="text" id="skillSearch" class="filter-search" placeholder="Search skills..."
+                   onkeyup="filterSkillsView(this.value)" style="display:none !important; visibility:hidden;">
+
+            <!-- Filter toggle -->
+            <button class="filter-toggle-btn" id="filterToggleBtn" onclick="toggleFilterPanel()" style="display:none !important;">
+                <span><span data-icon="settings" class="nav-icon"></span> Filter</span>
+                <span id="filterActiveCount" style="display:none; background:var(--accent); color:#fff; border-radius:8px; padding:1px 6px; font-size:0.75em;"></span>
+            </button>
+        </div>
+
+        <div class="controls-right" id="networkControls" style="margin-left:auto;">
+            <!-- Label toggles (desktop only) -->
+            <div id="networkLabelToggles" style="display:none;">
+                <div class="view-pills" style="gap:2px;">
+                    <button class="view-pill active" id="labelPillRole" onclick="toggleNetworkLabels('roles')" style="font-size:0.72em; padding:4px 10px;">Roles</button>
+                    <button class="view-pill active" id="labelPillSkill" onclick="toggleNetworkLabels('skills')" style="font-size:0.72em; padding:4px 10px;">Skills</button>
+                    <button class="view-pill active" id="labelPillValue" onclick="toggleNetworkLabels('values')" style="font-size:0.72em; padding:4px 10px; display:none;">Values</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Collapsible filter panel -->
+        <div class="filter-panel" id="filterPanel">
+            <div class="filter-group" id="rolesFilterGroup">
+                <span class="filter-label">Roles:</span>
+                <div id="roleChipsContainer">
+                    <div class="role-chip active" data-role="all" onclick="filterByRole('all')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterByRole('all')}">All</div>
+                </div>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">Level:</span>
+                <div class="level-filter" id="levelChipsContainer"></div>
+            </div>
+        </div>
+        
+        <!-- Legacy pill reference kept for compat -->
+        <div id="networkFilterPill" style="display:none;"><span id="networkFilterPillDot"></span><span id="networkFilterPillText"></span></div>
+    </div>
+    
+    <div class="main-content" id="mainContentArea" role="main" aria-label="Main content">
+        <div id="welcomeView" style="display:none;"></div>
+        <div id="skillsPageHeader" style="display:none; max-width:1200px; margin:0 auto; padding:20px 24px 0;">
+            <div class="page-header">
+                <h2 class="page-title">Map</h2>
+                <p class="page-subtitle">Your professional capabilities mapped as a living network.</p>
+            </div>
+        </div>
+        <svg id="networkView" style="display:none; overflow:visible;"></svg>
+        <div id="cardView" style="display:none;"></div>
+        <div id="opportunitiesView" style="display:none;"></div>
+        <div id="applicationsView" style="display:none;"></div>
+        <div id="blueprintView" style="display:none;"></div>
+        <div id="consentView" style="display:none;"></div>
+        <div id="settingsView" style="display:none;"></div>
+        <div id="reportsView" style="display:none;"></div>
+        <div id="adminView" style="display:none;"></div>
+    </div>
+
+    <!-- App Footer / Attribution -->
+    <footer id="appFooter" role="contentinfo" style="text-align:center; padding:16px 20px; font-size:0.75em; opacity:0.5; line-height:1.8;">
+        <div style="margin-bottom:4px;">&copy; <span id="copyrightYear"></span> Cliff Jurkiewicz. All rights reserved. Blueprint&trade; and its associated methodologies, ontology structures, and matching algorithms are the intellectual property of Cliff Jurkiewicz.</div>
+        <div>Uses the <a href="https://esco.ec.europa.eu" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">ESCO classification</a> of the European Commission and <a href="https://www.onetonline.org" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">O*NET</a> occupational data. <a href="#" onclick="event.preventDefault(); showLegalNotice();" style="color:inherit; text-decoration:underline;">Legal &amp; IP Notice</a> &middot; <a href="#" onclick="event.preventDefault(); switchView('settings'); setTimeout(function(){ window.currentSettingsTab='privacy'; initSettings(); window.settingsInitialized=true; }, 100);" style="color:inherit; text-decoration:underline;">Privacy & Terms</a></div>
+    </footer>
+    
+    <!-- Mobile bottom nav (hidden on desktop via CSS) -->
+    <div class="mobile-nav" id="mobileNav" role="navigation" aria-label="Mobile navigation" style="display:none;">
+        <button class="mobile-nav-btn active" id="mob-skills" onclick="switchView('skills',event)">
+            <span class="mobile-nav-icon" data-icon="skills"></span>Map
+        </button>
+        <button class="mobile-nav-btn" id="mob-jobs" onclick="switchView('jobs',event)">
+            <span class="mobile-nav-icon" data-icon="jobs"></span>Jobs
+        </button>
+        <button class="mobile-nav-btn" id="mob-blueprint" onclick="switchView('blueprint',event)">
+            <span class="mobile-nav-icon" data-icon="blueprint"></span>Blueprint
+        </button>
+        <button class="mobile-nav-btn" id="mob-reports" onclick="switchView('reports',event)">
+            <span class="mobile-nav-icon" data-icon="reports"></span>Reports
+        </button>
+        <button class="mobile-nav-btn" id="mob-settings" onclick="switchView('settings',event)">
+            <span class="mobile-nav-icon" data-icon="settings"></span>Settings
+        </button>
+        <button class="mobile-nav-btn" id="mob-more" onclick="toggleOverflowMenu(event)">
+            <span class="mobile-nav-icon" data-icon="more"></span>More
+        </button>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+    
+    <!-- Role Info Card (body-level for z-index stacking) -->
+    <div id="roleInfoCard" style="display:none; position:fixed; top:108px; right:16px;
+        z-index:9000; background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px;
+        padding:16px 18px; font-family:'Outfit',sans-serif; min-width:220px; max-width:280px;
+        backdrop-filter:blur(16px); box-shadow:0 8px 32px rgba(0,0,0,0.3); pointer-events:auto;">
+        <div id="roleInfoDragHandle" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; cursor:grab;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span id="roleInfoDot" style="width:10px; height:10px; border-radius:50%; flex-shrink:0;"></span>
+                <span id="roleInfoName" style="font-weight:700; font-size:0.95em; color:var(--text-primary);"></span>
+            </div>
+            <button onclick="document.getElementById('roleInfoCard').style.display='none'; filterByRole('all');" style="background:none; border:none; color:var(--text-muted);
+                cursor:pointer; font-size:1.2em; padding:8px; margin:-8px -8px -8px 0; line-height:1;"
+                onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'">&times;</button>
+        </div>
+        <div id="roleInfoStats" style="font-size:0.82em; color:var(--text-secondary); line-height:1.6;"></div>
+        <div id="roleInfoActions" style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border); display:flex; gap:6px;"></div>
+    </div>
+
+        <!-- ═══════════════════════════════════════════════════════
          CDN DEPENDENCIES
          Loaded before app bundle so modules can reference globals.
          Firebase uses compat SDK — keeps module auth/db exports clean.
