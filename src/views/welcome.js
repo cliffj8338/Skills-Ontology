@@ -699,7 +699,7 @@ window.dismissToast = dismissToast;
 
 // ===== MARKET VALUATION CALCULATOR =====
 
-export function calculateSkillValue(skill) {
+function calculateSkillValue(skill) {
     // Now returns IMPACT rating, not dollar value
     return getSkillImpact(skill);
 }
@@ -707,7 +707,7 @@ export function calculateSkillValue(skill) {
 // Valuation mode: 'evidence' (default, uses effective levels) or 'potential' (uses claimed levels)
 var valuationMode = 'evidence';
 
-export function calculateTotalMarketValue(mode) {
+function calculateTotalMarketValue(mode) {
     var useMode = mode || valuationMode || 'evidence';
     
     if (!skillsData || !_sd().skills) {
@@ -2745,7 +2745,7 @@ async function loadExternalSynonyms() {
 // ── Lightcast Skill Recategorization ──
 // Reassigns 28K+ Lightcast skills from "General Professional" to ESCO-style categories
 // Runs once after skill library load, before category bridge build
-export function recategorizeLightcastSkills() {
+function recategorizeLightcastSkills() {
     if (!skillLibraryIndex || !skillLibraryIndex.index) return;
     
     // Category rules: array of [regex, category, subcategory]
@@ -2870,7 +2870,7 @@ export function recategorizeLightcastSkills() {
 var _escoSubcategoryIndex = {};  // subcategory_lower → [skill_name_lower, ...]
 var _escoSkillToSubcategory = {}; // skill_name_lower → subcategory_lower
 
-export function buildEscoCategoryIndex() {
+function buildEscoCategoryIndex() {
     if (!skillLibraryIndex || !skillLibraryIndex.index) return;
     _escoSubcategoryIndex = {};
     _escoSkillToSubcategory = {};
@@ -2919,7 +2919,7 @@ var _adminSkillBlocklistLoaded = false;
 // loadAdminSkillBlocklist — provided by imported module
 
 
-export function saveAdminSkillBlocklist() {
+function saveAdminSkillBlocklist() {
     if (!fbDb) return;
     var arr = Array.from(_adminSkillBlocklist).sort();
     var payload = { skills: arr, updatedAt: new Date().toISOString() };
@@ -2939,7 +2939,7 @@ var _adminApprovedSkills = new Set();
 // loadAdminApprovedSkills — provided by imported module
 
 
-export function saveAdminApprovedSkills() {
+function saveAdminApprovedSkills() {
     if (!fbDb) return;
     var arr = Array.from(_adminApprovedSkills).sort();
     var payload = { skills: arr, updatedAt: new Date().toISOString() };
@@ -2954,7 +2954,7 @@ export function saveAdminApprovedSkills() {
         });
 }
 
-export function adminApproveSkill(name) {
+function adminApproveSkill(name) {
     if (readOnlyGuard()) return;
     var lower = (name || '').toLowerCase().trim();
     if (!lower) return;
@@ -2964,9 +2964,8 @@ export function adminApproveSkill(name) {
     saveAdminSkillBlocklist();
     showToast('Approved: \u201C' + lower + '\u201D \u2014 added to parser dictionary.', 'success', 3000);
 }
-window.adminApproveSkill = adminApproveSkill;
 
-export function adminBlockFromAudit(name) {
+function adminBlockFromAudit(name) {
     if (readOnlyGuard()) return;
     var lower = (name || '').toLowerCase().trim();
     if (!lower) return;
@@ -2976,7 +2975,6 @@ export function adminBlockFromAudit(name) {
     saveAdminApprovedSkills();
     showToast('Blocked: \u201C' + lower + '\u201D \u2014 will be excluded from parsing.', 'info', 3000);
 }
-window.adminBlockFromAudit = adminBlockFromAudit;
 
 // isSkillApproved — provided by imported module
 
@@ -2984,7 +2982,7 @@ window.adminBlockFromAudit = adminBlockFromAudit;
 // isSkillBlocklisted — provided by imported module
 
 
-export function adminBlockSkill(name, jobIdx) {
+function adminBlockSkill(name, jobIdx) {
     if (readOnlyGuard()) return;
     var lower = (name || '').toLowerCase().trim();
     if (!lower) return;
@@ -3002,17 +3000,15 @@ export function adminBlockSkill(name, jobIdx) {
         }
     }
 }
-window.adminBlockSkill = adminBlockSkill;
 
-export function adminUnblockSkill(name) {
+function adminUnblockSkill(name) {
     _adminSkillBlocklist.delete((name || '').toLowerCase().trim());
     saveAdminSkillBlocklist();
     showToast('Unblocked: "' + name + '"', 'info', 2000);
 }
-window.adminUnblockSkill = adminUnblockSkill;
 
 // Show blocklist entries that affect a specific job's gaps
-export function showAdminBlocklistInContext(jobIdx) {
+function showAdminBlocklistInContext(jobIdx) {
     var job = (window._userData.savedJobs || [])[jobIdx];
     if (!job || !getJobSkills(job).length) return;
     
@@ -3059,9 +3055,8 @@ export function showAdminBlocklistInContext(jobIdx) {
     overlay.appendChild(card);
     document.body.appendChild(overlay);
 }
-window.showAdminBlocklistInContext = showAdminBlocklistInContext;
 
-export function renderAdminBlocklistPanel() {
+function renderAdminBlocklistPanel() {
     var sorted = Array.from(_adminSkillBlocklist).sort();
     var html = '<div class="blueprint-section">'
         + '<div class="blueprint-section-header">'
@@ -3091,9 +3086,8 @@ export function renderAdminBlocklistPanel() {
     html += '</div>';
     return html;
 }
-window.renderAdminBlocklistPanel = renderAdminBlocklistPanel;
 
-export function adminBlockSkillFromInput() {
+function adminBlockSkillFromInput() {
     var inp = document.getElementById('blocklistAddInput');
     if (!inp || !inp.value.trim()) return;
     adminBlockSkill(inp.value.trim(), -1);
@@ -3102,7 +3096,6 @@ export function adminBlockSkillFromInput() {
     var container = document.getElementById('adminBlocklistContainer');
     if (container) container.innerHTML = renderAdminBlocklistPanel();
 }
-window.adminBlockSkillFromInput = adminBlockSkillFromInput;
 
 // Search skills by query - returns array always
 // searchSkills — provided by imported module
@@ -3941,7 +3934,7 @@ export function loadTemplate(templateId) {
 // hydrateIcons — provided by imported module
 
 
-export function _loadCrosswalkDeferred() {
+function _loadCrosswalkDeferred() {
     if (window.onetCrosswalk) return;
     fetch('onet-crosswalk.json').then(function(r) { return r.json(); }).then(function(data) {
         window.onetCrosswalk = data;
@@ -7165,7 +7158,7 @@ export function wizardApplyAndLaunch(built) {
 }
 
 // Normalize roles: ensure every role has id, color, and skills list
-export function normalizeUserRoles() {
+function normalizeUserRoles() {
     var roleColors = ['#3b82f6', '#fb923c', '#10b981', '#f59e0b', '#a855f7', '#ec4899', '#06b6d4', '#84cc16'];
     var bannedReds = ['#ef4444','#f87171','#dc2626','#b91c1c','#fca5a5','#fee2e2'];
     (window._userData.roles || []).forEach(function(role, i) {
@@ -7183,7 +7176,7 @@ export function normalizeUserRoles() {
 }
 
 // Initialize main app with user data
-export function initializeMainApp() {
+function initializeMainApp() {
     if (!window._userData || !window._userData.initialized) {
         var _t = 0, _p = setInterval(function() {
             _t++;
@@ -7278,8 +7271,6 @@ window.initHeroNetwork = initHeroNetwork;
 window.viewSampleProfile = viewSampleProfile;
 window.selectShowCollection = selectShowCollection;
 window.showWelcomeView = showWelcomeView;
-window.calculateSkillValue = calculateSkillValue;
-window.calculateTotalMarketValue = calculateTotalMarketValue;
 window.showBlsCategoryEditor = showBlsCategoryEditor;
 window.saveBlsCategoryOverride = saveBlsCategoryOverride;
 window.clearBlsCategoryOverride = clearBlsCategoryOverride;
@@ -7322,17 +7313,6 @@ window.getFallbackSkillMatches = getFallbackSkillMatches;
 window.getCertFloorLevel = getCertFloorLevel;
 window.buildProfileSelector = buildProfileSelector;
 window.switchProfile = switchProfile;
-window.recategorizeLightcastSkills = recategorizeLightcastSkills;
-window.buildEscoCategoryIndex = buildEscoCategoryIndex;
-window.saveAdminSkillBlocklist = saveAdminSkillBlocklist;
-window.saveAdminApprovedSkills = saveAdminApprovedSkills;
-window.adminApproveSkill = adminApproveSkill;
-window.adminBlockFromAudit = adminBlockFromAudit;
-window.adminBlockSkill = adminBlockSkill;
-window.adminUnblockSkill = adminUnblockSkill;
-window.showAdminBlocklistInContext = showAdminBlocklistInContext;
-window.renderAdminBlocklistPanel = renderAdminBlocklistPanel;
-window.adminBlockSkillFromInput = adminBlockSkillFromInput;
 window.getCategoryColor = getCategoryColor;
 window.isSkillAlreadyAdded = isSkillAlreadyAdded;
 window.showSkillCapTriage = showSkillCapTriage;
@@ -7340,7 +7320,6 @@ window.updateTriageCount = updateTriageCount;
 window.confirmSkillCapTriage = confirmSkillCapTriage;
 window.getSampleJobsForProfile = getSampleJobsForProfile;
 window.loadTemplate = loadTemplate;
-window._loadCrosswalkDeferred = _loadCrosswalkDeferred;
 window.showOnboardingWizard = showOnboardingWizard;
 window.closeWizard = closeWizard;
 window.renderWizardStep = renderWizardStep;
@@ -7393,5 +7372,3 @@ window.wizardSaveAndGo = wizardSaveAndGo;
 window.wizardDownloadBackup = wizardDownloadBackup;
 window.wizardLaunchOnly = wizardLaunchOnly;
 window.wizardApplyAndLaunch = wizardApplyAndLaunch;
-window.normalizeUserRoles = normalizeUserRoles;
-window.initializeMainApp = initializeMainApp;

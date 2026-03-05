@@ -119,7 +119,7 @@ import {
 // ─── Phase 7e: Welcome view ───────────────────────────────────────────────────
 import {
         renderWelcomePage, initHeroNetwork, viewSampleProfile, selectShowCollection,
-    showWelcomeView, calculateSkillValue, calculateTotalMarketValue, showBlsCategoryEditor,
+    showWelcomeView, showBlsCategoryEditor,
     saveBlsCategoryOverride, clearBlsCategoryOverride, setValuationMode, formatCompValue,
     getEffectiveComp, loadEvidenceConfig, saveEvidenceConfig, scoreOutcome,
     calculateEvidencePoints, getEffectiveLevel, getEffectiveLevelFromPoints, hasLinkedCertification,
@@ -130,11 +130,9 @@ import {
     submitVerifierResponse, addOutcomeToSkill, editSkillOutcome, removeOutcome,
     showOutcomeForm, updateOutcomeScorePreview, saveOutcomeForm, cancelOutcomeForm,
     getCertSkillAssociations, getFallbackSkillMatches, getCertFloorLevel, buildProfileSelector,
-    switchProfile, recategorizeLightcastSkills, buildEscoCategoryIndex, saveAdminSkillBlocklist,
-    saveAdminApprovedSkills, adminApproveSkill, adminBlockFromAudit, adminBlockSkill,
-    adminUnblockSkill, showAdminBlocklistInContext, renderAdminBlocklistPanel, adminBlockSkillFromInput,
+    switchProfile,
     getCategoryColor, isSkillAlreadyAdded, showSkillCapTriage, updateTriageCount,
-    confirmSkillCapTriage, getSampleJobsForProfile, loadTemplate, _loadCrosswalkDeferred,
+    confirmSkillCapTriage, getSampleJobsForProfile, loadTemplate,
     showOnboardingWizard, closeWizard, renderWizardStep, wizardNext,
     wizardBack, confirmExitWizard, wizardHeading, wizardBtn,
     openMergeComparisonModal, mergeToggleAll, applyMergeSelections, renderWizardStep1,
@@ -148,7 +146,6 @@ import {
     wizardEditValueDesc, wizardAddCustomValue, wizardSaveValues, renderWizardStep8,
     wizardSavePurpose, renderWizardStep9, wizardApplyContentOpts, wizardBuildUserData,
     wizardSaveAndGo, wizardDownloadBackup, wizardLaunchOnly, wizardApplyAndLaunch,
-    normalizeUserRoles, initializeMainApp,
 } from './views/welcome.js';
 
 // ─── Build banner ─────────────────────────────────────────────────────────────
