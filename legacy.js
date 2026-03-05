@@ -17585,6 +17585,7 @@
         };
         
         let templates = {};
+        window._templates = templates; // expose for ES module access
         let valuesLibrary = [];
         
         // Check if user has existing profile
