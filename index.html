@@ -1,4 +1,4 @@
-<!-- v4.46.18 | 2026-03-04 | Firestore comparison persistence: cache, migration, offline fallback -->
+<!-- v4.46.19 | 2026-03-04 | Comparison sharing via URL tokens (shared_comparisons collection) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1710,8 +1710,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.18 - BUILD 20260304-fs-comparisons
-        var BP_VERSION = 'v4.46.18';
+        // BLUEPRINT v4.46.19 - BUILD 20260304-comp-sharing
+        var BP_VERSION = 'v4.46.19';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -2336,7 +2336,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260304-fs-comparisons               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260304-comp-sharing                 ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -5079,7 +5079,7 @@
                         { id: 'p2-6e', name: 'Firestore data pipeline fix (new field persistence)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.63: _buildFirestoreData() whitelist was silently dropping all LinkedIn-derived fields. Added linkedinContent, contentVisibility, companyTenures, importStats to save builder. Added endorsements count and endorsementBoosted flag to skill serializer. Added all four fields to Firestore load path. Without this fix, merge data would not survive page refresh.' },
                         { id: 'p2-6g', name: 'Wizard overwrite safety gate', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.63: wizardOverwriteGuard() intercepts all three fresh-start wizard paths (Upload Resume, LinkedIn Import, Start Fresh) when user has existing profile data. Shows warning screen with: profile inventory (skills, positions, education, certs, outcomes counts), Download Backup button (wizardQuickExport() exports full profile JSON including linkedinContent/companyTenures/contentVisibility), Update from LinkedIn redirect (merge flow instead of overwrite), Go Back button, and red "I understand, start fresh" confirmation. No data lost without explicit user consent. Import Saved Blueprint path is not gated (additive by nature).' },
                         { id: 'p2-6h', name: 'Position visibility (full ripple)', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.63: Hide/show toggles on every work history position. getVisibleRoles() filters roles by matching workHistory hidden flags. Wired to: network graph (role nodes + links), match network, card view, role filter chips, scouting reports (data + role groups), PDF exports (standalone + job), skills management, dashboard stats. Role info card has Hide Role button triggering network rebuild. toggleWorkHistoryHidden invalidates networkInitialized for lazy rebuild.' },
-                        { id: 'p2-6f', name: 'Work Blueprint function refinement', status: 'in-progress', category: 'feature', priority: 'high', notes: 'v4.46.18: Firestore comparison persistence complete. Comparisons now stored at users/{uid}/comparisons/ with in-memory cache, optimistic UI, localStorage fallback for offline/unauthenticated, one-time migration of legacy localStorage comparisons, and cache reset on sign-out. Sanitizer trims matched/gap arrays to 150 to stay under Firestore 1MB limit. Synced badge in repo header. Remaining: comparison sharing via URL tokens, batch comparison mode, WB template library, WB diff view, WB versioning/history, WB-to-scouting-report pipeline.' },
+                        { id: 'p2-6f', name: 'Work Blueprint function refinement', status: 'in-progress', category: 'feature', priority: 'high', notes: 'v4.46.18: Firestore comparison persistence. Comparisons stored at users/{uid}/comparisons/ with in-memory cache, optimistic UI, localStorage fallback, one-time migration, cache reset on sign-out. v4.46.19: Comparison sharing via URL tokens. Share button on step 4 and saved comparison modal. Writes sanitized copy to shared_comparisons/{id} (public read). URL: ?comp={id}&token={token}. Page load detects param, fetches doc, validates token, renders read-only modal. Re-share re-uses existing token. Remaining: batch comparison mode, WB template library, WB diff view, WB versioning/history, WB-to-scouting-report pipeline.' },
                         { id: 'p2-6i', name: 'User Flows tracker', status: 'done', category: 'feature', priority: 'medium', notes: 'v4.45.63: Admin → System → User Flows. 12 workflow categories mapped with step-by-step function chains: Onboarding, LinkedIn Merge, Skill Mgmt, Work History, Job Pipeline, Network Viz, Reports, Values/Outcomes, Content/Evidence, Settings, Education/Certs, Auth/Persistence. Clickable tiles open horizontal flow diagrams. Each step shows function name, description, downstream connections. Phase 2: export flows as PNG/PDF/mermaid.' },
                         { id: 'p2-6j', name: 'User Flows export (phase 2)', status: 'planned', category: 'feature', priority: 'low', notes: 'Export user flow diagrams as PNG, PDF, or Mermaid markdown. Add print stylesheet for flow diagrams. Consider SVG export for vector quality.' },
                         { id: 'p2-6k', name: 'Dev time comparison tile', status: 'done', category: 'feature', priority: 'low', notes: 'v4.45.65: Admin Overview tile comparing AI vibe-coding velocity vs traditional solo dev. Computes: speed multiplier, cost multiplier, LOC/hr efficiency. Stats grid shows lines of code, features shipped, deploys, AI sessions, hours, first commit date. Side-by-side comparison with progress bars for calendar time, work hours, work days, total cost. Editable stats modal with Firestore persistence. Traditional dev baseline: $175K/yr loaded, 100 LOC/day for complex SPA.' },
@@ -12463,6 +12463,7 @@
                 + '</div>'
                 + '<div style="display:flex; gap:8px;">'
                 + '<button onclick="_wbCompSaveCurrent()" style="padding:6px 14px; background:linear-gradient(135deg, #10b981, #3b82f6); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('save',12) + ' Save</button>'
+                + '<button onclick="_wbCompShareCurrent()" style="padding:6px 14px; background:linear-gradient(135deg, #6366f1, #8b5cf6); color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('external',12) + ' Share</button>'
                 + '<button onclick="_wbCompExportPDF()" style="padding:6px 14px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.8em;">' + bpIcon('file-text',12) + ' PDF</button>'
                 + '<button onclick="_wbCompWizStep=1; _wbCompWizData={wb:null,rawJD:\'\',candidateId:\'\',candidate:null}; renderWBCompareWizard(document.getElementById(\'adminTabContent\'));" style="padding:6px 14px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.8em;">' + bpIcon('refresh',12) + ' New Comparison</button>'
                 + '<button onclick="_wbCompWizStep=1; renderWBCompareWizard(document.getElementById(\'adminTabContent\'));" style="padding:6px 14px; background:#ef4444; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.8em; font-weight:600;">' + bpIcon('x',12) + ' Close</button>'
@@ -12651,13 +12652,13 @@
                     var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
                     var delta = s.wbScore - s.jdScore;
                     var deltaColor = delta > 0 ? '#10b981' : delta < 0 ? '#ef4444' : 'var(--c-muted)';
-                    html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-3); border-radius:10px; padding:14px; cursor:pointer; transition:border-color 0.2s;" onmouseover="this.style.borderColor='#10b981'" onmouseout="this.style.borderColor='var(--c-surface-3)'" onclick="_wbCompOpenModal('' + s.id + '')">'
+                    html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-3); border-radius:10px; padding:14px; cursor:pointer; transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'#10b981\'" onmouseout="this.style.borderColor=\'var(--c-surface-3)\'" onclick="_wbCompOpenModal(\'' + s.id + '\')">'
                         + '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">'
                         + '<div>'
                         + '<div style="font-family:Outfit,sans-serif; font-weight:700; font-size:0.88em; color:var(--c-heading);">' + escapeHtml(s.candidateName) + '</div>'
                         + '<div style="font-size:0.75em; color:var(--c-muted);">' + escapeHtml(s.candidateTitle) + '</div>'
                         + '</div>'
-                        + '<button onclick="event.stopPropagation(); _wbCompDeleteSaved('' + s.id + '')" style="background:none; border:none; color:var(--c-muted); cursor:pointer; padding:4px;" title="Remove">' + bpIcon('x',14) + '</button>'
+                        + '<button onclick="event.stopPropagation(); _wbCompDeleteSaved(\'' + s.id + '\')" style="background:none; border:none; color:var(--c-muted); cursor:pointer; padding:4px;" title="Remove">' + bpIcon('x',14) + '</button>'
                         + '</div>'
                         + '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:8px;">' + escapeHtml(s.blueprintTitle) + (s.company ? ' at ' + escapeHtml(s.company) : '') + '</div>'
                         + '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:8px;">'
@@ -12704,7 +12705,8 @@
                     + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:#f1f5f9;">'
                     + bpIcon('trending-up', 16) + ' Saved Comparison \u2014 ' + escapeHtml(entry.candidateName) + '</div>'
                     + '<div style="display:flex; gap:8px;">'
-                    + '<button onclick="_wbCompExportPDFFromSaved('' + id + '')" style="padding:8px 16px; background:rgba(51,65,85,0.8); color:#e2e8f0; border:1px solid rgba(71,85,105,0.5); border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:500;">' + bpIcon('file-text',12) + ' Export PDF</button>'
+                    + '<button onclick="_wbCompShareSaved(\'' + id + '\')" style="padding:8px 16px; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600;">' + bpIcon('external',12) + ' Share</button>'
+                    + '<button onclick="_wbCompExportPDFFromSaved(\'' + id + '\')" style="padding:8px 16px; background:rgba(51,65,85,0.8); color:#e2e8f0; border:1px solid rgba(71,85,105,0.5); border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:500;">' + bpIcon('file-text',12) + ' Export PDF</button>'
                     + '<button onclick="_wbCompCloseModal()" style="padding:8px 16px; background:#ef4444; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600;">' + bpIcon('x',12) + ' Close</button>'
                     + '</div></div>';
                 var content = _wbRenderComparison(entry.wb, entry.rawResult, entry.structResult, entry.candidate);
@@ -12721,7 +12723,155 @@
             document.body.style.overflow = '';
         }
         window._wbCompCloseModal = _wbCompCloseModal;
-        
+
+        // ── Comparison Sharing ──
+        // Writes a sanitized copy to shared_comparisons/{id} (public read by token).
+        // URL: ?comp={id}&token={shareToken}  — handled at page load.
+        function _wbCompShareCurrent() {
+            var d = _wbCompWizData;
+            if (!d.wb || !d.rawResult || !d.structResult) { showToast('No comparison to share.', 'warning'); return; }
+            if (!fbDb) { showToast('Sign in required to generate share links.', 'warning'); return; }
+            _wbCompDoShare(d.wb, d.rawResult, d.structResult, d.candidate, d.rawJD);
+        }
+        window._wbCompShareCurrent = _wbCompShareCurrent;
+
+        function _wbCompShareSaved(id) {
+            var fromCache = (_wbCompCache || []).find(function(s) { return s.id === id; });
+            var lookup = fromCache
+                ? Promise.resolve(fromCache)
+                : (_wbCompFSPath()
+                    ? _wbCompFSPath().doc(id).get().then(function(d) { return d.exists ? d.data() : null; })
+                    : Promise.resolve(null));
+            lookup.then(function(entry) {
+                if (!entry) { showToast('Comparison not found.', 'warning'); return; }
+                // If already shared, re-surface URL
+                if (entry.shareToken && entry.shareId) {
+                    var url = _wbCompBuildShareUrl(entry.shareId, entry.shareToken);
+                    _wbCompCopyUrl(url);
+                    return;
+                }
+                _wbCompDoShare(entry.wb, entry.rawResult, entry.structResult, entry.candidate, entry.rawJD, id);
+            });
+        }
+        window._wbCompShareSaved = _wbCompShareSaved;
+
+        function _wbCompBuildShareUrl(shareId, shareToken) {
+            return window.location.origin + window.location.pathname + '?comp=' + shareId + '&token=' + shareToken;
+        }
+
+        function _wbCompCopyUrl(url) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(function() {
+                    showToast('Share link copied!', 'success', 6000);
+                });
+            } else {
+                var ta = document.createElement('textarea');
+                ta.value = url;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                ta.remove();
+                showToast('Share link copied!', 'success', 6000);
+            }
+        }
+
+        function _wbCompDoShare(wb, rawResult, structResult, candidate, rawJD, savedCompId) {
+            showToast('Generating share link...', 'info', 3000);
+            // Crypto IDs
+            var idBytes = new Uint8Array(16);
+            crypto.getRandomValues(idBytes);
+            var shareId = 'comp-' + Date.now().toString(36) + Array.from(idBytes, function(b) { return b.toString(16).padStart(2,'0'); }).join('');
+            var tokenBytes = new Uint8Array(16);
+            crypto.getRandomValues(tokenBytes);
+            var shareToken = Array.from(tokenBytes, function(b) { return b.toString(16).padStart(2,'0'); }).join('');
+
+            var entry = _wbCompSanitize({
+                id: shareId,
+                shareToken: shareToken,
+                sharedAt: new Date().toISOString(),
+                sharedBy: fbUser ? fbUser.uid : 'anonymous',
+                blueprintTitle: (wb || {}).title || 'Untitled',
+                company: (wb || {}).company || '',
+                candidateName: ((candidate || {}).profile || {}).name || 'Candidate',
+                candidateTitle: ((candidate || {}).profile || {}).title || '',
+                jdScore: (rawResult || {}).score || 0,
+                wbScore: (structResult || {}).score || 0,
+                wb: wb,
+                rawJD: rawJD || '',
+                rawResult: rawResult,
+                structResult: structResult,
+                candidate: candidate
+            });
+
+            fbDb.collection('shared_comparisons').doc(shareId).set(entry)
+                .then(function() {
+                    var url = _wbCompBuildShareUrl(shareId, shareToken);
+                    _wbCompCopyUrl(url);
+                    // Patch shareToken/shareId onto the saved comparison so re-share is instant
+                    if (savedCompId && _wbCompFSPath()) {
+                        _wbCompFSPath().doc(savedCompId).update({ shareId: shareId, shareToken: shareToken })
+                            .catch(function() {});
+                        if (_wbCompCache) {
+                            var cached = _wbCompCache.find(function(s) { return s.id === savedCompId; });
+                            if (cached) { cached.shareId = shareId; cached.shareToken = shareToken; }
+                        }
+                    }
+                })
+                .catch(function(e) {
+                    console.error('[Comparisons] Share write failed:', e);
+                    showToast('Share failed: ' + e.message, 'error');
+                });
+        }
+
+        // ── Shared comparison viewer (URL: ?comp=...&token=...) ──
+        function _wbCompCheckSharedUrl() {
+            try {
+                var params = new URLSearchParams(window.location.search);
+                var compId = params.get('comp');
+                var token  = params.get('token');
+                if (!compId || !token) return;
+                if (!fbDb) { showToast('Cannot load shared comparison: database unavailable.', 'warning'); return; }
+                // Clean URL immediately
+                if (window.history && window.history.replaceState) {
+                    window.history.replaceState(null, '', window.location.pathname);
+                }
+                showToast('Loading shared comparison...', 'info', 3000);
+                fbDb.collection('shared_comparisons').doc(compId).get().then(function(doc) {
+                    if (!doc.exists) { showToast('Shared comparison not found or has been removed.', 'warning'); return; }
+                    var data = doc.data();
+                    if (!data.shareToken || data.shareToken !== token) {
+                        showToast('Invalid share link.', 'error');
+                        return;
+                    }
+                    if (!data.wb || !data.rawResult || !data.structResult) {
+                        showToast('Comparison data incomplete.', 'warning');
+                        return;
+                    }
+                    // Render in read-only modal
+                    var existing = document.getElementById('wbCompModal');
+                    if (existing) existing.remove();
+                    var overlay = document.createElement('div');
+                    overlay.id = 'wbCompModal';
+                    overlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:99999; background:#0f172a; overflow-y:auto; padding:20px 20px 60px;';
+                    var sharedAt = data.sharedAt ? new Date(data.sharedAt).toLocaleDateString() : '';
+                    var closeBar = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:12px 16px; background:rgba(30,41,59,0.95); border-radius:10px; border:1px solid rgba(51,65,85,0.5); position:sticky; top:0; z-index:100; backdrop-filter:blur(8px);">'
+                        + '<div style="font-family:Outfit,sans-serif; font-weight:700; color:#f1f5f9;">'
+                        + bpIcon('trending-up', 16) + ' Shared Comparison \u2014 ' + escapeHtml(data.candidateName)
+                        + '<span style="font-size:0.68em; color:#64748b; margin-left:10px; font-weight:400;">Shared ' + sharedAt + ' \u00B7 Read-only</span>'
+                        + '</div>'
+                        + '<button onclick="_wbCompCloseModal()" style="padding:8px 16px; background:#ef4444; color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:0.82em; font-weight:600;">' + bpIcon('x',12) + ' Close</button>'
+                        + '</div>';
+                    var content = _wbRenderComparison(data.wb, data.rawResult, data.structResult, data.candidate);
+                    overlay.innerHTML = '<div style="max-width:960px; margin:0 auto;">' + closeBar + content + '</div>';
+                    document.body.appendChild(overlay);
+                    document.body.style.overflow = 'hidden';
+                }).catch(function(e) {
+                    showToast('Could not load comparison: ' + e.message, 'error');
+                });
+            } catch(e) { /* URLSearchParams not supported */ }
+        }
+        window._wbCompCheckSharedUrl = _wbCompCheckSharedUrl;
+
         // Close modal on Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && document.getElementById('wbCompModal')) {
@@ -24362,6 +24512,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             checkWaitlistInviteStatus();
             updateWaitlistCounter();
             console.log('\uD83C\uDFAF App mode:', appMode, waitlistPosition ? '(#' + waitlistPosition + ')' : '');
+
+            // Check for shared comparison URL (?comp=...&token=...)
+            setTimeout(function() { _wbCompCheckSharedUrl(); }, 800);
             
             // If user has profile, set up UI
             if (userData.initialized) {
