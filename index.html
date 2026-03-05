@@ -1,4 +1,4 @@
-<!-- v4.46.20 | 2026-03-04 | Security/stability audit fixes: safeSet for API key, comp cache reset on sign-in, D3 sim stop on view change -->
+<!-- v4.46.21 | 2026-03-05 | Mobile admin: sticky tab bar, separator border, hide tour btn in admin -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -704,7 +704,12 @@
               #adminLayout { flex-direction: column !important; }
               #adminSidebarWrap {
                   width: 100% !important;
-                  position: relative !important;
+                  position: sticky !important;
+                  top: 0 !important;
+                  z-index: 50 !important;
+                  background: var(--c-bg) !important;
+                  padding-bottom: 4px !important;
+                  border-bottom: 1px solid var(--c-surface-3) !important;
               }
               #adminSidebar {
                   width: 100% !important;
@@ -716,6 +721,9 @@
                   overflow-x: auto !important;
                   -webkit-overflow-scrolling: touch;
                   scrollbar-width: none;
+                  border: none !important;
+                  border-radius: 0 !important;
+                  background: transparent !important;
               }
               #adminSidebar::-webkit-scrollbar { display: none; }
               #adminSidebar .admin-tab {
@@ -731,6 +739,9 @@
               #adminSidebar .admin-group-items { display: contents !important; }
               #adminScrollLeft, #adminScrollRight {
                   display: flex !important;
+              }
+              #adminTabContent {
+                  padding-top: 12px !important;
               }
           }
           @media (min-width: 769px) {
@@ -1710,8 +1721,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.20 - BUILD 20260304-audit-fixes
-        var BP_VERSION = 'v4.46.20';
+        // BLUEPRINT v4.46.21 - BUILD 20260305-mobile-admin
+        var BP_VERSION = 'v4.46.21';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -2336,7 +2347,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260304-audit-fixes                  ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260305-mobile-admin                 ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -3529,6 +3540,9 @@
         function initAdminView() {
             var view = document.getElementById('adminView');
             if (!view) return;
+            // Hide floating tour help button — not useful in admin, clutters mobile
+            var tourBtn = document.getElementById('tourHelpBtn');
+            if (tourBtn) tourBtn.style.display = 'none';
             
             var authName = showcaseMode ? (userData.profile.name || 'Showcase Admin') : (fbUser ? (fbUser.displayName || fbUser.email) : 'Admin');
             
@@ -24955,9 +24969,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             window.scrollTo(0, 0);
 
             // Stop the global D3 network simulation when leaving the map view
-            // Prevents the simulation running indefinitely on a hidden canvas
             if (view !== 'network' && typeof simulation !== 'undefined' && simulation) {
                 try { simulation.stop(); } catch(e) {}
+            }
+
+            // Restore tour help button when leaving admin view
+            if (view !== 'admin') {
+                var tourBtn = document.getElementById('tourHelpBtn');
+                if (tourBtn) tourBtn.style.display = '';
             }
             
             // Announce view change to screen readers
