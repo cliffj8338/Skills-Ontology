@@ -2,7 +2,7 @@
 // Validates Firebase ID token, forwards to Anthropic API with server-side key.
 // Deploy: place in /api/ai.js, set ANTHROPIC_API_KEY in Vercel Environment Variables.
 
-const crypto = require('crypto');
+import crypto from 'crypto';
 
 // Firebase project config
 const FIREBASE_PROJECT_ID = 'work-blueprint';
@@ -91,7 +91,7 @@ function checkRateLimit(uid) {
     return entry.count <= RATE_LIMIT;
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
     // CORS preflight
     if (req.method === 'OPTIONS') {
         res.setHeader('Access-Control-Allow-Origin', 'https://myblueprint.work');
