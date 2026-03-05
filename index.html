@@ -1,4 +1,4 @@
-<!-- v4.46.16 | 2026-03-03 | SEO + Generative Engine Optimization complete -->
+<!-- v4.46.17 | 2026-03-04 | O*NET alternate titles expansion: 53K aliases, 1,016 occupations | data library tiles updated -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1710,8 +1710,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.16 - BUILD 20260303-seo-geo
-        var BP_VERSION = 'v4.46.16';
+        // BLUEPRINT v4.46.17 - BUILD 20260304-onet-titles-expand
+        var BP_VERSION = 'v4.46.17';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -2336,7 +2336,7 @@
         // ============================================================
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   BLUEPRINT ' + BP_VERSION + '                    ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
-        console.log('%c   Build: 20260228-bls-expansion               ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
+        console.log('%c   Build: 20260304-onet-titles-expand          ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c   Everyone Has Premium Value!              ', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
         console.log('%c==============================================', 'color: #60a5fa; font-weight: bold; font-size: 14px;');
 
@@ -3651,9 +3651,13 @@
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 16px; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">Data Libraries</h3>'
                 + '<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:10px;">';
             
+            var certLibCount = (typeof certLibrary !== 'undefined' && certLibrary.credentials) ? certLibrary.credentials.length : 0;
+            var synonymMappingCount = (typeof _synonymLookup === 'object') ? Object.keys(_synonymLookup).length : 0;
+
             var tiles = [
-                { name: 'ESCO Skills', count: escoCount, source: 'European Commission', color: '#a78bfa', loaded: escoCount > 0 },
-                { name: 'O*NET Skills', count: skillLibCount, source: 'US Dept of Labor', color: '#60a5fa', loaded: skillLibCount > 0 },
+                { name: 'Skills Library', count: escoCount, source: 'ESCO \u00B7 Lightcast \u00B7 O*NET', color: '#a78bfa', loaded: escoCount > 0 },
+                { name: 'Certifications', count: certLibCount, source: 'Base + Lightcast', color: '#c084fc', loaded: certLibCount > 0 },
+                { name: 'Synonyms', count: synonymMappingCount, source: 'Bidirectional mappings', color: '#818cf8', loaded: synonymMappingCount > 0 },
                 { name: 'Abilities', count: abilitiesCount, source: 'O*NET', color: '#60a5fa', loaded: abilitiesCount > 0 },
                 { name: 'Work Styles', count: wsCount, source: 'O*NET', color: '#60a5fa', loaded: wsCount > 0 },
                 { name: 'Knowledge', count: knowledgeCount, source: 'O*NET', color: '#60a5fa', loaded: knowledgeCount > 0 },
@@ -3887,7 +3891,7 @@
                         jt.querySelector('div[style*="top:8px"]').style.color = '#10b981';
                         jt.style.borderColor = 'var(--c-border-faint)';
                         var lc = document.getElementById('adminLibsLoadedCount');
-                        if (lc) lc.textContent = '12/12 libraries loaded';
+                        if (lc) lc.textContent = '14/14 libraries loaded';
                     }
                 }).catch(function() {});
             }
@@ -5015,7 +5019,7 @@
                         { id: 'p2-3b', name: 'Quick profile builder (1-3 min)', status: 'done', category: 'feature', priority: 'critical', notes: 'Three-path onboarding: Resume upload (AI parse), LinkedIn .zip import (CSV parse + AI skill inference), Manual entry. Wizard auto-triggers for empty profiles. LinkedIn import is zero-cost instant path.' },
                         { id: 'p2-3c', name: 'Resume PDF file upload', status: 'done', category: 'feature', priority: 'high', notes: 'Direct PDF upload in wizard Step 2 via drag-and-drop or file picker. PDF sent to Claude as base64 document content block for native processing. 10 MB size limit. Three tabs: Upload PDF (default), Paste Text, LinkedIn Text.' },
                         { id: 'p2-3d', name: 'LinkedIn CSV header normalization', status: 'done', category: 'feature', priority: 'medium', notes: 'Header normalization map handles case variations, underscore/space differences, BOM removal, and LinkedIn format changes across export versions. Canonical name fallbacks in all CSV field extractors.' },
-                        { id: 'p2-3e', name: 'O*NET Occupation Crosswalk', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'Pipeline repo generates crosswalk JSON (517 occupations, 20k+ aliases). 6-strategy title resolver, skill enrichment, multi-source merge. Custom aliases for VP/GM titles. Deployed as static asset.' },
+                        { id: 'p2-3e', name: 'O*NET Occupation Crosswalk', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'Pipeline repo generates crosswalk JSON (1,016 occupations, 53k+ aliases). 6-strategy title resolver, skill enrichment, multi-source merge. Custom aliases for VP/GM titles. Deployed as static asset. v4.46.17: Expanded from 517 occupations/20k aliases via O*NET Alternate Titles + Sample of Reported Titles merge.' },
                         { id: 'p2-3f', name: 'Wizard enrichment step', status: 'done', category: 'feature', priority: 'critical', notes: 'Step 5 in wizard. Resolves role titles to O*NET occupations, runs gap analysis, presents suggested skills as checkboxes. Adds checked skills with onet-enrichment provenance. Skip-safe if crosswalk not loaded.' },
                         { id: 'p2-3g', name: 'Multi-source profile merge', status: 'planned', category: 'feature', priority: 'critical', notes: 'Import JSON or LinkedIn zip into existing profile without overwriting. mergeSkillSources() deduplicates, keeps higher level, unions evidence/roles, tracks provenance with sources[] array.' },
                         { id: 'p2-3h', name: 'LinkedIn zip import retest', status: 'planned', category: 'testing', priority: 'high', notes: 'yearsExperience .replace() crash fixed. Full flow needs clean test: zip upload → parse → profile review → save. Skill inference fallback if API key not set.' },
@@ -5060,7 +5064,7 @@
                         { id: 'p2-5s', name: 'Match score override fix', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.45.43: rescoreAllJobs() and rescoreOneJob() were overwriting matchJobToProfile 6-pass scores with quickScoreJob text-search scores. After v4.45.39 unified quickScoreJob with parseJobLocally (43K skills), gap count exploded, dropping all pipeline scores to 0-15%. Fix: matchJobToProfile is now authoritative for jobs with parsedSkills; quickScoreJob only used for raw-text-only Find Jobs results.' },
                         { id: 'p2-5t', name: 'Clear job overlay on profile switch', status: 'done', category: 'bugfix', priority: 'medium', notes: 'v4.45.44: Job match overlay from previous profile persisted on network when switching demo profiles. Added clearJobOverlay() to enterDemoMode(), switchDemoProfile(), and exitDemoMode().' },
                         { id: 'p2-5u', name: 'BLS salary alias + keyword expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.45: bls-wages.json aliases expanded from 170 to 4,228 via four strategies: BLS title decomposition (singular forms, split compounds), seniority prefix generation (VP/Director/Senior/Lead variants), abbreviation patterns (mgr/dir/admin/rep), and 300+ hand-curated industry titles (tech, data, sales, marketing, HR, finance, legal, healthcare, education, trades, retail, consulting). Keywords expanded across 15 thin occupations. Fixes dozens of mismatches across demo profiles.' },
-                        { id: 'p2-5v', name: 'O*NET Alternate Titles import (30K+)', status: 'planned', category: 'data', priority: 'high', notes: 'O*NET publishes ~30,000 alternate job titles pre-mapped to SOC codes (Alternate Titles file at onetonline.org/help/onet/titles). Download or API-fetch the dataset, normalize to lowercase, deduplicate against existing aliases, and merge into bls-wages.json. Would give near-universal coverage of real-world job titles. May need periodic refresh as O*NET updates quarterly. Consider build-time pipeline vs. runtime fetch.' },
+                        { id: 'p2-5v', name: 'O*NET Alternate Titles import (30K+)', status: 'done', category: 'data', priority: 'high', notes: 'v4.46.17: Merged O*NET Alternate_Titles.txt (57,543 entries) and Sample_of_Reported_Titles.txt (7,953 entries) into onet-crosswalk.json. Both normalized and raw-form aliases ingested. Aliases expanded from 20,513 to 53,391 (+32,878). Occupation entries doubled from 517 to 1,016 using Occupation_Data.txt to fill all 499 previously missing SOC codes. File size ~5.97 MB. Near-universal real-world job title coverage.' },
                         { id: 'p2-5w', name: 'Jobs Sync panel redesign', status: 'done', category: 'ui', priority: 'low', notes: 'v4.45.47: Sources list replaced with horizontal bar chart visualization (sorted by count, gradient fills, proportional widths). CRON badge styled as pill. Errors section redesigned with dot indicator, monospace font, subtle background. Library count updated to 12/12 for BLS Aliases tile.' },
                         { id: 'p2-5x', name: 'LinkedIn deep extraction (18 file types)', status: 'done', category: 'feature', priority: 'critical', notes: 'v4.45.63: Expanded LinkedIn zip parser from 8 to 18 CSV file types. Now extracts: Endorsements (peer validation with skill-level boosting), Recommendations (qualitative evidence), Rich Media (posts/thought leadership), Articles (HTML parsing from Articles/ subfolder), LinkedIn Learning (completed courses), Volunteering, Honors, Causes, Organizations, Company Follows, Connections (network size). All stored in userData.linkedinContent for downstream use in scouting reports, document repository, and skill evidence. Import summary screen shows extraction stats before wizard continues.' },
                         { id: 'p2-5y', name: 'Career progression grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.63: Positions at the same company are now grouped by normalized company name (strips LLC/Inc/People suffixes). Multi-position groups display as visual career timelines with left-border accent, timeline dots, tenure calculation, and ascending role labels. Single positions render normally. Progression badge shows role count. Roles carry progression arrays and totalYears for downstream scouting report use.' },
@@ -6095,7 +6099,7 @@
                     deps: ['Anthropic API key ($30 prepaid)', 'AI proxy'], debt: '$0.07/resume parse. Credits deplete without warning.' }},
                 { id: 'onet', name: 'O*NET Crosswalk', layer: 'external', col: 1,
                   color: '#84cc16', icon: 'compass',
-                  detail: { desc: '517 occupations, 20,513 title aliases. Skills, abilities, knowledge per SOC code. 6-strategy title resolution chain.',
+                  detail: { desc: '1,016 occupations, 53,391 title aliases. Skills, abilities, knowledge per SOC code. 6-strategy title resolution chain.',
                     functions: ['ONET_OCCUPATIONS[]', 'ONET_CROSSWALK{}', 'resolveOccupation()'], lines: '~7300-8000 (data tables)',
                     inputs: ['Job title string'], outputs: ['SOC code', 'Skills pool with importance/level'],
                     deps: ['Embedded data (no API call)'], debt: 'Data is from O*NET 28.1. Should update annually.' }},
@@ -39458,7 +39462,7 @@ body {
                         jt.querySelector('div[style*="top:8px"]').style.color = '#10b981';
                         jt.style.borderColor = 'var(--c-border-faint)';
                         var lc = document.getElementById('adminLibsLoadedCount');
-                        if (lc) lc.textContent = '12/12 libraries loaded';
+                        if (lc) lc.textContent = '14/14 libraries loaded';
                     }
                 }
             }).catch(function(e) { console.warn('Sync meta load failed:', e.message); });
