@@ -96,10 +96,31 @@ import {
     findJobIdx, initCardView,
 } from './views/network.js';
 
+// ─── Phase 7d: Applications view ─────────────────────────────────────────────
+import {
+    initApplications, renderApplications, renderApplicationCard,
+    addApplicationModal, saveApplication, updateApplicationStatus,
+    editApplication, saveApplicationEdit, deleteApplication,
+    initConsent, renderSharePresets, renderPresetCard,
+    renderSharingStatus, renderLegalSection,
+    handleProfilePhoto, removeProfilePhoto, saveSettings, selectPreset,
+    filterSkillsView, showValuationBreakdown, renderInlineNegotiation, showNegotiationGuide,
+    getSkillImpact, getImpactLabel, getImpactIcon, getImpactColor,
+    closeONETPicker, renderONETLibrary, addSelectedONETSkills,
+    openBulkImport, closeBulkImport, executeBulkImport,
+    openBulkManager, closeBulkManager, bulkManagerSetLevel, bulkManagerRemove,
+    openEditSkillModal, closeEditSkillModal, openUnifiedSkillEditor, closeUnifiedSkillEditor,
+    saveSkillEdit, confirmDeleteSkill, deleteSkill,
+    openAssessSkillModal, closeAssessSkillModal, saveSkillAssessment,
+    refreshAllViews, renderYourSkills, filterYourSkills, removeSkillFromProfile,
+    handleAddSkillsSearch, addSkillFromLibrary,
+    toggleTheme, initTheme,
+} from './views/applications.js';
+
 // ─── Build banner ─────────────────────────────────────────────────────────────
 console.log('%c   BLUEPRINT™ MODULE BUILD   ', 'color:#60a5fa;font-weight:bold;font-size:14px;');
 console.log('%c   ' + BP_VERSION + ' — Phase 7c  ', 'color:#a78bfa;font-weight:bold;font-size:12px;');
-console.log('%c   Network view live  ', 'color:#10b981;font-size:11px;');
+console.log('%c   Applications view live  ', 'color:#10b981;font-size:11px;');
 
 // ─── Pending phases ───────────────────────────────────────────────────────────
 // Phase 5: admin/index.js
