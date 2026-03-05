@@ -1,4 +1,4 @@
-<!-- v4.46.21 | 2026-03-05 | Mobile admin: sticky tab bar, separator border, hide tour btn in admin -->
+<!-- v4.46.22 | 2026-03-05 | API fixes: ES module conversion all serverless functions, job-search rename, _fitFetchAndScore stub, window._templates exposed -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1721,8 +1721,8 @@
 
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.21 - BUILD 20260305-mobile-admin
-        var BP_VERSION = 'v4.46.21';
+        // BLUEPRINT v4.46.22 - BUILD 20260305-api-fixes
+        var BP_VERSION = 'v4.46.22';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
