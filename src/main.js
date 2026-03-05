@@ -198,15 +198,14 @@ import {
 
 // ─── Phase 8a: Auth ───────────────────────────────────────────────────────────
 import {
-    authEmailSignIn, authEmailSignUp, authSendMagicLink, authSignOut,
-    checkMagicLinkSignIn, friendlyAuthError, handlePostSignIn,
-    checkAdminRole, updateAuthUI, rebuildProfileDropdown, getInitials,
+    authEmailSignUp, friendlyAuthError, updateAuthUI,
+    rebuildProfileDropdown, getInitials,
 } from './core/auth.js';
 
 // ─── Phase 8b: Profile dropdown ───────────────────────────────────────────────
 import {
     toggleProfileDropdown, closeProfileDropdown, buildProfileDropdown,
-    toggleFilterPanel, toggleOverflowMenu, closeOverflowMenu,
+    toggleOverflowMenu, closeOverflowMenu,
     showHelp, showTeaserModal, closeTeaserModal, showAbout, sendFeedback, showLegalNotice,
 } from './ui/profile-dropdown.js';
 

@@ -33,7 +33,7 @@ function updateProfileChip(name) {
 }
 
 // ===== FILTER PANEL TOGGLE =====
-export function toggleFilterPanel() {
+function toggleFilterPanel() {
     const panel = document.getElementById('filterPanel');
     const btn = document.getElementById('filterToggleBtn');
     const isOpen = panel.classList.toggle('open');
@@ -470,7 +470,6 @@ window.addEventListener('popstate', function(e) {
 window.toggleProfileDropdown = toggleProfileDropdown;
 window.closeProfileDropdown = closeProfileDropdown;
 window.buildProfileDropdown = buildProfileDropdown;
-window.toggleFilterPanel = toggleFilterPanel;
 window.toggleOverflowMenu = toggleOverflowMenu;
 window.closeOverflowMenu = closeOverflowMenu;
 window.showHelp = showHelp;

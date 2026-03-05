@@ -5,7 +5,7 @@ import { escapeHtml }  from './security.js';
 import { showToast }   from '../ui/toast.js';
 import { bpIcon }      from '../ui/icons.js';
 
-export function authEmailSignIn() {
+function authEmailSignIn() {
     if (!fbAuth) return;
     var email = (document.getElementById('authEmail') || {}).value || '';
     var password = (document.getElementById('authPassword') || {}).value || '';
@@ -20,7 +20,6 @@ export function authEmailSignIn() {
             showAuthError(friendlyAuthError(err.code));
         });
 }
-window.authEmailSignIn = authEmailSignIn;
 
 export function authEmailSignUp() {
     if (!fbAuth) return;
@@ -44,7 +43,7 @@ export function authEmailSignUp() {
 }
 window.authEmailSignUp = authEmailSignUp;
 
-export function authSendMagicLink() {
+function authSendMagicLink() {
     if (!fbAuth) return;
     var email = (document.getElementById('authEmail') || {}).value || '';
     if (!email) { showAuthError('Please enter your email address first.'); return; }
@@ -63,9 +62,8 @@ export function authSendMagicLink() {
             showAuthError(friendlyAuthError(err.code));
         });
 }
-window.authSendMagicLink = authSendMagicLink;
 
-export function authSignOut() {
+function authSignOut() {
     if (!fbAuth) return;
     fbAuth.signOut().then(function() {
         fbUser = null;
@@ -89,7 +87,6 @@ export function authSignOut() {
         switchView('welcome');
     });
 }
-window.authSignOut = authSignOut;
 
 // Handle magic link sign-in on page load
 export function checkMagicLinkSignIn() {
@@ -132,7 +129,7 @@ export function friendlyAuthError(code) {
 }
 
 // ===== POST SIGN-IN HANDLER =====
-export function handlePostSignIn(user, isNewUser) {
+function handlePostSignIn(user, isNewUser) {
     if (!user) return;
     
     // Ensure user document exists in Firestore
@@ -183,7 +180,7 @@ export function handlePostSignIn(user, isNewUser) {
 }
 
 // ===== ADMIN ROLE CHECK =====
-export function checkAdminRole(uid) {
+function checkAdminRole(uid) {
     if (!fbDb) return Promise.resolve(false);
     return fbDb.collection('users').doc(uid).get()
         .then(function(doc) {
@@ -249,14 +246,9 @@ export function getInitials(name) {
 }
 
 // ===== FIRESTORE PERSISTENCE =====
-window.authEmailSignIn = authEmailSignIn;
 window.authEmailSignUp = authEmailSignUp;
-window.authSendMagicLink = authSendMagicLink;
-window.authSignOut = authSignOut;
 window.checkMagicLinkSignIn = checkMagicLinkSignIn;
 window.friendlyAuthError = friendlyAuthError;
-window.handlePostSignIn = handlePostSignIn;
-window.checkAdminRole = checkAdminRole;
 window.updateAuthUI = updateAuthUI;
 window.rebuildProfileDropdown = rebuildProfileDropdown;
 window.getInitials = getInitials;
