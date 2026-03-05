@@ -31,7 +31,7 @@ export function initReports() {
     // ══════════════════════════════════════════════════════
     // DEMO / READ-ONLY: Show sample experience
     // ══════════════════════════════════════════════════════
-    if (isReadOnlyProfile) {
+    if (window.isReadOnlyProfile) {
         var mockAnalytics = {
             totalViews: 847, uniqueViewers: 312, shortlisted: 23, notesReceived: 8, avgTimeOnPage: '4m 32s',
             sectionHeatmap: [
@@ -172,17 +172,17 @@ export function initReports() {
     
     // ── Profile Completeness ────────────────────────────
     var completeness = { skills: 0, outcomes: 0, values: 0, purpose: 0, workHistory: 0, credentials: 0 };
-    var allSkills = (window.blueprintData && blueprintData.skills) || [];
+    var allSkills = (window.blueprintData && window._blueprintData.skills) || [];
     var visibleRoles = (typeof getVisibleRoles === 'function') ? getVisibleRoles() : [];
     completeness.skills = allSkills.length >= 5 ? 100 : allSkills.length > 0 ? 50 : 0;
     completeness.workHistory = visibleRoles.length > 0 ? 100 : 0;
     if (window.blueprintData) {
-        completeness.outcomes = (blueprintData.outcomes || []).filter(function(o) { return o.shared; }).length > 0 ? 100 : 0;
-        completeness.values = (blueprintData.values || []).filter(function(v) { return v.selected; }).length > 0 ? 100 : 0;
-        completeness.purpose = blueprintData.purpose ? 100 : 0;
+        completeness.outcomes = (window._blueprintData.outcomes || []).filter(function(o) { return o.shared; }).length > 0 ? 100 : 0;
+        completeness.values = (window._blueprintData.values || []).filter(function(v) { return v.selected; }).length > 0 ? 100 : 0;
+        completeness.purpose = window._blueprintData.purpose ? 100 : 0;
     }
-    var userCerts = (window.blueprintData && blueprintData.certifications) || [];
-    var userEdu = (window.blueprintData && blueprintData.education) || [];
+    var userCerts = (window.blueprintData && window._blueprintData.certifications) || [];
+    var userEdu = (window.blueprintData && window._blueprintData.education) || [];
     completeness.credentials = (userCerts.length > 0 || userEdu.length > 0) ? 100 : 0;
     var compKeys = Object.keys(completeness);
     var totalPct = Math.round(compKeys.reduce(function(sum, k) { return sum + completeness[k]; }, 0) / compKeys.length);

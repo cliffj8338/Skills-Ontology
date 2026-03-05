@@ -616,10 +616,10 @@ export function removeWorkHistoryItem(idx) {
             return (j.title || '').toLowerCase().trim() === removedTitle;
         });
         if (!stillExists && removedTitle) {
-            // Remove from skillsData.roles and window._userData.roles, track removed IDs
+            // Remove from window._skillsData.roles and window._userData.roles, track removed IDs
             var removedRoleIds = new Set();
             removedRoleIds.add(removedTitle);
-            [skillsData.roles, window._userData.roles].forEach(function(rolesArr) {
+            [window._skillsData.roles, window._userData.roles].forEach(function(rolesArr) {
                 if (!Array.isArray(rolesArr)) return;
                 for (var ri = rolesArr.length - 1; ri >= 0; ri--) {
                     var rn = (rolesArr[ri].name || '').toLowerCase().trim();
@@ -632,7 +632,7 @@ export function removeWorkHistoryItem(idx) {
                 }
             });
             // Also remove role references from skills
-            (skillsData.skills || []).forEach(function(s) {
+            (window._skillsData.skills || []).forEach(function(s) {
                 if (s.roles && Array.isArray(s.roles)) {
                     s.roles = s.roles.filter(function(r) {
                         var rName = (typeof r === 'string' ? r : '').toLowerCase().trim();
@@ -685,28 +685,28 @@ export function getVisibleRoles() {
     if (!window._userData || !window.skillsData) return [];
     var wh = window._userData.workHistory || [];
     // No work history → show all roles (nothing to hide)
-    if (wh.length === 0) return (skillsData.roles || []).slice();
+    if (wh.length === 0) return (window._skillsData.roles || []).slice();
     var visibleTitles = new Set();
     wh.forEach(function(job) {
         if (!job.hidden) visibleTitles.add((job.title || '').toLowerCase().trim());
     });
     // If all entries are hidden, return empty (user explicitly hid everything)
     if (visibleTitles.size === 0) return [];
-    var filtered = (skillsData.roles || []).filter(function(role) {
+    var filtered = (window._skillsData.roles || []).filter(function(role) {
         var rName = (role.name || '').toLowerCase().trim();
         var rId = (role.id || '').toLowerCase().trim();
         return visibleTitles.has(rName) || visibleTitles.has(rId);
     });
     // If no roles matched any work history titles, show all roles
     // (template data may use different naming conventions)
-    return filtered.length > 0 ? filtered : (skillsData.roles || []).slice();
+    return filtered.length > 0 ? filtered : (window._skillsData.roles || []).slice();
 }
 // Hide a role from the network by marking its workHistory entry as hidden
 export function hideRoleFromNetwork(roleName) {
     if (readOnlyGuard()) return;
     var rLower = (roleName || '').toLowerCase().trim();
     // Find role object to get both name and ID for matching
-    var roleObj = (skillsData.roles || []).find(function(r) {
+    var roleObj = (window._skillsData.roles || []).find(function(r) {
         return (r.name || '').toLowerCase().trim() === rLower 
             || (r.id || '').toLowerCase().trim() === rLower;
     });
@@ -750,16 +750,16 @@ export function hideRoleFromNetwork(roleName) {
         }
         showToast('Role hidden from Blueprint. Unhide it in Experience tab.', 'info', 3500);
     } else {
-        // Orphan role: exists in skillsData.roles but has no matching workHistory entry.
+        // Orphan role: exists in window._skillsData.roles but has no matching workHistory entry.
         // Remove it directly from roles and clean skill references.
-        var orphanIdx = (skillsData.roles || []).findIndex(function(r) {
+        var orphanIdx = (window._skillsData.roles || []).findIndex(function(r) {
             return matchNames.has((r.name || '').toLowerCase().trim()) || matchNames.has((r.id || '').toLowerCase().trim());
         });
         if (orphanIdx !== -1) {
-            var orphanRole = skillsData.roles[orphanIdx];
+            var orphanRole = window._skillsData.roles[orphanIdx];
             var orphanId = orphanRole.id;
             var orphanName = orphanRole.name;
-            skillsData.roles.splice(orphanIdx, 1);
+            window._skillsData.roles.splice(orphanIdx, 1);
             // Also remove from window._userData.roles if present
             if (window._userData.roles) {
                 window._userData.roles = window._userData.roles.filter(function(r) {
@@ -768,7 +768,7 @@ export function hideRoleFromNetwork(roleName) {
                 });
             }
             // Clean role references from skills
-            (skillsData.skills || []).forEach(function(s) {
+            (window._skillsData.skills || []).forEach(function(s) {
                 if (s.roles) {
                     s.roles = s.roles.filter(function(rid) { return rid !== orphanId && rid !== orphanName; });
                 }
@@ -793,7 +793,7 @@ export function cleanOrphanRoles() {
     var whTitles = new Set();
     (window._userData.workHistory || []).forEach(function(j) { whTitles.add((j.title || '').toLowerCase().trim()); });
     var orphans = [];
-    (skillsData.roles || []).forEach(function(r) {
+    (window._skillsData.roles || []).forEach(function(r) {
         var rn = (r.name || '').toLowerCase().trim();
         var ri = (r.id || '').toLowerCase().trim();
         if (!whTitles.has(rn) && !whTitles.has(ri)) orphans.push(r);
@@ -805,8 +805,8 @@ export function cleanOrphanRoles() {
     orphans.forEach(function(orphan) {
         var oid = orphan.id;
         var oname = orphan.name;
-        // Remove from skillsData.roles
-        skillsData.roles = (skillsData.roles || []).filter(function(r) { return r !== orphan; });
+        // Remove from window._skillsData.roles
+        window._skillsData.roles = (window._skillsData.roles || []).filter(function(r) { return r !== orphan; });
         // Remove from window._userData.roles
         if (window._userData.roles) {
             window._userData.roles = window._userData.roles.filter(function(r) {
@@ -815,7 +815,7 @@ export function cleanOrphanRoles() {
             });
         }
         // Clean role references from skills
-        (skillsData.skills || []).forEach(function(s) {
+        (window._skillsData.skills || []).forEach(function(s) {
             if (s.roles) {
                 s.roles = s.roles.filter(function(rid) { return rid !== oid && rid !== oname; });
             }
@@ -1275,7 +1275,7 @@ export function openCertModal(idx) {
     }).join('');
     
     // Build skill suggestion datalist from profile skills
-    var skillOptions = (skillsData.skills || []).map(function(s) {
+    var skillOptions = (window._skillsData.skills || []).map(function(s) {
         return '<option value="' + s.name.replace(/"/g,'&quot;') + '">';
     }).join('');
     
@@ -1501,7 +1501,7 @@ export function saveCertFromModal(idx) {
     
     allLinkedSkills.forEach(function(skillName) {
         var existing = window._userData.skills.find(function(s) { return s.name.toLowerCase() === skillName.toLowerCase(); });
-        var existingSD = (skillsData.skills || []).find(function(s) { return s.name.toLowerCase() === skillName.toLowerCase(); });
+        var existingSD = (window._skillsData.skills || []).find(function(s) { return s.name.toLowerCase() === skillName.toLowerCase(); });
         
         if (!existing) {
             // Skill not in profile: add it at the cert floor level
@@ -1515,7 +1515,7 @@ export function saveCertFromModal(idx) {
                 certSource: entry.name
             };
             window._userData.skills.push(newSkill);
-            skillsData.skills.push(newSkill);
+            window._skillsData.skills.push(newSkill);
             if (typeof registerInSkillLibrary === 'function') registerInSkillLibrary(skillName, 'unique');
             added.push(skillName);
         } else {
@@ -1699,7 +1699,7 @@ export function renderDataExport() {
                     </button>
                 </div>
                 
-                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 20px; ${isReadOnlyProfile ? 'display:none;' : ''}">
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 20px; ${window.isReadOnlyProfile ? 'display:none;' : ''}">
                     <h3 style="color: #10b981; margin-bottom: 10px;">${bpIcon("download",14)} Import Profile</h3>
                     <p style="color: #9ca3af; font-size: 0.9em; margin-bottom: 15px;">
                         Restore from a previous backup or transfer from another device
@@ -1712,7 +1712,7 @@ export function renderDataExport() {
                 </div>
             </div>
             
-            <div style="margin-top: 20px; padding: 15px; background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444; border-radius: 4px; ${isReadOnlyProfile ? 'display:none;' : ''}">
+            <div style="margin-top: 20px; padding: 15px; background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444; border-radius: 4px; ${window.isReadOnlyProfile ? 'display:none;' : ''}">
                 <strong style="color: #ef4444;">${bpIcon("warning",14)} Warning:</strong>
                 <span style="color: #d1d5db; font-size: 0.9em;">
                     Importing will replace all current data. Make sure to export first if you want to keep your current profile!
@@ -1756,16 +1756,16 @@ export function renderPrivacyAndData() {
         + '</div>';
     
     // --- What You're Sharing (from Consent) ---
-    var skillCount = (skillsData.skills || []).length;
+    var skillCount = (window._skillsData.skills || []).length;
     var sharedSkills = currentPreset === 'full' ? skillCount : 
                         currentPreset === 'executive' ? Math.min(20, skillCount) :
-                        currentPreset === 'advisory' ? skillsData.skills.filter(function(s) { return s.key; }).length :
-                        currentPreset === 'board' ? skillsData.skills.filter(function(s) { return s.key || s.level === 'Mastery'; }).length :
+                        currentPreset === 'advisory' ? window._skillsData.skills.filter(function(s) { return s.key; }).length :
+                        currentPreset === 'board' ? window._skillsData.skills.filter(function(s) { return s.key || s.level === 'Mastery'; }).length :
                         skillCount;
-    var totalOutcomes = (blueprintData.outcomes || []).length;
-    var sharedOutcomes = blueprintData.outcomes.filter(function(o) { return o.shared; }).length;
-    var totalValues = (blueprintData.values || []).length;
-    var sharedValues = blueprintData.values.filter(function(v) { return v.selected; }).length;
+    var totalOutcomes = (window._blueprintData.outcomes || []).length;
+    var sharedOutcomes = window._blueprintData.outcomes.filter(function(o) { return o.shared; }).length;
+    var totalValues = (window._blueprintData.values || []).length;
+    var sharedValues = window._blueprintData.values.filter(function(v) { return v.selected; }).length;
     
     function sharingLabel(shared, total, noun) {
         if (total === 0) return '<div style="font-size:0.72em; color:#f59e0b; margin-top:4px;">None added yet</div>';
@@ -1947,7 +1947,7 @@ export function renderPrivacyAndData() {
 export function disableBulkActionsInSampleMode() {
     // Check if viewing a sample profile
     var isSample = window.isReadOnlyProfile || (window.currentProfileType && window.currentProfileType !== 'user');
-    if (!isSample && typeof skillsData !== 'undefined' && skillsData.sample) isSample = true;
+    if (!isSample && typeof skillsData !== 'undefined' && window._skillsData.sample) isSample = true;
     
     if (isSample) {
         // Disable all bulk action buttons
@@ -2057,7 +2057,7 @@ export function renderSkillsList() {
                                 ${roleNames ? ` • ${escapeHtml(roleNames)}` : ''}
                             </div>
                         </div>
-                        <div style="display: flex; gap: 8px; flex-shrink: 0; ${isReadOnlyProfile ? 'display:none;' : ''}">
+                        <div style="display: flex; gap: 8px; flex-shrink: 0; ${window.isReadOnlyProfile ? 'display:none;' : ''}">
                             <button onclick="openEditSkillModal('${escapeHtml(skill.name).replace(/'/g, "\\'")}', '${category}')" 
                                     style="padding: 6px 12px; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 4px; cursor: pointer; font-size: 0.9em; white-space: nowrap;">
                                 ${bpIcon("edit",12)} Edit
@@ -2092,9 +2092,9 @@ export function exportFullProfile() {
         userData: userData,
         blueprintData: blueprintData,
         skillsData: {
-            skills: skillsData.skills,
-            roles: skillsData.roles,
-            skillDetails: skillsData.skillDetails
+            skills: window._skillsData.skills,
+            roles: window._skillsData.roles,
+            skillDetails: window._skillsData.skillDetails
         },
         version: '1.0',
         exportDate: new Date().toISOString()
@@ -2127,14 +2127,14 @@ export function importFullProfile(fileInput) {
                     Object.assign(userData, safeUserData);
                 }
                 if (imported.blueprintData && typeof imported.blueprintData === 'object') {
-                    if (Array.isArray(imported.blueprintData.values)) blueprintData.values = imported.blueprintData.values;
-                    if (Array.isArray(imported.blueprintData.outcomes)) blueprintData.outcomes = imported.blueprintData.outcomes;
-                    if (typeof imported.blueprintData.purpose === 'string') blueprintData.purpose = imported.blueprintData.purpose.slice(0, 5000);
+                    if (Array.isArray(imported.blueprintData.values)) window._blueprintData.values = imported.blueprintData.values;
+                    if (Array.isArray(imported.blueprintData.outcomes)) window._blueprintData.outcomes = imported.blueprintData.outcomes;
+                    if (typeof imported.blueprintData.purpose === 'string') window._blueprintData.purpose = imported.blueprintData.purpose.slice(0, 5000);
                 }
                 if (imported.skillsData && typeof imported.skillsData === 'object') {
-                    if (Array.isArray(imported.skillsData.skills)) skillsData.skills = imported.skillsData.skills;
-                    if (Array.isArray(imported.skillsData.roles)) skillsData.roles = imported.skillsData.roles;
-                    if (imported.skillsData.skillDetails) skillsData.skillDetails = imported.skillsData.skillDetails;
+                    if (Array.isArray(imported.skillsData.skills)) window._skillsData.skills = imported.skillsData.skills;
+                    if (Array.isArray(imported.skillsData.roles)) window._skillsData.roles = imported.skillsData.roles;
+                    if (imported.skillsData.skillDetails) window._skillsData.skillDetails = imported.skillsData.skillDetails;
                 }
                 
                 // Save to localStorage

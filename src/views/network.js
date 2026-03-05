@@ -218,9 +218,9 @@ export function toggleNetworkLabels(type) {
 }
 export function initNetwork() {
     // Empty state: no skills and signed in (not viewing a sample)
-    var hasSkills = skillsData.skills && skillsData.skills.length > 0;
-    var hasRoles = skillsData.roles && skillsData.roles.length > 0;
-    if (!hasSkills && !hasRoles && fbUser && !isReadOnlyProfile) {
+    var hasSkills = window._skillsData.skills && window._skillsData.skills.length > 0;
+    var hasRoles = window._skillsData.roles && window._skillsData.roles.length > 0;
+    if (!hasSkills && !hasRoles && fbUser && !window.isReadOnlyProfile) {
         var nv = document.getElementById('networkView');
         if (nv) {
             nv.setAttribute('width', window.innerWidth);
@@ -321,7 +321,7 @@ export function initNetwork() {
     // On all devices, only show skills connected to at least one visible role
     var visibleRoleIds = new Set();
     visibleRoles.forEach(function(r) { visibleRoleIds.add(r.id || r.name); visibleRoleIds.add(r.name); });
-    var connectedSkills = skillsData.skills.filter(function(s) {
+    var connectedSkills = window._skillsData.skills.filter(function(s) {
         return (s.roles || []).some(function(rid) { return visibleRoleIds.has(rid); });
     });
     var skillsToShow = connectedSkills;
@@ -490,7 +490,7 @@ export function initNetwork() {
             } else if (d.type === "skill") {
                 event.stopPropagation();
                 // Look up full skill object from skillsData instead of using node data
-                const fullSkill = skillsData.skills.find(s => s.name === d.name);
+                const fullSkill = window._skillsData.skills.find(s => s.name === d.name);
                 if (fullSkill) {
                     openSkillModal(d.name, fullSkill);
                 } else {
@@ -552,13 +552,13 @@ export function initNetwork() {
         // Add info badge only when skills are actually capped (more than 30 total)
         var existingBadge = document.getElementById('mobileNetworkBadge');
         if (existingBadge) existingBadge.remove();
-        if (skillsToShow.length < skillsData.skills.length && skillsData.skills.length > 30) {
+        if (skillsToShow.length < window._skillsData.skills.length && window._skillsData.skills.length > 30) {
             var badge = document.createElement('div');
             badge.id = 'mobileNetworkBadge';
             badge.style.cssText = 'position:absolute; bottom:12px; left:50%; transform:translateX(-50%); '
                 + 'background:rgba(30,64,175,0.8); color:#e0e0e0; font-size:0.72em; padding:5px 14px; '
                 + 'border-radius:20px; backdrop-filter:blur(8px); pointer-events:none; z-index:10;';
-            badge.textContent = 'Showing top ' + skillsToShow.length + ' of ' + skillsData.skills.length + ' skills';
+            badge.textContent = 'Showing top ' + skillsToShow.length + ' of ' + window._skillsData.skills.length + ' skills';
             var container = document.getElementById('networkView').parentElement;
             if (container) { container.style.position = 'relative'; container.appendChild(badge); }
         }
@@ -934,8 +934,8 @@ export function initMatchNetwork(job) {
     
     // User skills with match state
     var userSkillsToShow = isMobile
-        ? skillsData.skills.filter(function(s) { return s.key || matchedUserSkills.has(s.name.toLowerCase()) || s.level === 'Mastery' || s.level === 'Expert'; }).slice(0, 30)
-        : skillsData.skills;
+        ? window._skillsData.skills.filter(function(s) { return s.key || matchedUserSkills.has(s.name.toLowerCase()) || s.level === 'Mastery' || s.level === 'Expert'; }).slice(0, 30)
+        : window._skillsData.skills;
     
     userSkillsToShow.forEach(function(skill) {
         var isMatched = matchedUserSkills.has(skill.name.toLowerCase());
@@ -1068,7 +1068,7 @@ export function initMatchNetwork(job) {
             if (d.type === 'center') {
                 resetNetworkLayout();
             } else if (d.type === 'skill' && d.source === 'user') {
-                var fullSkill = skillsData.skills.find(function(s) { return s.name === d.name; });
+                var fullSkill = window._skillsData.skills.find(function(s) { return s.name === d.name; });
                 if (fullSkill) openSkillModal(d.name, fullSkill);
             }
         })
@@ -1318,8 +1318,8 @@ export function initValuesNetwork(job) {
     }
     
     // Compute alignment
-    var userVals = (blueprintData && blueprintData.values) || [];
-    if (userVals.length === 0) { inferValues(); userVals = blueprintData.values || []; }
+    var userVals = (blueprintData && window._blueprintData.values) || [];
+    if (userVals.length === 0) { inferValues(); userVals = window._blueprintData.values || []; }
     var alignment = computeValuesAlignment(userVals, cv);
     if (!alignment) { showToast('Select values in your Blueprint first.', 'warning'); return; }
     
@@ -1785,7 +1785,7 @@ export function initCardView() {
     const cardView = document.getElementById('cardView');
     
     // Safety: if no skills data, show empty state
-    if (!skillsData || !skillsData.skills || skillsData.skills.length === 0) {
+    if (!skillsData || !window._skillsData.skills || window._skillsData.skills.length === 0) {
         cardView.innerHTML = '<div style="text-align:center; padding:60px 20px; color:var(--text-muted);">'
             + '<div style="font-size:2em; margin-bottom:12px;">🎯</div>'
             + '<div style="font-size:1.05em; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">No skills to display</div>'
@@ -1825,7 +1825,7 @@ export function initCardView() {
     };
 
     var impactToRarity = { critical: 'rare', high: 'rare', moderate: 'uncommon', standard: 'common', supplementary: 'common' };
-    skillsData.skills.forEach(function(skill) {
+    window._skillsData.skills.forEach(function(skill) {
         var impact = getSkillImpact(skill);
         var rarity;
         if (skill.category === 'unique') {
@@ -1903,11 +1903,11 @@ export function initCardView() {
             var escapedName = escapeHtml(skill.name).replace(/'/g, "\\'");
 
             var roleNames = (skill.roles || []).map(function(roleId) {
-                var role = (skillsData.roles || []).find(function(r) { return r.id === roleId; });
+                var role = (window._skillsData.roles || []).find(function(r) { return r.id === roleId; });
                 return role ? role.name : '';
             }).filter(Boolean);
 
-            var details = skillsData.skillDetails && skillsData.skillDetails[skill.name];
+            var details = window._skillsData.skillDetails && window._skillsData.skillDetails[skill.name];
             var years = details && details.years ? details.years : 0;
 
             var skillImpact = calculateSkillValue(skill);
