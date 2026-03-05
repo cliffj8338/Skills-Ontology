@@ -2145,6 +2145,10 @@ export function importFullProfile(fileInput) {
             }
         } catch (err) {
             showToast('Import error: ' + err.message, 'error');
+        }
+    };
+    reader.readAsText(file);
+}
 
 window.initSettings = initSettings;
 window.switchSettingsTab = switchSettingsTab;
