@@ -114,7 +114,6 @@ import {
     openAssessSkillModal, closeAssessSkillModal, saveSkillAssessment,
     refreshAllViews, renderYourSkills, filterYourSkills, removeSkillFromProfile,
     handleAddSkillsSearch, addSkillFromLibrary,
-    toggleTheme, initTheme,
 } from './views/applications.js';
 
 // ─── Build banner ─────────────────────────────────────────────────────────────

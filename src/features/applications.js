@@ -3466,7 +3466,7 @@ export function addSkillFromLibrary(skillId) {
 // ===== OVERFLOW MENU FUNCTIONS =====
 
 // ===== THEME TOGGLE =====
-export function toggleTheme() {
+function toggleTheme() {
     const html = document.documentElement;
     const isDark = html.getAttribute('data-theme') !== 'light';
     html.setAttribute('data-theme', isDark ? 'light' : 'dark');
@@ -3493,15 +3493,13 @@ export function toggleTheme() {
         }
     }
 }
-window.toggleTheme = toggleTheme;
 
-export function initTheme() {
+function initTheme() {
     const saved = safeGet('wbTheme') || 'dark';
     document.documentElement.setAttribute('data-theme', saved);
     const btn = document.getElementById('themeToggleBtn');
     if (btn) btn.textContent = saved === 'light' ? '☀️' : '🌙';
 }
-window.initTheme = initTheme;
 
 // ===== PROFILE DROPDOWN =====
 window.initApplications = initApplications;
@@ -3597,5 +3595,3 @@ window.searchAllLibraries = searchAllLibraries;
 window.performAddSkillsSearch = performAddSkillsSearch;
 window.searchAddSkillsByCategory = searchAddSkillsByCategory;
 window.addSkillFromLibrary = addSkillFromLibrary;
-window.toggleTheme = toggleTheme;
-window.initTheme = initTheme;
