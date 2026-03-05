@@ -5,7 +5,7 @@
 // GET  /api/verify?token=X&uid=Y  → returns pending verification records
 // POST /api/verify                → submits verifier response
 
-const admin = require('firebase-admin');
+import admin from 'firebase-admin';
 
 // Initialize Firebase Admin (reuse across invocations)
 if (!admin.apps.length) {
@@ -20,7 +20,7 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');

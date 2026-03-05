@@ -15,7 +15,7 @@
 //   - With A/B alternation: 18 queries/sync → 9 per group × 5 = 45/sync × 120 = 5,400/month ✓
 //   - Leaves ~4,600 requests/month headroom for live search
 
-const admin = require('firebase-admin');
+import admin from 'firebase-admin';
 
 // Firebase Admin init (singleton)
 if (!admin.apps.length) {
@@ -397,7 +397,7 @@ function safeDocId(id) {
 // ============================================================
 // MAIN SYNC HANDLER
 // ============================================================
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // Auth: Vercel cron or manual trigger with CRON_SECRET
   const secret = process.env.CRON_SECRET;
   if (secret) {
@@ -594,4 +594,4 @@ module.exports = async function handler(req, res) {
 };
 
 // Vercel config: 60s timeout (Pro plan max), Node 18
-module.exports.config = { maxDuration: 60 };
+export const config = { maxDuration: 60 };
