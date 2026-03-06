@@ -24016,6 +24016,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             m.classList.remove('active');
             m.style.display = '';
         }
+        window.closeExportModal = closeExportModal;
         
         // ===== WORK BLUEPRINT GENERATOR =====
         
@@ -39852,7 +39853,7 @@ body {
                 + '<button onclick="closeExportModal()" style="padding:8px 18px; background:transparent; border:1px solid var(--border); color:var(--text-secondary); border-radius:8px; cursor:pointer; font-size:0.88em;">Cancel</button>'
                 + '<button onclick="saveDevStats()" style="padding:8px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.88em;">' + bpIcon('check',14) + ' Save</button>'
                 + '</div></div>';
-            modal.classList.add('open');
+            history.pushState({ modal: true }, ''); modal.classList.add('active');
         }
         window.editDevStats = editDevStats;
         
