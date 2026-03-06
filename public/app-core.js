@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.28 - BUILD 20260306-window-guard
-        var BP_VERSION = 'v4.46.28';
+        // BLUEPRINT v4.46.29 - BUILD 20260306-window-guard
+        var BP_VERSION = 'v4.46.29';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1562,8 +1562,12 @@
                     updateProfileChip(userData.profile.name);
                     
                     // Refresh app mode and UI state after data load
-                    if (typeof detectAppMode === 'function') detectAppMode();
-                    if (typeof checkReadOnly === 'function') checkReadOnly();
+                    // Skip if currently in demo mode — we don't want the Firestore
+                    // callback overwriting demo state or hiding the demo banner
+                    if (appContext.mode !== 'demo') {
+                        if (typeof detectAppMode === 'function') detectAppMode();
+                        if (typeof checkReadOnly === 'function') checkReadOnly();
+                    }
                     
                     // Rescore jobs against current skills and reset views
                     if (typeof rescoreAllJobs === 'function') rescoreAllJobs();
