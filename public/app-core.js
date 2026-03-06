@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.41 - BUILD 20260306-label-updates
-        var BP_VERSION = 'v4.46.41';
+        // BLUEPRINT v4.46.42 - BUILD 20260306-pay-states
+        var BP_VERSION = 'v4.46.42';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -26020,22 +26020,40 @@ body {
 
                 // Box 3 — Current Pay
                 if (hasReportedComp) {
-                    var evGap      = evComp - reportedComp;
-                    var showRange  = delta > 0 && evGap > delta;
-                    var gapColor   = delta > 0 ? '#f59e0b' : '#10b981';
-                    var gapLabel   = delta > 0 ? 'Underpaid by' : 'Above market by';
-                    var evGapPct   = reportedComp > 0 ? Math.round((evGap / reportedComp) * 100) : 0;
+                    var evGap        = evComp - reportedComp;
+                    var belowFloor   = delta > 0;                      // below BLS floor
+                    var belowJust    = evGap > 0;                      // below justified value
+                    var showRange    = belowFloor && evGap > delta;    // below both, range makes sense
+                    var aboveJust    = !belowFloor && !belowJust;      // above justified value
+                    var midZone      = !belowFloor && belowJust;       // above floor, below justified
+                    var evGapPct     = reportedComp > 0 ? Math.round((evGap / reportedComp) * 100) : 0;
+
+                    var pillHtml = '';
+                    if (aboveJust) {
+                        pillHtml = '<div style="margin-top:8px; padding:6px 10px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2); border-radius:7px;">'
+                            + '<div style="font-size:1.0em; font-weight:800; color:#10b981;">Ahead of market</div>'
+                            + '</div>';
+                    } else if (midZone) {
+                        var midGapPct = reportedComp > 0 ? Math.round((evGap / reportedComp) * 100) : 0;
+                        pillHtml = '<div style="margin-top:8px; padding:6px 10px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.18); border-radius:7px;">'
+                            + '<div style="font-size:0.67em; color:var(--c-muted);">Underpaid by</div>'
+                            + '<div style="font-size:1.1em; font-weight:800; color:#f59e0b;">' + formatCompValue(Math.abs(evGap)) + ' <span style="font-size:0.62em;">(+' + midGapPct + '%)</span></div>'
+                            + '</div>';
+                    } else {
+                        pillHtml = '<div style="margin-top:8px; padding:6px 10px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.18); border-radius:7px;">'
+                            + '<div style="font-size:0.67em; color:var(--c-muted);">Underpaid by</div>'
+                            + (showRange
+                                ? '<div style="font-size:1.1em; font-weight:800; color:#f59e0b;">' + formatCompValue(Math.abs(delta)) + ' – ' + formatCompValue(Math.abs(evGap)) + ' <span style="font-size:0.62em;">(+' + deltaPct + '–' + evGapPct + '%)</span></div>'
+                                : '<div style="font-size:1.1em; font-weight:800; color:#f59e0b;">' + formatCompValue(Math.abs(delta)) + ' <span style="font-size:0.62em;">(+' + deltaPct + '%)</span></div>'
+                            )
+                            + '</div>';
+                    }
+
                     html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:14px; padding:18px 20px;">'
                         + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--c-muted); margin-bottom:8px;">Current Pay</div>'
                         + '<div style="font-size:2.3em; font-weight:800; color:var(--c-heading); line-height:1; margin-bottom:8px;">' + formatCompValue(reportedComp) + '</div>'
                         + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">Reported annual comp</div>'
-                        + '<div style="margin-top:8px; padding:6px 10px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.18); border-radius:7px;">'
-                        + '<div style="font-size:0.67em; color:var(--c-muted);">' + gapLabel + '</div>'
-                        + (showRange
-                            ? '<div style="font-size:1.1em; font-weight:800; color:' + gapColor + ';">' + formatCompValue(Math.abs(delta)) + ' – ' + formatCompValue(Math.abs(evGap)) + ' <span style="font-size:0.62em;">(+' + deltaPct + '–' + evGapPct + '%)</span></div>'
-                            : '<div style="font-size:1.1em; font-weight:800; color:' + gapColor + ';">' + formatCompValue(Math.abs(delta)) + ' <span style="font-size:0.62em;">(' + (delta > 0 ? '+' : '') + deltaPct + '%)</span></div>'
-                        )
-                        + '</div>'
+                        + pillHtml
                         + '</div>';
                 } else {
                     html += '<div style="background:var(--c-surface-1); border:1px dashed var(--c-surface-5); border-radius:14px; padding:18px 20px; display:flex; flex-direction:column; justify-content:space-between;">'
