@@ -410,7 +410,7 @@ export function estimateSkillYears(level) {
 export function openRelatedSkill(skillName) {
     const skill = _sd().skills.find(s => s.name === skillName);
     if (skill) {
-        openSkillModal(skillName, skill);
+        (window.openSkillModal || function(){})(skillName, skill);
     }
 }
 
@@ -419,7 +419,7 @@ export function openSkillModalFromCard(skillName) {
     
     if (skill) {
         console.log('  → Skill has evidence:', skill.evidence ? `YES (${skill.evidence.length} items)` : 'NO');
-        openSkillModal(skillName, skill);
+        (window.openSkillModal || function(){})(skillName, skill);
     } else {
         console.error('  → ERROR: Skill not found in _sd().skills');
     }
