@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.46.30 - BUILD 20260306-values-fix
-        var BP_VERSION = 'v4.46.39';
+        var BP_VERSION = 'v4.46.40';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1267,7 +1267,7 @@
                 }) : [],
                 roles: (skillsData && skillsData.roles) || [],
                 values: blueprintData.values || [],
-                purpose: blueprintData.purpose || '',
+                purpose: blueprintData.purpose || userData.purpose || '',
                 outcomes: blueprintData.outcomes || [],
                 preferences: userData.preferences || {},
                 applications: userData.applications || [],
@@ -26903,7 +26903,8 @@ body {
                 + '</p>';
             
             // Purpose Statement (moved from dashboard for better context with content)
-            var purpose = blueprintData.purpose || '';
+            if (typeof inferValues === 'function') inferValues();
+            var purpose = blueprintData.purpose || userData.purpose || '';
             html += '<div style="background:var(--c-accent-bg-2b); border:1px solid var(--c-accent-bg-6b); border-radius:12px; padding:18px; margin-bottom:20px;">'
                 + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
                 + '<div style="font-size:0.78em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--c-accent); display:flex; align-items:center; gap:6px;">'
