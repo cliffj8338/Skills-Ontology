@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.30 - BUILD 20260306-values-fix
-        var BP_VERSION = 'v4.46.40';
+        // BLUEPRINT v4.46.41 - BUILD 20260306-label-updates
+        var BP_VERSION = 'v4.46.41';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -26002,7 +26002,7 @@ body {
 
                 // Box 1 — Market Value (BLS baseline)
                 html += '<div style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(16,185,129,0.03)); border:2px solid rgba(16,185,129,0.28); border-radius:14px; padding:18px 20px;">'
-                    + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(16,185,129,0.7); margin-bottom:8px;">' + bpIcon('money',11) + ' Market Value</div>'
+                    + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(16,185,129,0.7); margin-bottom:8px;">' + bpIcon('money',11) + ' Minimum Market Value</div>'
                     + '<div style="font-size:2.3em; font-weight:800; color:#10b981; line-height:1; margin-bottom:8px;">' + formatCompValue(worthValue) + '</div>'
                     + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">' + escapeHtml(fnLabel) + (isOverride ? ' <span style="color:#fbbf24;">(manual)</span>' : '') + ' \u00B7 ' + escapeHtml(totalValue.roleLevel) + '</div>'
                     + '<div style="font-size:0.69em; color:rgba(16,185,129,0.65); margin-top:4px;">' + (totalValue.compaRatio || '') + '% of BLS median</div>'
@@ -26010,7 +26010,7 @@ body {
 
                 // Box 2 — Evidence Value (skill-premium adjusted)
                 html += '<div style="background:linear-gradient(135deg,rgba(96,165,250,0.1),rgba(96,165,250,0.02)); border:2px solid rgba(96,165,250,0.25); border-radius:14px; padding:18px 20px;">'
-                    + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(96,165,250,0.7); margin-bottom:8px;">' + bpIcon('flame',11) + ' Evidence Value</div>'
+                    + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(96,165,250,0.7); margin-bottom:8px;">' + bpIcon('flame',11) + ' Justified Value</div>'
                     + '<div style="font-size:2.3em; font-weight:800; color:#60a5fa; line-height:1; margin-bottom:8px;">' + formatCompValue(evComp) + '</div>'
                     + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">Skill-premium adjusted</div>'
                     + '<div style="font-size:0.69em; color:rgba(96,165,250,0.65); margin-top:4px;">'
