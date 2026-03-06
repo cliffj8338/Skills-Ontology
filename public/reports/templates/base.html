@@ -12,7 +12,7 @@ html.light{--bg:#f8fafc;--card:#ffffff;--elev:#f1f5f9;--border:rgba(0,0,0,0.08);
 html.light .strip{background:rgba(59,130,246,0.04)}
 html.light .narr{background:linear-gradient(135deg,rgba(59,130,246,0.04),rgba(79,70,229,0.02))}
 html.light .photo{box-shadow:0 0 0 3px var(--bg),0 0 0 5px rgba(59,130,246,0.2)}
-html.light .net-w svg .link{stroke:rgba(100,116,139,0.2)}
+html.light .net-w svg .link{stroke:rgba(100,116,139,0.35)}
 html.light .ring-pct{color:var(--g)}
 html.light .blind-fab{background:var(--card);box-shadow:0 2px 8px rgba(0,0,0,.1)}
 html.light .theme-toggle{background:var(--card);box-shadow:0 2px 8px rgba(0,0,0,.1)}
@@ -638,7 +638,7 @@ function initYouNet() {
         .force('y', d3.forceY(gv).strength(.06));
     const lkG = svg.append('g').attr('class','layer-links');
     const ndG = svg.append('g').attr('class','layer-nodes');
-    const lk = lkG.selectAll('line').data(L).join('line').attr('class', 'link').style('stroke', isLight() ? 'rgba(100,116,139,0.3)' : 'rgba(148,163,184,0.35)').style('stroke-opacity', 1).style('stroke-width', 1.8);
+    const lk = lkG.selectAll('line').data(L).join('line').attr('class', 'link').style('stroke', isLight() ? 'rgba(100,116,139,0.45)' : 'rgba(148,163,184,0.5)').style('stroke-opacity', 1).style('stroke-width', 2.2);
     const nd = ndG.selectAll('g').data(N).join('g').attr('class', d => 'node ' + d.type).call(mkD(sSim));
     nd.append('circle')
         .attr('r', d => { if (d.type === 'center') return mob ? 26 : Math.round(36 * sf); if (d.type === 'role') return mob ? 20 : Math.round(26 * sf); const lr = { Mastery: 14, Expert: 11, Advanced: 9, Proficient: 7, Novice: 6 }; return mob ? (lr[d.level] || 8) : Math.round((lr[d.level] || 8) * sf); })
@@ -673,7 +673,7 @@ const mc={matched:'#10b981',gap:'#ef4444',surplus:'#475569'},gv=H*.45,lt=isLight
 sSim=d3.forceSimulation(N).force('link',d3.forceLink(L).id(d=>d.id).distance(d=>d.type==='role'?(mob?105:175)*sf:d.type==='match'?(mob?70:120)*sf:(mob?90:150)*sf)).force('charge',d3.forceManyBody().strength(d=>d.type==='center'?0:d.type==='role'?(mob?-200:-300)*sf:d.ms==='gap'?(mob?-100:-150)*sf:(mob?-120:-180)*sf)).force('center',d3.forceCenter(W/2,gv)).force('collision',d3.forceCollide().radius(d=>d.type==='center'?(mob?44:62)*sf:d.type==='role'?(mob?38:54)*sf:(mob?26:36)*sf)).force('x',d3.forceX(W/2).strength(.06)).force('y',d3.forceY(gv).strength(.06));
 const lkG2=svg.append('g').attr('class','layer-links');
 const ndG2=svg.append('g').attr('class','layer-nodes');
-const lk=lkG2.selectAll('line').data(L).join('line').attr('class','link').style('stroke',d=>d.type==='match'?mc.matched:(lt?'rgba(100,116,139,0.3)':'rgba(148,163,184,0.25)')).style('stroke-opacity',d=>d.type==='match'?.6:1).style('stroke-width',d=>d.type==='match'?2.5:1.5).style('stroke-dasharray',d=>d.type==='match'?'4,3':'none');
+const lk=lkG2.selectAll('line').data(L).join('line').attr('class','link').style('stroke',d=>d.type==='match'?mc.matched:(lt?'rgba(100,116,139,0.45)':'rgba(148,163,184,0.42)')).style('stroke-opacity',d=>d.type==='match'?.85:1).style('stroke-width',d=>d.type==='match'?3:2).style('stroke-dasharray',d=>d.type==='match'?'4,3':'none');
 const nd=ndG2.selectAll('g').data(N).join('g').attr('class',d=>'node '+d.type).call(mkD(sSim));
 nd.append('circle').attr('r',d=>{if(d.type==='center')return mob?26:Math.round(36*sf);if(d.type==='role')return mob?20:Math.round(26*sf);if(d.ms==='matched')return mob?11:Math.round(13*sf);if(d.ms==='gap')return mob?11:Math.round(13*sf);return mob?6:Math.round(7*sf)}).attr('fill',d=>{if(d.type==='center')return lt?'#2563eb':'#60a5fa';if(d.type==='role')return d.id==='rj'?(lt?'#fecaca':'#3b1111'):(lt?'#e2e8f0':'#1e293b');return mc[d.ms]||'#6b7280'}).attr('opacity',d=>d.ms==='surplus'?.82:1).attr('stroke',d=>{if(d.type==='role')return d.id==='rj'?'#ef4444':(lt?'#94a3b8':'#475569');if(d.vf)return'#10b981';if(d.ms==='matched')return lt?'#d1d5db':'#fff';if(d.ms==='gap')return'#fca5a5';return'none'}).attr('stroke-width',d=>d.vf?2.5:(d.type==='role'||d.ms==='matched'||d.ms==='gap')?2.5:0).style('cursor',d=>d.type==='skill'&&d.src==='user'?'pointer':'grab')
 .on('click',(e,d)=>{if(d.type==='skill'&&d.src==='user')openPop(d)})
@@ -699,7 +699,7 @@ const vlt=isLight();
 vSim=d3.forceSimulation(N).force('link',d3.forceLink(L).id(d=>d.id).distance(d=>d.type==='bridge'?(mob?140:200)*sf:(mob?80:120)*sf).strength(d=>d.type==='bridge'?.12:.5)).force('charge',d3.forceManyBody().strength(d=>d.type==='hub'?0:(mob?-140:-200)*sf)).force('collision',d3.forceCollide().radius(d=>d.type==='hub'?(mob?36:46)*sf:(mob?28:36)*sf)).force('x',d3.forceX(d=>d.side==='user'?lX:d.side==='company'?rX:W/2).strength(.1)).force('y',d3.forceY(cY).strength(.06));
 const lkGv=svg.append('g').attr('class','layer-links');
 const ndGv=svg.append('g').attr('class','layer-nodes');
-const lk=lkGv.selectAll('line').data(L).join('line').attr('class','link').style('stroke',d=>d.type==='bridge'?vc.aligned:(vlt?'rgba(100,116,139,.2)':'rgba(148,163,184,.15)')).style('stroke-opacity',d=>d.type==='bridge'?.65:1).style('stroke-width',d=>d.type==='bridge'?2.5:1.5).style('stroke-dasharray',d=>d.type==='bridge'?'6,4':'none');
+const lk=lkGv.selectAll('line').data(L).join('line').attr('class','link').style('stroke',d=>d.type==='bridge'?vc.aligned:(vlt?'rgba(100,116,139,.38)':'rgba(148,163,184,.38)')).style('stroke-opacity',d=>d.type==='bridge'?.85:1).style('stroke-width',d=>d.type==='bridge'?3:2).style('stroke-dasharray',d=>d.type==='bridge'?'6,4':'none');
 const nd=ndGv.selectAll('g').data(N).join('g').attr('class',d=>'node '+d.type).call(mkD(vSim));
 nd.append('circle').attr('r',d=>{if(d.type==='hub')return mob?22:Math.round(28*sf);if(d.vs==='aligned')return mob?13:Math.round(16*sf);return mob?9:Math.round(12*sf)}).attr('fill',d=>{if(d.type==='hub')return d.side==='user'?(vlt?'#2563eb':'#60a5fa'):'#f59e0b';if(d.vs==='aligned')return'#10b981';return vc[d.vs]||'#6b7280'}).attr('stroke',d=>{if(d.type==='hub')return vlt?'rgba(0,0,0,.1)':'rgba(255,255,255,.3)';if(d.vs==='aligned')return vlt?'#d1fae5':'#fff';return'none'}).attr('stroke-width',d=>(d.type==='hub'||d.vs==='aligned')?2.5:0).attr('opacity',d=>d.vs==='theirs'?.6:1)
 .on('mouseover',(e,d)=>{const lb={aligned:'✅ Shared value',yours:'🟡 Candidate priority',theirs:'🟣 Organization priority'};let h='<div class="tt-t">'+d.name+'</div>';if(d.vs)h+='<div class="tt-s" style="color:'+(vc[d.vs]||'#9ca3af')+'">'+lb[d.vs]+'</div>';if(d.tier)h+='<div class="tt-s">'+(d.tier==='primary'?'Core value':'Secondary value')+'</div>';showT(e,h)}).on('mouseout',hideT);
