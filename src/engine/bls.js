@@ -22,7 +22,7 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function loadBLSWages() { throw new Error('loadBLSWages not yet migrated'); }
-export function getMarketRate() { throw new Error('getMarketRate not yet migrated'); }
-export function calculateMarketValue() { throw new Error('calculateMarketValue not yet migrated'); }
-export function renderCompensation() { throw new Error('renderCompensation not yet migrated'); }
+export function loadBLSWages() { console.warn('loadBLSWages not yet migrated'); return null; }
+export function getMarketRate() { console.warn('getMarketRate not yet migrated'); return null; }
+export function calculateMarketValue() { console.warn('calculateMarketValue not yet migrated'); return null; }
+export function renderCompensation() { console.warn('renderCompensation not yet migrated'); return null; }

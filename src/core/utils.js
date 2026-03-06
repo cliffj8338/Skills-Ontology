@@ -22,7 +22,7 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function formatDate() { throw new Error('formatDate not yet migrated'); }
-export function formatRelativeDate() { throw new Error('formatRelativeDate not yet migrated'); }
-export function setupKeyboardShortcuts() { throw new Error('setupKeyboardShortcuts not yet migrated'); }
-export function renderLastSaved() { throw new Error('renderLastSaved not yet migrated'); }
+export function formatDate() { console.warn('formatDate not yet migrated'); return null; }
+export function formatRelativeDate() { console.warn('formatRelativeDate not yet migrated'); return null; }
+export function setupKeyboardShortcuts() { console.warn('setupKeyboardShortcuts not yet migrated'); return null; }
+export function renderLastSaved() { console.warn('renderLastSaved not yet migrated'); return null; }

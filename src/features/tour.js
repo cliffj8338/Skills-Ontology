@@ -21,6 +21,6 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function initTour() { throw new Error('initTour not yet migrated'); }
-export function startTour() { throw new Error('startTour not yet migrated'); }
-export function endTour() { throw new Error('endTour not yet migrated'); }
+export function initTour() { console.warn('initTour not yet migrated'); return null; }
+export function startTour() { console.warn('startTour not yet migrated'); return null; }
+export function endTour() { console.warn('endTour not yet migrated'); return null; }

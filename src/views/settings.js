@@ -4,43 +4,16 @@
 import { bpIcon }        from '../ui/icons.js';
 import { escapeHtml, safeSetAvatar, sanitizeImport } from '../core/security.js';
 import { showToast }     from '../ui/toast.js';
-
-// ─── Data accessors (fallback: _skillsData may not be set yet) ───────────────
-function _sd() {
-    if (window._skillsData) return window._skillsData;
-    var ud = window._userData;
-    return {
-        skills:       (ud && ud.skills)       || [],
-        roles:        (ud && ud.roles)         || [],
-        skillDetails: (ud && ud.skillDetails)  || {}
-    };
-}
-function _bd() {
-    if (window._blueprintData) return window._blueprintData;
-    var ud = window._userData;
-    return {
-        values:   (ud && ud.values)   || [],
-        outcomes: (ud && ud.outcomes) || [],
-        purpose:  (ud && ud.purpose)  || ''
-    };
-}
+import { _sd, _bd, waitForUserData } from '../core/data-helpers.js';
 
 
 // ===== SETTINGS SYSTEM =====
 
-export function initSettings() {
+export async function initSettings() {
     const view = document.getElementById('settingsView');
-    console.log('[BP DEBUG] initSettings called. _userData:', window._userData, 'initialized:', window._userData && window._userData.initialized);
     if (!window._userData || !window._userData.initialized) {
         if (view) view.innerHTML = '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';
-        var _tries = 0;
-        var _poll = setInterval(function() {
-            _tries++;
-            console.log('[BP DEBUG] initSettings poll #' + _tries + ' _userData:', !!window._userData, 'initialized:', window._userData && window._userData.initialized);
-            if (window._userData && window._userData.initialized) { clearInterval(_poll); initSettings(); }
-            else if (_tries > 25) { clearInterval(_poll); console.warn('[BP DEBUG] initSettings gave up polling'); }
-        }, 200);
-        return;
+        await waitForUserData();
     }
     // Initialize current tab if not set
     if (!window.currentSettingsTab) {

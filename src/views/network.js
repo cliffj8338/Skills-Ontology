@@ -4,26 +4,7 @@
 import { bpIcon }     from '../ui/icons.js';
 import { escapeHtml } from '../core/security.js';
 import { showToast }  from '../ui/toast.js';
-
-// ─── Data accessors (fallback: _skillsData may not be set yet, use _userData) ─
-function _sd() {
-    if (window._skillsData) return window._skillsData;
-    var ud = window._userData;
-    return {
-        skills:       (ud && ud.skills)       || [],
-        roles:        (ud && ud.roles)         || [],
-        skillDetails: (ud && ud.skillDetails)  || {}
-    };
-}
-function _bd() {
-    if (window._blueprintData) return window._blueprintData;
-    var ud = window._userData;
-    return {
-        values:   (ud && ud.values)   || [],
-        outcomes: (ud && ud.outcomes) || [],
-        purpose:  (ud && ud.purpose)  || ''
-    };
-}
+import { _sd, _bd, waitForUserData } from '../core/data-helpers.js';
 
 // ─── Module-level state (was closure-scoped in monolith) ─────────────────────
 let currentView = 'network';
@@ -244,15 +225,9 @@ export function toggleNetworkLabels(type) {
         if (btn3) btn3.classList.toggle('active', networkShowValueLabels);
     }
 }
-export function initNetwork() {
+export async function initNetwork() {
     if (!window._userData || !window._userData.initialized) {
-        var _tries = 0;
-        var _poll = setInterval(function() {
-            _tries++;
-            if (window._userData && window._userData.initialized) { clearInterval(_poll); initNetwork(); }
-            else if (_tries > 25) { clearInterval(_poll); }
-        }, 200);
-        return;
+        await waitForUserData();
     }
     // Empty state: no skills and signed in (not viewing a sample)
     var hasSkills = _sd().skills && _sd().skills.length > 0;
@@ -2042,95 +2017,13 @@ var opportunitiesData = [];
 var currentMatchThreshold = (window._userData.preferences && window._userData.preferences.minimumMatchScore) || 20;
 let currentSkillsView = 'network'; // Track whether showing network or card within Skills Ontology
 
-// Initialize user interface on load
-document.addEventListener('DOMContentLoaded', async () => {
-    // v4.44.35: Check if this is a verification landing page URL
-    if (checkVerificationLandingPage()) return; // Skip normal app init
-    
-    // v4.44.36: Check for showcase mode
-    if (checkShowcaseMode()) return; // Showcase handles its own init
-    
-    // v4.0: Check for magic link sign-in first
-    checkMagicLinkSignIn();
-    
-    // Wait for auth state to resolve
-    await authReadyPromise;
-    
-    // Initialize app and get target view
-    var targetView = await initializeApp();
-    
-    // Initialize site analytics tracker
-    bpTracker.init();
-    bpTracker.trackFunnel('visit');
-    
-    // Detect app mode (demo/waitlisted/invited/active)
-    detectAppMode();
-    checkWaitlistInviteStatus();
-    updateWaitlistCounter();
-    console.log('\uD83C\uDFAF App mode:', appMode, waitlistPosition ? '(#' + waitlistPosition + ')' : '');
-
-    // Check for shared comparison URL (?comp=...&token=...)
-    setTimeout(function() { _wbCompCheckSharedUrl(); }, 800);
-    
-    // If user has profile, set up UI
-    if (window._userData.initialized) {
-        // Expire stale pending verifications
-        expireStalePendingVerifications();
-        
-        // Update profile chip — signed-in users always show their auth name
-        if (fbUser) {
-            var authName = fbUser.displayName || fbUser.email.split('@')[0];
-            updateProfileChip(authName);
-        } else if (window._userData.profile.name) {
-            updateProfileChip(window._userData.profile.name);
-        }
-        
-        // Pre-initialize card view data (doesn't display it)
-        initCardView();
-        
-        // Auto-save every 60 seconds (Firestore + localStorage)
-        setInterval(() => {
-            saveUserData();
-            if (fbUser && fbDb) debouncedSave(500);
-        }, 60000);
+// Module DOMContentLoaded — skipped when legacy.js already ran initializeApp()
+document.addEventListener('DOMContentLoaded', () => {
+    if (window._legacyInitComplete) {
+        console.log('[module] Skipping module DOMContentLoaded — legacy.js already initialized');
+        return;
     }
-    
-    // Navigate to the target view
-    if (targetView === 'welcome') {
-        switchView('welcome');
-    } else if (targetView === 'admin') {
-        switchView('admin');
-    } else if (targetView === 'blueprint') {
-        switchView('blueprint');
-    } else {
-        // Default: show skills (lazy-init handles network rendering)
-        const isMobile = window.innerWidth <= 768;
-        if (isMobile) {
-            currentSkillsView = 'card';
-        }
-        switchView('network');
-    }
-    
-    // Final deferred dropdown rebuild - guarantees manifest + auth are both resolved
-    setTimeout(function() { rebuildProfileDropdown(); }, 500);
-    
-    // Dismiss splash screen
-    var splash = document.getElementById('appSplash');
-    if (splash) {
-        var sp2 = document.getElementById('splashProgress');
-        if (sp2) sp2.style.width = '100%';
-        setTimeout(function() {
-            splash.style.opacity = '0';
-            setTimeout(function() { splash.remove(); }, 400);
-        }, 300);
-    }
-    
-    // First-visit teaser modal (after splash clears) — skip for invited/active users
-    setTimeout(function() {
-        if (!safeGet('bp_teaser_seen') && appMode !== 'invited' && appMode !== 'active') {
-            showTeaserModal();
-        }
-    }, 900);
+    console.warn('[module] legacy.js did not init first — this path should not run in production');
 }); // Close DOMContentLoaded
 
 var _skipHistoryPush = false;

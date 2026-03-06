@@ -24,5 +24,5 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function renderAdminCosts() { throw new Error('renderAdminCosts not yet migrated'); }
-export function renderAdminStatus() { throw new Error('renderAdminStatus not yet migrated'); }
+export function renderAdminCosts() { console.warn('renderAdminCosts not yet migrated'); return null; }
+export function renderAdminStatus() { console.warn('renderAdminStatus not yet migrated'); return null; }

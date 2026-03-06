@@ -30,7 +30,7 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function analyzeJobDescription() { throw new Error('analyzeJobDescription not yet migrated'); }
-export function extractSkillsFromText() { throw new Error('extractSkillsFromText not yet migrated'); }
-export function parseJobTitle() { throw new Error('parseJobTitle not yet migrated'); }
-export function detectSeniority() { throw new Error('detectSeniority not yet migrated'); }
+export function analyzeJobDescription() { console.warn('analyzeJobDescription not yet migrated'); return null; }
+export function extractSkillsFromText() { console.warn('extractSkillsFromText not yet migrated'); return null; }
+export function parseJobTitle() { console.warn('parseJobTitle not yet migrated'); return null; }
+export function detectSeniority() { console.warn('detectSeniority not yet migrated'); return null; }

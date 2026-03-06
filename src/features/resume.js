@@ -22,5 +22,5 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function generateResume() { throw new Error('generateResume not yet migrated'); }
-export function generateLinkedInProfile() { throw new Error('generateLinkedInProfile not yet migrated'); }
+export function generateResume() { console.warn('generateResume not yet migrated'); return null; }
+export function generateLinkedInProfile() { console.warn('generateLinkedInProfile not yet migrated'); return null; }

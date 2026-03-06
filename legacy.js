@@ -1,4 +1,4 @@
-<!-- v4.46.23 | 2026-03-05 | API fixes: ES module conversion all serverless functions, job-search rename, _fitFetchAndScore stub, window._templates exposed -->
+<!-- v4.46.25 | 2026-03-06 | Arch hardening: no-op stubs, data-ready Promise, dedup _sd/_bd, double-init gate, window.templates fix -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1080,8 +1080,8 @@
     <!-- Modals moved to index.html for DOM availability -->
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.24 - BUILD 20260306-rarity-cardview
-        var BP_VERSION = 'v4.46.24';
+        // BLUEPRINT v4.46.25 - BUILD 20260306-arch-hardening
+        var BP_VERSION = 'v4.46.25';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -2500,7 +2500,7 @@
                             userData.education = [];
                             userData.certifications = [];
                             userData.templateId = 'firestore-' + uid;
-                            userData.initialized = true;
+                            userData.initialized = true; _markUserDataReady();
                             if (typeof skillsData !== 'undefined') {
                                 skillsData.skills = [];
                                 skillsData.roles = [];
@@ -2514,7 +2514,7 @@
                     console.log('☁ Loading profile from Firestore...');
                     
                     // Populate userData — even if empty, this is YOUR profile
-                    userData.initialized = true;
+                    userData.initialized = true; _markUserDataReady();
                     userData.profile = data.profile || {};
                     
                     // If no profile name set, use Firebase display name
@@ -2649,7 +2649,7 @@
                     if (backup && backup.data) {
                         console.log('Restoring from local backup (saved ' + new Date(backup.ts).toLocaleTimeString() + ')');
                         var d = backup.data;
-                        userData.initialized = true;
+                        userData.initialized = true; _markUserDataReady();
                         userData.profile = d.profile || userData.profile;
                         userData.skills = d.skills || [];
                         userData.values = d.values || [];
@@ -16945,7 +16945,14 @@
         
         let templates = {};
         window._templates = templates; // expose for ES module access
+        window.templates = templates; // expose for nav.js demo mode (reads window.templates)
         let valuesLibrary = [];
+
+        var _resolveUserDataReady;
+        window._userDataReady = new Promise(function(r) { _resolveUserDataReady = r; });
+        function _markUserDataReady() {
+            if (_resolveUserDataReady) { _resolveUserDataReady(); _resolveUserDataReady = null; }
+        }
         
         // Check if user has existing profile
         // Removed checkUserProfile - using template-based loading instead
@@ -18714,7 +18721,7 @@
                 try {
                     const imported = sanitizeImport(JSON.parse(e.target.result));
                     userData = imported;
-                    userData.initialized = true;
+                    userData.initialized = true; _markUserDataReady();
                     window._userData = userData;
                     saveUserData();
                     location.reload();
@@ -21688,7 +21695,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
 
         function wizardApplyAndLaunch(built) {
             userData = built;
-            userData.initialized = true;
+            userData.initialized = true; _markUserDataReady();
             window._userData = userData;
             safeSet('currentProfile', 'wizard-built');
 
@@ -23947,6 +23954,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     showTeaserModal();
                 }
             }, 900);
+
+            window._legacyInitComplete = true;
         }); // Close DOMContentLoaded
         
         var _skipHistoryPush = false;

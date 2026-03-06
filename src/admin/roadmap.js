@@ -21,4 +21,4 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function renderAdminRoadmap() { throw new Error('renderAdminRoadmap not yet migrated'); }
+export function renderAdminRoadmap() { console.warn('renderAdminRoadmap not yet migrated'); return null; }

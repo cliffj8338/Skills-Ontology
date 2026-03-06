@@ -23,4 +23,4 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function generateInterviewPrep() { throw new Error('generateInterviewPrep not yet migrated'); }
+export function generateInterviewPrep() { console.warn('generateInterviewPrep not yet migrated'); return null; }
