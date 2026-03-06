@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.46.30 - BUILD 20260306-values-fix
-        var BP_VERSION = 'v4.46.34';
+        var BP_VERSION = 'v4.46.35';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1552,6 +1552,8 @@
                         blueprintData.values = data.values || blueprintData.values;
                         blueprintData.outcomes = data.outcomes || blueprintData.outcomes;
                     }
+                    // Also persist outcomes into userData so completeness checks can read it
+                    userData.outcomes = data.outcomes || [];
                     // Clear localStorage purpose — Firestore is authoritative for signed-in users
                     try { localStorage.removeItem('wbPurpose'); } catch(e) {}
 
@@ -1615,6 +1617,7 @@
                             blueprintData.purpose = d.purpose || '';
                             blueprintData.outcomes = d.outcomes || [];
                         }
+                        userData.outcomes = d.outcomes || [];
                         try { if (typeof initializeMainApp === 'function') initializeMainApp(); } catch(e) { console.warn('Backup restore re-init error:', e.message); }
                         showToast('Loaded from local backup. Your latest changes may appear once connection restores.', 'info', 6000);
                     }
@@ -23072,9 +23075,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             completeness.skills = allSkills.length >= 5 ? 100 : allSkills.length > 0 ? 50 : 0;
             completeness.workHistory = visibleRoles.length > 0 ? 100 : 0;
             if (window.blueprintData) {
-                completeness.outcomes = (blueprintData.outcomes || []).filter(function(o) { return o.shared; }).length > 0 ? 100 : 0;
-                completeness.values = (blueprintData.values || []).filter(function(v) { return v.selected; }).length > 0 ? 100 : 0;
-                completeness.purpose = blueprintData.purpose ? 100 : 0;
+                var outcomeList = blueprintData.outcomes || userData.outcomes || [];
+                completeness.outcomes = outcomeList.filter(function(o) { return o.shared; }).length > 0 ? 100 : outcomeList.length > 0 ? 50 : 0;
+                var valueList = blueprintData.values || userData.values || [];
+                completeness.values = valueList.filter(function(v) { return v.selected; }).length > 0 ? 100 : 0;
+                completeness.purpose = (blueprintData.purpose || userData.purpose) ? 100 : 0;
             }
             var userCerts = userData.certifications || [];
             var userEdu = userData.education || [];
