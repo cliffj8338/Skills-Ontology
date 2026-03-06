@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.26 - BUILD 20260306-window-guard
-        var BP_VERSION = 'v4.46.26';
+        // BLUEPRINT v4.46.28 - BUILD 20260306-window-guard
+        var BP_VERSION = 'v4.46.28';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1545,6 +1545,16 @@
                         console.log('✓ Demo data cleared. Profile reset to clean state.');
                     }
                     
+                    // Sync blueprintData from Firestore before initializeMainApp
+                    // prevents stale localStorage wbPurpose overwriting Firestore value
+                    if (typeof blueprintData !== 'undefined') {
+                        blueprintData.purpose = data.purpose || '';
+                        blueprintData.values = data.values || blueprintData.values;
+                        blueprintData.outcomes = data.outcomes || blueprintData.outcomes;
+                    }
+                    // Clear localStorage purpose — Firestore is authoritative for signed-in users
+                    try { localStorage.removeItem('wbPurpose'); } catch(e) {}
+
                     // Re-render
                     if (typeof initializeMainApp === 'function') {
                         initializeMainApp();
@@ -25731,10 +25741,12 @@ body {
                 }
             }
             
-            // Purpose
+            // Purpose — Firestore is authoritative for signed-in users.
+            // wbPurpose localStorage is only used when not signed in.
             var savedPurpose = null;
             try { savedPurpose = safeGet('wbPurpose'); } catch(e) {}
-            if (savedPurpose !== null && savedPurpose.trim().length > 0) {
+            var isSignedIn = typeof fbUser !== 'undefined' && fbUser;
+            if (!isSignedIn && savedPurpose !== null && savedPurpose.trim().length > 0) {
                 blueprintData.purpose = savedPurpose;
             } else if (userData.purpose && userData.purpose.trim().length > 0) {
                 blueprintData.purpose = userData.purpose;
@@ -28188,6 +28200,7 @@ body {
         function updatePurpose(newPurpose) {
             if (readOnlyGuard()) return;
             blueprintData.purpose = newPurpose;
+            userData.purpose = newPurpose; // keep userData in sync
             saveValues();
             saveToFirestore();
         }
@@ -28814,7 +28827,21 @@ body {
                 education: userEdu.map(function(e) { return { name: e.institution || e.name || '', desc: (e.degree || '') + (e.field ? ' — ' + e.field : ''), location: e.location || '', dates: e.dates || e.year || '', vf: 'edu', skills: e.skills || [] }; }),
                 certifications: userCerts.map(function(c) { return { name: c.name || '', vf: 'cert', vfLabel: c.issuer || c.name || '', desc: c.description || c.issuer || '', dates: c.dates || c.year || '', status: c.status || '', skills: c.skills || [] }; }),
                 domains: reportDomains,
-                proficiency: proficiency
+                proficiency: proficiency,
+                comp: (function() {
+                    var c = typeof getEffectiveComp === 'function' ? getEffectiveComp() : null;
+                    if (!c) return null;
+                    return {
+                        marketRate:        c.marketRate        || 0,
+                        conservativeOffer: c.conservativeOffer || 0,
+                        standardOffer:     c.standardOffer     || 0,
+                        competitiveOffer:  c.competitiveOffer  || 0,
+                        roleLevel:         c.roleLevel         || 'Mid',
+                        compSource:        c.compSource        || 'algorithm',
+                        compLabel:         c.compLabel         || 'Market Estimate',
+                        reportedComp:      (profile.reportedComp || 0)
+                    };
+                })()
             };
         }
         window.buildReportData = buildReportData;

@@ -379,8 +379,8 @@ body{min-height:100vh;-webkit-font-smoothing:antialiased;padding-bottom:72px}
 <div id="domL"></div></section>
 
 <!-- COMP TEASER -->
-<section class="sec" id="comp"><div class="sec-h"><div class="sec-ico" style="background:rgba(16,185,129,.1);color:var(--g)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div><div class="sec-t">Compensation Intelligence</div><div class="sec-st">Market positioning & benchmarks</div></div></div>
-<div class="teaser"><div style="font-size:2em;margin-bottom:12px;opacity:.4">📊</div><div style="font-weight:700;margin-bottom:6px;color:var(--t2)">Compensation Data Available</div><div style="font-size:.82em;color:var(--tm);max-width:400px;margin:0 auto;line-height:1.6">Market rate analysis, BLS benchmarks, and positioning data have been prepared. This data becomes available as the conversation progresses.</div><div style="margin-top:16px;font-size:.72em;color:var(--tm)">🔒 Candidate-controlled release</div></div></section>
+<section class="sec" id="comp"><div class="sec-h"><div class="sec-ico" style="background:rgba(16,185,129,.1);color:var(--g)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div><div class="sec-t">Compensation Intelligence</div><div class="sec-st">Market positioning & BLS benchmarks</div></div></div>
+<div id="compContent"></div></section>
 
 </div>
 
@@ -403,6 +403,7 @@ In production, candidates set blind mode defaults from their Blueprint dashboard
 <div class="blind-row"><div class="blind-row-label">Employer names</div><div class="blind-toggle" id="blindEmployer" onclick="this.classList.toggle('on')"></div></div>
 <div class="blind-row"><div class="blind-row-label">Institution names</div><div class="blind-toggle" id="blindInstitution" onclick="this.classList.toggle('on')"></div></div>
 <div class="blind-row"><div class="blind-row-label">Outcome details</div><div class="blind-toggle" id="blindOutcomes" onclick="this.classList.toggle('on')"></div></div>
+<div class="blind-row"><div class="blind-row-label">Compensation data</div><div class="blind-toggle" id="blindComp" onclick="this.classList.toggle('on')"></div></div>
 
 <div class="blind-actions">
 <button class="blind-reset" onclick="resetBlind()">Reset</button>
@@ -724,7 +725,7 @@ function toggleTheme() {
 
 // ===== BLIND MODE =====
 let blindActive = false;
-const blindState = { identity:false, location:false, employer:false, institution:false, outcomes:false };
+const blindState = { identity:false, location:false, employer:false, institution:false, outcomes:false, comp:false };
 const originals = { name:R.candidate.name, photo:R.candidate.photo, heroTitle:R.candidate.title, location:R.candidate.location, outcomes:[] };
 const blindOutcomes = R.outcomes.map(o => {
     const vbSvg='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
@@ -750,6 +751,7 @@ function applyBlind() {
     blindState.employer = document.getElementById('blindEmployer').classList.contains('on');
     blindState.institution = document.getElementById('blindInstitution').classList.contains('on');
     blindState.outcomes = document.getElementById('blindOutcomes').classList.contains('on');
+    blindState.comp = document.getElementById('blindComp').classList.contains('on');
     blindActive = Object.values(blindState).some(v => v);
     document.getElementById('blindFab').classList.toggle('active', blindActive);
 
@@ -799,6 +801,14 @@ function applyBlind() {
     if (!originals.outcomes.length) outcDivs.forEach(d => originals.outcomes.push(d.innerHTML));
     outcDivs.forEach((d, i) => { if (blindOutcomes[i]) d.innerHTML = blindState.outcomes ? blindOutcomes[i] : originals.outcomes[i]; });
 
+    // Compensation section
+    const compSec = document.getElementById('compContent');
+    if (compSec) {
+        compSec.style.filter = blindState.comp ? 'blur(8px)' : '';
+        compSec.style.userSelect = blindState.comp ? 'none' : '';
+        compSec.style.pointerEvents = blindState.comp ? 'none' : '';
+    }
+
     // Strip indicator
     document.querySelector('.strip')?.classList.toggle('blinded-strip', blindActive);
     document.getElementById('blindPanel').classList.remove('open');
@@ -811,6 +821,63 @@ document.addEventListener('click', e => {
 });
 
 function openPop(d){const p=document.getElementById('pop');document.getElementById('popN').textContent=d.name;let b='<div><strong style="color:var(--a)">'+(d.level||'')+'</strong>';if(d.ms==='matched')b+=' · <span style="color:var(--g)">✓ Matched to role</span>';if(d.vf)b+=' <span class="vb'+(d.vf==='cert'?' cert':d.vf==='edu'?' edu':'')+'"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'+(d.vfLabel||'Verified')+'</span>';b+='</div>';if(d.ev)b+='<div class="pop-ev"><div class="pop-ev-l">Evidence</div>'+d.ev+'</div>';document.getElementById('popB').innerHTML=b;p.classList.add('open');p.scrollIntoView({behavior:'smooth',block:'nearest'})}
+
+// ── Compensation section renderer ────────────────────────────────
+function renderComp() {
+    const el = document.getElementById('compContent');
+    if (!el) return;
+    const C = R.comp;
+    if (!C || !C.marketRate) {
+        el.innerHTML = '<div style="color:var(--tm);font-size:.85em;padding:16px 0;text-align:center;opacity:.5">No compensation data available for this profile.</div>';
+        return;
+    }
+    const lt = isLight();
+    const fmt = n => '$' + Math.round(n).toLocaleString();
+    const reported = C.reportedComp > 0;
+    const src = C.compSource === 'reported' ? 'Self-reported' : 'BLS/O*NET estimate';
+    const srcColor = C.compSource === 'reported' ? 'var(--g)' : 'var(--tm)';
+
+    // Positioning bar: where does marketRate sit between conservative and competitive?
+    const lo = C.conservativeOffer || C.marketRate * 0.82;
+    const hi = C.competitiveOffer  || C.marketRate * 1.18;
+    const pct = Math.max(0, Math.min(100, Math.round(((C.marketRate - lo) / (hi - lo)) * 100)));
+
+    el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;">
+            <div style="font-size:.65em;color:var(--tm);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Conservative</div>
+            <div style="font-size:1.3em;font-weight:700;color:var(--t2);">${fmt(lo)}</div>
+        </div>
+        <div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:16px;text-align:center;">
+            <div style="font-size:.65em;color:var(--g);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">${C.compLabel}</div>
+            <div style="font-size:1.6em;font-weight:900;color:var(--g);">${fmt(C.marketRate)}</div>
+            <div style="font-size:.68em;color:${srcColor};margin-top:3px;">${src}</div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;">
+            <div style="font-size:.65em;color:var(--tm);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Competitive</div>
+            <div style="font-size:1.3em;font-weight:700;color:var(--t2);">${fmt(hi)}</div>
+        </div>
+    </div>
+    <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;font-size:.72em;color:var(--tm);margin-bottom:6px;">
+            <span>Market positioning</span>
+            <span style="color:var(--g);font-weight:600;">${C.roleLevel} level</span>
+        </div>
+        <div style="height:8px;background:var(--border);border-radius:4px;position:relative;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#3b82f6,#10b981);border-radius:4px;transition:width .6s ease;"></div>
+            <div style="position:absolute;top:50%;left:${pct}%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;background:#10b981;border:2px solid #fff;box-shadow:0 0 4px rgba(16,185,129,.5);"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:.65em;color:var(--tm);margin-top:4px;">
+            <span>${fmt(lo)}</span><span>${fmt(hi)}</span>
+        </div>
+    </div>
+    ${reported ? `<div style="font-size:.75em;color:var(--tm);padding:10px 14px;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.12);border-radius:8px;">
+        ✓ Candidate has disclosed compensation expectations of <strong style="color:var(--g)">${fmt(C.reportedComp)}</strong>
+    </div>` : ''}
+    <div style="font-size:.68em;color:var(--tm);margin-top:10px;opacity:.6;">
+        Market data sourced from BLS May 2024 wage survey via O*NET occupational crosswalk. Figures represent total compensation estimates based on candidate skill profile.
+    </div>`;
+}
 
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║               CONFIG-DRIVEN RENDERING                            ║
@@ -830,6 +897,7 @@ function hydrateFromData(){
     document.getElementById('heroMeta').innerHTML='<span>📍 '+C.location+'</span><span>📞 '+(C.contact||'Available upon request')+'</span>';
     var noteEl=document.getElementById('noteTitle');
     if(noteEl) noteEl.textContent='Send a Note to '+(C.name.split(' ')[0]);
+    renderComp();
 }
 
 function initReport(){
