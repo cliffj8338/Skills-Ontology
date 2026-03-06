@@ -1700,7 +1700,7 @@ export function createCustomSkill() {
     if (!levelEl) { showToast('Please select a proficiency level.', 'warning'); return; }
     const level = levelEl.value;
     const core = document.getElementById('customSkillCore').checked;
-    const roles = Array.from(document.querySelectorAll('.custom-skill-role-checkbox:checked')).map(cb => cb.value);
+    let roles = Array.from(document.querySelectorAll('.custom-skill-role-checkbox:checked')).map(cb => cb.value);
     
     // Validate
     if (!name) {

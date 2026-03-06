@@ -76,7 +76,8 @@ export default defineConfig({
 
   // Dev server config
   server: {
-    port: 3000,
-    open: true,
+    port: 5000,
+    host: '0.0.0.0',
+    open: false,
   },
 });

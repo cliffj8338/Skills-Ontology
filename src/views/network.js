@@ -1861,15 +1861,18 @@ export function initCardView() {
         }
     };
 
-    var impactToRarity = { critical: 'rare', high: 'rare', moderate: 'uncommon', standard: 'common', supplementary: 'common' };
     _sd().skills.forEach(function(skill) {
         var impact = getSkillImpact(skill);
         var rarity;
         if (skill.category === 'unique') {
             rarity = (skill.userAssessment && skill.userAssessment.rarity) || 'uncommon';
+        } else if (impact && impact.marketScarcity) {
+            rarity = impact.marketScarcity;
         } else {
-            rarity = impactToRarity[(impact && impact.level) || 'moderate'] || 'common';
+            var fallbackMap = { critical: 'rare', high: 'rare', moderate: 'uncommon', standard: 'common', supplementary: 'common' };
+            rarity = fallbackMap[(impact && impact.level) || 'moderate'] || 'common';
         }
+        if (!rarityTiers[rarity]) rarity = 'common';
         rarityTiers[rarity].skills.push(skill);
     });
 
