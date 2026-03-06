@@ -39179,368 +39179,241 @@ body {
         }
         
         function renderExperienceSettings() {
-            var whItems = userData.workHistory || [];
-            var edItems = userData.education || [];
-            var certItems = userData.certifications || [];
-            
+            var whItems   = userData.workHistory     || [];
+            var edItems   = userData.education       || [];
+            var certItems = userData.certifications  || [];
+
             var html = '';
-            
-            // ── LinkedIn Merge Import ──
-            var lastMerge = (userData.importStats || {}).lastMerge;
+
+            // ── LinkedIn Banner ──────────────────────────────────────────────
+            var lastMerge    = (userData.importStats || {}).lastMerge;
             var lastMergeStr = lastMerge ? new Date(lastMerge).toLocaleDateString() : null;
-            
-            html += '<div style="padding:16px; margin-bottom:20px; background:linear-gradient(135deg, rgba(10,102,194,0.06), rgba(10,102,194,0.02)); '
-                + 'border:1px solid rgba(10,102,194,0.2); border-radius:10px;">'
-                + '<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">'
-                + '<div style="flex:1; min-width:200px;">'
-                + '<div style="font-weight:700; color:var(--text-primary); font-size:0.9em; display:flex; align-items:center; gap:6px;">'
+            html += '<div style="padding:11px 16px; margin-bottom:16px; background:linear-gradient(135deg,rgba(10,102,194,0.07),rgba(10,102,194,0.02)); border:1px solid rgba(10,102,194,0.2); border-radius:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">'
+                + '<div style="display:flex; align-items:center; gap:10px;">'
                 + '<svg width="16" height="16" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>'
-                + ' Update from LinkedIn</div>'
-                + '<div style="font-size:0.78em; color:var(--text-muted); margin-top:4px; line-height:1.4;">'
-                + 'Upload your LinkedIn data export to merge new positions, skills, endorsements, recommendations, articles, and more into your existing profile. Nothing you\'ve built will be overwritten.'
+                + '<div><div style="font-weight:600; color:var(--text-primary); font-size:0.85em;">Update from LinkedIn</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted);">Upload LinkedIn .zip to merge positions, skills, and more. Nothing you\'ve built will be overwritten.'
                 + (lastMergeStr ? ' <span style="color:var(--accent);">Last updated: ' + lastMergeStr + '</span>' : '')
-                + '</div></div>'
-                + '<div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">'
-                + '<label id="liMergeBtn" style="padding:8px 18px; background:#0a66c2; color:#fff; border-radius:8px; cursor:pointer; '
-                + 'font-weight:600; font-size:0.82em; display:inline-flex; align-items:center; gap:6px; transition:opacity 0.2s;">'
-                + bpIcon('network', 14) + ' Upload .zip'
-                + '<input type="file" accept=".zip" onchange="handleLinkedInMerge(this)" style="display:none;">'
-                + '</label>'
-                + '</div></div>'
-                + '<div id="liMergeStatus" style="display:none; font-size:0.8em; color:var(--accent); margin-top:10px; padding:8px 12px; '
-                + 'background:var(--c-surface-2); border-radius:6px;">' + bpIcon('settings', 12) + ' Processing...</div>'
-                + '<div id="liMergeResult" style="display:none; margin-top:10px; padding:10px 12px; '
-                + 'background:var(--c-surface-2); border-radius:6px;"></div>'
-                + '</div>';
-            
-            // --- Work History ---
-            // Build company groups for progression display
+                + '</div></div></div>'
+                + '<label id="liMergeBtn" style="padding:6px 14px; background:#0a66c2; color:#fff; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.78em; display:inline-flex; align-items:center; gap:5px;">'
+                + bpIcon('network',12) + ' Upload .zip<input type="file" accept=".zip" onchange="handleLinkedInMerge(this)" style="display:none;"></label>'
+                + '</div>'
+                + '<div id="liMergeStatus" style="display:none; font-size:0.8em; color:var(--accent); margin-top:8px; padding:6px 10px; background:var(--c-surface-2); border-radius:6px;">' + bpIcon('settings',12) + ' Processing...</div>'
+                + '<div id="liMergeResult" style="display:none; margin-top:8px; padding:8px 10px; background:var(--c-surface-2); border-radius:6px;"></div>';
+
+            // ── Work History ─────────────────────────────────────────────────
+            var hiddenCount = whItems.filter(function(j) { return j.hidden; }).length;
+
+            // Build company groups
             var companyGroups = {};
             whItems.forEach(function(job, idx) {
-                var normCo = (job.company || '').trim().replace(/,?\s*(LLC|Inc\.?|Corp\.?|Ltd\.?|Co\.?|People|Group|Holdings)\.?\s*$/i, '').trim().toLowerCase();
-                if (!normCo) normCo = '_ungrouped_' + idx;
+                var normCo = (job.company || '').trim().replace(/,?\s*(LLC|Inc\.?|Corp\.?|Ltd\.?|Co\.?|People|Group|Holdings)\.?\s*$/i,'').trim().toLowerCase();
+                if (!normCo) normCo = '_ug_' + idx;
                 if (!companyGroups[normCo]) companyGroups[normCo] = [];
                 companyGroups[normCo].push({ job: job, idx: idx });
             });
-            
-            // Sort groups: multi-position first, then by most recent start date
             var groupArr = Object.values(companyGroups).sort(function(a, b) {
-                // Most recent position in each group
-                var aRecent = a.reduce(function(max, e) {
-                    var y = parseInt((e.job.startDate || '').split(' ').pop()) || parseInt(e.job.startDate) || 0;
-                    return y > max ? y : max;
-                }, 0);
-                var bRecent = b.reduce(function(max, e) {
-                    var y = parseInt((e.job.startDate || '').split(' ').pop()) || parseInt(e.job.startDate) || 0;
-                    return y > max ? y : max;
-                }, 0);
-                return bRecent - aRecent;
+                var aR = a.reduce(function(m,e){ var y=parseInt((e.job.startDate||'').split(' ').pop())||0; return y>m?y:m; },0);
+                var bR = b.reduce(function(m,e){ var y=parseInt((e.job.startDate||'').split(' ').pop())||0; return y>m?y:m; },0);
+                return bR - aR;
             });
-            
-            var hiddenCount = whItems.filter(function(j) { return j.hidden; }).length;
-            
-            html += '<div class="blueprint-section">'
-                + '<div class="blueprint-section-header">'
-                + '<div class="blueprint-section-title">'
-                + '<span class="section-icon">' + bpIcon('briefcase',20) + '</span>'
-                + '<span>Work History</span>'
-                + '<span class="section-count">' + whItems.length + ' entries</span>'
-                + (hiddenCount > 0 ? '<span style="font-size:0.72em; padding:2px 8px; border-radius:8px; background:rgba(245,158,11,0.1); color:#f59e0b; font-weight:600; margin-left:6px;">'
-                    + bpIcon('eye',11) + ' ' + hiddenCount + ' hidden</span>' : '')
+
+            // Section header
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
+                + '<div style="display:flex; align-items:center; gap:8px;">'
+                + '<span style="color:var(--c-accent);">' + bpIcon('briefcase',16) + '</span>'
+                + '<span style="font-weight:700; color:var(--c-heading); font-size:0.92em;">Work History</span>'
+                + '<span style="font-size:0.7em; padding:2px 8px; border-radius:8px; background:var(--c-surface-4); color:var(--c-muted);">' + whItems.length + '</span>'
+                + (hiddenCount > 0 ? '<span style="font-size:0.68em; padding:2px 7px; border-radius:8px; background:rgba(245,158,11,0.1); color:#f59e0b;">' + hiddenCount + ' hidden</span>' : '')
                 + '</div>'
-                + '</div>'
-                + '<div class="coaching-tip">'
-                + '<div class="coaching-tip-title">' + bpIcon('lightbulb',14) + ' CAREER PROGRESSION</div>'
-                + '<div class="coaching-tip-content">'
-                + 'Positions at the same company are grouped to show your career trajectory. Multiple roles demonstrate growth, expanding scope, and increasing responsibility.'
-                + '</div>'
+                + '<button onclick="addWorkHistoryItem()" style="font-size:0.78em; padding:5px 12px; border-radius:7px; border:1px solid var(--c-accent-border-4); background:var(--c-accent-bg-5a); color:var(--c-accent-deep); cursor:pointer; font-weight:600;">+ Add Position</button>'
                 + '</div>';
-            
-            if (whItems.length > 0) {
+
+            if (whItems.length === 0) {
+                html += '<div style="padding:20px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:16px;">No work history added yet.</div>';
+            } else {
+                html += '<div style="display:grid; gap:6px; margin-bottom:16px;">';
+
                 groupArr.forEach(function(group) {
-                    var isProgression = group.length > 1;
-                    
-                    // Sort positions within group by start date (earliest first for progression display)
-                    group.sort(function(a, b) {
-                        var aY = parseInt((a.job.startDate || '').split(' ').pop()) || parseInt(a.job.startDate) || 0;
-                        var bY = parseInt((b.job.startDate || '').split(' ').pop()) || parseInt(b.job.startDate) || 0;
+                    group.sort(function(a,b){
+                        var aY=parseInt((a.job.startDate||'').split(' ').pop())||0;
+                        var bY=parseInt((b.job.startDate||'').split(' ').pop())||0;
                         return aY - bY;
                     });
-                    
-                    if (isProgression) {
-                        var coName = group[0].job.company || 'Company';
-                        var firstStart = group[0].job.startDate || '?';
-                        var lastEnd = group[group.length - 1].job.endDate || group[group.length - 1].job.current ? 'Present' : '?';
-                        
-                        // Calculate total tenure
-                        var firstYear = parseInt((firstStart || '').split(' ').pop()) || parseInt(firstStart) || 0;
-                        var lastYear = lastEnd === 'Present' ? new Date().getFullYear() : (parseInt((lastEnd || '').split(' ').pop()) || parseInt(lastEnd) || 0);
-                        var tenure = lastYear - firstYear;
-                        
-                        html += '<div style="padding:16px; margin-bottom:12px; background:var(--c-surface-1); '
-                            + 'border:1px solid var(--c-surface-5b); border-radius:10px; border-left:3px solid var(--c-accent);">';
-                        
-                        // Company header with progression badge
-                        html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
-                            + '<div>'
-                            + '<div style="font-weight:700; color:var(--c-accent); font-size:0.95em;">' + escapeHtml(coName) + '</div>'
-                            + '<div style="color:var(--c-muted); font-size:0.78em;">' + formatWorkDate(firstStart) + ' \u2013 ' + (lastEnd === 'Present' ? 'Present' : formatWorkDate(lastEnd))
-                            + (tenure > 0 ? ' \u00B7 ' + tenure + ' year' + (tenure !== 1 ? 's' : '') : '') + '</div>'
+                    var isGroup = group.length > 1;
+
+                    if (isGroup) {
+                        var coName    = group[0].job.company || 'Company';
+                        var firstStart = group[0].job.startDate || '';
+                        var lastEntry  = group[group.length - 1].job;
+                        var lastEnd    = lastEntry.current ? 'Present' : (lastEntry.endDate || '');
+                        var firstYear  = parseInt((firstStart||'').split(' ').pop()) || parseInt(firstStart) || 0;
+                        var lastYear   = lastEnd === 'Present' ? new Date().getFullYear() : (parseInt((lastEnd||'').split(' ').pop()) || 0);
+                        var tenure     = lastYear && firstYear ? lastYear - firstYear : 0;
+
+                        // Group container
+                        html += '<div style="border:1px solid var(--c-surface-5b); border-left:3px solid var(--c-accent); border-radius:10px; overflow:hidden;">';
+
+                        // Group header row — compact
+                        html += '<div style="padding:9px 12px; background:var(--c-surface-1); display:flex; justify-content:space-between; align-items:center;">'
+                            + '<div style="display:flex; align-items:center; gap:8px;">'
+                            + '<span style="font-weight:700; color:var(--c-accent); font-size:0.88em;">' + escapeHtml(coName) + '</span>'
+                            + '<span style="font-size:0.68em; padding:2px 7px; border-radius:4px; background:rgba(96,165,250,0.1); color:#60a5fa; font-weight:600;">\u2191 ' + group.length + ' ROLES</span>'
                             + '</div>'
-                            + '<span style="font-size:0.68em; padding:3px 8px; border-radius:4px; '
-                            + 'background:rgba(96,165,250,0.1); color:#60a5fa; font-weight:600; letter-spacing:0.03em;">'
-                            + '\u2191 ' + group.length + ' ROLES</span>'
+                            + '<span style="font-size:0.72em; color:var(--c-faint);">'
+                            + (firstStart ? formatWorkDate(firstStart) + ' \u2013 ' + (lastEnd === 'Present' ? 'Present' : formatWorkDate(lastEnd)) : '')
+                            + (tenure > 0 ? ' \u00B7 ' + tenure + 'yr' : '')
+                            + '</span>'
                             + '</div>';
-                        
-                        // Progression timeline (most recent on top)
-                        var reversedGroup = group.slice().reverse();
-                        reversedGroup.forEach(function(entry, gIdx) {
-                            var job = entry.job;
-                            var idx = entry.idx;
+
+                        // Positions within group — compact rows
+                        var rev = group.slice().reverse();
+                        rev.forEach(function(entry, gIdx) {
+                            var job     = entry.job;
+                            var idx     = entry.idx;
                             var isLatest = gIdx === 0;
                             var isHidden = job.hidden === true;
-                            var dateRange = formatWorkDate(job.startDate || '?') + ' \u2013 ' + (job.current ? 'Present' : formatWorkDate(job.endDate || '?'));
-                            
-                            html += '<div id="wh-card-' + idx + '" style="padding:10px 12px; margin-left:12px; border-left:2px solid '
-                                + (isLatest ? 'var(--c-accent)' : 'var(--c-surface-5b)') + '; position:relative;'
-                                + (isHidden ? ' opacity:0.4;' : '') + '">';
-                            
-                            // Timeline dot
-                            html += '<div style="position:absolute; left:-5px; top:14px; width:8px; height:8px; border-radius:50%; '
-                                + 'background:' + (isLatest ? 'var(--c-accent)' : 'var(--c-surface-5b)') + ';"></div>';
-                            
-                            // Controls
-                            html += '<div style="position:absolute; top:6px; right:4px; display:flex; align-items:center; gap:6px;">'
-                                + '<button onclick="toggleWorkHistoryHidden(' + idx + ')" title="' + (isHidden ? 'Show in Blueprint' : 'Hide from Blueprint') + '" '
-                                + 'style="background:none; border:none; cursor:pointer; font-size:0.72em; padding:1px 4px; border-radius:3px; '
-                                + 'color:' + (isHidden ? '#f59e0b' : 'var(--c-muted)') + ';">'
-                                + (isHidden ? bpIcon('eye',11) + ' Hidden' : bpIcon('eye',11)) + '</button>'
-                                + '<button onclick="editWorkHistoryItem(' + idx + ')" title="Edit" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:var(--c-accent);">\u270E</button>'
-                                + '<button onclick="removeWorkHistoryItem(' + idx + ')" title="Remove" style="background:none; border:none; cursor:pointer; font-size:0.9em; color:var(--c-danger);">\u00D7</button>'
+                            var dateRange = formatWorkDate(job.startDate||'?') + ' \u2013 ' + (job.current ? 'Present' : formatWorkDate(job.endDate||'?'));
+
+                            html += '<div id="wh-card-' + idx + '" style="padding:8px 12px 8px 20px; border-top:1px solid var(--c-surface-4); display:flex; align-items:center; gap:8px;'
+                                + (isHidden ? ' opacity:0.45;' : '') + '">'
+                                + '<div style="width:5px; height:5px; border-radius:50%; background:' + (isLatest ? 'var(--c-accent)' : 'var(--c-surface-5b)') + '; flex-shrink:0;"></div>'
+                                + '<div style="flex:1; min-width:0;">'
+                                + '<span style="font-size:0.86em; font-weight:' + (isLatest ? '700' : '500') + '; color:var(--c-text-alt);">' + escapeHtml(job.title||'Untitled') + '</span>'
+                                + '<span style="font-size:0.75em; color:var(--c-muted); margin-left:8px;">' + escapeHtml(dateRange) + '</span>'
+                                + (isHidden ? '<span style="font-size:0.65em; color:#f59e0b; margin-left:6px;">Hidden</span>' : '')
+                                + '</div>'
+                                + '<div style="display:flex; gap:2px; flex-shrink:0;">'
+                                + '<button onclick="toggleWorkHistoryHidden(' + idx + ')" title="' + (isHidden ? 'Show' : 'Hide') + '" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:' + (isHidden ? '#f59e0b' : 'var(--c-muted)') + '; font-size:0.8em;">' + bpIcon('eye',12) + '</button>'
+                                + '<button onclick="editWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
+                                + '<button onclick="removeWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
+                                + '</div>'
                                 + '</div>';
-                            
-                            html += '<div style="font-weight:' + (isLatest ? '700' : '600') + '; color:var(--c-text-alt); font-size:0.9em;">' + escapeHtml(job.title || 'Untitled') + '</div>'
-                                + '<div style="color:var(--c-muted); font-size:0.78em; margin-top:1px;">' + dateRange + '</div>';
-                            
-                            if (job.description && isLatest) {
-                                html += '<div style="color:var(--c-heading); font-size:0.82em; margin-top:6px; line-height:1.5;">' + escapeHtml(job.description.substring(0, 300)) + (job.description.length > 300 ? '...' : '') + '</div>';
-                            }
-                            
-                            if (job.achievements && job.achievements.length > 0 && isLatest) {
-                                html += '<div style="margin-top:6px;">';
-                                job.achievements.forEach(function(ach) {
-                                    html += '<div style="font-size:0.8em; color:var(--c-heading); padding:2px 0 2px 14px; position:relative; line-height:1.45;">'
-                                        + '<span style="position:absolute; left:0; color:var(--c-success);">\u25B8</span>'
-                                        + escapeHtml(ach) + '</div>';
-                                });
-                                html += '</div>';
-                            }
-                            
-                            html += '</div>';
                         });
-                        
-                        html += '</div>';
+
+                        html += '</div>'; // end group card
+
                     } else {
-                        // Single position — render normally
-                        var entry = group[0];
-                        var job = entry.job;
-                        var idx = entry.idx;
-                        var dateRange = formatWorkDate(job.startDate || '?') + ' \u2013 ' + (job.current ? 'Present' : formatWorkDate(job.endDate || '?'));
+                        // Single position — compact row card
+                        var entry    = group[0];
+                        var job      = entry.job;
+                        var idx      = entry.idx;
                         var isHidden = job.hidden === true;
-                        
-                        html += '<div id="wh-card-' + idx + '" style="padding:16px; margin-bottom:12px; background:var(--c-surface-1); '
-                            + 'border:1px solid var(--c-surface-5b); border-radius:10px; position:relative;'
-                            + (isHidden ? ' opacity:0.4;' : '') + '">';
-                        
-                        html += '<div style="position:absolute; top:10px; right:10px; display:flex; align-items:center; gap:6px;">'
-                            + '<button onclick="toggleWorkHistoryHidden(' + idx + ')" title="' + (isHidden ? 'Show in Blueprint' : 'Hide from Blueprint') + '" '
-                            + 'style="background:none; border:none; cursor:pointer; font-size:0.78em; padding:2px 6px; border-radius:4px; '
-                            + 'color:' + (isHidden ? '#f59e0b' : 'var(--c-muted)') + '; transition:all 0.2s;">'
-                            + (isHidden ? bpIcon('eye',13) + ' Hidden' : bpIcon('eye',13)) + '</button>'
-                            + '<button onclick="editWorkHistoryItem(' + idx + ')" title="Edit" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:var(--c-accent);">\u270E</button>'
-                            + '<button onclick="removeWorkHistoryItem(' + idx + ')" title="Remove" style="background:none; border:none; cursor:pointer; font-size:0.9em; color:var(--c-danger);">\u00D7</button>'
+                        var dateRange = formatWorkDate(job.startDate||'?') + ' \u2013 ' + (job.current ? 'Present' : formatWorkDate(job.endDate||'?'));
+
+                        html += '<div id="wh-card-' + idx + '" style="padding:9px 12px; background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:8px; display:flex; align-items:center; gap:8px;'
+                            + (isHidden ? ' opacity:0.45;' : '') + '">'
+                            + '<div style="flex:1; min-width:0;">'
+                            + '<div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;">'
+                            + '<span style="font-size:0.88em; font-weight:600; color:var(--c-text-alt); white-space:nowrap;">' + escapeHtml(job.title||'Untitled Role') + '</span>'
+                            + '<span style="font-size:0.75em; color:var(--c-accent);">' + escapeHtml(job.company||'') + (job.location ? ' \u00B7 ' + escapeHtml(job.location) : '') + '</span>'
+                            + '<span style="font-size:0.72em; color:var(--c-muted);">' + escapeHtml(dateRange) + '</span>'
+                            + (isHidden ? '<span style="font-size:0.65em; color:#f59e0b;">Hidden</span>' : '')
+                            + '</div>'
+                            + (job.description ? '<div style="font-size:0.76em; color:var(--c-faint); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;">' + escapeHtml(job.description.substring(0,120)) + (job.description.length > 120 ? '\u2026' : '') + '</div>' : '')
+                            + '</div>'
+                            + '<div style="display:flex; gap:2px; flex-shrink:0;">'
+                            + '<button onclick="toggleWorkHistoryHidden(' + idx + ')" title="' + (isHidden ? 'Show' : 'Hide') + '" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:' + (isHidden ? '#f59e0b' : 'var(--c-muted)') + ';">' + bpIcon('eye',12) + '</button>'
+                            + '<button onclick="editWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
+                            + '<button onclick="removeWorkHistoryItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
+                            + '</div>'
                             + '</div>';
-                        
-                        html += '<div style="font-weight:700; color:var(--c-text-alt); font-size:0.95em;">' + escapeHtml(job.title || 'Untitled Role') + '</div>'
-                            + '<div style="color:var(--c-accent); font-size:0.88em; margin-top:2px;">' + escapeHtml(job.company || '') + (job.location ? ' \u00B7 ' + escapeHtml(job.location) : '') + '</div>'
-                            + '<div style="color:var(--c-muted); font-size:0.82em; margin-top:2px;">' + dateRange + '</div>';
-                        
-                        if (job.description) {
-                            html += '<div style="color:var(--c-heading); font-size:0.85em; margin-top:8px; line-height:1.5;">' + escapeHtml(job.description) + '</div>';
-                        }
-                        
-                        if (job.achievements && job.achievements.length > 0) {
-                            html += '<div style="margin-top:8px;">';
-                            job.achievements.forEach(function(ach) {
-                                html += '<div style="font-size:0.83em; color:var(--c-heading); padding:3px 0 3px 14px; position:relative; line-height:1.45;">'
-                                    + '<span style="position:absolute; left:0; color:var(--c-success);">\u25B8</span>'
-                                    + escapeHtml(ach) + '</div>';
-                            });
-                            html += '</div>';
-                        }
-                        
-                        html += '</div>';
                     }
                 });
-            } else {
-                html += '<div style="text-align:center; padding:24px; color:var(--c-faint); font-size:0.9em;">'
-                    + 'No work history added yet. Add your roles to power resume generation.'
-                    + '</div>';
+
+                html += '</div>'; // end work history grid
             }
-            
-            html += '<button onclick="addWorkHistoryItem()" style="'
-                + 'background:var(--c-accent-bg-5a); '
-                + 'border:1px solid var(--c-accent-border-4); '
-                + 'color:var(--c-accent-deep); padding:10px 20px; border-radius:8px; cursor:pointer; '
-                + 'font-size:0.9em; font-weight:600; margin-top:12px;">'
-                + '+ Add Position</button>'
-                + '</div>';
-            
-            // --- Education ---
-            html += '<div class="blueprint-section" style="margin-top:24px;">'
-                + '<div class="blueprint-section-header">'
-                + '<div class="blueprint-section-title">'
-                + '<span class="section-icon">' + bpIcon('graduation',20) + '</span>'
-                + '<span>Education</span>'
-                + '<span class="section-count">' + edItems.length + ' entries</span>'
+
+            // ── Education ────────────────────────────────────────────────────
+            var edTypeIcons  = { degree:'\uD83C\uDF93', cert:'\uD83D\uDCDC', trade:'\uD83D\uDD27', bootcamp:'\u26A1', profdev:'\uD83D\uDCCA', military:'\uD83C\uDF96\uFE0F' };
+            var edTypeLabels = { degree:'Degree', cert:'Certificate', trade:'Trade', bootcamp:'Bootcamp', profdev:'Prof Dev', military:'Military' };
+
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
+                + '<div style="display:flex; align-items:center; gap:8px;">'
+                + '<span style="color:var(--c-accent);">' + bpIcon('graduation',16) + '</span>'
+                + '<span style="font-weight:700; color:var(--c-heading); font-size:0.92em;">Education</span>'
+                + '<span style="font-size:0.7em; padding:2px 8px; border-radius:8px; background:var(--c-surface-4); color:var(--c-muted);">' + edItems.length + '</span>'
                 + '</div>'
+                + '<button onclick="addEducationItem()" style="font-size:0.78em; padding:5px 12px; border-radius:7px; border:1px solid var(--c-accent-border-4); background:var(--c-accent-bg-5a); color:var(--c-accent-deep); cursor:pointer; font-weight:600;">+ Add Education</button>'
                 + '</div>';
-            
-            if (edItems.length > 0) {
-                var edTypeIcons = { degree:'🎓', cert:'📜', trade:'🔧', bootcamp:'⚡', profdev:'📊', military:'🎖️' };
-                var edTypeLabels = { degree:'Degree', cert:'Certificate', trade:'Trade', bootcamp:'Bootcamp', profdev:'Prof Dev', military:'Military' };
-                
+
+            if (edItems.length === 0) {
+                html += '<div style="padding:16px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:16px;">No education entries yet.</div>';
+            } else {
+                html += '<div style="display:grid; gap:5px; margin-bottom:16px;">';
                 edItems.forEach(function(ed, idx) {
-                    var edType = ed.type || 'degree';
-                    var icon = edTypeIcons[edType] || '🎓';
+                    var edType   = ed.type || 'degree';
+                    var icon     = edTypeIcons[edType] || '\uD83C\uDF93';
                     var typeLabel = edTypeLabels[edType] || 'Degree';
-                    var hasLinkedCreds = ed.linkedCredentials && ed.linkedCredentials.length > 0;
-                    
-                    // Build date display
-                    var dateStr = '';
-                    if (ed.startYear && ed.endYear) {
+                    var dateStr  = '';
+                    if (ed.startYear && (ed.endYear || ed.currentlyEnrolled)) {
                         dateStr = ed.startYear + ' \u2013 ' + (ed.currentlyEnrolled ? 'Present' : ed.endYear);
-                    } else if (ed.startYear && ed.currentlyEnrolled) {
-                        dateStr = ed.startYear + ' \u2013 Present';
-                    } else if (ed.year) {
-                        dateStr = ed.year;
-                    }
-                    
-                    html += '<div style="padding:12px 16px; margin-bottom:8px; background:var(--c-surface-1); '
-                        + 'border:1px solid var(--c-surface-5b); border-radius:8px;">'
-                        + '<div style="display:flex; justify-content:space-between; align-items:flex-start;">'
+                    } else if (ed.year) { dateStr = ed.year; }
+                    var mainLine = (ed.degree || '') + (ed.field ? ' in ' + ed.field : '');
+                    var subLine  = (ed.school || '') + (ed.issuingAuthority ? ' \u00B7 ' + ed.issuingAuthority : '') + (dateStr ? ' \u00B7 ' + dateStr : '');
+
+                    html += '<div style="padding:9px 12px; background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:8px; display:flex; align-items:center; gap:8px;">'
+                        + '<span style="font-size:0.75em; padding:2px 7px; border-radius:8px; background:var(--c-surface-4a); color:var(--c-muted); white-space:nowrap; flex-shrink:0;">' + icon + ' ' + typeLabel + '</span>'
                         + '<div style="flex:1; min-width:0;">'
-                        
-                        // Type badge + credential
-                        + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;">'
-                        + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:var(--c-surface-4a); color:var(--c-muted); font-weight:600; white-space:nowrap;">'
-                        + icon + ' ' + typeLabel + '</span>'
+                        + '<div style="font-size:0.88em; font-weight:600; color:var(--c-text-alt); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(mainLine) + '</div>'
+                        + (subLine ? '<div style="font-size:0.74em; color:var(--c-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(subLine) + '</div>' : '')
                         + '</div>'
-                        
-                        // Main line: degree/credential + field
-                        + '<div style="font-weight:600; color:var(--c-text-alt); font-size:0.9em; margin-top:4px;">'
-                        + (ed.degree || '') + (ed.field ? ' in ' + ed.field : '') + '</div>'
-                        
-                        // Institution + dates
-                        + '<div style="color:var(--c-muted); font-size:0.82em; margin-top:2px;">'
-                        + (ed.school || '') 
-                        + (ed.issuingAuthority ? ' \u00B7 Issued by ' + ed.issuingAuthority : '')
-                        + (dateStr ? ' \u00B7 ' + dateStr : '') + '</div>'
-                        
-                        // Linked credentials
-                        + (hasLinkedCreds ? '<div style="margin-top:6px;">' + ed.linkedCredentials.map(function(ci) {
-                            var cert = userData.certifications[ci];
-                            if (!cert) return '';
-                            return '<span style="font-size:0.72em; padding:2px 8px; border-radius:8px; background:var(--c-accent-bg-5a); color:var(--c-accent-deep); font-weight:600;">'
-                                + '\uD83D\uDD17 ' + escapeHtml(cert.name + (cert.abbr ? ' (' + cert.abbr + ')' : '')) + '</span> ';
-                        }).join('') + '</div>' : '')
-                        
-                        // Description preview
-                        + (ed.description ? '<div style="color:var(--c-heading); font-size:0.78em; margin-top:4px; line-height:1.4; opacity:0.8;">' + escapeHtml(ed.description.substring(0, 120)) + (ed.description.length > 120 ? '...' : '') + '</div>' : '')
-                        
+                        + '<div style="display:flex; gap:2px; flex-shrink:0;">'
+                        + '<button onclick="editEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
+                        + '<button onclick="removeEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
                         + '</div>'
-                        + '<div style="display:flex; gap:6px; flex-shrink:0;">'
-                        + '<button onclick="editEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:var(--c-accent);">\u270E</button>'
-                        + '<button onclick="removeEducationItem(' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.9em; color:var(--c-danger);">\u00D7</button>'
-                        + '</div></div></div>';
+                        + '</div>';
                 });
-            } else {
-                html += '<div style="text-align:center; padding:16px; color:var(--c-faint); font-size:0.88em;">'
-                    + 'No education entries yet.'
-                    + '</div>';
+                html += '</div>';
             }
-            
-            html += '<button onclick="addEducationItem()" style="'
-                + 'background:var(--c-accent-bg-5a); '
-                + 'border:1px solid var(--c-accent-border-4); '
-                + 'color:var(--c-accent-deep); padding:8px 16px; border-radius:8px; cursor:pointer; '
-                + 'font-size:0.85em; font-weight:600; margin-top:8px;">'
-                + '+ Add Education</button>'
-                + '</div>';
-            
-            // --- Certifications ---
-            html += '<div class="blueprint-section" style="margin-top:24px;">'
-                + '<div class="blueprint-section-header">'
-                + '<div class="blueprint-section-title">'
-                + '<span class="section-icon">' + bpIcon('award',20) + '</span>'
-                + '<span>Certifications, Licenses & Degrees</span>'
-                + '<span class="section-count">' + certItems.length + ' entries</span>'
+
+            // ── Certifications ───────────────────────────────────────────────
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
+                + '<div style="display:flex; align-items:center; gap:8px;">'
+                + '<span style="color:var(--c-accent);">' + bpIcon('award',16) + '</span>'
+                + '<span style="font-weight:700; color:var(--c-heading); font-size:0.92em;">Certifications & Licenses</span>'
+                + '<span style="font-size:0.7em; padding:2px 8px; border-radius:8px; background:var(--c-surface-4); color:var(--c-muted);">' + certItems.length + '</span>'
                 + '</div>'
+                + '<button onclick="addCertItem()" style="font-size:0.78em; padding:5px 12px; border-radius:7px; border:1px solid var(--c-accent-border-4); background:var(--c-accent-bg-5a); color:var(--c-accent-deep); cursor:pointer; font-weight:600;">+ Add Credential</button>'
                 + '</div>';
-            
-            if (certItems.length > 0) {
+
+            if (certItems.length === 0) {
+                html += '<div style="padding:16px; text-align:center; color:var(--c-faint); font-size:0.85em; border:1px dashed var(--c-surface-5); border-radius:8px; margin-bottom:16px;">No credentials yet.</div>';
+            } else {
+                html += '<div style="display:grid; gap:5px; margin-bottom:16px;">';
                 certItems.forEach(function(cert, idx) {
                     var tierColor = cert.tier >= 2 ? '#f59e0b' : '#10b981';
-                    var tierTag = cert.tier >= 2 ? 'ADV' : 'PRO';
+                    var tierTag   = cert.tier >= 2 ? 'ADV' : 'PRO';
                     var linkedCount = (cert.linkedSkills || []).length;
-                    var libSkills = cert.libraryMatch ? (findCertInLibrary(cert.libraryMatch) || {}).skills : null;
-                    var totalLinks = linkedCount + (libSkills ? libSkills.length : 0);
-                    
-                    html += '<div style="padding:12px 16px; margin-bottom:8px; background:var(--c-surface-1); '
-                        + 'border:1px solid var(--c-surface-5b); border-radius:8px; '
-                        + 'display:flex; justify-content:space-between; align-items:center;">'
-                        + '<div>'
-                        + '<div style="font-weight:600; color:var(--c-text-alt); font-size:0.9em;">'
-                        + (cert.name || '')
-                        + (cert.abbr ? ' <span style="color:var(--c-accent); font-size:0.85em;">(' + cert.abbr + ')</span>' : '')
+                    var libSkills   = cert.libraryMatch ? (findCertInLibrary(cert.libraryMatch) || {}).skills : null;
+                    var totalLinks  = linkedCount + (libSkills ? libSkills.length : 0);
+
+                    html += '<div style="padding:9px 12px; background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:8px; display:flex; align-items:center; gap:8px;">'
+                        + '<div style="flex:1; min-width:0;">'
+                        + '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">'
+                        + '<span style="font-size:0.88em; font-weight:600; color:var(--c-text-alt);">' + escapeHtml(cert.name||'') + (cert.abbr ? ' <span style="color:var(--c-accent); font-size:0.85em;">(' + cert.abbr + ')</span>' : '') + '</span>'
+                        + (cert.tier ? '<span style="font-size:0.65em; padding:1px 5px; border-radius:4px; background:rgba(' + (cert.tier >= 2 ? '245,158,11' : '16,185,129') + ',0.12); color:' + tierColor + '; font-weight:700;">' + tierTag + '</span>' : '')
+                        + (totalLinks > 0 ? '<span style="font-size:0.7em; color:var(--c-purple-light);">\uD83D\uDD17 ' + totalLinks + '</span>' : '')
                         + '</div>'
-                        + '<div style="display:flex; gap:6px; align-items:center; margin-top:3px;">'
-                        + '<span style="color:var(--c-muted); font-size:0.82em;">'
-                        + (cert.issuer || '') + (cert.year ? ' \u00B7 ' + cert.year : '') + '</span>'
-                        + (cert.tier ? ' <span style="font-size:0.68em; padding:1px 6px; border-radius:6px; background:rgba(' + (cert.tier >= 2 ? '245,158,11' : '16,185,129') + ',0.12); color:' + tierColor + '; font-weight:700;">' + tierTag + '</span>' : '')
-                        + (totalLinks > 0 ? ' <span style="font-size:0.72em; color:var(--c-purple-light);">\uD83D\uDD17 ' + totalLinks + ' skills</span>' : '')
+                        + '<div style="font-size:0.74em; color:var(--c-muted);">' + escapeHtml((cert.issuer||'') + (cert.year ? ' \u00B7 ' + cert.year : '')) + '</div>'
                         + '</div>'
+                        + '<div style="display:flex; gap:2px; flex-shrink:0;">'
+                        + '<button onclick="editCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-accent); font-size:0.85em;">\u270E</button>'
+                        + '<button onclick="removeCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; padding:3px 5px; color:var(--c-danger); font-size:0.9em;">\u00D7</button>'
                         + '</div>'
-                        + '<div style="display:flex; gap:6px;">'
-                        + '<button onclick="editCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.85em; color:var(--c-accent);">\u270E</button>'
-                        + '<button onclick="removeCertItem(' + idx + ')" style="background:none; border:none; cursor:pointer; font-size:0.9em; color:var(--c-danger);">\u00D7</button>'
-                        + '</div></div>';
+                        + '</div>';
                 });
-            } else {
-                html += '<div style="text-align:center; padding:16px; color:var(--c-faint); font-size:0.88em;">'
-                    + 'No credentials yet. Add certifications, licenses, or degrees from the library.'
-                    + '</div>';
+                html += '</div>';
             }
-            
-            html += '<button onclick="addCertItem()" style="'
-                + 'background:var(--c-accent-bg-5a); '
-                + 'border:1px solid var(--c-accent-border-4); '
-                + 'color:var(--c-accent-deep); padding:8px 16px; border-radius:8px; cursor:pointer; '
-                + 'font-size:0.85em; font-weight:600; margin-top:8px;">'
-                + '+ Add Credential</button>'
-                + '</div>';
-            
+
             // Save button
-            html += '<div style="margin-top:24px; display:flex; gap:12px;">'
-                + '<button onclick="saveAll(); showToast(\'Experience saved.\', \'success\')" style="'
-                + 'background:var(--accent); color:#fff; border:none; padding:12px 28px; border-radius:8px; '
-                + 'cursor:pointer; font-weight:600; font-size:0.95em;">'
-                + 'Save All Changes</button>'
+            html += '<div style="margin-top:16px;">'
+                + '<button onclick="saveAll(); showToast(\'Experience saved.\', \'success\')" style="background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">Save All Changes</button>'
                 + '</div>';
-            
+
             return html;
         }
-        
+
         // --- Work History CRUD ---
         function addWorkHistoryItem() {
             if (readOnlyGuard()) return;
