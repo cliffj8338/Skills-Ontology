@@ -1,1087 +1,7 @@
-<!-- v4.46.27 | 2026-03-06 | Arch hardening: no-op stubs, data-ready Promise, dedup _sd/_bd, double-init gate, window.templates fix -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.gstatic.com https://apis.google.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.cloudfunctions.net https://*.run.app https://www.gstatic.com https://cdnjs.cloudflare.com https://api.anthropic.com https://*.rapidapi.com https://remotive.com https://himalayas.app https://jobicy.com https://data.usajobs.gov https://api.adzuna.com https://www.themuse.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; img-src 'self' data: blob: https://*.googleusercontent.com; frame-src 'self' blob: https://apis.google.com https://accounts.google.com https://*.firebaseapp.com; object-src 'none'; base-uri 'self';">
-    <title>Blueprint™ — See Your Career as a Living Map | Skills. Value. Direction.</title>
-    <meta name="description" content="See your career as a living map — not a flat resume. Blueprint visualizes your skills, reveals your real market value, and connects you to work that actually fits who you are and what you care about.">
-    <meta name="keywords" content="career intelligence, skills mapping, job matching, scouting report, career ontology, skill gap analysis, salary negotiation, professional development, AI career tools, work blueprint, talent intelligence, career planning">
-    <meta name="author" content="Blueprint Career Intelligence">
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    <link rel="canonical" href="https://www.myblueprint.work/">
-    <meta name="theme-color" content="#60a5fa">
-    <meta name="application-name" content="Blueprint™">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Blueprint™">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://www.myblueprint.work/">
-    <meta property="og:title" content="Blueprint™ — See Your Career as a Living Map">
-    <meta property="og:description" content="See your career as a living map — not a flat resume. Blueprint visualizes your skills, reveals your real market value, and connects you to work that actually fits who you are and what you care about.">
-    <meta property="og:site_name" content="Blueprint™">
-    <meta property="og:locale" content="en_US">
-    <!-- <meta property="og:image" content="https://www.myblueprint.work/og-image.png"> -->
-    <!-- <meta property="og:image:width" content="1200"> -->
-    <!-- <meta property="og:image:height" content="630"> -->
-    <!-- <meta property="og:image:alt" content="Blueprint Career Intelligence — interactive skills network visualization"> -->
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Blueprint™ — See Your Career as a Living Map">
-    <meta name="twitter:description" content="See your career as a living map — not a flat resume. Blueprint visualizes your skills, shows your real market value, and helps you find work that fits who you actually are.">
-    <!-- <meta name="twitter:image" content="https://www.myblueprint.work/og-image.png"> -->
-    <!-- <meta name="twitter:image:alt" content="Blueprint Career Intelligence — interactive skills network visualization"> -->
-    <!-- <meta name="twitter:site" content="@blueprint_work"> -->
-
-    <!-- Generative Engine Optimization: JSON-LD Structured Data -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@graph": [
-            {
-                "@type": "WebApplication",
-                "@id": "https://www.myblueprint.work/#app",
-                "name": "Blueprint™",
-                "alternateName": "Blueprint Career Intelligence",
-                "url": "https://www.myblueprint.work/",
-                "description": "Blueprint is a career intelligence platform that maps your professional skills into an interactive ontology, matches you to jobs using AI-powered analysis, generates scouting reports for recruiters, and provides evidence-based salary intelligence — all without surrendering your data to third parties.",
-                "applicationCategory": "BusinessApplication",
-                "operatingSystem": "Web",
-                "browserRequirements": "Requires a modern web browser with JavaScript enabled",
-                "offers": {
-                    "@type": "Offer",
-                    "price": "0",
-                    "priceCurrency": "USD",
-                    "description": "Free career intelligence platform"
-                },
-                "featureList": [
-                    "Interactive D3.js skills network visualization with role clusters and proficiency levels",
-                    "AI-powered job matching with gap analysis, surplus identification, and match scoring",
-                    "Scouting reports: shareable, recruiter-ready candidate assessments with blind mode",
-                    "Evidence-based salary intelligence using BLS wage data and O*NET occupational crosswalk",
-                    "Values alignment mapping between candidate values and company culture",
-                    "Multi-source job aggregation from 8+ APIs including LinkedIn, Indeed, and federal sources",
-                    "Career ontology built on 14,000+ skills from O*NET and ESCO frameworks",
-                    "PDF and HTML export for scouting reports and career blueprints",
-                    "Privacy-first: user owns all data, no third-party data sharing"
-                ],
-                "screenshot": "https://www.myblueprint.work/og-image.png",
-                "creator": {
-                    "@type": "Organization",
-                    "@id": "https://www.myblueprint.work/#org"
-                },
-                "potentialAction": {
-                    "@type": "ViewAction",
-                    "target": "https://www.myblueprint.work/",
-                    "name": "Launch Blueprint"
-                }
-            },
-            {
-                "@type": "WebPage",
-                "@id": "https://www.myblueprint.work/#webpage",
-                "url": "https://www.myblueprint.work/",
-                "name": "Blueprint™ — See Your Career as a Living Map",
-                "description": "Blueprint is a career intelligence platform that maps your professional skills into an interactive ontology, matches you to jobs using AI-powered analysis, and generates scouting reports for recruiters.",
-                "isPartOf": { "@id": "https://www.myblueprint.work/#app" },
-                "speakable": {
-                    "@type": "SpeakableSpecification",
-                    "cssSelector": [
-                        "meta[name='description']",
-                        "title"
-                    ]
-                },
-                "breadcrumb": { "@id": "https://www.myblueprint.work/#breadcrumb" }
-            },
-            {
-                "@type": "Organization",
-                "@id": "https://www.myblueprint.work/#org",
-                "name": "Blueprint Career Intelligence",
-                "url": "https://www.myblueprint.work/",
-                "description": "Building career intelligence tools that put professionals in control of their own talent data.",
-                "foundingDate": "2024",
-                "founder": {
-                    "@type": "Person",
-                    "@id": "https://www.myblueprint.work/#founder",
-                    "name": "Cliff Jurkiewicz",
-                    "jobTitle": "Founder",
-                    "url": "https://www.linkedin.com/in/cliffjurkiewicz/",
-                    "sameAs": [
-                        "https://www.linkedin.com/in/cliffjurkiewicz/"
-                    ]
-                },
-                "sameAs": [
-                    "https://www.linkedin.com/company/blueprint-career-intelligence/"
-                ]
-            },
-            {
-                "@type": "BreadcrumbList",
-                "@id": "https://www.myblueprint.work/#breadcrumb",
-                "itemListElement": [
-                    {
-                        "@type": "ListItem",
-                        "position": 1,
-                        "name": "Blueprint™",
-                        "item": "https://www.myblueprint.work/"
-                    }
-                ]
-            },
-            {
-                "@type": "FAQPage",
-                "@id": "https://www.myblueprint.work/#faq",
-                "mainEntity": [
-                    {
-                        "@type": "Question",
-                        "name": "What is Blueprint?",
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": "Blueprint is a free career intelligence platform that maps your professional skills into an interactive network visualization, matches you to jobs using AI-powered analysis, and generates scouting reports that showcase your capabilities to recruiters — all while keeping you in control of your own data."
-                        }
-                    },
-                    {
-                        "@type": "Question",
-                        "name": "How does Blueprint match me to jobs?",
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": "Blueprint uses a multi-tier matching system: first, it maps your skills to the O*NET occupational taxonomy (517 occupations, 14,000+ skills). Then it compares your skill profile against job requirements using both keyword matching and semantic analysis, producing a match percentage with detailed breakdowns of matched skills, gaps, and surplus capabilities."
-                        }
-                    },
-                    {
-                        "@type": "Question",
-                        "name": "What is a scouting report?",
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": "A scouting report is a comprehensive, shareable assessment document that presents a candidate's fit for a specific job. It includes match scoring, skill gap analysis, values alignment, compensation intelligence, and credential verification — designed for recruiters to evaluate candidates quickly and fairly, with an optional blind mode that removes identifying information to reduce bias."
-                        }
-                    },
-                    {
-                        "@type": "Question",
-                        "name": "How does Blueprint calculate salary estimates?",
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": "Blueprint uses Bureau of Labor Statistics (BLS) May 2024 wage data mapped through O*NET occupational codes. Your skills are matched to SOC codes, and salary percentiles (10th through 90th) are calculated based on the occupations your skill profile maps to, weighted by proficiency level and skill importance scores."
-                        }
-                    },
-                    {
-                        "@type": "Question",
-                        "name": "Is Blueprint free?",
-                        "acceptedAnswer": {
-                            "@type": "Answer",
-                            "text": "Yes. Blueprint is free to use with no premium tier, no paywalls, and no advertising. You sign in with Google, build your career profile, search jobs, and generate scouting reports at no cost. Your data stays yours — Blueprint does not sell or share user data with third parties."
-                        }
-                    }
-                ]
-            },
-            {
-                "@type": "HowTo",
-                "@id": "https://www.myblueprint.work/#howto",
-                "name": "How to build your career Blueprint",
-                "description": "Create your career intelligence profile in minutes using LinkedIn data, a resume, or manual entry.",
-                "step": [
-                    {
-                        "@type": "HowToStep",
-                        "position": 1,
-                        "name": "Import your experience",
-                        "text": "Upload your LinkedIn data export (CSV) or paste your resume. Blueprint's AI extracts your roles, skills, and work history automatically."
-                    },
-                    {
-                        "@type": "HowToStep",
-                        "position": 2,
-                        "name": "Enrich with career intelligence",
-                        "text": "Blueprint maps your skills to the O*NET occupational taxonomy, assigns proficiency levels based on your experience, and identifies your key competencies across 14,000+ recognized skills."
-                    },
-                    {
-                        "@type": "HowToStep",
-                        "position": 3,
-                        "name": "Explore your skills network",
-                        "text": "Visualize your professional capabilities as an interactive network graph. See how your skills cluster around roles, identify strengths, and discover adjacent capabilities."
-                    },
-                    {
-                        "@type": "HowToStep",
-                        "position": 4,
-                        "name": "Match to jobs and generate scouting reports",
-                        "text": "Search 39,000+ jobs from 7 sources, see AI match scores, identify skill gaps, and generate shareable scouting reports for recruiters."
-                    }
-                ]
-            }
-        ]
-    }
-    </script>
-
-    <!-- v4.44.79 | 2026-02-26 | Values fix + skill dedup + compensation blinding -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" crossorigin="anonymous"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js" integrity="sha384-BkEIW/B4JV9w6pRfBRgZtAcYDk5goH1nUI49rLo8s5PSHgTfgxWBczRVJx+fv5kP" crossorigin="anonymous"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js" integrity="sha384-96KlrabK9X4T/tq4duY+/4JE60jZAiSs4QVJFwmY30ETT24x2+89B7qmq7O4IETX" crossorigin="anonymous"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js" integrity="sha384-LF74FIj8PQKxRVken52qSHntBSVEC6b05H04maSVJibifVGmWz9Ajc23WjrRVSCX" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-dfX5uYVXzyU8+KHqj8bjo7UkOdg18PaOtpa48djpNbZHwExddghZ+ZmzWT06R5v6NSk3ZUfsH6FNEDepLx9hPQ==" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="blueprint.css">
-<style>
-
-        /* ── Reports Dashboard ────────────────────────────────────── */
-        .rpt-metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
-        .rpt-metric-card { background:var(--c-surface-2a, var(--elev-1)); border:1px solid var(--c-border-subtle, var(--border)); border-radius:12px; padding:18px; text-align:center; transition:border-color 0.2s; }
-        .rpt-metric-card:hover { border-color:rgba(96,165,250,0.3); }
-        .rpt-metric-n { font-size:1.8em; font-weight:800; line-height:1.1; margin-bottom:6px; }
-        .rpt-metric-l { font-size:0.78em; color:var(--text-muted, var(--c-muted)); display:flex; align-items:center; justify-content:center; gap:5px; }
-        .rpt-metric-sub { font-size:0.72em; color:var(--text-muted, var(--c-muted)); opacity:0.7; margin-top:4px; }
-        
-        .rpt-card { background:var(--c-surface-2a, var(--elev-1)); border:1px solid var(--c-border-subtle, var(--border)); border-radius:14px; padding:20px 24px; }
-        .rpt-card-h { font-size:1em; font-weight:700; display:flex; align-items:center; gap:8px; margin-bottom:4px; }
-        .rpt-card-sub { font-size:0.82em; color:var(--text-secondary, var(--c-muted)); line-height:1.5; }
-        
-        .rpt-heatmap-row { display:flex; align-items:center; gap:12px; padding:6px 0; }
-        .rpt-heatmap-label { font-size:0.82em; min-width:140px; color:var(--text-secondary); }
-        .rpt-heatmap-track { flex:1; height:6px; background:var(--c-surface-5, rgba(255,255,255,0.06)); border-radius:3px; overflow:hidden; }
-        .rpt-heatmap-fill { height:100%; border-radius:3px; transition:width 0.6s ease; }
-        .rpt-heatmap-val { font-size:0.78em; font-weight:600; min-width:36px; text-align:right; }
-        
-        .rpt-blind-grid { margin-top:14px; }
-        .rpt-blind-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--c-border-subtle, var(--border)); }
-        .rpt-blind-row:last-child { border-bottom:none; }
-        .rpt-blind-label { font-size:0.88em; font-weight:500; }
-        .rpt-blind-desc { font-size:0.72em; color:var(--text-muted); margin-top:1px; }
-        .rpt-toggle { position:relative; width:36px; height:20px; background:var(--c-surface-5, rgba(255,255,255,0.08)); border-radius:10px; cursor:pointer; transition:background 0.2s; flex-shrink:0; }
-        .rpt-toggle.on { background:#f59e0b; }
-        .rpt-toggle::after { content:''; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:transform 0.2s; }
-        .rpt-toggle.on::after { transform:translateX(16px); }
-        
-        .rpt-table { width:100%; border-collapse:collapse; font-size:0.85em; }
-        .rpt-table th { text-align:left; padding:8px 10px; font-size:0.72em; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); border-bottom:1px solid var(--c-border-subtle, var(--border)); font-weight:600; }
-        .rpt-table td { padding:10px; border-bottom:1px solid var(--c-border-subtle, var(--border)); }
-        .rpt-table tr:last-child td { border-bottom:none; }
-        
-        .rpt-status { font-size:0.72em; padding:2px 8px; border-radius:10px; font-weight:600; text-transform:capitalize; }
-        .rpt-status-active, .rpt-status-shared { background:rgba(16,185,129,0.1); color:#10b981; }
-        .rpt-status-expired { background:rgba(239,68,68,0.1); color:#ef4444; }
-        .rpt-status-draft { background:rgba(245,158,11,0.1); color:#f59e0b; }
-        .rpt-status-revoked { background:rgba(100,116,139,0.1); color:var(--text-muted); }
-        
-        .rpt-action-btn { background:none; border:1px solid var(--c-border-subtle, var(--border)); border-radius:6px; padding:4px 6px; cursor:pointer; color:var(--text-muted); transition:all 0.2s; }
-        .rpt-action-btn:hover { border-color:var(--accent); color:var(--accent); }
-        
-        .rpt-report-list { margin-top:14px; }
-        .rpt-report-row { display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid var(--c-border-subtle, var(--border)); }
-        .rpt-report-row:last-child { border-bottom:none; }
-        
-        .rpt-demo-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:14px; }
-        .rpt-demo-card { display:flex; align-items:center; gap:14px; padding:16px; background:var(--c-surface-5, rgba(255,255,255,0.02)); border:1px solid var(--c-border-subtle, var(--border)); border-radius:10px; cursor:pointer; transition:all 0.2s; }
-        .rpt-demo-card:hover { border-color:rgba(96,165,250,0.4); background:var(--c-accent-bg-3c, rgba(96,165,250,0.06)); }
-        .rpt-demo-emoji { font-size:1.8em; width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:12px; background:var(--c-surface-5, rgba(255,255,255,0.03)); flex-shrink:0; }
-        
-        @media(max-width:768px) {
-            .rpt-metrics { grid-template-columns:repeat(2,1fr); }
-            .rpt-demo-grid { grid-template-columns:1fr; }
-            .rpt-heatmap-label { min-width:100px; font-size:0.75em; }
-            .rpt-table { font-size:0.78em; }
-            .rpt-table th:nth-child(3), .rpt-table td:nth-child(3) { display:none; }
-        }
-
-        /* ── Page Header (consistent across all views) ────── */
-        .cards-grid {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            padding: 0 16px;
-        }
-        .domain-card {
-            background: var(--c-surface-2, rgba(255,255,255,0.03));
-            border: 1px solid var(--c-surface-5, rgba(255,255,255,0.08));
-            border-radius: 14px;
-            padding: 20px;
-            break-inside: avoid;
-        }
-        .domain-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 14px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-        .domain-icon {
-            color: var(--accent, #60a5fa);
-            flex-shrink: 0;
-        }
-        .domain-title {
-            font-family: Outfit, sans-serif;
-            font-weight: 700;
-            font-size: 1.05em;
-            color: var(--text-primary, #e0e7ef);
-            line-height: 1.3;
-        }
-        .skills-list {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .skill-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 10px;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.02);
-            transition: background 0.15s;
-            flex-wrap: wrap;
-        }
-        .skill-item:hover {
-            background: rgba(255,255,255,0.06);
-        }
-        .skill-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-        .skill-name {
-            font-weight: 600;
-            font-size: 0.88em;
-            color: var(--text-primary, #e0e7ef);
-        }
-        .skill-badge {
-            font-size: 0.65em;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-weight: 700;
-            background: rgba(245, 158, 11, 0.2);
-            color: #f59e0b;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
-        .skill-years {
-            font-size: 0.7em;
-            color: var(--text-muted, #6b7280);
-        }
-        .page-header {
-            padding: 24px 0 18px;
-            text-align: center;
-            margin-bottom: 16px;
-        }
-        .page-title {
-            font-family: Outfit, sans-serif;
-            font-size: 1.5em;
-            font-weight: 700;
-            color: var(--accent, #60a5fa);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin: 0 0 6px;
-            line-height: 1.2;
-        }
-        .page-subtitle {
-            font-size: 0.85em;
-            color: var(--text-muted);
-            margin: 0;
-            line-height: 1.5;
-        }
-
-        /* ── Demo Mode Toggle ──────────────────────────────────── */
-        /* ── Mobile Layout Fixes ──────────────────────────────── */
-        @media (max-width: 768px) {
-            .main-content {
-                padding: 0 12px 100px 12px !important;
-                max-width: 100vw;
-                overflow-x: hidden;
-            }
-            .blueprint-container {
-                padding-left: 4px !important;
-                padding-right: 4px !important;
-            }
-            #appFooter {
-                padding-bottom: 80px !important;
-            }
-        }
-        /* ── Demo Mode Toggle (cont) ─────────────────────────── */
-        .demo-toggle-btn {
-            display: none;
-            align-items: center;
-            gap: 5px;
-            padding: 5px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--c-border-subtle, var(--border));
-            background: var(--c-surface-2a, var(--elev-1));
-            color: var(--text-muted, #64748b);
-            font-size: 0.72em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .demo-toggle-btn:hover {
-            border-color: rgba(96, 165, 250, 0.4);
-            color: var(--accent, #3b82f6);
-            background: var(--c-accent-bg-3c, rgba(59,130,246,0.08));
-        }
-        .demo-toggle-btn.demo-active {
-            border-color: rgba(245, 158, 11, 0.4);
-            color: #f59e0b;
-            background: rgba(245, 158, 11, 0.08);
-        }
-        .demo-toggle-btn.demo-active:hover {
-            background: rgba(245, 158, 11, 0.15);
-        }
-        .demo-toggle-icon { font-size: 1.1em; }
-        
-        .demo-mode-indicator {
-            display: none;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 6px;
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.25);
-            font-size: 0.65em;
-            font-weight: 700;
-            color: #f59e0b;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
-        .demo-indicator-dot {
-            width: 6px; height: 6px;
-            border-radius: 50%;
-            background: #f59e0b;
-            animation: demoPulse 2s ease-in-out infinite;
-        }
-        @keyframes demoPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-        @keyframes ctaGlow {
-            0%, 100% { box-shadow: 0 0 8px rgba(96,165,250,0.3), 0 0 20px rgba(96,165,250,0.1); }
-            50% { box-shadow: 0 0 16px rgba(96,165,250,0.6), 0 0 40px rgba(96,165,250,0.25); }
-        }
-        .demo-exit-btn {
-            background: none;
-            border: none;
-            color: #f59e0b;
-            font-size: 1.3em;
-            cursor: pointer;
-            padding: 0 2px;
-            line-height: 1;
-            opacity: 0.6;
-            transition: opacity 0.2s;
-        }
-        .demo-exit-btn:hover { opacity: 1; }
-        
-        @media (max-width: 768px) {
-            .demo-toggle-btn { padding: 4px 8px; font-size: 0.65em; }
-            .demo-mode-indicator { font-size: 0.6em; padding: 3px 6px; }
-            .demo-toggle-label { display: none; }
-        }
-
-        /* ── Teaser Modal ──────────────────────────────────────── */
-        .teaser-overlay {
-            position: fixed; inset: 0; z-index: 500;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(12px);
-            display: flex; align-items: center; justify-content: center;
-            padding: 16px;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-        }
-        .teaser-overlay.visible { opacity: 1; }
-        .teaser-card {
-            width: 100%; max-width: 640px;
-            background: linear-gradient(165deg, #0f1629 0%, #0a0e1a 50%, #111827 100%);
-            border: 1px solid rgba(96, 165, 250, 0.15);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6), 0 0 120px rgba(59, 130, 246, 0.06);
-            transform: translateY(20px) scale(0.97);
-            transition: transform 0.4s ease;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        .teaser-overlay.visible .teaser-card {
-            transform: translateY(0) scale(1);
-        }
-        .teaser-header {
-            padding: 32px 32px 0;
-            text-align: center;
-        }
-        .teaser-mark {
-            display: inline-flex; align-items: center; gap: 8px;
-            font-size: 0.7em; font-weight: 700;
-            letter-spacing: 2px; text-transform: uppercase;
-            color: #60a5fa;
-            margin-bottom: 16px;
-        }
-        .teaser-mark-dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: #3b82f6;
-            box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
-        }
-        .teaser-title {
-            font-size: 1.5em; font-weight: 800;
-            color: #f1f5f9;
-            line-height: 1.3;
-            margin-bottom: 12px;
-        }
-        .teaser-title em {
-            font-style: normal;
-            background: linear-gradient(135deg, #60a5fa, #a78bfa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .teaser-sub {
-            font-size: 0.88em;
-            color: #94a3b8;
-            line-height: 1.7;
-            padding: 0 8px;
-            margin-bottom: 24px;
-        }
-        .teaser-features {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            padding: 0 32px;
-            margin-bottom: 20px;
-        }
-        .teaser-feat {
-            padding: 14px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            transition: border-color 0.2s;
-        }
-        .teaser-feat:hover { border-color: rgba(96, 165, 250, 0.2); }
-        .teaser-feat-icon {
-            font-size: 1.1em; margin-bottom: 6px;
-            display: flex; align-items: center; gap: 6px;
-            font-weight: 700; font-size: 0.82em;
-        }
-        .teaser-feat-desc {
-            font-size: 0.75em; color: #64748b; line-height: 1.5;
-        }
-        .teaser-promise {
-            padding: 16px 32px;
-            text-align: center;
-            font-size: 0.82em;
-            color: #cbd5e1;
-            line-height: 1.6;
-            border-top: 1px solid rgba(255, 255, 255, 0.04);
-            background: rgba(16, 185, 129, 0.03);
-        }
-        .teaser-promise strong {
-            color: #10b981;
-        }
-        .teaser-actions {
-            display: flex; gap: 10px;
-            padding: 20px 32px 24px;
-            justify-content: center;
-        }
-        .teaser-btn-primary {
-            padding: 11px 28px; border-radius: 10px; border: none;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            color: #fff; font-weight: 700; font-size: 0.88em;
-            cursor: pointer; transition: all 0.2s;
-        }
-        .teaser-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4); }
-        .teaser-btn-ghost {
-            padding: 11px 28px; border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            background: transparent;
-            color: #94a3b8; font-weight: 600; font-size: 0.88em;
-            cursor: pointer; transition: all 0.2s;
-        }
-        .teaser-btn-ghost:hover { border-color: rgba(96, 165, 250, 0.3); color: #e2e8f0; }
-        .teaser-backstory {
-            text-align: center;
-            padding: 0 32px 24px;
-            font-size: 0.72em;
-            color: #475569;
-        }
-        .teaser-backstory a {
-            color: #60a5fa;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        .teaser-backstory a:hover { color: #93bbfc; text-decoration: underline; }
-        
-        /* Mobile controls centering */
-        @media (max-width: 768px) {
-            .controls {
-                flex-wrap: wrap;
-                justify-content: center !important;
-            }
-            .controls-left {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                width: 100%;
-                gap: 8px;
-            }
-            .controls-right {
-                justify-content: center;
-                margin-left: 0 !important;
-                width: 100%;
-            }
-            #matchModeToggle {
-                width: 100%;
-                display: flex;
-                justify-content: center;
-                max-width: 100%;
-                box-sizing: border-box;
-                margin-top: 4px;
-            }
-            .match-mode-toggle {
-                max-width: 100%;
-                box-sizing: border-box;
-                overflow: hidden;
-                border-radius: 8px;
-            }
-            .match-mode-btn {
-                flex: 1;
-                min-width: 0;
-                padding: 6px 10px !important;
-                font-size: 0.82em !important;
-            }
-            #matchActiveBadge {
-                display: none !important;
-            }
-            /* Job info tile on mobile - compact, don't overlap network */
-            .job-info-tile {
-                position: relative !important;
-                top: auto !important;
-                left: auto !important;
-                right: auto !important;
-                width: calc(100% - 24px) !important;
-                max-width: none !important;
-                margin: 0 12px 4px !important;
-                z-index: 5;
-            }
-            .job-info-tile .jit-body {
-                display: none;
-            }
-            .job-info-tile.jit-expanded .jit-body {
-                display: block;
-            }
-            /* Match legend on mobile - compact bottom position */
-            .match-legend {
-                position: relative !important;
-                bottom: auto !important;
-                right: auto !important;
-                width: calc(100% - 24px) !important;
-                max-width: none !important;
-                margin: 0 12px !important;
-            }
-            /* Modal overflow fix for mobile */
-            #exportModal .modal-content {
-                max-width: calc(100vw - 32px) !important;
-                box-sizing: border-box !important;
-                overflow: hidden !important;
-            }
-            #exportModal .modal-body {
-                overflow-x: hidden !important;
-                box-sizing: border-box !important;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .teaser-card { max-width: 100%; border-radius: 14px; }
-            .teaser-header { padding: 24px 20px 0; }
-            .teaser-title { font-size: 1.25em; }
-            .teaser-features { grid-template-columns: 1fr; padding: 0 20px; }
-            .teaser-actions { flex-direction: column; padding: 16px 20px 20px; }
-            .teaser-btn-primary, .teaser-btn-ghost { width: 100%; text-align: center; }
-            .teaser-promise { padding: 14px 20px; }
-            .teaser-backstory { padding: 0 20px 20px; }
-        }
-        @media (max-width: 768px) {
-              #adminLayout { flex-direction: column !important; }
-              #adminSidebarWrap {
-                  width: 100% !important;
-                  position: sticky !important;
-                  top: 0 !important;
-                  z-index: 50 !important;
-                  background: var(--c-bg) !important;
-                  padding-bottom: 4px !important;
-                  border-bottom: 1px solid var(--c-surface-3) !important;
-              }
-              #adminSidebar {
-                  width: 100% !important;
-                  position: static !important;
-                  flex-direction: row !important;
-                  flex-wrap: nowrap !important;
-                  gap: 0 !important;
-                  padding: 4px !important;
-                  overflow-x: auto !important;
-                  -webkit-overflow-scrolling: touch;
-                  scrollbar-width: none;
-                  border: none !important;
-                  border-radius: 0 !important;
-                  background: transparent !important;
-              }
-              #adminSidebar::-webkit-scrollbar { display: none; }
-              #adminSidebar .admin-tab {
-                  flex: 0 0 auto !important;
-                  width: auto !important;
-                  padding: 6px 10px !important;
-                  font-size: 0.72em !important;
-                  white-space: nowrap !important;
-                  border-radius: 6px !important;
-              }
-              #adminSidebar .admin-nav-group { display: contents !important; }
-              #adminSidebar .admin-nav-group > button { display: none !important; }
-              #adminSidebar .admin-group-items { display: contents !important; }
-              #adminScrollLeft, #adminScrollRight {
-                  display: flex !important;
-              }
-              #adminTabContent {
-                  padding-top: 12px !important;
-              }
-          }
-          @media (min-width: 769px) {
-              #adminScrollLeft, #adminScrollRight { display: none !important; }
-          }
-  
-</style>
-</head>
-<body>
-    <!-- Crawlable content for search engines and AI answer engines -->
-    <noscript>
-        <article itemscope itemtype="https://schema.org/WebApplication">
-            <h1 itemprop="name">Blueprint™ — Career Intelligence Platform</h1>
-            <p itemprop="description">Blueprint maps your professional skills into an interactive network, matches you to jobs with AI-powered analysis, and generates scouting reports for recruiters. Built on 14,000+ skills from O*NET and ESCO frameworks, with salary intelligence from Bureau of Labor Statistics data.</p>
-            <section>
-                <h2>How Blueprint Works</h2>
-                <p>Import your experience from LinkedIn or a resume. Blueprint's AI extracts your roles, skills, and work history, then maps them to the O*NET occupational taxonomy covering 517 occupations. Visualize your capabilities as an interactive D3.js network graph, identify skill gaps, and discover adjacent capabilities you didn't know you had.</p>
-                <h2>AI Job Matching</h2>
-                <p>Blueprint searches 39,000+ jobs from 7 sources, produces AI match scores with detailed breakdowns of matched skills, gaps, and surplus capabilities. Each match includes values alignment analysis comparing your professional values against company culture signals.</p>
-                <h2>Scouting Reports</h2>
-                <p>Generate shareable, recruiter-ready candidate assessments. Reports include match scoring, skill gap analysis, values alignment, compensation intelligence from BLS wage data, and credential verification. Optional blind mode removes identifying information to reduce hiring bias.</p>
-                <h2>Privacy-First</h2>
-                <p>You own your data. Blueprint does not sell or share user data with third parties. Export your full profile anytime. No ads, no premium tier, no paywalls.</p>
-            </section>
-        </article>
-    </noscript>
-    <!-- Loading Splash -->
-    <div id="appSplash" style="position:fixed; inset:0; z-index:999999; background:var(--bg, #0a0a1a); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:20px; transition:opacity 0.4s ease;">
-        <div style="display:flex; align-items:center; gap:14px;">
-            <svg width="48" height="48" viewBox="0 0 52 52" fill="none" style="filter: drop-shadow(0 0 20px rgba(96,165,250,0.3));">
-                <circle cx="26" cy="26" r="24" stroke="#60a5fa" stroke-width="1.5" opacity="0.22"/>
-                <line x1="26" y1="26" x2="12" y2="10" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
-                <line x1="26" y1="26" x2="42" y2="12" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
-                <line x1="26" y1="26" x2="40" y2="40" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
-                <line x1="26" y1="26" x2="10" y2="40" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
-                <line x1="12" y1="10" x2="42" y2="12" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
-                <line x1="42" y1="12" x2="40" y2="40" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
-                <line x1="10" y1="40" x2="40" y2="40" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
-                <circle cx="26" cy="26" r="4.5" fill="#60a5fa"/>
-                <circle cx="12" cy="10" r="3" fill="#93bbfc"/>
-                <circle cx="42" cy="12" r="2.5" fill="#818cf8"/>
-                <circle cx="40" cy="40" r="3" fill="#93bbfc"/>
-                <circle cx="10" cy="40" r="2.5" fill="#818cf8"/>
-            </svg>
-            <span style="font-family:'Outfit',sans-serif; font-size:1.6em; font-weight:700; color:var(--accent, #60a5fa); letter-spacing:0.12em; text-transform:uppercase;">Blueprint<span style="font-size:0.55em; vertical-align:super; letter-spacing:0; opacity:0.6;">&trade;</span></span>
-        </div>
-        <div style="width:120px; height:2px; background:rgba(96,165,250,0.15); border-radius:2px; overflow:hidden;">
-            <div id="splashProgress" style="width:0%; height:100%; background:linear-gradient(90deg,#60a5fa,#3b82f6); border-radius:2px; transition:width 0.3s ease;"></div>
-        </div>
-        <script>setTimeout(function(){var s=document.getElementById('appSplash');if(s){s.style.opacity='0';setTimeout(function(){s.remove()},400)}},8000);</script>
-    </div>
-
-    <!-- Toast Notification Container -->
-    <div id="toastContainer" role="status" aria-live="polite" aria-atomic="false"></div>
-    
-    <!-- Screen reader announcements for view changes -->
-    <div id="srAnnounce" aria-live="assertive" aria-atomic="true" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;"></div>
-    
-    <!-- Skip to content (accessibility) -->
-    <a href="#mainContentArea" id="skipToContent" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:10000;padding:12px 24px;background:var(--accent);color:#fff;font-weight:700;font-size:1em;text-decoration:none;border-radius:0 0 8px 0;" onfocus="this.style.cssText='position:fixed;left:0;top:0;z-index:10000;padding:12px 24px;background:var(--accent);color:#fff;font-weight:700;font-size:1em;text-decoration:none;border-radius:0 0 8px 0;'" onblur="this.style.cssText='position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;'">Skip to content</a>
-    
-    <!-- Auth Modal -->
-    <div class="auth-overlay" id="authOverlay" role="dialog" aria-modal="true" aria-label="Sign in">
-        <div class="auth-dialog">
-            <button class="auth-close" onclick="closeAuthModal()" aria-label="Close sign in dialog">&times;</button>
-            <div id="authModalContent">
-                <!-- Populated by showAuthModal() -->
-            </div>
-        </div>
-    </div>
-    <!-- ===== NAV BAR ===== -->
-    <div class="header" role="banner">
-        <!-- Left: Logo + wordmark -->
-        <div class="header-left" style="cursor:pointer;" onclick="switchView('welcome')" role="button" tabindex="0" aria-label="Blueprint home" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchView('welcome')}">
-            <div class="header-logo"><svg width="26" height="26" viewBox="0 0 52 52" fill="none" aria-hidden="true" focusable="false">
-                <circle cx="26" cy="26" r="24" stroke="#60a5fa" stroke-width="1.5" opacity="0.22"/>
-                <line x1="26" y1="26" x2="12" y2="10" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
-                <line x1="26" y1="26" x2="42" y2="12" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
-                <line x1="26" y1="26" x2="40" y2="40" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
-                <line x1="26" y1="26" x2="10" y2="40" stroke="#60a5fa" stroke-width="1.2" opacity="0.4"/>
-                <line x1="12" y1="10" x2="42" y2="12" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
-                <line x1="42" y1="12" x2="40" y2="40" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
-                <line x1="10" y1="40" x2="40" y2="40" stroke="#60a5fa" stroke-width="0.8" opacity="0.12"/>
-                <circle cx="26" cy="26" r="4.5" fill="#60a5fa"/>
-                <circle cx="12" cy="10" r="3" fill="#93bbfc"/>
-                <circle cx="42" cy="12" r="2.5" fill="#818cf8"/>
-                <circle cx="40" cy="40" r="3" fill="#93bbfc"/>
-                <circle cx="10" cy="40" r="2.5" fill="#818cf8"/>
-            </svg></div>
-            <h1>Blueprint<span style="font-size:0.55em; vertical-align:super; letter-spacing:0; opacity:0.6;">&trade;</span></h1>
-            <span id="adminBadge" onclick="event.stopPropagation(); showAdminPanel()" style="display:none; font-size:0.55em; padding:2px 8px; border-radius:6px; background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.3); font-weight:600; cursor:pointer; letter-spacing:0.04em; margin-left:6px; white-space:nowrap;" title="Admin Dashboard">ADMIN</span>
-        </div>
-
-        <!-- Center: Primary navigation -->
-        <div class="header-center" id="mainNav" role="navigation" aria-label="Main navigation">
-            <button class="nav-btn active" id="nav-skills" onclick="switchView('skills', event)">
-                <span class="nav-icon" data-icon="skills"></span> Map</button>
-            <button class="nav-btn" id="nav-jobs" onclick="switchView('jobs', event)">
-                <span class="nav-icon" data-icon="jobs"></span> Jobs</button>
-            <button class="nav-btn" id="nav-blueprint" onclick="switchView('blueprint', event)">
-                <span class="nav-icon" data-icon="blueprint"></span> Blueprint</button>
-            <button class="nav-btn" id="nav-reports" onclick="switchView('reports', event)">
-                <span class="nav-icon" data-icon="reports"></span> Reports</button>
-            <button class="nav-btn" id="nav-settings" onclick="switchView('settings', event)">
-                <span class="nav-icon" data-icon="settings"></span> Settings</button>
-        </div>
-
-        <!-- Right: theme toggle + profile switcher + more -->
-        <div class="header-right">
-            <!-- Stats badge — visible on all tabs -->
-            <span id="statsBar" style="font-size:0.78em; color: var(--text-muted); white-space:nowrap; display:none;"></span>
-
-            <!-- Theme toggle -->
-            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggleBtn" title="Toggle light/dark mode" aria-label="Toggle light/dark mode">🌙</button>
-
-            <!-- Auth button (shown when not logged in) -->
-            <button class="auth-nav-btn" id="authNavBtn" onclick="showAuthModal('signin')" style="display:none;">Sign In</button>
-
-            <!-- Demo mode toggle (shown when signed in) -->
-            <button class="demo-toggle-btn" id="demoModeToggle" onclick="toggleDemoMode()" title="Explore Demo Profiles" style="display:none;">
-                <span class="demo-toggle-icon" id="demoToggleIcon">&#x25C8;</span>
-                <span class="demo-toggle-label" id="demoToggleLabel">Demo</span>
-            </button>
-            <div class="demo-mode-indicator" id="demoModeIndicator" style="display:none;">
-                <span class="demo-indicator-dot"></span>
-                <span>DEMO MODE</span>
-                <button onclick="exitDemoMode()" class="demo-exit-btn">&times;</button>
-            </div>
-
-            <!-- Profile badge (display only - shows current user when signed in) -->
-            <div class="profile-chip" id="profileChip" style="cursor:default; display:none;">
-                <div class="profile-avatar" id="profileAvatar">...</div>
-                <span class="profile-name" id="profileChipName">Loading</span>
-            </div>
-
-            <!-- Hidden select for backward-compat with switchProfile() -->
-            <select id="profileSelector" onchange="switchProfile(this.value)" style="display:none;"></select>
-
-            <!-- Save indicator -->
-            <span id="saveIndicator" style="font-size:0.72em; color:var(--text-muted); opacity:0; transition:opacity 0.3s; white-space:nowrap; margin-right:4px;"></span>
-
-            <!-- More menu -->
-            <button class="more-btn" onclick="toggleOverflowMenu(event)" id="overflowMenuBtn" title="More options" aria-label="More options" aria-haspopup="true" aria-expanded="false"><span data-icon="more" style="display:inline-flex;" aria-hidden="true"></span></button>
-            <div id="overflowMenu" class="overflow-menu" role="menu" style="display:none;">
-                <button onclick="closeOverflowMenu(); switchView('welcome');" style="color: var(--accent); font-weight: 600;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="home"></span> Home</button>
-                <button onclick="closeOverflowMenu(); viewSampleProfile();" style="color: var(--accent); font-weight: 600;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="users"></span> Sample Profiles</button>
-                <button onclick="closeOverflowMenu(); showOnboardingWizard();" style="color: var(--accent); font-weight: 600;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="wand"></span> Build My Blueprint</button>
-                <div style="height:1px; background:var(--border); margin:4px 0;"></div>
-                <button onclick="showHelp(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="help"></span> Help</button>
-                <button onclick="if(window._bpTour) window._bpTour.startWelcome(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="compass"></span> Take a Tour</button>
-                <button onclick="showAbout(); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="about"></span> Why Blueprint</button>
-                <button onclick="sendFeedback('menu'); closeOverflowMenu();" class="overflow-icon-btn"><span class="overflow-icon" data-icon="edit"></span> Give Feedback</button>
-                <div style="height:1px; background:var(--border); margin:4px 0;"></div>
-                <button id="overflowSignIn" onclick="showAuthModal('signin'); closeOverflowMenu();" style="color: var(--accent);" class="overflow-icon-btn"><span class="overflow-icon" data-icon="sign-in"></span> Sign In</button>
-                <button id="overflowAdmin" onclick="showAdminPanel(); closeOverflowMenu();" style="color: #fbbf24; display:none;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="shield"></span> Admin Dashboard</button>
-                <button id="overflowSignOut" onclick="authSignOut(); closeOverflowMenu();" style="color: #ef4444; display:none;" class="overflow-icon-btn"><span class="overflow-icon" data-icon="power"></span> Sign Out</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== CONTEXTUAL FILTER BAR (Skills tab only) ===== -->
-    <div class="controls" id="controlsBar" style="display:none; align-items:center; width:100%;">
-        <div class="controls-left">
-            <!-- View pills -->
-            <div class="view-pills" id="skillsViewToggle">
-                <button class="view-pill active" data-view="network" onclick="toggleSkillsView('network')">Network</button>
-                <button class="view-pill" data-view="card" onclick="toggleSkillsView('card')">Card</button>
-            </div>
-            
-            <!-- Inline job selector (populated dynamically) -->
-            <div id="inlineJobSelector" style="display:none;"></div>
-
-            <!-- Job match mode toggle (hidden until a job is activated) -->
-            <div id="matchModeToggle" style="display:none;" class="match-mode-toggle">
-                <button class="match-mode-btn active" data-mode="you" onclick="setNetworkMatchMode('you')">You</button>
-                <button class="match-mode-btn" data-mode="job" onclick="setNetworkMatchMode('job')">Job</button>
-                <button class="match-mode-btn" data-mode="match" onclick="setNetworkMatchMode('match')">Match</button>
-                <button class="match-mode-btn" data-mode="values" onclick="setNetworkMatchMode('values')">Values</button>
-            </div>
-            
-            <!-- Active job badge (hidden until a job is activated) -->
-            <div id="matchActiveBadge" style="display:none;" class="match-active-badge">
-                <span data-icon="target" class="nav-icon"></span>
-                <span id="matchActiveTitle">Loading...</span>
-                <button onclick="clearJobOverlay()" title="Clear comparison">×</button>
-            </div>
-
-            <!-- Search and Filter removed from network toolbar — nodes are interactive -->
-            <input type="text" id="skillSearch" class="filter-search" placeholder="Search skills..."
-                   onkeyup="filterSkillsView(this.value)" style="display:none !important; visibility:hidden;">
-
-            <!-- Filter toggle -->
-            <button class="filter-toggle-btn" id="filterToggleBtn" onclick="toggleFilterPanel()" style="display:none !important;">
-                <span><span data-icon="settings" class="nav-icon"></span> Filter</span>
-                <span id="filterActiveCount" style="display:none; background:var(--accent); color:#fff; border-radius:8px; padding:1px 6px; font-size:0.75em;"></span>
-            </button>
-        </div>
-
-        <div class="controls-right" id="networkControls" style="margin-left:auto;">
-            <!-- Label toggles (desktop only) -->
-            <div id="networkLabelToggles" style="display:none;">
-                <div class="view-pills" style="gap:2px;">
-                    <button class="view-pill active" id="labelPillRole" onclick="toggleNetworkLabels('roles')" style="font-size:0.72em; padding:4px 10px;">Roles</button>
-                    <button class="view-pill active" id="labelPillSkill" onclick="toggleNetworkLabels('skills')" style="font-size:0.72em; padding:4px 10px;">Skills</button>
-                    <button class="view-pill active" id="labelPillValue" onclick="toggleNetworkLabels('values')" style="font-size:0.72em; padding:4px 10px; display:none;">Values</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Collapsible filter panel -->
-        <div class="filter-panel" id="filterPanel">
-            <div class="filter-group" id="rolesFilterGroup">
-                <span class="filter-label">Roles:</span>
-                <div id="roleChipsContainer">
-                    <div class="role-chip active" data-role="all" onclick="filterByRole('all')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();filterByRole('all')}">All</div>
-                </div>
-            </div>
-            <div class="filter-group">
-                <span class="filter-label">Level:</span>
-                <div class="level-filter" id="levelChipsContainer"></div>
-            </div>
-        </div>
-        
-        <!-- Legacy pill reference kept for compat -->
-        <div id="networkFilterPill" style="display:none;"><span id="networkFilterPillDot"></span><span id="networkFilterPillText"></span></div>
-    </div>
-    
-    <div class="main-content" id="mainContentArea" role="main" aria-label="Main content">
-        <div id="welcomeView" style="display:none;"></div>
-        <div id="skillsPageHeader" style="display:none; max-width:1200px; margin:0 auto; padding:20px 24px 0;">
-            <div class="page-header">
-                <h2 class="page-title">Map</h2>
-                <p class="page-subtitle">Your professional capabilities mapped as a living network.</p>
-            </div>
-        </div>
-        <svg id="networkView" style="display:none; overflow:visible;"></svg>
-        <div id="cardView" style="display:none;"></div>
-        <div id="opportunitiesView" style="display:none;"></div>
-        <div id="applicationsView" style="display:none;"></div>
-        <div id="blueprintView" style="display:none;"></div>
-        <div id="consentView" style="display:none;"></div>
-        <div id="settingsView" style="display:none;"></div>
-        <div id="reportsView" style="display:none;"></div>
-        <div id="adminView" style="display:none;"></div>
-    </div>
-
-    <!-- App Footer / Attribution -->
-    <footer id="appFooter" role="contentinfo" style="text-align:center; padding:16px 20px; font-size:0.75em; opacity:0.5; line-height:1.8;">
-        <div style="margin-bottom:4px;">&copy; <span id="copyrightYear"></span> Cliff Jurkiewicz. All rights reserved. Blueprint&trade; and its associated methodologies, ontology structures, and matching algorithms are the intellectual property of Cliff Jurkiewicz.</div>
-        <div>Uses the <a href="https://esco.ec.europa.eu" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">ESCO classification</a> of the European Commission and <a href="https://www.onetonline.org" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">O*NET</a> occupational data. <a href="#" onclick="event.preventDefault(); showLegalNotice();" style="color:inherit; text-decoration:underline;">Legal &amp; IP Notice</a> &middot; <a href="#" onclick="event.preventDefault(); switchView('settings'); setTimeout(function(){ window.currentSettingsTab='privacy'; initSettings(); window.settingsInitialized=true; }, 100);" style="color:inherit; text-decoration:underline;">Privacy & Terms</a></div>
-    </footer>
-    
-    <!-- Mobile bottom nav (hidden on desktop via CSS) -->
-    <div class="mobile-nav" id="mobileNav" role="navigation" aria-label="Mobile navigation" style="display:none;">
-        <button class="mobile-nav-btn active" id="mob-skills" onclick="switchView('skills',event)">
-            <span class="mobile-nav-icon" data-icon="skills"></span>Map
-        </button>
-        <button class="mobile-nav-btn" id="mob-jobs" onclick="switchView('jobs',event)">
-            <span class="mobile-nav-icon" data-icon="jobs"></span>Jobs
-        </button>
-        <button class="mobile-nav-btn" id="mob-blueprint" onclick="switchView('blueprint',event)">
-            <span class="mobile-nav-icon" data-icon="blueprint"></span>Blueprint
-        </button>
-        <button class="mobile-nav-btn" id="mob-reports" onclick="switchView('reports',event)">
-            <span class="mobile-nav-icon" data-icon="reports"></span>Reports
-        </button>
-        <button class="mobile-nav-btn" id="mob-settings" onclick="switchView('settings',event)">
-            <span class="mobile-nav-icon" data-icon="settings"></span>Settings
-        </button>
-        <button class="mobile-nav-btn" id="mob-more" onclick="toggleOverflowMenu(event)">
-            <span class="mobile-nav-icon" data-icon="more"></span>More
-        </button>
-    </div>
-
-    <div class="tooltip" id="tooltip"></div>
-    
-    <!-- Role Info Card (body-level for z-index stacking) -->
-    <div id="roleInfoCard" style="display:none; position:fixed; top:108px; right:16px;
-        z-index:9000; background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px;
-        padding:16px 18px; font-family:'Outfit',sans-serif; min-width:220px; max-width:280px;
-        backdrop-filter:blur(16px); box-shadow:0 8px 32px rgba(0,0,0,0.3); pointer-events:auto;">
-        <div id="roleInfoDragHandle" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; cursor:grab;">
-            <div style="display:flex; align-items:center; gap:8px;">
-                <span id="roleInfoDot" style="width:10px; height:10px; border-radius:50%; flex-shrink:0;"></span>
-                <span id="roleInfoName" style="font-weight:700; font-size:0.95em; color:var(--text-primary);"></span>
-            </div>
-            <button onclick="document.getElementById('roleInfoCard').style.display='none'; filterByRole('all');" style="background:none; border:none; color:var(--text-muted);
-                cursor:pointer; font-size:1.2em; padding:8px; margin:-8px -8px -8px 0; line-height:1;"
-                onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'">&times;</button>
-        </div>
-        <div id="roleInfoStats" style="font-size:0.82em; color:var(--text-secondary); line-height:1.6;"></div>
-        <div id="roleInfoActions" style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border); display:flex; gap:6px;"></div>
-    </div>
-    <script>
-    (function() {
-        var card = document.getElementById('roleInfoCard');
-        var handle = document.getElementById('roleInfoDragHandle');
-        var ox, oy, sx, sy;
-        handle.addEventListener('mousedown', function(e) {
-            if (e.target.tagName === 'BUTTON') return;
-            e.preventDefault();
-            var r = card.getBoundingClientRect();
-            ox = e.clientX - r.left; oy = e.clientY - r.top;
-            card.style.right = 'auto';
-            card.style.left = r.left + 'px';
-            card.style.top = r.top + 'px';
-            handle.style.cursor = 'grabbing';
-            function onMove(ev) {
-                card.style.left = Math.max(0, Math.min(window.innerWidth - 100, ev.clientX - ox)) + 'px';
-                card.style.top = Math.max(0, Math.min(window.innerHeight - 60, ev.clientY - oy)) + 'px';
-            }
-            function onUp() { handle.style.cursor = 'grab'; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
-            document.addEventListener('mousemove', onMove);
-            document.addEventListener('mouseup', onUp);
-        });
-        handle.addEventListener('touchstart', function(e) {
-            if (e.target.tagName === 'BUTTON') return;
-            var t = e.touches[0]; var r = card.getBoundingClientRect();
-            sx = t.clientX - r.left; sy = t.clientY - r.top;
-            card.style.right = 'auto';
-            card.style.left = r.left + 'px';
-            card.style.top = r.top + 'px';
-            function onTMove(ev) {
-                ev.preventDefault(); var tt = ev.touches[0];
-                card.style.left = Math.max(0, tt.clientX - sx) + 'px';
-                card.style.top = Math.max(0, tt.clientY - sy) + 'px';
-            }
-            function onTEnd() { document.removeEventListener('touchmove', onTMove); document.removeEventListener('touchend', onTEnd); }
-            document.addEventListener('touchmove', onTMove, { passive: false });
-            document.addEventListener('touchend', onTEnd);
-        }, { passive: false });
-    })();
-    </script>
-    
-
-    <!-- Modals moved to index.html for DOM availability -->
-    <script>
         // ============================================================
-        // BLUEPRINT v4.46.27 - BUILD 20260306-window-guard
-        var BP_VERSION = 'v4.46.27';
+        // BLUEPRINT v4.46.29 - BUILD 20260306-window-guard
+        var BP_VERSION = 'v4.46.29';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -2278,9 +1198,17 @@
                 if (adminBadge) adminBadge.style.display = fbIsAdmin ? 'inline-block' : 'none';
                 if (profileChip) {
                     profileChip.style.display = '';
+                    var nameEl = document.getElementById('profileChipName');
+                    var avatarEl = document.getElementById('profileAvatar');
                     var displayName = fbUser.displayName || fbUser.email.split('@')[0];
-                    // Defer to updateProfileChip so stored profile.photo always wins over Google photo
-                    updateProfileChip(displayName);
+                    if (nameEl) nameEl.textContent = displayName;
+                    if (avatarEl) {
+                        if (fbUser.photoURL) {
+                            safeSetAvatar(avatarEl, fbUser.photoURL, true);
+                        } else {
+                            avatarEl.textContent = getInitials(displayName);
+                        }
+                    }
                 }
                 updateDemoToggleUI();
             } else {
@@ -2617,8 +1545,8 @@
                         console.log('✓ Demo data cleared. Profile reset to clean state.');
                     }
                     
-                    // Sync blueprintData from Firestore — must happen BEFORE initializeMainApp
-                    // to prevent stale localStorage wbPurpose from overwriting Firestore value
+                    // Sync blueprintData from Firestore before initializeMainApp
+                    // prevents stale localStorage wbPurpose overwriting Firestore value
                     if (typeof blueprintData !== 'undefined') {
                         blueprintData.purpose = data.purpose || '';
                         blueprintData.values = data.values || blueprintData.values;
@@ -2634,8 +1562,12 @@
                     updateProfileChip(userData.profile.name);
                     
                     // Refresh app mode and UI state after data load
-                    if (typeof detectAppMode === 'function') detectAppMode();
-                    if (typeof checkReadOnly === 'function') checkReadOnly();
+                    // Skip if currently in demo mode — we don't want the Firestore
+                    // callback overwriting demo state or hiding the demo banner
+                    if (appContext.mode !== 'demo') {
+                        if (typeof detectAppMode === 'function') detectAppMode();
+                        if (typeof checkReadOnly === 'function') checkReadOnly();
+                    }
                     
                     // Rescore jobs against current skills and reset views
                     if (typeof rescoreAllJobs === 'function') rescoreAllJobs();
@@ -4191,7 +3123,7 @@
                     + '<div style="color:var(--text-muted); font-size:0.85em;">Credentials for Adzuna and The Muse are hidden in showcase mode.</div>'
                     + '</div>'
                     + '<div style="font-size:0.75em; color:var(--text-muted); padding:10px 12px; border-radius:6px; background:var(--c-accent-bg-1); border:1px solid var(--border); margin-top:14px;">'
-                    + '<strong>Proxy sources:</strong> JSearch · Remotive · USAJobs · Himalayas · Jobicy (via /api/job-search)<br>'
+                    + '<strong>Proxy sources:</strong> JSearch · Remotive · USAJobs · Himalayas · Jobicy (via /api/jobs)<br>'
                     + '<strong>Direct sources:</strong> Adzuna · The Muse'
                     + '</div></div>';
                 
@@ -4289,7 +3221,7 @@
                 
                 // Status summary
                 + '<div style="font-size:0.75em; color:var(--text-muted); padding:10px 12px; border-radius:6px; background:var(--c-accent-bg-1); border:1px solid var(--border); margin-bottom:14px;">'
-                + '<strong>Proxy sources:</strong> JSearch \u00B7 Remotive \u00B7 USAJobs \u00B7 Himalayas \u00B7 Jobicy (via /api/job-search)<br>'
+                + '<strong>Proxy sources:</strong> JSearch \u00B7 Remotive \u00B7 USAJobs \u00B7 Himalayas \u00B7 Jobicy (via /api/jobs)<br>'
                 + '<strong>Direct sources:</strong> '
                 + (_adzId && _adzKey ? '<span style="color:#10b981;">\u2713 Adzuna</span>' : '<span style="color:#ef4444;">\u2717 Adzuna (needs keys)</span>') + ' \u00B7 '
                 + '<span style="color:#10b981;">\u2713 The Muse' + (_musKey ? ' (keyed)' : ' (unkeyed)') + '</span>'
@@ -4399,7 +3331,7 @@
                         { id: 'p1-6', name: 'AI cost tracking dashboard', status: 'done', category: 'feature', priority: 'medium', notes: 'Costs tab in admin. Tracks all API calls by feature tag, shows real usage, estimated costs, sparkline, and scale projection calculator. AI_FEATURES registry auto-picks up new features.' },
                         { id: 'p1-7', name: 'Network job selector widget', status: 'done', category: 'feature', priority: 'medium', notes: 'Floating widget on network view. Select saved jobs to overlay match/gap/values analysis directly on the skill graph.' },
                         { id: 'p1-8', name: 'Site traffic analytics dashboard', status: 'done', category: 'feature', priority: 'high', notes: 'Full traffic dashboard in admin overview. Sessions, page views, bounce rate, avg session time, views/time per section, feature usage, device split, dark/light mode, screen sizes, conversion funnel. Local + Firestore dual storage.' },
-                        { id: 'p1-9', name: 'Multi-source job search API', status: 'done', category: 'feature', priority: 'critical', notes: 'Serverless proxy at /api/job-search aggregating 7 sources: JSearch (RapidAPI), Remotive, USAJobs, Himalayas, Jobicy, Adzuna, The Muse. Location search, remote filter, source badges, skill matching, API cost tracking. Fallback to direct fetch if proxy unavailable.' },
+                        { id: 'p1-9', name: 'Multi-source job search API', status: 'done', category: 'feature', priority: 'critical', notes: 'Serverless proxy at /api/jobs aggregating 7 sources: JSearch (RapidAPI), Remotive, USAJobs, Himalayas, Jobicy, Adzuna, The Muse. Location search, remote filter, source badges, skill matching, API cost tracking. Fallback to direct fetch if proxy unavailable.' },
                         { id: 'p1-10', name: 'Infrastructure costs dashboard', status: 'done', category: 'admin', priority: 'high', notes: 'Full infrastructure registry (Claude, Replit, JSearch, Vercel, Cloudflare, Firebase, GitHub, all job APIs). Categorized by type with manage links. Monthly Cost Snapshot with gradient total, breakdown bars, fixed/AI/API split tiles, annual projection.' },
                         { id: 'p2-1', name: 'Jobs database + caching layer', status: 'done', category: 'architecture', priority: 'high', notes: 'Firestore-backed job cache. Source-aware sync: JSearch A/B query groups (18 queries × 5 pages, alternating), free sources with broad queries, Himalayas single-fetch. Cache-first client (15k limit). Upsert accumulation, 90-day cleanup. Content-based dedup (title+company). Budget: ~5,400 JSearch calls/month of 10k Pro plan.' },
                         { id: 'p1-5', name: 'Demo profile polish', status: 'in-progress', category: 'feature', priority: 'medium', notes: '24 TV character profiles with 99 evidence outcomes added. Ongoing refinement.' },
@@ -5457,10 +4389,10 @@
                     functions: ['callAnthropicAPI()', '/api/ai.js (serverless)'], lines: 'Serverless + ~7000-7100',
                     inputs: ['Feature tag', 'Prompt', 'Firebase token'], outputs: ['Claude response JSON'],
                     deps: ['Vercel', 'Anthropic API key', 'Firebase Admin SDK'], debt: 'Rate limit is per-user but not enforced server-side. $0.07/resume parse.' }},
-                { id: 'job-proxy', name: 'Jobs Proxy /api/job-search', layer: 'backend', col: 4,
+                { id: 'job-proxy', name: 'Jobs Proxy /api/jobs', layer: 'backend', col: 4,
                   color: '#ef4444', icon: 'external',
                   detail: { desc: 'Vercel serverless aggregator. Merges JSearch, Remotive, USAJobs, Himalayas, Jobicy, Adzuna, The Muse. Location + remote filters. Firestore cache.',
-                    functions: ['/api/job-search.js (serverless)', 'fetchCachedJobs()', 'loadJobsFromFirestore()'], lines: 'Serverless + ~22000-22300',
+                    functions: ['/api/jobs.js (serverless)', 'fetchCachedJobs()', 'loadJobsFromFirestore()'], lines: 'Serverless + ~22000-22300',
                     inputs: ['Search keywords', 'Category', 'Location'], outputs: ['Normalized job listings[]'],
                     deps: ['Vercel', 'JSearch API key', 'USAJobs email', 'Firestore job cache', 'Adzuna keys'], debt: 'JSearch costs ~$30/mo at Pro. Free APIs have limited coverage. Adzuna dramatically increases volume.' }},
                 { id: 'health-monitor', name: 'Health Monitor', layer: 'backend', col: 5,
@@ -5516,7 +4448,7 @@
                 { id: 'jsearch', name: 'JSearch (RapidAPI)', layer: 'external', col: 5,
                   color: '#ec4899', icon: 'external',
                   detail: { desc: 'Primary job source. Aggregates LinkedIn, Indeed, Glassdoor. Pro plan: 10K calls/mo ($30/mo). A/B query rotation.',
-                    functions: ['fetchJSearchJobs()', '/api/job-search.js proxy'], lines: 'Serverless',
+                    functions: ['fetchJSearchJobs()', '/api/jobs.js proxy'], lines: 'Serverless',
                     inputs: ['Keywords', 'Location', 'Page'], outputs: ['Job listings with title, company, description, salary'],
                     deps: ['RapidAPI key', 'Jobs proxy'], debt: 'Rate limit causes 429 errors during bulk fetch. A/B rotation helps.' }},
                 { id: 'free-apis', name: 'Free Job APIs', layer: 'external', col: 6,
@@ -16965,15 +15897,14 @@
         };
         
         let templates = {};
-        window._templates = templates; // expose for ES module access
-        window.templates = templates; // expose for nav.js demo mode (reads window.templates)
-        let valuesLibrary = [];
-
+        window._templates = templates;
+        window.templates = templates;
         var _resolveUserDataReady;
         window._userDataReady = new Promise(function(r) { _resolveUserDataReady = r; });
         function _markUserDataReady() {
             if (_resolveUserDataReady) { _resolveUserDataReady(); _resolveUserDataReady = null; }
         }
+        let valuesLibrary = [];
         
         // Check if user has existing profile
         // Removed checkUserProfile - using template-based loading instead
@@ -18551,8 +17482,6 @@
                 var aliasCount = Object.keys(data.aliases || {}).length;
                 console.log('✅ O*NET Crosswalk loaded (deferred): ' + occCount + ' occupations, ' + aliasCount + ' aliases');
                 recordApiHealth('onet-crosswalk', 'ok', occCount + ' occupations, ' + aliasCount + ' aliases');
-                // Refresh admin overview tile now that crosswalk data is available
-                if (typeof renderAdminOverview === 'function' && typeof adminEl !== 'undefined' && adminEl && typeof adminSubTab !== 'undefined' && adminSubTab === 'overview') renderAdminOverview(adminEl);
             }).catch(function(e) {
                 window.onetCrosswalk = null;
                 console.warn('⚠ onet-crosswalk.json failed to load:', e.message);
@@ -21863,7 +20792,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         let activeRole = 'all';
         let activeLevel = null;
         let simulation;
-        window._d3Simulation = null; // exposed for ES module access
         
         // Job overlay state
         let networkMatchMode = 'you'; // 'you' | 'job' | 'match'
@@ -22291,7 +21219,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var collisionR = isMobile ? [55, 48, 30] : [70 * scaleFactor, 65 * scaleFactor, 45 * scaleFactor];
             var gravityCenter = isMobile ? height * 0.46 : height * 0.48;
             
-            simulation = d3.forceSimulation(nodes); window._d3simulation = simulation; window._d3Simulation = simulation
+            simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
                 .force("link", d3.forceLink(links).id(d => d.id).distance(d => {
                     if (d.type === "role") return linkDist[0];
                     return linkDist[1];
@@ -22661,7 +21589,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Simulation — spacious layout
             var gravityCenter = isMobile ? height * 0.52 : height * 0.45;
-            simulation = d3.forceSimulation(nodes); window._d3simulation = simulation; window._d3Simulation = simulation
+            simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
                 .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) { return d.type === 'role' ? (isMobile ? 140 : 200 * scaleFactor) : (isMobile ? 120 : 160 * scaleFactor); }))
                 .force("charge", d3.forceManyBody().strength(function(d) { return d.type === 'center' ? 0 : d.type === 'role' ? (isMobile ? -400 : -350) * scaleFactor : (isMobile ? -180 : -150) * scaleFactor; }))
                 .force("collision", d3.forceCollide().radius(function(d) { return d.type === 'center' ? (isMobile ? 50 : 60) * scaleFactor : d.type === 'role' ? (isMobile ? 55 : 50) * scaleFactor : (isMobile ? 35 : 35) * scaleFactor; }))
@@ -22862,7 +21790,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Simulation — left/right layout forces
             var gravityCenter = isMobile ? height * 0.52 : height * 0.45;
-            simulation = d3.forceSimulation(nodes); window._d3simulation = simulation; window._d3Simulation = simulation
+            simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
                 .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) {
                     if (d.type === 'role') return (isMobile ? 120 : 150) * scaleFactor;
                     if (d.type === 'match') return (isMobile ? 80 : 100) * scaleFactor;
@@ -23325,7 +22253,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             };
             
             // Simulation
-            simulation = d3.forceSimulation(nodes); window._d3simulation = simulation; window._d3Simulation = simulation
+            simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
                 .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) {
                     if (d.type === 'bridge') return (isMobile ? 180 : 260) * scaleFactor;
                     if (d.type === 'tension-link') return (isMobile ? 100 : 140) * scaleFactor;
@@ -23975,8 +22903,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                     showTeaserModal();
                 }
             }, 900);
-
-            window._legacyInitComplete = true;
+                    window._legacyInitComplete = true;
         }); // Close DOMContentLoaded
         
         var _skipHistoryPush = false;
@@ -25542,8 +24469,6 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         function closeSkillModal() {
             document.getElementById('skillModal').classList.remove('active');
         }
-        window.openSkillModal = openSkillModal;
-        window.closeSkillModal = closeSkillModal;
         
         function openRelatedSkill(skillName) {
             const skill = skillsData.skills.find(s => s.name === skillName);
@@ -26820,8 +25745,8 @@ body {
                 }
             }
             
-            // Purpose — Firestore (userData.purpose) is authoritative for signed-in users.
-            // wbPurpose localStorage is only used when not signed in (offline/anonymous fallback).
+            // Purpose — Firestore is authoritative for signed-in users.
+            // wbPurpose localStorage is only used when not signed in.
             var savedPurpose = null;
             try { savedPurpose = safeGet('wbPurpose'); } catch(e) {}
             var isSignedIn = typeof fbUser !== 'undefined' && fbUser;
@@ -26829,8 +25754,6 @@ body {
                 blueprintData.purpose = savedPurpose;
             } else if (userData.purpose && userData.purpose.trim().length > 0) {
                 blueprintData.purpose = userData.purpose;
-            } else if (!isSignedIn && savedPurpose !== null && savedPurpose.trim().length > 0) {
-                blueprintData.purpose = savedPurpose;
             } else {
                 blueprintData.purpose = "";
             }
@@ -29908,7 +28831,21 @@ body {
                 education: userEdu.map(function(e) { return { name: e.institution || e.name || '', desc: (e.degree || '') + (e.field ? ' — ' + e.field : ''), location: e.location || '', dates: e.dates || e.year || '', vf: 'edu', skills: e.skills || [] }; }),
                 certifications: userCerts.map(function(c) { return { name: c.name || '', vf: 'cert', vfLabel: c.issuer || c.name || '', desc: c.description || c.issuer || '', dates: c.dates || c.year || '', status: c.status || '', skills: c.skills || [] }; }),
                 domains: reportDomains,
-                proficiency: proficiency
+                proficiency: proficiency,
+                comp: (function() {
+                    var c = typeof getEffectiveComp === 'function' ? getEffectiveComp() : null;
+                    if (!c) return null;
+                    return {
+                        marketRate:        c.marketRate        || 0,
+                        conservativeOffer: c.conservativeOffer || 0,
+                        standardOffer:     c.standardOffer     || 0,
+                        competitiveOffer:  c.competitiveOffer  || 0,
+                        roleLevel:         c.roleLevel         || 'Mid',
+                        compSource:        c.compSource        || 'algorithm',
+                        compLabel:         c.compLabel         || 'Market Estimate',
+                        reportedComp:      (profile.reportedComp || 0)
+                    };
+                })()
             };
         }
         window.buildReportData = buildReportData;
@@ -33648,9 +32585,79 @@ body {
         }
 
         async function _fitFetchAndScore() {
-            // Stubbed — extracted to src/views/jobs.js (Phase 7f). Module version handles all fetching.
-            // legacy.js copy retained as no-op to avoid reference errors during Phase 9 retirement.
-            return;
+            if (_fitForMeLoading) return;
+            _fitForMeLoading = true;
+            _fitForMeData = [];
+
+            var terms = _fitBuildSearchTerms();
+            var location = '';
+            if (userData.profile && userData.profile.location) location = userData.profile.location;
+            console.log('[FIT] Searching with terms:', terms.join(' | '), 'location:', location || '(any)');
+
+            var allJobs = [];
+            var seen = new Set();
+
+            var fetches = terms.map(function(term) {
+                var params = new URLSearchParams({ q: term });
+                if (location) params.set('location', location);
+                return fetch(JOBS_PROXY_URL + '?' + params.toString(), { signal: AbortSignal.timeout(20000) })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) { return data.jobs || []; })
+                    .catch(function(e) { console.warn('[FIT] Fetch error for "' + term + '":', e.message); return []; });
+            });
+
+            try {
+                var results = await Promise.all(fetches);
+                results.forEach(function(jobs) {
+                    jobs.forEach(function(job) {
+                        var key = ((job.title || '') + '|' + (job.company || '')).toLowerCase();
+                        if (!seen.has(key)) {
+                            seen.add(key);
+                            allJobs.push(job);
+                        }
+                    });
+                });
+            } catch(e) {
+                console.warn('[FIT] Fetch all failed:', e.message);
+            }
+
+            console.log('[FIT] Fetched ' + allJobs.length + ' unique jobs from ' + terms.length + ' queries');
+
+            allJobs.forEach(function(job) {
+                var jdText = (job.title || '') + '\n' + (job.description || '') + '\n' + (job.tags || []).join(' ');
+                try {
+                    var parsed = parseJobLocally(jdText);
+                    var matchResult = matchJobToProfile(parsed);
+                    job._fitParsed = parsed;
+                    job._fitMatch = matchResult;
+                    job.matchScore = matchResult.score;
+                    job.matchedSkills = (matchResult.matched || []).map(function(m) { return m.userSkill || m.jobSkill; });
+                    job.gapSkills = (matchResult.gaps || []).map(function(g) { return g.name; });
+                    job._fitSkillsExtracted = (parsed.skills || []).length;
+                    job._fitParsedTitle = parsed.title;
+                    job._fitSeniority = parsed.seniority;
+                } catch(e) {
+                    job.matchScore = 0;
+                    job.matchedSkills = [];
+                    job.gapSkills = [];
+                    job._fitSkillsExtracted = 0;
+                }
+            });
+
+            allJobs.sort(function(a, b) { return (b.matchScore || 0) - (a.matchScore || 0); });
+            _fitForMeData = allJobs.filter(function(j) { return j.matchScore > 0; });
+            _fitForMeLastRun = Date.now();
+            _fitForMeLoading = false;
+
+            var pipelineIds = {};
+            (userData.savedJobs || []).forEach(function(j) {
+                pipelineIds[((j.title || '') + '-' + (j.company || '')).toLowerCase()] = true;
+            });
+            _fitForMeData.forEach(function(j) {
+                j._inPipeline = !!pipelineIds[((j.title || '') + '-' + (j.company || '')).toLowerCase()];
+            });
+
+            console.log('[FIT] Scored ' + _fitForMeData.length + ' jobs with match > 0. Top score: ' + (_fitForMeData[0] ? _fitForMeData[0].matchScore : 0));
         }
 
         function _fitSortData() {
@@ -39434,7 +38441,7 @@ body {
                         + (isCors
                             ? '<p style="font-size:1.05em; color:var(--text-primary); margin-bottom:8px;">Job APIs blocked by CORS</p>'
                               + '<p style="color:var(--text-muted); font-size:0.88em; line-height:1.6; max-width:480px; margin:0 auto 20px;">'
-                              + 'Deploy the /api/job-search proxy to unlock all 7 sources including JSearch, USAJobs, and Adzuna.</p>'
+                              + 'Deploy the /api/jobs proxy to unlock all 7 sources including JSearch, USAJobs, and Adzuna.</p>'
                             : '<p style="font-size:1.05em; color:var(--text-primary); margin-bottom:8px;">No matching jobs found</p>'
                               + '<p style="color:var(--text-muted); font-size:0.88em;">Try different keywords or lower the match threshold.</p>')
                         + '</div>';
@@ -46850,41 +45857,4 @@ body {
             }
 
         })(); // end tour IIFE
-    </script>
-
-    <!-- Waitlist Registration Modal -->
-    <div class="waitlist-overlay" id="waitlistOverlay">
-        <div class="waitlist-modal">
-            <button class="wl-close" onclick="closeWaitlist()">&times;</button>
-            <div id="waitlistFormView">
-                <h3>&#9672; Get Early Access</h3>
-                <p class="wl-subtitle">The system wasn&rsquo;t built to show your full value. Blueprint maps every skill you&rsquo;ve earned, shows you what you&rsquo;re actually worth, and helps you find work that connects to who you are.</p>
-                <label>Name</label>
-                <input type="text" id="wlName" placeholder="Your name" autocomplete="name">
-                <label>Email</label>
-                <input type="email" id="wlEmail" placeholder="you@company.com" autocomplete="email">
-                <label>What describes you best?</label>
-                <select id="wlType">
-                    <option value="">Select one...</option>
-                    <option value="individual">Individual professional</option>
-                    <option value="leader">Talent / People leader</option>
-                    <option value="recruiter">Recruiter / TA professional</option>
-                    <option value="executive">Executive / C-suite</option>
-                    <option value="other">Other</option>
-                </select>
-                <button class="wl-submit-btn" id="wlSubmitBtn" onclick="submitWaitlist()">Join the Waitlist</button>
-                <div class="wl-skill-question" id="wlSkillHint">How many skills do you think you have? Most people guess 15&ndash;20. The real number will surprise you.</div>
-            </div>
-            <div id="waitlistConfirmView" style="display:none; text-align:center; padding:20px 0;">
-                <div style="font-size:2.2em; margin-bottom:12px;">&#10003;</div>
-                <h3 style="color:var(--accent); margin-bottom:8px;">You're on the list!</h3>
-                <div id="wlPositionMsg" style="font-size:0.95em; color:var(--text-secondary); margin-bottom:16px;"></div>
-                <div class="wl-position-badge" id="wlPositionBadge" style="margin:0 auto 20px;"></div>
-                <p style="font-size:0.85em; color:var(--text-muted); line-height:1.5;">We'll notify you when it's your turn. In the meantime, explore the sample profiles to see what Blueprint can do.</p>
-                <button onclick="closeWaitlist()" style="margin-top:16px; padding:10px 28px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text-primary); cursor:pointer; font-weight:600;">Continue Exploring</button>
-            </div>
-        </div>
-    </div>
-
-</body>
-</html>
+    
