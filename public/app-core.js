@@ -14561,6 +14561,7 @@
             var reported = (userData.profile || {}).reportedComp;
             if (reported && reported > 0) {
                 calculated.displayComp = reported;
+                calculated.reportedComp = reported;
                 calculated.compSource = 'reported';
                 calculated.compLabel = 'Your Compensation';
                 calculated.algorithmEstimate = calculated.total;
