@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.46.30 - BUILD 20260306-values-fix
-        var BP_VERSION = 'v4.46.38';
+        var BP_VERSION = 'v4.46.39';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -23078,6 +23078,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // ── Profile Completeness ────────────────────────────
             // Ensure blueprintData is populated regardless of tab visit order
             if (typeof inferValues === 'function') inferValues();
+            if (typeof extractOutcomesFromEvidence === 'function') extractOutcomesFromEvidence();
             var completeness = { skills: 0, outcomes: 0, values: 0, purpose: 0, workHistory: 0, credentials: 0 };
             var allSkills = (skillsData && skillsData.skills) || userData.skills || [];
             var visibleRoles = (typeof getVisibleRoles === 'function') ? getVisibleRoles() : (userData.workHistory || []);
@@ -23088,7 +23089,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 completeness.outcomes = outcomeList.filter(function(o) { return o.shared; }).length > 0 ? 100 : outcomeList.length > 0 ? 50 : 0;
                 var valueList = blueprintData.values || userData.values || [];
                 completeness.values = valueList.filter(function(v) { return v.selected; }).length > 0 ? 100 : 0;
-                completeness.purpose = (blueprintData.purpose || userData.purpose) ? 100 : 0;
+                completeness.purpose = (blueprintData.purpose || userData.purpose || ((userData.linkedinContent || {}).summary || '')) ? 100 : 0;
             }
             var userCerts = userData.certifications || [];
             var userEdu = userData.education || [];
