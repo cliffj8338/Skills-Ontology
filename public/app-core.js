@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.46.30 - BUILD 20260306-values-fix
-        var BP_VERSION = 'v4.46.35';
+        var BP_VERSION = 'v4.46.36';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -23074,7 +23074,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var visibleRoles = (typeof getVisibleRoles === 'function') ? getVisibleRoles() : (userData.workHistory || []);
             completeness.skills = allSkills.length >= 5 ? 100 : allSkills.length > 0 ? 50 : 0;
             completeness.workHistory = visibleRoles.length > 0 ? 100 : 0;
-            if (window.blueprintData) {
+            if (typeof blueprintData !== 'undefined') {
                 var outcomeList = blueprintData.outcomes || userData.outcomes || [];
                 completeness.outcomes = outcomeList.filter(function(o) { return o.shared; }).length > 0 ? 100 : outcomeList.length > 0 ? 50 : 0;
                 var valueList = blueprintData.values || userData.values || [];
