@@ -1,6 +1,6 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.31 - BUILD 20260306-dashboard-redesign
+        // BLUEPRINT v4.46.30 - BUILD 20260306-values-fix
         var BP_VERSION = 'v4.46.31';
         
         // ===== JOB SCHEMA VERSION =====
@@ -25895,7 +25895,6 @@ body {
             var roles  = skillsData.roles  || [];
             var visRoles = typeof getVisibleRoles === 'function' ? getVisibleRoles() : roles;
 
-            // ── EMPTY STATE ───────────────────────────────────────────────────
             if (skills.length === 0 && roles.length === 0 && fbUser && !isReadOnlyProfile) {
                 return '<div style="text-align:center; padding:80px 30px;">'
                     + '<div style="font-size:3.5em; margin-bottom:20px; opacity:0.25;">🎯</div>'
@@ -25919,7 +25918,6 @@ body {
             }, savedJobs[0]) : null;
             var topMatchScore  = topMatch && topMatch.matchData ? topMatch.matchData.score : 0;
 
-            // Readiness items
             var completeness = [];
             completeness.push(skills.length > 0
                 ? { label: 'Skills mapped',       done: true,  action: 'switchView(\'skills\')' }
@@ -25949,7 +25947,7 @@ body {
 
             var html = '';
 
-            // ── LINKEDIN BANNER ───────────────────────────────────────────────
+            // ── LINKEDIN BANNER ────────────────────────────────────────────────
             if (fbUser && !isReadOnlyProfile && skills.length > 0) {
                 var lastMerge = (userData.importStats || {}).lastMerge;
                 var mergeStr  = lastMerge ? 'Last updated ' + new Date(lastMerge).toLocaleDateString() : 'Keep your Blueprint current';
@@ -25963,9 +25961,9 @@ body {
                     + '</div>';
             }
 
-            // ═══════════════════════════════════════════════════════════════════
-            // ROW 1: COMPENSATION COMPARISON HERO (2-col split)
-            // ═══════════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════════
+            // ROW 1: THREE-BOX HERO — Market Value | Evidence Value | Current Pay
+            // ══════════════════════════════════════════════════════════════════
             if (hasValuation) {
                 var worthValue      = totalValue.marketRate || totalValue.yourWorth || 0;
                 var reportedComp    = totalValue.reportedComp || 0;
@@ -25975,40 +25973,59 @@ body {
                 var fnLabel         = BLS_FUNCTION_LABELS[totalValue.detectedFunction] || totalValue.detectedFunction;
                 var isOverride      = (userData.preferences || {}).blsFunctionOverride ? true : false;
 
-                html += '<div style="display:grid; grid-template-columns:' + (hasReportedComp ? '1fr 1fr' : '1fr') + '; gap:12px; margin-bottom:16px;">';
+                // Evidence value: skill-premium adjusted
+                var evVal   = typeof calculateTotalMarketValue === 'function' ? calculateTotalMarketValue('evidence') : null;
+                var evComp  = (evVal && evVal.yourWorth) ? evVal.yourWorth : (totalValue.skillPremiumValue || worthValue);
+                var evDelta = evComp - worthValue;
+                var evDeltaSign = evDelta >= 0 ? '+' : '';
 
-                // Left: Market Value
-                html += '<div style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(16,185,129,0.03)); border:2px solid rgba(16,185,129,0.28); border-radius:14px; padding:20px 24px;">'
-                    + '<div style="font-size:0.7em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(16,185,129,0.7); margin-bottom:8px;">' + bpIcon('money',11) + ' Your Market Value</div>'
-                    + '<div style="font-size:2.8em; font-weight:800; color:#10b981; line-height:1; margin-bottom:8px;">' + formatCompValue(worthValue) + '</div>'
-                    + '<div style="font-size:0.75em; color:var(--c-faint);">Based on ' + escapeHtml(fnLabel) + (isOverride ? ' (manual)' : '') + ' \u00B7 ' + totalValue.roleLevel + '</div>'
-                    + '<div style="font-size:0.72em; color:rgba(16,185,129,0.6); margin-top:4px;">' + (totalValue.compaRatio || '') + '% of BLS median</div>'
+                html += '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px;">';
+
+                // Box 1 — Market Value (BLS baseline)
+                html += '<div style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(16,185,129,0.03)); border:2px solid rgba(16,185,129,0.28); border-radius:14px; padding:18px 20px;">'
+                    + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(16,185,129,0.7); margin-bottom:8px;">' + bpIcon('money',11) + ' Market Value</div>'
+                    + '<div style="font-size:2.3em; font-weight:800; color:#10b981; line-height:1; margin-bottom:8px;">' + formatCompValue(worthValue) + '</div>'
+                    + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">' + escapeHtml(fnLabel) + (isOverride ? ' <span style="color:#fbbf24;">(manual)</span>' : '') + ' \u00B7 ' + escapeHtml(totalValue.roleLevel) + '</div>'
+                    + '<div style="font-size:0.69em; color:rgba(16,185,129,0.65); margin-top:4px;">' + (totalValue.compaRatio || '') + '% of BLS median</div>'
                     + '</div>';
 
-                // Right: Current Pay + Gap
+                // Box 2 — Evidence Value (skill-premium adjusted)
+                html += '<div style="background:linear-gradient(135deg,rgba(96,165,250,0.1),rgba(96,165,250,0.02)); border:2px solid rgba(96,165,250,0.25); border-radius:14px; padding:18px 20px;">'
+                    + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(96,165,250,0.7); margin-bottom:8px;">' + bpIcon('flame',11) + ' Evidence Value</div>'
+                    + '<div style="font-size:2.3em; font-weight:800; color:#60a5fa; line-height:1; margin-bottom:8px;">' + formatCompValue(evComp) + '</div>'
+                    + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">Skill-premium adjusted</div>'
+                    + '<div style="font-size:0.69em; color:rgba(96,165,250,0.65); margin-top:4px;">'
+                    + (evDelta !== 0 ? evDeltaSign + formatCompValue(Math.abs(evDelta)) + ' vs market' : 'At market median')
+                    + '</div>'
+                    + '</div>';
+
+                // Box 3 — Current Pay
                 if (hasReportedComp) {
                     var gapColor  = delta > 0 ? '#f59e0b' : '#10b981';
-                    var gapLabel  = delta > 0 ? 'You\'re being underpaid by' : 'You\'re being paid above market by';
-                    var gapAmount = Math.abs(delta);
-                    html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:14px; padding:20px 24px; display:flex; flex-direction:column; justify-content:space-between;">'
-                        + '<div>'
-                        + '<div style="font-size:0.7em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--c-muted); margin-bottom:8px;">Your Current Pay</div>'
-                        + '<div style="font-size:2.8em; font-weight:800; color:var(--c-heading); line-height:1; margin-bottom:8px;">' + formatCompValue(reportedComp) + '</div>'
-                        + '<div style="font-size:0.75em; color:var(--c-faint);">Reported annual compensation</div>'
+                    var gapLabel  = delta > 0 ? 'Underpaid by' : 'Above market by';
+                    html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:14px; padding:18px 20px;">'
+                        + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--c-muted); margin-bottom:8px;">Current Pay</div>'
+                        + '<div style="font-size:2.3em; font-weight:800; color:var(--c-heading); line-height:1; margin-bottom:8px;">' + formatCompValue(reportedComp) + '</div>'
+                        + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">Reported annual comp</div>'
+                        + '<div style="margin-top:8px; padding:6px 10px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.18); border-radius:7px;">'
+                        + '<div style="font-size:0.67em; color:var(--c-muted);">' + gapLabel + '</div>'
+                        + '<div style="font-size:1.1em; font-weight:800; color:' + gapColor + ';">' + formatCompValue(Math.abs(delta)) + ' <span style="font-size:0.62em;">(' + (delta > 0 ? '+' : '') + deltaPct + '%)</span></div>'
                         + '</div>'
-                        + '<div style="margin-top:14px; padding:10px 14px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2); border-radius:8px;">'
-                        + '<div style="font-size:0.7em; color:var(--c-muted); margin-bottom:2px;">' + gapLabel + '</div>'
-                        + '<div style="font-size:1.4em; font-weight:800; color:' + gapColor + ';">' + formatCompValue(gapAmount) + ' <span style="font-size:0.6em; font-weight:600;">(' + (delta > 0 ? '+' : '') + deltaPct + '%)</span></div>'
-                        + '</div>'
+                        + '</div>';
+                } else {
+                    html += '<div style="background:var(--c-surface-1); border:1px dashed var(--c-surface-5); border-radius:14px; padding:18px 20px; display:flex; flex-direction:column; justify-content:space-between;">'
+                        + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--c-muted); margin-bottom:8px;">Current Pay</div>'
+                        + '<div style="font-size:0.82em; color:var(--c-faint); line-height:1.6; margin-top:8px;">Add your salary to see your pay gap.</div>'
+                        + '<button onclick="switchBlueprintTab(\'experience\')" style="margin-top:12px; font-size:0.75em; padding:5px 12px; border-radius:7px; border:1px solid var(--c-accent-border-3b); background:var(--c-accent-bg-3b); color:#60a5fa; cursor:pointer; align-self:flex-start;">+ Add Salary</button>'
                         + '</div>';
                 }
 
-                html += '</div>'; // end hero row
+                html += '</div>'; // end 3-box hero
             }
 
-            // ═══════════════════════════════════════════════════════════════════
-            // ROW 2: STATS 2x2 LEFT + QUICK ACTIONS RIGHT
-            // ═══════════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════════
+            // ROW 2: STATS 2x2 LEFT | QUICK ACTIONS RIGHT
+            // ══════════════════════════════════════════════════════════════════
             html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">';
 
             // Left: 2x2 stat tiles
@@ -26042,11 +26059,11 @@ body {
             } else {
                 html += '<div style="background:var(--c-surface-2); border:1px dashed var(--c-surface-5); border-radius:11px; padding:14px 16px; cursor:pointer; opacity:0.6;" onclick="switchView(\'jobs\')">'
                     + '<div style="font-size:0.68em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Best Match</div>'
-                    + '<div style="font-size:0.82em; color:var(--c-faint); margin-top:8px;">Track jobs to see match scores</div>'
+                    + '<div style="font-size:0.8em; color:var(--c-faint); margin-top:8px;">Track jobs to see match scores</div>'
                     + '</div>';
             }
 
-            html += '</div>'; // end 2x2
+            html += '</div>'; // end 2x2 stats
 
             // Right: Quick Actions stacked
             html += '<div style="display:flex; flex-direction:column; gap:8px;">';
@@ -26054,126 +26071,108 @@ body {
             html += '<button onclick="switchBlueprintTab(\'skills\')" style="flex:1; display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--c-green-bg-2b); border:1px solid var(--c-green-border-1); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
                 + '<span style="color:#10b981;">' + bpIcon('skills',16) + '</span>'
                 + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.88em;">Manage Skills</div>'
-                + '<div style="font-size:0.71em; color:var(--c-muted);">Add, edit, organize</div></div>'
-                + '</button>';
+                + '<div style="font-size:0.71em; color:var(--c-muted);">Add, edit, organize</div></div></button>';
 
             html += '<button onclick="showScoutingReportPicker()" style="flex:1; display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--c-accent-bg-3c); border:1px solid var(--c-accent-border-3c); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
                 + '<span style="color:#60a5fa;">' + bpIcon('target',16) + '</span>'
                 + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.88em;">\u25C8 Scouting Report</div>'
-                + '<div style="font-size:0.71em; color:var(--c-muted);">Targeted job analysis</div></div>'
-                + '</button>';
+                + '<div style="font-size:0.71em; color:var(--c-muted);">Targeted job analysis</div></div></button>';
 
             if (!isReadOnlyProfile) {
                 html += '<button onclick="exportBlueprint(\'pdf\')" style="flex:1; display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
                     + '<span style="color:var(--c-label);">' + bpIcon('pdf',16) + '</span>'
                     + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.88em;">PDF Summary</div>'
-                    + '<div style="font-size:0.71em; color:var(--c-muted);">Full career report</div></div>'
-                    + '</button>';
+                    + '<div style="font-size:0.71em; color:var(--c-muted);">Full career report</div></div></button>';
 
                 html += '<button onclick="exportBlueprint(\'html\')" style="flex:1; display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
                     + '<span style="color:var(--c-label);">' + bpIcon('export',16) + '</span>'
                     + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.88em;">Executive Blueprint</div>'
-                    + '<div style="font-size:0.71em; color:var(--c-muted);">HTML for email</div></div>'
-                    + '</button>';
+                    + '<div style="font-size:0.71em; color:var(--c-muted);">HTML for email</div></div></button>';
             }
 
-            html += '</div>'; // end quick actions col
+            html += '</div>'; // end quick actions
             html += '</div>'; // end row 2
 
-            // ═══════════════════════════════════════════════════════════════════
-            // ROW 3: TOP SKILLS LEFT + NEGOTIATION GUIDE RIGHT (2-col)
-            // ═══════════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════════
+            // ROW 3: TOP SKILLS LEFT | NEGOTIATION GUIDE RIGHT
+            // ══════════════════════════════════════════════════════════════════
             if (hasValuation) {
                 var fnLabelMkt = BLS_FUNCTION_LABELS[totalValue.detectedFunction] || totalValue.detectedFunction;
                 var isOvr      = (userData.preferences || {}).blsFunctionOverride ? true : false;
 
                 html += '<div style="border:1px solid var(--c-surface-4); border-radius:12px; overflow:hidden; margin-bottom:16px;">';
 
-                // Header bar
                 html += '<div style="padding:9px 16px; background:var(--c-surface-1); border-bottom:1px solid var(--c-surface-4); display:flex; justify-content:space-between; align-items:center; font-size:0.78em;">'
                     + '<span style="color:var(--c-muted);">' + bpIcon('target',11) + ' BLS: <strong style="color:var(--c-text);">' + escapeHtml(fnLabelMkt) + '</strong> \u00B7 ' + escapeHtml(totalValue.roleLevel) + (isOvr ? ' <span style="color:#fbbf24;">(manual)</span>' : '') + '</span>'
                     + '<a href="#" onclick="showBlsCategoryEditor();return false;" style="color:var(--accent); text-decoration:none; font-weight:600;">Change</a>'
                     + '</div>';
 
-                // 2-col body
                 html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:0;">';
 
                 // Left: Top Skills
                 html += '<div style="padding:16px 18px; border-right:1px solid var(--c-surface-4);">'
                     + '<div style="font-size:0.78em; font-weight:700; color:#60a5fa; margin-bottom:10px;">' + bpIcon('flame',12) + ' Top Skills Driving Value</div>'
                     + '<div style="display:grid; gap:5px;">';
-
                 (totalValue.top10Skills || []).slice(0, 5).forEach(function(skill, idx) {
-                    var isCrit = skill.impact === 'Critical';
+                    var isCrit   = skill.impact === 'Critical';
                     var dotColor = isCrit ? '#ef4444' : '#fbbf24';
                     html += '<div style="display:flex; align-items:center; gap:8px; padding:7px 10px; background:' + (isCrit ? 'rgba(239,68,68,0.07)' : 'rgba(251,191,36,0.07)') + '; border-radius:6px;">'
                         + '<div style="width:6px; height:6px; border-radius:50%; background:' + dotColor + '; flex-shrink:0;"></div>'
                         + '<div style="flex:1; min-width:0;">'
-                        + '<div style="font-size:0.84em; font-weight:600; color:var(--c-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + skill.skill + '</div>'
-                        + '<div style="font-size:0.7em; color:var(--c-faint);">' + skill.level + '</div>'
+                        + '<div style="font-size:0.84em; font-weight:600; color:var(--c-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(skill.skill) + '</div>'
+                        + '<div style="font-size:0.7em; color:var(--c-faint);">' + escapeHtml(skill.level) + '</div>'
                         + '</div>'
-                        + '<div style="font-size:0.72em; font-weight:700; color:' + dotColor + '; flex-shrink:0;">' + skill.impactLabel + '</div>'
+                        + '<div style="font-size:0.72em; font-weight:700; color:' + dotColor + '; flex-shrink:0;">' + escapeHtml(skill.impactLabel) + '</div>'
                         + '</div>';
                 });
+                html += '</div></div>';
 
-                html += '</div></div>'; // end left col
-
-                // Right: Negotiation Guide — vertical cards instead of flat bars
+                // Right: Negotiation tiers
                 html += '<div style="padding:16px 18px;">'
                     + '<div style="font-size:0.78em; font-weight:700; color:#fbbf24; margin-bottom:10px;">' + bpIcon('dollar',12) + ' Negotiation Guide</div>'
                     + '<div style="display:grid; gap:6px;">';
 
                 var tiers = [
-                    { key: 'conservative', pct: 75, color: '#94a3b8', label: 'Conservative',  sub: 'Budget-constrained' },
-                    { key: 'standard',     pct: 85, color: '#60a5fa', label: 'Standard',       sub: 'Most common initial' },
-                    { key: 'competitive',  pct: 95, color: '#10b981', label: 'Competitive',    sub: 'Strong employers' }
+                    { key: 'conservative', color: '#94a3b8', label: 'Conservative',  sub: 'Budget-constrained' },
+                    { key: 'standard',     color: '#60a5fa', label: 'Standard',       sub: 'Most common initial' },
+                    { key: 'competitive',  color: '#10b981', label: 'Competitive',    sub: 'Strong employers' }
                 ];
-
                 tiers.forEach(function(t) {
-                    var offerKey = t.key + 'Offer';
-                    var offerVal = totalValue[offerKey] || 0;
+                    var offerVal = totalValue[t.key + 'Offer'] || 0;
                     html += '<div style="display:flex; align-items:center; gap:10px; padding:9px 12px; background:var(--c-surface-2); border-radius:8px; border-left:3px solid ' + t.color + ';">'
-                        + '<div style="flex:1;">'
-                        + '<div style="font-size:0.82em; font-weight:600; color:' + t.color + ';">' + t.label + '</div>'
-                        + '<div style="font-size:0.7em; color:var(--c-faint);">' + t.sub + '</div>'
-                        + '</div>'
+                        + '<div style="flex:1;"><div style="font-size:0.82em; font-weight:600; color:' + t.color + ';">' + t.label + '</div>'
+                        + '<div style="font-size:0.7em; color:var(--c-faint);">' + t.sub + '</div></div>'
                         + '<div style="font-size:1.05em; font-weight:800; color:var(--c-heading);">' + (offerVal ? formatCompValue(offerVal) : '\u2014') + '</div>'
                         + '</div>';
                 });
 
-                // Gap callout
                 if (totalValue.negotiationGap && totalValue.negotiationGap > 0) {
-                    html += '<div style="margin-top:8px; padding:10px 12px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2); border-radius:8px;">'
-                        + '<div style="font-size:0.75em; font-weight:700; color:#fbbf24;">\u{1F4A1} Negotiation Gap: ' + formatCompValue(totalValue.negotiationGap) + '</div>'
-                        + '<div style="font-size:0.71em; color:var(--c-faint); margin-top:2px;">Start at ' + formatCompValue(totalValue.yourWorth || totalValue.marketRate) + ', negotiate to ' + formatCompValue(totalValue.competitiveOffer) + '+</div>'
+                    html += '<div style="margin-top:6px; padding:9px 12px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2); border-radius:8px;">'
+                        + '<div style="font-size:0.75em; font-weight:700; color:#fbbf24;">\u{1F4A1} Gap: ' + formatCompValue(totalValue.negotiationGap) + '</div>'
+                        + '<div style="font-size:0.7em; color:var(--c-faint); margin-top:2px;">Start at ' + formatCompValue(totalValue.yourWorth || totalValue.marketRate) + ', target ' + formatCompValue(totalValue.competitiveOffer) + '+</div>'
                         + '</div>';
                 }
 
                 html += '</div></div>'; // end right col
+                html += '</div></div>'; // end 2-col body + card
 
-                html += '</div></div>'; // end 2-col body + section card
-
-                // Talking points — full width below the 2-col section
+                // Talking points full width
                 if (totalValue.talkingPoints && totalValue.talkingPoints.length > 0) {
                     html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4); border-radius:12px; padding:16px 18px; margin-bottom:16px;">'
                         + '<div style="font-size:0.75em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#fbbf24; margin-bottom:10px;">Talking Points</div>'
                         + '<div style="display:grid; gap:8px;">';
                     totalValue.talkingPoints.forEach(function(tp) {
-                        html += '<div style="font-size:0.83em; color:var(--c-text); line-height:1.5;">'
-                            + '<strong style="color:var(--c-heading);">' + escapeHtml(tp.label) + ':</strong> '
-                            + escapeHtml(tp.text)
-                            + '</div>';
+                        html += '<div style="font-size:0.83em; color:var(--c-text); line-height:1.5;"><strong style="color:var(--c-heading);">' + escapeHtml(tp.label) + ':</strong> ' + escapeHtml(tp.text) + '</div>';
                     });
                     html += '</div></div>';
                 }
             }
 
-            // ═══════════════════════════════════════════════════════════════════
-            // ROW 4: READINESS + SKILL DISTRIBUTION (2-col)
-            // ═══════════════════════════════════════════════════════════════════
+            // ══════════════════════════════════════════════════════════════════
+            // ROW 4: READINESS RING LEFT | SKILL DISTRIBUTION RIGHT
+            // ══════════════════════════════════════════════════════════════════
             html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">';
 
-            // Left: Readiness ring
             (function() {
                 var ringSize  = 80;
                 var sw        = 6;
@@ -26184,23 +26183,22 @@ body {
                 var ringLabel = readinessPct >= 100 ? 'Profile Complete' : readinessPct >= 80 ? 'Almost There' : readinessPct >= 60 ? 'Good Progress' : 'Getting Started';
 
                 html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px 18px;">';
-
                 if (readinessPct >= 100) {
-                    html += '<div style="display:flex; align-items:center; gap:12px; height:100%;">'
-                        + '<span style="font-size:2em; color:#10b981;">' + bpIcon('check',28) + '</span>'
+                    html += '<div style="display:flex; align-items:center; gap:12px;">'
+                        + '<span style="color:#10b981; font-size:1.8em;">' + bpIcon('check',28) + '</span>'
                         + '<div><div style="font-size:0.88em; font-weight:700; color:#10b981;">Blueprint Complete</div>'
                         + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:3px;">' + skills.length + ' skills \u00B7 ' + outcomes.length + ' outcomes \u00B7 ' + values.length + ' values</div>'
                         + '</div></div>';
                 } else {
-                    html += '<div style="display:flex; align-items:center; gap:14px;">';
-                    html += '<div style="flex-shrink:0; position:relative; width:' + ringSize + 'px; height:' + ringSize + 'px;">'
+                    html += '<div style="display:flex; align-items:center; gap:14px;">'
+                        + '<div style="flex-shrink:0; position:relative; width:' + ringSize + 'px; height:' + ringSize + 'px;">'
                         + '<svg width="' + ringSize + '" height="' + ringSize + '" viewBox="0 0 ' + ringSize + ' ' + ringSize + '" style="transform:rotate(-90deg); position:absolute; top:0; left:0;">'
                         + '<circle cx="' + (ringSize/2) + '" cy="' + (ringSize/2) + '" r="' + radius + '" fill="none" stroke="var(--c-surface-4)" stroke-width="' + sw + '"/>'
                         + '<circle cx="' + (ringSize/2) + '" cy="' + (ringSize/2) + '" r="' + radius + '" fill="none" stroke="' + ringColor + '" stroke-width="' + sw + '" stroke-linecap="round" stroke-dasharray="' + circ + '" stroke-dashoffset="' + offset + '"/>'
                         + '</svg>'
                         + '<div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-weight:800; font-size:1em; color:' + ringColor + ';">' + readinessPct + '%</div>'
-                        + '</div>';
-                    html += '<div style="flex:1; min-width:0;">'
+                        + '</div>'
+                        + '<div style="flex:1; min-width:0;">'
                         + '<div style="font-size:0.82em; font-weight:700; color:var(--c-heading-bold); margin-bottom:4px;">' + ringLabel + '</div>'
                         + '<div style="display:flex; gap:5px; flex-wrap:wrap;">';
                     completeness.forEach(function(c) {
@@ -26213,7 +26211,6 @@ body {
                 html += '</div>';
             })();
 
-            // Right: Skill distribution
             if (skills.length > 0) {
                 var profLevels = [
                     { key: 'Mastery',    color: '#10b981' },
@@ -26229,21 +26226,17 @@ body {
                     if (profCounts[lv] !== undefined) profCounts[lv]++;
                     else profCounts['Novice']++;
                 });
-
                 html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4c); border-radius:12px; padding:16px 18px;">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">'
                     + '<div style="font-size:0.75em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-faint);">Skill Distribution</div>'
                     + '<button onclick="switchBlueprintTab(\'skills\')" style="font-size:0.72em; color:#60a5fa; background:none; border:none; cursor:pointer; font-weight:600;">Manage \u2192</button>'
-                    + '</div>';
-
-                html += '<div style="display:flex; height:8px; border-radius:4px; overflow:hidden; background:var(--c-surface-2b); margin-bottom:12px;">';
+                    + '</div>'
+                    + '<div style="display:flex; height:8px; border-radius:4px; overflow:hidden; background:var(--c-surface-2b); margin-bottom:12px;">';
                 profLevels.forEach(function(p) {
                     var pct = skills.length > 0 ? (profCounts[p.key] / skills.length * 100) : 0;
                     if (pct > 0) html += '<div title="' + p.key + ': ' + profCounts[p.key] + '" style="width:' + pct + '%; background:' + p.color + ';"></div>';
                 });
-                html += '</div>';
-
-                html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">';
+                html += '</div><div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">';
                 profLevels.forEach(function(p) {
                     if (profCounts[p.key] > 0) {
                         html += '<div style="display:flex; align-items:center; gap:6px; font-size:0.75em;">'
@@ -26255,11 +26248,10 @@ body {
                 });
                 html += '</div></div>';
             } else {
-                html += '<div></div>'; // placeholder if no skills
+                html += '<div></div>';
             }
 
             html += '</div>'; // end row 4
-
             return html;
         }
 
