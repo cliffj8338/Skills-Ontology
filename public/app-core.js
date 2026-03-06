@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.29 - BUILD 20260306-window-guard
-        var BP_VERSION = 'v4.46.29';
+        // BLUEPRINT v4.46.30 - BUILD 20260306-values-fix
+        var BP_VERSION = 'v4.46.30';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
