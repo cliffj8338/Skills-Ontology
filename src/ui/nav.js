@@ -29,8 +29,8 @@
  *   rebuildProfileDropdown, showWaitlist, showHelp
  */
 
-import { safeGet, safeSet, safeSetAvatar, escapeHtml } from '../core/security.js';
-import { debouncedSave, saveToFirestore }               from '../core/firebase.js';
+import { safeGet, safeSet, safeSetAvatar, escapeHtml, debouncedSave } from '../core/security.js';
+import { saveToFirestore }               from '../core/firebase.js';
 import { bpIcon }                                       from './icons.js';
 import { showToast }                                    from './toast.js';
 
