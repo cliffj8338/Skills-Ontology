@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.46.30 - BUILD 20260306-values-fix
-        var BP_VERSION = 'v4.46.31';
+        var BP_VERSION = 'v4.46.32';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -23031,28 +23031,28 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 + '</div>';
             
             if (pipelineJobs.length > 0) {
-                html += '<div style="margin-top:14px; display:grid; gap:8px;">';
+                html += '<div style="margin-top:8px; display:grid; gap:3px;">';
                 pipelineJobs.forEach(function(r) {
-                    html += '<div onclick="showReportFormatPicker(' + r.idx + ')" style="padding:14px 16px; background:var(--c-surface-5, rgba(255,255,255,0.02)); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; transition:border-color 0.2s; display:flex; align-items:center; justify-content:space-between; gap:12px;" '
-                        + 'onmouseover="this.style.borderColor=\'rgba(96,165,250,0.4)\'" onmouseout="this.style.borderColor=\'var(--c-border-subtle)\'">'
-                        + '<div style="flex:1; min-width:0;">'
-                        + '<div style="font-weight:600; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(r.title) + '</div>'
-                        + '<div style="font-size:0.82em; color:var(--text-secondary);">' + escapeHtml(r.company)
-                        + (r.date ? ' · ' + r.date : '')
-                        + ' · ' + r.matched + ' matched · ' + r.gaps + ' gap' + (r.gaps !== 1 ? 's' : '') + '</div></div>'
-                        + '<div style="display:flex; align-items:center; gap:10px;">'
-                        + '<div style="text-align:center; min-width:48px;">'
-                        + '<div style="font-size:1.3em; font-weight:800; color:' + scoreColor(r.match) + ';">' + r.match + '%</div>'
-                        + '<div style="font-size:0.6em; color:var(--text-muted); text-transform:uppercase;">Match</div></div>'
-                        + '<div style="color:var(--text-muted); opacity:0.5;">' + bpIcon('chevron-right', 16) + '</div>'
-                        + '</div></div>';
+                    var col = scoreColor(r.match);
+                    html += '<div onclick="showReportFormatPicker(' + r.idx + ')" style="padding:7px 10px; background:var(--c-surface-5,rgba(255,255,255,0.02)); border:1px solid var(--c-border-subtle); border-radius:7px; cursor:pointer; display:flex; align-items:center; gap:10px; transition:all 0.15s;" '
+                        + 'onmouseover="this.style.borderColor=\'rgba(96,165,250,0.4)\';this.style.background=\'rgba(96,165,250,0.04)\'" onmouseout="this.style.borderColor=\'var(--c-border-subtle)\';this.style.background=\'var(--c-surface-5,rgba(255,255,255,0.02))\'">';
+                    html += '<div style="min-width:36px; text-align:center; flex-shrink:0;">'
+                        + '<div style="font-size:0.95em; font-weight:800; color:' + col + '; line-height:1;">' + r.match + '%</div>'
+                        + '<div style="font-size:0.56em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.3px;">Match</div>'
+                        + '</div>';
+                    html += '<div style="flex:1; min-width:0;">'
+                        + '<div style="font-size:0.86em; font-weight:600; color:var(--c-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(r.title) + '</div>'
+                        + '<div style="font-size:0.72em; color:var(--c-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(r.company) + (r.date ? ' \u00B7 ' + r.date : '') + ' \u00B7 ' + r.matched + ' matched \u00B7 ' + r.gaps + ' gap' + (r.gaps !== 1 ? 's' : '') + '</div>'
+                        + '</div>';
+                    html += '<div style="color:var(--text-muted); opacity:0.35; flex-shrink:0;">' + bpIcon('chevron-right', 12) + '</div>';
+                    html += '</div>';
                 });
                 html += '</div>';
                 
                 // General PDF option below the list
-                html += '<div style="margin-top:12px; text-align:center;">'
-                    + '<button onclick="exportBlueprint(\'pdf\')" style="padding:8px 16px; border:1px solid var(--c-border-mid); background:transparent; color:var(--text-secondary); border-radius:8px; cursor:pointer; font-size:0.82em;">'
-                    + bpIcon('pdf', 14) + ' Generate General Blueprint PDF (no job targeting)</button></div>';
+                html += '<div style="margin-top:10px; text-align:center;">'
+                    + '<button onclick="exportBlueprint(\'pdf\')" style="padding:6px 14px; border:1px solid var(--c-border-mid); background:transparent; color:var(--text-muted); border-radius:7px; cursor:pointer; font-size:0.78em;">'
+                    + bpIcon('pdf', 12) + ' Generate General Blueprint PDF (no job targeting)</button></div>';
             } else {
                 html += '<div style="padding:40px 24px; text-align:center; color:var(--text-muted);">'
                     + '<div style="font-size:2.4em; margin-bottom:14px; opacity:0.35;">' + bpIcon('target', 48) + '</div>'
@@ -28510,6 +28510,8 @@ body {
                 + '<button onclick="showScoutingReportPicker()" style="background:none; border:none; color:var(--text-muted); font-size:0.82em; cursor:pointer; text-decoration:underline;">← Back to job list</button>'
                 + '</div>'
                 + '</div>';
+            history.pushState({ modal: true }, '');
+            modal.classList.add('active');
         }
         window.showReportFormatPicker = showReportFormatPicker;
         
