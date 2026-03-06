@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.46.30 - BUILD 20260306-values-fix
-        var BP_VERSION = 'v4.46.36';
+        var BP_VERSION = 'v4.46.37';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1574,6 +1574,7 @@
                     // Rescore jobs against current skills and reset views
                     if (typeof rescoreAllJobs === 'function') rescoreAllJobs();
                     window.opportunitiesInitialized = false;
+                    window.reportsInitialized = false;
                     
                     var skillCount = (data.skills || []).length;
                     console.log('✓ Loaded from Firestore:', skillCount, 'skills | admin:', fbIsAdmin, '| mode:', appMode);
@@ -13009,6 +13010,7 @@
             // Reset view state
             window.blueprintInitialized = false;
             window.opportunitiesInitialized = false;
+                    window.reportsInitialized = false;
             window.applicationsInitialized = false;
             window.networkInitialized = false;
             window.cardViewInitialized = false;
@@ -13069,6 +13071,7 @@
             // Reset view state
             window.blueprintInitialized = false;
             window.opportunitiesInitialized = false;
+                    window.reportsInitialized = false;
             window.applicationsInitialized = false;
             window.networkInitialized = false;
             window.cardViewInitialized = false;
@@ -13120,6 +13123,7 @@
             
             window.blueprintInitialized = false;
             window.opportunitiesInitialized = false;
+                    window.reportsInitialized = false;
             window.networkInitialized = false;
             window.cardViewInitialized = false;
             
@@ -15995,6 +15999,7 @@
             // Reset initialized flags so views re-render
             window.blueprintInitialized = false;
             window.opportunitiesInitialized = false;
+                    window.reportsInitialized = false;
             window.applicationsInitialized = false;
             window.consentInitialized = false;
             window.settingsInitialized = false;
@@ -17606,6 +17611,7 @@
                 window.blueprintInitialized = false;
                 window.settingsInitialized = false;
                 window.opportunitiesInitialized = false;
+                    window.reportsInitialized = false;
                 window.applicationsInitialized = false;
                 window.consentInitialized = false;
                 window.networkInitialized = false;
@@ -20693,6 +20699,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Reset tab initialization flags so they re-render with new data
             window.blueprintInitialized = false;
             window.opportunitiesInitialized = false;
+                    window.reportsInitialized = false;
             window.applicationsInitialized = false;
             window.consentInitialized = false;
             window.networkInitialized = false;
@@ -32825,6 +32832,7 @@ body {
             jobsSubTab = tab;
             // Re-render the full jobs view to update subtab active states and counts
             window.opportunitiesInitialized = false;
+                    window.reportsInitialized = false;
             initOpportunities();
             window.opportunitiesInitialized = true;
         }
@@ -33873,6 +33881,7 @@ body {
                 
                 // Refresh the jobs view
                 window.opportunitiesInitialized = false;
+                    window.reportsInitialized = false;
                 switchView('opportunities');
                 
                 showToast('Job analyzed: ' + matchData.score + '% match with ' + (matchData.matched || []).length + ' skills aligned.', 'success', 5000);
@@ -37528,6 +37537,7 @@ body {
                 clearJobOverlay();
             }
             window.opportunitiesInitialized = false;
+                    window.reportsInitialized = false;
             switchView('opportunities');
         }
         window.removeJob = removeJob;
