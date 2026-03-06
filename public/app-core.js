@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.42 - BUILD 20260306-pay-states
-        var BP_VERSION = 'v4.46.42';
+        // BLUEPRINT v4.46.43 - BUILD 20260306-security-fixes
+        var BP_VERSION = 'v4.46.43';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -42099,7 +42099,7 @@ body {
                             ${displayFormatted}/yr
                         </div>
                         <div style="color: #9ca3af; margin-top: 8px;">
-                            ${totalValue.roleLevel} • ${totalValue.compSource === 'algorithm' ? totalValue.compaRatio + '% compa-ratio • ' : ''}${userData.profile.location || ''}
+                            ${totalValue.roleLevel} • ${totalValue.compSource === 'algorithm' ? totalValue.compaRatio + '% compa-ratio • ' : ''}${escapeHtml(userData.profile.location || '')}
                         </div>
                     </div>
                     
@@ -42169,7 +42169,7 @@ body {
                         <div style="color: #d1d5db; line-height: 1.8;">
                             <p style="margin-bottom: 15px;">
                                 <strong style="color: #fbbf24;">1. Lead with Your Worth:</strong><br>
-                                "Based on my skill profile and market analysis, my value is in the $${Math.round(totalValue.yourWorth * 0.95 / 1000) * 1000}-$${Math.round(totalValue.yourWorth * 1.05 / 1000) * 1000} range for ${totalValue.roleLevel} roles in ${userData.profile.location}."
+                                "Based on my skill profile and market analysis, my value is in the $${Math.round(totalValue.yourWorth * 0.95 / 1000) * 1000}-$${Math.round(totalValue.yourWorth * 1.05 / 1000) * 1000} range for ${totalValue.roleLevel} roles in ${escapeHtml(userData.profile.location || '')}."
                             </p>
                             <p style="margin-bottom: 15px;">
                                 <strong style="color: #fbbf24;">2. Reference Your Top 10 Skills:</strong><br>
