@@ -33,6 +33,8 @@ Career intelligence web app at myblueprint.work. Modular Vite-based frontend + F
 - `legacy.js` — Old monolith (kept for backward compat, loaded alongside modules)
 - `vite.config.js` — Vite build config with manual chunk splitting
 - `vercel.json` — Vercel deployment config, CSP headers, rewrites
+- `scripts/count-lines.js` — Build-time script that counts source lines and writes `public/build-stats.json`
+- `public/build-stats.json` — Auto-generated: lineCount, jsLines, htmlLines, cssLines, fileCount, totalDeploys, version, buildDate
 
 ## Key Data Files
 - `skills/index-v4.json` — 43K+ skill library (ESCO, Lightcast, O*NET, trades)
@@ -80,6 +82,15 @@ Token embedded in remote URL. Push: `git add -A && git commit -m "..." && git pu
 
 ## Job Sources (7 active)
 JSearch (RapidAPI), Remotive, USAJobs, Himalayas, Jobicy, Adzuna, The Muse.
+
+## Dev Velocity Auto-Stats
+`scripts/count-lines.js` runs at `prebuild` (before `vite build`) and writes `public/build-stats.json`. Runtime loads this JSON to auto-compute:
+- **Lines of Code**: Real count from src/ + api/ + public/ + index.html + blueprint.css
+- **Deploys**: Deterministic from version number (stored in build-stats.json)
+- **AI Sessions**: Derived from deploy count (1 deploy ≈ 1 AI session)
+- **Features Shipped**: Counted from `ROADMAP_DATA.phases[].items` with `status: 'done'`
+- **Calendar Time / Speed / Cost multipliers**: Computed from firstCommit date and other stats
+Only 4 manual fields remain in Edit Stats modal: Project Start Date, Avg Session Hours, AI Sub $/mo, Hosting $/mo
 
 ## Key Features
 - Work Blueprint Wizard (JD → structured WB conversion)

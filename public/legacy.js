@@ -27,6 +27,10 @@
             aiSubscriptionMonthly: 200,
             hostingMonthly: 25
         };
+        fetch('/build-stats.json?' + Date.now()).then(function(r) { return r.json(); }).then(function(bs) {
+            window._buildStats = bs;
+            if (bs.lineCount) window._blueprintDevStats.lineCount = bs.lineCount;
+        }).catch(function() {});
         
         // ===== AI COST & USAGE TRACKING =====
         var AI_PROXY_URL = '/api/ai';
@@ -2015,11 +2019,12 @@
                 lineCount: 44041,
                 sessionsAI: 49,
                 avgSessionHrs: 3.5,
-                // Costs
                 aiSubscriptionMonthly: 200,
                 hostingMonthly: 25
             };
-            // Compute dynamic stats
+            if (window._buildStats && window._buildStats.lineCount) {
+                devStats.lineCount = window._buildStats.lineCount;
+            }
             var doneFeatures = 0;
             var totalRoadmapItems = 0;
             var roadmapPhases = typeof ROADMAP_DATA !== 'undefined' ? (ROADMAP_DATA.phases || []) : [];
@@ -2029,10 +2034,16 @@
                     if (item.status === 'done') doneFeatures++;
                 });
             });
-            // Parse version for total deploys estimate
-            var vParts = BP_VERSION.replace('v','').split('.');
-            var totalDeploys = parseInt(vParts[2] || 0);
-            if (parseInt(vParts[1] || 0) >= 45) totalDeploys += 79; // v4.44.xx series
+            var totalDeploys;
+            if (window._buildStats && window._buildStats.totalDeploys) {
+                totalDeploys = window._buildStats.totalDeploys;
+            } else {
+                var vParts = BP_VERSION.replace('v','').split('.');
+                totalDeploys = parseInt(vParts[2] || 0);
+                if (parseInt(vParts[1] || 0) >= 45) totalDeploys += 79;
+                if (parseInt(vParts[1] || 0) >= 46) totalDeploys += 100;
+            }
+            devStats.sessionsAI = totalDeploys;
             
             var aiHoursTotal = devStats.sessionsAI * devStats.avgSessionHrs;
             var aiDays = Math.round(aiHoursTotal / 8 * 10) / 10;
@@ -4509,7 +4520,7 @@
             // Header with view toggle and export
             html += '<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;">'
                 + '<div style="font-size:1.1em; font-weight:700; color:var(--text-primary);">'
-                + bpIcon('compass',18) + ' Platform Architecture <span style="font-size:0.7em; font-weight:400; color:var(--text-muted);">' + BP_VERSION + ' \u00B7 ~42K lines \u00B7 ' + components.length + ' components</span></div>'
+                + bpIcon('compass',18) + ' Platform Architecture <span style="font-size:0.7em; font-weight:400; color:var(--text-muted);">' + BP_VERSION + ' \u00B7 ~' + (window._buildStats ? Math.round(window._buildStats.lineCount / 1000) + 'K' : '120K') + ' lines \u00B7 ' + components.length + ' components</span></div>'
                 + '<div style="display:flex; gap:6px; flex-wrap:wrap;">'
                 + '<div style="display:inline-flex; border:1px solid var(--border); border-radius:6px; overflow:hidden;">'
                 + '<button onclick="archSetView(\'tiles\')" id="archViewTiles" style="padding:4px 12px; font-size:0.75em; cursor:pointer; border:none; background:var(--accent); color:#fff;">Tiles</button>'
@@ -4921,7 +4932,7 @@
             
             // Title only (legend moves to HTML overlay)
             svg += '<text x="' + Math.round(50*S) + '" y="' + Math.round(22*S) + '" fill="' + TEXT + '" font-size="' + Math.max(9, Math.round(14*S)) + '" font-weight="700" letter-spacing="0.3">Blueprint Platform Architecture</text>';
-            svg += '<text x="' + Math.round(50*S) + '" y="' + Math.round(36*S) + '" fill="' + TEXT_MUTED + '" font-size="' + Math.max(6, Math.round(9*S)) + '">' + BP_VERSION + ' \u00B7 ~42K lines \u00B7 ' + components.length + ' components \u00B7 ' + flows.length + ' data flows</text>';
+            svg += '<text x="' + Math.round(50*S) + '" y="' + Math.round(36*S) + '" fill="' + TEXT_MUTED + '" font-size="' + Math.max(6, Math.round(9*S)) + '">' + BP_VERSION + ' \u00B7 ~' + (window._buildStats ? Math.round(window._buildStats.lineCount / 1000) + 'K' : '120K') + ' lines \u00B7 ' + components.length + ' components \u00B7 ' + flows.length + ' data flows</text>';
             
             svg += '</svg>';
             container.innerHTML = svg;
@@ -39833,16 +39844,20 @@ body {
         // ── Dev Velocity Stats Editor ─────────────────────────────
         function editDevStats() {
             var ds = window._blueprintDevStats;
+            var bs = window._buildStats;
             var modal = document.getElementById('exportModal');
             var mc = modal.querySelector('.modal-content');
+            var autoNote = '<div style="grid-column:1/-1; padding:10px 14px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2); border-radius:8px; font-size:0.78em; color:#10b981; margin-bottom:4px;">'
+                + bpIcon('check',12) + ' <strong>Auto-computed:</strong> Lines of Code (from build), Features Shipped (from roadmap), Deploys &amp; AI Sessions (from version number), Calendar Time (from start date), Speed/Cost multipliers (derived).'
+                + (bs ? '<br>Build: ' + (bs.lineCount || 0).toLocaleString() + ' lines across ' + (bs.fileCount || 0) + ' files (' + (bs.jsLines || 0).toLocaleString() + ' JS, ' + (bs.htmlLines || 0).toLocaleString() + ' HTML, ' + (bs.cssLines || 0).toLocaleString() + ' CSS)' : '')
+                + '</div>';
             mc.innerHTML = '<div class="modal-header">'
                 + '<div class="modal-header-left"><h2 class="modal-title">' + bpIcon('trending-up',20) + ' Dev Velocity Stats</h2>'
-                + '<div class="modal-subtitle">Update your AI development tracking metrics</div></div>'
+                + '<div class="modal-subtitle">Adjust manual inputs below. Most stats auto-update from source data.</div></div>'
                 + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button></div>'
                 + '<div style="padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
+                + autoNote
                 + _devStatsField('devstat-firstCommit', 'Project Start Date', ds.firstCommit, 'date', '2025-12-28')
-                + _devStatsField('devstat-lineCount', 'Lines of Code', ds.lineCount, 'number', '43000')
-                + _devStatsField('devstat-sessionsAI', 'AI Sessions', ds.sessionsAI, 'number', '48')
                 + _devStatsField('devstat-avgSessionHrs', 'Avg Session (hrs)', ds.avgSessionHrs, 'number', '3.5')
                 + _devStatsField('devstat-aiSubscriptionMonthly', 'AI Sub ($/mo)', ds.aiSubscriptionMonthly, 'number', '200')
                 + _devStatsField('devstat-hostingMonthly', 'Hosting ($/mo)', ds.hostingMonthly, 'number', '25')

@@ -828,16 +828,20 @@ export function cleanOrphanRoles() {
 // ── Dev Velocity Stats Editor ─────────────────────────────
 export function editDevStats() {
     var ds = window._blueprintDevStats;
+    var bs = window._buildStats;
     var modal = document.getElementById('exportModal');
     var mc = modal.querySelector('.modal-content');
+    var autoNote = '<div style="grid-column:1/-1; padding:10px 14px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2); border-radius:8px; font-size:0.78em; color:#10b981; margin-bottom:4px;">'
+        + bpIcon('check',12) + ' <strong>Auto-computed:</strong> Lines of Code (from build), Features Shipped (from roadmap), Deploys &amp; AI Sessions (from version number), Calendar Time (from start date), Speed/Cost multipliers (derived).'
+        + (bs ? '<br>Build: ' + (bs.lineCount || 0).toLocaleString() + ' lines across ' + (bs.fileCount || 0) + ' files (' + (bs.jsLines || 0).toLocaleString() + ' JS, ' + (bs.htmlLines || 0).toLocaleString() + ' HTML, ' + (bs.cssLines || 0).toLocaleString() + ' CSS)' : '')
+        + '</div>';
     mc.innerHTML = '<div class="modal-header">'
         + '<div class="modal-header-left"><h2 class="modal-title">' + bpIcon('trending-up',20) + ' Dev Velocity Stats</h2>'
-        + '<div class="modal-subtitle">Update your AI development tracking metrics</div></div>'
+        + '<div class="modal-subtitle">Adjust manual inputs below. Most stats auto-update from source data.</div></div>'
         + '<button class="modal-close" onclick="closeExportModal()">\u00D7</button></div>'
         + '<div style="padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
+        + autoNote
         + _devStatsField('devstat-firstCommit', 'Project Start Date', ds.firstCommit, 'date', '2025-12-28')
-        + _devStatsField('devstat-lineCount', 'Lines of Code', ds.lineCount, 'number', '43000')
-        + _devStatsField('devstat-sessionsAI', 'AI Sessions', ds.sessionsAI, 'number', '48')
         + _devStatsField('devstat-avgSessionHrs', 'Avg Session (hrs)', ds.avgSessionHrs, 'number', '3.5')
         + _devStatsField('devstat-aiSubscriptionMonthly', 'AI Sub ($/mo)', ds.aiSubscriptionMonthly, 'number', '200')
         + _devStatsField('devstat-hostingMonthly', 'Hosting ($/mo)', ds.hostingMonthly, 'number', '25')
