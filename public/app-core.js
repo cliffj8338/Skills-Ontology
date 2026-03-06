@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.30 - BUILD 20260306-values-fix
-        var BP_VERSION = 'v4.46.30';
+        // BLUEPRINT v4.46.31 - BUILD 20260306-dashboard-redesign
+        var BP_VERSION = 'v4.46.31';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -25894,351 +25894,202 @@ body {
             var skills = skillsData.skills || [];
             var roles = skillsData.roles || [];
             var visRoles = typeof getVisibleRoles === 'function' ? getVisibleRoles() : roles;
-            
-            // Empty state for signed-in users with no profile data
+
+            // ── EMPTY STATE ──────────────────────────────────────────────────
             if (skills.length === 0 && roles.length === 0 && fbUser && !isReadOnlyProfile) {
                 return '<div style="text-align:center; padding:80px 30px;">'
                     + '<div style="font-size:3.5em; margin-bottom:20px; opacity:0.25;">🎯</div>'
                     + '<div style="font-family:Outfit,sans-serif; font-size:1.6em; font-weight:700; color:var(--text-primary); margin-bottom:12px; letter-spacing:0.04em;">Build Your Blueprint</div>'
-                    + '<div style="font-size:1em; color:var(--text-muted); max-width:480px; margin:0 auto 32px; line-height:1.7;">'
-                    + 'Your career intelligence profile is empty. Map your skills, define your roles, and track your outcomes to unlock salary estimates, job matching, and scouting reports.'
-                    + '</div>'
-                    + '<div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center; margin-bottom:40px;">'
-                    + '<button onclick="showOnboardingWizard();" '
-                    + 'style="padding:14px 28px; background:var(--accent); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:1em;">'
-                    + '\u26A1 Start Building</button>'
-                    + '</div>'
-                    + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px; max-width:600px; margin:0 auto; text-align:left;">'
-                    + '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px;">'
-                    + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:4px;">1. Add Skills</div>'
-                    + '<div style="font-size:0.82em; color:var(--text-muted);">Map your professional capabilities and expertise levels</div></div>'
-                    + '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px;">'
-                    + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:4px;">2. Define Roles</div>'
-                    + '<div style="font-size:0.82em; color:var(--text-muted);">Group skills into the roles you perform professionally</div></div>'
-                    + '<div style="padding:16px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px;">'
-                    + '<div style="font-weight:700; color:var(--text-primary); margin-bottom:4px;">3. Track Outcomes</div>'
-                    + '<div style="font-size:0.82em; color:var(--text-muted);">Document achievements and measurable impact</div></div>'
-                    + '</div>'
+                    + '<div style="font-size:1em; color:var(--text-muted); max-width:480px; margin:0 auto 32px; line-height:1.7;">Your career intelligence profile is empty. Map your skills, define your roles, and track your outcomes to unlock salary estimates, job matching, and scouting reports.</div>'
+                    + '<button onclick="showOnboardingWizard();" style="padding:14px 28px; background:var(--accent); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size:1em;">\u26A1 Start Building</button>'
                     + '</div>';
             }
-            
-            var outcomes = blueprintData.outcomes || [];
+
+            var outcomes     = blueprintData.outcomes || [];
             var sharedOutcomes = outcomes.filter(function(o) { return o.shared; }).length;
-            var values = (blueprintData.values || []).filter(function(v) { return v.selected; });
-            var purpose = blueprintData.purpose || '';
-            var totalValue = getEffectiveComp();
+            var values       = (blueprintData.values || []).filter(function(v) { return v.selected; });
+            var purpose      = blueprintData.purpose || '';
+            var totalValue   = getEffectiveComp();
             var hasValuation = totalValue && totalValue.total > 0;
             var hasCuratedComp = totalValue.compSource === 'curated' || totalValue.compSource === 'reported';
-            // Calculate both modes for dual cards
-            var evidenceValue = hasValuation ? calculateTotalMarketValue('evidence') : null;
-            var potentialValue = hasValuation ? calculateTotalMarketValue('potential') : null;
-            
-            var masteryCount = skills.filter(function(s) { return s.level === 'Mastery'; }).length;
-            var advancedCount = skills.filter(function(s) { return s.level === 'Advanced'; }).length;
+            var masteryCount   = skills.filter(function(s) { return s.level === 'Mastery'; }).length;
             var expertLevelCount = skills.filter(function(s) { return s.level === 'Expert'; }).length;
             var savedJobs = (userData.savedJobs || []).filter(function(j) { return j && j.title; });
-            var topMatch = savedJobs.length > 0 ? savedJobs.reduce(function(best, j) { return (j.matchData && j.matchData.score || 0) > (best.matchData && best.matchData.score || 0) ? j : best; }, savedJobs[0]) : null;
+            var topMatch  = savedJobs.length > 0 ? savedJobs.reduce(function(best, j) {
+                return (j.matchData && j.matchData.score || 0) > (best.matchData && best.matchData.score || 0) ? j : best;
+            }, savedJobs[0]) : null;
             var topMatchScore = topMatch && topMatch.matchData ? topMatch.matchData.score : 0;
-            
-            // Calculate readiness score early (used in multiple places)
+
+            // Readiness
             var completeness = [];
             if (skills.length > 0) completeness.push({ label: 'Skills mapped', done: true, action: "switchView('skills')" });
             else completeness.push({ label: 'Map your skills', done: false, action: "switchView('skills')" });
             if (outcomes.length > 0) completeness.push({ label: 'Outcomes documented', done: true, action: "switchBlueprintTab('outcomes')" });
             else completeness.push({ label: 'Add outcomes', done: false, action: "switchBlueprintTab('outcomes')" });
             if (values.length >= 3) completeness.push({ label: 'Values selected', done: true, action: "switchBlueprintTab('values')" });
-            else completeness.push({ label: 'Select values (3\u20137)', done: false, action: "switchBlueprintTab('values')" });
+            else completeness.push({ label: 'Select values', done: false, action: "switchBlueprintTab('values')" });
             if (purpose && purpose.length > 10) completeness.push({ label: 'Purpose defined', done: true, action: '' });
-            else completeness.push({ label: 'Write purpose statement', done: false, action: '' });
+            else completeness.push({ label: 'Write purpose', done: false, action: '' });
             if (savedJobs.length > 0) completeness.push({ label: 'Jobs tracked', done: true, action: "switchView('jobs')" });
             else completeness.push({ label: 'Add target jobs', done: false, action: "switchView('jobs')" });
             var workHistory = userData.workHistory || [];
-            if (workHistory.length > 0) completeness.push({ label: 'Work history added', done: true, action: "switchBlueprintTab('experience')" });
+            if (workHistory.length > 0) completeness.push({ label: 'Work history', done: true, action: "switchBlueprintTab('experience')" });
             else completeness.push({ label: 'Add work history', done: false, action: "switchBlueprintTab('experience')" });
             var education = userData.education || [];
             if (education.length > 0) completeness.push({ label: 'Education added', done: true, action: "switchBlueprintTab('experience')" });
             else completeness.push({ label: 'Add education', done: false, action: "switchBlueprintTab('experience')" });
-            var doneCount = completeness.filter(function(c) { return c.done; }).length;
+            var doneCount    = completeness.filter(function(c) { return c.done; }).length;
             var readinessPct = Math.round((doneCount / completeness.length) * 100);
-            
+
             var html = '';
-            
-            // ── LINKEDIN UPDATE CTA (signed-in users with profile data) ──
+
+            // ── LINKEDIN UPDATE BANNER ───────────────────────────────────────
             if (fbUser && !isReadOnlyProfile && skills.length > 0) {
                 var lastMerge = (userData.importStats || {}).lastMerge;
-                var mergeStr = lastMerge ? 'Last updated ' + new Date(lastMerge).toLocaleDateString() : 'Keep your Blueprint current';
-                html += '<div style="padding:12px 16px; margin-bottom:14px; background:linear-gradient(135deg, rgba(10,102,194,0.06), rgba(10,102,194,0.02)); '
-                    + 'border:1px solid rgba(10,102,194,0.18); border-radius:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">'
+                var mergeStr  = lastMerge ? 'Last updated ' + new Date(lastMerge).toLocaleDateString() : 'Keep your Blueprint current';
+                html += '<div style="padding:12px 16px; margin-bottom:14px; background:linear-gradient(135deg, rgba(10,102,194,0.06), rgba(10,102,194,0.02)); border:1px solid rgba(10,102,194,0.18); border-radius:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">'
                     + '<div style="display:flex; align-items:center; gap:10px;">'
                     + '<svg width="18" height="18" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>'
-                    + '<div>'
-                    + '<div style="font-weight:600; color:var(--text-primary); font-size:0.85em;">Update from LinkedIn</div>'
-                    + '<div style="font-size:0.72em; color:var(--c-muted);">' + mergeStr + '</div>'
-                    + '</div></div>'
+                    + '<div><div style="font-weight:600; color:var(--text-primary); font-size:0.85em;">Update from LinkedIn</div>'
+                    + '<div style="font-size:0.72em; color:var(--c-muted);">' + mergeStr + '</div></div></div>'
                     + '<label style="padding:6px 14px; background:#0a66c2; color:#fff; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.78em; display:inline-flex; align-items:center; gap:5px;">'
                     + bpIcon('network', 12) + ' Upload .zip'
-                    + '<input type="file" accept=".zip" onchange="handleLinkedInMerge(this)" style="display:none;">'
-                    + '</label></div>';
+                    + '<input type="file" accept=".zip" onchange="handleLinkedInMerge(this)" style="display:none;"></label></div>';
             }
-            
-            // ── CURATED/REPORTED COMP BANNER (prominent, above stat cards) ──
-            if (hasCuratedComp) {
-                var dispFormatted = formatCompValue(totalValue.displayComp);
-                var algoFormatted = formatCompValue(totalValue.algorithmEstimate);
-                var delta = totalValue.displayComp - totalValue.algorithmEstimate;
-                var deltaPct = totalValue.algorithmEstimate > 0 ? Math.round((delta / totalValue.algorithmEstimate) * 100) : 0;
-                var deltaColor = delta >= 0 ? '#10b981' : '#f59e0b';
-                var deltaSign = delta >= 0 ? '+' : '';
-                
-                html += '<div style="background:linear-gradient(135deg, rgba(16,185,129,0.12), rgba(96,165,250,0.08)); border:2px solid rgba(16,185,129,0.3); border-radius:14px; padding:22px 24px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">'
-                    + '<div>'
-                    + '<div style="font-size:0.78em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">'
-                    + bpIcon('money',12) + ' ' + totalValue.compLabel + '</div>'
-                    + '<div style="font-size:2.4em; font-weight:800; color:#10b981; line-height:1;">' + dispFormatted + '</div>'
-                    + '<div style="font-size:0.78em; color:var(--c-faint); margin-top:6px;">/year</div>'
-                    + '</div>'
-                    + '<div style="text-align:right;">';
-                if (totalValue.algorithmEstimate > 0 && totalValue.displayComp < 50000000 && Math.abs(deltaPct) <= 200) {
-                    html += '<div style="font-size:0.72em; color:var(--c-muted);">vs. BLS Benchmark</div>'
-                        + '<div style="font-size:1.4em; font-weight:700; color:' + deltaColor + ';">' + deltaSign + deltaPct + '%</div>'
-                        + '<div style="font-size:0.72em; color:var(--c-faint);">' + algoFormatted + '/yr</div>';
-                } else if (totalValue.algorithmEstimate > 0) {
-                    html += '<div style="font-size:0.72em; color:var(--c-muted);">BLS Benchmark</div>'
-                        + '<div style="font-size:1.1em; font-weight:600; color:var(--c-faint);">' + algoFormatted + '/yr</div>';
-                }
-                html += '</div></div>';
-            }
-            
-            // ── STAT CARDS ROW ──
-            html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:20px;">';
-            
-            // Evidence-Based Value card (BLS algorithm)
-            if (hasValuation && evidenceValue) {
-                var evActive = valuationMode === 'evidence';
-                var evLabel = hasCuratedComp ? 'BLS Evidence' : 'Evidence-Based';
-                
-                html += '<div style="background:' + (evActive ? 'var(--c-green-bg-2a)' : 'var(--c-surface-2)') + '; border:' + (evActive ? '2px' : '1px') + ' solid ' + (evActive ? 'var(--c-green-border-3)' : 'var(--c-surface-5)') + '; border-radius:12px; padding:18px; cursor:pointer;" onclick="setValuationMode(\'evidence\'); switchBlueprintTab(\'dashboard\');">'
-                    + '<div style="display:flex; align-items:center; gap:5px; font-size:0.78em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">'
-                    + bpIcon('lock',11) + ' ' + evLabel + '</div>'
-                    + '<div style="font-size:1.8em; font-weight:800; color:#10b981;">$' + evidenceValue.yourWorth.toLocaleString() + '</div>'
-                    + '<div style="font-size:0.75em; color:var(--c-faint); margin-top:4px;">' + evidenceValue.compaRatio + '% of median</div>'
-                    + '</div>';
-            }
-            
-            // Potential Value card — always show when data exists
-            if (hasValuation && potentialValue) {
-                var potActive = valuationMode === 'potential';
-                var potLabel = hasCuratedComp ? 'BLS Potential' : 'Potential';
-                html += '<div style="background:' + (potActive ? 'var(--c-orange-bg-1)' : 'var(--c-surface-2)') + '; border:' + (potActive ? '2px' : '1px') + ' solid ' + (potActive ? 'var(--c-orange-border)' : 'var(--c-surface-5)') + '; border-radius:12px; padding:18px; cursor:pointer;" onclick="setValuationMode(\'potential\'); switchBlueprintTab(\'dashboard\');">'
-                    + '<div style="display:flex; align-items:center; gap:5px; font-size:0.78em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">'
-                    + bpIcon('star',11) + ' ' + potLabel + '</div>'
-                    + '<div style="font-size:1.8em; font-weight:800; color:#f59e0b;">$' + potentialValue.yourWorth.toLocaleString() + '</div>'
-                    + '<div style="font-size:0.75em; color:var(--c-faint); margin-top:4px;">' + potentialValue.compaRatio + '% of median</div>'
-                    + '</div>';
-            }
-            
-            // Skills card
-            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px; cursor:pointer;" onclick="switchView(\'skills\')">'
-                + '<div style="font-size:0.78em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Skills</div>'
-                + '<div style="font-size:1.8em; font-weight:800; color:#60a5fa;">' + skills.length + '</div>'
-                + '<div style="font-size:0.75em; color:var(--c-faint); margin-top:4px;">' + visRoles.length + ' domains \u00B7 ' + (masteryCount + expertLevelCount) + ' expert+</div>'
-                + '</div>';
-            
-            // Outcomes card
-            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px; cursor:pointer;" onclick="switchBlueprintTab(\'outcomes\')">'
-                + '<div style="font-size:0.78em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Outcomes</div>'
-                + '<div style="font-size:1.8em; font-weight:800; color:#f59e0b;">' + outcomes.length + '</div>'
-                + '<div style="font-size:0.75em; color:var(--c-faint); margin-top:4px;">' + sharedOutcomes + ' shared \u00B7 ' + (outcomes.length - sharedOutcomes) + ' private</div>'
-                + '</div>';
-            
-            // Values card
-            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px; cursor:pointer;" onclick="switchBlueprintTab(\'values\')">'
-                + '<div style="font-size:0.78em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Values</div>'
-                + '<div style="font-size:1.8em; font-weight:800; color:#818cf8;">' + values.length + '</div>'
-                + '<div style="font-size:0.75em; color:var(--c-faint); margin-top:4px;">' + (values.length >= 3 ? '\u2713 Selected' : 'Pick 3\u20137') + '</div>'
-                + '</div>';
-            
-            html += '</div>'; // end stats grid
 
-            // ── MARKET POSITION ──
-            if (hasValuation || hasCuratedComp) {
-                var displayCompFormatted = formatCompValue(totalValue.displayComp);
-                
-                html += '<div style="border:1px solid var(--c-green-border-1); border-radius:12px; overflow:hidden; margin-bottom:20px;">'
-                    
-                    // Header — always shows the effective comp
-                    + '<div style="padding:18px 20px; background:var(--c-gradient-success); display:flex; justify-content:space-between; align-items:center;">'
-                    + '<div style="display:flex; align-items:center; gap:14px;">'
-                    + '<span style="color:#10b981;">' + bpIcon('money',20) + '</span>'
-                    + '<div>'
-                    + '<div style="font-weight:700; color:var(--c-text);">' + totalValue.compLabel + '</div>';
-                
-                if (hasCuratedComp && totalValue.algorithmEstimate > 0) {
-                    // Show algorithm benchmark below for context
-                    var fnLabelHeader = BLS_FUNCTION_LABELS[totalValue.detectedFunction] || totalValue.detectedFunction;
-                    html += '<div style="font-size:0.82em; color:var(--c-muted);">BLS Benchmark: ' + formatCompValue(totalValue.algorithmEstimate) + '/yr (' + escapeHtml(fnLabelHeader) + ')</div>';
-                } else {
-                    html += '<div style="font-size:0.82em; color:var(--c-muted);">Offers: $' + totalValue.conservativeOffer.toLocaleString() + ' \u2013 $' + totalValue.competitiveOffer.toLocaleString() + '</div>';
-                }
-                
-                html += '</div></div>'
-                    + '<div style="text-align:right;">'
-                    + '<div style="font-weight:800; color:#10b981; font-size:1.4em;">' + displayCompFormatted + '</div>'
-                    + '<div style="font-size:0.68em; color:var(--c-muted); text-transform:uppercase;">/year</div>'
-                    + '</div></div>';
-                
-                if (hasCuratedComp) {
-                    // Curated/reported: simplified display — skip algorithm breakdown
-                    var delta = totalValue.displayComp - totalValue.algorithmEstimate;
-                    var deltaPct = totalValue.algorithmEstimate > 0 ? Math.round((delta / totalValue.algorithmEstimate) * 100) : 0;
-                    var deltaColor = delta >= 0 ? '#10b981' : '#f59e0b';
-                    var deltaSign = delta >= 0 ? '+' : '';
-                    
-                    html += '<div style="padding:20px;">';
-                    
-                    // Comparison bar
-                    if (totalValue.algorithmEstimate > 0 && totalValue.displayComp < 50000000 && Math.abs(deltaPct) <= 200) {
-                        html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">'
-                            + '<div style="text-align:center; padding:14px; background:var(--c-surface-1); border-radius:8px;">'
-                            + '<div style="font-size:0.72em; color:var(--c-muted);">' + totalValue.compLabel + '</div>'
-                            + '<div style="font-weight:700; color:#10b981; font-size:1.1em;">' + displayCompFormatted + '</div></div>'
-                            + '<div style="text-align:center; padding:14px; background:var(--c-surface-1); border-radius:8px;">'
-                            + '<div style="font-size:0.72em; color:var(--c-muted);">vs. BLS Benchmark</div>'
-                            + '<div style="font-weight:700; color:' + deltaColor + '; font-size:1.1em;">' + deltaSign + deltaPct + '%</div></div>'
-                            + '</div>';
-                    }
-                    
-                    // Top skills still valuable context
-                    var fnLabel = BLS_FUNCTION_LABELS[totalValue.detectedFunction] || totalValue.detectedFunction;
-                    var isOverride = (userData.preferences || {}).blsFunctionOverride ? true : false;
-                    html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--c-surface-1); border-radius:6px; margin-bottom:14px; font-size:0.8em;">'
-                        + '<div style="color:var(--c-muted);">'
-                        + bpIcon('target',12) + ' BLS Category: <span style="color:var(--c-text); font-weight:600;">' + escapeHtml(fnLabel) + '</span>'
-                        + ' \u00B7 ' + escapeHtml(totalValue.roleLevel)
-                        + (isOverride ? ' <span style="color:#fbbf24; font-size:0.85em;">(manual)</span>' : '')
-                        + '</div>'
-                        + '<a href="#" onclick="showBlsCategoryEditor(); return false;" style="color:var(--accent); text-decoration:none; font-weight:600;">Change</a>'
-                        + '</div>';
-                    
-                    html += '<div style="font-size:0.82em; font-weight:600; color:#60a5fa; margin-bottom:8px;">' + bpIcon('flame',12) + ' Top Skills Driving Value</div>'
-                        + '<div style="display:grid; gap:4px; margin-bottom:14px;">';
-                    (totalValue.top10Skills || []).slice(0, 5).forEach(function(skill, idx) {
-                        var isCritical = skill.impact === 'Critical';
-                        html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 10px; background:' + (isCritical ? 'rgba(239,68,68,0.1)' : 'rgba(251,191,36,0.1)') + '; border-radius:5px; font-size:0.85em;">'
-                            + '<span style="color:var(--c-text);"><span style="color:var(--c-faint);">' + (idx + 1) + '.</span> ' + skill.skill + ' <span style="color:var(--c-faint); font-size:0.85em;">(' + skill.level + ')</span></span>'
-                            + '<span style="color:' + (isCritical ? '#ef4444' : '#fbbf24') + '; font-size:0.78em; font-weight:600;">' + skill.impactLabel + '</span>'
-                            + '</div>';
-                    });
-                    html += '</div>';
-                    
-                    html += '<div style="margin-top:14px; border-top:1px solid rgba(251,191,36,0.12); padding-top:14px;">'
-                        + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">'
-                        + '<span style="color:#fbbf24;">' + bpIcon('dollar',16) + '</span>'
-                        + '<span style="font-weight:700; color:#fbbf24; font-size:0.92em;">Negotiation Guide</span></div>'
-                        + renderInlineNegotiation(totalValue)
-                        + '</div>';
-                    
-                    html += '</div></div>'; // close detail + container
-                    
-                } else {
-                    // Algorithm-only: full breakdown
-                    var negotiationGap = totalValue.yourWorth - totalValue.standardOffer;
-                
-                // Offer ranges
-                html += '<div style="display:grid; gap:10px; margin-bottom:16px;">';
-                var offerData = [
-                    { label: 'Conservative (75%)', value: totalValue.conservativeOffer, desc: 'Budget-constrained', color: '#9ca3af', bg: 'var(--c-gray-tint)' },
-                    { label: 'Standard (85%)', value: totalValue.standardOffer, desc: 'Most common', color: '#60a5fa', bg: 'var(--c-accent-bg-6a)' },
-                    { label: 'Competitive (95%)', value: totalValue.competitiveOffer, desc: 'Top employers', color: '#10b981', bg: 'var(--c-green-bg-5c)' }
-                ];
-                offerData.forEach(function(o) {
-                    html += '<div style="background:' + o.bg + '; padding:12px 16px; border-radius:8px; border-left:3px solid ' + o.color + '; display:flex; justify-content:space-between; align-items:center;">'
-                        + '<div><div style="color:' + o.color + '; font-weight:600; font-size:0.88em;">' + o.label + '</div>'
-                        + '<div style="color:var(--c-muted); font-size:0.78em;">' + o.desc + '</div></div>'
-                        + '<div style="font-weight:700; font-size:1.15em; color:var(--c-text);">$' + o.value.toLocaleString() + '</div>'
-                        + '</div>';
-                });
-                html += '</div>';
-                
-                // Static mode indicator
-                var modeLabel = valuationMode === 'potential' ? 'Potential Value' : 'Evidence-Based Value';
-                var modeColor = valuationMode === 'potential' ? '#f59e0b' : '#10b981';
-                var modeIcon = valuationMode === 'potential' ? bpIcon('star',12) : bpIcon('lock',12);
-                html += '<div style="display:flex; align-items:center; gap:6px; margin-bottom:14px; padding:8px 12px; background:var(--c-surface-1); border-radius:8px; border-left:3px solid ' + modeColor + ';">'
-                    + '<span style="color:' + modeColor + ';">' + modeIcon + '</span>'
-                    + '<span style="font-size:0.82em; font-weight:600; color:' + modeColor + ';">Showing: ' + modeLabel + '</span>'
-                    + '<span style="font-size:0.72em; color:var(--c-faint); margin-left:auto;">Switch using cards above</span>'
+            // ── STATS ROW: Comp + Skills + Outcomes + Values + Best Match ────
+            // Single authoritative comp figure — no duplicate cards
+            html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-bottom:18px;">';
+
+            // Comp card — one card, no duplication
+            if (hasValuation) {
+                var compDisplay = formatCompValue(totalValue.displayComp);
+                var compSub     = totalValue.compLabel || 'Market Estimate';
+                html += '<div style="background:linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.04)); border:1px solid rgba(16,185,129,0.25); border-radius:12px; padding:16px; cursor:pointer;" onclick="switchBlueprintTab('dashboard')">'
+                    + '<div style="font-size:0.72em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px;">' + bpIcon('money',11) + ' ' + compSub + '</div>'
+                    + '<div style="font-size:1.6em; font-weight:800; color:#10b981; line-height:1;">' + compDisplay + '</div>'
+                    + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:4px;">/year</div>'
                     + '</div>';
-                
-                // Compact stats row
-                html += '<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:14px;">'
-                    + '<div style="text-align:center; padding:10px; background:var(--c-surface-1); border-radius:8px;">'
-                    + '<div style="font-size:0.72em; color:var(--c-muted);">Market Rate</div>'
-                    + '<div style="font-weight:700; color:#60a5fa;">$' + totalValue.marketRate.toLocaleString() + '</div></div>'
-                    + '<div style="text-align:center; padding:10px; background:var(--c-surface-1); border-radius:8px;">'
-                    + '<div style="font-size:0.72em; color:var(--c-muted);">Premium</div>'
-                    + '<div style="font-weight:700; color:#10b981;">+$' + totalValue.premiumAmount.toLocaleString() + '</div></div>'
-                    + '<div style="text-align:center; padding:10px; background:var(--c-surface-1); border-radius:8px;">'
-                    + '<div style="font-size:0.72em; color:var(--c-muted);">Compa-Ratio</div>'
-                    + '<div style="font-weight:700; color:var(--c-text);">' + totalValue.compaRatio + '%</div></div>'
+            }
+
+            // Skills
+            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px; cursor:pointer;" onclick="switchView('skills')">'
+                + '<div style="font-size:0.72em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px;">Skills</div>'
+                + '<div style="font-size:1.6em; font-weight:800; color:#60a5fa;">' + skills.length + '</div>'
+                + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:4px;">' + visRoles.length + ' domains \u00B7 ' + (masteryCount + expertLevelCount) + ' expert+</div>'
+                + '</div>';
+
+            // Outcomes
+            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px; cursor:pointer;" onclick="switchBlueprintTab('outcomes')">'
+                + '<div style="font-size:0.72em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px;">Outcomes</div>'
+                + '<div style="font-size:1.6em; font-weight:800; color:#f59e0b;">' + outcomes.length + '</div>'
+                + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:4px;">' + sharedOutcomes + ' shared \u00B7 ' + (outcomes.length - sharedOutcomes) + ' private</div>'
+                + '</div>';
+
+            // Values
+            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px; cursor:pointer;" onclick="switchBlueprintTab('values')">'
+                + '<div style="font-size:0.72em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px;">Values</div>'
+                + '<div style="font-size:1.6em; font-weight:800; color:#818cf8;">' + values.length + '</div>'
+                + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:4px;">' + (values.length >= 3 ? '\u2713 Selected' : 'Pick 3\u201310') + '</div>'
+                + '</div>';
+
+            // Best match chip (inline in stat row)
+            if (topMatch && topMatchScore > 0) {
+                var tmColor = topMatchScore >= 70 ? '#10b981' : topMatchScore >= 50 ? '#f59e0b' : '#ef4444';
+                html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px; cursor:pointer;" onclick="switchView('jobs')">'
+                    + '<div style="font-size:0.72em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px;">Best Match</div>'
+                    + '<div style="font-size:1.6em; font-weight:800; color:' + tmColor + ';">' + topMatchScore + '%</div>'
+                    + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + (topMatch.title || '') + '</div>'
                     + '</div>';
-                
-                // Top skills (compact)
-                var fnLabel2 = BLS_FUNCTION_LABELS[totalValue.detectedFunction] || totalValue.detectedFunction;
-                var isOverride2 = (userData.preferences || {}).blsFunctionOverride ? true : false;
-                html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--c-surface-1); border-radius:6px; margin-bottom:14px; font-size:0.8em;">'
+            }
+
+            html += '</div>'; // end stats row
+
+            // ── QUICK ACTIONS ────────────────────────────────────────────────
+            html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:10px; margin-bottom:18px;">';
+
+            html += '<button onclick="switchBlueprintTab('skills')" style="display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--c-green-bg-2b); border:1px solid var(--c-green-border-1); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
+                + '<span style="color:#10b981;">' + bpIcon('skills',16) + '</span>'
+                + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.88em;">Manage Skills</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted);">Add, edit, organize</div></div>'
+                + '</button>';
+
+            html += '<button onclick="showScoutingReportPicker()" style="display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--c-accent-bg-3c); border:1px solid var(--c-accent-border-3c); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
+                + '<span style="color:#60a5fa;">' + bpIcon('target',16) + '</span>'
+                + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.88em;">\u25C8 Scouting Report</div>'
+                + '<div style="font-size:0.72em; color:var(--c-muted);">Targeted job analysis</div></div>'
+                + '</button>';
+
+            if (!isReadOnlyProfile) {
+                html += '<button onclick="exportBlueprint('pdf')" style="display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
+                    + '<span style="color:var(--c-label);">' + bpIcon('pdf',16) + '</span>'
+                    + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.88em;">PDF Summary</div>'
+                    + '<div style="font-size:0.72em; color:var(--c-muted);">Full career report</div></div>'
+                    + '</button>';
+
+                html += '<button onclick="exportBlueprint('html')" style="display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
+                    + '<span style="color:var(--c-label);">' + bpIcon('export',16) + '</span>'
+                    + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.88em;">Executive Blueprint</div>'
+                    + '<div style="font-size:0.72em; color:var(--c-muted);">HTML for email</div></div>'
+                    + '</button>';
+            }
+
+            html += '</div>'; // end quick actions
+
+            // ── MARKET POSITION (single block, no duplication) ───────────────
+            if (hasValuation) {
+                var fnLabel    = BLS_FUNCTION_LABELS[totalValue.detectedFunction] || totalValue.detectedFunction;
+                var isOverride = (userData.preferences || {}).blsFunctionOverride ? true : false;
+
+                html += '<div style="border:1px solid var(--c-green-border-1); border-radius:12px; overflow:hidden; margin-bottom:18px;">';
+
+                // ── Sub-header: BLS category row
+                html += '<div style="padding:10px 16px; background:var(--c-surface-1); border-bottom:1px solid var(--c-surface-4); display:flex; justify-content:space-between; align-items:center; font-size:0.8em;">'
                     + '<div style="color:var(--c-muted);">'
-                    + bpIcon('target',12) + ' BLS Category: <span style="color:var(--c-text); font-weight:600;">' + escapeHtml(fnLabel2) + '</span>'
+                    + bpIcon('target',12) + ' BLS Category: <span style="color:var(--c-text); font-weight:600;">' + escapeHtml(fnLabel) + '</span>'
                     + ' \u00B7 ' + escapeHtml(totalValue.roleLevel)
-                    + (isOverride2 ? ' <span style="color:#fbbf24; font-size:0.85em;">(manual)</span>' : '')
+                    + (isOverride ? ' <span style="color:#fbbf24; font-size:0.85em;">(manual)</span>' : '')
                     + '</div>'
                     + '<a href="#" onclick="showBlsCategoryEditor(); return false;" style="color:var(--accent); text-decoration:none; font-weight:600;">Change</a>'
                     + '</div>';
-                
+
+                html += '<div style="padding:18px 20px;">';
+
+                // Top skills
                 html += '<div style="font-size:0.82em; font-weight:600; color:#60a5fa; margin-bottom:8px;">' + bpIcon('flame',12) + ' Top Skills Driving Value</div>'
-                    + '<div style="display:grid; gap:4px; margin-bottom:14px;">';
+                    + '<div style="display:grid; gap:4px; margin-bottom:16px;">';
                 (totalValue.top10Skills || []).slice(0, 5).forEach(function(skill, idx) {
                     var isCritical = skill.impact === 'Critical';
-                    html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 10px; background:' + (isCritical ? 'rgba(239,68,68,0.1)' : 'rgba(251,191,36,0.1)') + '; border-radius:5px; font-size:0.85em;">'
+                    html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 10px; background:' + (isCritical ? 'rgba(239,68,68,0.08)' : 'rgba(251,191,36,0.08)') + '; border-radius:5px; font-size:0.85em;">'
                         + '<span style="color:var(--c-text);"><span style="color:var(--c-faint);">' + (idx + 1) + '.</span> ' + skill.skill + ' <span style="color:var(--c-faint); font-size:0.85em;">(' + skill.level + ')</span></span>'
                         + '<span style="color:' + (isCritical ? '#ef4444' : '#fbbf24') + '; font-size:0.78em; font-weight:600;">' + skill.impactLabel + '</span>'
                         + '</div>';
                 });
                 html += '</div>';
-                
-                // View all + methodology link
-                html += '<div style="display:flex; gap:8px; margin-bottom:10px;">'
-                    + '<button onclick="showValuationBreakdown()" style="flex:1; padding:8px 14px; background:transparent; border:1px solid var(--c-border-subtle); border-radius:6px; color:var(--c-label); cursor:pointer; font-size:0.82em;">'
-                    + bpIcon('bar-chart',12) + ' View All ' + skills.length + ' Skills</button>'
-                    + '</div>';
-                
-                // Inline Negotiation Guide (always visible)
-                html += '<div style="margin-top:14px; border-top:1px solid rgba(251,191,36,0.12); padding-top:14px;">'
+
+                // Negotiation guide
+                html += '<div style="border-top:1px solid rgba(251,191,36,0.12); padding-top:14px;">'
                     + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">'
                     + '<span style="color:#fbbf24;">' + bpIcon('dollar',16) + '</span>'
                     + '<span style="font-weight:700; color:#fbbf24; font-size:0.92em;">Negotiation Guide</span></div>'
                     + renderInlineNegotiation(totalValue)
                     + '</div>';
-                
-                html += '</div></div>'; // close detail + container
-                } // end algorithm-only else block
-            }
-            
 
-            // ── CAREER READINESS SCORE ──
+                html += '</div></div>'; // end market position
+            }
+
+            // ── CAREER READINESS ─────────────────────────────────────────────
             (function() {
-                var ringSize = 64;
+                var ringSize   = 64;
                 var strokeWidth = 5;
-                var radius = (ringSize - strokeWidth) / 2;
+                var radius     = (ringSize - strokeWidth) / 2;
                 var circumference = 2 * Math.PI * radius;
-                var offset = circumference - (readinessPct / 100) * circumference;
-                var ringColor = readinessPct >= 100 ? '#10b981' : readinessPct >= 60 ? '#3b82f6' : '#f59e0b';
+                var offset     = circumference - (readinessPct / 100) * circumference;
+                var ringColor  = readinessPct >= 100 ? '#10b981' : readinessPct >= 60 ? '#3b82f6' : '#f59e0b';
                 var readinessLabel = readinessPct >= 100 ? 'Profile Complete' : readinessPct >= 80 ? 'Almost There' : readinessPct >= 60 ? 'Good Progress' : 'Getting Started';
-                
+
                 if (readinessPct < 100) {
                     html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px 18px; margin-bottom:16px; display:flex; align-items:center; gap:18px;">';
-                    
-                    // SVG score ring
                     html += '<div style="flex-shrink:0;">'
                         + '<svg width="' + ringSize + '" height="' + ringSize + '" viewBox="0 0 ' + ringSize + ' ' + ringSize + '" style="transform:rotate(-90deg);">'
                         + '<circle cx="' + (ringSize/2) + '" cy="' + (ringSize/2) + '" r="' + radius + '" fill="none" stroke="var(--c-surface-4)" stroke-width="' + strokeWidth + '"/>'
@@ -26246,8 +26097,6 @@ body {
                         + '</svg>'
                         + '<div style="position:relative; top:-' + (ringSize * 0.72) + 'px; text-align:center; font-weight:800; font-size:0.95em; color:' + ringColor + '; line-height:1;">' + readinessPct + '%</div>'
                         + '</div>';
-                    
-                    // Label + incomplete items
                     html += '<div style="flex:1; min-width:0;">'
                         + '<div style="font-size:0.82em; font-weight:700; color:var(--c-heading-bold); margin-bottom:2px;">' + readinessLabel + '</div>'
                         + '<div style="font-size:0.75em; color:var(--c-faint); margin-bottom:8px;">Complete all steps to unlock your full career intelligence profile.</div>'
@@ -26259,7 +26108,6 @@ body {
                     });
                     html += '</div></div></div>';
                 } else {
-                    // Compact complete badge
                     html += '<div style="display:flex; align-items:center; gap:8px; padding:10px 16px; margin-bottom:16px; background:var(--c-green-bg-1b); border:1px solid var(--c-green-bg-6); border-radius:10px;">'
                         + '<span style="color:#10b981;">' + bpIcon('check',16) + '</span>'
                         + '<span style="font-size:0.82em; font-weight:600; color:#10b981;">Blueprint Complete</span>'
@@ -26267,30 +26115,15 @@ body {
                         + '</div>';
                 }
             })();
-            
-            // ── TOP JOB MATCH (if jobs saved) ──
-            if (topMatch && topMatchScore > 0) {
-                var tmColor = topMatchScore >= 70 ? '#10b981' : topMatchScore >= 50 ? '#f59e0b' : '#ef4444';
-                html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="switchView(\'jobs\')">'
-                    + '<div>'
-                    + '<div style="font-size:0.75em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Best Job Match</div>'
-                    + '<div style="font-weight:600; color:var(--c-text);">' + topMatch.title + '</div>'
-                    + '<div style="font-size:0.82em; color:var(--c-muted);">' + (topMatch.company || '') + ' \u00B7 ' + savedJobs.length + ' jobs tracked</div>'
-                    + '</div>'
-                    + '<div style="text-align:center;">'
-                    + '<div style="font-size:1.6em; font-weight:800; color:' + tmColor + ';">' + topMatchScore + '%</div>'
-                    + '<div style="font-size:0.65em; color:var(--c-muted); text-transform:uppercase;">Match</div>'
-                    + '</div></div>';
-            }
-            
-            // ── SKILL DISTRIBUTION BAR ──
+
+            // ── SKILL DISTRIBUTION ───────────────────────────────────────────
             if (skills.length > 0) {
                 var profLevels = [
-                    { key: 'Mastery', color: '#10b981', label: 'Mastery' },
-                    { key: 'Expert', color: '#fb923c', label: 'Expert' },
-                    { key: 'Advanced', color: '#a78bfa', label: 'Advanced' },
+                    { key: 'Mastery',    color: '#10b981', label: 'Mastery' },
+                    { key: 'Expert',     color: '#fb923c', label: 'Expert' },
+                    { key: 'Advanced',   color: '#a78bfa', label: 'Advanced' },
                     { key: 'Proficient', color: '#60a5fa', label: 'Proficient' },
-                    { key: 'Novice', color: '#94a3b8', label: 'Novice' }
+                    { key: 'Novice',     color: '#94a3b8', label: 'Novice' }
                 ];
                 var profCounts = {};
                 profLevels.forEach(function(p) { profCounts[p.key] = 0; });
@@ -26300,26 +26133,22 @@ body {
                     else profCounts['Novice']++;
                 });
                 var total = skills.length;
-                
+
                 html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-4c); border-radius:10px; padding:14px 16px; margin-bottom:16px;">'
                     + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">'
                     + '<div style="font-size:0.75em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--c-faint);">Skill Distribution</div>'
                     + '<div style="display:flex; align-items:center; gap:12px;">'
                     + '<span style="font-size:0.72em; color:var(--c-faint);">' + roles.length + ' domains</span>'
-                    + '<button onclick="switchBlueprintTab(\'skills\')" style="font-size:0.72em; color:#60a5fa; background:none; border:none; cursor:pointer; font-weight:600;">Manage Skills \u2192</button>'
+                    + '<button onclick="switchBlueprintTab('skills')" style="font-size:0.72em; color:#60a5fa; background:none; border:none; cursor:pointer; font-weight:600;">Manage Skills \u2192</button>'
                     + '</div></div>';
-                
-                // Stacked bar
+
                 html += '<div style="display:flex; height:10px; border-radius:5px; overflow:hidden; background:var(--c-surface-2b); margin-bottom:10px;">';
                 profLevels.forEach(function(p) {
                     var pct = total > 0 ? (profCounts[p.key] / total * 100) : 0;
-                    if (pct > 0) {
-                        html += '<div title="' + p.label + ': ' + profCounts[p.key] + '" style="width:' + pct + '%; background:' + p.color + '; transition:width 0.3s;"></div>';
-                    }
+                    if (pct > 0) html += '<div title="' + p.label + ': ' + profCounts[p.key] + '" style="width:' + pct + '%; background:' + p.color + '; transition:width 0.3s;"></div>';
                 });
                 html += '</div>';
-                
-                // Legend row
+
                 html += '<div style="display:flex; gap:14px; flex-wrap:wrap;">';
                 profLevels.forEach(function(p) {
                     if (profCounts[p.key] > 0) {
@@ -26332,49 +26161,12 @@ body {
                 });
                 html += '</div></div>';
             }
-            
-            // ── QUICK ACTIONS ──
-            html += '<div style="margin-bottom:20px;">'
-                + '<div style="font-size:0.78em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--c-faint); margin-bottom:10px;">Quick Actions</div>'
-                + '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px;">';
-            
-            // Manage Skills
-            html += '<button onclick="switchBlueprintTab(\'skills\')" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--c-green-bg-2b); border:1px solid var(--c-green-border-1); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
-                + '<span style="color:#10b981;">' + bpIcon('skills',18) + '</span>'
-                + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.9em;">Manage Skills</div>'
-                + '<div style="font-size:0.75em; color:var(--c-muted);">Add, edit, organize</div></div>'
-                + '</button>';
-            
-            // Scouting Report
-            html += '<button onclick="showScoutingReportPicker()" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--c-accent-bg-3c); border:1px solid var(--c-accent-border-3c); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
-                + '<span style="color:#60a5fa;">' + bpIcon('target',18) + '</span>'
-                + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.9em;">\u25C8 Scouting Report</div>'
-                + '<div style="font-size:0.75em; color:var(--c-muted);">Targeted job analysis</div></div>'
-                + '</button>';
-            
-            // PDF Summary
-            if (!isReadOnlyProfile) {
-            html += '<button onclick="exportBlueprint(\'pdf\')" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
-                + '<span style="color:var(--c-label);">' + bpIcon('pdf',18) + '</span>'
-                + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.9em;">PDF Summary</div>'
-                + '<div style="font-size:0.75em; color:var(--c-muted);">Full career report</div></div>'
-                + '</button>';
-            
-            // Executive Blueprint
-            html += '<button onclick="exportBlueprint(\'html\')" style="display:flex; align-items:center; gap:10px; padding:14px 16px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
-                + '<span style="color:var(--c-label);">' + bpIcon('export',18) + '</span>'
-                + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.9em;">Executive Blueprint</div>'
-                + '<div style="font-size:0.75em; color:var(--c-muted);">HTML for email</div></div>'
-                + '</button>';
-            }
-            
-            html += '</div></div>'; // end quick actions
-            
 
             return html;
         }
-        
+
         // ===== SKILLS MANAGEMENT TAB =====
+
         function renderSkillsManagementTab() {
             var skills = skillsData.skills || [];
             var roles = typeof getVisibleRoles === 'function' ? getVisibleRoles() : (skillsData.roles || []);
