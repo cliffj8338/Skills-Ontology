@@ -19164,6 +19164,8 @@
                 var aliasCount = Object.keys(data.aliases || {}).length;
                 console.log('✅ O*NET Crosswalk loaded (deferred): ' + occCount + ' occupations, ' + aliasCount + ' aliases');
                 recordApiHealth('onet-crosswalk', 'ok', occCount + ' occupations, ' + aliasCount + ' aliases');
+                // Refresh admin overview tile now that crosswalk data is available
+                if (typeof renderAdminOverview === 'function' && typeof adminEl !== 'undefined' && adminEl && typeof adminSubTab !== 'undefined' && adminSubTab === 'overview') renderAdminOverview(adminEl);
             }).catch(function(e) {
                 window.onetCrosswalk = null;
                 console.warn('⚠ onet-crosswalk.json failed to load:', e.message);
