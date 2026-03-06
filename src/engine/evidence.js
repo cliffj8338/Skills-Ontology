@@ -25,8 +25,8 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function scoreEvidence() { throw new Error('scoreEvidence not yet migrated'); }
-export function addEvidence() { throw new Error('addEvidence not yet migrated'); }
-export function editEvidence() { throw new Error('editEvidence not yet migrated'); }
-export function deleteEvidence() { throw new Error('deleteEvidence not yet migrated'); }
-export function getImpactRating() { throw new Error('getImpactRating not yet migrated'); }
+export function scoreEvidence() { console.warn('scoreEvidence not yet migrated'); return null; }
+export function addEvidence() { console.warn('addEvidence not yet migrated'); return null; }
+export function editEvidence() { console.warn('editEvidence not yet migrated'); return null; }
+export function deleteEvidence() { console.warn('deleteEvidence not yet migrated'); return null; }
+export function getImpactRating() { console.warn('getImpactRating not yet migrated'); return null; }

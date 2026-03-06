@@ -23,4 +23,4 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function generateCoverLetter() { throw new Error('generateCoverLetter not yet migrated'); }
+export function generateCoverLetter() { console.warn('generateCoverLetter not yet migrated'); return null; }

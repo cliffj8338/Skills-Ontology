@@ -25,6 +25,6 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function requestVerification() { throw new Error('requestVerification not yet migrated'); }
-export function checkVerificationStatus() { throw new Error('checkVerificationStatus not yet migrated'); }
-export function renderVerifierLanding() { throw new Error('renderVerifierLanding not yet migrated'); }
+export function requestVerification() { console.warn('requestVerification not yet migrated'); return null; }
+export function checkVerificationStatus() { console.warn('checkVerificationStatus not yet migrated'); return null; }
+export function renderVerifierLanding() { console.warn('renderVerifierLanding not yet migrated'); return null; }

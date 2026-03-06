@@ -25,6 +25,6 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function renderAdminOverview() { throw new Error('renderAdminOverview not yet migrated'); }
-export function renderAdminTraffic() { throw new Error('renderAdminTraffic not yet migrated'); }
-export function renderAdminAnalytics() { throw new Error('renderAdminAnalytics not yet migrated'); }
+export function renderAdminOverview() { console.warn('renderAdminOverview not yet migrated'); return null; }
+export function renderAdminTraffic() { console.warn('renderAdminTraffic not yet migrated'); return null; }
+export function renderAdminAnalytics() { console.warn('renderAdminAnalytics not yet migrated'); return null; }

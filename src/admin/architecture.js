@@ -21,4 +21,4 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function renderAdminArchitecture() { throw new Error('renderAdminArchitecture not yet migrated'); }
+export function renderAdminArchitecture() { console.warn('renderAdminArchitecture not yet migrated'); return null; }

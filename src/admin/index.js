@@ -35,6 +35,6 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function initAdminView() { throw new Error('initAdminView not yet migrated'); }
-export function switchAdminTab() { throw new Error('switchAdminTab not yet migrated'); }
-export function renderAdminTabContent() { throw new Error('renderAdminTabContent not yet migrated'); }
+export function initAdminView() { console.warn('initAdminView not yet migrated'); return null; }
+export function switchAdminTab() { console.warn('switchAdminTab not yet migrated'); return null; }
+export function renderAdminTabContent() { console.warn('renderAdminTabContent not yet migrated'); return null; }

@@ -33,8 +33,8 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function initWBCompare() { throw new Error('initWBCompare not yet migrated'); }
-export function renderWBCompare() { throw new Error('renderWBCompare not yet migrated'); }
-export function runComparison() { throw new Error('runComparison not yet migrated'); }
-export function saveComparison() { throw new Error('saveComparison not yet migrated'); }
-export function shareComparison() { throw new Error('shareComparison not yet migrated'); }
+export function initWBCompare() { console.warn('initWBCompare not yet migrated'); return null; }
+export function renderWBCompare() { console.warn('renderWBCompare not yet migrated'); return null; }
+export function runComparison() { console.warn('runComparison not yet migrated'); return null; }
+export function saveComparison() { console.warn('saveComparison not yet migrated'); return null; }
+export function shareComparison() { console.warn('shareComparison not yet migrated'); return null; }

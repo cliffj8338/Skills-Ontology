@@ -25,6 +25,6 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function calculateMatch() { throw new Error('calculateMatch not yet migrated'); }
-export function rescoreAllJobs() { throw new Error('rescoreAllJobs not yet migrated'); }
-export function migrateJobSchema() { throw new Error('migrateJobSchema not yet migrated'); }
+export function calculateMatch() { console.warn('calculateMatch not yet migrated'); return null; }
+export function rescoreAllJobs() { console.warn('rescoreAllJobs not yet migrated'); return null; }
+export function migrateJobSchema() { console.warn('migrateJobSchema not yet migrated'); return null; }

@@ -4,27 +4,11 @@
 import { bpIcon }                          from '../ui/icons.js';
 import { escapeHtml, sanitizeImport }      from '../core/security.js';
 import { showToast }                       from '../ui/toast.js';
+import { _sd, _bd, waitForUserData }       from '../core/data-helpers.js';
 
-// ─── Data accessors ───────────────────────────────────────────────────────────
-function _sd() {
-    if (window._skillsData) return window._skillsData;
-    var ud = window._userData;
-    return { skills: (ud && ud.skills) || [], roles: (ud && ud.roles) || [], skillDetails: (ud && ud.skillDetails) || {} };
-}
-function _bd() {
-    if (window._blueprintData) return window._blueprintData;
-    var ud = window._userData;
-    return { values: (ud && ud.values) || [], outcomes: (ud && ud.outcomes) || [], purpose: (ud && ud.purpose) || '', certifications: (ud && ud.certifications) || [], education: (ud && ud.education) || [] };
-}
-
-export function initBlueprint() {
+export async function initBlueprint() {
     if (!window._userData || !window._userData.initialized) {
-        var _t = 0, _p = setInterval(function() {
-            _t++;
-            if (window._userData && window._userData.initialized) { clearInterval(_p); initBlueprint(); }
-            else if (_t > 25) clearInterval(_p);
-        }, 200);
-        return;
+        await waitForUserData();
     }
     extractOutcomesFromEvidence();
     inferValues();

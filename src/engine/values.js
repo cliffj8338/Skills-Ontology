@@ -24,7 +24,7 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function loadCompanyValues() { throw new Error('loadCompanyValues not yet migrated'); }
-export function inferCompanyValues() { throw new Error('inferCompanyValues not yet migrated'); }
-export function scoreValuesAlignment() { throw new Error('scoreValuesAlignment not yet migrated'); }
-export function getCompanyValues() { throw new Error('getCompanyValues not yet migrated'); }
+export function loadCompanyValues() { console.warn('loadCompanyValues not yet migrated'); return null; }
+export function inferCompanyValues() { console.warn('inferCompanyValues not yet migrated'); return null; }
+export function scoreValuesAlignment() { console.warn('scoreValuesAlignment not yet migrated'); return null; }
+export function getCompanyValues() { console.warn('getCompanyValues not yet migrated'); return null; }

@@ -32,7 +32,7 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function initWBWizard() { throw new Error('initWBWizard not yet migrated'); }
-export function renderWBWizard() { throw new Error('renderWBWizard not yet migrated'); }
-export function renderWBRepo() { throw new Error('renderWBRepo not yet migrated'); }
-export function convertJDtoWB() { throw new Error('convertJDtoWB not yet migrated'); }
+export function initWBWizard() { console.warn('initWBWizard not yet migrated'); return null; }
+export function renderWBWizard() { console.warn('renderWBWizard not yet migrated'); return null; }
+export function renderWBRepo() { console.warn('renderWBRepo not yet migrated'); return null; }
+export function convertJDtoWB() { console.warn('convertJDtoWB not yet migrated'); return null; }

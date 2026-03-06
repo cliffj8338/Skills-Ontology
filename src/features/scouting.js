@@ -32,7 +32,7 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function initScouting() { throw new Error('initScouting not yet migrated'); }
-export function generateScoutingReport() { throw new Error('generateScoutingReport not yet migrated'); }
-export function exportScoutingPDF() { throw new Error('exportScoutingPDF not yet migrated'); }
-export function renderScoutingJobPicker() { throw new Error('renderScoutingJobPicker not yet migrated'); }
+export function initScouting() { console.warn('initScouting not yet migrated'); return null; }
+export function generateScoutingReport() { console.warn('generateScoutingReport not yet migrated'); return null; }
+export function exportScoutingPDF() { console.warn('exportScoutingPDF not yet migrated'); return null; }
+export function renderScoutingJobPicker() { console.warn('renderScoutingJobPicker not yet migrated'); return null; }

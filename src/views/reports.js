@@ -4,35 +4,14 @@
 import { bpIcon }    from '../ui/icons.js';
 import { escapeHtml } from '../core/security.js';
 import { showToast }  from '../ui/toast.js';
-
-// ─── Data accessors ───────────────────────────────────────────────────────────
-function _bd() {
-    if (window._blueprintData) return window._blueprintData;
-    var ud = window._userData;
-    return {
-        values:          (ud && ud.values)          || [],
-        outcomes:        (ud && ud.outcomes)         || [],
-        purpose:         (ud && ud.purpose)          || '',
-        skills:          (ud && ud.skills)           || [],
-        certifications:  (ud && ud.certifications)   || [],
-        education:       (ud && ud.education)        || []
-    };
-}
+import { _bd, waitForUserData } from '../core/data-helpers.js';
 
 
-export function initReports() {
+export async function initReports() {
     var el = document.getElementById('reportsView');
-    console.log('[BP DEBUG] initReports called. _userData:', window._userData, 'initialized:', window._userData && window._userData.initialized);
     if (!window._userData || !window._userData.initialized) {
         if (el) el.innerHTML = '<div style="padding:40px; text-align:center; color:var(--text-muted);">Loading...</div>';
-        var _tries = 0;
-        var _poll = setInterval(function() {
-            _tries++;
-            console.log('[BP DEBUG] initReports poll #' + _tries + ' _userData:', !!window._userData, 'initialized:', window._userData && window._userData.initialized);
-            if (window._userData && window._userData.initialized) { clearInterval(_poll); initReports(); }
-            else if (_tries > 25) { clearInterval(_poll); }
-        }, 200);
-        return;
+        await waitForUserData();
     }
     var demoProfiles = [
         { name: 'Tyrion Lannister', show: 'Game of Thrones', role: 'Chief of Staff', company: 'United Nations', match: 75, file: 'reports/demos/tyrion-lannister.html', emoji: '🍷', date: 'Feb 22, 2026' },

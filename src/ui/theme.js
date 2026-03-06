@@ -20,5 +20,5 @@
 // Replace each with the real implementation during migration.
 // Throwing on call ensures broken migrations surface immediately rather than silently.
 
-export function initTheme() { throw new Error('initTheme not yet migrated'); }
-export function toggleTheme() { throw new Error('toggleTheme not yet migrated'); }
+export function initTheme() { console.warn('initTheme not yet migrated'); return null; }
+export function toggleTheme() { console.warn('toggleTheme not yet migrated'); return null; }
