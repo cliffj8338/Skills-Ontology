@@ -3,7 +3,7 @@
 Career intelligence web app at myblueprint.work. Modular Vite-based frontend + Firebase Auth/Firestore backend, deployed via Vercel from GitHub (cliffj8338/blueprint).
 
 ## Architecture
-- **Frontend**: Vite-built modular SPA. Entry: `index.html` (1,241-line shell) → `src/main.js` → modular ES modules in `src/`. `legacy.js` (46K-line monolith) loaded alongside for backward compatibility.
+- **Frontend**: Vite-built modular SPA. Entry: `index.html` (1,241-line shell) → `src/main.js` → modular ES modules in `src/`. `legacy.js` (46K-line monolith) loaded alongside for backward compatibility. **IMPORTANT**: Vite serves `public/legacy.js` (not root `legacy.js`). After editing root `legacy.js`, always run `cp legacy.js public/legacy.js` to sync.
 - **Backend**: Firebase Auth + Firestore for user data, Vercel serverless functions for API proxying
 - **Deployment**: Vercel auto-deploys from GitHub `main` branch. Runs `vite build` → `dist/`.
 - **Dev server**: `npm run dev` (Vite dev server on port 5000 with HMR)
