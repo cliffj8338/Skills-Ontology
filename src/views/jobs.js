@@ -316,7 +316,7 @@ export function _fitAddToPipeline(idx) {
     var el = document.getElementById('jobsSubTabContent');
     if (el) renderFitForMe(el);
 }
-window._fitAddToPipeline = _fitAddToPipeline;
+if (!window._fitAddToPipeline) window._fitAddToPipeline = _fitAddToPipeline;
 
 export async function initOpportunities() {
     if (!window._userData || !window._userData.initialized) {
@@ -348,7 +348,7 @@ export function switchJobsSubTab(tab) {
     initOpportunities();
     window.opportunitiesInitialized = true;
 }
-window.switchJobsSubTab = switchJobsSubTab;
+if (!window.switchJobsSubTab) window.switchJobsSubTab = switchJobsSubTab;
 
 export function renderJobsSubTab() {
     var el = document.getElementById('jobsSubTabContent');
@@ -419,7 +419,7 @@ export function renderTrackerInJobs() {
     
     return html;
 }
-window.renderTrackerInJobs = renderTrackerInJobs;
+if (!window.renderTrackerInJobs) window.renderTrackerInJobs = renderTrackerInJobs;
 
 export function renderSavedJobs() {
     var jobs = window._userData.savedJobs || [];
@@ -642,7 +642,7 @@ export function clearJobSearch() {
     opportunitiesData = [];
     var r = document.getElementById('opportunitiesResults'); if (r) r.innerHTML = '';
 }
-window.clearJobSearch = clearJobSearch;
+if (!window.clearJobSearch) window.clearJobSearch = clearJobSearch;
 
 // ===== ADD JOB MODAL =====
 
@@ -728,7 +728,7 @@ export function showAddJobModal() {
     history.pushState({ modal: true }, ''); modal.classList.add('active');
     setTimeout(function() { var el = document.getElementById('jdUrlInput'); if (el) el.focus(); }, 100);
 }
-window.showAddJobModal = showAddJobModal;
+if (!window.showAddJobModal) window.showAddJobModal = showAddJobModal;
 
 // ===== URL FETCH & AUTO-ANALYZE =====
 
@@ -776,7 +776,7 @@ async function fetchAndAnalyzeUrl() {
         fetchBtn.textContent = '\uD83D\uDD0D Fetch & Analyze';
     }
 }
-window.fetchAndAnalyzeUrl = fetchAndAnalyzeUrl;
+if (!window.fetchAndAnalyzeUrl) window.fetchAndAnalyzeUrl = fetchAndAnalyzeUrl;
 
 async function fetchJobPageText(url) {
     // Strategy 1: Firebase Cloud Function with Puppeteer (handles JS-rendered ATS pages)
@@ -1195,7 +1195,7 @@ export function matchJobToBLS(titleText, descText) {
         source: 'BLS OEWS ' + (bls.period || '2024')
     };
 }
-window.matchJobToBLS = matchJobToBLS;
+if (!window.matchJobToBLS) window.matchJobToBLS = matchJobToBLS;
 
 async function analyzeJob() {
     var jdText = (document.getElementById('jdTextInput').value || '').trim();
@@ -1406,7 +1406,7 @@ async function analyzeJob() {
         btn.style.opacity = '1';
     }
 }
-window.analyzeJob = analyzeJob;
+if (!window.analyzeJob) window.analyzeJob = analyzeJob;
 
 // ===== CLAUDE API PARSING =====
 
@@ -3109,11 +3109,11 @@ export function mergeSkillSources(existingSkills, newSkills, sourceName) {
 }
 
 // Expose crosswalk functions globally
-window.resolveTitle = resolveTitle;
-window.getOccupationProfile = getOccupationProfile;
-window.suggestMissingSkills = suggestMissingSkills;
-window.mergeSkillSources = mergeSkillSources;
-window.crosswalkNormalizeTitle = crosswalkNormalizeTitle;
+if (!window.resolveTitle) window.resolveTitle = resolveTitle;
+if (!window.getOccupationProfile) window.getOccupationProfile = getOccupationProfile;
+if (!window.suggestMissingSkills) window.suggestMissingSkills = suggestMissingSkills;
+if (!window.mergeSkillSources) window.mergeSkillSources = mergeSkillSources;
+if (!window.crosswalkNormalizeTitle) window.crosswalkNormalizeTitle = crosswalkNormalizeTitle;
 
 // ===== SKILL REGISTRY UTILITIES =====
 
@@ -3132,7 +3132,7 @@ export function registerInSkillLibrary(skillName, category) {
         console.log('📚 Registered in skill library:', skillName);
     }
 }
-window.registerInSkillLibrary = registerInSkillLibrary;
+if (!window.registerInSkillLibrary) window.registerInSkillLibrary = registerInSkillLibrary;
 
 // ===== COMPREHENSIVE SKILL SYNONYMS =====
 // Bidirectional: abbreviation ↔ full name, plus common variants
@@ -4547,7 +4547,7 @@ export function rescoreAllJobs() {
         showToast('All ' + window._userData.savedJobs.length + ' job scores are current.', 'info', 2000);
     }
 }
-window.rescoreAllJobs = rescoreAllJobs;
+if (!window.rescoreAllJobs) window.rescoreAllJobs = rescoreAllJobs;
 
 export function rescoreOneJob(idx) {
     var job = (window._userData.savedJobs || [])[idx];
@@ -4573,7 +4573,7 @@ export function rescoreOneJob(idx) {
     var deltaStr = delta > 0 ? ' (+' + delta + ')' : delta < 0 ? ' (' + delta + ')' : '';
     showToast('Match rescored: ' + job.matchData.score + '%' + deltaStr, 'success', 3000);
 }
-window.rescoreOneJob = rescoreOneJob;
+if (!window.rescoreOneJob) window.rescoreOneJob = rescoreOneJob;
 
 // ===== QUICK-ADD GAP SKILL FROM JOB DETAIL =====
 export function quickAddGapSkill(skillName, suggestedLevel, jobIdx) {
@@ -4625,7 +4625,7 @@ export function quickAddGapSkill(skillName, suggestedLevel, jobIdx) {
     
     history.pushState({ modal: true }, ''); modal.classList.add('active');
 }
-window.quickAddGapSkill = quickAddGapSkill;
+if (!window.quickAddGapSkill) window.quickAddGapSkill = quickAddGapSkill;
 
 export function confirmQuickAddGapSkill(skillName, jobIdx) {
     if (readOnlyGuard()) return;
@@ -4670,7 +4670,7 @@ export function confirmQuickAddGapSkill(skillName, jobIdx) {
     showJobDetail(jobIdx);
     showToast('Added "' + skillName + '" at ' + level + '. Match scores updated.', 'success', 4000);
 }
-window.confirmQuickAddGapSkill = confirmQuickAddGapSkill;
+if (!window.confirmQuickAddGapSkill) window.confirmQuickAddGapSkill = confirmQuickAddGapSkill;
 
 // ===== QUICK-ADD ROLE SUGGESTION =====
 export function quickAddSuggested(skillName, level, roleId) {
@@ -4692,7 +4692,7 @@ export function quickAddSuggested(skillName, level, roleId) {
     window.cardViewInitialized = true;
     showToast('Added "' + skillName + '" at ' + level + '.', 'success', 3000);
 }
-window.quickAddSuggested = quickAddSuggested;
+if (!window.quickAddSuggested) window.quickAddSuggested = quickAddSuggested;
 
 // ===== JOB DETAIL VIEW =====
 
@@ -5033,7 +5033,7 @@ export function showJobDetail(idx) {
     
     el.innerHTML = html;
 }
-window.showJobDetail = showJobDetail;
+if (!window.showJobDetail) window.showJobDetail = showJobDetail;
 
 export function removeJob(idx) {
     if (readOnlyGuard()) return;
@@ -5050,7 +5050,7 @@ export function removeJob(idx) {
     window.opportunitiesInitialized = false;
     switchView('opportunities');
 }
-window.removeJob = removeJob;
+if (!window.removeJob) window.removeJob = removeJob;
 
 export function editJobInfo(idx) {
     var job = (window._userData.savedJobs || [])[idx];
@@ -5104,7 +5104,7 @@ export function editJobInfo(idx) {
     
     history.pushState({ modal: true }, ''); modal.classList.add('active');
 }
-window.editJobInfo = editJobInfo;
+if (!window.editJobInfo) window.editJobInfo = editJobInfo;
 
 export function saveJobEdit(idx) {
     if (readOnlyGuard()) return;
@@ -5122,7 +5122,7 @@ export function saveJobEdit(idx) {
     showJobDetail(idx);
     showToast('Job info updated.', 'success');
 }
-window.saveJobEdit = saveJobEdit;
+if (!window.saveJobEdit) window.saveJobEdit = saveJobEdit;
 
 export function reanalyzeJob(idx) {
     var job = (window._userData.savedJobs || [])[idx];
@@ -5228,7 +5228,7 @@ export function reanalyzeJob(idx) {
         }
     })();
 }
-window.reanalyzeJob = reanalyzeJob;
+if (!window.reanalyzeJob) window.reanalyzeJob = reanalyzeJob;
 
 export function updateMatchThreshold(value) {
     currentMatchThreshold = parseInt(value);
@@ -5270,10 +5270,10 @@ export function _debouncedSavePrefs() {
         if (fbUser && fbDb) debouncedSave(500);
     }, 1500);
 }
-window.updateMatchThreshold = updateMatchThreshold;
-window.updateMinSkillMatches = updateMinSkillMatches;
-window.updateFitMinMatch = updateFitMinMatch;
-window.updateFitMinSkills = updateFitMinSkills;
+if (!window.updateMatchThreshold) window.updateMatchThreshold = updateMatchThreshold;
+if (!window.updateMinSkillMatches) window.updateMinSkillMatches = updateMinSkillMatches;
+if (!window.updateFitMinMatch) window.updateFitMinMatch = updateFitMinMatch;
+if (!window.updateFitMinSkills) window.updateFitMinSkills = updateFitMinSkills;
 
 // [removed] extractSkillsFromJobEnhanced — dead code cleanup v4.22.0
 // [removed] loadSampleData — dead code cleanup v4.22.0
@@ -5289,7 +5289,7 @@ export function setJobsSort(val) {
     jobsSortOrder = val;
     renderOpportunities();
 }
-window.setJobsSort = setJobsSort;
+if (!window.setJobsSort) window.setJobsSort = setJobsSort;
 
 export function sortJobResults(jobs) {
     var sorted = jobs.slice();
@@ -5733,7 +5733,7 @@ export function searchLiveFromAPIs() {
         searchDirect(keyword, category, resultsDiv);
     }
 }
-window.searchLiveFromAPIs = searchLiveFromAPIs;
+if (!window.searchLiveFromAPIs) window.searchLiveFromAPIs = searchLiveFromAPIs;
 
 async function searchViaProxy(keyword, location, category, remoteOnly, resultsDiv) {
     try {
@@ -6488,7 +6488,7 @@ async function addRemoteJobToPipeline(idx) {
     // Re-render to update the "In Pipeline" badge
     renderOpportunities();
 }
-window.addRemoteJobToPipeline = addRemoteJobToPipeline;
+if (!window.addRemoteJobToPipeline) window.addRemoteJobToPipeline = addRemoteJobToPipeline;
 // [removed] generatePitch — dead code cleanup v4.22.0
 
 
@@ -6499,75 +6499,75 @@ window.addRemoteJobToPipeline = addRemoteJobToPipeline;
 
 
 // ===== SETTINGS SYSTEM =====
-window._fitBuildSearchTerms = _fitBuildSearchTerms;
-window._fitSortData = _fitSortData;
-window._fitAddToPipeline = _fitAddToPipeline;
-window.initOpportunities = initOpportunities;
-window.switchJobsSubTab = switchJobsSubTab;
-window.renderJobsSubTab = renderJobsSubTab;
-window.renderTrackerInJobs = renderTrackerInJobs;
-window.renderSavedJobs = renderSavedJobs;
-window.renderFindJobs = renderFindJobs;
-window.clearJobSearch = clearJobSearch;
-window.showAddJobModal = showAddJobModal;
-window.extractSPAJobData = extractSPAJobData;
-window._extractDeepJobText = _extractDeepJobText;
-window.extractTextFromHtml = extractTextFromHtml;
-window.matchJobToBLS = matchJobToBLS;
-window.parseJobLocally = parseJobLocally;
-window.classifyRequirementLevel = classifyRequirementLevel;
-window.inferJobProficiency = inferJobProficiency;
-window.proficiencyValue = proficiencyValue;
-window.crosswalkNormalizeTitle = crosswalkNormalizeTitle;
-window.crosswalkDice = crosswalkDice;
-window.resolveTitle = resolveTitle;
-window.getOccupationProfile = getOccupationProfile;
-window.detectSeniority = detectSeniority;
-window.adjustLevel = adjustLevel;
-window.inferSkillsDeterministic = inferSkillsDeterministic;
-window.suggestMissingSkills = suggestMissingSkills;
-window.mergeSkillSources = mergeSkillSources;
-window.registerInSkillLibrary = registerInSkillLibrary;
-window.getSkillSynonyms = getSkillSynonyms;
-window.getSkillSynonymsExpanded = getSkillSynonymsExpanded;
-window.getRoleSuggestions = getRoleSuggestions;
-window.isJobV2 = isJobV2;
-window.getJobSkills = getJobSkills;
-window.getJobRoles = getJobRoles;
-window.normalizeTier = normalizeTier;
-window.tierWeight = tierWeight;
-window.migrateJobToV2 = migrateJobToV2;
-window.migrateAllJobsToV2 = migrateAllJobsToV2;
-window.validateJobSchema = validateJobSchema;
-window.matchJobToProfile = matchJobToProfile;
-window.rescoreAllJobs = rescoreAllJobs;
-window.rescoreOneJob = rescoreOneJob;
-window.quickAddGapSkill = quickAddGapSkill;
-window.confirmQuickAddGapSkill = confirmQuickAddGapSkill;
-window.quickAddSuggested = quickAddSuggested;
-window.showJobDetail = showJobDetail;
-window.removeJob = removeJob;
-window.editJobInfo = editJobInfo;
-window.saveJobEdit = saveJobEdit;
-window.reanalyzeJob = reanalyzeJob;
-window.updateMatchThreshold = updateMatchThreshold;
-window.updateMinSkillMatches = updateMinSkillMatches;
-window.updateFitMinMatch = updateFitMinMatch;
-window.updateFitMinSkills = updateFitMinSkills;
-window._debouncedSavePrefs = _debouncedSavePrefs;
-window.filterOpportunities = filterOpportunities;
-window.setJobsSort = setJobsSort;
-window.sortJobResults = sortJobResults;
-window.renderOpportunities = renderOpportunities;
-window.formatJobsCount = formatJobsCount;
-window.updateJobsDbCount = updateJobsDbCount;
-window.getJobsSourceBreakdown = getJobsSourceBreakdown;
-window.loadJobsFromCache = loadJobsFromCache;
-window.scoreAndDisplayCachedJobs = scoreAndDisplayCachedJobs;
-window.formatTimeAgo = formatTimeAgo;
-window.updateSyncStatusDisplay = updateSyncStatusDisplay;
-window.updateJobsBadge = updateJobsBadge;
-window.searchOpportunities = searchOpportunities;
-window.searchLiveFromAPIs = searchLiveFromAPIs;
-window.searchDirect = searchDirect;
-window.quickScoreJob = quickScoreJob;
+if (!window._fitBuildSearchTerms) window._fitBuildSearchTerms = _fitBuildSearchTerms;
+if (!window._fitSortData) window._fitSortData = _fitSortData;
+if (!window._fitAddToPipeline) window._fitAddToPipeline = _fitAddToPipeline;
+if (!window.initOpportunities) window.initOpportunities = initOpportunities;
+if (!window.switchJobsSubTab) window.switchJobsSubTab = switchJobsSubTab;
+if (!window.renderJobsSubTab) window.renderJobsSubTab = renderJobsSubTab;
+if (!window.renderTrackerInJobs) window.renderTrackerInJobs = renderTrackerInJobs;
+if (!window.renderSavedJobs) window.renderSavedJobs = renderSavedJobs;
+if (!window.renderFindJobs) window.renderFindJobs = renderFindJobs;
+if (!window.clearJobSearch) window.clearJobSearch = clearJobSearch;
+if (!window.showAddJobModal) window.showAddJobModal = showAddJobModal;
+if (!window.extractSPAJobData) window.extractSPAJobData = extractSPAJobData;
+if (!window._extractDeepJobText) window._extractDeepJobText = _extractDeepJobText;
+if (!window.extractTextFromHtml) window.extractTextFromHtml = extractTextFromHtml;
+if (!window.matchJobToBLS) window.matchJobToBLS = matchJobToBLS;
+if (!window.parseJobLocally) window.parseJobLocally = parseJobLocally;
+if (!window.classifyRequirementLevel) window.classifyRequirementLevel = classifyRequirementLevel;
+if (!window.inferJobProficiency) window.inferJobProficiency = inferJobProficiency;
+if (!window.proficiencyValue) window.proficiencyValue = proficiencyValue;
+if (!window.crosswalkNormalizeTitle) window.crosswalkNormalizeTitle = crosswalkNormalizeTitle;
+if (!window.crosswalkDice) window.crosswalkDice = crosswalkDice;
+if (!window.resolveTitle) window.resolveTitle = resolveTitle;
+if (!window.getOccupationProfile) window.getOccupationProfile = getOccupationProfile;
+if (!window.detectSeniority) window.detectSeniority = detectSeniority;
+if (!window.adjustLevel) window.adjustLevel = adjustLevel;
+if (!window.inferSkillsDeterministic) window.inferSkillsDeterministic = inferSkillsDeterministic;
+if (!window.suggestMissingSkills) window.suggestMissingSkills = suggestMissingSkills;
+if (!window.mergeSkillSources) window.mergeSkillSources = mergeSkillSources;
+if (!window.registerInSkillLibrary) window.registerInSkillLibrary = registerInSkillLibrary;
+if (!window.getSkillSynonyms) window.getSkillSynonyms = getSkillSynonyms;
+if (!window.getSkillSynonymsExpanded) window.getSkillSynonymsExpanded = getSkillSynonymsExpanded;
+if (!window.getRoleSuggestions) window.getRoleSuggestions = getRoleSuggestions;
+if (!window.isJobV2) window.isJobV2 = isJobV2;
+if (!window.getJobSkills) window.getJobSkills = getJobSkills;
+if (!window.getJobRoles) window.getJobRoles = getJobRoles;
+if (!window.normalizeTier) window.normalizeTier = normalizeTier;
+if (!window.tierWeight) window.tierWeight = tierWeight;
+if (!window.migrateJobToV2) window.migrateJobToV2 = migrateJobToV2;
+if (!window.migrateAllJobsToV2) window.migrateAllJobsToV2 = migrateAllJobsToV2;
+if (!window.validateJobSchema) window.validateJobSchema = validateJobSchema;
+if (!window.matchJobToProfile) window.matchJobToProfile = matchJobToProfile;
+if (!window.rescoreAllJobs) window.rescoreAllJobs = rescoreAllJobs;
+if (!window.rescoreOneJob) window.rescoreOneJob = rescoreOneJob;
+if (!window.quickAddGapSkill) window.quickAddGapSkill = quickAddGapSkill;
+if (!window.confirmQuickAddGapSkill) window.confirmQuickAddGapSkill = confirmQuickAddGapSkill;
+if (!window.quickAddSuggested) window.quickAddSuggested = quickAddSuggested;
+if (!window.showJobDetail) window.showJobDetail = showJobDetail;
+if (!window.removeJob) window.removeJob = removeJob;
+if (!window.editJobInfo) window.editJobInfo = editJobInfo;
+if (!window.saveJobEdit) window.saveJobEdit = saveJobEdit;
+if (!window.reanalyzeJob) window.reanalyzeJob = reanalyzeJob;
+if (!window.updateMatchThreshold) window.updateMatchThreshold = updateMatchThreshold;
+if (!window.updateMinSkillMatches) window.updateMinSkillMatches = updateMinSkillMatches;
+if (!window.updateFitMinMatch) window.updateFitMinMatch = updateFitMinMatch;
+if (!window.updateFitMinSkills) window.updateFitMinSkills = updateFitMinSkills;
+if (!window._debouncedSavePrefs) window._debouncedSavePrefs = _debouncedSavePrefs;
+if (!window.filterOpportunities) window.filterOpportunities = filterOpportunities;
+if (!window.setJobsSort) window.setJobsSort = setJobsSort;
+if (!window.sortJobResults) window.sortJobResults = sortJobResults;
+if (!window.renderOpportunities) window.renderOpportunities = renderOpportunities;
+if (!window.formatJobsCount) window.formatJobsCount = formatJobsCount;
+if (!window.updateJobsDbCount) window.updateJobsDbCount = updateJobsDbCount;
+if (!window.getJobsSourceBreakdown) window.getJobsSourceBreakdown = getJobsSourceBreakdown;
+if (!window.loadJobsFromCache) window.loadJobsFromCache = loadJobsFromCache;
+if (!window.scoreAndDisplayCachedJobs) window.scoreAndDisplayCachedJobs = scoreAndDisplayCachedJobs;
+if (!window.formatTimeAgo) window.formatTimeAgo = formatTimeAgo;
+if (!window.updateSyncStatusDisplay) window.updateSyncStatusDisplay = updateSyncStatusDisplay;
+if (!window.updateJobsBadge) window.updateJobsBadge = updateJobsBadge;
+if (!window.searchOpportunities) window.searchOpportunities = searchOpportunities;
+if (!window.searchLiveFromAPIs) window.searchLiveFromAPIs = searchLiveFromAPIs;
+if (!window.searchDirect) window.searchDirect = searchDirect;
+if (!window.quickScoreJob) window.quickScoreJob = quickScoreJob;

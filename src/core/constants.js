@@ -3,8 +3,8 @@
  * MONOLITH LINES: 1723–2066
  */
 
-export var BP_VERSION = 'v4.46.25';
-export var BP_BUILD   = '20260306-arch-hardening';
+export var BP_VERSION = 'v4.46.26';
+export var BP_BUILD   = '20260306-window-guard';
 export var JOB_SCHEMA_VERSION = '2.0';
 export var JOB_SKILLS_CAP     = 50;
 export var PROFILE_SKILL_CAP  = 50;

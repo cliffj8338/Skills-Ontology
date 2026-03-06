@@ -587,7 +587,7 @@ export function editValueNote(idx) {
     history.pushState({ modal: true }, ''); modal.classList.add('active');
     setTimeout(function() { var el = document.getElementById('valueNoteInput'); if (el) el.focus(); }, 100);
 }
-window.editValueNote = editValueNote;
+if (!window.editValueNote) window.editValueNote = editValueNote;
 
 export function saveValueNote(idx) {
     if (readOnlyGuard()) return;
@@ -600,7 +600,7 @@ export function saveValueNote(idx) {
     var contentEl = document.getElementById('blueprintTabContent');
     if (contentEl) contentEl.innerHTML = renderBlueprintTabContent();
 }
-window.saveValueNote = saveValueNote;
+if (!window.saveValueNote) window.saveValueNote = saveValueNote;
 
 export function inferValues() {
     // STEP 1: Check localStorage for saved edits
@@ -737,7 +737,7 @@ export function switchBlueprintTab(tab) {
         }
     }
 }
-window.switchBlueprintTab = switchBlueprintTab;
+if (!window.switchBlueprintTab) window.switchBlueprintTab = switchBlueprintTab;
 
 export function renderBlueprintTabContent() {
     if (blueprintTab === 'dashboard') return renderDashboardTab();
@@ -1788,7 +1788,7 @@ export function toggleContentVis(section, idx) {
     var card = document.getElementById('cc-' + section + '-' + idx);
     if (card) card.style.opacity = on ? '1' : '0.5';
 }
-window.toggleContentVis = toggleContentVis;
+if (!window.toggleContentVis) window.toggleContentVis = toggleContentVis;
 
 export function contentToggleAllSection(section, count, onOff) {
     if (readOnlyGuard()) return;
@@ -1807,7 +1807,7 @@ export function contentToggleAllSection(section, count, onOff) {
     saveAll();
     if (fbUser) debouncedSave();
 }
-window.contentToggleAllSection = contentToggleAllSection;
+if (!window.contentToggleAllSection) window.contentToggleAllSection = contentToggleAllSection;
 
 export function _toggleSwitch(section, idx) {
     var on = _getContentVis(section, idx);
@@ -2607,7 +2607,7 @@ export function verifyTabRequestNew() {
     // Open the existing request verification modal with unverified skills
     requestVerification(unverified.slice(0, 10)); // Batch max 10 at a time
 }
-window.verifyTabRequestNew = verifyTabRequestNew;
+if (!window.verifyTabRequestNew) window.verifyTabRequestNew = verifyTabRequestNew;
 
 export function verifyTabRevoke(verificationId) {
     if (readOnlyGuard()) return;
@@ -2620,7 +2620,7 @@ export function verifyTabRevoke(verificationId) {
         showToast('Verification revoked.', 'info');
     }
 }
-window.verifyTabRevoke = verifyTabRevoke;
+if (!window.verifyTabRevoke) window.verifyTabRevoke = verifyTabRevoke;
 
 export function verifyTabClearExpired() {
     if (readOnlyGuard()) return;
@@ -2629,12 +2629,12 @@ export function verifyTabClearExpired() {
     switchBlueprintTab('verifications');
     showToast('Expired verifications cleared.', 'info');
 }
-window.verifyTabClearExpired = verifyTabClearExpired;
+if (!window.verifyTabClearExpired) window.verifyTabClearExpired = verifyTabClearExpired;
 
 export function verifyTabResend(skillName) {
     requestVerification([skillName]);
 }
-window.verifyTabResend = verifyTabResend;
+if (!window.verifyTabResend) window.verifyTabResend = verifyTabResend;
 
 // Blueprint interaction functions
 export function toggleOutcomeShare(idx) {
@@ -2653,7 +2653,7 @@ export function deleteBlueprintOutcome(idx) {
     switchBlueprintTab('outcomes');
     showToast('Outcome deleted.', 'info');
 }
-window.deleteBlueprintOutcome = deleteBlueprintOutcome;
+if (!window.deleteBlueprintOutcome) window.deleteBlueprintOutcome = deleteBlueprintOutcome;
 
 export function editOutcome(idx) {
     if (readOnlyGuard()) return;
@@ -2979,7 +2979,7 @@ export function toggleValuesPicker() {
     showingValuesPicker = !showingValuesPicker;
     refreshValuesUI();
 }
-window.toggleValuesPicker = toggleValuesPicker;
+if (!window.toggleValuesPicker) window.toggleValuesPicker = toggleValuesPicker;
 
 export function pickValue(name) {
     // Toggle: if already selected, remove; otherwise add
@@ -3008,7 +3008,7 @@ export function pickValue(name) {
     saveValues();
     refreshValuesUI();
 }
-window.pickValue = pickValue;
+if (!window.pickValue) window.pickValue = pickValue;
 
 export function removeSelectedValue(idx) {
     if (readOnlyGuard()) return;
@@ -3019,7 +3019,7 @@ export function removeSelectedValue(idx) {
     refreshValuesUI();
     showToast('Removed "' + value.name + '".', 'info');
 }
-window.removeSelectedValue = removeSelectedValue;
+if (!window.removeSelectedValue) window.removeSelectedValue = removeSelectedValue;
 
 export function showAddCustomValueForm() {
     // Re-render first to make sure form element exists
@@ -3032,10 +3032,10 @@ export function showAddCustomValueForm() {
         if (nameEl) nameEl.focus();
     }, 50);
 }
-window.showAddCustomValueForm = showAddCustomValueForm;
+if (!window.showAddCustomValueForm) window.showAddCustomValueForm = showAddCustomValueForm;
 
 export function showAddValueForm() { showAddCustomValueForm(); }
-window.showAddValueForm = showAddValueForm;
+if (!window.showAddValueForm) window.showAddValueForm = showAddValueForm;
 
 export function hideAddValueForm() {
     var form = document.getElementById('addValueForm');
@@ -3043,7 +3043,7 @@ export function hideAddValueForm() {
     var nameEl = document.getElementById('newValueName');
     if (nameEl) nameEl.value = '';
 }
-window.hideAddValueForm = hideAddValueForm;
+if (!window.hideAddValueForm) window.hideAddValueForm = hideAddValueForm;
 
 export function addCustomValue() {
     if (readOnlyGuard()) return;
@@ -3080,7 +3080,7 @@ export function addCustomValue() {
     refreshValuesUI();
     showToast('Added "' + name + '".', 'success');
 }
-window.addCustomValue = addCustomValue;
+if (!window.addCustomValue) window.addCustomValue = addCustomValue;
 
 export function moveValue(idx, direction) {
     var newIdx = idx + direction;
@@ -3091,9 +3091,9 @@ export function moveValue(idx, direction) {
     saveValues();
     refreshValuesUI();
 }
-window.moveValue = moveValue;
-window.toggleValue = toggleValue;
-window.updatePurpose = updatePurpose;
+if (!window.moveValue) window.moveValue = moveValue;
+if (!window.toggleValue) window.toggleValue = toggleValue;
+if (!window.updatePurpose) window.updatePurpose = updatePurpose;
 
 export function updatePurpose(newPurpose) {
     if (readOnlyGuard()) return;
@@ -3159,7 +3159,7 @@ async function generatePurposeAI() {
 
     if (btn) { btn.disabled = false; btn.innerHTML = bpIcon('zap',12) + ' Generate'; btn.style.opacity = '1'; }
 }
-window.generatePurposeAI = generatePurposeAI;
+if (!window.generatePurposeAI) window.generatePurposeAI = generatePurposeAI;
 
 // ═══════════════════════════════════════════════════════════
 // BLIND MODE DEFAULTS + PRIVACY AUDIT LOG
@@ -3277,12 +3277,12 @@ export function logPrivacyEvent(type, jobTitle, company, blindSettings, wasOverr
     clearTimeout(window._privLogSaveTimer);
     window._privLogSaveTimer = setTimeout(function() { saveToFirestore(); }, 3000);
 }
-window.getBlindDefaults = getBlindDefaults;
-window.setBlindDefault = setBlindDefault;
-window.getActiveBlindSettings = getActiveBlindSettings;
-window.applyBlindSettings = applyBlindSettings;
-window.logPrivacyEvent = logPrivacyEvent;
-window.BLIND_FIELDS = BLIND_FIELDS;
+if (!window.getBlindDefaults) window.getBlindDefaults = getBlindDefaults;
+if (!window.setBlindDefault) window.setBlindDefault = setBlindDefault;
+if (!window.getActiveBlindSettings) window.getActiveBlindSettings = getActiveBlindSettings;
+if (!window.applyBlindSettings) window.applyBlindSettings = applyBlindSettings;
+if (!window.logPrivacyEvent) window.logPrivacyEvent = logPrivacyEvent;
+if (!window.BLIND_FIELDS) window.BLIND_FIELDS = BLIND_FIELDS;
 
 // ===== SCOUTING REPORT JOB PICKER =====
 export function showScoutingReportPicker() {
@@ -3350,13 +3350,13 @@ export function showScoutingReportPicker() {
     history.pushState({ modal: true }, '');
     modal.classList.add('active');
 }
-window.showScoutingReportPicker = showScoutingReportPicker;
+if (!window.showScoutingReportPicker) window.showScoutingReportPicker = showScoutingReportPicker;
 
 // Shortcut used by match legend, job cards, and job detail CTAs
 export function launchScoutingReport() {
     showScoutingReportPicker();
 }
-window.launchScoutingReport = launchScoutingReport;
+if (!window.launchScoutingReport) window.launchScoutingReport = launchScoutingReport;
 
 // Format picker — shown after user selects a job
 export function showReportFormatPicker(jobIdx) {
@@ -3486,7 +3486,7 @@ export function showReportFormatPicker(jobIdx) {
         + '</div>'
         + '</div>';
 }
-window.showReportFormatPicker = showReportFormatPicker;
+if (!window.showReportFormatPicker) window.showReportFormatPicker = showReportFormatPicker;
 
 // HTML scouting report generator (placeholder — generator bridge coming)
 export function generateHTMLScoutingReport(jobIdx) {
@@ -3519,7 +3519,7 @@ export function generateHTMLScoutingReport(jobIdx) {
     // Render in iframe overlay with Share button
     showReportOverlay(reportData, jobIdx);
 }
-window.generateHTMLScoutingReport = generateHTMLScoutingReport;
+if (!window.generateHTMLScoutingReport) window.generateHTMLScoutingReport = generateHTMLScoutingReport;
 
 // ── Build REPORT_DATA from live state ────────────────────
 export function buildReportData(jobIdx) {
@@ -3727,7 +3727,7 @@ export function buildReportData(jobIdx) {
         proficiency: proficiency
     };
 }
-window.buildReportData = buildReportData;
+if (!window.buildReportData) window.buildReportData = buildReportData;
 
 // ── Show report in overlay with Share button ──────────────
 export function showReportOverlay(reportData, jobIdx) {
@@ -3923,7 +3923,7 @@ export function showReportOverlay(reportData, jobIdx) {
             showToast('Failed to render report: ' + err.message, 'error');
         });
 }
-window.showReportOverlay = showReportOverlay;
+if (!window.showReportOverlay) window.showReportOverlay = showReportOverlay;
 
 // ── Share to Firestore → get link ─────────────────────────
 export function shareScoutingReport() {
@@ -4022,14 +4022,14 @@ export function shareScoutingReport() {
             if (btn) { btn.disabled = false; btn.innerHTML = bpIcon('external',14) + ' Share Report'; }
         });
 }
-window.shareScoutingReport = shareScoutingReport;
+if (!window.shareScoutingReport) window.shareScoutingReport = shareScoutingReport;
 
 // Open sample scouting report in an iframe overlay
 export function openSampleScoutingReport() {
     // Route through the standard demo report viewer which handles mismatch detection
     viewDemoSampleReport('html');
 }
-window.openSampleScoutingReport = openSampleScoutingReport;
+if (!window.openSampleScoutingReport) window.openSampleScoutingReport = openSampleScoutingReport;
 
 export function generateScoutingReport(jobIdx) {
     // Demo lockdown: redirect to sample viewer
@@ -4056,7 +4056,7 @@ export function generateScoutingReport(jobIdx) {
     
     generateScoutingReportPDF(reportData);
 }
-window.generateScoutingReport = generateScoutingReport;
+if (!window.generateScoutingReport) window.generateScoutingReport = generateScoutingReport;
 
 // ============================================================
 // SCOUTING REPORT PDF — Matches HTML report layout/data
@@ -6918,10 +6918,10 @@ export function copyBlueprintText() {
         showToast('Blueprint copied to clipboard.', 'success');
     });
 }
-window.copyBlueprintText = copyBlueprintText;
-window.generateWorkBlueprint = generateWorkBlueprint;
-window.generateResume = generateResume;
-window.exportBlueprint = exportBlueprint;
+if (!window.copyBlueprintText) window.copyBlueprintText = copyBlueprintText;
+if (!window.generateWorkBlueprint) window.generateWorkBlueprint = generateWorkBlueprint;
+if (!window.generateResume) window.generateResume = generateResume;
+if (!window.exportBlueprint) window.exportBlueprint = exportBlueprint;
 
 // ===== COVER LETTER GENERATOR =====
 
@@ -6964,7 +6964,7 @@ export function generateCoverLetter() {
         + '</div>';
     history.pushState({ modal: true }, ''); modal.classList.add('active');
 }
-window.generateCoverLetter = generateCoverLetter;
+if (!window.generateCoverLetter) window.generateCoverLetter = generateCoverLetter;
 
 export function buildCoverLetter(jobIdx) {
     var job = (window._userData.savedJobs || [])[jobIdx];
@@ -7018,7 +7018,7 @@ export function buildCoverLetter(jobIdx) {
         showCoverLetterResult(buildTemplateCoverLetter(job, name, title, matched, sharedOutcomes, purpose), job);
     }
 }
-window.buildCoverLetter = buildCoverLetter;
+if (!window.buildCoverLetter) window.buildCoverLetter = buildCoverLetter;
 
 export function buildTemplateCoverLetter(job, name, title, matched, outcomes, purpose) {
     var matchedNames = matched.slice(0, 5).map(function(m) { return m.name || m; });
@@ -7087,7 +7087,7 @@ export function copyCoverLetter() {
         });
     }
 }
-window.copyCoverLetter = copyCoverLetter;
+if (!window.copyCoverLetter) window.copyCoverLetter = copyCoverLetter;
 
 export function downloadCoverLetter(company) {
     var ta = document.getElementById('coverLetterOutput');
@@ -7101,7 +7101,7 @@ export function downloadCoverLetter(company) {
     URL.revokeObjectURL(url);
     showToast('Cover letter downloaded.', 'success');
 }
-window.downloadCoverLetter = downloadCoverLetter;
+if (!window.downloadCoverLetter) window.downloadCoverLetter = downloadCoverLetter;
 
 // ===== INTERVIEW PREP GENERATOR =====
 
@@ -7142,7 +7142,7 @@ export function generateInterviewPrep() {
         + '</div>';
     history.pushState({ modal: true }, ''); modal.classList.add('active');
 }
-window.generateInterviewPrep = generateInterviewPrep;
+if (!window.generateInterviewPrep) window.generateInterviewPrep = generateInterviewPrep;
 
 export function buildInterviewPrep(jobIdx) {
     var job = (window._userData.savedJobs || [])[jobIdx];
@@ -7209,7 +7209,7 @@ export function buildInterviewPrep(jobIdx) {
         showInterviewPrepResult(buildTemplateInterviewPrep(job, matched, gaps, surplus, skills, sharedOutcomes), job);
     }
 }
-window.buildInterviewPrep = buildInterviewPrep;
+if (!window.buildInterviewPrep) window.buildInterviewPrep = buildInterviewPrep;
 
 export function buildTemplateInterviewPrep(job, matched, gaps, surplus, skills, outcomes) {
     var lines = [];
@@ -7302,7 +7302,7 @@ export function copyInterviewPrep() {
         });
     }
 }
-window.copyInterviewPrep = copyInterviewPrep;
+if (!window.copyInterviewPrep) window.copyInterviewPrep = copyInterviewPrep;
 
 export function downloadInterviewPrep(company) {
     var ta = document.getElementById('interviewPrepOutput');
@@ -7316,7 +7316,7 @@ export function downloadInterviewPrep(company) {
     URL.revokeObjectURL(url);
     showToast('Interview prep downloaded.', 'success');
 }
-window.downloadInterviewPrep = downloadInterviewPrep;
+if (!window.downloadInterviewPrep) window.downloadInterviewPrep = downloadInterviewPrep;
 
 // ===== LINKEDIN PROFILE GENERATOR =====
 
@@ -7367,7 +7367,7 @@ export function generateLinkedInProfile() {
         showLinkedInResult(buildTemplateLinkedIn(name, title, purpose, sharedOutcomes, selectedValues, topSkills));
     }
 }
-window.generateLinkedInProfile = generateLinkedInProfile;
+if (!window.generateLinkedInProfile) window.generateLinkedInProfile = generateLinkedInProfile;
 
 export function buildTemplateLinkedIn(name, title, purpose, outcomes, values, topSkills) {
     var lines = [];
@@ -7434,7 +7434,7 @@ export function copyLinkedIn() {
         });
     }
 }
-window.copyLinkedIn = copyLinkedIn;
+if (!window.copyLinkedIn) window.copyLinkedIn = copyLinkedIn;
 
 // ===== OPPORTUNITIES SYSTEM =====
 
@@ -7445,102 +7445,102 @@ var _fitForMeData = [];
 var _fitForMeLoading = false;
 var _fitForMeLastRun = 0;
 var _fitForMeExpanded = {};
-window.initBlueprint = initBlueprint;
-window.extractOutcomesFromEvidence = extractOutcomesFromEvidence;
-window.categorizeOutcome = categorizeOutcome;
-window.isSensitiveContent = isSensitiveContent;
-window.generateCoachingFor = generateCoachingFor;
-window.inferCompanyValuesFromJD = inferCompanyValuesFromJD;
-window._persistCompanyValues = _persistCompanyValues;
-window.getCompanyValues = getCompanyValues;
-window.computeValuesAlignment = computeValuesAlignment;
-window.saveValues = saveValues;
-window.loadSavedValues = loadSavedValues;
-window.getEvidenceForValue = getEvidenceForValue;
-window.getKeywordsForValue = getKeywordsForValue;
-window.scoreValueByEvidence = scoreValueByEvidence;
-window.getCatalogDescription = getCatalogDescription;
-window.editValueNote = editValueNote;
-window.saveValueNote = saveValueNote;
-window.inferValues = inferValues;
-window.renderBlueprint = renderBlueprint;
-window.switchBlueprintTab = switchBlueprintTab;
-window.renderBlueprintTabContent = renderBlueprintTabContent;
-window.renderDashboardTab = renderDashboardTab;
-window.renderSkillsManagementTab = renderSkillsManagementTab;
-window.renderExperienceTab = renderExperienceTab;
-window.renderOutcomesSection = renderOutcomesSection;
-window.renderOutcomeItem = renderOutcomeItem;
-window.renderValuesSection = renderValuesSection;
-window.renderSelectedValues = renderSelectedValues;
-window.renderValuesPicker = renderValuesPicker;
-window._countContentItems = _countContentItems;
-window._getContentVis = _getContentVis;
-window.toggleContentVis = toggleContentVis;
-window.contentToggleAllSection = contentToggleAllSection;
-window._toggleSwitch = _toggleSwitch;
-window._contentCard = _contentCard;
-window._sectionHeader = _sectionHeader;
-window.renderContentEvidenceTab = renderContentEvidenceTab;
-window.renderExportSection = renderExportSection;
-window.renderVerificationsTab = renderVerificationsTab;
-window.verifyTabRequestNew = verifyTabRequestNew;
-window.verifyTabRevoke = verifyTabRevoke;
-window.verifyTabClearExpired = verifyTabClearExpired;
-window.verifyTabResend = verifyTabResend;
-window.toggleOutcomeShare = toggleOutcomeShare;
-window.deleteBlueprintOutcome = deleteBlueprintOutcome;
-window.editOutcome = editOutcome;
-window.saveOutcomeEdit = saveOutcomeEdit;
-window.viewOutcomeEvidence = viewOutcomeEvidence;
-window.addCustomOutcome = addCustomOutcome;
-window.fillOutcomeTemplate = fillOutcomeTemplate;
-window.saveCustomOutcome = saveCustomOutcome;
-window.toggleValue = toggleValue;
-window.refreshValuesUI = refreshValuesUI;
-window.updateValuesBadge = updateValuesBadge;
-window.toggleValuesPicker = toggleValuesPicker;
-window.pickValue = pickValue;
-window.removeSelectedValue = removeSelectedValue;
-window.showAddCustomValueForm = showAddCustomValueForm;
-window.showAddValueForm = showAddValueForm;
-window.hideAddValueForm = hideAddValueForm;
-window.addCustomValue = addCustomValue;
-window.moveValue = moveValue;
-window.updatePurpose = updatePurpose;
-window.getBlindDefaults = getBlindDefaults;
-window.setBlindDefault = setBlindDefault;
-window.getActiveBlindSettings = getActiveBlindSettings;
-window.hasAnyBlinding = hasAnyBlinding;
-window.hasOverrides = hasOverrides;
-window.applyBlindSettings = applyBlindSettings;
-window.logPrivacyEvent = logPrivacyEvent;
-window.showScoutingReportPicker = showScoutingReportPicker;
-window.launchScoutingReport = launchScoutingReport;
-window.showReportFormatPicker = showReportFormatPicker;
-window.generateHTMLScoutingReport = generateHTMLScoutingReport;
-window.buildReportData = buildReportData;
-window.showReportOverlay = showReportOverlay;
-window.shareScoutingReport = shareScoutingReport;
-window.openSampleScoutingReport = openSampleScoutingReport;
-window.generateScoutingReport = generateScoutingReport;
-window.generateScoutingReportPDF = generateScoutingReportPDF;
-window.exportBlueprint = exportBlueprint;
-window.generatePDF = generatePDF;
-window.copyBlueprintText = copyBlueprintText;
-window.generateCoverLetter = generateCoverLetter;
-window.buildCoverLetter = buildCoverLetter;
-window.buildTemplateCoverLetter = buildTemplateCoverLetter;
-window.showCoverLetterResult = showCoverLetterResult;
-window.copyCoverLetter = copyCoverLetter;
-window.downloadCoverLetter = downloadCoverLetter;
-window.generateInterviewPrep = generateInterviewPrep;
-window.buildInterviewPrep = buildInterviewPrep;
-window.buildTemplateInterviewPrep = buildTemplateInterviewPrep;
-window.showInterviewPrepResult = showInterviewPrepResult;
-window.copyInterviewPrep = copyInterviewPrep;
-window.downloadInterviewPrep = downloadInterviewPrep;
-window.generateLinkedInProfile = generateLinkedInProfile;
-window.buildTemplateLinkedIn = buildTemplateLinkedIn;
-window.showLinkedInResult = showLinkedInResult;
-window.copyLinkedIn = copyLinkedIn;
+if (!window.initBlueprint) window.initBlueprint = initBlueprint;
+if (!window.extractOutcomesFromEvidence) window.extractOutcomesFromEvidence = extractOutcomesFromEvidence;
+if (!window.categorizeOutcome) window.categorizeOutcome = categorizeOutcome;
+if (!window.isSensitiveContent) window.isSensitiveContent = isSensitiveContent;
+if (!window.generateCoachingFor) window.generateCoachingFor = generateCoachingFor;
+if (!window.inferCompanyValuesFromJD) window.inferCompanyValuesFromJD = inferCompanyValuesFromJD;
+if (!window._persistCompanyValues) window._persistCompanyValues = _persistCompanyValues;
+if (!window.getCompanyValues) window.getCompanyValues = getCompanyValues;
+if (!window.computeValuesAlignment) window.computeValuesAlignment = computeValuesAlignment;
+if (!window.saveValues) window.saveValues = saveValues;
+if (!window.loadSavedValues) window.loadSavedValues = loadSavedValues;
+if (!window.getEvidenceForValue) window.getEvidenceForValue = getEvidenceForValue;
+if (!window.getKeywordsForValue) window.getKeywordsForValue = getKeywordsForValue;
+if (!window.scoreValueByEvidence) window.scoreValueByEvidence = scoreValueByEvidence;
+if (!window.getCatalogDescription) window.getCatalogDescription = getCatalogDescription;
+if (!window.editValueNote) window.editValueNote = editValueNote;
+if (!window.saveValueNote) window.saveValueNote = saveValueNote;
+if (!window.inferValues) window.inferValues = inferValues;
+if (!window.renderBlueprint) window.renderBlueprint = renderBlueprint;
+if (!window.switchBlueprintTab) window.switchBlueprintTab = switchBlueprintTab;
+if (!window.renderBlueprintTabContent) window.renderBlueprintTabContent = renderBlueprintTabContent;
+if (!window.renderDashboardTab) window.renderDashboardTab = renderDashboardTab;
+if (!window.renderSkillsManagementTab) window.renderSkillsManagementTab = renderSkillsManagementTab;
+if (!window.renderExperienceTab) window.renderExperienceTab = renderExperienceTab;
+if (!window.renderOutcomesSection) window.renderOutcomesSection = renderOutcomesSection;
+if (!window.renderOutcomeItem) window.renderOutcomeItem = renderOutcomeItem;
+if (!window.renderValuesSection) window.renderValuesSection = renderValuesSection;
+if (!window.renderSelectedValues) window.renderSelectedValues = renderSelectedValues;
+if (!window.renderValuesPicker) window.renderValuesPicker = renderValuesPicker;
+if (!window._countContentItems) window._countContentItems = _countContentItems;
+if (!window._getContentVis) window._getContentVis = _getContentVis;
+if (!window.toggleContentVis) window.toggleContentVis = toggleContentVis;
+if (!window.contentToggleAllSection) window.contentToggleAllSection = contentToggleAllSection;
+if (!window._toggleSwitch) window._toggleSwitch = _toggleSwitch;
+if (!window._contentCard) window._contentCard = _contentCard;
+if (!window._sectionHeader) window._sectionHeader = _sectionHeader;
+if (!window.renderContentEvidenceTab) window.renderContentEvidenceTab = renderContentEvidenceTab;
+if (!window.renderExportSection) window.renderExportSection = renderExportSection;
+if (!window.renderVerificationsTab) window.renderVerificationsTab = renderVerificationsTab;
+if (!window.verifyTabRequestNew) window.verifyTabRequestNew = verifyTabRequestNew;
+if (!window.verifyTabRevoke) window.verifyTabRevoke = verifyTabRevoke;
+if (!window.verifyTabClearExpired) window.verifyTabClearExpired = verifyTabClearExpired;
+if (!window.verifyTabResend) window.verifyTabResend = verifyTabResend;
+if (!window.toggleOutcomeShare) window.toggleOutcomeShare = toggleOutcomeShare;
+if (!window.deleteBlueprintOutcome) window.deleteBlueprintOutcome = deleteBlueprintOutcome;
+if (!window.editOutcome) window.editOutcome = editOutcome;
+if (!window.saveOutcomeEdit) window.saveOutcomeEdit = saveOutcomeEdit;
+if (!window.viewOutcomeEvidence) window.viewOutcomeEvidence = viewOutcomeEvidence;
+if (!window.addCustomOutcome) window.addCustomOutcome = addCustomOutcome;
+if (!window.fillOutcomeTemplate) window.fillOutcomeTemplate = fillOutcomeTemplate;
+if (!window.saveCustomOutcome) window.saveCustomOutcome = saveCustomOutcome;
+if (!window.toggleValue) window.toggleValue = toggleValue;
+if (!window.refreshValuesUI) window.refreshValuesUI = refreshValuesUI;
+if (!window.updateValuesBadge) window.updateValuesBadge = updateValuesBadge;
+if (!window.toggleValuesPicker) window.toggleValuesPicker = toggleValuesPicker;
+if (!window.pickValue) window.pickValue = pickValue;
+if (!window.removeSelectedValue) window.removeSelectedValue = removeSelectedValue;
+if (!window.showAddCustomValueForm) window.showAddCustomValueForm = showAddCustomValueForm;
+if (!window.showAddValueForm) window.showAddValueForm = showAddValueForm;
+if (!window.hideAddValueForm) window.hideAddValueForm = hideAddValueForm;
+if (!window.addCustomValue) window.addCustomValue = addCustomValue;
+if (!window.moveValue) window.moveValue = moveValue;
+if (!window.updatePurpose) window.updatePurpose = updatePurpose;
+if (!window.getBlindDefaults) window.getBlindDefaults = getBlindDefaults;
+if (!window.setBlindDefault) window.setBlindDefault = setBlindDefault;
+if (!window.getActiveBlindSettings) window.getActiveBlindSettings = getActiveBlindSettings;
+if (!window.hasAnyBlinding) window.hasAnyBlinding = hasAnyBlinding;
+if (!window.hasOverrides) window.hasOverrides = hasOverrides;
+if (!window.applyBlindSettings) window.applyBlindSettings = applyBlindSettings;
+if (!window.logPrivacyEvent) window.logPrivacyEvent = logPrivacyEvent;
+if (!window.showScoutingReportPicker) window.showScoutingReportPicker = showScoutingReportPicker;
+if (!window.launchScoutingReport) window.launchScoutingReport = launchScoutingReport;
+if (!window.showReportFormatPicker) window.showReportFormatPicker = showReportFormatPicker;
+if (!window.generateHTMLScoutingReport) window.generateHTMLScoutingReport = generateHTMLScoutingReport;
+if (!window.buildReportData) window.buildReportData = buildReportData;
+if (!window.showReportOverlay) window.showReportOverlay = showReportOverlay;
+if (!window.shareScoutingReport) window.shareScoutingReport = shareScoutingReport;
+if (!window.openSampleScoutingReport) window.openSampleScoutingReport = openSampleScoutingReport;
+if (!window.generateScoutingReport) window.generateScoutingReport = generateScoutingReport;
+if (!window.generateScoutingReportPDF) window.generateScoutingReportPDF = generateScoutingReportPDF;
+if (!window.exportBlueprint) window.exportBlueprint = exportBlueprint;
+if (!window.generatePDF) window.generatePDF = generatePDF;
+if (!window.copyBlueprintText) window.copyBlueprintText = copyBlueprintText;
+if (!window.generateCoverLetter) window.generateCoverLetter = generateCoverLetter;
+if (!window.buildCoverLetter) window.buildCoverLetter = buildCoverLetter;
+if (!window.buildTemplateCoverLetter) window.buildTemplateCoverLetter = buildTemplateCoverLetter;
+if (!window.showCoverLetterResult) window.showCoverLetterResult = showCoverLetterResult;
+if (!window.copyCoverLetter) window.copyCoverLetter = copyCoverLetter;
+if (!window.downloadCoverLetter) window.downloadCoverLetter = downloadCoverLetter;
+if (!window.generateInterviewPrep) window.generateInterviewPrep = generateInterviewPrep;
+if (!window.buildInterviewPrep) window.buildInterviewPrep = buildInterviewPrep;
+if (!window.buildTemplateInterviewPrep) window.buildTemplateInterviewPrep = buildTemplateInterviewPrep;
+if (!window.showInterviewPrepResult) window.showInterviewPrepResult = showInterviewPrepResult;
+if (!window.copyInterviewPrep) window.copyInterviewPrep = copyInterviewPrep;
+if (!window.downloadInterviewPrep) window.downloadInterviewPrep = downloadInterviewPrep;
+if (!window.generateLinkedInProfile) window.generateLinkedInProfile = generateLinkedInProfile;
+if (!window.buildTemplateLinkedIn) window.buildTemplateLinkedIn = buildTemplateLinkedIn;
+if (!window.showLinkedInResult) window.showLinkedInResult = showLinkedInResult;
+if (!window.copyLinkedIn) window.copyLinkedIn = copyLinkedIn;

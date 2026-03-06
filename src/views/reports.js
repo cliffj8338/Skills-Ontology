@@ -358,6 +358,6 @@ export function viewDemoSampleReport(format) {
     openDemoScoutingReport(sample.file, sample.name, isMismatch);
 }
 
-window.initReports = initReports;
-window.openDemoScoutingReport = openDemoScoutingReport;
-window.viewDemoSampleReport = viewDemoSampleReport;
+if (!window.initReports) window.initReports = initReports;
+if (!window.openDemoScoutingReport) window.openDemoScoutingReport = openDemoScoutingReport;
+if (!window.viewDemoSampleReport) window.viewDemoSampleReport = viewDemoSampleReport;

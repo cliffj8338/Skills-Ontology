@@ -673,7 +673,7 @@ export function handleProfilePhoto(input) {
     };
     reader.readAsDataURL(file);
 }
-window.handleProfilePhoto = handleProfilePhoto;
+if (!window.handleProfilePhoto) window.handleProfilePhoto = handleProfilePhoto;
 
 export function removeProfilePhoto() {
     delete window._userData.profile.photo;
@@ -685,7 +685,7 @@ export function removeProfilePhoto() {
     initSettings();
     window.settingsInitialized = true;
 }
-window.removeProfilePhoto = removeProfilePhoto;
+if (!window.removeProfilePhoto) window.removeProfilePhoto = removeProfilePhoto;
 
 export function saveSettings() {
     if (readOnlyGuard()) return;
@@ -739,7 +739,7 @@ export function saveSettings() {
     
     showToast('Settings saved. Go to Opportunities and click Find Matching Jobs to see updated results.', 'success', 5000);
 }
-window.saveSettings = saveSettings;
+if (!window.saveSettings) window.saveSettings = saveSettings;
 
 export function selectPreset(key) {
     currentPreset = key;
@@ -777,7 +777,7 @@ export function selectPreset(key) {
         initConsent();
     }
 }
-window.selectPreset = selectPreset;
+if (!window.selectPreset) window.selectPreset = selectPreset;
 
 export function filterSkillsView(searchTerm) {
     const term = searchTerm.toLowerCase().trim();
@@ -1013,7 +1013,7 @@ export function renderInlineNegotiation(tv) {
     
     return html;
 }
-window.renderInlineNegotiation = renderInlineNegotiation;
+if (!window.renderInlineNegotiation) window.renderInlineNegotiation = renderInlineNegotiation;
 
 export function showNegotiationGuide() {
     if (window.isReadOnlyProfile) { demoGate('use the negotiation guide'); return; }
@@ -1764,13 +1764,13 @@ export function openBulkImport() {
     
     history.pushState({ modal: true }, ''); modal.classList.add('active');
 }
-window.openBulkImport = openBulkImport;
+if (!window.openBulkImport) window.openBulkImport = openBulkImport;
 
 export function closeBulkImport() {
     var modal = document.getElementById('bulkImportModal');
     if (modal) modal.classList.remove('active');
 }
-window.closeBulkImport = closeBulkImport;
+if (!window.closeBulkImport) window.closeBulkImport = closeBulkImport;
 
 export function switchBulkTab(tab) {
     document.getElementById('bulkTabText').className = 'onet-tab' + (tab === 'text' ? ' active' : '');
@@ -1778,7 +1778,7 @@ export function switchBulkTab(tab) {
     document.getElementById('bulkTextInput').style.display = tab === 'text' ? '' : 'none';
     document.getElementById('bulkCsvInput').style.display = tab === 'csv' ? '' : 'none';
 }
-window.switchBulkTab = switchBulkTab;
+if (!window.switchBulkTab) window.switchBulkTab = switchBulkTab;
 
 export function handleBulkCsvFile(input) {
     var file = input.files[0];
@@ -1791,7 +1791,7 @@ export function handleBulkCsvFile(input) {
     };
     reader.readAsText(file);
 }
-window.handleBulkCsvFile = handleBulkCsvFile;
+if (!window.handleBulkCsvFile) window.handleBulkCsvFile = handleBulkCsvFile;
 
 var VALID_LEVELS = ['Novice', 'Competent', 'Proficient', 'Advanced', 'Expert', 'Mastery'];
 var LEVEL_LOOKUP = {};
@@ -1901,7 +1901,7 @@ export function parseBulkSkills() {
     
     renderBulkReview();
 }
-window.parseBulkSkills = parseBulkSkills;
+if (!window.parseBulkSkills) window.parseBulkSkills = parseBulkSkills;
 
 export function parseTextToItems(text, defaultLevel) {
     var items = [];
@@ -2098,13 +2098,13 @@ export function updateBulkAction(select) {
         document.getElementById('bulkImportConfirmBtn').style.opacity = actionCount === 0 ? '0.4' : '1';
     }
 }
-window.updateBulkAction = updateBulkAction;
+if (!window.updateBulkAction) window.updateBulkAction = updateBulkAction;
 
 export function bulkImportBack() {
     document.getElementById('bulkImportStep1').style.display = '';
     document.getElementById('bulkImportStep2').style.display = 'none';
 }
-window.bulkImportBack = bulkImportBack;
+if (!window.bulkImportBack) window.bulkImportBack = bulkImportBack;
 
 export function toggleBulkProfileOptions() {
     var dest = document.querySelector('input[name="bulkDestination"]:checked');
@@ -2113,7 +2113,7 @@ export function toggleBulkProfileOptions() {
         opts.style.display = dest.value === 'library' ? 'none' : '';
     }
 }
-window.toggleBulkProfileOptions = toggleBulkProfileOptions;
+if (!window.toggleBulkProfileOptions) window.toggleBulkProfileOptions = toggleBulkProfileOptions;
 
 export function executeBulkImport() {
     var dest = document.querySelector('input[name="bulkDestination"]:checked');
@@ -2167,7 +2167,7 @@ export function executeBulkImport() {
     }
     showToast('Bulk import: ' + parts.join(', ') + '.', 'success', 5000);
 }
-window.executeBulkImport = executeBulkImport;
+if (!window.executeBulkImport) window.executeBulkImport = executeBulkImport;
 
 // ===== BULK SKILL MANAGER =====
 export function openBulkManager() {
@@ -2183,13 +2183,13 @@ export function openBulkManager() {
     renderBulkManagerList();
     history.pushState({ modal: true }, ''); modal.classList.add('active');
 }
-window.openBulkManager = openBulkManager;
+if (!window.openBulkManager) window.openBulkManager = openBulkManager;
 
 export function closeBulkManager() {
     var modal = document.getElementById('bulkSkillManagerModal');
     if (modal) modal.classList.remove('active');
 }
-window.closeBulkManager = closeBulkManager;
+if (!window.closeBulkManager) window.closeBulkManager = closeBulkManager;
 
 export function renderBulkManagerList() {
     var search = (document.getElementById('bulkManagerSearch').value || '').toLowerCase();
@@ -2227,14 +2227,14 @@ export function renderBulkManagerList() {
 export function filterBulkManager() {
     renderBulkManagerList();
 }
-window.filterBulkManager = filterBulkManager;
+if (!window.filterBulkManager) window.filterBulkManager = filterBulkManager;
 
 export function toggleBulkManagerAll(checked) {
     var boxes = document.querySelectorAll('.bm-checkbox');
     boxes.forEach(function(cb) { cb.checked = checked; });
     updateBulkManagerSelection();
 }
-window.toggleBulkManagerAll = toggleBulkManagerAll;
+if (!window.toggleBulkManagerAll) window.toggleBulkManagerAll = toggleBulkManagerAll;
 
 export function updateBulkManagerSelection() {
     var checked = document.querySelectorAll('.bm-checkbox:checked');
@@ -2247,7 +2247,7 @@ export function updateBulkManagerSelection() {
         bar.style.display = 'none';
     }
 }
-window.updateBulkManagerSelection = updateBulkManagerSelection;
+if (!window.updateBulkManagerSelection) window.updateBulkManagerSelection = updateBulkManagerSelection;
 
 export function getSelectedBulkSkillNames() {
     return Array.from(document.querySelectorAll('.bm-checkbox:checked')).map(function(cb) { return cb.value; });
@@ -2275,7 +2275,7 @@ export function bulkManagerSetLevel() {
     
     bar.insertAdjacentHTML('beforeend', html);
 }
-window.bulkManagerSetLevel = bulkManagerSetLevel;
+if (!window.bulkManagerSetLevel) window.bulkManagerSetLevel = bulkManagerSetLevel;
 
 export function executeBulkSetLevel(level) {
     var names = getSelectedBulkSkillNames();
@@ -2297,7 +2297,7 @@ export function executeBulkSetLevel(level) {
     renderBulkManagerList();
     showToast('Set ' + count + ' skill' + (count !== 1 ? 's' : '') + ' to ' + level + '.', 'success');
 }
-window.executeBulkSetLevel = executeBulkSetLevel;
+if (!window.executeBulkSetLevel) window.executeBulkSetLevel = executeBulkSetLevel;
 
 export function bulkManagerRemove() {
     var names = getSelectedBulkSkillNames();
@@ -2319,7 +2319,7 @@ export function bulkManagerRemove() {
     renderBulkManagerList();
     showToast('Removed ' + count + ' skill' + (count !== 1 ? 's' : '') + ' from profile.', 'info');
 }
-window.bulkManagerRemove = bulkManagerRemove;
+if (!window.bulkManagerRemove) window.bulkManagerRemove = bulkManagerRemove;
 
 export function openEditSkillModal(skillName, category) {
     if (readOnlyGuard()) return;
@@ -2396,7 +2396,7 @@ export function updateEditSkillGapWarning() {
         warning.innerHTML = '';
     }
 }
-window.updateEditSkillGapWarning = updateEditSkillGapWarning;
+if (!window.updateEditSkillGapWarning) window.updateEditSkillGapWarning = updateEditSkillGapWarning;
 
 export function deleteSkillFromProfile(skillName) {
     if (readOnlyGuard()) return;
@@ -2410,7 +2410,7 @@ export function deleteSkillFromProfile(skillName) {
     refreshAllViews();
     showToast('Removed "' + skillName + '" from profile.', 'info');
 }
-window.deleteSkillFromProfile = deleteSkillFromProfile;
+if (!window.deleteSkillFromProfile) window.deleteSkillFromProfile = deleteSkillFromProfile;
 
 // ===== UNIFIED SKILL EDITOR =====
 // Single modal combining: level, roles, assess, evidence, core differentiator
@@ -2594,14 +2594,14 @@ export function openUnifiedSkillEditor(skillName) {
     // Initialize gap warning
     setTimeout(uniUpdateGapWarning, 50);
 }
-window.openUnifiedSkillEditor = openUnifiedSkillEditor;
+if (!window.openUnifiedSkillEditor) window.openUnifiedSkillEditor = openUnifiedSkillEditor;
 
 export function closeUnifiedSkillEditor() {
     var modal = document.getElementById('unifiedSkillEditor');
     if (modal) modal.classList.remove('active');
     currentEditingSkill = null;
 }
-window.closeUnifiedSkillEditor = closeUnifiedSkillEditor;
+if (!window.closeUnifiedSkillEditor) window.closeUnifiedSkillEditor = closeUnifiedSkillEditor;
 
 export function uniUpdateGapWarning() {
     var warning = document.getElementById('uniGapWarning');
@@ -2619,7 +2619,7 @@ export function uniUpdateGapWarning() {
             + 'Market valuation uses ' + evs.effectiveLevel + ' until more evidence is added.</div>';
     } else { warning.innerHTML = ''; }
 }
-window.uniUpdateGapWarning = uniUpdateGapWarning;
+if (!window.uniUpdateGapWarning) window.uniUpdateGapWarning = uniUpdateGapWarning;
 
 export function saveUnifiedSkillEdit() {
     if (readOnlyGuard()) return;
@@ -2674,7 +2674,7 @@ export function saveUnifiedSkillEdit() {
     closeUnifiedSkillEditor();
     showToast('Updated "' + name + '".', 'success');
 }
-window.saveUnifiedSkillEdit = saveUnifiedSkillEdit;
+if (!window.saveUnifiedSkillEdit) window.saveUnifiedSkillEdit = saveUnifiedSkillEdit;
 
 export function saveSkillEdit() {
     if (readOnlyGuard()) return;
@@ -3486,96 +3486,96 @@ function initTheme() {
 }
 
 // ===== PROFILE DROPDOWN =====
-window.initApplications = initApplications;
-window.renderApplications = renderApplications;
-window.renderApplicationCard = renderApplicationCard;
-window.addApplicationModal = addApplicationModal;
-window.saveApplication = saveApplication;
-window.updateApplicationStatus = updateApplicationStatus;
-window.editApplication = editApplication;
-window.saveApplicationEdit = saveApplicationEdit;
-window.deleteApplication = deleteApplication;
-window.initConsent = initConsent;
-window.renderSharePresets = renderSharePresets;
-window.renderPresetCard = renderPresetCard;
-window.renderSharingStatus = renderSharingStatus;
-window.renderLegalSection = renderLegalSection;
-window.handleProfilePhoto = handleProfilePhoto;
-window.removeProfilePhoto = removeProfilePhoto;
-window.saveSettings = saveSettings;
-window.selectPreset = selectPreset;
-window.filterSkillsView = filterSkillsView;
-window.showValuationBreakdown = showValuationBreakdown;
-window.renderInlineNegotiation = renderInlineNegotiation;
-window.showNegotiationGuide = showNegotiationGuide;
-window._buildOnetNameIndex = _buildOnetNameIndex;
-window._matchOnetByName = _matchOnetByName;
-window.getSkillImpact = getSkillImpact;
-window.getUniqueSkillImpact = getUniqueSkillImpact;
-window.findComparableSkill = findComparableSkill;
-window.calculateUniqueSkillImpact = calculateUniqueSkillImpact;
-window.getImpactLabel = getImpactLabel;
-window.getImpactIcon = getImpactIcon;
-window.getImpactColor = getImpactColor;
-window.closeONETPicker = closeONETPicker;
-window.renderONETLibrary = renderONETLibrary;
-window.renderONETSkillItem = renderONETSkillItem;
-window.toggleONETSkillSelection = toggleONETSkillSelection;
-window.updateONETSelectedCount = updateONETSelectedCount;
-window.filterONETLibrary = filterONETLibrary;
-window.addSelectedONETSkills = addSelectedONETSkills;
-window.closeCustomSkillBuilder = closeCustomSkillBuilder;
-window.createCustomSkill = createCustomSkill;
-window.openBulkImport = openBulkImport;
-window.closeBulkImport = closeBulkImport;
-window.switchBulkTab = switchBulkTab;
-window.handleBulkCsvFile = handleBulkCsvFile;
-window.parseBulkSkills = parseBulkSkills;
-window.parseTextToItems = parseTextToItems;
-window.parseCsvToItems = parseCsvToItems;
-window.parseCsvLine = parseCsvLine;
-window.titleCase = titleCase;
-window.renderBulkReview = renderBulkReview;
-window.updateBulkAction = updateBulkAction;
-window.bulkImportBack = bulkImportBack;
-window.toggleBulkProfileOptions = toggleBulkProfileOptions;
-window.executeBulkImport = executeBulkImport;
-window.openBulkManager = openBulkManager;
-window.closeBulkManager = closeBulkManager;
-window.renderBulkManagerList = renderBulkManagerList;
-window.filterBulkManager = filterBulkManager;
-window.toggleBulkManagerAll = toggleBulkManagerAll;
-window.updateBulkManagerSelection = updateBulkManagerSelection;
-window.getSelectedBulkSkillNames = getSelectedBulkSkillNames;
-window.bulkManagerSetLevel = bulkManagerSetLevel;
-window.executeBulkSetLevel = executeBulkSetLevel;
-window.bulkManagerRemove = bulkManagerRemove;
-window.openEditSkillModal = openEditSkillModal;
-window.closeEditSkillModal = closeEditSkillModal;
-window.updateEditSkillGapWarning = updateEditSkillGapWarning;
-window.deleteSkillFromProfile = deleteSkillFromProfile;
-window.openUnifiedSkillEditor = openUnifiedSkillEditor;
-window.closeUnifiedSkillEditor = closeUnifiedSkillEditor;
-window.uniUpdateGapWarning = uniUpdateGapWarning;
-window.saveUnifiedSkillEdit = saveUnifiedSkillEdit;
-window.saveSkillEdit = saveSkillEdit;
-window.confirmDeleteSkill = confirmDeleteSkill;
-window.deleteSkill = deleteSkill;
-window.openAssessSkillModal = openAssessSkillModal;
-window.closeAssessSkillModal = closeAssessSkillModal;
-window.updateAssessmentPreview = updateAssessmentPreview;
-window.saveSkillAssessment = saveSkillAssessment;
-window.refreshAllViews = refreshAllViews;
-window.closeSkillManagement = closeSkillManagement;
-window.switchSkillManagementTab = switchSkillManagementTab;
-window.getTotalAvailableSkillCount = getTotalAvailableSkillCount;
-window.updateSkillManagementCounts = updateSkillManagementCounts;
-window.renderYourSkills = renderYourSkills;
-window.filterYourSkills = filterYourSkills;
-window.removeSkillFromProfile = removeSkillFromProfile;
-window.showAddSkillsEmpty = showAddSkillsEmpty;
-window.handleAddSkillsSearch = handleAddSkillsSearch;
-window.searchAllLibraries = searchAllLibraries;
-window.performAddSkillsSearch = performAddSkillsSearch;
-window.searchAddSkillsByCategory = searchAddSkillsByCategory;
-window.addSkillFromLibrary = addSkillFromLibrary;
+if (!window.initApplications) window.initApplications = initApplications;
+if (!window.renderApplications) window.renderApplications = renderApplications;
+if (!window.renderApplicationCard) window.renderApplicationCard = renderApplicationCard;
+if (!window.addApplicationModal) window.addApplicationModal = addApplicationModal;
+if (!window.saveApplication) window.saveApplication = saveApplication;
+if (!window.updateApplicationStatus) window.updateApplicationStatus = updateApplicationStatus;
+if (!window.editApplication) window.editApplication = editApplication;
+if (!window.saveApplicationEdit) window.saveApplicationEdit = saveApplicationEdit;
+if (!window.deleteApplication) window.deleteApplication = deleteApplication;
+if (!window.initConsent) window.initConsent = initConsent;
+if (!window.renderSharePresets) window.renderSharePresets = renderSharePresets;
+if (!window.renderPresetCard) window.renderPresetCard = renderPresetCard;
+if (!window.renderSharingStatus) window.renderSharingStatus = renderSharingStatus;
+if (!window.renderLegalSection) window.renderLegalSection = renderLegalSection;
+if (!window.handleProfilePhoto) window.handleProfilePhoto = handleProfilePhoto;
+if (!window.removeProfilePhoto) window.removeProfilePhoto = removeProfilePhoto;
+if (!window.saveSettings) window.saveSettings = saveSettings;
+if (!window.selectPreset) window.selectPreset = selectPreset;
+if (!window.filterSkillsView) window.filterSkillsView = filterSkillsView;
+if (!window.showValuationBreakdown) window.showValuationBreakdown = showValuationBreakdown;
+if (!window.renderInlineNegotiation) window.renderInlineNegotiation = renderInlineNegotiation;
+if (!window.showNegotiationGuide) window.showNegotiationGuide = showNegotiationGuide;
+if (!window._buildOnetNameIndex) window._buildOnetNameIndex = _buildOnetNameIndex;
+if (!window._matchOnetByName) window._matchOnetByName = _matchOnetByName;
+if (!window.getSkillImpact) window.getSkillImpact = getSkillImpact;
+if (!window.getUniqueSkillImpact) window.getUniqueSkillImpact = getUniqueSkillImpact;
+if (!window.findComparableSkill) window.findComparableSkill = findComparableSkill;
+if (!window.calculateUniqueSkillImpact) window.calculateUniqueSkillImpact = calculateUniqueSkillImpact;
+if (!window.getImpactLabel) window.getImpactLabel = getImpactLabel;
+if (!window.getImpactIcon) window.getImpactIcon = getImpactIcon;
+if (!window.getImpactColor) window.getImpactColor = getImpactColor;
+if (!window.closeONETPicker) window.closeONETPicker = closeONETPicker;
+if (!window.renderONETLibrary) window.renderONETLibrary = renderONETLibrary;
+if (!window.renderONETSkillItem) window.renderONETSkillItem = renderONETSkillItem;
+if (!window.toggleONETSkillSelection) window.toggleONETSkillSelection = toggleONETSkillSelection;
+if (!window.updateONETSelectedCount) window.updateONETSelectedCount = updateONETSelectedCount;
+if (!window.filterONETLibrary) window.filterONETLibrary = filterONETLibrary;
+if (!window.addSelectedONETSkills) window.addSelectedONETSkills = addSelectedONETSkills;
+if (!window.closeCustomSkillBuilder) window.closeCustomSkillBuilder = closeCustomSkillBuilder;
+if (!window.createCustomSkill) window.createCustomSkill = createCustomSkill;
+if (!window.openBulkImport) window.openBulkImport = openBulkImport;
+if (!window.closeBulkImport) window.closeBulkImport = closeBulkImport;
+if (!window.switchBulkTab) window.switchBulkTab = switchBulkTab;
+if (!window.handleBulkCsvFile) window.handleBulkCsvFile = handleBulkCsvFile;
+if (!window.parseBulkSkills) window.parseBulkSkills = parseBulkSkills;
+if (!window.parseTextToItems) window.parseTextToItems = parseTextToItems;
+if (!window.parseCsvToItems) window.parseCsvToItems = parseCsvToItems;
+if (!window.parseCsvLine) window.parseCsvLine = parseCsvLine;
+if (!window.titleCase) window.titleCase = titleCase;
+if (!window.renderBulkReview) window.renderBulkReview = renderBulkReview;
+if (!window.updateBulkAction) window.updateBulkAction = updateBulkAction;
+if (!window.bulkImportBack) window.bulkImportBack = bulkImportBack;
+if (!window.toggleBulkProfileOptions) window.toggleBulkProfileOptions = toggleBulkProfileOptions;
+if (!window.executeBulkImport) window.executeBulkImport = executeBulkImport;
+if (!window.openBulkManager) window.openBulkManager = openBulkManager;
+if (!window.closeBulkManager) window.closeBulkManager = closeBulkManager;
+if (!window.renderBulkManagerList) window.renderBulkManagerList = renderBulkManagerList;
+if (!window.filterBulkManager) window.filterBulkManager = filterBulkManager;
+if (!window.toggleBulkManagerAll) window.toggleBulkManagerAll = toggleBulkManagerAll;
+if (!window.updateBulkManagerSelection) window.updateBulkManagerSelection = updateBulkManagerSelection;
+if (!window.getSelectedBulkSkillNames) window.getSelectedBulkSkillNames = getSelectedBulkSkillNames;
+if (!window.bulkManagerSetLevel) window.bulkManagerSetLevel = bulkManagerSetLevel;
+if (!window.executeBulkSetLevel) window.executeBulkSetLevel = executeBulkSetLevel;
+if (!window.bulkManagerRemove) window.bulkManagerRemove = bulkManagerRemove;
+if (!window.openEditSkillModal) window.openEditSkillModal = openEditSkillModal;
+if (!window.closeEditSkillModal) window.closeEditSkillModal = closeEditSkillModal;
+if (!window.updateEditSkillGapWarning) window.updateEditSkillGapWarning = updateEditSkillGapWarning;
+if (!window.deleteSkillFromProfile) window.deleteSkillFromProfile = deleteSkillFromProfile;
+if (!window.openUnifiedSkillEditor) window.openUnifiedSkillEditor = openUnifiedSkillEditor;
+if (!window.closeUnifiedSkillEditor) window.closeUnifiedSkillEditor = closeUnifiedSkillEditor;
+if (!window.uniUpdateGapWarning) window.uniUpdateGapWarning = uniUpdateGapWarning;
+if (!window.saveUnifiedSkillEdit) window.saveUnifiedSkillEdit = saveUnifiedSkillEdit;
+if (!window.saveSkillEdit) window.saveSkillEdit = saveSkillEdit;
+if (!window.confirmDeleteSkill) window.confirmDeleteSkill = confirmDeleteSkill;
+if (!window.deleteSkill) window.deleteSkill = deleteSkill;
+if (!window.openAssessSkillModal) window.openAssessSkillModal = openAssessSkillModal;
+if (!window.closeAssessSkillModal) window.closeAssessSkillModal = closeAssessSkillModal;
+if (!window.updateAssessmentPreview) window.updateAssessmentPreview = updateAssessmentPreview;
+if (!window.saveSkillAssessment) window.saveSkillAssessment = saveSkillAssessment;
+if (!window.refreshAllViews) window.refreshAllViews = refreshAllViews;
+if (!window.closeSkillManagement) window.closeSkillManagement = closeSkillManagement;
+if (!window.switchSkillManagementTab) window.switchSkillManagementTab = switchSkillManagementTab;
+if (!window.getTotalAvailableSkillCount) window.getTotalAvailableSkillCount = getTotalAvailableSkillCount;
+if (!window.updateSkillManagementCounts) window.updateSkillManagementCounts = updateSkillManagementCounts;
+if (!window.renderYourSkills) window.renderYourSkills = renderYourSkills;
+if (!window.filterYourSkills) window.filterYourSkills = filterYourSkills;
+if (!window.removeSkillFromProfile) window.removeSkillFromProfile = removeSkillFromProfile;
+if (!window.showAddSkillsEmpty) window.showAddSkillsEmpty = showAddSkillsEmpty;
+if (!window.handleAddSkillsSearch) window.handleAddSkillsSearch = handleAddSkillsSearch;
+if (!window.searchAllLibraries) window.searchAllLibraries = searchAllLibraries;
+if (!window.performAddSkillsSearch) window.performAddSkillsSearch = performAddSkillsSearch;
+if (!window.searchAddSkillsByCategory) window.searchAddSkillsByCategory = searchAddSkillsByCategory;
+if (!window.addSkillFromLibrary) window.addSkillFromLibrary = addSkillFromLibrary;

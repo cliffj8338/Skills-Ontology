@@ -90,7 +90,7 @@ export function toggleLabelPill(type) {
         .filter(function(d) { return d && d.type === type; })
         .classed('hidden', !isActive);
 }
-window.toggleLabelPill = toggleLabelPill;
+if (!window.toggleLabelPill) window.toggleLabelPill = toggleLabelPill;
 
 // Apply current pill states to network after any re-render
 export function applyLabelToggles() {
@@ -108,7 +108,7 @@ export function applyLabelToggles() {
         }
     });
 }
-window.applyLabelToggles = applyLabelToggles;
+if (!window.applyLabelToggles) window.applyLabelToggles = applyLabelToggles;
 
 // Render dynamic role chips and level counts from current profile data
 export function renderFilterChips() {
@@ -144,7 +144,7 @@ export function renderFilterChips() {
 
 // filterByRole — provided by imported module
 
-window.filterByRole = filterByRole;
+if (!window.filterByRole) window.filterByRole = filterByRole;
 
 // filterByLevel — provided by imported module
 
@@ -260,7 +260,8 @@ export function hideTooltip() {
 var _dragMoved = false;
 export function dragstarted(event, d) {
     _dragMoved = false;
-    if (!event.active) simulation.alphaTarget(0.3).restart();
+    var sim = window._d3simulation || (typeof simulation !== 'undefined' ? simulation : null);
+    if (sim && !event.active) sim.alphaTarget(0.3).restart();
     d.fx = d.x;
     d.fy = d.y;
     d3.select(event.sourceEvent.target).style("cursor", "grabbing");
@@ -273,7 +274,8 @@ export function dragged(event, d) {
 }
 
 export function dragended(event, d) {
-    if (!event.active) simulation.alphaTarget(0);
+    var sim = window._d3simulation || (typeof simulation !== 'undefined' ? simulation : null);
+    if (sim && !event.active) sim.alphaTarget(0);
     d3.select(event.sourceEvent.target).style("cursor", d.type === "center" ? "pointer" : "grab");
     if (!_dragMoved) {
         // Pure click — release pin so node flows back
@@ -1035,25 +1037,25 @@ let blueprintData = {
     shareSettings: {}
 };
 // Expose state for console tooling
-window._skillsData = skillsData;
-window._userData = userData;
-window._blueprintData = blueprintData;
+if (!window._skillsData) window._skillsData = skillsData;
+if (!window._userData) window._userData = userData;
+if (!window._blueprintData) window._blueprintData = blueprintData;
 
-window.updateStatsBar = updateStatsBar;
-window.toggleLabelPill = toggleLabelPill;
-window.applyLabelToggles = applyLabelToggles;
-window.renderFilterChips = renderFilterChips;
-window.showTooltip = showTooltip;
-window.hideTooltip = hideTooltip;
-window.dragstarted = dragstarted;
-window.dragged = dragged;
-window.dragended = dragended;
-window.gatherBlueprintData = gatherBlueprintData;
-window.extractMetric = extractMetric;
-window.createBlueprintHTML = createBlueprintHTML;
-window.downloadBlueprint = downloadBlueprint;
-window.estimateSkillYears = estimateSkillYears;
-window.openRelatedSkill = openRelatedSkill;
-window.openSkillModalFromCard = openSkillModalFromCard;
-window.gatherResumeData = gatherResumeData;
-window.buildResumeHTML = buildResumeHTML;
+if (!window.updateStatsBar) window.updateStatsBar = updateStatsBar;
+if (!window.toggleLabelPill) window.toggleLabelPill = toggleLabelPill;
+if (!window.applyLabelToggles) window.applyLabelToggles = applyLabelToggles;
+if (!window.renderFilterChips) window.renderFilterChips = renderFilterChips;
+if (!window.showTooltip) window.showTooltip = showTooltip;
+if (!window.hideTooltip) window.hideTooltip = hideTooltip;
+if (!window.dragstarted) window.dragstarted = dragstarted;
+if (!window.dragged) window.dragged = dragged;
+if (!window.dragended) window.dragended = dragended;
+if (!window.gatherBlueprintData) window.gatherBlueprintData = gatherBlueprintData;
+if (!window.extractMetric) window.extractMetric = extractMetric;
+if (!window.createBlueprintHTML) window.createBlueprintHTML = createBlueprintHTML;
+if (!window.downloadBlueprint) window.downloadBlueprint = downloadBlueprint;
+if (!window.estimateSkillYears) window.estimateSkillYears = estimateSkillYears;
+if (!window.openRelatedSkill) window.openRelatedSkill = openRelatedSkill;
+if (!window.openSkillModalFromCard) window.openSkillModalFromCard = openSkillModalFromCard;
+if (!window.gatherResumeData) window.gatherResumeData = gatherResumeData;
+if (!window.buildResumeHTML) window.buildResumeHTML = buildResumeHTML;

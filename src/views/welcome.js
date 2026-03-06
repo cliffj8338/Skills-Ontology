@@ -171,7 +171,7 @@ export function renderWelcomePage() {
     
     setTimeout(function() { initHeroNetwork(); }, 50);
 }
-window.renderWelcomePage = renderWelcomePage;
+if (!window.renderWelcomePage) window.renderWelcomePage = renderWelcomePage;
 
 // ===== ANIMATED HERO NETWORK =====
 export function initHeroNetwork() {
@@ -580,7 +580,7 @@ export function viewSampleProfile() {
     // Show first collection
     selectShowCollection(collections[0].id);
 }
-window.viewSampleProfile = viewSampleProfile;
+if (!window.viewSampleProfile) window.viewSampleProfile = viewSampleProfile;
 
 export function selectShowCollection(showId) {
     var collections = window._sampleCollections;
@@ -664,22 +664,22 @@ export function selectShowCollection(showId) {
     
     container.innerHTML = html;
 }
-window.selectShowCollection = selectShowCollection;
+if (!window.selectShowCollection) window.selectShowCollection = selectShowCollection;
 
 export function showWelcomeView() {
     switchView('welcome');
 }
-window.showWelcomeView = showWelcomeView;
+if (!window.showWelcomeView) window.showWelcomeView = showWelcomeView;
 
 // ===== TOAST NOTIFICATION SYSTEM =====
 let toastCounter = 0;
 // showToast — provided by imported module
 
-window.showToast = showToast;
+if (!window.showToast) window.showToast = showToast;
 
 // dismissToast — provided by imported module
 
-window.dismissToast = dismissToast;
+if (!window.dismissToast) window.dismissToast = dismissToast;
 
 // ===== USER DATA CONFIGURATION =====
 // This will eventually come from onboarding wizard
@@ -1103,7 +1103,7 @@ export function showBlsCategoryEditor() {
         + '</div>';
     modal.style.display = 'flex';
 }
-window.showBlsCategoryEditor = showBlsCategoryEditor;
+if (!window.showBlsCategoryEditor) window.showBlsCategoryEditor = showBlsCategoryEditor;
 
 export function saveBlsCategoryOverride() {
     var sel = document.getElementById('blsCategorySelect');
@@ -1115,7 +1115,7 @@ export function saveBlsCategoryOverride() {
     showToast('BLS category updated to ' + BLS_FUNCTION_LABELS[sel.value] + '. Compensation recalculated.', 'success');
     if (typeof initBlueprint === 'function') initBlueprint();
 }
-window.saveBlsCategoryOverride = saveBlsCategoryOverride;
+if (!window.saveBlsCategoryOverride) window.saveBlsCategoryOverride = saveBlsCategoryOverride;
 
 export function clearBlsCategoryOverride() {
     if (!window._userData.preferences) window._userData.preferences = {};
@@ -1125,7 +1125,7 @@ export function clearBlsCategoryOverride() {
     showToast('BLS category reset to auto-detection.', 'info');
     if (typeof initBlueprint === 'function') initBlueprint();
 }
-window.clearBlsCategoryOverride = clearBlsCategoryOverride;
+if (!window.clearBlsCategoryOverride) window.clearBlsCategoryOverride = clearBlsCategoryOverride;
 
 export function setValuationMode(mode) {
     valuationMode = mode;
@@ -1134,7 +1134,7 @@ export function setValuationMode(mode) {
         renderBlueprint();
     }
 }
-window.setValuationMode = setValuationMode;
+if (!window.setValuationMode) window.setValuationMode = setValuationMode;
 
 // ===== COMPENSATION DISPLAY SYSTEM =====
 
@@ -1154,7 +1154,7 @@ export function formatCompValue(value) {
     }
     return '$' + Math.round(value).toLocaleString();
 }
-window.formatCompValue = formatCompValue;
+if (!window.formatCompValue) window.formatCompValue = formatCompValue;
 
 // Curated compensation for demo profiles (total comp, not just base)
 var DEMO_COMP = {
@@ -1216,7 +1216,7 @@ export function getEffectiveComp() {
     calculated.algorithmEstimate = calculated.total;
     return calculated;
 }
-window.getEffectiveComp = getEffectiveComp;
+if (!window.getEffectiveComp) window.getEffectiveComp = getEffectiveComp;
 
 // [removed] getClosestRoleBenchmark — dead code cleanup v4.22.0
 
@@ -1500,11 +1500,11 @@ export function getEvidenceSummary(skill) {
 }
 
 // Expose to global scope
-window.scoreOutcome = scoreOutcome;
-window.calculateEvidencePoints = calculateEvidencePoints;
-window.getEffectiveLevel = getEffectiveLevel;
-window.getEvidenceSummary = getEvidenceSummary;
-window.getValuationLevel = getValuationLevel;
+if (!window.scoreOutcome) window.scoreOutcome = scoreOutcome;
+if (!window.calculateEvidencePoints) window.calculateEvidencePoints = calculateEvidencePoints;
+if (!window.getEffectiveLevel) window.getEffectiveLevel = getEffectiveLevel;
+if (!window.getEvidenceSummary) window.getEvidenceSummary = getEvidenceSummary;
+if (!window.getValuationLevel) window.getValuationLevel = getValuationLevel;
 
 // ===== VERIFICATION SYSTEM (v4.16.0) =====
 // Note: window._userData.verifications initialized in userData declaration and template loading
@@ -1697,11 +1697,11 @@ export function getVerificationStats() {
 }
 
 // Expose verification functions
-window.requestVerification = requestVerification;
-window.sendVerificationRequest = sendVerificationRequest;
-window.confirmVerification = confirmVerification;
-window.declineVerification = declineVerification;
-window.getVerificationStats = getVerificationStats;
+if (!window.requestVerification) window.requestVerification = requestVerification;
+if (!window.sendVerificationRequest) window.sendVerificationRequest = sendVerificationRequest;
+if (!window.confirmVerification) window.confirmVerification = confirmVerification;
+if (!window.declineVerification) window.declineVerification = declineVerification;
+if (!window.getVerificationStats) window.getVerificationStats = getVerificationStats;
 
 // ===== VERIFICATION EXPIRY (v4.44.35) =====
 // Auto-expire pending verifications older than configured TTL
@@ -1734,8 +1734,8 @@ export function getCredibilityLabel(relationship) {
     if (weight >= 1.5) return { label: 'Standard', color: '#a78bfa', weight: weight };
     return { label: 'Basic', color: '#9ca3af', weight: weight };
 }
-window.getCredibilityLabel = getCredibilityLabel;
-window.expireStalePendingVerifications = expireStalePendingVerifications;
+if (!window.getCredibilityLabel) window.getCredibilityLabel = getCredibilityLabel;
+if (!window.expireStalePendingVerifications) window.expireStalePendingVerifications = expireStalePendingVerifications;
 
 // ===== VERIFIER LANDING PAGE (v4.44.35) =====
 // When someone visits ?verify=TOKEN&uid=UID, show standalone verification UI
@@ -2095,7 +2095,7 @@ export function submitVerifierResponse(token, uid, count) {
             + '</div>';
     });
 }
-window.submitVerifierResponse = submitVerifierResponse;
+if (!window.submitVerifierResponse) window.submitVerifierResponse = submitVerifierResponse;
 
 // ===== EVIDENCE CRUD (v4.16.1) =====
 
@@ -2242,13 +2242,13 @@ export function cancelOutcomeForm(skillName) {
     if (form) form.remove();
 }
 
-window.addOutcomeToSkill = addOutcomeToSkill;
-window.editSkillOutcome = editSkillOutcome;
-window.removeOutcome = removeOutcome;
-window.showOutcomeForm = showOutcomeForm;
-window.updateOutcomeScorePreview = updateOutcomeScorePreview;
-window.saveOutcomeForm = saveOutcomeForm;
-window.cancelOutcomeForm = cancelOutcomeForm;
+if (!window.addOutcomeToSkill) window.addOutcomeToSkill = addOutcomeToSkill;
+if (!window.editSkillOutcome) window.editSkillOutcome = editSkillOutcome;
+if (!window.removeOutcome) window.removeOutcome = removeOutcome;
+if (!window.showOutcomeForm) window.showOutcomeForm = showOutcomeForm;
+if (!window.updateOutcomeScorePreview) window.updateOutcomeScorePreview = updateOutcomeScorePreview;
+if (!window.saveOutcomeForm) window.saveOutcomeForm = saveOutcomeForm;
+if (!window.cancelOutcomeForm) window.cancelOutcomeForm = cancelOutcomeForm;
 
 // ===== END EVIDENCE & VERIFICATION ENGINE =====
 
@@ -2346,10 +2346,10 @@ export function getCertFloorLevel(cert) {
 // [removed] getCertFloorPoints — dead code cleanup v4.22.0
 
 // Expose
-window.searchCertLibrary = searchCertLibrary;
-window.findCertInLibrary = findCertInLibrary;
-window.getCertSkillAssociations = getCertSkillAssociations;
-window.getCertFloorLevel = getCertFloorLevel;
+if (!window.searchCertLibrary) window.searchCertLibrary = searchCertLibrary;
+if (!window.findCertInLibrary) window.findCertInLibrary = findCertInLibrary;
+if (!window.getCertSkillAssociations) window.getCertSkillAssociations = getCertSkillAssociations;
+if (!window.getCertFloorLevel) window.getCertFloorLevel = getCertFloorLevel;
 
 fetch('skill_valuations.json')
     .then(response => response.json())
@@ -3116,12 +3116,12 @@ export function isSkillAlreadyAdded(skillName) {
 // Keeps the first occurrence (or the one with more evidence/verification)
 // deduplicateSkills — provided by imported module
 
-window.deduplicateSkills = deduplicateSkills;
+if (!window.deduplicateSkills) window.deduplicateSkills = deduplicateSkills;
 
 // Skill cap enforcement: returns true if skill can be added, false if at cap
 // canAddSkill — provided by imported module
 
-window.canAddSkill = canAddSkill;
+if (!window.canAddSkill) window.canAddSkill = canAddSkill;
 
 // Over-cap triage: forces user to remove skills until at/below PROFILE_SKILL_CAP
 export function showSkillCapTriage() {
@@ -3199,7 +3199,7 @@ export function showSkillCapTriage() {
     history.pushState({ modal: true }, '');
     modal.classList.add('active');
 }
-window.showSkillCapTriage = showSkillCapTriage;
+if (!window.showSkillCapTriage) window.showSkillCapTriage = showSkillCapTriage;
 
 export function updateTriageCount() {
     var checks = document.querySelectorAll('[data-triage-idx]:checked');
@@ -3212,7 +3212,7 @@ export function updateTriageCount() {
         btn.style.opacity = checks.length < excess ? '0.4' : '1';
     }
 }
-window.updateTriageCount = updateTriageCount;
+if (!window.updateTriageCount) window.updateTriageCount = updateTriageCount;
 
 export function confirmSkillCapTriage() {
     var checks = document.querySelectorAll('[data-triage-idx]:checked');
@@ -3235,7 +3235,7 @@ export function confirmSkillCapTriage() {
     closeExportModal();
     showToast('Removed ' + removeIndices.size + ' skills. Profile now has ' + window._userData.skills.length + ' skills.', 'success', 5000);
 }
-window.confirmSkillCapTriage = confirmSkillCapTriage;
+if (!window.confirmSkillCapTriage) window.confirmSkillCapTriage = confirmSkillCapTriage;
 
 // Load library on page load
 window.addEventListener('DOMContentLoaded', () => {
@@ -4529,7 +4529,7 @@ async function handleLinkedInMerge(input) {
     }
     input.value = '';
 }
-window.handleLinkedInMerge = handleLinkedInMerge;
+if (!window.handleLinkedInMerge) window.handleLinkedInMerge = handleLinkedInMerge;
 
 export function openMergeComparisonModal(parsed) {
     var modal = document.getElementById('exportModal');
@@ -4791,7 +4791,7 @@ export function mergeToggleAll(sectionKey, checked) {
         cb.checked = checked;
     });
 }
-window.mergeToggleAll = mergeToggleAll;
+if (!window.mergeToggleAll) window.mergeToggleAll = mergeToggleAll;
 
 export function applyMergeSelections() {
     var parsed = window._mergeParsed;
@@ -4931,7 +4931,7 @@ export function applyMergeSelections() {
     showToast('Merged: ' + (summary.length > 0 ? summary.join(', ') : 'content updated') + '.', 'success', 5000);
     refreshExperienceContent();
 }
-window.applyMergeSelections = applyMergeSelections;
+if (!window.applyMergeSelections) window.applyMergeSelections = applyMergeSelections;
 
 // ── STEP 1: Entry point ───────────────────────────────────────────────
 
@@ -5155,7 +5155,7 @@ export function wizardQuickExport() {
         btn.style.borderColor = '#ef4444';
     }
 }
-window.wizardQuickExport = wizardQuickExport;
+if (!window.wizardQuickExport) window.wizardQuickExport = wizardQuickExport;
 
 export function wizardChooseUpload() {
     wizardOverwriteGuard(function() {
@@ -6816,8 +6816,8 @@ export function wizardAddCustomValue() {
     var inner = document.getElementById('wizardInner');
     if (inner) renderWizardStep7(inner);
 }
-window.wizardAddCustomValue = wizardAddCustomValue;
-window.wizardEditValueDesc = wizardEditValueDesc;
+if (!window.wizardAddCustomValue) window.wizardAddCustomValue = wizardAddCustomValue;
+if (!window.wizardEditValueDesc) window.wizardEditValueDesc = wizardEditValueDesc;
 
 export function wizardSaveValues() {
     if (readOnlyGuard()) return;
@@ -7002,7 +7002,7 @@ export function wizardApplyContentOpts() {
     if (postCb && !postCb.checked) { wizardState.richMedia = []; if (wizardState.parsedData) wizardState.parsedData.richMedia = []; }
     if (learnCb && !learnCb.checked) { wizardState.learning = []; if (wizardState.parsedData) wizardState.parsedData.learning = []; }
 }
-window.wizardApplyContentOpts = wizardApplyContentOpts;
+if (!window.wizardApplyContentOpts) window.wizardApplyContentOpts = wizardApplyContentOpts;
 
 export function wizardBuildUserData() {
     return {
@@ -7176,34 +7176,34 @@ async function initializeMainApp() {
     _sd().skillDetails = window._userData.skillDetails || {};
 
 // Expose wizard and nav functions to global scope for onclick handlers
-window.showOnboardingWizard = showOnboardingWizard;
-window.wizardChooseUpload = wizardChooseUpload;
-window.wizardChooseLinkedIn = wizardChooseLinkedIn;
-window.wizardChooseManual = wizardChooseManual;
-window.wizardChooseImport = wizardChooseImport;
-window.wizardImportProfile = wizardImportProfile;
-window.wizardBack = wizardBack;
-window.wizardNext = wizardNext;
-window.wizardSetResumeTab = wizardSetResumeTab;
-window.wizardHandleResumeDrop = wizardHandleResumeDrop;
-window.wizardHandleResumeFile = wizardHandleResumeFile;
-window.wizardClearResumeFile = wizardClearResumeFile;
-window.wizardSkipParsing = wizardSkipParsing;
-window.wizardStartParsing = wizardStartParsing;
-window.wizardHandleLinkedInDrop = wizardHandleLinkedInDrop;
-window.wizardHandleLinkedInFile = wizardHandleLinkedInFile;
-window.wizardSaveProfile = wizardSaveProfile;
-window.wizardSaveSkills = wizardSaveSkills;
-window.wizardToggleValue = wizardToggleValue;
-window.wizardSaveValues = wizardSaveValues;
-window.wizardSavePurpose = wizardSavePurpose;
-window.wizardRegeneratePurpose = wizardRegeneratePurpose;
-window.wizardDownloadBackup = wizardDownloadBackup;
-window.wizardLaunchOnly = wizardLaunchOnly;
-window.wizardSaveAndGo = wizardSaveAndGo;
-window.confirmExitWizard = confirmExitWizard;
-window.toggleFilterPanel = toggleFilterPanel;
-window.renderFilterChips = renderFilterChips;
+if (!window.showOnboardingWizard) window.showOnboardingWizard = showOnboardingWizard;
+if (!window.wizardChooseUpload) window.wizardChooseUpload = wizardChooseUpload;
+if (!window.wizardChooseLinkedIn) window.wizardChooseLinkedIn = wizardChooseLinkedIn;
+if (!window.wizardChooseManual) window.wizardChooseManual = wizardChooseManual;
+if (!window.wizardChooseImport) window.wizardChooseImport = wizardChooseImport;
+if (!window.wizardImportProfile) window.wizardImportProfile = wizardImportProfile;
+if (!window.wizardBack) window.wizardBack = wizardBack;
+if (!window.wizardNext) window.wizardNext = wizardNext;
+if (!window.wizardSetResumeTab) window.wizardSetResumeTab = wizardSetResumeTab;
+if (!window.wizardHandleResumeDrop) window.wizardHandleResumeDrop = wizardHandleResumeDrop;
+if (!window.wizardHandleResumeFile) window.wizardHandleResumeFile = wizardHandleResumeFile;
+if (!window.wizardClearResumeFile) window.wizardClearResumeFile = wizardClearResumeFile;
+if (!window.wizardSkipParsing) window.wizardSkipParsing = wizardSkipParsing;
+if (!window.wizardStartParsing) window.wizardStartParsing = wizardStartParsing;
+if (!window.wizardHandleLinkedInDrop) window.wizardHandleLinkedInDrop = wizardHandleLinkedInDrop;
+if (!window.wizardHandleLinkedInFile) window.wizardHandleLinkedInFile = wizardHandleLinkedInFile;
+if (!window.wizardSaveProfile) window.wizardSaveProfile = wizardSaveProfile;
+if (!window.wizardSaveSkills) window.wizardSaveSkills = wizardSaveSkills;
+if (!window.wizardToggleValue) window.wizardToggleValue = wizardToggleValue;
+if (!window.wizardSaveValues) window.wizardSaveValues = wizardSaveValues;
+if (!window.wizardSavePurpose) window.wizardSavePurpose = wizardSavePurpose;
+if (!window.wizardRegeneratePurpose) window.wizardRegeneratePurpose = wizardRegeneratePurpose;
+if (!window.wizardDownloadBackup) window.wizardDownloadBackup = wizardDownloadBackup;
+if (!window.wizardLaunchOnly) window.wizardLaunchOnly = wizardLaunchOnly;
+if (!window.wizardSaveAndGo) window.wizardSaveAndGo = wizardSaveAndGo;
+if (!window.confirmExitWizard) window.confirmExitWizard = confirmExitWizard;
+if (!window.toggleFilterPanel) window.toggleFilterPanel = toggleFilterPanel;
+if (!window.renderFilterChips) window.renderFilterChips = renderFilterChips;
 
     // Render dynamic filter chips from profile data
     renderFilterChips();
@@ -7250,109 +7250,109 @@ let networkMatchMode = 'you'; // 'you' | 'job' | 'match'
 let activeJobForNetwork = null; // saved job object when overlay is active
 
 // ===== NETWORK JOB SELECTOR WIDGET =====
-window.renderWelcomePage = renderWelcomePage;
-window.initHeroNetwork = initHeroNetwork;
-window.viewSampleProfile = viewSampleProfile;
-window.selectShowCollection = selectShowCollection;
-window.showWelcomeView = showWelcomeView;
-window.showBlsCategoryEditor = showBlsCategoryEditor;
-window.saveBlsCategoryOverride = saveBlsCategoryOverride;
-window.clearBlsCategoryOverride = clearBlsCategoryOverride;
-window.setValuationMode = setValuationMode;
-window.formatCompValue = formatCompValue;
-window.getEffectiveComp = getEffectiveComp;
-window.loadEvidenceConfig = loadEvidenceConfig;
-window.saveEvidenceConfig = saveEvidenceConfig;
-window.scoreOutcome = scoreOutcome;
-window.calculateEvidencePoints = calculateEvidencePoints;
-window.getEffectiveLevel = getEffectiveLevel;
-window.getEffectiveLevelFromPoints = getEffectiveLevelFromPoints;
-window.hasLinkedCertification = hasLinkedCertification;
-window.getHighestCertTier = getHighestCertTier;
-window.getSkillVerifications = getSkillVerifications;
-window.getValuationLevel = getValuationLevel;
-window.getEvidenceSummary = getEvidenceSummary;
-window.requestVerification = requestVerification;
-window.sendVerificationRequest = sendVerificationRequest;
-window.confirmVerification = confirmVerification;
-window.declineVerification = declineVerification;
-window.getVerificationStats = getVerificationStats;
-window.expireStalePendingVerifications = expireStalePendingVerifications;
-window.getCredibilityLabel = getCredibilityLabel;
-window.checkVerificationLandingPage = checkVerificationLandingPage;
-window.checkShowcaseMode = checkShowcaseMode;
-window.showVerifierLandingPage = showVerifierLandingPage;
-window.fetchVerificationData = fetchVerificationData;
-window.renderVerifierForm = renderVerifierForm;
-window.submitVerifierResponse = submitVerifierResponse;
-window.addOutcomeToSkill = addOutcomeToSkill;
-window.editSkillOutcome = editSkillOutcome;
-window.removeOutcome = removeOutcome;
-window.showOutcomeForm = showOutcomeForm;
-window.updateOutcomeScorePreview = updateOutcomeScorePreview;
-window.saveOutcomeForm = saveOutcomeForm;
-window.cancelOutcomeForm = cancelOutcomeForm;
-window.getCertSkillAssociations = getCertSkillAssociations;
-window.getFallbackSkillMatches = getFallbackSkillMatches;
-window.getCertFloorLevel = getCertFloorLevel;
-window.buildProfileSelector = buildProfileSelector;
-window.switchProfile = switchProfile;
-window.getCategoryColor = getCategoryColor;
-window.isSkillAlreadyAdded = isSkillAlreadyAdded;
-window.showSkillCapTriage = showSkillCapTriage;
-window.updateTriageCount = updateTriageCount;
-window.confirmSkillCapTriage = confirmSkillCapTriage;
-window.getSampleJobsForProfile = getSampleJobsForProfile;
-window.loadTemplate = loadTemplate;
-window.showOnboardingWizard = showOnboardingWizard;
-window.closeWizard = closeWizard;
-window.renderWizardStep = renderWizardStep;
-window.wizardNext = wizardNext;
-window.wizardBack = wizardBack;
-window.confirmExitWizard = confirmExitWizard;
-window.wizardHeading = wizardHeading;
-window.wizardBtn = wizardBtn;
-window.openMergeComparisonModal = openMergeComparisonModal;
-window.mergeToggleAll = mergeToggleAll;
-window.applyMergeSelections = applyMergeSelections;
-window.renderWizardStep1 = renderWizardStep1;
-window.wizardOverwriteGuard = wizardOverwriteGuard;
-window.wizardQuickExport = wizardQuickExport;
-window.wizardChooseUpload = wizardChooseUpload;
-window.wizardChooseLinkedIn = wizardChooseLinkedIn;
-window.wizardChooseManual = wizardChooseManual;
-window.wizardChooseImport = wizardChooseImport;
-window.wizardImportProfile = wizardImportProfile;
-window.renderWizardStep2 = renderWizardStep2;
-window.wizardSetResumeTab = wizardSetResumeTab;
-window.wizardHandleResumeDrop = wizardHandleResumeDrop;
-window.wizardHandleResumeFile = wizardHandleResumeFile;
-window.wizardProcessResumeFile = wizardProcessResumeFile;
-window.wizardClearResumeFile = wizardClearResumeFile;
-window.wizardCheckResumeReady = wizardCheckResumeReady;
-window.wizardSkipParsing = wizardSkipParsing;
-window.renderWizardStep2LinkedIn = renderWizardStep2LinkedIn;
-window.wizardHandleLinkedInDrop = wizardHandleLinkedInDrop;
-window.wizardHandleLinkedInFile = wizardHandleLinkedInFile;
-window.renderWizardStep3 = renderWizardStep3;
-window.renderWizardStep4 = renderWizardStep4;
-window.wizardField = wizardField;
-window.wizardSaveProfile = wizardSaveProfile;
-window.renderWizardStep5 = renderWizardStep5;
-window.wizardSaveEnrichment = wizardSaveEnrichment;
-window.renderWizardStep6 = renderWizardStep6;
-window.wizardSaveSkills = wizardSaveSkills;
-window.renderWizardStep7 = renderWizardStep7;
-window.wizardToggleValue = wizardToggleValue;
-window.wizardEditValueDesc = wizardEditValueDesc;
-window.wizardAddCustomValue = wizardAddCustomValue;
-window.wizardSaveValues = wizardSaveValues;
-window.renderWizardStep8 = renderWizardStep8;
-window.wizardSavePurpose = wizardSavePurpose;
-window.renderWizardStep9 = renderWizardStep9;
-window.wizardApplyContentOpts = wizardApplyContentOpts;
-window.wizardBuildUserData = wizardBuildUserData;
-window.wizardSaveAndGo = wizardSaveAndGo;
-window.wizardDownloadBackup = wizardDownloadBackup;
-window.wizardLaunchOnly = wizardLaunchOnly;
-window.wizardApplyAndLaunch = wizardApplyAndLaunch;
+if (!window.renderWelcomePage) window.renderWelcomePage = renderWelcomePage;
+if (!window.initHeroNetwork) window.initHeroNetwork = initHeroNetwork;
+if (!window.viewSampleProfile) window.viewSampleProfile = viewSampleProfile;
+if (!window.selectShowCollection) window.selectShowCollection = selectShowCollection;
+if (!window.showWelcomeView) window.showWelcomeView = showWelcomeView;
+if (!window.showBlsCategoryEditor) window.showBlsCategoryEditor = showBlsCategoryEditor;
+if (!window.saveBlsCategoryOverride) window.saveBlsCategoryOverride = saveBlsCategoryOverride;
+if (!window.clearBlsCategoryOverride) window.clearBlsCategoryOverride = clearBlsCategoryOverride;
+if (!window.setValuationMode) window.setValuationMode = setValuationMode;
+if (!window.formatCompValue) window.formatCompValue = formatCompValue;
+if (!window.getEffectiveComp) window.getEffectiveComp = getEffectiveComp;
+if (!window.loadEvidenceConfig) window.loadEvidenceConfig = loadEvidenceConfig;
+if (!window.saveEvidenceConfig) window.saveEvidenceConfig = saveEvidenceConfig;
+if (!window.scoreOutcome) window.scoreOutcome = scoreOutcome;
+if (!window.calculateEvidencePoints) window.calculateEvidencePoints = calculateEvidencePoints;
+if (!window.getEffectiveLevel) window.getEffectiveLevel = getEffectiveLevel;
+if (!window.getEffectiveLevelFromPoints) window.getEffectiveLevelFromPoints = getEffectiveLevelFromPoints;
+if (!window.hasLinkedCertification) window.hasLinkedCertification = hasLinkedCertification;
+if (!window.getHighestCertTier) window.getHighestCertTier = getHighestCertTier;
+if (!window.getSkillVerifications) window.getSkillVerifications = getSkillVerifications;
+if (!window.getValuationLevel) window.getValuationLevel = getValuationLevel;
+if (!window.getEvidenceSummary) window.getEvidenceSummary = getEvidenceSummary;
+if (!window.requestVerification) window.requestVerification = requestVerification;
+if (!window.sendVerificationRequest) window.sendVerificationRequest = sendVerificationRequest;
+if (!window.confirmVerification) window.confirmVerification = confirmVerification;
+if (!window.declineVerification) window.declineVerification = declineVerification;
+if (!window.getVerificationStats) window.getVerificationStats = getVerificationStats;
+if (!window.expireStalePendingVerifications) window.expireStalePendingVerifications = expireStalePendingVerifications;
+if (!window.getCredibilityLabel) window.getCredibilityLabel = getCredibilityLabel;
+if (!window.checkVerificationLandingPage) window.checkVerificationLandingPage = checkVerificationLandingPage;
+if (!window.checkShowcaseMode) window.checkShowcaseMode = checkShowcaseMode;
+if (!window.showVerifierLandingPage) window.showVerifierLandingPage = showVerifierLandingPage;
+if (!window.fetchVerificationData) window.fetchVerificationData = fetchVerificationData;
+if (!window.renderVerifierForm) window.renderVerifierForm = renderVerifierForm;
+if (!window.submitVerifierResponse) window.submitVerifierResponse = submitVerifierResponse;
+if (!window.addOutcomeToSkill) window.addOutcomeToSkill = addOutcomeToSkill;
+if (!window.editSkillOutcome) window.editSkillOutcome = editSkillOutcome;
+if (!window.removeOutcome) window.removeOutcome = removeOutcome;
+if (!window.showOutcomeForm) window.showOutcomeForm = showOutcomeForm;
+if (!window.updateOutcomeScorePreview) window.updateOutcomeScorePreview = updateOutcomeScorePreview;
+if (!window.saveOutcomeForm) window.saveOutcomeForm = saveOutcomeForm;
+if (!window.cancelOutcomeForm) window.cancelOutcomeForm = cancelOutcomeForm;
+if (!window.getCertSkillAssociations) window.getCertSkillAssociations = getCertSkillAssociations;
+if (!window.getFallbackSkillMatches) window.getFallbackSkillMatches = getFallbackSkillMatches;
+if (!window.getCertFloorLevel) window.getCertFloorLevel = getCertFloorLevel;
+if (!window.buildProfileSelector) window.buildProfileSelector = buildProfileSelector;
+if (!window.switchProfile) window.switchProfile = switchProfile;
+if (!window.getCategoryColor) window.getCategoryColor = getCategoryColor;
+if (!window.isSkillAlreadyAdded) window.isSkillAlreadyAdded = isSkillAlreadyAdded;
+if (!window.showSkillCapTriage) window.showSkillCapTriage = showSkillCapTriage;
+if (!window.updateTriageCount) window.updateTriageCount = updateTriageCount;
+if (!window.confirmSkillCapTriage) window.confirmSkillCapTriage = confirmSkillCapTriage;
+if (!window.getSampleJobsForProfile) window.getSampleJobsForProfile = getSampleJobsForProfile;
+if (!window.loadTemplate) window.loadTemplate = loadTemplate;
+if (!window.showOnboardingWizard) window.showOnboardingWizard = showOnboardingWizard;
+if (!window.closeWizard) window.closeWizard = closeWizard;
+if (!window.renderWizardStep) window.renderWizardStep = renderWizardStep;
+if (!window.wizardNext) window.wizardNext = wizardNext;
+if (!window.wizardBack) window.wizardBack = wizardBack;
+if (!window.confirmExitWizard) window.confirmExitWizard = confirmExitWizard;
+if (!window.wizardHeading) window.wizardHeading = wizardHeading;
+if (!window.wizardBtn) window.wizardBtn = wizardBtn;
+if (!window.openMergeComparisonModal) window.openMergeComparisonModal = openMergeComparisonModal;
+if (!window.mergeToggleAll) window.mergeToggleAll = mergeToggleAll;
+if (!window.applyMergeSelections) window.applyMergeSelections = applyMergeSelections;
+if (!window.renderWizardStep1) window.renderWizardStep1 = renderWizardStep1;
+if (!window.wizardOverwriteGuard) window.wizardOverwriteGuard = wizardOverwriteGuard;
+if (!window.wizardQuickExport) window.wizardQuickExport = wizardQuickExport;
+if (!window.wizardChooseUpload) window.wizardChooseUpload = wizardChooseUpload;
+if (!window.wizardChooseLinkedIn) window.wizardChooseLinkedIn = wizardChooseLinkedIn;
+if (!window.wizardChooseManual) window.wizardChooseManual = wizardChooseManual;
+if (!window.wizardChooseImport) window.wizardChooseImport = wizardChooseImport;
+if (!window.wizardImportProfile) window.wizardImportProfile = wizardImportProfile;
+if (!window.renderWizardStep2) window.renderWizardStep2 = renderWizardStep2;
+if (!window.wizardSetResumeTab) window.wizardSetResumeTab = wizardSetResumeTab;
+if (!window.wizardHandleResumeDrop) window.wizardHandleResumeDrop = wizardHandleResumeDrop;
+if (!window.wizardHandleResumeFile) window.wizardHandleResumeFile = wizardHandleResumeFile;
+if (!window.wizardProcessResumeFile) window.wizardProcessResumeFile = wizardProcessResumeFile;
+if (!window.wizardClearResumeFile) window.wizardClearResumeFile = wizardClearResumeFile;
+if (!window.wizardCheckResumeReady) window.wizardCheckResumeReady = wizardCheckResumeReady;
+if (!window.wizardSkipParsing) window.wizardSkipParsing = wizardSkipParsing;
+if (!window.renderWizardStep2LinkedIn) window.renderWizardStep2LinkedIn = renderWizardStep2LinkedIn;
+if (!window.wizardHandleLinkedInDrop) window.wizardHandleLinkedInDrop = wizardHandleLinkedInDrop;
+if (!window.wizardHandleLinkedInFile) window.wizardHandleLinkedInFile = wizardHandleLinkedInFile;
+if (!window.renderWizardStep3) window.renderWizardStep3 = renderWizardStep3;
+if (!window.renderWizardStep4) window.renderWizardStep4 = renderWizardStep4;
+if (!window.wizardField) window.wizardField = wizardField;
+if (!window.wizardSaveProfile) window.wizardSaveProfile = wizardSaveProfile;
+if (!window.renderWizardStep5) window.renderWizardStep5 = renderWizardStep5;
+if (!window.wizardSaveEnrichment) window.wizardSaveEnrichment = wizardSaveEnrichment;
+if (!window.renderWizardStep6) window.renderWizardStep6 = renderWizardStep6;
+if (!window.wizardSaveSkills) window.wizardSaveSkills = wizardSaveSkills;
+if (!window.renderWizardStep7) window.renderWizardStep7 = renderWizardStep7;
+if (!window.wizardToggleValue) window.wizardToggleValue = wizardToggleValue;
+if (!window.wizardEditValueDesc) window.wizardEditValueDesc = wizardEditValueDesc;
+if (!window.wizardAddCustomValue) window.wizardAddCustomValue = wizardAddCustomValue;
+if (!window.wizardSaveValues) window.wizardSaveValues = wizardSaveValues;
+if (!window.renderWizardStep8) window.renderWizardStep8 = renderWizardStep8;
+if (!window.wizardSavePurpose) window.wizardSavePurpose = wizardSavePurpose;
+if (!window.renderWizardStep9) window.renderWizardStep9 = renderWizardStep9;
+if (!window.wizardApplyContentOpts) window.wizardApplyContentOpts = wizardApplyContentOpts;
+if (!window.wizardBuildUserData) window.wizardBuildUserData = wizardBuildUserData;
+if (!window.wizardSaveAndGo) window.wizardSaveAndGo = wizardSaveAndGo;
+if (!window.wizardDownloadBackup) window.wizardDownloadBackup = wizardDownloadBackup;
+if (!window.wizardLaunchOnly) window.wizardLaunchOnly = wizardLaunchOnly;
+if (!window.wizardApplyAndLaunch) window.wizardApplyAndLaunch = wizardApplyAndLaunch;

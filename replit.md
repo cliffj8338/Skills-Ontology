@@ -43,16 +43,19 @@ Career intelligence web app at myblueprint.work. Modular Vite-based frontend + F
 - `companies.json` — Company values (58 companies)
 
 ## Version
-Current: v4.46.25. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also update `package.json` version field. Legacy.js header version is informational only.
+Current: v4.46.26. Single source of truth: `src/core/constants.js` (`BP_VERSION` + `BP_BUILD`). Also update `package.json` version field. Legacy.js header version is informational only.
 
 **UNBREAKABLE VERSION RULE**: Update BP_VERSION in ALL 5 places: `src/core/constants.js` (BP_VERSION + BP_BUILD), `package.json` version, `legacy.js` line ~1083 JS comment, `legacy.js` line ~1084 `var BP_VERSION`, and `legacy.js` line 1 HTML comment, and `index.html` version comment.
 
-## Architecture Hardening (v4.46.25)
+## Architecture Hardening (v4.46.25–v4.46.26)
 - **Stubs**: All 30+ unmigrated function stubs in `src/` now `console.warn` + `return null` instead of throwing
 - **Data-ready Promise**: `window._userDataReady` Promise created in legacy.js, resolved at all `userData.initialized = true` points. Views use `waitForUserData()` from `src/core/data-helpers.js` instead of setInterval polling
 - **Shared helpers**: `_sd()` and `_bd()` deduplicated from 7 view files into `src/core/data-helpers.js`
 - **Double-init gate**: `window._legacyInitComplete` flag set by legacy.js; module DOMContentLoaded in network.js skips if set
 - **window.templates**: Both `window._templates` and `window.templates` exposed in legacy.js for nav.js compatibility
+- **Window override guard (v4.46.26)**: All `window.X = X` assignments in ES modules guarded with `if (!window.X)` to prevent modules from overwriting legacy.js functions (root cause of Fit For Me and other features breaking when data lived in legacy.js closure)
+- **D3 simulation fix (v4.46.26)**: `nav-shared.js` drag handlers now safely access simulation via `window._d3simulation` instead of bare global; legacy.js exposes simulation on window
+- **IMPORTANT**: Root `legacy.js` is an HTML file; `public/legacy.js` is the JS-only version served by Vite. Never `cp legacy.js public/legacy.js` — apply changes to each file separately
 
 ## Proficiency Color Palette
 Gradient from cool to warm to green (achievement): Novice `#94a3b8` (slate) → Proficient `#60a5fa` (blue) → Advanced `#a78bfa` (purple) → Expert `#fb923c` (orange) → Mastery `#10b981` (green). Red `#ef4444` is ONLY for errors/problems. Yellow `#fbbf24` for caution/warnings.

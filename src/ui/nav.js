@@ -47,7 +47,7 @@ export function initTheme() {
     var btn = document.getElementById('themeToggleBtn');
     if (btn) btn.textContent = saved === 'light' ? '\u2600\uFE0F' : '\uD83C\uDF19';
 }
-window.initTheme = initTheme;
+if (!window.initTheme) window.initTheme = initTheme;
 
 // ─── Profile chip ─────────────────────────────────────────────────────────────
 
@@ -67,7 +67,7 @@ export function updateProfileChip(name) {
     if (chipName) chipName.textContent = name;
     document.title = 'Blueprint\u2122';
 }
-window.updateProfileChip = updateProfileChip;
+if (!window.updateProfileChip) window.updateProfileChip = updateProfileChip;
 
 // ─── Filter panel ─────────────────────────────────────────────────────────────
 
@@ -77,7 +77,7 @@ export function toggleFilterPanel() {
     var isOpen = panel.classList.toggle('open');
     btn.classList.toggle('active', isOpen);
 }
-window.toggleFilterPanel = toggleFilterPanel;
+if (!window.toggleFilterPanel) window.toggleFilterPanel = toggleFilterPanel;
 
 // ─── Save orchestration ───────────────────────────────────────────────────────
 
@@ -87,7 +87,7 @@ export function saveAll() {
     if (typeof saveValues === 'function') saveValues();
     if (window.fbUser && window.fbDb) saveToFirestore();
 }
-window.saveAll = saveAll;
+if (!window.saveAll) window.saveAll = saveAll;
 
 export function saveUserData() {
     try {
@@ -104,7 +104,7 @@ export function saveUserData() {
         return false;
     }
 }
-window.saveUserData = saveUserData;
+if (!window.saveUserData) window.saveUserData = saveUserData;
 
 // ─── Read-only & app mode ─────────────────────────────────────────────────────
 
@@ -169,13 +169,13 @@ export function checkReadOnly() {
         if (banner) banner.style.display = 'none';
     }
 }
-window.checkReadOnly = checkReadOnly;
+if (!window.checkReadOnly) window.checkReadOnly = checkReadOnly;
 
 export function readOnlyGuard() {
     if (isReadOnlyProfile) { demoGate('edit this profile'); return true; }
     return false;
 }
-window.readOnlyGuard = readOnlyGuard;
+if (!window.readOnlyGuard) window.readOnlyGuard = readOnlyGuard;
 
 // ─── App mode detection ───────────────────────────────────────────────────────
 
@@ -213,7 +213,7 @@ export function detectAppMode() {
     if (window.fbUser) { window.appMode = 'invited'; return; }
     window.appMode = 'demo';
 }
-window.detectAppMode = detectAppMode;
+if (!window.detectAppMode) window.detectAppMode = detectAppMode;
 
 // ─── Demo gate ────────────────────────────────────────────────────────────────
 
@@ -238,7 +238,7 @@ export function demoGate(featureName) {
     modal.classList.add('active');
     return true;
 }
-window.demoGate = demoGate;
+if (!window.demoGate) window.demoGate = demoGate;
 
 export function gatedPromptHTML(featureName, description) {
     if (window.appMode === 'active' || window.appMode === 'invited') return '';
@@ -249,7 +249,7 @@ export function gatedPromptHTML(featureName, description) {
         + '<div class="gp-text">' + description + '</div>'
         + '<button class="gp-btn" onclick="' + btnAct + '">' + btnText + '</button></div>';
 }
-window.gatedPromptHTML = gatedPromptHTML;
+if (!window.gatedPromptHTML) window.gatedPromptHTML = gatedPromptHTML;
 
 // ─── Demo mode ────────────────────────────────────────────────────────────────
 
@@ -286,7 +286,7 @@ export function enterDemoMode(templateId) {
     setTimeout(function() { if (typeof renderJobSelectorWidget === 'function') renderJobSelectorWidget(); }, 500);
     showToast('Exploring demo: ' + (window.userData.profile.name || target) + '. Your data is safely preserved.', 'info', 3000);
 }
-window.enterDemoMode = enterDemoMode;
+if (!window.enterDemoMode) window.enterDemoMode = enterDemoMode;
 
 export function exitDemoMode() {
     if (!window.appContext || window.appContext.mode !== 'demo' || !window.appContext.userSnapshot) {
@@ -321,12 +321,12 @@ export function exitDemoMode() {
     showToast('Welcome back! Your Blueprint is restored.', 'info', 2000);
     if (typeof rebuildProfileDropdown === 'function') rebuildProfileDropdown();
 }
-window.exitDemoMode = exitDemoMode;
+if (!window.exitDemoMode) window.exitDemoMode = exitDemoMode;
 
 export function toggleDemoMode() {
     if (window.appContext && window.appContext.mode === 'demo') exitDemoMode(); else enterDemoMode();
 }
-window.toggleDemoMode = toggleDemoMode;
+if (!window.toggleDemoMode) window.toggleDemoMode = toggleDemoMode;
 
 export function switchDemoProfile(templateId) {
     if (!window.appContext || window.appContext.mode !== 'demo') { enterDemoMode(templateId); return; }
@@ -345,7 +345,7 @@ export function switchDemoProfile(templateId) {
     if (typeof clearJobOverlay === 'function') clearJobOverlay();
     switchView('network');
 }
-window.switchDemoProfile = switchDemoProfile;
+if (!window.switchDemoProfile) window.switchDemoProfile = switchDemoProfile;
 
 export function updateDemoToggleUI() {
     var toggle    = document.getElementById('demoModeToggle');
@@ -357,7 +357,7 @@ export function updateDemoToggleUI() {
     toggle.title = inDemo ? 'Return to My Blueprint' : 'Explore Demo Profiles';
     if (indicator) indicator.style.display = inDemo ? '' : 'none';
 }
-window.updateDemoToggleUI = updateDemoToggleUI;
+if (!window.updateDemoToggleUI) window.updateDemoToggleUI = updateDemoToggleUI;
 
 // ─── switchView ───────────────────────────────────────────────────────────────
 
@@ -513,7 +513,7 @@ export function switchView(view, event) {
         if (av) { av.style.display = 'block'; if (typeof initAdminView === 'function') initAdminView(); }
     }
 }
-window.switchView = switchView;
+if (!window.switchView) window.switchView = switchView;
 
 // ─── toggleSkillsView ─────────────────────────────────────────────────────────
 
@@ -561,7 +561,7 @@ export function toggleSkillsView(view) {
         if (matchBadge)  matchBadge.style.display  = 'none';
     }
 }
-window.toggleSkillsView = toggleSkillsView;
+if (!window.toggleSkillsView) window.toggleSkillsView = toggleSkillsView;
 
 // ─── Keyboard shortcuts ───────────────────────────────────────────────────────
 

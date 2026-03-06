@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.25 - BUILD 20260306-arch-hardening
-        var BP_VERSION = 'v4.46.25';
+        // BLUEPRINT v4.46.26 - BUILD 20260306-window-guard
+        var BP_VERSION = 'v4.46.26';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -21194,7 +21194,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             var collisionR = isMobile ? [55, 48, 30] : [70 * scaleFactor, 65 * scaleFactor, 45 * scaleFactor];
             var gravityCenter = isMobile ? height * 0.46 : height * 0.48;
             
-            simulation = d3.forceSimulation(nodes)
+            simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
                 .force("link", d3.forceLink(links).id(d => d.id).distance(d => {
                     if (d.type === "role") return linkDist[0];
                     return linkDist[1];
@@ -21564,7 +21564,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Simulation — spacious layout
             var gravityCenter = isMobile ? height * 0.52 : height * 0.45;
-            simulation = d3.forceSimulation(nodes)
+            simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
                 .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) { return d.type === 'role' ? (isMobile ? 140 : 200 * scaleFactor) : (isMobile ? 120 : 160 * scaleFactor); }))
                 .force("charge", d3.forceManyBody().strength(function(d) { return d.type === 'center' ? 0 : d.type === 'role' ? (isMobile ? -400 : -350) * scaleFactor : (isMobile ? -180 : -150) * scaleFactor; }))
                 .force("collision", d3.forceCollide().radius(function(d) { return d.type === 'center' ? (isMobile ? 50 : 60) * scaleFactor : d.type === 'role' ? (isMobile ? 55 : 50) * scaleFactor : (isMobile ? 35 : 35) * scaleFactor; }))
@@ -21765,7 +21765,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // Simulation — left/right layout forces
             var gravityCenter = isMobile ? height * 0.52 : height * 0.45;
-            simulation = d3.forceSimulation(nodes)
+            simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
                 .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) {
                     if (d.type === 'role') return (isMobile ? 120 : 150) * scaleFactor;
                     if (d.type === 'match') return (isMobile ? 80 : 100) * scaleFactor;
@@ -22228,7 +22228,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             };
             
             // Simulation
-            simulation = d3.forceSimulation(nodes)
+            simulation = d3.forceSimulation(nodes); window._d3simulation = simulation
                 .force("link", d3.forceLink(links).id(function(d) { return d.id; }).distance(function(d) {
                     if (d.type === 'bridge') return (isMobile ? 180 : 260) * scaleFactor;
                     if (d.type === 'tension-link') return (isMobile ? 100 : 140) * scaleFactor;
