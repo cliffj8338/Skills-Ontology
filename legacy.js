@@ -1,7 +1,7 @@
 
         // ============================================================
         // BLUEPRINT v4.46.30 - BUILD 20260306-values-fix
-        var BP_VERSION = 'v4.46.33';
+        var BP_VERSION = 'v4.46.34';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -23067,8 +23067,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             // ── Profile Completeness ────────────────────────────
             var completeness = { skills: 0, outcomes: 0, values: 0, purpose: 0, workHistory: 0, credentials: 0 };
-            var allSkills = (window.blueprintData && blueprintData.skills) || [];
-            var visibleRoles = (typeof getVisibleRoles === 'function') ? getVisibleRoles() : [];
+            var allSkills = (skillsData && skillsData.skills) || userData.skills || [];
+            var visibleRoles = (typeof getVisibleRoles === 'function') ? getVisibleRoles() : (userData.workHistory || []);
             completeness.skills = allSkills.length >= 5 ? 100 : allSkills.length > 0 ? 50 : 0;
             completeness.workHistory = visibleRoles.length > 0 ? 100 : 0;
             if (window.blueprintData) {
@@ -23076,8 +23076,8 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 completeness.values = (blueprintData.values || []).filter(function(v) { return v.selected; }).length > 0 ? 100 : 0;
                 completeness.purpose = blueprintData.purpose ? 100 : 0;
             }
-            var userCerts = (window.blueprintData && blueprintData.certifications) || [];
-            var userEdu = (window.blueprintData && blueprintData.education) || [];
+            var userCerts = userData.certifications || [];
+            var userEdu = userData.education || [];
             completeness.credentials = (userCerts.length > 0 || userEdu.length > 0) ? 100 : 0;
             var compKeys = Object.keys(completeness);
             var totalPct = Math.round(compKeys.reduce(function(sum, k) { return sum + completeness[k]; }, 0) / compKeys.length);
