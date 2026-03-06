@@ -1080,8 +1080,8 @@
     <!-- Modals moved to index.html for DOM availability -->
     <script>
         // ============================================================
-        // BLUEPRINT v4.46.23 - BUILD 20260305-modal-fix
-        var BP_VERSION = 'v4.46.23';
+        // BLUEPRINT v4.46.24 - BUILD 20260306-rarity-cardview
+        var BP_VERSION = 'v4.46.24';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
