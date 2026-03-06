@@ -26020,15 +26020,21 @@ body {
 
                 // Box 3 — Current Pay
                 if (hasReportedComp) {
-                    var gapColor  = delta > 0 ? '#f59e0b' : '#10b981';
-                    var gapLabel  = delta > 0 ? 'Underpaid by' : 'Above market by';
+                    var evGap      = evComp - reportedComp;
+                    var showRange  = delta > 0 && evGap > delta;
+                    var gapColor   = delta > 0 ? '#f59e0b' : '#10b981';
+                    var gapLabel   = delta > 0 ? 'Underpaid by' : 'Above market by';
+                    var evGapPct   = reportedComp > 0 ? Math.round((evGap / reportedComp) * 100) : 0;
                     html += '<div style="background:var(--c-surface-1); border:1px solid var(--c-surface-5); border-radius:14px; padding:18px 20px;">'
                         + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--c-muted); margin-bottom:8px;">Current Pay</div>'
                         + '<div style="font-size:2.3em; font-weight:800; color:var(--c-heading); line-height:1; margin-bottom:8px;">' + formatCompValue(reportedComp) + '</div>'
                         + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">Reported annual comp</div>'
                         + '<div style="margin-top:8px; padding:6px 10px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.18); border-radius:7px;">'
                         + '<div style="font-size:0.67em; color:var(--c-muted);">' + gapLabel + '</div>'
-                        + '<div style="font-size:1.1em; font-weight:800; color:' + gapColor + ';">' + formatCompValue(Math.abs(delta)) + ' <span style="font-size:0.62em;">(' + (delta > 0 ? '+' : '') + deltaPct + '%)</span></div>'
+                        + (showRange
+                            ? '<div style="font-size:1.1em; font-weight:800; color:' + gapColor + ';">' + formatCompValue(Math.abs(delta)) + ' – ' + formatCompValue(Math.abs(evGap)) + ' <span style="font-size:0.62em;">(+' + deltaPct + '–' + evGapPct + '%)</span></div>'
+                            : '<div style="font-size:1.1em; font-weight:800; color:' + gapColor + ';">' + formatCompValue(Math.abs(delta)) + ' <span style="font-size:0.62em;">(' + (delta > 0 ? '+' : '') + deltaPct + '%)</span></div>'
+                        )
                         + '</div>'
                         + '</div>';
                 } else {
