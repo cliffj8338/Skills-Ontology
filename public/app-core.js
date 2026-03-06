@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.43 - BUILD 20260306-security-fixes
-        var BP_VERSION = 'v4.46.43';
+        // BLUEPRINT v4.46.44 - BUILD 20260306-ui-stability
+        var BP_VERSION = 'v4.46.44';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -25998,7 +25998,7 @@ body {
                 var evDelta = evComp - worthValue;
                 var evDeltaSign = evDelta >= 0 ? '+' : '';
 
-                html += '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px;">';
+                html += '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:16px;">';
 
                 // Box 1 — Market Value (BLS baseline)
                 html += '<div style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(16,185,129,0.03)); border:2px solid rgba(16,185,129,0.28); border-radius:14px; padding:18px 20px;">'
@@ -32841,13 +32841,13 @@ body {
             var savedCount = (userData.savedJobs || []).length;
             var appCount = (userData.applications || []).length;
             
-            view.innerHTML = '<div style="max-width:1200px; margin:0 auto; padding:24px;">'
+            view.innerHTML = '<div style="max-width:1200px; margin:0 auto; padding:16px 12px 80px;">'
                 + '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px;">'
-                + '<div class="jobs-subtabs" style="margin-bottom:0;">'
-                + '<button class="jobs-subtab ' + (jobsSubTab === 'your-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'your-jobs\')">' + bpIcon('target',14) + ' Pipeline' + (savedCount > 0 ? ' (' + savedCount + ')' : '') + '</button>'
-                + '<button class="jobs-subtab ' + (jobsSubTab === 'find-jobs' ? 'active' : '') + '" onclick="switchJobsSubTab(\'find-jobs\')">' + bpIcon('search',14) + ' Find Jobs' + (opportunitiesData.length > 0 ? ' (' + opportunitiesData.length + ')' : '') + '</button>'
-                + '<button class="jobs-subtab ' + (jobsSubTab === 'fit-for-me' ? 'active' : '') + '" onclick="switchJobsSubTab(\'fit-for-me\')">' + bpIcon('activity',14) + ' Fit For Me' + (_fitForMeData.length > 0 ? ' (' + _fitForMeData.length + ')' : '') + '</button>'
-                + '<button class="jobs-subtab ' + (jobsSubTab === 'tracker' ? 'active' : '') + '" onclick="switchJobsSubTab(\'tracker\')">' + bpIcon('tracker',14) + ' Tracker' + (appCount > 0 ? ' (' + appCount + ')' : '') + '</button>'
+                + '<div class="jobs-subtabs" style="margin-bottom:0; display:flex; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; gap:4px; padding-bottom:2px;">'
+                + '<button class="jobs-subtab ' + (jobsSubTab === 'your-jobs' ? 'active' : '') + '" style="flex-shrink:0; white-space:nowrap;" onclick="switchJobsSubTab(\'your-jobs\')">' + bpIcon('target',14) + ' Pipeline' + (savedCount > 0 ? ' (' + savedCount + ')' : '') + '</button>'
+                + '<button class="jobs-subtab ' + (jobsSubTab === 'find-jobs' ? 'active' : '') + '" style="flex-shrink:0; white-space:nowrap;" onclick="switchJobsSubTab(\'find-jobs\')">' + bpIcon('search',14) + ' Find Jobs' + (opportunitiesData.length > 0 ? ' (' + opportunitiesData.length + ')' : '') + '</button>'
+                + '<button class="jobs-subtab ' + (jobsSubTab === 'fit-for-me' ? 'active' : '') + '" style="flex-shrink:0; white-space:nowrap;" onclick="switchJobsSubTab(\'fit-for-me\')">' + bpIcon('activity',14) + ' Fit For Me' + (_fitForMeData.length > 0 ? ' (' + _fitForMeData.length + ')' : '') + '</button>'
+                + '<button class="jobs-subtab ' + (jobsSubTab === 'tracker' ? 'active' : '') + '" style="flex-shrink:0; white-space:nowrap;" onclick="switchJobsSubTab(\'tracker\')">' + bpIcon('tracker',14) + ' Tracker' + (appCount > 0 ? ' (' + appCount + ')' : '') + '</button>'
                 + '</div>'
                 + '</div>'
                 + '<div id="jobsSubTabContent"></div>'
