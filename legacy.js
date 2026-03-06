@@ -26016,7 +26016,7 @@ body {
                     html += '<div style="background:var(--c-surface-1); border:1px dashed var(--c-surface-5); border-radius:14px; padding:18px 20px; display:flex; flex-direction:column; justify-content:space-between;">'
                         + '<div style="font-size:0.67em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--c-muted); margin-bottom:8px;">Current Pay</div>'
                         + '<div style="font-size:0.82em; color:var(--c-faint); line-height:1.6; margin-top:8px;">Add your salary to see your pay gap.</div>'
-                        + '<button onclick="switchBlueprintTab(\'experience\')" style="margin-top:12px; font-size:0.75em; padding:5px 12px; border-radius:7px; border:1px solid var(--c-accent-border-3b); background:var(--c-accent-bg-3b); color:#60a5fa; cursor:pointer; align-self:flex-start;">+ Add Salary</button>'
+                        + '<button onclick="switchView(\'settings\'); setTimeout(function(){ window.currentSettingsTab=\'profile\'; initSettings(); },100);" style="margin-top:12px; font-size:0.75em; padding:5px 12px; border-radius:7px; border:1px solid var(--c-accent-border-3b); background:var(--c-accent-bg-3b); color:#60a5fa; cursor:pointer; align-self:flex-start;">+ Add Salary</button>'
                         + '</div>';
                 }
 
