@@ -37953,7 +37953,7 @@ body {
             resultsDiv.innerHTML = html;
         }
         
-        var JOBS_PROXY_URL = '/api/jobs';
+        var JOBS_PROXY_URL = '/api/job-search';
         var JOBS_PROXY_AVAILABLE = null;
         var jobsDbCount = parseInt(safeGet('bpJobsDbCount') || '0');
         var jobsSourceCounts = safeParse(safeGet('bpJobsSourceCounts'), {});
