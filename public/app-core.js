@@ -25912,6 +25912,7 @@ body {
             var totalValue     = getEffectiveComp();
             var hasValuation   = totalValue && totalValue.total > 0;
             var hasCuratedComp = totalValue.compSource === 'curated' || totalValue.compSource === 'reported';
+            var evidenceValue  = hasValuation ? calculateTotalMarketValue('evidence') : null;
             var masteryCount      = skills.filter(function(s) { return s.level === 'Mastery'; }).length;
             var expertLevelCount  = skills.filter(function(s) { return s.level === 'Expert'; }).length;
             var savedJobs = (userData.savedJobs || []).filter(function(j) { return j && j.title; });
@@ -25957,18 +25958,40 @@ body {
                     + '<input type="file" accept=".zip" onchange="handleLinkedInMerge(this)" style="display:none;"></label></div>';
             }
 
+            // ── MARKET VALUE HERO — what you\'re worth, not what you\'re paid ──
+            if (hasValuation) {
+                var worthFormatted  = formatCompValue(evidenceValue ? evidenceValue.yourWorth : totalValue.marketRate);
+                var worthValue      = evidenceValue ? evidenceValue.yourWorth : totalValue.marketRate;
+                var reportedComp    = totalValue.reportedComp || 0;
+                var hasReportedComp = reportedComp > 0 && reportedComp < 50000000;
+                var delta           = hasReportedComp ? (worthValue - reportedComp) : 0;
+                var deltaPct        = hasReportedComp && reportedComp > 0 ? Math.round((delta / reportedComp) * 100) : 0;
+                var deltaColor      = delta >= 0 ? '#10b981' : '#f59e0b';
+                var deltaSign       = delta >= 0 ? '+' : '';
+                var fnLabelHero     = BLS_FUNCTION_LABELS[totalValue.detectedFunction] || totalValue.detectedFunction;
+
+                html += '<div style="background:linear-gradient(135deg, rgba(16,185,129,0.12), rgba(16,185,129,0.04)); border:2px solid rgba(16,185,129,0.3); border-radius:14px; padding:20px 24px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">'
+                    + '<div>'
+                    + '<div style="font-size:0.72em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:6px;">' + bpIcon('money',11) + ' Your Market Value</div>'
+                    + '<div style="font-size:2.6em; font-weight:800; color:#10b981; line-height:1;">' + worthFormatted + '</div>'
+                    + '<div style="font-size:0.75em; color:var(--c-faint); margin-top:5px;">Based on ' + fnLabelHero + ' \u00B7 ' + (evidenceValue ? evidenceValue.compaRatio : totalValue.compaRatio) + '% of median</div>'
+                    + '</div>'
+                    + '<div style="text-align:right;">';
+
+                if (hasReportedComp) {
+                    html += '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:2px;">vs. Your Current Comp</div>'
+                        + '<div style="font-size:1.5em; font-weight:700; color:' + deltaColor + ';">' + deltaSign + deltaPct + '%</div>'
+                        + '<div style="font-size:0.72em; color:var(--c-faint);">You earn ' + formatCompValue(reportedComp) + '/yr</div>';
+                } else {
+                    html += '<div style="font-size:0.72em; color:var(--c-muted); margin-bottom:2px;">Offer range</div>'
+                        + '<div style="font-size:0.88em; font-weight:600; color:var(--c-text);">' + formatCompValue(totalValue.conservativeOffer) + ' \u2013 ' + formatCompValue(totalValue.competitiveOffer) + '</div>';
+                }
+
+                html += '</div></div>';
+            }
+
             // ── STATS ROW ────────────────────────────────────────────────────
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-bottom:18px;">';
-
-            if (hasValuation) {
-                var compDisplay = formatCompValue(totalValue.displayComp);
-                var compSub     = totalValue.compLabel || 'Market Estimate';
-                html += '<div style="background:linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.04)); border:1px solid rgba(16,185,129,0.25); border-radius:12px; padding:16px; cursor:pointer;" onclick="switchBlueprintTab(\'dashboard\')">'
-                    + '<div style="font-size:0.72em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px;">' + bpIcon('money',11) + ' ' + compSub + '</div>'
-                    + '<div style="font-size:1.6em; font-weight:800; color:#10b981; line-height:1;">' + compDisplay + '</div>'
-                    + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:4px;">/year</div>'
-                    + '</div>';
-            }
 
             html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px; cursor:pointer;" onclick="switchView(\'skills\')">'
                 + '<div style="font-size:0.72em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px;">Skills</div>'
@@ -26030,7 +26053,7 @@ body {
 
             html += '</div>'; // end quick actions
 
-            // ── MARKET POSITION ──────────────────────────────────────────────
+            // ── MARKET POSITION DETAIL ───────────────────────────────────────
             if (hasValuation) {
                 var fnLabel    = BLS_FUNCTION_LABELS[totalValue.detectedFunction] || totalValue.detectedFunction;
                 var isOverride = (userData.preferences || {}).blsFunctionOverride ? true : false;
