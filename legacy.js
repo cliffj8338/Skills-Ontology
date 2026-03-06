@@ -25611,6 +25611,7 @@ body {
             if (readOnlyGuard()) return;
             // Sync to userData so Firestore write includes current values
             userData.values = blueprintData.values;
+            if (blueprintData.purpose) userData.purpose = blueprintData.purpose; // keep in sync
             try {
                 safeSet('wbValues', JSON.stringify(blueprintData.values));
                 safeSet('wbPurpose', blueprintData.purpose || '');
@@ -25787,6 +25788,9 @@ body {
                 blueprintData.purpose = savedPurpose;
             } else if (userData.purpose && userData.purpose.trim().length > 0) {
                 blueprintData.purpose = userData.purpose;
+            } else if (blueprintData.purpose && blueprintData.purpose.trim().length > 0) {
+                // Keep existing in-memory value — userData may be stale but blueprintData is current
+                userData.purpose = blueprintData.purpose; // sync back
             } else {
                 blueprintData.purpose = "";
             }
