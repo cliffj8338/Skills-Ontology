@@ -25905,15 +25905,15 @@ body {
                     + '</div>';
             }
 
-            var outcomes     = blueprintData.outcomes || [];
+            var outcomes       = blueprintData.outcomes || [];
             var sharedOutcomes = outcomes.filter(function(o) { return o.shared; }).length;
-            var values       = (blueprintData.values || []).filter(function(v) { return v.selected; });
-            var purpose      = blueprintData.purpose || '';
-            var totalValue   = getEffectiveComp();
-            var hasValuation = totalValue && totalValue.total > 0;
+            var values         = (blueprintData.values || []).filter(function(v) { return v.selected; });
+            var purpose        = blueprintData.purpose || '';
+            var totalValue     = getEffectiveComp();
+            var hasValuation   = totalValue && totalValue.total > 0;
             var hasCuratedComp = totalValue.compSource === 'curated' || totalValue.compSource === 'reported';
-            var masteryCount   = skills.filter(function(s) { return s.level === 'Mastery'; }).length;
-            var expertLevelCount = skills.filter(function(s) { return s.level === 'Expert'; }).length;
+            var masteryCount      = skills.filter(function(s) { return s.level === 'Mastery'; }).length;
+            var expertLevelCount  = skills.filter(function(s) { return s.level === 'Expert'; }).length;
             var savedJobs = (userData.savedJobs || []).filter(function(j) { return j && j.title; });
             var topMatch  = savedJobs.length > 0 ? savedJobs.reduce(function(best, j) {
                 return (j.matchData && j.matchData.score || 0) > (best.matchData && best.matchData.score || 0) ? j : best;
@@ -25922,22 +25922,22 @@ body {
 
             // Readiness
             var completeness = [];
-            if (skills.length > 0) completeness.push({ label: 'Skills mapped', done: true, action: "switchView('skills')" });
-            else completeness.push({ label: 'Map your skills', done: false, action: "switchView('skills')" });
-            if (outcomes.length > 0) completeness.push({ label: 'Outcomes documented', done: true, action: "switchBlueprintTab('outcomes')" });
-            else completeness.push({ label: 'Add outcomes', done: false, action: "switchBlueprintTab('outcomes')" });
-            if (values.length >= 3) completeness.push({ label: 'Values selected', done: true, action: "switchBlueprintTab('values')" });
-            else completeness.push({ label: 'Select values', done: false, action: "switchBlueprintTab('values')" });
+            if (skills.length > 0) completeness.push({ label: 'Skills mapped', done: true, action: 'switchView(\'skills\')' });
+            else completeness.push({ label: 'Map your skills', done: false, action: 'switchView(\'skills\')' });
+            if (outcomes.length > 0) completeness.push({ label: 'Outcomes documented', done: true, action: 'switchBlueprintTab(\'outcomes\')' });
+            else completeness.push({ label: 'Add outcomes', done: false, action: 'switchBlueprintTab(\'outcomes\')' });
+            if (values.length >= 3) completeness.push({ label: 'Values selected', done: true, action: 'switchBlueprintTab(\'values\')' });
+            else completeness.push({ label: 'Select values', done: false, action: 'switchBlueprintTab(\'values\')' });
             if (purpose && purpose.length > 10) completeness.push({ label: 'Purpose defined', done: true, action: '' });
             else completeness.push({ label: 'Write purpose', done: false, action: '' });
-            if (savedJobs.length > 0) completeness.push({ label: 'Jobs tracked', done: true, action: "switchView('jobs')" });
-            else completeness.push({ label: 'Add target jobs', done: false, action: "switchView('jobs')" });
+            if (savedJobs.length > 0) completeness.push({ label: 'Jobs tracked', done: true, action: 'switchView(\'jobs\')' });
+            else completeness.push({ label: 'Add target jobs', done: false, action: 'switchView(\'jobs\')' });
             var workHistory = userData.workHistory || [];
-            if (workHistory.length > 0) completeness.push({ label: 'Work history', done: true, action: "switchBlueprintTab('experience')" });
-            else completeness.push({ label: 'Add work history', done: false, action: "switchBlueprintTab('experience')" });
+            if (workHistory.length > 0) completeness.push({ label: 'Work history', done: true, action: 'switchBlueprintTab(\'experience\')' });
+            else completeness.push({ label: 'Add work history', done: false, action: 'switchBlueprintTab(\'experience\')' });
             var education = userData.education || [];
-            if (education.length > 0) completeness.push({ label: 'Education added', done: true, action: "switchBlueprintTab('experience')" });
-            else completeness.push({ label: 'Add education', done: false, action: "switchBlueprintTab('experience')" });
+            if (education.length > 0) completeness.push({ label: 'Education added', done: true, action: 'switchBlueprintTab(\'experience\')' });
+            else completeness.push({ label: 'Add education', done: false, action: 'switchBlueprintTab(\'experience\')' });
             var doneCount    = completeness.filter(function(c) { return c.done; }).length;
             var readinessPct = Math.round((doneCount / completeness.length) * 100);
 
@@ -25957,46 +25957,40 @@ body {
                     + '<input type="file" accept=".zip" onchange="handleLinkedInMerge(this)" style="display:none;"></label></div>';
             }
 
-            // ── STATS ROW: Comp + Skills + Outcomes + Values + Best Match ────
-            // Single authoritative comp figure — no duplicate cards
+            // ── STATS ROW ────────────────────────────────────────────────────
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-bottom:18px;">';
 
-            // Comp card — one card, no duplication
             if (hasValuation) {
                 var compDisplay = formatCompValue(totalValue.displayComp);
                 var compSub     = totalValue.compLabel || 'Market Estimate';
-                html += '<div style="background:linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.04)); border:1px solid rgba(16,185,129,0.25); border-radius:12px; padding:16px; cursor:pointer;" onclick="switchBlueprintTab('dashboard')">'
+                html += '<div style="background:linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.04)); border:1px solid rgba(16,185,129,0.25); border-radius:12px; padding:16px; cursor:pointer;" onclick="switchBlueprintTab(\'dashboard\')">'
                     + '<div style="font-size:0.72em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px;">' + bpIcon('money',11) + ' ' + compSub + '</div>'
                     + '<div style="font-size:1.6em; font-weight:800; color:#10b981; line-height:1;">' + compDisplay + '</div>'
                     + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:4px;">/year</div>'
                     + '</div>';
             }
 
-            // Skills
-            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px; cursor:pointer;" onclick="switchView('skills')">'
+            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px; cursor:pointer;" onclick="switchView(\'skills\')">'
                 + '<div style="font-size:0.72em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px;">Skills</div>'
                 + '<div style="font-size:1.6em; font-weight:800; color:#60a5fa;">' + skills.length + '</div>'
                 + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:4px;">' + visRoles.length + ' domains \u00B7 ' + (masteryCount + expertLevelCount) + ' expert+</div>'
                 + '</div>';
 
-            // Outcomes
-            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px; cursor:pointer;" onclick="switchBlueprintTab('outcomes')">'
+            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px; cursor:pointer;" onclick="switchBlueprintTab(\'outcomes\')">'
                 + '<div style="font-size:0.72em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px;">Outcomes</div>'
                 + '<div style="font-size:1.6em; font-weight:800; color:#f59e0b;">' + outcomes.length + '</div>'
                 + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:4px;">' + sharedOutcomes + ' shared \u00B7 ' + (outcomes.length - sharedOutcomes) + ' private</div>'
                 + '</div>';
 
-            // Values
-            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px; cursor:pointer;" onclick="switchBlueprintTab('values')">'
+            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px; cursor:pointer;" onclick="switchBlueprintTab(\'values\')">'
                 + '<div style="font-size:0.72em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px;">Values</div>'
                 + '<div style="font-size:1.6em; font-weight:800; color:#818cf8;">' + values.length + '</div>'
                 + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:4px;">' + (values.length >= 3 ? '\u2713 Selected' : 'Pick 3\u201310') + '</div>'
                 + '</div>';
 
-            // Best match chip (inline in stat row)
             if (topMatch && topMatchScore > 0) {
                 var tmColor = topMatchScore >= 70 ? '#10b981' : topMatchScore >= 50 ? '#f59e0b' : '#ef4444';
-                html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px; cursor:pointer;" onclick="switchView('jobs')">'
+                html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:16px; cursor:pointer;" onclick="switchView(\'jobs\')">'
                     + '<div style="font-size:0.72em; color:var(--c-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px;">Best Match</div>'
                     + '<div style="font-size:1.6em; font-weight:800; color:' + tmColor + ';">' + topMatchScore + '%</div>'
                     + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + (topMatch.title || '') + '</div>'
@@ -26008,7 +26002,7 @@ body {
             // ── QUICK ACTIONS ────────────────────────────────────────────────
             html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:10px; margin-bottom:18px;">';
 
-            html += '<button onclick="switchBlueprintTab('skills')" style="display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--c-green-bg-2b); border:1px solid var(--c-green-border-1); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
+            html += '<button onclick="switchBlueprintTab(\'skills\')" style="display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--c-green-bg-2b); border:1px solid var(--c-green-border-1); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
                 + '<span style="color:#10b981;">' + bpIcon('skills',16) + '</span>'
                 + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.88em;">Manage Skills</div>'
                 + '<div style="font-size:0.72em; color:var(--c-muted);">Add, edit, organize</div></div>'
@@ -26021,13 +26015,13 @@ body {
                 + '</button>';
 
             if (!isReadOnlyProfile) {
-                html += '<button onclick="exportBlueprint('pdf')" style="display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
+                html += '<button onclick="exportBlueprint(\'pdf\')" style="display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
                     + '<span style="color:var(--c-label);">' + bpIcon('pdf',16) + '</span>'
                     + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.88em;">PDF Summary</div>'
                     + '<div style="font-size:0.72em; color:var(--c-muted);">Full career report</div></div>'
                     + '</button>';
 
-                html += '<button onclick="exportBlueprint('html')" style="display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
+                html += '<button onclick="exportBlueprint(\'html\')" style="display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:10px; cursor:pointer; text-align:left; width:100%;">'
                     + '<span style="color:var(--c-label);">' + bpIcon('export',16) + '</span>'
                     + '<div><div style="font-weight:600; color:var(--c-text); font-size:0.88em;">Executive Blueprint</div>'
                     + '<div style="font-size:0.72em; color:var(--c-muted);">HTML for email</div></div>'
@@ -26036,14 +26030,13 @@ body {
 
             html += '</div>'; // end quick actions
 
-            // ── MARKET POSITION (single block, no duplication) ───────────────
+            // ── MARKET POSITION ──────────────────────────────────────────────
             if (hasValuation) {
                 var fnLabel    = BLS_FUNCTION_LABELS[totalValue.detectedFunction] || totalValue.detectedFunction;
                 var isOverride = (userData.preferences || {}).blsFunctionOverride ? true : false;
 
                 html += '<div style="border:1px solid var(--c-green-border-1); border-radius:12px; overflow:hidden; margin-bottom:18px;">';
 
-                // ── Sub-header: BLS category row
                 html += '<div style="padding:10px 16px; background:var(--c-surface-1); border-bottom:1px solid var(--c-surface-4); display:flex; justify-content:space-between; align-items:center; font-size:0.8em;">'
                     + '<div style="color:var(--c-muted);">'
                     + bpIcon('target',12) + ' BLS Category: <span style="color:var(--c-text); font-weight:600;">' + escapeHtml(fnLabel) + '</span>'
@@ -26055,7 +26048,6 @@ body {
 
                 html += '<div style="padding:18px 20px;">';
 
-                // Top skills
                 html += '<div style="font-size:0.82em; font-weight:600; color:#60a5fa; margin-bottom:8px;">' + bpIcon('flame',12) + ' Top Skills Driving Value</div>'
                     + '<div style="display:grid; gap:4px; margin-bottom:16px;">';
                 (totalValue.top10Skills || []).slice(0, 5).forEach(function(skill, idx) {
@@ -26067,7 +26059,6 @@ body {
                 });
                 html += '</div>';
 
-                // Negotiation guide
                 html += '<div style="border-top:1px solid rgba(251,191,36,0.12); padding-top:14px;">'
                     + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">'
                     + '<span style="color:#fbbf24;">' + bpIcon('dollar',16) + '</span>'
@@ -26075,17 +26066,17 @@ body {
                     + renderInlineNegotiation(totalValue)
                     + '</div>';
 
-                html += '</div></div>'; // end market position
+                html += '</div></div>';
             }
 
             // ── CAREER READINESS ─────────────────────────────────────────────
             (function() {
-                var ringSize   = 64;
-                var strokeWidth = 5;
-                var radius     = (ringSize - strokeWidth) / 2;
+                var ringSize      = 64;
+                var strokeWidth   = 5;
+                var radius        = (ringSize - strokeWidth) / 2;
                 var circumference = 2 * Math.PI * radius;
-                var offset     = circumference - (readinessPct / 100) * circumference;
-                var ringColor  = readinessPct >= 100 ? '#10b981' : readinessPct >= 60 ? '#3b82f6' : '#f59e0b';
+                var offset        = circumference - (readinessPct / 100) * circumference;
+                var ringColor     = readinessPct >= 100 ? '#10b981' : readinessPct >= 60 ? '#3b82f6' : '#f59e0b';
                 var readinessLabel = readinessPct >= 100 ? 'Profile Complete' : readinessPct >= 80 ? 'Almost There' : readinessPct >= 60 ? 'Good Progress' : 'Getting Started';
 
                 if (readinessPct < 100) {
@@ -26139,7 +26130,7 @@ body {
                     + '<div style="font-size:0.75em; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--c-faint);">Skill Distribution</div>'
                     + '<div style="display:flex; align-items:center; gap:12px;">'
                     + '<span style="font-size:0.72em; color:var(--c-faint);">' + roles.length + ' domains</span>'
-                    + '<button onclick="switchBlueprintTab('skills')" style="font-size:0.72em; color:#60a5fa; background:none; border:none; cursor:pointer; font-weight:600;">Manage Skills \u2192</button>'
+                    + '<button onclick="switchBlueprintTab(\'skills\')" style="font-size:0.72em; color:#60a5fa; background:none; border:none; cursor:pointer; font-weight:600;">Manage Skills \u2192</button>'
                     + '</div></div>';
 
                 html += '<div style="display:flex; height:10px; border-radius:5px; overflow:hidden; background:var(--c-surface-2b); margin-bottom:10px;">';
@@ -26166,7 +26157,6 @@ body {
         }
 
         // ===== SKILLS MANAGEMENT TAB =====
-
         function renderSkillsManagementTab() {
             var skills = skillsData.skills || [];
             var roles = typeof getVisibleRoles === 'function' ? getVisibleRoles() : (skillsData.roles || []);
