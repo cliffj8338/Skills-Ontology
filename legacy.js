@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.52 - BUILD 20260306-outcomes-ux
-        var BP_VERSION = 'v4.46.52';
+        // BLUEPRINT v4.46.53 - BUILD 20260306-cmd-palette
+        var BP_VERSION = 'v4.46.53';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1406,6 +1406,13 @@
             if (exportModal && exportModal.style.display !== 'none' && exportModal.style.display !== '') return;
             // Skip if tour is active
             if (window._bpTour && document.querySelector('.tour-overlay')) return;
+            
+            // CMD+K / CTRL+K opens command palette
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                if (typeof openCommandPalette === 'function') openCommandPalette();
+                return;
+            }
             
             if (e.altKey || e.ctrlKey || e.metaKey) return;
             
@@ -3437,6 +3444,7 @@
                         { id: 'p2-7e', name: 'Custom preset UX improvements', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.10: Custom preset card description changed from passive "You choose exactly..." to actionable "Granular control. Toggle individual skills, outcomes, and values in the Blueprint tab." When Custom is selected, a blue info banner appears below the preset grid: "Custom mode active. Manage individual share toggles for outcomes and values in the Blueprint tab." with clickable link to Blueprint view. Applied to both Settings > Privacy and Consent views.' },
                         { id: 'p2-7f', name: 'Unverified skills card frame + prioritization note', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.11: Unverified skills section in Verify tab now wrapped in a framed card matching the verified skills cards above (surface-2a background, border, 14px radius, 20px/24px padding). Added explanatory note: "These skills lack third-party verification. They are ranked by market rarity so you can prioritize which to verify first. Rare skills carry the most differentiation value."' },
                         { id: 'p2-7g', name: 'Fix demo profile networks + overlay cleanup', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.46.14-15: (1) getVisibleRoles() was filtering roles against userData.workHistory titles. Demo templates with no workHistory returned empty roles, showing only center node. Fix: return all roles when no workHistory exists or when no roles match. (2) toggleSkillsView(card) did not clean up network overlay elements (jobInfoTile, matchLegend, valuesAlignmentPanel, roleInfoCard, mobileNetworkBadge, jobSelectorDropdown). These fixed-position elements persisted from Network view into Card view. Now removed on toggle. Also resets jobSelectorExpanded state.' },
+                        { id: 'p2-7r', name: 'CMD+K Command Palette', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.53: Global CMD+K / CTRL+K command palette. Searches skills, outcomes, saved jobs, work history in real time. Static actions list (Add Skill, New Report, Generate Purpose, Export, Bulk Import, Comp Review). Navigation shortcuts with keyboard badges. Arrow key navigation, Enter to execute, Esc to close. Search icon injected into header. Analytics event on open. CSS injected once on first open.' },
                         { id: 'p2-7q', name: 'Outcomes tab UX redesign: search, category grouping, collapsible sections', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.52: 128-outcome scroll problem solved. Added search bar + category filter + shared-only toggle at top of outcomes tab. Outcomes grouped by category with collapsible sections (auto-collapsed when >5 items). Add button moved to header. Coaching tip + reflection prompts collapsed into Tips & Prompts accordion. Fixed SENSITIVE badge template literal bug. Fixed footer overlapping reports view by adding padding-bottom:80px to report container.' },
                         { id: 'p2-7p', name: 'Purpose persistence: initialized guard + _lastKnownPurpose circuit breaker', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.50: saveToFirestore() now blocks if !userData.initialized — prevents race condition where user navigates to Blueprint before Firestore loads, triggering a save with empty purpose that overwrites Firestore. _lastKnownPurpose (window var) stashed on load and on updatePurpose, used as ultimate fallback in _buildFirestoreData(). Belt-and-suspenders: even if both blueprintData.purpose and userData.purpose are transiently empty, the circuit breaker preserves the last known value.' },
                         { id: 'p2-7h', name: 'Purpose statement persistence fix', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.31/40: Purpose statement was erasing itself on reload. Three root causes fixed: (1) saveValues() not syncing userData.purpose before Firestore write — empty string overwrote real value on any early save. (2) inferValues() had no fallback — cleared blueprintData.purpose when userData.purpose was stale. (3) _buildFirestoreData() read blueprintData.purpose with no userData fallback — demo mode swaps and profile switches could trigger a save that wiped Firestore. Fix: _buildFirestoreData now reads blueprintData.purpose || userData.purpose || \'\'. renderContentEvidenceTab calls inferValues() before reading purpose. saveValues() syncs userData.purpose before every write. inferValues() preserves existing blueprintData.purpose if userData.purpose is stale.' },
@@ -20816,6 +20824,23 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             console.log('✓ Main app initialized with', userData.skills.length, 'skills');
             if (typeof bpTracker !== 'undefined' && bpTracker.sid && userData.skills.length > 0) bpTracker.trackFunnel('skills_added');
             hydrateIcons();
+            // Inject CMD+K search button into header if not already present
+            if (!document.getElementById('cmdKBtn')) {
+                var headerRight = document.querySelector('.header-right, .nav-right, #headerRight');
+                var saveInd = document.getElementById('saveIndicator');
+                if (saveInd && saveInd.parentNode) {
+                    var cmdBtn = document.createElement('button');
+                    cmdBtn.id = 'cmdKBtn';
+                    cmdBtn.setAttribute('aria-label', 'Search (Cmd+K)');
+                    cmdBtn.onclick = function() { if (typeof openCommandPalette === 'function') openCommandPalette(); };
+                    cmdBtn.style.cssText = 'display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:var(--c-surface-2,rgba(255,255,255,0.06));border:1px solid var(--c-border-subtle,rgba(255,255,255,0.1));border-radius:8px;color:var(--c-muted,#9ca3af);font-size:0.75em;cursor:pointer;transition:all 0.15s;white-space:nowrap;';
+                    cmdBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+                        + '<span style="color:var(--c-faint,#6b7280);font-size:0.9em;">⌘K</span>';
+                    cmdBtn.onmouseover = function() { this.style.borderColor='rgba(96,165,250,0.4)'; this.style.color='var(--c-text,#e5e7eb)'; };
+                    cmdBtn.onmouseout  = function() { this.style.borderColor='var(--c-border-subtle,rgba(255,255,255,0.1))'; this.style.color='var(--c-muted,#9ca3af)'; };
+                    saveInd.parentNode.insertBefore(cmdBtn, saveInd);
+                }
+            }
         }
         
         // Export current profile
@@ -23207,7 +23232,262 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             
             el.innerHTML = html;
         }
-        window.initReports = initReports;
+        // ═══════════════════════════════════════════════════════════════════
+        // COMMAND PALETTE  (CMD+K)
+        // v1.0 — search skills, outcomes, jobs, work history + quick actions
+        // ═══════════════════════════════════════════════════════════════════
+
+        var _paletteOpen = false;
+        var _paletteIdx  = 0;
+        var _paletteResults = [];
+
+        // Static actions list
+        var _paletteActions = [
+            { type: 'action', label: 'Add Skill',            icon: 'plus',      kbd: null,  fn: function() { switchView('skills'); setTimeout(function() { if (typeof showAddSkillsEmpty === 'function') showAddSkillsEmpty(); }, 100); } },
+            { type: 'action', label: 'New Scouting Report',  icon: 'file-text', kbd: null,  fn: function() { switchView('reports'); setTimeout(function() { if (typeof showScoutingReportPicker === 'function') showScoutingReportPicker(); }, 150); } },
+            { type: 'action', label: 'Add Custom Outcome',   icon: 'outcomes',  kbd: null,  fn: function() { switchView('blueprint'); setTimeout(function() { switchBlueprintTab('outcomes'); setTimeout(function() { if (typeof addCustomOutcome === 'function') addCustomOutcome(); }, 100); }, 150); } },
+            { type: 'action', label: 'Generate Purpose Statement', icon: 'zap', kbd: null,  fn: function() { switchView('blueprint'); setTimeout(function() { switchBlueprintTab('content'); setTimeout(function() { if (typeof generatePurposeAI === 'function') generatePurposeAI(); }, 150); }, 150); } },
+            { type: 'action', label: 'Bulk Import Skills',   icon: 'upload',    kbd: null,  fn: function() { if (typeof openBulkImport === 'function') openBulkImport(); } },
+            { type: 'action', label: 'Compensation Review Guide', icon: 'target', kbd: null, fn: function() { if (typeof showCompReviewGuide === 'function') showCompReviewGuide(); } },
+            { type: 'action', label: 'Export PDF Report',    icon: 'export',    kbd: null,  fn: function() { switchView('reports'); } },
+            { type: 'action', label: 'Import LinkedIn Data', icon: 'network',   kbd: null,  fn: function() { switchView('blueprint'); setTimeout(function() { switchBlueprintTab('experience'); }, 150); } },
+            { type: 'nav',    label: 'Go to Map',            icon: 'skills',    kbd: '1',   fn: function() { switchView('skills'); } },
+            { type: 'nav',    label: 'Go to Jobs',           icon: 'jobs',      kbd: '2',   fn: function() { switchView('jobs'); } },
+            { type: 'nav',    label: 'Go to Blueprint',      icon: 'blueprint', kbd: '3',   fn: function() { switchView('blueprint'); } },
+            { type: 'nav',    label: 'Go to Reports',        icon: 'file-text', kbd: '4',   fn: function() { switchView('reports'); } },
+            { type: 'nav',    label: 'Go to Settings',       icon: 'settings',  kbd: '5',   fn: function() { switchView('settings'); } },
+            { type: 'nav',    label: 'Skills Tab',           icon: 'skills',    kbd: null,  fn: function() { switchView('blueprint'); setTimeout(function() { switchBlueprintTab('skills'); }, 150); } },
+            { type: 'nav',    label: 'Outcomes Tab',         icon: 'outcomes',  kbd: null,  fn: function() { switchView('blueprint'); setTimeout(function() { switchBlueprintTab('outcomes'); }, 150); } },
+            { type: 'nav',    label: 'Values Tab',           icon: 'values',    kbd: null,  fn: function() { switchView('blueprint'); setTimeout(function() { switchBlueprintTab('values'); }, 150); } },
+            { type: 'nav',    label: 'Content & Evidence',   icon: 'clipboard', kbd: null,  fn: function() { switchView('blueprint'); setTimeout(function() { switchBlueprintTab('content'); }, 150); } },
+        ];
+
+        function _buildPaletteIndex(query) {
+            var q = (query || '').toLowerCase().trim();
+            var results = [];
+
+            if (!q) {
+                // Empty query: show top actions + nav
+                _paletteActions.forEach(function(a) { results.push(a); });
+                return results.slice(0, 12);
+            }
+
+            // Score helper
+            function score(str) {
+                var s = (str || '').toLowerCase();
+                if (s === q) return 100;
+                if (s.startsWith(q)) return 80;
+                if (s.includes(q)) return 60;
+                // Word prefix match
+                var words = s.split(/\s+/);
+                if (words.some(function(w) { return w.startsWith(q); })) return 50;
+                return 0;
+            }
+
+            // Actions + nav
+            _paletteActions.forEach(function(a) {
+                var s = Math.max(score(a.label), score(a.type));
+                if (s > 0) results.push({ item: a, score: s + 10, type: a.type, label: a.label, icon: a.icon, kbd: a.kbd, fn: a.fn, sub: a.type === 'nav' ? 'Navigate' : 'Action' });
+            });
+
+            // Skills
+            var skills = (skillsData && skillsData.skills) || (userData && userData.skills) || [];
+            skills.forEach(function(s) {
+                var sc = Math.max(score(s.name), score(s.category));
+                if (sc > 0) results.push({
+                    type: 'skill', label: s.name, sub: s.level + (s.category ? ' \u00b7 ' + s.category : ''),
+                    icon: 'skills', score: sc,
+                    fn: function(sk) { return function() { switchView('skills'); setTimeout(function() { if (typeof openSkillModal === 'function') openSkillModal(sk.name, sk); }, 200); }; }(s)
+                });
+            });
+
+            // Outcomes
+            var outcomes = (blueprintData && blueprintData.outcomes) || [];
+            outcomes.forEach(function(o, i) {
+                var sc = Math.max(score(o.text), score(o.category), score(o.skill));
+                if (sc > 0) {
+                    var preview = o.text.length > 72 ? o.text.slice(0, 72) + '\u2026' : o.text;
+                    results.push({
+                        type: 'outcome', label: preview, sub: o.category + (o.skill ? ' \u00b7 from ' + o.skill : ''),
+                        icon: 'outcomes', score: sc,
+                        fn: (function(idx) { return function() { switchView('blueprint'); setTimeout(function() { switchBlueprintTab('outcomes'); }, 150); }; })(i)
+                    });
+                }
+            });
+
+            // Saved jobs
+            var jobs = (userData && userData.savedJobs) || [];
+            jobs.forEach(function(j, i) {
+                var sc = Math.max(score(j.title), score(j.company));
+                if (sc > 0) results.push({
+                    type: 'job', label: j.title, sub: (j.company || '') + (j.matchData && j.matchData.score ? ' \u00b7 ' + j.matchData.score + '% match' : ''),
+                    icon: 'jobs', score: sc,
+                    fn: (function(idx) { return function() { switchView('reports'); setTimeout(function() { if (typeof showReportFormatPicker === 'function') showReportFormatPicker(idx); }, 200); }; })(i)
+                });
+            });
+
+            // Work history
+            var history = (userData && userData.workHistory) || [];
+            history.forEach(function(r) {
+                var sc = Math.max(score(r.title), score(r.company));
+                if (sc > 0) results.push({
+                    type: 'history', label: r.title, sub: (r.company || '') + (r.startDate ? ' \u00b7 ' + r.startDate : ''),
+                    icon: 'experience', score: sc,
+                    fn: function() { switchView('blueprint'); setTimeout(function() { switchBlueprintTab('experience'); }, 150); }
+                });
+            });
+
+            results.sort(function(a, b) { return b.score - a.score; });
+            return results.slice(0, 14);
+        }
+
+        var _TYPE_LABELS = { action: 'Action', nav: 'Navigate', skill: 'Skill', outcome: 'Outcome', job: 'Job', history: 'Work History' };
+        var _TYPE_COLORS = { action: '#60a5fa', nav: '#a78bfa', skill: '#10b981', outcome: '#fb923c', job: '#f59e0b', history: '#94a3b8' };
+
+        function _renderPaletteResults() {
+            var list = document.getElementById('cmdPaletteList');
+            if (!list) return;
+            if (_paletteResults.length === 0) {
+                list.innerHTML = '<div style="text-align:center;padding:28px 16px;color:var(--c-faint);font-size:0.88em;">No results</div>';
+                return;
+            }
+            // Group by type for display
+            var rendered = '';
+            var lastType = null;
+            _paletteResults.forEach(function(r, i) {
+                var isActive = i === _paletteIdx;
+                var typeLabel = _TYPE_LABELS[r.type] || r.type;
+                var typeColor = _TYPE_COLORS[r.type] || '#9ca3af';
+                if (r.type !== lastType) {
+                    if (lastType !== null) rendered += '</div>';
+                    rendered += '<div class="cmd-group">';
+                    rendered += '<div style="font-size:0.65em;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--c-faint);padding:8px 14px 4px;">' + typeLabel + 's</div>';
+                    lastType = r.type;
+                }
+                rendered += '<div class="cmd-item' + (isActive ? ' cmd-item-active' : '') + '" data-idx="' + i + '" onmouseenter="this.className=\'cmd-item cmd-item-active\';_paletteIdx=' + i + ';" onmouseleave="this.className=\'cmd-item\';" onclick="_paletteExecute(' + i + ');">'
+                    + '<span style="flex-shrink:0;color:' + typeColor + ';opacity:0.8;">' + bpIcon(r.icon || 'search', 14) + '</span>'
+                    + '<span style="flex:1;min-width:0;">'
+                    + '<div style="font-size:0.88em;color:var(--c-text,#e5e7eb);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(r.label) + '</div>'
+                    + (r.sub ? '<div style="font-size:0.73em;color:var(--c-faint);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(r.sub) + '</div>' : '')
+                    + '</span>'
+                    + (r.kbd ? '<kbd style="font-size:0.65em;padding:2px 6px;border-radius:4px;background:var(--c-surface-3);border:1px solid var(--c-border-subtle);color:var(--c-faint);">' + r.kbd + '</kbd>' : '')
+                    + '</div>';
+            });
+            if (lastType !== null) rendered += '</div>';
+            list.innerHTML = rendered;
+        }
+
+        function _paletteExecute(idx) {
+            var r = _paletteResults[idx];
+            if (!r || !r.fn) return;
+            closeCommandPalette();
+            setTimeout(function() { r.fn(); }, 60);
+        }
+
+        function openCommandPalette() {
+            if (_paletteOpen) { closeCommandPalette(); return; }
+            _paletteOpen = true;
+            _paletteIdx = 0;
+
+            // Inject CSS once
+            if (!document.getElementById('cmdPaletteCSS')) {
+                var style = document.createElement('style');
+                style.id = 'cmdPaletteCSS';
+                style.textContent = [
+                    '#cmdPaletteOverlay{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);display:flex;align-items:flex-start;justify-content:center;padding-top:12vh;}',
+                    '#cmdPalette{width:100%;max-width:560px;background:var(--c-surface-1,#1e2333);border:1px solid rgba(96,165,250,0.25);border-radius:14px;box-shadow:0 24px 64px rgba(0,0,0,0.6);overflow:hidden;display:flex;flex-direction:column;max-height:70vh;}',
+                    '#cmdPaletteInput{width:100%;padding:16px 18px;background:transparent;border:none;border-bottom:1px solid var(--c-surface-4,rgba(255,255,255,0.08));color:var(--c-text,#e5e7eb);font-size:1em;outline:none;font-family:inherit;}',
+                    '#cmdPaletteInput::placeholder{color:var(--c-faint,#4b5563);}',
+                    '#cmdPaletteList{overflow-y:auto;flex:1;}',
+                    '.cmd-item{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;transition:background 0.08s;}',
+                    '.cmd-item-active{background:rgba(96,165,250,0.1);}',
+                    '#cmdPaletteFooter{padding:8px 14px;border-top:1px solid var(--c-surface-4,rgba(255,255,255,0.06));display:flex;gap:14px;font-size:0.68em;color:var(--c-faint);align-items:center;}',
+                    '#cmdPaletteFooter kbd{padding:2px 6px;border-radius:4px;background:var(--c-surface-3,rgba(255,255,255,0.08));border:1px solid var(--c-border-subtle,rgba(255,255,255,0.1));color:var(--c-muted);}',
+                ].join('');
+                document.head.appendChild(style);
+            }
+
+            // Build overlay
+            var overlay = document.createElement('div');
+            overlay.id = 'cmdPaletteOverlay';
+            overlay.onclick = function(e) { if (e.target === overlay) closeCommandPalette(); };
+
+            overlay.innerHTML = '<div id="cmdPalette" role="dialog" aria-modal="true" aria-label="Command palette">'
+                + '<div style="display:flex;align-items:center;gap:10px;padding:0 14px 0 18px;">'
+                + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--c-faint)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+                + '<input id="cmdPaletteInput" type="text" placeholder="Search skills, outcomes, jobs, or type a command\u2026" autocomplete="off" spellcheck="false">'
+                + '</div>'
+                + '<div id="cmdPaletteList"></div>'
+                + '<div id="cmdPaletteFooter">'
+                + '<span><kbd>\u2191\u2193</kbd> navigate</span>'
+                + '<span><kbd>\u23ce</kbd> select</span>'
+                + '<span><kbd>Esc</kbd> close</span>'
+                + '<span style="margin-left:auto;opacity:0.6;">\u2318K</span>'
+                + '</div>'
+                + '</div>';
+
+            document.body.appendChild(overlay);
+
+            // Initial results (empty query = show all actions)
+            _paletteResults = _buildPaletteIndex('');
+            _renderPaletteResults();
+
+            // Focus input
+            var input = document.getElementById('cmdPaletteInput');
+            if (input) {
+                input.focus();
+                input.addEventListener('input', function() {
+                    _paletteIdx = 0;
+                    _paletteResults = _buildPaletteIndex(this.value);
+                    _renderPaletteResults();
+                });
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        _paletteIdx = Math.min(_paletteIdx + 1, _paletteResults.length - 1);
+                        _renderPaletteResults();
+                        _scrollActivePaletteItem();
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        _paletteIdx = Math.max(_paletteIdx - 1, 0);
+                        _renderPaletteResults();
+                        _scrollActivePaletteItem();
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        _paletteExecute(_paletteIdx);
+                    } else if (e.key === 'Escape') {
+                        closeCommandPalette();
+                    }
+                });
+            }
+
+            // Global ESC listener
+            window._cmdPaletteEscFn = function(e) { if (e.key === 'Escape') closeCommandPalette(); };
+            document.addEventListener('keydown', window._cmdPaletteEscFn);
+
+            logAnalyticsEvent('cmd_palette_open', {});
+        }
+        window.openCommandPalette = openCommandPalette;
+
+        function closeCommandPalette() {
+            _paletteOpen = false;
+            var overlay = document.getElementById('cmdPaletteOverlay');
+            if (overlay) overlay.remove();
+            if (window._cmdPaletteEscFn) {
+                document.removeEventListener('keydown', window._cmdPaletteEscFn);
+                window._cmdPaletteEscFn = null;
+            }
+        }
+        window.closeCommandPalette = closeCommandPalette;
+
+        function _scrollActivePaletteItem() {
+            var list = document.getElementById('cmdPaletteList');
+            if (!list) return;
+            var active = list.querySelector('.cmd-item-active');
+            if (active) active.scrollIntoView({ block: 'nearest' });
+        }
+
+                window.initReports = initReports;
         
         // Open any demo scouting report in iframe overlay
         function openDemoScoutingReport(filePath, name, isMismatch) {
