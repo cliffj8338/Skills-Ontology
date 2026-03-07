@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.48 - BUILD 20260306-schema-phase4
-        var BP_VERSION = 'v4.46.48';
+        // BLUEPRINT v4.46.49 - BUILD 20260306-comp-review
+        var BP_VERSION = 'v4.46.49';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -26085,6 +26085,7 @@ body {
                         + '<div style="font-size:2.3em; font-weight:800; color:var(--c-heading); line-height:1; margin-bottom:8px;">' + formatCompValue(reportedComp) + '</div>'
                         + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">Reported annual comp</div>'
                         + pillHtml
+                        + (belowJust ? '<button onclick="showCompReviewGuide()" style="margin-top:10px; width:100%; padding:7px 10px; border-radius:8px; border:1px solid rgba(96,165,250,0.3); background:rgba(96,165,250,0.08); color:#60a5fa; font-size:0.74em; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">' + bpIcon(\'target\',12) + ' Review Prep</button>' : '')
                         + '</div>';
                 } else {
                     html += '<div style="background:var(--c-surface-1); border:1px dashed var(--c-surface-5); border-radius:14px; padding:18px 20px; display:flex; flex-direction:column; justify-content:space-between;">'
@@ -42122,6 +42123,120 @@ body {
             return html;
         }
         window.renderInlineNegotiation = renderInlineNegotiation;
+        
+        function showCompReviewGuide() {
+            if (isReadOnlyProfile) { demoGate('use the Review Prep guide'); return; }
+            logAnalyticsEvent('comp_review_guide', {});
+            var tv = getEffectiveComp();
+            if (!tv || !tv.total) { showToast('Add your salary in Settings to use Review Prep.', 'info'); return; }
+            
+            var currentComp  = tv.reportedComp || 0;
+            var marketFloor  = tv.marketRate   || tv.yourWorth || 0;
+            var justifiedVal = tv.yourWorth    || tv.total     || 0;
+            var gap          = justifiedVal - currentComp;
+            var gapPct       = currentComp > 0 ? Math.round((gap / currentComp) * 100) : 0;
+            var compaRatio   = marketFloor > 0 ? Math.round((currentComp / marketFloor) * 100) : 0;
+            
+            // A realistic internal raise ask: midpoint between current and justified
+            var internalAsk   = Math.round((currentComp + justifiedVal) / 2 / 1000) * 1000;
+            var internalAskPct = currentComp > 0 ? Math.round(((internalAsk - currentComp) / currentComp) * 100) : 0;
+            
+            // Pull top outcomes (quantified first)
+            var allOutcomes   = blueprintData.outcomes || userData.outcomes || [];
+            var quantified    = allOutcomes.filter(function(o) { return o.text && /\d+%|\$\d+|[0-9,]{4,}/.test(o.text); });
+            var other         = allOutcomes.filter(function(o) { return o.text && !/\d+%|\$\d+|[0-9,]{4,}/.test(o.text); });
+            var topOutcomes   = quantified.concat(other).slice(0, 3);
+            
+            // Top skills by level
+            var allSkills = skillsData.skills || [];
+            var masterySkills  = allSkills.filter(function(s) { return s.level === 'Mastery'; });
+            var expertSkills   = allSkills.filter(function(s) { return s.level === 'Expert'; });
+            var advancedSkills = allSkills.filter(function(s) { return s.level === 'Advanced'; });
+            var topSkillNames  = masterySkills.concat(expertSkills).slice(0, 4).map(function(s) { return s.name; });
+            var premPct        = marketFloor > 0 ? Math.round(((justifiedVal - marketFloor) / marketFloor) * 100) : 0;
+            
+            // Compa-ratio status label
+            var compaStatus, compaColor;
+            if (compaRatio < 80)       { compaStatus = 'Significantly below market — high retention risk flag'; compaColor = '#ef4444'; }
+            else if (compaRatio < 90)  { compaStatus = 'Below market midpoint — room to correct without budget strain'; compaColor = '#f59e0b'; }
+            else if (compaRatio < 110) { compaStatus = 'Within normal range — incremental increase is well-supported'; compaColor = '#10b981'; }
+            else if (compaRatio < 120) { compaStatus = 'Above midpoint — strong justification needed for any increase'; compaColor = '#60a5fa'; }
+            else                       { compaStatus = 'At or above market ceiling for this level'; compaColor = '#9ca3af'; }
+            
+            var modal = document.getElementById('exportModal');
+            var modalContent = modal.querySelector('.modal-content');
+            history.pushState({modal:'compReview'}, '', location.href);
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            var html = '<div class="modal-header">'                + '<div class="modal-header-left">'                + '<h2 class="modal-title">' + bpIcon('target',18) + ' Review Prep</h2>'                + '<p style="color:var(--c-muted); margin-top:5px; font-size:0.85em;">Compensation intelligence for your next review conversation</p>'                + '</div>'                + '<button class="modal-close" aria-label="Close" onclick="closeExportModal()">×</button>'                + '</div>'                + '<div class="modal-body" style="padding:24px 28px; max-height:72vh; overflow-y:auto;">';
+            
+            // Section 1: Your Position
+            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-muted); margin-bottom:12px;">Your Position</div>'                + '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px;">'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Current Pay</div><div style="font-size:1.5em; font-weight:800; color:var(--c-heading);">' + formatCompValue(currentComp) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Market Floor (BLS)</div><div style="font-size:1.5em; font-weight:800; color:#10b981;">' + formatCompValue(marketFloor) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Justified Value</div><div style="font-size:1.5em; font-weight:800; color:#60a5fa;">' + formatCompValue(justifiedVal) + '</div></div>'                + '<div><div style="font-size:0.68em; color:var(--c-faint); margin-bottom:3px;">Gap to Justified</div><div style="font-size:1.5em; font-weight:800; color:#f59e0b;">' + (gap > 0 ? '+' + formatCompValue(gap) : formatCompValue(Math.abs(gap))) + '</div></div>'                + '</div></div>';
+            
+            // Section 2: Compa-Ratio
+            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-muted); margin-bottom:10px;">Compa-Ratio</div>'                + '<div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">'                + '<div style="font-size:2.4em; font-weight:800; color:' + compaColor + ';">' + compaRatio + '%</div>'                + '<div><div style="font-size:0.82em; color:var(--c-text); font-weight:600; line-height:1.4;">' + escapeHtml(compaStatus) + '</div>'                + '<div style="font-size:0.72em; color:var(--c-faint); margin-top:3px;">Your pay vs BLS market midpoint</div></div></div>'                + '<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:4px; font-size:0.7em; text-align:center;">'                + '<div style="padding:5px; background:rgba(239,68,68,0.08); border-radius:5px; color:#ef4444;"><div style="font-weight:700;">&lt;80%</div><div style="color:var(--c-faint);">Underpaid</div></div>'                + '<div style="padding:5px; background:rgba(245,158,11,0.08); border-radius:5px; color:#f59e0b;"><div style="font-weight:700;">80–100%</div><div style="color:var(--c-faint);">Below mid</div></div>'                + '<div style="padding:5px; background:rgba(16,185,129,0.08); border-radius:5px; color:#10b981;"><div style="font-weight:700;">100–120%</div><div style="color:var(--c-faint);">At/above mid</div></div>'                + '<div style="padding:5px; background:rgba(156,163,175,0.08); border-radius:5px; color:#9ca3af;"><div style="font-weight:700;">&gt;120%</div><div style="color:var(--c-faint);">At ceiling</div></div>'                + '</div></div>';
+            
+            // Section 3: Your Ask
+            if (gap > 0) {
+                html += '<div style="background:linear-gradient(135deg,rgba(96,165,250,0.08),rgba(96,165,250,0.02)); border:1.5px solid rgba(96,165,250,0.3); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                    + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#60a5fa; margin-bottom:10px;">' + bpIcon('target',12) + ' Your Ask</div>'                    + '<div style="font-size:0.88em; color:var(--c-text); line-height:1.6; margin-bottom:12px;">'                    + 'A realistic internal raise target is the midpoint between where you are and where your skills justify. '                    + 'This is achievable in a single review cycle and fully supportable by BLS data and your evidence record.'                    + '</div>'                    + '<div style="display:flex; align-items:center; gap:20px; padding:12px 16px; background:rgba(96,165,250,0.06); border-radius:9px;">'                    + '<div><div style="font-size:0.68em; color:var(--c-faint);">Suggested ask</div><div style="font-size:2em; font-weight:800; color:#60a5fa;">' + formatCompValue(internalAsk) + '</div></div>'                    + '<div style="color:var(--c-surface-5); font-size:1.5em;">→</div>'                    + '<div><div style="font-size:0.68em; color:var(--c-faint);">That's a</div><div style="font-size:1.4em; font-weight:800; color:#f59e0b;">+' + internalAskPct + '%</div><div style="font-size:0.68em; color:var(--c-faint);">increase</div></div>'                    + '<div style="flex:1; font-size:0.78em; color:var(--c-faint); line-height:1.5;">Justified value is <strong style="color:#60a5fa;">' + formatCompValue(justifiedVal) + '</strong>. Starting at midpoint leaves room to negotiate and signals data-literacy.</div>'                    + '</div></div>';
+            }
+            
+            // Section 4: Your Evidence
+            if (topOutcomes.length > 0 || topSkillNames.length > 0) {
+                html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                    + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-muted); margin-bottom:10px;">' + bpIcon('check',12) + ' Your Evidence Record</div>';
+                
+                if (topSkillNames.length > 0) {
+                    html += '<div style="font-size:0.78em; color:var(--c-faint); margin-bottom:6px;">Top skills by proficiency</div>'                        + '<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;">';
+                    topSkillNames.forEach(function(n) {
+                        html += '<span style="padding:3px 9px; background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.25); border-radius:20px; font-size:0.77em; color:#60a5fa;">' + escapeHtml(n) + '</span>';
+                    });
+                    if (premPct > 0) {
+                        html += '<span style="padding:3px 9px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2); border-radius:20px; font-size:0.77em; color:#f59e0b;">+' + premPct + '% skill premium</span>';
+                    }
+                    html += '</div>';
+                }
+                
+                if (topOutcomes.length > 0) {
+                    html += '<div style="font-size:0.78em; color:var(--c-faint); margin-bottom:6px;">Documented outcomes (bring these)</div>'                        + '<div style="display:grid; gap:6px;">';
+                    topOutcomes.forEach(function(o) {
+                        var hasMetric = /\d+%|\$\d+|[0-9,]{4,}/.test(o.text || '');
+                        var oText = escapeHtml((o.text || '').substring(0, 120)) + (o.text && o.text.length > 120 ? '\u2026' : '');
+                        var oCat  = o.category ? ' <span style="font-size:0.75em; color:var(--c-faint);">' + escapeHtml(o.category) + '</span>' : '';
+                        html += '<div style="padding:8px 12px; background:var(--c-surface-1); border-left:3px solid ' + (hasMetric ? '#10b981' : 'var(--c-surface-5)') + '; border-radius:0 6px 6px 0; font-size:0.81em; color:var(--c-text); line-height:1.5;">' + oText + oCat + '</div>';
+                    });
+                    html += '</div>';
+                } else {
+                    html += '<div style="font-size:0.82em; color:var(--c-faint); font-style:italic;">No documented outcomes yet. Add them in the Blueprint tab to strengthen your case.</div>';
+                }
+                html += '</div>';
+            }
+            
+            // Section 5: Talking Points
+            var talkingPoints = [
+                { color: '#fbbf24', title: 'Open with data, not a feeling',
+                  text: '"I\'ve been looking at market data. My compa-ratio is ' + compaRatio + '% — the BLS midpoint for a ' + escapeHtml(tv.roleLevel || '') + ' in this function is ' + formatCompValue(marketFloor) + '. I\'d like to discuss closing that gap."' },
+                { color: '#60a5fa', title: 'Anchor to justified value',
+                  text: '"Based on my documented skills and outcomes, my justified value is ' + formatCompValue(justifiedVal) + '. I\'m not asking to get there in one step — I\'m asking to move to ' + formatCompValue(internalAsk) + ' this cycle."' },
+                { color: '#10b981', title: 'Reference your evidence',
+                  text: topOutcomes.length > 0
+                    ? '"In the last cycle I ' + escapeHtml((topOutcomes[0].text || '').substring(0, 80)) + (topOutcomes[0].text && topOutcomes[0].text.length > 80 ? '…' : '') + ' That\'s the kind of impact that justifies the adjustment."'
+                    : '"My skill set includes ' + (topSkillNames.slice(0,2).join(' and ') || 'several high-impact areas') + ' at Expert or Mastery level. That depth has direct market premium attached to it."' },
+                { color: '#a78bfa', title: 'Leave the door open',
+                  text: '"If the full adjustment isn\'t possible this cycle, I\'d appreciate understanding the path to get there. What would need to be true for this to happen in the next review?"' }
+            ];
+            
+            html += '<div style="background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:12px; padding:18px 20px; margin-bottom:16px;">'                + '<div style="font-size:0.72em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-muted); margin-bottom:10px;">Talking Points</div>'                + '<div style="display:grid; gap:8px;">';
+            talkingPoints.forEach(function(tp) {
+                html += '<div style="padding:10px 14px; background:var(--c-surface-1); border-left:3px solid ' + tp.color + '; border-radius:0 8px 8px 0;">'                    + '<div style="font-size:0.75em; font-weight:700; color:' + tp.color + '; margin-bottom:4px;">' + escapeHtml(tp.title) + '</div>'                    + '<div style="font-size:0.82em; color:var(--c-text); line-height:1.5; font-style:italic;">' + escapeHtml(tp.text) + '</div>'                    + '</div>';
+            });
+            html += '</div></div>';
+            
+            html += '</div>'; // end modal-body
+            
+            modalContent.innerHTML = html;
+        }
+        window.showCompReviewGuide = showCompReviewGuide;
         
         function showNegotiationGuide() {
             if (isReadOnlyProfile) { demoGate('use the negotiation guide'); return; }
