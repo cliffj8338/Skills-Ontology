@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.61 - BUILD 20260306-footer-mc-pad
-        var BP_VERSION = 'v4.46.61';
+        // BLUEPRINT v4.46.62 - BUILD 20260306-footer-css-fix
+        var BP_VERSION = 'v4.46.62';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -20828,27 +20828,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             console.log('✓ Main app initialized with', userData.skills.length, 'skills');
             if (typeof bpTracker !== 'undefined' && bpTracker.sid && userData.skills.length > 0) bpTracker.trackFunnel('skills_added');
             hydrateIcons();
-            // Force footer into flow and pad scroll container — beats runtime-injected CSS
-            (function() {
-                function fixFooter() {
-                    var f = document.getElementById('appFooter');
-                    if (f) {
-                        f.style.setProperty('position', 'relative', 'important');
-                        f.style.setProperty('bottom', 'auto', 'important');
-                        f.style.setProperty('left', 'auto', 'important');
-                        f.style.setProperty('right', 'auto', 'important');
-                        f.style.setProperty('width', 'auto', 'important');
-                        f.style.setProperty('z-index', 'auto', 'important');
-                    }
-                    var mc = document.getElementById('mainContentArea');
-                    if (mc) {
-                        mc.style.setProperty('padding-bottom', '100px', 'important');
-                    }
-                }
-                fixFooter();
-                setTimeout(fixFooter, 300);
-                setTimeout(fixFooter, 1000);
-            })();
+            // Footer handled via #reportsView height/overflow in main.css
             // Inject CMD+K search button into header if not already present
             if (!document.getElementById('cmdKBtn')) {
                 var headerRight = document.querySelector('.header-right, .nav-right, #headerRight');

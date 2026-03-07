@@ -157,6 +157,17 @@
             line-height: 1.5;
         }
 
+        /* ── Report & Admin Views: scroll within mainContentArea like other views ── */
+        #reportsView {
+            height: 100%;
+            overflow-y: auto;
+            padding: 30px 30px 80px;
+        }
+        #adminView {
+            height: 100%;
+            overflow-y: auto;
+            padding: 30px 30px 80px;
+        }
         /* ── Demo Mode Toggle ──────────────────────────────────── */
         /* ── Mobile Layout Fixes ──────────────────────────────── */
         @media (max-width: 768px) {
