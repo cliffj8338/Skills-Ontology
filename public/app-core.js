@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.47 - BUILD 20260306-ex-roadmap
-        var BP_VERSION = 'v4.46.47';
+        // BLUEPRINT v4.46.48 - BUILD 20260306-schema-phase4
+        var BP_VERSION = 'v4.46.48';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -3438,7 +3438,7 @@
                         { id: 's13', name: 'XSS fix — negotiation modal location field', status: 'done', category: 'security', priority: 'high', notes: 'v4.46.43: userData.profile.location was rendered unescaped in two template literal positions inside showNegotiationGuide() which assigns to modalContent.innerHTML — a real XSS surface. Both instances wrapped in escapeHtml(userData.profile.location || \'\').' },
                         { id: 'p2-7m', name: 'Jobs tab bar mobile overflow fix', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.44: Jobs subtab bar was clipping \'Tracker\' tab on narrow mobile viewports. Container now uses overflow-x:auto, flex-wrap:nowrap, -webkit-overflow-scrolling:touch, scrollbar-width:none. Each button gets flex-shrink:0 and white-space:nowrap. Scrolls horizontally instead of clipping.' },
                         { id: 'p2-7n', name: 'Dashboard hero grid mobile responsiveness', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.44: Dashboard 3-box hero changed from rigid grid-template-columns:1fr 1fr 1fr to repeat(auto-fit, minmax(180px, 1fr)). Stacks to single column on narrow viewports. Jobs container padding reduced from 24px all sides to 16px 12px 80px for mobile breathing room.' },
-                        { id: 'p2-7o', name: 'Job Schema v2.0 Phase 3/4 bug fixes', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.46.45: Three bugs fixed. (1) Title extraction: strips trailing location/remote/type noise after title found (\'VP of BD - Remote | Philadelphia\' → \'VP of BD\'). Handles pipe, dash, em-dash separators, employment type parens, city/state suffixes. (2) BLS category mismatches: sales pattern now runs before finance in detection order (ending race condition where \'revenue\' in BD titles fired finance first). \'revenue\' removed from finance pattern — replaced with \'revenue recognition\' and \'revenue accounting\'. \'training\' removed from education (it\'s HR). Added \'training and develop\', \'talent acquisition\', \'people partner\' to hr pattern. (3) Skill gap noise: _wbSkillQualityFilter now applied inside matchJobToProfile immediately after skills array normalization — same noise filter that runs in WB compare path now runs on job card match path. Fragments/verbs/generic phrases no longer inflate gap denominator.' }
+                        { id: 'p2-7o', name: 'Job Schema v2.0 Phase 3/4 bug fixes', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.46.45 (Phase 3): Three bugs fixed: title trailing noise strip, BLS category order/pattern fixes, skill gap quality filter in matchJobToProfile. v4.46.48 (Phase 4): Four additional fixes: (1) inferJobProficiency parameter order bug in admin-approved skills pass (args were (approved, seniority, jdText) — should be (jdText, approved, seniority)). (2) parseJobLocally seniority detection missing Director level — director titles were mapping to Senior. Now: Senior Director→Executive, Director/Principal/Sr Manager→Director, Senior/Lead/Staff→Senior. (3) inferJobProficiency fallback missing Director case — fell through to Proficient default. Now returns Advanced for Director seniority. (4) badTitles regex in analyzeJob expanded from 13 to 30+ patterns — adds position/role/job overview, what you\'ll bring/need, who you are, key responsibilities, minimum/basic/preferred qualifications, about the position/company/team, equal opportunity, why join us, compensation and benefits.' }
                     ]
                 },
                 {
@@ -33847,7 +33847,7 @@ body {
                 var department = parsed.department || '';
                 
                 // Sanitize title: reject section headings that slipped through
-                var badTitles = /^(what you'?ll do|about the role|about us|qualifications|responsibilities|requirements|job description|overview|summary|working conditions|benefits|who we are|our team|the opportunity)$/i;
+                var badTitles = /^(what you'?ll do|about the role|about us|qualifications|responsibilities|requirements|job description|overview|summary|working conditions|benefits|who we are|our team|the opportunity|position overview|role overview|role description|role summary|job summary|job overview|what we offer|what you'?ll bring|what you'?ll need|who you are|the role|about you|key responsibilities|key qualifications|minimum qualifications|basic qualifications|preferred qualifications|essential duties|about the position|about the company|about the team|equal opportunity|why join us|why us|compensation and benefits)$/i;
                 var parsedTitle = (parsed.title || '').trim();
                 if (!parsedTitle || badTitles.test(parsedTitle)) parsedTitle = 'Untitled Position';
                 
@@ -34126,7 +34126,9 @@ body {
             // ===== SENIORITY (detect early for proficiency inference) =====
             var seniority = 'Mid';
             if (/\b(vp|vice president|chief|c-suite|head of|svp|evp)\b/i.test(jdText)) seniority = 'Executive';
-            else if (/\b(senior director|director|principal|senior manager)\b/i.test(jdText)) seniority = 'Senior';
+            else if (/\b(senior director|sr\.?\s*director)\b/i.test(jdText)) seniority = 'Executive'; // Sr Director = VP-adjacent
+            else if (/\b(director|principal|senior manager|sr\.?\s*manager)\b/i.test(jdText)) seniority = 'Director';
+            else if (/\b(senior|lead|staff engineer|staff)\b/i.test(jdText)) seniority = 'Senior';
             else if (/\b(junior|entry|associate|intern|coordinator)\b/i.test(jdText)) seniority = 'Entry';
             
             // ===== SECTION DETECTION (Phase 3) =====
@@ -34907,7 +34909,7 @@ body {
                         var wbRe = new RegExp('\\b' + approved.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
                         if (wbRe.test(jdText)) {
                             var displayName = approved.replace(/\b\w/g, function(c) { return c.toUpperCase(); });
-                            skillMatches.push({ name: displayName, requirement: 'Required', proficiency: inferJobProficiency(approved, seniority, jdText), category: 'approved', source: 'admin-approved' });
+                            skillMatches.push({ name: displayName, requirement: 'Required', proficiency: inferJobProficiency(jdText, approved, seniority), category: 'approved', source: 'admin-approved' });
                         }
                     } catch(e) {}
                 });
@@ -34997,6 +34999,7 @@ body {
             
             // Fall back to seniority-based default
             if (seniority === 'Executive') return 'Expert';
+            if (seniority === 'Director') return 'Advanced';
             if (seniority === 'Senior') return 'Proficient';
             if (seniority === 'Entry') return 'Competent';
             return 'Proficient'; // Mid default
