@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.59 - BUILD 20260306-footer-index
-        var BP_VERSION = 'v4.46.59';
+        // BLUEPRINT v4.46.60 - BUILD 20260306-footer-js-force
+        var BP_VERSION = 'v4.46.60';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -20828,7 +20828,21 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             console.log('✓ Main app initialized with', userData.skills.length, 'skills');
             if (typeof bpTracker !== 'undefined' && bpTracker.sid && userData.skills.length > 0) bpTracker.trackFunnel('skills_added');
             hydrateIcons();
-            // Footer clearance handled via padding-bottom on #mainContentArea in index.html
+            // Force footer out of fixed positioning — beats runtime-injected CSS
+            (function() {
+                function fixFooterPosition() {
+                    var f = document.getElementById('appFooter');
+                    if (f) {
+                        f.style.setProperty('position', 'relative', 'important');
+                        f.style.setProperty('bottom', 'auto', 'important');
+                        f.style.setProperty('left', 'auto', 'important');
+                        f.style.setProperty('right', 'auto', 'important');
+                        f.style.setProperty('width', 'auto', 'important');
+                    }
+                }
+                fixFooterPosition();
+                setTimeout(fixFooterPosition, 500);
+            })();
             // Inject CMD+K search button into header if not already present
             if (!document.getElementById('cmdKBtn')) {
                 var headerRight = document.querySelector('.header-right, .nav-right, #headerRight');
