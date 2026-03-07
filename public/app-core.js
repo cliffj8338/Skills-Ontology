@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.44 - BUILD 20260306-ui-stability
-        var BP_VERSION = 'v4.46.44';
+        // BLUEPRINT v4.46.46 - BUILD 20260306-roadmap-update
+        var BP_VERSION = 'v4.46.46';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -3429,7 +3429,16 @@
                         { id: 'p2-7d', name: 'Scouting report D3 link visual fix', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.9-13: All scouting report network link rendering heavily muted across three paths: (1) HTML template iframe SVG: CSS !important rule forces stroke rgba(255,255,255,0.025) and width 0.5px, overriding D3 inline styles. JS patch also sets style properties directly for belt-and-suspenders. SVG DOM reorder pushes lines behind nodes. (2) PDF canvas Job Match: hub links 0.1 opacity/1px, gap links 0.25/1.2px dashed, skill links 0.06-0.07/0.5px. (3) PDF canvas Candidate Skills: hub links 0.1/1px, skill links 0.06/0.5px. Lines are now barely-visible connective tissue, not visual noise.' },
                         { id: 'p2-7e', name: 'Custom preset UX improvements', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.10: Custom preset card description changed from passive "You choose exactly..." to actionable "Granular control. Toggle individual skills, outcomes, and values in the Blueprint tab." When Custom is selected, a blue info banner appears below the preset grid: "Custom mode active. Manage individual share toggles for outcomes and values in the Blueprint tab." with clickable link to Blueprint view. Applied to both Settings > Privacy and Consent views.' },
                         { id: 'p2-7f', name: 'Unverified skills card frame + prioritization note', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.11: Unverified skills section in Verify tab now wrapped in a framed card matching the verified skills cards above (surface-2a background, border, 14px radius, 20px/24px padding). Added explanatory note: "These skills lack third-party verification. They are ranked by market rarity so you can prioritize which to verify first. Rare skills carry the most differentiation value."' },
-                        { id: 'p2-7g', name: 'Fix demo profile networks + overlay cleanup', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.46.14-15: (1) getVisibleRoles() was filtering roles against userData.workHistory titles. Demo templates with no workHistory returned empty roles, showing only center node. Fix: return all roles when no workHistory exists or when no roles match. (2) toggleSkillsView(card) did not clean up network overlay elements (jobInfoTile, matchLegend, valuesAlignmentPanel, roleInfoCard, mobileNetworkBadge, jobSelectorDropdown). These fixed-position elements persisted from Network view into Card view. Now removed on toggle. Also resets jobSelectorExpanded state.' }
+                        { id: 'p2-7g', name: 'Fix demo profile networks + overlay cleanup', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.46.14-15: (1) getVisibleRoles() was filtering roles against userData.workHistory titles. Demo templates with no workHistory returned empty roles, showing only center node. Fix: return all roles when no workHistory exists or when no roles match. (2) toggleSkillsView(card) did not clean up network overlay elements (jobInfoTile, matchLegend, valuesAlignmentPanel, roleInfoCard, mobileNetworkBadge, jobSelectorDropdown). These fixed-position elements persisted from Network view into Card view. Now removed on toggle. Also resets jobSelectorExpanded state.' },
+                        { id: 'p2-7h', name: 'Purpose statement persistence fix', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.31/40: Purpose statement was erasing itself on reload. Three root causes fixed: (1) saveValues() not syncing userData.purpose before Firestore write — empty string overwrote real value on any early save. (2) inferValues() had no fallback — cleared blueprintData.purpose when userData.purpose was stale. (3) _buildFirestoreData() read blueprintData.purpose with no userData fallback — demo mode swaps and profile switches could trigger a save that wiped Firestore. Fix: _buildFirestoreData now reads blueprintData.purpose || userData.purpose || \'\'. renderContentEvidenceTab calls inferValues() before reading purpose. saveValues() syncs userData.purpose before every write. inferValues() preserves existing blueprintData.purpose if userData.purpose is stale.' },
+                        { id: 'p2-7i', name: 'Reports page: tiles not clickable + layout overhaul', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.46.32-33: showReportFormatPicker() populated modal content but never called modal.classList.add(\'active\') — modal was invisible. Fixed by adding history.pushState and classList.add(\'active\') at end of function. Layout: added padding-top:12px to reports container. Replaced stacked horizontal bar tiles with card grid (auto-fill / minmax(220px, 1fr)). Each card: job title (2-line clamp), match % top-right, company + date, matched/gaps badge pills.' },
+                        { id: 'p2-7j', name: 'Report Readiness widget — wrong data sources (6-pass fix)', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.34-40: Report Readiness showed 17% — only Work History registered. Six layered bugs fixed: blueprintData.skills does not exist (→ skillsData.skills || userData.skills); blueprintData.certifications/education do not exist (→ userData.*); if (window.blueprintData) guard always false (→ typeof check); window.reportsInitialized never reset after Firestore load; inferValues() and extractOutcomesFromEvidence() not called before completeness check; userData.outcomes never populated from Firestore load path.' },
+                        { id: 'p2-7k', name: 'Compensation labels: Minimum Market Value + Justified Value', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.41: Dashboard hero box 1 label changed from \'Market Value\' to \'Minimum Market Value\' (BLS floor). Box 2 label changed from \'Evidence Value\' to \'Justified Value\' (skill-premium adjusted ceiling). Reflects the conceptual pair: market assigns a floor based on title, evidence justifies a ceiling based on record.' },
+                        { id: 'p2-7l', name: '4-state pay gap pill', status: 'done', category: 'feature', priority: 'high', notes: 'v4.46.42-44: Current Pay box now shows 4 distinct states: (1) Below market floor → Underpaid by $X–$Y range (+pct–pct%) spanning both gaps. (2) Above floor, below justified → Underpaid by $Y (vs justified value only, since floor is cleared). (3) Above justified value → \'Ahead of market\' (green, no dollar amount). (4) No salary entered → Add Salary prompt unchanged. Replaces single delta that was always vs market floor only.' },
+                        { id: 's13', name: 'XSS fix — negotiation modal location field', status: 'done', category: 'security', priority: 'high', notes: 'v4.46.43: userData.profile.location was rendered unescaped in two template literal positions inside showNegotiationGuide() which assigns to modalContent.innerHTML — a real XSS surface. Both instances wrapped in escapeHtml(userData.profile.location || \'\').' },
+                        { id: 'p2-7m', name: 'Jobs tab bar mobile overflow fix', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.44: Jobs subtab bar was clipping \'Tracker\' tab on narrow mobile viewports. Container now uses overflow-x:auto, flex-wrap:nowrap, -webkit-overflow-scrolling:touch, scrollbar-width:none. Each button gets flex-shrink:0 and white-space:nowrap. Scrolls horizontally instead of clipping.' },
+                        { id: 'p2-7n', name: 'Dashboard hero grid mobile responsiveness', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.44: Dashboard 3-box hero changed from rigid grid-template-columns:1fr 1fr 1fr to repeat(auto-fit, minmax(180px, 1fr)). Stacks to single column on narrow viewports. Jobs container padding reduced from 24px all sides to 16px 12px 80px for mobile breathing room.' },
+                        { id: 'p2-7o', name: 'Job Schema v2.0 Phase 3/4 bug fixes', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.46.45: Three bugs fixed. (1) Title extraction: strips trailing location/remote/type noise after title found (\'VP of BD - Remote | Philadelphia\' → \'VP of BD\'). Handles pipe, dash, em-dash separators, employment type parens, city/state suffixes. (2) BLS category mismatches: sales pattern now runs before finance in detection order (ending race condition where \'revenue\' in BD titles fired finance first). \'revenue\' removed from finance pattern — replaced with \'revenue recognition\' and \'revenue accounting\'. \'training\' removed from education (it\'s HR). Added \'training and develop\', \'talent acquisition\', \'people partner\' to hr pattern. (3) Skill gap noise: _wbSkillQualityFilter now applied inside matchJobToProfile immediately after skills array normalization — same noise filter that runs in WB compare path now runs on job card match path. Fragments/verbs/generic phrases no longer inflate gap denominator.' }
                     ]
                 },
                 {
@@ -14157,13 +14166,13 @@
                 { fn: 'strategy', patterns: /\b(strategy|strategic|futurist|evangelist|thought leader|advisory|consulting|consultant)\b/ },
                 { fn: 'technology', patterns: /\b(software|developer|devops|cloud|aws|azure|kubernetes|programming|frontend|backend|full.?stack|data scientist|machine learning|ai engineer|cybersecurity|infosec|cissp)\b/ },
                 { fn: 'recruiting', patterns: /\b(recruit|talent acqui|sourcing|hiring|ats|applicant|staffing|headhunt)\b/ },
-                { fn: 'hr', patterns: /\b(human resource|hr |shrm|people ops|workforce|talent manage|employee relation|compensation|benefits|hris|organizational develop|learning.+develop)\b/ },
+                { fn: 'hr', patterns: /\b(human resource|hr |shrm|people ops|workforce|talent manage|employee relation|compensation|benefits|hris|organizational develop|learning.+develop|training and develop|talent acquisition|people partner)\b/ },
                 { fn: 'marketing', patterns: /\b(marketing|brand|content|seo|digital market|growth|demand gen|product market|communications|pr |public relation)\b/ },
-                { fn: 'finance', patterns: /\b(finance|financial|accounting|cpa|cfa|controller|treasury|audit|tax|revenue|fp&a|investment)\b/ },
-                { fn: 'sales', patterns: /\b(sales|account exec|business develop|quota|pipeline|customer success|client relation)\b/ },
+                { fn: 'sales', patterns: /\b(sales|account exec|business develop|quota|pipeline|customer success|client relation|revenue growth|revenue target)\b/ },
+                { fn: 'finance', patterns: /\b(finance|financial|accounting|cpa|cfa|controller|treasury|audit|tax|fp&a|investment|revenue recognition|revenue accounting)\b/ },
                 { fn: 'operations', patterns: /\b(operations|supply chain|logistics|procurement|manufacturing|quality|lean|six sigma|process improve)\b/ },
                 { fn: 'healthcare', patterns: /\b(nurse|clinical|patient|medical|pharma|health|hospital|physician|therapy|diagnostic)\b/ },
-                { fn: 'education', patterns: /\b(teaching|teacher|professor|instructor|curriculum|education|academic|school|training)\b/ },
+                { fn: 'education', patterns: /\b(teaching|teacher|professor|instructor|curriculum|education|academic|school)\b/ },
                 { fn: 'legal', patterns: /\b(legal|attorney|lawyer|litigation|compliance|regulatory|paralegal|contract law|bar exam)\b/ },
                 { fn: 'engineering', patterns: /\b(mechanical|electrical|civil|structural|pe |professional engineer|cad|construction|architect)\b/ },
                 { fn: 'trades', patterns: /\b(hair|stylist|cosmetolog|barber|plumb|electri|weld|hvac|carpenter|mechanic|technician|maintenance|repair|install)\b/ },
@@ -34072,6 +34081,17 @@ body {
                 }
             }
             
+            // Strip common trailing noise from extracted title
+            if (title) {
+                // Remove location/remote/type suffixes: "VP of BD - Remote", "Director | New York", "(Full Time)"
+                title = title.replace(/\s*[\|\-–—]\s*(remote|hybrid|onsite|on-site|in-office|full[- ]?time|part[- ]?time|contract|temp|permanent|relocation).*/i, '').trim();
+                title = title.replace(/\s*\(+(remote|hybrid|onsite|full[- ]?time|part[- ]?time|contract)[^)]*\)\s*/gi, '').trim();
+                // Remove city/state/country suffixes: "Director, New York, NY" or "Director - Philadelphia, PA"
+                title = title.replace(/[,\|\-–]\s*[A-Z][a-z]+(?:,\s*[A-Z]{2})?\s*$/, '').trim();
+                // Remove "job title:" prefix if present
+                title = title.replace(/^(?:job\s*)?(?:title|position|role|opening)[\s:\-]+/i, '').trim();
+            }
+            
             // Try to extract company from common patterns
             var companyMatch = jdText.match(/(?:company|employer|organization|at)\s*[:|\-]?\s*([A-Z][A-Za-z0-9\s&.,]+)/);
             if (companyMatch) company = companyMatch[1].trim().substring(0, 60);
@@ -36601,6 +36621,10 @@ body {
                 if (!s.requirement) s.requirement = 'Required';
                 return s;
             }).filter(function(s) { return s && s.name; });
+            // Apply quality filter — removes noisy/fragment skills from gap denominator
+            if (typeof _wbSkillQualityFilter === 'function') {
+                jobSkills = _wbSkillQualityFilter(jobSkills);
+            }
             var userSkills = skillsData.skills || [];
             
             // Build lookup of user's skills (lowercase → skill object)
