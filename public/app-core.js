@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.54 - BUILD 20260306-purpose-v3
-        var BP_VERSION = 'v4.46.54';
+        // BLUEPRINT v4.46.55 - BUILD 20260306-footer-fix
+        var BP_VERSION = 'v4.46.55';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -20828,6 +20828,25 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             console.log('✓ Main app initialized with', userData.skills.length, 'skills');
             if (typeof bpTracker !== 'undefined' && bpTracker.sid && userData.skills.length > 0) bpTracker.trackFunnel('skills_added');
             hydrateIcons();
+            // ── Footer clearance: prevent fixed footer from overlapping content ──
+            (function() {
+                function applyFooterClearance() {
+                    var footer = document.getElementById('appFooter');
+                    if (!footer) return;
+                    var h = footer.offsetHeight || 56;
+                    var pad = (h + 16) + 'px';
+                    if (!document.getElementById('footerClearCSS')) {
+                        var s = document.createElement('style');
+                        s.id = 'footerClearCSS';
+                        document.head.appendChild(s);
+                    }
+                    document.getElementById('footerClearCSS').textContent =
+                        '#reportsView, #skillsView, #blueprintView, #jobsView, #settingsView, #adminView, .view-panel, [id$="View"] { padding-bottom: ' + pad + ' !important; }';
+                }
+                applyFooterClearance();
+                // Re-apply on resize in case footer height changes
+                window.addEventListener('resize', applyFooterClearance, { passive: true });
+            })();
             // Inject CMD+K search button into header if not already present
             if (!document.getElementById('cmdKBtn')) {
                 var headerRight = document.querySelector('.header-right, .nav-right, #headerRight');
