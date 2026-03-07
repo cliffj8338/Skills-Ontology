@@ -229,7 +229,9 @@
     <!-- App styles — extracted from monolith v4.46.23 -->
     <link rel="stylesheet" href="/src/styles/main.css">
     <style>
-        /* Footer sits inside #mainContentArea as last child — no clearance hacks needed */
+        /* Footer sits outside #mainContentArea — pad content area so footer never overlaps */
+        #appFooter { position: relative !important; }
+        #mainContentArea { padding-bottom: 120px !important; }
     </style>
 </head>
 <body>
@@ -468,9 +470,10 @@
         <div id="settingsView" style="display:none;"></div>
         <div id="reportsView" style="display:none;"></div>
         <div id="adminView" style="display:none;"></div>
-        <!-- App Footer / Attribution — inside mainContentArea so it flows after content -->
-        <footer id="appFooter" role="contentinfo" style="text-align:center; padding:24px 20px 16px; font-size:0.75em; opacity:0.5; line-height:1.8; display:none;">
     </div>
+
+    <!-- App Footer / Attribution -->
+    <footer id="appFooter" role="contentinfo" style="text-align:center; padding:16px 20px; font-size:0.75em; opacity:0.5; line-height:1.8;">
         <div style="margin-bottom:4px;">&copy; <span id="copyrightYear"></span> Cliff Jurkiewicz. All rights reserved. Blueprint&trade; and its associated methodologies, ontology structures, and matching algorithms are the intellectual property of Cliff Jurkiewicz.</div>
         <div>Uses the <a href="https://esco.ec.europa.eu" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">ESCO classification</a> of the European Commission and <a href="https://www.onetonline.org" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">O*NET</a> occupational data. <a href="#" onclick="event.preventDefault(); showLegalNotice();" style="color:inherit; text-decoration:underline;">Legal &amp; IP Notice</a> &middot; <a href="#" onclick="event.preventDefault(); switchView('settings'); setTimeout(function(){ window.currentSettingsTab='privacy'; initSettings(); window.settingsInitialized=true; }, 100);" style="color:inherit; text-decoration:underline;">Privacy & Terms</a></div>
     </footer>
