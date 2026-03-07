@@ -157,16 +157,13 @@
             line-height: 1.5;
         }
 
-        /* ── Report & Admin Views: scroll within mainContentArea like other views ── */
-        #reportsView {
-            height: 100%;
-            overflow-y: auto;
-            padding: 30px 30px 80px;
+        /* ── Main content area scrolls; footer sits at natural bottom ── */
+        #mainContentArea {
+            overflow-y: auto !important;
+            padding-bottom: 40px !important;
         }
-        #adminView {
-            height: 100%;
-            overflow-y: auto;
-            padding: 30px 30px 80px;
+        #appFooter {
+            position: relative !important;
         }
         /* ── Demo Mode Toggle ──────────────────────────────────── */
         /* ── Mobile Layout Fixes ──────────────────────────────── */
