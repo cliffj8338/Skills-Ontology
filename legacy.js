@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.58 - BUILD 20260306-footer-spacer
-        var BP_VERSION = 'v4.46.58';
+        // BLUEPRINT v4.46.59 - BUILD 20260306-footer-index
+        var BP_VERSION = 'v4.46.59';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -20828,24 +20828,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             console.log('✓ Main app initialized with', userData.skills.length, 'skills');
             if (typeof bpTracker !== 'undefined' && bpTracker.sid && userData.skills.length > 0) bpTracker.trackFunnel('skills_added');
             hydrateIcons();
-            // ── Footer clearance: spacer before footer, always works ──
-            (function() {
-                function ensureFooterSpacer() {
-                    var footer = document.getElementById('appFooter');
-                    if (!footer) return;
-                    var h = (footer.offsetHeight > 10) ? footer.offsetHeight : 64;
-                    var spacer = document.getElementById('footerSpacer');
-                    if (!spacer) {
-                        spacer = document.createElement('div');
-                        spacer.id = 'footerSpacer';
-                        footer.parentNode.insertBefore(spacer, footer);
-                    }
-                    spacer.style.cssText = 'display:block;width:100%;height:' + (h + 8) + 'px;flex-shrink:0;';
-                }
-                ensureFooterSpacer();
-                setTimeout(ensureFooterSpacer, 300);
-                window.addEventListener('resize', ensureFooterSpacer, { passive: true });
-            })();
+            // Footer clearance handled via padding-bottom on #mainContentArea in index.html
             // Inject CMD+K search button into header if not already present
             if (!document.getElementById('cmdKBtn')) {
                 var headerRight = document.querySelector('.header-right, .nav-right, #headerRight');
