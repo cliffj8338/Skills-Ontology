@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.55 - BUILD 20260306-footer-fix
-        var BP_VERSION = 'v4.46.55';
+        // BLUEPRINT v4.46.56 - BUILD 20260306-footer-fix-v2
+        var BP_VERSION = 'v4.46.56';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -20832,20 +20832,21 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             (function() {
                 function applyFooterClearance() {
                     var footer = document.getElementById('appFooter');
-                    if (!footer) return;
-                    var h = footer.offsetHeight || 56;
-                    var pad = (h + 16) + 'px';
-                    if (!document.getElementById('footerClearCSS')) {
-                        var s = document.createElement('style');
-                        s.id = 'footerClearCSS';
-                        document.head.appendChild(s);
-                    }
-                    document.getElementById('footerClearCSS').textContent =
-                        '#reportsView, #skillsView, #blueprintView, #jobsView, #settingsView, #adminView, .view-panel, [id$="View"] { padding-bottom: ' + pad + ' !important; }';
+                    var h = (footer && footer.offsetHeight > 20) ? footer.offsetHeight : 64;
+                    var pad = (h + 24) + 'px';
+                    var s = document.getElementById('footerClearCSS');
+                    if (!s) { s = document.createElement('style'); s.id = 'footerClearCSS'; document.head.appendChild(s); }
+                    // Cast a wide net: every plausible scroll container
+                    s.textContent = 'body, #appMain, #mainContent, #appContent, main, .app-body, .main-body,'
+                        + '#reportsView, #skillsView, #blueprintView, #jobsView, #settingsView, #adminView,'
+                        + '.view-panel, [id$="View"], .blueprint-container, #reportsList { padding-bottom: ' + pad + ' !important; }';
                 }
+                // Run immediately, then again after layout settles
                 applyFooterClearance();
-                // Re-apply on resize in case footer height changes
+                setTimeout(applyFooterClearance, 300);
+                setTimeout(applyFooterClearance, 1200);
                 window.addEventListener('resize', applyFooterClearance, { passive: true });
+                window.applyFooterClearance = applyFooterClearance;
             })();
             // Inject CMD+K search button into header if not already present
             if (!document.getElementById('cmdKBtn')) {
