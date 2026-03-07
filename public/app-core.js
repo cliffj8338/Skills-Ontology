@@ -26323,7 +26323,7 @@ body {
                 profLevels.forEach(function(p) {
                     var isZero = profCounts[p.key] === 0;
                     html += '<div style="display:flex; align-items:center; gap:6px; font-size:0.75em; opacity:' + (isZero ? '0.35' : '1') + ';">'                        + '<div style="width:8px; height:8px; border-radius:2px; background:' + p.color + '; flex-shrink:0;"></div>'                        + '<span style="color:var(--c-muted);">' + p.key + '</span>'                        + '<span style="font-weight:700; color:' + (isZero ? 'var(--c-faint)' : 'var(--c-heading)') + ';">' + profCounts[p.key] + '</span>'                        + '</div>';
-                });                });
+                });
                 html += '</div></div>';
             } else {
                 html += '<div></div>';
