@@ -228,6 +228,11 @@
 
     <!-- App styles — extracted from monolith v4.46.23 -->
     <link rel="stylesheet" href="/src/styles/main.css">
+    <style>
+        /* Footer clearance override — ensures content is never obscured by footer */
+        #appFooter { position: relative !important; bottom: auto !important; }
+        #mainContentArea { padding-bottom: 24px !important; }
+    </style>
 </head>
 <body>
     <!-- Crawlable content for search engines and AI answer engines -->
