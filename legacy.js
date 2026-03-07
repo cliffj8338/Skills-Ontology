@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.60 - BUILD 20260306-footer-js-force
-        var BP_VERSION = 'v4.46.60';
+        // BLUEPRINT v4.46.61 - BUILD 20260306-footer-mc-pad
+        var BP_VERSION = 'v4.46.61';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -20828,9 +20828,9 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             console.log('✓ Main app initialized with', userData.skills.length, 'skills');
             if (typeof bpTracker !== 'undefined' && bpTracker.sid && userData.skills.length > 0) bpTracker.trackFunnel('skills_added');
             hydrateIcons();
-            // Force footer out of fixed positioning — beats runtime-injected CSS
+            // Force footer into flow and pad scroll container — beats runtime-injected CSS
             (function() {
-                function fixFooterPosition() {
+                function fixFooter() {
                     var f = document.getElementById('appFooter');
                     if (f) {
                         f.style.setProperty('position', 'relative', 'important');
@@ -20838,10 +20838,16 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         f.style.setProperty('left', 'auto', 'important');
                         f.style.setProperty('right', 'auto', 'important');
                         f.style.setProperty('width', 'auto', 'important');
+                        f.style.setProperty('z-index', 'auto', 'important');
+                    }
+                    var mc = document.getElementById('mainContentArea');
+                    if (mc) {
+                        mc.style.setProperty('padding-bottom', '100px', 'important');
                     }
                 }
-                fixFooterPosition();
-                setTimeout(fixFooterPosition, 500);
+                fixFooter();
+                setTimeout(fixFooter, 300);
+                setTimeout(fixFooter, 1000);
             })();
             // Inject CMD+K search button into header if not already present
             if (!document.getElementById('cmdKBtn')) {
