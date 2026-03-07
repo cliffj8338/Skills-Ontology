@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.51 - BUILD 20260306-skill-dist
-        var BP_VERSION = 'v4.46.51';
+        // BLUEPRINT v4.46.52 - BUILD 20260306-outcomes-ux
+        var BP_VERSION = 'v4.46.52';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -3437,6 +3437,7 @@
                         { id: 'p2-7e', name: 'Custom preset UX improvements', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.10: Custom preset card description changed from passive "You choose exactly..." to actionable "Granular control. Toggle individual skills, outcomes, and values in the Blueprint tab." When Custom is selected, a blue info banner appears below the preset grid: "Custom mode active. Manage individual share toggles for outcomes and values in the Blueprint tab." with clickable link to Blueprint view. Applied to both Settings > Privacy and Consent views.' },
                         { id: 'p2-7f', name: 'Unverified skills card frame + prioritization note', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.11: Unverified skills section in Verify tab now wrapped in a framed card matching the verified skills cards above (surface-2a background, border, 14px radius, 20px/24px padding). Added explanatory note: "These skills lack third-party verification. They are ranked by market rarity so you can prioritize which to verify first. Rare skills carry the most differentiation value."' },
                         { id: 'p2-7g', name: 'Fix demo profile networks + overlay cleanup', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.46.14-15: (1) getVisibleRoles() was filtering roles against userData.workHistory titles. Demo templates with no workHistory returned empty roles, showing only center node. Fix: return all roles when no workHistory exists or when no roles match. (2) toggleSkillsView(card) did not clean up network overlay elements (jobInfoTile, matchLegend, valuesAlignmentPanel, roleInfoCard, mobileNetworkBadge, jobSelectorDropdown). These fixed-position elements persisted from Network view into Card view. Now removed on toggle. Also resets jobSelectorExpanded state.' },
+                        { id: 'p2-7q', name: 'Outcomes tab UX redesign: search, category grouping, collapsible sections', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.52: 128-outcome scroll problem solved. Added search bar + category filter + shared-only toggle at top of outcomes tab. Outcomes grouped by category with collapsible sections (auto-collapsed when >5 items). Add button moved to header. Coaching tip + reflection prompts collapsed into Tips & Prompts accordion. Fixed SENSITIVE badge template literal bug. Fixed footer overlapping reports view by adding padding-bottom:80px to report container.' },
                         { id: 'p2-7p', name: 'Purpose persistence: initialized guard + _lastKnownPurpose circuit breaker', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.50: saveToFirestore() now blocks if !userData.initialized — prevents race condition where user navigates to Blueprint before Firestore loads, triggering a save with empty purpose that overwrites Firestore. _lastKnownPurpose (window var) stashed on load and on updatePurpose, used as ultimate fallback in _buildFirestoreData(). Belt-and-suspenders: even if both blueprintData.purpose and userData.purpose are transiently empty, the circuit breaker preserves the last known value.' },
                         { id: 'p2-7h', name: 'Purpose statement persistence fix', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.31/40: Purpose statement was erasing itself on reload. Three root causes fixed: (1) saveValues() not syncing userData.purpose before Firestore write — empty string overwrote real value on any early save. (2) inferValues() had no fallback — cleared blueprintData.purpose when userData.purpose was stale. (3) _buildFirestoreData() read blueprintData.purpose with no userData fallback — demo mode swaps and profile switches could trigger a save that wiped Firestore. Fix: _buildFirestoreData now reads blueprintData.purpose || userData.purpose || \'\'. renderContentEvidenceTab calls inferValues() before reading purpose. saveValues() syncs userData.purpose before every write. inferValues() preserves existing blueprintData.purpose if userData.purpose is stale.' },
                         { id: 'p2-7i', name: 'Reports page: tiles not clickable + layout overhaul', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.46.32-33: showReportFormatPicker() populated modal content but never called modal.classList.add(\'active\') — modal was invisible. Fixed by adding history.pushState and classList.add(\'active\') at end of function. Layout: added padding-top:12px to reports container. Replaced stacked horizontal bar tiles with card grid (auto-fill / minmax(220px, 1fr)). Each card: job title (2-line clamp), match % top-right, company + date, matched/gaps badge pills.' },
@@ -23066,7 +23067,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             // Sort by match score descending
             pipelineJobs.sort(function(a, b) { return b.match - a.match; });
             
-            var html = '<div class="blueprint-container" style="padding-top:12px;">';
+            var html = '<div class="blueprint-container" style="padding-top:12px; padding-bottom:80px;">';
             
             // ── My Reports (primary section) ────────────────────
             html += '<div class="rpt-card" style="margin-bottom:16px;">'
@@ -25939,7 +25940,12 @@ body {
             if (blueprintTab === 'dashboard') return renderDashboardTab();
             if (blueprintTab === 'skills')    return renderSkillsManagementTab();
             if (blueprintTab === 'experience') return renderExperienceTab();
-            if (blueprintTab === 'outcomes') return renderOutcomesSection();
+            if (blueprintTab === 'outcomes') {
+                var osec = renderOutcomesSection();
+                // Defer container fill until DOM is present
+                setTimeout(function() { if (typeof _renderFilteredOutcomes === 'function') _renderFilteredOutcomes(); }, 0);
+                return osec;
+            }
             if (blueprintTab === 'values')   return renderValuesSection();
             if (blueprintTab === 'purpose')  return renderDashboardTab(); // redirect legacy
             if (blueprintTab === 'export')   return renderExportSection();
@@ -26528,59 +26534,165 @@ body {
         }
         
         
-        function renderOutcomesSection() {
-            const outcomes = blueprintData.outcomes;
-            
-            return `
-                <div class="blueprint-section">
-                    <div class="blueprint-section-header">
-                        <div class="blueprint-section-title">
-                            <span class="section-icon">${bpIcon("outcomes",20)}</span>
-                            <span>Outcomes I Drive</span>
-                            <span class="section-count">${outcomes.length}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="coaching-tip">
-                        <div class="coaching-tip-title">
-                            ${bpIcon("lightbulb",14)} COACHING TIP
-                        </div>
-                        <div class="coaching-tip-content">
-                            Top performers quantify impact. Notice the pattern:
-                            <ul>
-                                <li><strong>Numbers:</strong> $200M, 85%, 5 years, zero injuries</li>
-                                <li><strong>Comparisons:</strong> "5 years early", "before market consensus"</li>
-                                <li><strong>Consequences:</strong> What changed because of this?</li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <div id="outcomesContainer">
-                        ${outcomes.map((outcome, idx) => renderOutcomeItem(outcome, idx)).join('')}
-                    </div>
-                    
-                    <button class="add-outcome-btn" onclick="addCustomOutcome()">
-                        <span>${bpIcon("plus",14)}</span>
-                        <span>Add Custom Outcome</span>
-                    </button>
-                    
-                    <div class="reflection-prompts">
-                        <div class="reflection-title">${bpIcon("message",14)} REFLECTION PROMPTS</div>
-                        <ul>
-                            <li>What problem did you solve that others couldn't?</li>
-                            <li>What changed because of your work?</li>
-                            <li>What would have happened without you?</li>
-                            <li>How do you know this worked? (proof/evidence)</li>
-                        </ul>
-                    </div>
-                </div>
-            `;
+        // Outcome filter state
+        window._outcomeFilter = window._outcomeFilter || { search: '', category: 'all', shared: 'all' };
+
+        window.setOutcomeFilter = function(key, val) {
+            window._outcomeFilter[key] = val;
+            var bv = document.getElementById('blueprintView');
+            if (bv) {
+                var sec = bv.querySelector('.blueprint-section');
+                if (sec) sec.outerHTML = renderOutcomesSection();
+            }
+        };
+
+        window.applyOutcomeSearch = function(val) {
+            window._outcomeFilter.search = val;
+            _renderFilteredOutcomes();
+        };
+
+        function _renderFilteredOutcomes() {
+            var f = window._outcomeFilter;
+            var outcomes = blueprintData.outcomes || [];
+            var filtered = outcomes.filter(function(o, i) {
+                if (f.shared === 'shared' && !o.shared) return false;
+                if (f.category !== 'all' && o.category !== f.category) return false;
+                if (f.search.trim()) {
+                    var q = f.search.toLowerCase();
+                    return (o.text || '').toLowerCase().includes(q) || (o.skill || '').toLowerCase().includes(q) || (o.category || '').toLowerCase().includes(q);
+                }
+                return true;
+            });
+            // Map filtered back to original indices
+            var filteredWithIdx = filtered.map(function(o) {
+                return { outcome: o, idx: outcomes.indexOf(o) };
+            });
+            var container = document.getElementById('outcomesContainer');
+            if (!container) return;
+            if (filteredWithIdx.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:40px; color:var(--c-faint); font-size:0.9em;">No outcomes match your filter.</div>';
+                return;
+            }
+            // Group by category
+            var groups = {};
+            var groupOrder = [];
+            filteredWithIdx.forEach(function(item) {
+                var cat = item.outcome.category || 'Professional Achievement';
+                if (!groups[cat]) { groups[cat] = []; groupOrder.push(cat); }
+                groups[cat].push(item);
+            });
+            var html = '';
+            groupOrder.forEach(function(cat) {
+                var items = groups[cat];
+                var groupId = 'og_' + cat.replace(/\s+/g,'_');
+                var isCollapsed = items.length > 5 && window['_outcomeGroupCollapsed_' + groupId] !== false;
+                // for groups with <= 5, default open; > 5 items, collapsed unless explicitly opened
+                if (items.length <= 5) isCollapsed = !!window['_outcomeGroupCollapsed_' + groupId];
+                var sharedCount = items.filter(function(i) { return i.outcome.shared; }).length;
+                html += '<div style="margin-bottom:16px;">';
+                html += '<div onclick="window[\\'_outcomeGroupCollapsed_' + groupId + '\\'] = !window[\\'_outcomeGroupCollapsed_' + groupId + '\\']; _renderFilteredOutcomes();" style="display:flex; align-items:center; gap:8px; padding:8px 0 6px; border-bottom:1px solid var(--c-surface-4); cursor:pointer; user-select:none; margin-bottom:10px;">'
+                    + '<span style="font-size:0.7em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-accent);">' + cat + '</span>'
+                    + '<span style="font-size:0.7em; padding:1px 7px; border-radius:10px; background:var(--c-surface-3); color:var(--c-muted);">' + items.length + '</span>'
+                    + (sharedCount > 0 ? '<span style="font-size:0.68em; color:#10b981;">' + sharedCount + ' shared</span>' : '')
+                    + '<span style="margin-left:auto; color:var(--c-faint); font-size:0.8em;">' + (isCollapsed ? '▸' : '▾') + '</span>'
+                    + '</div>';
+                if (!isCollapsed) {
+                    items.forEach(function(item) {
+                        html += renderOutcomeItem(item.outcome, item.idx);
+                    });
+                }
+                html += '</div>';
+            });
+            container.innerHTML = html;
+            // Update count display
+            var countEl = document.getElementById('outcomesFilterCount');
+            if (countEl) countEl.textContent = filtered.length + ' of ' + outcomes.length;
         }
+
+        function renderOutcomesSection() {
+            const outcomes = blueprintData.outcomes || [];
+            const f = window._outcomeFilter;
+            const sharedTotal = outcomes.filter(o => o.shared).length;
+            const sensitiveTotal = outcomes.filter(o => o.sensitive).length;
+
+            // Build category options from actual data
+            const cats = [...new Set(outcomes.map(o => o.category || 'Professional Achievement'))].sort();
+
+            const catOptions = ['<option value="all">All categories</option>']
+                .concat(cats.map(c => '<option value="' + c + '"' + (f.category === c ? ' selected' : '') + '>' + c + '</option>'))
+                .join('');
+
+            return '<div class="blueprint-section">'
+
+                // ── Header row ───────────────────────────────────────────────
+                + '<div class="blueprint-section-header" style="margin-bottom:0;">'
+                + '<div class="blueprint-section-title">'
+                + '<span class="section-icon">' + bpIcon('outcomes',20) + '</span>'
+                + '<span>Outcomes I Drive</span>'
+                + '<span class="section-count" id="outcomesFilterCount">' + outcomes.length + ' of ' + outcomes.length + '</span>'
+                + '</div>'
+                + (isReadOnlyProfile ? '' :
+                    '<button onclick="addCustomOutcome()" style="display:inline-flex; align-items:center; gap:5px; padding:6px 14px; background:var(--c-accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; white-space:nowrap;">'
+                    + bpIcon('plus',13) + ' Add Outcome</button>')
+                + '</div>'
+
+                // ── Stats bar ────────────────────────────────────────────────
+                + '<div style="display:flex; gap:16px; flex-wrap:wrap; align-items:center; padding:10px 0 14px; border-bottom:1px solid var(--c-surface-4); margin-bottom:14px; font-size:0.8em; color:var(--c-muted);">'
+                + '<span>' + bpIcon('check',12) + ' <strong style="color:var(--c-heading);">' + sharedTotal + '</strong> shared in reports</span>'
+                + (sensitiveTotal > 0 ? '<span>' + bpIcon('warning',12) + ' <strong style="color:#f59e0b;">' + sensitiveTotal + '</strong> sensitive</span>' : '')
+                + '<button onclick="var d=document.getElementById(\'outcomesTips\'); d.style.display=d.style.display===\'none\'?\'\':\'none\';" style="margin-left:auto; background:none; border:1px solid var(--c-border-subtle); color:var(--c-muted); font-size:0.78em; padding:3px 10px; border-radius:6px; cursor:pointer;">'
+                + bpIcon('lightbulb',11) + ' Tips &amp; Prompts</button>'
+                + '</div>'
+
+                // ── Collapsible coaching tips ────────────────────────────────
+                + '<div id="outcomesTips" style="display:none; margin-bottom:14px;">'
+                + '<div class="coaching-tip">'
+                + '<div class="coaching-tip-title">' + bpIcon('lightbulb',14) + ' COACHING TIP</div>'
+                + '<div class="coaching-tip-content">Top performers quantify impact.'
+                + '<ul><li><strong>Numbers:</strong> $200M, 85%, 5 years, zero injuries</li>'
+                + '<li><strong>Comparisons:</strong> \u201c5 years early\u201d, \u201cbefore market consensus\u201d</li>'
+                + '<li><strong>Consequences:</strong> What changed because of this?</li></ul></div></div>'
+                + '<div class="reflection-prompts" style="margin-top:10px;">'
+                + '<div class="reflection-title">' + bpIcon('message',14) + ' REFLECTION PROMPTS</div>'
+                + '<ul>'
+                + '<li>What problem did you solve that others couldn\u2019t?</li>'
+                + '<li>What changed because of your work?</li>'
+                + '<li>What would have happened without you?</li>'
+                + '<li>How do you know this worked? (proof/evidence)</li>'
+                + '</ul></div></div>'
+
+                // ── Search + filter toolbar ──────────────────────────────────
+                + '<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">'
+                + '<div style="position:relative; flex:1; min-width:180px;">'
+                + '<span style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:var(--c-faint); pointer-events:none;">' + bpIcon('search',13) + '</span>'
+                + '<input id="outcomeSearchInput" type="text" placeholder="Search outcomes..." value="' + (f.search || '') + '" '
+                + 'oninput="applyOutcomeSearch(this.value)" '
+                + 'style="width:100%; padding:7px 10px 7px 32px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:8px; color:var(--c-text); font-size:0.85em; outline:none;">'
+                + '</div>'
+                + '<select onchange="setOutcomeFilter(\'category\', this.value)" style="padding:7px 10px; background:var(--c-surface-2); border:1px solid var(--c-border-subtle); border-radius:8px; color:var(--c-muted); font-size:0.82em; cursor:pointer;">'
+                + catOptions + '</select>'
+                + '<button onclick="setOutcomeFilter(\'shared\', \'' + (f.shared === 'shared' ? 'all' : 'shared') + '\')" '
+                + 'style="padding:7px 12px; border-radius:8px; border:1px solid ' + (f.shared === 'shared' ? 'var(--c-accent)' : 'var(--c-border-subtle)') + '; background:' + (f.shared === 'shared' ? 'rgba(96,165,250,0.1)' : 'var(--c-surface-2)') + '; color:' + (f.shared === 'shared' ? 'var(--c-accent)' : 'var(--c-muted)') + '; font-size:0.82em; cursor:pointer; white-space:nowrap;">'
+                + bpIcon('check',12) + ' Shared only</button>'
+                + (f.search || f.category !== 'all' || f.shared !== 'all' ?
+                    '<button onclick="window._outcomeFilter={search:\'\',category:\'all\',shared:\'all\'}; _renderFilteredOutcomes(); document.getElementById(\'outcomeSearchInput\').value=\'\';" style="padding:7px 10px; border-radius:8px; border:1px solid rgba(239,68,68,0.3); background:transparent; color:#ef4444; font-size:0.82em; cursor:pointer;">Clear</button>'
+                    : '')
+                + '</div>'
+
+                // ── Outcomes list ────────────────────────────────────────────
+                + '<div id="outcomesContainer"></div>'
+
+                + '</div>';
+        }
+
+        // Auto-render outcomes after section is inserted into DOM
+        var _origSwitchBlueprintTab = window.switchBlueprintTab;
+        window._outcomesRendered = false;
         
         function renderOutcomeItem(outcome, idx) {
             const shareChecked = outcome.shared ? 'checked' : '';
             const sensitiveWarning = outcome.sensitive ? 
-                '<span class="meta-tag sensitive">${bpIcon("warning",12)} SENSITIVE: Consider context before sharing</span>' : '';
+                '<span class="meta-tag sensitive">' + bpIcon('warning',12) + ' SENSITIVE: Consider context before sharing</span>' : '';
             const coachingNote = outcome.coachingSuggestion ? 
                 `<div class="outcome-coaching">${bpIcon('lightbulb',12)} ${outcome.coachingSuggestion}</div>` : '';
             
@@ -27732,7 +27844,15 @@ body {
         // Blueprint interaction functions
         function toggleOutcomeShare(idx) {
             blueprintData.outcomes[idx].shared = !blueprintData.outcomes[idx].shared;
-            saveUserData();  // Auto-save
+            saveUserData();
+            // Update stats bar without full re-render
+            var outcomes = blueprintData.outcomes || [];
+            var sharedTotal = outcomes.filter(function(o) { return o.shared; }).length;
+            var countEl = document.getElementById('outcomesFilterCount');
+            if (countEl) {
+                var filtered = parseInt(countEl.textContent) || outcomes.length;
+                countEl.textContent = filtered + ' of ' + outcomes.length;
+            }
         }
         
         function deleteBlueprintOutcome(idx) {
