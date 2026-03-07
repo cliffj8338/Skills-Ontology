@@ -26085,7 +26085,7 @@ body {
                         + '<div style="font-size:2.3em; font-weight:800; color:var(--c-heading); line-height:1; margin-bottom:8px;">' + formatCompValue(reportedComp) + '</div>'
                         + '<div style="font-size:0.71em; color:var(--c-faint); line-height:1.5;">Reported annual comp</div>'
                         + pillHtml
-                        + (belowJust ? '<button onclick="showCompReviewGuide()" style="margin-top:10px; width:100%; padding:7px 10px; border-radius:8px; border:1px solid rgba(96,165,250,0.3); background:rgba(96,165,250,0.08); color:#60a5fa; font-size:0.74em; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">' + bpIcon(\'target\',12) + ' Review Prep</button>' : '')
+                        + (belowJust ? '<button onclick="showCompReviewGuide()" style="margin-top:10px; width:100%; padding:7px 10px; border-radius:8px; border:1px solid rgba(96,165,250,0.3); background:rgba(96,165,250,0.08); color:#60a5fa; font-size:0.74em; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">' + bpIcon('target',12) + ' Review Prep</button>' : '')
                         + '</div>';
                 } else {
                     html += '<div style="background:var(--c-surface-1); border:1px dashed var(--c-surface-5); border-radius:14px; padding:18px 20px; display:flex; flex-direction:column; justify-content:space-between;">'
