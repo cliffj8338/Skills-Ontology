@@ -26551,6 +26551,12 @@ body {
             _renderFilteredOutcomes();
         };
 
+        window.toggleOutcomeGroup = function(groupId) {
+            var key = '_outcomeGroupCollapsed_' + groupId;
+            window[key] = !window[key];
+            _renderFilteredOutcomes();
+        };
+
         function _renderFilteredOutcomes() {
             var f = window._outcomeFilter;
             var outcomes = blueprintData.outcomes || [];
@@ -26590,11 +26596,11 @@ body {
                 if (items.length <= 5) isCollapsed = !!window['_outcomeGroupCollapsed_' + groupId];
                 var sharedCount = items.filter(function(i) { return i.outcome.shared; }).length;
                 html += '<div style="margin-bottom:16px;">';
-                html += '<div onclick="window[\\'_outcomeGroupCollapsed_' + groupId + '\\'] = !window[\\'_outcomeGroupCollapsed_' + groupId + '\\']; _renderFilteredOutcomes();" style="display:flex; align-items:center; gap:8px; padding:8px 0 6px; border-bottom:1px solid var(--c-surface-4); cursor:pointer; user-select:none; margin-bottom:10px;">'
+                html += '<div onclick="toggleOutcomeGroup(\'' + groupId + '\')" style="display:flex; align-items:center; gap:8px; padding:8px 0 6px; border-bottom:1px solid var(--c-surface-4); cursor:pointer; user-select:none; margin-bottom:10px;">'
                     + '<span style="font-size:0.7em; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--c-accent);">' + cat + '</span>'
                     + '<span style="font-size:0.7em; padding:1px 7px; border-radius:10px; background:var(--c-surface-3); color:var(--c-muted);">' + items.length + '</span>'
                     + (sharedCount > 0 ? '<span style="font-size:0.68em; color:#10b981;">' + sharedCount + ' shared</span>' : '')
-                    + '<span style="margin-left:auto; color:var(--c-faint); font-size:0.8em;">' + (isCollapsed ? '▸' : '▾') + '</span>'
+                    + '<span style="margin-left:auto; color:var(--c-faint); font-size:0.8em;">' + (isCollapsed ? '\u25b8' : '\u25be') + '</span>'
                     + '</div>';
                 if (!isCollapsed) {
                     items.forEach(function(item) {
