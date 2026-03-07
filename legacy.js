@@ -26369,7 +26369,7 @@ body {
             ['Mastery','Expert','Advanced','Proficient','Novice'].forEach(function(lv) {
                 var isZero = levelCounts[lv] === 0;
                 html += '<div style="display:flex; align-items:center; gap:6px; font-size:0.85em; opacity:' + (isZero ? '0.35' : '1') + ';">'                    + '<div style="width:10px; height:10px; border-radius:3px; background:' + levelColors[lv] + ';"></div>'                    + '<span style="color:var(--c-muted);">' + lv + '</span>'                    + '<span style="font-weight:700; color:' + (isZero ? 'var(--c-faint)' : 'var(--c-heading)') + ';">' + levelCounts[lv] + '</span>'                    + '</div>';
-            });            });
+            });
             html += '<div style="font-size:0.85em; color:var(--c-faint); margin-left:auto;">' + skills.length + '/' + PROFILE_SKILL_CAP + ' skills \u00B7 ' + roles.length + ' domains</div>';
             html += '</div>';
             
