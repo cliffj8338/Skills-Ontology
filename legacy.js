@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.56 - BUILD 20260306-footer-fix-v2
-        var BP_VERSION = 'v4.46.56';
+        // BLUEPRINT v4.46.57 - BUILD 20260306-footer-fix-v3
+        var BP_VERSION = 'v4.46.57';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -20828,23 +20828,48 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             console.log('✓ Main app initialized with', userData.skills.length, 'skills');
             if (typeof bpTracker !== 'undefined' && bpTracker.sid && userData.skills.length > 0) bpTracker.trackFunnel('skills_added');
             hydrateIcons();
-            // ── Footer clearance: prevent fixed footer from overlapping content ──
+            // ── Footer clearance: find actual scroll container and pad it ──
             (function() {
+                function getScrollParent(el) {
+                    if (!el) return document.documentElement;
+                    var style = window.getComputedStyle(el);
+                    var overflow = style.overflow + style.overflowY;
+                    if (/(auto|scroll)/.test(overflow) && el !== document.body) return el;
+                    return getScrollParent(el.parentElement) || document.documentElement;
+                }
                 function applyFooterClearance() {
                     var footer = document.getElementById('appFooter');
                     var h = (footer && footer.offsetHeight > 20) ? footer.offsetHeight : 64;
-                    var pad = (h + 24) + 'px';
+                    var pad = (h + 20) + 'px';
+                    // Strategy 1: walk up from a known view element to find scroll container
+                    var anchor = document.getElementById('reportsView') || document.getElementById('blueprintView') || document.querySelector('[id$="View"]');
+                    if (anchor) {
+                        var scroller = getScrollParent(anchor);
+                        if (scroller && scroller.style) {
+                            scroller.style.paddingBottom = pad;
+                        }
+                    }
+                    // Strategy 2: also try document.documentElement and body directly
+                    document.documentElement.style.paddingBottom = pad;
+                    if (document.body) document.body.style.paddingBottom = pad;
+                    // Strategy 3: brute force every visible div deeper than 2 levels that fills the viewport
+                    var allDivs = document.querySelectorAll('div, main, section');
+                    allDivs.forEach(function(el) {
+                        var cs = window.getComputedStyle(el);
+                        if (/(auto|scroll)/.test(cs.overflow + cs.overflowY)) {
+                            el.style.paddingBottom = pad;
+                        }
+                    });
+                    // Strategy 4: CSS fallback
                     var s = document.getElementById('footerClearCSS');
                     if (!s) { s = document.createElement('style'); s.id = 'footerClearCSS'; document.head.appendChild(s); }
-                    // Cast a wide net: every plausible scroll container
-                    s.textContent = 'body, #appMain, #mainContent, #appContent, main, .app-body, .main-body,'
-                        + '#reportsView, #skillsView, #blueprintView, #jobsView, #settingsView, #adminView,'
-                        + '.view-panel, [id$="View"], .blueprint-container, #reportsList { padding-bottom: ' + pad + ' !important; }';
+                    s.textContent = '* { --footer-clearance: ' + pad + '; }'
+                        + 'html, body { padding-bottom: ' + pad + ' !important; }'
+                        + '#reportsView, #skillsView, #blueprintView, #jobsView, #settingsView, #adminView { padding-bottom: ' + pad + ' !important; }';
                 }
-                // Run immediately, then again after layout settles
                 applyFooterClearance();
-                setTimeout(applyFooterClearance, 300);
-                setTimeout(applyFooterClearance, 1200);
+                setTimeout(applyFooterClearance, 200);
+                setTimeout(applyFooterClearance, 800);
                 window.addEventListener('resize', applyFooterClearance, { passive: true });
                 window.applyFooterClearance = applyFooterClearance;
             })();
