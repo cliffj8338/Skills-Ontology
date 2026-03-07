@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.50 - BUILD 20260306-purpose-persist
-        var BP_VERSION = 'v4.46.50';
+        // BLUEPRINT v4.46.51 - BUILD 20260306-skill-dist
+        var BP_VERSION = 'v4.46.51';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -26321,14 +26321,9 @@ body {
                 });
                 html += '</div><div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">';
                 profLevels.forEach(function(p) {
-                    if (profCounts[p.key] > 0) {
-                        html += '<div style="display:flex; align-items:center; gap:6px; font-size:0.75em;">'
-                            + '<div style="width:8px; height:8px; border-radius:2px; background:' + p.color + '; flex-shrink:0;"></div>'
-                            + '<span style="color:var(--c-muted);">' + p.key + '</span>'
-                            + '<span style="font-weight:700; color:var(--c-heading);">' + profCounts[p.key] + '</span>'
-                            + '</div>';
-                    }
-                });
+                    var isZero = profCounts[p.key] === 0;
+                    html += '<div style="display:flex; align-items:center; gap:6px; font-size:0.75em; opacity:' + (isZero ? '0.35' : '1') + ';">'                        + '<div style="width:8px; height:8px; border-radius:2px; background:' + p.color + '; flex-shrink:0;"></div>'                        + '<span style="color:var(--c-muted);">' + p.key + '</span>'                        + '<span style="font-weight:700; color:' + (isZero ? 'var(--c-faint)' : 'var(--c-heading)') + ';">' + profCounts[p.key] + '</span>'                        + '</div>';
+                });                });
                 html += '</div></div>';
             } else {
                 html += '<div></div>';
@@ -26372,14 +26367,9 @@ body {
             
             html += '<div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:20px;">';
             ['Mastery','Expert','Advanced','Proficient','Novice'].forEach(function(lv) {
-                if (levelCounts[lv] > 0) {
-                    html += '<div style="display:flex; align-items:center; gap:6px; font-size:0.85em;">'
-                        + '<div style="width:10px; height:10px; border-radius:3px; background:' + levelColors[lv] + ';"></div>'
-                        + '<span style="color:var(--c-muted);">' + lv + '</span>'
-                        + '<span style="font-weight:700; color:var(--c-heading);">' + levelCounts[lv] + '</span>'
-                        + '</div>';
-                }
-            });
+                var isZero = levelCounts[lv] === 0;
+                html += '<div style="display:flex; align-items:center; gap:6px; font-size:0.85em; opacity:' + (isZero ? '0.35' : '1') + ';">'                    + '<div style="width:10px; height:10px; border-radius:3px; background:' + levelColors[lv] + ';"></div>'                    + '<span style="color:var(--c-muted);">' + lv + '</span>'                    + '<span style="font-weight:700; color:' + (isZero ? 'var(--c-faint)' : 'var(--c-heading)') + ';">' + levelCounts[lv] + '</span>'                    + '</div>';
+            });            });
             html += '<div style="font-size:0.85em; color:var(--c-faint); margin-left:auto;">' + skills.length + '/' + PROFILE_SKILL_CAP + ' skills \u00B7 ' + roles.length + ' domains</div>';
             html += '</div>';
             
