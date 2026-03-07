@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.57 - BUILD 20260306-footer-fix-v3
-        var BP_VERSION = 'v4.46.57';
+        // BLUEPRINT v4.46.58 - BUILD 20260306-footer-spacer
+        var BP_VERSION = 'v4.46.58';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -20828,50 +20828,23 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             console.log('✓ Main app initialized with', userData.skills.length, 'skills');
             if (typeof bpTracker !== 'undefined' && bpTracker.sid && userData.skills.length > 0) bpTracker.trackFunnel('skills_added');
             hydrateIcons();
-            // ── Footer clearance: find actual scroll container and pad it ──
+            // ── Footer clearance: spacer before footer, always works ──
             (function() {
-                function getScrollParent(el) {
-                    if (!el) return document.documentElement;
-                    var style = window.getComputedStyle(el);
-                    var overflow = style.overflow + style.overflowY;
-                    if (/(auto|scroll)/.test(overflow) && el !== document.body) return el;
-                    return getScrollParent(el.parentElement) || document.documentElement;
-                }
-                function applyFooterClearance() {
+                function ensureFooterSpacer() {
                     var footer = document.getElementById('appFooter');
-                    var h = (footer && footer.offsetHeight > 20) ? footer.offsetHeight : 64;
-                    var pad = (h + 20) + 'px';
-                    // Strategy 1: walk up from a known view element to find scroll container
-                    var anchor = document.getElementById('reportsView') || document.getElementById('blueprintView') || document.querySelector('[id$="View"]');
-                    if (anchor) {
-                        var scroller = getScrollParent(anchor);
-                        if (scroller && scroller.style) {
-                            scroller.style.paddingBottom = pad;
-                        }
+                    if (!footer) return;
+                    var h = (footer.offsetHeight > 10) ? footer.offsetHeight : 64;
+                    var spacer = document.getElementById('footerSpacer');
+                    if (!spacer) {
+                        spacer = document.createElement('div');
+                        spacer.id = 'footerSpacer';
+                        footer.parentNode.insertBefore(spacer, footer);
                     }
-                    // Strategy 2: also try document.documentElement and body directly
-                    document.documentElement.style.paddingBottom = pad;
-                    if (document.body) document.body.style.paddingBottom = pad;
-                    // Strategy 3: brute force every visible div deeper than 2 levels that fills the viewport
-                    var allDivs = document.querySelectorAll('div, main, section');
-                    allDivs.forEach(function(el) {
-                        var cs = window.getComputedStyle(el);
-                        if (/(auto|scroll)/.test(cs.overflow + cs.overflowY)) {
-                            el.style.paddingBottom = pad;
-                        }
-                    });
-                    // Strategy 4: CSS fallback
-                    var s = document.getElementById('footerClearCSS');
-                    if (!s) { s = document.createElement('style'); s.id = 'footerClearCSS'; document.head.appendChild(s); }
-                    s.textContent = '* { --footer-clearance: ' + pad + '; }'
-                        + 'html, body { padding-bottom: ' + pad + ' !important; }'
-                        + '#reportsView, #skillsView, #blueprintView, #jobsView, #settingsView, #adminView { padding-bottom: ' + pad + ' !important; }';
+                    spacer.style.cssText = 'display:block;width:100%;height:' + (h + 8) + 'px;flex-shrink:0;';
                 }
-                applyFooterClearance();
-                setTimeout(applyFooterClearance, 200);
-                setTimeout(applyFooterClearance, 800);
-                window.addEventListener('resize', applyFooterClearance, { passive: true });
-                window.applyFooterClearance = applyFooterClearance;
+                ensureFooterSpacer();
+                setTimeout(ensureFooterSpacer, 300);
+                window.addEventListener('resize', ensureFooterSpacer, { passive: true });
             })();
             // Inject CMD+K search button into header if not already present
             if (!document.getElementById('cmdKBtn')) {
