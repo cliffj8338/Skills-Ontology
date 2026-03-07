@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.53 - BUILD 20260306-cmd-palette
-        var BP_VERSION = 'v4.46.53';
+        // BLUEPRINT v4.46.54 - BUILD 20260306-purpose-v3
+        var BP_VERSION = 'v4.46.54';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1472,7 +1472,10 @@
                     userData.skills = data.skills || [];
                     userData.values = data.values || [];
                     userData.purpose = data.purpose || '';
-                    if (data.purpose) window._lastKnownPurpose = data.purpose; // circuit breaker: prevents empty overwrite
+                    if (data.purpose) {
+                        window._lastKnownPurpose = data.purpose; // circuit breaker
+                        try { sessionStorage.setItem('bp_last_purpose', data.purpose); } catch(e) {}
+                    }
                     userData.roles = data.roles || [];
                     userData.preferences = data.preferences || userData.preferences;
                     userData.applications = data.applications || [];
@@ -3444,6 +3447,7 @@
                         { id: 'p2-7e', name: 'Custom preset UX improvements', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.10: Custom preset card description changed from passive "You choose exactly..." to actionable "Granular control. Toggle individual skills, outcomes, and values in the Blueprint tab." When Custom is selected, a blue info banner appears below the preset grid: "Custom mode active. Manage individual share toggles for outcomes and values in the Blueprint tab." with clickable link to Blueprint view. Applied to both Settings > Privacy and Consent views.' },
                         { id: 'p2-7f', name: 'Unverified skills card frame + prioritization note', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.11: Unverified skills section in Verify tab now wrapped in a framed card matching the verified skills cards above (surface-2a background, border, 14px radius, 20px/24px padding). Added explanatory note: "These skills lack third-party verification. They are ranked by market rarity so you can prioritize which to verify first. Rare skills carry the most differentiation value."' },
                         { id: 'p2-7g', name: 'Fix demo profile networks + overlay cleanup', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.46.14-15: (1) getVisibleRoles() was filtering roles against userData.workHistory titles. Demo templates with no workHistory returned empty roles, showing only center node. Fix: return all roles when no workHistory exists or when no roles match. (2) toggleSkillsView(card) did not clean up network overlay elements (jobInfoTile, matchLegend, valuesAlignmentPanel, roleInfoCard, mobileNetworkBadge, jobSelectorDropdown). These fixed-position elements persisted from Network view into Card view. Now removed on toggle. Also resets jobSelectorExpanded state.' },
+                        { id: 'p2-7s', name: 'Purpose persistence v3: inferValues circuit breaker + sessionStorage', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.54: inferValues() now uses _lastKnownPurpose as final fallback before blanking purpose — prevents the blank-purpose-then-save race. _lastKnownPurpose backed to sessionStorage so it survives hard reload. updatePurpose() also writes to sessionStorage. This is the deepest fix yet: even if userData.purpose and blueprintData.purpose are both transiently empty (which CAN happen on rapid navigation), the circuit breaker restores from sessionStorage before any save can fire.' },
                         { id: 'p2-7r', name: 'CMD+K Command Palette', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.53: Global CMD+K / CTRL+K command palette. Searches skills, outcomes, saved jobs, work history in real time. Static actions list (Add Skill, New Report, Generate Purpose, Export, Bulk Import, Comp Review). Navigation shortcuts with keyboard badges. Arrow key navigation, Enter to execute, Esc to close. Search icon injected into header. Analytics event on open. CSS injected once on first open.' },
                         { id: 'p2-7q', name: 'Outcomes tab UX redesign: search, category grouping, collapsible sections', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.52: 128-outcome scroll problem solved. Added search bar + category filter + shared-only toggle at top of outcomes tab. Outcomes grouped by category with collapsible sections (auto-collapsed when >5 items). Add button moved to header. Coaching tip + reflection prompts collapsed into Tips & Prompts accordion. Fixed SENSITIVE badge template literal bug. Fixed footer overlapping reports view by adding padding-bottom:80px to report container.' },
                         { id: 'p2-7p', name: 'Purpose persistence: initialized guard + _lastKnownPurpose circuit breaker', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.50: saveToFirestore() now blocks if !userData.initialized — prevents race condition where user navigates to Blueprint before Firestore loads, triggering a save with empty purpose that overwrites Firestore. _lastKnownPurpose (window var) stashed on load and on updatePurpose, used as ultimate fallback in _buildFirestoreData(). Belt-and-suspenders: even if both blueprintData.purpose and userData.purpose are transiently empty, the circuit breaker preserves the last known value.' },
@@ -23361,14 +23365,14 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 if (r.type !== lastType) {
                     if (lastType !== null) rendered += '</div>';
                     rendered += '<div class="cmd-group">';
-                    rendered += '<div style="font-size:0.65em;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--c-faint);padding:8px 14px 4px;">' + typeLabel + 's</div>';
+                    rendered += '<div class="cmd-group-label">' + typeLabel + 's</div>';
                     lastType = r.type;
                 }
                 rendered += '<div class="cmd-item' + (isActive ? ' cmd-item-active' : '') + '" data-idx="' + i + '" onmouseenter="this.className=\'cmd-item cmd-item-active\';_paletteIdx=' + i + ';" onmouseleave="this.className=\'cmd-item\';" onclick="_paletteExecute(' + i + ');">'
                     + '<span style="flex-shrink:0;color:' + typeColor + ';opacity:0.8;">' + bpIcon(r.icon || 'search', 14) + '</span>'
                     + '<span style="flex:1;min-width:0;">'
-                    + '<div style="font-size:0.88em;color:var(--c-text,#e5e7eb);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(r.label) + '</div>'
-                    + (r.sub ? '<div style="font-size:0.73em;color:var(--c-faint);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(r.sub) + '</div>' : '')
+                    + '<div class="cmd-item-label">' + escapeHtml(r.label) + '</div>'
+                    + (r.sub ? '<div class="cmd-item-sub">' + escapeHtml(r.sub) + '</div>' : '')
                     + '</span>'
                     + (r.kbd ? '<kbd style="font-size:0.65em;padding:2px 6px;border-radius:4px;background:var(--c-surface-3);border:1px solid var(--c-border-subtle);color:var(--c-faint);">' + r.kbd + '</kbd>' : '')
                     + '</div>';
@@ -23390,19 +23394,36 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             _paletteIdx = 0;
 
             // Inject CSS once
-            if (!document.getElementById('cmdPaletteCSS')) {
+            var existingCSS = document.getElementById('cmdPaletteCSS'); if (existingCSS) existingCSS.remove();
+            {
                 var style = document.createElement('style');
                 style.id = 'cmdPaletteCSS';
+                // Detect light vs dark mode to style palette correctly
+                var isLight = document.documentElement.classList.contains('light') || document.body.classList.contains('light-mode') || document.documentElement.getAttribute('data-theme') === 'light';
+                var palBg = isLight ? '#ffffff' : '#1a1f2e';
+                var palBorder = isLight ? 'rgba(0,0,0,0.12)' : 'rgba(96,165,250,0.25)';
+                var palText = isLight ? '#111827' : '#e5e7eb';
+                var palMuted = isLight ? '#6b7280' : '#9ca3af';
+                var palFaint = isLight ? '#9ca3af' : '#4b5563';
+                var palDivider = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.07)';
+                var palHover = isLight ? 'rgba(96,165,250,0.12)' : 'rgba(96,165,250,0.1)';
+                var palKbdBg = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)';
+                var palKbdBorder = isLight ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.1)';
+                var palShadow = isLight ? '0 8px 40px rgba(0,0,0,0.18)' : '0 24px 64px rgba(0,0,0,0.6)';
+                var palOverlay = isLight ? 'rgba(0,0,0,0.35)' : 'rgba(0,0,0,0.55)';
                 style.textContent = [
-                    '#cmdPaletteOverlay{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);display:flex;align-items:flex-start;justify-content:center;padding-top:12vh;}',
-                    '#cmdPalette{width:100%;max-width:560px;background:var(--c-surface-1,#1e2333);border:1px solid rgba(96,165,250,0.25);border-radius:14px;box-shadow:0 24px 64px rgba(0,0,0,0.6);overflow:hidden;display:flex;flex-direction:column;max-height:70vh;}',
-                    '#cmdPaletteInput{width:100%;padding:16px 18px;background:transparent;border:none;border-bottom:1px solid var(--c-surface-4,rgba(255,255,255,0.08));color:var(--c-text,#e5e7eb);font-size:1em;outline:none;font-family:inherit;}',
-                    '#cmdPaletteInput::placeholder{color:var(--c-faint,#4b5563);}',
+                    '#cmdPaletteOverlay{position:fixed;inset:0;z-index:9000;background:' + palOverlay + ';backdrop-filter:blur(4px);display:flex;align-items:flex-start;justify-content:center;padding-top:12vh;}',
+                    '#cmdPalette{width:100%;max-width:560px;background:' + palBg + ';border:1px solid ' + palBorder + ';border-radius:14px;box-shadow:' + palShadow + ';overflow:hidden;display:flex;flex-direction:column;max-height:70vh;}',
+                    '#cmdPaletteInput{width:100%;padding:16px 18px;background:transparent;border:none;border-bottom:1px solid ' + palDivider + ';color:' + palText + ';font-size:1em;outline:none;font-family:inherit;}',
+                    '#cmdPaletteInput::placeholder{color:' + palFaint + ';}',
                     '#cmdPaletteList{overflow-y:auto;flex:1;}',
-                    '.cmd-item{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;transition:background 0.08s;}',
-                    '.cmd-item-active{background:rgba(96,165,250,0.1);}',
-                    '#cmdPaletteFooter{padding:8px 14px;border-top:1px solid var(--c-surface-4,rgba(255,255,255,0.06));display:flex;gap:14px;font-size:0.68em;color:var(--c-faint);align-items:center;}',
-                    '#cmdPaletteFooter kbd{padding:2px 6px;border-radius:4px;background:var(--c-surface-3,rgba(255,255,255,0.08));border:1px solid var(--c-border-subtle,rgba(255,255,255,0.1));color:var(--c-muted);}',
+                    '.cmd-item{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;transition:background 0.08s;color:' + palText + ';}',
+                    '.cmd-item-active,.cmd-item:hover{background:' + palHover + ';}',
+                    '.cmd-group-label{font-size:0.65em;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:' + palFaint + ';padding:8px 14px 4px;}',
+                    '#cmdPaletteFooter{padding:8px 14px;border-top:1px solid ' + palDivider + ';display:flex;gap:14px;font-size:0.68em;color:' + palFaint + ';align-items:center;}',
+                    '#cmdPaletteFooter kbd{padding:2px 6px;border-radius:4px;background:' + palKbdBg + ';border:1px solid ' + palKbdBorder + ';color:' + palMuted + ';}',
+                    '.cmd-item-sub{font-size:0.73em;color:' + palFaint + ';margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
+                    '.cmd-item-label{font-size:0.88em;color:' + palText + ';font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}',
                 ].join('');
                 document.head.appendChild(style);
             }
@@ -26075,6 +26096,13 @@ body {
         window.saveValueNote = saveValueNote;
 
         function inferValues() {
+            // Restore circuit breaker from sessionStorage if lost (e.g. hard reload)
+            if (!window._lastKnownPurpose) {
+                try {
+                    var ss = sessionStorage.getItem('bp_last_purpose');
+                    if (ss) window._lastKnownPurpose = ss;
+                } catch(e) {}
+            }
             // STEP 1: Check localStorage for saved edits
             var saved = loadSavedValues();
             if (saved && saved.length > 0) {
@@ -26125,6 +26153,11 @@ body {
             } else if (blueprintData.purpose && blueprintData.purpose.trim().length > 0) {
                 // Keep existing in-memory value — userData may be stale but blueprintData is current
                 userData.purpose = blueprintData.purpose; // sync back
+            } else if (window._lastKnownPurpose && window._lastKnownPurpose.trim().length > 0) {
+                // Circuit breaker: Firestore last-known value prevents inferValues from erasing purpose
+                blueprintData.purpose = window._lastKnownPurpose;
+                userData.purpose = window._lastKnownPurpose;
+                console.log('\u26a0 inferValues: restored purpose from _lastKnownPurpose circuit breaker');
             } else {
                 blueprintData.purpose = "";
             }
@@ -28598,7 +28631,10 @@ body {
             if (readOnlyGuard()) return;
             blueprintData.purpose = newPurpose;
             userData.purpose = newPurpose; // keep userData in sync
-            if (newPurpose) window._lastKnownPurpose = newPurpose; // update circuit breaker
+            if (newPurpose) {
+                window._lastKnownPurpose = newPurpose; // update circuit breaker
+                try { sessionStorage.setItem('bp_last_purpose', newPurpose); } catch(e) {}
+            }
             saveValues();
             saveToFirestore();
         }
