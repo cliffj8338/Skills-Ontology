@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.49 - BUILD 20260306-comp-review
-        var BP_VERSION = 'v4.46.49';
+        // BLUEPRINT v4.46.50 - BUILD 20260306-purpose-persist
+        var BP_VERSION = 'v4.46.50';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1267,7 +1267,7 @@
                 }) : [],
                 roles: (skillsData && skillsData.roles) || [],
                 values: blueprintData.values || [],
-                purpose: blueprintData.purpose || userData.purpose || '',
+                purpose: blueprintData.purpose || userData.purpose || window._lastKnownPurpose || '',
                 outcomes: blueprintData.outcomes || [],
                 preferences: userData.preferences || {},
                 applications: userData.applications || [],
@@ -1329,6 +1329,12 @@
             
             var tid = userData.templateId || '';
             if (tid && tid.indexOf('firestore-') !== 0 && tid !== 'wizard-built') {
+                return Promise.resolve(false);
+            }
+            
+            // GUARD: Never save before Firestore data has loaded — early saves overwrite good data with empty
+            if (!userData.initialized) {
+                console.warn('saveToFirestore blocked: userData not yet initialized (Firestore load in progress)');
                 return Promise.resolve(false);
             }
             
@@ -1459,6 +1465,7 @@
                     userData.skills = data.skills || [];
                     userData.values = data.values || [];
                     userData.purpose = data.purpose || '';
+                    if (data.purpose) window._lastKnownPurpose = data.purpose; // circuit breaker: prevents empty overwrite
                     userData.roles = data.roles || [];
                     userData.preferences = data.preferences || userData.preferences;
                     userData.applications = data.applications || [];
@@ -3430,6 +3437,7 @@
                         { id: 'p2-7e', name: 'Custom preset UX improvements', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.10: Custom preset card description changed from passive "You choose exactly..." to actionable "Granular control. Toggle individual skills, outcomes, and values in the Blueprint tab." When Custom is selected, a blue info banner appears below the preset grid: "Custom mode active. Manage individual share toggles for outcomes and values in the Blueprint tab." with clickable link to Blueprint view. Applied to both Settings > Privacy and Consent views.' },
                         { id: 'p2-7f', name: 'Unverified skills card frame + prioritization note', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.11: Unverified skills section in Verify tab now wrapped in a framed card matching the verified skills cards above (surface-2a background, border, 14px radius, 20px/24px padding). Added explanatory note: "These skills lack third-party verification. They are ranked by market rarity so you can prioritize which to verify first. Rare skills carry the most differentiation value."' },
                         { id: 'p2-7g', name: 'Fix demo profile networks + overlay cleanup', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.46.14-15: (1) getVisibleRoles() was filtering roles against userData.workHistory titles. Demo templates with no workHistory returned empty roles, showing only center node. Fix: return all roles when no workHistory exists or when no roles match. (2) toggleSkillsView(card) did not clean up network overlay elements (jobInfoTile, matchLegend, valuesAlignmentPanel, roleInfoCard, mobileNetworkBadge, jobSelectorDropdown). These fixed-position elements persisted from Network view into Card view. Now removed on toggle. Also resets jobSelectorExpanded state.' },
+                        { id: 'p2-7p', name: 'Purpose persistence: initialized guard + _lastKnownPurpose circuit breaker', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.50: saveToFirestore() now blocks if !userData.initialized — prevents race condition where user navigates to Blueprint before Firestore loads, triggering a save with empty purpose that overwrites Firestore. _lastKnownPurpose (window var) stashed on load and on updatePurpose, used as ultimate fallback in _buildFirestoreData(). Belt-and-suspenders: even if both blueprintData.purpose and userData.purpose are transiently empty, the circuit breaker preserves the last known value.' },
                         { id: 'p2-7h', name: 'Purpose statement persistence fix', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.31/40: Purpose statement was erasing itself on reload. Three root causes fixed: (1) saveValues() not syncing userData.purpose before Firestore write — empty string overwrote real value on any early save. (2) inferValues() had no fallback — cleared blueprintData.purpose when userData.purpose was stale. (3) _buildFirestoreData() read blueprintData.purpose with no userData fallback — demo mode swaps and profile switches could trigger a save that wiped Firestore. Fix: _buildFirestoreData now reads blueprintData.purpose || userData.purpose || \'\'. renderContentEvidenceTab calls inferValues() before reading purpose. saveValues() syncs userData.purpose before every write. inferValues() preserves existing blueprintData.purpose if userData.purpose is stale.' },
                         { id: 'p2-7i', name: 'Reports page: tiles not clickable + layout overhaul', status: 'done', category: 'bugfix', priority: 'high', notes: 'v4.46.32-33: showReportFormatPicker() populated modal content but never called modal.classList.add(\'active\') — modal was invisible. Fixed by adding history.pushState and classList.add(\'active\') at end of function. Layout: added padding-top:12px to reports container. Replaced stacked horizontal bar tiles with card grid (auto-fill / minmax(220px, 1fr)). Each card: job title (2-line clamp), match % top-right, company + date, matched/gaps badge pills.' },
                         { id: 'p2-7j', name: 'Report Readiness widget — wrong data sources (6-pass fix)', status: 'done', category: 'bugfix', priority: 'critical', notes: 'v4.46.34-40: Report Readiness showed 17% — only Work History registered. Six layered bugs fixed: blueprintData.skills does not exist (→ skillsData.skills || userData.skills); blueprintData.certifications/education do not exist (→ userData.*); if (window.blueprintData) guard always false (→ typeof check); window.reportsInitialized never reset after Firestore load; inferValues() and extractOutcomesFromEvidence() not called before completeness check; userData.outcomes never populated from Firestore load path.' },
@@ -28194,6 +28202,7 @@ body {
             if (readOnlyGuard()) return;
             blueprintData.purpose = newPurpose;
             userData.purpose = newPurpose; // keep userData in sync
+            if (newPurpose) window._lastKnownPurpose = newPurpose; // update circuit breaker
             saveValues();
             saveToFirestore();
         }
