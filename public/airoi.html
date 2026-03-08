@@ -364,7 +364,7 @@
   .card-label { font-family: Calibri,'Segoe UI','DM Mono',monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 14px; }
 
   /* Gauge */
-  #gauge-canvas { display: block; margin: 0 auto 10px; }
+  #gauge-canvas { display: block; margin: 0 auto 10px; max-width: 100%; height: auto; }
   .gauge-caption { font-size: 15px; color: var(--dim); text-align: center; font-style: italic; line-height: 1.6; }
 
   /* Equation breakdown */
@@ -433,6 +433,10 @@
     .mid-grid  { grid-template-columns: 1fr; }
     header { flex-direction: column; gap: 12px; padding: 14px 16px; }
     .right-panel { padding: 20px 16px; }
+    #gauge-canvas { width: 100% !important; height: auto !important; }
+    .eq-fraction { padding: 10px 0 8px; margin-bottom: 14px; }
+    .eq-num { font-size: 16px; }
+    .eq-den { font-size: 14px; }
   }
 
   /* ── About Modal ──────────────────────────────────────── */
@@ -960,8 +964,14 @@ const elasticityChart = new Chart(chartCtx, {
 function drawGauge(adoptingFTEs, synthFTEs, totalFTEs) {
   const isLight = document.documentElement.getAttribute('data-theme') === 'light';
   const canvas = document.getElementById('gauge-canvas');
+  // Scale canvas resolution to match its rendered CSS width
+  const cssW = canvas.offsetWidth || 460;
+  const scale = cssW / 460;
+  canvas.width  = Math.round(460 * scale);
+  canvas.height = Math.round(300 * scale);
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.scale(scale, scale);
 
   // Fix light mode: fill canvas with card background so it's never transparent-dark
   if (isLight) {
