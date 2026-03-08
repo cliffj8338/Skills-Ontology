@@ -102,6 +102,15 @@
     border-radius: 6px;
     overflow: hidden;
   }
+  .seat-badge {
+    padding: 5px 10px; background: var(--surface); border: 1px solid var(--border);
+    color: var(--dim); font-family: 'DM Mono', monospace; font-size: 0.72em;
+    letter-spacing: 0.5px; cursor: pointer; border-radius: 4px; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .seat-badge:hover { border-color: var(--coral); color: var(--coral); }
+  .seat-badge.active-seat { background: rgba(244,63,94,0.12); border-color: var(--coral); color: var(--coral); font-weight: 600; }
+
   .year-btn {
     flex: 1; padding: 6px 0; background: var(--surface); border: 1px solid var(--border);
     color: var(--dim); font-family: 'DM Mono', monospace; font-size: 0.72em; letter-spacing: 1px;
@@ -443,14 +452,33 @@
     <hr class="divider">
     <div class="section-label coral">Investment</div>
 
-    <div class="slider-row">
-      <div class="slider-header">
-        <span class="slider-label">Total AI Investment (I)</span>
-        <span class="slider-value" id="val-invest">$2.00M</span>
+    <div style="margin-bottom:6px;">
+      <div style="font-size:0.72em; color:var(--dim); font-family:'DM Mono',monospace; letter-spacing:1px; margin-bottom:8px;">COST PER ADOPTER / YEAR</div>
+      <div id="seat-badges" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">
+        <button class="seat-badge" data-val="500"  onclick="setSeat(500)"  >$500</button>
+        <button class="seat-badge" data-val="1000" onclick="setSeat(1000)" >$1,000</button>
+        <button class="seat-badge" data-val="1500" onclick="setSeat(1500)" >$1,500</button>
+        <button class="seat-badge active-seat" data-val="2000" onclick="setSeat(2000)">$2,000</button>
+        <button class="seat-badge" data-val="2500" onclick="setSeat(2500)" >$2,500</button>
+        <button class="seat-badge" data-val="3000" onclick="setSeat(3000)" >$3,000</button>
       </div>
-      <div class="slider-track">
-        <div class="slider-fill" id="fill-invest"></div>
-        <input type="range" id="invest" min="100000" max="5000000" step="50000" value="500000" oninput="update()">
+      <div style="font-size:0.68em; color:var(--slate2); font-family:'DM Mono',monospace; line-height:1.5; margin-bottom:8px;">
+        Volume pricing typically applies above ~500 seats. Higher tiers reflect enterprise tooling, integrations &amp; training.
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:10px 12px;">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px;">
+          <span style="font-size:0.7em; color:var(--dim); font-family:'DM Mono',monospace; letter-spacing:1px;">ADOPTERS</span>
+          <span id="inv-adopters" style="font-size:0.85em; color:var(--white); font-family:'DM Mono',monospace;">—</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px;">
+          <span style="font-size:0.7em; color:var(--dim); font-family:'DM Mono',monospace; letter-spacing:1px;">SEAT COST / YR</span>
+          <span id="inv-seat" style="font-size:0.85em; color:var(--white); font-family:'DM Mono',monospace;">—</span>
+        </div>
+        <div style="border-top:1px solid var(--border); margin:6px 0;"></div>
+        <div style="display:flex; justify-content:space-between; align-items:baseline;">
+          <span style="font-size:0.7em; color:var(--coral); font-family:'DM Mono',monospace; letter-spacing:1px; font-weight:600;">TOTAL INVESTMENT</span>
+          <span id="val-invest" style="font-size:1.05em; color:var(--coral); font-family:'DM Mono',monospace; font-weight:700;">—</span>
+        </div>
       </div>
     </div>
 
@@ -586,6 +614,7 @@
 // ── STATE ──────────────────────────────────────────────────────
 let view = 'pressbox';
 let rampYear = 2;
+let perSeatCost = 2000;  // $/adopter/year — set via badge selector
 const MU = 0.6, DMPL_MULT = 1.5, OTRANS_PCT = 0.15, OMEGA_PCT = 0.08;
 // Ramp efficiency by year: % of full potential realized as team learns the tools
 // Y1: rollout chaos, partial usage. Y2: stabilizing. Y3: normalized. Y4: optimized.
@@ -799,6 +828,15 @@ function updateRampBars() {
   }
 }
 
+// ── SEAT COST SELECTOR ───────────────────────────────────────
+function setSeat(val) {
+  perSeatCost = val;
+  document.querySelectorAll('.seat-badge').forEach(b => {
+    b.className = 'seat-badge' + (+b.dataset.val === val ? ' active-seat' : '');
+  });
+  update();
+}
+
 // ── MAIN UPDATE ───────────────────────────────────────────────
 function update() {
   const ftes    = +document.getElementById('ftes').value;
@@ -808,7 +846,9 @@ function update() {
   let dispRate  = +document.getElementById('disp').value;
   let phi       = +document.getElementById('phi').value;
   let impossV   = +document.getElementById('impos').value;
-  let invest    = +document.getElementById('invest').value;
+  // Investment derived from per-seat cost × adopting FTEs
+  const adoptingFTEsForInvest = ftes * (adoptPct / 100);
+  let invest = Math.max(100000, Math.round(adoptingFTEsForInvest * perSeatCost / 1000) * 1000);
 
   // Slider fills & labels
   fillPct('ftes',   ftes,    2500,     50000);    document.getElementById('val-ftes').textContent   = ftes.toLocaleString();
@@ -818,20 +858,17 @@ function update() {
   fillPct('disp',   dispRate,20,       90);        document.getElementById('val-disp').textContent   = dispRate + '%';
   fillPct('phi',    phi,     1.0,      2.5);       document.getElementById('val-phi').textContent    = phi.toFixed(2);
   fillPct('impos',  impossV, 0,        50000000);  document.getElementById('val-impos').textContent  = fmt(impossV);
-  fillPct('invest', invest,  100000,   5000000);  document.getElementById('val-invest').textContent = fmt(invest);
+  // Investment breakdown display
+  const _adoptersDisplay = Math.round(ftes * (adoptPct/100));
+  const _invDisplay = document.getElementById('inv-adopters');
+  const _seatDisplay = document.getElementById('inv-seat');
+  if (_invDisplay) _invDisplay.textContent = _adoptersDisplay.toLocaleString() + ' people';
+  if (_seatDisplay) _seatDisplay.textContent = '$' + perSeatCost.toLocaleString() + ' / person';
+  document.getElementById('val-invest').textContent = fmt(invest);
 
   // ── CONSTRAINT ENGINE ─────────────────────────────────────────
-  // Rule 1: Min investment = adopters × $3,000 (licenses + tooling + training floor)
+  // Investment is now computed from perSeatCost × adopters — no slider to enforce
   const adoptingFTEsRaw = ftes * (adoptPct / 100);
-  const minInvest = Math.max(100000, Math.round(adoptingFTEsRaw * 3000 / 50000) * 50000);
-  const investEl = document.getElementById('invest');
-  if (invest < minInvest) {
-    investEl.value = minInvest;
-    invest = minInvest;
-    fillPct('invest', invest, 100000, 5000000);
-    document.getElementById('val-invest').textContent = fmt(invest);
-  }
-  investEl.min = minInvest;
 
   // Rule 2: Displacement rate capped at 60% — BCG/Harvard research ceiling
   const dispEl = document.getElementById('disp');
@@ -852,8 +889,7 @@ function update() {
   // Constraint summary box
   const cbox = document.getElementById('constraint-box');
   const violations = [];
-  if (invest === minInvest && minInvest > 100000)
-    violations.push('\u25b2 Min investment: ' + fmt(minInvest) + ' (' + Math.round(adoptingFTEsRaw).toLocaleString() + ' adopters \u00d7 $3K/person)');
+
   if (dispRate >= 60)
     violations.push('\u25b2 Displacement capped at 60% — BCG/Harvard ceiling');
   if (phi >= 1.75)
