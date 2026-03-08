@@ -720,7 +720,7 @@
       </div>
       <div class="kpi-card" style="border-top-color: var(--gold);">
         <div class="kpi-label">Strategic Ceiling</div>
-        <div class="kpi-value" id="kpi-return" style="color: var(--gold);">—</div>
+        <div class="kpi-value" id="kpi-return" style="color: var(--emerald);">—</div>
         <div class="kpi-note" id="kpi-return-note">Incl. revealed outcomes</div>
         <div id="return-explain" style="display:none;margin-top:6px;font-size:10px;color:var(--slate2);line-height:1.4;">Requires active redeployment of freed capacity. Execution typically captures 50&ndash;70% of ceiling.</div>
       </div>
@@ -761,8 +761,8 @@
         <div style="font-size:10px;color:var(--slate2);font-family:Calibri,'Segoe UI',monospace;margin-bottom:4px;letter-spacing:0.5px;text-transform:uppercase;">+ Strategic (speculative)</div>
         <div class="eq-row"><span class="eq-key">Φ(Oₙ · V)</span><span class="eq-val" id="eq-phi" style="color: var(--gold);">—</span></div>
         <div class="eq-row" style="border-top:1px solid var(--border);padding-top:6px;margin-top:4px;margin-bottom:8px;">
-          <span class="eq-key" id="eq-ceil-label" style="color:var(--gold);font-weight:600;">Strategic Ceiling ROI</span>
-          <span class="eq-val" id="eq-ceil-roi" style="color:var(--gold);">—</span>
+          <span class="eq-key" id="eq-ceil-label" style="color:var(--emerald);font-weight:600;">Strategic Ceiling ROI</span>
+          <span class="eq-val" id="eq-ceil-roi" style="color:var(--emerald);">—</span>
         </div>
         <div class="eq-row" style="border-top:1px solid var(--border2);padding-top:6px;"><span class="eq-key" style="color:var(--dim);">I + O_trans + Ω</span><span class="eq-val" id="eq-denom" style="color: var(--coral);">—</span></div>
         <div class="insight-box" id="insight-box"></div>
@@ -910,12 +910,12 @@ const elasticityChart = new Chart(chartCtx, {
     scales: {
       x: {
         ticks: { color: '#475569', font: { family: "'DM Mono', monospace", size: 9 } },
-        grid: { color: '#1e3a5f', borderDash: [4, 4] },
+        grid: { display: false },
         border: { color: '#1e293b' }
       },
       y: {
         ticks: { color: '#475569', font: { family: "'DM Mono', monospace", size: 9 }, callback: v => `${v}×` },
-        grid: { color: '#1e3a5f', borderDash: [4, 4] },
+        grid: { display: false },
         border: { color: '#1e293b' }
       }
     }
@@ -1197,15 +1197,14 @@ function update() {
   document.getElementById('kpi-roi').textContent   = displayROI.toFixed(1) + '×';
   const displayReturn = view === 'pressbox' ? elasticN : savedDollars;
   document.getElementById('kpi-return').textContent = fmt(displayReturn);
-  document.getElementById('kpi-return').style.color = view === 'pressbox' ? 'var(--gold)' : 'var(--emerald)';
+  document.getElementById('kpi-return').style.color = 'var(--emerald)';
   document.getElementById('kpi-return-note').textContent = view === 'pressbox' ? 'Incl. revealed outcomes' : 'Labor value reclaimed';
   // Equation breakdown — floor/ceiling split
   document.getElementById('eq-floor-roi').textContent = floorROI.toFixed(1) + '×';
   const ceilEl = document.getElementById('eq-ceil-roi');
   ceilEl.textContent = ceilROI.toFixed(1) + '×';
-  const ceilColor = view === 'pressbox' ? 'var(--emerald)' : 'var(--gold)';
-  ceilEl.style.color = ceilColor;
-  document.getElementById('eq-ceil-label').style.color = ceilColor;
+  ceilEl.style.color = 'var(--emerald)';
+  document.getElementById('eq-ceil-label').style.color = 'var(--emerald)';
   document.getElementById('kpi-roi').style.color   = roiColor;
   const retEx = document.getElementById('return-explain');
   if (retEx) retEx.style.display = view === 'pressbox' ? 'block' : 'none';
@@ -1330,13 +1329,11 @@ function toggleTheme() {
   html.setAttribute('data-theme', isLight ? 'dark' : 'light');
   document.getElementById('theme-btn').innerHTML = isLight ? '&#9728; Light' : '&#9790; Dark';
   const lc = isLight ? '#64748b' : '#475569';
-  const gc = isLight ? '#f3f4f6' : '#1e3a5f';
+  const ac = isLight ? '#c8d5e3' : '#1e293b';
   elasticityChart.options.scales.x.ticks.color = lc;
   elasticityChart.options.scales.y.ticks.color = lc;
-  elasticityChart.options.scales.x.grid.color  = gc;
-  elasticityChart.options.scales.y.grid.color  = gc;
-  elasticityChart.options.scales.x.grid.borderDash = [4, 4];
-  elasticityChart.options.scales.y.grid.borderDash = [4, 4];
+  elasticityChart.options.scales.x.border.color = ac;
+  elasticityChart.options.scales.y.border.color = ac;
   elasticityChart.update();
   update();
 }
