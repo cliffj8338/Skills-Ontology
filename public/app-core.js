@@ -2653,9 +2653,9 @@
                     { label: 'Last 30 Days',  value: week30.toLocaleString(),              color: '#38bdf8' },
                     { label: 'Last Seen',     value: lastSeenStr,                          color: '#94a3b8', small: true }
                 ].forEach(function(c) {
-                    html += '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'\
-                        + '<div style="font-size:' + (c.small ? '0.88' : '1.5') + 'em; font-weight:700; color:' + c.color + '; line-height:1.2;">' + c.value + '</div>'\
-                        + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-top:3px;">' + c.label + '</div>'\
+                    html += '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
+                        + '<div style="font-size:' + (c.small ? '0.88' : '1.5') + 'em; font-weight:700; color:' + c.color + '; line-height:1.2;">' + c.value + '</div>'
+                        + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-top:3px;">' + c.label + '</div>'
                         + '</div>';
                 });
                 html += '</div>';
