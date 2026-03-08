@@ -342,7 +342,7 @@
       <div class="slider-sub">% of workforce actively using AI tools</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-adopt"></div>
-        <input type="range" id="adopt" min="5" max="100" step="5" value="25" oninput="update()">
+        <input type="range" id="adopt" min="5" max="100" step="5" value="35" oninput="update()">
       </div>
     </div>
 
@@ -362,10 +362,10 @@
         <span class="slider-label">Cognitive Drag % (T1/T2)</span>
         <span class="slider-value" id="val-drag">40%</span>
       </div>
-      <div class="slider-sub">% of day spent on administrative &amp; analytical tasks</div>
+      <div class="slider-sub">% of day on admin, email, search &amp; coordination (McKinsey avg: 42%)</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-drag"></div>
-        <input type="range" id="drag" min="10" max="80" step="1" value="30" oninput="update()">
+        <input type="range" id="drag" min="10" max="80" step="1" value="40" oninput="update()">
       </div>
     </div>
 
@@ -374,10 +374,10 @@
         <span class="slider-label">AI Displacement Rate</span>
         <span class="slider-value" id="val-disp">65%</span>
       </div>
-      <div class="slider-sub">% of drag work AI handles for adopters (at full efficiency)</div>
+      <div class="slider-sub">% of drag work AI absorbs for proficient users (BCG/Harvard avg: 25–40%)</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-disp"></div>
-        <input type="range" id="disp" min="20" max="90" step="1" value="25" oninput="update()">
+        <input type="range" id="disp" min="20" max="90" step="1" value="35" oninput="update()">
       </div>
     </div>
 
@@ -602,8 +602,9 @@ const elasticityChart = new Chart(chartCtx, {
 });
 
 // ── GAUGE ──────────────────────────────────────────────────────
-function drawGauge(actual, freed) {
-  // freed = additional FTE-equivalent capacity gained; actual = total workforce
+function drawGauge(synthFTEs, totalFTEs) {
+  // Synthetic Capacity: FTE-equivalents gained through AI
+  // Full scale = 15% of workforce (achievable ceiling across realistic inputs)
   const canvas = document.getElementById('gauge-canvas');
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -611,8 +612,7 @@ function drawGauge(actual, freed) {
   const cx = 110, cy = 115, r = 80;
   const startAngle = Math.PI * 0.75;
   const endAngle   = Math.PI * 2.25;
-  // Needle fills relative to 25% workforce gain = full scale (ambitious but achievable ceiling)
-  const fraction = Math.min(freed / (actual * 0.25), 1);
+  const fraction = Math.min(synthFTEs / (totalFTEs * 0.15), 1);
   const needleAngle = startAngle + fraction * (endAngle - startAngle);
 
   // Track bg
@@ -653,17 +653,17 @@ function drawGauge(actual, freed) {
   ctx.fillStyle = '#f59e0b';
   ctx.fill();
 
-  // Number — show gain with + sign, exact integer (no K rounding that hides small gains)
-  const gainLabel = freed < 1 ? '< 1' : (freed >= 1000 ? fmtX(Math.round(freed)) : '+' + Math.round(freed));
+  // Synthetic FTE count — leading + sign makes the gain unambiguous
+  const label = synthFTEs < 1 ? '<1' : '+' + (synthFTEs >= 1000 ? fmtX(Math.round(synthFTEs)) : Math.round(synthFTEs));
   ctx.font = "700 22px 'Playfair Display', Georgia, serif";
   ctx.fillStyle = '#10b981';
   ctx.textAlign = 'center';
-  ctx.fillText(gainLabel, cx, cy + 32);
+  ctx.fillText(label, cx, cy + 30);
 
   ctx.font = "400 9px 'DM Mono', monospace";
   ctx.fillStyle = '#64748b';
   ctx.letterSpacing = '2px';
-  ctx.fillText('FTE-EQUIV GAINED', cx, cy + 48);
+  ctx.fillText('SYNTHETIC CAPACITY', cx, cy + 46);
 }
 
 // ── FORMAT HELPERS ────────────────────────────────────────────
@@ -788,7 +788,8 @@ function update() {
   }
 
   document.getElementById('kpi-hours').textContent    = fmtX(Math.round(Rc));
-  document.getElementById('kpi-hours-note').textContent = pct(Rc / adoptingHrs) + ' of adopter capacity (Y' + rampYear + ')';
+  const hrsPerAdopterKPI = adoptingFTEs > 0 ? Math.round(Rc / adoptingFTEs) : 0;
+  document.getElementById('kpi-hours-note').textContent = hrsPerAdopterKPI + ' hrs per adopter · ' + (hrsPerAdopterKPI/8).toFixed(1) + ' days/yr (Y' + rampYear + ')';
 
   document.getElementById('kpi-cost').textContent  = fmt(totalCost);
 
@@ -809,11 +810,13 @@ function update() {
   }
 
   // Gauge
-  const freedFTEsRounded = Math.round(freedFTEs * 10) / 10;
-  drawGauge(ftes, freedFTEsRounded);
-  const gainPct = ftes > 0 ? ((freedFTEsRounded / ftes) * 100).toFixed(1) : 0;
+  const synthFTEs = (Rc / 2080) * phi;  // FTE-equivalents of reclaimed capacity, phi-adjusted
+  drawGauge(synthFTEs, ftes);
+  const hrsPerAdopter = adoptingFTEs > 0 ? Math.round(Rc / adoptingFTEs) : 0;
+  const daysPerAdopter = (hrsPerAdopter / 8).toFixed(1);
+  const synthRounded = Math.round(synthFTEs);
   document.getElementById('gauge-caption').innerHTML =
-    `<strong style="color:var(--emerald)">+${Math.round(freedFTEsRounded)} FTE-equiv</strong> of reclaimed capacity — a <strong style="color:var(--white)">${gainPct}% lift</strong> on your ${fmtX(ftes)}-person base, from ${Math.round(adoptingFTEs)} adopters at Y${rampYear} efficiency`;
+    `Your <strong style="color:var(--white)">${fmtX(ftes)}-person firm</strong> gained the equivalent of <strong style="color:var(--emerald)">+${synthRounded} additional people</strong> — capacity you added without hiring. Each adopter reclaims <strong style="color:var(--white)">~${daysPerAdopter} days/yr</strong> of productive time.`;
 
   // Year-over-year ROI projection (Y1–Y4)
   // Shows how both elastic and traditional ROI compound as ramp efficiency grows
