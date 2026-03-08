@@ -476,8 +476,8 @@
         </div>
         <div style="border-top:1px solid var(--border); margin:6px 0;"></div>
         <div style="display:flex; justify-content:space-between; align-items:baseline;">
-          <span style="font-size:0.7em; color:var(--coral); font-family:'DM Mono',monospace; letter-spacing:1px; font-weight:600;">TOTAL INVESTMENT</span>
-          <span id="val-invest" style="font-size:1.05em; color:var(--coral); font-family:'DM Mono',monospace; font-weight:700;">—</span>
+          <span style="font-size:0.7em; color:var(--gold); font-family:'DM Mono',monospace; letter-spacing:1px; font-weight:600;">TOTAL INVESTMENT</span>
+          <span id="val-invest" style="font-size:1.05em; color:var(--gold); font-family:'DM Mono',monospace; font-weight:700;">—</span>
         </div>
       </div>
     </div>
@@ -534,9 +534,9 @@
         <div class="kpi-value" id="kpi-hours" style="color: var(--emerald);">—</div>
         <div class="kpi-note" id="kpi-hours-note">—</div>
       </div>
-      <div class="kpi-card" style="border-top-color: var(--coral);">
+      <div class="kpi-card" style="border-top-color: var(--gold);">
         <div class="kpi-label">Total Investment</div>
-        <div class="kpi-value" id="kpi-cost" style="color: var(--coral);">—</div>
+        <div class="kpi-value" id="kpi-cost" style="color: var(--gold);">—</div>
         <div class="kpi-note">incl. friction &amp; obsolescence</div>
       </div>
     </div>
@@ -698,6 +698,7 @@ const elasticityChart = new Chart(chartCtx, {
 
 // ── GAUGE ──────────────────────────────────────────────────────
 function drawGauge(adoptingFTEs, synthFTEs, totalFTEs) {
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
   // Three-ring design (Apple Watch style):
   //   Outer ring  — Total workforce (always full, slate)
   //   Middle ring — Adopting workforce (% using AI, emerald)
@@ -752,9 +753,9 @@ function drawGauge(adoptingFTEs, synthFTEs, totalFTEs) {
   // Outer: total workforce — always full arc, dim slate
   drawRing(r3, 1,            '#1e293b', '#334155', '', '');
   // Middle: adopters — fraction of workforce
-  drawRing(r2, adoptFraction,'#0a1628', '#10b981', '', '');
+  drawRing(r2, adoptFraction, isLight ? '#e2e8f0' : '#0a1628', '#10b981', '', '');
   // Inner: synthetic capacity — gain as % of workforce ceiling
-  drawRing(r1, synthFraction,'#0a1628', '#f59e0b', '', '');
+  drawRing(r1, synthFraction, isLight ? '#e2e8f0' : '#0a1628', '#f59e0b', '', '');
 
   // Center labels
   const synthLabel = synthFTEs < 1 ? '<1' : '+' + (synthFTEs >= 1000 ? fmtX(Math.round(synthFTEs)) : Math.round(synthFTEs));
@@ -970,7 +971,7 @@ function update() {
   const hrsPerAdopterKPI = adoptingFTEs > 0 ? Math.round(Rc / adoptingFTEs) : 0;
   document.getElementById('kpi-hours-note').textContent = hrsPerAdopterKPI + ' hrs per adopter · ' + (hrsPerAdopterKPI/8).toFixed(1) + ' days/yr (Y' + rampYear + ')';
 
-  document.getElementById('kpi-cost').textContent  = fmt(totalCost);
+  const kcEl = document.getElementById('kpi-cost'); kcEl.textContent = fmt(totalCost); kcEl.style.color = 'var(--gold)';
 
   document.getElementById('eq-phi').textContent     = fmt(phiTerm);
   document.getElementById('eq-rc').textContent      = fmt(rcTerm);
