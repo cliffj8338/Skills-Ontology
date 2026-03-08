@@ -490,10 +490,10 @@
   </div>
   <div style="display:flex;align-items:center;">
     <button class="about-btn" onclick="openAbout()">&#9432; About this tool</button>
-    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">&#9728; Light</button>
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">☀ Light</button>
   <div class="toggle">
-    <button class="toggle-btn" id="btn-side"  onclick="setView('sideline')">Sideline View</button>
-    <button class="toggle-btn active-press" id="btn-press" onclick="setView('pressbox')">Press Box View</button>
+    <button class="toggle-btn" id="btn-side"  onclick="setView('sideline')" title="Sideline View: Traditional ROI — labor savings only. What you can defend with hard numbers in any room.">Sideline View</button>
+    <button class="toggle-btn active-press" id="btn-press" onclick="setView('pressbox')" title="Press Box View: Elastic ROI — adds strategic outcomes (Φ multiplier). The full picture, including value most models miss.">Press Box View</button>
   </div>
   </div>
 </header>
@@ -1304,7 +1304,7 @@ function toggleTheme() {
   const html = document.documentElement;
   const isLight = html.getAttribute('data-theme') === 'light';
   html.setAttribute('data-theme', isLight ? 'dark' : 'light');
-  document.getElementById('theme-btn').textContent = isLight ? '&#9728; Light' : '&#9790; Dark';
+  document.getElementById('theme-btn').innerHTML = isLight ? '&#9728; Light' : '&#9790; Dark';
   const lc = isLight ? '#64748b' : '#475569';
   const gc = isLight ? '#e2e8f0' : '#0f172a';
   elasticityChart.options.scales.x.ticks.color = lc;
