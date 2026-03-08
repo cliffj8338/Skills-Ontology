@@ -1175,10 +1175,10 @@ function update() {
 
   const kcEl = document.getElementById('kpi-cost'); kcEl.textContent = fmt(totalCost); kcEl.style.color = 'var(--gold)';
 
-  document.getElementById('eq-phi').textContent     = fmt(phiTerm);
-  document.getElementById('eq-rc').textContent      = fmt(rcTerm);
-  document.getElementById('eq-num-total').textContent = fmt(elasticN);
-  document.getElementById('eq-denom').textContent   = fmt(totalCost);
+  const _ep = document.getElementById('eq-phi');       if(_ep) _ep.textContent = fmt(phiTerm);
+  const _er = document.getElementById('eq-rc');        if(_er) _er.textContent = fmt(rcTerm);
+  const _en = document.getElementById('eq-num-total'); if(_en) _en.textContent = fmt(elasticN);
+  const _ed = document.getElementById('eq-denom');     if(_ed) _ed.textContent = fmt(totalCost);
 
   const ib = document.getElementById('insight-box');
   if (view === 'pressbox') {
