@@ -1413,16 +1413,15 @@ if (!localStorage.getItem('airoi-seen')) {
     <button class="modal-close" onclick="closeAbout()">Start exploring &rarr;</button>
   </div>
 </div>
-<!-- ── ANALYTICS TRACKER ─────────────────────────────────────────────────────
+<!-- ── ANALYTICS TRACKER ─────────────────────────────────────────────
      Increments analytics/airoi in Firestore on each page load.
-     Uses transaction to handle concurrent hits safely.
+     Uses FieldValue.increment — no read required, works unauthenticated.
      ──────────────────────────────────────────────────────────────────────── -->
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 <script>
 (function() {
   try {
-    // ── PASTE YOUR FIREBASE CONFIG HERE ─────────────────────────────────────
     const firebaseConfig = {
       apiKey:            "AIzaSyBO703p11FdLojH6ogB50XrxoFVy_7bHLE",
       authDomain:        "work-blueprint.firebaseapp.com",
@@ -1431,40 +1430,19 @@ if (!localStorage.getItem('airoi-seen')) {
       messagingSenderId: "338454233039",
       appId:             "1:338454233039:web:76016289b81d8298269cba"
     };
-    // ────────────────────────────────────────────────────────────────────────
-
     const appName = 'airoi-tracker';
-    const app = firebase.apps.find(a => a.name === appName)
+    const app = firebase.apps.find(function(a) { return a.name === appName; })
       || firebase.initializeApp(firebaseConfig, appName);
     const db = firebase.firestore(app);
-
-    const today = new Date().toISOString().split('T')[0]; // "2026-03-08"
+    const today = new Date().toISOString().split('T')[0];
+    const INC = firebase.firestore.FieldValue.increment(1);
+    const TS  = firebase.firestore.FieldValue.serverTimestamp();
     const ref = db.collection('analytics').doc('airoi');
-
-    db.runTransaction(async tx => {
-      const snap = await tx.get(ref);
-      const d = snap.exists ? snap.data() : {};
-      const isNewDay = d.todayDate !== today;
-
-      // Rolling 7-day window: store hits per day as a map
-      const days = d.days || {};
-      days[today] = (days[today] || 0) + 1;
-
-      // Prune entries older than 30 days
-      const cutoff = new Date(Date.now() - 30 * 864e5).toISOString().split('T')[0];
-      Object.keys(days).forEach(k => { if (k < cutoff) delete days[k]; });
-
-      tx.set(ref, {
-        total:     (d.total || 0) + 1,
-        todayDate: today,
-        today:     isNewDay ? 1 : (d.today || 0) + 1,
-        days,
-        lastSeen:  firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
-    }).catch(() => {}); // silent fail — never break the page
+    var update = { total: INC, lastSeen: TS };
+    update['days.' + today] = INC;
+    ref.set(update, { merge: true }).catch(function() {});
   } catch(e) {}
 })();
 </script>
-
 </body>
 </html>
