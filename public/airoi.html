@@ -194,23 +194,14 @@
   }
   .slider-track {
     position: relative;
-    height: 20px;
-    background: transparent;
-    cursor: pointer;
-  }
-  .slider-track::before {
-    content: '';
-    position: absolute;
-    left: 0; right: 0;
-    top: 50%; transform: translateY(-50%);
     height: 4px;
     background: var(--border);
     border-radius: 2px;
+    cursor: pointer;
   }
   .slider-fill {
     position: absolute;
-    left: 0;
-    top: 50%; transform: translateY(-50%);
+    left: 0; top: 0;
     height: 4px; border-radius: 2px;
     background: linear-gradient(90deg, var(--emerald), var(--gold));
     pointer-events: none;
@@ -218,8 +209,8 @@
   }
   input[type=range] {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: -8px; left: 0;
+    width: 100%; height: 20px;
     margin: 0;
     -webkit-appearance: none;
     appearance: none;
@@ -248,6 +239,7 @@
     border: 2px solid var(--emerald);
     box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
     cursor: grab;
+    margin-top: -6px;
     transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
   }
   input[type=range]::-moz-range-thumb {
@@ -1006,15 +998,7 @@ function fmtX(n) {
 function pct(n) { return `${(n * 100).toFixed(1)}%`; }
 function fillPct(id, val, min, max) {
   const pct = ((val - min) / (max - min)) * 100;
-  const el = document.getElementById('fill-' + id);
-  const thumbW = 16;
-  const trackW = el.parentElement.offsetWidth;
-  if (trackW > 0) {
-    const px = (pct / 100) * (trackW - thumbW) + thumbW / 2;
-    el.style.width = px + 'px';
-  } else {
-    el.style.width = pct + '%';
-  }
+  document.getElementById('fill-' + id).style.width = pct + '%';
 }
 
 // ── YEAR SELECTOR ─────────────────────────────────────────────
