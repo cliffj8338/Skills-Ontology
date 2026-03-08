@@ -602,7 +602,8 @@ const elasticityChart = new Chart(chartCtx, {
 });
 
 // ── GAUGE ──────────────────────────────────────────────────────
-function drawGauge(actual, equivalent) {
+function drawGauge(actual, freed) {
+  // freed = additional FTE-equivalent capacity gained; actual = total workforce
   const canvas = document.getElementById('gauge-canvas');
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -610,8 +611,8 @@ function drawGauge(actual, equivalent) {
   const cx = 110, cy = 115, r = 80;
   const startAngle = Math.PI * 0.75;
   const endAngle   = Math.PI * 2.25;
-  const ratio = Math.min(Math.max(equivalent / actual, 1), 2.5);
-  const fraction = (ratio - 1) / 1.5;
+  // Needle fills relative to 25% workforce gain = full scale (ambitious but achievable ceiling)
+  const fraction = Math.min(freed / (actual * 0.25), 1);
   const needleAngle = startAngle + fraction * (endAngle - startAngle);
 
   // Track bg
@@ -652,16 +653,17 @@ function drawGauge(actual, equivalent) {
   ctx.fillStyle = '#f59e0b';
   ctx.fill();
 
-  // Number
+  // Number — show gain with + sign, exact integer (no K rounding that hides small gains)
+  const gainLabel = freed < 1 ? '< 1' : (freed >= 1000 ? fmtX(Math.round(freed)) : '+' + Math.round(freed));
   ctx.font = "700 22px 'Playfair Display', Georgia, serif";
-  ctx.fillStyle = '#f8fafc';
+  ctx.fillStyle = '#10b981';
   ctx.textAlign = 'center';
-  ctx.fillText(fmtX(Math.round(equivalent)), cx, cy + 32);
+  ctx.fillText(gainLabel, cx, cy + 32);
 
   ctx.font = "400 9px 'DM Mono', monospace";
   ctx.fillStyle = '#64748b';
   ctx.letterSpacing = '2px';
-  ctx.fillText('OUTCOME CAPACITY', cx, cy + 48);
+  ctx.fillText('FTE-EQUIV GAINED', cx, cy + 48);
 }
 
 // ── FORMAT HELPERS ────────────────────────────────────────────
@@ -807,9 +809,11 @@ function update() {
   }
 
   // Gauge
-  drawGauge(ftes, equivFTEs);
+  const freedFTEsRounded = Math.round(freedFTEs * 10) / 10;
+  drawGauge(ftes, freedFTEsRounded);
+  const gainPct = ftes > 0 ? ((freedFTEsRounded / ftes) * 100).toFixed(1) : 0;
   document.getElementById('gauge-caption').innerHTML =
-    `With <strong style="color:var(--white)">${fmtX(Math.round(adoptingFTEs))} adopters</strong> (${adoptPct}%) at Year ${rampYear} efficiency, your firm operates at <strong style="color:var(--emerald)">${fmtX(equivFTEs)}-person</strong> capacity`;
+    `<strong style="color:var(--emerald)">+${Math.round(freedFTEsRounded)} FTE-equiv</strong> of reclaimed capacity — a <strong style="color:var(--white)">${gainPct}% lift</strong> on your ${fmtX(ftes)}-person base, from ${Math.round(adoptingFTEs)} adopters at Y${rampYear} efficiency`;
 
   // Year-over-year ROI projection (Y1–Y4)
   // Shows how both elastic and traditional ROI compound as ramp efficiency grows
