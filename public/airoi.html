@@ -322,7 +322,7 @@
       </div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-ftes"></div>
-        <input type="range" id="ftes" min="100" max="100000" step="100" value="10000" oninput="update()">
+        <input type="range" id="ftes" min="100" max="100000" step="100" value="500" oninput="update()">
       </div>
     </div>
 
@@ -345,7 +345,7 @@
       <div class="slider-sub">% of day spent on administrative &amp; analytical tasks</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-drag"></div>
-        <input type="range" id="drag" min="10" max="80" step="1" value="40" oninput="update()">
+        <input type="range" id="drag" min="10" max="80" step="1" value="30" oninput="update()">
       </div>
     </div>
 
@@ -357,7 +357,7 @@
       <div class="slider-sub">% of drag work AI can absorb</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-disp"></div>
-        <input type="range" id="disp" min="20" max="90" step="1" value="65" oninput="update()">
+        <input type="range" id="disp" min="20" max="90" step="1" value="25" oninput="update()">
       </div>
     </div>
 
@@ -372,7 +372,7 @@
       <div class="slider-sub">Organizational thinking capacity elevation</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-phi"></div>
-        <input type="range" id="phi" min="1.0" max="2.5" step="0.05" value="1.40" oninput="update()">
+        <input type="range" id="phi" min="1.0" max="2.5" step="0.05" value="1.25" oninput="update()">
       </div>
     </div>
 
@@ -384,7 +384,7 @@
       <div class="slider-sub">Revenue potential of previously impossible work</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-impos"></div>
-        <input type="range" id="impos" min="0" max="50000000" step="250000" value="5000000" oninput="update()">
+        <input type="range" id="impos" min="0" max="50000000" step="250000" value="500000" oninput="update()">
       </div>
     </div>
 
@@ -398,7 +398,7 @@
       </div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-invest"></div>
-        <input type="range" id="invest" min="100000" max="20000000" step="100000" value="2000000" oninput="update()">
+        <input type="range" id="invest" min="100000" max="20000000" step="100000" value="500000" oninput="update()">
       </div>
     </div>
 
@@ -420,6 +420,7 @@
         <div class="kpi-label">AI ROI</div>
         <div class="kpi-value" id="kpi-roi" style="color: var(--emerald);">—</div>
         <div class="kpi-note" id="kpi-roi-note">Elastic Return</div>
+        <div id="roi-benchmark-note" style="display:none; margin-top:6px; font-size:0.68em; color:var(--gold); line-height:1.4; max-width:160px; text-align:center;"></div>
       </div>
       <div class="kpi-card" style="border-top-color: var(--emerald);">
         <div class="kpi-label">Reclaimed Hours / yr</div>
@@ -652,24 +653,40 @@ function update() {
   fillPct('invest', invest,  100000,   20000000);  document.getElementById('val-invest').textContent = fmt(invest);
 
   // Core math
-  const hourly    = salary / 2080;
-  const totalHrs  = ftes * 2080;
-  const Rc        = totalHrs * (dragPct / 100) * (dispRate / 100);
-  const dMPL      = hourly * DMPL_MULT;
-  const I         = invest;
-  const Otrans    = invest * OTRANS_PCT;
-  const Omega     = invest * OMEGA_PCT;
-  const totalCost = I + Otrans + Omega;
+  const hourly         = salary / 2080;
+  const totalHrs       = ftes * 2080;
+  const totalLaborCost = ftes * salary;
 
-  const phiTerm   = phi * impossV;
-  const rcTerm    = Rc * MU * dMPL;
-  const elasticN  = phiTerm + rcTerm;
-  const elasticROI = elasticN / totalCost;
+  // Rc: hours recaptured from cognitive drag × displacement rate
+  const Rc             = totalHrs * (dragPct / 100) * (dispRate / 100);
 
-  const savedDollars = Rc * hourly;
-  const tradROI   = savedDollars / totalCost;
+  // Cap strategic/impossible value at 10% of total annual labor cost so it scales with org size.
+  // Prevents a $50M input from dominating a small-org calculation.
+  const impossVCapped  = Math.min(impossV, totalLaborCost * 0.10);
 
-  const equivFTEs = ftes * elasticROI;
+  // Cost denominator: AI investment + change management (15%) + ongoing maintenance (8%)
+  const Otrans         = invest * OTRANS_PCT;
+  const Omega          = invest * OMEGA_PCT;
+  const totalCost      = invest + Otrans + Omega;
+
+  // Elastic numerator
+  // rcTerm: recaptured hours × MU (redeployment efficiency) × dMPL (marginal value of a freed hour —
+  //         1.5× base rate because AI-freed time is redirected to higher-value work, not idled)
+  // phiTerm: strategic outcomes AI enables (new products, faster decisions) — bounded to org scale
+  const dMPL           = hourly * DMPL_MULT;
+  const rcTerm         = Rc * MU * dMPL;
+  const phiTerm        = phi * impossVCapped;
+  const elasticN       = rcTerm + phiTerm;
+  const elasticROI     = elasticN / totalCost;
+
+  // Traditional ROI: direct labor savings only (hours freed × base rate), no quality premium
+  const savedDollars   = Rc * hourly;
+  const tradROI        = savedDollars / totalCost;
+
+  // Equivalent FTEs: capacity freed (in FTE-units) × phi quality/output multiplier
+  // Correct formula: ftes + (Rc/2080 × phi) — NOT ftes × elasticROI
+  const freedFTEs      = (Rc / 2080) * phi;
+  const equivFTEs      = Math.round(ftes + freedFTEs);
 
   // Display
   const displayROI = view === 'pressbox' ? elasticROI : tradROI;
@@ -678,6 +695,20 @@ function update() {
   document.getElementById('kpi-roi').textContent   = displayROI.toFixed(1) + '×';
   document.getElementById('kpi-roi').style.color   = roiColor;
   document.getElementById('kpi-roi-note').textContent = view === 'pressbox' ? 'Elastic Return' : 'Traditional Return';
+
+  // Benchmark context note
+  const benchNote = document.getElementById('roi-benchmark-note');
+  if (benchNote) {
+    if (displayROI > 15) {
+      benchNote.textContent = '⚠ Results above 15× typically reflect aggressive displacement assumptions. Industry median for mature AI deployments: 3–8×.';
+      benchNote.style.display = 'block';
+    } else if (displayROI > 8) {
+      benchNote.textContent = 'Above median range. Assumes consistent redeployment of freed capacity to higher-value work.';
+      benchNote.style.display = 'block';
+    } else {
+      benchNote.style.display = 'none';
+    }
+  }
 
   document.getElementById('kpi-hours').textContent    = fmtX(Math.round(Rc));
   document.getElementById('kpi-hours-note').textContent = pct(Rc / totalHrs) + ' of total capacity';
@@ -693,11 +724,11 @@ function update() {
   if (view === 'pressbox') {
     ib.style.background = 'var(--emerald2)';
     ib.style.color = 'var(--emerald)';
-    ib.textContent = `Press Box View includes Φ(Oₙ·V) — ${fmt(phiTerm)} in revealed outcomes. Switch to Sideline View to see what traditional ROI misses.`;
+    ib.textContent = `Press Box View includes Φ(Oₙ·V) — ${fmt(phiTerm)} in strategic outcomes (capped to org scale). Switch to Sideline View to see what traditional ROI misses.`;
   } else {
     ib.style.background = 'var(--coral2)';
     ib.style.color = 'var(--coral)';
-    ib.textContent = `Sideline View counts only ${fmt(savedDollars)} in saved hours. The model reveals ${fmt(elasticN - savedDollars)} in additional elastic value above.`;
+    ib.textContent = `Sideline View counts only ${fmt(savedDollars)} in net labor savings. The model reveals ${fmt(elasticN - savedDollars)} in additional elastic value above that.`;
   }
 
   // Gauge
