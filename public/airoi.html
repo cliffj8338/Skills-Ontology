@@ -47,6 +47,29 @@
   [data-theme="light"] .card, [data-theme="light"] .kpi-card { background: #ffffff; box-shadow: 0 1px 6px rgba(0,0,0,0.09); }
   [data-theme="light"] .chart-card { background: #ffffff; box-shadow: 0 1px 6px rgba(0,0,0,0.09); }
   [data-theme="light"] .quote { background: #f1f5f9; border-color: #cbd5e1; }
+  /* Slider thumb — blue in light mode */
+  [data-theme="light"] input[type=range]::-webkit-slider-thumb {
+    background: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+  }
+  [data-theme="light"] input[type=range]::-moz-range-thumb {
+    background: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+  }
+  [data-theme="light"] input[type=range]:hover::-webkit-slider-thumb {
+    border-color: #1d4ed8;
+    box-shadow: 0 0 0 4px rgba(29,78,216,0.18);
+  }
+  [data-theme="light"] input[type=range]:hover::-moz-range-thumb {
+    border-color: #1d4ed8;
+    box-shadow: 0 0 0 4px rgba(29,78,216,0.18);
+  }
+  [data-theme="light"] input[type=range]:active::-webkit-slider-thumb {
+    border-color: #1d4ed8;
+    box-shadow: 0 0 0 5px rgba(29,78,216,0.2);
+  }
   .theme-btn {
     background: none; border: 1px solid var(--border); color: var(--dim);
     font-family: 'DM Mono', monospace; font-size: 0.72em; letter-spacing: 1px;
@@ -718,7 +741,7 @@
     <div class="mid-grid">
       <div class="card">
         <div class="card-label" style="color: var(--emerald);">Synthetic Capacity</div>
-        <canvas id="gauge-canvas" width="360" height="240"></canvas>
+        <canvas id="gauge-canvas" width="460" height="300"></canvas>
         <div class="gauge-caption" id="gauge-caption">—</div>
       </div>
 
@@ -912,12 +935,12 @@ function drawGauge(adoptingFTEs, synthFTEs, totalFTEs) {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
-  const cx = 155, cy = 140;
+  const cx = 200, cy = 180;
   const startAngle = Math.PI * 0.75;
   const sweep      = Math.PI * 1.5;  // 270 deg arc
   const endFull    = startAngle + sweep;
-  const GAP = 14;  // px between rings
-  const W = 11;    // ring width
+  const GAP = 16;  // px between rings
+  const W = 14;    // ring width
 
   function drawRing(radius, fraction, trackColor, fillColor) {
     const fillEnd = startAngle + sweep * Math.min(fraction, 1);
@@ -945,9 +968,9 @@ function drawGauge(adoptingFTEs, synthFTEs, totalFTEs) {
     }
   }
 
-  const r3 = 108;
-  const r2 = 108 - W - GAP;
-  const r1 = 108 - (W + GAP) * 2;
+  const r3 = 138;
+  const r2 = 138 - W - GAP;
+  const r1 = 138 - (W + GAP) * 2;
 
   const adoptFraction  = Math.min(adoptingFTEs / totalFTEs, 1);
   const synthFraction  = Math.min(synthFTEs / (totalFTEs * 0.20), 1);
@@ -959,33 +982,33 @@ function drawGauge(adoptingFTEs, synthFTEs, totalFTEs) {
   // Center labels
   const synthLabel = synthFTEs < 1 ? '<1' : '+' + (synthFTEs >= 1000 ? fmtX(Math.round(synthFTEs)) : Math.round(synthFTEs));
   ctx.textAlign = 'center';
-  ctx.font = "700 26px 'Playfair Display', Georgia, serif";
+  ctx.font = "700 34px 'Playfair Display', Georgia, serif";
   ctx.fillStyle = isLight ? '#b45309' : '#f59e0b';
   ctx.fillText(synthLabel, cx, cy - 4);
 
-  ctx.font = "400 9px 'DM Mono', monospace";
+  ctx.font = "400 11px 'DM Mono', monospace";
   ctx.letterSpacing = '1px';
   ctx.fillStyle = '#64748b';
-  ctx.fillText('SYNTHETIC', cx, cy + 14);
-  ctx.fillText('CAPACITY', cx, cy + 26);
+  ctx.fillText('SYNTHETIC', cx, cy + 18);
+  ctx.fillText('CAPACITY', cx, cy + 32);
 
   // Ring legend — right side dots
-  const legendX = cx + r3 + 18;
+  const legendX = cx + r3 + 20;
   const rows = [
     { color: '#10b981', text: 'Adopters' },
     { color: '#f59e0b', text: 'AI Gain' },
   ];
   rows.forEach((row, i) => {
-    const y = cy - 10 + i * 22;
+    const y = cy - 12 + i * 26;
     ctx.beginPath();
-    ctx.arc(legendX, y, 5, 0, Math.PI * 2);
+    ctx.arc(legendX, y, 6, 0, Math.PI * 2);
     ctx.fillStyle = row.color;
     ctx.fill();
-    ctx.font = "400 9px 'DM Mono', monospace";
+    ctx.font = "400 11px 'DM Mono', monospace";
     ctx.fillStyle = isLight ? '#475569' : '#64748b';
     ctx.textAlign = 'left';
     ctx.letterSpacing = '0px';
-    ctx.fillText(row.text, legendX + 10, y + 3);
+    ctx.fillText(row.text, legendX + 12, y + 4);
   });
 }
 
@@ -1307,7 +1330,7 @@ function toggleTheme() {
   html.setAttribute('data-theme', isLight ? 'dark' : 'light');
   document.getElementById('theme-btn').innerHTML = isLight ? '&#9728; Light' : '&#9790; Dark';
   const lc = isLight ? '#64748b' : '#475569';
-  const gc = isLight ? '#e2e8f0' : '#1e3a5f';
+  const gc = isLight ? '#f3f4f6' : '#1e3a5f';
   elasticityChart.options.scales.x.ticks.color = lc;
   elasticityChart.options.scales.y.ticks.color = lc;
   elasticityChart.options.scales.x.grid.color  = gc;
