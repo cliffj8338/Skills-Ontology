@@ -1112,13 +1112,11 @@ function update() {
   const adoptingFTEsForInvest = ftes * (adoptPct / 100);
   let invest = Math.max(100000, Math.round(adoptingFTEsForInvest * perSeatCost / 1000) * 1000);
 
-  // Slider fills & labels
+  // Slider fills & labels — done BEFORE constraints only for non-capped sliders
   fillPct('ftes',   ftes,    2500,     50000);    document.getElementById('val-ftes').textContent   = ftes.toLocaleString();
   fillPct('adopt', adoptPct, 5,       100);       document.getElementById('val-adopt').textContent  = adoptPct + '%';
   fillPct('salary', salary,  40000,    300000);    document.getElementById('val-salary').textContent = fmt(salary);
   fillPct('drag',   dragPct, 10,       80);        document.getElementById('val-drag').textContent   = dragPct + '%';
-  fillPct('disp',   dispRate,20,       90);        document.getElementById('val-disp').textContent   = dispRate + '%';
-  fillPct('phi',    phi,     1.0,      2.5);       document.getElementById('val-phi').textContent    = phi.toFixed(2);
   fillPct('revenue',  revenue,  10000000, 20000000000);
   document.getElementById('val-revenue').textContent = fmt(revenue);
   fillPct('impos-pct', imposPct, 1, 15);
@@ -1140,11 +1138,15 @@ function update() {
   const dispEl = document.getElementById('disp');
   if (dispRate > 60) { dispEl.value = 60; dispRate = 60; fillPct('disp', dispRate, 20, 90); document.getElementById('val-disp').textContent = dispRate + '%'; }
   if (+dispEl.max > 60) dispEl.max = 60;
+  // Fill AFTER max is corrected so percentage matches thumb position
+  fillPct('disp', dispRate, 20, 60); document.getElementById('val-disp').textContent = dispRate + '%';
 
   // Rule 3: Phi capped at 1.75 — top-quartile AI deployment limit
   const phiEl = document.getElementById('phi');
-  if (phi > 1.75) { phiEl.value = 1.75; phi = 1.75; fillPct('phi', phi, 1.0, 2.5); document.getElementById('val-phi').textContent = phi.toFixed(2); }
+  if (phi > 1.75) { phiEl.value = 1.75; phi = 1.75; fillPct('phi', phi, 1.0, 1.75); document.getElementById('val-phi').textContent = phi.toFixed(2); }
   if (+phiEl.max > 1.75) phiEl.max = 1.75;
+  // Fill AFTER max is corrected
+  fillPct('phi', phi, 1.0, 1.75); document.getElementById('val-phi').textContent = phi.toFixed(2);
 
   // Rule 4: Revealed outcomes already derived from revenue × %; slider capped at 15%
   // Secondary sanity: can't exceed 15% of revenue (enforced by slider max)
@@ -1373,8 +1375,7 @@ function toggleTheme() {
 }
 
 updateRampBars();
-// Defer initial update to after first paint so slider track widths are resolved
-requestAnimationFrame(() => requestAnimationFrame(() => update()));
+update();
 
 // ── ABOUT MODAL ───────────────────────────────────────────
 function openAbout() {
