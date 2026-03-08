@@ -1006,7 +1006,15 @@ function fmtX(n) {
 function pct(n) { return `${(n * 100).toFixed(1)}%`; }
 function fillPct(id, val, min, max) {
   const pct = ((val - min) / (max - min)) * 100;
-  document.getElementById('fill-' + id).style.width = pct + '%';
+  const el = document.getElementById('fill-' + id);
+  const thumbW = 16;
+  const trackW = el.parentElement.offsetWidth;
+  if (trackW > 0) {
+    const px = (pct / 100) * (trackW - thumbW) + thumbW / 2;
+    el.style.width = px + 'px';
+  } else {
+    el.style.width = pct + '%';
+  }
 }
 
 // ── YEAR SELECTOR ─────────────────────────────────────────────
