@@ -73,6 +73,14 @@
     border-radius: 6px;
     overflow: hidden;
   }
+  .year-btn {
+    flex: 1; padding: 6px 0; background: var(--surface); border: 1px solid var(--border);
+    color: var(--dim); font-family: 'DM Mono', monospace; font-size: 0.72em; letter-spacing: 1px;
+    cursor: pointer; border-radius: 4px; transition: all 0.15s;
+  }
+  .year-btn:hover { border-color: var(--emerald); color: var(--emerald); }
+  .year-btn.active-yr { background: rgba(16,185,129,0.12); border-color: var(--emerald); color: var(--emerald); }
+
   .toggle-btn {
     padding: 8px 20px;
     font-family: 'DM Mono', monospace;
@@ -328,6 +336,18 @@
 
     <div class="slider-row">
       <div class="slider-header">
+        <span class="slider-label">AI Adoption Rate</span>
+        <span class="slider-value" id="val-adopt">25%</span>
+      </div>
+      <div class="slider-sub">% of workforce actively using AI tools</div>
+      <div class="slider-track">
+        <div class="slider-fill" id="fill-adopt"></div>
+        <input type="range" id="adopt" min="5" max="100" step="5" value="25" oninput="update()">
+      </div>
+    </div>
+
+    <div class="slider-row">
+      <div class="slider-header">
         <span class="slider-label">Avg Fully Loaded Salary</span>
         <span class="slider-value" id="val-salary">$100K</span>
       </div>
@@ -354,7 +374,7 @@
         <span class="slider-label">AI Displacement Rate</span>
         <span class="slider-value" id="val-disp">65%</span>
       </div>
-      <div class="slider-sub">% of drag work AI can absorb</div>
+      <div class="slider-sub">% of drag work AI handles for adopters (at full efficiency)</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-disp"></div>
         <input type="range" id="disp" min="20" max="90" step="1" value="25" oninput="update()">
@@ -399,6 +419,31 @@
       <div class="slider-track">
         <div class="slider-fill" id="fill-invest"></div>
         <input type="range" id="invest" min="100000" max="20000000" step="100000" value="500000" oninput="update()">
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div class="section-label" style="color:var(--gold); margin-bottom:8px;">Deployment Year</div>
+    <div class="slider-sub" style="margin-bottom:10px;">Efficiency compounds as teams learn to use AI. Select forecast year.</div>
+    <div id="year-selector" style="display:flex; gap:8px; margin-bottom:16px;">
+      <button class="year-btn" id="yr-1" onclick="setYear(1)">Y1</button>
+      <button class="year-btn active-yr" id="yr-2" onclick="setYear(2)">Y2</button>
+      <button class="year-btn" id="yr-3" onclick="setYear(3)">Y3</button>
+      <button class="year-btn" id="yr-4" onclick="setYear(4)">Y4</button>
+    </div>
+    <div id="ramp-bar-area" style="margin-bottom:16px;">
+      <div style="font-size:0.65em; color:var(--slate2); font-family:'DM Mono',monospace; letter-spacing:1px; margin-bottom:5px;">EFFICIENCY RAMP</div>
+      <div style="display:flex; gap:4px; align-items:flex-end; height:32px;">
+        <div id="ramp-b1" style="flex:1; background:var(--emerald); opacity:0.35; border-radius:2px 2px 0 0; transition:height 0.2s;"></div>
+        <div id="ramp-b2" style="flex:1; background:var(--emerald); opacity:0.35; border-radius:2px 2px 0 0; transition:height 0.2s;"></div>
+        <div id="ramp-b3" style="flex:1; background:var(--emerald); opacity:0.35; border-radius:2px 2px 0 0; transition:height 0.2s;"></div>
+        <div id="ramp-b4" style="flex:1; background:var(--emerald); opacity:0.35; border-radius:2px 2px 0 0; transition:height 0.2s;"></div>
+      </div>
+      <div style="display:flex; gap:4px; margin-top:3px;">
+        <div style="flex:1; text-align:center; font-size:0.6em; color:var(--slate); font-family:'DM Mono',monospace;" id="ramp-pct-1">25%</div>
+        <div style="flex:1; text-align:center; font-size:0.6em; color:var(--slate); font-family:'DM Mono',monospace;" id="ramp-pct-2">50%</div>
+        <div style="flex:1; text-align:center; font-size:0.6em; color:var(--slate); font-family:'DM Mono',monospace;" id="ramp-pct-3">75%</div>
+        <div style="flex:1; text-align:center; font-size:0.6em; color:var(--slate); font-family:'DM Mono',monospace;" id="ramp-pct-4">100%</div>
       </div>
     </div>
 
@@ -490,7 +535,11 @@
 <script>
 // ── STATE ──────────────────────────────────────────────────────
 let view = 'pressbox';
+let rampYear = 2;
 const MU = 0.6, DMPL_MULT = 1.5, OTRANS_PCT = 0.15, OMEGA_PCT = 0.08;
+// Ramp efficiency by year: % of full potential realized as team learns the tools
+// Y1: rollout chaos, partial usage. Y2: stabilizing. Y3: normalized. Y4: optimized.
+const RAMP_EFF = [0.25, 0.50, 0.75, 1.00];
 
 // ── CHART ──────────────────────────────────────────────────────
 const chartCtx = document.getElementById('elasticity-chart').getContext('2d');
@@ -532,14 +581,14 @@ const elasticityChart = new Chart(chartCtx, {
         titleFont: { family: "'DM Mono', monospace", size: 10 },
         bodyFont: { family: "'DM Mono', monospace", size: 10 },
         callbacks: {
-          title: ctx => `${ctx[0].label}% displacement`,
+          title: ctx => ctx[0].label + ' ROI',
           label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}×`
         }
       }
     },
     scales: {
       x: {
-        ticks: { color: '#475569', font: { family: "'DM Mono', monospace", size: 9 }, callback: v => `${v}%` },
+        ticks: { color: '#475569', font: { family: "'DM Mono', monospace", size: 9 } },
         grid: { color: '#0f172a' },
         border: { color: '#1e293b' }
       },
@@ -633,9 +682,30 @@ function fillPct(id, val, min, max) {
   document.getElementById('fill-' + id).style.width = pct + '%';
 }
 
+// ── YEAR SELECTOR ─────────────────────────────────────────────
+function setYear(y) {
+  rampYear = y;
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('yr-' + i).className = 'year-btn' + (i === y ? ' active-yr' : '');
+  }
+  updateRampBars();
+  update();
+}
+
+function updateRampBars() {
+  for (let i = 1; i <= 4; i++) {
+    const eff = RAMP_EFF[i - 1];
+    const bar = document.getElementById('ramp-b' + i);
+    bar.style.height = Math.round(eff * 32) + 'px';
+    bar.style.opacity = i === rampYear ? '1' : '0.35';
+    document.getElementById('ramp-pct-' + i).style.color = i === rampYear ? 'var(--emerald)' : 'var(--slate)';
+  }
+}
+
 // ── MAIN UPDATE ───────────────────────────────────────────────
 function update() {
   const ftes    = +document.getElementById('ftes').value;
+  const adoptPct = +document.getElementById('adopt').value;
   const salary  = +document.getElementById('salary').value;
   const dragPct = +document.getElementById('drag').value;
   const dispRate= +document.getElementById('disp').value;
@@ -645,6 +715,7 @@ function update() {
 
   // Slider fills & labels
   fillPct('ftes',   ftes,    100,      100000);    document.getElementById('val-ftes').textContent   = ftes.toLocaleString();
+  fillPct('adopt', adoptPct, 5,       100);       document.getElementById('val-adopt').textContent  = adoptPct + '%';
   fillPct('salary', salary,  40000,    300000);    document.getElementById('val-salary').textContent = fmt(salary);
   fillPct('drag',   dragPct, 10,       80);        document.getElementById('val-drag').textContent   = dragPct + '%';
   fillPct('disp',   dispRate,20,       90);        document.getElementById('val-disp').textContent   = dispRate + '%';
@@ -656,9 +727,13 @@ function update() {
   const hourly         = salary / 2080;
   const totalHrs       = ftes * 2080;
   const totalLaborCost = ftes * salary;
+  const adoptingFTEs   = ftes * (adoptPct / 100);          // only adopters drive value
+  const adoptingHrs    = adoptingFTEs * 2080;
+  const rampEff        = RAMP_EFF[rampYear - 1];           // Y1=25%, Y2=50%, Y3=75%, Y4=100%
 
-  // Rc: hours recaptured from cognitive drag × displacement rate
-  const Rc             = totalHrs * (dragPct / 100) * (dispRate / 100);
+  // Rc: hours recaptured from adopters' cognitive drag × displacement × ramp efficiency
+  // rampEff reflects that teams take time to learn — full displacement never happens on day 1
+  const Rc             = adoptingHrs * (dragPct / 100) * (dispRate / 100) * rampEff;
 
   // Cap strategic/impossible value at 10% of total annual labor cost so it scales with org size.
   // Prevents a $50M input from dominating a small-org calculation.
@@ -711,7 +786,7 @@ function update() {
   }
 
   document.getElementById('kpi-hours').textContent    = fmtX(Math.round(Rc));
-  document.getElementById('kpi-hours-note').textContent = pct(Rc / totalHrs) + ' of total capacity';
+  document.getElementById('kpi-hours-note').textContent = pct(Rc / adoptingHrs) + ' of adopter capacity (Y' + rampYear + ')';
 
   document.getElementById('kpi-cost').textContent  = fmt(totalCost);
 
@@ -734,17 +809,18 @@ function update() {
   // Gauge
   drawGauge(ftes, equivFTEs);
   document.getElementById('gauge-caption').innerHTML =
-    `Your <strong style="color:var(--white)">${fmtX(ftes)}-person</strong> firm now has the outcome capacity of a <strong style="color:var(--emerald)">${fmtX(Math.round(equivFTEs))}-person</strong> firm`;
+    `With <strong style="color:var(--white)">${fmtX(Math.round(adoptingFTEs))} adopters</strong> (${adoptPct}%) at Year ${rampYear} efficiency, your firm operates at <strong style="color:var(--emerald)">${fmtX(equivFTEs)}-person</strong> capacity`;
 
-  // Elasticity curve
-  const labels = [], elastic = [], traditional = [];
-  for (let i = 0; i <= 10; i++) {
-    const p = i / 10;
-    const d = Math.round(p * 100);
-    const rc_p = totalHrs * (dragPct / 100) * p;
-    labels.push(d);
-    traditional.push(+(rc_p * hourly / totalCost).toFixed(2));
-    elastic.push(+((phi * impossV * p + rc_p * MU * dMPL) / totalCost).toFixed(2));
+  // Year-over-year ROI projection (Y1–Y4)
+  // Shows how both elastic and traditional ROI compound as ramp efficiency grows
+  const labels = ['Y1', 'Y2', 'Y3', 'Y4'];
+  const elastic = [], traditional = [];
+  for (let i = 0; i < 4; i++) {
+    const re = RAMP_EFF[i];
+    const rc_yr = adoptingHrs * (dragPct / 100) * (dispRate / 100) * re;
+    const impossVyr = Math.min(impossV, totalLaborCost * 0.10) * re;
+    traditional.push(+((rc_yr * hourly) / totalCost).toFixed(2));
+    elastic.push(+((rc_yr * MU * dMPL + phi * impossVyr) / totalCost).toFixed(2));
   }
   elasticityChart.data.labels   = labels;
   elasticityChart.data.datasets[0].data = elastic;
@@ -765,7 +841,7 @@ function setView(v) {
 }
 
 // ── INIT ──────────────────────────────────────────────────────
+updateRampBars();
 update();
-</script>
 </body>
 </html>
