@@ -646,7 +646,7 @@ function drawGauge(synthFTEs, totalFTEs) {
   // Needle
   ctx.save();
   ctx.translate(cx, cy);
-  ctx.rotate(needleAngle - Math.PI / 2);
+  ctx.rotate(needleAngle + Math.PI / 2);
   ctx.beginPath();
   ctx.moveTo(0, 8);
   ctx.lineTo(0, -r + 12);
