@@ -485,7 +485,7 @@
     <div class="mid-grid">
       <div class="card">
         <div class="card-label" style="color: var(--emerald);">Synthetic Capacity</div>
-        <canvas id="gauge-canvas" width="220" height="150"></canvas>
+        <canvas id="gauge-canvas" width="260" height="170"></canvas>
         <div class="gauge-caption" id="gauge-caption">—</div>
       </div>
 
@@ -622,66 +622,97 @@ const elasticityChart = new Chart(chartCtx, {
 });
 
 // ── GAUGE ──────────────────────────────────────────────────────
-function drawGauge(synthFTEs, totalFTEs) {
-  // Synthetic Capacity: FTE-equivalents gained through AI
-  // Full scale = 15% of workforce (achievable ceiling across realistic inputs)
+function drawGauge(adoptingFTEs, synthFTEs, totalFTEs) {
+  // Three-ring design (Apple Watch style):
+  //   Outer ring  — Total workforce (always full, slate)
+  //   Middle ring — Adopting workforce (% using AI, emerald)
+  //   Inner ring  — Synthetic capacity gained (AI lift, gold)
   const canvas = document.getElementById('gauge-canvas');
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const cx = 110, cy = 115, r = 80;
+  const cx = 110, cy = 110;
   const startAngle = Math.PI * 0.75;
-  const endAngle   = Math.PI * 2.25;
-  const fraction = Math.min(synthFTEs / (totalFTEs * 0.20), 1);
-  const needleAngle = startAngle + fraction * (endAngle - startAngle);
+  const sweep      = Math.PI * 1.5;  // 270 deg arc
+  const endFull    = startAngle + sweep;
+  const GAP = 12;  // px between rings
+  const W = 9;     // ring width
 
-  // Track bg
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, startAngle, endAngle);
-  ctx.strokeStyle = '#1e293b';
-  ctx.lineWidth = 10;
-  ctx.lineCap = 'round';
-  ctx.stroke();
+  function drawRing(radius, fraction, trackColor, fillColor, label, labelBelow) {
+    const fillEnd = startAngle + sweep * Math.min(fraction, 1);
+    // Track
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, startAngle, endFull);
+    ctx.strokeStyle = trackColor;
+    ctx.lineWidth = W;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    // Fill
+    if (fraction > 0) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, startAngle, fillEnd);
+      ctx.strokeStyle = fillColor;
+      ctx.lineWidth = W;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+    }
+    // End-cap dot for visual closure
+    if (fraction >= 1) {
+      const dotX = cx + radius * Math.cos(endFull);
+      const dotY = cy + radius * Math.sin(endFull);
+      ctx.beginPath();
+      ctx.arc(dotX, dotY, W / 2, 0, Math.PI * 2);
+      ctx.fillStyle = fillColor;
+      ctx.fill();
+    }
+  }
 
-  // Track fill
-  const grad = ctx.createLinearGradient(cx - r, cy, cx + r, cy);
-  grad.addColorStop(0, '#10b981');
-  grad.addColorStop(1, '#f59e0b');
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, startAngle, needleAngle);
-  ctx.strokeStyle = grad;
-  ctx.lineWidth = 10;
-  ctx.lineCap = 'round';
-  ctx.stroke();
+  const r3 = 82;  // outer — total workforce
+  const r2 = 82 - W - GAP;  // middle — adopters
+  const r1 = 82 - (W + GAP) * 2;  // inner — synthetic gain
 
-  // Needle — draw directly from center to arc tip (no rotation, no ambiguity)
-  const tipX = cx + (r - 8) * Math.cos(needleAngle);
-  const tipY = cy + (r - 8) * Math.sin(needleAngle);
-  ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.lineTo(tipX, tipY);
-  ctx.strokeStyle = '#f59e0b';
-  ctx.lineWidth = 2.5;
-  ctx.lineCap = 'round';
-  ctx.stroke();
+  const adoptFraction  = Math.min(adoptingFTEs / totalFTEs, 1);
+  const synthFraction  = Math.min(synthFTEs / (totalFTEs * 0.20), 1);  // full = 20% gain
 
-  // Center dot
-  ctx.beginPath();
-  ctx.arc(cx, cy, 5, 0, Math.PI * 2);
-  ctx.fillStyle = '#f59e0b';
-  ctx.fill();
+  // Outer: total workforce — always full arc, dim slate
+  drawRing(r3, 1,            '#1e293b', '#334155', '', '');
+  // Middle: adopters — fraction of workforce
+  drawRing(r2, adoptFraction,'#0a1628', '#10b981', '', '');
+  // Inner: synthetic capacity — gain as % of workforce ceiling
+  drawRing(r1, synthFraction,'#0a1628', '#f59e0b', '', '');
 
-  // Synthetic FTE count — leading + sign makes the gain unambiguous
-  const label = synthFTEs < 1 ? '<1' : '+' + (synthFTEs >= 1000 ? fmtX(Math.round(synthFTEs)) : Math.round(synthFTEs));
-  ctx.font = "700 22px 'Playfair Display', Georgia, serif";
-  ctx.fillStyle = '#10b981';
+  // Center labels
+  const synthLabel = synthFTEs < 1 ? '<1' : '+' + (synthFTEs >= 1000 ? fmtX(Math.round(synthFTEs)) : Math.round(synthFTEs));
   ctx.textAlign = 'center';
-  ctx.fillText(label, cx, cy + 30);
+  ctx.font = "700 20px 'Playfair Display', Georgia, serif";
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillText(synthLabel, cx, cy - 4);
 
-  ctx.font = "400 9px 'DM Mono', monospace";
+  ctx.font = "400 8px 'DM Mono', monospace";
+  ctx.letterSpacing = '1px';
   ctx.fillStyle = '#64748b';
-  ctx.letterSpacing = '2px';
-  ctx.fillText('SYNTHETIC CAPACITY', cx, cy + 46);
+  ctx.fillText('SYNTHETIC', cx, cy + 12);
+  ctx.fillText('CAPACITY', cx, cy + 22);
+
+  // Ring legend — right side dots
+  const legendX = cx + r3 + 16;
+  const rows = [
+    { color: '#334155', text: 'Workforce' },
+    { color: '#10b981', text: 'Adopters' },
+    { color: '#f59e0b', text: 'AI Gain' },
+  ];
+  rows.forEach((row, i) => {
+    const y = cy - 18 + i * 18;
+    ctx.beginPath();
+    ctx.arc(legendX, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = row.color;
+    ctx.fill();
+    ctx.font = "400 8px 'DM Mono', monospace";
+    ctx.fillStyle = '#64748b';
+    ctx.textAlign = 'left';
+    ctx.letterSpacing = '0px';
+    ctx.fillText(row.text, legendX + 8, y + 3);
+  });
 }
 
 // ── FORMAT HELPERS ────────────────────────────────────────────
@@ -728,10 +759,10 @@ function update() {
   const adoptPct = +document.getElementById('adopt').value;
   const salary  = +document.getElementById('salary').value;
   const dragPct = +document.getElementById('drag').value;
-  const dispRate= +document.getElementById('disp').value;
-  const phi     = +document.getElementById('phi').value;
-  const impossV = +document.getElementById('impos').value;
-  const invest  = +document.getElementById('invest').value;
+  let dispRate  = +document.getElementById('disp').value;
+  let phi       = +document.getElementById('phi').value;
+  let impossV   = +document.getElementById('impos').value;
+  let invest    = +document.getElementById('invest').value;
 
   // Slider fills & labels
   fillPct('ftes',   ftes,    2500,     50000);    document.getElementById('val-ftes').textContent   = ftes.toLocaleString();
@@ -880,7 +911,7 @@ function update() {
   // phi=1.25 means each adopter generates 25% more output = 0.25 extra FTE-equiv.
   // Capped at 25% of total workforce — real-world ceiling even at high AI maturity.
   const synthFTEs = Math.min(adoptingFTEs * (phi - 1) * rampEff, ftes * 0.25);
-  drawGauge(synthFTEs, ftes);
+  drawGauge(adoptingFTEs, synthFTEs, ftes);
   const hrsPerAdopter = adoptingFTEs > 0 ? Math.round(Rc / adoptingFTEs) : 0;
   const daysPerAdopter = (hrsPerAdopter / 8).toFixed(1);
   const synthRounded = Math.round(synthFTEs);
