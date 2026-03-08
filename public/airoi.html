@@ -482,7 +482,7 @@
     <!-- Gauge + Equation -->
     <div class="mid-grid">
       <div class="card">
-        <div class="card-label" style="color: var(--emerald);">Organizational Torque</div>
+        <div class="card-label" style="color: var(--emerald);">Synthetic Capacity</div>
         <canvas id="gauge-canvas" width="220" height="150"></canvas>
         <div class="gauge-caption" id="gauge-caption">—</div>
       </div>
@@ -509,12 +509,13 @@
     <div class="chart-card">
       <div class="chart-header">
         <div>
-          <div class="card-label" style="color:var(--dim); margin-bottom:4px;">Elasticity Curve</div>
-          <div style="font-size:11px; color: var(--slate2);">ROI vs. AI Displacement Rate — same team, different measurement</div>
+          <div class="card-label" style="color:var(--dim); margin-bottom:4px;">Adoption Curve</div>
+          <div style="font-size:11px; color: var(--slate2);">ROI at each adoption level — what’s your ceiling if you push further?</div>
         </div>
         <div class="chart-legend">
-          <span><span class="legend-dot" style="background:var(--emerald); display:inline-block; height:2px; width:16px; vertical-align:middle; margin-right:5px;"></span><span style="color:var(--emerald);">Elastic</span></span>
-          <span><span style="display:inline-block; width:16px; height:0; border-top: 2px dashed var(--slate2); vertical-align:middle; margin-right:5px;"></span><span style="color:var(--slate2);">Traditional</span></span>
+          <span><span style="display:inline-block; width:16px; height:2px; background:var(--emerald); vertical-align:middle; margin-right:5px;"></span><span style="color:var(--emerald);">Y4</span></span>
+          <span><span style="display:inline-block; width:16px; height:2px; background:var(--gold); vertical-align:middle; margin-right:5px;"></span><span style="color:var(--gold);">Y2</span></span>
+          <span><span style="display:inline-block; width:16px; height:0; border-top: 2px dashed var(--slate2); vertical-align:middle; margin-right:5px;"></span><span style="color:var(--slate2);">Y1</span></span>
         </div>
       </div>
       <canvas id="elasticity-chart" height="140"></canvas>
@@ -549,7 +550,7 @@ const elasticityChart = new Chart(chartCtx, {
     labels: [],
     datasets: [
       {
-        label: 'Elastic ROI',
+        label: 'Y4 (Full Efficiency)',
         data: [],
         borderColor: '#10b981',
         borderWidth: 2,
@@ -557,11 +558,19 @@ const elasticityChart = new Chart(chartCtx, {
         tension: 0.4,
       },
       {
-        label: 'Traditional ROI',
+        label: 'Y2 (Stabilizing)',
+        data: [],
+        borderColor: '#f59e0b',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        tension: 0.4,
+      },
+      {
+        label: 'Y1 (Rollout)',
         data: [],
         borderColor: '#64748b',
         borderWidth: 1.5,
-        borderDash: [5, 4],
+        borderDash: [4, 3],
         pointRadius: 0,
         tension: 0.4,
       }
@@ -581,8 +590,8 @@ const elasticityChart = new Chart(chartCtx, {
         titleFont: { family: "'DM Mono', monospace", size: 10 },
         bodyFont: { family: "'DM Mono', monospace", size: 10 },
         callbacks: {
-          title: ctx => ctx[0].label + ' ROI',
-          label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}×`
+          title: ctx => ctx[0].label + ' adoption',
+          label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + '× ROI'
         }
       }
     },
@@ -612,7 +621,7 @@ function drawGauge(synthFTEs, totalFTEs) {
   const cx = 110, cy = 115, r = 80;
   const startAngle = Math.PI * 0.75;
   const endAngle   = Math.PI * 2.25;
-  const fraction = Math.min(synthFTEs / (totalFTEs * 0.15), 1);
+  const fraction = Math.min(synthFTEs / (totalFTEs * 0.20), 1);
   const needleAngle = startAngle + fraction * (endAngle - startAngle);
 
   // Track bg
@@ -810,7 +819,10 @@ function update() {
   }
 
   // Gauge
-  const synthFTEs = (Rc / 2080) * phi;  // FTE-equivalents of reclaimed capacity, phi-adjusted
+  // Synthetic Capacity: phi is the total productivity multiplier for adopters.
+  // phi=1.25 means each adopter generates 25% more output = 0.25 extra FTE-equiv.
+  // Capped at 25% of total workforce — real-world ceiling even at high AI maturity.
+  const synthFTEs = Math.min(adoptingFTEs * (phi - 1) * rampEff, ftes * 0.25);
   drawGauge(synthFTEs, ftes);
   const hrsPerAdopter = adoptingFTEs > 0 ? Math.round(Rc / adoptingFTEs) : 0;
   const daysPerAdopter = (hrsPerAdopter / 8).toFixed(1);
@@ -818,20 +830,25 @@ function update() {
   document.getElementById('gauge-caption').innerHTML =
     `Your <strong style="color:var(--white)">${fmtX(ftes)}-person firm</strong> gained the equivalent of <strong style="color:var(--emerald)">+${synthRounded} additional people</strong> — capacity you added without hiring. Each adopter reclaims <strong style="color:var(--white)">~${daysPerAdopter} days/yr</strong> of productive time.`;
 
-  // Year-over-year ROI projection (Y1–Y4)
-  // Shows how both elastic and traditional ROI compound as ramp efficiency grows
-  const labels = ['Y1', 'Y2', 'Y3', 'Y4'];
-  const elastic = [], traditional = [];
-  for (let i = 0; i < 4; i++) {
-    const re = RAMP_EFF[i];
-    const rc_yr = adoptingHrs * (dragPct / 100) * (dispRate / 100) * re;
-    const impossVyr = Math.min(impossV, totalLaborCost * 0.10) * re;
-    traditional.push(+((rc_yr * hourly) / totalCost).toFixed(2));
-    elastic.push(+((rc_yr * MU * dMPL + phi * impossVyr) / totalCost).toFixed(2));
+  // Adoption Curve: ROI at each adoption % level, for Y1/Y2/Y4
+  // Answers: "what's our ROI if we push adoption from 25% to 75%?"
+  // X axis = adoption %, 3 lines = Y1 / Y2 / Y4
+  const adoptSteps = [5, 15, 25, 35, 50, 65, 80, 100];
+  const labels = adoptSteps.map(a => a + '%');
+  const lineY4 = [], lineY2 = [], lineY1 = [];
+  const impossVcap = Math.min(impossV, totalLaborCost * 0.10);
+  for (const a of adoptSteps) {
+    const aH = ftes * (a / 100) * 2080;
+    for (const [arr, reIdx] of [[lineY4, 3], [lineY2, 1], [lineY1, 0]]) {
+      const re = RAMP_EFF[reIdx];
+      const rc_a = aH * (dragPct / 100) * (dispRate / 100) * re;
+      arr.push(+((rc_a * MU * dMPL + phi * impossVcap * re) / totalCost).toFixed(2));
+    }
   }
   elasticityChart.data.labels   = labels;
-  elasticityChart.data.datasets[0].data = elastic;
-  elasticityChart.data.datasets[1].data = traditional;
+  elasticityChart.data.datasets[0].data = lineY4;
+  elasticityChart.data.datasets[1].data = lineY2;
+  elasticityChart.data.datasets[2].data = lineY1;
 
   // Reference line annotation (vertical line at current dispRate)
   // Handled via plugin if needed — skip for simplicity, current point is visible from values
