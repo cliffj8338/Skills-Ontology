@@ -399,6 +399,7 @@
     backdrop-filter: blur(4px);
     display: flex; align-items: center; justify-content: center;
     padding: 24px;
+    overflow-y: auto;
   }
   .modal-box {
     background: var(--surface);
@@ -408,6 +409,8 @@
     padding: 40px 44px;
     position: relative;
     box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    max-height: 90vh;
+    overflow-y: auto;
   }
   .modal-eyebrow {
     font-family: Calibri,'Segoe UI','DM Mono',monospace;
@@ -445,9 +448,14 @@
   }
   .modal-close:hover { opacity: 0.88; }
   @media (max-width: 600px) {
-    .modal-box { padding: 24px 20px; }
-    .modal-title { font-size: 1.25em; }
-    .modal-body { font-size: 0.95em; }
+    .modal-overlay { padding: 12px; align-items: flex-start; }
+    .modal-box { padding: 20px 16px; max-height: calc(100vh - 24px); }
+    .modal-eyebrow { font-size: 10px; margin-bottom: 6px; }
+    .modal-title { font-size: 1.1em; margin-bottom: 12px; }
+    .modal-body { font-size: 0.82em; line-height: 1.55; margin-bottom: 16px; }
+    .modal-tagline { font-size: 0.78em; margin-bottom: 16px; }
+    .modal-rule { margin: 14px 0; }
+    .modal-close { padding: 11px 0; font-size: 0.9em; }
   }
   @media (max-width: 540px) {
     .author-tile { flex-direction: column; align-items: flex-start !important; gap: 16px !important; }
