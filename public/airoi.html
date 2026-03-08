@@ -330,7 +330,7 @@
       </div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-ftes"></div>
-        <input type="range" id="ftes" min="100" max="100000" step="100" value="500" oninput="update()">
+        <input type="range" id="ftes" min="2500" max="50000" step="100" value="5000" oninput="update()">
       </div>
     </div>
 
@@ -418,9 +418,11 @@
       </div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-invest"></div>
-        <input type="range" id="invest" min="100000" max="20000000" step="100000" value="500000" oninput="update()">
+        <input type="range" id="invest" min="100000" max="5000000" step="50000" value="500000" oninput="update()">
       </div>
     </div>
+
+    <div id="constraint-box" style="display:none; margin:8px 0 12px; padding:10px 12px; background:rgba(244,63,94,0.08); border:1px solid rgba(244,63,94,0.25); border-radius:6px; font-size:0.7em; color:var(--coral); line-height:1.6; font-family:'DM Mono',monospace;"></div>
 
     <hr class="divider">
     <div class="section-label" style="color:var(--gold); margin-bottom:8px;">Deployment Year</div>
@@ -513,9 +515,10 @@
           <div style="font-size:11px; color: var(--slate2);">ROI at each adoption level — what’s your ceiling if you push further?</div>
         </div>
         <div class="chart-legend">
-          <span><span style="display:inline-block; width:16px; height:2px; background:var(--emerald); vertical-align:middle; margin-right:5px;"></span><span style="color:var(--emerald);">Y4</span></span>
-          <span><span style="display:inline-block; width:16px; height:2px; background:var(--gold); vertical-align:middle; margin-right:5px;"></span><span style="color:var(--gold);">Y2</span></span>
-          <span><span style="display:inline-block; width:16px; height:0; border-top: 2px dashed var(--slate2); vertical-align:middle; margin-right:5px;"></span><span style="color:var(--slate2);">Y1</span></span>
+          <span><span style="display:inline-block; width:14px; height:2px; background:var(--emerald); vertical-align:middle; margin-right:4px;"></span><span style="color:var(--emerald);">Y4</span></span>
+          <span><span style="display:inline-block; width:14px; height:2px; background:#38bdf8; vertical-align:middle; margin-right:4px;"></span><span style="color:#38bdf8;">Y3</span></span>
+          <span><span style="display:inline-block; width:14px; height:2px; background:var(--gold); vertical-align:middle; margin-right:4px;"></span><span style="color:var(--gold);">Y2</span></span>
+          <span><span style="display:inline-block; width:14px; height:0; border-top: 2px dashed var(--slate2); vertical-align:middle; margin-right:4px;"></span><span style="color:var(--slate2);">Y1</span></span>
         </div>
       </div>
       <canvas id="elasticity-chart" height="140"></canvas>
@@ -554,6 +557,14 @@ const elasticityChart = new Chart(chartCtx, {
         data: [],
         borderColor: '#10b981',
         borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.4,
+      },
+      {
+        label: 'Y3 (Normalized)',
+        data: [],
+        borderColor: '#38bdf8',
+        borderWidth: 1.5,
         pointRadius: 0,
         tension: 0.4,
       },
@@ -643,18 +654,16 @@ function drawGauge(synthFTEs, totalFTEs) {
   ctx.lineCap = 'round';
   ctx.stroke();
 
-  // Needle
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(needleAngle + Math.PI / 2);
+  // Needle — draw directly from center to arc tip (no rotation, no ambiguity)
+  const tipX = cx + (r - 8) * Math.cos(needleAngle);
+  const tipY = cy + (r - 8) * Math.sin(needleAngle);
   ctx.beginPath();
-  ctx.moveTo(0, 8);
-  ctx.lineTo(0, -r + 12);
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(tipX, tipY);
   ctx.strokeStyle = '#f59e0b';
   ctx.lineWidth = 2.5;
   ctx.lineCap = 'round';
   ctx.stroke();
-  ctx.restore();
 
   // Center dot
   ctx.beginPath();
@@ -725,14 +734,62 @@ function update() {
   const invest  = +document.getElementById('invest').value;
 
   // Slider fills & labels
-  fillPct('ftes',   ftes,    100,      100000);    document.getElementById('val-ftes').textContent   = ftes.toLocaleString();
+  fillPct('ftes',   ftes,    2500,     50000);    document.getElementById('val-ftes').textContent   = ftes.toLocaleString();
   fillPct('adopt', adoptPct, 5,       100);       document.getElementById('val-adopt').textContent  = adoptPct + '%';
   fillPct('salary', salary,  40000,    300000);    document.getElementById('val-salary').textContent = fmt(salary);
   fillPct('drag',   dragPct, 10,       80);        document.getElementById('val-drag').textContent   = dragPct + '%';
   fillPct('disp',   dispRate,20,       90);        document.getElementById('val-disp').textContent   = dispRate + '%';
   fillPct('phi',    phi,     1.0,      2.5);       document.getElementById('val-phi').textContent    = phi.toFixed(2);
   fillPct('impos',  impossV, 0,        50000000);  document.getElementById('val-impos').textContent  = fmt(impossV);
-  fillPct('invest', invest,  100000,   20000000);  document.getElementById('val-invest').textContent = fmt(invest);
+  fillPct('invest', invest,  100000,   5000000);  document.getElementById('val-invest').textContent = fmt(invest);
+
+  // ── CONSTRAINT ENGINE ─────────────────────────────────────────
+  // Rule 1: Min investment = adopters × $3,000 (licenses + tooling + training floor)
+  const adoptingFTEsRaw = ftes * (adoptPct / 100);
+  const minInvest = Math.max(100000, Math.round(adoptingFTEsRaw * 3000 / 50000) * 50000);
+  const investEl = document.getElementById('invest');
+  if (invest < minInvest) {
+    investEl.value = minInvest;
+    invest = minInvest;
+    fillPct('invest', invest, 100000, 5000000);
+    document.getElementById('val-invest').textContent = fmt(invest);
+  }
+  investEl.min = minInvest;
+
+  // Rule 2: Displacement rate capped at 60% — BCG/Harvard research ceiling
+  const dispEl = document.getElementById('disp');
+  if (dispRate > 60) { dispEl.value = 60; dispRate = 60; fillPct('disp', dispRate, 20, 90); document.getElementById('val-disp').textContent = dispRate + '%'; }
+  if (+dispEl.max > 60) dispEl.max = 60;
+
+  // Rule 3: Phi capped at 1.75 — top-quartile AI deployment limit
+  const phiEl = document.getElementById('phi');
+  if (phi > 1.75) { phiEl.value = 1.75; phi = 1.75; fillPct('phi', phi, 1.0, 2.5); document.getElementById('val-phi').textContent = phi.toFixed(2); }
+  if (+phiEl.max > 1.75) phiEl.max = 1.75;
+
+  // Rule 4: Revealed outcomes capped at 20% of annual labor cost
+  const maxImpossV = ftes * salary * 0.20;
+  const impossEl = document.getElementById('impos');
+  if (impossV > maxImpossV) { impossEl.value = maxImpossV; impossV = maxImpossV; fillPct('impos', impossV, 0, 50000000); document.getElementById('val-impos').textContent = fmt(impossV); }
+  impossEl.max = maxImpossV;
+
+  // Constraint summary box
+  const cbox = document.getElementById('constraint-box');
+  const violations = [];
+  if (invest === minInvest && minInvest > 100000)
+    violations.push('\u25b2 Min investment: ' + fmt(minInvest) + ' (' + Math.round(adoptingFTEsRaw).toLocaleString() + ' adopters \u00d7 $3K/person)');
+  if (dispRate >= 60)
+    violations.push('\u25b2 Displacement capped at 60% — BCG/Harvard ceiling');
+  if (phi >= 1.75)
+    violations.push('\u25b2 Revelation multiplier capped at 1.75\u00d7');
+  if (impossV >= maxImpossV)
+    violations.push('\u25b2 Revealed outcomes capped at 20% of labor cost (' + fmt(maxImpossV) + ')');
+  if (violations.length > 0) {
+    cbox.innerHTML = '<strong style="color:var(--coral); letter-spacing:1px; font-size:0.9em;">MODEL CONSTRAINTS APPLIED</strong><br>' + violations.join('<br>');
+    cbox.style.display = 'block';
+  } else {
+    cbox.style.display = 'none';
+  }
+  // ── END CONSTRAINTS ───────────────────────────────────────────
 
   // Core math
   const hourly         = salary / 2080;
@@ -835,11 +892,11 @@ function update() {
   // X axis = adoption %, 3 lines = Y1 / Y2 / Y4
   const adoptSteps = [5, 15, 25, 35, 50, 65, 80, 100];
   const labels = adoptSteps.map(a => a + '%');
-  const lineY4 = [], lineY2 = [], lineY1 = [];
+  const lineY4 = [], lineY3 = [], lineY2 = [], lineY1 = [];
   const impossVcap = Math.min(impossV, totalLaborCost * 0.10);
   for (const a of adoptSteps) {
     const aH = ftes * (a / 100) * 2080;
-    for (const [arr, reIdx] of [[lineY4, 3], [lineY2, 1], [lineY1, 0]]) {
+    for (const [arr, reIdx] of [[lineY4, 3], [lineY3, 2], [lineY2, 1], [lineY1, 0]]) {
       const re = RAMP_EFF[reIdx];
       const rc_a = aH * (dragPct / 100) * (dispRate / 100) * re;
       arr.push(+((rc_a * MU * dMPL + phi * impossVcap * re) / totalCost).toFixed(2));
@@ -847,8 +904,9 @@ function update() {
   }
   elasticityChart.data.labels   = labels;
   elasticityChart.data.datasets[0].data = lineY4;
-  elasticityChart.data.datasets[1].data = lineY2;
-  elasticityChart.data.datasets[2].data = lineY1;
+  elasticityChart.data.datasets[1].data = lineY3;
+  elasticityChart.data.datasets[2].data = lineY2;
+  elasticityChart.data.datasets[3].data = lineY1;
 
   // Reference line annotation (vertical line at current dispRate)
   // Handled via plugin if needed — skip for simplicity, current point is visible from values
