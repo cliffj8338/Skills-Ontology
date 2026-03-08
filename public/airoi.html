@@ -523,9 +523,27 @@
 <body>
 
 <header>
-  <div>
-    <div class="header-eyebrow">Jurkiewicz Synthetic Capacity Model</div>
-    <div class="header-title">AI ROI Elasticity Worksheet</div>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <svg width="40" height="40" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+      <rect width="64" height="64" rx="10" fill="#0a0f1e"/>
+      <rect width="64" height="3" rx="0" fill="#10b981"/>
+      <!-- Outer ring track -->
+      <circle cx="29" cy="36" r="19" fill="none" stroke="#0d1f35" stroke-width="5" stroke-dasharray="74.6 29.8" stroke-dashoffset="-14.9" stroke-linecap="round"/>
+      <!-- Outer ring emerald -->
+      <circle cx="29" cy="36" r="19" fill="none" stroke="#10b981" stroke-width="5" stroke-dasharray="52 52.5" stroke-dashoffset="-14.9" stroke-linecap="round"/>
+      <!-- Inner ring track -->
+      <circle cx="29" cy="36" r="12" fill="none" stroke="#0d1f35" stroke-width="4" stroke-dasharray="47.1 18.8" stroke-dashoffset="-9.4" stroke-linecap="round"/>
+      <!-- Inner ring gold -->
+      <circle cx="29" cy="36" r="12" fill="none" stroke="#f59e0b" stroke-width="4" stroke-dasharray="28 38" stroke-dashoffset="-9.4" stroke-linecap="round"/>
+      <!-- ROI text right -->
+      <text x="54" y="24" font-family="Arial" font-size="13" font-weight="bold" fill="#10b981" text-anchor="middle">R</text>
+      <text x="54" y="39" font-family="Arial" font-size="12" fill="#f59e0b" text-anchor="middle">O</text>
+      <text x="54" y="53" font-family="Arial" font-size="12" fill="#38bdf8" text-anchor="middle">I</text>
+    </svg>
+    <div>
+      <div class="header-eyebrow">Jurkiewicz Synthetic Capacity Model</div>
+      <div class="header-title">AI ROI Elasticity Calculator</div>
+    </div>
   </div>
   <div style="display:flex;align-items:center;">
     <button class="about-btn" onclick="openAbout()">&#9432; About this tool</button>
@@ -1355,7 +1373,8 @@ function toggleTheme() {
 }
 
 updateRampBars();
-update();
+// Defer initial update to after first paint so slider track widths are resolved
+requestAnimationFrame(() => requestAnimationFrame(() => update()));
 
 // ── ABOUT MODAL ───────────────────────────────────────────
 function openAbout() {
