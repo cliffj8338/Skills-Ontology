@@ -194,33 +194,37 @@
   }
   .slider-track {
     position: relative;
-    height: 6px;
+    height: 20px;
+    background: transparent;
+    cursor: pointer;
+  }
+  .slider-track::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    top: 50%; transform: translateY(-50%);
+    height: 4px;
     background: var(--border);
     border-radius: 2px;
-    cursor: pointer;
   }
   .slider-fill {
     position: absolute;
-    left: 0; top: 0;
-    height: 100%; border-radius: 2px;
+    left: 0;
+    top: 50%; transform: translateY(-50%);
+    height: 4px; border-radius: 2px;
     background: linear-gradient(90deg, var(--emerald), var(--gold));
-    border-radius: 2px;
     pointer-events: none;
     transition: width 0.05s;
   }
   input[type=range] {
     position: absolute;
-    top: 50%;
-    left: 0;
-    width: 100%;
-    transform: translateY(-50%);
-    opacity: 1;
-    cursor: pointer;
-    height: 22px;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     margin: 0;
     -webkit-appearance: none;
     appearance: none;
     background: transparent;
+    cursor: pointer;
   }
   /* Track — transparent so our custom .slider-fill shows through */
   input[type=range]::-webkit-slider-runnable-track {
@@ -405,45 +409,43 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 12px;
-    max-width: 640px; width: 100%;
-    padding: 40px 44px;
+    max-width: 560px; width: 100%;
+    padding: 28px 32px;
     position: relative;
     box-shadow: 0 24px 64px rgba(0,0,0,0.5);
-    max-height: 90vh;
-    overflow-y: auto;
   }
   .modal-eyebrow {
     font-family: Calibri,'Segoe UI','DM Mono',monospace;
-    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--emerald); margin-bottom: 10px;
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--emerald); margin-bottom: 8px;
   }
   .modal-title {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: 1.6em; font-weight: 700; color: var(--white);
-    line-height: 1.25; margin-bottom: 20px;
+    font-size: 1.1em; font-weight: 700; color: var(--white);
+    line-height: 1.25; margin-bottom: 14px;
   }
   .modal-body {
     font-family: Calibri,'Segoe UI',Arial,sans-serif;
-    font-size: 1.05em; color: var(--dim); line-height: 1.75;
-    margin-bottom: 28px;
+    font-size: 0.78em; color: var(--dim); line-height: 1.65;
+    margin-bottom: 18px;
   }
   .modal-body strong { color: var(--white); font-weight: 600; }
   .modal-body em { color: var(--gold); font-style: normal; }
   .modal-rule {
-    border: none; border-top: 1px solid var(--border); margin: 20px 0;
+    border: none; border-top: 1px solid var(--border); margin: 14px 0;
   }
   .modal-tagline {
     font-family: Calibri,'Segoe UI',Arial,sans-serif;
-    font-size: 0.9em; color: var(--slate2); line-height: 1.6;
-    font-style: italic; margin-bottom: 24px;
+    font-size: 0.72em; color: var(--slate2); line-height: 1.55;
+    font-style: italic; margin-bottom: 16px;
   }
   .modal-close {
     display: block; width: 100%;
     background: var(--emerald); color: #050a14;
     border: none; border-radius: 6px;
     font-family: Calibri,'Segoe UI',Arial,sans-serif;
-    font-size: 1em; font-weight: 700; cursor: pointer;
-    padding: 13px 0; letter-spacing: 0.3px;
+    font-size: 0.85em; font-weight: 700; cursor: pointer;
+    padding: 11px 0; letter-spacing: 0.3px;
     transition: opacity 0.15s;
   }
   .modal-close:hover { opacity: 0.88; }
@@ -1333,8 +1335,7 @@ if (!localStorage.getItem('airoi-seen')) {
     </div>
     <hr class="modal-rule">
     <div class="modal-tagline">
-      "Efficiency is a finite race to the bottom. Elasticity is an infinite race to the top.<br>
-      Stop measuring the displacement of people &mdash; start measuring the expansion of outcomes."
+      "Efficiency is a finite race to the bottom. Elasticity is an infinite race to the top. Stop measuring the displacement of people &mdash; start measuring the expansion of outcomes."
     </div>
     <button class="modal-close" onclick="closeAbout()">Start exploring &rarr;</button>
   </div>
