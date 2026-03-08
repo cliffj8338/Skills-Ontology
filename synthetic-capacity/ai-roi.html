@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI ROI Elasticity Worksheet — Jurkiewicz Synthetic Capacity Model</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #050a14;
+    --surface:  #0a0f1e;
+    --border:   #1e293b;
+    --border2:  #0f172a;
+    --emerald:  #10b981;
+    --emerald2: #052e16;
+    --gold:     #f59e0b;
+    --coral:    #f43f5e;
+    --coral2:   #1a0a14;
+    --white:    #f8fafc;
+    --dim:      #94a3b8;
+    --slate:    #475569;
+    --slate2:   #64748b;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    background-image: radial-gradient(ellipse at 20% 10%, #0f1f3d 0%, var(--bg) 55%);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: rgba(5,10,20,0.96);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .header-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--emerald);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .header-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--white);
+  }
+
+  /* Toggle */
+  .toggle {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .toggle-btn {
+    padding: 8px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    border: none;
+    background: transparent;
+    color: var(--dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 400;
+  }
+  .toggle-btn.active-press {
+    background: var(--emerald);
+    color: #052e16;
+    font-weight: 700;
+  }
+  .toggle-btn.active-side {
+    background: var(--slate2);
+    color: var(--white);
+    font-weight: 700;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    min-height: calc(100vh - 65px);
+  }
+
+  /* ── LEFT PANEL ── */
+  .left-panel {
+    border-right: 1px solid var(--border);
+    padding: 24px 22px;
+    overflow-y: auto;
+    position: sticky;
+    top: 65px;
+    height: calc(100vh - 65px);
+  }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--slate2);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .section-label.gold  { color: var(--gold); }
+  .section-label.coral { color: var(--coral); }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+  /* Slider */
+  .slider-row { margin-bottom: 18px; }
+  .slider-header { display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .slider-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+  .slider-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--white);
+    font-weight: 500;
+  }
+  .slider-sub {
+    font-size: 9px;
+    color: var(--slate);
+    font-style: italic;
+    margin-bottom: 6px;
+  }
+  .slider-track {
+    position: relative;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    cursor: pointer;
+  }
+  .slider-fill {
+    position: absolute;
+    left: 0; top: 0;
+    height: 100%;
+    background: linear-gradient(90deg, var(--emerald), var(--gold));
+    border-radius: 2px;
+    pointer-events: none;
+    transition: width 0.05s;
+  }
+  input[type=range] {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    transform: translateY(-50%);
+    opacity: 0;
+    cursor: pointer;
+    height: 22px;
+    margin: 0;
+  }
+
+  /* Constants box */
+  .constants-box {
+    background: #040810;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-top: 18px;
+  }
+  .constants-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 7px;
+    padding-bottom: 7px;
+    border-bottom: 1px solid var(--border2);
+  }
+  .constants-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .const-key { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--dim); }
+  .const-val { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--white); font-weight: 600; }
+
+  /* ── RIGHT PANEL ── */
+  .right-panel { padding: 24px 32px; overflow-y: auto; }
+
+  /* KPI Cards */
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    border-top-width: 2px;
+    transition: transform 0.15s;
+  }
+  .kpi-card:hover { transform: translateY(-1px); }
+  .kpi-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--dim); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  .kpi-value { font-family: 'Playfair Display', Georgia, serif; font-size: 30px; font-weight: 700; transition: all 0.3s; }
+  .kpi-note { font-size: 10px; color: var(--slate2); margin-top: 5px; }
+
+  /* Middle row */
+  .mid-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 22px;
+  }
+  .card-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 14px; }
+
+  /* Gauge */
+  #gauge-canvas { display: block; margin: 0 auto 10px; }
+  .gauge-caption { font-size: 11px; color: var(--dim); text-align: center; font-style: italic; line-height: 1.5; }
+
+  /* Equation breakdown */
+  .eq-fraction { font-family: 'Playfair Display', Georgia, serif; text-align: center; margin-bottom: 16px; padding: 10px 0; }
+  .eq-num { font-size: 13px; color: var(--emerald); margin-bottom: 6px; }
+  .eq-line { border-top: 1px solid var(--slate); margin: 0 15%; }
+  .eq-den { font-size: 13px; color: var(--coral); margin-top: 6px; }
+  .eq-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border2);
+    font-family: 'DM Mono', monospace;
+  }
+  .eq-row:last-child { border-bottom: none; }
+  .eq-key { font-size: 10px; color: var(--dim); }
+  .eq-val { font-size: 11px; font-weight: 600; }
+  .insight-box {
+    margin-top: 12px;
+    padding: 9px 12px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* Chart */
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 22px; margin-bottom: 20px; }
+  .chart-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+  .chart-legend { display: flex; gap: 16px; font-family: 'DM Mono', monospace; font-size: 10px; }
+  .legend-dot { display: inline-block; width: 12px; height: 2px; border-radius: 1px; vertical-align: middle; margin-right: 4px; }
+
+  /* Quote */
+  .quote {
+    border-left: 3px solid var(--emerald);
+    background: #030710;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    border-radius: 0 4px 4px 0;
+  }
+  .quote p {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--dim);
+    line-height: 1.7;
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--slate);
+    letter-spacing: 0.1em;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .left-panel { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .mid-grid  { grid-template-columns: 1fr; }
+    header { flex-direction: column; gap: 12px; padding: 14px 16px; }
+    .right-panel { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="header-eyebrow">Jurkiewicz Synthetic Capacity Model</div>
+    <div class="header-title">AI ROI Elasticity Worksheet</div>
+  </div>
+  <div class="toggle">
+    <button class="toggle-btn" id="btn-side"  onclick="setView('sideline')">Sideline View</button>
+    <button class="toggle-btn active-press" id="btn-press" onclick="setView('pressbox')">Press Box View</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ── LEFT PANEL ───────────────────────────────────────────── -->
+  <div class="left-panel">
+    <div class="section-label">Input Variables</div>
+
+    <div class="slider-row">
+      <div class="slider-header">
+        <span class="slider-label">Total FTEs</span>
+        <span class="slider-value" id="val-ftes">10,000</span>
+      </div>
+      <div class="slider-track">
+        <div class="slider-fill" id="fill-ftes"></div>
+        <input type="range" id="ftes" min="100" max="100000" step="100" value="10000" oninput="update()">
+      </div>
+    </div>
+
+    <div class="slider-row">
+      <div class="slider-header">
+        <span class="slider-label">Avg Fully Loaded Salary</span>
+        <span class="slider-value" id="val-salary">$100K</span>
+      </div>
+      <div class="slider-track">
+        <div class="slider-fill" id="fill-salary"></div>
+        <input type="range" id="salary" min="40000" max="300000" step="5000" value="100000" oninput="update()">
+      </div>
+    </div>
+
+    <div class="slider-row">
+      <div class="slider-header">
+        <span class="slider-label">Cognitive Drag % (T1/T2)</span>
+        <span class="slider-value" id="val-drag">40%</span>
+      </div>
+      <div class="slider-sub">% of day spent on administrative &amp; analytical tasks</div>
+      <div class="slider-track">
+        <div class="slider-fill" id="fill-drag"></div>
+        <input type="range" id="drag" min="10" max="80" step="1" value="40" oninput="update()">
+      </div>
+    </div>
+
+    <div class="slider-row">
+      <div class="slider-header">
+        <span class="slider-label">AI Displacement Rate</span>
+        <span class="slider-value" id="val-disp">65%</span>
+      </div>
+      <div class="slider-sub">% of drag work AI can absorb</div>
+      <div class="slider-track">
+        <div class="slider-fill" id="fill-disp"></div>
+        <input type="range" id="disp" min="20" max="90" step="1" value="65" oninput="update()">
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div class="section-label gold">Press Box Parameters</div>
+
+    <div class="slider-row">
+      <div class="slider-header">
+        <span class="slider-label">Φ — Revelation Multiplier</span>
+        <span class="slider-value" id="val-phi">1.40</span>
+      </div>
+      <div class="slider-sub">Organizational thinking capacity elevation</div>
+      <div class="slider-track">
+        <div class="slider-fill" id="fill-phi"></div>
+        <input type="range" id="phi" min="1.0" max="2.5" step="0.05" value="1.40" oninput="update()">
+      </div>
+    </div>
+
+    <div class="slider-row">
+      <div class="slider-header">
+        <span class="slider-label">Revealed Outcomes Value</span>
+        <span class="slider-value" id="val-impos">$5.00M</span>
+      </div>
+      <div class="slider-sub">Revenue potential of previously impossible work</div>
+      <div class="slider-track">
+        <div class="slider-fill" id="fill-impos"></div>
+        <input type="range" id="impos" min="0" max="50000000" step="250000" value="5000000" oninput="update()">
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div class="section-label coral">Investment</div>
+
+    <div class="slider-row">
+      <div class="slider-header">
+        <span class="slider-label">Total AI Investment (I)</span>
+        <span class="slider-value" id="val-invest">$2.00M</span>
+      </div>
+      <div class="slider-track">
+        <div class="slider-fill" id="fill-invest"></div>
+        <input type="range" id="invest" min="100000" max="20000000" step="100000" value="2000000" oninput="update()">
+      </div>
+    </div>
+
+    <div class="constants-box">
+      <div class="section-label" style="margin-bottom:12px;">Fixed Constants</div>
+      <div class="constants-row"><span class="const-key">μ (Jevons Discount)</span><span class="const-val">0.60</span></div>
+      <div class="constants-row"><span class="const-key">ΔMPL Multiplier</span><span class="const-val">1.5×</span></div>
+      <div class="constants-row"><span class="const-key">O_trans (Friction Tax)</span><span class="const-val">15% of I</span></div>
+      <div class="constants-row"><span class="const-key">Ω (Obsolescence Risk)</span><span class="const-val">8% annual</span></div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL ──────────────────────────────────────────── -->
+  <div class="right-panel">
+
+    <!-- KPI row -->
+    <div class="kpi-grid">
+      <div class="kpi-card" style="border-top-color: var(--emerald);" id="kpi-roi-card">
+        <div class="kpi-label">AI ROI</div>
+        <div class="kpi-value" id="kpi-roi" style="color: var(--emerald);">—</div>
+        <div class="kpi-note" id="kpi-roi-note">Elastic Return</div>
+      </div>
+      <div class="kpi-card" style="border-top-color: var(--emerald);">
+        <div class="kpi-label">Reclaimed Hours / yr</div>
+        <div class="kpi-value" id="kpi-hours" style="color: var(--emerald);">—</div>
+        <div class="kpi-note" id="kpi-hours-note">—</div>
+      </div>
+      <div class="kpi-card" style="border-top-color: var(--coral);">
+        <div class="kpi-label">Total Investment</div>
+        <div class="kpi-value" id="kpi-cost" style="color: var(--coral);">—</div>
+        <div class="kpi-note">incl. friction &amp; obsolescence</div>
+      </div>
+    </div>
+
+    <!-- Gauge + Equation -->
+    <div class="mid-grid">
+      <div class="card">
+        <div class="card-label" style="color: var(--emerald);">Organizational Torque</div>
+        <canvas id="gauge-canvas" width="220" height="150"></canvas>
+        <div class="gauge-caption" id="gauge-caption">—</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label" style="color: var(--gold);">Equation Breakdown</div>
+        <div class="eq-fraction">
+          <div class="eq-num">Φ(Oₙ·V) + (Rc·μ·ΔMPL)</div>
+          <div class="eq-line"></div>
+          <div class="eq-den">I + O_trans + Ω</div>
+        </div>
+        <div class="eq-row"><span class="eq-key">Φ(Oₙ·V)</span><span class="eq-val" id="eq-phi" style="color: var(--emerald);">—</span></div>
+        <div class="eq-row"><span class="eq-key">Rc·μ·ΔMPL</span><span class="eq-val" id="eq-rc" style="color: var(--emerald);">—</span></div>
+        <div class="eq-row" style="border-top: 1px solid var(--border); padding-top:8px; margin-top:4px;">
+          <span class="eq-key" style="color:var(--white); font-weight:600;">Numerator Total</span>
+          <span class="eq-val" id="eq-num-total" style="color: var(--white);">—</span>
+        </div>
+        <div class="eq-row"><span class="eq-key">I + O_trans + Ω</span><span class="eq-val" id="eq-denom" style="color: var(--coral);">—</span></div>
+        <div class="insight-box" id="insight-box"></div>
+      </div>
+    </div>
+
+    <!-- Elasticity Chart -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="card-label" style="color:var(--dim); margin-bottom:4px;">Elasticity Curve</div>
+          <div style="font-size:11px; color: var(--slate2);">ROI vs. AI Displacement Rate — same team, different measurement</div>
+        </div>
+        <div class="chart-legend">
+          <span><span class="legend-dot" style="background:var(--emerald); display:inline-block; height:2px; width:16px; vertical-align:middle; margin-right:5px;"></span><span style="color:var(--emerald);">Elastic</span></span>
+          <span><span style="display:inline-block; width:16px; height:0; border-top: 2px dashed var(--slate2); vertical-align:middle; margin-right:5px;"></span><span style="color:var(--slate2);">Traditional</span></span>
+        </div>
+      </div>
+      <canvas id="elasticity-chart" height="140"></canvas>
+    </div>
+
+    <!-- Quote -->
+    <div class="quote">
+      <p>"Efficiency is a finite race to the bottom. Elasticity is an infinite race to the top. Stop measuring the displacement of people — start measuring the expansion of outcomes."</p>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  JURKIEWICZ SYNTHETIC CAPACITY MODEL &nbsp;·&nbsp; AI ROI ELASTICITY WORKSHEET &nbsp;·&nbsp; ALL CALCULATIONS ARE ILLUSTRATIVE MODELS
+</footer>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────
+let view = 'pressbox';
+const MU = 0.6, DMPL_MULT = 1.5, OTRANS_PCT = 0.15, OMEGA_PCT = 0.08;
+
+// ── CHART ──────────────────────────────────────────────────────
+const chartCtx = document.getElementById('elasticity-chart').getContext('2d');
+const elasticityChart = new Chart(chartCtx, {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [
+      {
+        label: 'Elastic ROI',
+        data: [],
+        borderColor: '#10b981',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.4,
+      },
+      {
+        label: 'Traditional ROI',
+        data: [],
+        borderColor: '#64748b',
+        borderWidth: 1.5,
+        borderDash: [5, 4],
+        pointRadius: 0,
+        tension: 0.4,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    animation: { duration: 200 },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0f172a',
+        borderColor: '#1e293b',
+        borderWidth: 1,
+        titleColor: '#94a3b8',
+        bodyColor: '#f8fafc',
+        titleFont: { family: "'DM Mono', monospace", size: 10 },
+        bodyFont: { family: "'DM Mono', monospace", size: 10 },
+        callbacks: {
+          title: ctx => `${ctx[0].label}% displacement`,
+          label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}×`
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: '#475569', font: { family: "'DM Mono', monospace", size: 9 }, callback: v => `${v}%` },
+        grid: { color: '#0f172a' },
+        border: { color: '#1e293b' }
+      },
+      y: {
+        ticks: { color: '#475569', font: { family: "'DM Mono', monospace", size: 9 }, callback: v => `${v}×` },
+        grid: { color: '#0f172a' },
+        border: { color: '#1e293b' }
+      }
+    }
+  }
+});
+
+// ── GAUGE ──────────────────────────────────────────────────────
+function drawGauge(actual, equivalent) {
+  const canvas = document.getElementById('gauge-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const cx = 110, cy = 115, r = 80;
+  const startAngle = Math.PI * 0.75;
+  const endAngle   = Math.PI * 2.25;
+  const ratio = Math.min(Math.max(equivalent / actual, 1), 2.5);
+  const fraction = (ratio - 1) / 1.5;
+  const needleAngle = startAngle + fraction * (endAngle - startAngle);
+
+  // Track bg
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, startAngle, endAngle);
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 10;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Track fill
+  const grad = ctx.createLinearGradient(cx - r, cy, cx + r, cy);
+  grad.addColorStop(0, '#10b981');
+  grad.addColorStop(1, '#f59e0b');
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, startAngle, needleAngle);
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = 10;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Needle
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(needleAngle - Math.PI / 2);
+  ctx.beginPath();
+  ctx.moveTo(0, 8);
+  ctx.lineTo(0, -r + 12);
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+  ctx.restore();
+
+  // Center dot
+  ctx.beginPath();
+  ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fill();
+
+  // Number
+  ctx.font = "700 22px 'Playfair Display', Georgia, serif";
+  ctx.fillStyle = '#f8fafc';
+  ctx.textAlign = 'center';
+  ctx.fillText(fmtX(Math.round(equivalent)), cx, cy + 32);
+
+  ctx.font = "400 9px 'DM Mono', monospace";
+  ctx.fillStyle = '#64748b';
+  ctx.letterSpacing = '2px';
+  ctx.fillText('OUTCOME CAPACITY', cx, cy + 48);
+}
+
+// ── FORMAT HELPERS ────────────────────────────────────────────
+function fmt(n) {
+  if (n >= 1e9) return `$${(n/1e9).toFixed(2)}B`;
+  if (n >= 1e6) return `$${(n/1e6).toFixed(2)}M`;
+  if (n >= 1e3) return `$${(n/1e3).toFixed(0)}K`;
+  return `$${n.toFixed(0)}`;
+}
+function fmtX(n) {
+  if (n >= 1e6) return `${(n/1e6).toFixed(1)}M`;
+  if (n >= 1e3) return `${(n/1e3).toFixed(1)}K`;
+  return n.toString();
+}
+function pct(n) { return `${(n * 100).toFixed(1)}%`; }
+function fillPct(id, val, min, max) {
+  const pct = ((val - min) / (max - min)) * 100;
+  document.getElementById('fill-' + id).style.width = pct + '%';
+}
+
+// ── MAIN UPDATE ───────────────────────────────────────────────
+function update() {
+  const ftes    = +document.getElementById('ftes').value;
+  const salary  = +document.getElementById('salary').value;
+  const dragPct = +document.getElementById('drag').value;
+  const dispRate= +document.getElementById('disp').value;
+  const phi     = +document.getElementById('phi').value;
+  const impossV = +document.getElementById('impos').value;
+  const invest  = +document.getElementById('invest').value;
+
+  // Slider fills & labels
+  fillPct('ftes',   ftes,    100,      100000);    document.getElementById('val-ftes').textContent   = ftes.toLocaleString();
+  fillPct('salary', salary,  40000,    300000);    document.getElementById('val-salary').textContent = fmt(salary);
+  fillPct('drag',   dragPct, 10,       80);        document.getElementById('val-drag').textContent   = dragPct + '%';
+  fillPct('disp',   dispRate,20,       90);        document.getElementById('val-disp').textContent   = dispRate + '%';
+  fillPct('phi',    phi,     1.0,      2.5);       document.getElementById('val-phi').textContent    = phi.toFixed(2);
+  fillPct('impos',  impossV, 0,        50000000);  document.getElementById('val-impos').textContent  = fmt(impossV);
+  fillPct('invest', invest,  100000,   20000000);  document.getElementById('val-invest').textContent = fmt(invest);
+
+  // Core math
+  const hourly    = salary / 2080;
+  const totalHrs  = ftes * 2080;
+  const Rc        = totalHrs * (dragPct / 100) * (dispRate / 100);
+  const dMPL      = hourly * DMPL_MULT;
+  const I         = invest;
+  const Otrans    = invest * OTRANS_PCT;
+  const Omega     = invest * OMEGA_PCT;
+  const totalCost = I + Otrans + Omega;
+
+  const phiTerm   = phi * impossV;
+  const rcTerm    = Rc * MU * dMPL;
+  const elasticN  = phiTerm + rcTerm;
+  const elasticROI = elasticN / totalCost;
+
+  const savedDollars = Rc * hourly;
+  const tradROI   = savedDollars / totalCost;
+
+  const equivFTEs = ftes * elasticROI;
+
+  // Display
+  const displayROI = view === 'pressbox' ? elasticROI : tradROI;
+  const roiColor   = view === 'pressbox' ? 'var(--emerald)' : 'var(--slate2)';
+
+  document.getElementById('kpi-roi').textContent   = displayROI.toFixed(1) + '×';
+  document.getElementById('kpi-roi').style.color   = roiColor;
+  document.getElementById('kpi-roi-note').textContent = view === 'pressbox' ? 'Elastic Return' : 'Traditional Return';
+
+  document.getElementById('kpi-hours').textContent    = fmtX(Math.round(Rc));
+  document.getElementById('kpi-hours-note').textContent = pct(Rc / totalHrs) + ' of total capacity';
+
+  document.getElementById('kpi-cost').textContent  = fmt(totalCost);
+
+  document.getElementById('eq-phi').textContent     = fmt(phiTerm);
+  document.getElementById('eq-rc').textContent      = fmt(rcTerm);
+  document.getElementById('eq-num-total').textContent = fmt(elasticN);
+  document.getElementById('eq-denom').textContent   = fmt(totalCost);
+
+  const ib = document.getElementById('insight-box');
+  if (view === 'pressbox') {
+    ib.style.background = 'var(--emerald2)';
+    ib.style.color = 'var(--emerald)';
+    ib.textContent = `Press Box View includes Φ(Oₙ·V) — ${fmt(phiTerm)} in revealed outcomes. Switch to Sideline View to see what traditional ROI misses.`;
+  } else {
+    ib.style.background = 'var(--coral2)';
+    ib.style.color = 'var(--coral)';
+    ib.textContent = `Sideline View counts only ${fmt(savedDollars)} in saved hours. The model reveals ${fmt(elasticN - savedDollars)} in additional elastic value above.`;
+  }
+
+  // Gauge
+  drawGauge(ftes, equivFTEs);
+  document.getElementById('gauge-caption').innerHTML =
+    `Your <strong style="color:var(--white)">${fmtX(ftes)}-person</strong> firm now has the outcome capacity of a <strong style="color:var(--emerald)">${fmtX(Math.round(equivFTEs))}-person</strong> firm`;
+
+  // Elasticity curve
+  const labels = [], elastic = [], traditional = [];
+  for (let i = 0; i <= 10; i++) {
+    const p = i / 10;
+    const d = Math.round(p * 100);
+    const rc_p = totalHrs * (dragPct / 100) * p;
+    labels.push(d);
+    traditional.push(+(rc_p * hourly / totalCost).toFixed(2));
+    elastic.push(+((phi * impossV * p + rc_p * MU * dMPL) / totalCost).toFixed(2));
+  }
+  elasticityChart.data.labels   = labels;
+  elasticityChart.data.datasets[0].data = elastic;
+  elasticityChart.data.datasets[1].data = traditional;
+
+  // Reference line annotation (vertical line at current dispRate)
+  // Handled via plugin if needed — skip for simplicity, current point is visible from values
+
+  elasticityChart.update();
+}
+
+// ── VIEW TOGGLE ───────────────────────────────────────────────
+function setView(v) {
+  view = v;
+  document.getElementById('btn-side').className  = 'toggle-btn' + (v === 'sideline' ? ' active-side' : '');
+  document.getElementById('btn-press').className = 'toggle-btn' + (v === 'pressbox' ? ' active-press' : '');
+  update();
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+update();
+</script>
+</body>
+</html>
