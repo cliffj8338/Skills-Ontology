@@ -547,9 +547,10 @@
         <div class="kpi-note">incl. friction &amp; obsolescence</div>
       </div>
       <div class="kpi-card" style="border-top-color: var(--emerald);">
-        <div class="kpi-label">Total Return ($)</div>
+        <div class="kpi-label">Elastic Value Potential</div>
         <div class="kpi-value" id="kpi-return" style="color: var(--emerald);">—</div>
-        <div class="kpi-note" id="kpi-return-note">Elastic numerator value</div>
+        <div class="kpi-note" id="kpi-return-note">Addressable upside</div>
+        <div id="return-explain" style="display:none;margin-top:7px;font-size:11px;color:var(--slate2);line-height:1.45;">Theoretical ceiling. Execution typically captures 50&ndash;70% of modeled value &mdash; depends on how consistently freed capacity is redirected to higher-value work.</div>
       </div>
       <div class="kpi-card" style="border-top-color: var(--emerald);" id="kpi-roi-card">
         <div class="kpi-label">ROI Multiple</div>
@@ -977,8 +978,12 @@ function update() {
   const displayReturn = view === 'pressbox' ? elasticN : savedDollars;
   document.getElementById('kpi-return').textContent = fmt(displayReturn);
   document.getElementById('kpi-return').style.color = roiColor;
-  document.getElementById('kpi-return-note').textContent = view === 'pressbox' ? 'Elastic value created' : 'Labor value reclaimed';
+  document.getElementById('kpi-return-note').textContent = view === 'pressbox' ? 'Addressable upside' : 'Labor value reclaimed';
   document.getElementById('kpi-roi').style.color   = roiColor;
+  const retEx = document.getElementById('return-explain');
+  if (retEx) retEx.style.display = view === 'pressbox' ? 'block' : 'none';
+  const retExplain = document.getElementById('return-explain');
+  if (retExplain) retExplain.style.display = view === 'pressbox' ? 'block' : 'none';
   document.getElementById('kpi-roi-note').textContent = view === 'pressbox' ? 'Elastic Return' : 'Traditional Return';
 
   // Benchmark context note
