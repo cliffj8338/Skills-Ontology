@@ -2043,12 +2043,12 @@
                 + '<div id="trafficTiles">Loading...</div></div>';
             
             // ===== AI ROI CALCULATOR TRAFFIC =====
-            html += '<div id="adminAiroi" style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-top:3px solid #10b981; border-radius:10px; margin-bottom:20px;">'\
-                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">'\
-                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">' + bpIcon('trending-up', 16) + ' AI ROI Calculator</h3>'\
-                + '<a href="https://myblueprint.work/airoi" target="_blank" style="font-size:0.72em; color:var(--text-muted); text-decoration:none; font-family:\'DM Mono\',monospace; letter-spacing:0.05em;">myblueprint.work/airoi \u2197</a>'\
-                + '</div>'\
-                + '<div id="adminAiroiContent" style="color:var(--text-muted); font-size:0.85em;">Loading...</div>'\
+            html += '<div id="adminAiroi" style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-top:3px solid #10b981; border-radius:10px; margin-bottom:20px;">'
+                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">'
+                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">' + bpIcon('trending-up', 16) + ' AI ROI Calculator</h3>'
+                + '<a href="https://myblueprint.work/airoi" target="_blank" style="font-size:0.72em; color:var(--text-muted); text-decoration:none; letter-spacing:0.05em;">myblueprint.work/airoi ↗</a>'
+                + '</div>'
+                + '<div id="adminAiroiContent" style="color:var(--text-muted); font-size:0.85em;">Loading...</div>'
                 + '</div>';
 
             // ===== PLATFORM ANALYTICS (loaded from Firestore) =====
