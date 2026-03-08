@@ -1413,5 +1413,58 @@ if (!localStorage.getItem('airoi-seen')) {
     <button class="modal-close" onclick="closeAbout()">Start exploring &rarr;</button>
   </div>
 </div>
+<!-- ── ANALYTICS TRACKER ─────────────────────────────────────────────────────
+     Increments analytics/airoi in Firestore on each page load.
+     Uses transaction to handle concurrent hits safely.
+     ──────────────────────────────────────────────────────────────────────── -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<script>
+(function() {
+  try {
+    // ── PASTE YOUR FIREBASE CONFIG HERE ─────────────────────────────────────
+    const firebaseConfig = {
+      apiKey:            "REPLACE_WITH_YOUR_APIKEY",
+      authDomain:        "REPLACE_WITH_YOUR_AUTHDOMAIN",
+      projectId:         "REPLACE_WITH_YOUR_PROJECTID",
+      storageBucket:     "REPLACE_WITH_YOUR_STORAGEBUCKET",
+      messagingSenderId: "REPLACE_WITH_YOUR_SENDERID",
+      appId:             "REPLACE_WITH_YOUR_APPID"
+    };
+    // ────────────────────────────────────────────────────────────────────────
+
+    const appName = 'airoi-tracker';
+    const app = firebase.apps.find(a => a.name === appName)
+      || firebase.initializeApp(firebaseConfig, appName);
+    const db = firebase.firestore(app);
+
+    const today = new Date().toISOString().split('T')[0]; // "2026-03-08"
+    const ref = db.collection('analytics').doc('airoi');
+
+    db.runTransaction(async tx => {
+      const snap = await tx.get(ref);
+      const d = snap.exists ? snap.data() : {};
+      const isNewDay = d.todayDate !== today;
+
+      // Rolling 7-day window: store hits per day as a map
+      const days = d.days || {};
+      days[today] = (days[today] || 0) + 1;
+
+      // Prune entries older than 30 days
+      const cutoff = new Date(Date.now() - 30 * 864e5).toISOString().split('T')[0];
+      Object.keys(days).forEach(k => { if (k < cutoff) delete days[k]; });
+
+      tx.set(ref, {
+        total:     (d.total || 0) + 1,
+        todayDate: today,
+        today:     isNewDay ? 1 : (d.today || 0) + 1,
+        days,
+        lastSeen:  firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    }).catch(() => {}); // silent fail — never break the page
+  } catch(e) {}
+})();
+</script>
+
 </body>
 </html>

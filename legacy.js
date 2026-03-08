@@ -2042,6 +2042,15 @@
                 + '<div style="display:flex; gap:4px;" id="trafficRangeBtns"></div></div>'
                 + '<div id="trafficTiles">Loading...</div></div>';
             
+            // ===== AI ROI CALCULATOR TRAFFIC =====
+            html += '<div id="adminAiroi" style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-top:3px solid #10b981; border-radius:10px; margin-bottom:20px;">'\
+                + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">'\
+                + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">' + bpIcon('trending-up', 16) + ' AI ROI Calculator</h3>'\
+                + '<a href="https://myblueprint.work/airoi" target="_blank" style="font-size:0.72em; color:var(--text-muted); text-decoration:none; font-family:\'DM Mono\',monospace; letter-spacing:0.05em;">myblueprint.work/airoi \u2197</a>'\
+                + '</div>'\
+                + '<div id="adminAiroiContent" style="color:var(--text-muted); font-size:0.85em;">Loading...</div>'\
+                + '</div>';
+
             // ===== PLATFORM ANALYTICS (loaded from Firestore) =====
             html += '<div id="adminAnalytics" style="padding:20px; background:var(--c-surface-2); border:1px solid var(--c-surface-5); border-radius:10px; margin-bottom:20px;">'
                 + '<h3 style="font-family:Outfit,sans-serif; font-weight:700; color:var(--text-primary); margin:0 0 16px; font-size:1em; letter-spacing:0.06em; text-transform:uppercase;">Platform Analytics</h3>'
@@ -2223,6 +2232,7 @@
             loadPlatformAnalytics();
             renderTrafficDashboard(30);
             loadAdminJobsSyncStatus();
+            loadAiroiAnalytics();
             
             // Async update Jobs Database tile (data loads after render)
             if (fbDb) {
@@ -2606,6 +2616,73 @@
         }
         
         // ===== PLATFORM ANALYTICS (Tier 1: from user docs + Tier 2: from events) =====
+        function loadAiroiAnalytics() {
+            var container = document.getElementById('adminAiroiContent');
+            if (!container || !fbDb) return;
+
+            fbDb.collection('analytics').doc('airoi').get().then(function(snap) {
+                if (!snap.exists) {
+                    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.85em;">No hits recorded yet. Deploy airoi.html with the tracker and visit the page.</div>';
+                    return;
+                }
+                var data = snap.data();
+                var days = data.days || {};
+                var today = new Date().toISOString().split('T')[0];
+                var weekAgo  = new Date(Date.now() - 7  * 864e5).toISOString().split('T')[0];
+                var monthAgo = new Date(Date.now() - 30 * 864e5).toISOString().split('T')[0];
+
+                var week7 = 0, week30 = 0;
+                Object.entries(days).forEach(function(entry) {
+                    if (entry[0] >= weekAgo)  week7  += entry[1];
+                    if (entry[0] >= monthAgo) week30 += entry[1];
+                });
+
+                // Last seen
+                var lastSeenStr = '—';
+                if (data.lastSeen && data.lastSeen.toDate) {
+                    var ls = data.lastSeen.toDate();
+                    lastSeenStr = ls.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                }
+
+                // Stat tiles row
+                var html = '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:10px; margin-bottom:16px;">';
+                [
+                    { label: 'All-Time Hits', value: (data.total || 0).toLocaleString(), color: '#10b981' },
+                    { label: 'Today',         value: (data.today || 0).toLocaleString(),  color: '#38bdf8' },
+                    { label: 'Last 7 Days',   value: week7.toLocaleString(),               color: '#38bdf8' },
+                    { label: 'Last 30 Days',  value: week30.toLocaleString(),              color: '#38bdf8' },
+                    { label: 'Last Seen',     value: lastSeenStr,                          color: '#94a3b8', small: true }
+                ].forEach(function(c) {
+                    html += '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'\
+                        + '<div style="font-size:' + (c.small ? '0.88' : '1.5') + 'em; font-weight:700; color:' + c.color + '; line-height:1.2;">' + c.value + '</div>'\
+                        + '<div style="font-size:0.68em; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-top:3px;">' + c.label + '</div>'\
+                        + '</div>';
+                });
+                html += '</div>';
+
+                // 14-day sparkline
+                var last14 = [];
+                for (var i = 13; i >= 0; i--) {
+                    var d = new Date(Date.now() - i * 864e5).toISOString().split('T')[0];
+                    last14.push({ date: d, hits: days[d] || 0 });
+                }
+                var maxHits = Math.max.apply(null, last14.map(function(d) { return d.hits; })) || 1;
+
+                html += '<div style="display:flex; align-items:flex-end; gap:3px; height:40px; margin-bottom:8px;">';
+                last14.forEach(function(d) {
+                    var h = Math.max(2, Math.round((d.hits / maxHits) * 36));
+                    var isToday = d.date === today;
+                    html += '<div title="' + escapeHtml(d.date) + ': ' + d.hits + ' hits" style="flex:1; height:' + h + 'px; background:' + (isToday ? '#10b981' : 'rgba(16,185,129,0.3)') + '; border-radius:2px 2px 0 0; cursor:default;"></div>';
+                });
+                html += '</div>';
+                html += '<div style="font-size:0.68em; color:var(--text-muted); letter-spacing:0.04em;">14-day hit history &middot; today highlighted</div>';
+
+                container.innerHTML = html;
+            }).catch(function(err) {
+                container.innerHTML = '<div style="color:#ef4444; font-size:0.82em;">Failed to load: ' + escapeHtml(err.message) + '</div>';
+            });
+        }
+
         function loadPlatformAnalytics() {
             var container = document.getElementById('adminAnalytics');
             if (!container || !fbDb) return;
