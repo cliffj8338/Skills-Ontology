@@ -718,7 +718,7 @@
     <div class="mid-grid">
       <div class="card">
         <div class="card-label" style="color: var(--emerald);">Synthetic Capacity</div>
-        <canvas id="gauge-canvas" width="260" height="170"></canvas>
+        <canvas id="gauge-canvas" width="360" height="240"></canvas>
         <div class="gauge-caption" id="gauge-caption">—</div>
       </div>
 
@@ -738,7 +738,7 @@
         <div style="font-size:10px;color:var(--slate2);font-family:Calibri,'Segoe UI',monospace;margin-bottom:4px;letter-spacing:0.5px;text-transform:uppercase;">+ Strategic (speculative)</div>
         <div class="eq-row"><span class="eq-key">Φ(Oₙ · V)</span><span class="eq-val" id="eq-phi" style="color: var(--gold);">—</span></div>
         <div class="eq-row" style="border-top:1px solid var(--border);padding-top:6px;margin-top:4px;margin-bottom:8px;">
-          <span class="eq-key" style="color:var(--gold);font-weight:600;">Strategic Ceiling ROI</span>
+          <span class="eq-key" id="eq-ceil-label" style="color:var(--gold);font-weight:600;">Strategic Ceiling ROI</span>
           <span class="eq-val" id="eq-ceil-roi" style="color:var(--gold);">—</span>
         </div>
         <div class="eq-row" style="border-top:1px solid var(--border2);padding-top:6px;"><span class="eq-key" style="color:var(--dim);">I + O_trans + Ω</span><span class="eq-val" id="eq-denom" style="color: var(--coral);">—</span></div>
@@ -887,12 +887,12 @@ const elasticityChart = new Chart(chartCtx, {
     scales: {
       x: {
         ticks: { color: '#475569', font: { family: "'DM Mono', monospace", size: 9 } },
-        grid: { color: '#0f172a' },
+        grid: { color: '#1e3a5f', borderDash: [4, 4] },
         border: { color: '#1e293b' }
       },
       y: {
         ticks: { color: '#475569', font: { family: "'DM Mono', monospace", size: 9 }, callback: v => `${v}×` },
-        grid: { color: '#0f172a' },
+        grid: { color: '#1e3a5f', borderDash: [4, 4] },
         border: { color: '#1e293b' }
       }
     }
@@ -902,31 +902,31 @@ const elasticityChart = new Chart(chartCtx, {
 // ── GAUGE ──────────────────────────────────────────────────────
 function drawGauge(adoptingFTEs, synthFTEs, totalFTEs) {
   const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-  // Three-ring design (Apple Watch style):
-  //   Outer ring  — Total workforce (always full, slate)
-  //   Middle ring — Adopting workforce (% using AI, emerald)
-  //   Inner ring  — Synthetic capacity gained (AI lift, gold)
   const canvas = document.getElementById('gauge-canvas');
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const cx = 110, cy = 110;
+  // Fix light mode: fill canvas with card background so it's never transparent-dark
+  if (isLight) {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  const cx = 155, cy = 140;
   const startAngle = Math.PI * 0.75;
   const sweep      = Math.PI * 1.5;  // 270 deg arc
   const endFull    = startAngle + sweep;
-  const GAP = 12;  // px between rings
-  const W = 9;     // ring width
+  const GAP = 14;  // px between rings
+  const W = 11;    // ring width
 
-  function drawRing(radius, fraction, trackColor, fillColor, label, labelBelow) {
+  function drawRing(radius, fraction, trackColor, fillColor) {
     const fillEnd = startAngle + sweep * Math.min(fraction, 1);
-    // Track
     ctx.beginPath();
     ctx.arc(cx, cy, radius, startAngle, endFull);
     ctx.strokeStyle = trackColor;
     ctx.lineWidth = W;
     ctx.lineCap = 'round';
     ctx.stroke();
-    // Fill
     if (fraction > 0) {
       ctx.beginPath();
       ctx.arc(cx, cy, radius, startAngle, fillEnd);
@@ -935,7 +935,6 @@ function drawGauge(adoptingFTEs, synthFTEs, totalFTEs) {
       ctx.lineCap = 'round';
       ctx.stroke();
     }
-    // End-cap dot for visual closure
     if (fraction >= 1) {
       const dotX = cx + radius * Math.cos(endFull);
       const dotY = cy + radius * Math.sin(endFull);
@@ -946,49 +945,47 @@ function drawGauge(adoptingFTEs, synthFTEs, totalFTEs) {
     }
   }
 
-  const r3 = 82;  // outer — total workforce
-  const r2 = 82 - W - GAP;  // middle — adopters
-  const r1 = 82 - (W + GAP) * 2;  // inner — synthetic gain
+  const r3 = 108;
+  const r2 = 108 - W - GAP;
+  const r1 = 108 - (W + GAP) * 2;
 
   const adoptFraction  = Math.min(adoptingFTEs / totalFTEs, 1);
-  const synthFraction  = Math.min(synthFTEs / (totalFTEs * 0.20), 1);  // full = 20% gain
+  const synthFraction  = Math.min(synthFTEs / (totalFTEs * 0.20), 1);
 
-  // Outer: total workforce — always full arc, dim slate
-  // Middle: adopters — fraction of workforce
-  drawRing(r2, adoptFraction, isLight ? '#e2e8f0' : '#0a1628', '#10b981', '', '');
-  // Inner: synthetic capacity — gain as % of workforce ceiling
-  drawRing(r1, synthFraction, isLight ? '#e2e8f0' : '#0a1628', '#f59e0b', '', '');
+  const trackColor = isLight ? '#dde4ed' : '#0a1628';
+  drawRing(r2, adoptFraction, trackColor, '#10b981');
+  drawRing(r1, synthFraction, trackColor, '#f59e0b');
 
   // Center labels
   const synthLabel = synthFTEs < 1 ? '<1' : '+' + (synthFTEs >= 1000 ? fmtX(Math.round(synthFTEs)) : Math.round(synthFTEs));
   ctx.textAlign = 'center';
-  ctx.font = "700 20px 'Playfair Display', Georgia, serif";
-  ctx.fillStyle = '#f59e0b';
+  ctx.font = "700 26px 'Playfair Display', Georgia, serif";
+  ctx.fillStyle = isLight ? '#b45309' : '#f59e0b';
   ctx.fillText(synthLabel, cx, cy - 4);
 
-  ctx.font = "400 8px 'DM Mono', monospace";
+  ctx.font = "400 9px 'DM Mono', monospace";
   ctx.letterSpacing = '1px';
   ctx.fillStyle = '#64748b';
-  ctx.fillText('SYNTHETIC', cx, cy + 12);
-  ctx.fillText('CAPACITY', cx, cy + 22);
+  ctx.fillText('SYNTHETIC', cx, cy + 14);
+  ctx.fillText('CAPACITY', cx, cy + 26);
 
   // Ring legend — right side dots
-  const legendX = cx + r2 + 16;
+  const legendX = cx + r3 + 18;
   const rows = [
     { color: '#10b981', text: 'Adopters' },
     { color: '#f59e0b', text: 'AI Gain' },
   ];
   rows.forEach((row, i) => {
-    const y = cy - 9 + i * 18;
+    const y = cy - 10 + i * 22;
     ctx.beginPath();
-    ctx.arc(legendX, y, 4, 0, Math.PI * 2);
+    ctx.arc(legendX, y, 5, 0, Math.PI * 2);
     ctx.fillStyle = row.color;
     ctx.fill();
-    ctx.font = "400 8px 'DM Mono', monospace";
-    ctx.fillStyle = '#64748b';
+    ctx.font = "400 9px 'DM Mono', monospace";
+    ctx.fillStyle = isLight ? '#475569' : '#64748b';
     ctx.textAlign = 'left';
     ctx.letterSpacing = '0px';
-    ctx.fillText(row.text, legendX + 8, y + 3);
+    ctx.fillText(row.text, legendX + 10, y + 3);
   });
 }
 
@@ -1181,7 +1178,11 @@ function update() {
   document.getElementById('kpi-return-note').textContent = view === 'pressbox' ? 'Incl. revealed outcomes' : 'Labor value reclaimed';
   // Equation breakdown — floor/ceiling split
   document.getElementById('eq-floor-roi').textContent = floorROI.toFixed(1) + '×';
-  document.getElementById('eq-ceil-roi').textContent  = ceilROI.toFixed(1) + '×';
+  const ceilEl = document.getElementById('eq-ceil-roi');
+  ceilEl.textContent = ceilROI.toFixed(1) + '×';
+  const ceilColor = view === 'pressbox' ? 'var(--emerald)' : 'var(--gold)';
+  ceilEl.style.color = ceilColor;
+  document.getElementById('eq-ceil-label').style.color = ceilColor;
   document.getElementById('kpi-roi').style.color   = roiColor;
   const retEx = document.getElementById('return-explain');
   if (retEx) retEx.style.display = view === 'pressbox' ? 'block' : 'none';
@@ -1306,11 +1307,13 @@ function toggleTheme() {
   html.setAttribute('data-theme', isLight ? 'dark' : 'light');
   document.getElementById('theme-btn').innerHTML = isLight ? '&#9728; Light' : '&#9790; Dark';
   const lc = isLight ? '#64748b' : '#475569';
-  const gc = isLight ? '#e2e8f0' : '#0f172a';
+  const gc = isLight ? '#e2e8f0' : '#1e3a5f';
   elasticityChart.options.scales.x.ticks.color = lc;
   elasticityChart.options.scales.y.ticks.color = lc;
   elasticityChart.options.scales.x.grid.color  = gc;
   elasticityChart.options.scales.y.grid.color  = gc;
+  elasticityChart.options.scales.x.grid.borderDash = [4, 4];
+  elasticityChart.options.scales.y.grid.borderDash = [4, 4];
   elasticityChart.update();
   update();
 }
