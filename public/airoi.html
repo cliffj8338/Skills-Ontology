@@ -649,10 +649,11 @@
         <span class="slider-sub" style="margin:0;">Seat cost / yr</span>
         <span id="inv-seat" style="font-size:13px; color:var(--white); font-family:'DM Mono',monospace; font-weight:600;">—</span>
       </div>
-      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px;">
         <span class="slider-sub" style="margin:0;">Revealed outcomes</span>
         <span id="val-impos" style="font-size:13px; color:var(--gold); font-family:'DM Mono',monospace; font-weight:700;">—</span>
       </div>
+      <div id="impos-cap-note" style="display:none; font-size:10px; color:var(--coral); font-family:'DM Mono',monospace; text-align:right; margin-bottom:6px; line-height:1.4;"></div>
       <div style="border-top:1px solid var(--border); padding-top:8px; display:flex; justify-content:space-between; align-items:baseline;">
         <span style="font-size:12px; color:var(--gold); font-family:'DM Mono',monospace; letter-spacing:1px; font-weight:600;">TOTAL INVESTMENT</span>
         <span id="val-invest" style="font-size:15px; color:var(--gold); font-family:'DM Mono',monospace; font-weight:700;">—</span>
@@ -1117,6 +1118,16 @@ function update() {
   // Cap strategic/impossible value at 10% of total annual labor cost so it scales with org size.
   // Prevents a $50M input from dominating a small-org calculation.
   const impossVCapped  = Math.min(impossV, totalLaborCost * 0.10);
+  const imposCapActive = impossVCapped < impossV;
+  const imposCapEl = document.getElementById('impos-cap-note');
+  if (imposCapEl) {
+    if (imposCapActive) {
+      imposCapEl.textContent = '⚠ Model cap: ' + fmt(impossVCapped) + ' used (10% of labor cost)';
+      imposCapEl.style.display = 'block';
+    } else {
+      imposCapEl.style.display = 'none';
+    }
+  }
 
   // Cost denominator: AI investment + change management (15%) + ongoing maintenance (8%)
   const Otrans         = invest * OTRANS_PCT;
