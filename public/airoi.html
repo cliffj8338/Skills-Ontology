@@ -1006,7 +1006,10 @@ function fmtX(n) {
 }
 function pct(n) { return `${(n * 100).toFixed(1)}%`; }
 function fillPct(id, val, min, max) {
-  const pct = ((val - min) / (max - min)) * 100;
+  const sliderEl = document.getElementById(id);
+  const actualMin = sliderEl ? parseFloat(sliderEl.min) : min;
+  const actualMax = sliderEl ? parseFloat(sliderEl.max) : max;
+  const pct = Math.max(0, Math.min(100, ((val - actualMin) / (actualMax - actualMin)) * 100));
   document.getElementById('fill-' + id).style.width = pct + '%';
 }
 
