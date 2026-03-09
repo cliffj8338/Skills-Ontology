@@ -594,6 +594,12 @@
     line-height: 1; user-select: none; text-decoration: none;
   }
   .tip-icon:hover { background: rgba(16,185,129,0.3); border-color: var(--emerald); }
+  .active-press .tip-icon, .active-side .tip-icon {
+    background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.5); color: #fff;
+  }
+  .active-press .tip-icon:hover, .active-side .tip-icon:hover {
+    background: rgba(255,255,255,0.35); border-color: #fff;
+  }
   #tip-box {
     position: fixed; z-index: 9999; max-width: 280px; pointer-events: none;
     background: var(--surface); border: 1px solid var(--emerald);
