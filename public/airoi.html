@@ -21,6 +21,8 @@
 <!-- Favicon -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTAiIGZpbGw9IiMwNTBhMTQiLz4KICA8Y2lyY2xlIGN4PSIyOCIgY3k9IjM0IiByPSIxOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMGExNjI4IiBzdHJva2Utd2lkdGg9IjUiIHN0cm9rZS1kYXNoYXJyYXk9IjcwLjcgMjguMyIgc3Ryb2tlLWRhc2hvZmZzZXQ9Ii0xNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGNpcmNsZSBjeD0iMjgiIGN5PSIzNCIgcj0iMTgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzEwYjk4MSIgc3Ryb2tlLXdpZHRoPSI1IiBzdHJva2UtZGFzaGFycmF5PSI0OSA0OS45IiBzdHJva2UtZGFzaG9mZnNldD0iLTE0IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8Y2lyY2xlIGN4PSIyOCIgY3k9IjM0IiByPSIxMSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMGExNjI4IiBzdHJva2Utd2lkdGg9IjQiIHN0cm9rZS1kYXNoYXJyYXk9IjQzLjQgMTcuMyIgc3Ryb2tlLWRhc2hvZmZzZXQ9Ii04LjciIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxjaXJjbGUgY3g9IjI4IiBjeT0iMzQiIHI9IjExIiBmaWxsPSJub25lIiBzdHJva2U9IiNmNTllMGIiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWRhc2hhcnJheT0iMjYgMzQuNiIgc3Ryb2tlLWRhc2hvZmZzZXQ9Ii04LjciIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDx0ZXh0IHg9IjUwIiB5PSIyMiIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzEwYjk4MSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UjwvdGV4dD4KICA8dGV4dCB4PSI1MCIgeT0iNDAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iI2Y1OWUwYiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TzwvdGV4dD4KICA8dGV4dCB4PSI1MCIgeT0iNTQiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iIzM4YmRmOCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+STwvdGV4dD4KPC9zdmc+">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -553,6 +555,7 @@
   <div style="display:flex;align-items:center;">
     <button class="about-btn" onclick="openAbout()">&#9432; About this tool</button>
     <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">☀ Light</button>
+    <button class="theme-btn" onclick="openExportModal()" style="margin-right:10px;" title="Export to PDF">&#8681; Export PDF</button>
   <div class="toggle">
     <button class="toggle-btn" id="btn-side"  onclick="setView('sideline')" title="Sideline View: Traditional ROI — labor savings only. What you can defend with hard numbers in any room.">Sideline View</button>
     <button class="toggle-btn active-press" id="btn-press" onclick="setView('pressbox')" title="Press Box View: Elastic ROI — adds strategic outcomes beyond labor savings. The full picture, including value most models miss.">Press Box View</button>
@@ -1399,13 +1402,140 @@ function closeAbout() {
 function handleOverlayClick(e) {
   if (e.target === document.getElementById('about-modal')) closeAbout();
 }
-// Show on first visit
-if (!localStorage.getItem('airoi-seen')) {
-  window.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => openAbout(), 300);
-  });
+// ── EXPORT MODAL ──────────────────────────────────────────
+var _expTheme = 'dark';
+var _expFormat = 'slide';
+
+function openExportModal() {
+  // Default to current page theme
+  _expTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  setExpTheme(_expTheme);
+  setExpFormat(_expFormat);
+  document.getElementById('export-modal').style.display = 'flex';
+  document.getElementById('exp-status').textContent = '';
 }
+function closeExportModal() {
+  document.getElementById('export-modal').style.display = 'none';
+}
+function setExpTheme(t) {
+  _expTheme = t;
+  var dark = document.getElementById('exp-dark');
+  var light = document.getElementById('exp-light');
+  var em = 'var(--emerald)', em10 = 'rgba(16,185,129,0.1)', bd = 'var(--border)', none = 'transparent', dm = 'var(--dim)';
+  dark.style.borderColor  = t === 'dark'  ? em  : bd;
+  dark.style.background   = t === 'dark'  ? em10 : none;
+  dark.style.color        = t === 'dark'  ? em  : dm;
+  light.style.borderColor = t === 'light' ? em  : bd;
+  light.style.background  = t === 'light' ? em10 : none;
+  light.style.color       = t === 'light' ? em  : dm;
+}
+function setExpFormat(f) {
+  _expFormat = f;
+  var slide = document.getElementById('exp-slide');
+  var print = document.getElementById('exp-print');
+  var em = 'var(--emerald)', em10 = 'rgba(16,185,129,0.1)', bd = 'var(--border)', none = 'transparent', dm = 'var(--dim)';
+  slide.style.borderColor = f === 'slide' ? em  : bd;
+  slide.style.background  = f === 'slide' ? em10 : none;
+  slide.style.color       = f === 'slide' ? em  : dm;
+  print.style.borderColor = f === 'print' ? em  : bd;
+  print.style.background  = f === 'print' ? em10 : none;
+  print.style.color       = f === 'print' ? em  : dm;
+}
+
+async function runExport() {
+  var btn = document.getElementById('exp-go-btn');
+  var status = document.getElementById('exp-status');
+  btn.disabled = true;
+  btn.textContent = 'Rendering…';
+  status.textContent = 'Capturing page — this takes a few seconds.';
+
+  // Apply export theme temporarily if different from current
+  var originalTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+  var themeChanged = (_expTheme === 'light') !== (originalTheme === 'light');
+  if (themeChanged) {
+    document.documentElement.setAttribute('data-theme', _expTheme === 'light' ? 'light' : '');
+    await new Promise(function(r) { setTimeout(r, 400); });
+  }
+
+  try {
+    var target = document.querySelector('.layout');
+    var canvas = await html2canvas(target, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: _expTheme === 'light' ? '#f0f4f8' : '#050a14',
+      logging: false,
+      onclone: function(doc) {
+        // Ensure charts render in clone
+        doc.querySelectorAll('canvas').forEach(function(c) {
+          c.style.display = 'block';
+        });
+      }
+    });
+
+    var { jsPDF } = window.jspdf;
+    var imgData = canvas.toDataURL('image/png');
+    var imgW = canvas.width;
+    var imgH = canvas.height;
+
+    var pdf, pageW, pageH;
+    if (_expFormat === 'slide') {
+      // 16:9 landscape in points (1920x1080pt scaled to 960x540 for reasonable file size)
+      pageW = 960; pageH = 540;
+      pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: [pageW, pageH] });
+    } else {
+      // Letter portrait
+      pageW = 612; pageH = 792;
+      pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+    }
+
+    // Scale image to fit page with padding
+    var pad = _expFormat === 'slide' ? 20 : 28;
+    var availW = pageW - pad * 2;
+    var availH = pageH - pad * 2;
+    var ratio = Math.min(availW / imgW, availH / imgH);
+    var drawW = imgW * ratio;
+    var drawH = imgH * ratio;
+    var offsetX = pad + (availW - drawW) / 2;
+    var offsetY = pad + (availH - drawH) / 2;
+
+    // Background fill
+    pdf.setFillColor(_expTheme === 'light' ? '#f0f4f8' : '#050a14');
+    pdf.rect(0, 0, pageW, pageH, 'F');
+
+    pdf.addImage(imgData, 'PNG', offsetX, offsetY, drawW, drawH);
+
+    // Footer
+    pdf.setFontSize(7);
+    pdf.setTextColor(_expTheme === 'light' ? '#94a3b8' : '#475569');
+    var now = new Date();
+    var stamp = now.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+    pdf.text('Jurkiewicz Synthetic Capacity Model  ·  myblueprint.work/airoi  ·  ' + stamp, pageW / 2, pageH - 10, { align: 'center' });
+
+    var fname = 'airoi-' + (_expFormat === 'slide' ? 'slide' : 'print') + '-' + (_expTheme) + '.pdf';
+    pdf.save(fname);
+
+    status.textContent = '✓ Downloaded.';
+    btn.textContent = 'Generate PDF →';
+    btn.disabled = false;
+  } catch(err) {
+    status.textContent = 'Export failed. Try again.';
+    btn.textContent = 'Generate PDF →';
+    btn.disabled = false;
+    console.error('Export error:', err);
+  } finally {
+    // Restore original theme
+    if (themeChanged) {
+      document.documentElement.setAttribute('data-theme', originalTheme === 'light' ? 'light' : '');
+    }
+  }
+}
+
+document.getElementById('export-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeExportModal();
+});
 </script>
+
 
 <!-- About Modal -->
 <div class="modal-overlay" id="about-modal" style="display:none;" onclick="handleOverlayClick(event)">
@@ -1428,6 +1558,36 @@ if (!localStorage.getItem('airoi-seen')) {
      Increments analytics/airoi in Firestore on each page load.
      Uses FieldValue.increment — no read required, works unauthenticated.
      ──────────────────────────────────────────────────────────────────────── -->
+<!-- Export Modal -->
+<div id="export-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center;">
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:32px 36px; max-width:400px; width:90%; position:relative;">
+    <div style="font-family:'DM Sans',sans-serif; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--dim); margin-bottom:8px;">Export</div>
+    <div style="font-family:'DM Sans',sans-serif; font-size:20px; font-weight:800; letter-spacing:-0.02em; color:var(--white); margin-bottom:24px;">Download as PDF</div>
+
+    <div style="margin-bottom:20px;">
+      <div style="font-size:11px; color:var(--dim); font-family:'DM Mono',monospace; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px;">Theme</div>
+      <div style="display:flex; gap:10px;">
+        <button id="exp-dark" onclick="setExpTheme('dark')" style="flex:1; padding:10px; border-radius:6px; border:1px solid var(--emerald); background:rgba(16,185,129,0.1); color:var(--emerald); font-family:'DM Mono',monospace; font-size:12px; cursor:pointer;">◼ Dark</button>
+        <button id="exp-light" onclick="setExpTheme('light')" style="flex:1; padding:10px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--dim); font-family:'DM Mono',monospace; font-size:12px; cursor:pointer;">◻ Light</button>
+      </div>
+    </div>
+
+    <div style="margin-bottom:28px;">
+      <div style="font-size:11px; color:var(--dim); font-family:'DM Mono',monospace; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px;">Format</div>
+      <div style="display:flex; gap:10px;">
+        <button id="exp-slide" onclick="setExpFormat('slide')" style="flex:1; padding:10px; border-radius:6px; border:1px solid var(--emerald); background:rgba(16,185,129,0.1); color:var(--emerald); font-family:'DM Mono',monospace; font-size:12px; cursor:pointer;">▬ Slide (16:9)</button>
+        <button id="exp-print" onclick="setExpFormat('print')" style="flex:1; padding:10px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--dim); font-family:'DM Mono',monospace; font-size:12px; cursor:pointer;">▯ Print (Portrait)</button>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px;">
+      <button onclick="closeExportModal()" style="flex:1; padding:11px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--dim); font-family:'DM Mono',monospace; font-size:12px; cursor:pointer;">Cancel</button>
+      <button onclick="runExport()" id="exp-go-btn" style="flex:2; padding:11px; border-radius:6px; border:none; background:var(--emerald); color:#fff; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:700; cursor:pointer; letter-spacing:0.01em;">Generate PDF →</button>
+    </div>
+    <div id="exp-status" style="margin-top:14px; font-size:11px; color:var(--dim); font-family:'DM Mono',monospace; text-align:center; min-height:16px;"></div>
+  </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 <script>
