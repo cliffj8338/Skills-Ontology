@@ -1749,10 +1749,10 @@ async function runExport() {
     // ── 3. Capture right panel ──────────────────────────────────
     // Render at a fixed logical width that matches a reasonable column width.
     // Scale=2 for sharpness. Do NOT constrain height — let content be full length.
-    var renderW = 860;  // logical px — content column width
+    var renderW = 1100;  // logical px — both panels
     status.textContent = 'Rendering charts…';
 
-    var target = document.querySelector('.right-panel');
+    var target = document.querySelector('.layout');
     var contentCanvas = await html2canvas(target, {
       scale: 2,
       useCORS: true,
@@ -1761,15 +1761,27 @@ async function runExport() {
       logging: false,
       windowWidth: renderW + 40,
       onclone: function(doc) {
-        var el = doc.querySelector('.right-panel');
-        if (el) {
-          el.style.width = renderW + 'px';
-          el.style.minWidth = renderW + 'px';
-          el.style.maxWidth = renderW + 'px';
-          el.style.padding = '16px 24px';
-          el.style.overflowY = 'visible';
-          el.style.height = 'auto';
-          el.style.position = 'static';
+        var layout = doc.querySelector('.layout');
+        if (layout) {
+          layout.style.width = renderW + 'px';
+          layout.style.minWidth = renderW + 'px';
+          layout.style.maxWidth = renderW + 'px';
+          layout.style.display = 'grid';
+          layout.style.gridTemplateColumns = '280px 1fr';
+          layout.style.height = 'auto';
+          layout.style.minHeight = '0';
+        }
+        var left = doc.querySelector('.left-panel');
+        if (left) {
+          left.style.overflowY = 'visible';
+          left.style.height = 'auto';
+          left.style.position = 'static';
+        }
+        var right = doc.querySelector('.right-panel');
+        if (right) {
+          right.style.overflowY = 'visible';
+          right.style.height = 'auto';
+          right.style.padding = '16px 20px';
         }
         doc.querySelectorAll('canvas').forEach(function(c) { c.style.display = 'block'; });
       }
