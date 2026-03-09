@@ -1487,6 +1487,7 @@ async function runExport() {
     status.textContent = '✓ Downloaded.';
     btn.textContent = 'Generate PDF →';
     btn.disabled = false;
+    setTimeout(function() { closeExportModal(); }, 1200);
   } catch(err) {
     status.textContent = 'Export failed. Try again.';
     btn.textContent = 'Generate PDF →';
@@ -1529,6 +1530,7 @@ document.getElementById('export-modal').addEventListener('click', function(e) {
 <!-- Export Modal -->
 <div id="export-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center;">
   <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:32px 36px; max-width:400px; width:90%; position:relative;">
+    <button onclick="closeExportModal()" style="position:absolute; top:14px; right:16px; background:none; border:none; color:var(--dim); font-size:18px; cursor:pointer; line-height:1;" title="Close">&times;</button>
     <div style="font-family:'DM Sans',sans-serif; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--dim); margin-bottom:8px;">Export</div>
     <div style="font-family:'DM Sans',sans-serif; font-size:20px; font-weight:800; letter-spacing:-0.02em; color:var(--white); margin-bottom:24px;">Download as PDF</div>
 
