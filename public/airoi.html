@@ -1480,7 +1480,7 @@ function update() {
   const daysPerAdopter = (hrsPerAdopter / 8).toFixed(1);
   const synthRounded = Math.round(synthFTEs);
   document.getElementById('gauge-caption').innerHTML =
-    `Your <strong style="color:var(--white)">${fmtX(ftes)}-person firm</strong> gained the equivalent of <strong style="color:var(--emerald)">+${synthRounded} additional people</strong> — capacity you added without hiring. Each adopter reclaims <strong style="color:var(--white)">~${daysPerAdopter} days/yr</strong> of productive time.`;
+    `Your <strong style="color:var(--text-strong, var(--white))">${fmtX(ftes)}-person firm</strong> gained the equivalent of <strong style="color:var(--emerald)">+${synthRounded} additional people</strong> — capacity you added without hiring. Each adopter reclaims <strong style="color:var(--text-strong, var(--white))">~${daysPerAdopter} days/yr</strong> of productive time.`;
 
   // Adoption Curve: ROI at each adoption % level, for Y1/Y2/Y4
   // Answers: "what's our ROI if we push adoption from 25% to 75%?"
