@@ -560,6 +560,13 @@
     .author-tile .author-links a { width: 100%; justify-content: center; }
     .author-tile .author-links div { text-align: left !important; }
   }
+  /* Citations tile placement by breakpoint */
+  .citations-desktop { display: block; }
+  .citations-mobile  { display: none; }
+  @media (max-width: 900px) {
+    .citations-desktop { display: none; }
+    .citations-mobile  { display: block; padding: 16px; }
+  }
   .about-btn {
     background: transparent;
     border: 1px solid var(--border);
@@ -789,6 +796,7 @@
       <div class="constants-row"><span class="const-key">&#937; (Obsolescence Risk)</span><span class="const-val">8% annual</span></div>
     </div>
 
+    <div class="citations-desktop">
     <div class="constants-box" style="margin-top:10px;">
       <div class="section-label" style="margin-bottom:10px; color:var(--slate2);">&#9432; Sources &amp; Citations</div>
       <div style="font-family:Calibri,'Segoe UI',monospace; font-size:10px; color:var(--slate2); line-height:1.5; margin-bottom:10px;">Model constants and benchmarks are grounded in published research. Interrogate the inputs.</div>
@@ -814,6 +822,7 @@
           <div style="font-family:Calibri,'Segoe UI',sans-serif; font-size:11px; color:var(--dim); line-height:1.4;">AI Budget &amp; ROI Survey &mdash; O_trans friction tax and &#937; obsolescence risk calibration</div>
         </a>
       </div>
+    </div>
     </div>
   </div>
 
@@ -1008,9 +1017,34 @@
   </div>
 </div>
 
-<script>
-// ── STATE ──────────────────────────────────────────────────────
-let view = 'pressbox';
+<div class="citations-mobile">
+  <div class="constants-box">
+    <div class="section-label" style="margin-bottom:10px; color:var(--slate2);">&#9432; Sources &amp; Citations</div>
+    <div style="font-family:Calibri,'Segoe UI',monospace; font-size:10px; color:var(--slate2); line-height:1.5; margin-bottom:10px;">Model constants and benchmarks are grounded in published research. Interrogate the inputs.</div>
+    <div style="display:flex; flex-direction:column; gap:7px;">
+      <a href="https://assets.ctfassets.net/y6oq7udscnj8/7dBXSxrRRrVWWrNMKVnOlm/3a1ec5429f87a53a5af7c5cc7f93f22b/IDC_Business_Opportunity_of_AI.pdf" target="_blank" rel="noopener" style="display:block; padding:7px 10px; background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.2); border-radius:5px; text-decoration:none;" onmouseover="this.style.borderColor='rgba(16,185,129,0.5)'" onmouseout="this.style.borderColor='rgba(16,185,129,0.2)'">
+        <div style="font-family:'DM Mono',monospace; font-size:9px; color:var(--emerald); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:2px;">IDC / Microsoft &middot; 2024</div>
+        <div style="font-family:Calibri,'Segoe UI',sans-serif; font-size:11px; color:var(--dim); line-height:1.4;">Business Opportunity of AI &mdash; $3.70 return per $1 invested, 34% hours saved, 40% productivity lift</div>
+      </a>
+      <a href="https://www.bcg.com/publications/2023/how-people-create-and-destroy-value-with-gen-ai" target="_blank" rel="noopener" style="display:block; padding:7px 10px; background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.2); border-radius:5px; text-decoration:none;" onmouseover="this.style.borderColor='rgba(16,185,129,0.5)'" onmouseout="this.style.borderColor='rgba(16,185,129,0.2)'">
+        <div style="font-family:'DM Mono',monospace; font-size:9px; color:var(--emerald); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:2px;">BCG / Harvard &middot; 2023</div>
+        <div style="font-family:Calibri,'Segoe UI',sans-serif; font-size:11px; color:var(--dim); line-height:1.4;">How People Create and Destroy Value with Gen AI &mdash; displacement rate ceiling, redeployment efficiency</div>
+      </a>
+      <a href="https://www.nber.org/papers/w31161" target="_blank" rel="noopener" style="display:block; padding:7px 10px; background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.2); border-radius:5px; text-decoration:none;" onmouseover="this.style.borderColor='rgba(16,185,129,0.5)'" onmouseout="this.style.borderColor='rgba(16,185,129,0.2)'">
+        <div style="font-family:'DM Mono',monospace; font-size:9px; color:var(--emerald); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:2px;">NBER &middot; 2023</div>
+        <div style="font-family:Calibri,'Segoe UI',sans-serif; font-size:11px; color:var(--dim); line-height:1.4;">Generative AI at Work (Brynjolfsson et al.) &mdash; 14% productivity gain, &#956; redeployment basis</div>
+      </a>
+      <a href="https://www.mckinsey.com/capabilities/mckinsey-digital/our-insights/the-economic-potential-of-generative-ai" target="_blank" rel="noopener" style="display:block; padding:7px 10px; background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.2); border-radius:5px; text-decoration:none;" onmouseover="this.style.borderColor='rgba(16,185,129,0.5)'" onmouseout="this.style.borderColor='rgba(16,185,129,0.2)'">
+        <div style="font-family:'DM Mono',monospace; font-size:9px; color:var(--emerald); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:2px;">McKinsey Global Institute &middot; 2023</div>
+        <div style="font-family:Calibri,'Segoe UI',sans-serif; font-size:11px; color:var(--dim); line-height:1.4;">Economic Potential of Generative AI &mdash; &#916;MPL multiplier, strategic value ceiling benchmarks</div>
+      </a>
+      <a href="https://www.gartner.com/en/newsroom/press-releases/2024-05-21-gartner-survey-finds-that-ai-budgets-will-increase-in-2024" target="_blank" rel="noopener" style="display:block; padding:7px 10px; background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.2); border-radius:5px; text-decoration:none;" onmouseover="this.style.borderColor='rgba(16,185,129,0.5)'" onmouseout="this.style.borderColor='rgba(16,185,129,0.2)'">
+        <div style="font-family:'DM Mono',monospace; font-size:9px; color:var(--emerald); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:2px;">Gartner &middot; 2024</div>
+        <div style="font-family:Calibri,'Segoe UI',sans-serif; font-size:11px; color:var(--dim); line-height:1.4;">AI Budget &amp; ROI Survey &mdash; O_trans friction tax and &#937; obsolescence risk calibration</div>
+      </a>
+    </div>
+  </div>
+</div>
 let rampYear = 2;
 let perSeatCost = 2000;  // $/adopter/year — set via badge selector
 const MU = 0.6, DMPL_MULT = 1.5, OTRANS_PCT = 0.15, OMEGA_PCT = 0.08;
