@@ -1632,6 +1632,7 @@ async function runExport() {
     pdf.text('Jurkiewicz Synthetic Capacity Model  ·  myblueprint.work/airoi  ·  ' + stamp, pageW / 2, pageH - 10, { align: 'center' });
 
     pdf.save('airoi-' + _expTheme + '.pdf');
+    if (window._airoiTrackExport) window._airoiTrackExport();
 
     status.textContent = '✓ Downloaded.';
     btn.textContent = 'Generate PDF →';
@@ -1836,13 +1837,34 @@ if (exportModalEl) {
     const app = firebase.apps.find(function(a) { return a.name === appName; })
       || firebase.initializeApp(firebaseConfig, appName);
     const db = firebase.firestore(app);
-    const today = new Date().toISOString().split('T')[0];
     const INC = firebase.firestore.FieldValue.increment(1);
     const TS  = firebase.firestore.FieldValue.serverTimestamp();
     const ref = db.collection('analytics').doc('airoi');
+
+    // Hour bucket for last-24h window: "YYYY-MM-DDTHH"
+    const hourKey = new Date().toISOString().slice(0, 13);
+
     var update = { total: INC, lastSeen: TS };
-    update['days.' + today] = INC;
+    update['hours.' + hourKey] = INC;
     ref.set(update, { merge: true }).catch(function() {});
+
+    // Track time on page — write duration on unload
+    var _pageStart = Date.now();
+    window.addEventListener('beforeunload', function() {
+      try {
+        var dur = Math.round((Date.now() - _pageStart) / 1000); // seconds
+        if (dur < 5 || dur > 3600) return; // ignore bounces and left-open tabs
+        ref.set({
+          totalDuration: firebase.firestore.FieldValue.increment(dur),
+          durationSamples: INC
+        }, { merge: true }).catch(function() {});
+      } catch(e) {}
+    });
+
+    // Expose export tracker globally so runExport() can call it
+    window._airoiTrackExport = function() {
+      try { ref.set({ exports: INC }, { merge: true }).catch(function() {}); } catch(e) {}
+    };
   } catch(e) {}
 })();
 </script>

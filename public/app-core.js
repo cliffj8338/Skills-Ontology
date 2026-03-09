@@ -2626,17 +2626,20 @@
                     return;
                 }
                 var data = snap.data();
-                console.log('[airoi analytics] raw doc:', JSON.stringify(data, null, 2));
-                var days = data.days || {};
-                var today = new Date().toISOString().split('T')[0];
-                var weekAgo  = new Date(Date.now() - 7  * 864e5).toISOString().split('T')[0];
-                var monthAgo = new Date(Date.now() - 30 * 864e5).toISOString().split('T')[0];
 
-                var week7 = 0, week30 = 0;
-                Object.entries(days).forEach(function(entry) {
-                    if (entry[0] >= weekAgo)  week7  += entry[1];
-                    if (entry[0] >= monthAgo) week30 += entry[1];
+                // Last 24h: sum hour buckets from past 24 hours
+                var hours = data.hours || {};
+                var cutoff = new Date(Date.now() - 24 * 3600 * 1000).toISOString().slice(0, 13);
+                var last24 = 0;
+                Object.entries(hours).forEach(function(e) {
+                    if (e[0] >= cutoff) last24 += e[1];
                 });
+
+                // Avg time on page
+                var samples = data.durationSamples || 0;
+                var totalDur = data.totalDuration || 0;
+                var avgSec = samples > 0 ? Math.round(totalDur / samples) : 0;
+                var avgStr = avgSec > 0 ? (avgSec >= 60 ? Math.floor(avgSec/60) + 'm ' + (avgSec%60) + 's' : avgSec + 's') : '—';
 
                 // Last seen
                 var lastSeenStr = '—';
@@ -2645,13 +2648,13 @@
                     lastSeenStr = ls.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
                 }
 
-                // Stat tiles row
+                // Stat tiles
                 var html = '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:10px; margin-bottom:16px;">';
                 [
-                    { label: 'All-Time Hits', value: (data.total || 0).toLocaleString(), color: '#10b981' },
-                    { label: 'Today',         value: (days[today] || 0).toLocaleString(), color: '#38bdf8' },
-                    { label: 'Last 7 Days',   value: week7.toLocaleString(),               color: '#38bdf8' },
-                    { label: 'Last 30 Days',  value: week30.toLocaleString(),              color: '#38bdf8' },
+                    { label: 'All-Time Hits', value: (data.total || 0).toLocaleString(),  color: '#10b981' },
+                    { label: 'Last 24 Hours', value: last24.toLocaleString(),              color: '#38bdf8' },
+                    { label: 'Avg Time',      value: avgStr,                               color: '#38bdf8' },
+                    { label: 'Exports',       value: (data.exports || 0).toLocaleString(), color: '#f59e0b' },
                     { label: 'Last Seen',     value: lastSeenStr,                          color: '#94a3b8', small: true }
                 ].forEach(function(c) {
                     html += '<div style="padding:12px; background:var(--c-surface-4b); border-radius:8px; text-align:center;">'
@@ -2660,24 +2663,6 @@
                         + '</div>';
                 });
                 html += '</div>';
-
-                // 14-day sparkline
-                var last14 = [];
-                for (var i = 13; i >= 0; i--) {
-                    var d = new Date(Date.now() - i * 864e5).toISOString().split('T')[0];
-                    last14.push({ date: d, hits: days[d] || 0 });
-                }
-                var maxHits = Math.max.apply(null, last14.map(function(d) { return d.hits; })) || 1;
-
-                html += '<div style="display:flex; align-items:flex-end; gap:3px; height:40px; margin-bottom:8px;">';
-                last14.forEach(function(d) {
-                    var h = Math.max(2, Math.round((d.hits / maxHits) * 36));
-                    var isToday = d.date === today;
-                    html += '<div title="' + escapeHtml(d.date) + ': ' + d.hits + ' hits" style="flex:1; height:' + h + 'px; background:' + (isToday ? '#10b981' : 'rgba(16,185,129,0.3)') + '; border-radius:2px 2px 0 0; cursor:default;"></div>';
-                });
-                html += '</div>';
-                html += '<div style="font-size:0.68em; color:var(--text-muted); letter-spacing:0.04em;">14-day hit history &middot; today highlighted</div>';
-
                 container.innerHTML = html;
             }).catch(function(err) {
                 container.innerHTML = '<div style="color:#ef4444; font-size:0.82em;">Failed to load: ' + escapeHtml(err.message) + '</div>';
