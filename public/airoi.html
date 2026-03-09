@@ -1704,19 +1704,25 @@ async function runExport() {
       backgroundColor: _expTheme === 'light' ? '#f0f4f8' : '#050a14',
       logging: false,
       onclone: function(doc) {
-        doc.querySelectorAll('canvas').forEach(function(c) {
-          c.style.display = 'block';
-        });
+        // Widen right panel for PDF: shrink left rail to give body ~20% more room
+        var cloneLayout = doc.querySelector('.layout');
+        if (cloneLayout) cloneLayout.style.gridTemplateColumns = '260px 1fr';
+        var cloneRight = doc.querySelector('.right-panel');
+        if (cloneRight) { cloneRight.style.padding = '20px 28px'; }
+        // Widen kpi cards so numbers don't wrap
+        doc.querySelectorAll('.kpi-card').forEach(function(c) { c.style.minWidth = '110px'; });
+        doc.querySelectorAll('canvas').forEach(function(c) { c.style.display = 'block'; });
       }
     });
 
     var { jsPDF } = window.jspdf;
-    var imgData = canvas.toDataURL('image/jpeg', 0.82);
+    var imgData = canvas.toDataURL('image/jpeg', 0.85);
     var imgW = canvas.width;
     var imgH = canvas.height;
 
-    var pageW = 612; var pageH = 792;
-    var pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+    // Landscape letter for wider body
+    var pageW = 792; var pageH = 612;
+    var pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter' });
 
     // Background
     pdf.setFillColor(_expTheme === 'light' ? '#f0f4f8' : '#050a14');
