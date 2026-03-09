@@ -1897,6 +1897,7 @@ if (exportModalEl) {
 }
 
 // ── TOOLTIPS ─────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
 const tipBox = document.getElementById('tip-box');
 const tipTitle = document.getElementById('tip-title');
 const tipBody = document.getElementById('tip-body');
@@ -1916,14 +1917,17 @@ document.querySelectorAll('.tip-icon').forEach(function(icon) {
     tipBox.classList.remove('visible');
   });
 });
+}); // end DOMContentLoaded
 
 function positionTip(e) {
+  var tb = document.getElementById('tip-box');
+  if (!tb) return;
   var x = e.clientX + 14, y = e.clientY - 10;
-  var bw = tipBox.offsetWidth || 280, bh = tipBox.offsetHeight || 120;
+  var bw = tb.offsetWidth || 280, bh = tb.offsetHeight || 120;
   if (x + bw > window.innerWidth - 10) x = e.clientX - bw - 14;
   if (y + bh > window.innerHeight - 10) y = window.innerHeight - bh - 10;
-  tipBox.style.left = x + 'px';
-  tipBox.style.top  = y + 'px';
+  tb.style.left = x + 'px';
+  tb.style.top  = y + 'px';
 }
 
 // ── GUIDED TOUR ──────────────────────────────────────────────
