@@ -1708,8 +1708,8 @@ async function runExport() {
     var dim = '#64748b';
     var em  = '#10b981';
 
-    // PDF page dims (portrait letter, pt)
-    var pageW = 612; var pageH = 792;
+    // PDF page width fixed; height computed from content
+    var pageW = 612;
     var PAD = 20;
 
     // ── 1. Pre-render Φ logo via offscreen canvas ───────────────
@@ -1746,9 +1746,10 @@ async function runExport() {
     var ruleY    = logoY + logoSize + 10;
     var headerH  = ruleY + 2;
 
-    // ── 3. Capture right panel at exact page content width ──────
-    // Available content width in PDF at 2× = (pageW - PAD*2) * 2 px
-    var captureW = (pageW - PAD * 2) * 2;   // 1144px
+    // ── 3. Capture right panel ──────────────────────────────────
+    // Render at a fixed logical width that matches a reasonable column width.
+    // Scale=2 for sharpness. Do NOT constrain height — let content be full length.
+    var renderW = 860;  // logical px — content column width
     status.textContent = 'Rendering charts…';
 
     var target = document.querySelector('.right-panel');
@@ -1758,35 +1759,39 @@ async function runExport() {
       allowTaint: true,
       backgroundColor: bg,
       logging: false,
-      width: captureW / 2,   // set logical width so layout fills this
+      windowWidth: renderW + 40,
       onclone: function(doc) {
         var el = doc.querySelector('.right-panel');
         if (el) {
-          el.style.width = (captureW / 2) + 'px';
-          el.style.minWidth = (captureW / 2) + 'px';
-          el.style.maxWidth = (captureW / 2) + 'px';
-          el.style.padding = '14px 20px';
+          el.style.width = renderW + 'px';
+          el.style.minWidth = renderW + 'px';
+          el.style.maxWidth = renderW + 'px';
+          el.style.padding = '16px 24px';
           el.style.overflowY = 'visible';
           el.style.height = 'auto';
+          el.style.position = 'static';
         }
-        doc.querySelectorAll('.kpi-row').forEach(function(r) {
-          r.style.flexWrap = 'nowrap';
-        });
-        doc.querySelectorAll('.kpi-card').forEach(function(c) {
-          c.style.flex = '1';
-          c.style.minWidth = '0';
-        });
         doc.querySelectorAll('canvas').forEach(function(c) { c.style.display = 'block'; });
       }
     });
 
     var imgData = contentCanvas.toDataURL('image/jpeg', 0.92);
-    var imgW = contentCanvas.width;
-    var imgH = contentCanvas.height;
+    var imgW = contentCanvas.width;   // renderW * 2 = 1720px
+    var imgH = contentCanvas.height;  // full content height
 
-    // ── 4. Build PDF ────────────────────────────────────────────
+    // ── 4. Build PDF with CUSTOM HEIGHT ────────────────────────
+    // pageW fixed at 612pt. drawW fills content area. pageH = headerH + drawH + footerH
     var { jsPDF } = window.jspdf;
-    var pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+    var availW  = pageW - PAD * 2;          // 572pt
+    var ratio   = availW / imgW;            // scale so image fills full width
+    var drawW   = availW;
+    var drawH   = imgH * ratio;             // proportional height — could be 1200pt+
+
+    var contentY = headerH + 6;
+    var footerH  = 20;
+    var pageH    = contentY + drawH + footerH;  // custom total height
+
+    var pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: [pageW, pageH] });
 
     // Background
     pdf.setFillColor(bg);
@@ -1825,15 +1830,8 @@ async function runExport() {
     pdf.setLineWidth(0.75);
     pdf.line(PAD, ruleY, pageW - PAD, ruleY);
 
-    // Content image — fill exact available width, let height follow
-    var contentY = headerH + 6;
-    var availW   = pageW - PAD * 2;
-    var availH   = pageH - contentY - 16;
-    var ratio    = Math.min(availW / imgW, availH / imgH);
-    var drawW    = imgW * ratio;
-    var drawH    = imgH * ratio;
-    var offsetX  = PAD + (availW - drawW) / 2;
-    pdf.addImage(imgData, 'JPEG', offsetX, contentY, drawW, drawH);
+    // Content image — full width, natural height
+    pdf.addImage(imgData, 'JPEG', PAD, contentY, drawW, drawH);
 
     // Footer
     pdf.setFontSize(6.5);
