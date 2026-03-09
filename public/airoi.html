@@ -665,7 +665,7 @@
         <span class="slider-label">Revealed Outcomes % of Revenue</span>
         <span class="slider-value" id="val-impos-pct">5%</span>
       </div>
-      <div class="slider-sub">Conservative: 3&ndash;5% &middot; Moderate: 5&ndash;10% &middot; Aggressive: 10&ndash;15%</div>
+      <div class="slider-sub">Conservative: 3&ndash;5% &middot; Moderate: 5&ndash;10% &middot; Aggressive: 10&ndash;15% &middot; 53% of executives report 6&ndash;10% AI-attributed revenue growth (IDC/Microsoft, 2024)</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-impos-pct"></div>
         <input type="range" id="impos-pct" min="1" max="15" step="0.5" value="5" oninput="update()">
@@ -1266,10 +1266,10 @@ function update() {
   const benchNote = document.getElementById('roi-benchmark-note');
   if (benchNote) {
     if (displayROI > 15) {
-      benchNote.textContent = '⚠ Results above 15× typically reflect aggressive displacement assumptions. Industry median for mature AI deployments: 3–8×.';
+      benchNote.textContent = '⚠ Results above 15× typically reflect aggressive displacement assumptions. Industry median for mature AI deployments: 3–8×. Enterprise avg: ~$3.70 per $1 invested (IDC/Microsoft, 2024).';
       benchNote.style.display = 'block';
     } else if (displayROI > 8) {
-      benchNote.textContent = 'Above median range. Assumes consistent redeployment of freed capacity to higher-value work.';
+      benchNote.textContent = 'Above median range. Assumes consistent redeployment of freed capacity to higher-value work. Enterprise avg for comparison: ~$3.70 per $1 invested (IDC/Microsoft, 2024).';
       benchNote.style.display = 'block';
     } else {
       benchNote.style.display = 'none';
@@ -1291,7 +1291,7 @@ function update() {
   if (view === 'pressbox') {
     ib.style.background = 'var(--emerald2)';
     ib.style.color = 'var(--emerald)';
-    ib.textContent = `Press Box View adds ${fmt(phiTerm)} in strategic outcomes beyond labor savings — Φ(Oₙ·V), capped to realistic org scale. The Φ multiplier is author-defined, calibrated from observed enterprise deployment patterns, not published benchmarks. Switch to Sideline View to see what traditional ROI misses.`;
+    ib.textContent = `Press Box View adds ${fmt(phiTerm)} in strategic outcomes beyond labor savings — Φ(Oₙ·V), capped to realistic org scale. These are the outcomes most ROI models miss: revenue growth, deal cycle reduction, dev speed, cost reduction. The Φ multiplier is author-defined, calibrated from observed enterprise deployment patterns, not published benchmarks. Switch to Sideline View to see what traditional ROI misses.`;
   } else {
     ib.style.background = 'var(--coral2)';
     ib.style.color = 'var(--coral)';
