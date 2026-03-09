@@ -939,9 +939,8 @@
       </div>
       <div id="value-stack-bars" style="margin-bottom:12px;"></div>
       <div style="display:flex; gap:16px; flex-wrap:wrap;">
-        <span style="font-family:'DM Mono',monospace; font-size:10px; color:var(--dim);"><span style="display:inline-block;width:10px;height:10px;background:rgba(16,185,129,0.45);border-radius:2px;margin-right:5px;vertical-align:middle;"></span>Base Labor (hours × rate)</span>
-        <span style="font-family:'DM Mono',monospace; font-size:10px; color:var(--dim);"><span style="display:inline-block;width:10px;height:10px;background:rgba(16,185,129,0.85);border-radius:2px;margin-right:5px;vertical-align:middle;"></span>Quality Premium (redeployment ×1.5)</span>
-        <span style="font-family:'DM Mono',monospace; font-size:10px; color:var(--dim);"><span style="display:inline-block;width:10px;height:10px;background:rgba(245,158,11,0.7);border-radius:2px;margin-right:5px;vertical-align:middle;"></span>Strategic Outcomes (Φ)</span>
+        <span style="font-family:'DM Mono',monospace; font-size:10px; color:var(--dim);"><span style="display:inline-block;width:10px;height:10px;background:rgba(16,185,129,0.75);border-radius:2px;margin-right:5px;vertical-align:middle;"></span>Productivity Value (Rc·μ·ΔMPL)</span>
+        <span style="font-family:'DM Mono',monospace; font-size:10px; color:var(--dim);"><span style="display:inline-block;width:10px;height:10px;background:rgba(245,158,11,0.75);border-radius:2px;margin-right:5px;vertical-align:middle;"></span>Strategic Outcomes (Φ)</span>
       </div>
     </div>
 
@@ -1647,26 +1646,24 @@ function drawValueStack(savedDollars, rcTerm, phiTerm) {
   if (!container) return;
   var total = rcTerm + phiTerm;
   if (total <= 0) { container.innerHTML = ''; return; }
-  var qualPremium = rcTerm - savedDollars;
-  var s1 = (savedDollars / total * 100).toFixed(1);
-  var s2 = (qualPremium  / total * 100).toFixed(1);
-  var s3 = (phiTerm      / total * 100).toFixed(1);
-  function seg(pct, bg, val) {
-    var show = parseFloat(pct) > 10;
-    return '<div style="flex:0 0 calc(' + pct + '% - 2px); background:' + bg + '; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:3px; transition:flex 0.3s ease;">'
+  // Two segments: Productivity Value (rcTerm) + Strategic Outcomes (phiTerm)
+  // Always sum to 100% — no negative segment risk
+  var s1 = (rcTerm  / total * 100).toFixed(1);
+  var s2 = (phiTerm / total * 100).toFixed(1);
+  function seg(pct, bg) {
+    var show = parseFloat(pct) > 8;
+    return '<div style="flex:0 0 ' + pct + '%; background:' + bg + '; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:3px; transition:flex 0.3s ease; min-width:0;">'
       + (show ? '<span style="font-family:\'DM Mono\',monospace;font-size:9px;color:rgba(255,255,255,0.9);white-space:nowrap;padding:0 4px;">' + parseFloat(pct).toFixed(0) + '%</span>' : '')
       + '</div>';
   }
   container.innerHTML =
-    '<div style="display:flex; height:26px; width:100%; gap:3px; margin-bottom:8px;">'
-    + seg(s1, 'rgba(16,185,129,0.45)', savedDollars)
-    + seg(s2, 'rgba(16,185,129,0.85)', qualPremium)
-    + seg(s3, 'rgba(245,158,11,0.7)',  phiTerm)
+    '<div style="display:flex; height:26px; width:100%; gap:3px; margin-bottom:8px; box-sizing:border-box;">'
+    + seg(s1, 'rgba(16,185,129,0.75)')
+    + seg(s2, 'rgba(245,158,11,0.75)')
     + '</div>'
     + '<div style="display:flex; width:100%; gap:3px;">'
-    + '<div style="flex:0 0 calc(' + s1 + '% - 2px); text-align:center; font-family:\'DM Mono\',monospace; font-size:9px; color:var(--slate2); overflow:hidden;">' + (parseFloat(s1) > 15 ? fmt(savedDollars) : '') + '</div>'
-    + '<div style="flex:0 0 calc(' + s2 + '% - 2px); text-align:center; font-family:\'DM Mono\',monospace; font-size:9px; color:var(--slate2); overflow:hidden;">' + (parseFloat(s2) > 15 ? fmt(qualPremium) : '') + '</div>'
-    + '<div style="flex:0 0 calc(' + s3 + '% - 2px); text-align:center; font-family:\'DM Mono\',monospace; font-size:9px; color:var(--slate2); overflow:hidden;">' + (parseFloat(s3) > 15 ? fmt(phiTerm) : '') + '</div>'
+    + '<div style="flex:0 0 ' + s1 + '%; text-align:center; font-family:\'DM Mono\',monospace; font-size:9px; color:var(--slate2); overflow:hidden; min-width:0;">' + (parseFloat(s1) > 15 ? fmt(rcTerm) : '') + '</div>'
+    + '<div style="flex:0 0 ' + s2 + '%; text-align:center; font-family:\'DM Mono\',monospace; font-size:9px; color:var(--slate2); overflow:hidden; min-width:0;">' + (parseFloat(s2) > 15 ? fmt(phiTerm) : '') + '</div>'
     + '</div>';
 }
 
