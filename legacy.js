@@ -2652,7 +2652,6 @@
                 var html = '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:10px; margin-bottom:16px;">';
                 [
                     { label: 'All-Time Hits', value: (data.total || 0).toLocaleString(),  color: '#10b981' },
-                    { label: 'Last 24 Hours', value: last24.toLocaleString(),              color: '#38bdf8' },
                     { label: 'Avg Time',      value: avgStr,                               color: '#38bdf8' },
                     { label: 'Exports',       value: (data.exports || 0).toLocaleString(), color: '#f59e0b' },
                     { label: 'Last Seen',     value: lastSeenStr,                          color: '#94a3b8', small: true }
