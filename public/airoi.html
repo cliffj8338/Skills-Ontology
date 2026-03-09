@@ -617,7 +617,7 @@
     width: 40px; height: 40px; border-radius: 50%;
     background: var(--emerald); border: none; cursor: pointer;
     color: #052e16; font-size: 18px; font-weight: 800;
-    display: flex; align-items: center; justify-content: center;
+    display: flex !important; align-items: center; justify-content: center;
     box-shadow: 0 4px 16px rgba(16,185,129,0.4); transition: transform 0.15s, box-shadow 0.15s;
     font-family: serif;
   }
@@ -630,8 +630,8 @@
   #tour-card {
     position: fixed; z-index: 9000; background: var(--surface);
     border: 1px solid var(--emerald); border-radius: 10px;
-    padding: 18px 20px; max-width: 300px; box-shadow: 0 12px 40px rgba(0,0,0,0.4);
-    font-family: Calibri,'Segoe UI',sans-serif;
+    padding: 18px 20px; max-width: calc(100vw - 24px); box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    font-family: Calibri,'Segoe UI',sans-serif; box-sizing: border-box;
   }
   #tour-card .tour-step-label {
     font-family: 'DM Mono', monospace; font-size: 9px; color: var(--slate2);
@@ -2026,27 +2026,36 @@ function showTourStep() {
   if (step.id) el = document.getElementById(step.id);
   if (!el && step.sel) el = document.querySelector(step.sel);
   if (!el && step.id) {
-    // fall back to finding the tip-icon within a kpi-card containing that id
     var icon = document.querySelector('[data-tip-title="' + step.title + '"]');
     if (icon) el = icon.closest('.kpi-card, .card, .chart-card');
   }
 
   var card = document.getElementById('tour-card');
+  var PAD = 12;
+  var CW = Math.min(300, window.innerWidth - PAD * 2);
+  card.style.width = CW + 'px';
+  card.style.transform = '';
+
   if (el) {
     tourHighlighted = el;
     el.classList.add('tour-highlight');
-    var rect = el.getBoundingClientRect();
-    // Position card near the element
-    var cx = rect.left + rect.width / 2;
-    var cy = rect.bottom + 12;
-    var cw = 310;
-    var ch = 200;
-    if (cx + cw / 2 > window.innerWidth - 10) cx = window.innerWidth - cw - 10;
-    if (cx - cw / 2 < 10) cx = 10;
-    if (cy + ch > window.innerHeight - 10) cy = rect.top - ch - 12;
-    card.style.left = Math.max(8, cx) + 'px';
-    card.style.top  = Math.max(8, cy) + 'px';
+    // Scroll first, then position after scroll settles
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(function() {
+      var rect = el.getBoundingClientRect();
+      var vw = window.innerWidth, vh = window.innerHeight;
+      // Try below element first, then above
+      var cx = rect.left + rect.width / 2 - CW / 2;
+      var cy = rect.bottom + PAD;
+      // Estimate card height (content varies — use 220 as safe max)
+      var CH = 240;
+      if (cy + CH > vh - PAD) cy = rect.top - CH - PAD;
+      if (cy < PAD) cy = PAD;
+      // Clamp horizontal
+      cx = Math.max(PAD, Math.min(cx, vw - CW - PAD));
+      card.style.left = cx + 'px';
+      card.style.top  = cy + 'px';
+    }, 350);
   } else {
     card.style.left = '50%';
     card.style.top  = '50%';
@@ -2063,6 +2072,7 @@ function showTourStep() {
 }
 
 document.getElementById('tour-overlay').addEventListener('click', endTour);
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') endTour(); });
 </script>
 
 
