@@ -585,12 +585,13 @@
   /* ── TOOLTIPS ── */
   .tip-icon {
     display: inline-flex; align-items: center; justify-content: center;
-    width: 14px; height: 14px; border-radius: 50%;
-    background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.35);
-    color: var(--emerald); font-size: 9px; font-family: 'DM Mono', monospace;
+    width: 15px; height: 15px; border-radius: 50%;
+    background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4);
+    color: var(--emerald); font-size: 10px; font-family: Georgia, serif;
+    font-style: italic; font-weight: 700;
     cursor: help; margin-left: 6px; vertical-align: middle;
     transition: background 0.15s, border-color 0.15s; flex-shrink: 0;
-    font-style: normal; line-height: 1; user-select: none;
+    line-height: 1; user-select: none; text-decoration: none;
   }
   .tip-icon:hover { background: rgba(16,185,129,0.3); border-color: var(--emerald); }
   #tip-box {
@@ -917,30 +918,30 @@
     <!-- KPI row: Investment (pain) → Return $ (payoff) → Multiple → Hours -->
     <div class="kpi-grid">
       <div class="kpi-card" id="tip-invest" style="border-top-color: var(--gold);">
-        <div class="kpi-label">Total Investment <i class="tip-icon" data-tip-title="Total Investment" data-tip-body="What you actually spend: seat licenses plus friction and obsolescence tax." data-tip-drivers="<strong>Driven by:</strong> FTEs × Adoption Rate × Cost/Adopter, plus O_trans (15% friction) and Ω (8% obsolescence risk)">ⓘ</i></div>
+        <div class="kpi-label">Total Investment <i class="tip-icon" data-tip-title="Total Investment" data-tip-body="What you actually spend: seat licenses plus friction and obsolescence tax." data-tip-drivers="<strong>Driven by:</strong> FTEs × Adoption Rate × Cost/Adopter, plus O_trans (15% friction) and Ω (8% obsolescence risk)">i</i></div>
         <div class="kpi-value" id="kpi-cost" style="color: var(--gold);">—</div>
         <div class="kpi-note">incl. friction &amp; obsolescence</div>
       </div>
       <div class="kpi-card" id="tip-floor" style="border-top-color: var(--emerald);">
-        <div class="kpi-label">Productivity Floor <i class="tip-icon" data-tip-title="Productivity Floor" data-tip-body="The defensible ROI — pure labor hours reclaimed, no strategic assumptions. What you can put in any boardroom." data-tip-drivers="<strong>Driven by:</strong> Salary, FTEs, Adoption Rate, Cognitive Drag %, AI Displacement Rate, Deployment Year (μ · ΔMPL applied)">ⓘ</i></div>
+        <div class="kpi-label">Productivity Floor <i class="tip-icon" data-tip-title="Productivity Floor" data-tip-body="The defensible ROI — pure labor hours reclaimed, no strategic assumptions. What you can put in any boardroom." data-tip-drivers="<strong>Driven by:</strong> Salary, FTEs, Adoption Rate, Cognitive Drag %, AI Displacement Rate, Deployment Year (μ · ΔMPL applied)">i</i></div>
         <div class="kpi-value" id="kpi-floor" style="color: var(--emerald);">—</div>
         <div class="kpi-note" id="kpi-floor-note">Labor productivity only</div>
         <div style="margin-top:6px;font-size:10px;color:var(--slate2);line-height:1.4;">What you can defend in any room &mdash; measurable, no strategic assumptions.</div>
       </div>
       <div class="kpi-card" id="tip-ceiling" style="border-top-color: var(--emerald);">
-        <div class="kpi-label">Strategic Ceiling <i class="tip-icon" data-tip-title="Strategic Ceiling" data-tip-body="Full value pool: productivity reclaimed plus work that becomes possible for the first time. Most orgs capture 50–70% of this. The territory, not the destination." data-tip-drivers="<strong>Driven by:</strong> Everything in Productivity Floor, plus Revenue × Revealed Outcomes % (the Φ strategic term)">ⓘ</i></div>
+        <div class="kpi-label">Strategic Ceiling <i class="tip-icon" data-tip-title="Strategic Ceiling" data-tip-body="Full value pool: productivity reclaimed plus work that becomes possible for the first time. Most orgs capture 50–70% of this. The territory, not the destination." data-tip-drivers="<strong>Driven by:</strong> Everything in Productivity Floor, plus Revenue × Revealed Outcomes % (the Φ strategic term)">i</i></div>
         <div class="kpi-value" id="kpi-return" style="color: var(--emerald);">—</div>
         <div class="kpi-note" id="kpi-return-note">Incl. revealed outcomes</div>
         <div id="return-explain" style="display:none;margin-top:6px;font-size:10px;color:var(--slate2);line-height:1.4;">The full value pool your AI investment unlocks &mdash; productivity reclaimed plus work that becomes possible for the first time. Think of it as the territory, not the destination. Most organizations capture 50&ndash;70% of it. That&rsquo;s still worth building toward.</div>
       </div>
       <div class="kpi-card" id="tip-roi" style="border-top-color: var(--emerald);" id="kpi-roi-card">
-        <div class="kpi-label">ROI Multiple <i class="tip-icon" data-tip-title="ROI Multiple" data-tip-body="Strategic Ceiling ÷ Total Investment. The 'elastic' return — most sensitive to Adoption Rate. Doubling adoption often more than doubles this number." data-tip-drivers="<strong>Driven by:</strong> All inputs. Adoption Rate has the highest leverage — a 10% increase typically moves this more than any other single slider.">ⓘ</i></div>
+        <div class="kpi-label">ROI Multiple <i class="tip-icon" data-tip-title="ROI Multiple" data-tip-body="Strategic Ceiling ÷ Total Investment. The 'elastic' return — most sensitive to Adoption Rate. Doubling adoption often more than doubles this number." data-tip-drivers="<strong>Driven by:</strong> All inputs. Adoption Rate has the highest leverage — a 10% increase typically moves this more than any other single slider.">i</i></div>
         <div class="kpi-value" id="kpi-roi" style="color: var(--emerald);">—</div>
         <div class="kpi-note" id="kpi-roi-note">Elastic Return</div>
         <div id="roi-benchmark-note" style="display:none; margin-top:6px; font-size:10px; color:var(--gold); line-height:1.4;"></div>
       </div>
       <div class="kpi-card" id="tip-hours" style="border-top-color: var(--emerald);">
-        <div class="kpi-label">Reclaimed Hours / yr <i class="tip-icon" data-tip-title="Reclaimed Hours / yr" data-tip-body="Total productive hours freed across all adopters in a year. Per-adopter days = total ÷ adopters ÷ 8. This is the Rc term in the equation." data-tip-drivers="<strong>Driven by:</strong> FTEs, Adoption Rate, Cognitive Drag % (time lost to admin/search/coordination), AI Displacement Rate, Deployment Year ramp">ⓘ</i></div>
+        <div class="kpi-label">Reclaimed Hours / yr <i class="tip-icon" data-tip-title="Reclaimed Hours / yr" data-tip-body="Total productive hours freed across all adopters in a year. Per-adopter days = total ÷ adopters ÷ 8. This is the Rc term in the equation." data-tip-drivers="<strong>Driven by:</strong> FTEs, Adoption Rate, Cognitive Drag % (time lost to admin/search/coordination), AI Displacement Rate, Deployment Year ramp">i</i></div>
         <div class="kpi-value" id="kpi-hours" style="color: var(--emerald);">—</div>
         <div class="kpi-note" id="kpi-hours-note">—</div>
       </div>
@@ -948,7 +949,7 @@
 
     <!-- Benchmark Positioning Strip -->
     <div class="chart-card" style="padding:16px 22px; margin-bottom:20px;">
-      <div class="card-label" style="color:var(--dim); margin-bottom:14px;">Where You Stand <i class="tip-icon" data-tip-title="Where You Stand" data-tip-body="Your ROI Multiple plotted against industry benchmark bands from IDC/Microsoft 2024 enterprise data." data-tip-drivers="<strong>Bands:</strong> Below avg &lt;3×, Median 3–8×, Above median 8–15×, Outlier &gt;15×. Enterprise avg is ~3.70× return per $1 invested.">ⓘ</i></div>
+      <div class="card-label" style="color:var(--dim); margin-bottom:14px;">Where You Stand <i class="tip-icon" data-tip-title="Where You Stand" data-tip-body="Your ROI Multiple plotted against industry benchmark bands from IDC/Microsoft 2024 enterprise data." data-tip-drivers="<strong>Bands:</strong> Below avg &lt;3×, Median 3–8×, Above median 8–15×, Outlier &gt;15×. Enterprise avg is ~3.70× return per $1 invested.">i</i></div>
       <div style="position:relative; margin-bottom:14px;">
         <div style="display:flex; height:20px; border-radius:4px; overflow:hidden; width:100%;">
           <div style="flex:0 0 calc(2/15*100%); background:rgba(148,163,184,0.18);"></div>
@@ -976,13 +977,13 @@
     <!-- Gauge + Equation -->
     <div class="mid-grid">
       <div class="card">
-        <div class="card-label" id="tip-gauge" style="color: var(--emerald);">Synthetic Capacity <i class="tip-icon" data-tip-title="Synthetic Capacity" data-tip-body="FTE-equivalents gained without hiring. Each adopter generates more output — the surplus is synthetic headcount. Capped at 25% of workforce (real-world ceiling)." data-tip-drivers="<strong>+N people:</strong> Adoption Rate drives the arc size. <strong>Days/yr per adopter:</strong> only moves with Cognitive Drag % and AI Displacement Rate — it is a per-person rate, not a headcount stat.">ⓘ</i></div>
+        <div class="card-label" id="tip-gauge" style="color: var(--emerald);">Synthetic Capacity <i class="tip-icon" data-tip-title="Synthetic Capacity" data-tip-body="FTE-equivalents gained without hiring. Each adopter generates more output — the surplus is synthetic headcount. Capped at 25% of workforce (real-world ceiling)." data-tip-drivers="<strong>+N people:</strong> Adoption Rate drives the arc size. <strong>Days/yr per adopter:</strong> only moves with Cognitive Drag % and AI Displacement Rate — it is a per-person rate, not a headcount stat.">i</i></div>
         <canvas id="gauge-canvas" width="460" height="300"></canvas>
         <div class="gauge-caption" id="gauge-caption">—</div>
       </div>
 
       <div class="card">
-        <div class="card-label" id="tip-equation" style="color: var(--gold);">Equation Breakdown <i class="tip-icon" data-tip-title="Equation Breakdown" data-tip-body="The full ROI formula decomposed. Numerator: strategic value (Φ) + productivity (Rc·μ·ΔMPL). Denominator: investment + friction + obsolescence." data-tip-drivers="<strong>Rc·μ·ΔMPL</strong> = hours reclaimed × redeployment efficiency × productivity multiplier. <strong>Φ(Oₙ·V)</strong> = revealed outcomes % × revenue. Fixed constants μ and ΔMPL are research-calibrated.">ⓘ</i></div>
+        <div class="card-label" id="tip-equation" style="color: var(--gold);">Equation Breakdown <i class="tip-icon" data-tip-title="Equation Breakdown" data-tip-body="The full ROI formula decomposed. Numerator: strategic value (Φ) + productivity (Rc·μ·ΔMPL). Denominator: investment + friction + obsolescence." data-tip-drivers="<strong>Rc·μ·ΔMPL</strong> = hours reclaimed × redeployment efficiency × productivity multiplier. <strong>Φ(Oₙ·V)</strong> = revealed outcomes % × revenue. Fixed constants μ and ΔMPL are research-calibrated.">i</i></div>
         <div class="eq-fraction">
           <div class="eq-num">Φ(Oₙ·V) + (Rc·μ·ΔMPL)</div>
           <div class="eq-line"></div>
@@ -1009,7 +1010,7 @@
     <div class="chart-card">
       <div class="chart-header">
         <div>
-          <div class="card-label" id="tip-adoption" style="color:var(--dim); margin-bottom:4px;">Adoption Curve <i class="tip-icon" data-tip-title="Adoption Curve" data-tip-body="ROI at every adoption level — shows the upside of pushing further. Y1–Y4 lines reflect the ramp: teams need time to reach full efficiency." data-tip-drivers="<strong>Driven by:</strong> Current Adoption Rate (your dot), Salary, Cognitive Drag, AI Displacement. Ramp efficiency: Y1=25%, Y2=50%, Y3=75%, Y4=100% of potential.">ⓘ</i></div>
+          <div class="card-label" id="tip-adoption" style="color:var(--dim); margin-bottom:4px;">Adoption Curve <i class="tip-icon" data-tip-title="Adoption Curve" data-tip-body="ROI at every adoption level — shows the upside of pushing further. Y1–Y4 lines reflect the ramp: teams need time to reach full efficiency." data-tip-drivers="<strong>Driven by:</strong> Current Adoption Rate (your dot), Salary, Cognitive Drag, AI Displacement. Ramp efficiency: Y1=25%, Y2=50%, Y3=75%, Y4=100% of potential.">i</i></div>
           <div style="font-size:11px; color: var(--slate2);">ROI at each adoption level — what’s your ceiling if you push further?</div>
         </div>
         <div class="chart-legend">
@@ -1026,7 +1027,7 @@
     <div class="chart-card" id="cashflow-card">
       <div class="chart-header" style="margin-bottom:8px;">
         <div>
-          <div class="card-label" id="tip-cashflow" style="color:var(--dim);margin-bottom:4px;">Investment vs. Return Timeline <i class="tip-icon" data-tip-title="Cashflow Timeline" data-tip-body="Investment is front-loaded (cost in Y1), returns compound as adoption matures. Breakeven typically Y1–Y2 for well-deployed programs." data-tip-drivers="<strong>Driven by:</strong> Total Investment, Productivity + Strategic returns scaled by ramp efficiency (25/50/75/100%) across Y1–Y4.">ⓘ</i></div>
+          <div class="card-label" id="tip-cashflow" style="color:var(--dim);margin-bottom:4px;">Investment vs. Return Timeline <i class="tip-icon" data-tip-title="Cashflow Timeline" data-tip-body="Investment is front-loaded (cost in Y1), returns compound as adoption matures. Breakeven typically Y1–Y2 for well-deployed programs." data-tip-drivers="<strong>Driven by:</strong> Total Investment, Productivity + Strategic returns scaled by ramp efficiency (25/50/75/100%) across Y1–Y4.">i</i></div>
           <div style="font-size:11px;color:var(--slate2);">Investment is front-loaded. Returns compound as adoption matures.</div>
         </div>
       </div>
@@ -1054,7 +1055,7 @@
     <div class="chart-card">
       <div class="chart-header" style="margin-bottom:14px;">
         <div>
-          <div class="card-label" id="tip-vstack" style="color:var(--dim); margin-bottom:4px;">Value Stack <i class="tip-icon" data-tip-title="Value Stack" data-tip-body="Splits your total return into its two components: measurable productivity vs. strategic outcomes. A healthy model shows both — heavy Φ reliance is a risk flag." data-tip-drivers="<strong>Green = Productivity (Rc·μ·ΔMPL):</strong> hours × salary × efficiency. <strong>Gold = Strategic (Φ):</strong> revenue × outcomes %. Shift Revealed Outcomes % to see the balance change.">ⓘ</i></div>
+          <div class="card-label" id="tip-vstack" style="color:var(--dim); margin-bottom:4px;">Value Stack <i class="tip-icon" data-tip-title="Value Stack" data-tip-body="Splits your total return into its two components: measurable productivity vs. strategic outcomes. A healthy model shows both — heavy Φ reliance is a risk flag." data-tip-drivers="<strong>Green = Productivity (Rc·μ·ΔMPL):</strong> hours × salary × efficiency. <strong>Gold = Strategic (Φ):</strong> revenue × outcomes %. Shift Revealed Outcomes % to see the balance change.">i</i></div>
           <div style="font-size:11px; color:var(--slate2);">What's inside your number — each layer earns its place or doesn't.</div>
         </div>
       </div>
