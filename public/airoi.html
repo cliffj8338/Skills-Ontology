@@ -1444,7 +1444,7 @@ async function runExport() {
   try {
     var target = document.querySelector('.layout');
     var canvas = await html2canvas(target, {
-      scale: 2,
+      scale: 1.5,
       useCORS: true,
       allowTaint: true,
       backgroundColor: _expTheme === 'light' ? '#f0f4f8' : '#050a14',
@@ -1457,27 +1457,43 @@ async function runExport() {
     });
 
     var { jsPDF } = window.jspdf;
-    var imgData = canvas.toDataURL('image/png');
+    var imgData = canvas.toDataURL('image/jpeg', 0.82);
     var imgW = canvas.width;
     var imgH = canvas.height;
 
     var pageW = 612; var pageH = 792;
     var pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
 
-    var pad = 28;
+    // Background
+    pdf.setFillColor(_expTheme === 'light' ? '#f0f4f8' : '#050a14');
+    pdf.rect(0, 0, pageW, pageH, 'F');
+
+    // Title block
+    var titleY = 28;
+    pdf.setFontSize(7);
+    pdf.setTextColor(_expTheme === 'light' ? '#64748b' : '#64748b');
+    pdf.text('JURKIEWICZ SYNTHETIC CAPACITY MODEL', pageW / 2, titleY, { align: 'center' });
+    pdf.setFontSize(13);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(_expTheme === 'light' ? '#0f172a' : '#f8fafc');
+    pdf.text('AI ROI Elasticity Calculator', pageW / 2, titleY + 14, { align: 'center' });
+    pdf.setFont('helvetica', 'normal');
+
+    // Image below title
+    var topPad = titleY + 28;
+    var pad = 20;
     var availW = pageW - pad * 2;
-    var availH = pageH - pad * 2;
+    var availH = pageH - topPad - 24;
     var ratio = Math.min(availW / imgW, availH / imgH);
     var drawW = imgW * ratio;
     var drawH = imgH * ratio;
     var offsetX = pad + (availW - drawW) / 2;
-    var offsetY = pad + (availH - drawH) / 2;
 
-    pdf.setFillColor(_expTheme === 'light' ? '#f0f4f8' : '#050a14');
-    pdf.rect(0, 0, pageW, pageH, 'F');
-    pdf.addImage(imgData, 'PNG', offsetX, offsetY, drawW, drawH);
+    pdf.addImage(imgData, 'JPEG', offsetX, topPad, drawW, drawH);
 
+    // Footer
     pdf.setFontSize(7);
+    pdf.setFont('helvetica', 'normal');
     pdf.setTextColor(_expTheme === 'light' ? '#94a3b8' : '#475569');
     var stamp = new Date().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
     pdf.text('Jurkiewicz Synthetic Capacity Model  ·  myblueprint.work/airoi  ·  ' + stamp, pageW / 2, pageH - 10, { align: 'center' });
