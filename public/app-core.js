@@ -2648,7 +2648,7 @@
                 var html = '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:10px; margin-bottom:16px;">';
                 [
                     { label: 'All-Time Hits', value: (data.total || 0).toLocaleString(), color: '#10b981' },
-                    { label: 'Today',         value: (data.today || 0).toLocaleString(),  color: '#38bdf8' },
+                    { label: 'Today',         value: (days[today] || 0).toLocaleString(), color: '#38bdf8' },
                     { label: 'Last 7 Days',   value: week7.toLocaleString(),               color: '#38bdf8' },
                     { label: 'Last 30 Days',  value: week30.toLocaleString(),              color: '#38bdf8' },
                     { label: 'Last Seen',     value: lastSeenStr,                          color: '#94a3b8', small: true }
