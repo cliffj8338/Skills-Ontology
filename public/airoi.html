@@ -23,7 +23,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -147,11 +147,17 @@
     margin-bottom: 3px;
   }
   .header-title {
-    font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+    font-family: 'Space Grotesk', 'DM Sans', sans-serif;
     font-size: 20px;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: -0.02em;
     color: var(--white);
+  }
+  .header-title .serif-accent {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--emerald);
   }
 
   /* Toggle */
@@ -686,7 +692,7 @@
     </svg>
     <div>
       <div class="header-eyebrow">Synthetic Capacity Model</div>
-      <div class="header-title">AI ROI Elasticity Calculator</div>
+      <div class="header-title">AI ROI <span class="serif-accent">Elasticity</span> Calculator</div>
     </div>
   </div>
   <!-- Right: Utility buttons + Toggle -->
@@ -1696,67 +1702,101 @@ async function runExport() {
   }
 
   try {
-    var target = document.querySelector('.layout');
+    // Capture right panel only (the data content — skip left rail)
+    var target = document.querySelector('.right-panel');
     var canvas = await html2canvas(target, {
-      scale: 1.5,
+      scale: 1.8,
       useCORS: true,
       allowTaint: true,
       backgroundColor: _expTheme === 'light' ? '#f0f4f8' : '#050a14',
       logging: false,
       onclone: function(doc) {
-        // Widen right panel for PDF: shrink left rail to give body ~20% more room
-        var cloneLayout = doc.querySelector('.layout');
-        if (cloneLayout) cloneLayout.style.gridTemplateColumns = '260px 1fr';
-        var cloneRight = doc.querySelector('.right-panel');
-        if (cloneRight) { cloneRight.style.padding = '20px 28px'; }
-        // Widen kpi cards so numbers don't wrap
+        var el = doc.querySelector('.right-panel');
+        if (el) { el.style.padding = '20px 28px'; el.style.minWidth = '900px'; }
         doc.querySelectorAll('.kpi-card').forEach(function(c) { c.style.minWidth = '110px'; });
         doc.querySelectorAll('canvas').forEach(function(c) { c.style.display = 'block'; });
       }
     });
 
     var { jsPDF } = window.jspdf;
-    var imgData = canvas.toDataURL('image/jpeg', 0.85);
+    var imgData = canvas.toDataURL('image/jpeg', 0.88);
     var imgW = canvas.width;
     var imgH = canvas.height;
 
-    // Landscape letter for wider body
+    // Landscape letter
     var pageW = 792; var pageH = 612;
     var pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter' });
+    var isDark = _expTheme !== 'light';
+    var bg   = isDark ? '#050a14' : '#f0f4f8';
+    var ink  = isDark ? '#f8fafc' : '#0f172a';
+    var dim  = '#64748b';
+    var em   = '#10b981';
 
     // Background
-    pdf.setFillColor(_expTheme === 'light' ? '#f0f4f8' : '#050a14');
+    pdf.setFillColor(bg);
     pdf.rect(0, 0, pageW, pageH, 'F');
 
-    // Title block
-    var titleY = 28;
-    pdf.setFontSize(7);
-    pdf.setTextColor(_expTheme === 'light' ? '#64748b' : '#64748b');
-    pdf.text('SYNTHETIC CAPACITY MODEL', pageW / 2, titleY, { align: 'center' });
-    pdf.setFontSize(13);
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(_expTheme === 'light' ? '#0f172a' : '#f8fafc');
-    pdf.text('AI ROI Elasticity Calculator', pageW / 2, titleY + 14, { align: 'center' });
-    pdf.setFont('helvetica', 'normal');
+    // ── HEADER BLOCK ────────────────────────────────────────────
+    var PAD = 20;
+    var headerH = 44;
 
-    // Image below title
-    var topPad = titleY + 28;
-    var pad = 20;
-    var availW = pageW - pad * 2;
-    var availH = pageH - topPad - 24;
+    // Φ logo square (emerald bg, white outlined phi)
+    var logoSize = 28;
+    var logoX = PAD, logoY = 10;
+    pdf.setFillColor('#065f46');
+    pdf.roundedRect(logoX, logoY, logoSize, logoSize, 4, 4, 'F');
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(18);
+    pdf.setTextColor('#ffffff');
+    pdf.text('F', logoX + logoSize / 2, logoY + 20, { align: 'center' }); // fallback glyph
+
+    // Eyebrow
+    var textX = logoX + logoSize + 8;
+    pdf.setFontSize(6);
+    pdf.setTextColor(em);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text('SYNTHETIC CAPACITY MODEL', textX, logoY + 9, { align: 'left' });
+
+    // Title: "AI ROI " bold + "Elasticity" italic different color + " Calculator" bold
+    pdf.setFontSize(14);
+    pdf.setTextColor(ink);
+    pdf.setFont('helvetica', 'bold');
+    var titleY = logoY + 22;
+    var t1 = 'AI ROI ';
+    var t2 = 'Elasticity';
+    var t3 = ' Calculator';
+    var w1 = pdf.getTextWidth(t1);
+    var w2 = pdf.getTextWidth(t2);
+    pdf.text(t1, textX, titleY);
+    pdf.setTextColor(em);
+    pdf.setFont('helvetica', 'bolditalic');
+    pdf.text(t2, textX + w1, titleY);
+    pdf.setTextColor(ink);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(t3, textX + w1 + w2, titleY);
+
+    // Thin emerald rule under header
+    pdf.setDrawColor(em);
+    pdf.setLineWidth(0.75);
+    pdf.line(PAD, headerH, pageW - PAD, headerH);
+
+    // ── CONTENT IMAGE ────────────────────────────────────────────
+    var topPad = headerH + 6;
+    var footH = 16;
+    var availW = pageW - PAD * 2;
+    var availH = pageH - topPad - footH;
     var ratio = Math.min(availW / imgW, availH / imgH);
     var drawW = imgW * ratio;
     var drawH = imgH * ratio;
-    var offsetX = pad + (availW - drawW) / 2;
-
+    var offsetX = PAD + (availW - drawW) / 2;
     pdf.addImage(imgData, 'JPEG', offsetX, topPad, drawW, drawH);
 
-    // Footer
-    pdf.setFontSize(7);
+    // ── FOOTER ────────────────────────────────────────────────────
+    pdf.setFontSize(6.5);
     pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(_expTheme === 'light' ? '#94a3b8' : '#475569');
+    pdf.setTextColor(dim);
     var stamp = new Date().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
-    pdf.text('Jurkiewicz Synthetic Capacity Model  ·  myblueprint.work/airoi  ·  ' + stamp, pageW / 2, pageH - 10, { align: 'center' });
+    pdf.text('Jurkiewicz Synthetic Capacity Model  ·  myblueprint.work/airoi  ·  ' + stamp, pageW / 2, pageH - 5, { align: 'center' });
 
     pdf.save('airoi-' + _expTheme + '.pdf');
     if (window._airoiTrackExport) window._airoiTrackExport();
