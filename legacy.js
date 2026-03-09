@@ -2626,6 +2626,7 @@
                     return;
                 }
                 var data = snap.data();
+                console.log('[airoi analytics] raw doc:', JSON.stringify(data, null, 2));
                 var days = data.days || {};
                 var today = new Date().toISOString().split('T')[0];
                 var weekAgo  = new Date(Date.now() - 7  * 864e5).toISOString().split('T')[0];
