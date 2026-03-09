@@ -1735,9 +1735,19 @@ function drawRampChart(salary, adoptingHrs, dragPct, dispRate, phi, impossVCappe
   });
 }
 
-document.getElementById('export-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeExportModal();
-});
+var exportModalEl = document.getElementById('export-modal');
+if (exportModalEl) {
+  exportModalEl.addEventListener('click', function(e) {
+    if (e.target === this) closeExportModal();
+  });
+} else {
+  document.addEventListener('DOMContentLoaded', function() {
+    var el = document.getElementById('export-modal');
+    if (el) el.addEventListener('click', function(e) {
+      if (e.target === this) closeExportModal();
+    });
+  });
+}
 </script>
 
 
