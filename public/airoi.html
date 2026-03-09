@@ -127,9 +127,10 @@
     margin-bottom: 3px;
   }
   .header-title {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
     font-size: 20px;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     color: var(--white);
   }
 
@@ -554,7 +555,7 @@
     <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">☀ Light</button>
   <div class="toggle">
     <button class="toggle-btn" id="btn-side"  onclick="setView('sideline')" title="Sideline View: Traditional ROI — labor savings only. What you can defend with hard numbers in any room.">Sideline View</button>
-    <button class="toggle-btn active-press" id="btn-press" onclick="setView('pressbox')" title="Press Box View: Elastic ROI — adds strategic outcomes (Φ multiplier). The full picture, including value most models miss.">Press Box View</button>
+    <button class="toggle-btn active-press" id="btn-press" onclick="setView('pressbox')" title="Press Box View: Elastic ROI — adds strategic outcomes beyond labor savings. The full picture, including value most models miss.">Press Box View</button>
   </div>
   </div>
 </header>
@@ -760,7 +761,7 @@
         <div class="kpi-label">Strategic Ceiling</div>
         <div class="kpi-value" id="kpi-return" style="color: var(--emerald);">—</div>
         <div class="kpi-note" id="kpi-return-note">Incl. revealed outcomes</div>
-        <div id="return-explain" style="display:none;margin-top:6px;font-size:10px;color:var(--slate2);line-height:1.4;">The full value pool your AI investment creates access to &mdash; productivity reclaimed plus work that becomes possible for the first time. Think of it as the territory, not the destination. Most organizations capture 50&ndash;70% of it. That&rsquo;s still the number worth building toward.</div>
+        <div id="return-explain" style="display:none;margin-top:6px;font-size:10px;color:var(--slate2);line-height:1.4;">The full value pool your AI investment unlocks &mdash; productivity reclaimed plus work that becomes possible for the first time. Think of it as the territory, not the destination. Most organizations capture 50&ndash;70% of it. That&rsquo;s still worth building toward.</div>
       </div>
       <div class="kpi-card" style="border-top-color: var(--emerald);" id="kpi-roi-card">
         <div class="kpi-label">ROI Multiple</div>
@@ -1287,7 +1288,7 @@ function update() {
   if (view === 'pressbox') {
     ib.style.background = 'var(--emerald2)';
     ib.style.color = 'var(--emerald)';
-    ib.textContent = `Press Box View includes Φ(Oₙ·V) — ${fmt(phiTerm)} in strategic outcomes (capped to org scale). Switch to Sideline View to see what traditional ROI misses.`;
+    ib.textContent = `Press Box View adds ${fmt(phiTerm)} in strategic outcomes beyond labor savings — Φ(Oₙ·V), capped to realistic org scale. Switch to Sideline View to see what traditional ROI misses.`;
   } else {
     ib.style.background = 'var(--coral2)';
     ib.style.color = 'var(--coral)';
@@ -1412,13 +1413,13 @@ if (!localStorage.getItem('airoi-seen')) {
     <div class="modal-eyebrow">Jurkiewicz Synthetic Capacity Model</div>
     <div class="modal-title">This tool is about direction, not precision.</div>
     <div class="modal-body">
-      The dominant narrative in enterprise AI is that <strong>returns are incalculable</strong> &mdash; that ROI can't be known until after the fact, and maybe not even then. This tool is a direct challenge to that narrative.<br><br>
-      The goal here is <em>directional confidence</em> at the macro level. Not a contract. Not an audit. Enough for a business leader to start a serious conversation, understand the order of magnitude of what's at stake, and build toward finer-grained analysis once they know what tools they're buying, where they deploy them, and how adoption actually lands.<br><br>
-      <strong>What this tool assumes:</strong> that effective adoption is happening &mdash; people are using the tools, managers are redirecting freed capacity, and the organization is executing against the opportunity. The deployment year slider makes the time-scale explicit. <em>Precision comes later. Direction comes now.</em>
+      The prevailing view in enterprise AI is that <strong>ROI can't be known</strong> until after the fact. This tool pushes back on that &mdash; not with false precision, but with directional confidence.<br><br>
+      Not a contract. Not an audit. Enough for a business leader to start a serious conversation, grasp the order of magnitude, and know where to dig deeper once tools are selected and deployment is real.<br><br>
+      <strong>What this tool assumes:</strong> that effective adoption is happening &mdash; people are using the tools, managers are redirecting freed capacity, and the organization is doing something with the time it gets back. The deployment year slider makes the time-scale explicit. <em>Precision comes later. Direction comes now.</em>
     </div>
     <hr class="modal-rule">
     <div class="modal-tagline">
-      "Efficiency is a finite race to the bottom. Elasticity is an infinite race to the top. Stop measuring the displacement of people &mdash; start measuring the expansion of outcomes."
+      "Efficiency is a finite race to the bottom. Elasticity compounds. Stop measuring the displacement of people &mdash; start measuring the expansion of outcomes."
     </div>
     <button class="modal-close" onclick="closeAbout()">Start exploring &rarr;</button>
   </div>
