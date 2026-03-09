@@ -1467,20 +1467,18 @@ function update() {
   }
 
   // Gauge
-  // Synthetic Capacity: phi is the total productivity multiplier for adopters.
-  // phi=1.25 means each adopter generates 25% more output = 0.25 extra FTE-equiv.
-  // Capped at 25% of total workforce — real-world ceiling even at high AI maturity.
   const synthFTEs = Math.min(adoptingFTEs * (phi - 1) * rampEff, ftes * 0.25);
-  drawGauge(adoptingFTEs, synthFTEs, ftes);
-  drawCashflow(invest, totalCost, rcTerm, phiTerm);
-  drawBenchStrip(displayROI);
-  drawValueStack(savedDollars, rcTerm, phiTerm);
-  drawRampChart(salary, adoptingHrs, dragPct, dispRate, phi, impossVCapped, totalCost);
+  const synthRounded = Math.round(synthFTEs);
   const hrsPerAdopter = adoptingFTEs > 0 ? Math.round(Rc / adoptingFTEs) : 0;
   const daysPerAdopter = (hrsPerAdopter / 8).toFixed(1);
-  const synthRounded = Math.round(synthFTEs);
+  drawGauge(adoptingFTEs, synthFTEs, ftes);
+  // Caption updated immediately — before other draw calls so any error below can't block it
   document.getElementById('gauge-caption').innerHTML =
-    `Your <strong style="color:var(--text-strong, var(--white))">${fmtX(ftes)}-person firm</strong> gained the equivalent of <strong style="color:var(--emerald)">+${synthRounded} additional people</strong> — capacity you added without hiring. Each adopter reclaims <strong style="color:var(--text-strong, var(--white))">~${daysPerAdopter} days/yr</strong> of productive time.`;
+    `Your <strong style="color:var(--white)">${fmtX(ftes)}-person firm</strong> gained the equivalent of <strong style="color:var(--emerald)">+${synthRounded} additional people</strong> — capacity you added without hiring. Each adopter reclaims <strong style="color:var(--white)">~${daysPerAdopter} days/yr</strong> of productive time.`;
+  try { drawCashflow(invest, totalCost, rcTerm, phiTerm); } catch(e) {}
+  try { drawBenchStrip(displayROI); } catch(e) {}
+  try { drawValueStack(savedDollars, rcTerm, phiTerm); } catch(e) {}
+  try { drawRampChart(salary, adoptingHrs, dragPct, dispRate, phi, impossVCapped, totalCost); } catch(e) {}
 
   // Adoption Curve: ROI at each adoption % level, for Y1/Y2/Y4
   // Answers: "what's our ROI if we push adoption from 25% to 75%?"
