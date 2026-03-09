@@ -548,8 +548,8 @@
       <text x="54" y="53" font-family="Arial" font-size="12" fill="#38bdf8" text-anchor="middle">I</text>
     </svg>
     <div>
-      <div class="header-eyebrow">Jurkiewicz Synthetic Capacity Model</div>
-      <div class="header-title">AI ROI Elasticity Calculator</div>
+      <div class="header-eyebrow">AI ROI Elasticity Calculator &mdash; Synthetic Capacity Model</div>
+      <div class="header-title">Synthetic Capacity Model</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;">
@@ -1404,13 +1404,10 @@ function handleOverlayClick(e) {
 }
 // ── EXPORT MODAL ──────────────────────────────────────────
 var _expTheme = 'dark';
-var _expFormat = 'slide';
 
 function openExportModal() {
-  // Default to current page theme
   _expTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
   setExpTheme(_expTheme);
-  setExpFormat(_expFormat);
   document.getElementById('export-modal').style.display = 'flex';
   document.getElementById('exp-status').textContent = '';
 }
@@ -1429,18 +1426,6 @@ function setExpTheme(t) {
   light.style.background  = t === 'light' ? em10 : none;
   light.style.color       = t === 'light' ? em  : dm;
 }
-function setExpFormat(f) {
-  _expFormat = f;
-  var slide = document.getElementById('exp-slide');
-  var print = document.getElementById('exp-print');
-  var em = 'var(--emerald)', em10 = 'rgba(16,185,129,0.1)', bd = 'var(--border)', none = 'transparent', dm = 'var(--dim)';
-  slide.style.borderColor = f === 'slide' ? em  : bd;
-  slide.style.background  = f === 'slide' ? em10 : none;
-  slide.style.color       = f === 'slide' ? em  : dm;
-  print.style.borderColor = f === 'print' ? em  : bd;
-  print.style.background  = f === 'print' ? em10 : none;
-  print.style.color       = f === 'print' ? em  : dm;
-}
 
 async function runExport() {
   var btn = document.getElementById('exp-go-btn');
@@ -1449,7 +1434,6 @@ async function runExport() {
   btn.textContent = 'Rendering…';
   status.textContent = 'Capturing page — this takes a few seconds.';
 
-  // Apply export theme temporarily if different from current
   var originalTheme = document.documentElement.getAttribute('data-theme') || 'dark';
   var themeChanged = (_expTheme === 'light') !== (originalTheme === 'light');
   if (themeChanged) {
@@ -1466,7 +1450,6 @@ async function runExport() {
       backgroundColor: _expTheme === 'light' ? '#f0f4f8' : '#050a14',
       logging: false,
       onclone: function(doc) {
-        // Ensure charts render in clone
         doc.querySelectorAll('canvas').forEach(function(c) {
           c.style.display = 'block';
         });
@@ -1478,19 +1461,10 @@ async function runExport() {
     var imgW = canvas.width;
     var imgH = canvas.height;
 
-    var pdf, pageW, pageH;
-    if (_expFormat === 'slide') {
-      // 16:9 landscape in points (1920x1080pt scaled to 960x540 for reasonable file size)
-      pageW = 960; pageH = 540;
-      pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: [pageW, pageH] });
-    } else {
-      // Letter portrait
-      pageW = 612; pageH = 792;
-      pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
-    }
+    var pageW = 612; var pageH = 792;
+    var pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
 
-    // Scale image to fit page with padding
-    var pad = _expFormat === 'slide' ? 20 : 28;
+    var pad = 28;
     var availW = pageW - pad * 2;
     var availH = pageH - pad * 2;
     var ratio = Math.min(availW / imgW, availH / imgH);
@@ -1499,21 +1473,16 @@ async function runExport() {
     var offsetX = pad + (availW - drawW) / 2;
     var offsetY = pad + (availH - drawH) / 2;
 
-    // Background fill
     pdf.setFillColor(_expTheme === 'light' ? '#f0f4f8' : '#050a14');
     pdf.rect(0, 0, pageW, pageH, 'F');
-
     pdf.addImage(imgData, 'PNG', offsetX, offsetY, drawW, drawH);
 
-    // Footer
     pdf.setFontSize(7);
     pdf.setTextColor(_expTheme === 'light' ? '#94a3b8' : '#475569');
-    var now = new Date();
-    var stamp = now.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+    var stamp = new Date().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
     pdf.text('Jurkiewicz Synthetic Capacity Model  ·  myblueprint.work/airoi  ·  ' + stamp, pageW / 2, pageH - 10, { align: 'center' });
 
-    var fname = 'airoi-' + (_expFormat === 'slide' ? 'slide' : 'print') + '-' + (_expTheme) + '.pdf';
-    pdf.save(fname);
+    pdf.save('airoi-' + _expTheme + '.pdf');
 
     status.textContent = '✓ Downloaded.';
     btn.textContent = 'Generate PDF →';
@@ -1524,7 +1493,6 @@ async function runExport() {
     btn.disabled = false;
     console.error('Export error:', err);
   } finally {
-    // Restore original theme
     if (themeChanged) {
       document.documentElement.setAttribute('data-theme', originalTheme === 'light' ? 'light' : '');
     }
@@ -1569,14 +1537,6 @@ document.getElementById('export-modal').addEventListener('click', function(e) {
       <div style="display:flex; gap:10px;">
         <button id="exp-dark" onclick="setExpTheme('dark')" style="flex:1; padding:10px; border-radius:6px; border:1px solid var(--emerald); background:rgba(16,185,129,0.1); color:var(--emerald); font-family:'DM Mono',monospace; font-size:12px; cursor:pointer;">◼ Dark</button>
         <button id="exp-light" onclick="setExpTheme('light')" style="flex:1; padding:10px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--dim); font-family:'DM Mono',monospace; font-size:12px; cursor:pointer;">◻ Light</button>
-      </div>
-    </div>
-
-    <div style="margin-bottom:28px;">
-      <div style="font-size:11px; color:var(--dim); font-family:'DM Mono',monospace; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px;">Format</div>
-      <div style="display:flex; gap:10px;">
-        <button id="exp-slide" onclick="setExpFormat('slide')" style="flex:1; padding:10px; border-radius:6px; border:1px solid var(--emerald); background:rgba(16,185,129,0.1); color:var(--emerald); font-family:'DM Mono',monospace; font-size:12px; cursor:pointer;">▬ Slide (16:9)</button>
-        <button id="exp-print" onclick="setExpFormat('print')" style="flex:1; padding:10px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--dim); font-family:'DM Mono',monospace; font-size:12px; cursor:pointer;">▯ Print (Portrait)</button>
       </div>
     </div>
 
