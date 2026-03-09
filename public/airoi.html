@@ -94,6 +94,7 @@
     padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: all 0.2s; margin-right: 10px;
   }
   .theme-btn:hover { border-color: var(--emerald); color: var(--emerald); }
+  .export-btn { margin-right: 10px; }
 
   html { scroll-behavior: smooth; }
 
@@ -112,6 +113,7 @@
     border-bottom: 1px solid var(--border);
     padding: 18px 32px;
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
     position: sticky;
@@ -119,6 +121,22 @@
     background: rgba(5,10,20,0.96);
     backdrop-filter: blur(12px);
     z-index: 100;
+  }
+  .header-row-1 {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .header-row-2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  @media (min-width: 901px) {
+    .header-row-2 {
+      border-top: none;
+      padding: 0;
+    }
   }
   .header-eyebrow {
     font-family: 'DM Mono', monospace;
@@ -434,12 +452,43 @@
     .left-panel { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
     .kpi-grid { grid-template-columns: 1fr 1fr; }
     .mid-grid  { grid-template-columns: 1fr; }
-    header { flex-direction: column; gap: 12px; padding: 14px 16px; }
     .right-panel { padding: 20px 16px; }
     #gauge-canvas { width: 100% !important; height: auto !important; }
     .eq-fraction { padding: 10px 0 8px; margin-bottom: 14px; }
     .eq-num { font-size: 16px; }
     .eq-den { font-size: 14px; }
+
+    /* Mobile header: stack into two rows */
+    header {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 12px 16px;
+      gap: 0;
+    }
+    .header-row-1 {
+      padding-bottom: 10px;
+    }
+    .header-row-2 {
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    /* Shrink utility buttons to icon-only */
+    .btn-label { display: none; }
+    .about-btn, .theme-btn { padding: 6px 10px; font-size: 14px; margin-right: 4px; }
+    .export-btn { margin-right: 0; }
+    /* Toggle fills the row */
+    .toggle { flex: 1; min-width: 160px; }
+    .toggle-btn { flex: 1; padding: 8px 4px; font-size: 9px; }
+    /* Title scaling */
+    .header-title { font-size: 15px; }
+    .header-eyebrow { font-size: 8px; }
+  }
+
+  @media (max-width: 480px) {
+    .header-title { font-size: 13px; }
+    .kpi-grid { grid-template-columns: 1fr; }
   }
 
   /* ── About Modal ──────────────────────────────────────── */
@@ -530,19 +579,15 @@
 <body>
 
 <header>
-  <div style="display:flex;align-items:center;gap:14px;">
+  <!-- Left: Logo + Title -->
+  <div class="header-row-1">
     <svg width="40" height="40" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
       <rect width="64" height="64" rx="10" fill="#0a0f1e"/>
       <rect width="64" height="3" rx="0" fill="#10b981"/>
-      <!-- Outer ring track -->
       <circle cx="29" cy="36" r="19" fill="none" stroke="#0d1f35" stroke-width="5" stroke-dasharray="74.6 29.8" stroke-dashoffset="-14.9" stroke-linecap="round"/>
-      <!-- Outer ring emerald -->
       <circle cx="29" cy="36" r="19" fill="none" stroke="#10b981" stroke-width="5" stroke-dasharray="52 52.5" stroke-dashoffset="-14.9" stroke-linecap="round"/>
-      <!-- Inner ring track -->
       <circle cx="29" cy="36" r="12" fill="none" stroke="#0d1f35" stroke-width="4" stroke-dasharray="47.1 18.8" stroke-dashoffset="-9.4" stroke-linecap="round"/>
-      <!-- Inner ring gold -->
       <circle cx="29" cy="36" r="12" fill="none" stroke="#f59e0b" stroke-width="4" stroke-dasharray="28 38" stroke-dashoffset="-9.4" stroke-linecap="round"/>
-      <!-- ROI text right -->
       <text x="54" y="24" font-family="Arial" font-size="13" font-weight="bold" fill="#10b981" text-anchor="middle">R</text>
       <text x="54" y="39" font-family="Arial" font-size="12" fill="#f59e0b" text-anchor="middle">O</text>
       <text x="54" y="53" font-family="Arial" font-size="12" fill="#38bdf8" text-anchor="middle">I</text>
@@ -552,14 +597,15 @@
       <div class="header-title">AI ROI Elasticity Calculator</div>
     </div>
   </div>
-  <div style="display:flex;align-items:center;">
-    <button class="about-btn" onclick="openAbout()">&#9432; About this tool</button>
-    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">☀ Light</button>
-    <button class="theme-btn" onclick="openExportModal()" style="margin-right:10px;" title="Export to PDF">&#8681; Export PDF</button>
-  <div class="toggle">
-    <button class="toggle-btn" id="btn-side"  onclick="setView('sideline')" title="Sideline View: Traditional ROI — labor savings only. What you can defend with hard numbers in any room.">Sideline View</button>
-    <button class="toggle-btn active-press" id="btn-press" onclick="setView('pressbox')" title="Press Box View: Elastic ROI — adds strategic outcomes beyond labor savings. The full picture, including value most models miss.">Press Box View</button>
-  </div>
+  <!-- Right: Utility buttons + Toggle -->
+  <div class="header-row-2">
+    <button class="about-btn" onclick="openAbout()" title="About this tool">&#9432;<span class="btn-label"> About this tool</span></button>
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">&#9728;<span class="btn-label"> Light</span></button>
+    <button class="theme-btn export-btn" onclick="openExportModal()" title="Export to PDF">&#8681;<span class="btn-label"> Export PDF</span></button>
+    <div class="toggle">
+      <button class="toggle-btn" id="btn-side" onclick="setView('sideline')" title="Sideline View: Traditional ROI — labor savings only. What you can defend with hard numbers in any room.">Sideline View</button>
+      <button class="toggle-btn active-press" id="btn-press" onclick="setView('pressbox')" title="Press Box View: Elastic ROI — adds strategic outcomes beyond labor savings. The full picture, including value most models miss.">Press Box View</button>
+    </div>
   </div>
 </header>
 
@@ -1438,7 +1484,7 @@ function toggleTheme() {
   const html = document.documentElement;
   const isLight = html.getAttribute('data-theme') === 'light';
   html.setAttribute('data-theme', isLight ? 'dark' : 'light');
-  document.getElementById('theme-btn').innerHTML = isLight ? '&#9728; Light' : '&#9790; Dark';
+  document.getElementById('theme-btn').innerHTML = isLight ? '&#9728;<span class="btn-label"> Light</span>' : '&#9790;<span class="btn-label"> Dark</span>';
   const lc = isLight ? '#64748b' : '#475569';
   const ac = isLight ? '#c8d5e3' : '#1e293b';
   elasticityChart.options.scales.x.ticks.color = lc;
