@@ -696,8 +696,8 @@
     <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme">&#9790;<span class="btn-label"> Dark</span></button>
     <button class="theme-btn export-btn" onclick="openExportModal()" title="Export to PDF">&#8681;<span class="btn-label"> Export PDF</span></button>
     <div class="toggle">
-      <button class="toggle-btn" id="btn-side" onclick="setView('sideline')" title="Sideline View: Traditional ROI — labor savings only. What you can defend with hard numbers in any room.">Sideline View</button>
-      <button class="toggle-btn active-press" id="btn-press" onclick="setView('pressbox')" title="Press Box View: Elastic ROI — adds strategic outcomes beyond labor savings. The full picture, including value most models miss.">Press Box View</button>
+      <button class="toggle-btn" id="btn-side" onclick="setView('sideline')" title="">Sideline View <i class="tip-icon" data-tip-title="Sideline View" data-tip-body="Traditional ROI — labor savings only. Hours reclaimed multiplied by salary. No strategic assumptions, no speculation." data-tip-drivers="<strong>Shows:</strong> Productivity Floor only (Rc·μ·ΔMPL). Use this when you need a number you can defend in any room with hard data. Driven by FTEs, Adoption Rate, Salary, Cognitive Drag, AI Displacement.">i</i></button>
+      <button class="toggle-btn active-press" id="btn-press" onclick="setView('pressbox')" title="">Press Box View <i class="tip-icon" data-tip-title="Press Box View" data-tip-body="Elastic ROI — adds strategic outcomes on top of labor savings. The full picture: productivity reclaimed plus work that becomes possible for the first time." data-tip-drivers="<strong>Adds:</strong> Strategic Ceiling (Φ term) = Revenue × Revealed Outcomes %. This is the value most ROI models leave on the table. Adjust Revealed Outcomes % to calibrate how much strategic upside you claim.">i</i></button>
     </div>
   </div>
 </header>
@@ -1932,6 +1932,12 @@ function positionTip(e) {
 
 // ── GUIDED TOUR ──────────────────────────────────────────────
 var tourSteps = [
+  { id: 'btn-side',    title: 'Sideline View',
+    body: 'Traditional ROI — pure labor savings. Hours reclaimed multiplied by fully-loaded salary. Zero speculation, 100% defensible.',
+    drivers: '<strong>Shows:</strong> Productivity Floor only. What you bring to a CFO with hard data. Driven by Salary, Adoption Rate, Cognitive Drag %, and AI Displacement Rate.' },
+  { id: 'btn-press',   title: 'Press Box View',
+    body: 'Elastic ROI — adds strategic outcomes on top of labor savings. The full picture: productivity reclaimed plus work that becomes possible for the first time.',
+    drivers: '<strong>Adds:</strong> the Φ (strategic) term = Revenue × Revealed Outcomes %. Adjust that slider to calibrate how much upside you claim beyond measurable productivity.' },
   { id: 'tip-invest',   title: 'Total Investment',
     body: 'What you actually spend: seat licenses plus two hidden costs most organizations miss.',
     drivers: '<strong>Adopters × Cost/seat</strong> = base cost. Then +15% O_trans (change management, integration friction) and +8% Ω (obsolescence — tools you pay for that get replaced). Adjust FTEs, Adoption Rate, and Cost tier to shift this.' },
