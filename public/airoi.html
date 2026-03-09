@@ -1712,44 +1712,31 @@ async function runExport() {
     var pageW = 612;
     var PAD = 20;
 
-    // ── 1. Pre-render Φ logo via offscreen canvas ───────────────
-    var logoScale = 6;
-    var logoPx = 56 * logoScale;
-    var logoCanvas = document.createElement('canvas');
-    logoCanvas.width = logoCanvas.height = logoPx;
-    var lctx = logoCanvas.getContext('2d');
-    var rad = 12 * logoScale;
-    lctx.beginPath();
-    lctx.moveTo(rad, 0); lctx.lineTo(logoPx - rad, 0);
-    lctx.quadraticCurveTo(logoPx, 0, logoPx, rad);
-    lctx.lineTo(logoPx, logoPx - rad);
-    lctx.quadraticCurveTo(logoPx, logoPx, logoPx - rad, logoPx);
-    lctx.lineTo(rad, logoPx);
-    lctx.quadraticCurveTo(0, logoPx, 0, logoPx - rad);
-    lctx.lineTo(0, rad);
-    lctx.quadraticCurveTo(0, 0, rad, 0);
-    lctx.closePath();
-    lctx.fillStyle = '#065f46';
-    lctx.fill();
-    lctx.font = '500 ' + (58 * logoScale) + 'px Georgia, serif';
-    lctx.textAlign = 'center';
-    lctx.textBaseline = 'middle';
-    lctx.strokeStyle = '#f8fafc';
-    lctx.lineWidth = 1.8 * logoScale;
-    lctx.strokeText('\u03A6', logoPx / 2, logoPx / 2 + (3 * logoScale));
-    var logoImgData = logoCanvas.toDataURL('image/png');
+    // ── 1. Pre-render full header block via offscreen canvas ────
+    // This captures the actual page header element with real fonts
+    var headerEl = document.querySelector('header');
+    var headerCanvas = await html2canvas(headerEl, {
+      scale: 3,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: bg,
+      logging: false
+    });
+    var headerImgData = headerCanvas.toDataURL('image/png');
+    var hcW = headerCanvas.width;
+    var hcH = headerCanvas.height;
 
-    // ── 2. Header metrics ───────────────────────────────────────
-    var logoSize = 56;   // pt in PDF
-    var logoX    = PAD;
-    var logoY    = 14;
-    var ruleY    = logoY + logoSize + 10;
-    var headerH  = ruleY + 2;
+    // ── 2. Header layout metrics ────────────────────────────────
+    var PAD     = 20;
+    var pageW   = 612;
+    var availW  = pageW - PAD * 2;
+    var hDrawW  = availW;
+    var hDrawH  = hcH * (hDrawW / hcW);
+    var headerH = hDrawH + 10;   // header image height + gap before rule
+    var ruleY   = headerH + 2;
 
-    // ── 3. Capture right panel ──────────────────────────────────
-    // Render at a fixed logical width that matches a reasonable column width.
-    // Scale=2 for sharpness. Do NOT constrain height — let content be full length.
-    var renderW = 1100;  // logical px — both panels
+    // ── 3. Capture full layout (both panels) ────────────────────
+    var renderW = 1200;  // wider to prevent right-side clipping
     status.textContent = 'Rendering charts…';
 
     var target = document.querySelector('.layout');
@@ -1788,20 +1775,19 @@ async function runExport() {
     });
 
     var imgData = contentCanvas.toDataURL('image/jpeg', 0.92);
-    var imgW = contentCanvas.width;   // renderW * 2 = 1720px
-    var imgH = contentCanvas.height;  // full content height
+    var imgW = contentCanvas.width;
+    var imgH = contentCanvas.height;
 
-    // ── 4. Build PDF with CUSTOM HEIGHT ────────────────────────
-    // pageW fixed at 612pt. drawW fills content area. pageH = headerH + drawH + footerH
+    // ── 4. Build PDF — custom height ────────────────────────────
     var { jsPDF } = window.jspdf;
-    var availW  = pageW - PAD * 2;          // 572pt
-    var ratio   = availW / imgW;            // scale so image fills full width
+    var availW  = pageW - PAD * 2;
+    var ratio   = availW / imgW;
     var drawW   = availW;
-    var drawH   = imgH * ratio;             // proportional height — could be 1200pt+
+    var drawH   = imgH * ratio;
 
-    var contentY = headerH + 6;
+    var contentY = PAD + hDrawH + 12;
     var footerH  = 20;
-    var pageH    = contentY + drawH + footerH;  // custom total height
+    var pageH    = contentY + drawH + footerH;
 
     var pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: [pageW, pageH] });
 
@@ -1809,38 +1795,13 @@ async function runExport() {
     pdf.setFillColor(bg);
     pdf.rect(0, 0, pageW, pageH, 'F');
 
-    // Logo
-    pdf.addImage(logoImgData, 'PNG', logoX, logoY, logoSize, logoSize);
-
-    // Eyebrow
-    var textX = logoX + logoSize + 10;
-    pdf.setFontSize(7.5);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(em);
-    pdf.text('SYNTHETIC CAPACITY MODEL', textX, logoY + 14);
-
-    // Title — Treatment F inline
-    pdf.setFontSize(24);
-    var titleBaseY = logoY + 44;
-    var t1 = 'AI ROI ';
-    var t2 = 'Elasticity';
-    var t3 = ' Calculator';
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(ink);
-    var w1 = pdf.getTextWidth(t1);
-    pdf.text(t1, textX, titleBaseY);
-    pdf.setFont('helvetica', 'bolditalic');
-    pdf.setTextColor(em);
-    var w2 = pdf.getTextWidth(t2);
-    pdf.text(t2, textX + w1, titleBaseY);
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(ink);
-    pdf.text(t3, textX + w1 + w2, titleBaseY);
+    // Header — rendered from real DOM with real fonts
+    pdf.addImage(headerImgData, 'PNG', PAD, PAD, hDrawW, hDrawH);
 
     // Emerald rule
     pdf.setDrawColor(em);
     pdf.setLineWidth(0.75);
-    pdf.line(PAD, ruleY, pageW - PAD, ruleY);
+    pdf.line(PAD, PAD + hDrawH + 6, pageW - PAD, PAD + hDrawH + 6);
 
     // Content image — full width, natural height
     pdf.addImage(imgData, 'JPEG', PAD, contentY, drawW, drawH);
