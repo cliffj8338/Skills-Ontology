@@ -1761,6 +1761,7 @@ async function runExport() {
         var left = doc.querySelector('.left-panel');
         if (left) {
           left.style.overflowY = 'visible';
+          left.style.overflowX = 'hidden';
           left.style.height = 'auto';
           left.style.position = 'static';
         }
@@ -1770,6 +1771,11 @@ async function runExport() {
           right.style.height = 'auto';
           right.style.padding = '16px 20px';
         }
+        doc.querySelectorAll('.left-panel input[type="range"]').forEach(function(s) {
+          s.style.maxWidth = '100%';
+          s.style.width = '100%';
+          s.parentElement.style.overflow = 'hidden';
+        });
         doc.querySelectorAll('canvas').forEach(function(c) { c.style.display = 'block'; });
       }
     });
