@@ -779,6 +779,33 @@
       </div>
     </div>
 
+    <!-- Benchmark Positioning Strip -->
+    <div class="chart-card" style="padding:16px 22px; margin-bottom:20px;">
+      <div class="card-label" style="color:var(--dim); margin-bottom:14px;">Where You Stand</div>
+      <div style="position:relative; margin-bottom:14px;">
+        <div style="display:flex; height:20px; border-radius:4px; overflow:hidden; width:100%;">
+          <div style="flex:0 0 calc(2/15*100%); background:rgba(148,163,184,0.18);"></div>
+          <div style="flex:0 0 calc(5/15*100%); background:rgba(16,185,129,0.15);"></div>
+          <div style="flex:0 0 calc(7/15*100%); background:rgba(16,185,129,0.28);"></div>
+          <div style="flex:1; background:rgba(245,158,11,0.18);"></div>
+        </div>
+        <div id="bench-indicator" style="position:absolute; top:-5px; width:3px; height:30px; background:var(--white); border-radius:2px; box-shadow:0 0 6px rgba(255,255,255,0.4); transition:left 0.35s ease; left:0;"></div>
+      </div>
+      <div style="position:relative; height:14px; margin-bottom:10px;">
+        <span style="position:absolute; left:0; font-family:'DM Mono',monospace; font-size:9px; color:var(--slate2);">1×</span>
+        <span style="position:absolute; left:calc(2/15*100%); font-family:'DM Mono',monospace; font-size:9px; color:var(--slate2);">3×</span>
+        <span style="position:absolute; left:calc(7/15*100%); font-family:'DM Mono',monospace; font-size:9px; color:var(--slate2);">8×</span>
+        <span style="position:absolute; left:calc(14/15*100%); font-family:'DM Mono',monospace; font-size:9px; color:var(--slate2);">15×</span>
+      </div>
+      <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:10px;">
+        <span style="font-family:'DM Mono',monospace; font-size:10px; color:var(--slate2);"><span style="display:inline-block;width:10px;height:10px;background:rgba(148,163,184,0.35);border-radius:2px;margin-right:5px;vertical-align:middle;"></span>Below avg (&lt;3×)</span>
+        <span style="font-family:'DM Mono',monospace; font-size:10px; color:var(--slate2);"><span style="display:inline-block;width:10px;height:10px;background:rgba(16,185,129,0.25);border-radius:2px;margin-right:5px;vertical-align:middle;"></span>Median (3–8×)</span>
+        <span style="font-family:'DM Mono',monospace; font-size:10px; color:var(--slate2);"><span style="display:inline-block;width:10px;height:10px;background:rgba(16,185,129,0.45);border-radius:2px;margin-right:5px;vertical-align:middle;"></span>Above median (8–15×)</span>
+        <span style="font-family:'DM Mono',monospace; font-size:10px; color:var(--gold);"><span style="display:inline-block;width:10px;height:10px;background:rgba(245,158,11,0.35);border-radius:2px;margin-right:5px;vertical-align:middle;"></span>Outlier (&gt;15×)</span>
+      </div>
+      <div id="bench-strip-label" style="font-family:'DM Mono',monospace; font-size:11px; color:var(--white); min-height:16px;"></div>
+    </div>
+
     <!-- Gauge + Equation -->
     <div class="mid-grid">
       <div class="card">
@@ -854,6 +881,37 @@
           <span style="display:inline-block;width:10px;height:10px;background:var(--gold);opacity:0.7;border-radius:2px;margin-right:5px;vertical-align:middle;"></span>Strategic Upside
         </span>
       </div>
+    </div>
+
+    <!-- Value Stack -->
+    <div class="chart-card">
+      <div class="chart-header" style="margin-bottom:14px;">
+        <div>
+          <div class="card-label" style="color:var(--dim); margin-bottom:4px;">Value Stack</div>
+          <div style="font-size:11px; color:var(--slate2);">What's inside your number — each layer earns its place or doesn't.</div>
+        </div>
+      </div>
+      <div id="value-stack-bars" style="margin-bottom:12px;"></div>
+      <div style="display:flex; gap:16px; flex-wrap:wrap;">
+        <span style="font-family:'DM Mono',monospace; font-size:10px; color:var(--dim);"><span style="display:inline-block;width:10px;height:10px;background:rgba(16,185,129,0.45);border-radius:2px;margin-right:5px;vertical-align:middle;"></span>Base Labor (hours × rate)</span>
+        <span style="font-family:'DM Mono',monospace; font-size:10px; color:var(--dim);"><span style="display:inline-block;width:10px;height:10px;background:rgba(16,185,129,0.85);border-radius:2px;margin-right:5px;vertical-align:middle;"></span>Quality Premium (redeployment ×1.5)</span>
+        <span style="font-family:'DM Mono',monospace; font-size:10px; color:var(--dim);"><span style="display:inline-block;width:10px;height:10px;background:rgba(245,158,11,0.7);border-radius:2px;margin-right:5px;vertical-align:middle;"></span>Strategic Outcomes (Φ)</span>
+      </div>
+    </div>
+
+    <!-- Ramp Curve -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="card-label" style="color:var(--dim); margin-bottom:4px;">Value Ramp</div>
+          <div style="font-size:11px; color:var(--slate2);">ROI builds as the organization learns to use what it has. This is when elasticity becomes real.</div>
+        </div>
+        <div class="chart-legend">
+          <span><span style="display:inline-block; width:14px; height:2px; background:var(--emerald); vertical-align:middle; margin-right:4px;"></span><span style="color:var(--emerald);">Strategic Ceiling</span></span>
+          <span><span style="display:inline-block; width:14px; height:2px; background:rgba(16,185,129,0.4); vertical-align:middle; margin-right:4px;"></span><span style="color:var(--slate2);">Productivity Floor</span></span>
+        </div>
+      </div>
+      <canvas id="ramp-chart" height="80"></canvas>
     </div>
 
     <!-- Author tile -->
@@ -1305,6 +1363,9 @@ function update() {
   const synthFTEs = Math.min(adoptingFTEs * (phi - 1) * rampEff, ftes * 0.25);
   drawGauge(adoptingFTEs, synthFTEs, ftes);
   drawCashflow(invest, totalCost, rcTerm, phiTerm);
+  drawBenchStrip(displayROI);
+  drawValueStack(savedDollars, rcTerm, phiTerm);
+  drawRampChart(salary, adoptingHrs, dragPct, dispRate, phi, impossVCapped, totalCost);
   const hrsPerAdopter = adoptingFTEs > 0 ? Math.round(Rc / adoptingFTEs) : 0;
   const daysPerAdopter = (hrsPerAdopter / 8).toFixed(1);
   const synthRounded = Math.round(synthFTEs);
@@ -1514,6 +1575,118 @@ async function runExport() {
       document.documentElement.setAttribute('data-theme', originalTheme === 'light' ? 'light' : '');
     }
   }
+}
+
+// ── BENCHMARK STRIP ──────────────────────────────────────────
+function drawBenchStrip(roi) {
+  var MAX = 15;
+  var clamped = Math.min(roi, MAX);
+  var pct = (clamped / MAX) * 100;
+  var ind = document.getElementById('bench-indicator');
+  if (ind) ind.style.left = 'calc(' + pct.toFixed(1) + '% - 1.5px)';
+  var lbl = document.getElementById('bench-strip-label');
+  if (!lbl) return;
+  var zone, color;
+  if (roi < 3)       { zone = 'Below avg — consider broadening adoption scope or redeployment assumptions.'; color = 'var(--slate)'; }
+  else if (roi < 8)  { zone = 'Median range — consistent with enterprise avg of ~$3.70 return per $1 (IDC/Microsoft, 2024).'; color = 'var(--emerald)'; }
+  else if (roi < 15) { zone = 'Above median — solid inputs. Verify displacement and redeployment hold at scale.'; color = 'var(--emerald)'; }
+  else               { zone = 'Outlier territory — above 15\u00d7 typically reflects aggressive displacement assumptions. Review inputs.'; color = 'var(--gold)'; }
+  lbl.textContent = roi.toFixed(1) + '\u00d7 \u2014 ' + zone;
+  lbl.style.color = color;
+}
+
+// ── VALUE STACK ───────────────────────────────────────────────
+function drawValueStack(savedDollars, rcTerm, phiTerm) {
+  var container = document.getElementById('value-stack-bars');
+  if (!container) return;
+  var total = rcTerm + phiTerm;
+  if (total <= 0) { container.innerHTML = ''; return; }
+  var qualPremium = rcTerm - savedDollars;
+  var s1 = (savedDollars / total * 100).toFixed(1);
+  var s2 = (qualPremium  / total * 100).toFixed(1);
+  var s3 = (phiTerm      / total * 100).toFixed(1);
+  function seg(pct, bg, val) {
+    var show = parseFloat(pct) > 10;
+    return '<div style="flex:0 0 calc(' + pct + '% - 2px); background:' + bg + '; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:3px; transition:flex 0.3s ease;">'
+      + (show ? '<span style="font-family:\'DM Mono\',monospace;font-size:9px;color:rgba(255,255,255,0.9);white-space:nowrap;padding:0 4px;">' + parseFloat(pct).toFixed(0) + '%</span>' : '')
+      + '</div>';
+  }
+  container.innerHTML =
+    '<div style="display:flex; height:26px; width:100%; gap:3px; margin-bottom:8px;">'
+    + seg(s1, 'rgba(16,185,129,0.45)', savedDollars)
+    + seg(s2, 'rgba(16,185,129,0.85)', qualPremium)
+    + seg(s3, 'rgba(245,158,11,0.7)',  phiTerm)
+    + '</div>'
+    + '<div style="display:flex; width:100%; gap:3px;">'
+    + '<div style="flex:0 0 calc(' + s1 + '% - 2px); text-align:center; font-family:\'DM Mono\',monospace; font-size:9px; color:var(--slate2); overflow:hidden;">' + (parseFloat(s1) > 15 ? fmt(savedDollars) : '') + '</div>'
+    + '<div style="flex:0 0 calc(' + s2 + '% - 2px); text-align:center; font-family:\'DM Mono\',monospace; font-size:9px; color:var(--slate2); overflow:hidden;">' + (parseFloat(s2) > 15 ? fmt(qualPremium) : '') + '</div>'
+    + '<div style="flex:0 0 calc(' + s3 + '% - 2px); text-align:center; font-family:\'DM Mono\',monospace; font-size:9px; color:var(--slate2); overflow:hidden;">' + (parseFloat(s3) > 15 ? fmt(phiTerm) : '') + '</div>'
+    + '</div>';
+}
+
+// ── RAMP CURVE ────────────────────────────────────────────────
+var rampChart = null;
+function drawRampChart(salary, adoptingHrs, dragPct, dispRate, phi, impossVCapped, totalCost) {
+  var hourly = salary / 2080;
+  var dMPL_v = hourly * DMPL_MULT;
+  var labels = ['Year 1', 'Year 2', 'Year 3', 'Year 4'];
+  var floorData = [], ceilData = [];
+  RAMP_EFF.forEach(function(re) {
+    var Rc_y = adoptingHrs * (dragPct / 100) * (dispRate / 100) * re;
+    var rcTerm_y = Rc_y * MU * dMPL_v;
+    var phiTerm_y = phi * impossVCapped;
+    floorData.push(parseFloat((rcTerm_y / totalCost).toFixed(2)));
+    ceilData.push(parseFloat(((rcTerm_y + phiTerm_y) / totalCost).toFixed(2)));
+  });
+  var ctx = document.getElementById('ramp-chart');
+  if (!ctx) return;
+  if (rampChart) { rampChart.destroy(); rampChart = null; }
+  rampChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Strategic Ceiling',
+          data: ceilData,
+          borderColor: 'rgba(16,185,129,1)',
+          backgroundColor: 'rgba(16,185,129,0.07)',
+          fill: true, tension: 0.35,
+          pointBackgroundColor: 'rgba(16,185,129,1)',
+          pointRadius: 4, borderWidth: 2
+        },
+        {
+          label: 'Productivity Floor',
+          data: floorData,
+          borderColor: 'rgba(16,185,129,0.4)',
+          backgroundColor: 'rgba(16,185,129,0.03)',
+          fill: true, tension: 0.35,
+          pointBackgroundColor: 'rgba(16,185,129,0.4)',
+          pointRadius: 4, borderWidth: 1.5,
+          borderDash: [5, 3]
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 250 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0f172a',
+          borderColor: '#1e293b', borderWidth: 1,
+          titleColor: '#94a3b8', bodyColor: '#f8fafc',
+          titleFont: { family: "'DM Mono', monospace", size: 10 },
+          bodyFont:  { family: "'DM Mono', monospace", size: 10 },
+          callbacks: { label: function(ctx) { return ctx.dataset.label + ': ' + ctx.parsed.y + '\u00d7 ROI'; } }
+        }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(30,41,59,0.5)' }, ticks: { color: '#64748b', font: { family: "'DM Mono', monospace", size: 10 } } },
+        y: { grid: { color: 'rgba(30,41,59,0.5)' }, ticks: { color: '#64748b', font: { family: "'DM Mono', monospace", size: 10 }, callback: function(v) { return v + '\u00d7'; } } }
+      }
+    }
+  });
 }
 
 document.getElementById('export-modal').addEventListener('click', function(e) {
