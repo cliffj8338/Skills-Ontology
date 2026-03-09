@@ -672,26 +672,7 @@
 
 <header>
 <!-- Tooltip box (singleton, moved by JS) -->
-<div id="tip-box">
-  <div class="tip-title" id="tip-title"></div>
-  <div class="tip-body" id="tip-body"></div>
-  <div class="tip-drivers" id="tip-drivers"></div>
-</div>
-<!-- Tour overlay -->
-<div id="tour-overlay"></div>
-<div id="tour-card" style="display:none;">
-  <div class="tour-step-label" id="tour-step-label"></div>
-  <div class="tour-title" id="tour-title"></div>
-  <div class="tour-body" id="tour-body"></div>
-  <div class="tour-drivers" id="tour-drivers-card"></div>
-  <div id="tour-nav">
-    <button id="tour-prev">&#8592; Prev</button>
-    <button class="tour-close" onclick="endTour()">Close</button>
-    <button id="tour-next">Next &#8594;</button>
-  </div>
-</div>
-<!-- Floating ? button -->
-<button id="tour-btn" onclick="startTour()" title="Guided tour — what drives each number">?</button>
+<header>
   <!-- Left: Logo + Title -->
   <div class="header-row-1">
     <svg width="40" height="40" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
@@ -1980,7 +1961,7 @@ var tourSteps = [
     drivers: '<strong>Green = Productivity (Rc·μ·ΔMPL):</strong> what you can measure. <strong>Gold = Strategic (Φ):</strong> what you are betting on. Shift the Revealed Outcomes % slider to see the balance change. Heavy gold is a risk flag.' },
   { id: 'tip-equation', title: 'Equation Breakdown',
     body: 'The master formula decomposed into its components with live values. The denominator is your true cost of capital deployment.',
-    drivers: '<strong>Numerator:</strong> Φ(Oₙ·V) strategic + Rc·μ·ΔMPL productivity. <strong>Denominator:</strong> I + O_trans (friction) + Ω (obsolescence). Fixed constants μ=0.60 and ΔMPL=1.5× are sourced from NBER 2023 and McKinsey 2023.' }
+    drivers: '<strong>Numerator:</strong> Strategic value (revenue x outcomes %) plus productivity (hours x salary x efficiency multipliers). <strong>Denominator:</strong> Seat cost plus O_trans friction (15%) plus obsolescence risk (8%). Fixed constants u=0.60 and DMPL=1.5x are sourced from NBER 2023 and McKinsey 2023.' }
 ];
 
 var tourStep = 0;
@@ -2168,5 +2149,26 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') endTo
   } catch(e) {}
 })();
 </script>
+<!-- Tooltip singleton -->
+<div id="tip-box">
+  <div class="tip-title" id="tip-title"></div>
+  <div class="tip-body" id="tip-body"></div>
+  <div class="tip-drivers" id="tip-drivers"></div>
+</div>
+<!-- Tour overlay + card -->
+<div id="tour-overlay"></div>
+<div id="tour-card" style="display:none;">
+  <div class="tour-step-label" id="tour-step-label"></div>
+  <div class="tour-title" id="tour-title"></div>
+  <div class="tour-body" id="tour-body"></div>
+  <div class="tour-drivers" id="tour-drivers-card"></div>
+  <div id="tour-nav">
+    <button id="tour-prev">&#8592; Prev</button>
+    <button class="tour-close" onclick="endTour()">Close</button>
+    <button id="tour-next">Next &#8594;</button>
+  </div>
+</div>
+<!-- Floating ? button — fixed bottom right -->
+<button id="tour-btn" onclick="startTour()" title="Guided tour — what drives each number">?</button>
 </body>
 </html>
