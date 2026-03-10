@@ -780,6 +780,9 @@
         <button class="seat-badge active-seat" data-val="2000" onclick="setSeat(2000)">$2,000</button>
         <button class="seat-badge" data-val="2500" onclick="setSeat(2500)" >$2,500</button>
         <button class="seat-badge" data-val="3000" onclick="setSeat(3000)" >$3,000</button>
+        <button class="seat-badge" data-val="4000" onclick="setSeat(4000)" >$4,000</button>
+        <button class="seat-badge" data-val="5000" onclick="setSeat(5000)" >$5,000</button>
+        <button class="seat-badge" data-val="6000" onclick="setSeat(6000)" >$6,000</button>
       </div>
       <div class="slider-sub">Volume pricing applies above ~500 seats. Higher tiers include integrations &amp; training.</div>
     </div>
@@ -2170,7 +2173,10 @@ function showTourStep() {
   };
 }
 
-document.getElementById('tour-overlay').addEventListener('click', endTour);
+document.addEventListener('DOMContentLoaded', function() {
+  var tourOverlay = document.getElementById('tour-overlay');
+  if (tourOverlay) tourOverlay.addEventListener('click', endTour);
+});
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') endTour(); });
 </script>
 
