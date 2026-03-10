@@ -732,7 +732,7 @@
       </div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-ftes"></div>
-        <input type="range" id="ftes" min="2500" max="50000" step="100" value="5000" oninput="update()">
+        <input type="range" id="ftes" min="0" max="35" step="1" value="4" oninput="update()">
       </div>
     </div>
 
@@ -1381,9 +1381,17 @@ function setSeat(val) {
   update();
 }
 
+// ── FTE SLIDER MAPPING (non-linear) ───────────────────────────
+// Indices 0-19: 1,000–20,000 by 1,000 | Indices 20-35: 25,000–100,000 by 5,000
+function ftesFromIndex(i) {
+  i = Math.round(i);
+  if (i <= 19) return (i + 1) * 1000;
+  return 20000 + (i - 19) * 5000;
+}
+
 // ── MAIN UPDATE ───────────────────────────────────────────────
 function update() {
-  const ftes    = +document.getElementById('ftes').value;
+  const ftes    = ftesFromIndex(+document.getElementById('ftes').value);
   const adoptPct = +document.getElementById('adopt').value;
   const salary  = +document.getElementById('salary').value;
   const dragPct = +document.getElementById('drag').value;
@@ -1398,7 +1406,7 @@ function update() {
   let invest = Math.max(100000, Math.round(adoptingFTEsForInvest * perSeatCost / 1000) * 1000);
 
   // Slider fills & labels — done BEFORE constraints only for non-capped sliders
-  fillPct('ftes',   ftes,    2500,     50000);    document.getElementById('val-ftes').textContent   = ftes.toLocaleString();
+  fillPct('ftes', +document.getElementById('ftes').value, 0, 35); document.getElementById('val-ftes').textContent = ftes.toLocaleString();
   fillPct('adopt', adoptPct, 5,       100);       document.getElementById('val-adopt').textContent  = adoptPct + '%';
   fillPct('salary', salary,  40000,    300000);    document.getElementById('val-salary').textContent = fmt(salary);
   fillPct('drag',   dragPct, 10,       80);        document.getElementById('val-drag').textContent   = dragPct + '%';
