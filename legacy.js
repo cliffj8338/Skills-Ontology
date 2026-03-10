@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.62 - BUILD 20260306-footer-css-fix
-        var BP_VERSION = 'v4.46.62';
+        // BLUEPRINT v4.46.63 - BUILD 20260309-mobile-ui-fixes
+        var BP_VERSION = 'v4.46.63';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -39881,9 +39881,9 @@ body {
                             html += '<div id="wh-card-' + idx + '" style="padding:8px 12px 8px 20px; border-top:1px solid var(--c-surface-4); display:flex; align-items:center; gap:8px;'
                                 + (isHidden ? ' opacity:0.45;' : '') + '">'
                                 + '<div style="width:5px; height:5px; border-radius:50%; background:' + (isLatest ? 'var(--c-accent)' : 'var(--c-surface-5b)') + '; flex-shrink:0;"></div>'
-                                + '<div style="flex:1; min-width:0;">'
-                                + '<span style="font-size:0.86em; font-weight:' + (isLatest ? '700' : '500') + '; color:var(--c-text-alt);">' + escapeHtml(job.title||'Untitled') + '</span>'
-                                + '<span style="font-size:0.75em; color:var(--c-muted); margin-left:8px;">' + escapeHtml(dateRange) + '</span>'
+                                + '<div style="flex:1; min-width:0; overflow:hidden;">'
+                                + '<span style="font-size:0.86em; font-weight:' + (isLatest ? '700' : '500') + '; color:var(--c-text-alt); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; max-width:100%;">' + escapeHtml(job.title||'Untitled') + '</span>'
+                                + '<span style="font-size:0.75em; color:var(--c-muted); white-space:nowrap;">' + escapeHtml(dateRange) + '</span>'
                                 + (isHidden ? '<span style="font-size:0.65em; color:#f59e0b; margin-left:6px;">Hidden</span>' : '')
                                 + '</div>'
                                 + '<div style="display:flex; gap:2px; flex-shrink:0;">'
@@ -39907,10 +39907,10 @@ body {
                         html += '<div id="wh-card-' + idx + '" style="padding:9px 12px; background:var(--c-surface-1); border:1px solid var(--c-surface-5b); border-radius:8px; display:flex; align-items:center; gap:8px;'
                             + (isHidden ? ' opacity:0.45;' : '') + '">'
                             + '<div style="flex:1; min-width:0;">'
-                            + '<div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;">'
-                            + '<span style="font-size:0.88em; font-weight:600; color:var(--c-text-alt); white-space:nowrap;">' + escapeHtml(job.title||'Untitled Role') + '</span>'
-                            + '<span style="font-size:0.75em; color:var(--c-accent);">' + escapeHtml(job.company||'') + (job.location ? ' \u00B7 ' + escapeHtml(job.location) : '') + '</span>'
-                            + '<span style="font-size:0.72em; color:var(--c-muted);">' + escapeHtml(dateRange) + '</span>'
+                            + '<div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; overflow:hidden;">'
+                            + '<span style="font-size:0.88em; font-weight:600; color:var(--c-text-alt); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">' + escapeHtml(job.title||'Untitled Role') + '</span>'
+                            + '<span style="font-size:0.75em; color:var(--c-accent); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%;">' + escapeHtml(job.company||'') + (job.location ? ' \u00B7 ' + escapeHtml(job.location) : '') + '</span>'
+                            + '<span style="font-size:0.72em; color:var(--c-muted); white-space:nowrap; flex-shrink:0;">' + escapeHtml(dateRange) + '</span>'
                             + (isHidden ? '<span style="font-size:0.65em; color:#f59e0b;">Hidden</span>' : '')
                             + '</div>'
                             + (job.description ? '<div style="font-size:0.76em; color:var(--c-faint); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;">' + escapeHtml(job.description.substring(0,120)) + (job.description.length > 120 ? '\u2026' : '') + '</div>' : '')

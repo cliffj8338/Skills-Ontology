@@ -525,3 +525,28 @@
           @media (min-width: 769px) {
               #adminScrollLeft, #adminScrollRight { display: none !important; }
           }
+
+        /* ── Prevent horizontal scroll on mobile (root cause of left-clip) ── */
+        html, body {
+            overflow-x: hidden;
+            max-width: 100%;
+        }
+
+        /* ── D3 network SVG: cap height to visible area on mobile ──────────── */
+        /* iOS Safari reports a larger innerHeight than true visible area,      */
+        /* leaving a dead zone below the nodes. dvh = dynamic viewport height.  */
+        @media (max-width: 768px) {
+            #networkView {
+                max-height: calc(100dvh - 200px) !important;
+            }
+        }
+
+        /* ── Increase bottom padding so FAB doesn't obscure bottom cards ───── */
+        @media (max-width: 768px) {
+            .main-content {
+                padding-bottom: 130px !important;
+            }
+            #mainContentArea {
+                padding-bottom: 130px !important;
+            }
+        }
