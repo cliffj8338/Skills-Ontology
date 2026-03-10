@@ -612,6 +612,15 @@
     border-radius: 8px; padding: 12px 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.25);
     opacity: 0; transition: opacity 0.15s; font-family: Calibri,'Segoe UI',sans-serif;
   }
+  @media (max-width: 768px) {
+    #tip-box {
+      max-width: calc(100vw - 20px);
+      pointer-events: auto;
+      left: 10px !important;
+      right: 10px !important;
+      width: calc(100vw - 20px);
+    }
+  }
   #tip-box.visible { opacity: 1; }
   #tip-box .tip-title {
     font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase;
@@ -1982,16 +1991,47 @@ document.querySelectorAll('.tip-icon').forEach(function(icon) {
   icon.addEventListener('mouseleave', function() {
     tipBox.classList.remove('visible');
   });
+  // Mobile: tap to show, tap anywhere else to dismiss
+  icon.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    tipTitle.textContent = icon.dataset.tipTitle || '';
+    tipBody.innerHTML = icon.dataset.tipBody || '';
+    tipDrivers.innerHTML = icon.dataset.tipDrivers || '';
+    tipDrivers.style.display = icon.dataset.tipDrivers ? 'block' : 'none';
+    tipBox.classList.add('visible');
+    var touch = e.touches[0];
+    positionTip({ clientX: touch.clientX, clientY: touch.clientY });
+  }, { passive: false });
+});
+
+// Dismiss tip on touch outside
+document.addEventListener('touchstart', function(e) {
+  if (!e.target.classList.contains('tip-icon')) {
+    tipBox.classList.remove('visible');
+  }
 });
 }); // end DOMContentLoaded
 
 function positionTip(e) {
   var tb = document.getElementById('tip-box');
   if (!tb) return;
-  var x = e.clientX + 14, y = e.clientY - 10;
+  var isMobile = window.innerWidth <= 768;
   var bw = tb.offsetWidth || 280, bh = tb.offsetHeight || 120;
-  if (x + bw > window.innerWidth - 10) x = e.clientX - bw - 14;
-  if (y + bh > window.innerHeight - 10) y = window.innerHeight - bh - 10;
+  var x, y;
+  if (isMobile) {
+    // On mobile: center horizontally, position below the touch point
+    x = Math.max(10, Math.min((window.innerWidth - bw) / 2, window.innerWidth - bw - 10));
+    y = (e.clientY || 0) + 20;
+    if (y + bh > window.innerHeight - 10) y = (e.clientY || 0) - bh - 10;
+    if (y < 10) y = 10;
+  } else {
+    x = e.clientX + 14;
+    y = e.clientY - 10;
+    if (x + bw > window.innerWidth - 10) x = e.clientX - bw - 14;
+    if (x < 10) x = 10;
+    if (y + bh > window.innerHeight - 10) y = window.innerHeight - bh - 10;
+  }
   tb.style.left = x + 'px';
   tb.style.top  = y + 'px';
 }
