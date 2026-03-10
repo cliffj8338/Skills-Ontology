@@ -767,7 +767,7 @@
       <div class="slider-sub">Company gross revenue</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-revenue"></div>
-        <input type="range" id="revenue" min="10000000" max="20000000000" step="10000000" value="500000000" oninput="update()">
+        <input type="range" id="revenue" min="0" max="435" step="1" value="34" oninput="update()">
       </div>
     </div>
 
@@ -1389,6 +1389,19 @@ function ftesFromIndex(i) {
   return 20000 + (i - 19) * 5000;
 }
 
+// ── REVENUE SLIDER MAPPING (non-linear) ───────────────────────
+// 0–18:  10M–100M   by 5M
+// 19–34: 125M–500M  by 25M
+// 35–39: 600M–1B    by 100M
+// 40–435: 1.25B–100B by 250M
+function revenueFromIndex(i) {
+  i = Math.round(i);
+  if (i <= 18) return (10 + i * 5) * 1e6;
+  if (i <= 34) return (100 + (i - 18) * 25) * 1e6;
+  if (i <= 39) return (500 + (i - 34) * 100) * 1e6;
+  return (1000 + (i - 39) * 250) * 1e6;
+}
+
 // ── MAIN UPDATE ───────────────────────────────────────────────
 function update() {
   const ftes    = ftesFromIndex(+document.getElementById('ftes').value);
@@ -1397,7 +1410,7 @@ function update() {
   const dragPct = +document.getElementById('drag').value;
   let dispRate  = +document.getElementById('disp').value;
   let phi       = +document.getElementById('phi').value;
-  const revenue   = +document.getElementById('revenue').value;
+  const revenue   = revenueFromIndex(+document.getElementById('revenue').value);
   const imposPct  = +document.getElementById('impos-pct').value;
   let impossV     = revenue * (imposPct / 100);  // auto-derived
   document.getElementById('impos').value = impossV;  // keep hidden input in sync
@@ -1410,7 +1423,7 @@ function update() {
   fillPct('adopt', adoptPct, 5,       100);       document.getElementById('val-adopt').textContent  = adoptPct + '%';
   fillPct('salary', salary,  40000,    300000);    document.getElementById('val-salary').textContent = fmt(salary);
   fillPct('drag',   dragPct, 10,       80);        document.getElementById('val-drag').textContent   = dragPct + '%';
-  fillPct('revenue',  revenue,  10000000, 20000000000);
+  fillPct('revenue', +document.getElementById('revenue').value, 0, 435);
   document.getElementById('val-revenue').textContent = fmt(revenue);
   fillPct('impos-pct', imposPct, 1, 15);
   document.getElementById('val-impos-pct').textContent = imposPct + '%';
