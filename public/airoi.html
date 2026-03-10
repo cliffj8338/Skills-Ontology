@@ -767,7 +767,7 @@
       <div class="slider-sub">Company gross revenue</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-revenue"></div>
-        <input type="range" id="revenue" min="0" max="435" step="1" value="34" oninput="update()">
+        <input type="range" id="revenue" min="0" max="235" step="1" value="34" oninput="update()">
       </div>
     </div>
 
@@ -1393,7 +1393,7 @@ function ftesFromIndex(i) {
 // 0–18:  10M–100M   by 5M
 // 19–34: 125M–500M  by 25M
 // 35–39: 600M–1B    by 100M
-// 40–435: 1.25B–100B by 250M
+// 40–235: 1.25B–50B by 250M
 function revenueFromIndex(i) {
   i = Math.round(i);
   if (i <= 18) return (10 + i * 5) * 1e6;
@@ -1423,7 +1423,7 @@ function update() {
   fillPct('adopt', adoptPct, 5,       100);       document.getElementById('val-adopt').textContent  = adoptPct + '%';
   fillPct('salary', salary,  40000,    300000);    document.getElementById('val-salary').textContent = fmt(salary);
   fillPct('drag',   dragPct, 10,       80);        document.getElementById('val-drag').textContent   = dragPct + '%';
-  fillPct('revenue', +document.getElementById('revenue').value, 0, 435);
+  fillPct('revenue', +document.getElementById('revenue').value, 0, 235);
   document.getElementById('val-revenue').textContent = fmt(revenue);
   fillPct('impos-pct', imposPct, 1, 15);
   document.getElementById('val-impos-pct').textContent = imposPct + '%';
