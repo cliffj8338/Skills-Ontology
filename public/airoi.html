@@ -1554,10 +1554,6 @@ function update() {
   ceilEl.style.color = 'var(--emerald)';
   document.getElementById('eq-ceil-label').style.color = 'var(--emerald)';
   document.getElementById('kpi-roi').style.color   = roiColor;
-  const retEx = document.getElementById('return-explain');
-  if (retEx) retEx.style.display = view === 'pressbox' ? 'block' : 'none';
-  const retExplain = document.getElementById('return-explain');
-  if (retExplain) retExplain.style.display = view === 'pressbox' ? 'block' : 'none';
   document.getElementById('kpi-roi-note').textContent = view === 'pressbox' ? 'Elastic Return' : 'Traditional Return';
 
   // Benchmark context note
