@@ -612,15 +612,6 @@
     border-radius: 8px; padding: 12px 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.25);
     opacity: 0; transition: opacity 0.15s; font-family: Calibri,'Segoe UI',sans-serif;
   }
-  @media (max-width: 768px) {
-    #tip-box {
-      max-width: calc(100vw - 20px);
-      pointer-events: auto;
-      left: 10px !important;
-      right: 10px !important;
-      width: calc(100vw - 20px);
-    }
-  }
   #tip-box.visible { opacity: 1; }
   #tip-box .tip-title {
     font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase;
@@ -732,7 +723,7 @@
       </div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-ftes"></div>
-        <input type="range" id="ftes" min="0" max="35" step="1" value="4" oninput="update()">
+        <input type="range" id="ftes" min="2500" max="50000" step="100" value="5000" oninput="update()">
       </div>
     </div>
 
@@ -767,7 +758,7 @@
       <div class="slider-sub">Company gross revenue</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-revenue"></div>
-        <input type="range" id="revenue" min="0" max="235" step="1" value="34" oninput="update()">
+        <input type="range" id="revenue" min="10000000" max="20000000000" step="10000000" value="500000000" oninput="update()">
       </div>
     </div>
 
@@ -780,11 +771,24 @@
         <button class="seat-badge active-seat" data-val="2000" onclick="setSeat(2000)">$2,000</button>
         <button class="seat-badge" data-val="2500" onclick="setSeat(2500)" >$2,500</button>
         <button class="seat-badge" data-val="3000" onclick="setSeat(3000)" >$3,000</button>
-        <button class="seat-badge" data-val="4000" onclick="setSeat(4000)" >$4,000</button>
-        <button class="seat-badge" data-val="5000" onclick="setSeat(5000)" >$5,000</button>
-        <button class="seat-badge" data-val="6000" onclick="setSeat(6000)" >$6,000</button>
       </div>
       <div class="slider-sub">Volume pricing applies above ~500 seats. Higher tiers include integrations &amp; training.</div>
+    </div>
+
+    <div class="slider-row">
+      <div class="slider-header">
+        <span class="slider-label">Variable AI Cost / Adopter / Yr</span>
+        <span class="slider-value" id="val-consumption">$0</span>
+      </div>
+      <div class="slider-sub">Consumption beyond seat fees: inference, API calls, compute. Light use: $200&ndash;500 &middot; Deep/agentic: $1,500&ndash;3,000. Default $0 if bundled.</div>
+      <div class="slider-track">
+        <div class="slider-fill" id="fill-consumption"></div>
+        <input type="range" id="consumption" min="0" max="3000" step="50" value="0" oninput="update()">
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:8px;">
+        <input type="checkbox" id="consumption-decay" onchange="update()" style="accent-color:var(--emerald);width:13px;height:13px;cursor:pointer;">
+        <label for="consumption-decay" style="font-family:Calibri,'Segoe UI',sans-serif;font-size:11px;color:var(--dim);cursor:pointer;line-height:1.4;">Apply 20%/yr cost decay (inference prices historically declining ~80% over 18 mo.)</label>
+      </div>
     </div>
 
     <hr class="divider">
@@ -800,7 +804,7 @@
       <div class="slider-sub">Time lost to admin, email, search &amp; coordination. McKinsey avg: 42%</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-drag"></div>
-        <input type="range" id="drag" min="10" max="80" step="1" value="30" oninput="update()">
+        <input type="range" id="drag" min="10" max="80" step="1" value="40" oninput="update()">
       </div>
     </div>
 
@@ -812,7 +816,7 @@
       <div class="slider-sub">Drag work AI absorbs for proficient users. BCG/Harvard avg: 25&ndash;40%. Hard cap: 60%</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-disp"></div>
-        <input type="range" id="disp" min="20" max="90" step="1" value="25" oninput="update()">
+        <input type="range" id="disp" min="20" max="90" step="1" value="35" oninput="update()">
       </div>
     </div>
 
@@ -824,7 +828,7 @@
       <div class="slider-sub">Conservative: 3&ndash;5% &middot; Moderate: 5&ndash;10% &middot; Aggressive: 10&ndash;15% &middot; 53% of executives report 6&ndash;10% AI-attributed revenue growth (IDC/Microsoft, 2024)</div>
       <div class="slider-track">
         <div class="slider-fill" id="fill-impos-pct"></div>
-        <input type="range" id="impos-pct" min="1" max="15" step="0.5" value="3" oninput="update()">
+        <input type="range" id="impos-pct" min="1" max="15" step="0.5" value="5" oninput="update()">
       </div>
       <input type="hidden" id="impos" value="0">
     </div>
@@ -877,6 +881,10 @@
       <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
         <span class="slider-sub" style="margin:0;">Seat cost / yr</span>
         <span id="inv-seat" style="font-size:13px; color:var(--white); font-family:'DM Mono',monospace; font-weight:600;">—</span>
+      </div>
+      <div id="inv-consumption-row" style="display:none; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
+        <span class="slider-sub" style="margin:0;">Consumption cost / yr</span>
+        <span id="inv-consumption" style="font-size:13px; color:var(--slate2); font-family:'DM Mono',monospace; font-weight:600;">—</span>
       </div>
       <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px;">
         <span class="slider-sub" style="margin:0;">Revealed outcomes</span>
@@ -949,7 +957,7 @@
         <div class="kpi-label">Strategic Ceiling <i class="tip-icon" data-tip-title="Strategic Ceiling" data-tip-body="Full value pool: productivity reclaimed plus work that becomes possible for the first time. Most orgs capture 50–70% of this. The territory, not the destination." data-tip-drivers="<strong>Driven by:</strong> Everything in Productivity Floor, plus Revenue × Revealed Outcomes % (the Φ strategic term)">i</i></div>
         <div class="kpi-value" id="kpi-return" style="color: var(--emerald);">—</div>
         <div class="kpi-note" id="kpi-return-note">Incl. revealed outcomes</div>
-        <div id="return-explain" style="display:none;margin-top:6px;font-size:10px;color:var(--slate2);line-height:1.4;">Productivity reclaimed plus new work made possible. Most organizations realize 50&ndash;70% of this ceiling.</div>
+        <div id="return-explain" style="display:none;margin-top:6px;font-size:10px;color:var(--slate2);line-height:1.4;">The full value pool your AI investment unlocks &mdash; productivity reclaimed plus work that becomes possible for the first time. Think of it as the territory, not the destination. Most organizations capture 50&ndash;70% of it. That&rsquo;s still worth building toward.</div>
       </div>
       <div class="kpi-card" id="tip-roi" style="border-top-color: var(--emerald);" id="kpi-roi-card">
         <div class="kpi-label">ROI Multiple <i class="tip-icon" data-tip-title="ROI Multiple" data-tip-body="Strategic Ceiling ÷ Total Investment. The 'elastic' return — most sensitive to Adoption Rate. Doubling adoption often more than doubles this number." data-tip-drivers="<strong>Driven by:</strong> All inputs. Adoption Rate has the highest leverage — a 10% increase typically moves this more than any other single slider.">i</i></div>
@@ -1381,59 +1389,57 @@ function setSeat(val) {
   update();
 }
 
-// ── FTE SLIDER MAPPING (non-linear) ───────────────────────────
-// Indices 0-19: 1,000–20,000 by 1,000 | Indices 20-35: 25,000–100,000 by 5,000
-function ftesFromIndex(i) {
-  i = Math.round(i);
-  if (i <= 19) return (i + 1) * 1000;
-  return 20000 + (i - 19) * 5000;
-}
-
-// ── REVENUE SLIDER MAPPING (non-linear) ───────────────────────
-// 0–18:  10M–100M   by 5M
-// 19–34: 125M–500M  by 25M
-// 35–39: 600M–1B    by 100M
-// 40–235: 1.25B–50B by 250M
-function revenueFromIndex(i) {
-  i = Math.round(i);
-  if (i <= 18) return (10 + i * 5) * 1e6;
-  if (i <= 34) return (100 + (i - 18) * 25) * 1e6;
-  if (i <= 39) return (500 + (i - 34) * 100) * 1e6;
-  return (1000 + (i - 39) * 250) * 1e6;
-}
-
 // ── MAIN UPDATE ───────────────────────────────────────────────
 function update() {
-  const ftes    = ftesFromIndex(+document.getElementById('ftes').value);
+  const ftes    = +document.getElementById('ftes').value;
   const adoptPct = +document.getElementById('adopt').value;
   const salary  = +document.getElementById('salary').value;
   const dragPct = +document.getElementById('drag').value;
   let dispRate  = +document.getElementById('disp').value;
   let phi       = +document.getElementById('phi').value;
-  const revenue   = revenueFromIndex(+document.getElementById('revenue').value);
+  const revenue   = +document.getElementById('revenue').value;
   const imposPct  = +document.getElementById('impos-pct').value;
   let impossV     = revenue * (imposPct / 100);  // auto-derived
   document.getElementById('impos').value = impossV;  // keep hidden input in sync
-  // Investment derived from per-seat cost × adopting FTEs
+  // Investment derived from per-seat cost × adopting FTEs + variable consumption cost
   const adoptingFTEsForInvest = ftes * (adoptPct / 100);
-  let invest = Math.max(100000, Math.round(adoptingFTEsForInvest * perSeatCost / 1000) * 1000);
+  const consumptionPerAdopter = +document.getElementById('consumption').value;
+  const consumptionDecay = document.getElementById('consumption-decay').checked;
+  // Year-weighted average consumption cost if decay enabled (4-yr avg with 20%/yr decline)
+  // Yr1=C, Yr2=0.8C, Yr3=0.64C, Yr4=0.51C → avg ≈ 0.739C
+  const consumptionMultiplier = consumptionDecay ? 0.739 : 1.0;
+  const consumptionCost = Math.round(adoptingFTEsForInvest * consumptionPerAdopter * consumptionMultiplier / 1000) * 1000;
+  let invest = Math.max(100000, Math.round(adoptingFTEsForInvest * perSeatCost / 1000) * 1000) + consumptionCost;
 
   // Slider fills & labels — done BEFORE constraints only for non-capped sliders
-  fillPct('ftes', +document.getElementById('ftes').value, 0, 35); document.getElementById('val-ftes').textContent = ftes.toLocaleString();
+  fillPct('ftes',   ftes,    2500,     50000);    document.getElementById('val-ftes').textContent   = ftes.toLocaleString();
   fillPct('adopt', adoptPct, 5,       100);       document.getElementById('val-adopt').textContent  = adoptPct + '%';
   fillPct('salary', salary,  40000,    300000);    document.getElementById('val-salary').textContent = fmt(salary);
   fillPct('drag',   dragPct, 10,       80);        document.getElementById('val-drag').textContent   = dragPct + '%';
-  fillPct('revenue', +document.getElementById('revenue').value, 0, 235);
+  fillPct('revenue',  revenue,  10000000, 20000000000);
   document.getElementById('val-revenue').textContent = fmt(revenue);
   fillPct('impos-pct', imposPct, 1, 15);
   document.getElementById('val-impos-pct').textContent = imposPct + '%';
   document.getElementById('val-impos').textContent = fmt(impossV);
+  fillPct('consumption', consumptionPerAdopter, 0, 3000);
+  document.getElementById('val-consumption').textContent = consumptionPerAdopter === 0 ? '$0' : '$' + consumptionPerAdopter.toLocaleString();
   // Investment breakdown display
   const _adoptersDisplay = Math.round(ftes * (adoptPct/100));
   const _invDisplay = document.getElementById('inv-adopters');
   const _seatDisplay = document.getElementById('inv-seat');
   if (_invDisplay) _invDisplay.textContent = _adoptersDisplay.toLocaleString() + ' people';
   if (_seatDisplay) _seatDisplay.textContent = '$' + perSeatCost.toLocaleString() + ' / person';
+  const _consumRow = document.getElementById('inv-consumption-row');
+  const _consumVal = document.getElementById('inv-consumption');
+  if (_consumRow && _consumVal) {
+    if (consumptionPerAdopter > 0) {
+      _consumRow.style.display = 'flex';
+      const decayNote = consumptionDecay ? ' (decay adj.)' : '';
+      _consumVal.textContent = fmt(consumptionCost) + decayNote;
+    } else {
+      _consumRow.style.display = 'none';
+    }
+  }
   document.getElementById('val-invest').textContent = fmt(invest);
 
   // ── CONSTRAINT ENGINE ─────────────────────────────────────────
@@ -1558,16 +1564,13 @@ function update() {
   const benchNote = document.getElementById('roi-benchmark-note');
   if (benchNote) {
     if (displayROI > 15) {
-      benchNote.innerHTML = '<strong>⚠ Above realistic range (&gt;15×).</strong> Results at this level typically reflect aggressive assumptions. Try reducing: Cognitive Drag % (try 30%), AI Displacement Rate (try 25%), or Revealed Outcomes % (try 3%). Industry median for mature deployments: 3–8×.';
+      benchNote.textContent = '⚠ Results above 15× typically reflect aggressive displacement assumptions. Industry median for mature AI deployments: 3–8×. Enterprise avg: ~$3.70 per $1 invested (IDC/Microsoft, 2024).';
       benchNote.style.display = 'block';
-      benchNote.style.color = 'var(--gold)';
-    } else if (displayROI > 9) {
-      benchNote.innerHTML = '<strong>⚠ High return (&gt;9×).</strong> This is above median — achievable with strong adoption and disciplined redeployment, but review your assumptions. Consider lowering Cognitive Drag %, AI Displacement Rate, or Revealed Outcomes % to stress-test. Enterprise avg: ~$3.70 per $1 invested (IDC/Microsoft, 2024).';
+    } else if (displayROI > 8) {
+      benchNote.textContent = 'Above median range. Assumes consistent redeployment of freed capacity to higher-value work. Enterprise avg for comparison: ~$3.70 per $1 invested (IDC/Microsoft, 2024).';
       benchNote.style.display = 'block';
-      benchNote.style.color = 'var(--gold)';
     } else {
       benchNote.style.display = 'none';
-      benchNote.style.color = '';
     }
   }
 
@@ -2018,47 +2021,16 @@ document.querySelectorAll('.tip-icon').forEach(function(icon) {
   icon.addEventListener('mouseleave', function() {
     tipBox.classList.remove('visible');
   });
-  // Mobile: tap to show, tap anywhere else to dismiss
-  icon.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    tipTitle.textContent = icon.dataset.tipTitle || '';
-    tipBody.innerHTML = icon.dataset.tipBody || '';
-    tipDrivers.innerHTML = icon.dataset.tipDrivers || '';
-    tipDrivers.style.display = icon.dataset.tipDrivers ? 'block' : 'none';
-    tipBox.classList.add('visible');
-    var touch = e.touches[0];
-    positionTip({ clientX: touch.clientX, clientY: touch.clientY });
-  }, { passive: false });
-});
-
-// Dismiss tip on touch outside
-document.addEventListener('touchstart', function(e) {
-  if (!e.target.classList.contains('tip-icon')) {
-    tipBox.classList.remove('visible');
-  }
 });
 }); // end DOMContentLoaded
 
 function positionTip(e) {
   var tb = document.getElementById('tip-box');
   if (!tb) return;
-  var isMobile = window.innerWidth <= 768;
+  var x = e.clientX + 14, y = e.clientY - 10;
   var bw = tb.offsetWidth || 280, bh = tb.offsetHeight || 120;
-  var x, y;
-  if (isMobile) {
-    // On mobile: center horizontally, position below the touch point
-    x = Math.max(10, Math.min((window.innerWidth - bw) / 2, window.innerWidth - bw - 10));
-    y = (e.clientY || 0) + 20;
-    if (y + bh > window.innerHeight - 10) y = (e.clientY || 0) - bh - 10;
-    if (y < 10) y = 10;
-  } else {
-    x = e.clientX + 14;
-    y = e.clientY - 10;
-    if (x + bw > window.innerWidth - 10) x = e.clientX - bw - 14;
-    if (x < 10) x = 10;
-    if (y + bh > window.innerHeight - 10) y = window.innerHeight - bh - 10;
-  }
+  if (x + bw > window.innerWidth - 10) x = e.clientX - bw - 14;
+  if (y + bh > window.innerHeight - 10) y = window.innerHeight - bh - 10;
   tb.style.left = x + 'px';
   tb.style.top  = y + 'px';
 }
@@ -2194,10 +2166,7 @@ function showTourStep() {
   };
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  var tourOverlay = document.getElementById('tour-overlay');
-  if (tourOverlay) tourOverlay.addEventListener('click', endTour);
-});
+document.getElementById('tour-overlay').addEventListener('click', endTour);
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') endTour(); });
 </script>
 
