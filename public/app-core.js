@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.68 - BUILD 20260312-wbabout-panel
-        var BP_VERSION = 'v4.46.68';
+        // BLUEPRINT v4.46.69 - BUILD 20260312-actionbar-close
+        var BP_VERSION = 'v4.46.69';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -3501,7 +3501,7 @@
                         { id: 'p2-6u', name: 'Structured Job Schema v2.0 (Phase 1+2)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.77-78: Phase 1 (v4.45.77): Standards-aligned job schema with Schema.org JobPosting properties, JDX JobSchema+ competency model, O*NET-SOC crosswalk readiness. migrateJobToV2(), getJobSkills() abstraction, blocklisted gap denominator fix. Phase 2 (v4.45.78): Rewrote API extraction prompt for v2-native output. 10 skill categories (technical/analytical/strategic/leadership/communication/domain/platform/tool/methodology/soft). Section-aware extraction with tier assignment from JD structure. Compound list splitting (MS Word, Excel, PowerPoint → 3 skills). Domain knowledge extraction (insurance claims, reinsurance). source: extracted|inferred with confidence differential. Identity metadata extraction (location, remote, industry, department, employmentType). Qualifications and responsibilities as structured arrays. JD cap raised to 6000 chars, max_tokens to 4000. UI: metadata badges, section tooltips, inferred indicators, extraction quality summary.' },
                         { id: 'p2-6v', name: 'JDC AI skill extraction — Phase 3', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.46.63: convertJDToBlueprintAsync() wires JDC paste + URL paths through parseJobWithAPI() when user is signed in. Maps v2 tier/proficiency to JDC skill format (importance, blueprintLevel, outcome). Applies _wbSkillQualityFilter + WB_SKILL_CAP. Recomputes BLS comp values. Falls back to local regex parser on failure. Fixes 7-skill truncation problem — AI now returns 15-25 well-formed skills vs local regex returning 7 garbled skills (fragment names like "ability to art" caused by 35-char regex capture limit). runJDConverter and URL handler converted to async. Button shows loading state during extraction. Label updated to reflect AI-powered mode.' },
                         { id: 'p2-6w', name: 'Comp context engine + hybrid schedule + HTML cleanup', status: 'done', category: 'infrastructure', priority: 'high', notes: 'v4.46.64: (1) _jdcDetectCompContext(): industry + company tier multiplier engine. Tiers: Technology +22%, Financial Services +18%, Consulting +14%, Life Sciences +10%, Healthcare +5%. Company Tier 1 (Salesforce, FAANG, etc.) +18%, Tier 2 (Oracle, Accenture, etc.) +8%. Unknown companies use posted salary range as signal. Stored as data.compContext; applied to all BLS figures at display time with a yellow market adjustment badge. (2) _jdcExtractSchedule() extended: detects hybrid+days-in-office patterns ("3 days in office" → "Hybrid · 3 days in office"), remote, flexible. (3) _jdcExtractTextFromHTML() hardened: strips OneTrust, cookie banners, consent dialogs, GDPR overlays, consent text via regex post-processing. (4) convertJDToBlueprintAsync() uses AI title when better than local extraction.' },
-                        { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.68: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
+                        { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.69: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
                         { id: 'p2-6v', name: 'No-red UI policy', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.45.97-99: Eliminated red (#ef4444) from all non-error UI. Red reserved exclusively for Firebase errors, save failures, delete confirmations. 12+ levelColors definitions updated (Novice=slate, Proficient=blue, Advanced=purple, Expert=orange, Mastery=green). Network view de-reded. normalizeUserRoles() bannedReds patch auto-reassigns legacy Firestore-saved roles with red. Yellow #fbbf24 for caution/warnings.' },
                         { id: 'p2-6w', name: 'Card View rarity grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.96-v4.46.0: Skills Card View groups by market rarity (Rare/Uncommon/Common) instead of role domain. Rarity classification via getSkillImpact() from O*NET impact ratings. Per-tier summary stats (proficiency breakdown, evidence coverage, verified count). Per-skill rarity pill on card tiles (v4.46.0). Legend bar with icon badges for Core, Verified, Evidence, Gap, Skill/Ability/WorkStyle/Unique.' },
                         { id: 'p2-6x', name: 'Job match filters moved inline', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.1: Moved Min Match Score slider and Min Skill Matches input from Settings to both Find Jobs and Fit For Me tabs. Both tabs share state via currentMatchThreshold. Auto-save with 1.5s debounce to Firestore preferences. Settings page replaced with info note.' },
@@ -6554,6 +6554,7 @@
                 if (_jdcEditMode) {
                     html += renderJDCEditForm(_jdcResult);
                 } else {
+                    html += _jdcActionBar('top');
                     html += renderWorkBlueprint(_jdcResult, _jdcCompMode === 'with');
                 }
             }
@@ -7879,6 +7880,58 @@
             return best || '';
         }
         
+        // ===== JDC ACTION BAR =====
+        // Renders export/edit/save/close buttons — shared top+bottom.
+        // position: 'top' adds margin-bottom; 'bottom' adds margin-top.
+        function _jdcActionBar(position) {
+            var isTop = position === 'top';
+            var margin = isTop ? 'margin-bottom:10px;' : 'margin-top:10px;';
+            var borderColor = 'var(--c-surface-5)';
+            var isSaved = _jdcSavedState;
+            var saveLabel = _jdcFromRepo ? 'Save' : 'Save to Repository';
+
+            var h = '<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; ' + margin + '">'
+                + '<button onclick="exportWorkBlueprintJSON()" style="padding:7px 15px; background:var(--accent); color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + bpIcon('download',13) + ' Export JSON</button>'
+                + '<button onclick="exportWorkBlueprintPDF()" style="padding:7px 15px; background:#8b5cf6; color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + bpIcon('download',13) + ' Export PDF</button>'
+                + '<button onclick="exportWorkBlueprintWord()" style="padding:7px 15px; background:#2563eb; color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + bpIcon('download',13) + ' Export Word</button>'
+                + '<button onclick="copyWorkBlueprintJSON()" style="padding:7px 15px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + bpIcon('share',13) + ' Copy JSON</button>'
+                + '<button onclick="jdcEditBlueprint()" style="padding:7px 15px; background:#f59e0b; color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + bpIcon('edit',13) + ' Edit</button>';
+
+            if (typeof fbUser !== 'undefined' && fbUser) {
+                h += '<button onclick="jdcSaveToRepository()" style="padding:7px 15px; background:#10b981; color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                    + bpIcon('save',13) + ' ' + saveLabel + '</button>';
+            }
+
+            // Close button — rightmost, with unsaved warning
+            h += '<div style="margin-left:auto;">'
+                + '<button onclick="jdcCloseBlueprint()" style="padding:7px 14px; background:var(--c-surface-3); color:' + (isSaved ? 'var(--c-muted)' : '#ef4444') + '; border:1px solid ' + (isSaved ? borderColor : 'rgba(239,68,68,0.35)') + '; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;" title="' + (isSaved ? 'Close blueprint' : 'Unsaved changes') + '">'
+                + bpIcon('close',13) + ' Close</button>'
+                + '</div>';
+
+            h += '</div>';
+            return h;
+        }
+
+        function jdcCloseBlueprint() {
+            if (!_jdcSavedState && _jdcResult) {
+                if (!confirm('This blueprint hasn\'t been saved to your repository.\n\nClose anyway?')) return;
+            }
+            _jdcResult = null;
+            _jdcBulkResults = [];
+            _jdcBulkViewIdx = -1;
+            _jdcFromRepo = false;
+            _jdcEditMode = false;
+            _jdcSavedState = false;
+            renderAdminJDConverter(document.getElementById('adminTabContent'));
+        }
+        window.jdcCloseBlueprint = jdcCloseBlueprint;
+
+
         function renderWorkBlueprint(data, showComp, opts) {
             opts = opts || {};
             var html = '';
@@ -8330,23 +8383,7 @@
             }
 
             if (!opts.hideButtons) {
-                html += '<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">'
-                    + '<button onclick="exportWorkBlueprintJSON()" style="padding:8px 18px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                    + bpIcon('download',14) + ' Export JSON</button>'
-                    + '<button onclick="exportWorkBlueprintPDF()" style="padding:8px 18px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                    + bpIcon('download',14) + ' Export PDF</button>'
-                    + '<button onclick="exportWorkBlueprintWord()" style="padding:8px 18px; background:#2563eb; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                    + bpIcon('download',14) + ' Export Word</button>'
-                    + '<button onclick="copyWorkBlueprintJSON()" style="padding:8px 18px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                    + bpIcon('share',14) + ' Copy JSON</button>'
-                    + '<button onclick="jdcEditBlueprint()" style="padding:8px 18px; background:#f59e0b; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                    + bpIcon('edit',14) + ' Edit</button>';
-                if (typeof fbUser !== 'undefined' && fbUser) {
-                    var _saveLabel = _jdcFromRepo ? 'Save' : 'Save to Repository';
-                    html += '<button onclick="jdcSaveToRepository()" style="padding:8px 18px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                        + bpIcon('save',14) + ' ' + _saveLabel + '</button>';
-                }
-                html += '</div>';
+                html += _jdcActionBar();
             }
 
             return html;
@@ -8786,6 +8823,7 @@
 
         var _jdcEditMode = false;
         var _jdcFromRepo = false;
+        var _jdcSavedState = false; // true after save; false after edit/new conversion
         function jdcEditBlueprint() {
             if (!_jdcResult) return;
             if (!_jdcResult.skills) _jdcResult.skills = [];
@@ -9502,6 +9540,7 @@
             fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc(d.id).set(d, { merge: true })
                 .then(function() {
                     _jdcSaving = false;
+                    _jdcSavedState = true;
                     showToast('Work Blueprint saved.', 'success');
                     logAnalyticsEvent(_jdcFromRepo ? 'wb_edited' : 'wb_created', { title: d.title || '', company: d.company || '' });
                     _jdcRepoCache = null;

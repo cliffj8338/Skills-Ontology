@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.68 - BUILD 20260312-wbabout-panel
-        var BP_VERSION = 'v4.46.68';
+        // BLUEPRINT v4.46.69 - BUILD 20260312-actionbar-close
+        var BP_VERSION = 'v4.46.69';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -6551,6 +6551,7 @@
                 if (_jdcEditMode) {
                     html += renderJDCEditForm(_jdcResult);
                 } else {
+                    html += _jdcActionBar('top');
                     html += renderWorkBlueprint(_jdcResult, _jdcCompMode === 'with');
                 }
             }
@@ -7771,6 +7772,57 @@
             return best || '';
         }
         
+        // ===== JDC ACTION BAR =====
+        // Renders export/edit/save/close buttons — shared top+bottom.
+        // position: 'top' adds margin-bottom; 'bottom' adds margin-top.
+        function _jdcActionBar(position) {
+            var isTop = position === 'top';
+            var margin = isTop ? 'margin-bottom:10px;' : 'margin-top:10px;';
+            var borderColor = 'var(--c-surface-5)';
+            var isSaved = _jdcSavedState;
+            var saveLabel = _jdcFromRepo ? 'Save' : 'Save to Repository';
+
+            var h = '<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; ' + margin + '">'
+                + '<button onclick="exportWorkBlueprintJSON()" style="padding:7px 15px; background:var(--accent); color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + bpIcon('download',13) + ' Export JSON</button>'
+                + '<button onclick="exportWorkBlueprintPDF()" style="padding:7px 15px; background:#8b5cf6; color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + bpIcon('download',13) + ' Export PDF</button>'
+                + '<button onclick="exportWorkBlueprintWord()" style="padding:7px 15px; background:#2563eb; color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + bpIcon('download',13) + ' Export Word</button>'
+                + '<button onclick="copyWorkBlueprintJSON()" style="padding:7px 15px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + bpIcon('share',13) + ' Copy JSON</button>'
+                + '<button onclick="jdcEditBlueprint()" style="padding:7px 15px; background:#f59e0b; color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                + bpIcon('edit',13) + ' Edit</button>';
+
+            if (typeof fbUser !== 'undefined' && fbUser) {
+                h += '<button onclick="jdcSaveToRepository()" style="padding:7px 15px; background:#10b981; color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;">'
+                    + bpIcon('save',13) + ' ' + saveLabel + '</button>';
+            }
+
+            // Close button — rightmost, with unsaved warning
+            h += '<div style="margin-left:auto;">'
+                + '<button onclick="jdcCloseBlueprint()" style="padding:7px 14px; background:var(--c-surface-3); color:' + (isSaved ? 'var(--c-muted)' : '#ef4444') + '; border:1px solid ' + (isSaved ? borderColor : 'rgba(239,68,68,0.35)') + '; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.82em;" title="' + (isSaved ? 'Close blueprint' : 'Unsaved changes') + '">'
+                + bpIcon('close',13) + ' Close</button>'
+                + '</div>';
+
+            h += '</div>';
+            return h;
+        }
+
+        function jdcCloseBlueprint() {
+            if (!_jdcSavedState && _jdcResult) {
+                if (!confirm('This blueprint hasn\'t been saved to your repository.\n\nClose anyway?')) return;
+            }
+            _jdcResult = null;
+            _jdcBulkResults = [];
+            _jdcBulkViewIdx = -1;
+            _jdcFromRepo = false;
+            _jdcEditMode = false;
+            _jdcSavedState = false;
+            renderAdminJDConverter(document.getElementById('adminTabContent'));
+        }
+        window.jdcCloseBlueprint = jdcCloseBlueprint;
+
         function renderWorkBlueprint(data, showComp, opts) {
             opts = opts || {};
             var html = '';
@@ -8208,23 +8260,7 @@
             }
 
             if (!opts.hideButtons) {
-                html += '<div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">'
-                    + '<button onclick="exportWorkBlueprintJSON()" style="padding:8px 18px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                    + bpIcon('download',14) + ' Export JSON</button>'
-                    + '<button onclick="exportWorkBlueprintPDF()" style="padding:8px 18px; background:#8b5cf6; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                    + bpIcon('download',14) + ' Export PDF</button>'
-                    + '<button onclick="exportWorkBlueprintWord()" style="padding:8px 18px; background:#2563eb; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                    + bpIcon('download',14) + ' Export Word</button>'
-                    + '<button onclick="copyWorkBlueprintJSON()" style="padding:8px 18px; background:var(--c-surface-3); color:var(--c-heading); border:1px solid ' + borderColor + '; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                    + bpIcon('share',14) + ' Copy JSON</button>'
-                    + '<button onclick="jdcEditBlueprint()" style="padding:8px 18px; background:#f59e0b; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                    + bpIcon('edit',14) + ' Edit</button>';
-                if (typeof fbUser !== 'undefined' && fbUser) {
-                    var _saveLabel = _jdcFromRepo ? 'Save' : 'Save to Repository';
-                    html += '<button onclick="jdcSaveToRepository()" style="padding:8px 18px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.85em;">'
-                        + bpIcon('save',14) + ' ' + _saveLabel + '</button>';
-                }
-                html += '</div>';
+                html += _jdcActionBar();
             }
 
             return html;
@@ -8664,6 +8700,7 @@
 
         var _jdcEditMode = false;
         var _jdcFromRepo = false;
+        var _jdcSavedState = false;
         function jdcEditBlueprint() {
             if (!_jdcResult) return;
             if (!_jdcResult.skills) _jdcResult.skills = [];
@@ -9380,6 +9417,7 @@
             fbDb.collection('users').doc(fbUser.uid).collection('work_blueprints').doc(d.id).set(d, { merge: true })
                 .then(function() {
                     _jdcSaving = false;
+                    _jdcSavedState = true;
                     showToast('Work Blueprint saved.', 'success');
                     logAnalyticsEvent(_jdcFromRepo ? 'wb_edited' : 'wb_created', { title: d.title || '', company: d.company || '' });
                     _jdcRepoCache = null;
