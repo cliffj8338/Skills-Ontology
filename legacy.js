@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.71 - BUILD 20260312-extract-quality-warn
-        var BP_VERSION = 'v4.46.71';
+        // BLUEPRINT v4.46.72 - BUILD 20260312-security-stability-audit
+        var BP_VERSION = 'v4.46.72';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -353,6 +353,17 @@
             var div = document.createElement('div');
             div.appendChild(document.createTextNode(String(str)));
             return div.innerHTML;
+        }
+
+        // escapeAttr: use inside HTML attribute values (encodes " in addition to <>&)
+        function escapeAttr(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
         function decodeHtmlEntities(str) {
@@ -1306,7 +1317,20 @@
             try {
                 var backup = JSON.parse(JSON.stringify(data));
                 delete backup.updatedAt;
-                localStorage.setItem(_saveBackupKey, JSON.stringify({ ts: Date.now(), data: backup }));
+                // Trim heavy fields if payload is large to avoid localStorage quota errors
+                var payload = { ts: Date.now(), data: backup };
+                var serialized = JSON.stringify(payload);
+                if (serialized.length > 800000) {
+                    delete backup.verifications;
+                    delete backup.outcomes;
+                    serialized = JSON.stringify({ ts: Date.now(), data: backup });
+                }
+                if (serialized.length > 1500000) {
+                    if (backup.skills) backup.skills = backup.skills.slice(0, 100);
+                    if (backup.workHistory) backup.workHistory = backup.workHistory.slice(0, 20);
+                    serialized = JSON.stringify({ ts: Date.now(), data: backup });
+                }
+                localStorage.setItem(_saveBackupKey, serialized);
             } catch(e) { console.warn('localStorage backup failed:', e.message); }
         }
         function _clearSaveBackup() {
@@ -2420,7 +2444,7 @@
                 + '<div style="display:flex; align-items:flex-end; gap:2px; height:50px;">';
             s.dailySessions.slice(-Math.min(days, 30)).forEach(function(d) {
                 var h = Math.max((d.count / sMax) * 100, 3);
-                html += '<div title="' + escapeHtml(d.date) + ': ' + d.count + '" style="flex:1; height:' + h + '%; background:rgba(96,165,250,0.5); border-radius:2px 2px 0 0; min-width:4px;"></div>';
+                html += '<div title="' + escapeAttr(d.date) + ': ' + d.count + '" style="flex:1; height:' + h + '%; background:rgba(96,165,250,0.5); border-radius:2px 2px 0 0; min-width:4px;"></div>';
             });
             html += '</div></div>';
             
@@ -2431,7 +2455,7 @@
                 + '<div style="display:flex; align-items:flex-end; gap:2px; height:50px;">';
             s.dailyPV.slice(-Math.min(days, 30)).forEach(function(d) {
                 var h = Math.max((d.count / pvMax) * 100, 3);
-                html += '<div title="' + escapeHtml(d.date) + ': ' + d.count + '" style="flex:1; height:' + h + '%; background:rgba(139,92,246,0.5); border-radius:2px 2px 0 0; min-width:4px;"></div>';
+                html += '<div title="' + escapeAttr(d.date) + ': ' + d.count + '" style="flex:1; height:' + h + '%; background:rgba(139,92,246,0.5); border-radius:2px 2px 0 0; min-width:4px;"></div>';
             });
             html += '</div></div>';
             html += '</div>';
@@ -3002,16 +3026,16 @@
                 + '<div class="modal-body" style="padding:24px; max-height:70vh; overflow-y:auto;">'
                 + '<div style="display:grid; gap:16px;">'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Name</label>'
-                + '<input type="text" id="editSampleName" class="settings-input" value="' + escapeHtml(template.profile.name || '') + '"></div>'
+                + '<input type="text" id="editSampleName" class="settings-input" value="' + escapeAttr(template.profile.name || '') + '"></div>'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Title</label>'
-                + '<input type="text" id="editSampleTitle" class="settings-input" value="' + escapeHtml(template.profile.currentTitle || '') + '"></div>'
+                + '<input type="text" id="editSampleTitle" class="settings-input" value="' + escapeAttr(template.profile.currentTitle || '') + '"></div>'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Description</label>'
                 + '<textarea id="editSampleDesc" class="settings-input" rows="3" style="resize:vertical;">' + escapeHtml(meta.description || '') + '</textarea></div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Location</label>'
-                + '<input type="text" id="editSampleLocation" class="settings-input" value="' + escapeHtml(template.profile.location || '') + '"></div>'
+                + '<input type="text" id="editSampleLocation" class="settings-input" value="' + escapeAttr(template.profile.location || '') + '"></div>'
                 + '<div><label style="font-weight:600; color:var(--text-secondary); font-size:0.85em; display:block; margin-bottom:6px;">Role Level</label>'
-                + '<input type="text" id="editSampleLevel" class="settings-input" value="' + escapeHtml(template.profile.roleLevel || '') + '"></div>'
+                + '<input type="text" id="editSampleLevel" class="settings-input" value="' + escapeAttr(template.profile.roleLevel || '') + '"></div>'
                 + '</div>'
                 + '<div style="padding:14px; background:var(--c-surface-2); border-radius:8px; font-size:0.85em; color:var(--text-muted);">'
                 + '<strong style="color:var(--text-secondary);">Profile Contents:</strong> ' + skillCount + ' skills \u00B7 ' + roleCount + ' roles \u00B7 ' + outcomeCount + ' outcomes'
@@ -3283,7 +3307,7 @@
                 + '<div style="margin-bottom:14px;">'
                 + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px;">Adzuna App ID'
                 + (_adzId ? ' <span style="color:#10b981; font-weight:400;">(\u2713 ' + escapeHtml(_maskKey(_adzId)) + ')</span>' : '') + '</label>'
-                + '<input type="text" id="cfgAdzunaAppId" value="' + escapeHtml(_adzId) + '" placeholder="Register at developer.adzuna.com" '
+                + '<input type="text" id="cfgAdzunaAppId" value="' + escapeAttr(_adzId) + '" placeholder="Register at developer.adzuna.com" '
                 + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid ' + (_adzId ? '#10b981' : 'var(--c-border-strong)') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
                 + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;"><a href="https://developer.adzuna.com/" target="_blank" rel="noopener" style="color:var(--accent);">Get free Adzuna credentials \u2192</a></div>'
                 + '</div>'
@@ -3291,7 +3315,7 @@
                 + '<div style="margin-bottom:14px;">'
                 + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px;">Adzuna API Key'
                 + (_adzKey ? ' <span style="color:#10b981; font-weight:400;">(\u2713 ' + escapeHtml(_maskKey(_adzKey)) + ')</span>' : '') + '</label>'
-                + '<input type="password" id="cfgAdzunaAppKey" value="' + escapeHtml(_adzKey) + '" placeholder="Your Adzuna app_key" '
+                + '<input type="password" id="cfgAdzunaAppKey" value="' + escapeAttr(_adzKey) + '" placeholder="Your Adzuna app_key" '
                 + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid ' + (_adzKey ? '#10b981' : 'var(--c-border-strong)') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
                 + '</div>'
                 
@@ -3299,7 +3323,7 @@
                 + '<div style="margin-bottom:14px;">'
                 + '<label style="font-size:0.78em; color:var(--text-secondary); font-weight:600; display:block; margin-bottom:4px;">The Muse API Key <span style="color:var(--text-muted); font-weight:400;">(optional)</span>'
                 + (_musKey ? ' <span style="color:#10b981; font-weight:400;">(\u2713 ' + escapeHtml(_maskKey(_musKey)) + ')</span>' : '') + '</label>'
-                + '<input type="text" id="cfgMuseApiKey" value="' + escapeHtml(_musKey) + '" placeholder="Works without key (lower rate limit)" '
+                + '<input type="text" id="cfgMuseApiKey" value="' + escapeAttr(_musKey) + '" placeholder="Works without key (lower rate limit)" '
                 + 'style="width:100%; padding:8px 10px; background:var(--c-input-bg); border:1px solid ' + (_musKey ? '#10b981' : 'var(--c-border-strong)') + '; border-radius:6px; color:var(--text-primary); font-size:0.88em; box-sizing:border-box;">'
                 + '<div style="font-size:0.72em; color:var(--text-muted); margin-top:3px;"><a href="https://www.themuse.com/developers/api/v2" target="_blank" rel="noopener" style="color:var(--accent);">Register for higher rate limit \u2192</a> (3600/hr vs 500/hr)</div>'
                 + '</div>'
@@ -3782,7 +3806,7 @@
                 // Name
                 + '<div style="margin-bottom:14px;">'
                 + '<label style="font-size:0.78em; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">Name</label>'
-                + '<input type="text" id="rmEditName" value="' + escapeHtml(item.name) + '" style="' + selectStyle + '">'
+                + '<input type="text" id="rmEditName" value="' + escapeAttr(item.name) + '" style="' + selectStyle + '">'
                 + '</div>'
                 
                 // Status + Priority + Category row
@@ -3977,7 +4001,7 @@
                         + '<span style="font-size:0.62em; padding:1px 6px; border-radius:6px; background:var(--c-surface-4b); color:var(--c-faint); font-family:monospace; font-weight:500; letter-spacing:0.02em;">' + escapeHtml(item.id) + '</span>'
                         + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:' + sc.bg + '; color:' + sc.text + '; font-weight:600;">' + sc.label + '</span>'
                         + '<span style="font-size:0.68em; padding:2px 8px; border-radius:10px; background:' + pc + '15; color:' + pc + '; font-weight:600; border:1px solid ' + pc + '30;">' + item.priority + '</span>'
-                        + '<span style="font-size:0.72em; color:var(--text-muted);" title="' + escapeHtml(item.category) + '">' + bpIcon(ci, 13) + '</span>'
+                        + '<span style="font-size:0.72em; color:var(--text-muted);" title="' + escapeAttr(item.category) + '">' + bpIcon(ci, 13) + '</span>'
                         + '</div>'
                         + (item.notes ? '<div style="font-size:0.8em; color:var(--text-muted); margin-top:4px; line-height:1.5;">' + escapeHtml(item.notes) + '</div>' : '')
                         + '</div>'
@@ -5322,15 +5346,15 @@
 
             html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px;">';
             html += '<div><label style="' + _wbwLabelStyle + '">Company Name</label>'
-                + '<input id="wbwCompany" type="text" value="' + escapeHtml(s.company) + '" placeholder="e.g. Phenom" style="' + _wbwFieldStyle + '" /></div>';
+                + '<input id="wbwCompany" type="text" value="' + escapeAttr(s.company) + '" placeholder="e.g. Phenom" style="' + _wbwFieldStyle + '" /></div>';
             html += '<div><label style="' + _wbwLabelStyle + '">Role Title</label>'
-                + '<input id="wbwTitle" type="text" value="' + escapeHtml(s.title) + '" placeholder="e.g. Director of Strategy" style="' + _wbwFieldStyle + '" /></div>';
+                + '<input id="wbwTitle" type="text" value="' + escapeAttr(s.title) + '" placeholder="e.g. Director of Strategy" style="' + _wbwFieldStyle + '" /></div>';
             html += '<div><label style="' + _wbwLabelStyle + '">Location</label>'
-                + '<input id="wbwLocation" type="text" value="' + escapeHtml(s.location) + '" placeholder="e.g. New York, NY" style="' + _wbwFieldStyle + '" /></div>';
+                + '<input id="wbwLocation" type="text" value="' + escapeAttr(s.location) + '" placeholder="e.g. New York, NY" style="' + _wbwFieldStyle + '" /></div>';
             html += '<div><label style="' + _wbwLabelStyle + '">Department</label>'
-                + '<input id="wbwDepartment" type="text" value="' + escapeHtml(s.department) + '" placeholder="e.g. Strategy" style="' + _wbwFieldStyle + '" /></div>';
+                + '<input id="wbwDepartment" type="text" value="' + escapeAttr(s.department) + '" placeholder="e.g. Strategy" style="' + _wbwFieldStyle + '" /></div>';
             html += '<div><label style="' + _wbwLabelStyle + '">Reports To</label>'
-                + '<input id="wbwReportsTo" type="text" value="' + escapeHtml(s.reportsTo) + '" placeholder="e.g. Chief Strategy Officer" style="' + _wbwFieldStyle + '" /></div>';
+                + '<input id="wbwReportsTo" type="text" value="' + escapeAttr(s.reportsTo) + '" placeholder="e.g. Chief Strategy Officer" style="' + _wbwFieldStyle + '" /></div>';
             html += '<div><label style="' + _wbwLabelStyle + '">Employment Type</label>'
                 + '<select id="wbwEmploymentType" style="' + _wbwFieldStyle + '">';
             ['Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship'].forEach(function(t) {
@@ -5362,7 +5386,7 @@
             if (s.industry && !indMatched) html += '<option selected>' + escapeHtml(s.industry) + '</option>';
             html += '</select></div>';
             html += '<div style="grid-column:1/-1;"><label style="' + _wbwLabelStyle + '">Compensation (optional)</label>'
-                + '<input id="wbwCompensation" type="text" value="' + escapeHtml(s.compensationRange || '') + '" placeholder="e.g. $100,000 - $120,000 plus bonus" style="' + _wbwFieldStyle + '" /></div>';
+                + '<input id="wbwCompensation" type="text" value="' + escapeAttr(s.compensationRange || '') + '" placeholder="e.g. $100,000 - $120,000 plus bonus" style="' + _wbwFieldStyle + '" /></div>';
             html += '</div>';
 
             html += '<div style="margin-top:4px; margin-bottom:16px;"><label style="' + _wbwLabelStyle + '">Work Summary (optional)</label>'
@@ -5373,8 +5397,8 @@
                 + '<div style="font-size:0.78em; color:var(--c-muted); margin-bottom:8px;">Add any additional metadata not covered above.</div>';
             (s.customFields || []).forEach(function(cf, i) {
                 html += '<div style="display:flex; gap:10px; align-items:center; margin-bottom:6px;">'
-                    + '<input id="wbwCFKey' + i + '" type="text" value="' + escapeHtml(cf.key) + '" placeholder="Field name" style="' + _wbwFieldStyle + ' max-width:180px;" />'
-                    + '<input id="wbwCFVal' + i + '" type="text" value="' + escapeHtml(cf.value) + '" placeholder="Value" style="' + _wbwFieldStyle + '" />'
+                    + '<input id="wbwCFKey' + i + '" type="text" value="' + escapeAttr(cf.key) + '" placeholder="Field name" style="' + _wbwFieldStyle + ' max-width:180px;" />'
+                    + '<input id="wbwCFVal' + i + '" type="text" value="' + escapeAttr(cf.value) + '" placeholder="Value" style="' + _wbwFieldStyle + '" />'
                     + '<button onclick="wbwRemoveCustomField(' + i + ')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.1em; padding:4px 8px;">&times;</button>'
                     + '</div>';
             });
@@ -5493,7 +5517,8 @@
 
                 var text = aiRes.content[0].text;
                 var jsonMatch = text.match(/\{[\s\S]*\}/);
-                var research = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+                var research = {};
+                if (jsonMatch) { try { research = JSON.parse(jsonMatch[0]); } catch(e) { console.warn('[WBW] Research JSON parse failed:', e.message); } }
 
                 _wbw.companyResearch = research;
                 if (research.suggestedIndustry && !_wbw.industry) _wbw.industry = research.suggestedIndustry;
@@ -5757,8 +5782,8 @@
                 + '<label style="' + _wbwLabelStyle + '">Years of Experience</label>';
             s.yearsRequired.forEach(function(yr, i) {
                 html += '<div style="display:flex; gap:10px; margin-bottom:6px;">'
-                    + '<input id="wbwYearsRange' + i + '" type="text" value="' + escapeHtml(yr.range) + '" placeholder="5-8" style="' + _wbwFieldStyle + ' max-width:100px;" />'
-                    + '<input id="wbwYearsArea' + i + '" type="text" value="' + escapeHtml(yr.area) + '" placeholder="Area of experience" style="' + _wbwFieldStyle + '" />'
+                    + '<input id="wbwYearsRange' + i + '" type="text" value="' + escapeAttr(yr.range) + '" placeholder="5-8" style="' + _wbwFieldStyle + ' max-width:100px;" />'
+                    + '<input id="wbwYearsArea' + i + '" type="text" value="' + escapeAttr(yr.area) + '" placeholder="Area of experience" style="' + _wbwFieldStyle + '" />'
                     + '</div>';
             });
             html += '<button onclick="wbwAddYears()" style="padding:4px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button>';
@@ -5773,7 +5798,7 @@
                     html += '<option' + (ed.level === lv ? ' selected' : '') + '>' + lv + '</option>';
                 });
                 html += '</select>'
-                    + '<input id="wbwEdField' + i + '" type="text" value="' + escapeHtml(ed.field) + '" placeholder="Field of study" style="' + _wbwFieldStyle + '" />'
+                    + '<input id="wbwEdField' + i + '" type="text" value="' + escapeAttr(ed.field) + '" placeholder="Field of study" style="' + _wbwFieldStyle + '" />'
                     + '<label style="display:flex; align-items:center; gap:4px; font-size:0.8em; color:var(--c-muted); white-space:nowrap;"><input type="checkbox" id="wbwEdPref' + i + '"' + (ed.preferred ? ' checked' : '') + ' /> Preferred</label>'
                     + '</div>';
             });
@@ -5800,7 +5825,7 @@
                 + '<div style="font-size:0.75em; color:var(--c-muted); margin-bottom:6px;">Key qualifications beyond skills (e.g., "Proven track record of managing customer relationships")</div>';
             s.qualifications.forEach(function(q, qi) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:6px;">'
-                    + '<input id="wbwQual' + qi + '" type="text" value="' + escapeHtml(q) + '" style="' + _wbwFieldStyle + ' flex:1;" />'
+                    + '<input id="wbwQual' + qi + '" type="text" value="' + escapeAttr(q) + '" style="' + _wbwFieldStyle + ' flex:1;" />'
                     + '<button onclick="wbwRemoveQual(' + qi + ')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button>'
                     + '</div>';
             });
@@ -5974,7 +5999,7 @@
                     var bg = isSel ? 'var(--accent)' : 'var(--c-surface-2)';
                     var clr = isSel ? '#fff' : 'var(--c-heading)';
                     var border = isCompany && !isSel ? '2px solid var(--accent)' : '1px solid var(--c-surface-5)';
-                    html += '<button onclick="wbwToggleValue(\'' + escapeHtml(v.name).replace(/'/g, "\\'") + '\')" title="' + escapeHtml(v.description) + '" style="padding:6px 14px; background:' + bg + '; color:' + clr + '; border:' + border + '; border-radius:20px; cursor:pointer; font-size:0.82em; font-weight:600; transition:all 0.15s;">'
+                    html += '<button onclick="wbwToggleValue(\'' + escapeHtml(v.name).replace(/'/g, "\\'") + '\')" title="' + escapeAttr(v.description) + '" style="padding:6px 14px; background:' + bg + '; color:' + clr + '; border:' + border + '; border-radius:20px; cursor:pointer; font-size:0.82em; font-weight:600; transition:all 0.15s;">'
                         + (isCompany ? bpIcon('star',10) + ' ' : '') + escapeHtml(v.name) + '</button>';
                 });
                 html += '</div></div>';
@@ -6057,7 +6082,8 @@
                 var prompt = 'For the role "' + (_wbw.title || 'this role') + '" at "' + (_wbw.company || 'this company') + '", write a 1-2 sentence professional description for each workplace value below. Return JSON array of objects with "name" and "description" keys.\n\nValues:\n' + vals.map(function(n) { return '- ' + n; }).join('\n');
                 var resp = await callAnthropicAPI({ model: 'claude-haiku-4-5-20251001', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] }, null, 'wb-value-desc-bulk');
                 var respText = (resp.content && resp.content[0] && resp.content[0].text) || (typeof resp === 'string' ? resp : JSON.stringify(resp));
-                var parsed = JSON.parse(respText.replace(/```json?\n?/g, '').replace(/```/g, '').trim());
+                var parsed = [];
+                try { parsed = JSON.parse(respText.replace(/```json?\n?/g, '').replace(/```/g, '').trim()); } catch(e) { console.warn('[WBW] Value desc JSON parse failed:', e.message); }
                 parsed.forEach(function(item) {
                     if (item.name && item.description) _wbw.valueDescriptions[item.name] = item.description;
                 });
@@ -6200,11 +6226,11 @@
             var fs = _wbwFieldStyle;
             var ls = _wbwLabelStyle;
             var html = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px;">';
-            html += '<div style="grid-column:1/-1;"><label style="' + ls + '">Role Title</label><input id="wbwEditTitle" type="text" value="' + escapeHtml(data.title || '') + '" style="' + fs + '" /></div>';
-            html += '<div><label style="' + ls + '">Company</label><input id="wbwEditCompany" type="text" value="' + escapeHtml(data.company || '') + '" style="' + fs + '" /></div>';
-            html += '<div><label style="' + ls + '">Location</label><input id="wbwEditLocation" type="text" value="' + escapeHtml(data.location || '') + '" style="' + fs + '" /></div>';
-            html += '<div><label style="' + ls + '">Department</label><input id="wbwEditDepartment" type="text" value="' + escapeHtml(data.department || '') + '" style="' + fs + '" /></div>';
-            html += '<div><label style="' + ls + '">Reports To</label><input id="wbwEditReportsTo" type="text" value="' + escapeHtml(data.reportsTo || '') + '" style="' + fs + '" /></div>';
+            html += '<div style="grid-column:1/-1;"><label style="' + ls + '">Role Title</label><input id="wbwEditTitle" type="text" value="' + escapeAttr(data.title || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Company</label><input id="wbwEditCompany" type="text" value="' + escapeAttr(data.company || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Location</label><input id="wbwEditLocation" type="text" value="' + escapeAttr(data.location || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Department</label><input id="wbwEditDepartment" type="text" value="' + escapeAttr(data.department || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Reports To</label><input id="wbwEditReportsTo" type="text" value="' + escapeAttr(data.reportsTo || '') + '" style="' + fs + '" /></div>';
             html += '<div><label style="' + ls + '">Employment Type</label><select id="wbwEditEmploymentType" style="' + fs + '">';
             ['Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship'].forEach(function(t) {
                 html += '<option' + (data.employmentType === t ? ' selected' : '') + '>' + t + '</option>';
@@ -6215,10 +6241,10 @@
                 html += '<option value="' + o.v + '"' + (data.seniority === o.v ? ' selected' : '') + '>' + o.l + '</option>';
             });
             html += '</select></div>';
-            html += '<div><label style="' + ls + '">Schedule</label><input id="wbwEditSchedule" type="text" value="' + escapeHtml(data.schedule || '') + '" style="' + fs + '" /></div>';
-            html += '<div><label style="' + ls + '">Travel</label><input id="wbwEditTravel" type="text" value="' + escapeHtml(data.travel || '') + '" style="' + fs + '" /></div>';
-            html += '<div><label style="' + ls + '">Industry</label><input id="wbwEditIndustry" type="text" value="' + escapeHtml(data.industry || '') + '" style="' + fs + '" /></div>';
-            html += '<div style="grid-column:1/-1;"><label style="' + ls + '">Compensation</label><input id="wbwEditCompensation" type="text" value="' + escapeHtml(data.compensationRange || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Schedule</label><input id="wbwEditSchedule" type="text" value="' + escapeAttr(data.schedule || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Travel</label><input id="wbwEditTravel" type="text" value="' + escapeAttr(data.travel || '') + '" style="' + fs + '" /></div>';
+            html += '<div><label style="' + ls + '">Industry</label><input id="wbwEditIndustry" type="text" value="' + escapeAttr(data.industry || '') + '" style="' + fs + '" /></div>';
+            html += '<div style="grid-column:1/-1;"><label style="' + ls + '">Compensation</label><input id="wbwEditCompensation" type="text" value="' + escapeAttr(data.compensationRange || '') + '" style="' + fs + '" /></div>';
             html += '</div>';
 
             html += '<div style="margin-bottom:16px;"><label style="' + ls + '">Work Summary</label>'
@@ -6228,8 +6254,8 @@
             html += '<div><label style="' + ls + '">Years of Experience</label>';
             (_wbw.yearsRequired || []).forEach(function(yr, i) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
-                    + '<input id="wbwEditYearsRange' + i + '" type="text" value="' + escapeHtml(yr.range) + '" placeholder="3-5" style="' + fs + ' max-width:80px;" />'
-                    + '<input id="wbwEditYearsArea' + i + '" type="text" value="' + escapeHtml(yr.area) + '" placeholder="Area" style="' + fs + '" /></div>';
+                    + '<input id="wbwEditYearsRange' + i + '" type="text" value="' + escapeAttr(yr.range) + '" placeholder="3-5" style="' + fs + ' max-width:80px;" />'
+                    + '<input id="wbwEditYearsArea' + i + '" type="text" value="' + escapeAttr(yr.area) + '" placeholder="Area" style="' + fs + '" /></div>';
             });
             html += '<button onclick="_wbw.yearsRequired.push({range:\'\',area:\'\'});renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
 
@@ -6241,7 +6267,7 @@
                     html += '<option' + (ed.level === lv ? ' selected' : '') + '>' + lv + '</option>';
                 });
                 html += '</select>'
-                    + '<input id="wbwEditEdField' + i + '" type="text" value="' + escapeHtml(ed.field) + '" placeholder="Field" style="' + fs + '" />'
+                    + '<input id="wbwEditEdField' + i + '" type="text" value="' + escapeAttr(ed.field) + '" placeholder="Field" style="' + fs + '" />'
                     + '<label style="display:flex; align-items:center; gap:3px; font-size:0.75em; color:var(--c-muted); white-space:nowrap;"><input type="checkbox" id="wbwEditEdPref' + i + '"' + (ed.preferred ? ' checked' : '') + ' /> Pref</label></div>';
             });
             html += '<button onclick="_wbw.education.push({level:\'Bachelor\\\'s\',field:\'\',preferred:false});renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
@@ -6262,7 +6288,7 @@
             html += '<div style="margin-bottom:16px;"><label style="' + ls + '">Qualifications</label>';
             (_wbw.qualifications || []).forEach(function(q, qi) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
-                    + '<input id="wbwEditQual' + qi + '" type="text" value="' + escapeHtml(q) + '" style="' + fs + ' flex:1;" />'
+                    + '<input id="wbwEditQual' + qi + '" type="text" value="' + escapeAttr(q) + '" style="' + fs + ' flex:1;" />'
                     + '<button onclick="_wbw.qualifications.splice(' + qi + ',1);renderWBWizard(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
             html += '<button onclick="_wbw.qualifications.push(\'\');renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
@@ -6270,8 +6296,8 @@
             html += '<div style="margin-bottom:16px;"><label style="' + ls + '">Custom Fields</label>';
             (data.customFields || []).forEach(function(cf, i) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
-                    + '<input id="wbwEditCFKey' + i + '" type="text" value="' + escapeHtml(cf.key) + '" placeholder="Field name" style="' + fs + ' max-width:180px;" />'
-                    + '<input id="wbwEditCFVal' + i + '" type="text" value="' + escapeHtml(cf.value) + '" placeholder="Value" style="' + fs + ' flex:1;" />'
+                    + '<input id="wbwEditCFKey' + i + '" type="text" value="' + escapeAttr(cf.key) + '" placeholder="Field name" style="' + fs + ' max-width:180px;" />'
+                    + '<input id="wbwEditCFVal' + i + '" type="text" value="' + escapeAttr(cf.value) + '" placeholder="Value" style="' + fs + ' flex:1;" />'
                     + '<button onclick="_wbw.customFields.splice(' + i + ',1);renderWBWizard(document.getElementById(\'adminTabContent\'));" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
             html += '<button onclick="_wbw.customFields.push({key:\'\',value:\'\'});renderWBWizard(document.getElementById(\'adminTabContent\'));" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Custom Field</button></div>';
@@ -6731,12 +6757,14 @@
             _jdcBulkResults = [];
             _jdcBulkViewIdx = 0;
             jds.forEach(function(jd) {
+                if (_jdcBulkResults.length >= 100) return;
                 try {
                     _jdcBulkResults.push(convertJDToBlueprint(jd));
                 } catch(e) {
                     console.warn('JDC bulk conversion error:', e);
                 }
             });
+            if (_jdcBulkResults.length >= 100) showToast('Bulk limit: first 100 job descriptions processed.', 'info');
             if (_jdcBulkResults.length > 0) {
                 _jdcResult = _jdcBulkResults[0];
                 _jdcCompMode = 'without';
@@ -7988,7 +8016,7 @@
                 // Active/override range — editable
                 html += '<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">';
                 html += '<div style="font-size:0.72em; color:var(--c-muted); font-weight:600; white-space:nowrap;">Use for this Blueprint:</div>';
-                html += '<input id="wbActiveCompRange" type="text" value="' + escapeHtml(activeRange) + '" placeholder="e.g. $180,000 \u2013 $220,000" style="flex:1; min-width:180px; padding:6px 10px; border-radius:6px; border:1px solid var(--c-surface-5); background:var(--c-surface-2); color:var(--c-text); font-size:0.82em; font-family:inherit;" oninput="wbUpdateActiveCompRange(this.value)">';
+                html += '<input id="wbActiveCompRange" type="text" value="' + escapeAttr(activeRange) + '" placeholder="e.g. $180,000 \u2013 $220,000" style="flex:1; min-width:180px; padding:6px 10px; border-radius:6px; border:1px solid var(--c-surface-5); background:var(--c-surface-2); color:var(--c-text); font-size:0.82em; font-family:inherit;" oninput="wbUpdateActiveCompRange(this.value)">';
                 if (jdRange || bpSuggestedRange) {
                     html += '<div style="display:flex; gap:6px; flex-wrap:wrap;">';
                     if (jdRange) html += '<button onclick="wbSetCompRange(this.dataset.range)" data-range="' + escapeHtml(jdRange) + '" style="padding:4px 10px; font-size:0.7em; border:1px solid rgba(96,165,250,0.3); border-radius:5px; background:transparent; color:#60a5fa; cursor:pointer; font-weight:600;">Use JD Range</button>';
@@ -9218,7 +9246,7 @@
             textFields.forEach(function(f) {
                 var spanStyle = f.span === 2 ? 'grid-column:1/-1;' : '';
                 html += '<div style="' + spanStyle + '"><label style="' + labelStyle + '">' + (f.label || f.id) + '</label>'
-                    + '<input id="jdcEdit' + f.id + '" type="text" value="' + escapeHtml(f.val || '') + '" style="' + fieldStyle + '" /></div>';
+                    + '<input id="jdcEdit' + f.id + '" type="text" value="' + escapeAttr(f.val || '') + '" style="' + fieldStyle + '" /></div>';
             });
             html += '<div><label style="' + labelStyle + '">Employment Type</label><select id="jdcEditEmploymentType" style="' + fieldStyle + '"><option value="">—</option>';
             var etMatch = false;
@@ -9248,7 +9276,7 @@
             html += '</select></div>';
             var compVal = (data.compensation && data.compensation.range) ? data.compensation.range : (data.compensationRange || '');
             html += '<div><label style="' + labelStyle + '">Compensation</label>'
-                + '<input id="jdcEditCompensation" type="text" value="' + escapeHtml(compVal) + '" placeholder="e.g. $100,000 - $120,000" style="' + fieldStyle + '" /></div>';
+                + '<input id="jdcEditCompensation" type="text" value="' + escapeAttr(compVal) + '" placeholder="e.g. $100,000 - $120,000" style="' + fieldStyle + '" /></div>';
             html += '</div>';
             if (data.bls) {
                 var editHiddenPcts = data.hiddenCompRows || [];
@@ -9293,8 +9321,8 @@
             html += '<div><label style="' + labelStyle + '">Years of Experience</label>';
             (data.yearsRequired || []).forEach(function(yr, i) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
-                    + '<input id="jdcEditYearsRange' + i + '" type="text" value="' + escapeHtml(yr.range) + '" placeholder="3-5" style="' + fieldStyle + ' max-width:80px;" />'
-                    + '<input id="jdcEditYearsArea' + i + '" type="text" value="' + escapeHtml(yr.area) + '" placeholder="Area" style="' + fieldStyle + '" />'
+                    + '<input id="jdcEditYearsRange' + i + '" type="text" value="' + escapeAttr(yr.range) + '" placeholder="3-5" style="' + fieldStyle + ' max-width:80px;" />'
+                    + '<input id="jdcEditYearsArea' + i + '" type="text" value="' + escapeAttr(yr.area) + '" placeholder="Area" style="' + fieldStyle + '" />'
                     + '</div>';
             });
             html += '<button onclick="_jdcSyncFormToState();_jdcResult.yearsRequired=_jdcResult.yearsRequired||[];_jdcResult.yearsRequired.push({range:\'\',area:\'\'});' + refreshEsc + ';" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
@@ -9307,7 +9335,7 @@
                     html += '<option' + (ed.level === lv ? ' selected' : '') + '>' + lv + '</option>';
                 });
                 html += '</select>'
-                    + '<input id="jdcEditEdField' + i + '" type="text" value="' + escapeHtml(ed.field) + '" placeholder="Field" style="' + fieldStyle + '" />'
+                    + '<input id="jdcEditEdField' + i + '" type="text" value="' + escapeAttr(ed.field) + '" placeholder="Field" style="' + fieldStyle + '" />'
                     + '<label style="display:flex; align-items:center; gap:3px; font-size:0.75em; color:var(--c-muted); white-space:nowrap;"><input type="checkbox" id="jdcEditEdPref' + i + '"' + (ed.preferred ? ' checked' : '') + ' /> Pref</label></div>';
             });
             html += '<button onclick="_jdcSyncFormToState();_jdcResult.education=_jdcResult.education||[];_jdcResult.education.push({level:\'Bachelor\\\'s\',field:\'\',preferred:false});' + refreshEsc + ';" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
@@ -9328,7 +9356,7 @@
             html += '<div style="margin-bottom:16px;"><label style="' + labelStyle + '">Qualifications</label>';
             (data.qualifications || []).forEach(function(q, qi) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:4px;">'
-                    + '<input id="jdcEditQual' + qi + '" type="text" value="' + escapeHtml(q) + '" style="' + fieldStyle + ' flex:1;" />'
+                    + '<input id="jdcEditQual' + qi + '" type="text" value="' + escapeAttr(q) + '" style="' + fieldStyle + ' flex:1;" />'
                     + '<button onclick="_jdcSyncFormToState();_jdcResult.qualifications.splice(' + qi + ',1);' + refreshEsc + ';" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
             html += '<button onclick="_jdcSyncFormToState();_jdcResult.qualifications=_jdcResult.qualifications||[];_jdcResult.qualifications.push(\'\');' + refreshEsc + ';" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add</button></div>';
@@ -9350,8 +9378,8 @@
             var profLevels = ['Awareness', 'Foundational', 'Proficient', 'Advanced', 'Expert', 'Mastery'];
             (data.skills || []).forEach(function(s, si) {
                 html += '<tr style="border-bottom:1px solid ' + borderColor + ';">'
-                    + '<td style="padding:8px;"><input id="jdcEditSkillName' + si + '" type="text" value="' + escapeHtml(s.name) + '" style="' + fieldStyle + ' font-weight:600;" /></td>'
-                    + '<td style="padding:8px;"><div style="display:flex; align-items:center; gap:4px;"><input id="jdcEditSkillOutcome' + si + '" type="text" value="' + escapeHtml(s.outcome || '') + '" style="' + fieldStyle + ' flex:1;" />'
+                    + '<td style="padding:8px;"><input id="jdcEditSkillName' + si + '" type="text" value="' + escapeAttr(s.name) + '" style="' + fieldStyle + ' font-weight:600;" /></td>'
+                    + '<td style="padding:8px;"><div style="display:flex; align-items:center; gap:4px;"><input id="jdcEditSkillOutcome' + si + '" type="text" value="' + escapeAttr(s.outcome || '') + '" style="' + fieldStyle + ' flex:1;" />'
                     + '<button onclick="jdcAIFillOneSkillOutcome(' + si + ')" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size:0.9em; padding:0 3px; flex-shrink:0;" title="AI generate outcome">' + bpIcon('wand',13) + '</button></div></td>'
                     + '<td style="padding:8px;"><select id="jdcEditSkillLevel' + si + '" style="' + fieldStyle + '">';
                 profLevels.forEach(function(lv) {
@@ -9398,8 +9426,8 @@
                 var valName = typeof v === 'string' ? v : (v.name || '');
                 var valDesc = typeof v === 'object' ? (v.description || v.desc || '') : '';
                 html += '<div style="display:flex; gap:8px; margin-bottom:6px; align-items:center;">'
-                    + '<input id="jdcEditValName' + vi + '" type="text" value="' + escapeHtml(valName) + '" placeholder="Value name" style="' + fieldStyle + ' max-width:200px; font-weight:600;" />'
-                    + '<input id="jdcEditValDesc' + vi + '" type="text" value="' + escapeHtml(valDesc) + '" placeholder="Description" style="' + fieldStyle + ' flex:1;" />'
+                    + '<input id="jdcEditValName' + vi + '" type="text" value="' + escapeAttr(valName) + '" placeholder="Value name" style="' + fieldStyle + ' max-width:200px; font-weight:600;" />'
+                    + '<input id="jdcEditValDesc' + vi + '" type="text" value="' + escapeAttr(valDesc) + '" placeholder="Description" style="' + fieldStyle + ' flex:1;" />'
                     + '<button onclick="jdcAIFillOneValueDesc(' + vi + ')" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size:0.9em; padding:0 3px;" title="AI generate description">' + bpIcon('wand',13) + '</button>'
                     + '<button onclick="_jdcSyncFormToState();_jdcResult.values.splice(' + vi + ',1);' + refreshEsc + ';" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
@@ -9439,7 +9467,7 @@
             (demoData.evidence || []).forEach(function(ev, ei) {
                 html += '<div style="display:flex; gap:8px; margin-bottom:6px; align-items:center;">'
                     + '<span style="color:#10b981; font-size:0.9em;">' + bpIcon('check',12) + '</span>'
-                    + '<input id="jdcEditEvidence' + ei + '" type="text" value="' + escapeHtml(ev) + '" style="' + fieldStyle + ' flex:1;" />'
+                    + '<input id="jdcEditEvidence' + ei + '" type="text" value="' + escapeAttr(ev) + '" style="' + fieldStyle + ' flex:1;" />'
                     + '<button onclick="_jdcSyncFormToState();_jdcResult.demonstrated.evidence.splice(' + ei + ',1);' + refreshEsc + ';" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
             html += '<button onclick="_jdcSyncFormToState();if(!_jdcResult.demonstrated)_jdcResult.demonstrated={evidence:[],artifacts:\'\'};_jdcResult.demonstrated.evidence.push(\'\');' + refreshEsc + ';" style="padding:5px 12px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid ' + borderColor + '; border-radius:6px; cursor:pointer; font-size:0.78em; margin-top:4px; margin-bottom:12px;">' + bpIcon('plus',10) + ' Add Evidence</button>';
@@ -9451,8 +9479,8 @@
             html += '<div style="margin-bottom:16px;"><label style="' + labelStyle + '">Custom Fields</label>';
             (data.customFields || []).forEach(function(cf, i) {
                 html += '<div style="display:flex; gap:8px; align-items:center; margin-bottom:4px;">'
-                    + '<input id="jdcEditCFKey' + i + '" type="text" value="' + escapeHtml(cf.key) + '" placeholder="Field name" style="' + fieldStyle + ' max-width:180px;" />'
-                    + '<input id="jdcEditCFVal' + i + '" type="text" value="' + escapeHtml(cf.value) + '" placeholder="Value" style="' + fieldStyle + '" />'
+                    + '<input id="jdcEditCFKey' + i + '" type="text" value="' + escapeAttr(cf.key) + '" placeholder="Field name" style="' + fieldStyle + ' max-width:180px;" />'
+                    + '<input id="jdcEditCFVal' + i + '" type="text" value="' + escapeAttr(cf.value) + '" placeholder="Value" style="' + fieldStyle + '" />'
                     + '<button onclick="_jdcSyncFormToState(); _jdcResult.customFields.splice(' + i + ',1); ' + refreshEsc + ';" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:1.2em; padding:0 4px;">&times;</button></div>';
             });
             html += '<button onclick="_jdcSyncFormToState(); if(!_jdcResult.customFields) _jdcResult.customFields=[]; _jdcResult.customFields.push({key:\'\',value:\'\'}); ' + refreshEsc + ';" style="padding:3px 10px; background:var(--c-surface-3); color:var(--c-muted); border:1px solid var(--c-surface-5); border-radius:6px; cursor:pointer; font-size:0.75em; margin-top:4px;">' + bpIcon('plus',10) + ' Add Custom Field</button></div>';
@@ -9549,6 +9577,7 @@
 
         var _wbRepoCache = null;
         var _wbRepoViewIdx = -1;
+        var _d3RenderTimer = null; // debounce guard for D3 force graph renders
 
         function renderAdminWBRepo(el) {
             var html = '<div style="max-width:1000px;">'
@@ -11430,7 +11459,7 @@
             showToast('Saving comparison...', 'info', 2000);
             var col = _wbCompFSPath();
             var persist = col
-                ? col.doc(safe.id).set(safe).then(function() { showToast('Comparison saved!', 'success'); })
+                ? col.doc(safe.id).set(safe).then(function() { showToast('Comparison saved!', 'success'); }).catch(function(e) { console.warn('[Comp] Save error:', e.message); showToast('Comparison save failed — data may not have persisted.', 'error'); })
                 : Promise.resolve(function() {
                     var ls = _wbCompGetLS();
                     ls.unshift(safe);
@@ -11968,6 +11997,7 @@
             _jdcInputMode = 'paste';
             _jdcEditMode = true;
             _jdcFromRepo = true;
+            _jdcSavedState = true; // already in repo — close button should not warn
             if (!_jdcResult.skills) _jdcResult.skills = [];
             if (!_jdcResult.values) _jdcResult.values = [];
             if (!_jdcResult.certifications) _jdcResult.certifications = [];
@@ -12108,6 +12138,7 @@
         async function _parseAuditFetch() {
             _parseAuditLoading = true;
             _parseAuditResults = [];
+            try {
 
             var terms = [];
             var roles = (userData.roles || []).map(function(r) { return r.name || r; });
@@ -12223,6 +12254,11 @@
 
             _parseAuditResults = allJobs;
             _parseAuditLoading = false;
+            } catch(e) {
+                console.warn('[ParseAudit] Fetch error:', e.message);
+                _parseAuditLoading = false;
+                showToast('Job audit fetch failed: ' + e.message, 'error');
+            }
         }
 
         function renderAdminWBAbout(el) {
@@ -13081,7 +13117,7 @@
                 var count = dailyTotals[date] || 0;
                 var h = Math.max((count / sparkMax) * 100, 2);
                 var isToday = date === today.toISOString().slice(0, 10);
-                html += '<div title="' + escapeHtml(date) + ': ' + count + ' calls" style="flex:1; height:' + h + '%; background:' + (isToday ? '#60a5fa' : 'rgba(96,165,250,0.4)') + '; border-radius:3px 3px 0 0; min-width:8px; transition:height 0.3s;"></div>';
+                html += '<div title="' + escapeAttr(date) + ': ' + count + ' calls" style="flex:1; height:' + h + '%; background:' + (isToday ? '#60a5fa' : 'rgba(96,165,250,0.4)') + '; border-radius:3px 3px 0 0; min-width:8px; transition:height 0.3s;"></div>';
             });
             html += '</div>'
                 + '<div style="display:flex; justify-content:space-between; font-size:0.65em; color:var(--text-muted); margin-top:4px;">'
@@ -15941,7 +15977,7 @@
             
             // Activate showcase mode globals
             showcaseMode = true;
-            fbIsAdmin = true;
+            fbIsAdmin = false;       // showcase does NOT grant real admin privileges
             isReadOnlyProfile = true;
             appMode = 'showcase';
             
@@ -16215,7 +16251,7 @@
                 
                 + '<div style="margin-bottom:16px;">'
                 + '<label style="font-size:0.82em; color:#94a3b8; display:block; margin-bottom:4px;">Your name (for attribution):</label>'
-                + '<input type="text" id="verifyResponseName" value="' + escapeHtml(records[0].verifierName || '') + '" '
+                + '<input type="text" id="verifyResponseName" value="' + escapeAttr(records[0].verifierName || '') + '" '
                 + 'style="width:100%; padding:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#e2e8f0; font-size:0.9em; box-sizing:border-box;"></div>'
                 
                 + '<button onclick="submitVerifierResponse(\'' + escapeHtml(token).replace(/'/g,"\\'") + '\',\'' + escapeHtml(uid).replace(/'/g,"\\'") + '\',' + records.length + ')" '
@@ -16335,7 +16371,7 @@
                 + '<div class="settings-group" style="margin-bottom:10px;">'
                 + '<label class="settings-label" style="font-size:0.82em;">What was the measurable result? *</label>'
                 + '<input type="text" class="settings-input" id="outcomeResult" '
-                + 'value="' + escapeHtml(existing.outcome || '') + '" '
+                + 'value="' + escapeAttr(existing.outcome || '') + '" '
                 + 'placeholder="e.g., Increased pipeline velocity 40% saving $2.3M annually" '
                 + 'oninput="updateOutcomeScorePreview()" '
                 + 'style="font-size:0.88em;">'
@@ -19796,7 +19832,12 @@ Include: job titles, companies, dates, responsibilities, achievements, metrics, 
             // File upload takes priority if present
             wizardState.useFileUpload = !!wizardState.resumeFileBase64 && !wizardState.resumeText;
             wizardNext(); // Go to step 3 (parsing/loading)
-            await wizardRunParsing();
+            try {
+                await wizardRunParsing();
+            } catch(e) {
+                console.warn('[Wizard] Parsing failed:', e.message);
+                showToast('Profile parsing failed: ' + e.message, 'error');
+            }
         }
 
         // ── STEP 2 (LinkedIn): .zip upload + CSV parsing ────────────────────
@@ -20680,7 +20721,7 @@ Rules:
                               text-transform:uppercase; letter-spacing:0.04em;">
                     ${label}
                 </label>
-                <input id="${id}" type="text" value="${escapeHtml(String(value ?? ''))}"
+                <input id="${id}" type="text" value="${escapeAttr(String(value ?? ''))}"
                        placeholder="${placeholder}"
                        style="width:100%; padding:10px 12px; background:var(--input-bg);
                               border:1px solid var(--border); border-radius:8px;
@@ -21848,6 +21889,12 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
         }
         window.toggleNetworkLabels = toggleNetworkLabels;
         
+        function initNetworkDebounced(delay) {
+            if (_d3RenderTimer) clearTimeout(_d3RenderTimer);
+            _d3RenderTimer = setTimeout(function() { _d3RenderTimer = null; initNetwork(); }, delay || 80);
+        }
+        window.initNetworkDebounced = initNetworkDebounced;
+
         function initNetwork() {
             // Empty state: no skills and signed in (not viewing a sample)
             var hasSkills = skillsData.skills && skillsData.skills.length > 0;
@@ -24598,6 +24645,11 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                 }
                 updateStatsBar();
             } else if (view === 'admin') {
+                if (!fbIsAdmin && !showcaseMode) {
+                    console.warn('[switchView] Admin access denied — not an admin and not in showcase mode.');
+                    switchView('welcome');
+                    return;
+                }
                 var av = document.getElementById('adminView');
                 if (av) {
                     av.style.display = 'block';
@@ -25375,7 +25427,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
                         var claimedVal = proficiencyValue(evSummary.claimedLevel);
                         var sugIcon = sugVal > claimedVal ? '\u2191' : '\u2193';
                         var sugClr = sugVal > claimedVal ? '#10b981' : '#f59e0b';
-                        bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:' + sugClr + '18; color:' + sugClr + ';" title="' + escapeHtml(sug.name) + ' suggested ' + escapeHtml(sug.level) + ' (scoring adjusted)">'
+                        bodyHTML += '<span style="font-size:0.72em; padding:2px 8px; border-radius:10px; background:' + sugClr + '18; color:' + sugClr + ';" title="' + escapeAttr(sug.name) + ' suggested ' + escapeHtml(sug.level) + ' (scoring adjusted)">'
                             + sugIcon + ' ' + escapeHtml(sug.name) + ' suggests ' + escapeHtml(sug.level) + '</span>';
                     });
                 }
@@ -27996,7 +28048,7 @@ body {
                         color = 'var(--c-muted)';
                     }
                     
-                    html += '<button onclick="pickValue(\'' + escapeHtml(val.name).replace(/'/g, "\\'") + '\')" title="' + escapeHtml(val.description || '') + '" style="'
+                    html += '<button onclick="pickValue(\'' + escapeHtml(val.name).replace(/'/g, "\\'") + '\')" title="' + escapeAttr(val.description || '') + '" style="'
                         + 'background:' + bg + '; border:1.5px solid ' + border + '; color:' + color + '; '
                         + 'padding:8px 16px; border-radius:20px; cursor:pointer; font-size:0.88em; '
                         + 'font-weight:' + (isSelected ? '700' : '500') + '; transition:all 0.15s ease;">'
@@ -34314,12 +34366,12 @@ body {
                 
                 + '<div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">'
                 + '<input id="findJobsKeyword" type="text" placeholder="Job title, skill, or keyword..." '
-                + 'value="' + escapeHtml(window._lastJobSearch || '') + '" '
+                + 'value="' + escapeAttr(window._lastJobSearch || '') + '" '
                 + 'onkeydown="if(event.key===\'Enter\') searchOpportunities();" '
                 + 'style="flex:2; min-width:180px; padding:10px 14px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.92em;" />'
                 + '<input id="findJobsLocation" type="text" placeholder="City, state, or remote..." '
-                + 'value="' + escapeHtml(window._lastJobLocation || '') + '" '
+                + 'value="' + escapeAttr(window._lastJobLocation || '') + '" '
                 + 'onkeydown="if(event.key===\'Enter\') searchOpportunities();" '
                 + 'style="flex:1; min-width:140px; padding:10px 14px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:8px; color:var(--text-primary); font-size:0.92em;" />'
@@ -34449,7 +34501,7 @@ body {
                 + '\u26A1 AI-powered analysis (optional, requires API key)</summary>'
                 + '<div style="margin-top:8px; padding:12px; background:var(--c-surface-1); '
                 + 'border:1px solid var(--border); border-radius:8px;">'
-                + '<input id="jdApiKey" type="password" placeholder="sk-ant-..." value="' + escapeHtml(savedKey) + '" style="'
+                + '<input id="jdApiKey" type="password" placeholder="sk-ant-..." value="' + escapeAttr(savedKey) + '" style="'
                 + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.88em; font-family:monospace;" />'
                 + '<div style="font-size:0.75em; color:var(--text-muted); margin-top:6px; line-height:1.5;">'
@@ -38701,7 +38753,7 @@ body {
                     var inferBadge = g.source === 'inferred' ? '<span style="font-size:0.68em; opacity:0.5; margin-left:2px;" title="Inferred from responsibilities">\u2248</span>' : '';
                     html += '<span class="jd-skill-chip jd-chip-gap" style="cursor:pointer; display:inline-flex; align-items:center; gap:4px;" '
                         + 'onclick="quickAddGapSkill(\'' + escapeHtml(g.name).replace(/'/g, "\\'") + '\', \'' + escapeHtml(g.proficiency || 'Proficient') + '\', ' + idx + ')" '
-                        + 'title="' + escapeHtml(sectionTip) + '">'
+                        + 'title="' + escapeAttr(sectionTip) + '">'
                         + escapeHtml(g.name) + '<span style="font-size:0.72em; opacity:0.6;">' + escapeHtml(profLabel) + '</span>' + tierBadge + inferBadge;
                     if (fbIsAdmin) {
                         html += '<span onclick="event.stopPropagation(); adminBlockSkill(\'' + escapeHtml(g.name).replace(/'/g, "\\'") + '\', ' + idx + ');" '
@@ -38758,7 +38810,7 @@ body {
                         html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:16px; '
                             + 'font-size:0.82em; cursor:pointer; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.25); color:var(--text-secondary);" '
                             + 'onclick="quickAddSuggested(\'' + escapeHtml(s.name).replace(/'/g, "\\'") + '\', \'' + escapeHtml(s.level) + '\', \'' + escapeHtml(s.roleId) + '\'); showJobDetail(' + idx + ');" '
-                            + 'title="Expected for ' + escapeHtml(s.reason) + ' at ' + escapeHtml(s.level) + '">+ ' + escapeHtml(s.name) + '</span>';
+                            + 'title="Expected for ' + escapeAttr(s.reason) + ' at ' + escapeAttr(s.level) + '">+ ' + escapeHtml(s.name) + '</span>';
                     });
                     html += '</div>';
                 }
@@ -38833,26 +38885,26 @@ body {
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
                 + '<div>'
                 + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Job Title</label>'
-                + '<input id="editJobTitle" value="' + escapeHtml(job.title || '') + '" style="'
+                + '<input id="editJobTitle" value="' + escapeAttr(job.title || '') + '" style="'
                 + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
                 + '</div>'
                 + '<div>'
                 + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Company</label>'
-                + '<input id="editJobCompany" value="' + escapeHtml(job.company || '') + '" style="'
+                + '<input id="editJobCompany" value="' + escapeAttr(job.company || '') + '" style="'
                 + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
                 + '</div></div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;">'
                 + '<div>'
                 + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Source URL</label>'
-                + '<input id="editJobUrl" value="' + escapeHtml(job.sourceUrl || '') + '" style="'
+                + '<input id="editJobUrl" value="' + escapeAttr(job.sourceUrl || '') + '" style="'
                 + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
                 + '</div>'
                 + '<div>'
                 + '<label style="font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; font-size:0.88em;">Source Note</label>'
-                + '<input id="editJobNote" value="' + escapeHtml(job.sourceNote || '') + '" style="'
+                + '<input id="editJobNote" value="' + escapeAttr(job.sourceNote || '') + '" style="'
                 + 'width:100%; padding:10px 12px; background:var(--c-input-bg); '
                 + 'border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-size:0.9em;" />'
                 + '</div></div>'
@@ -39427,7 +39479,7 @@ body {
             if (!el) return;
             var count = jobsSyncMeta ? (jobsSyncMeta.totalJobs || 0) : jobsCacheData.length;
             if (count < 1) { el.innerHTML = ''; return; }
-            el.innerHTML = '<div title="' + escapeHtml(getJobsSourceBreakdown() || 'From Firestore cache') + '" style="text-align:right; padding:10px 18px; background:linear-gradient(135deg, var(--accent), #8b5cf6); border-radius:10px; min-width:120px; cursor:help;">'
+            el.innerHTML = '<div title="' + escapeAttr(getJobsSourceBreakdown() || 'From Firestore cache') + '" style="text-align:right; padding:10px 18px; background:linear-gradient(135deg, var(--accent), #8b5cf6); border-radius:10px; min-width:120px; cursor:help;">'
                 + '<div style="font-size:1.6em; font-weight:800; color:#fff; line-height:1;">' + count.toLocaleString() + '</div>'
                 + '<div style="font-size:0.68em; color:rgba(255,255,255,0.8); text-transform:uppercase; letter-spacing:0.08em;">jobs in database</div></div>';
         }
@@ -40152,7 +40204,7 @@ body {
         async function addRemoteJobToPipeline(idx) {
             var job = (window._displayedJobs || opportunitiesData)[idx];
             if (!job) { showToast('Job not found.', 'warning'); return; }
-            
+            try {
             if (!userData.savedJobs) userData.savedJobs = [];
             if (userData.savedJobs.length >= 10) {
                 showToast('Pipeline is full (10 max). Remove one first.', 'warning');
@@ -40250,6 +40302,10 @@ body {
             
             // Re-render to update the "In Pipeline" badge
             renderOpportunities();
+            } catch(e) {
+                console.warn('[Pipeline] Add job error:', e.message);
+                showToast('Could not add job to pipeline: ' + e.message, 'error');
+            }
         }
         window.addRemoteJobToPipeline = addRemoteJobToPipeline;
         // [removed] generatePitch — dead code cleanup v4.22.0
@@ -40988,7 +41044,7 @@ body {
             var step = type === 'number' && String(value).indexOf('.') !== -1 ? ' step="0.1"' : '';
             return '<div>'
                 + '<label style="font-size:0.78em; color:var(--text-muted); display:block; margin-bottom:4px;">' + label + '</label>'
-                + '<input id="' + id + '" type="' + inputType + '" value="' + escapeHtml(String(value)) + '" placeholder="' + placeholder + '"' + step
+                + '<input id="' + id + '" type="' + inputType + '" value="' + escapeAttr(String(value)) + '" placeholder="' + placeholder + '"' + step
                 + ' class="settings-input" style="width:100%; font-size:0.92em;">'
                 + '</div>';
         }
@@ -41030,7 +41086,7 @@ body {
             
             var achHTML = (job.achievements || []).map(function(a, i) {
                 return '<div style="display:flex; gap:8px; margin-bottom:8px;">'
-                    + '<input type="text" class="settings-input wh-ach-input" value="' + escapeHtml(a||'') + '" '
+                    + '<input type="text" class="settings-input wh-ach-input" value="' + escapeAttr(a||'') + '" '
                     + 'placeholder="e.g., Increased pipeline velocity 40% through process redesign" '
                     + 'style="flex:1; font-size:0.88em;">'
                     + '<button onclick="this.parentElement.remove()" style="background:none; border:none; color:var(--c-danger); cursor:pointer; font-size:1.1em; padding:0 4px;">\u00D7</button>'
@@ -41047,16 +41103,16 @@ body {
                 + '<div class="modal-body" style="padding:24px; max-height:70vh; overflow-y:auto;">'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
                 + '<div class="settings-group"><label class="settings-label">Job Title *</label>'
-                + '<input type="text" class="settings-input" id="whTitle" value="' + escapeHtml(job.title||'') + '" placeholder="VP of Strategy"></div>'
+                + '<input type="text" class="settings-input" id="whTitle" value="' + escapeAttr(job.title||'') + '" placeholder="VP of Strategy"></div>'
                 + '<div class="settings-group"><label class="settings-label">Company *</label>'
-                + '<input type="text" class="settings-input" id="whCompany" value="' + escapeHtml(job.company||'') + '" placeholder="Acme Corp"></div>'
+                + '<input type="text" class="settings-input" id="whCompany" value="' + escapeAttr(job.company||'') + '" placeholder="Acme Corp"></div>'
                 + '<div class="settings-group"><label class="settings-label">Location</label>'
-                + '<input type="text" class="settings-input" id="whLocation" value="' + escapeHtml(job.location||'') + '" placeholder="Philadelphia, PA"></div>'
+                + '<input type="text" class="settings-input" id="whLocation" value="' + escapeAttr(job.location||'') + '" placeholder="Philadelphia, PA"></div>'
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">'
                 + '<div class="settings-group"><label class="settings-label">Start Date</label>'
-                + '<input type="text" class="settings-input" id="whStartDate" value="' + escapeHtml(job.startDate||'') + '" placeholder="Jan 2020"></div>'
+                + '<input type="text" class="settings-input" id="whStartDate" value="' + escapeAttr(job.startDate||'') + '" placeholder="Jan 2020"></div>'
                 + '<div class="settings-group"><label class="settings-label">End Date</label>'
-                + '<input type="text" class="settings-input" id="whEndDate" value="' + escapeHtml(job.endDate||'') + '" placeholder="Present" ' + (job.current ? 'disabled' : '') + '></div>'
+                + '<input type="text" class="settings-input" id="whEndDate" value="' + escapeAttr(job.endDate||'') + '" placeholder="Present" ' + (job.current ? 'disabled' : '') + '></div>'
                 + '</div>'
                 + '</div>'
                 + '<div class="settings-group" style="margin-top:4px;">'
@@ -41208,29 +41264,29 @@ body {
                 // Row 1: Institution + Credential
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
                 + '<div class="settings-group"><label class="settings-label" id="edInstLabel">' + cfg.instLabel + '</label>'
-                + '<input type="text" class="settings-input" id="edSchool" value="' + escapeHtml(ed.school||'') + '" placeholder=""></div>'
+                + '<input type="text" class="settings-input" id="edSchool" value="' + escapeAttr(ed.school||'') + '" placeholder=""></div>'
                 + '<div class="settings-group"><label class="settings-label" id="edCredLabel">' + cfg.credLabel + '</label>'
-                + '<input type="text" class="settings-input" id="edDegree" value="' + escapeHtml(ed.degree||'') + '" placeholder="' + cfg.credPlaceholder + '"></div>'
+                + '<input type="text" class="settings-input" id="edDegree" value="' + escapeAttr(ed.degree||'') + '" placeholder="' + cfg.credPlaceholder + '"></div>'
                 + '</div>'
                 
                 // Row 2: Field + Authority (conditional)
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px;">'
                 + '<div class="settings-group"><label class="settings-label" id="edFieldLabel">' + cfg.fieldLabel + '</label>'
-                + '<input type="text" class="settings-input" id="edField" value="' + escapeHtml(ed.field||'') + '" placeholder="' + cfg.fieldPlaceholder + '"></div>'
+                + '<input type="text" class="settings-input" id="edField" value="' + escapeAttr(ed.field||'') + '" placeholder="' + cfg.fieldPlaceholder + '"></div>'
                 + '<div class="settings-group" id="edAuthorityGroup" style="' + (cfg.showAuthority ? '' : 'display:none;') + '">'
                 + '<label class="settings-label">Issuing Authority</label>'
-                + '<input type="text" class="settings-input" id="edAuthority" value="' + escapeHtml(ed.issuingAuthority||'') + '" placeholder="FAA, State Board, etc."></div>'
+                + '<input type="text" class="settings-input" id="edAuthority" value="' + escapeAttr(ed.issuingAuthority||'') + '" placeholder="FAA, State Board, etc."></div>'
                 + '<div class="settings-group" id="edYearSingleGroup" style="' + (cfg.showAuthority ? 'display:none;' : '') + '">'
                 + '<label class="settings-label">Year</label>'
-                + '<input type="text" class="settings-input" id="edYearSingle" value="' + escapeHtml(ed.year||ed.endYear||'') + '" placeholder="2024"></div>'
+                + '<input type="text" class="settings-input" id="edYearSingle" value="' + escapeAttr(ed.year||ed.endYear||'') + '" placeholder="2024"></div>'
                 + '</div>'
                 
                 // Row 3: Duration (conditional)
                 + '<div id="edDurationRow" style="display:' + (cfg.showDuration ? 'grid' : 'none') + '; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-top:14px;">'
                 + '<div class="settings-group"><label class="settings-label">Start Year</label>'
-                + '<input type="text" class="settings-input" id="edStartYear" value="' + escapeHtml(ed.startYear||'') + '" placeholder="2004"></div>'
+                + '<input type="text" class="settings-input" id="edStartYear" value="' + escapeAttr(ed.startYear||'') + '" placeholder="2004"></div>'
                 + '<div class="settings-group"><label class="settings-label">End Year</label>'
-                + '<input type="text" class="settings-input" id="edEndYear" value="' + escapeHtml(ed.endYear||ed.year||'') + '" placeholder="2006"></div>'
+                + '<input type="text" class="settings-input" id="edEndYear" value="' + escapeAttr(ed.endYear||ed.year||'') + '" placeholder="2006"></div>'
                 + '<div class="settings-group" style="display:flex; align-items:flex-end;">'
                 + '<label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.82em; color:var(--c-muted); padding-bottom:10px;" id="edEnrolledLabel">'
                 + '<input type="checkbox" id="edEnrolled" ' + (ed.currentlyEnrolled ? 'checked' : '') + ' style="accent-color:var(--accent);"> Currently enrolled</label></div>'
@@ -41437,7 +41493,7 @@ body {
                 + 'placeholder="Type name, abbreviation, or category..." '
                 + 'oninput="onCertLibrarySearch()" autocomplete="off" '
                 + 'style="font-size:0.9em;"'
-                + (isEdit ? ' value="' + escapeHtml(cert.name||'') + '"' : '') + '>'
+                + (isEdit ? ' value="' + escapeAttr(cert.name||'') + '"' : '') + '>'
                 + '<div id="certSearchResults" style="display:none; position:absolute; top:100%; left:0; right:0; z-index:100; max-height:240px; overflow-y:auto; '
                 + 'background:var(--c-bg-solid-alt); border:1px solid var(--c-border-strong); border-radius:8px; margin-top:4px; '
                 + 'box-shadow:0 8px 24px rgba(0,0,0,0.3);"></div>'
@@ -41452,11 +41508,11 @@ body {
                 // Manual fields
                 + '<div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">'
                 + '<div class="settings-group" style="grid-column:1/-1;"><label class="settings-label">Credential Name *</label>'
-                + '<input type="text" class="settings-input" id="certName" value="' + escapeHtml(cert.name||'') + '" placeholder="Full credential name"></div>'
+                + '<input type="text" class="settings-input" id="certName" value="' + escapeAttr(cert.name||'') + '" placeholder="Full credential name"></div>'
                 + '<div class="settings-group"><label class="settings-label">Abbreviation</label>'
-                + '<input type="text" class="settings-input" id="certAbbr" value="' + escapeHtml(cert.abbr||'') + '" placeholder="PMP, CFA, CDL-A" style="font-size:0.9em;"></div>'
+                + '<input type="text" class="settings-input" id="certAbbr" value="' + escapeAttr(cert.abbr||'') + '" placeholder="PMP, CFA, CDL-A" style="font-size:0.9em;"></div>'
                 + '<div class="settings-group"><label class="settings-label">Issuing Organization</label>'
-                + '<input type="text" class="settings-input" id="certIssuer" value="' + escapeHtml(cert.issuer||'') + '" placeholder="PMI, SHRM, AWS, etc."></div>'
+                + '<input type="text" class="settings-input" id="certIssuer" value="' + escapeAttr(cert.issuer||'') + '" placeholder="PMI, SHRM, AWS, etc."></div>'
                 + '<div class="settings-group"><label class="settings-label">Type</label>'
                 + '<select class="settings-select" id="certType" style="font-size:0.88em;">'
                 + ['Certification','License','Degree','Rating','Endorsement','Credential','Certificate','Commission'].map(function(t) {
@@ -41464,7 +41520,7 @@ body {
                 }).join('')
                 + '</select></div>'
                 + '<div class="settings-group"><label class="settings-label">Year Obtained</label>'
-                + '<input type="text" class="settings-input" id="certYear" value="' + escapeHtml(cert.year||'') + '" placeholder="2023"></div>'
+                + '<input type="text" class="settings-input" id="certYear" value="' + escapeAttr(cert.year||'') + '" placeholder="2023"></div>'
                 + '</div>'
                 
                 // Linked skills
@@ -42038,7 +42094,7 @@ body {
                     
                     html += '<tr style="border-bottom:1px solid var(--c-border-subtle, rgba(255,255,255,0.04));">'
                         + '<td style="padding:8px 6px; white-space:nowrap;">' + dateStr + '</td>'
-                        + '<td style="padding:8px 6px; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="' + escapeHtml(entry.job || '') + '">' + escapeHtml(entry.job || 'Unknown') + '</td>'
+                        + '<td style="padding:8px 6px; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="' + escapeAttr(entry.job || '') + '">' + escapeHtml(entry.job || 'Unknown') + '</td>'
                         + '<td style="padding:8px 6px;"><span style="font-size:0.72em; padding:2px 6px; border-radius:4px; background:' + (fmtColors[entry.type] || '#64748b') + '22; color:' + (fmtColors[entry.type] || '#64748b') + '; font-weight:600;">' + (fmtLabels[entry.type] || entry.type) + '</span></td>'
                         + '<td style="padding:8px 6px;">' + presetPill + '</td>'
                         + '<td style="padding:8px 6px;">' + blindPills + '</td>'
@@ -44176,7 +44232,7 @@ body {
             var rolesEl = document.getElementById('bulkImportRoles');
             rolesEl.innerHTML = (userData.roles || []).map(function(role) {
                 return '<label style="display:flex; align-items:center; gap:8px; cursor:pointer;">'
-                    + '<input type="checkbox" value="' + escapeHtml(role.id) + '" class="bulk-role-checkbox">'
+                    + '<input type="checkbox" value="' + escapeAttr(role.id) + '" class="bulk-role-checkbox">'
                     + '<span style="font-size:0.9em;">' + escapeHtml(role.name) + '</span></label>';
             }).join('');
             
