@@ -2279,17 +2279,10 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') endTo
 
     var update = { total: INC, lastSeen: TS };
     update['hours.' + hourKey] = INC;
-    ref.set(update, { merge: true })
-      .then(function() {
-        // Mirror total to a publicly-readable doc for the usage counter
-        return ref.get();
-      })
-      .then(function(snap) {
-        if (!snap.exists) return;
-        var t = snap.data().total || 0;
-        db.collection('analytics').doc('airoi_public').set({ total: t }, { merge: true }).catch(function() {});
-      })
-      .catch(function() {});
+    ref.set(update, { merge: true }).catch(function() {});
+
+    // Increment public mirror doc directly — no read required, works for all visitors
+    db.collection('analytics').doc('airoi_public').set({ total: INC }, { merge: true }).catch(function() {});
 
     // Track time on page — write duration on unload
     var _pageStart = Date.now();
