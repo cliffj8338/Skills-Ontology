@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.72 - BUILD 20260312-security-stability-audit
-        var BP_VERSION = 'v4.46.72';
+        // BLUEPRINT v4.46.73 - BUILD 20260312-impact-color-fix
+        var BP_VERSION = 'v4.46.73';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -25513,7 +25513,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             const impactColor = getImpactColor(skillImpact.level);
             
             bodyHTML += `
-                <div class="modal-section" style="background: rgba(${impactColor === '#ef4444' ? '239, 68, 68' : impactColor === '#f59e0b' ? '245, 158, 11' : impactColor === '#3b82f6' ? '59, 130, 246' : '107, 114, 128'}, 0.1); border-left: 3px solid ${impactColor}; padding: 20px; border-radius: 8px;">
+                <div class="modal-section" style="background: rgba(${impactColor === '#10b981' ? '16, 185, 129' : impactColor === '#fb923c' ? '251, 146, 60' : impactColor === '#a78bfa' ? '167, 139, 250' : impactColor === '#60a5fa' ? '96, 165, 250' : '148, 163, 184'}, 0.1); border-left: 3px solid ${impactColor}; padding: 20px; border-radius: 8px;">
                     <div class="modal-section-title">
                         <span class="modal-section-icon">${bpIcon("bar-chart",18)}</span>
                         Market Impact
@@ -27323,8 +27323,9 @@ body {
                     + '<div style="display:grid; gap:5px;">';
                 (totalValue.top10Skills || []).slice(0, 5).forEach(function(skill, idx) {
                     var isCrit   = skill.impact === 'Critical';
-                    var dotColor = isCrit ? '#ef4444' : '#fbbf24';
-                    html += '<div style="display:flex; align-items:center; gap:8px; padding:7px 10px; background:' + (isCrit ? 'rgba(239,68,68,0.07)' : 'rgba(251,191,36,0.07)') + '; border-radius:6px;">'
+                    // green=Critical(Mastery), orange=High(Expert) — red reserved for risks
+                    var dotColor = isCrit ? '#10b981' : '#fb923c';
+                    html += '<div style="display:flex; align-items:center; gap:8px; padding:7px 10px; background:' + (isCrit ? 'rgba(16,185,129,0.07)' : 'rgba(251,146,60,0.07)') + '; border-radius:6px;">'
                         + '<div style="width:6px; height:6px; border-radius:50%; background:' + dotColor + '; flex-shrink:0;"></div>'
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="font-size:0.84em; font-weight:600; color:var(--c-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(skill.skill) + '</div>'
@@ -43853,14 +43854,16 @@ body {
         }
         
         function getImpactColor(level) {
+            // Color scheme aligned with skill levels: green=Mastery, orange=Expert, purple=Advanced
+            // Red (#ef4444) is reserved exclusively for risks/gaps
             const colors = {
-                'critical': '#ef4444',
-                'high': '#f59e0b',
-                'moderate': '#3b82f6',
-                'standard': '#6b7280',
-                'supplementary': '#9ca3af'
+                'critical':      '#10b981',  // green  — Mastery-tier
+                'high':          '#fb923c',  // orange — Expert-tier
+                'moderate':      '#a78bfa',  // purple — Advanced-tier
+                'standard':      '#60a5fa',  // blue   — Proficient-tier
+                'supplementary': '#94a3b8'   // gray   — Novice-tier
             };
-            return colors[level] || '#3b82f6';
+            return colors[level] || '#60a5fa';
         }
         
         // ===== SKILL MANAGEMENT FUNCTIONS =====

@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.72 - BUILD 20260312-security-stability-audit
-        var BP_VERSION = 'v4.46.72';
+        // BLUEPRINT v4.46.73 - BUILD 20260312-impact-color-fix
+        var BP_VERSION = 'v4.46.73';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -3527,7 +3527,7 @@
                         { id: 'p2-6u', name: 'Structured Job Schema v2.0 (Phase 1+2)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.77-78: Phase 1 (v4.45.77): Standards-aligned job schema with Schema.org JobPosting properties, JDX JobSchema+ competency model, O*NET-SOC crosswalk readiness. migrateJobToV2(), getJobSkills() abstraction, blocklisted gap denominator fix. Phase 2 (v4.45.78): Rewrote API extraction prompt for v2-native output. 10 skill categories (technical/analytical/strategic/leadership/communication/domain/platform/tool/methodology/soft). Section-aware extraction with tier assignment from JD structure. Compound list splitting (MS Word, Excel, PowerPoint → 3 skills). Domain knowledge extraction (insurance claims, reinsurance). source: extracted|inferred with confidence differential. Identity metadata extraction (location, remote, industry, department, employmentType). Qualifications and responsibilities as structured arrays. JD cap raised to 6000 chars, max_tokens to 4000. UI: metadata badges, section tooltips, inferred indicators, extraction quality summary.' },
                         { id: 'p2-6v', name: 'JDC AI skill extraction — Phase 3', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.46.63: convertJDToBlueprintAsync() wires JDC paste + URL paths through parseJobWithAPI() when user is signed in. Maps v2 tier/proficiency to JDC skill format (importance, blueprintLevel, outcome). Applies _wbSkillQualityFilter + WB_SKILL_CAP. Recomputes BLS comp values. Falls back to local regex parser on failure. Fixes 7-skill truncation problem — AI now returns 15-25 well-formed skills vs local regex returning 7 garbled skills (fragment names like "ability to art" caused by 35-char regex capture limit). runJDConverter and URL handler converted to async. Button shows loading state during extraction. Label updated to reflect AI-powered mode.' },
                         { id: 'p2-6w', name: 'Comp context engine + hybrid schedule + HTML cleanup', status: 'done', category: 'infrastructure', priority: 'high', notes: 'v4.46.64: (1) _jdcDetectCompContext(): industry + company tier multiplier engine. Tiers: Technology +22%, Financial Services +18%, Consulting +14%, Life Sciences +10%, Healthcare +5%. Company Tier 1 (Salesforce, FAANG, etc.) +18%, Tier 2 (Oracle, Accenture, etc.) +8%. Unknown companies use posted salary range as signal. Stored as data.compContext; applied to all BLS figures at display time with a yellow market adjustment badge. (2) _jdcExtractSchedule() extended: detects hybrid+days-in-office patterns ("3 days in office" → "Hybrid · 3 days in office"), remote, flexible. (3) _jdcExtractTextFromHTML() hardened: strips OneTrust, cookie banners, consent dialogs, GDPR overlays, consent text via regex post-processing. (4) convertJDToBlueprintAsync() uses AI title when better than local extraction.' },
-                        { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.72: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
+                        { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.73: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
                         { id: 'p2-6v', name: 'No-red UI policy', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.45.97-99: Eliminated red (#ef4444) from all non-error UI. Red reserved exclusively for Firebase errors, save failures, delete confirmations. 12+ levelColors definitions updated (Novice=slate, Proficient=blue, Advanced=purple, Expert=orange, Mastery=green). Network view de-reded. normalizeUserRoles() bannedReds patch auto-reassigns legacy Firestore-saved roles with red. Yellow #fbbf24 for caution/warnings.' },
                         { id: 'p2-6w', name: 'Card View rarity grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.96-v4.46.0: Skills Card View groups by market rarity (Rare/Uncommon/Common) instead of role domain. Rarity classification via getSkillImpact() from O*NET impact ratings. Per-tier summary stats (proficiency breakdown, evidence coverage, verified count). Per-skill rarity pill on card tiles (v4.46.0). Legend bar with icon badges for Core, Verified, Evidence, Gap, Skill/Ability/WorkStyle/Unique.' },
                         { id: 'p2-6x', name: 'Job match filters moved inline', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.1: Moved Min Match Score slider and Min Skill Matches input from Settings to both Find Jobs and Fit For Me tabs. Both tabs share state via currentMatchThreshold. Auto-save with 1.5s debounce to Firestore preferences. Settings page replaced with info note.' },
@@ -25643,7 +25643,7 @@ Selected outcomes: ${wizardState.skills.flatMap(s=>s.evidence||[]).slice(0,5).ma
             const impactColor = getImpactColor(skillImpact.level);
             
             bodyHTML += `
-                <div class="modal-section" style="background: rgba(${impactColor === '#ef4444' ? '239, 68, 68' : impactColor === '#f59e0b' ? '245, 158, 11' : impactColor === '#3b82f6' ? '59, 130, 246' : '107, 114, 128'}, 0.1); border-left: 3px solid ${impactColor}; padding: 20px; border-radius: 8px;">
+                <div class="modal-section" style="background: rgba(${impactColor === '#10b981' ? '16, 185, 129' : impactColor === '#fb923c' ? '251, 146, 60' : impactColor === '#a78bfa' ? '167, 139, 250' : impactColor === '#60a5fa' ? '96, 165, 250' : '148, 163, 184'}, 0.1); border-left: 3px solid ${impactColor}; padding: 20px; border-radius: 8px;">
                     <div class="modal-section-title">
                         <span class="modal-section-icon">${bpIcon("bar-chart",18)}</span>
                         Market Impact
@@ -27453,8 +27453,9 @@ body {
                     + '<div style="display:grid; gap:5px;">';
                 (totalValue.top10Skills || []).slice(0, 5).forEach(function(skill, idx) {
                     var isCrit   = skill.impact === 'Critical';
-                    var dotColor = isCrit ? '#ef4444' : '#fbbf24';
-                    html += '<div style="display:flex; align-items:center; gap:8px; padding:7px 10px; background:' + (isCrit ? 'rgba(239,68,68,0.07)' : 'rgba(251,191,36,0.07)') + '; border-radius:6px;">'
+                    // green=Critical(Mastery), orange=High(Expert) — red reserved for risks
+                    var dotColor = isCrit ? '#10b981' : '#fb923c';
+                    html += '<div style="display:flex; align-items:center; gap:8px; padding:7px 10px; background:' + (isCrit ? 'rgba(16,185,129,0.07)' : 'rgba(251,146,60,0.07)') + '; border-radius:6px;">'
                         + '<div style="width:6px; height:6px; border-radius:50%; background:' + dotColor + '; flex-shrink:0;"></div>'
                         + '<div style="flex:1; min-width:0;">'
                         + '<div style="font-size:0.84em; font-weight:600; color:var(--c-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(skill.skill) + '</div>'
@@ -44048,14 +44049,16 @@ body {
         }
         
         function getImpactColor(level) {
+            // Color scheme aligned with skill levels: green=Mastery, orange=Expert, purple=Advanced
+            // Red (#ef4444) is reserved exclusively for risks/gaps
             const colors = {
-                'critical': '#ef4444',
-                'high': '#f59e0b',
-                'moderate': '#3b82f6',
-                'standard': '#6b7280',
-                'supplementary': '#9ca3af'
+                'critical':      '#10b981',  // green  — Mastery-tier
+                'high':          '#fb923c',  // orange — Expert-tier
+                'moderate':      '#a78bfa',  // purple — Advanced-tier
+                'standard':      '#60a5fa',  // blue   — Proficient-tier
+                'supplementary': '#94a3b8'   // gray   — Novice-tier
             };
-            return colors[level] || '#3b82f6';
+            return colors[level] || '#60a5fa';
         }
         
         // ===== SKILL MANAGEMENT FUNCTIONS =====
