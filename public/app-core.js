@@ -6528,10 +6528,10 @@
 
             if (_jdcResult) {
                 html += '<div style="display:flex; gap:2px; background:var(--c-surface-2); border-radius:10px; padding:3px; margin-bottom:20px; max-width:440px;">'
-                    + '<button onclick="_jdcCompMode=\'without\'; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="flex:1; padding:8px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; '
+                    + '<button onclick="wbToggleComp(\'without\')" style="flex:1; padding:8px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; '
                     + (_jdcCompMode === 'without' ? 'background:var(--accent); color:#fff;' : 'background:transparent; color:var(--text-secondary);') + '">'
                     + 'Without Skills Comp Model</button>'
-                    + '<button onclick="_jdcCompMode=\'with\'; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="flex:1; padding:8px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; '
+                    + '<button onclick="wbToggleComp(\'with\')" style="flex:1; padding:8px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.82em; '
                     + (_jdcCompMode === 'with' ? 'background:var(--accent); color:#fff;' : 'background:transparent; color:var(--text-secondary);') + '">'
                     + 'With Skills Comp Model</button></div>';
 
@@ -6564,10 +6564,20 @@
         }
         window.runJDConverter = runJDConverter;
 
+        function wbToggleComp(mode) {
+            _jdcCompMode = mode;
+            if (adminSubTab === 'wbrepo') {
+                renderAdminWBRepo(document.getElementById('adminTabContent'));
+            } else {
+                renderAdminJDConverter(document.getElementById('adminTabContent'));
+            }
+        }
+        window.wbToggleComp = wbToggleComp;
+
         function wbSetGeo(val) {
             var labels = { '1.0': 'National', '1.22': 'Major Metro', '1.35': 'High COL', '0.82': 'Low COL' };
             _wbGeo = { val: parseFloat(val), label: labels[val] || 'National' };
-            renderAdminJDConverter(document.getElementById('adminTabContent'));
+            if (adminSubTab === 'wbrepo') { renderAdminWBRepo(document.getElementById('adminTabContent')); } else { renderAdminJDConverter(document.getElementById('adminTabContent')); }
         }
         window.wbSetGeo = wbSetGeo;
 
@@ -7756,8 +7766,8 @@
                 + '<span style="color:' + accentColor + ';">' + bpIcon('skills',18) + '</span>'
                 + '<span style="font-family:Outfit,sans-serif; font-weight:700; font-size:1.05em; color:' + headingColor + ';">1) Skills / Outcomes / Proficiency</span></div>'
                 + (!opts.hideButtons ? '<div style="display:flex; gap:2px; background:var(--c-surface-2); border-radius:8px; padding:2px;">'
-                    + '<button onclick="_jdcCompMode=\'without\'; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:5px 12px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.75em; ' + (!showComp ? 'background:var(--accent); color:#fff;' : 'background:transparent; color:var(--c-muted);') + '">Base Only</button>'
-                    + '<button onclick="_jdcCompMode=\'with\'; renderAdminJDConverter(document.getElementById(\'adminTabContent\'));" style="padding:5px 12px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.75em; ' + (showComp ? 'background:#10b981; color:#fff;' : 'background:transparent; color:var(--c-muted);') + '">' + bpIcon('money',12) + ' + Skill Premiums</button>'
+                    + '<button onclick="wbToggleComp(\'without\')" style="padding:5px 12px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.75em; ' + (!showComp ? 'background:var(--accent); color:#fff;' : 'background:transparent; color:var(--c-muted);') + '">Base Only</button>'
+                    + '<button onclick="wbToggleComp(\'with\')" style="padding:5px 12px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.75em; ' + (showComp ? 'background:#10b981; color:#fff;' : 'background:transparent; color:var(--c-muted);') + '">' + bpIcon('money',12) + ' + Skill Premiums</button>'
                     + '</div>' : '')
                 + '</div>'
                 + '<div style="overflow-x:auto;">'

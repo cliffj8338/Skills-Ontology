@@ -702,7 +702,7 @@
     <button class="theme-btn export-btn" onclick="openExportModal()" title="Export to PDF">&#8681;<span class="btn-label"> Export PDF</span></button>
     <div class="toggle">
       <button class="toggle-btn" id="btn-side" onclick="setView('sideline')" title="">Sideline View <i class="tip-icon" data-tip-title="Sideline View" data-tip-body="Traditional ROI — labor savings only. Hours reclaimed multiplied by salary. No strategic assumptions, no speculation." data-tip-drivers="<strong>Shows:</strong> Productivity Floor only (Rc·μ·ΔMPL). Use this when you need a number you can defend in any room with hard data. Driven by FTEs, Adoption Rate, Salary, Cognitive Drag, AI Displacement.">i</i></button>
-      <button class="toggle-btn active-press" id="btn-press" onclick="setView('pressbox')" title="">Press Box View <i class="tip-icon" data-tip-title="Press Box View" data-tip-body="Elastic ROI — adds strategic outcomes on top of labor savings. The full picture: productivity reclaimed plus work that becomes possible for the first time." data-tip-drivers="<strong>Adds:</strong> Strategic Ceiling (Φ term) = Revenue × Revealed Outcomes %. This is the value most ROI models leave on the table. Adjust Revealed Outcomes % to calibrate how much strategic upside you claim.">i</i></button>
+      <button class="toggle-btn active-press" id="btn-press" onclick="setView('pressbox')" title="">Press Box View <i class="tip-icon" data-tip-title="Press Box View" data-tip-body="Elastic ROI — adds strategic outcomes on top of labor savings. The full picture: productivity reclaimed plus work that becomes possible for the first time." data-tip-drivers="<strong>Adds:</strong> TVP (Φ term) = Revenue × Revealed Outcomes %. This is the value most ROI models leave on the table. Adjust Revealed Outcomes % to calibrate how much strategic upside you claim.">i</i></button>
     </div>
   </div>
 </header>
@@ -954,13 +954,13 @@
         <div style="margin-top:6px;font-size:10px;color:var(--slate2);line-height:1.4;">What you can defend in any room &mdash; measurable, no strategic assumptions.</div>
       </div>
       <div class="kpi-card" id="tip-ceiling" style="border-top-color: var(--emerald);">
-        <div class="kpi-label">Strategic Ceiling <i class="tip-icon" data-tip-title="Strategic Ceiling" data-tip-body="Full value pool: productivity reclaimed plus work that becomes possible for the first time. Most orgs capture 50–70% of this. The territory, not the destination." data-tip-drivers="<strong>Driven by:</strong> Everything in Productivity Floor, plus Revenue × Revealed Outcomes % (the Φ strategic term)">i</i></div>
+        <div class="kpi-label">TVP &mdash; Total Value Pool <i class="tip-icon" data-tip-title="TVP — Total Value Pool" data-tip-body="Labor value reclaimed plus outcomes that weren't possible before AI. The full ceiling — most organizations capture 50–70% of it." data-tip-drivers="<strong>Driven by:</strong> Everything in Productivity Floor, plus Revenue × Revealed Outcomes % (the Φ strategic term)">i</i></div>
         <div class="kpi-value" id="kpi-return" style="color: var(--emerald);">—</div>
-        <div class="kpi-note" id="kpi-return-note">Incl. revealed outcomes</div>
+        <div class="kpi-note" id="kpi-return-note">Labor savings + new outcomes unlocked</div>
         <div id="return-explain" style="display:none;"></div>
       </div>
       <div class="kpi-card" id="tip-roi" style="border-top-color: var(--emerald);" id="kpi-roi-card">
-        <div class="kpi-label">ROI Multiple <i class="tip-icon" data-tip-title="ROI Multiple" data-tip-body="Strategic Ceiling ÷ Total Investment. The 'elastic' return — most sensitive to Adoption Rate. Doubling adoption often more than doubles this number." data-tip-drivers="<strong>Driven by:</strong> All inputs. Adoption Rate has the highest leverage — a 10% increase typically moves this more than any other single slider.">i</i></div>
+        <div class="kpi-label">ROI Multiple <i class="tip-icon" data-tip-title="ROI Multiple" data-tip-body="TVP ÷ Total Investment. The 'elastic' return — most sensitive to Adoption Rate. Doubling adoption often more than doubles this number." data-tip-drivers="<strong>Driven by:</strong> All inputs. Adoption Rate has the highest leverage — a 10% increase typically moves this more than any other single slider.">i</i></div>
         <div class="kpi-value" id="kpi-roi" style="color: var(--emerald);">—</div>
         <div class="kpi-note" id="kpi-roi-note">Elastic Return</div>
         <div id="roi-benchmark-note" style="display:none; margin-top:6px; font-size:10px; color:var(--gold); line-height:1.4;"></div>
@@ -1023,7 +1023,7 @@
         <div style="font-size:10px;color:var(--slate2);font-family:Calibri,'Segoe UI',monospace;margin-bottom:4px;letter-spacing:0.5px;text-transform:uppercase;">+ Strategic (speculative)</div>
         <div class="eq-row"><span class="eq-key">Φ(Oₙ · V)</span><span class="eq-val" id="eq-phi" style="color: var(--gold);">—</span></div>
         <div class="eq-row" style="border-top:1px solid var(--border);padding-top:6px;margin-top:4px;margin-bottom:8px;">
-          <span class="eq-key" id="eq-ceil-label" style="color:var(--emerald);font-weight:600;">Strategic Ceiling ROI</span>
+          <span class="eq-key" id="eq-ceil-label" style="color:var(--emerald);font-weight:600;">TVP ROI</span>
           <span class="eq-val" id="eq-ceil-roi" style="color:var(--emerald);">—</span>
         </div>
         <div class="eq-row" style="border-top:1px solid var(--border2);padding-top:6px;"><span class="eq-key" style="color:var(--dim);">I + O_trans + Ω</span><span class="eq-val" id="eq-denom" style="color: var(--coral);">—</span></div>
@@ -1099,7 +1099,7 @@
           <div style="font-size:11px; color:var(--slate2);">ROI builds as the organization learns to use what it has. This is when elasticity becomes real.</div>
         </div>
         <div class="chart-legend">
-          <span><span style="display:inline-block; width:14px; height:2px; background:var(--emerald); vertical-align:middle; margin-right:4px;"></span><span style="color:var(--emerald);">Strategic Ceiling</span></span>
+          <span><span style="display:inline-block; width:14px; height:2px; background:var(--emerald); vertical-align:middle; margin-right:4px;"></span><span style="color:var(--emerald);">TVP</span></span>
           <span><span style="display:inline-block; width:14px; height:2px; background:rgba(16,185,129,0.4); vertical-align:middle; margin-right:4px;"></span><span style="color:var(--slate2);">Productivity Floor</span></span>
         </div>
       </div>
@@ -1546,7 +1546,7 @@ function update() {
   const displayReturn = view === 'pressbox' ? elasticN : savedDollars;
   document.getElementById('kpi-return').textContent = fmt(displayReturn);
   document.getElementById('kpi-return').style.color = 'var(--emerald)';
-  document.getElementById('kpi-return-note').textContent = view === 'pressbox' ? 'Incl. revealed outcomes' : 'Labor value reclaimed';
+  document.getElementById('kpi-return-note').textContent = view === 'pressbox' ? 'Labor savings + new outcomes unlocked' : 'Labor value reclaimed';
   // Equation breakdown — floor/ceiling split
   document.getElementById('eq-floor-roi').textContent = floorROI.toFixed(1) + '×';
   const ceilEl = document.getElementById('eq-ceil-roi');
@@ -1941,7 +1941,7 @@ function drawRampChart(salary, adoptingHrs, dragPct, dispRate, phi, impossVCappe
       labels: labels,
       datasets: [
         {
-          label: 'Strategic Ceiling',
+          label: 'TVP',
           data: ceilData,
           borderColor: 'rgba(16,185,129,1)',
           backgroundColor: 'rgba(16,185,129,0.07)',
@@ -2068,11 +2068,11 @@ var tourSteps = [
   { id: 'tip-floor',    title: 'Productivity Floor',
     body: 'The defensible ROI. Pure labor hours reclaimed, zero strategic assumptions. What you can put in any boardroom without hedging.',
     drivers: '<strong>Salary × FTEs × Adoption × Cognitive Drag × Displacement</strong> = raw hours. Then × μ (0.60 redeployment efficiency) × ΔMPL (1.5× value multiplier). Move Cognitive Drag % and AI Displacement Rate to see this shift.' },
-  { id: 'tip-ceiling',  title: 'Strategic Ceiling',
+  { id: 'tip-ceiling',  title: 'TVP — Total Value Pool',
     body: 'The full value pool. Productivity plus work that becomes possible for the first time. Most orgs capture 50–70% of this number — the territory, not the destination.',
     drivers: '<strong>Productivity Floor + Φ(Revenue × Outcomes %)</strong>. The Φ (strategic) term is entirely driven by Revenue and Revealed Outcomes %. High Φ reliance is a risk flag — see the Value Stack for your balance.' },
   { id: 'tip-roi',      title: 'ROI Multiple',
-    body: 'Strategic Ceiling ÷ Total Investment. The elastic return — most sensitive to Adoption Rate. Doubling adoption can more than double this number.',
+    body: 'TVP ÷ Total Investment. The elastic return — most sensitive to Adoption Rate. Doubling adoption can more than double this number.',
     drivers: '<strong>Most sensitive slider: Adoption Rate.</strong> A 10% increase here typically moves the multiple more than any other input. Watch the Adoption Curve chart to see the upside of pushing further.' },
   { id: 'tip-hours',    title: 'Reclaimed Hours / yr',
     body: 'Total productive hours freed across all adopters. Divide by adopters and by 8 for days/person/year — the Rc term in the master equation.',
