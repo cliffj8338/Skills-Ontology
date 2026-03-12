@@ -2302,7 +2302,10 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') endTo
       try { ref.set({ exports: INC }, { merge: true }).catch(function() {}); } catch(e) {}
     };
 
-    // Live usage counter — reads from public mirror doc (no auth required)
+    // Live usage counter — reads via REST API to bypass SDK cache.
+    // The increment(1) write creates an optimistic local cache entry (total: 1).
+    // SDK .get() can return that stale cache even with { source: 'server' }.
+    // REST API has no SDK cache layer.
     (function() {
       function animateCount(el, target) {
         var dur = 1200, startTs = null;
@@ -2315,14 +2318,33 @@ document.addEventListener('keydown', function(e) { if (e.key === 'Escape') endTo
         }
         requestAnimationFrame(step);
       }
-      db.collection('analytics').doc('airoi_public').get({ source: 'server' }).then(function(snap) {
-        if (!snap.exists) return;
-        var total = snap.data().total || 0;
+      function showCount(total) {
+        if (!total || total < 2) return;
         var el = document.getElementById('usage-count-display');
-        if (el && total > 0) animateCount(el, total);
+        if (el) animateCount(el, total);
         var elMobile = document.getElementById('usage-count-display-mobile');
-        if (elMobile && total > 0) animateCount(elMobile, total);
-      }).catch(function() {});
+        if (elMobile) animateCount(elMobile, total);
+      }
+      // Primary: Firestore REST API — no SDK cache
+      fetch('https://firestore.googleapis.com/v1/projects/work-blueprint/databases/(default)/documents/analytics/airoi_public')
+        .then(function(r) { return r.ok ? r.json() : Promise.reject(r.status); })
+        .then(function(data) {
+          var f = data.fields || {};
+          var total = parseInt(f.total ? (f.total.integerValue || f.total.doubleValue || 0) : 0, 10);
+          showCount(total);
+        })
+        .catch(function() {
+          // Fallback: onSnapshot, skip cache-only snapshots
+          var unsub = db.collection('analytics').doc('airoi_public').onSnapshot(
+            { includeMetadataChanges: true },
+            function(snap) {
+              if (snap.metadata.fromCache) return;
+              unsub();
+              showCount((snap.data() || {}).total || 0);
+            },
+            function() { unsub(); }
+          );
+        });
     })();
 
   } catch(e) {}
