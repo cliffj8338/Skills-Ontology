@@ -8566,6 +8566,10 @@
 
         function toggleCompBlinding(key) {
             var data = _jdcResult || (window._wbwResult || null);
+            // Repo view: use the currently-displayed cached blueprint
+            if (!data && typeof _wbRepoCache !== 'undefined' && _wbRepoViewIdx >= 0 && _wbRepoCache[_wbRepoViewIdx]) {
+                data = _wbRepoCache[_wbRepoViewIdx];
+            }
             if (!data) return;
             if (!data.hiddenCompRows) data.hiddenCompRows = [];
             var idx = data.hiddenCompRows.indexOf(key);
@@ -8584,6 +8588,8 @@
             if (container) {
                 if (_jdcResult) {
                     renderAdminJDConverter(container);
+                } else if (_wbRepoViewIdx >= 0 && typeof renderAdminWBRepo === 'function') {
+                    renderAdminWBRepo(container);
                 } else if (typeof renderWBWizard === 'function') {
                     renderWBWizard(container);
                 }
