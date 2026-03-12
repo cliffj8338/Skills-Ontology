@@ -7790,6 +7790,27 @@
                 + (showComp ? '<th style="text-align:right; padding:8px 10px; color:#10b981; font-weight:700;">Skill Premium</th>' : '')
                 + '</tr></thead><tbody>';
 
+            // Always recompute compValues fresh at render time — never trust stored values.
+            // Premium pool = 15% of BLS median. Only Advanced/Expert/Mastery qualify.
+            (function() {
+                var renderBls = data.bls;
+                if (renderBls && renderBls.median) {
+                    var renderPremMults = { 'Advanced': 0.6, 'Expert': 0.9, 'Mastery': 1.2 };
+                    var renderPool = Math.round(renderBls.median * 0.15);
+                    var renderQual = data.skills.filter(function(s) { return renderPremMults[s.blueprintLevel]; });
+                    var renderTotalW = renderQual.reduce(function(sum, s) {
+                        return sum + ((s.importance || 50) * (renderPremMults[s.blueprintLevel] || 0));
+                    }, 0);
+                    data.skills.forEach(function(s) {
+                        if (!renderPremMults[s.blueprintLevel]) { s.compValue = 0; return; }
+                        var w = ((s.importance || 50) * renderPremMults[s.blueprintLevel]) / (renderTotalW || 1);
+                        s.compValue = Math.round(renderPool * w);
+                    });
+                } else {
+                    data.skills.forEach(function(s) { s.compValue = 0; });
+                }
+            })();
+
             var totalComp = 0;
             data.skills.forEach(function(s, i) {
                 var bg = i % 2 === 0 ? 'transparent' : 'var(--c-surface-2)';
