@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.70 - BUILD 20260312-close-icon-fix
-        var BP_VERSION = 'v4.46.70';
+        // BLUEPRINT v4.46.71 - BUILD 20260312-extract-quality-warn
+        var BP_VERSION = 'v4.46.71';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -6618,6 +6618,57 @@
             showToast('Work Blueprint generated: ' + statParts.join(', ') + ' extracted.', 'success');
         }
 
+        // ===== JDC EXTRACTION QUALITY CHECK =====
+        // Detects when a URL fetch returned a JS-rendered shell with no real JD content.
+        // Returns an object: { ok: bool, warnings: string[] }
+        function _jdcCheckExtractQuality(result, extractedText) {
+            var warnings = [];
+
+            // Bad SOC matches — these mean the title extraction failed badly
+            var junkSocTitles = ['Carpenters', 'Painters', 'Laborers', 'Packers', 'Assemblers',
+                'Cashiers', 'Waiters', 'Cooks', 'Dishwashers', 'Janitors', 'Landscaping'];
+            if (result.socTitle && junkSocTitles.some(function(t) {
+                return result.socTitle.toLowerCase().indexOf(t.toLowerCase()) !== -1;
+            })) {
+                warnings.push('BLS occupation matched to "' + result.socTitle + '" — likely a bad title extraction.');
+            }
+
+            // Garbage summary patterns
+            var summary = result.summary || '';
+            var garbagePatterns = [
+                /consider the categor/i,
+                /[0-9a-f]{20,}/,          // long hex hashes
+                /cookie/i,
+                /consent/i,
+                /javascript.*required/i,
+                /enable javascript/i,
+                /please wait/i,
+                /loading\.\.\./i
+            ];
+            if (garbagePatterns.some(function(p) { return p.test(summary); })) {
+                warnings.push('Work summary appears to contain page boilerplate, not job description content.');
+            }
+
+            // Very short summary
+            if (summary.length < 80) {
+                warnings.push('Work summary is unusually short (' + summary.length + ' chars) — page may not have loaded fully.');
+            }
+
+            // Very few skills for a URL fetch
+            var skillCount = (result.skills || []).length;
+            if (skillCount < 3) {
+                warnings.push('Only ' + skillCount + ' skill' + (skillCount === 1 ? '' : 's') + ' extracted \u2014 the page likely did not return full job content.');
+            }
+
+            // Short extracted text
+            if (extractedText && extractedText.length < 300) {
+                warnings.push('Extracted text was only ' + extractedText.length + ' characters — this page is likely JavaScript-rendered and requires manual paste.');
+            }
+
+            return { ok: warnings.length === 0, warnings: warnings };
+        }
+
+
         function runJDConverterFromURL() {
             var urlInput = document.getElementById('jdcUrlInput');
             var url = (urlInput || {}).value || '';
@@ -6638,6 +6689,7 @@
                     var text = _jdcExtractTextFromHTML(html);
                     if (text.length < 50) throw new Error('Could not extract meaningful text from the page.');
                     _jdcResult = convertJDToBlueprint(text);
+                    _jdcResult._extractQuality = _jdcCheckExtractQuality(_jdcResult, text);
                     logAnalyticsEvent('wb_converted', { title: _jdcResult.title || '', company: _jdcResult.company || '', source: 'url' });
                     _jdcCompMode = 'without';
                     _jdcBulkResults = [];
@@ -7863,6 +7915,21 @@
                     html += '<span style="font-size:0.78em; padding:4px 10px; border-radius:6px; background:var(--c-surface-2); color:' + mutedColor + ';"><strong style="color:' + headingColor + ';">' + escapeHtml(l.label) + ':</strong> ' + escapeHtml(l.value) + '</span>';
                 });
                 html += '</div>';
+            }
+
+            // ── Extraction Quality Warning ────────────────────────────
+            if (data._extractQuality && !data._extractQuality.ok && data._extractQuality.warnings.length) {
+                html += '<div style="margin-bottom:14px; padding:12px 14px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.35); border-radius:8px;">'
+                    + '<div style="display:flex; align-items:flex-start; gap:8px;">'
+                    + '<div style="flex-shrink:0; margin-top:1px;">' + bpIcon('warning', 14) + '</div>'
+                    + '<div>'
+                    + '<div style="font-size:0.8em; font-weight:700; color:#f59e0b; margin-bottom:4px;">Fetch Quality Warning — results may be incomplete</div>'
+                    + '<div style="font-size:0.77em; color:var(--c-muted); line-height:1.6;">'
+                    + data._extractQuality.warnings.map(function(w) { return '&bull; ' + escapeHtml(w); }).join('<br>')
+                    + '</div>'
+                    + '<div style="font-size:0.75em; color:var(--c-faint); margin-top:6px;">This page is likely JavaScript-rendered. For best results, <strong style="color:#f59e0b;">copy and paste</strong> the job description text directly using the Paste tab.</div>'
+                    + '</div></div>'
+                    + '</div>';
             }
 
             // ── Compensation Range Panel ─────────────────────────────
