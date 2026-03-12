@@ -3497,6 +3497,9 @@
                         { id: 'p2-6s', name: 'AI skill synonym expansion', status: 'done', category: 'data', priority: 'high', notes: 'v4.45.74: GenAI/LLM/AI/NLP/Applied AI now cross-reference bidirectionally in SKILL_SYNONYMS. GenAI implies LLM knowledge (and vice versa) via synonym pass 1b at 0.95 quality. Also added prompt engineering→genai, artificial intelligence (ai)→applied ai→genai chain. Fixes false gaps where JD requires LLM but user has GenAI.' },
                         { id: 'p2-6t', name: 'Blueprint dashboard reorder + inline negotiation', status: 'done', category: 'ux', priority: 'high', notes: 'v4.45.75: Dashboard reordered by importance/uniqueness: Market Position (comp + top skills + inline negotiation) → Career Readiness → Top Job Match → Skill Distribution → Quick Actions (compact). Purpose Statement moved to Content & Evidence tab. Negotiation Guide now renders inline with expandable toggle instead of modal. renderInlineNegotiation() generates offer ranges, negotiation gap, talking points, scripts. Scouting report fix: removed aggressive .skills.length global replacement that broke template JS.' },
                         { id: 'p2-6u', name: 'Structured Job Schema v2.0 (Phase 1+2)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.77-78: Phase 1 (v4.45.77): Standards-aligned job schema with Schema.org JobPosting properties, JDX JobSchema+ competency model, O*NET-SOC crosswalk readiness. migrateJobToV2(), getJobSkills() abstraction, blocklisted gap denominator fix. Phase 2 (v4.45.78): Rewrote API extraction prompt for v2-native output. 10 skill categories (technical/analytical/strategic/leadership/communication/domain/platform/tool/methodology/soft). Section-aware extraction with tier assignment from JD structure. Compound list splitting (MS Word, Excel, PowerPoint → 3 skills). Domain knowledge extraction (insurance claims, reinsurance). source: extracted|inferred with confidence differential. Identity metadata extraction (location, remote, industry, department, employmentType). Qualifications and responsibilities as structured arrays. JD cap raised to 6000 chars, max_tokens to 4000. UI: metadata badges, section tooltips, inferred indicators, extraction quality summary.' },
+                        { id: 'p2-6v', name: 'JDC AI skill extraction — Phase 3', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.46.63: convertJDToBlueprintAsync() wires JDC paste + URL paths through parseJobWithAPI() when user is signed in. Maps v2 tier/proficiency to JDC skill format (importance, blueprintLevel, outcome). Applies _wbSkillQualityFilter + WB_SKILL_CAP. Recomputes BLS comp values. Falls back to local regex parser on failure. Fixes 7-skill truncation problem — AI now returns 15-25 well-formed skills vs local regex returning 7 garbled skills (fragment names like "ability to art" caused by 35-char regex capture limit). runJDConverter and URL handler converted to async. Button shows loading state during extraction. Label updated to reflect AI-powered mode.' },
+                        { id: 'p2-6w', name: 'Comp context engine + hybrid schedule + HTML cleanup', status: 'done', category: 'infrastructure', priority: 'high', notes: 'v4.46.64: (1) _jdcDetectCompContext(): industry + company tier multiplier engine. Tiers: Technology +22%, Financial Services +18%, Consulting +14%, Life Sciences +10%, Healthcare +5%. Company Tier 1 (Salesforce, FAANG, etc.) +18%, Tier 2 (Oracle, Accenture, etc.) +8%. Unknown companies use posted salary range as signal. Stored as data.compContext; applied to all BLS figures at display time with a yellow market adjustment badge. (2) _jdcExtractSchedule() extended: detects hybrid+days-in-office patterns ("3 days in office" → "Hybrid · 3 days in office"), remote, flexible. (3) _jdcExtractTextFromHTML() hardened: strips OneTrust, cookie banners, consent dialogs, GDPR overlays, consent text via regex post-processing. (4) convertJDToBlueprintAsync() uses AI title when better than local extraction.' },
+                        { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.66: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
                         { id: 'p2-6v', name: 'No-red UI policy', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.45.97-99: Eliminated red (#ef4444) from all non-error UI. Red reserved exclusively for Firebase errors, save failures, delete confirmations. 12+ levelColors definitions updated (Novice=slate, Proficient=blue, Advanced=purple, Expert=orange, Mastery=green). Network view de-reded. normalizeUserRoles() bannedReds patch auto-reassigns legacy Firestore-saved roles with red. Yellow #fbbf24 for caution/warnings.' },
                         { id: 'p2-6w', name: 'Card View rarity grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.96-v4.46.0: Skills Card View groups by market rarity (Rare/Uncommon/Common) instead of role domain. Rarity classification via getSkillImpact() from O*NET impact ratings. Per-tier summary stats (proficiency breakdown, evidence coverage, verified count). Per-skill rarity pill on card tiles (v4.46.0). Legend bar with icon badges for Core, Verified, Evidence, Gap, Skill/Ability/WorkStyle/Unique.' },
                         { id: 'p2-6x', name: 'Job match filters moved inline', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.1: Moved Min Match Score slider and Min Skill Matches input from Settings to both Find Jobs and Fit For Me tabs. Both tabs share state via currentMatchThreshold. Auto-save with 1.5s debounce to Firestore preferences. Settings page replaced with info note.' },
@@ -4439,18 +4442,18 @@
                     functions: ['inferSkillsDeterministic()', 'detectSeniority()', 'adjustLevel()', 'endorsement boost loop'], lines: '~8000-8200',
                     inputs: ['LinkedIn skills[]', 'Work history[]', 'Parsed roles[]', 'Endorsement counts{}'], outputs: ['Enriched skills with levels, evidence, categories, endorsement flags'],
                     deps: ['O*NET crosswalk', 'Skill libraries', 'LinkedIn endorsements'], debt: 'Fuzzy matching could use Levenshtein distance' }},
-                { id: 'match-engine', name: 'Match Scoring', layer: 'runtime', col: 4,
-                  color: '#f59e0b', icon: 'target',
-                  detail: { desc: 'Two tiers: quickScoreJob (Find Jobs, uses parseJobLocally pipeline for gap detection, capped 90%) and matchJobToProfile (Pipeline, 6-pass ontology matching). Find Jobs uses live API search by default.',
-                    functions: ['quickScoreJob()', 'matchJobToProfile()', 'rescoreAllJobs()'], lines: '~22400-23700',
-                    inputs: ['skillsData', 'Job description text or parsed skills'], outputs: ['Match %', 'Matched/gap/surplus arrays', 'BLS salary'],
-                    deps: ['skillsData', 'BLS wage data', 'O*NET crosswalk'], debt: 'quickScore and pipeline scores diverge. Ideal: single engine.' }},
                 { id: 'jd-converter', name: 'JD → Blueprint Converter', layer: 'runtime', col: 3,
                   color: '#f59e0b', icon: 'blueprint',
                   detail: { desc: 'Converts raw job descriptions into structured Work Blueprints. Two-path extraction: convertJDToBlueprintAsync() uses Claude Sonnet (parseJobWithAPI, Job Schema v2.0) for signed-in users — targets 15–35 skills across 10 categories with tier/section/proficiency/source. Falls back to convertJDToBlueprint() local regex parser. Merges with O*NET SOC crosswalk skills and applies _wbSkillQualityFilter(). Detects: title, company, seniority, location, schedule (hybrid+days), travel, industry, compensation range, qualifications, responsibilities. Comp context applied at render time.',
                     functions: ['convertJDToBlueprintAsync()', 'convertJDToBlueprint()', 'parseJobWithAPI()', '_jdcExtractSkillsFromText()', '_jdcDetectCompContext()', '_jdcExtractSchedule()', '_jdcExtractTextFromHTML()'], lines: '~6560–7400',
                     inputs: ['Raw JD text (paste, URL fetch, bulk)', 'Firebase auth state (AI path decision)'], outputs: ['Work Blueprint object with skills[], bls, compContext, schedule, seniority'],
                     deps: ['Claude Sonnet (AI path)', 'O*NET crosswalk', 'BLS wages', '_wbSkillQualityFilter'], debt: 'Bulk and file-upload paths still use local parser only. URL fetch HTML stripping may miss site-specific job containers.' }},
+                { id: 'match-engine', name: 'Match Scoring', layer: 'runtime', col: 4,
+                  color: '#f59e0b', icon: 'target',
+                  detail: { desc: 'Two tiers: quickScoreJob (Find Jobs, uses parseJobLocally pipeline for gap detection, capped 90%) and matchJobToProfile (Pipeline, 6-pass ontology matching). Find Jobs uses live API search by default.',
+                    functions: ['quickScoreJob()', 'matchJobToProfile()', 'rescoreAllJobs()'], lines: '~22400-23700',
+                    inputs: ['skillsData', 'Job description text or parsed skills'], outputs: ['Match %', 'Matched/gap/surplus arrays', 'BLS salary'],
+                    deps: ['skillsData', 'BLS wage data', 'O*NET crosswalk'], debt: 'quickScore and pipeline scores diverge. Ideal: single engine.' }},
                 { id: 'valuation', name: 'Valuation Engine', layer: 'runtime', col: 5,
                   color: '#f59e0b', icon: 'money',
                   detail: { desc: 'Two-surface comp model. (1) Profile valuation: evidence-based and potential compensation from skill levels, O*NET importance, BLS wage data, and peer verification scores. (2) Work Blueprint comp: BLS percentile band adjusted by seniority, geo modifier, and _jdcDetectCompContext() industry+company-tier multiplier. Tech industry +22%, Financial Services +18%, Consulting +14%. Company Tier 1 (Salesforce, FAANG, etc.) +18%, Tier 2 (Oracle, Accenture) +8%. Unknown companies use posted salary range as signal. Skill premium pool = 15% of adjusted median, distributed by O*NET importance × proficiency multiplier (Advanced 0.6×, Expert 0.9×, Mastery 1.2×).',
@@ -6484,9 +6487,9 @@
                 html += '<div style="margin-bottom:20px;">'
                     + '<textarea id="jdcInput" placeholder="Paste a job description here..." style="width:100%; box-sizing:border-box; min-height:180px; padding:14px; border:1px solid var(--c-surface-5); border-radius:10px; background:var(--c-surface-1); color:var(--c-heading); font-size:0.9em; line-height:1.6; resize:vertical; font-family:inherit;">' + escapeHtml((_jdcResult ? _jdcResult._rawJD : '') || '') + '</textarea>'
                     + '<div style="display:flex; gap:12px; margin-top:12px; align-items:center; flex-wrap:wrap;">'
-                    + '<button onclick="runJDConverter()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
+                    + '<button id="jdcConvertBtn" onclick="runJDConverter()" style="padding:10px 24px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9em;">'
                     + bpIcon('zap',14) + ' Convert to Work Blueprint</button>'
-                    + '<span style="font-size:0.78em; color:var(--c-faint);">Deterministic engine: O*NET crosswalk + BLS wages. No AI API calls.</span>'
+                    + '<span id="jdcConvertStatus" style="font-size:0.78em; color:var(--c-faint);">AI-powered extraction when signed in. Falls back to local parser.</span>'
                     + '</div></div>';
             } else if (_jdcInputMode === 'url') {
                 html += '<div style="margin-bottom:20px;">'
@@ -6557,21 +6560,89 @@
             el.innerHTML = html;
         }
 
-        function runJDConverter() {
+        // ===== ASYNC JDC WRAPPER — AI skill extraction (Phase 3) =====
+        // Uses parseJobWithAPI for skill extraction when user is signed in.
+        // Falls back to convertJDToBlueprint (local regex) if AI unavailable or fails.
+        async function convertJDToBlueprintAsync(jdText) {
+            var hasProxy = !!(typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser);
+            var local = convertJDToBlueprint(jdText);
+            if (!hasProxy) return local;
+
+            try {
+                var apiParsed = await parseJobWithAPI(jdText, null);
+                var tierImportance = { 'required': 80, 'preferred': 65, 'nice-to-have': 50 };
+                var apiSkills = (apiParsed.skills || []).map(function(s) {
+                    var importance = (tierImportance[s.tier] || 60) - (s.source === 'inferred' ? 10 : 0);
+                    return {
+                        name: s.name,
+                        importance: importance,
+                        blueprintLevel: s.proficiency || _jdcInferProficiency(s.name, jdText, local.seniority),
+                        source: 'jd',
+                        category: s.category || 'skill',
+                        outcome: _jdcGenerateOutcome(s.name, s.category || 'skill', local.seniority, local.title),
+                        compValue: 0,
+                        selected: true
+                    };
+                });
+
+                // Quality filter — same as all other skill paths
+                apiSkills = _wbSkillQualityFilter(apiSkills);
+                apiSkills.sort(function(a, b) { return b.importance - a.importance; });
+                apiSkills = apiSkills.slice(0, WB_SKILL_CAP);
+
+                // Recompute comp values against BLS if available
+                if (local.bls && local.bls.median && apiSkills.length) {
+                    var premMults = { 'Advanced': 0.6, 'Expert': 0.9, 'Mastery': 1.2 };
+                    var pool = Math.round(local.bls.median * 0.15);
+                    var qualSkills = apiSkills.filter(function(s) { return premMults[s.blueprintLevel]; });
+                    var totalW = qualSkills.reduce(function(sum, s) {
+                        return sum + (s.importance * (premMults[s.blueprintLevel] || 0));
+                    }, 0);
+                    apiSkills.forEach(function(s) {
+                        if (!premMults[s.blueprintLevel]) { s.compValue = 0; return; }
+                        s.compValue = Math.round(pool * (s.importance * premMults[s.blueprintLevel]) / (totalW || 1));
+                    });
+                }
+
+                local.skills = apiSkills;
+                // Use AI-extracted title/summary when better than local extraction
+                var badTitles = /^(what you'?ll do|about the role|about us|qualifications|responsibilities|requirements|job description|overview|summary|working conditions|benefits|experience will be|core competencies)/i;
+                if (apiParsed.title && !badTitles.test(apiParsed.title) && apiParsed.title !== 'Untitled Position') {
+                    local.title = apiParsed.title;
+                }
+                local._extractionMethod = 'api';
+                return local;
+            } catch(e) {
+                console.warn('[JDC] AI extraction failed, using local parser:', e.message);
+                local._extractionMethod = 'local';
+                return local;
+            }
+        }
+
+        async function runJDConverter() {
             var raw = (document.getElementById('jdcInput') || {}).value || '';
             if (!raw || raw.trim().length < 50) {
                 showToast('Paste a job description with at least a few sentences.', 'warning');
                 return;
             }
-            _jdcResult = convertJDToBlueprint(raw.trim());
-            logAnalyticsEvent('wb_converted', { title: _jdcResult.title || '', company: _jdcResult.company || '' });
-            _jdcCompMode = 'without';
-            _jdcBulkResults = [];
-            _jdcBulkViewIdx = -1;
-            _jdcEditMode = true;
-            _jdcFromRepo = false;
-            renderAdminJDConverter(document.getElementById('adminTabContent'));
-            _jdcShowStats(_jdcResult);
+            var btn = document.getElementById('jdcConvertBtn');
+            var statusEl = document.getElementById('jdcConvertStatus');
+            if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
+            if (statusEl) statusEl.innerHTML = bpIcon('loader', 12) + ' Extracting skills with AI...';
+
+            try {
+                _jdcResult = await convertJDToBlueprintAsync(raw.trim());
+                logAnalyticsEvent('wb_converted', { title: _jdcResult.title || '', company: _jdcResult.company || '', method: _jdcResult._extractionMethod || 'local' });
+                _jdcCompMode = 'without';
+                _jdcBulkResults = [];
+                _jdcBulkViewIdx = -1;
+                _jdcEditMode = true;
+                _jdcFromRepo = false;
+                renderAdminJDConverter(document.getElementById('adminTabContent'));
+                _jdcShowStats(_jdcResult);
+            } finally {
+                if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+            }
         }
         window.runJDConverter = runJDConverter;
 
@@ -6634,8 +6705,12 @@
                 .then(function(html) {
                     var text = _jdcExtractTextFromHTML(html);
                     if (text.length < 50) throw new Error('Could not extract meaningful text from the page.');
-                    _jdcResult = convertJDToBlueprint(text);
-                    logAnalyticsEvent('wb_converted', { title: _jdcResult.title || '', company: _jdcResult.company || '', source: 'url' });
+                    if (statusEl) statusEl.innerHTML = '<span style="color:var(--accent);">' + bpIcon('loader',14) + ' Extracting skills with AI...</span>';
+                    return convertJDToBlueprintAsync(text);
+                })
+                .then(function(result) {
+                    _jdcResult = result;
+                    logAnalyticsEvent('wb_converted', { title: _jdcResult.title || '', company: _jdcResult.company || '', source: 'url', method: _jdcResult._extractionMethod || 'local' });
                     _jdcCompMode = 'without';
                     _jdcBulkResults = [];
                     _jdcBulkViewIdx = -1;
@@ -6653,11 +6728,33 @@
         function _jdcExtractTextFromHTML(html) {
             var tmp = document.createElement('div');
             tmp.innerHTML = html;
+            // Remove boilerplate structural elements
             ['script','style','nav','header','footer','noscript','iframe','svg'].forEach(function(tag) {
                 var els = tmp.querySelectorAll(tag);
                 for (var i = 0; i < els.length; i++) els[i].remove();
             });
+            // Remove cookie/consent/GDPR banners and other non-JD noise
+            var noiseSelectors = [
+                '#onetrust-banner-sdk','#onetrust-consent-sdk','.onetrust-pc-dark-filter',
+                '[id*="cookie"]','[class*="cookie"]','[id*="consent"]','[class*="consent"]',
+                '[id*="gdpr"]','[class*="gdpr"]','[aria-label*="cookie"]',
+                '.cookie-banner','.cookie-notice','.cookie-bar','.cookie-popup',
+                '[class*="CookieBanner"]','[class*="PrivacyBanner"]',
+                '[role="dialog"]','[aria-modal="true"]',
+                '.jobs-apply-button','[data-test="apply-button"]'
+            ];
+            noiseSelectors.forEach(function(sel) {
+                try {
+                    var els = tmp.querySelectorAll(sel);
+                    for (var i = 0; i < els.length; i++) els[i].remove();
+                } catch(e) {}
+            });
             var text = (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+            // Strip any surviving cookie consent sentences
+            text = text.replace(/By clicking [""]?Accept[^.]{0,120}\./gi, '');
+            text = text.replace(/We (?:use|may) cookies[^.]{0,200}\./gi, '');
+            text = text.replace(/This (?:site|website) uses? cookies[^.]{0,200}\./gi, '');
+            text = text.replace(/(?:Accept|Reject) (?:All|Cookies)[^.]{0,80}\.?/gi, '');
             var lines = text.split(/\.\s+/).map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 10; });
             return lines.join('.\n');
         }
@@ -6899,6 +6996,9 @@
             var industry = _jdcDetectIndustry(jdText);
             var keyResponsibilities = _jdcExtractResponsibilities(jdText);
 
+            var compContext = typeof _jdcDetectCompContext === 'function'
+                ? _jdcDetectCompContext(company, industry, jdText) : null;
+
             return {
                 title: title,
                 company: company,
@@ -6921,6 +7021,7 @@
                 keyResponsibilities: keyResponsibilities,
                 skills: skills,
                 bls: bls,
+                compContext: compContext,
                 values: values,
                 demonstrated: demoExperience,
                 _rawJD: jdText
@@ -7039,6 +7140,13 @@
         function _jdcExtractSchedule(jdText) {
             var text = jdText.toLowerCase();
             if (/\b(?:shift|rotating\s+shifts|night\s+shift|swing\s+shift)\b/.test(text)) return 'Shift-based';
+            // Hybrid: X days in office / hybrid keyword
+            var hybridDays = text.match(/(\d)\s*days?\s+(?:per\s+week\s+)?(?:in\s+(?:the\s+)?office|on[-\s]?site|in[-\s]?person)/);
+            if (hybridDays) return 'Hybrid \u00B7 ' + hybridDays[1] + ' days in office';
+            var hybridDays2 = text.match(/(?:in\s+(?:the\s+)?office|on[-\s]?site)\s+(\d)\s*days?\s+(?:per\s+week|a\s+week)/);
+            if (hybridDays2) return 'Hybrid \u00B7 ' + hybridDays2[1] + ' days in office';
+            if (/\bhybrid\b/.test(text)) return 'Hybrid';
+            if (/\b(?:fully?\s+remote|100%\s+remote|work\s+from\s+home|wfh|fully?\s+distributed)\b/.test(text)) return 'Remote';
             if (/\b(?:flex(?:ible)?\s+(?:hours|schedule)|flexible\s+work)\b/.test(text)) return 'Flexible';
             if (/\b(?:9[\s\-]?(?:to|-)[\s\-]?5|standard\s+(?:business\s+)?hours|monday[\s\-]friday)\b/.test(text)) return 'Standard business hours';
             return '';
@@ -8030,13 +8138,26 @@
                 else if (seniority === 'director' || seniority === 'principal') { seniorityPctKey = 'pct75'; seniorityLabel = '75th'; }
                 else if (seniority === 'executive' || seniority === 'vp' || seniority === 'c-suite') { seniorityPctKey = 'pct90'; seniorityLabel = '90th'; }
 
-                var blsBase = Math.round((bls[seniorityPctKey] || bls.median || 0) * geo);
-                var blsMedian = Math.round((bls.median || 0) * geo);
+                // Company/industry comp context multiplier
+                var compCtx = data.compContext || (typeof _jdcDetectCompContext === 'function' ? _jdcDetectCompContext(data.company, data.industry, data._rawJD || '') : null);
+                var ctxMult = (compCtx && compCtx.multiplier > 1.0) ? compCtx.multiplier : 1.0;
+
+                var blsBase = Math.round((bls[seniorityPctKey] || bls.median || 0) * geo * ctxMult);
+                var blsMedian = Math.round((bls.median || 0) * geo * ctxMult);
 
                 // ── Total comp summary box ──────────────────────────────────
-                var justifiedBase75 = Math.round((bls.pct75 || bls.median || 0) * geo);
+                var justifiedBase75 = Math.round((bls.pct75 || bls.median || 0) * geo * ctxMult);
                 var totalJustified = justifiedBase75 + (showComp ? totalComp : 0);
-                var justifiedMax = Math.round((bls.pct90 || bls.pct75 || 0) * geo) + (showComp ? totalComp : 0);
+                var justifiedMax = Math.round((bls.pct90 || bls.pct75 || 0) * geo * ctxMult) + (showComp ? totalComp : 0);
+
+                // Comp context badge
+                if (compCtx && compCtx.active) {
+                    html += '<div style="margin-bottom:12px; padding:8px 12px; background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.2); border-radius:8px; font-size:0.75em; color:var(--c-muted); display:flex; align-items:center; gap:8px;">'
+                        + bpIcon('trending-up', 12)
+                        + ' <span><strong style="color:#fbbf24;">Market Adjustment: ' + Math.round((compCtx.multiplier - 1) * 100) + '% above BLS baseline</strong>'
+                        + (compCtx.label ? ' &nbsp;&middot;&nbsp; ' + escapeHtml(compCtx.label) : '')
+                        + ' &nbsp;&middot;&nbsp; BLS cross-industry data adjusted for employer market position</span></div>';
+                }
                 html += '<div style="display:grid; grid-template-columns:1fr 1fr' + (showComp ? ' 1fr' : '') + '; gap:10px; margin-bottom:20px;">';
 
                 html += '<div style="padding:14px 16px; background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.2); border-radius:10px;">'
@@ -8066,20 +8187,21 @@
                     { key: 'pct75', label: '75th', val: bls.pct75 },
                     { key: 'pct90', label: '90th', val: bls.pct90 }
                 ];
-                var minVal = bls.pct10 || 0;
-                var maxVal = bls.pct90 || 1;
+                var minVal = (bls.pct10 || 0) * ctxMult;
+                var maxVal = (bls.pct90 || 1) * ctxMult;
                 var range = maxVal - minVal || 1;
-                var targetVal = bls[seniorityPctKey] || bls.median || 0;
+                var targetVal = (bls[seniorityPctKey] || bls.median || 0) * ctxMult;
                 var markerPct = Math.round(((targetVal - minVal) / range) * 100);
+                var bandLabel = 'Market-Adjusted Salary Band' + (compCtx && compCtx.active ? ' (+' + Math.round((compCtx.multiplier-1)*100) + '% context)' : '') + (geo !== 1.0 ? ' \u00B7 ' + geoLabel + ' adj.' : '');
 
                 html += '<div style="margin-bottom:20px;">'
-                    + '<div style="font-size:0.75em; font-weight:600; color:var(--c-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">BLS Salary Band' + (geo !== 1.0 ? ' \u00B7 ' + geoLabel + ' adj.' : '') + '</div>'
+                    + '<div style="font-size:0.75em; font-weight:600; color:var(--c-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">' + bandLabel + '</div>'
                     + '<div style="position:relative; height:10px; border-radius:5px; background:linear-gradient(to right, #1e3a2f, #10b981 50%, #fbbf24); margin-bottom:6px;">'
                     + '<div style="position:absolute; top:-4px; left:' + markerPct + '%; transform:translateX(-50%); width:18px; height:18px; border-radius:50%; background:#60a5fa; border:2px solid var(--c-surface-1); box-shadow:0 0 0 2px #60a5fa44;" title="' + seniorityLabel + ' target"></div>'
                     + '</div>'
                     + '<div style="display:flex; justify-content:space-between;">';
                 pctBandData.forEach(function(p) {
-                    var v = Math.round((p.val || 0) * geo);
+                    var v = Math.round((p.val || 0) * geo * ctxMult);
                     var isTarget = p.key === seniorityPctKey;
                     html += '<div style="text-align:center; flex:1;">'
                         + '<div style="font-size:0.68em; color:' + (isTarget ? '#60a5fa' : 'var(--c-faint)') + '; font-weight:' + (isTarget ? '700' : '500') + ';">' + p.label + '</div>'
@@ -8112,7 +8234,7 @@
                     if (isExportMode && isHidden) return;
                     var bg = i % 2 === 0 ? 'transparent' : 'var(--c-surface-2)';
                     var isTarget = p.key === seniorityPctKey;
-                    var displayVal = Math.round((p.val || 0) * geo);
+                    var displayVal = Math.round((p.val || 0) * geo * ctxMult);
                     var eyeIcon = isHidden ? bpIcon('eye-off',14) : bpIcon('eye',14);
                     var toggleColor = isHidden ? '#ef4444' : '#10b981';
                     html += '<tr style="background:' + bg + '; border-bottom:1px solid ' + borderColor + ';' + (isTarget ? 'font-weight:700;' : '') + (isHidden ? ' opacity:0.45;' : '') + '">'
@@ -34442,6 +34564,66 @@ body {
         // ===== JOB ANALYSIS ENGINE =====
         
         // ===== BLS OCCUPATION MATCHING =====
+        // ===== COMP CONTEXT ENGINE =====
+        // Applies industry and company-tier multipliers to BLS national medians.
+        // BLS data is cross-industry averages — tech companies and known high-comp employers
+        // pay meaningfully above BLS medians. This is general-purpose: any company/industry.
+        function _jdcDetectCompContext(company, industry, jdText) {
+            var co = (company || '').toLowerCase();
+            var ind = (industry || '').toLowerCase();
+            var jd = (jdText || '').toLowerCase().substring(0, 2000);
+
+            // Industry premium (BLS cross-industry baseline → industry-adjusted)
+            var industryMult = 1.0;
+            var industryLabel = '';
+            if (/\b(software|technology|tech|saas|cloud|platform|ai|artificial intelligence|cybersecurity|semiconductor|fintech)\b/.test(ind + ' ' + jd.substring(0, 500))) {
+                industryMult = 1.22; industryLabel = 'Technology';
+            } else if (/\b(financial services|investment banking|private equity|hedge fund|venture capital|asset management|capital markets)\b/.test(ind + ' ' + co)) {
+                industryMult = 1.18; industryLabel = 'Financial Services';
+            } else if (/\b(consulting|management consulting|professional services|advisory)\b/.test(ind + ' ' + co)) {
+                industryMult = 1.14; industryLabel = 'Consulting';
+            } else if (/\b(pharmaceutical|biotech|biotechnology|medtech|life sciences)\b/.test(ind + ' ' + co)) {
+                industryMult = 1.10; industryLabel = 'Life Sciences';
+            } else if (/\b(healthcare|hospital|health system|medical)\b/.test(ind + ' ' + co)) {
+                industryMult = 1.05; industryLabel = 'Healthcare';
+            } else if (/\b(media|entertainment|streaming|gaming)\b/.test(ind + ' ' + co)) {
+                industryMult = 1.08; industryLabel = 'Media & Entertainment';
+            }
+
+            // Company tier premium (on top of industry)
+            // Tier 1: publicly known top-of-market tech/finance employers
+            var tier1 = /^(salesforce|google|alphabet|microsoft|apple|meta|amazon|netflix|nvidia|adobe|servicenow|workday|snowflake|databricks|stripe|square|block|palantir|uber|airbnb|lyft|doordash|coinbase|robinhood|goldman sachs|morgan stanley|jp morgan|jpmorgan|blackrock|citadel|two sigma|jane street|linkedin|twitter|x\.com|bytedance|tiktok|openai|anthropic|deepmind)$/;
+            var tier2 = /^(oracle|sap|ibm|cisco|intel|qualcomm|amd|vmware|dell|hp|hewlett|accenture|deloitte|mckinsey|bain|bcg|pwc|kpmg|ey|ernst|booz allen|leidos|saic|at&t|verizon|comcast|disney|warner|nbc|cbs|abc|fox|johnson|pfizer|merck|abbvie|eli lilly|bristol.myers|unitedhealth|anthem|aetna|humana|cvs|walgreens|lockheed|raytheon|boeing|northrop|ge|3m|honeywell|caterpillar|john deere|ford|gm|toyota|volkswagen|bmw)$/;
+
+            var compTierMult = 1.0;
+            var compTierLabel = '';
+            if (tier1.test(co)) {
+                compTierMult = 1.18; compTierLabel = 'Top-of-market employer';
+            } else if (tier2.test(co)) {
+                compTierMult = 1.08; compTierLabel = 'Large enterprise employer';
+            } else if (co.length > 2) {
+                // Unknown company — check if JD signals high comp (salary range in JD > 150K)
+                var salaryMatch = jdText.match(/\$\s*([\d,]+)\s*[-–]\s*\$?\s*([\d,]+)/);
+                if (salaryMatch) {
+                    var hiSal = parseInt(salaryMatch[2].replace(/,/g,''));
+                    if (hiSal > 200000) { compTierMult = 1.12; compTierLabel = 'High-comp employer (from posted range)'; }
+                    else if (hiSal > 150000) { compTierMult = 1.06; compTierLabel = 'Above-median employer (from posted range)'; }
+                }
+            }
+
+            var combined = Math.round(industryMult * compTierMult * 100) / 100;
+            var labels = [industryLabel, compTierLabel].filter(Boolean);
+            return {
+                multiplier: combined,
+                industryMult: industryMult,
+                compTierMult: compTierMult,
+                label: labels.join(' · '),
+                industryLabel: industryLabel,
+                compTierLabel: compTierLabel,
+                active: combined > 1.0
+            };
+        }
+
         function matchJobToBLS(titleText, descText) {
             if (!window.blsWages) return null;
             var bls = window.blsWages;
