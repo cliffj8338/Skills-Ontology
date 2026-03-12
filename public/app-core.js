@@ -1,7 +1,7 @@
 
         // ============================================================
-        // BLUEPRINT v4.46.67 - BUILD 20260312-onclick-escaping
-        var BP_VERSION = 'v4.46.67';
+        // BLUEPRINT v4.46.68 - BUILD 20260312-wbabout-panel
+        var BP_VERSION = 'v4.46.68';
         
         // ===== JOB SCHEMA VERSION =====
         // Schema.org + JDX JobSchema+ aligned structured job format
@@ -1887,7 +1887,8 @@
                     + _adminSidebarBtn('wbwizard', 'blueprint', 'Wizard')
                     + _adminSidebarBtn('wbrepo', 'folder', 'Repository')
                     + _adminSidebarBtn('wbcompare', 'trending-up', 'Compare')
-                    + _adminSidebarBtn('parseaudit', 'activity', 'Parse Audit'))
+                    + _adminSidebarBtn('parseaudit', 'activity', 'Parse Audit')
+                    + _adminSidebarBtn('wbabout', 'info', 'About'))
                 + _adminSidebarGroup('sys', 'System',
                     _adminSidebarBtn('config', 'settings', 'Config')
                     + _adminSidebarBtn('status', 'shield', 'Status')
@@ -1927,6 +1928,7 @@
             else if (adminSubTab === 'wbrepo') renderAdminWBRepo(el);
             else if (adminSubTab === 'wbcompare') renderWBCompareWizard(el);
             else if (adminSubTab === 'parseaudit') renderParseAudit(el);
+            else if (adminSubTab === 'wbabout') renderAdminWBAbout(el);
             else if (adminSubTab === 'userflows') renderAdminUserFlows(el);
         }
         
@@ -3499,7 +3501,7 @@
                         { id: 'p2-6u', name: 'Structured Job Schema v2.0 (Phase 1+2)', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.45.77-78: Phase 1 (v4.45.77): Standards-aligned job schema with Schema.org JobPosting properties, JDX JobSchema+ competency model, O*NET-SOC crosswalk readiness. migrateJobToV2(), getJobSkills() abstraction, blocklisted gap denominator fix. Phase 2 (v4.45.78): Rewrote API extraction prompt for v2-native output. 10 skill categories (technical/analytical/strategic/leadership/communication/domain/platform/tool/methodology/soft). Section-aware extraction with tier assignment from JD structure. Compound list splitting (MS Word, Excel, PowerPoint → 3 skills). Domain knowledge extraction (insurance claims, reinsurance). source: extracted|inferred with confidence differential. Identity metadata extraction (location, remote, industry, department, employmentType). Qualifications and responsibilities as structured arrays. JD cap raised to 6000 chars, max_tokens to 4000. UI: metadata badges, section tooltips, inferred indicators, extraction quality summary.' },
                         { id: 'p2-6v', name: 'JDC AI skill extraction — Phase 3', status: 'done', category: 'infrastructure', priority: 'critical', notes: 'v4.46.63: convertJDToBlueprintAsync() wires JDC paste + URL paths through parseJobWithAPI() when user is signed in. Maps v2 tier/proficiency to JDC skill format (importance, blueprintLevel, outcome). Applies _wbSkillQualityFilter + WB_SKILL_CAP. Recomputes BLS comp values. Falls back to local regex parser on failure. Fixes 7-skill truncation problem — AI now returns 15-25 well-formed skills vs local regex returning 7 garbled skills (fragment names like "ability to art" caused by 35-char regex capture limit). runJDConverter and URL handler converted to async. Button shows loading state during extraction. Label updated to reflect AI-powered mode.' },
                         { id: 'p2-6w', name: 'Comp context engine + hybrid schedule + HTML cleanup', status: 'done', category: 'infrastructure', priority: 'high', notes: 'v4.46.64: (1) _jdcDetectCompContext(): industry + company tier multiplier engine. Tiers: Technology +22%, Financial Services +18%, Consulting +14%, Life Sciences +10%, Healthcare +5%. Company Tier 1 (Salesforce, FAANG, etc.) +18%, Tier 2 (Oracle, Accenture, etc.) +8%. Unknown companies use posted salary range as signal. Stored as data.compContext; applied to all BLS figures at display time with a yellow market adjustment badge. (2) _jdcExtractSchedule() extended: detects hybrid+days-in-office patterns ("3 days in office" → "Hybrid · 3 days in office"), remote, flexible. (3) _jdcExtractTextFromHTML() hardened: strips OneTrust, cookie banners, consent dialogs, GDPR overlays, consent text via regex post-processing. (4) convertJDToBlueprintAsync() uses AI title when better than local extraction.' },
-                        { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.67: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
+                        { id: 'p2-6x', name: 'Recruiter comp range panel + location/comp extraction fixes', status: 'done', category: 'ux', priority: 'high', notes: 'v4.46.68: (1) _jdcExtractLocation() no longer captures schedule text ("3 days per week", "hybrid", "in office") — added scheduleJunk blocklist, removed "office" as location keyword trigger. (2) _jdcExtractCompensation() expanded to 5 patterns including narrative form ("typical base salary range for this position is $X - $Y") and bare dollar-range fallback. (3) WB header now shows Compensation Range panel: JD Posted Range vs Blueprint Calculated side by side, with editable "Use for this Blueprint" input + "Use JD Range" / "Use Blueprint" buttons. activeCompRange persisted on _jdcResult. (4) subtitle hides "Not specified" location.' },
                         { id: 'p2-6v', name: 'No-red UI policy', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.45.97-99: Eliminated red (#ef4444) from all non-error UI. Red reserved exclusively for Firebase errors, save failures, delete confirmations. 12+ levelColors definitions updated (Novice=slate, Proficient=blue, Advanced=purple, Expert=orange, Mastery=green). Network view de-reded. normalizeUserRoles() bannedReds patch auto-reassigns legacy Firestore-saved roles with red. Yellow #fbbf24 for caution/warnings.' },
                         { id: 'p2-6w', name: 'Card View rarity grouping', status: 'done', category: 'feature', priority: 'high', notes: 'v4.45.96-v4.46.0: Skills Card View groups by market rarity (Rare/Uncommon/Common) instead of role domain. Rarity classification via getSkillImpact() from O*NET impact ratings. Per-tier summary stats (proficiency breakdown, evidence coverage, verified count). Per-skill rarity pill on card tiles (v4.46.0). Legend bar with icon badges for Core, Verified, Evidence, Gap, Skill/Ability/WorkStyle/Unique.' },
                         { id: 'p2-6x', name: 'Job match filters moved inline', status: 'done', category: 'ux', priority: 'medium', notes: 'v4.46.1: Moved Min Match Score slider and Min Skill Matches input from Settings to both Find Jobs and Fit For Me tabs. Both tabs share state via currentMatchThreshold. Auto-save with 1.5s debounce to Firestore preferences. Settings page replaced with info note.' },
@@ -12239,6 +12241,302 @@
             _parseAuditResults = allJobs;
             _parseAuditLoading = false;
         }
+
+
+        function renderAdminWBAbout(el) {
+            // Reads live constants from the codebase — always in sync
+            var constants = {
+                profileSkillCap:  typeof PROFILE_SKILL_CAP !== 'undefined' ? PROFILE_SKILL_CAP : 50,
+                wbSkillCap:       typeof WB_SKILL_CAP      !== 'undefined' ? WB_SKILL_CAP      : 20,
+                jobSkillsCap:     typeof JOB_SKILLS_CAP    !== 'undefined' ? JOB_SKILLS_CAP    : 50,
+                premiumPoolPct:   15,     // 15% of BLS median
+                advancedW:        0.6, expertW: 0.9, masteryW: 1.2,
+                muDefault:        0.60,
+                dmplMult:         1.50,
+                otransPct:        0.15,
+                omegaPct:         0.08,
+                geoFloor:         0.78,  // rural floor
+                geoCeiling:       1.48,  // HCOL ceiling
+                techIndustryMult: 1.22,
+                finSvcMult:       1.18,
+                consMult:         1.14,
+                lifeSciMult:      1.10,
+                healthMult:       1.05,
+                tier1Mult:        1.18,
+                tier2Mult:        1.08
+            };
+
+            var headingColor   = 'var(--text-primary)';
+            var mutedColor     = 'var(--text-muted)';
+            var borderColor    = 'var(--border)';
+            var surfaceBg      = 'var(--bg-elevated)';
+            var accentBlue     = '#60a5fa';
+            var accentGreen    = '#10b981';
+            var accentAmber    = '#f59e0b';
+            var accentPurple   = '#a78bfa';
+
+            function row(label, val, note) {
+                return '<tr>'
+                    + '<td style="padding:7px 12px; font-size:0.82em; color:' + headingColor + '; font-weight:600; white-space:nowrap;">' + label + '</td>'
+                    + '<td style="padding:7px 12px; font-size:0.82em; color:' + accentBlue + '; font-family:monospace; font-weight:700;">' + val + '</td>'
+                    + '<td style="padding:7px 12px; font-size:0.78em; color:' + mutedColor + ';">' + (note || '') + '</td>'
+                    + '</tr>';
+            }
+
+            function section(title, color, content) {
+                return '<div style="margin-bottom:20px; border:1px solid ' + borderColor + '; border-radius:10px; overflow:hidden;">'
+                    + '<div style="padding:9px 14px; background:rgba(0,0,0,0.12); border-bottom:1px solid ' + borderColor + '; display:flex; align-items:center; gap:8px;">'
+                    + '<div style="width:8px; height:8px; border-radius:50%; background:' + color + ';"></div>'
+                    + '<span style="font-weight:700; font-size:0.8em; color:' + color + '; text-transform:uppercase; letter-spacing:0.5px;">' + title + '</span>'
+                    + '</div>'
+                    + '<div style="padding:12px 14px;">' + content + '</div>'
+                    + '</div>';
+            }
+
+            function tableWrap(rows) {
+                return '<table style="width:100%; border-collapse:collapse;">'
+                    + '<tbody>' + rows + '</tbody></table>';
+            }
+
+            function prose(txt) {
+                return '<p style="font-size:0.82em; color:' + mutedColor + '; line-height:1.65; margin:0 0 8px 0;">' + txt + '</p>';
+            }
+
+            var html = '<div id="wbAboutPanel" style="max-width:960px;">';
+
+            // Header
+            html += '<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:18px;">'
+                + '<div>'
+                + '<div style="font-size:1.15em; font-weight:700; color:' + headingColor + ';">' + bpIcon('blueprint', 18) + ' About Work Blueprint</div>'
+                + '<div style="font-size:0.75em; color:' + mutedColor + '; margin-top:4px;">' + BP_VERSION + ' &middot; Jurkiewicz Methodology &middot; All constants are live from the codebase</div>'
+                + '</div>'
+                + '<button onclick="wbAboutExportPDF()" style="padding:7px 16px; background:' + accentBlue + '; color:#fff; border:none; border-radius:7px; cursor:pointer; font-size:0.78em; font-weight:700;">'
+                + bpIcon('save', 12) + ' Download PDF</button>'
+                + '</div>';
+
+            // ── Layer 1: BLS Baseline ────────────────────────────────────────────
+            html += section('Layer 1 — BLS / OEWS Salary Baseline', accentBlue,
+                prose('Every Work Blueprint starts with Bureau of Labor Statistics Occupational Employment and Wage Statistics (OEWS) data, updated annually each May. Blueprint maps each job title to the closest SOC-6 occupation code using O*NET title aliases (53,391 aliases across 1,016 occupations).')
+                + prose('Matching follows a three-pass cascade: exact SOC match → O*NET crosswalk alias lookup → keyword-weighted fuzzy title similarity. The best-scoring match above a 0.35 confidence threshold is accepted; below that threshold, no BLS data is applied.')
+                + tableWrap(
+                    row('Data source', 'BLS OEWS May 2024', 'Released ~April each year; Blueprint updates on new release')
+                    + row('Crosswalk', 'O*NET 28.3', '53,391 aliases · 1,016 occupations')
+                    + row('Match threshold', '≥ 0.35 confidence', 'Below threshold: no BLS benchmark applied')
+                    + row('Percentiles provided', 'pct10, pct25, median, pct75, pct90', 'Annual wages, all workers nationally')
+                )
+            );
+
+            // ── Layer 2: Seniority Percentile ───────────────────────────────────
+            html += section('Layer 2 — Seniority → Percentile Mapping', accentGreen,
+                prose('Detected seniority maps to a BLS wage percentile. Blueprint reads the seniority signal from the job title, level field, or explicit JD keywords.')
+                + tableWrap(
+                    row('Entry / Junior', '25th percentile', 'New-to-role or early career')
+                    + row('Mid-level (default)', '50th percentile (median)', 'No explicit seniority signal')
+                    + row('Senior / Lead / Staff / Principal', '75th percentile', 'Demonstrated depth required')
+                    + row('Director', '75th percentile', 'Scope over a function or team')
+                    + row('Executive / VP / C-suite', '90th percentile', 'Org-wide accountability')
+                )
+            );
+
+            // ── Layer 3: Geographic Adjustment ──────────────────────────────────
+            html += section('Layer 3 — Geographic Adjustment', accentAmber,
+                prose('BLS OEWS figures are national medians. Blueprint applies a metro-area wage multiplier sourced from BLS Metro Area Occupational Employment and Wage data. Multipliers range from ' + constants.geoFloor + '× (rural / low-cost) to ' + constants.geoCeiling + '× (San Francisco / NYC). Unknown locations default to 1.0×.')
+                + prose('Formula at this layer: <strong>BLS_pct × Geo_multiplier</strong>.')
+            );
+
+            // ── Layer 4: Market Context (Comp Context Engine) ───────────────────
+            html += section('Layer 4 — Market Context Multiplier (Comp Context Engine)', accentPurple,
+                prose('Introduced in v4.46.64. Industry sector and company tier systematically push wages above the geographic BLS baseline. Both multipliers are stacked multiplicatively.')
+                + tableWrap(
+                    row('Technology', constants.techIndustryMult + '×', 'SaaS, cloud, AI, enterprise software')
+                    + row('Financial Services', constants.finSvcMult + '×', 'Banking, asset management, fintech, insurance')
+                    + row('Consulting', constants.consMult + '×', 'Strategy, management, and professional services')
+                    + row('Life Sciences', constants.lifeSciMult + '×', 'Pharma, biotech, medical devices')
+                    + row('Healthcare', constants.healthMult + '×', 'Health systems, providers, payers')
+                    + row('Company Tier 1', constants.tier1Mult + '×', 'FAANG, Salesforce, Goldman, McKinsey, OpenAI, Citadel, etc.')
+                    + row('Company Tier 2', constants.tier2Mult + '×', 'Oracle, SAP, IBM, Accenture, Deloitte, Boeing, etc.')
+                    + row('Unknown company — high signal', '1.12×', 'Posted salary hi > $200K')
+                    + row('Unknown company — mid signal', '1.06×', 'Posted salary hi $150K–$200K')
+                    + row('Unknown company — no signal', '1.00×', 'No posted salary, unrecognized company')
+                )
+                + prose('Formula at this layer: <strong>BLS_pct × Geo × Industry_mult × CompanyTier_mult</strong>.')
+            );
+
+            // ── Layer 5: Skill Premium Pool ─────────────────────────────────────
+            html += section('Layer 5 — Skill Premium Pool', '#f97316',
+                prose('A premium pool equal to ' + constants.premiumPoolPct + '% of the adjusted BLS median is distributed across blueprint skills. Each skill earns a share based on its O*NET importance score weighted by declared proficiency.')
+                + tableWrap(
+                    row('Premium pool', constants.premiumPoolPct + '% of adjusted median', 'Applied after Layers 1–4')
+                    + row('Advanced proficiency weight', constants.advancedW, 'O*NET importance × 0.6')
+                    + row('Expert proficiency weight', constants.expertW, 'O*NET importance × 0.9')
+                    + row('Mastery proficiency weight', constants.masteryW, 'O*NET importance × 1.2')
+                    + row('Profile skill cap', constants.profileSkillCap, 'Maximum skills on a profile')
+                    + row('Work Blueprint skill cap', constants.wbSkillCap, 'Maximum skills per blueprint')
+                )
+            );
+
+            // ── What Blueprint IS / IS NOT ───────────────────────────────────────
+            html += section('What This Model IS — and IS NOT', '#94a3b8',
+                '<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">'
+                + '<div>'
+                + '<div style="font-size:0.72em; font-weight:700; color:' + accentGreen + '; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">&#10003; What it IS</div>'
+                + '<ul style="font-size:0.8em; color:' + mutedColor + '; line-height:1.75; padding-left:16px; margin:0;">'
+                + '<li>A structured benchmark grounded in government wage data</li>'
+                + '<li>A consistent, repeatable methodology across all roles</li>'
+                + '<li>A negotiation starting point informed by skill depth</li>'
+                + '<li>A market context signal using company and industry signals</li>'
+                + '<li>A living model updated on each BLS annual release</li>'
+                + '</ul>'
+                + '</div>'
+                + '<div>'
+                + '<div style="font-size:0.72em; font-weight:700; color:#ef4444; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">&#10007; What it IS NOT</div>'
+                + '<ul style="font-size:0.8em; color:' + mutedColor + '; line-height:1.75; padding-left:16px; margin:0;">'
+                + '<li>A guarantee or offer letter</li>'
+                + '<li>A substitute for direct compensation research</li>'
+                + '<li>Inclusive of equity, bonus, or total compensation</li>'
+                + '<li>Adjusted for individual negotiating leverage</li>'
+                + '<li>Validated against private comp survey data (Radford, Mercer, etc.)</li>'
+                + '</ul>'
+                + '</div>'
+                + '</div>'
+            );
+
+            // ── Data Sources & Refresh ───────────────────────────────────────────
+            html += section('Data Sources & Refresh Schedule', '#64748b',
+                tableWrap(
+                    row('BLS OEWS', 'Annual (May release)', 'National and metro occupational wages')
+                    + row('O*NET', '28.3 (current)', 'SOC crosswalk, skill importance scores, 53K+ aliases')
+                    + row('Geographic multipliers', 'Aligned to BLS Metro release', 'Metro-area wage index')
+                    + row('Industry multipliers', 'Model constant — reviewed annually', 'Calibrated to published HR comp surveys')
+                    + row('Company tier list', 'Updated in-code quarterly', 'Top 50–100 companies per sector by brand/wage premium')
+                )
+                + '<div style="margin-top:10px; font-size:0.75em; color:' + mutedColor + '; font-style:italic;">Known limitation: BLS OEWS lags the real-time market by 12–18 months. Fast-moving markets (AI, LLM engineering) may show significant deviation. Use as a floor, not a ceiling, for emerging roles.</div>'
+            );
+
+            html += '</div>'; // end wbAboutPanel
+
+            el.innerHTML = html;
+        }
+        window.renderAdminWBAbout = renderAdminWBAbout;
+
+        function wbAboutExportPDF() {
+            try {
+                var el = document.getElementById('wbAboutPanel');
+                if (!el) return;
+                if (typeof jsPDF === 'undefined' && typeof window.jspdf === 'undefined') {
+                    showToast('PDF library not loaded yet — try again in a moment.', 'warning'); return;
+                }
+                var jspdf = window.jspdf || window.jsPDF;
+                var doc = new jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+                var M = 18, W = 210, CW = W - M * 2;
+                var y = M, LH = 6.5, SH = 5.2;
+                var pageH = 297;
+
+                function checkPage(needed) {
+                    if (y + (needed || LH) > pageH - 14) { doc.addPage(); y = M; }
+                }
+                function heading1(txt) {
+                    checkPage(10);
+                    doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(30, 64, 175);
+                    doc.text(txt, M, y); y += 10;
+                }
+                function heading2(txt, r, g, b) {
+                    checkPage(9);
+                    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(r || 30, g || 100, b || 200);
+                    doc.text(txt.toUpperCase(), M, y); y += 7;
+                }
+                function body(txt) {
+                    var lines = doc.splitTextToSize(txt, CW);
+                    checkPage(lines.length * SH + 2);
+                    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(80, 80, 90);
+                    doc.text(lines, M, y); y += lines.length * SH + 2;
+                }
+                function tableRow(label, val, note) {
+                    checkPage(7);
+                    doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(30, 41, 59);
+                    doc.text(label, M, y);
+                    doc.setFont('helvetica', 'normal'); doc.setTextColor(37, 99, 235);
+                    doc.text(String(val), M + 68, y);
+                    doc.setTextColor(100, 116, 139);
+                    var noteLines = doc.splitTextToSize(note || '', CW - 100);
+                    doc.text(noteLines, M + 100, y);
+                    y += 6;
+                }
+                function divider() { checkPage(5); doc.setDrawColor(220,220,228); doc.line(M, y, W - M, y); y += 5; }
+
+                // Title block
+                heading1('About Work Blueprint');
+                doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(100,116,139);
+                doc.text(BP_VERSION + '  \u00B7  Jurkiewicz Methodology  \u00B7  myblueprint.work', M, y); y += 8;
+                divider();
+
+                heading2('Layer 1 — BLS / OEWS Salary Baseline', 37, 99, 235);
+                body('Every Work Blueprint starts with Bureau of Labor Statistics OEWS data. Blueprint maps job titles to SOC-6 codes using O*NET aliases (53,391 aliases, 1,016 occupations). Matching: exact SOC → O*NET alias → keyword fuzzy. Threshold: \u2265 0.35 confidence.');
+                tableRow('Data source', 'BLS OEWS May 2024', 'Updated annually on new release');
+                tableRow('O*NET crosswalk', 'O*NET 28.3', '53,391 aliases · 1,016 occupations');
+                tableRow('Match threshold', '≥ 0.35', 'Below threshold: no BLS applied');
+                y += 3;
+
+                heading2('Layer 2 — Seniority → Percentile Mapping', 16, 185, 129);
+                tableRow('Entry / Junior', 'pct25', 'New-to-role or early career');
+                tableRow('Mid-level (default)', 'median', 'No explicit seniority signal');
+                tableRow('Senior / Lead / Staff / Principal', 'pct75', 'Demonstrated depth required');
+                tableRow('Director', 'pct75', 'Scope over a function or team');
+                tableRow('Executive / VP / C-suite', 'pct90', 'Org-wide accountability');
+                y += 3;
+
+                heading2('Layer 3 — Geographic Adjustment', 245, 158, 11);
+                body('Metro-area BLS wage multiplier. Range: ' + 0.78 + '× (rural) to ' + 1.48 + '× (SF/NYC). Unknown location defaults to 1.0×.');
+                y += 3;
+
+                heading2('Layer 4 — Market Context Multiplier (Comp Context Engine)', 167, 139, 250);
+                tableRow('Technology', '1.22×', 'SaaS, cloud, AI, enterprise software');
+                tableRow('Financial Services', '1.18×', 'Banking, fintech, insurance');
+                tableRow('Consulting', '1.14×', 'Strategy & professional services');
+                tableRow('Life Sciences', '1.10×', 'Pharma, biotech, medical devices');
+                tableRow('Healthcare', '1.05×', 'Health systems, providers, payers');
+                tableRow('Company Tier 1', '1.18×', 'FAANG, Salesforce, Goldman, McKinsey, OpenAI, Citadel');
+                tableRow('Company Tier 2', '1.08×', 'Oracle, SAP, IBM, Accenture, Deloitte, Boeing');
+                tableRow('Unknown — high salary signal', '1.12×', 'Posted hi > $200K');
+                tableRow('Unknown — mid salary signal', '1.06×', 'Posted hi $150K–$200K');
+                tableRow('Unknown — no signal', '1.00×', 'Baseline');
+                body('Formula: BLS_pct × Geo × Industry_mult × CompanyTier_mult');
+                y += 3;
+
+                heading2('Layer 5 — Skill Premium Pool', 249, 115, 22);
+                tableRow('Premium pool', '15% of adjusted median', 'Distributed across blueprint skills');
+                tableRow('Advanced proficiency weight', '0.6', 'O*NET importance × 0.6');
+                tableRow('Expert proficiency weight', '0.9', 'O*NET importance × 0.9');
+                tableRow('Mastery proficiency weight', '1.2', 'O*NET importance × 1.2');
+                tableRow('Profile skill cap', '50', 'Maximum skills on a profile');
+                tableRow('Work Blueprint skill cap', '20', 'Maximum skills per blueprint');
+                y += 3;
+
+                heading2('What This Model IS and IS NOT', 100, 116, 139);
+                body('IS: A structured benchmark grounded in government wage data. A consistent repeatable methodology. A negotiation starting point informed by skill depth. A market context signal using company and industry signals. A living model updated on each BLS annual release.');
+                body('IS NOT: A guarantee or offer letter. A substitute for direct comp research. Inclusive of equity, bonus, or total compensation. Adjusted for individual negotiating leverage. Validated against Radford, Mercer, or private comp survey data.');
+                y += 3;
+
+                heading2('Known Limitations', 100, 116, 139);
+                body('BLS OEWS lags the real-time market by 12–18 months. Fast-moving markets (AI, LLM engineering) may show significant deviation. Use as a floor, not a ceiling, for emerging roles.');
+
+                // Footer on each page
+                var pageCount = doc.internal.getNumberOfPages();
+                for (var i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(150,150,160);
+                    doc.text('Blueprint\u2122  \u00B7  Jurkiewicz Methodology  \u00B7  myblueprint.work  \u00B7  ' + BP_VERSION + '  \u00B7  Page ' + i + ' of ' + pageCount, W / 2, 291, { align: 'center' });
+                }
+
+                doc.save('Work-Blueprint-Methodology-' + BP_VERSION + '.pdf');
+                showToast('PDF downloaded.', 'success');
+            } catch(e) {
+                console.error('wbAboutExportPDF error:', e);
+                showToast('PDF export failed: ' + e.message, 'error');
+            }
+        }
+        window.wbAboutExportPDF = wbAboutExportPDF;
 
         function renderParseAudit(el) {
             var html = '<div style="max-width:1200px;">'
