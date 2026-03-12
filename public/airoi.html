@@ -2009,31 +2009,54 @@ const tipBody = document.getElementById('tip-body');
 const tipDrivers = document.getElementById('tip-drivers');
 
 document.querySelectorAll('.tip-icon').forEach(function(icon) {
-  icon.addEventListener('mouseenter', function(e) {
+  function showTip(x, y) {
     tipTitle.textContent = icon.dataset.tipTitle || '';
     tipBody.innerHTML = icon.dataset.tipBody || '';
     tipDrivers.innerHTML = icon.dataset.tipDrivers || '';
     tipDrivers.style.display = icon.dataset.tipDrivers ? 'block' : 'none';
     tipBox.classList.add('visible');
-    positionTip(e);
-  });
-  icon.addEventListener('mousemove', positionTip);
-  icon.addEventListener('mouseleave', function() {
-    tipBox.classList.remove('visible');
+    clampTip(x, y);
+  }
+  icon.addEventListener('mouseenter', function(e) { showTip(e.clientX, e.clientY); });
+  icon.addEventListener('mousemove',  function(e) { clampTip(e.clientX, e.clientY); });
+  icon.addEventListener('mouseleave', function() { tipBox.classList.remove('visible'); });
+  icon.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    var t = e.touches[0];
+    showTip(t.clientX, t.clientY);
+  }, { passive: false });
+  document.addEventListener('touchstart', function hideTipOnOutside(e) {
+    if (!icon.contains(e.target) && !tipBox.contains(e.target)) {
+      tipBox.classList.remove('visible');
+    }
   });
 });
 }); // end DOMContentLoaded
 
-function positionTip(e) {
+function clampTip(cx, cy) {
   var tb = document.getElementById('tip-box');
   if (!tb) return;
-  var x = e.clientX + 14, y = e.clientY - 10;
-  var bw = tb.offsetWidth || 280, bh = tb.offsetHeight || 120;
-  if (x + bw > window.innerWidth - 10) x = e.clientX - bw - 14;
-  if (y + bh > window.innerHeight - 10) y = window.innerHeight - bh - 10;
+  var bw = tb.offsetWidth  || 280;
+  var bh = tb.offsetHeight || 120;
+  var vw = window.innerWidth;
+  var vh = window.innerHeight;
+  var pad = 10;
+  // Default: right of cursor, slightly above
+  var x = cx + 14;
+  var y = cy - 10;
+  // Clamp right edge
+  if (x + bw > vw - pad) x = cx - bw - 14;
+  // Clamp left edge (mobile: cursor near left)
+  if (x < pad) x = pad;
+  // Clamp bottom edge
+  if (y + bh > vh - pad) y = vh - bh - pad;
+  // Clamp top edge
+  if (y < pad) y = pad;
   tb.style.left = x + 'px';
   tb.style.top  = y + 'px';
 }
+// keep old name as alias for tour
+function positionTip(e) { clampTip(e.clientX, e.clientY); }
 
 // ── GUIDED TOUR ──────────────────────────────────────────────
 var tourSteps = [
@@ -2166,7 +2189,10 @@ function showTourStep() {
   };
 }
 
-document.getElementById('tour-overlay').addEventListener('click', endTour);
+document.addEventListener('DOMContentLoaded', function() {
+  var _tourOverlay = document.getElementById('tour-overlay');
+  if (_tourOverlay) _tourOverlay.addEventListener('click', endTour);
+});
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') endTour(); });
 </script>
 
